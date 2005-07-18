@@ -13,6 +13,7 @@ from modes import *
 class zoomMode(basicMode):
     # class constants
     modename = 'ZOOM'
+    display = diVDW # Not used; display mode same as previous mode. NFR 426. Mark 050718.
     default_mode_status_text = "Mode: Zoom"
     
     # methods related to entering this mode
@@ -21,6 +22,8 @@ class zoomMode(basicMode):
         basicMode.Enter(self)
         # Set background color to the previous mode's bg color
         bg = self.backgroundColor = self.o.prevModeColor
+        # Set display to the previous mode's display. NFR 426. Mark 050718.
+        self.o.setDisplay(self.o.prevModeDisplay)
         
         # rubber window shows as white color normally, but when the
         # background becomes bright, we'll set it as black.

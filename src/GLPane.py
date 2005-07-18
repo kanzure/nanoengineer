@@ -253,13 +253,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.glselect_dict = {} # only used within individual runs
             # see also env.obj_with_glselect_name
 
-        self.makeCurrent()
-
-        drawer.setup()
-        self.setAssy(assy)
-
-        self.loadLighting() #bruce 050311
-        
         ###### User Preference initialization ##############################
         
         # Get glpane related settings from prefs db.
@@ -283,6 +276,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
         
         ###### End of User Preference initialization ########################## 
+        
+        self.makeCurrent()
+        
+        drawer.setup()
+        self.setAssy(assy)
+
+        self.loadLighting() #bruce 050311
         
         return # from GLPane.__init__        
 
@@ -1156,7 +1156,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         #Huaicai 7/15/05 added this for Mark
         #The following are used to set the glpane background colors
         if 0:
-            vtColors = ((0.8, 0.8, 0.8), (0.8, 0.8, 0.8), (0.1, 0.2, 0.8), (0.1, 0.2, 0.8))
+            vtColors = ((0.8, 0.8, 0.8), (0.8, 0.8, 0.8), (0.1, 0.2, 0.8), (0.1, 0.2, 0.8)) # "Sky Blue" gradient
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)

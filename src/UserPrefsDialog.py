@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sat Jul 16 17:29:38 2005
+# Created: Mon Jul 18 02:01:05 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -106,63 +106,44 @@ class UserPrefsDialog(QDialog):
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
         TabPageLayout = QVBoxLayout(self.TabPage,11,6,"TabPageLayout")
 
-        layout10 = QHBoxLayout(None,0,6,"layout10")
+        layout26 = QHBoxLayout(None,0,6,"layout26")
 
-        self.default_display_btngrp = QButtonGroup(self.TabPage,"default_display_btngrp")
-        self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.default_display_btngrp.layout().setSpacing(6)
-        self.default_display_btngrp.layout().setMargin(11)
-        default_display_btngrpLayout = QGridLayout(self.default_display_btngrp.layout())
-        default_display_btngrpLayout.setAlignment(Qt.AlignTop)
+        self.groupBox5 = QGroupBox(self.TabPage,"groupBox5")
+        self.groupBox5.setColumnLayout(0,Qt.Vertical)
+        self.groupBox5.layout().setSpacing(6)
+        self.groupBox5.layout().setMargin(11)
+        groupBox5Layout = QGridLayout(self.groupBox5.layout())
+        groupBox5Layout.setAlignment(Qt.AlignTop)
 
-        self.vwd_rbtn = QRadioButton(self.default_display_btngrp,"vwd_rbtn")
-        self.default_display_btngrp.insert( self.vwd_rbtn,2)
+        self.mode_lbl_2 = QLabel(self.groupBox5,"mode_lbl_2")
+        self.mode_lbl_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        default_display_btngrpLayout.addWidget(self.vwd_rbtn,0,0)
+        groupBox5Layout.addWidget(self.mode_lbl_2,0,0)
 
-        self.cpk_rbtn = QRadioButton(self.default_display_btngrp,"cpk_rbtn")
-        self.default_display_btngrp.insert( self.cpk_rbtn,4)
+        self.display_mode_combox = QComboBox(0,self.groupBox5,"display_mode_combox")
 
-        default_display_btngrpLayout.addWidget(self.cpk_rbtn,1,0)
+        groupBox5Layout.addWidget(self.display_mode_combox,0,1)
 
-        self.lines_rbtn = QRadioButton(self.default_display_btngrp,"lines_rbtn")
-        self.default_display_btngrp.insert( self.lines_rbtn,3)
+        self.display_style_combox = QComboBox(0,self.groupBox5,"display_style_combox")
 
-        default_display_btngrpLayout.addWidget(self.lines_rbtn,3,0)
+        groupBox5Layout.addWidget(self.display_style_combox,1,1)
 
-        self.tubes_rbtn = QRadioButton(self.default_display_btngrp,"tubes_rbtn")
-        self.default_display_btngrp.insert( self.tubes_rbtn,5)
+        self.restore_default_display_btn = QPushButton(self.groupBox5,"restore_default_display_btn")
 
-        default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
-        layout10.addWidget(self.default_display_btngrp)
+        groupBox5Layout.addWidget(self.restore_default_display_btn,2,1)
 
-        self.groupBox3 = QGroupBox(self.TabPage,"groupBox3")
-        self.groupBox3.setColumnLayout(0,Qt.Vertical)
-        self.groupBox3.layout().setSpacing(6)
-        self.groupBox3.layout().setMargin(11)
-        groupBox3Layout = QVBoxLayout(self.groupBox3.layout())
-        groupBox3Layout.setAlignment(Qt.AlignTop)
+        self.mode_lbl_2_2 = QLabel(self.groupBox5,"mode_lbl_2_2")
+        self.mode_lbl_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        self.textLabel2 = QLabel(self.groupBox3,"textLabel2")
-        groupBox3Layout.addWidget(self.textLabel2)
-
-        self.caption_prefix_linedit = QLineEdit(self.groupBox3,"caption_prefix_linedit")
-        groupBox3Layout.addWidget(self.caption_prefix_linedit)
-
-        self.textLabel2_2 = QLabel(self.groupBox3,"textLabel2_2")
-        groupBox3Layout.addWidget(self.textLabel2_2)
-
-        self.caption_suffix_linedit = QLineEdit(self.groupBox3,"caption_suffix_linedit")
-        groupBox3Layout.addWidget(self.caption_suffix_linedit)
-
-        self.caption_fullpath_checkbox = QCheckBox(self.groupBox3,"caption_fullpath_checkbox")
-        groupBox3Layout.addWidget(self.caption_fullpath_checkbox)
-        layout10.addWidget(self.groupBox3)
-        spacer9 = QSpacerItem(70,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout10.addItem(spacer9)
-        TabPageLayout.addLayout(layout10)
+        groupBox5Layout.addWidget(self.mode_lbl_2_2,1,0)
         spacer11 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout.addItem(spacer11)
+        groupBox5Layout.addItem(spacer11,2,0)
+        layout26.addWidget(self.groupBox5)
+        spacer9 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout26.addItem(spacer9)
+        TabPageLayout.addLayout(layout26)
+        spacer25 = QSpacerItem(20,50,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout.addItem(spacer25)
         self.prefs_tab.insertTab(self.TabPage,QString(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
@@ -229,9 +210,9 @@ class UserPrefsDialog(QDialog):
         layout9.addWidget(self.fill_type_combox,1,1)
         layout11.addLayout(layout9)
 
-        layout10_2 = QVBoxLayout(None,0,6,"layout10_2")
+        layout10 = QVBoxLayout(None,0,6,"layout10")
         spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout10_2.addItem(spacer6)
+        layout10.addItem(spacer6)
 
         self.gradient_orient_btngrp = QButtonGroup(self.TabPage_2,"gradient_orient_btngrp")
         self.gradient_orient_btngrp.setExclusive(1)
@@ -247,8 +228,8 @@ class UserPrefsDialog(QDialog):
 
         self.horizontal_rbtn = QRadioButton(self.gradient_orient_btngrp,"horizontal_rbtn")
         gradient_orient_btngrpLayout.addWidget(self.horizontal_rbtn)
-        layout10_2.addWidget(self.gradient_orient_btngrp)
-        layout11.addLayout(layout10_2)
+        layout10.addWidget(self.gradient_orient_btngrp)
+        layout11.addLayout(layout10)
         spacer7_2 = QSpacerItem(50,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout11.addItem(spacer7_2)
         TabPageLayout_2.addLayout(layout11)
@@ -275,6 +256,40 @@ class UserPrefsDialog(QDialog):
         spacer10 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_3.addItem(spacer10)
         self.prefs_tab.insertTab(self.TabPage_3,QString(""))
+
+        self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
+        TabPageLayout_4 = QVBoxLayout(self.TabPage_4,11,6,"TabPageLayout_4")
+
+        layout9_2 = QHBoxLayout(None,0,6,"layout9_2")
+
+        self.groupBox3 = QGroupBox(self.TabPage_4,"groupBox3")
+        self.groupBox3.setColumnLayout(0,Qt.Vertical)
+        self.groupBox3.layout().setSpacing(6)
+        self.groupBox3.layout().setMargin(11)
+        groupBox3Layout = QVBoxLayout(self.groupBox3.layout())
+        groupBox3Layout.setAlignment(Qt.AlignTop)
+
+        self.textLabel2 = QLabel(self.groupBox3,"textLabel2")
+        groupBox3Layout.addWidget(self.textLabel2)
+
+        self.caption_prefix_linedit = QLineEdit(self.groupBox3,"caption_prefix_linedit")
+        groupBox3Layout.addWidget(self.caption_prefix_linedit)
+
+        self.textLabel2_2 = QLabel(self.groupBox3,"textLabel2_2")
+        groupBox3Layout.addWidget(self.textLabel2_2)
+
+        self.caption_suffix_linedit = QLineEdit(self.groupBox3,"caption_suffix_linedit")
+        groupBox3Layout.addWidget(self.caption_suffix_linedit)
+
+        self.caption_fullpath_checkbox = QCheckBox(self.groupBox3,"caption_fullpath_checkbox")
+        groupBox3Layout.addWidget(self.caption_fullpath_checkbox)
+        layout9_2.addWidget(self.groupBox3)
+        spacer11_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout9_2.addItem(spacer11_2)
+        TabPageLayout_4.addLayout(layout9_2)
+        spacer12 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_4.addItem(spacer12)
+        self.prefs_tab.insertTab(self.TabPage_4,QString(""))
         UserPrefsDialogLayout.addWidget(self.prefs_tab)
 
         layout28 = QHBoxLayout(None,0,6,"layout28")
@@ -301,7 +316,9 @@ class UserPrefsDialog(QDialog):
         self.connect(self.choose_color1_btn,SIGNAL("clicked()"),self.change_bgcolor1)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
-        self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
+        self.connect(self.display_mode_combox,SIGNAL("activated(const QString&)"),self.display_mode_changed)
+        self.connect(self.restore_default_display_btn,SIGNAL("clicked()"),self.restore_default_display_mode)
+        self.connect(self.display_style_combox,SIGNAL("activated(const QString&)"),self.display_style_changed)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
 
 
@@ -320,18 +337,24 @@ class UserPrefsDialog(QDialog):
         self.lower_left_btn.setText(self.__tr("Lower Left"))
         self.lower_right_btn.setText(self.__tr("Lower Right"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
-        self.default_display_btngrp.setTitle(self.__tr("Default Display"))
-        self.vwd_rbtn.setText(self.__tr("VdW"))
-        self.cpk_rbtn.setText(self.__tr("CPK"))
-        self.lines_rbtn.setText(self.__tr("Lines"))
-        self.tubes_rbtn.setText(self.__tr("Tubes"))
-        self.groupBox3.setTitle(self.__tr("Caption Format"))
-        QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
-        QWhatsThis.add(self.groupBox3,self.__tr("Format Prefix and Suffix text the delimits the part name in the caption in window border."))
-        self.textLabel2.setText(self.__tr("Caption Prefix for Modified File :"))
-        self.textLabel2_2.setText(self.__tr("Caption Suffix for Modified File :"))
-        self.caption_suffix_linedit.setText(QString.null)
-        self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
+        self.groupBox5.setTitle(self.__tr("Mode Rendering Styles"))
+        self.mode_lbl_2.setText(self.__tr("Mode :"))
+        self.display_mode_combox.clear()
+        self.display_mode_combox.insertItem(self.__tr("Select Chunks"))
+        self.display_mode_combox.insertItem(self.__tr("Select Atoms"))
+        self.display_mode_combox.insertItem(self.__tr("Move Chunks"))
+        self.display_mode_combox.insertItem(self.__tr("Build"))
+        self.display_mode_combox.insertItem(self.__tr("Cookie Cutter"))
+        self.display_mode_combox.insertItem(self.__tr("Extrude"))
+        self.display_mode_combox.insertItem(self.__tr("Fuse Chunks"))
+        self.display_mode_combox.insertItem(self.__tr("Movie Player"))
+        self.display_style_combox.clear()
+        self.display_style_combox.insertItem(self.__tr("VdW"))
+        self.display_style_combox.insertItem(self.__tr("CPK"))
+        self.display_style_combox.insertItem(self.__tr("Tubes"))
+        self.display_style_combox.insertItem(self.__tr("Lines"))
+        self.restore_default_display_btn.setText(self.__tr("Restore Default"))
+        self.mode_lbl_2_2.setText(self.__tr("Style :"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Display"))
         self.color2_lbl.setText(self.__tr("Color 2 :"))
         self.choose_color1_btn.setText(self.__tr("Choose..."))
@@ -359,6 +382,14 @@ class UserPrefsDialog(QDialog):
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
         self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("History"))
+        self.groupBox3.setTitle(self.__tr("Caption Format"))
+        QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
+        QWhatsThis.add(self.groupBox3,self.__tr("Format Prefix and Suffix text the delimits the part name in the caption in window border."))
+        self.textLabel2.setText(self.__tr("Caption Prefix for Modified File :"))
+        self.textLabel2_2.setText(self.__tr("Caption Suffix for Modified File :"))
+        self.caption_suffix_linedit.setText(QString.null)
+        self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
+        self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Caption"))
         self.ok_btn.setText(self.__tr("OK"))
 
 
@@ -397,6 +428,15 @@ class UserPrefsDialog(QDialog):
 
     def set_caption_fullpath(self):
         print "UserPrefsDialog.set_caption_fullpath(): Not implemented yet"
+
+    def display_mode_changed(self):
+        print "UserPrefsDialog.display_mode_changed(): Not implemented yet"
+
+    def restore_default_display_mode(self):
+        print "UserPrefsDialog.restore_default_display_mode(): Not implemented yet"
+
+    def display_style_changed(self):
+        print "UserPrefsDialog.display_style_changed(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

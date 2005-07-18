@@ -787,6 +787,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
             self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+            self.glpane.prevModeDisplay = self.glpane.mode.display # NFR 426.  Mark 050718.
 
         self.glpane.setMode('ZOOM')
         
@@ -801,6 +802,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
             self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+            self.glpane.prevModeDisplay = self.glpane.mode.display # NFR 426.  Mark 050718.
 
         self.glpane.setMode('PAN')
         self.history.message("You may hit the Esc key to exit Pan Tool.")
@@ -812,6 +814,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
             self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+            self.glpane.prevModeDisplay = self.glpane.mode.display # NFR 426.  Mark 050718.
 
         self.glpane.setMode('ROTATE')
         self.history.message("You may hit the Esc key to exit Rotate Tool.")

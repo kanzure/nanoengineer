@@ -79,6 +79,7 @@ class modifyMode(basicMode):
 
     # class constants
     backgroundColor = 254/255.0, 173/255.0, 246/255.0
+    display = diVDW # NFR 426.  Mark 050718
     gridColor = 52/255.0, 128/255.0, 26/255.0
     modename = 'MODIFY'
     default_mode_status_text = "Mode: Move Chunks"
@@ -97,6 +98,8 @@ class modifyMode(basicMode):
         basicMode.Enter(self)
         self.o.assy.selectParts()
         self.dragdist = 0.0
+        self.saveDisp = self.o.display # NFR 426.  Mark 050718
+        self.o.setDisplay(self.display)
         
 
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
@@ -134,6 +137,12 @@ class modifyMode(basicMode):
         self.w.disconnect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
         self.w.disconnect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
         self.w.disconnect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
+
+    # NFR 426.  Since this requires all modes to include a call to setDisplay in 'restore_patches', 
+    # I should probably move this to 'basicMode' and delete it here (and in other modes).  I'll ask Bruce.
+    # Mark 050718
+    def restore_patches(self):
+        self.o.setDisplay(self.saveDisp)
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)

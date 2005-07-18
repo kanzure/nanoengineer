@@ -12,6 +12,7 @@ class panMode(basicMode):
 
     # class constants
     backgroundColor = 0.5, 0.5, 0.5
+    display = diVDW # Not used; display mode same as previous mode. NFR 426. Mark 050718.
     modename = 'PAN'
     default_mode_status_text = "Mode: Pan"
 
@@ -22,7 +23,9 @@ class panMode(basicMode):
     def Enter(self):
         basicMode.Enter(self)
         # Set background color to the previous mode's bg color
-        bg = self.backgroundColor = self.o.prevModeColor
+        self.backgroundColor = self.o.prevModeColor
+        # Set display to the previous mode's display. NFR 426. Mark 050718.
+        self.o.setDisplay(self.o.prevModeDisplay)
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):

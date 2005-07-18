@@ -222,6 +222,7 @@ class basicMode(anyMode):
 
     def init_prefs(self): # bruce 050105 new feature [bruce 050117 cleaned it up]
         "set some of our constants from user preferences, if they exist"
+        
         self.bgcolor_prefs_key = key = "mode %s backgroundColor" % self.modename
         self.prefs = prefs = preferences.prefs_context()
         bgcolor = prefs.get( key, self.backgroundColor )
@@ -229,9 +230,17 @@ class basicMode(anyMode):
         # then besides this, we'd also need to clear the prefs cache for
         # this key... and update it more often.)
         self.backgroundColor = bgcolor
+        
+        # NFR 426.  Mark 050718
+        self.display_prefs_key = key = "A6/ mode %s display" % self.modename
+        display = prefs.get( key, self.display )
+        self.display = display
+        
         return
 
     def set_backgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
+        '''Sets the mode's background color and saves it to the prefs db.
+        '''
         self.backgroundColor = color
         # bruce 041118 comment: the above, by itself, would only last until the
         # next time this mode object was remade (presently, whenever a new file
@@ -239,6 +248,18 @@ class basicMode(anyMode):
         prefs = self.prefs
         key = self.bgcolor_prefs_key
         prefs[key] = color # this stores the new color into a prefs db file
+        return
+
+    def set_display(self, display): # NFR 426.  Mark 050718
+        '''Sets the mode's default display mode (rendering style) and saves it to the prefs db.
+        '''
+        self.display = display
+        # mark 050717 comment: the above, by itself, would only last until the
+        # next time this mode object was remade (presently, whenever a new file
+        # is loaded; in principle, at arbitrary times).
+        prefs = self.prefs
+        key = self.display_prefs_key
+        prefs[key] = display # this stores the new display mode into a prefs db file
         return
 
     #bruce 050416 revised makeMenus-related methods to permit "dynamic context menus",
