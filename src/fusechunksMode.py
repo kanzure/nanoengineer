@@ -80,7 +80,6 @@ class fusechunksMode(modifyMode):
 
     # class constants
     backgroundColor = 200/255.0, 200/255.0, 200/255.0
-    display = diCPK # NFR 426.  Mark 050718
     modename = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
     
@@ -97,8 +96,8 @@ class fusechunksMode(modifyMode):
 
     def Enter(self):
         modifyMode.Enter(self)
-#        self.saveDisp = self.o.display # This is already done in modifyMode.Enter
-        self.o.setDisplay(self.display) # NFR 426.  Mark 050718
+        self.saveDisp = self.o.display
+        self.o.setDisplay(diTUBES)
             
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
@@ -123,9 +122,8 @@ class fusechunksMode(modifyMode):
         self.w.disconnect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
         self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
 
-# Done in modifyMode now.  Mark 050717
-#    def restore_patches(self):
-#        self.o.setDisplay(self.saveDisp)
+    def restore_patches(self):
+        self.o.setDisplay(self.saveDisp)
         
     def tolerance_changed(self, val):
         self.tol = val * .01

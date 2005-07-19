@@ -72,7 +72,6 @@ class selectMode(basicMode):
     
     # class constants
     backgroundColor = 189/255.0, 228/255.0, 238/255.0
-    display = diVDW # NFR 426.  Mark 050718
     gridColor = (0.0, 0.0, 0.6)
 
     # default initial values
@@ -93,12 +92,6 @@ class selectMode(basicMode):
     def restore_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
    
-    # NFR 426.  Since this requires all modes to include a call to setDisplay in 'restore_patches', 
-    # I should probably move this to 'basicMode' and delete it here (and in other modes).  I'll ask Bruce.
-    # Mark 050718
-    def restore_patches(self):
-        self.o.setDisplay(self.saveDisp)
-        
     def leftDown(self, event):
         self.StartPick(event, 2) # new selection (replace)
     
@@ -412,10 +405,7 @@ class selectMolsMode(selectMode):
         def Enter(self): 
             basicMode.Enter(self)
             self.o.assy.pickParts() # josh 10/7 to avoid race in assy init
-            self.saveDisp = self.o.display # NFR 426.  Mark 050718
-            self.o.setDisplay(self.display)
-        
-    
+            
         def init_gui(self):
             selectMode.init_gui(self)
 #            print "selectMode.py: init_gui(): Cursor set to SelectMolsCursor"
@@ -460,8 +450,6 @@ class selectAtomsMode(selectMode):
             self.o.assy.selectAtoms()
             # Reinitialize previously picked atoms (ppas).
             self.o.assy.ppa2 = self.o.assy.ppa3 = None
-            self.saveDisp = self.o.display # NFR 426.  Mark 050718
-            self.o.setDisplay(self.display)
             
         def init_gui(self):
             selectMode.init_gui(self)

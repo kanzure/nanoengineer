@@ -12,7 +12,6 @@ class rotateMode(basicMode):
 
     # class constants
     backgroundColor = 0.5, 0.5, 0.5
-    display = diVDW # Not used; display mode same as previous mode. NFR 426. Mark 050718.
     modename = 'ROTATE'
     default_mode_status_text = "Mode: Rotate"
 
@@ -23,9 +22,7 @@ class rotateMode(basicMode):
     def Enter(self):
         basicMode.Enter(self)
         # Set background color to the previous mode's bg color
-        self.backgroundColor = self.o.prevModeColor
-        # Set display to the previous mode's display. NFR 426. Mark 050718.
-        self.o.setDisplay(self.o.prevModeDisplay)
+        bg = self.backgroundColor = self.o.prevModeColor
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):

@@ -351,7 +351,6 @@ class extrudeMode(basicMode):
     # class constants
     is_revolve = 0
     backgroundColor = 199/255.0, 100/255.0, 100/255.0 # different than in cookieMode
-    display = diTUBES # NFR 426.  Mark 050718
     modename = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
@@ -479,9 +478,6 @@ class extrudeMode(basicMode):
         self.initial_out = self.o.out
         reinit_extrude_controls(self.w, self.o, length = 7.0, attr_target = self)
         basicMode.Enter(self)
-        
-        self.saveDisp = self.o.display # NFR 426.  Mark 050718
-        self.o.setDisplay(self.display)
 
         ###
         # find out what's selected, which if ok will be the repeating unit we will extrude... explore its atoms, bonds, externs...
@@ -1328,12 +1324,6 @@ class extrudeMode(basicMode):
         
         return
 
-    # NFR 426.  Since this requires all modes to include a call to setDisplay in 'restore_patches', 
-    # I should probably move this to 'basicMode' and delete it here (and in other modes).  I'll ask Bruce.
-    # Mark 050718
-    def restore_patches(self):
-        self.o.setDisplay(self.saveDisp)
-    
     # mouse events
 
     def leftDown(self, event):

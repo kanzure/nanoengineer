@@ -15,10 +15,6 @@ from constants import *
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
 
-# There is probably a more elegant way to do this.  I'll ask Bruce.  Mark 050718
-style2display = {'VdW':diVDW,'CPK':diCPK,'Tubes':diTUBES,'Lines':diLINES}
-display2style = {diVDW:'VdW',diCPK:'CPK',diTUBES:'Tubes',diLINES:'Lines'}
-
 def get_gamess_path(parent):
     '''Present user with the Qt file chooser to select the GAMESS executable.
     This routine also updates the shelf with the GAMESS executable path.
@@ -99,7 +95,7 @@ class UserPrefs(UserPrefsDialog):
     ###### Private methods ###############################
     
     def _setup_general_page(self):
-        ''' Setup widgets to initial (default or defined) values on the "General" page.
+        ''' Setup widgets to initial (default or defined) values on the general page.
         '''
 
         self.display_compass_checkbox.setChecked(self.glpane.displayCompass)
@@ -124,7 +120,7 @@ class UserPrefs(UserPrefsDialog):
 #            self.gamess_path_linedit.setText('')
 
     def _setup_background_page(self):
-        ''' Setup widgets to initial (default or defined) values on the "Background" page.
+        ''' Setup widgets to initial (default or defined) values on the background page.
         '''
         # Set the mode drop box to the current mode, 
         # or "Select Chunks" if the mode is not in the "modes" list.
@@ -136,30 +132,19 @@ class UserPrefs(UserPrefsDialog):
         self.bg_solid_setup()
 
     def _setup_display_page(self):
-        ''' Setup widgets to initial (default or defined) values on the "Display" page.
+        ''' Setup widgets to initial (default or defined) values on the display page.
         '''
-        # Set the mode drop box to the current mode, 
-        # or "Select Chunks" if the mode is not in the "modes" list.
-        if self.glpane.mode.modename in modes:
-            self.display_mode_combox.setCurrentItem(modes.index(self.glpane.mode.modename))
-        else:
-            self.display_mode_combox.setCurrentItem(0) # Set to Select Chunks
-            
-        self.update_display_style()
-
-    def _setup_history_page(self):
-        ''' Setup widgets to initial (default or defined) values on the "History" page.
-        '''
-        self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
-        self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)
-
-    def _setup_caption_page(self):
-        ''' Setup widgets to initial (default or defined) values on the "Caption" page.
-        '''
+        self.default_display_btngrp.setButton(self.glpane.display)
         self.caption_prefix_linedit.setText(self.win.caption_prefix)
         self.caption_suffix_linedit.setText(self.win.caption_suffix)
         self.caption_fullpath_checkbox.setChecked(self.win.caption_fullpath)
-                                        
+
+    def _setup_history_page(self):
+        ''' Setup widgets to initial (default or defined) values on the display page.
+        '''
+        self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
+        self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)
+                                
     def _update_prefs(self):
         '''Update user preferences and store them in the shelf.
         This method has two parts:
@@ -182,7 +167,7 @@ class UserPrefs(UserPrefsDialog):
         
         # Update Caption prefs #########################################
         # The prefix and suffix updates should be done via slots and include a validator.
-        # Mark 050716.
+        # Will do later.  Mark 050716.
         prefix = QString(self.caption_prefix_linedit.text())
         
         text = prefix.stripWhiteSpace() # make sure prefix is not just whitespaces
@@ -325,6 +310,20 @@ class UserPrefs(UserPrefsDialog):
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
             mode.set_backgroundColor( bgcolor )
             self.color1_frame.setPaletteBackgroundColor(c)
+
+    def change_bgcolor2(self):
+        '''Change a mode's second background color.
+        '''
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor2)
+
+        # Allow user to select a new background color and set it.
+        c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
+        if c.isValid():
+            bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            mode.set_backgroundColor2( bgcolor )
+            self.color2_frame.setPaletteBackgroundColor(c)
                 
     def restore_default_bgcolor(self):
         '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
@@ -345,57 +344,17 @@ class UserPrefs(UserPrefsDialog):
 
     ########## Slot methods for "Display" page widgets ################
 
-    # FYI, I use the term "style" to refer to the mode's display here.  It was too
-    # confusing to use both "mode" (as in the tool) and "display" (as in display mode)
-    # together in the "Display" page slots/methods.  I substitute "style" for "display" 
-    # throughout here.  I think we should replace the mode attribute "display" with a 
-    # less ambiguous name like "rendering_style".
-    # Mark 050718.
-    
-    def display_mode_changed(self, modename):
-        '''Slot called when the user changes the mode in the drop box.
+    def set_default_display_mode(self, val):
+        '''Set default display mode of GLpane.
         '''
-        self.update_display_style()
-
-    def update_display_style(self):
-        '''Updates the Style combobox based on the display_mode_combox setting.
-        '''
-        mode = self.glpane._find_mode(modes[self.display_mode_combox.currentItem()])
-        display_key = mode.display
-        style = display2style[display_key]
-        self.display_style_combox.setCurrentText(style)
-    
-    def display_style_changed(self, style):
-        '''Slot called when the user changes the Style.
-        '''
-        mode = self.glpane._find_mode(modes[self.display_mode_combox.currentItem()])
-        style_key = str(style)
-        display = style2display[style_key]
-        mode.set_display( style2display[style_key] )
-        if mode == self.glpane.mode:
-            self.win.setDisplay(style2display[style_key])  # Does gl_update().
-            
-    def restore_default_display_mode(self):
-        '''Slot for "Restore Default" button, which restores the selected mode's display style.
-        '''
-        # Get the mode object selected in the combo box.
-        mode = self.glpane._find_mode(modes[self.display_mode_combox.currentItem()])
-        # Set the display to the default.
-        mode.set_display(mode.__class__.display)
-        # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
-        if mode == self.glpane.mode:
-            self.win.setDisplay(mode.__class__.display)  # Does gl_update().
-        self.update_display_style() # Update the style combobox to the default style.
-        
-    ########## End of slot methods for "Display" page widgets ###########
-
-    ########## Slot methods for "Caption" page widgets ################
+        self.glpane.setDisplay(val)
+        self.glpane.gl_update()
         
     def set_caption_fullpath(self, val):
         self.win.caption_fullpath = val
         self.win.update_mainwindow_caption(self.win.assy.has_changed())
         
-    ########## End of slot methods for "Caption" page widgets ###########
+    ########## End of slot methods for "Display" page widgets ###########
 
     ########## Slot methods for top level widgets ################
     
@@ -408,8 +367,6 @@ class UserPrefs(UserPrefsDialog):
             self._setup_display_page()
         elif pagename == 'History':
             self._setup_history_page()
-        elif pagename == 'Caption':
-            self._setup_caption_page()
         else:
             print 'Error: Preferences page unknown: ', pagename
             

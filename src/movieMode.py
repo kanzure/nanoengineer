@@ -46,7 +46,6 @@ class movieMode(basicMode):
 
     # class constants
     backgroundColor = 189/255.0, 228/255.0, 238/255.0
-    display = diVDW # NFR 426.  Mark 050718
     modename = 'MOVIE'
     default_mode_status_text = "Mode: Movie Player"
     
@@ -54,8 +53,6 @@ class movieMode(basicMode):
     
     def Enter(self):
         basicMode.Enter(self)
-        self.saveDisp = self.o.display # NFR 426.  Mark 050718
-        self.o.setDisplay(self.display)
         # [bruce 050427 comment: I'm skeptical of this effect on selection,
         #  since I can't think of any good reason for it,
         #  and once we have movies as nodes in the MT it will be a problem,
@@ -132,9 +129,6 @@ class movieMode(basicMode):
         movie = self.o.assy.current_movie
         if movie:
             movie._close() # assume this is the only movie which might be "open", and that redundant _close is ok.
-        
-        self.o.setDisplay(self.saveDisp) # NFR 426.  Mark 050718
-        
         return
         
     def haveNontrivialState(self):
