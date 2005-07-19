@@ -692,7 +692,6 @@ void printheader(FILE *f, char *ifile, char *ofile, char *tfile,
     for (i=0; i<Nexcon; i++) {
    	    ncols += 1;
 	    if (Constraint[i].type==CODEmotor) ncols += 1;
-	    if (Constraint[i].type==CODElmotor) ncols += 1;
     }
         
     fprintf(f, "# %d columns:\n", ncols);
@@ -713,8 +712,7 @@ void printheader(FILE *f, char *ifile, char *ofile, char *tfile,
                     break;
                     
                case CODElmotor:
-                    fprintf(f, "# %s: force (pN)\n",Constraint[i].name);
-                    fprintf(f, "# %s: stiffness (N/m)\n",Constraint[i].name);
+                    fprintf(f, "# %s: displacement (pm)\n",Constraint[i].name);
                     break;
                
                case CODEmotor:

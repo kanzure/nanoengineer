@@ -514,6 +514,7 @@ void filred(char *filnam) {
 
 	      i=makcon(CODEbearing, makmot(stall, speed, vec1, vec2), j, iv);
 	      makmot2(i);
+              Constraint[i].name = strg;
 	    }
 	}
 		
@@ -538,6 +539,7 @@ void filred(char *filnam) {
 	      j=readshaft(buf+5, iv, atnotab);
 	      i=makcon(CODElmotor, maklmot(force, stiff, vec1, vec2), j, iv);
 	      maklmot2(i);
+              Constraint[i].name = strg;
 	    }
 	}
 		
@@ -657,7 +659,8 @@ void filred(char *filnam) {
 
 // reads atom positions from an XYZ file into Positions[]
 // returns the number of atoms read, or -1 for an error.
-struct xyz *readXYZ(char *filename, int *natoms)
+struct xyz *
+readXYZ(char *filename, int *natoms)
 {
   int i;
   float x, y, z;
