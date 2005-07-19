@@ -77,6 +77,13 @@ class selectMode(basicMode):
 
     # default initial values
     savedOrtho = 0
+
+    jigSelectionEnabled = True
+
+    #def __init__(self, glpane):
+    #    """The initial function is called only once for the whole program """
+    #    basicMode.__init__(self, glpane)
+    #    self.jigSelectionEnabled = True
     
     # init_gui handles all the GUI display when entering a mode    
     def init_gui(self):
@@ -163,7 +170,7 @@ class selectMode(basicMode):
 
         if self.pickLineLength/self.o.scale < 0.03:
             # didn't move much, call it a click
-            if not self.jigGLSelect(event):
+            if not self.jigGLSelect(event, selSense):
                 if selSense == 0: self.o.assy.unpick_at_event(event)
                 if selSense == 1: self.o.assy.pick_at_event(event)
                 if selSense == 2: self.o.assy.onlypick_at_event(event)
@@ -255,10 +262,18 @@ class selectMode(basicMode):
                         # this might run on some killed singlets; should be ok
             self.o.gl_update()
         return
-       
+
+    def setJigSelectionEnabled(self):
+        self.jigSelectionEnabled = not self.jigSelectionEnabled
+                 
+        id = self.Menu1.idAt(3)
+        self.Menu1.setItemChecked(id, self.jigSelectionEnabled)
+        
     
-    def jigGLSelect(self, event):
+    def jigGLSelect(self, event, selSense):
         '''Use the OpenGL picking/selection to select any jigs '''
+        if not self.jigSelectionEnabled: return False
+        
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
         
@@ -269,7 +284,7 @@ class selectMode(basicMode):
         
         pxyz = A(gluUnProject(wX, wY, gz))
         pn = self.o.out
-        pxyz -= 0.002*pn
+        pxyz -= 0.0002*pn
         dp = - dot(pxyz, pn)
         #print "clip plane: ", pn, dp 
         #print "Point on plane: ", pxyz
@@ -309,9 +324,15 @@ class selectMode(basicMode):
                 obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
                 if isinstance(obj, Jig):
-                    if obj.picked:
-                        obj.unpick()
-                    else: obj.pick()
+                    if selSense == 0: #Ctrl key, unpick picked
+                        if obj.picked:  
+                            obj.unpick()
+                    elif selSense == 1 and not obj.picked: #Shift key, Add pick
+                        obj.pick()
+                    else:                   #Without key press, exclusive pick
+                        self.o.assy.unpickparts() 
+                        self.o.assy.unpickatoms()
+                        obj.pick()
                     return True
         return  False       
 
@@ -341,6 +362,7 @@ class selectMode(basicMode):
             ('Select All                     Ctrl+A', self.o.assy.selectAll),
             ('Select None                Ctrl+D', self.o.assy.selectNone),
             ('Invert Selection   Ctrl+Shift+I', self.o.assy.selectInvert),
+            ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'),
             None,
             # bruce 041217 renamed Atoms and Chunks to the full names of the
             # modes they enter, and added Move Chunks too. (It was already

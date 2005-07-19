@@ -1620,7 +1620,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         glDisable(GL_COLOR_MATERIAL)
            
         ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get
-        # segmentation fault on Manrake Linux 10.0 with libqt3-3.2.3-17mdk
+        # segmentation fault on Mandrake Linux 10.0 with libqt3-3.2.3-17mdk
         # or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
            
         if True:###sys.platform in ['darwin', 'win32']:
