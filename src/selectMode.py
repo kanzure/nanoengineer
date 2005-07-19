@@ -320,12 +320,14 @@ class selectMode(basicMode):
                     if selSense == 0: #Ctrl key, unpick picked
                         if obj.picked:  
                             obj.unpick()
-                    elif selSense == 1 and not obj.picked: #Shift key, Add pick
-                        obj.pick()
-                    else:                   #Without key press, exclusive pick
+                    elif selSense == 1: #Shift key, Add pick
+                        if not obj.picked: 
+                            obj.pick()
+                    else:               #Without key press, exclusive pick
                         self.o.assy.unpickparts() 
                         self.o.assy.unpickatoms()
-                        obj.pick()
+                        if not obj.picked:
+                            obj.pick()
                     return True
         return  False       
 
