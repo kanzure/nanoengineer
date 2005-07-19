@@ -16,6 +16,7 @@ struct xyz Force[NATOMS];
 struct xyz OldForce[NATOMS]; /* used in minimize */
 struct xyz AveragePositions[NATOMS];
 static struct xyz position_arrays[4*NATOMS];
+static void *aux_data[4];
 
 // these point into position_arrays
 struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions;
@@ -23,6 +24,9 @@ struct xyz *OldPositions, *NewPositions, *Positions, *BestPositions;
 // allocated only if doing structure alignment
 struct xyz *BasePositions;
 struct xyz *InitialPositions;
+
+// these point into aux_data
+void **OldAuxData, **NewAuxData, **AuxData, **BestAuxData;
 
 // steepest descent terminates when rms_force is below this value (in picoNewtons)
 #define RMS_CUTOVER (50.0)
@@ -642,14 +646,14 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
     	
     // x is length of projection of r onto axis
     x=vdot(r,mot->axis);
-    Constraint[j].data = mot->theta0 - x;
+    Constraint[j].data = x - mot->theta0;
     
     if (mot->speed == 0.0) {
         vset(f, mot->center);
     } else {
 	// note .speed is stiffness
 	// .theta0 is projection dist of r onto axis for 0 force
-	ff = mot->speed * (mot->theta0 - x) / Constraint[j].natoms;
+	ff = mot->speed * (x - mot->theta0) / Constraint[j].natoms;
 	f = vprodc(mot->axis, ff);
     }
     for (i=0;i<Constraint[j].natoms;i++) {
@@ -929,12 +933,14 @@ updatePositionsArrays(float rms, float max_forceSquared, int best_ptr)
         best_max_forceSquared = max_forceSquared;
         positionPointerSegment[PTR_BST] = positionPointerSegment[best_ptr];
         BestPositions = position_arrays + positionPointerSegment[PTR_BST] * NATOMS;
+        BestAuxData = aux_data + positionPointerSegment[PTR_BST];
     }
     for (i=0; i<4; i++) {
         segmentUsed[i] = 0;
     }
 
     Positions = NewPositions;
+    AuxData = NewAuxData;
     positionPointerSegment[PTR_CUR] = positionPointerSegment[PTR_NEW];
     
     segmentUsed[positionPointerSegment[PTR_CUR]] = 1;
@@ -944,6 +950,7 @@ updatePositionsArrays(float rms, float max_forceSquared, int best_ptr)
         if (segmentUsed[i] == 0) {
             positionPointerSegment[PTR_NEW] = i;
             NewPositions = position_arrays + positionPointerSegment[PTR_NEW] * NATOMS;
+            NewAuxData = aux_data + positionPointerSegment[PTR_NEW];
             return;
         }
     }
