@@ -13,10 +13,6 @@ class cookieMode(basicMode):
     # class constants
     backgroundColor = 103/255.0, 124/255.0, 53/255.0
     gridColor = 222/255.0, 148/255.0, 0/255.0
-    # Cookie Cutter uses it's own display mode(s).  This is a placeholder for modes.init_prefs.
-    # It would be nice to save Cookie Cutter's display mode in the prefs in the future.
-    # Mark 050717
-    display = diTUBES # NFR 426.  Mark 050718
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
     
