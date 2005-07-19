@@ -306,7 +306,11 @@ static void maklmot2(int i) {
 
     // note .stall is force and .speed is stiffness
     // .theta0 will be projection dist of r onto axis for 0 force
-    if (mot->speed != 0.0) mot->theta0 = x + mot->stall/mot->speed;
+    if (mot->speed == 0.0) {
+      mot->theta0 = x;
+    } else {
+      mot->theta0 = x + mot->stall/mot->speed;
+    }
 
     // if constant force, just use this force vector
     if (mot->speed == 0.0) 

@@ -633,31 +633,27 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
 
     mot=Constraint[j].motor;
 
-    if (mot->speed == 0.0) {
-        Constraint[j].data = 0.0;
-	for (i=0;i<Constraint[j].natoms;i++) 
-	    vadd(Force[Constraint[j].atoms[i]], mot->center);
+    r = vcon(0.0);
+    for (i=0;i<Constraint[j].natoms;i++) {
+        /* for each atom connected to the "shaft" */
+        r=vsum(r,Positions[Constraint[j].atoms[i]]);
     }
-    else {
-	r = vcon(0.0);
-	for (i=0;i<Constraint[j].natoms;i++) 
-	    /* for each atom connected to the "shaft" */
-	    r=vsum(r,Positions[Constraint[j].atoms[i]]);
-	
-	r=vprodc(r, 1.0/Constraint[j].natoms);
+    r=vprodc(r, 1.0/Constraint[j].natoms);
     	
-	// x is length of projection of r onto axis
-	x=vdot(r,mot->axis);
-        Constraint[j].data = mot->theta0 - x;
-	
+    // x is length of projection of r onto axis
+    x=vdot(r,mot->axis);
+    Constraint[j].data = mot->theta0 - x;
+    
+    if (mot->speed == 0.0) {
+        vset(f, mot->center);
+    } else {
 	// note .speed is stiffness
 	// .theta0 is projection dist of r onto axis for 0 force
 	ff = mot->speed * (mot->theta0 - x) / Constraint[j].natoms;
 	f = vprodc(mot->axis, ff);
-
-	for (i=0;i<Constraint[j].natoms;i++) 
-	    vadd(Force[Constraint[j].atoms[i]], f);
-
+    }
+    for (i=0;i<Constraint[j].natoms;i++) {
+        vadd(Force[Constraint[j].atoms[i]], f);
     }
 }
 
