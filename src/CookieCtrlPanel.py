@@ -303,7 +303,8 @@ class CookieCtrlPanel:
             self.w.setViewRecenterAction.setEnabled(enableFlag)
             self.w.setViewRightAction.setEnabled(enableFlag)
             self.w.setViewTopAction.setEnabled(enableFlag)
-                      
+            self.w.setViewOppositeAction.setEnabled(enableFlag)
+            
         
        def changeSelectionShape(self, action):
             """Slot method that is called when user changes selection shape by GUI. """
