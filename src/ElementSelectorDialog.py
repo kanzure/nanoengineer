@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
-# Created: Tue Apr 19 18:10:33 2005
+# Created: Wed Jul 20 11:39:02 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -512,32 +512,32 @@ class ElementSelectorDialog(QDialog):
 
         ElementSelectorDialogLayout = QVBoxLayout(self,11,6,"ElementSelectorDialogLayout")
 
-        layout15 = QHBoxLayout(None,0,6,"layout15")
+        layout5 = QHBoxLayout(None,0,6,"layout5")
 
         self.elemInfoLabel = QLabel(self,"elemInfoLabel")
-        self.elemInfoLabel.setSizePolicy(QSizePolicy(5,5,0,1,self.elemInfoLabel.sizePolicy().hasHeightForWidth()))
-        self.elemInfoLabel.setMinimumSize(QSize(0,0))
+        self.elemInfoLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.elemInfoLabel.sizePolicy().hasHeightForWidth()))
+        self.elemInfoLabel.setMinimumSize(QSize(60,0))
         self.elemInfoLabel.setPaletteBackgroundColor(QColor(227,211,231))
         self.elemInfoLabel.setTextFormat(QLabel.RichText)
         self.elemInfoLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout15.addWidget(self.elemInfoLabel)
+        layout5.addWidget(self.elemInfoLabel)
 
-        layout3 = QVBoxLayout(None,0,1,"layout3")
+        layout4 = QVBoxLayout(None,0,1,"layout4")
 
         self.elementFrame = QFrame(self,"elementFrame")
-        self.elementFrame.setSizePolicy(QSizePolicy(5,5,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
+        self.elementFrame.setSizePolicy(QSizePolicy(5,1,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(0,0))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
-        layout3.addWidget(self.elementFrame)
+        layout4.addWidget(self.elementFrame)
 
         self.elemColorLabel = QLabel(self,"elemColorLabel")
         self.elemColorLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.elemColorLabel.sizePolicy().hasHeightForWidth()))
-        self.elemColorLabel.setMinimumSize(QSize(90,40))
+        self.elemColorLabel.setMinimumSize(QSize(80,30))
         self.elemColorLabel.setTextFormat(QLabel.RichText)
         self.elemColorLabel.setAlignment(QLabel.AlignCenter)
-        layout3.addWidget(self.elemColorLabel)
-        layout15.addLayout(layout3)
+        layout4.addWidget(self.elemColorLabel)
+        layout5.addLayout(layout4)
 
         self.buttonGroup1 = QButtonGroup(self,"buttonGroup1")
         self.buttonGroup1.setFrameShape(QButtonGroup.PopupPanel)
@@ -549,22 +549,25 @@ class ElementSelectorDialog(QDialog):
         buttonGroup1Layout.setAlignment(Qt.AlignTop)
 
         self.radioButton1 = QRadioButton(self.buttonGroup1,"radioButton1")
+        self.radioButton1.setSizePolicy(QSizePolicy(1,0,0,0,self.radioButton1.sizePolicy().hasHeightForWidth()))
         self.radioButton1.setPixmap(self.image1)
         self.radioButton1.setChecked(1)
         self.buttonGroup1.insert( self.radioButton1,0)
         buttonGroup1Layout.addWidget(self.radioButton1)
 
         self.radioButton1_2 = QRadioButton(self.buttonGroup1,"radioButton1_2")
+        self.radioButton1_2.setSizePolicy(QSizePolicy(1,0,0,0,self.radioButton1_2.sizePolicy().hasHeightForWidth()))
         self.radioButton1_2.setPixmap(self.image2)
         self.buttonGroup1.insert( self.radioButton1_2,1)
         buttonGroup1Layout.addWidget(self.radioButton1_2)
 
         self.radioButton1_3 = QRadioButton(self.buttonGroup1,"radioButton1_3")
+        self.radioButton1_3.setSizePolicy(QSizePolicy(1,0,0,0,self.radioButton1_3.sizePolicy().hasHeightForWidth()))
         self.radioButton1_3.setPixmap(self.image3)
         self.buttonGroup1.insert( self.radioButton1_3,2)
         buttonGroup1Layout.addWidget(self.radioButton1_3)
-        layout15.addWidget(self.buttonGroup1)
-        ElementSelectorDialogLayout.addLayout(layout15)
+        layout5.addWidget(self.buttonGroup1)
+        ElementSelectorDialogLayout.addLayout(layout5)
 
         self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
         self.elementButtonGroup.setPaletteBackgroundColor(QColor(223,231,212))
@@ -779,25 +782,25 @@ class ElementSelectorDialog(QDialog):
         layout13 = QGridLayout(None,1,1,9,9,"layout13")
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setSizePolicy(QSizePolicy(5,0,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
+        self.closePTableButton.setSizePolicy(QSizePolicy(1,0,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
         self.closePTableButton.setDefault(1)
 
         layout13.addWidget(self.closePTableButton,1,1)
 
         self.transmuteCheckBox = QCheckBox(self,"transmuteCheckBox")
-        self.transmuteCheckBox.setSizePolicy(QSizePolicy(5,0,0,0,self.transmuteCheckBox.sizePolicy().hasHeightForWidth()))
+        self.transmuteCheckBox.setSizePolicy(QSizePolicy(1,0,0,0,self.transmuteCheckBox.sizePolicy().hasHeightForWidth()))
 
         layout13.addWidget(self.transmuteCheckBox,0,1)
 
         self.TransmuteButton = QPushButton(self,"TransmuteButton")
-        self.TransmuteButton.setSizePolicy(QSizePolicy(5,0,0,0,self.TransmuteButton.sizePolicy().hasHeightForWidth()))
+        self.TransmuteButton.setSizePolicy(QSizePolicy(1,0,0,0,self.TransmuteButton.sizePolicy().hasHeightForWidth()))
 
         layout13.addWidget(self.TransmuteButton,0,0)
         ElementSelectorDialogLayout.addLayout(layout13)
 
         self.languageChange()
 
-        self.resize(QSize(417,442).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(365,392).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
