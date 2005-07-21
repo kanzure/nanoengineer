@@ -9,6 +9,7 @@ from modes import *
 from chunk import molecule
 import env
 
+
 def do_what_MainWindowUI_should_do(w):
     '''This creates the Select Atoms (not the Select Chunks) dashboard .
     '''
@@ -279,8 +280,6 @@ class selectMode(basicMode):
         pn = self.o.out
         pxyz -= 0.0002*pn
         dp = - dot(pxyz, pn)
-        #print "clip plane: ", pn, dp 
-        #print "Point on plane: ", pxyz
         
         current_glselect = (wX,wY,1,1) #bruce 050615 for use by nodes which want to set up their own projection matrix
         self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
@@ -306,9 +305,11 @@ class selectMode(basicMode):
         glFlush()
         
         hit_records = list(glRenderMode(GL_RENDER))
-        print "%d hits" % len(hit_records)
+        if platform.atom_debug:
+            print "%d hits" % len(hit_records)
         for (near,far,names) in hit_records: # see example code, renderpass.py
-            print "hit record: near,far,names:",near,far,names
+            if platform.atom_debug:
+                print "hit record: near,far,names:",near,far,names
                 # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
                 # which proves that near/far are too far apart to give actual depth,
                 # in spite of the 1-pixel drawing window (presumably they're vertices
