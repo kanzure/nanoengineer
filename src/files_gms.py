@@ -20,6 +20,7 @@ from HistoryWidget import redmsg, orangemsg
 from VQT import A
 
 failpat = re.compile("ABNORMALLY")
+errorPat = re.compile("Fatal error")
 noconvpat = re.compile("GEOMETRY SEARCH IS NOT CONVERGED")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
 
@@ -389,7 +390,7 @@ def get_energy_from_gms_outfile(filename):
     # to determine success or failure.
     
     if not os.path.exists(filename):
-        return None
+        return 2, None
             
     elist = []
                     
@@ -402,15 +403,21 @@ def get_energy_from_gms_outfile(filename):
         if failpat.search(line): # GAMESS Aborted.  Final energy will not be found.
             return 1, line
             break
+        
+        elif errorPat.search(line):
+            return 1, line
+            break
             
         elif line.find('FINAL ENERGY IS') >= 0:
             elist = line.split()
 #            print elist
             return 0, elist[3] # Return final energy value as a string.
+        
         elif gamessEnergyStr.search(line):# line.find('FINAL R-AM1 ENERGY IS') >= 0: 
             elist = line.split()
 #            print elist
             return 0, elist[4] # Return final energy value as a string.
+        
         else: continue
             
     return 1, None

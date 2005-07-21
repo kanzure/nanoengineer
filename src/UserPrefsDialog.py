@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Sat Jul 16 17:29:38 2005
+# Created: Thu Jul 21 16:40:10 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,8 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout.addWidget(self.gamess_choose_btn,1,2)
 
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
+        self.gamess_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setMinimumSize(QSize(60,0))
         self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         file_locations_grpLayout.addWidget(self.gamess_lbl,1,0)
@@ -287,7 +289,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(476,283).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(476,290).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
@@ -309,7 +311,8 @@ class UserPrefsDialog(QDialog):
         self.setCaption(self.__tr("Preferences"))
         self.file_locations_grp.setTitle(self.__tr("File Locations"))
         self.gamess_choose_btn.setText(self.__tr("Choose..."))
-        self.gamess_lbl.setText(self.__tr("GAMESS :"))
+        self.gamess_lbl.setText(self.__tr("GAMESS Executable :"))
+        QToolTip.add(self.gamess_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.groupBox7_2.setTitle(self.__tr("Compass and Axes"))
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
         self.display_origin_axis_checkbox.setText(self.__tr("Display Origin Axis"))

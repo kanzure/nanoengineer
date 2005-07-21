@@ -203,10 +203,16 @@ class Gamess(Jig):
         
         r, final_energy_str = get_energy_from_gms_outfile(self.outputfile)
 
-        if r: # GAMESS terminated abnormally.
+        if r == 1: # GAMESS terminated abnormally.
             if final_energy_str:
-                self.history.message(redmsg(final_energy_str))
+                self.history.message(redmsg(final_energy_str + " Check if you have set the right Gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+                return
+                
             msg = "Final energy value not found. The output file is located at: " + self.outputfile
+            self.history.message(redmsg(msg))
+        
+        elif r == 2: # The output file not exist
+            msg = "The output file %s doesn't exist. The reason is either that Gamess didn't run or the output file has been deleted. " % self.outputfile
             self.history.message(redmsg(msg))
             
         else: # Final energy was found.

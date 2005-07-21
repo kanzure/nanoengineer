@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>283</height>
+            <height>290</height>
         </rect>
     </property>
     <property name="caption">
@@ -57,11 +57,28 @@
                                 <property name="name">
                                     <cstring>gamess_lbl</cstring>
                                 </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>60</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
                                 <property name="text">
-                                    <string>GAMESS :</string>
+                                    <string>GAMESS Executable :</string>
                                 </property>
                                 <property name="alignment">
                                     <set>AlignVCenter|AlignRight</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
                                 </property>
                             </widget>
                             <widget class="QLineEdit" row="1" column="1">
