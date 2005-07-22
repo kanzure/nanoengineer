@@ -566,6 +566,8 @@ def open_file_in_editor(file, history = None): #bruce 050704 added history arg
     it should be the history widget, and error messages will be printed there;
     in all cases, the same error messages are printed to the console.
     """
+    file = os.path.normpath(file)
+    
     if history is not None:
         from HistoryWidget import redmsg
     
@@ -583,8 +585,9 @@ def open_file_in_editor(file, history = None): #bruce 050704 added history arg
         
     if os.path.exists(editor):
         args = [editor] + initial_args + [file]
-#        print  "editor = ",editor
-#        print  "Spawnv args are %r" % (args,)
+        if atom_debug:
+            print  "editor = ",editor
+            print  "Spawnv args are %r" % (args,)
 
         try: #bruce 050704
             from debug import print_compact_traceback
