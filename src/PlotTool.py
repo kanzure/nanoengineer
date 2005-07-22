@@ -42,7 +42,7 @@ class PlotTool(PlotToolDialog):
         # Make sure there is a DPB file for the assy. 
         if not self.movie or not self.movie.filename:
             msg = redmsg("No tracefile exists for this part.  To create one, run a simulation.")
-            self.w.history.message(cmd + msg)
+            self.history.message(cmd + msg)
             return 1
         
         # Construct the trace file name.
