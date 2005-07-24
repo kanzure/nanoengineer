@@ -43,13 +43,6 @@
             <height>33</height>
         </rect>
     </property>
-    <property name="paletteBackgroundColor">
-        <color>
-            <red>236</red>
-            <green>233</green>
-            <blue>216</blue>
-        </color>
-    </property>
     <property name="backgroundOrigin">
         <enum>WidgetOrigin</enum>
     </property>
@@ -200,13 +193,6 @@
                 <height>29</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -231,13 +217,6 @@
                 <width>306</width>
                 <height>29</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -269,13 +248,6 @@
                 <width>182</width>
                 <height>29</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -326,13 +298,6 @@
                 <height>29</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -356,13 +321,6 @@
                 <width>94</width>
                 <height>19</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -391,13 +349,6 @@
                 <height>19</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -425,13 +376,6 @@
                 <height>19</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -458,16 +402,9 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1036</width>
+                <width>1033</width>
                 <height>29</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -615,13 +552,6 @@
                 <height>29</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -649,13 +579,6 @@
                 <width>115</width>
                 <height>29</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -686,13 +609,6 @@
                 <height>29</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -721,13 +637,6 @@
                 <width>120</width>
                 <height>29</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -798,13 +707,6 @@
                 <height>29</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -844,13 +746,6 @@
                 <height>311</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -880,13 +775,6 @@
                 <width>30</width>
                 <height>215</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
@@ -919,13 +807,6 @@
                 <height>68</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>230</red>
-                <green>231</green>
-                <blue>230</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>
@@ -949,13 +830,6 @@
                 <width>30</width>
                 <height>95</height>
             </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
         </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jul 14 20:45:33 2005
+# Created: Sun Jul 24 14:03:07 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6400,7 +6400,6 @@ class MainWindow(QMainWindow):
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.editToolbar.setGeometry(QRect(70,0,126,29))
-        self.editToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.editToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.editUndoAction.addTo(self.editToolbar)
         self.editRedoAction.addTo(self.editToolbar)
@@ -6411,7 +6410,6 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setGeometry(QRect(196,0,306,29))
-        self.viewToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -6428,7 +6426,6 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setGeometry(QRect(502,0,182,29))
-        self.molecularDispToolbar.setPaletteBackgroundColor(QColor(236,233,216))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
@@ -6448,7 +6445,6 @@ class MainWindow(QMainWindow):
 
         self.helpToolbar.setEnabled(1)
         self.helpToolbar.setGeometry(QRect(838,0,70,29))
-        self.helpToolbar.setPaletteBackgroundColor(QColor(230,231,230))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpAssistantAction.addTo(self.helpToolbar)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
@@ -6456,29 +6452,25 @@ class MainWindow(QMainWindow):
 
         self.selectAtomsDashboard.setEnabled(1)
         self.selectAtomsDashboard.setGeometry(QRect(0,0,94,19))
-        self.selectAtomsDashboard.setPaletteBackgroundColor(QColor(236,233,216))
         self.selectAtomsDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.cookieCutterDashboard.setGeometry(QRect(94,0,95,19))
-        self.cookieCutterDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.ccLabel = QLabel(self.cookieCutterDashboard,"ccLabel")
         self.moveChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moveChunksDashboard.setGeometry(QRect(189,0,96,19))
-        self.moveChunksDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.moveChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
-        self.moviePlayerDashboard.setPaletteBackgroundColor(QColor(230,231,230))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1033,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6527,7 +6519,6 @@ class MainWindow(QMainWindow):
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectMolDashboard.setGeometry(QRect(0,48,128,29))
-        self.selectMolDashboard.setPaletteBackgroundColor(QColor(236,233,216))
         self.selectMolDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
@@ -6535,7 +6526,6 @@ class MainWindow(QMainWindow):
         self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.zoomDashboard.setGeometry(QRect(128,48,115,29))
-        self.zoomDashboard.setPaletteBackgroundColor(QColor(236,233,216))
         self.zoomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
@@ -6544,7 +6534,6 @@ class MainWindow(QMainWindow):
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.panDashboard.setGeometry(QRect(243,48,104,29))
-        self.panDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.panTextLabel = QLabel(self.panDashboard,"panTextLabel")
@@ -6553,7 +6542,6 @@ class MainWindow(QMainWindow):
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.rotateDashboard.setGeometry(QRect(347,48,120,29))
-        self.rotateDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -6571,7 +6559,6 @@ class MainWindow(QMainWindow):
 
         self.depositAtomDashboard.setEnabled(1)
         self.depositAtomDashboard.setGeometry(QRect(559,48,19,29))
-        self.depositAtomDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -6588,7 +6575,6 @@ class MainWindow(QMainWindow):
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.modifyToolbar.setGeometry(QRect(0,257,30,311))
-        self.modifyToolbar.setPaletteBackgroundColor(QColor(236,233,216))
         self.modifyToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.modifyMinimizeSelAction.addTo(self.modifyToolbar)
         self.modifyMinimizeAllAction.addTo(self.modifyToolbar)
@@ -6604,7 +6590,6 @@ class MainWindow(QMainWindow):
         self.toolsToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.toolsToolbar.setGeometry(QRect(0,568,30,215))
-        self.toolsToolbar.setPaletteBackgroundColor(QColor(236,233,216))
         self.toolsToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.toolsSelectMoleculesAction.addTo(self.toolsToolbar)
         self.toolsSelectAtomsAction.addTo(self.toolsToolbar)
@@ -6619,7 +6604,6 @@ class MainWindow(QMainWindow):
 
         self.datumDispDashboard.setEnabled(1)
         self.datumDispDashboard.setGeometry(QRect(0,783,30,68))
-        self.datumDispDashboard.setPaletteBackgroundColor(QColor(230,231,230))
         self.datumDispDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispTrihedronAction.addTo(self.datumDispDashboard)
         self.dispCsysAction.addTo(self.datumDispDashboard)
@@ -6627,7 +6611,6 @@ class MainWindow(QMainWindow):
 
         self.simToolbar.setEnabled(1)
         self.simToolbar.setGeometry(QRect(0,851,30,95))
-        self.simToolbar.setPaletteBackgroundColor(QColor(236,233,216))
         self.simToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.simSetupAction.addTo(self.simToolbar)
         self.simMoviePlayerAction.addTo(self.simToolbar)
@@ -6638,7 +6621,6 @@ class MainWindow(QMainWindow):
 
         self.MenuBar.setEnabled(1)
         self.MenuBar.setGeometry(QRect(0,0,1115,33))
-        self.MenuBar.setPaletteBackgroundColor(QColor(236,233,216))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -6654,7 +6636,7 @@ class MainWindow(QMainWindow):
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
-        self.MenuBar.insertItem(QString(""),self.fileMenu,5)
+        self.MenuBar.insertItem(QString(""),self.fileMenu,4)
 
         self.editMenu = QPopupMenu(self)
         self.editUndoAction.addTo(self.editMenu)
@@ -6666,7 +6648,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editMenu)
         self.editMenu.insertSeparator()
         self.editPrefsAction.addTo(self.editMenu)
-        self.MenuBar.insertItem(QString(""),self.editMenu,6)
+        self.MenuBar.insertItem(QString(""),self.editMenu,5)
 
         self.viewMenu = QPopupMenu(self)
         self.setViewHomeAction.addTo(self.viewMenu)
@@ -6686,7 +6668,7 @@ class MainWindow(QMainWindow):
         self.setViewTopAction.addTo(self.viewMenu)
         self.setViewBottomAction.addTo(self.viewMenu)
         self.setViewOppositeAction.addTo(self.viewMenu)
-        self.MenuBar.insertItem(QString(""),self.viewMenu,7)
+        self.MenuBar.insertItem(QString(""),self.viewMenu,6)
 
         self.displayMenu = QPopupMenu(self)
         self.displayMenu.insertSeparator()
@@ -6706,7 +6688,7 @@ class MainWindow(QMainWindow):
         self.displayMenu.insertSeparator()
         self.dispElementColorSettingsAction.addTo(self.displayMenu)
         self.dispLightingAction.addTo(self.displayMenu)
-        self.MenuBar.insertItem(QString(""),self.displayMenu,8)
+        self.MenuBar.insertItem(QString(""),self.displayMenu,7)
 
         self.selectMenu = QPopupMenu(self)
         self.selectAllAction.addTo(self.selectMenu)
@@ -6714,7 +6696,7 @@ class MainWindow(QMainWindow):
         self.selectInvertAction.addTo(self.selectMenu)
         self.selectConnectedAction.addTo(self.selectMenu)
         self.selectDoublyAction.addTo(self.selectMenu)
-        self.MenuBar.insertItem(QString(""),self.selectMenu,9)
+        self.MenuBar.insertItem(QString(""),self.selectMenu,8)
 
         self.modifyMenu = QPopupMenu(self)
         self.modifyMinimizeSelAction.addTo(self.modifyMenu)
@@ -6728,7 +6710,7 @@ class MainWindow(QMainWindow):
         self.modifyMergeAction.addTo(self.modifyMenu)
         self.modifyInvertAction.addTo(self.modifyMenu)
         self.modifyAlignCommonAxisAction.addTo(self.modifyMenu)
-        self.MenuBar.insertItem(QString(""),self.modifyMenu,10)
+        self.MenuBar.insertItem(QString(""),self.modifyMenu,9)
 
         self.toolsMenu = QPopupMenu(self)
         self.toolsSelectMoleculesAction.addTo(self.toolsMenu)
@@ -6740,7 +6722,7 @@ class MainWindow(QMainWindow):
         self.toolsCookieCutAction.addTo(self.toolsMenu)
         self.toolsExtrudeAction.addTo(self.toolsMenu)
         self.toolsFuseChunksAction.addTo(self.toolsMenu)
-        self.MenuBar.insertItem(QString(""),self.toolsMenu,11)
+        self.MenuBar.insertItem(QString(""),self.toolsMenu,10)
 
         self.jigsMenu = QPopupMenu(self)
         self.jigsMotorAction.addTo(self.jigsMenu)
@@ -6749,19 +6731,19 @@ class MainWindow(QMainWindow):
         self.jigsStatAction.addTo(self.jigsMenu)
         self.jigsThermoAction.addTo(self.jigsMenu)
         self.jigsGamessAction.addTo(self.jigsMenu)
-        self.MenuBar.insertItem(QString(""),self.jigsMenu,12)
+        self.MenuBar.insertItem(QString(""),self.jigsMenu,11)
 
         self.simulatorMenu = QPopupMenu(self)
         self.simSetupAction.addTo(self.simulatorMenu)
         self.simMoviePlayerAction.addTo(self.simulatorMenu)
         self.simPlotToolAction.addTo(self.simulatorMenu)
-        self.MenuBar.insertItem(QString(""),self.simulatorMenu,13)
+        self.MenuBar.insertItem(QString(""),self.simulatorMenu,12)
 
         self.helpMenu = QPopupMenu(self)
         self.helpAssistantAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
-        self.MenuBar.insertItem(QString(""),self.helpMenu,14)
+        self.MenuBar.insertItem(QString(""),self.helpMenu,13)
 
 
         self.languageChange()
@@ -7368,26 +7350,26 @@ class MainWindow(QMainWindow):
         self.toolsToolbar.setLabel(self.__tr("Tools"))
         self.datumDispDashboard.setLabel(self.__tr("Datum Display"))
         self.simToolbar.setLabel(self.__tr("Simulator"))
+        if self.MenuBar.findItem(4):
+            self.MenuBar.findItem(4).setText(self.__tr("&File"))
         if self.MenuBar.findItem(5):
-            self.MenuBar.findItem(5).setText(self.__tr("&File"))
+            self.MenuBar.findItem(5).setText(self.__tr("&Edit"))
         if self.MenuBar.findItem(6):
-            self.MenuBar.findItem(6).setText(self.__tr("&Edit"))
+            self.MenuBar.findItem(6).setText(self.__tr("&View"))
         if self.MenuBar.findItem(7):
-            self.MenuBar.findItem(7).setText(self.__tr("&View"))
+            self.MenuBar.findItem(7).setText(self.__tr("&Display"))
         if self.MenuBar.findItem(8):
-            self.MenuBar.findItem(8).setText(self.__tr("&Display"))
+            self.MenuBar.findItem(8).setText(self.__tr("Select"))
         if self.MenuBar.findItem(9):
-            self.MenuBar.findItem(9).setText(self.__tr("Select"))
+            self.MenuBar.findItem(9).setText(self.__tr("&Modify"))
         if self.MenuBar.findItem(10):
-            self.MenuBar.findItem(10).setText(self.__tr("&Modify"))
+            self.MenuBar.findItem(10).setText(self.__tr("&Tools"))
         if self.MenuBar.findItem(11):
-            self.MenuBar.findItem(11).setText(self.__tr("&Tools"))
+            self.MenuBar.findItem(11).setText(self.__tr("&Jigs"))
         if self.MenuBar.findItem(12):
-            self.MenuBar.findItem(12).setText(self.__tr("&Jigs"))
+            self.MenuBar.findItem(12).setText(self.__tr("Simulator"))
         if self.MenuBar.findItem(13):
-            self.MenuBar.findItem(13).setText(self.__tr("Simulator"))
-        if self.MenuBar.findItem(14):
-            self.MenuBar.findItem(14).setText(self.__tr("&Help"))
+            self.MenuBar.findItem(13).setText(self.__tr("&Help"))
 
 
     def fileNew(self):
