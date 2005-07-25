@@ -29,12 +29,16 @@ readers.o: simulator.h
 printers.o: simulator.h
 hashtable.o: allocate.h hashtable.h
 allocate.o: allocate.h
-newtables.o: simulator.h
+newtables.o: simulator.h bonds.h
 structcompare.o: simulator.h
 interpolate.o: simulator.h
+minimize.o: allocate.h minimize.h
 
 tables.c: gentab.py
 	python gentab.py > tables.c
+
+bonds.h: parmlist.py stretch.parms
+	python parmlist.py stretch.parms > bonds.h
 
 SIMOBJS=\
 	simulator.o \
@@ -54,6 +58,9 @@ noopt:
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
+
+testminimize: minimize.o allocate.o
+	$(CC) -o testminimize $(LDFLAGS) minimize.o allocate.o
 
 install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \

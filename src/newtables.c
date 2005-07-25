@@ -213,6 +213,9 @@ initializeBondTable()
 
   bondStretchHashtable = hashtable_new(40);
 
+#include "bonds.h"
+
+#ifdef OLD_BONDS
   addInitialBondStretch( 1, 6, '1',  460.0,  111.3, 0.671, 1.851); // H-C
   addInitialBondStretch( 1, 8, '1',  460.0,   94.2, 0.753, 1.747); // H-O
   addInitialBondStretch( 1,14, '1',  359.4,  125.6, 0.627, 1.693); // H-Si
@@ -239,7 +242,8 @@ initializeBondTable()
 
   addInitialBondStretch( 6, 6, '2',  960.0,  133.7, 1.207, 1.994); // C=C
   addInitialBondStretch( 6, 6, '3', 1560.0,  121.2, 1.616, 2.198); // C<3>C
-
+#endif
+  
   deHashtable = hashtable_new(10);
 
   addDeTableEntry("H-1-N",  0.75);
