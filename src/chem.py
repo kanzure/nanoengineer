@@ -364,7 +364,13 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         #e (should this be a separate method -- does anything else need it?)
         for b in self.bonds:
             b.setup_invalidate()
-        ###e we also need to invalidate jigs which care about their atoms' positions
+        if self.jigs: #bruce 050718 added this, for bonds code
+            for jig in self.jigs[:]:
+                jig.moved_atom(self)
+                #e note: this does nothing for most kinds of jigs,
+                # so in theory we might optim by splitting self.jigs into two lists;
+                # however, there are other change methods for atoms in jigs (maybe changed_structure?),
+                # so it's not clear how many different lists are needed, so it's unlikely the complexity is justified.
         return
 
     def setposn_batch(self, pos): #bruce 050513; I wonder if almost all calls of setposn should be this instead? maybe...
@@ -472,7 +478,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         
         return disp # bruce 050513 added retval to help with an optim
 
-    def bad(self): #bruce 041217 experiment
+    def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
         "is this atom breaking any rules?"
         if self.element is Singlet:
             # should be correct, but this case won't be used as of 041217 [probably no longer needed even if used -- 050511]
@@ -513,6 +519,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
         if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature
             dispdef = self.molecule.get_dispdef()
+                #bruce 050719 question: is it correct to ignore .display of self and its base atom? ###@@@
             disp, drawradjunk = self.howdraw(dispdef) # (this arg is required)
             if disp in (diCPK, diTUBES):
                 self.bonds[0].draw_in_abs_coords(glpane, color)
@@ -939,7 +946,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
            Then replace bond b in self.bonds with a new bond to a new singlet,
         unless self or the old neighbor atom is a singlet. Return the new
         singlet, or None if one was not created. Do all necessary invalidations
-        of molecules, BUT NOT OF b (see above).
+        of molecules, and self._changed_structure(), BUT NOT OF b (see above). 
            If self is a singlet, kill it (singlets must always have one bond).
            As of 041109, this is called from atom.kill of the other atom,
         and from bond.bust, and [added by bruce 041109] from bond.rebond.
@@ -948,6 +955,8 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         #  or kill (after clearing externs) of affected molecules.]
         
         # code and docstring revised by bruce 041029, 041105-12
+
+        self._changed_structure() #bruce 050725
         
         b.invalidate_bonded_mols() #e more efficient if callers did this
         
@@ -1070,9 +1079,11 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
     def changed(self): #bruce 050509; perhaps should use more widely
         mol = self.molecule
         if mol is None: return #k needed??
-        part = mol.part
-        if part is None: return # (might well be needed, tho not sure)
-        part.changed()
+        mol.changed() #bruce 050719 revised this -- previously it inlined that method
+##        part = mol.part
+##        if part is None: return # (might well be needed, tho not sure)
+##        part.changed()
+        return
 
 ##    def invalidate_bonds(self): # also often inlined
 ##        for b in self.bonds:
@@ -1454,14 +1465,16 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
     
     # ==
 
-    def _changed_structure(self): #bruce 050627
+    def _changed_structure(self): #bruce 050627; docstring revised and some required calls added, 050725
         """[private method]
            This must be called by all low-level methods which change this atom's or singlet's element, atomtype,
         or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
-        or for changes to chunk membership of this atom, or when this atom is killed. Calling it when not needed
+        or for changes to chunk membership of this atom, or when this atom is killed (but it will be called indirectly
+        when this atom is killed, when the bonds are broken, unless this atom has no bonds). Calling it when not needed
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
            All user events which can call this (indirectly) should also call env.post_event_updates() when they're done.
         """
+        ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
         from env import _changed_structure_atoms # a dict
         _changed_structure_atoms[ id(self) ] = self
     
@@ -1720,9 +1733,11 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             except:
                 # [bruce 041215:]
                 # fix unreported unverified bug (self at center of its neighbors):
+                # [bruce 050716 comment: one time this can happen is when we change atomtype of some C in graphite to sp3]
                 if platform.atom_debug:
-                    print "atom_debug: fyi: self at center of its neighbors (more or less)",self,self.bonds
-                dir = norm(cross(s1pos-pos,s2pos-pos)) ###@@@ need to test this!
+                    print "atom_debug: fyi: self at center of its neighbors (more or less) while making singlet", self, self.bonds
+                dir = norm(cross(s1pos-pos,s2pos-pos))
+                    # that assumes s1 and s2 are not opposite each other; #e it would be safer to pick best of all 3 pairs
             opos = pos + atype.rcovalent*dir
             mol = self.molecule
             x = atom('X', opos, mol)

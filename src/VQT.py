@@ -382,19 +382,21 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     def rot(self,v):
         return matrixmultiply(v,self.matrix)
 
-def twistor(axis, pt1, pt2):
-    """return the quaternion that, rotating around axis, will bring 
-    pt1 closest to pt2.
+def twistor(axis, pt1, pt2): #bruce 050724 revised code (should not change the result)
+    """return the quaternion that, rotating around axis, will bring pt1 closest to pt2.
     """
     #bruce 050518 comment: now using this in some cases of Q.__init__; not the ones this uses!
+    theta = twistor_angle(axis, pt1, pt2)
+    return Q(axis, theta)
+
+def twistor_angle(axis, pt1, pt2): #bruce 050724 split this out of twistor()
     q = Q(axis, V(0,0,1))
     pt1 = q.rot(pt1)
     pt2 = q.rot(pt2)
     a1 = atan2(pt1[1],pt1[0])
     a2 = atan2(pt2[1],pt2[0])
     theta = a2-a1
-    return Q(axis, theta)
-
+    return theta
 
 # project a point from a tangent plane onto a unit sphere
 def proj2sphere(x, y):

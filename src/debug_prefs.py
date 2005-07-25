@@ -17,7 +17,7 @@ from constants import black, white, red, green, blue, gray, orange, yellow, purp
 
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
-def debug_pref(name, dtype):
+def debug_pref(name, dtype): #bruce 050725 revised this
     """Public function for declaring and registering a debug pref and querying its value.
        Example call: chem.py rev 1.151 (might not  be present in later versions).
        Details: If debug_prefs[name] is known (so far in this session),
@@ -29,9 +29,11 @@ def debug_pref(name, dtype):
        Possibly, arrange to store changes to its value in user prefs,
     and to use user-prefs value rather than default value when creating it.
     """
-    if not debug_prefs.has_key(name):
-        debug_prefs[name] = DebugPref(name, dtype)
-    return debug_prefs[name].current_value()
+    try:
+        dp = debug_prefs[name]
+    except KeyError:
+        debug_prefs[name] = dp = DebugPref(name, dtype)
+    return dp.current_value()
 
 class Pref: #e might be merged with the DataType (aka PrefDataType) objects
     "Pref objects record all you need to know about a currently active preference lvalue [#e but persistence is NIM]"
@@ -112,7 +114,7 @@ def autoname(thing):
 
 class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePref and merged with Pref class to include a prefname etc
     "DataType for a choice between one of a few specific values, perhaps with names and comments and order and default"
-    def __init__(self, values = None, names = None, names_to_values = None):
+    def __init__(self, values = None, names = None, names_to_values = None, default_value = None):
         #e names_to_values should be a dict from names to values; do we union these inits or require no redundant ones? Let's union.
         if values is not None:
             values = list(values) #e need more ways to use the init options
@@ -134,12 +136,14 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
                 values.append(value)
         self.names = names
         self.values = values
-        #e nim: comments, default
-        self._default_value = self.values[0]
+        #e nim: comments
+        self._default_value = self.values[0] # might be changed below
         self.values_to_comments = {}
         self.values_to_names = {}
         for name, value in zip(self.names, self.values):
             self.values_to_names[value] = name
+            if default_value == value: # even if it's None!
+                self._default_value = value
     def name_of_value(self, value):
         return self.values_to_names[value]
     def default_value(self):
@@ -154,6 +158,9 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
         #e could add some "dimmed info" and/or menu commands to the end of submenu
         return ( text, submenu )
     pass
+
+Choice_boolean_False = Choice([False, True])
+Choice_boolean_True =  Choice([False, True], default_value = True)
 
 def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func, curval = None, mitem_value_func = None ):
     from debug import print_compact_traceback # do locally to avoid recursive import problem

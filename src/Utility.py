@@ -191,7 +191,7 @@ class Node:
            But if you're not sure, calling it when not needed is better
         than not calling it when needed.
         """
-        if self.part:
+        if self.part is not None:
             self.part.changed() #e someday we'll do self.changed which will do dad.changed....
         return
     

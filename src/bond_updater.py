@@ -83,7 +83,7 @@ def update_bonds_after_each_event( _changed_structure_atoms):
         if atm.jigs: # most atoms have no jigs, so this initial optim test is worthwhile
             for jig in atm.jigs[:]:
                 try:
-                    method = jig.changed_atom
+                    method = jig.changed_structure
                 except AttributeError:
                     pass # initial kluge so I don't need to extend class Jig
                 else:
@@ -109,7 +109,9 @@ def update_bonds_after_each_event( _changed_structure_atoms):
         # every one of these bonds is wrong, in a direct local way (ie due to its atoms)!
         # figure out what to change it to, and [someday] initiate our scan of changes from each end of each bond.
         new_v6 = best_corrected_v6(bond) ####@@@@ IMPLEM the rest of that... actually this'll all be revised
-        bond.set_v6(new_v6) #####@@@@@ ensure this does changed_structure on both atoms
+        bond.set_v6(new_v6) #####@@@@@ ensure this calls _changed_structure on both atoms -- WRONG, needs to call something different,
+            # saying it changes bond orders but not bonds themselves (so e.g. sp chains update geom but don't get destroyed).
+            # [As of 050725 I think it doesn't do either of those.]
             # WARNING: this might add new atoms to our argument dict, _changed_structure_atoms
             # (and furthermore, we might depend on the fact that it does, for doing valence checks on them!)
 

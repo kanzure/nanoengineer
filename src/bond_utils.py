@@ -74,10 +74,54 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
     """
     res = []
     res.append(( bonded_atoms_summary(bond, quat = quat), noop, 'disabled' ))
-    res.append( bond_type_submenu_spec(bond) )
+    ## res.append( bond_type_submenu_spec(bond) )
+    res.extend( bond_type_menu_section(bond) )
     return res
 
-def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??)
+def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
+    """Return a menu_spec for changing the bond_type of this bond
+    (as one or more checkmark items, one per permitted bond-type given the atomtypes),
+    or if the bond-type is unchangeable, a disabled menu item for displaying the type
+    (which looks the same as when the bond type is changeable, except for being disabled).
+    (If the current bond type is not permitted, it's still present and checked, but disabled,
+     and it might have a warning saying it's illegal.)
+    """
+    v6 = bond.v6
+    btype_now = btype_from_v6(v6)
+    poss = possible_bond_types(bond) # a list of strings which are bond-type names
+    ##e could put weird ones (graphitic, carbomeric) last and/or in parens, in subtext below
+    types = list(poss)
+    if btype_now not in poss:
+        types.append(btype_now) # put this one last, since it's illegal; warning for it is computed later
+    assert len(types) > 0
+    # types is the list of bond types for which to make menu items, in order;
+    # now make them, and figure out which ones are checked and/or disabled;
+    # we disable even legal ones iff there is only one bond type in types
+    # (which means, if current type is illegal, the sole legal type is enabled).
+    disable_legal_types = (len(types) == 1)
+    res = []
+    for btype in types: # include current value even if it's illegal
+        subtext = "%s bond" % btype # this string might be extended below
+        checked = (btype == btype_now)
+        command = ( lambda arg1=None, arg2=None, btype=btype, bond=bond: apply_btype_to_bond(btype, bond) )
+        if btype not in poss:
+            # illegal btype (note: it will be the current one, and thus be the only checked one)
+            warning = "illegal"
+            disabled = True
+        else:
+            # legal btype
+            warning = bond_type_warning(bond, btype) # might be "" (or None??) for no warning
+            disabled = disable_legal_types
+                # might change this if some neighbor bonds are locked, or if we want to show non-possible choices
+        if warning:
+            subtext += " (%s)" % warning
+        res.append(( subtext, command,
+                         disabled and 'disabled' or None,
+                         checked and 'checked' or None ))
+    ##e if >1 legal value, maybe we should add a toggleable checkmark item to permit "locking" the bond to its current bond type
+    return res
+
+def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??); probably not used in Alpha6
     """Return a menu_spec for changing the bond_type of this bond,
     or if that is unchangeable, a disabled menu item for displaying the type.
     """
@@ -114,6 +158,7 @@ def apply_btype_to_bond(btype, bond):
     v6 = v6_from_btype(btype)
     bond.set_v6(v6) # this doesn't affect anything else or do any checks ####k #####@@@@@ check that
     ##e now do some more...
+    bond.changed()
     return
 
 # end

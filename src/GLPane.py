@@ -1083,8 +1083,15 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 ####            if platform.atom_debug:
 ####                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
         
-        if self._needs_repaint: #bruce 050707 (for bond inference -- easiest place we can be sure to update bonds whenever needed)
-            env.post_event_updates( warn_if_needed = False)
+        #bruce 050707 (for bond inference -- easiest place we can be sure to update bonds whenever needed)
+        #bruce 050717 bugfix: always do this, not only when "self._needs_repaint"; otherwise,
+        # after an atomtype change using Build's cmenu, the first redraw (caused by the cmenu going away, I guess)
+        # doesn't do this, and then the bad bond (which this routine should have corrected, seeing the atomtype change)
+        # gets into the display list, and then even though the bondtype change (set_v6) does invalidate the display list,
+        # nothing triggers another gl_update, so the fixed bond is not drawn right away. I suppose set_v6 ought to do its own
+        # gl_update, but for some reason I'm uncomfortable with that for now (and even if it did, this bugfix here is
+        # probably also needed). And many analogous LL changers don't do that.
+        env.post_event_updates( warn_if_needed = False)
         
         self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
 

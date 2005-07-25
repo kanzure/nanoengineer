@@ -201,6 +201,10 @@ class Jig(Node):
             self.rematom(atm) # the last one removed kills the jig recursively!
         Node.kill(self) # might happen twice, that's ok
 
+    def destroy(self): #bruce 050718, for bonds code
+        # not sure if this ever needs to differ from kill -- probably not; in fact, you should probably override kill, not destroy
+        self.kill()
+
     # bruce 050125 centralized pick and unpick (they were identical on all Jig
     # subclasses -- with identical bugs!), added comments; didn't yet fix the bugs.
     #bruce 050131 for Alpha: more changes to it (still needs review after Alpha is out)
@@ -226,6 +230,20 @@ class Jig(Node):
         #bruce 050208 made this default method. Is it ever called, in any subclasses??
         pass
 
+    def moved_atom(self, atom): #bruce 050718, for bonds code
+        """FYI (caller is saying to this jig),
+        we have just changed atom.posn() for one of your atoms.
+        [Subclasses should override this as needed.]
+        """
+        pass
+
+    def changed_structure(self, atom): #bruce 050718, for bonds code
+        """FYI (caller is saying to this jig),
+        we have just changed the element, atomtype, or bonds for one of your atoms.
+        [Subclasses should override this as needed.]
+        """
+        pass
+    
     def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371; 050421 undo that change for Alpha5 (see below)
         "[overrides Node method]"
         #e this should be a "last resort", i.e. it's often better if interpart bonds
@@ -269,6 +287,7 @@ class Jig(Node):
     def mmp_record(self, mapping = None):
         #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
         #e could factor some code from here into mapping methods
+        #bruce 050718 made this check for mapping is not None (2 places), as a bugfix in __repr__
         """Returns a pair (line, wroteleaf)
         where line is the standard MMP record for any jig
         (one string containing one or more lines including their \ns):
@@ -288,13 +307,13 @@ class Jig(Node):
         but they shouldn't, because we've pulled all the common code for Jigs into here,
         so all they need to override is mmp_record_jigspecific_midpart.]
         """
-        if mapping:
+        if mapping is not None:
             ndix = mapping.atnums
         else:
             ndix = None
         nums = self.atnums_or_None( ndix)
         del ndix
-        if nums is None or (self.is_disabled() and mapping.not_yet_past_where_sim_stops_reading_the_file()):
+        if nums is None or (self.is_disabled() and mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file()):
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
             # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,
             # we use a variant of the code that used to actually move us before writing the file (since that's easiest for now).
@@ -315,7 +334,11 @@ class Jig(Node):
         else:
             c = self.color
         color = map(int,A(c)*255)
-        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, mapping.encode_name(self.name),
+        if mapping is not None:
+            name = mapping.encode_name(self.name)
+        else:
+            name = self.name
+        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, name,
                                                           color[0], color[1], color[2])
         midpart = self.mmp_record_jigspecific_midpart()
         if not midpart:

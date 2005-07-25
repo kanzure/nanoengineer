@@ -30,6 +30,10 @@ __author__ = "Josh"
 # and everything from it is imported into some other modules.
 # [bruce comment 050502] ###@@@
 
+CPKSigmaBondRadius = 0.1 #bruce 050719
+    ###e should make this a named constant in constants.py (or bond_constants.py?),
+    # like TubeRadius (i.e. "TubesSigmaBondRadius")
+
 from VQT import *
 from LinearAlgebra import *
 import string
@@ -267,6 +271,8 @@ class Bond:
     forgotten about (no need to kill or otherwise explicitly destroy
     them after they're not on their atoms).
     """
+
+    pi_bond_obj = None #bruce 050718; used to memoize a perceived PiBondSpChain object (if any) which covers this bond
     
     def __init__(self, at1, at2, v6 = V_SINGLE): # no longer also called from self.rebond()
         """create a bond from atom at1 to atom at2.
@@ -288,10 +294,13 @@ class Bond:
         self.invalidate_bonded_mols() #bruce 041109 new feature
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
-    def set_v6(self, v6): ###@@@ not yet used?? can't be used for illegal valences, as our actual setters need to do...
+    def set_v6(self, v6): #bruce 050717 revision: only call changed_valence when needed
+        "#doc; can't be used for illegal valences, as some of our actual setters need to do..."
         assert v6 in BOND_VALENCES
-        self.v6 = v6
-        self.changed_valence()
+        if self.v6 != v6:
+            self.v6 = v6
+            self.changed_valence()
+        return
 
     def reduce_valence_noupdate(self, vdelta, permit_illegal_valence = False):
         # option permits in-between, 0, or negative(?) valence
@@ -391,6 +400,14 @@ class Bond:
             self.atom1.molecule.changeapp(0)
         return
 
+    def changed(self): #bruce 050719
+        """Mark this bond's atoms (and thus their chunks, part, and mmp file) as changed.
+        (As of 050719, only the file (actually the assy object) records this fact.)
+        """
+        self.atom1.changed()
+        self.atom2.changed() # for now, only the file (assy) records this, so 2nd call is redundant, but someday that will change.
+        return
+
     def numeric_valence(self): # has a long name so you won't be tempted to use it when you should use .v6 ###@@@ not yet used?
         return self.v6 / 6.0
     
@@ -401,6 +418,8 @@ class Bond:
         """
         at1 = self.atom1
         at2 = self.atom2
+        at1._changed_structure() #bruce 050725
+        at2._changed_structure()
         assert at1 is not at2
         self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
 ##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
@@ -477,6 +496,17 @@ class Bond:
         # This change might speed up some redraws, esp. in move or deposit modes.
         return
 
+    def bond_to_abs_coords_quat(self): #bruce 050722
+        """Return a quat which can be used (via .rot) to rotate vectors from this bond's drawing coords into absolute coords.
+        (There is no method abs_to_bond_coords_quat which goes the other way -- just use .unrot for that.)
+        FYI: as of 050722, this is identity for external bonds, and chunk.quat for internal bonds.
+        """
+        atom1 = self.atom1
+        atom2 = self.atom2
+        if atom1.molecule is not atom2.molecule:
+            return Q(1,0,0,0)
+        return atom1.molecule.quat
+        
     def _recompute_geom(self, abs_coords = False): #bruce 050516 made this from __setup_update
         """[private method meant for our __getattr__ method, and for writepov]
         Recompute and return (but don't store)
@@ -495,11 +525,11 @@ class Bond:
             a2pos = atom2.posn()
         else:
             # internal bond; use mol-relative positions for all attributes.
-            # Note 1: this means any change to mol's coordinate system
+            # Note [bruce 041115]: this means any change to mol's coordinate system
             # (basecenter and quat) requires calling setup_invalidate
             # in this bond! That's a pain (and inefficient), so I might
             # replace it by a __getattr__ mol-coordsys-version-number check...
-            # ##e [bruce 041115]
+            # [and sometime after that, before 050719, I did.]
             a1pos = atom1.baseposn() #e could optim, since their calcs of whether basepos is present are the same
             a2pos = atom2.baseposn()
         vec = a2pos - a1pos
@@ -557,10 +587,32 @@ class Bond:
             return geom[4]
         elif attr == 'toolong':
             return geom[5]
+        elif attr == 'axis': # a2pos - a1pos (not normalized); in relative coords [bruce 050719 new feature]
+            return geom[4] - geom[0]
         else:
             raise AttributeError, attr
         pass
 
+    # ==
+    
+    def get_pi_info(self, **kws): #bruce 050718 ######@@@@@@ also call this from depmode making singlets
+        """Return the pi orbital orientation/occupancy info for this bond, if any [#doc the format], or None
+        if this is a single bond (which is not always a bug, e.g. in -C#C- chains, if we someday extend the
+        subrs this calls to do any bond inference -- presently they just trust the existing bond order, self.v6).
+           This info might be computed, and perhaps stored, or stored info might be used. It has to be computed
+        all at once for all pi bonds in a chain connected by sp atoms with 2 bonds.
+           If computed, and if it's partly arbitrary, **kws (out/up) might be used.
+        """
+        if platform.atom_debug: #######@@@@@@@ remove reload when works -- too slow even for debug
+            import pi_bond_sp_chain
+            reload(pi_bond_sp_chain)
+        from pi_bond_sp_chain import bond_get_pi_info
+        return bond_get_pi_info(self, **kws) # no need to pass an index -- that method can find one on self if it stored one
+    
+    def potential_pi_bond(self): #bruce 050718
+        "given our atomtypes, are we a potential pi bond?"
+        return self.atom1.atomtype.spX < 3 and self.atom2.atomtype.spX < 3
+    
     # ==
     
     def other(self, atm):
@@ -741,6 +793,19 @@ class Bond:
         atom2 = self.atom2
 
         try: #bruce 050610 to ensure calling glPopName
+
+            if self.v6 != V_SINGLE:
+                if platform.atom_debug:
+                    #bruce 050716 debug code (permanent, since this would always indicate a bug)
+                    if not self.legal_for_atomtypes():
+                        print_compact_stack("atom_debug: drawing bond %r which is illegal for its atomtypes: " % self)
+                from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False #bruce 050717, might be temporary
+                draw_bond_letters = debug_pref("bond letters", Choice_boolean_False)
+                draw_vanes = debug_pref("double-bond vanes", Choice_boolean_True) #e make dflt False when standard drawing available
+                draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_False) # cyls are nim [bruce 050725]  ###@@@
+                draw_sigma_cyl = not draw_cyls
+            else:
+                draw_sigma_cyl = True
         
             color1 = col or atom1.element.color
             color2 = col or atom2.element.color
@@ -759,9 +824,12 @@ class Bond:
                     drawline(red, c1, c2)
             elif disp == diCPK:
                 a1pos, c1, center, c2, a2pos, toolong = self.geom #e could be optimized to compute less for this case
-                drawcylinder(col or bondColor, a1pos, a2pos, 0.1)
+                sigmabond_cyl_radius = CPKSigmaBondRadius # used here and far below
+                if draw_sigma_cyl:
+                    drawcylinder(col or bondColor, a1pos, a2pos, sigmabond_cyl_radius)
             elif disp == diTUBES:
                 a1pos, c1, center, c2, a2pos, toolong = self.geom
+                sigmabond_cyl_radius = TubeRadius # could be (but isn't) used throughout this case; used separately far below
                 if shorten_tubes:
                     rad = TubeRadius * 1.1 / 1.0 # see Atom.howdraw for tubes; this constant (now 1.0) will need adjusting
                     vec = norm(a2pos-a1pos) # warning: if atom1 is a singlet, a1pos == center, so center-a1pos is not good to use here.
@@ -777,52 +845,66 @@ class Bond:
                 # one longer cylinder, then overdraw toolong indicator if needed.
                 # Significant for big parts. BUT, why spend time on this when I
                 # expect we'll do this drawing in C code before too long?
-                if not toolong:
-                    if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
-                        #bruce 050516 optim: draw only one cylinder in this common case
-                        drawcylinder(color1, a1pos, a2pos, TubeRadius)
+                if draw_sigma_cyl: ###@@@ this seems wrong -- probably need to make this a subr to be called twice for double bonds...
+                    if not toolong:
+                        if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
+                            #bruce 050516 optim: draw only one cylinder in this common case
+                            drawcylinder(color1, a1pos, a2pos, TubeRadius)
+                        else:
+                            if v1:
+                                drawcylinder(color1, a1pos, center, TubeRadius)
+                            if v2:
+                                drawcylinder(color2, a2pos, center, TubeRadius)
+                            if not (v1 and v2):
+                                drawsphere(black, center, TubeRadius, level)
                     else:
+                        drawcylinder(red, c1, c2, TubeRadius)
                         if v1:
-                            drawcylinder(color1, a1pos, center, TubeRadius)
+                            drawcylinder(color1, a1pos, c1, TubeRadius)
+                        else:
+                            drawsphere(black, c1, TubeRadius, level)
                         if v2:
-                            drawcylinder(color2, a2pos, center, TubeRadius)
-                        if not (v1 and v2):
-                            drawsphere(black, center, TubeRadius, level)
-                else:
-                    drawcylinder(red, c1, c2, TubeRadius)
-                    if v1:
-                        drawcylinder(color1, a1pos, c1, TubeRadius)
-                    else:
-                        drawsphere(black, c1, TubeRadius, level)
-                    if v2:
-                        drawcylinder(color2, a2pos, c2, TubeRadius)
-                    else:
-                        drawsphere(black, c2, TubeRadius, level)
-            if self.v6 != V_SINGLE: ##  or platform.atom_debug: # debug_bonds #####@@@@@
-                glDisable(GL_LIGHTING)
-                ## glDisable(GL_DEPTH_TEST)
-                glPushMatrix()
-                font = QFont( QString("Times"), 10)
-                    # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
-                    ###e should adjust fontsize based on scale, depth...
-                    #e could optimize this, keep in glpane
-                ## glpane.qglColor(QColor(75, 75, 75)) # gray
-                ## glpane.qglColor(QColor(200, 40, 140)) # majenta
-                glpane.qglColor(QColor(255, 255, 255)) # white
-                try:
-                    glpane_out = glpane.out
-                except AttributeError:
-                    glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
-                p = self.center + glpane_out * 0.6
-                    ###WRONG -- depends on rotation when display list is made! But quite useful for now.
-                    # Could fix this by having a separate display list, or no display list, for these kinds of things --
-                    # would need a separate display list per chunk and per offset.
-                v6 = self.v6
-                ltr = bond_letter_from_v6(v6).upper()
-                glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
-                glPopMatrix()
-                ## glEnable(GL_DEPTH_TEST)
-                glEnable(GL_LIGHTING)
+                            drawcylinder(color2, a2pos, c2, TubeRadius)
+                        else:
+                            drawsphere(black, c2, TubeRadius, level)
+            if self.v6 != V_SINGLE:
+                if draw_bond_letters:
+                    glDisable(GL_LIGHTING)
+                    ## glDisable(GL_DEPTH_TEST)
+                    glPushMatrix()
+                    font = QFont( QString("Times"), 10)
+                        # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
+                        ###e should adjust fontsize based on scale, depth...
+                        #e could optimize this, keep in glpane
+                    ## glpane.qglColor(QColor(75, 75, 75)) # gray
+                    ## glpane.qglColor(QColor(200, 40, 140)) # majenta
+                    glpane.qglColor(QColor(255, 255, 255)) # white
+                    try:
+                        glpane_out = glpane.out
+                    except AttributeError:
+                        glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
+                    p = self.center + glpane_out * 0.6
+                        ###WRONG -- depends on rotation when display list is made! But quite useful for now.
+                        # Could fix this by having a separate display list, or no display list, for these kinds of things --
+                        # would need a separate display list per chunk and per offset.
+                    v6 = self.v6
+                    ltr = bond_letter_from_v6(v6).upper()
+                    glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
+                    glPopMatrix()
+                    ## glEnable(GL_DEPTH_TEST)
+                    glEnable(GL_LIGHTING)
+                if draw_vanes:
+                    if platform.atom_debug:
+                        import draw_bond_vanes
+                        reload(draw_bond_vanes) #e too slow to always do this here, even in debug, once devel done! #######@@@@@@@
+                    from draw_bond_vanes import draw_bond_vanes
+                    draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
+                if draw_cyls:
+                    if platform.atom_debug: #e too slow (see comment above) ######@@@@@@@
+                        import draw_bond_cyls
+                        reload(draw_bond_cyls)
+                    from draw_bond_cyls import draw_bond_cyls # this is nim -- in fact, the module doesn't yet exist [bruce 050725]
+                    draw_bond_cyls( self, glpane, sigmabond_cyl_radius, col) ###IMPLEM
             pass
 
         except:
@@ -832,6 +914,10 @@ class Bond:
             glPopName()
         
         return # from Bond.draw
+
+    def legal_for_atomtypes(self): #bruce 050716
+        v6 = self.v6
+        return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
 
     def draw_in_abs_coords(self, glpane, color): #bruce 050609
         """Draw this bond in absolute (world) coordinates (even if it's an internal bond),
