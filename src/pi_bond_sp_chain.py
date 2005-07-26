@@ -124,9 +124,14 @@ class PiBondSpChain(PerceivedStructureType):
         self.destroy() ###k need to make sure it's ok for jigs (Nodes) not in the model tree
         # no point in calling super.changed_structure after self.destroy!
     def moved_atom(self, atom):
-        "invalidate my geometric info"
-        # must be fast, so don't bother calling super.moved_atom, since it's a noop
+        "some atom I'm on moved; invalidate my geometric info"
+        # must be fast, so don't bother calling Jig.moved_atom, since it's a noop
         self.have_geom = False
+    def changed_bond_type(self, bond): #bruce 050726
+        "some bond I'm on changed type (perhaps due to user change or to bond inference code); invalidate my geometric info"
+        # there is no superclass method for this -- it's only called on bond.pi_bond_obj for our own bonds
+        ###e it might be worth only invalidating if the bond type differs from what we last used when recomputing
+        self.have_geom = False        
     def get_pi_info(self, bond, out = DFLT_OUT, up = DFLT_UP, abs_coords = False):
         if len(self.listb) == 1:
             if platform.atom_debug:
@@ -160,9 +165,9 @@ class PiBondSpChain(PerceivedStructureType):
         """
         biL_pvec = biR_pvec = self.quats_cum[i].rot(self.b0L_pvec) # not yet twisted
         axis = self.axes[i]
-        if self.twist90 and i % 2 == 1:
-            biL_pvec = norm(cross(biL_pvec, axis))
-            biR_pvec = norm(cross(biR_pvec, axis))
+##        if self.twist90 and i % 2 == 1:
+##            biL_pvec = norm(cross(biL_pvec, axis))
+##            biR_pvec = norm(cross(biR_pvec, axis))
         twist = self.twist # this is the twist angle (in radians), for each bond; or None or 0 or 0.0 for no twist
         if twist:
             # twist that much times i and i+1 for L and R, respectively, around axes[i]
@@ -200,14 +205,14 @@ class PiBondSpChain(PerceivedStructureType):
         bonds = self.listb
         lista = self.lista
         
-        # first, do we want that 90-deg offset? Only if double bonds, I think.
-        # (It's just a kluge to avoid returning pi orders of (1,0) for some of them and (0,1) for the others.
-        #  We use it so we can return pi orders of (1,0) for all double bonds.)
-        #
-        # Let's assume bond inference was done, so if one bond is double, they all are.
-        # BUT WAIT, are all the middle atoms C(sp), not some other element?? I think so... ###@@@  check this somewhere,
-        #  and if another is poss, probably don't even make it form a chain like this
-        self.twist90 = ( bonds[0].v6 == V_DOUBLE )
+##        # first, do we want that 90-deg offset? Only if double bonds, I think.
+##        # (It's just a kluge to avoid returning pi orders of (1,0) for some of them and (0,1) for the others.
+##        #  We use it so we can return pi orders of (1,0) for all double bonds.)
+##        #
+##        # Let's assume bond inference was done, so if one bond is double, they all are.
+##        # BUT WAIT, are all the middle atoms C(sp), not some other element?? I think so... ###@@@  check this somewhere,
+##        #  and if another is poss, probably don't even make it form a chain like this
+##        self.twist90 = ( bonds[0].v6 == V_DOUBLE )
 
         posns = A( map( lambda atom: atom.posn(), lista ) )
         self.axes = axes = posns[1:] - posns[:-1] # axes along bonds, all in consistent directions & abs coords
@@ -216,11 +221,15 @@ class PiBondSpChain(PerceivedStructureType):
         # cumulative quats (there might be a more compact python notation for this, and/or a way to do more of it in Numeric)
         qq = Q(1,0,0,0)
         quats_cum = [qq] # how to get from bonds[0] to each bonds[i] starting from i == 0, using only bend-projections at atoms
-        for qi in quats_incr:
+        for qi, i in zip( quats_incr, range(len(quats_incr)) ):
+            # qi tells us how to map (perps to axes[i]) to (perps to axes[i+1])
             qq = qq + qi # make a new quat, don't use +=
+            ###e ideally we'd now enforce qq turning axes[0] into axes[i], to compensate for cumulative small errors [nim]
+            if self.adjacent_double_bonds( i, i+1 ):
+                axis = axes[i+1]
+                theta = pi / 2 # 90 degrees
+                qq += Q(axis, theta)
             quats_cum.append(qq)
-                ###@@@ sometime, worry abt cum error in quats_cum for long chains;
-                # correct it by enforcing that these quats turn axes[0] into axes[i], as we build them
         assert len(quats_cum) == len(bonds)
         self.quats_cum = quats_cum
         self.chain_quat_cum = quats_cum[-1]
@@ -228,6 +237,8 @@ class PiBondSpChain(PerceivedStructureType):
             # for rings we need to know how to get all the way around the ring, ie from bonds[-1] to bonds[0]
             # (but we won't add these quats to our lists)
             self.ringquat_incr = Q( axes[-1], axes[0] )
+            if self.adjacent_double_bonds( -1, 0 ):
+                self.ringquat_incr += Q(axes[0], pi / 2)
             ## self.ringquat_cum = self.chain_quat_cum + self.ringquat_incr #k probably not used
         # now we know total twist, so we can use code similar to   pi_vectors   function to decide what to do at the ends.
         # BTW all this only mattered if we weren't alternating single-triple bonds... ideally we'd rule that out first.
@@ -241,6 +252,18 @@ class PiBondSpChain(PerceivedStructureType):
         self.recompute_geom_from_quats()
         return # from recompute_geom
 
+    def adjacent_double_bonds( self, i1, i2 ): # replaces self.twist90 code, 050726
+        "#doc; i1 might be -1"
+        bonds = self.listb
+        v1 = bonds[i1].v6 # ok for negative indices i1
+        v2 = bonds[i2].v6
+        # if both are double, or one is double and one is aromatic or graphite (but not carbomeric)
+        if v1 == V_DOUBLE and v2 in (V_DOUBLE, V_AROMATIC, V_GRAPHITE):
+            return True
+        if v2 == V_DOUBLE and v1 in (V_AROMATIC, V_GRAPHITE):
+            return True
+        return False
+    
     def recompute_geom_from_quats(self): # non-ring class
         "[not a ring; various possible end situations]"
         out = self.out
@@ -302,8 +325,8 @@ class PiBondSpChain(PerceivedStructureType):
         axism1 = self.axes[-1]
         # what twist is needed to put that vector over the actual one (or its neg), perhaps with 90-deg offset?
         i = len(bonds) - 1
-        if self.twist90 and i % 2 == 1:
-            bm1R_pvec_no_twist = norm(cross(axism1, bm1R_pvec_no_twist))
+##        if self.twist90 and i % 2 == 1:
+##            bm1R_pvec_no_twist = norm(cross(axism1, bm1R_pvec_no_twist))
         # use negative if that fits better
         if dot(bm1R_pvec_no_twist, self.bm1R_pvec) < 0:
             bm1R_pvec_no_twist = - bm1R_pvec_no_twist
@@ -458,8 +481,8 @@ def pi_info_from_abs_pvecs( bond, bond_axis, pvec1, pvec2, abs_coords = False):
     "#doc; bond_axis (passed only as an optim) and pvecs are in abs coords; retval is in bond coords unless abs_coords is true"
     a1py = pvec1
     a2py = pvec2
-    a1pz = cross(bond_axis, pvec1)
-    a2pz = cross(bond_axis, pvec2)
+    a1pz = norm(cross(bond_axis, pvec1))
+    a2pz = norm(cross(bond_axis, pvec2))
     ord_pi_y, ord_pi_z = pi_orders(bond)
     if not abs_coords:
         # put into bond coords (which might be the same as abs coords)

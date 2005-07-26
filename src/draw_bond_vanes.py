@@ -54,6 +54,9 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
     twisted = debug_pref('pi vanes/ribbons', Choice_boolean_False)
     poles = debug_pref('pi vanes/poles', Choice_boolean_True)
     draw_normals = debug_pref('pi vanes/draw normals', Choice_boolean_False)
+    print_vane_params = debug_pref('pi vanes/print params', Choice_boolean_False)
+    if print_vane_params:
+        print "draw vane",a1p,vlen(a1p),a2p,vlen(a2p),ord_pi
     if twisted:
         d12 = dot(a1p, a2p)
         ## assert d12 >= 0.0

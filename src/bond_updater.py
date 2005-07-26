@@ -154,4 +154,16 @@ corrected_v6_list = {
     V_CARBOMERIC: (V_AROMATIC, V_DOUBLE, V_SINGLE),
  }
 
+# ==
+
+def process_changed_bond_types( _changed_bond_types):
+    """Tell whoever needs to know that some bond types changed.
+    For now, that means only bond.pi_bond_obj objects on those very bonds.
+    """
+    for bond in _changed_bond_types.itervalues():
+        obj = bond.pi_bond_obj
+        if obj is not None:
+            obj.changed_bond_type(bond)
+    return
+
 # end

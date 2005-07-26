@@ -398,6 +398,8 @@ class Bond:
         if self.atom1.molecule is self.atom2.molecule:
             # we're in that molecule's display list, so it needs to know we'll look different when redrawn
             self.atom1.molecule.changeapp(0)
+        from env import _changed_bond_types #bruce 050726
+        _changed_bond_types[id(self)] = self
         return
 
     def changed(self): #bruce 050719
@@ -831,7 +833,8 @@ class Bond:
                 a1pos, c1, center, c2, a2pos, toolong = self.geom
                 sigmabond_cyl_radius = TubeRadius # could be (but isn't) used throughout this case; used separately far below
                 if shorten_tubes:
-                    rad = TubeRadius * 1.1 / 1.0 # see Atom.howdraw for tubes; this constant (now 1.0) will need adjusting
+                    rad = TubeRadius * 1.1 * 0.9 # see Atom.howdraw for tubes; the constant (0.9) might need adjusting
+                        #bruce 050726 changed that constant from 1.0 to 0.9
                     vec = norm(a2pos-a1pos) # warning: if atom1 is a singlet, a1pos == center, so center-a1pos is not good to use here.
                     if atom1.element is not Singlet:
                         a1pos = a1pos + vec * rad

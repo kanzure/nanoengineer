@@ -80,9 +80,11 @@ def alloc_my_glselect_name(obj):
     obj_with_glselect_name[name] = obj
     return name
 
-# dict for atoms or singets whose element type, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
-
+# dict for atoms or singets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
+#e (doesn't yet include all killed atoms or singlets, but maybe it ought to)
 _changed_structure_atoms = {} # maps id(atom) to atom, for atoms or singlets
+
+_changed_bond_types = {} # dict for bonds whose bond-type gets changed (need not include newly created bonds) ###k might not be used
 
 # the beginnings of a general change-handling scheme [bruce 050627]
 
@@ -98,7 +100,8 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
     a debug-only warning to be emitted if the call was necessary. (This function is designed
     to be very fast when called more times than necessary.)
     """
-    if not _changed_structure_atoms: #e this will be generalized to: if no changes of any kind, since the last call
+    if not (_changed_structure_atoms or _changed_bond_types):
+        #e this will be generalized to: if no changes of any kind, since the last call
         return
     # some changes occurred, so this function needed to be called (even if they turn out to be trivial)
     if warn_if_needed and platform.atom_debug:
@@ -107,7 +110,7 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
         pass # (other than printing this, we handle unreported changes normally)
     # handle and clear all changes since the last call
     # (in the proper order, when there might be more than one kind of change #nim)
-    if _changed_structure_atoms:
+    if _changed_structure_atoms or _changed_bond_types:
         if platform.atom_debug:
             # during development, reload this module every time it's used
             # (Huaicai says this should not be done by default in the released version,
@@ -116,11 +119,17 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
             #  [bruce 050715])
             import bond_updater
             reload(bond_updater)
+    if _changed_structure_atoms:
         from bond_updater import update_bonds_after_each_event
-        update_bonds_after_each_event( _changed_structure_atoms)
+        update_bonds_after_each_event( _changed_structure_atoms) # this might modify _changed_bond_types when it does bond-inference
             #e not sure if that routine will need to use or change other similar globals in this module;
             # if it does, passing just that one might be a bit silly (so we could pass none, or all affected ones)
         _changed_structure_atoms.clear()
+    if _changed_bond_types:
+        from bond_updater import process_changed_bond_types
+        process_changed_bond_types( _changed_bond_types)
+            ###k our interface to that function needs review if it can recursively add bonds to this dict -- if so, it should .clear
+        _changed_bond_types.clear()
     return
 
 # end
