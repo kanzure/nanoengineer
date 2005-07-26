@@ -91,8 +91,6 @@ def find_hotspot_for_pasting(obj):
 def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.clear()
 
-#    w.depositAtomDashboard.addSeparator()
-
     w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")
     w.depositAtomLabel.setText(" Build ")
     w.depositAtomDashboard.addSeparator()
@@ -111,7 +109,8 @@ def do_what_MainWindowUI_should_do(w):
     ## w.connect(w.hybridComboBox,SIGNAL("activated(int)"),w.elemChange_hybrid) #bruce 050606
     w.hybridComboBox_elem = None
     
-    w.modifySetElementAction.addTo(w.depositAtomDashboard)
+#    w.modifySetElementAction.addTo(w.depositAtomDashboard) # Element Selector.  Obsolete as of 050726.
+    w.modifyMMKitAction.addTo(w.depositAtomDashboard) # Molecular Modeling Toolkit.  Mark 050726
 
     w.depositAtomDashboard.addSeparator()
 

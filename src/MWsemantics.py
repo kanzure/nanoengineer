@@ -21,6 +21,7 @@ import platform
 from constants import *
 from elementColors import elementColors ## bruce 050408 removed: import *
 from elementSelector import elementSelector ## bruce 050408 removed: import *
+from MMKit import MMKit
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import readgms, insertgms
@@ -38,6 +39,7 @@ import preferences
 helpwindow = None
 elementSelectorWin = None
 elementColorsWin = None
+MMKitWin = None
 windowList = []
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
@@ -1313,7 +1315,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.glpane.mode.Flush()
 
    
-
     #######################################
     # Element Selector Slots
     #######################################
@@ -1322,11 +1323,24 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
         # Make sure only a single element window is shown
-        if elementSelectorWin and elementSelectorWin.isShown():             return 
+        if elementSelectorWin and elementSelectorWin.isShown():
+            return 
         
         elementSelectorWin = elementSelector(self)
-        elementSelectorWin.setDisplay(self.Element)
+        elementSelectorWin.update_dialog(self.Element)
         elementSelectorWin.show()
+    
+    def modifyMMKit(self):
+        '''Open The Molecular Modeling Kit for Build (DEPOSIT) mode.
+        '''
+        # This should probably be moved elsewhere
+        global MMKitWin
+        if MMKitWin and MMKitWin.isShown():
+            return 
+        
+        MMKitWin = MMKit(self)
+        MMKitWin.update_dialog(self.Element)
+        MMKitWin.show()
         
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
@@ -1339,16 +1353,23 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             pass # might never fail, not sure...
         global elementSelectorWin
         if elementSelectorWin and not elementSelectorWin.isHidden():
-           elementSelectorWin.setDisplay(self.Element)     
+           elementSelectorWin.update_dialog(self.Element)     
            elementSelectorWin.show()
+        # Update the MMKit dialog   
+        global MMKitWin
+        if MMKitWin and not MMKitWin.isHidden():
+           MMKitWin.update_dialog(self.Element)     
+           MMKitWin.show()
           
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
         # element specified as element number
         global elementSelectorWin
+        global MMKitWin
         self.Element = elt
-        if elementSelectorWin: elementSelectorWin.setDisplay(elt)
+        if elementSelectorWin: elementSelectorWin.update_dialog(elt)
+        if MMKitWin: MMKitWin.update_dialog(elt)
         line = eCCBtab2[elt]
         self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
         #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentItem should have called

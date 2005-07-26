@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>365</width>
-            <height>392</height>
+            <width>274</width>
+            <height>407</height>
         </rect>
     </property>
     <property name="palette">
@@ -272,227 +272,26 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget">
+        <widget class="QFrame">
             <property name="name">
-                <cstring>layout5</cstring>
+                <cstring>elementFrame</cstring>
             </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>elemInfoLabel</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>5</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>60</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="paletteBackgroundColor">
-                        <color>
-                            <red>227</red>
-                            <green>211</green>
-                            <blue>231</blue>
-                        </color>
-                    </property>
-                    <property name="text">
-                        <string></string>
-                    </property>
-                    <property name="textFormat">
-                        <enum>RichText</enum>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignLeft</set>
-                    </property>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout4</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>1</number>
-                        </property>
-                        <widget class="QFrame">
-                            <property name="name">
-                                <cstring>elementFrame</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>0</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="frameShape">
-                                <enum>Box</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Raised</enum>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>elemColorLabel</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>5</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>80</width>
-                                    <height>30</height>
-                                </size>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="textFormat">
-                                <enum>RichText</enum>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignCenter</set>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QButtonGroup">
-                    <property name="name">
-                        <cstring>buttonGroup1</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>PopupPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="title">
-                        <string>Display Mode</string>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>radioButton1</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="pixmap">
-                                <pixmap>image1</pixmap>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>0</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Tubes</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>radioButton1_2</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="pixmap">
-                                <pixmap>image2</pixmap>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>1</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>CPK</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>radioButton1_3</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="pixmap">
-                                <pixmap>image3</pixmap>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>2</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>VdW</string>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-            </hbox>
+            <property name="minimumSize">
+                <size>
+                    <width>200</width>
+                    <height>150</height>
+                </size>
+            </property>
+            <property name="frameShape">
+                <enum>Box</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
         </widget>
         <widget class="QButtonGroup">
             <property name="name">
                 <cstring>elementButtonGroup</cstring>
-            </property>
-            <property name="paletteBackgroundColor">
-                <color>
-                    <red>223</red>
-                    <green>231</green>
-                    <blue>212</blue>
-                </color>
             </property>
             <property name="title">
                 <string></string>
@@ -921,118 +720,6 @@
                         <number>36</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="4" column="2">
-                    <property name="name">
-                        <cstring>pushButton51</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Sb</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>51</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="4" column="3">
-                    <property name="name">
-                        <cstring>pushButton52</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Te</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>52</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="4" column="4">
-                    <property name="name">
-                        <cstring>pushButton53</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>I</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>53</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="4" column="5">
-                    <property name="name">
-                        <cstring>pushButton54</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Xe</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>54</number>
-                    </property>
-                </widget>
                 <widget class="QPushButton" row="2" column="2">
                     <property name="name">
                         <cstring>pushButton15</cstring>
@@ -1137,21 +824,15 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout13</cstring>
+                <cstring>layout9</cstring>
             </property>
-            <grid>
+            <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <property name="margin">
-                    <number>9</number>
-                </property>
-                <property name="spacing">
-                    <number>9</number>
-                </property>
-                <widget class="QPushButton" row="1" column="1">
+                <widget class="QPushButton">
                     <property name="name">
-                        <cstring>closePTableButton</cstring>
+                        <cstring>TransmuteButton</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
@@ -1162,13 +843,10 @@
                         </sizepolicy>
                     </property>
                     <property name="text">
-                        <string>Close</string>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
+                        <string>Transmute</string>
                     </property>
                 </widget>
-                <widget class="QCheckBox" row="0" column="1">
+                <widget class="QCheckBox">
                     <property name="name">
                         <cstring>transmuteCheckBox</cstring>
                     </property>
@@ -1187,9 +865,70 @@
                         <string>Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong.</string>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="0" column="0">
+                <spacer>
                     <property name="name">
-                        <cstring>TransmuteButton</cstring>
+                        <cstring>spacer7</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer9</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout10</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer8</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>closePTableButton</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
@@ -1200,25 +939,19 @@
                         </sizepolicy>
                     </property>
                     <property name="text">
-                        <string>Transmute</string>
+                        <string>Close</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
                     </property>
                 </widget>
-            </grid>
+            </hbox>
         </widget>
     </vbox>
 </widget>
 <images>
     <image name="image0">
         <data format="PNG" length="341">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011c49444154789ced93b16ac24018c77f571ca58b539ea14de782ef5028b7950e82d09be252c8a664722874ca740ee2202e0e85be438e2c72d2b4e2e6e213f405ec1012929648893854fa9bbebb3ff7ddf1e33e618ce11834ea1e544aedaa32adb538abdb1820896624d10c80e928663a8af3eca0c6fb385ae3dcf13e6755b8edbbbcbe7fb82e65a517b7ba9656d702b01e6c590fb60098618c19a6fec69b15e3cd0a80e6d2a7b9f48153702cb201a9e3b88a1fffb8df8be9f7524f524aa49400048e257052f776ee60e74ebabf7009162ef0efb802adb568141759ad94dabdbebc0370737bc9248900e8b86ddefc4f00ae9ecef978ee0070f138c9fd6683f2871d1739d477c9f1f7a07849188600789ec76f6a3819c745eaf8d65a8b2f2994780c7748b1fb0000000049454e44ae426082</data>
-    </image>
-    <image name="image1">
-        <data format="XPM.GZ" length="770">789ca591cb0ac2301045f7fd8ad0ec8aa46da40f103f417029888bc9a3d645375a1722febbbd69b42d64d749087338938449d2849d8e0796a4d1a3a7fea6996ee9ce12f3ecbad7f9b27f47b1946c9879c6f27813c5c434e3d2600035b06a8651000db0ceeaac2a8157a02a55a13260ebb12402367fb440eeb0521529a07258ab7ab416a8a5de6a0914c0c685c360ac339ce631334b31338a34d085991b4ec6fe4c43663210c29bab2f1acde20a5f1430562c8cf0cb94ae36814e91855f67c85c4be341d6109f8cf162484731f5e3852b6a850876ea76040d5ff1db9f5df405e3d0b8e6</data>
-    </image>
-    <image name="image2">
-        <data format="XPM.GZ" length="709">789c8d92cf0ac2300cc6ef7b8ab2dc8654ac288af8088247413ca429a2072ffe3988f8ee365d9b4611b41decfbf16549f76dc3ce6cd62bd30d9bcb15af473274c0b3e9c2ed74ba6f77cb47d33a67e23535a376d0b468c8800bbc19897116c94f183de3dcef2761ca181871c49b1118c9d1981ca365dca795f0ebfac70144b04a5607bdc7b2a2ac0ea027b4a588aa0318a45b6c56bb41942853924e4e2c0a363ba95e9ccfe1dae1e128c3adee06b59b558e2d24b737a764806f1960ce203b2a03ccb3e580a49cfec5fb6782ee061274d1e5d42ab3d06bc94062f6b94832d0c3abf3f9397ffd07cf45f3026ed2a10c</data>
-    </image>
-    <image name="image3">
-        <data format="XPM.GZ" length="6049">789c4d97d96e1d390e86eff3144678d718a84f6daa2a0ce6c24be2ddb1633b5e067341b24ade63c76becc6bcfbf0f0579de99c341a5f44b1286ea2fefc63e9747f77e98f3f3f3d3df3f3952ee9253f2efd31bcdcddbdfffb3ffffaebd3e7b25cb2bfd5ac5f2a3fffe3d367feb1a44b344b5dd5cd9c37e75c745dea7ae733e7a1699bc67996999b6ece7237e7b268a471797a03c759935c3e662ec0a2ce652ca37f4f18dcf77ded3c64e6def573ef5c4dfae40b983bae9cbf3ad7b18e85cb37ce4dd337d1d743e6a1913987ca39367583f33e38b74d05a6111cdbe8fbf9c4b96b14e7e32db09d6770fd2f6099f138677d729658e6f3ef676ea3fb2f94ce6afe73fd047f681ca3dba7e0d1f4abcbd799ebe8f10a67993be8a31bb056eae7a76be7d4d6adfb870fc1fd087fd2319899b1ff74ced5cce2ebfe0f2799b3ff425e5fc4ef1edcce22ceebfeaf0adb8fef71e62ee74beb5cf6558ff8ac656ec1f213cc027bb873ae267911e77ab11ff6d41cd9e315dc5fd522dec1f3a78ac6ae4fafc0ddd0b97f3973dff4c89fd3cc114cf582918fbb99c7bef5fd05584ac1f7dddf556be775797e03dbf7902f016cfa90ef04e69ee16f9caf9beca53df0641faf3a73dbb6583f729636b5ee7f79761eda114c7de6d47a7e8615e771ca47ddceccc81f463c4793f77ca357b0d517d6efc02925d7cfcb73ae6769048bd7535da421f97e1e170cf9dbccf6c7edf17e5397b1caf660bd347d58f7f8d495d5abfb4f37c06d897ce30bf0e27b2973d64f1e9fba4e9ad79f338f09f5eaf5583751a2d743c0791aae904f3c8093e4fd3f336b62b727641e12fa09d6e3e23c8f601141bc76c15a887f9fcec0a60fdc65cefa04e76f25415e8ec18993e79f1c669684fef8b160d8c70b46ffd871eea2e67ef60d3ccc14f9b20936fdbe9f62e66c1f7f77ee6d3ff2ff15ac75b6ef24332beaafcb3c2aeaed059c7ad84f9eef354b23decff41e9c3aacf35ee67c5e82fd62fbd1bff633dbbfb8fcd382110fbf1f6ab3367afd686629d8d709f9aa0bfbcec1433de03e5c079b3db8df62e63e219ee582dd3e45be0f6d11dddfd2828742514fab99db01fbe1cfc1f6bbfd01fe1ca7fc21efa775b2fbc0e311903f895bdc77847c4fd2e5fcfa9d5904f57209b6f4877ff27e3b0fea39af4ffe0c9e2fcdacad22fac51bd8fa93c7532fc0268ff8fa7dd31431e1bcfa01ee6207fbeec1fdac437e5f81876240ffdbc9dc0ff05fd69762c2fdd6666e61aff499a77cf0fa6c4adb8ff80a3835c9fb29359963deff23739bd0efdf9d2b2e7ae4ef2dd8ea01e79f652e501ff290b91da03fcb9b7e7cff61c1f0ef4de616fe9295cc1decd397cc533d787e36b5ddd7b8df8ec1f63df787ac671e06e44393791cd09f709e3ad5f09fcc168cfb6b3bf364cf56e69ccf8c78343aa8e7833e83ad1e300f3d81cdbf88eff282e1dfcdcc31b9fdc1fb6f135bc67da5b03f7299e7b923f0643f3d82cd5edc77ba60e4f761e606fa653973cce7f37ed3b493bf08f65bb413ec5fc99cf343bd1e9b6ea814fdfa357333607e423e5bb4f03dda58b0db17a0bfb7f3217fa1bfd756e1ff04b6ef43fe7be61af6c8c40de2a57ebf36dc0afcc588978d43a86ffe0dd64e61ff75e61ecc99870efd85e14fb6efc35fab99a77c85ffc4fa37facd257810e417a11fc81847c403e793341bbd1e02ec539b77d16fd6c093ff743373443cf417781c46e46f04a712fe0807992be8a72c3fe59b225f87453d225e432a727cde33677db291793aff63e67ac4fc0a7b473b0feadfef9b267575077de87769e0dcafbf81c76ac03c5f8253017bd5eb27cefa0efd4e7f822d3ed8bf069ee4e557e612f690f7a75874b316f7ff081eab11f63f8127ffd34be69cdfecfd2f96d3f7a4045b3fc37db79e390dd07f0d367b306f6d642e733e7afe46ab0eec9733f0d88d9857f733a711f3c5e682911f7e9f46f336e22d370b46bfc2f7eac9ffe4f3706c7426d0077b9b695dfd3e8af6dcc17ccb07603b0ff47bbdda62827cf07e11bbaec17b365c66ee11df700f367fe1bed9cb3ca8d77380bf7b51c1fd8ffd360e77e8ff3eff45e96accd7f4001ec711f7b9dfdf516d1c813ecf5f6b7732e2bef57a8ea3f51fd88b7cb0dd23e43f32cb88f7a2e75f6bde807ef1f3b7c538433cd9bfd796bda0bf8677b0e943fff1fc6f6da0cfdf777bdbc6d671bf7b3c5b7bcf30fa3ff4773c32fce5f751dbf7b1437c3d3f5bed6bbc6774176cfd00fdd8cfd715363fa07ff87baaab34a2dfa8fbbb536919fe73ff74c334cfd379e6fcbe20ef37dd38adab9faf9fd97ecc7bde3ffb522ae8931a3cbd07d4ef9bbeb2f908f612787a6f48937992f7f3f6b570b6af052fde275e7fbd3544c1fbddebbd8fd37b4ecec18bf31c2c18f61d65ceef11863d2d373de6f743b008c33ebf4ffb6eb1eef34f2f6c29eaecf9d1abe52bfa97dffffd307d2f783df749c69c8f7e1f70611b107fbf8fb8b4fac3fde2fd883bad304f8ad71fcfe77de48fdbcbaca5a01e3d7f79b0f8a27e7d3e127b5d60fe248f8fbd969360feba006b8ffd7a32b1a27ffb79a432fd98177c3e12367b307ff6991b41fca16fb47e85f781ebd3c2de2398e77dded7caea0dfef2f7be46bbef50ffde9f7598e6ffe0f11966767fe13ef3fe67d3e630e0bef3fcb6f42c711f1cf83c90d2943f07cfd32f50e02041c310c6908c2fc265b80ad7e1c6f8762ef177f970177e86fbf0107e85c7f0149ec34b780d6fe177780f1f6139ac84d5bfcb87b5f0257cb5b5f5b01136c356d80e3b6137ec856f613f1c84efb6e3301c41de648fc38f70124ec399e939b7df2c14a10c55a8edff4d88a10d9dada07fad512022ce3f21a581464a7461bf4bbaa26bbaa1dbb93cdd21ffe99e1ee8173dd2133dd30bbdd21bfda677fa305ea6155a0d05ad858ebe64f9afb44e1bb4495bb44d3bb6be4b7bf4cd64f7e9c07edfe9908ee8d8e47fd089cb9f9afc329dd139cda8a0922aaa4dbea148adfdbad052cf21ac30c13fcc363a290fd6bf125ff025557cc5d77c43677ccb77fc936ef99e1fec68bf201fd80efbc84f26fbcc2f74c8affcc6bff99d3f789947dae1155ee5b5b032c58bbff057f3cf32af9b2d1bbcc19bbcc5dbbcc3bbbcc7ebf6e56fbccf07e61f9ee2c5dff990e62e3de263fec1277cca67b6c37eb4cee73ce382cbb93fd12f4dbee686a3bdf73aee2508f19930bd593fe8ac87a90d6aa3a4b9bc5c405e2ee54aae2d8a077223b772273fe55e1ee4973cd2bb3cc9b3bcc8abcbbfa13fcbbb7cc8b28d742bb22a6bf245becaba6cc8a66cc9366dc88e654227bbb227df5c7e5f0ee4bb1cd2811cc9b1fc901339953359a17d39b778edc8cc34efda7f05e265ee2f4d7325b5347c21515a93efa4d7208d9255a58415551d420fff589f4816fdc2bcbd4c855ee8a55ee9b5de50c7cb7a6b7179d491692e9de5ef88f46768f59ed7f5417fe9a33ef1b63eeb8bc56a9d0ef555dfe84e7f2fe4dff5c3d697754557754dbfe8575dd70df85f37754bb77587ee5055f0a7ee5a55ace0a76fbaa7df747ffa17e303fd0eed7faf473dd4233dd61f7ae2746a7be63f633dfb7f47f8fcdf7f7efa1fa28096e5</data>
     </image>
 </images>
 <connections>
@@ -1239,12 +972,6 @@
         <signal>clicked(int)</signal>
         <receiver>ElementSelectorDialog</receiver>
         <slot>setElementInfo(int)</slot>
-    </connection>
-    <connection>
-        <sender>buttonGroup1</sender>
-        <signal>clicked(int)</signal>
-        <receiver>ElementSelectorDialog</receiver>
-        <slot>changeDisplayMode(int)</slot>
     </connection>
 </connections>
 <tabstops>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jul 24 14:03:07 2005
+# Created: Mon Jul 25 15:07:09 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5699,6 +5699,33 @@ image134_data = \
     "\x67\x76\xc5\x11\x74\x8e\xfd\xd6\xbf\x92\xff\xd2" \
     "\x17\x02\x83\x8a\x42\x07\x26\xbd\x74\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image135_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\xfb\x49\x44\x41\x54\x78\x9c\xed\x94\xa1\x8e\xc2" \
+    "\x40\x14\x45\x4f\xab\x71\xa8\x2a\xbe\xe0\x7e\xcd" \
+    "\x7c\x02\x1e\x89\x83\x54\xe1\xf8\x01\x04\x06\x1c" \
+    "\x7f\x80\x1a\x05\x35\x4d\x21\x93\x10\x04\x49\x0d" \
+    "\x5f\xd0\x04\xfd\x56\x34\x4b\xd8\x64\x0b\x6c\x37" \
+    "\x18\xc2\x51\x2f\x33\x79\x77\x26\x47\x5c\x78\x11" \
+    "\x51\xdb\x45\x49\xd6\x74\x17\x42\x68\x9d\x5b\x07" \
+    "\x57\xc1\xa8\x82\x49\xb2\xfd\xf6\x62\xfb\xed\xc5" \
+    "\xbe\x1f\x8c\x5b\x27\x3f\xe0\x65\xc1\x57\x17\xf7" \
+    "\x9c\xfd\x95\x10\x42\xf4\xe3\xc7\xdd\x7e\x41\xb7" \
+    "\x5f\x00\x70\x1c\x9f\x39\x8e\xcf\x00\x6c\x26\x19" \
+    "\x9b\x49\x06\xc0\xbc\x3c\x30\x2f\x0f\x00\x74\x76" \
+    "\x43\x3a\xbb\x21\x00\xcb\x59\xc6\x72\x96\x5d\xb3" \
+    "\x3e\x8e\x81\x5f\x1c\x8f\x06\x19\xa3\x41\xed\xc9" \
+    "\x39\x87\x73\x0e\x80\x34\x29\x48\x93\xda\x7d\xb1" \
+    "\x4a\x28\x56\x49\x7d\x9e\x8b\x34\x17\xf0\x71\xdc" \
+    "\x40\x63\x57\x48\xb2\xf2\x14\x59\x79\x8a\x4c\x92" \
+    "\xe5\x54\x96\x53\x99\x24\xb3\x45\xcf\x6c\xd1\x33" \
+    "\x49\x16\xaf\xa7\x16\xaf\xa7\xef\xd6\x15\xb7\xfc" \
+    "\xd7\xf7\x53\x7d\x2c\xc9\xbc\xf7\xe6\xbd\xb7\x67" \
+    "\x67\x78\x1b\xc7\xb7\xb4\xf1\x1d\x42\x88\xbe\x00" \
+    "\xe9\x0d\x98\xef\x6b\xa6\x23\x2e\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5951,6 +5978,8 @@ class MainWindow(QMainWindow):
         self.image133.loadFromData(image133_data,"PNG")
         self.image134 = QPixmap()
         self.image134.loadFromData(image134_data,"PNG")
+        self.image135 = QPixmap()
+        self.image135.loadFromData(image135_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6389,6 +6418,8 @@ class MainWindow(QMainWindow):
         self.moveThetaPlusAction.setIconSet(QIconSet(self.image133))
         self.setViewOppositeAction = QAction(self,"setViewOppositeAction")
         self.setViewOppositeAction.setIconSet(QIconSet(self.image134))
+        self.modifyMMKitAction = QAction(self,"modifyMMKitAction")
+        self.modifyMMKitAction.setIconSet(QIconSet(self.image135))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6470,7 +6501,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1033,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6882,6 +6913,7 @@ class MainWindow(QMainWindow):
         self.connect(self.simJobManagerAction,SIGNAL("activated()"),self.JobManager)
         self.connect(self.serverManagerAction,SIGNAL("activated()"),self.serverManager)
         self.connect(self.setViewOppositeAction,SIGNAL("activated()"),self.setViewOpposite)
+        self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
 
 
     def languageChange(self):
@@ -7317,6 +7349,7 @@ class MainWindow(QMainWindow):
         self.setViewOppositeAction.setMenuText(self.__tr("Opposite"))
         self.setViewOppositeAction.setToolTip(self.__tr("Opposite View"))
         self.setViewOppositeAction.setStatusTip(self.__tr("Opposite View"))
+        self.modifyMMKitAction.setText(self.__tr("Molecular Modeling Kit"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7836,6 +7869,9 @@ class MainWindow(QMainWindow):
 
     def serverManager(self):
         print "MainWindow.serverManager(): Not implemented yet"
+
+    def modifyMMKit(self):
+        print "MainWindow.modifyMMKit(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

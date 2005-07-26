@@ -402,7 +402,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1033</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3730,6 +3730,17 @@
             <string>Opposite View</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>modifyMMKitAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image135</iconset>
+        </property>
+        <property name="text">
+            <string>Molecular Modeling Kit</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4136,6 +4147,9 @@
     </image>
     <image name="image134">
         <data format="PNG" length="345">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000012049444154789ccd95b18e445014867f1bccbe8146345a9a29f47a25efe0dd781ab752ab48d48673e56ee5ba96c5ccdacdfc8910f97df91de71cc01f48bf41bc2f5405a9d7da9560decfbc8fdf8201801eebb7bf343130a75e817ddf7faaf88cb1cd70fa77689aa6b02c6b17e6791e9224d9f548b0effb22cbb2c384b66d238aa2439f3e418ba2383403401886a77c32715555f2e6388e188601a6692ecc4dd39c820217b5db96646222826118701c67f595cbb27c7a4c1760d775b5adbe1c860100309dcf48968288c018135383abd344442022745df75a6255c6e75c91beef5f4fcc39c7fd7ed7f41b04efa1a90b85732e0f553f4ddd22711004129ae7b90080388eb53ccf455dd78b87dab6dd8502caae98a06776c511748efdd6bf92ffd21702838a420726bd740000000049454e44ae426082</data>
+    </image>
+    <image name="image135">
+        <data format="PNG" length="308">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000fb49444154789ced94a18ec24014454fab71a82abee07ecd7c021e898354e1f80104061c7f801a05354d21931004490d5fd004fd56344bd8640b6c3718c2512f33797726475c781151db4549d6741742689d5b0757c1a88249b2fdf662fbedc5be1f8c5b273fe065c15717f79cfd951042f4e3c7dd7e41b75f00701c9f398ecf006c26199b4906c0bc3c302f0f007476433abb2100cb59c672965db33e8e815f1c8f0619a341edc93987730e8034294893da7db14a2856497d9e8b3417f071dc40635748b2f21459798a4c92e55496539924b345cf6cd1334916afa716afa7efd615b7fcd7f7537d2cc9bcf7e6bdb76767781bc7b7b4f11d4288be00e90d98ef6ba6232e0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -4925,6 +4939,12 @@
         <receiver>MainWindow</receiver>
         <slot>setViewOpposite()</slot>
     </connection>
+    <connection>
+        <sender>modifyMMKitAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyMMKit()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5082,6 +5102,7 @@
     <slot>makeGamess()</slot>
     <slot>JobManager()</slot>
     <slot>serverManager()</slot>
+    <slot>modifyMMKit()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
