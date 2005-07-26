@@ -312,7 +312,7 @@ class ElementView(ThumbView):
     """Element graphical display """    
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
-        self.scale = 4.0#5.0 ## the possible largest rvdw of all elements
+        self.scale = 2.0#5.0 ## the possible largest rvdw of all elements
         self.pos = V(0.0, 0.0, 0.0)
         self.mol = None
         
