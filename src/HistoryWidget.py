@@ -53,6 +53,13 @@ def _graymsg(text):
 
 # ==
 
+def quote_html(text): #bruce 050727
+    for char, string in [('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;')]: # &amp has to come first
+        text = text.replace(char, string)
+    return text
+
+# ==
+
 class message:
     """Stores one message for a history."""
     #e this will get more complicated (and its existence will be justified)
@@ -363,6 +370,10 @@ class HistoryWidget:
             self.saved_norepeat_id = norepeat_id # whether supplied or None
             self.widget_msg( msg, options)
         return
+
+    def message_no_html(self, msg, **kws): #bruce 050727
+        msg = quote_html(msg)
+        self.message( msg, **kws)
     
     def flush_saved_transients(self):
         """make sure a saved-up transient message, if there is one,

@@ -22,6 +22,11 @@ History:
   for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
 
 - bruce split bond_constants.py into a separate module; 050707
+
+- 050727 bruce moved bond drawing code into a separate module, bond_drawer.py
+  (also removed some imports not needed here, even though chem.py still does "from bonds import *"
+   and some other modules import * from chem, so there's no guarantee these were not needed indirectly)
+
 '''
 __author__ = "Josh"
 
@@ -29,10 +34,6 @@ __author__ = "Josh"
 # but note that as of 050502 they are all imported into chem.py (at end of that file)
 # and everything from it is imported into some other modules.
 # [bruce comment 050502] ###@@@
-
-CPKSigmaBondRadius = 0.1 #bruce 050719
-    ###e should make this a named constant in constants.py (or bond_constants.py?),
-    # like TubeRadius (i.e. "TubesSigmaBondRadius")
 
 from VQT import *
 from LinearAlgebra import *
@@ -50,9 +51,8 @@ from qt import *
 from Utility import *
 from MoleculeProp import *
 from mdldata import marks, links, filler
-from povheader import povpoint #bruce 050413
 
-from debug import print_compact_stack, print_compact_traceback, compact_stack
+from debug import print_compact_stack, print_compact_traceback
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
@@ -153,6 +153,8 @@ def bond_copied_atoms(at1, at2, oldbond): #bruce 050524
     which is presumably a bond between the originals of the same atoms,
     or it might be a half-copied bond if at1 or at2 is a singlet
     (whether to use this function like that is not yet decided).
+    As of 050727 this is also used in Atom.unbond to copy bond types
+    onto open bonds which replace broken real bonds.
        This API assumes that bond state is not "directional".
     If that changes, we'll probably need to be told which atom is which
     in the old bond wrt the new bond.
@@ -294,6 +296,9 @@ class Bond:
         self.invalidate_bonded_mols() #bruce 041109 new feature
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
+    def is_open_bond(self): #bruce 050727
+        return self.atom1.element is Singlet or self.atom2.element is Singlet
+    
     def set_v6(self, v6): #bruce 050717 revision: only call changed_valence when needed
         "#doc; can't be used for illegal valences, as some of our actual setters need to do..."
         assert v6 in BOND_VALENCES
@@ -751,13 +756,13 @@ class Bond:
         # whenever you define __eq__
         return not self.__eq__(ob)
 
-    def draw(self, glpane, dispdef, col, level, shorten_tubes = False): #bruce 050702 adding shorten_tubes option
+    def draw(self, glpane, dispdef, col, level, **kws): #bruce 050727 moving implem to separate file
         """Draw the bond. Note that for external bonds, this is called twice,
         once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
         each of these calls gets dispdef, col, and level from a different mol.
         [bruce, 041104, thinks that leads to some bugs in bond looks.]
-        Bonds are drawn only in certain display modes (CPK, LINES, TUBES).
+           Bonds are drawn only in certain display modes (CPK, LINES, TUBES).
         The display mode is inherited from the atoms or molecule (as passed in
         via dispdef from the calling molecule -- this might cause bugs if some
         callers change display mode but don't set havelist = 0, but maybe they do).
@@ -774,149 +779,12 @@ class Bond:
         # a1pos, a2pos, c1, c2, as created by self.__setup_update().
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
-
-        if self.atom1.element is Singlet:
-            #bruce 050708 new feature -- borrow name from our singlet
-            # (only works because we have at most one)
-            # (also required a change in Atom.draw_in_abs_coords)
-            glname = self.atom1.glname
-        elif self.atom2.element is Singlet:
-            glname = self.atom2.glname
-        else:
-            glname = self.glname
-
-        glPushName( glname) #bruce 050610
-            # Note: we have to do this all the time, since display lists made outside GL_SELECT mode can be used inside it.
-            # And since that display list might be used arbitrarily far into the future,
-            # self.glname needs to remain the same (and we need to remain registered under it)
-            # as long as we live.
-
-        atom1 = self.atom1
-        atom2 = self.atom2
-
-        try: #bruce 050610 to ensure calling glPopName
-
-            if self.v6 != V_SINGLE:
-                if platform.atom_debug:
-                    #bruce 050716 debug code (permanent, since this would always indicate a bug)
-                    if not self.legal_for_atomtypes():
-                        print_compact_stack("atom_debug: drawing bond %r which is illegal for its atomtypes: " % self)
-                from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False #bruce 050717, might be temporary
-                draw_bond_letters = debug_pref("bond letters", Choice_boolean_False)
-                draw_vanes = debug_pref("double-bond vanes", Choice_boolean_True) #e make dflt False when standard drawing available
-                draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_False) # cyls are nim [bruce 050725]  ###@@@
-                draw_sigma_cyl = not draw_cyls
-            else:
-                draw_sigma_cyl = True
-        
-            color1 = col or atom1.element.color
-            color2 = col or atom2.element.color
-
-            disp = max(atom1.display, atom2.display)
-            if disp == diDEFAULT:
-                disp = dispdef
-            if disp == diLINES:
-                a1pos, c1, center, c2, a2pos, toolong = self.geom
-                if not toolong:
-                    drawline(color1, a1pos, center)
-                    drawline(color2, a2pos, center)
-                else:
-                    drawline(color1, a1pos, c1)
-                    drawline(color2, a2pos, c2)
-                    drawline(red, c1, c2)
-            elif disp == diCPK:
-                a1pos, c1, center, c2, a2pos, toolong = self.geom #e could be optimized to compute less for this case
-                sigmabond_cyl_radius = CPKSigmaBondRadius # used here and far below
-                if draw_sigma_cyl:
-                    drawcylinder(col or bondColor, a1pos, a2pos, sigmabond_cyl_radius)
-            elif disp == diTUBES:
-                a1pos, c1, center, c2, a2pos, toolong = self.geom
-                sigmabond_cyl_radius = TubeRadius # could be (but isn't) used throughout this case; used separately far below
-                if shorten_tubes:
-                    rad = TubeRadius * 1.1 * 0.9 # see Atom.howdraw for tubes; the constant (0.9) might need adjusting
-                        #bruce 050726 changed that constant from 1.0 to 0.9
-                    vec = norm(a2pos-a1pos) # warning: if atom1 is a singlet, a1pos == center, so center-a1pos is not good to use here.
-                    if atom1.element is not Singlet:
-                        a1pos = a1pos + vec * rad
-                    if atom2.element is not Singlet:
-                        a2pos = a2pos - vec * rad
-                v1 = atom1.display != diINVISIBLE
-                v2 = atom2.display != diINVISIBLE
-                ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
-                # to look at each mol's .hidden (but this is purely a guess)
-                ###e bruce 050513 future optim idea: when color1 == color2, draw just
-                # one longer cylinder, then overdraw toolong indicator if needed.
-                # Significant for big parts. BUT, why spend time on this when I
-                # expect we'll do this drawing in C code before too long?
-                if draw_sigma_cyl: ###@@@ this seems wrong -- probably need to make this a subr to be called twice for double bonds...
-                    if not toolong:
-                        if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
-                            #bruce 050516 optim: draw only one cylinder in this common case
-                            drawcylinder(color1, a1pos, a2pos, TubeRadius)
-                        else:
-                            if v1:
-                                drawcylinder(color1, a1pos, center, TubeRadius)
-                            if v2:
-                                drawcylinder(color2, a2pos, center, TubeRadius)
-                            if not (v1 and v2):
-                                drawsphere(black, center, TubeRadius, level)
-                    else:
-                        drawcylinder(red, c1, c2, TubeRadius)
-                        if v1:
-                            drawcylinder(color1, a1pos, c1, TubeRadius)
-                        else:
-                            drawsphere(black, c1, TubeRadius, level)
-                        if v2:
-                            drawcylinder(color2, a2pos, c2, TubeRadius)
-                        else:
-                            drawsphere(black, c2, TubeRadius, level)
-            if self.v6 != V_SINGLE:
-                if draw_bond_letters:
-                    glDisable(GL_LIGHTING)
-                    ## glDisable(GL_DEPTH_TEST)
-                    glPushMatrix()
-                    font = QFont( QString("Times"), 10)
-                        # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
-                        ###e should adjust fontsize based on scale, depth...
-                        #e could optimize this, keep in glpane
-                    ## glpane.qglColor(QColor(75, 75, 75)) # gray
-                    ## glpane.qglColor(QColor(200, 40, 140)) # majenta
-                    glpane.qglColor(QColor(255, 255, 255)) # white
-                    try:
-                        glpane_out = glpane.out
-                    except AttributeError:
-                        glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
-                    p = self.center + glpane_out * 0.6
-                        ###WRONG -- depends on rotation when display list is made! But quite useful for now.
-                        # Could fix this by having a separate display list, or no display list, for these kinds of things --
-                        # would need a separate display list per chunk and per offset.
-                    v6 = self.v6
-                    ltr = bond_letter_from_v6(v6).upper()
-                    glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
-                    glPopMatrix()
-                    ## glEnable(GL_DEPTH_TEST)
-                    glEnable(GL_LIGHTING)
-                if draw_vanes:
-                    if platform.atom_debug:
-                        import draw_bond_vanes
-                        reload(draw_bond_vanes) #e too slow to always do this here, even in debug, once devel done! #######@@@@@@@
-                    from draw_bond_vanes import draw_bond_vanes
-                    draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
-                if draw_cyls:
-                    if platform.atom_debug: #e too slow (see comment above) ######@@@@@@@
-                        import draw_bond_cyls
-                        reload(draw_bond_cyls)
-                    from draw_bond_cyls import draw_bond_cyls # this is nim -- in fact, the module doesn't yet exist [bruce 050725]
-                    draw_bond_cyls( self, glpane, sigmabond_cyl_radius, col) ###IMPLEM
-            pass
-
-        except:
-            glPopName()
-            print_compact_traceback("ignoring exception when drawing bond %r: " % self)
-        else:
-            glPopName()
-        
-        return # from Bond.draw
+        if platform.atom_debug: #######@@@@@@@ too slow to leave in after devel, even for debug, unless we make it once per user-event
+            import bond_drawer
+            reload( bond_drawer)
+        from bond_drawer import draw_bond
+        draw_bond( self, glpane, dispdef, col, level, **kws)
+        return
 
     def legal_for_atomtypes(self): #bruce 050716
         v6 = self.v6
@@ -937,14 +805,15 @@ class Bond:
         if mol is mol2:
             # internal bond; geometric info is stored in chunk-relative coords; we need mol's help to use those
             mol.pushMatrix()
-            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, shorten_tubes = True)
+            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, highlighted = True)
                 # sorry for all the kluges (e.g. 2 of those args) that beg for refactoring! The info passing in draw methods
                 # is not designed for drawing leaf nodes by themselves in a clean way! (#e should clean up somehow)
-                #bruce 050702 using shorten_tubes to help make room to mouseover-highlight the atoms,
+                #bruce 050702 using shorten_tubes [as of 050727, this is done via highlighted = True]
+                # to help make room to mouseover-highlight the atoms,
                 # when in tubes mode (thus fixing bug 715-1); a remaining bug was that it's sometimes hard to
                 # highlight the tube bonds, apparently due to selatom seeming bigger even when not visible (not sure).
                 # In another commit, same day, GLPane.py (sort selobj candidates) and this file (don't shorten_tubes
-                # next to singlets), this has been fixed.
+                # next to singlets [later moved to bond_drawer.py]), this has been fixed.
             mol.popMatrix()
         else:
             # external bond -- draw it at max dispdef of those from its mols
@@ -966,81 +835,16 @@ class Bond:
             return True
         pass
     
-    def writepov(self, file, dispdef, col):
+    def writepov_bond(self, file, dispdef, col): #bruce 050727 moving implem to separate file
         "Write this bond to a povray file (always using absolute coords, even for internal bonds)."
-        ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,
-        ## at least for pov file writing, so compute it here locally. To fix bug 346,347
-        #bruce 050516 comment: my guess is, those attrs were "not correct" for internal bonds
-        # since in that case they're in the chunk's private "basecenter/quat" coordinate
-        # system, not the absolute (model) coordinate system. So I am now comparing these
-        # to what's returned by _recompute_geom with abs_coords = True. If that's correct,
-        # we can change this code to use that routine.
-        disp = max(self.atom1.display, self.atom2.display)
-        if disp == diDEFAULT: disp = dispdef
-        color1 = col or self.atom1.element.color
-        color2 = col or self.atom2.element.color
-        
-        a1pos = self.atom1.posn()
-        a2pos = self.atom2.posn()
-        
-        vec = a2pos - a1pos
-        leng = 0.98 * vlen(vec)
-        vec = norm(vec)
-        # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
-        #  etc, so the entire bond is drawn as if "too long".)
-        rcov1 = self.atom1.atomtype.rcovalent
-        rcov2 = self.atom2.atomtype.rcovalent
-        c1 = a1pos + vec*rcov1
-        c2 = a2pos - vec*rcov2
-        toolong = (leng > rcov1 + rcov2)
-        center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
-
-        if platform.atom_debug: #bruce 050516; explained above ####@@@@
-            if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
-                print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
-            # if this works, we can always use _recompute_geom for external bonds,
-            # and optim by using self.geom for internals.
-        
-        if disp < 0: disp = dispdef
-        if disp == diLINES:
-            file.write("line(" + povpoint(a1pos) +
-                       "," + povpoint(a2pos) + ")\n")
-        if disp == diCPK:
-            file.write("bond(" + povpoint(a1pos) +
-                       "," + povpoint(a2pos) + ")\n")
-        if disp == diTUBES:
-        ##Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
-        ##             cylinder written to a pov file    
-            DELTA = 1.0E-5
-            isSingleCylinder = False
-            if  self.atom1.atomtype.rcovalent < DELTA:
-                    col = color2
-                    isSingleCylinder = True
-            if  self.atom2.atomtype.rcovalent < DELTA:
-                    col = color1
-                    isSingleCylinder = True
-            if isSingleCylinder:
-                file.write("tube3(" + povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
-            else:
-                if not toolong: #bruce 050516 changed this from self.toolong to toolong
-                    file.write("tube2(" + povpoint(a1pos) +
-                       "," + stringVec(color1) +
-                       "," + povpoint(center) + "," +
-                       povpoint(a2pos) + "," +
-                       stringVec(color2) + ")\n")
-                else:
-                    file.write("tube1(" + povpoint(a1pos) +
-                       "," + stringVec(color1) +
-                       "," + povpoint(c1) + "," +
-                       povpoint(c2) + "," + 
-                       povpoint(a2pos) + "," +
-                       stringVec(color2) + ")\n")
+        from bond_drawer import writepov_bond
+        writepov_bond(self, file, dispdef, col)
         return
 
-    def __str__(self): #bruce 050705 revised this
+    def __str__(self): #bruce 050705 revised this; note that it contains chars not compatible with HTML unless quoted
         ## return str(self.atom1) + " <--> " + str(self.atom2)
         return bonded_atoms_summary(self)
-        # no quat is available here; better results if you call that subr directly and pass one
+        # no quat is easily available here; better results if you call that subr directly and pass one
 
     def __repr__(self):
         return str(self.atom1) + "::" + str(self.atom2)
@@ -1053,8 +857,9 @@ class Bond:
         If given, use the quat describing the rotation used for displaying it
         to order the atoms in the bond left-to-right (e.g. in text strings).
         """
-        import bond_utils
-        reload(bond_utils) # at least during development
+        if platform.atom_debug:
+            import bond_utils
+            reload(bond_utils) # at least during development
         from bond_utils import bond_menu_section
         return bond_menu_section(self, quat = quat)
 

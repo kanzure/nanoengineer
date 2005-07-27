@@ -950,6 +950,8 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
            If self is a singlet, kill it (singlets must always have one bond).
            As of 041109, this is called from atom.kill of the other atom,
         and from bond.bust, and [added by bruce 041109] from bond.rebond.
+           As of 050727, newly created open bonds have same bond type as the
+        removed bond.
         """
         # [obsolete comment: Caller is responsible for shakedown
         #  or kill (after clearing externs) of affected molecules.]
@@ -982,7 +984,9 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         if at2.element is Singlet:
             return None
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
-        self.molecule.bond(self, x) # invals mol as needed
+        #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
+        bond_copied_atoms( self, x, b)
+        ## self.molecule.bond(self, x) # invals mol as needed
         return x # new feature, bruce 041222
 
     def get_neighbor_bond(self, neighbor):

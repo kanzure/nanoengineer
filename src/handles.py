@@ -254,7 +254,7 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
 def ave_colors(weight, color1, color2):
     "weight 1.0 => color1, 0.0 => color2, between => between" ###k calls
     #e should use some Numeric method
-    return [weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)]
+    return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
 
 # we'll use the atoms of the mols
 # and a sep set or two

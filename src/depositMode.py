@@ -1268,13 +1268,22 @@ class depositMode(basicMode):
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         a = self.o.selatom
-        if a:
+        selobj = self.o.selobj # only used if selatom is None
+        if a is not None:
             # this may change hybridization someday
             if a.element is Singlet: return
             self.w.history.message("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.changed()
+        elif isinstance( selobj, Bond) and not selobj.is_open_bond(): #bruce 050727 new feature
+            self.w.history.message_no_html("breaking bond %s" % selobj)
+                ###e %r doesn't show bond type, but %s doesn't work in history since it contains "<-->" which looks like HTML.
+                ###e Should fix with a utility to quote HTML-active chars, to call here on the message.
+            self.o.selobj = None # without this, the bond remains highlighted even after it's broken (visible if it's toolong)
+            selobj.bust() # this fails to preserve the bond type on the open bonds -- not sure if that's bad, but probably it is
+            self.o.assy.changed() #k needed?
+            
         self.w.win_update()
 
 # removed by bruce 041217:
