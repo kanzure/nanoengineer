@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Wed Jul 27 10:41:46 2005
+# Created: Wed Jul 27 18:21:18 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -222,6 +222,7 @@ class MMKitDialog(QDialog):
         MMKitDialogLayout = QVBoxLayout(self,11,6,"MMKitDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
+        self.elementFrame.setSizePolicy(QSizePolicy(5,5,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(200,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
@@ -230,7 +231,7 @@ class MMKitDialog(QDialog):
         self.tabWidget2 = QTabWidget(self,"tabWidget2")
 
         self.tab = QWidget(self.tabWidget2,"tab")
-        tabLayout = QVBoxLayout(self.tab,2,6,"tabLayout")
+        tabLayout = QVBoxLayout(self.tab,11,6,"tabLayout")
 
         self.elementButtonGroup = QButtonGroup(self.tab,"elementButtonGroup")
         self.elementButtonGroup.setMinimumSize(QSize(0,110))
@@ -434,53 +435,53 @@ class MMKitDialog(QDialog):
         self.hybrid_btngrp.setFrameShadow(QButtonGroup.Plain)
         self.hybrid_btngrp.setLineWidth(0)
         self.hybrid_btngrp.setExclusive(1)
-        self.hybrid_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.hybrid_btngrp.layout().setSpacing(0)
-        self.hybrid_btngrp.layout().setMargin(1)
-        hybrid_btngrpLayout = QHBoxLayout(self.hybrid_btngrp.layout())
-        hybrid_btngrpLayout.setAlignment(Qt.AlignTop)
 
         self.sp3_btn = QPushButton(self.hybrid_btngrp,"sp3_btn")
+        self.sp3_btn.setGeometry(QRect(1,1,32,32))
         self.sp3_btn.setMinimumSize(QSize(30,30))
         self.sp3_btn.setPixmap(self.image1)
         self.sp3_btn.setToggleButton(1)
         self.sp3_btn.setOn(1)
         self.sp3_btn.setDefault(0)
         self.hybrid_btngrp.insert( self.sp3_btn,0)
-        hybrid_btngrpLayout.addWidget(self.sp3_btn)
 
         self.sp2_btn = QPushButton(self.hybrid_btngrp,"sp2_btn")
+        self.sp2_btn.setGeometry(QRect(33,1,32,32))
         self.sp2_btn.setMinimumSize(QSize(30,30))
         self.sp2_btn.setPixmap(self.image2)
         self.sp2_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp2_btn,1)
-        hybrid_btngrpLayout.addWidget(self.sp2_btn)
 
         self.sp_btn = QPushButton(self.hybrid_btngrp,"sp_btn")
+        self.sp_btn.setGeometry(QRect(65,1,32,32))
         self.sp_btn.setMinimumSize(QSize(30,30))
         self.sp_btn.setPixmap(self.image3)
         self.sp_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp_btn,2)
-        hybrid_btngrpLayout.addWidget(self.sp_btn)
 
         self.aromatic_btn = QPushButton(self.hybrid_btngrp,"aromatic_btn")
+        self.aromatic_btn.setGeometry(QRect(97,1,32,32))
         self.aromatic_btn.setMinimumSize(QSize(30,30))
         self.aromatic_btn.setPixmap(self.image4)
         self.aromatic_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.aromatic_btn,3)
-        hybrid_btngrpLayout.addWidget(self.aromatic_btn)
-        spacer4 = QSpacerItem(5,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        hybrid_btngrpLayout.addItem(spacer4)
         tabLayout.addWidget(self.hybrid_btngrp)
+        spacer9 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        tabLayout.addItem(spacer9)
         self.tabWidget2.insertTab(self.tab,QString(""))
 
         self.tab_2 = QWidget(self.tabWidget2,"tab_2")
+        tabLayout_2 = QVBoxLayout(self.tab_2,11,6,"tabLayout_2")
 
-        self.clipboard_combox = QComboBox(0,self.tab_2,"clipboard_combox")
-        self.clipboard_combox.setGeometry(QRect(10,20,180,21))
+        self.textLabel1 = QLabel(self.tab_2,"textLabel1")
+        tabLayout_2.addWidget(self.textLabel1)
+
+        self.chunkListBox = QListBox(self.tab_2,"chunkListBox")
+        self.chunkListBox.setSizePolicy(QSizePolicy(7,7,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
+        tabLayout_2.addWidget(self.chunkListBox)
         self.tabWidget2.insertTab(self.tab_2,QString(""))
         MMKitDialogLayout.addWidget(self.tabWidget2)
-        spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
         MMKitDialogLayout.addItem(spacer4_2)
 
         layout10 = QHBoxLayout(None,0,6,"layout10")
@@ -495,12 +496,14 @@ class MMKitDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(222,415).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(222,443).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
         self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
+        self.connect(self.tabWidget2,SIGNAL("currentChanged(QWidget*)"),self.tabpageChanged)
+        self.connect(self.chunkListBox,SIGNAL("selectionChanged(QListBoxItem*)"),self.chunkChanged)
 
 
 
@@ -532,6 +535,7 @@ class MMKitDialog(QDialog):
         self.sp_btn.setText(QString.null)
         self.aromatic_btn.setText(QString.null)
         self.tabWidget2.changeTab(self.tab,self.__tr("Atoms"))
+        self.textLabel1.setText(self.__tr("Pastable Chunks:"))
         self.tabWidget2.changeTab(self.tab_2,self.__tr("Clipboard"))
         self.closePTableButton.setText(self.__tr("Close"))
 
@@ -541,6 +545,12 @@ class MMKitDialog(QDialog):
 
     def set_hybrid_type(self,a0):
         print "MMKitDialog.set_hybrid_type(int): Not implemented yet"
+
+    def tabpageChanged(self,a0):
+        print "MMKitDialog.tabpageChanged(QWidget*): Not implemented yet"
+
+    def chunkChanged(self,a0):
+        print "MMKitDialog.chunkChanged(QListBoxItem*): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MMKitDialog",s,c)
