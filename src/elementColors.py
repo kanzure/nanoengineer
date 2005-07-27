@@ -7,9 +7,8 @@ $Id$
 from ElementColorsDialog import *
 from elements import PeriodicTable 
 from constants import globalParms, diVDW, diCPK, diTUBES 
-from ThumbView import *
-from chem import atom
-from chunk import molecule
+from ThumbView import ElementView
+
 from HistoryWidget import redmsg # Mark 050311
 from VQT import V
 
@@ -305,60 +304,7 @@ class elementColors(ElementColorsDialog):
             mol.changeapp(1)
         
         self.w.glpane.gl_update()
-    
-    
 
-class ElementView(ThumbView):
-    """Element graphical display """    
-    def __init__(self, parent, name, shareWidget = None):
-        ThumbView.__init__(self, parent, name, shareWidget)
-        self.scale = 2.0#5.0 ## the possible largest rvdw of all elements
-        self.pos = V(0.0, 0.0, 0.0)
-        self.mol = None
-        
-        ## Dummy attributes. A kludge, just try to make other code
-        ##  think it looks like a glpane object.
-        self.display = 0  
-        self.selatom = None
-
-    def drawModel(self):
-        """The method for element drawing """
-        if self.mol:
-           self.mol.draw(self, None)
-
-    def refreshDisplay(self, elm, dispMode=diVDW):
-        """Display the new element or the same element but new display mode"""   
-        self.makeCurrent()
-        self.mol = self._constructModel(elm, self.pos, dispMode) 
-        self.updateGL()
-    
-    def _constructModel(self, elm, pos, dispMode):
-        """This is to try to repeat what 'oneUnbonded()' function does,
-        but hope to remove some stuff not needed here.
-        The main purpose is to build the geometry model for element display. 
-        <Param> elm: An object of class Elem
-        <Param> dispMode: the display mode of the atom--(int)
-        <Return>: the molecule which contains the geometry model.
-        """
-        class DummyAssy:
-            """dummy assemby class"""
-            drawLevel = 2
-            
-        if 0:#1:
-            assy = DummyAssy()
-        else:
-            from assembly import assembly 
-            assy = assembly(None)
-                
-        mol = molecule(assy, 'dummy') 
-        atm = atom(elm.symbol, pos, mol)
-        atm.display = dispMode
-        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom: ####@@@@
-        ## atm.set_atomtype_but_dont_revise_singlets('sp2')
-        ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
-        ## (which can be passed to set_atomtype_but_dont_revise_singlets)
-        atm.make_singlets_when_no_bonds()
-        return mol
 
 # ==
 

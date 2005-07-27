@@ -265,7 +265,9 @@ class selectMode(basicMode):
         
     
     def jigGLSelect(self, event, selSense):
-        '''Use the OpenGL picking/selection to select any jigs '''
+        '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
+           matrix before return. '''
+        
         if not self.jigSelectionEnabled: return False
         
         wX = event.pos().x()
@@ -275,32 +277,44 @@ class selectMode(basicMode):
         
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         gz = wZ[0][0]
+        if gz >= 1.0:  # Empty space was clicked
+            return False  
         
         pxyz = A(gluUnProject(wX, wY, gz))
         pn = self.o.out
         pxyz -= 0.0002*pn
         dp = - dot(pxyz, pn)
         
-        current_glselect = (wX,wY,1,1) #bruce 050615 for use by nodes which want to set up their own projection matrix
+        # Save project matrix before it's changed
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        
+        current_glselect = (wX,wY,1,1) 
         self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
         
         glSelectBuffer(self.o.glselectBufferSize)
         glRenderMode(GL_SELECT)
         glInitNames()
         glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()  ## Save model/view matrix before it's changed
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
             self.o.assy.draw(self.o)
             glDisable(GL_CLIP_PLANE0)
-            #self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
-                # note: this might call some display lists which, when created, registered namestack names,
-                # so we need to still know those names!
         except:
+            # Restore Model view matrix, select mode to render mode 
+            glPopMatrix()
+            glRenderMode(GL_RENDER)
             print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
-            glMatrixMode(GL_MODELVIEW)
-            self.o._setup_modelview( self.o.vdist) ###k correctness of this is unreviewed! ####@@@@
-            # now it's important to continue, at least enough to restore other gl state
+        else: 
+            # Restore Model view matrix
+            glPopMatrix() 
+    
+        #Restore project matrix and set matrix mode to Model/View
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
         
         glFlush()
         

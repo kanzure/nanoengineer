@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
+# Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Wed Jul 27 01:53:16 2005
+# Created: Wed Jul 27 10:41:46 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
