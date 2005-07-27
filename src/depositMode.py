@@ -123,31 +123,48 @@ def do_what_MainWindowUI_should_do(w):
     # Changed the radio buttons to push buttons.  Should change the RB suffix to PB.
     # Added bond1, bond2, bond3 and bonda to the button group.
     # Mark 050727.
+    
+    #bruce 050727 changes: split this into two button groups, mainly so I can implement the actions
+    # more quickly and reliably for Alpha6 -- later we can discuss whether this design change is good or bad.
+    # The first group is what to do when you click on an open bond or in empty space -- deposit atom or
+    # paste object (same as before). The second group is what to do when you click on a bond;
+    # it would be nice to add one more choice for "do nothing" but I'm not sure how best to do that.
+    #    Also we should replace QPushButton with QToolButton, since the Qt docs for QPushButton make it clear that
+    # this is correct based on how these are used. But I can't get QToolButton to work right, so I won't do this now.
+
+    w.depositAtomDashboard.addSeparator()
+    bg2 = QButtonGroup(w.depositAtomDashboard)
+    bg2.setExclusive(1)
+    lay2 = QHBoxLayout(bg2)
+    lay2.setAutoAdd(True)
+
 #    w.depositAtomDashboard.pasteRB = QRadioButton("Paste", bg)
 #    w.depositAtomDashboard.atomRB = QRadioButton("Atom", bg)
+##    w.depositAtomDashboard.pasteRB = QToolButton( bg)
     w.depositAtomDashboard.pasteRB = QPushButton("", bg)
     w.depositAtomDashboard.pasteRB.setPixmap(imagename_to_pixmap('paste1.png'))
     w.depositAtomDashboard.pasteRB.setToggleButton(1)
     w.depositAtomDashboard.atomRB = QPushButton("", bg)
     w.depositAtomDashboard.atomRB.setPixmap(imagename_to_pixmap('atom.png'))
     w.depositAtomDashboard.atomRB.setToggleButton(1)
-    w.depositAtomDashboard.bond1RB = QPushButton("", bg)
+    
+    w.depositAtomDashboard.bond1RB = QPushButton("", bg2)
     w.depositAtomDashboard.bond1RB.setPixmap(imagename_to_pixmap('bond1.png'))
     w.depositAtomDashboard.bond1RB.setToggleButton(1)
-    w.depositAtomDashboard.bond2RB = QPushButton("", bg)
+    w.depositAtomDashboard.bond2RB = QPushButton("", bg2)
     w.depositAtomDashboard.bond2RB.setPixmap(imagename_to_pixmap('bond2.png'))
     w.depositAtomDashboard.bond2RB.setToggleButton(1)
-    w.depositAtomDashboard.bond3RB = QPushButton("", bg)
+    w.depositAtomDashboard.bond3RB = QPushButton("", bg2)
     w.depositAtomDashboard.bond3RB.setPixmap(imagename_to_pixmap('bond3.png'))
     w.depositAtomDashboard.bond3RB.setToggleButton(1)
-    w.depositAtomDashboard.bondaRB = QPushButton("", bg)
+    w.depositAtomDashboard.bondaRB = QPushButton("", bg2)
     w.depositAtomDashboard.bondaRB.setPixmap(imagename_to_pixmap('bonda.png'))
     w.depositAtomDashboard.bondaRB.setToggleButton(1)
     
     # Bruce, the following line may be needed to fix a bug on MacOS, in which
     # a button with a pixmap will automatically shrink to a very small size and
     # the image is not visible. Let me know if this is needed or not.  Mark 050727
-    w.depositAtomDashboard.pasteRB.setMinimumSize(QSize(30,30))  
+##    w.depositAtomDashboard.pasteRB.setMinimumSize(QSize(30,30))  
     
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
@@ -310,13 +327,13 @@ class depositMode(basicMode):
         
         # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
         self.w.connect(self.w.depositAtomDashboard.bond1RB,
-                       SIGNAL("pressed()"), self.setBond1)
+                       SIGNAL("toggled(bool)"), self.setBond1) #bruce 050727 changed "pressed()" to "toggled(bool)"
         self.w.connect(self.w.depositAtomDashboard.bond2RB,
-                       SIGNAL("pressed()"), self.setBond2)
+                       SIGNAL("toggled(bool)"), self.setBond2)
         self.w.connect(self.w.depositAtomDashboard.bond3RB,
-                       SIGNAL("pressed()"), self.setBond3)
+                       SIGNAL("toggled(bool)"), self.setBond3)
         self.w.connect(self.w.depositAtomDashboard.bondaRB,
-                       SIGNAL("pressed()"), self.setBonda)
+                       SIGNAL("toggled(bool)"), self.setBonda)
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
         
@@ -1018,7 +1035,10 @@ class depositMode(basicMode):
                 # there are 1 or 2 externs it might be better to do pivoting. #e
                 self.dragmol = a.molecule
                 # fall thru
-        elif self.o.selobj is not None: # something other than an atom was lit up
+        elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond():
+            # click on a real bond
+            self.clicked_on_bond(self.o.selobj)
+        elif self.o.selobj is not None: # something *else* other than an atom was lit up
             pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
         else:
             # nothing was "lit up" -- we're in empty space;
@@ -1047,7 +1067,17 @@ class depositMode(basicMode):
         self.pivot = None
         self.pivax = None
         self.w.win_update()
-    
+
+    def clicked_on_bond(self, bond): #bruce 050727
+        v6 = self.bondclick_v6
+        if v6 is not None:
+            btype = btype_from_v6( v6)
+            from bond_utils import apply_btype_to_bond
+            apply_btype_to_bond( btype, bond)
+                # checks whether btype is ok, and if so, new; emits history message; does [#e or should do] needed invals/updates
+            ###k not sure if that subr does gl_update when needed... this method does it, but not sure how #######@@@@@@@
+        return
+        
     def dragto(self, point, event, perp = None):
         """Return the point to which we should drag the given point,
         if event is the drag-motion event and we want to drag the point
@@ -1450,22 +1480,39 @@ class depositMode(basicMode):
         self.w.depositAtomDashboard.atomRB.setOn(True)
         self.UpdateDashboard() #bruce 050121 added this
 
-    def setBond1(self):
-        print "depositMode.setBond1: not implemented yet"
-        
-    def setBond2(self):
-        print "depositMode.setBond2: not implemented yet"
+    bondclick_v6 = None
     
-    def setBond3(self):
-        print "depositMode.setBond3: not implemented yet"
+    def setBond1(self, state):
+        self.setBond(V_SINGLE, state, self.w.depositAtomDashboard.bond1RB )
         
-    def setBonda(self):
-        print "depositMode.setBonda: not implemented yet"
+    def setBond2(self, state):
+        self.setBond(V_DOUBLE, state, self.w.depositAtomDashboard.bond2RB )
+    
+    def setBond3(self, state):
+        self.setBond(V_TRIPLE, state, self.w.depositAtomDashboard.bond3RB )
         
-    ####################
-    # utility routines
-    ####################
+    def setBonda(self, state):
+        self.setBond(V_AROMATIC, state, self.w.depositAtomDashboard.bondaRB )
 
+    def setBond(self, v6, state, button = None):
+        "#doc; v6 might be None, I guess, though this is not yet used"
+        if state:
+            if self.bondclick_v6 == v6 and button is not None and v6 is not None:
+                # turn it off when clicked twice -- BUG: this never happens, maybe due to QButtonGroup.setExclusive behavior
+                self.bondclick_v6 = None
+                button.setOn(False) # doesn't work?
+            else:
+                self.bondclick_v6 = v6
+            if self.bondclick_v6:
+                name = btype_from_v6(self.bondclick_v6)
+                self.w.history.transient_msg("click bonds to make them %s" % name) # name is 'single' etc
+            else:
+                # this never happens (as explained above)
+                self.w.history.transient_msg(" ") # clicking bonds now does nothing
+                ## print "turned it off"
+        else:
+            pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one
+        return
     
     def Draw(self):
         """ Draw 

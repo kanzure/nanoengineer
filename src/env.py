@@ -61,6 +61,8 @@ __author__ = 'bruce'
 from constants import *
 import platform
 
+history = None # will be changed by MWsemantics when it inits [bruce 050727]
+
 _last_glselect_name = 0
 
 obj_with_glselect_name = {} # public for lookup ###e this needs to be made weak-valued ASAP! #######@@@@@@@

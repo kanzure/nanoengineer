@@ -16,6 +16,8 @@ __author__ = "bruce"
 from VQT import Q
 from constants import noop
 from bond_constants import *
+import env
+from HistoryWidget import orangemsg
 
 def intersect_sequences(s1, s2):
     return filter( lambda s: s in s2, s1)
@@ -152,13 +154,30 @@ def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??); probably not
     pass
     
 def apply_btype_to_bond(btype, bond):
-    """Apply the given legal bond-type name (e.g. 'single') to the given bond, and do whatever inferences are presently allowed.
+    """Apply the given bond-type name (e.g. 'single') to the given bond, iff this is permitted by its atomtypes,
+    and do whatever inferences are presently allowed [none are implemented as of 050727].
+    Emit an appropriate history message (if env.history is not None). Do appropriate invals/updates.
     [#e should the inference policy and/or some controlling object be another argument? Maybe even a new first arg 'self'?]
     """
-    v6 = v6_from_btype(btype)
-    bond.set_v6(v6) # this doesn't affect anything else or do any checks ####k #####@@@@@ check that
-    ##e now do some more...
-    bond.changed()
+    poss = possible_bond_types(bond)
+    from HistoryWidget import quote_html #e need to clean up from where to import this, orangemsg, etc
+    oldname = quote_html( str(bond) )
+    if btype in poss:
+        v6 = v6_from_btype(btype)
+        if v6 == bond.v6:
+            if env.history is not None:
+                env.history.message( "bond type of %s is already %s" % (oldname, btype))
+        else:
+            bond.set_v6(v6) # this doesn't affect anything else or do any checks ####k #####@@@@@ check that
+            ##e now do inferences on other bonds
+            bond.changed() ###k needed?? maybe it's now done by set_v6??
+            if env.history is not None:
+                env.history.message( "changed bond type of %s to %s" % (oldname, btype))
+            ###k not sure if it does gl_update when needed... how does menu use of this do that?? #######@@@@@@@
+
+    else:
+        if env.history is not None:
+            env.history.message( orangemsg( "can't change bond type of %s to %s -- permitted types are %s" % (oldname, btype, poss)))
     return
 
 # end

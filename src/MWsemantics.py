@@ -159,6 +159,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             # this is not a Qt widget, but its owner;
             # use self.history.widget for Qt calls that need the widget itself
 
+        import env
+        env.history = self.history #bruce 050727
+
         # ... and some final vsplitter setup [bruce 041223]
         vsplitter.setResizeMode(self.history.widget, QSplitter.KeepSize)
         vsplitter.setOpaqueResize(False)
