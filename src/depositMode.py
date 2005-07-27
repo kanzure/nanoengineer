@@ -21,6 +21,7 @@ from constants import elemKeyTab
 import platform
 from debug import print_compact_traceback
 from elements import PeriodicTable
+from Utility import imagename_to_pixmap
 
 from handles import ave_colors
 
@@ -115,10 +116,38 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.addSeparator()
 
     bg = QButtonGroup(w.depositAtomDashboard)
+    bg.setExclusive(1)
     lay = QHBoxLayout(bg)
     lay.setAutoAdd(True)
-    w.depositAtomDashboard.pasteRB = QRadioButton("Paste", bg)
-    w.depositAtomDashboard.atomRB = QRadioButton("Atom", bg)
+    
+    # Changed the radio buttons to push buttons.  Should change the RB suffix to PB.
+    # Added bond1, bond2, bond3 and bonda to the button group.
+    # Mark 050727.
+#    w.depositAtomDashboard.pasteRB = QRadioButton("Paste", bg)
+#    w.depositAtomDashboard.atomRB = QRadioButton("Atom", bg)
+    w.depositAtomDashboard.pasteRB = QPushButton("", bg)
+    w.depositAtomDashboard.pasteRB.setPixmap(imagename_to_pixmap('paste1.png'))
+    w.depositAtomDashboard.pasteRB.setToggleButton(1)
+    w.depositAtomDashboard.atomRB = QPushButton("", bg)
+    w.depositAtomDashboard.atomRB.setPixmap(imagename_to_pixmap('atom.png'))
+    w.depositAtomDashboard.atomRB.setToggleButton(1)
+    w.depositAtomDashboard.bond1RB = QPushButton("", bg)
+    w.depositAtomDashboard.bond1RB.setPixmap(imagename_to_pixmap('bond1.png'))
+    w.depositAtomDashboard.bond1RB.setToggleButton(1)
+    w.depositAtomDashboard.bond2RB = QPushButton("", bg)
+    w.depositAtomDashboard.bond2RB.setPixmap(imagename_to_pixmap('bond2.png'))
+    w.depositAtomDashboard.bond2RB.setToggleButton(1)
+    w.depositAtomDashboard.bond3RB = QPushButton("", bg)
+    w.depositAtomDashboard.bond3RB.setPixmap(imagename_to_pixmap('bond3.png'))
+    w.depositAtomDashboard.bond3RB.setToggleButton(1)
+    w.depositAtomDashboard.bondaRB = QPushButton("", bg)
+    w.depositAtomDashboard.bondaRB.setPixmap(imagename_to_pixmap('bonda.png'))
+    w.depositAtomDashboard.bondaRB.setToggleButton(1)
+    
+    # Bruce, the following line may be needed to fix a bug on MacOS, in which
+    # a button with a pixmap will automatically shrink to a very small size and
+    # the image is not visible. Let me know if this is needed or not.  Mark 050727
+    w.depositAtomDashboard.pasteRB.setMinimumSize(QSize(30,30))  
     
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
@@ -278,6 +307,16 @@ class depositMode(basicMode):
                        SIGNAL("pressed()"), self.setPaste)
         self.w.connect(self.w.depositAtomDashboard.atomRB,
                        SIGNAL("pressed()"), self.setAtom)
+        
+        # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
+        self.w.connect(self.w.depositAtomDashboard.bond1RB,
+                       SIGNAL("pressed()"), self.setBond1)
+        self.w.connect(self.w.depositAtomDashboard.bond2RB,
+                       SIGNAL("pressed()"), self.setBond2)
+        self.w.connect(self.w.depositAtomDashboard.bond3RB,
+                       SIGNAL("pressed()"), self.setBond3)
+        self.w.connect(self.w.depositAtomDashboard.bondaRB,
+                       SIGNAL("pressed()"), self.setBonda)
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
         
@@ -1402,6 +1441,18 @@ class depositMode(basicMode):
         self.w.depositAtomDashboard.atomRB.setOn(True)
         self.UpdateDashboard() #bruce 050121 added this
 
+    def setBond1(self):
+        print "depositMode.setBond1: not implemented yet"
+        
+    def setBond2(self):
+        print "depositMode.setBond2: not implemented yet"
+    
+    def setBond3(self):
+        print "depositMode.setBond3: not implemented yet"
+        
+    def setBonda(self):
+        print "depositMode.setBonda: not implemented yet"
+        
     ####################
     # utility routines
     ####################
