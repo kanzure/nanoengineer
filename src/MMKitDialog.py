@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
 #
-# Created: Tue Jul 26 13:13:37 2005
+# Created: Wed Jul 27 01:53:16 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,35 +44,6 @@ image1_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
-    "\x16\x49\x44\x41\x54\x78\x9c\xb5\x95\x3d\x4e\xc4" \
-    "\x30\x10\x85\xdf\xc3\xdb\xe4\x20\x34\x69\x73\x80" \
-    "\x8c\x73\x94\x3d\x00\xb4\x5c\x83\x2d\xb8\x09\x6d" \
-    "\x92\xed\xa1\xa4\xc8\x0d\x28\xe0\x04\x91\x79\x34" \
-    "\x71\x14\x56\xde\xac\xc8\x7a\x47\xb2\xe4\x1f\xf9" \
-    "\x9b\xd1\x78\xe6\x99\x92\x70\x0b\xbb\xbb\x09\x15" \
-    "\xc0\x2e\x4e\xbc\xf7\x3d\x80\x9a\xa4\xb5\x6d\x7b" \
-    "\xbc\x16\x3c\x47\xdc\x75\x9d\x01\x38\x4a\xea\x9b" \
-    "\xa6\xa9\xb3\x81\x73\xc3\x67\xb0\xf7\x5e\x59\xe1" \
-    "\x92\x30\x55\x46\x65\x66\x8a\x6b\x33\xeb\xcd\x4c" \
-    "\xde\xfb\x3a\xee\xfd\x67\xac\x1e\x46\x78\x36\xf0" \
-    "\x69\xe4\x5b\xc0\x4c\x35\x08\xc9\xca\xcc\xde\xba" \
-    "\xae\x23\x00\x94\x65\x79\x4f\x72\x2f\x69\x0c\x21" \
-    "\x1c\x86\x61\xf8\xba\x94\xe2\x5d\x6a\x53\xd2\x3b" \
-    "\x00\x2e\x1c\xed\x25\x3d\x01\x90\x73\xee\x13\xc0" \
-    "\x8b\x99\x3d\x9f\x83\xf6\x7d\xff\x98\x04\x27\x1c" \
-    "\x8d\x00\x04\x60\x04\xf0\x3d\x39\x7b\x58\xb9\x92" \
-    "\x06\x9f\xa6\x22\x84\x70\x70\xce\x7d\x90\xfc\x29" \
-    "\x8a\xe2\x15\x00\xe2\xd9\x5a\x34\x97\x1e\x6f\x53" \
-    "\x55\x24\x45\x28\x46\x33\xe9\xc7\x26\x9b\xc1\x24" \
-    "\xab\xd8\x7d\x0b\x68\x4d\xd2\x36\x91\xcf\xd5\xee" \
-    "\x35\x5d\x97\xac\xe3\x5c\xf2\xf9\x27\xc7\x39\x35" \
-    "\x79\xa9\x6e\xd9\xa0\x00\xd2\x2d\x9d\xc3\x6e\xf6" \
-    "\xe7\xfd\x02\xaf\xe3\xa6\x1c\x89\x9c\xce\x65\x00" \
-    "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image2_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
     "\x02\x49\x44\x41\x54\x78\x9c\xb5\x95\xbd\x71\xc3" \
     "\x30\x0c\x85\x1f\x42\x37\x1a\x24\x8d\x96\x30\xa8" \
     "\x51\x3c\x80\xdd\x66\x8d\xb8\xc8\x26\x69\x09\x7a" \
@@ -97,7 +68,7 @@ image2_data = \
     "\xbd\x26\x36\xfb\xf3\x7e\x00\x29\x71\xfa\xa4\x1a" \
     "\xab\x1a\x9a\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
     "\x42\x60\x82"
-image3_data = \
+image2_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -124,7 +95,7 @@ image3_data = \
     "\x3e\xbf\xc0\x35\x67\xf2\x19\xae\x3d\xe8\xe5\xdf" \
     "\xfd\xf3\x3e\x01\xbf\x60\x85\xfd\xce\x79\x06\xd6" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image4_data = \
+image3_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -144,6 +115,35 @@ image4_data = \
     "\x5e\xc0\xfd\xc1\x2f\x92\x26\x41\xe2\x3a\xc7\x34" \
     "\xaa\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
+image4_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x16\x49\x44\x41\x54\x78\x9c\xb5\x95\x3d\x4e\xc4" \
+    "\x30\x10\x85\xdf\xc3\xdb\xe4\x20\x34\x69\x73\x80" \
+    "\x8c\x73\x94\x3d\x00\xb4\x5c\x83\x2d\xb8\x09\x6d" \
+    "\x92\xed\xa1\xa4\xc8\x0d\x28\xe0\x04\x91\x79\x34" \
+    "\x71\x14\x56\xde\xac\xc8\x7a\x47\xb2\xe4\x1f\xf9" \
+    "\x9b\xd1\x78\xe6\x99\x92\x70\x0b\xbb\xbb\x09\x15" \
+    "\xc0\x2e\x4e\xbc\xf7\x3d\x80\x9a\xa4\xb5\x6d\x7b" \
+    "\xbc\x16\x3c\x47\xdc\x75\x9d\x01\x38\x4a\xea\x9b" \
+    "\xa6\xa9\xb3\x81\x73\xc3\x67\xb0\xf7\x5e\x59\xe1" \
+    "\x92\x30\x55\x46\x65\x66\x8a\x6b\x33\xeb\xcd\x4c" \
+    "\xde\xfb\x3a\xee\xfd\x67\xac\x1e\x46\x78\x36\xf0" \
+    "\x69\xe4\x5b\xc0\x4c\x35\x08\xc9\xca\xcc\xde\xba" \
+    "\xae\x23\x00\x94\x65\x79\x4f\x72\x2f\x69\x0c\x21" \
+    "\x1c\x86\x61\xf8\xba\x94\xe2\x5d\x6a\x53\xd2\x3b" \
+    "\x00\x2e\x1c\xed\x25\x3d\x01\x90\x73\xee\x13\xc0" \
+    "\x8b\x99\x3d\x9f\x83\xf6\x7d\xff\x98\x04\x27\x1c" \
+    "\x8d\x00\x04\x60\x04\xf0\x3d\x39\x7b\x58\xb9\x92" \
+    "\x06\x9f\xa6\x22\x84\x70\x70\xce\x7d\x90\xfc\x29" \
+    "\x8a\xe2\x15\x00\xe2\xd9\x5a\x34\x97\x1e\x6f\x53" \
+    "\x55\x24\x45\x28\x46\x33\xe9\xc7\x26\x9b\xc1\x24" \
+    "\xab\xd8\x7d\x0b\x68\x4d\xd2\x36\x91\xcf\xd5\xee" \
+    "\x35\x5d\x97\xac\xe3\x5c\xf2\xf9\x27\xc7\x39\x35" \
+    "\x79\xa9\x6e\xd9\xa0\x00\xd2\x2d\x9d\xc3\x6e\xf6" \
+    "\xe7\xfd\x02\xaf\xe3\xa6\x1c\x89\x9c\xce\x65\x00" \
+    "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MMKitDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
@@ -227,20 +227,31 @@ class MMKitDialog(QDialog):
         self.elementFrame.setFrameShadow(QFrame.Raised)
         MMKitDialogLayout.addWidget(self.elementFrame)
 
-        self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
+        self.tabWidget2 = QTabWidget(self,"tabWidget2")
+
+        self.tab = QWidget(self.tabWidget2,"tab")
+        tabLayout = QVBoxLayout(self.tab,2,6,"tabLayout")
+
+        self.elementButtonGroup = QButtonGroup(self.tab,"elementButtonGroup")
+        self.elementButtonGroup.setMinimumSize(QSize(0,110))
+        self.elementButtonGroup.setFrameShape(QButtonGroup.NoFrame)
+        self.elementButtonGroup.setFrameShadow(QButtonGroup.Plain)
+        self.elementButtonGroup.setLineWidth(0)
         self.elementButtonGroup.setExclusive(1)
         self.elementButtonGroup.setColumnLayout(0,Qt.Vertical)
-        self.elementButtonGroup.layout().setSpacing(1)
-        self.elementButtonGroup.layout().setMargin(2)
+        self.elementButtonGroup.layout().setSpacing(0)
+        self.elementButtonGroup.layout().setMargin(1)
         elementButtonGroupLayout = QGridLayout(self.elementButtonGroup.layout())
         elementButtonGroupLayout.setAlignment(Qt.AlignTop)
 
         self.pushButton1 = QPushButton(self.elementButtonGroup,"pushButton1")
         self.pushButton1.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton1.sizePolicy().hasHeightForWidth()))
+        self.pushButton1.setMinimumSize(QSize(22,22))
         self.pushButton1.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton1.setToggleButton(1)
         self.pushButton1.setOn(0)
         self.pushButton1.setDefault(0)
+        self.pushButton1.setFlat(0)
         self.elementButtonGroup.insert( self.pushButton1,1)
 
         elementButtonGroupLayout.addWidget(self.pushButton1,0,4)
@@ -248,6 +259,7 @@ class MMKitDialog(QDialog):
         self.pushButton2 = QPushButton(self.elementButtonGroup,"pushButton2")
         self.pushButton2.setEnabled(1)
         self.pushButton2.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton2.sizePolicy().hasHeightForWidth()))
+        self.pushButton2.setMinimumSize(QSize(22,22))
         self.pushButton2.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton2.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton2,2)
@@ -256,6 +268,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton6 = QPushButton(self.elementButtonGroup,"pushButton6")
         self.pushButton6.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton6.sizePolicy().hasHeightForWidth()))
+        self.pushButton6.setMinimumSize(QSize(22,22))
         self.pushButton6.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton6.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton6,6)
@@ -264,6 +277,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton7 = QPushButton(self.elementButtonGroup,"pushButton7")
         self.pushButton7.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton7.sizePolicy().hasHeightForWidth()))
+        self.pushButton7.setMinimumSize(QSize(22,22))
         self.pushButton7.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton7.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton7,7)
@@ -272,6 +286,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton8 = QPushButton(self.elementButtonGroup,"pushButton8")
         self.pushButton8.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton8.sizePolicy().hasHeightForWidth()))
+        self.pushButton8.setMinimumSize(QSize(22,22))
         self.pushButton8.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton8.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton8,8)
@@ -280,6 +295,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton9 = QPushButton(self.elementButtonGroup,"pushButton9")
         self.pushButton9.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton9.sizePolicy().hasHeightForWidth()))
+        self.pushButton9.setMinimumSize(QSize(22,22))
         self.pushButton9.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton9.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton9,9)
@@ -289,6 +305,7 @@ class MMKitDialog(QDialog):
         self.pushButton10 = QPushButton(self.elementButtonGroup,"pushButton10")
         self.pushButton10.setEnabled(1)
         self.pushButton10.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton10.sizePolicy().hasHeightForWidth()))
+        self.pushButton10.setMinimumSize(QSize(22,22))
         self.pushButton10.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton10.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton10,10)
@@ -297,6 +314,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton16 = QPushButton(self.elementButtonGroup,"pushButton16")
         self.pushButton16.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton16.sizePolicy().hasHeightForWidth()))
+        self.pushButton16.setMinimumSize(QSize(22,22))
         self.pushButton16.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton16.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton16,16)
@@ -305,7 +323,8 @@ class MMKitDialog(QDialog):
 
         self.pushButton17 = QPushButton(self.elementButtonGroup,"pushButton17")
         self.pushButton17.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton17.sizePolicy().hasHeightForWidth()))
-        self.pushButton17.setBackgroundOrigin(QPushButton.ParentOrigin)
+        self.pushButton17.setMinimumSize(QSize(22,22))
+        self.pushButton17.setBackgroundOrigin(QPushButton.AncestorOrigin)
         self.pushButton17.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton17.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton17,17)
@@ -315,6 +334,7 @@ class MMKitDialog(QDialog):
         self.pushButton18 = QPushButton(self.elementButtonGroup,"pushButton18")
         self.pushButton18.setEnabled(1)
         self.pushButton18.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton18.sizePolicy().hasHeightForWidth()))
+        self.pushButton18.setMinimumSize(QSize(22,22))
         self.pushButton18.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton18.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton18,18)
@@ -324,6 +344,7 @@ class MMKitDialog(QDialog):
         self.pushButton32 = QPushButton(self.elementButtonGroup,"pushButton32")
         self.pushButton32.setEnabled(1)
         self.pushButton32.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton32.sizePolicy().hasHeightForWidth()))
+        self.pushButton32.setMinimumSize(QSize(22,22))
         self.pushButton32.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton32.setToggleButton(1)
         self.pushButton32.setOn(0)
@@ -334,6 +355,7 @@ class MMKitDialog(QDialog):
         self.pushButton33 = QPushButton(self.elementButtonGroup,"pushButton33")
         self.pushButton33.setEnabled(1)
         self.pushButton33.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton33.sizePolicy().hasHeightForWidth()))
+        self.pushButton33.setMinimumSize(QSize(22,22))
         self.pushButton33.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton33.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton33,33)
@@ -343,6 +365,7 @@ class MMKitDialog(QDialog):
         self.pushButton34 = QPushButton(self.elementButtonGroup,"pushButton34")
         self.pushButton34.setEnabled(1)
         self.pushButton34.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton34.sizePolicy().hasHeightForWidth()))
+        self.pushButton34.setMinimumSize(QSize(22,22))
         self.pushButton34.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton34.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton34,34)
@@ -352,6 +375,7 @@ class MMKitDialog(QDialog):
         self.pushButton35 = QPushButton(self.elementButtonGroup,"pushButton35")
         self.pushButton35.setEnabled(1)
         self.pushButton35.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton35.sizePolicy().hasHeightForWidth()))
+        self.pushButton35.setMinimumSize(QSize(22,22))
         self.pushButton35.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton35.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton35,35)
@@ -361,6 +385,7 @@ class MMKitDialog(QDialog):
         self.pushButton36 = QPushButton(self.elementButtonGroup,"pushButton36")
         self.pushButton36.setEnabled(1)
         self.pushButton36.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton36.sizePolicy().hasHeightForWidth()))
+        self.pushButton36.setMinimumSize(QSize(22,22))
         self.pushButton36.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton36.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton36,36)
@@ -369,6 +394,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton15 = QPushButton(self.elementButtonGroup,"pushButton15")
         self.pushButton15.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton15.sizePolicy().hasHeightForWidth()))
+        self.pushButton15.setMinimumSize(QSize(22,22))
         self.pushButton15.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton15.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton15,15)
@@ -377,6 +403,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton14 = QPushButton(self.elementButtonGroup,"pushButton14")
         self.pushButton14.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton14.sizePolicy().hasHeightForWidth()))
+        self.pushButton14.setMinimumSize(QSize(22,22))
         self.pushButton14.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton14.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton14,14)
@@ -385,6 +412,7 @@ class MMKitDialog(QDialog):
 
         self.pushButton13 = QPushButton(self.elementButtonGroup,"pushButton13")
         self.pushButton13.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton13.sizePolicy().hasHeightForWidth()))
+        self.pushButton13.setMinimumSize(QSize(22,22))
         self.pushButton13.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton13.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton13,13)
@@ -393,44 +421,67 @@ class MMKitDialog(QDialog):
 
         self.pushButton5 = QPushButton(self.elementButtonGroup,"pushButton5")
         self.pushButton5.setSizePolicy(QSizePolicy(5,0,0,0,self.pushButton5.sizePolicy().hasHeightForWidth()))
+        self.pushButton5.setMinimumSize(QSize(22,22))
         self.pushButton5.setFocusPolicy(QPushButton.NoFocus)
         self.pushButton5.setToggleButton(1)
         self.elementButtonGroup.insert( self.pushButton5,5)
 
         elementButtonGroupLayout.addWidget(self.pushButton5,1,0)
-        MMKitDialogLayout.addWidget(self.elementButtonGroup)
+        tabLayout.addWidget(self.elementButtonGroup)
 
-        self.hybrid_btngrp = QButtonGroup(self,"hybrid_btngrp")
+        self.hybrid_btngrp = QButtonGroup(self.tab,"hybrid_btngrp")
+        self.hybrid_btngrp.setFrameShape(QButtonGroup.NoFrame)
+        self.hybrid_btngrp.setFrameShadow(QButtonGroup.Plain)
+        self.hybrid_btngrp.setLineWidth(0)
         self.hybrid_btngrp.setExclusive(1)
-
-        self.aromatic_btn = QPushButton(self.hybrid_btngrp,"aromatic_btn")
-        self.aromatic_btn.setGeometry(QRect(125,11,32,32))
-        self.aromatic_btn.setPixmap(self.image1)
-        self.aromatic_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.aromatic_btn,3)
+        self.hybrid_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.hybrid_btngrp.layout().setSpacing(0)
+        self.hybrid_btngrp.layout().setMargin(1)
+        hybrid_btngrpLayout = QHBoxLayout(self.hybrid_btngrp.layout())
+        hybrid_btngrpLayout.setAlignment(Qt.AlignTop)
 
         self.sp3_btn = QPushButton(self.hybrid_btngrp,"sp3_btn")
-        self.sp3_btn.setGeometry(QRect(11,11,32,32))
-        self.sp3_btn.setPixmap(self.image2)
+        self.sp3_btn.setMinimumSize(QSize(30,30))
+        self.sp3_btn.setPixmap(self.image1)
         self.sp3_btn.setToggleButton(1)
         self.sp3_btn.setOn(1)
         self.sp3_btn.setDefault(0)
         self.hybrid_btngrp.insert( self.sp3_btn,0)
+        hybrid_btngrpLayout.addWidget(self.sp3_btn)
 
         self.sp2_btn = QPushButton(self.hybrid_btngrp,"sp2_btn")
-        self.sp2_btn.setGeometry(QRect(49,11,32,32))
-        self.sp2_btn.setPixmap(self.image3)
+        self.sp2_btn.setMinimumSize(QSize(30,30))
+        self.sp2_btn.setPixmap(self.image2)
         self.sp2_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp2_btn,1)
+        hybrid_btngrpLayout.addWidget(self.sp2_btn)
 
         self.sp_btn = QPushButton(self.hybrid_btngrp,"sp_btn")
-        self.sp_btn.setGeometry(QRect(87,11,32,32))
-        self.sp_btn.setPixmap(self.image4)
+        self.sp_btn.setMinimumSize(QSize(30,30))
+        self.sp_btn.setPixmap(self.image3)
         self.sp_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp_btn,2)
-        MMKitDialogLayout.addWidget(self.hybrid_btngrp)
-        spacer9 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        MMKitDialogLayout.addItem(spacer9)
+        hybrid_btngrpLayout.addWidget(self.sp_btn)
+
+        self.aromatic_btn = QPushButton(self.hybrid_btngrp,"aromatic_btn")
+        self.aromatic_btn.setMinimumSize(QSize(30,30))
+        self.aromatic_btn.setPixmap(self.image4)
+        self.aromatic_btn.setToggleButton(1)
+        self.hybrid_btngrp.insert( self.aromatic_btn,3)
+        hybrid_btngrpLayout.addWidget(self.aromatic_btn)
+        spacer4 = QSpacerItem(5,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        hybrid_btngrpLayout.addItem(spacer4)
+        tabLayout.addWidget(self.hybrid_btngrp)
+        self.tabWidget2.insertTab(self.tab,QString(""))
+
+        self.tab_2 = QWidget(self.tabWidget2,"tab_2")
+
+        self.clipboard_combox = QComboBox(0,self.tab_2,"clipboard_combox")
+        self.clipboard_combox.setGeometry(QRect(10,20,180,21))
+        self.tabWidget2.insertTab(self.tab_2,QString(""))
+        MMKitDialogLayout.addWidget(self.tabWidget2)
+        spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        MMKitDialogLayout.addItem(spacer4_2)
 
         layout10 = QHBoxLayout(None,0,6,"layout10")
         spacer8 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -444,12 +495,12 @@ class MMKitDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(274,418).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(222,415).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
-        self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.update_hybrid_btngrp)
+        self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
 
 
 
@@ -476,18 +527,20 @@ class MMKitDialog(QDialog):
         self.pushButton13.setText(self.__tr("Al"))
         self.pushButton5.setText(self.__tr("B"))
         self.hybrid_btngrp.setTitle(QString.null)
-        self.aromatic_btn.setText(QString.null)
         self.sp3_btn.setText(QString.null)
         self.sp2_btn.setText(QString.null)
         self.sp_btn.setText(QString.null)
+        self.aromatic_btn.setText(QString.null)
+        self.tabWidget2.changeTab(self.tab,self.__tr("Atoms"))
+        self.tabWidget2.changeTab(self.tab_2,self.__tr("Clipboard"))
         self.closePTableButton.setText(self.__tr("Close"))
 
 
     def setElementInfo(self,a0):
         print "MMKitDialog.setElementInfo(int): Not implemented yet"
 
-    def update_hybrid_btngrp(self):
-        print "MMKitDialog.update_hybrid_btngrp(): Not implemented yet"
+    def set_hybrid_type(self,a0):
+        print "MMKitDialog.set_hybrid_type(int): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MMKitDialog",s,c)
