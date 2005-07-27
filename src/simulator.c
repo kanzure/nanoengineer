@@ -646,14 +646,14 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
     	
     // x is length of projection of r onto axis
     x=vdot(r,mot->axis);
-    Constraint[j].data = x - mot->theta0;
+    Constraint[j].data = x - mot->theta;
     
     if (mot->speed == 0.0) {
         vset(f, mot->center);
     } else {
 	// note .speed is stiffness
 	// .theta0 is projection dist of r onto axis for 0 force
-	ff = mot->speed * (x - mot->theta0) / Constraint[j].natoms;
+	ff = mot->speed * (mot->theta0 - x) / Constraint[j].natoms;
 	f = vprodc(mot->axis, ff);
     }
     for (i=0;i<Constraint[j].natoms;i++) {
