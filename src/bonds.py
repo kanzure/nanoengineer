@@ -539,6 +539,9 @@ class Bond:
             # [and sometime after that, before 050719, I did.]
             a1pos = atom1.baseposn() #e could optim, since their calcs of whether basepos is present are the same
             a2pos = atom2.baseposn()
+        return self.geom_from_posns(a1pos, a2pos)
+
+    def geom_from_posns(self, a1pos, a2pos): #bruce 050727 split this out
         vec = a2pos - a1pos
         leng = 0.98 * vlen(vec) # 0.98 makes it a bit less common that we set toolong below [bruce 050516 comment]
         vec = norm(vec)
@@ -549,8 +552,8 @@ class Bond:
             # [bruce 050516]
         # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
         #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
-        rcov1 = atom1.atomtype.rcovalent
-        rcov2 = atom2.atomtype.rcovalent
+        rcov1 = self.atom1.atomtype.rcovalent
+        rcov2 = self.atom2.atomtype.rcovalent
         c1 = a1pos + vec*rcov1
         c2 = a2pos - vec*rcov2
         toolong = (leng > rcov1 + rcov2)

@@ -9,9 +9,6 @@ $Id$
 __author__ = 'bruce'
 
 
-#######@@@@@@@ needs cvs add
-
-
 from VQT import V, dot, cross, vlen, norm
 from VQT import pi, acos
 import platform
@@ -30,9 +27,9 @@ def draw_bond_vanes(bond, glpane, sigmabond_cyl_radius, col):
     DON'T use glpane for .out and .up when arbitrary choices are needed -- use coords derived from model-space out and up.
     """
     del glpane
-    res = bond.get_pi_info()
-    if res is not None:
-        ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z) = res # vectors are in bond's coordsys
+    pi_info = bond.get_pi_info()
+    if pi_info is not None:
+        ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z) = pi_info # vectors are in bond's coordsys
         rad = sigmabond_cyl_radius
         if ord_pi_y:
             draw_vane( bond, a1py, a2py, ord_pi_y, rad, col) #k does this mean pi_vectors retval order is wrong?

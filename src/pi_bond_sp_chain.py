@@ -9,9 +9,6 @@ $Id$
 __author__ = 'bruce'
 
 
-#######@@@@@@@ needs cvs add
-
-
 from jigs import Jig
 from VQT import V, A, dot, cross, vlen, norm, twistor_angle, pi
 from bond_constants import *
@@ -145,7 +142,10 @@ class PiBondSpChain(PerceivedStructureType):
         assert type(ind) == type(1)
         assert 0 <= ind < len(self.listb)
         assert self.listb[ind] is bond
-        biL_pvec, biR_pvec = self.pvecs_i( ind, abs_coords = abs_coords)
+        biL_pvec, biR_pvec = self.pvecs_i( ind, abs_coords = True)
+            #bruce 050727 -- abs_coords arg was used both here & below -- wrong, using True here is right (so I fixed it),
+            # but I didn't yet see any effect from that presumed bug. It might be that the chunk quat is
+            # always Q(1,0,0,0) whenever the pi_info gets updated.
         bond_axis = self.axes[ind]
             ## bond_axis = self.lista[ ind+1 ].posn() - self.lista[ ind ].posn() # order matters, i think
         if bond.atom1 is self.lista[ind]:
