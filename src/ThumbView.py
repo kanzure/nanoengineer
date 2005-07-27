@@ -52,7 +52,15 @@ class ThumbView(QGLWidget):
         else:
             self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
 
-            
+    
+    def drawModel(self):
+        """This is abstract method of drawing models, subclass should overwrite it with concrete model drawing statements """        
+        pass
+    
+    def drawSelected(self, obj):
+        '''Draw the selected object. Subclass need to override it'''
+        pass
+    
             
     def initializeGL(self):
         """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading affect.
@@ -83,6 +91,13 @@ class ThumbView(QGLWidget):
         if not self.isSharing():
                 drawer.setup()  
 
+    
+    def resetView(self):
+        '''Subclass can override this method with different <scale>, so call this version in the overridden
+           version. '''
+        self.pov = V(0.0, 0.0, 0.0)
+        self.quat = Q(1, 0, 0, 0)
+        
                 
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
@@ -169,11 +184,7 @@ class ThumbView(QGLWidget):
             return self.quat.unrot(V(0,0,1))
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
-        
-        
-    def drawModel(self):
-        """This is abstract method of drawing models, subclass should overwrite it with concrete model drawing statements """        
-        pass
+    
         
    
     def mousePressEvent(self, event):
@@ -209,7 +220,7 @@ class ThumbView(QGLWidget):
             elif but & cntlButton:
                 pass#self.mode.rightCntlDown(event)
             else:
-                self.rightDown(event)         
+                pass#self.rightDown(event)         
 
 
     def mouseReleaseEvent(self, event):
@@ -221,9 +232,9 @@ class ThumbView(QGLWidget):
         
         if but & leftButton:
             if but & shiftButton:
-                pass#self.mode.leftShiftUp(event)
+                pass#self.leftShiftUp(event)
             elif but & cntlButton:
-                pass#self.mode.leftCntlUp(event)
+                pass#self.leftCntlUp(event)
             else:
                 self.leftUp(event)
 
@@ -237,11 +248,11 @@ class ThumbView(QGLWidget):
 
         if but & rightButton:
             if but & shiftButton:
-                 self.mode.rightShiftUp(event)
+                 pass#self.rightShiftUp(event)
             elif but & cntlButton:
-                self.mode.rightCntlUp(event)
+                pass#self.rightCntlUp(event)
             else:
-                self.mode.rightUp(event)         
+                pass#self.rightUp(event)         
 
 
     def mouseMoveEvent(self, event):
@@ -251,31 +262,29 @@ class ThumbView(QGLWidget):
         ##self.debug_event(event, 'mouseMoveEvent')
         but = event.state()
         
-        #print "button moving: ", but
-        
         if but & leftButton:
             if but & shiftButton:
-                pass#self.mode.leftShiftDrag(event)
+                pass#self.leftShiftDrag(event)
             elif but & cntlButton:
-                pass#self.mode.leftCntlDrag(event)
+                pass#self.leftCntlDrag(event)
             else:
-                self.leftDrag(event)
+                pass#self.leftDrag(event)
 
         elif but & midButton:
             if but & shiftButton:
-                self.mode.middleShiftDrag(event)
+                pass#self.middleShiftDrag(event)
             elif but & cntlButton:
-                self.mode.middleCntlDrag(event)
+                pass#self.middleCntlDrag(event)
             else:
                 self.middleDrag(event)
 
         elif but & rightButton:
             if but & shiftButton:
-                self.mode.rightShiftDrag(event)
+                pass#self.rightShiftDrag(event)
             elif but & cntlButton:
-                self.mode.rightCntlDrag(event)
+                pass#self.rightCntlDrag(event)
             else:
-                self.mode.rightDrag(event)
+                pass#self.rightDrag(event)
 
         else:
             #Huaicai: To fix bugs related to multiple rendering contexts existed in our application.
@@ -311,10 +320,16 @@ class ThumbView(QGLWidget):
         
         self.selectedObj = self.select(wX, wY)
         self.highlightSelected(self.selectedObj)
+   
         
-        
-        
-        
+    def leftDown(self, event):
+        pass
+
+
+    def leftUp(self, event):
+        pass
+
+    
     def middleDown(self, event):
         pos = event.pos()
         self.trackball.start(pos.x(), pos.y())
@@ -398,10 +413,22 @@ class ThumbView(QGLWidget):
         return None
 
 
-    def drawSelected(self, obj):
-        '''Draw the selected object. Subclass need to override it'''
-        pass
+    def highlightSelected(self, obj):
+        '''Hight the selected object <obj>. In the mean time, we do stencil test to 
+           update stencil buffer, so it can be used to quickly test if pick is still
+           on the same <obj> as last test. '''
+        
+        if not obj: return
+        if not isinstance(obj, atom) or (obj.element is not Singlet): return
 
+        self._preHighlight()
+        
+        self.drawSelected(obj)
+            
+        self._endHightlight()
+        
+        glFlush()
+        self.swapBuffers()
 
     def _preHighlight(self):
         '''Before highlight, clear stencil buffer, depth writing and some stencil test settings. '''       
@@ -431,23 +458,6 @@ class ThumbView(QGLWidget):
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
 
-
-    def highlightSelected(self, obj):
-        '''Hight the selected object <obj>. In the mean time, we do stencil test to 
-           update stencil buffer, so it can be used to quickly test if pick is still
-           on the same <obj> as last test. '''
-        
-        if not obj: return
-        if not isinstance(obj, atom) or (obj.element is not Singlet): return
-
-        self._preHighlight()
-        
-        self.drawSelected(obj)
-            
-        self._endHightlight()
-        
-        glFlush()
-        self.swapBuffers()
         
     
 ##==--        
@@ -466,7 +476,12 @@ class ElementView(ThumbView):
         ##  think it looks like a glpane object.
         self.display = 0  
         self.selatom = None
-
+    
+    def resetView(self):
+        '''Reset current view'''
+        ThumbView.resetView(self)
+        self.scale = 3.0
+        
     def drawModel(self):
         """The method for element drawing """
         if self.mol:
@@ -476,6 +491,7 @@ class ElementView(ThumbView):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
         self.mol = self.constructModel(elm, self.pos, dispMode) 
+        self.resetView()
         self.updateGL()
     
     def constructModel(self, elm, pos, dispMode):
@@ -511,4 +527,111 @@ class ElementView(ThumbView):
         '''Override the parent version. Specific drawing code for the object. '''
         if isinstance(obj, atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, LEDon)
+
+
+class ElementHybridView(ElementView):
+    hybrid_type_name = None
+    elementMode = True
+
+
+    def changeHybridType(self, name):
+        self.hybrid_type_name = name
+    
+    
+    def constructModel(self, elm, pos, dispMode):
+        """This is to try to repeat what 'oneUnbonded()' function does,
+        but hope to remove some stuff not needed here.
+        The main purpose is to build the geometry model for element display. 
+        <Param> elm: An object of class Elem
+        <Param> dispMode: the display mode of the atom--(int)
+        <Return>: the molecule which contains the geometry model.
+        """
+        class DummyAssy:
+            """dummy assemby class"""
+            drawLevel = 2
             
+        if 0:#1:
+            assy = DummyAssy()
+        else:
+            from assembly import assembly 
+            assy = assembly(None)
+            assy.o = self
+                
+        mol = molecule(assy, 'dummy') 
+        atm = atom(elm.symbol, pos, mol)
+        atm.display = dispMode
+        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom: ####@@@@
+        if self.hybrid_type_name:
+            atm.set_atomtype_but_dont_revise_singlets(self.hybrid_type_name)
+        ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
+        ## (which can be passed to set_atomtype_but_dont_revise_singlets)
+        atm.make_singlets_when_no_bonds()
+        
+        self.elementMode = True
+        
+        return mol
+    
+
+    def leftDown(self, event):
+        '''When in clipboard mode, set hotspot if a Singlet is highlighted. '''
+        obj = self.selectedObj
+        if isinstance(obj, atom) and (obj.element is Singlet):
+            self.mol.set_hotspot(obj)
+            self.updateGL()
+
+
+    def updateModel(self, newChunk):
+        '''Set new chunk for display'''
+        self.mol = newChunk
+        self._fitInWindow()
+        self.elementMode = False
+        self.updateGL()
+    
+    
+    def setDisplay(self, mode):
+        self.display = mode
+    
+    
+    def _fitInWindow(self):
+        self.mol._recompute_bbox()
+        self.scale = self.mol.bbox.scale() 
+        aspect = float(self.width) / self.height
+        if aspect < 1.0:
+           self.scale /= aspect
+        center = self.mol.bbox.center()
+        self.pov = V(-center[0], -center[1], -center[2])
+        
+    
+class ChunkView(ThumbView):
+    """Chunk display """    
+    def __init__(self, parent, name, shareWidget = None):
+        ThumbView.__init__(self, parent, name, shareWidget)
+        #self.scale = 3.0#5.0 ## the possible largest rvdw of all elements
+        self.quat = Q(1, 0, 0, 0)
+        self.pos = V(0.0, 0.0, 0.0)
+        self.mol = None
+        
+        ## Dummy attributes. A kludge, just try to make other code
+        ##  think it looks like a glpane object.
+        self.display = 0  
+    
+    def resetView(self):
+        '''Reset current view'''
+        ThumbView.resetView(self)
+        self.scale = 10.0
+        
+    def drawModel(self):
+        """The method for element drawing """
+        if self.mol:
+           self.mol.draw(self, None)
+
+    def updateModel(self, newChunk):
+        '''Set new chunk for display'''
+        self.mol = newChunk
+        self.resetView()
+        self.updateGL()
+    
+    def drawSelected(self, obj):
+        '''Override the parent version. Specific drawing code for the object. '''
+        if isinstance(obj, atom) and (obj.element is Singlet):
+            obj.draw_in_abs_coords(self, LEDon)

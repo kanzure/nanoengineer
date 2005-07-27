@@ -22,8 +22,8 @@ class elementSelector(ElementSelectorDialog):
         flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
         flayout.addWidget(self.elemGLPane,1)
 
-    # called as a slot from button push
     def setElementInfo(self,value):
+        '''Called as a slot from button push of the element Button Group'''
         self.w.setElement(value)
 
     def update_dialog(self, elemNum):

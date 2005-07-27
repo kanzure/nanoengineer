@@ -6,7 +6,7 @@ $Id$
 '''
 
 from MMKitDialog import *
-from ThumbView import ElementView
+from ThumbView import ElementHybridView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
 from chem import atom
@@ -22,21 +22,22 @@ class MMKit(MMKitDialog):
         self.elemTable = PeriodicTable
         self.displayMode = diTUBES
         
-        self.elemGLPane = ElementHybridView(self.elementFrame, "element glPane", self.w.glpane)
-        # Put the GL widget inside the frame
-        flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
-        flayout.addWidget(self.elemGLPane,1)
+        self.flayout = None
         
+        self._setNewView('ElementHybridView')
+        
+        #self.tabWidget2.setCurrentPage(1)
         # Set current element in element button group.
-        self.elementButtonGroup.setButton(self.w.Element) 
+        #self.elementButtonGroup.setButton(self.w.Element) 
 
-    # called as a slot from button push
     def setElementInfo(self,value):
+        '''Called as a slot from button push of the element Button Group'''
         self.w.setElement(value)
 
     def update_dialog(self, elemNum):
-        """Update non user interactive controls display for current selected element: element label info and element graphics info """
-        #print "MMKit.update_dialog called"
+        """Called when the current element has been changed.
+           Update non user interactive controls display for current selected 
+           element: element label info and element graphics info """
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
         
@@ -112,49 +113,84 @@ class MMKit(MMKitDialog):
         self.aromatic_btn.hide()
     
     def set_hybrid_type(self, type_id):
+        '''Slot method. Called when any of the hybrid type buttons was clicked. '''
         self.w.hybridComboBox.setCurrentItem( type_id )
 
         b_name = self.bond_id2name[type_id]
         print "Hybrid name: ", b_name
         self.elemGLPane.changeHybridType(b_name)
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
-
-
-class ElementHybridView(ElementView):
-    hybrid_type_name = None
-
-
-    def changeHybridType(self, name):
-        self.hybrid_type_name = name
     
-    
-    def constructModel(self, elm, pos, dispMode):
-        """This is to try to repeat what 'oneUnbonded()' function does,
-        but hope to remove some stuff not needed here.
-        The main purpose is to build the geometry model for element display. 
-        <Param> elm: An object of class Elem
-        <Param> dispMode: the display mode of the atom--(int)
-        <Return>: the molecule which contains the geometry model.
-        """
-        class DummyAssy:
-            """dummy assemby class"""
-            drawLevel = 2
-            
-        if 0:#1:
-            assy = DummyAssy()
+    def tabpageChanged(self, wg):
+        '''Slot method. Called when user clicked to change the tab page'''
+        pageId = self.tabWidget2.indexOf(wg)
+        
+        if pageId == 1: ##Clipboard page
+            self.w.pasteP = True
+            self.w.depositAtomDashboard.pasteRB.setOn(True)
+            self.elemGLPane.setDisplay(self.displayMode)
+            self._clipboardPageView()
         else:
-            from assembly import assembly 
-            assy = assembly(None)
-            assy.o = self
-                
-        mol = molecule(assy, 'dummy') 
-        atm = atom(elm.symbol, pos, mol)
-        atm.display = dispMode
-        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom: ####@@@@
-        if self.hybrid_type_name:
-            atm.set_atomtype_but_dont_revise_singlets(self.hybrid_type_name)
-        ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
-        ## (which can be passed to set_atomtype_but_dont_revise_singlets)
-        atm.make_singlets_when_no_bonds()
-        return mol
+            #self._setNewView('ElementHybridView')
+            self.w.pasteP = False
+            self.w.depositAtomDashboard.atomRB.setOn(True)
+            self.elemGLPane.changeHybridType(None)
+            self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
+            
+
+    def chunkChanged(self, item):
+        '''Slot method. Called when user changed the selected chunk. '''
+        itemId = self.chunkListBox.index(item)
+        newChunk = self.pastableItems[itemId]
+        
+        self.w.pasteComboBox.setCurrentItem(itemId)
+        
+        self.elemGLPane.updateModel(newChunk)
+        
+    
+    def _clipboardPageView(self):
+        '''Construct clipboard page view. '''
+        self.pastableItems = self._getPastableClipboardItems(self.w.assy)
+        
+        list = QStringList()
+        for item in self.pastableItems:
+            list.append(item.name)
+        
+        self.chunkListBox.clear()
+        self.chunkListBox.insertStringList(list)
+        if len(list): self.chunkListBox.setCurrentItem(0)
+        
+        #self._setNewView('ChunkView')
+        
+        
+            
+    def _getPastableClipboardItems(self, assy):
+        '''Find all current pastable chunks. '''
+        itemGroup = assy.shelf
+        
+        pastableItems = []
+        for item in itemGroup.members:
+            if isinstance(item, molecule):
+                pastableItems += [item]
+        
+        return pastableItems
+
+    
+    def _setNewView(self, viewClassName):
+        # Put the GL widget inside the frame
+        if not self.flayout:
+            self.flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
+        else:
+            if self.elemGLPane: 
+                self.flayout.removeChild(self.elemGLPane)
+                self.elemGLPane = None
+        
+        if viewClassName == 'ChunkView':
+            self.elemGLPane = ChunkView(self.elementFrame, "chunk glPane", self.w.glpane)
+        elif viewClassName == 'ElementHybridView':
+            self.elemGLPane = ElementHybridView(self.elementFrame, "element Hybrid glPane", self.w.glpane)
+        
+        self.flayout.addWidget(self.elemGLPane,1)
+        
+     
         
