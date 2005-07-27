@@ -303,6 +303,8 @@ static void maklmot2(int i) {
 
     // x is length of projection of r onto axis
     x=vdot(r,mot->axis);
+    // save it -- the initial position
+    mot->theta = x;
 
     // note .stall is force and .speed is stiffness
     // .theta0 will be projection dist of r onto axis for 0 force
