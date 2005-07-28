@@ -1332,6 +1332,24 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         elementSelectorWin = elementSelector(self)
         elementSelectorWin.update_dialog(self.Element)
         elementSelectorWin.show()
+
+    def _findGoodLocation(self):
+        '''Find ideal location for the MMKit. Should only be called after history, and MMKit
+           has been created.'''
+        global MMKitWin
+        
+        hist_geometry = self.history.widget.frameGeometry()
+        hist_height = hist_geometry.height()
+        
+        mmk_geometry = MMKitWin.frameGeometry()
+        mmk_height = mmk_geometry.height()
+        
+        ## 26 is an estimate of the bottom toolbar height
+        y = self.y() + self.geometry().height() - hist_height - mmk_height - 26 
+        x = self.x()
+        
+        return x, y
+        
     
     def modifyMMKit(self):
         '''Open The Molecular Modeling Kit for Build (DEPOSIT) mode.
@@ -1344,6 +1362,11 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         MMKitWin = MMKit(self)
         MMKitWin.update_dialog(self.Element)
         MMKitWin.show()
+        
+        pos = self._findGoodLocation()
+        MMKitWin.move(pos[0], pos[1])
+        
+        
         
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
@@ -1363,6 +1386,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         if MMKitWin and not MMKitWin.isHidden():
            MMKitWin.update_dialog(self.Element)     
            MMKitWin.show()
+           
+           pos = self._findGoodLocation()
+           MMKitWin.move(pos[0], pos[1])
+        
           
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]

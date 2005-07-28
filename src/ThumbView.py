@@ -480,7 +480,7 @@ class ElementView(ThumbView):
     def resetView(self):
         '''Reset current view'''
         ThumbView.resetView(self)
-        self.scale = 3.0
+        self.scale = 2.0
         
     def drawModel(self):
         """The method for element drawing """
