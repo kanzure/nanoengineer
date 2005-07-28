@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
 #
-# Created: Thu Jul 28 14:43:03 2005
+# Created: Thu Jul 28 15:51:45 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -294,7 +294,7 @@ class MMKitDialog(QDialog):
         self.sp_btn = QToolButton(self.hybrid_btngrp,"sp_btn")
         self.sp_btn.setMinimumSize(QSize(30,30))
         self.sp_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.sp_btn,3)
+        self.hybrid_btngrp.insert( self.sp_btn,2)
         hybrid_btngrpLayout.addWidget(self.sp_btn)
 
         self.aromatic_btn = QToolButton(self.hybrid_btngrp,"aromatic_btn")

@@ -829,7 +829,7 @@
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
-                                    <number>3</number>
+                                    <number>2</number>
                                 </property>
                             </widget>
                             <widget class="QToolButton">
