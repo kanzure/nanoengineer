@@ -1354,16 +1354,16 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True) # permits in-between, 0, or negative(?) valence
         return
 
-    def update_valence(self):
+    def update_valence(self): #bruce 050728 revised this and also disabled the debug prints
             # repositions/alters existing singlets, updates bonding pattern, valence errors, etc;
             # might reorder bonds, kill singlets; but doesn't move the atom and doesn't alter
             # existing real bonds or other atoms; it might let atom record how it wants to move,
             # when it has a chance and wants to clean up structure, if this can ever be ambiguous
             # later, when the current state (including positions of old singlets) is gone.
-        from bonds import V_ZERO_VALENCE, BOND_VALENCES # this might not work at top of file (recursive import); fix later ###@@@
+        from bond_constants import V_ZERO_VALENCE, BOND_VALENCES
         if self._modified_valence:
             self._modified_valence = False # do this first, so exceptions in the following only happen once
-            if platform.atom_debug:
+            if 0 and platform.atom_debug:
                 print "atom_debug: update_valence starting to updating it for",self
             ## assert 0, "nim"###@@@
             # the only easy part is to kill singlets with illegal valences, and warn if those were not 0.
@@ -1377,7 +1377,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                     # hmm... best to kill it and start over, I think, at least for now
                     sing.kill()
                     badkilled += 1
-            if platform.atom_debug:
+            if 0 and platform.atom_debug:
                 print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence singlets" % \
                       (self, zerokilled, badkilled)
             ###e now fix things up... not sure exactly under what conds, or using what code (but see existing code mentioned above)
@@ -1385,7 +1385,12 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             # (which we might have changed by killing some singlets). But only do this if we did actually kill singlets.
             if zerokilled or badkilled:
                 self.adjust_atomtype_to_numbonds()
-        elif platform.atom_debug:
+            #bruce 050728 temporary fix for bug 823 (in which C(sp2) is left with 2 order1 singlets that should be one singlet);
+            # but in the long run we need a more principled way to decide whether to remake singlets or change atomtype
+            # when they don't agree:
+            if len(self.bonds) != self.atomtype.numbonds:
+                self.remake_singlets()
+        elif 0 and platform.atom_debug:
             print "atom_debug: update_valence thinks it doesn't need to update it for", self
         return
 
@@ -1639,13 +1644,38 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             # [bruce 041215 comment: might need revision if numbonds > 4]
             a1 = self.bonds[0].other(self) # our real neighbor
             if len(a1.bonds)>1:
-                # figure out how to line up one arbitrary bond from each of self and a1.
-                # a2 = a neighbor of a1 other than self
-                if self is a1.bonds[0].other(a1):
-                    a2 = a1.bonds[1].other(a1)
+                if a1.atomtype.spX != 1:
+                    # figure out how to line up one arbitrary bond from each of self and a1.
+                    # a2 = a neighbor of a1 other than self
+                    if self is a1.bonds[0].other(a1):
+                        a2 = a1.bonds[1].other(a1)
+                    else:
+                        a2 = a1.bonds[0].other(a1)
+                    a2pos = a2.posn()
                 else:
-                    a2 = a1.bonds[0].other(a1)
-                a2pos = a2.posn()
+                    #bruce 050728 new feature: for sp atoms, use pi_info to decide where to pretend a2 lies.
+                    # If we give up, it's safe to just say a2pos = a1.posn() -- twistor() apparently tolerates that ambiguity.
+                    try:
+                        # catch exceptions in case for some reason it's too early to compute this...
+                        # note that, if we're running in Build mode (which just deposited self and bonded it to a1),
+                        # then that new bond and that change to a1 hasn't yet been seen by the bond updating code,
+                        # so an old pi_info object might be on the other bonds to a1, and none would be on the new bond a1-self.
+                        # But we don't know if this bond is new, so if it has a pi_bond_obj we don't know if that's ok or not.
+                        # So to fix a bug this exposed, I'm making bond.rebond warn the pi_bond_obj on its bond, immediately
+                        # (not waiting for bond updating code to do it).
+                        b = self.bonds[0] # if there was not just one bond on self, we'd say find_bond(self,a1)
+                        pi_info = b.get_pi_info(abs_coords = True) # without the option, vectors would be in bond's coordsys
+                        ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z) = pi_info
+                        del ord_pi_y, ord_pi_z
+                        # note that we don't know whether we're atom1 or atom2 in that info, but it shouldn't matter
+                        # since self is not affecting it so it should not be twisted along b.
+                        # So we'll pretend a1py, a1pz are about a1, though they might not be.
+                        # We'll use a1pz as the relative place to imagine a1's neighbor, if a1 had been sp2 rather than sp.
+                        a2pos = a1.posn() + a1pz
+                    except:
+                        print_compact_traceback("exception ignored: ")
+                        a2pos = a1.posn()
+                    pass 
                 s1pos = pos+(rq + atype.quats[0] - rq).rot(r) # un-spun posn of one of our new singlets
                 spin = twistor(r,s1pos-pos, a2pos-a1.posn())
                     # [bruce 050614 comments]

@@ -223,11 +223,11 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     ## if vnew != V_SINGLE:
     ##     bond.increase_valence_noupdate( vnew - V_SINGLE)
     if not no_corrections:
-        if s1:
+        if s1 is not None:
             s1.singlet_reduce_valence_noupdate(vnew)
-        if s2:
+        if s2 is not None:
             s2.singlet_reduce_valence_noupdate(vnew) ###k
-        a1.update_valence() ###k
+        a1.update_valence() ###k [bruce comment 050728: to fix bug 823, this needs to merge singlets to match atomtype; now it does]
         a2.update_valence()
     return bond
 
@@ -736,6 +736,11 @@ class Bond:
             #  not to zap a singlet already bonded to new.
         # Invalidate molecules (of both our atoms) as needed, due to our existence
         self.invalidate_bonded_mols()
+        #bruce 050728: this is needed so depositmode (in atom.make_enough_singlets)
+        # can depend on bond.get_pi_info() being up to date:
+        if self.pi_bond_obj is not None:
+            self.pi_bond_obj.destroy() ###e someday this might be more incremental if that obj provides a method for it;
+                # or we could call changed_structure on the two atoms of self, like bond updating code will do upon next redraw.
         if 1:
             # This debug code helped catch bug 232, but seems useful in general:
             # warn if this bond is a duplicate of an existing bond on A or new.
@@ -1058,7 +1063,7 @@ class bonder_at_singlets:
             if v1 > vused and v2 > vused:
                 status += " and " #e could rewrite this like this: " and ".join(atomreprs)
             if v2 > vused:
-                status += "%r"
+                status += "%r" % a2
         return (0, status)
     def upgrade_existing_bond(self):
         s1, a1 = self.s1, self.a1
@@ -1096,7 +1101,7 @@ class bonder_at_singlets:
         if not vdelta_used:
             return self.do_error("can't merge these two open bonds on atom %r" % (a1,), None) #e say existing orders? say why not?
         s1.singlet_reduce_valence_noupdate(vdelta)
-        a1.update_valence()
+        a1.update_valence() # this can change the atomtype of a1 to match the fact that it deletes a singlet [bruce comment 050728]
         return (0, "merged two open bonds on atom %r" % (a1,))
     pass # end of class bonder_at_singlets, the helper for function bond_at_singlets
 

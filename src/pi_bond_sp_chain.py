@@ -46,11 +46,17 @@ def bond_get_pi_info(bond, **kws):
             print "destroying %r of obsolete class" % obj # happens when we reload this module at runtime, during development
             obj.destroy()
             obj = None
+    # special case for triple bonds [bruce 050728 to fix bug 821]: they are always arbitrarily oriented and not twisted
+    if bond.v6 == V_TRIPLE:
+        return pi_vectors(bond, **kws)
+    # not worth optimizing for single bonds, since we're never called for them for drawing,
+    # and if we're called for them when depositing sp2-sp-sp2 to position singlets on last sp2,
+    # it would not even be correct to exclude them here!
     if obj is not None:
         return obj.get_pi_info(bond, **kws) # no need to pass an index -- that method can find one on bond if it stored one
     # if the obj is not there, several situations are possible; we only store an obj if the pi bond chain length is >1.
     if not bond.potential_pi_bond():
-        return None
+        return None # note, this does *not* happen for single bonds, if they could in principle be changed to higher bond types
     if pi_bond_alone_in_its_sp_chain_Q(bond):
         # optimize this common case, with simpler code and by not storing an object for it
         # (since too many atoms would need to invalidate it)
@@ -257,6 +263,13 @@ class PiBondSpChain(PerceivedStructureType):
         bonds = self.listb
         v1 = bonds[i1].v6 # ok for negative indices i1
         v2 = bonds[i2].v6
+        #bruce 050728 kluge bugfix: treat V_SINGLE as V_DOUBLE so this gives user benefit of the doubt if they
+        # just haven't yet bothered to put in the correct bondtypes, and so this works from depositmode growing an sp chain
+        # when it's making new singlets on an sp2 atom it deposits at the end of the sp chain.
+        if v1 == V_SINGLE:
+            v1 = V_DOUBLE
+        if v2 == V_SINGLE:
+            v2 = V_DOUBLE
         # if both are double, or one is double and one is aromatic or graphite (but not carbomeric)
         if v1 == V_DOUBLE and v2 in (V_DOUBLE, V_AROMATIC, V_GRAPHITE):
             return True
