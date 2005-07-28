@@ -312,28 +312,11 @@ class depositMode(basicMode):
 
         update_hybridComboBox(self.w) #bruce 050606; not sure this is the best place for it
 
-        # connect signals (these ought to be disconnected in restore_gui ##e)
-        self.w.connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
-                       self.setPaste)
-        self.w.connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
-                       self.setAtom)
-            # Qt doc about SIGNAL("activated(int)"): This signal is not emitted
-            # if the item is changed programmatically, e.g. using setCurrentItem().
-            # Good! [bruce 050121 comment]
-        self.w.connect(self.w.depositAtomDashboard.pasteRB,
-                       SIGNAL("pressed()"), self.setPaste)
-        self.w.connect(self.w.depositAtomDashboard.atomRB,
-                       SIGNAL("pressed()"), self.setAtom)
+        self.bondclick_v6 = None
+        self.update_bond_buttons()
         
-        # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
-        self.w.connect(self.w.depositAtomDashboard.bond1RB,
-                       SIGNAL("toggled(bool)"), self.setBond1) #bruce 050727 changed "pressed()" to "toggled(bool)"
-        self.w.connect(self.w.depositAtomDashboard.bond2RB,
-                       SIGNAL("toggled(bool)"), self.setBond2)
-        self.w.connect(self.w.depositAtomDashboard.bond3RB,
-                       SIGNAL("toggled(bool)"), self.setBond3)
-        self.w.connect(self.w.depositAtomDashboard.bondaRB,
-                       SIGNAL("toggled(bool)"), self.setBonda)
+        # connect signals (these all need to be disconnected in restore_gui) [bruce 050728 revised this]
+        self.connect_or_disconnect_signals(True)
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
         
@@ -344,6 +327,42 @@ class depositMode(basicMode):
         self.dont_update_gui = False
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
+
+    def connect_or_disconnect_signals(self, connect): #bruce 050728
+        if connect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
+        change_connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
+                       self.setPaste)
+        change_connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
+                       self.setAtom)
+            # Qt doc about SIGNAL("activated(int)"): This signal is not emitted
+            # if the item is changed programmatically, e.g. using setCurrentItem().
+            # Good! [bruce 050121 comment]
+        change_connect(self.w.depositAtomDashboard.pasteRB,
+                       SIGNAL("pressed()"), self.setPaste)
+        change_connect(self.w.depositAtomDashboard.atomRB,
+                       SIGNAL("pressed()"), self.setAtom)
+        
+        # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
+        change_connect(self.w.depositAtomDashboard.bond1RB,
+                       SIGNAL("toggled(bool)"), self.setBond1) #bruce 050727 changed "pressed()" to "toggled(bool)"
+        change_connect(self.w.depositAtomDashboard.bond2RB,
+                       SIGNAL("toggled(bool)"), self.setBond2)
+        change_connect(self.w.depositAtomDashboard.bond3RB,
+                       SIGNAL("toggled(bool)"), self.setBond3)
+        change_connect(self.w.depositAtomDashboard.bondaRB,
+                       SIGNAL("toggled(bool)"), self.setBonda)
+        return
+
+    def update_bond_buttons(self): #bruce 050728 (should this be used more widely?)
+        "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
+        self.w.depositAtomDashboard.bond1RB.setOn( self.bondclick_v6 == V_SINGLE)
+        self.w.depositAtomDashboard.bond2RB.setOn( self.bondclick_v6 == V_DOUBLE)
+        self.w.depositAtomDashboard.bond3RB.setOn( self.bondclick_v6 == V_TRIPLE)
+        self.w.depositAtomDashboard.bondaRB.setOn( self.bondclick_v6 == V_AROMATIC)
+        return
     
     def update_gui(self): #bruce 050121 heavily revised this [called by basicMode.UpdateDashboard]
         """can be called many times during the mode;
@@ -524,9 +543,12 @@ class depositMode(basicMode):
         self.warning( msg, bother_user_with_dialog = 1)
         return True # refuse the Cancel
     
-    # restore_gui handles all the GUI display when leavinging this mode
+    # restore_gui handles all the GUI display when leaving this mode
     # [mark 041004]
     def restore_gui(self):
+        # disconnect signals which were connected in init_gui [bruce 050728]
+        self.connect_or_disconnect_signals(False)
+        
         self.w.depositAtomDashboard.hide() # Stow away dashboard
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
