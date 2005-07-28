@@ -171,12 +171,14 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                     a1posm = a1pos + offset * pvec1
                     a2posm = a2pos + offset * pvec2
                     geom = self.geom_from_posns(a1posm, a2posm)
-                    draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, cylrad, shorten_tubes, geom )
+                    draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, \
+                                   cylrad, shorten_tubes, geom, self.v6 )
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
         geom = self.geom #e could be optimized to compute less for CPK case
         cylrad = sigmabond_cyl_radius
-        draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, cylrad, shorten_tubes, geom )
+        draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, \
+                       cylrad, shorten_tubes, geom, self.v6 )
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
@@ -222,9 +224,29 @@ def multicyl_pvecs( howmany, a2py, a2pz):
         assert 0
     pass
 
-def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, sigmabond_cyl_radius, shorten_tubes, geom ):
-    "Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds."
+def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, \
+                   sigmabond_cyl_radius, shorten_tubes, geom, v6 ):
+    """Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
+    [private function for a single caller, which is the only reason such a long arglist is tolerable]
+    """
     a1pos, c1, center, c2, a2pos, toolong = geom
+
+    # Figure out banding -- this part can be filled out by Mark & Huaicai,
+    # but probably only after the color-prefs and other bond prefs code is filled out by me [bruce 050728].
+    # If this depends on disp, I recommend using a separate if/elif chain here, not mixing it into the one below for drawing.
+    # If new color args are needed, they could be passed from the caller as args after the toolong_color arg,
+    # or figured out here (by prefs lookup -- code for that is not yet added) if the other args,
+    # plus the caller's highlighted arg, would be sufficient.
+    if v6 == V_AROMATIC:
+        pass # use aromatic banding on this cylinder (bond order 1.5)
+    elif v6 == V_GRAPHITE:
+        pass # use graphite banding on this cylinder (bond order 1.33)
+    elif v6 == V_CARBOMERIC:
+        pass # use carbomeric banding on this cylinder (bond order 2.5) (could be same as aromatic if you want)
+    else:
+        pass # no banding needed on this cylinder
+    # end of figuring out banding, though to use it, the code below must be modified.
+    
     if disp == diLINES:
         if not toolong:
             drawline(color1, a1pos, center)
