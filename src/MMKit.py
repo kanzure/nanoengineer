@@ -28,7 +28,11 @@ class MMKit(MMKitDialog):
         
         #self.tabWidget2.setCurrentPage(1)
         # Set current element in element button group.
-        #self.elementButtonGroup.setButton(self.w.Element) 
+        self.elementButtonGroup.setButton(self.w.Element) 
+        
+        #Connect signal of listBox in MMK to pasteBox of mainwindow
+        #self.connect(self.chunkListBox, SINGNAL("selectionChanged(QListBoxItem*)"), self.w.
+        
 
     def setElementInfo(self,value):
         '''Called as a slot from button push of the element Button Group'''
@@ -125,16 +129,15 @@ class MMKit(MMKitDialog):
         '''Slot method. Called when user clicked to change the tab page'''
         pageId = self.tabWidget2.indexOf(wg)
         
-        if pageId == 1: ##Clipboard page
+        if pageId == 1: ## Clipboard page
             self.w.pasteP = True
             self.w.depositAtomDashboard.pasteRB.setOn(True)
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
-        else:
+        else:  ## Element page
             #self._setNewView('ElementHybridView')
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
-            self.elemGLPane.changeHybridType(None)
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             
 
@@ -143,9 +146,20 @@ class MMKit(MMKitDialog):
         itemId = self.chunkListBox.index(item)
         newChunk = self.pastableItems[itemId]
         
+        
         self.w.pasteComboBox.setCurrentItem(itemId)
+        buildModeObj = self.w.glpane.modetab['DEPOSIT']
+        assert buildModeObj
+        buildModeObj.setPaste()
+                                             
         
         self.elemGLPane.updateModel(newChunk)
+        
+    
+    def updatePastableItems(self):
+        '''Slot method. Called when user clicks the 'Update' button. '''
+        self._clipboardPageView()
+        
         
     
     def _clipboardPageView(self):
@@ -158,8 +172,8 @@ class MMKit(MMKitDialog):
         
         self.chunkListBox.clear()
         self.chunkListBox.insertStringList(list)
-        if len(list): self.chunkListBox.setCurrentItem(0)
-        
+        if len(list): self.chunkListBox.setSelected(0, True)
+        else: self.elemGLPane.updateModel(newChunk=None)
         #self._setNewView('ChunkView')
         
         

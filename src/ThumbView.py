@@ -593,6 +593,8 @@ class ElementHybridView(ElementView):
     
     
     def _fitInWindow(self):
+        if not self.mol: return
+        
         self.mol._recompute_bbox()
         self.scale = self.mol.bbox.scale() 
         aspect = float(self.width) / self.height

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>230</width>
-            <height>448</height>
+            <width>212</width>
+            <height>466</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -279,6 +279,12 @@
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>2</number>
+        </property>
+        <property name="spacing">
+            <number>2</number>
         </property>
         <widget class="QFrame">
             <property name="name">
@@ -743,7 +749,24 @@
                             </widget>
                         </grid>
                     </widget>
-                    <widget class="QButtonGroup" row="1" column="0">
+                    <spacer row="1" column="1" rowspan="2" colspan="1">
+                        <property name="name">
+                            <cstring>spacer36</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>34</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QButtonGroup" row="2" column="0">
                         <property name="name">
                             <cstring>hybrid_btngrp</cstring>
                         </property>
@@ -791,6 +814,9 @@
                                 <property name="buttonGroupId">
                                     <number>0</number>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>sp3</string>
+                                </property>
                             </widget>
                             <widget class="QToolButton">
                                 <property name="name">
@@ -810,6 +836,9 @@
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>1</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>sp2</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton">
@@ -831,6 +860,9 @@
                                 <property name="buttonGroupId">
                                     <number>2</number>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>sp</string>
+                                </property>
                             </widget>
                             <widget class="QToolButton">
                                 <property name="name">
@@ -850,6 +882,9 @@
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>3</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>aromatic</string>
                                 </property>
                             </widget>
                             <spacer>
@@ -871,20 +906,20 @@
                             </spacer>
                         </hbox>
                     </widget>
-                    <spacer row="1" column="1">
+                    <spacer row="1" column="0">
                         <property name="name">
-                            <cstring>spacer36</cstring>
+                            <cstring>spacer14</cstring>
                         </property>
                         <property name="orientation">
                             <enum>Vertical</enum>
                         </property>
                         <property name="sizeType">
-                            <enum>Expanding</enum>
+                            <enum>Fixed</enum>
                         </property>
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>34</height>
+                                <height>10</height>
                             </size>
                         </property>
                     </spacer>
@@ -921,6 +956,61 @@
                                 <verstretch>2</verstretch>
                             </sizepolicy>
                         </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>0</width>
+                                <height>150</height>
+                            </size>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout5</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>updateButton</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Update</string>
+                                </property>
+                                <property name="default">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Synchronize list with the Model Tree clipboard.</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer13</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>61</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
                     </widget>
                 </vbox>
             </widget>
@@ -938,13 +1028,13 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>10</height>
                 </size>
             </property>
         </spacer>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout10</cstring>
+                <cstring>layout8</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -962,7 +1052,7 @@
                     </property>
                     <property name="sizeHint">
                         <size>
-                            <width>40</width>
+                            <width>118</width>
                             <height>20</height>
                         </size>
                     </property>
@@ -986,8 +1076,42 @@
                         <bool>true</bool>
                     </property>
                 </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer4_2_3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Fixed</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>10</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
             </hbox>
         </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer4_2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>10</height>
+                </size>
+            </property>
+        </spacer>
     </vbox>
 </widget>
 <images>
@@ -1026,6 +1150,12 @@
         <receiver>MMKitDialog</receiver>
         <slot>chunkChanged(QListBoxItem*)</slot>
     </connection>
+    <connection>
+        <sender>updateButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MMKitDialog</receiver>
+        <slot>updatePastableItems()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>closePTableButton</tabstop>
@@ -1035,6 +1165,7 @@
     <slot>set_hybrid_type(int)</slot>
     <slot>tabpageChanged(QWidget *)</slot>
     <slot>chunkChanged(QListBoxItem *)</slot>
+    <slot>updatePastableItems()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

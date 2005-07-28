@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
+# Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Thu Jul 28 15:51:45 2005
+# Created: Thu Jul 28 17:25:09 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -107,7 +107,7 @@ class MMKitDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-        MMKitDialogLayout = QVBoxLayout(self,11,6,"MMKitDialogLayout")
+        MMKitDialogLayout = QVBoxLayout(self,2,2,"MMKitDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
         self.elementFrame.setSizePolicy(QSizePolicy(5,5,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
@@ -267,6 +267,8 @@ class MMKitDialog(QDialog):
         elementButtonGroupLayout.addWidget(self.toolButton32,3,1)
 
         tabLayout.addMultiCellWidget(self.elementButtonGroup,0,0,0,1)
+        spacer36 = QSpacerItem(20,34,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        tabLayout.addMultiCell(spacer36,1,2,1,1)
 
         self.hybrid_btngrp = QButtonGroup(self.tab,"hybrid_btngrp")
         self.hybrid_btngrp.setFrameShape(QButtonGroup.NoFrame)
@@ -305,9 +307,9 @@ class MMKitDialog(QDialog):
         spacer4 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         hybrid_btngrpLayout.addItem(spacer4)
 
-        tabLayout.addWidget(self.hybrid_btngrp,1,0)
-        spacer36 = QSpacerItem(20,34,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        tabLayout.addItem(spacer36,1,1)
+        tabLayout.addWidget(self.hybrid_btngrp,2,0)
+        spacer14 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        tabLayout.addItem(spacer14,1,0)
         self.tabWidget2.insertTab(self.tab,QString(""))
 
         self.tab_2 = QWidget(self.tabWidget2,"tab_2")
@@ -318,25 +320,40 @@ class MMKitDialog(QDialog):
 
         self.chunkListBox = QListBox(self.tab_2,"chunkListBox")
         self.chunkListBox.setSizePolicy(QSizePolicy(7,7,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
+        self.chunkListBox.setMinimumSize(QSize(0,150))
         tabLayout_2.addWidget(self.chunkListBox)
+
+        layout5 = QHBoxLayout(None,0,6,"layout5")
+
+        self.updateButton = QPushButton(self.tab_2,"updateButton")
+        self.updateButton.setSizePolicy(QSizePolicy(1,0,0,0,self.updateButton.sizePolicy().hasHeightForWidth()))
+        self.updateButton.setDefault(1)
+        layout5.addWidget(self.updateButton)
+        spacer13 = QSpacerItem(61,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout5.addItem(spacer13)
+        tabLayout_2.addLayout(layout5)
         self.tabWidget2.insertTab(self.tab_2,QString(""))
         MMKitDialogLayout.addWidget(self.tabWidget2)
-        spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        spacer4_2 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
         MMKitDialogLayout.addItem(spacer4_2)
 
-        layout10 = QHBoxLayout(None,0,6,"layout10")
-        spacer8 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout10.addItem(spacer8)
+        layout8 = QHBoxLayout(None,0,6,"layout8")
+        spacer8 = QSpacerItem(118,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout8.addItem(spacer8)
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
         self.closePTableButton.setSizePolicy(QSizePolicy(1,0,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
         self.closePTableButton.setDefault(1)
-        layout10.addWidget(self.closePTableButton)
-        MMKitDialogLayout.addLayout(layout10)
+        layout8.addWidget(self.closePTableButton)
+        spacer4_2_3 = QSpacerItem(10,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        layout8.addItem(spacer4_2_3)
+        MMKitDialogLayout.addLayout(layout8)
+        spacer4_2_2 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        MMKitDialogLayout.addItem(spacer4_2_2)
 
         self.languageChange()
 
-        self.resize(QSize(230,448).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(212,466).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -344,6 +361,7 @@ class MMKitDialog(QDialog):
         self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
         self.connect(self.tabWidget2,SIGNAL("currentChanged(QWidget*)"),self.tabpageChanged)
         self.connect(self.chunkListBox,SIGNAL("selectionChanged(QListBoxItem*)"),self.chunkChanged)
+        self.connect(self.updateButton,SIGNAL("clicked()"),self.updatePastableItems)
 
 
 
@@ -371,11 +389,17 @@ class MMKitDialog(QDialog):
         self.toolButton32.setText(self.__tr("Ge"))
         self.hybrid_btngrp.setTitle(QString.null)
         self.sp3_btn.setText(QString.null)
+        QToolTip.add(self.sp3_btn,self.__tr("sp3"))
         self.sp2_btn.setText(QString.null)
+        QToolTip.add(self.sp2_btn,self.__tr("sp2"))
         self.sp_btn.setText(QString.null)
+        QToolTip.add(self.sp_btn,self.__tr("sp"))
         self.aromatic_btn.setText(QString.null)
+        QToolTip.add(self.aromatic_btn,self.__tr("aromatic"))
         self.tabWidget2.changeTab(self.tab,self.__tr("Atoms"))
         self.textLabel1.setText(self.__tr("Pastable Chunks:"))
+        self.updateButton.setText(self.__tr("Update"))
+        QToolTip.add(self.updateButton,self.__tr("Synchronize list with the Model Tree clipboard."))
         self.tabWidget2.changeTab(self.tab_2,self.__tr("Clipboard"))
         self.closePTableButton.setText(self.__tr("Close"))
 
@@ -391,6 +415,9 @@ class MMKitDialog(QDialog):
 
     def chunkChanged(self,a0):
         print "MMKitDialog.chunkChanged(QListBoxItem*): Not implemented yet"
+
+    def updatePastableItems(self):
+        print "MMKitDialog.updatePastableItems(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MMKitDialog",s,c)
