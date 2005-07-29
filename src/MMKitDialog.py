@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Thu Jul 28 17:25:09 2005
+# Created: Fri Jul 29 15:04:26 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -299,11 +299,11 @@ class MMKitDialog(QDialog):
         self.hybrid_btngrp.insert( self.sp_btn,2)
         hybrid_btngrpLayout.addWidget(self.sp_btn)
 
-        self.aromatic_btn = QToolButton(self.hybrid_btngrp,"aromatic_btn")
-        self.aromatic_btn.setMinimumSize(QSize(30,30))
-        self.aromatic_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.aromatic_btn,3)
-        hybrid_btngrpLayout.addWidget(self.aromatic_btn)
+        self.graphitic_btn = QToolButton(self.hybrid_btngrp,"graphitic_btn")
+        self.graphitic_btn.setMinimumSize(QSize(30,30))
+        self.graphitic_btn.setToggleButton(1)
+        self.hybrid_btngrp.insert( self.graphitic_btn,3)
+        hybrid_btngrpLayout.addWidget(self.graphitic_btn)
         spacer4 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         hybrid_btngrpLayout.addItem(spacer4)
 
@@ -394,8 +394,8 @@ class MMKitDialog(QDialog):
         QToolTip.add(self.sp2_btn,self.__tr("sp2"))
         self.sp_btn.setText(QString.null)
         QToolTip.add(self.sp_btn,self.__tr("sp"))
-        self.aromatic_btn.setText(QString.null)
-        QToolTip.add(self.aromatic_btn,self.__tr("aromatic"))
+        self.graphitic_btn.setText(QString.null)
+        QToolTip.add(self.graphitic_btn,self.__tr("Graphitic"))
         self.tabWidget2.changeTab(self.tab,self.__tr("Atoms"))
         self.textLabel1.setText(self.__tr("Pastable Chunks:"))
         self.updateButton.setText(self.__tr("Update"))

@@ -866,7 +866,7 @@
                             </widget>
                             <widget class="QToolButton">
                                 <property name="name">
-                                    <cstring>aromatic_btn</cstring>
+                                    <cstring>graphitic_btn</cstring>
                                 </property>
                                 <property name="minimumSize">
                                     <size>
@@ -884,7 +884,7 @@
                                     <number>3</number>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>aromatic</string>
+                                    <string>Graphitic</string>
                                 </property>
                             </widget>
                             <spacer>

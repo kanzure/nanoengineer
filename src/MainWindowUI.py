@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Jul 25 15:07:09 2005
+# Created: Fri Jul 29 19:25:17 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7350,6 +7350,7 @@ class MainWindow(QMainWindow):
         self.setViewOppositeAction.setToolTip(self.__tr("Opposite View"))
         self.setViewOppositeAction.setStatusTip(self.__tr("Opposite View"))
         self.modifyMMKitAction.setText(self.__tr("Molecular Modeling Kit"))
+        self.modifyMMKitAction.setToolTip(self.__tr("Modeling Kit"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))

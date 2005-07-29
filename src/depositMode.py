@@ -334,6 +334,9 @@ class depositMode(basicMode):
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
 
         self.dont_update_gui = False
+	
+	# Huaicai 7/29/05: Open the MMKit every time entering this mode.
+	self.w.modifyMMKit()
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
 
@@ -562,6 +565,9 @@ class depositMode(basicMode):
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
         self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+	
+	# Huaicai 7/29/05: Close the MMKit every time leaving this mode.
+	self.w.closeMMKit()
 
 
     def restore_patches(self):

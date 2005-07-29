@@ -26,12 +26,11 @@ class MMKit(MMKitDialog):
         
         self._setNewView('ElementHybridView')
         
-        #self.tabWidget2.setCurrentPage(1)
         # Set current element in element button group.
         self.elementButtonGroup.setButton(self.w.Element) 
         
         #Connect signal of listBox in MMK to pasteBox of mainwindow
-        #self.connect(self.chunkListBox, SINGNAL("selectionChanged(QListBoxItem*)"), self.w.
+        self.connect(self, PYSIGNAL("chunkSelectionChanged"), self.w.pasteComboBox, SIGNAL("activated(int)"))
         
 
     def setElementInfo(self,value):
@@ -82,7 +81,7 @@ class MMKit(MMKitDialog):
         self.sp2_btn.show()
         self.sp_btn.setPixmap(imagename_to_pixmap('C_sp.png'))
         self.sp_btn.show()
-        self.aromatic_btn.hide()
+        self.graphitic_btn.hide()
         
     def setup_N_hybrid_buttons(self):
         '''Displays the Nitrogen hybrid buttons.
@@ -93,8 +92,8 @@ class MMKit(MMKitDialog):
         self.sp2_btn.show()
         self.sp_btn.setPixmap(imagename_to_pixmap('N_sp.png'))
         self.sp_btn.show()
-        self.aromatic_btn.setPixmap(imagename_to_pixmap('N_aromatic.png'))
-        self.aromatic_btn.show()
+        self.graphitic_btn.setPixmap(imagename_to_pixmap('N_graphitic.png'))
+        self.graphitic_btn.show()
         
     def setup_O_hybrid_buttons(self):
         '''Displays the Oxygen hybrid buttons.
@@ -104,7 +103,7 @@ class MMKit(MMKitDialog):
         self.sp2_btn.setPixmap(imagename_to_pixmap('O_sp2.png'))
         self.sp2_btn.show()
         self.sp_btn.hide()
-        self.aromatic_btn.hide()
+        self.graphitic_btn.hide()
         
     def setup_S_hybrid_buttons(self):
         '''Displays the Sulfur hybrid buttons.
@@ -114,7 +113,7 @@ class MMKit(MMKitDialog):
         self.sp3_btn.setPixmap(imagename_to_pixmap('O_sp3.png'))
         self.sp2_btn.show()
         self.sp_btn.hide()
-        self.aromatic_btn.hide()
+        self.graphitic_btn.hide()
     
     def set_hybrid_type(self, type_id):
         '''Slot method. Called when any of the hybrid type buttons was clicked. '''
@@ -147,11 +146,14 @@ class MMKit(MMKitDialog):
         newChunk = self.pastableItems[itemId]
         
         
+        #self.w.pasteComboBox.setCurrentItem(itemId)
+        #buildModeObj = self.w.glpane.modetab['DEPOSIT']
+        #assert buildModeObj
+        #buildModeObj.setPaste()
+        
+        ##Compared to the above way, I think this way is better. Modules are more uncoupled.
         self.w.pasteComboBox.setCurrentItem(itemId)
-        buildModeObj = self.w.glpane.modetab['DEPOSIT']
-        assert buildModeObj
-        buildModeObj.setPaste()
-                                             
+        self.emit(PYSIGNAL('chunkSelectionChanged'), (itemId,))
         
         self.elemGLPane.updateModel(newChunk)
         

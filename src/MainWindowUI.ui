@@ -3740,6 +3740,9 @@
         <property name="text">
             <string>Molecular Modeling Kit</string>
         </property>
+        <property name="toolTip">
+            <string>Modeling Kit</string>
+        </property>
     </action>
 </actions>
 <images>

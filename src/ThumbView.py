@@ -54,7 +54,7 @@ class ThumbView(QGLWidget):
 
     
     def drawModel(self):
-        """This is abstract method of drawing models, subclass should overwrite it with concrete model drawing statements """        
+        """This is an abstract method of drawing models, subclass should overwrite it with concrete model drawing statements """        
         pass
     
     def drawSelected(self, obj):
@@ -367,7 +367,7 @@ class ThumbView(QGLWidget):
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         
-        current_glselect = (wX,wY,1,1) #bruce 050615 for use by nodes which want to set up their own projection matrix
+        current_glselect = (wX,wY,1,1) 
         self._setup_projection(glselect = current_glselect) 
         
         glSelectBuffer(self.glselectBufferSize)
@@ -430,6 +430,7 @@ class ThumbView(QGLWidget):
         glFlush()
         self.swapBuffers()
 
+
     def _preHighlight(self):
         '''Before highlight, clear stencil buffer, depth writing and some stencil test settings. '''       
         self.makeCurrent()
@@ -446,7 +447,8 @@ class ThumbView(QGLWidget):
         glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
             # (this works, but someday verify sign is correct in theory #k)
         glMatrixMode(GL_MODELVIEW) 
-    
+   
+        
     def _endHightlight(self):
         '''Turn on depth writing, disable stencil test '''
         glDepthMask(GL_TRUE)

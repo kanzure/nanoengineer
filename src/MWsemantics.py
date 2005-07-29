@@ -1345,7 +1345,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         mmk_height = mmk_geometry.height()
         
         ## 26 is an estimate of the bottom toolbar height
-        y = self.y() + self.geometry().height() - hist_height - mmk_height - 26 
+        toolbar_height = self.depositAtomDashboard.frameGeometry().height()
+        
+        y = self.y() + self.geometry().height() - hist_height - mmk_height - toolbar_height
+        if y < 0: y = 0
         x = self.x()
         
         return x, y
@@ -1361,12 +1364,16 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
         MMKitWin = MMKit(self)
         MMKitWin.update_dialog(self.Element)
-        MMKitWin.show()
-        
         pos = self._findGoodLocation()
         MMKitWin.move(pos[0], pos[1])
-        
-        
+        MMKitWin.show()
+    
+    
+    def closeMMKit(self):
+        global MMKitWin
+        if MMKitWin and MMKitWin.isShown():
+            MMKitWin.hide()
+      
         
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
@@ -1387,9 +1394,6 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
            MMKitWin.update_dialog(self.Element)     
            MMKitWin.show()
            
-           pos = self._findGoodLocation()
-           MMKitWin.move(pos[0], pos[1])
-        
           
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]
