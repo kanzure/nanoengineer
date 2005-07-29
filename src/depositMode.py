@@ -90,6 +90,15 @@ def find_hotspot_for_pasting(obj):
 ##    return
 
 def do_what_MainWindowUI_should_do(w):
+
+    # this code (disabled) shows one way to work around QToolButton bug on Mac OS X 10.4 Tiger [bruce 050729]
+    if "this OS" == "tiger": # never true -- I don't know how to detect whether we're running on Jaguar, Panther, or Tiger
+        try:
+            from debug_prefs import hack_QToolButton
+            hack_QToolButton( w.toolsDepositAtomAction, w ) # make button look different when On
+        except:
+            print_compact_traceback()
+    
     w.depositAtomDashboard.clear()
 
     w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")
@@ -647,6 +656,8 @@ class depositMode(basicMode):
                 return HICOLOR_singlet_bond
             else:
                 return HICOLOR_real_bond
+        elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
+            return None # (jigs aren't yet able to draw themselves with a highlight-color)
         else:
             print "unexpected selobj class in depmode.selobj_highlight_color:", selobj
             return blue

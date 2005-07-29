@@ -306,7 +306,7 @@ def iconset_from_color(color):
     The color can be a QColor or any python type we use for colors (out of the few our helper funcs understand).
     """
     # figure out desired size of a small icon
-    from qt import QIconSet, QPixmap
+    from qt import QIconSet
     size = QIconSet.iconSize(QIconSet.Small) # a QSize object
     w, h = size.width(), size.height()
     # get pixmap of that color
@@ -314,6 +314,18 @@ def iconset_from_color(color):
     # for now, let Qt figure out the Active appearance, etc. Later we can draw our own black outline, or so. ##e
     iconset = QIconSet(pixmap)
     checkmark = ("checkmark" == debug_pref("color checkmark", Choice(["checkmark","box"])))
+
+    modify_iconset_On_states( iconset, color = color, checkmark = checkmark )
+    return iconset
+
+def modify_iconset_On_states( iconset, color = white, checkmark = False): #bruce 050729 split this out of iconset_from_color
+    """Modify the On states of the pixmaps in iconset, so they can be distinguished from the (presumably equal) Off states.
+    (Warning: for now, only the Normal On states are modified, not the Active or Disabled On states.)
+    By default, the modification is to add a surrounding square outline whose color contrasts with white,
+    *and* also with the specified color if one is provided. If checkmark is true, the modification is to add a central
+    checkmark whose color contrasts with white, *or* with the specified color if one is provided.
+    """
+    from qt import QIconSet, QPixmap
     for size in [QIconSet.Small, QIconSet.Large]: # Small, Large = 1,2
         for mode in [QIconSet.Normal]: # Normal = 0; might also need Active for when mouse over item; don't yet need Disabled
             # make the On state have a checkmark; first cause it to generate both of them, and copy them both
@@ -338,6 +350,9 @@ def iconset_from_color(color):
             # Warning: "size" localvar is in use as a loop iterator!
             psize = pixmap.width(), pixmap.height() #k guess
             w,h = psize
+##            import platform
+##            if platform.atom_debug:
+##                print "atom_debug: pixmap(%s,%s,%s) size == %d,%d" % (size, mode, state, w,h)
             from qt import copyBlt
             if checkmark:
                 contrast = contrasting_color( qcolor_from_anything(color))
@@ -360,7 +375,22 @@ def iconset_from_color(color):
                 # and setPixmap placed it into the middle of a white background.
             pass
         pass
-    return iconset
+    return # from modify_iconset_On_states
+
+def hack_QToolButton(qtoolbutton, win): #bruce 050729 experiment to work around QToolButton bug in Mac OS X 10.4 Tiger
+    import platform
+    if platform.atom_debug:
+        print "atom_debug: win.usesBigPixmaps()", win.usesBigPixmaps() # spelling with 's' at end is correct
+        # This prints False for Tiger, but the actual buttons in toolbars are 32x32 with only 22x22 used in the middle,
+        # and the Small state pixmaps in the iconsets (22x22) are the ones being used here (based on which modifications matter).
+        # Doing win.setUsesBigPixmaps(1) worked, but looked bad - it just made them bigger and fuzzy-looking.
+        pass ## print " two iconsets:",qtoolbutton.iconSet(),qtoolbutton.iconSet() # the same as each other and as iconset var below
+    iconset = qtoolbutton.iconSet()
+    modify_iconset_On_states(iconset)
+    qtoolbutton.setIconSet(iconset) #k might not be needed
+    if platform.atom_debug:
+        pass ## print " new iconset:",qtoolbutton.iconSet()," returned one was",iconset # now the returned one is different
+    return
 
 # ==
 
