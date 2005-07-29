@@ -309,8 +309,10 @@ class Jig(Node):
         """
         if mapping is not None:
             ndix = mapping.atnums
+            name = mapping.encode_name(self.name) #bruce 050729 help fix some Jig.__repr__ tracebacks (e.g. part of bug 792-1)
         else:
             ndix = None
+            name = self.name
         nums = self.atnums_or_None( ndix)
         del ndix
         if nums is None or (self.is_disabled() and mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file()):
@@ -321,7 +323,7 @@ class Jig(Node):
             # and whether we insist on being invisible to the simulator even if we don't have to be
             # (since all our atoms are visible to it).
             ref_id = mapping.node_ref_id(self) #e should this only be known to a mapping method which gives us the fwdref record??
-            mmprectype_name = "%s (%s)" % (self.mmp_record_name, mapping.encode_name(self.name))
+            mmprectype_name = "%s (%s)" % (self.mmp_record_name, name)
             fwd_ref_to_return_now = "forward_ref (%s) # %s\n" % (str(ref_id), mmprectype_name) # the stuff after '#' is just a comment
             after_these = self.node_must_follow_what_nodes()
             assert after_these # but this alone does not assert that they weren't all already written out! The next method should do that.
@@ -334,10 +336,6 @@ class Jig(Node):
         else:
             c = self.color
         color = map(int,A(c)*255)
-        if mapping is not None:
-            name = mapping.encode_name(self.name)
-        else:
-            name = self.name
         mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, name,
                                                           color[0], color[1], color[2])
         midpart = self.mmp_record_jigspecific_midpart()
@@ -449,6 +447,7 @@ class Jig(Node):
             glEnable(GL_CULL_FACE)
             glEnable(GL_LIGHTING)
             glPolygonMode(GL_FRONT, GL_FILL)
+            glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 precaution related to bug 835; could probably use GL_FRONT_AND_BACK
             glDisable(GL_LINE_STIPPLE)
         return
     

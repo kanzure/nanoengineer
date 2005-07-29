@@ -1019,6 +1019,24 @@ class Node:
     def draw(self, glpane, dispdef):
         pass
         
+    def draw_in_abs_coords(self, glpane, color): #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
+        """Default implementation of draw_in_abs_coords. Some implem is needed by any nodes or other drawable objects
+        which get registered with env.alloc_my_glselect_name. [#doc the API]
+        [Subclasses which are able to use color for highlighting in Build mode,
+         or which want to look different when highlighted in Build mode,
+         or which are ever drawn in non-absolute modelview coordinates,
+         or for which glpane.display is not what would be passed to their draw method,
+         should override this method.]
+        """
+        dispdef = glpane.display
+        del color
+        self.draw(glpane, dispdef)
+        return
+
+    def killed(self): #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
+        alive = self.dad is not None and self.assy is not None
+        return not alive # probably not correct, but should be good enough for now
+    
     def getinfo(self):
         pass
 
