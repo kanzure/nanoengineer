@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 drawer.py
 
@@ -544,6 +544,7 @@ def drawwirecube(color, pos, radius):
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
+    glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 to help fix bug 835 or related bugs
 
 def drawwirebox(color, pos, len):
     global CubeList
@@ -560,6 +561,7 @@ def drawwirebox(color, pos, len):
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
+    glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 to help fix bug 835 or related bugs
 
 def segstart(color):
     glDisable(GL_LIGHTING)
