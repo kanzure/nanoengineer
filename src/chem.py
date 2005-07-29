@@ -1644,7 +1644,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             # [bruce 041215 comment: might need revision if numbonds > 4]
             a1 = self.bonds[0].other(self) # our real neighbor
             if len(a1.bonds)>1:
-                if a1.atomtype.spX != 1:
+                if not (a1.atomtype.spX == 1 and atype.spX < 3): #bruce 050729 added (and atype.spX < 3) to fix bug 840
                     # figure out how to line up one arbitrary bond from each of self and a1.
                     # a2 = a neighbor of a1 other than self
                     if self is a1.bonds[0].other(a1):
@@ -1653,7 +1653,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                         a2 = a1.bonds[0].other(a1)
                     a2pos = a2.posn()
                 else:
-                    #bruce 050728 new feature: for sp atoms, use pi_info to decide where to pretend a2 lies.
+                    #bruce 050728 new feature: for new pi bonds to sp atoms, use pi_info to decide where to pretend a2 lies.
                     # If we give up, it's safe to just say a2pos = a1.posn() -- twistor() apparently tolerates that ambiguity.
                     try:
                         # catch exceptions in case for some reason it's too early to compute this...
@@ -1663,7 +1663,13 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                         # But we don't know if this bond is new, so if it has a pi_bond_obj we don't know if that's ok or not.
                         # So to fix a bug this exposed, I'm making bond.rebond warn the pi_bond_obj on its bond, immediately
                         # (not waiting for bond updating code to do it).
+                        # [050729: this is no longer needed, now that we destroy old pi_bond_obj (see below), but is still done.]
                         b = self.bonds[0] # if there was not just one bond on self, we'd say find_bond(self,a1)
+                        #bruce 050729: it turns out there can be incorrect (out of date) pi_info here,
+                        # from when some prior singlets on self were still there -- need to get rid of this and recompute it.
+                        # This fixes a bug I found, and am reporting, in my mail (not yet sent) saying bug 841 is Not A Bug.
+                        if b.pi_bond_obj is not None:
+                            b.pi_bond_obj.destroy()
                         pi_info = b.get_pi_info(abs_coords = True) # without the option, vectors would be in bond's coordsys
                         ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z) = pi_info
                         del ord_pi_y, ord_pi_z
