@@ -843,7 +843,7 @@ class Bond:
             return True
         pass
     
-    def writepov_bond(self, file, dispdef, col): #bruce 050727 moving implem to separate file
+    def writepov(self, file, dispdef, col): #bruce 050727 moving implem to separate file; 050730 fixed bug in this method's name
         "Write this bond to a povray file (always using absolute coords, even for internal bonds)."
         from bond_drawer import writepov_bond
         writepov_bond(self, file, dispdef, col)
