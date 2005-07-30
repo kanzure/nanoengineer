@@ -26,7 +26,7 @@ from qt import *
 import sys, os, time
 import platform # for atom_debug, and more
 from debug import DebugMenuMixin
-from constants import noop, historyMsgSerialNumber_prefs_key, historyMsgTimestamp_prefs_key
+from constants import *
 import preferences
 
 
@@ -186,6 +186,7 @@ class HistoryWidget:
         
         prefs = preferences.prefs_context()
         
+        self.history_height = prefs.get(historyHeight_prefs_key, 4)
         self.msg_serial_number = prefs.get(historyMsgSerialNumber_prefs_key, True)
         self.msg_timestamp = prefs.get(historyMsgTimestamp_prefs_key, True)
         
@@ -215,9 +216,9 @@ class HistoryWidget:
             # not needed on Mac [bruce], but needed on Windows [mark],
             # to support copy/paste command sequences, etc
 
-        # Set history widget height to 4 lines of text.  Mark 05-03-13
-        h = self.widget.fontMetrics().lineSpacing() * 4 + 2 # Plus 2 pixes
-        self.widget.setGeometry(QRect(0,0,0,h))
+        # Partial implem for NFR 843.  Need a method for updating the height of the widget. Mark 050729
+        h = self.widget.fontMetrics().lineSpacing() * self.history_height + 2 # Plus 2 pixels
+        self.widget.setGeometry(QRect(0,0,100,h))
         return
     
     file = None

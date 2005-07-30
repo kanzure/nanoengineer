@@ -9,17 +9,52 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>290</height>
+            <height>314</height>
         </rect>
     </property>
     <property name="caption">
         <string>Preferences</string>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QTabWidget">
+        <widget class="QLayoutWidget" row="1" column="0">
+            <property name="name">
+                <cstring>layout28</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer7</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>240</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ok_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>OK</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QTabWidget" row="0" column="0">
             <property name="name">
                 <cstring>prefs_tab</cstring>
             </property>
@@ -34,66 +69,6 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QGroupBox" row="1" column="0" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>file_locations_grp</cstring>
-                        </property>
-                        <property name="title">
-                            <string>File Locations</string>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QPushButton" row="1" column="2">
-                                <property name="name">
-                                    <cstring>gamess_choose_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Choose...</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="0">
-                                <property name="name">
-                                    <cstring>gamess_lbl</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>1</hsizetype>
-                                        <vsizetype>5</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>60</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="text">
-                                    <string>GAMESS Executable :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="1" column="1">
-                                <property name="name">
-                                    <cstring>gamess_path_linedit</cstring>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                            </widget>
-                        </grid>
-                    </widget>
                     <widget class="QGroupBox" row="0" column="0">
                         <property name="name">
                             <cstring>groupBox7_2</cstring>
@@ -225,6 +200,83 @@
                             </spacer>
                         </grid>
                     </widget>
+                    <widget class="QGroupBox" row="1" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>file_locations_grp</cstring>
+                        </property>
+                        <property name="title">
+                            <string>File Locations</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QPushButton" row="1" column="2">
+                                <property name="name">
+                                    <cstring>gamess_choose_btn</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>gamess_lbl</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>60</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="text">
+                                    <string>GAMESS Executable :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="1" column="1">
+                                <property name="name">
+                                    <cstring>gamess_path_linedit</cstring>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <spacer row="2" column="0">
+                        <property name="name">
+                            <cstring>spacer23</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>16</height>
+                            </size>
+                        </property>
+                    </spacer>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -232,17 +284,34 @@
                     <cstring>TabPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Display</string>
+                    <string>Atoms</string>
                 </attribute>
-                <vbox>
+                <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget">
+                    <spacer row="0" column="2">
                         <property name="name">
-                            <cstring>layout10</cstring>
+                            <cstring>spacer9</cstring>
                         </property>
-                        <hbox>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget" row="0" column="1">
+                        <property name="name">
+                            <cstring>layout22</cstring>
+                        </property>
+                        <vbox>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
@@ -303,99 +372,628 @@
                                     </widget>
                                 </grid>
                             </widget>
-                            <widget class="QGroupBox">
-                                <property name="name">
-                                    <cstring>groupBox3</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Caption Format</string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Window Border Caption Format</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Format Prefix and Suffix text the delimits the part name in the caption in window border.</string>
-                                </property>
-                                <vbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Caption Prefix for Modified File :</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit">
-                                        <property name="name">
-                                            <cstring>caption_prefix_linedit</cstring>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel2_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Caption Suffix for Modified File :</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit">
-                                        <property name="name">
-                                            <cstring>caption_suffix_linedit</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>caption_fullpath_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display full path of part</string>
-                                        </property>
-                                    </widget>
-                                </vbox>
-                            </widget>
                             <spacer>
                                 <property name="name">
-                                    <cstring>spacer9</cstring>
+                                    <cstring>spacer11</cstring>
                                 </property>
                                 <property name="orientation">
-                                    <enum>Horizontal</enum>
+                                    <enum>Vertical</enum>
                                 </property>
                                 <property name="sizeType">
                                     <enum>Expanding</enum>
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>70</width>
+                                        <width>20</width>
                                         <height>20</height>
                                     </size>
                                 </property>
                             </spacer>
-                        </hbox>
+                        </vbox>
                     </widget>
-                    <spacer>
+                    <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
-                            <cstring>spacer11</cstring>
+                            <cstring>layout30</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>atom_colors_grpbox</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Colors</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout29</cstring>
+                                        </property>
+                                        <grid>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLayoutWidget" row="1" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_2_2</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>free_valence_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>255</red>
+                                                                <green>0</green>
+                                                                <blue>0</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>free_valence_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLabel" row="1" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3_2_2_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Free Valences  :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="0" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_3</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>atom_hilite_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>0</red>
+                                                                <green>170</green>
+                                                                <blue>0</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>atom_hilite_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLabel" row="0" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3_2_3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Highlighting :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                        </grid>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout25_2</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer20_2</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>40</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                            <widget class="QPushButton">
+                                                <property name="name">
+                                                    <cstring>reset_atom_colors_btn</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Reset Colors</string>
+                                                </property>
+                                            </widget>
+                                        </hbox>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer11_4</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </vbox>
+                    </widget>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Bonds</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget" row="0" column="1">
+                        <property name="name">
+                            <cstring>layout27</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QButtonGroup">
+                                <property name="name">
+                                    <cstring>high_order_bond_display_btngrp</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>High Order Bond Display</string>
+                                </property>
+                                <property name="exclusive">
+                                    <bool>true</bool>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QRadioButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>radioButton11_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Vanes</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>1</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>radioButton11</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Mulitple Cylinders</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>0</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="2" column="0">
+                                        <property name="name">
+                                            <cstring>radioButton11_2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Ribbons</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>show_bond_labels_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show Bond Labels</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer18</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </vbox>
+                    </widget>
+                    <spacer row="0" column="2">
+                        <property name="name">
+                            <cstring>spacer19</cstring>
                         </property>
                         <property name="orientation">
-                            <enum>Vertical</enum>
+                            <enum>Horizontal</enum>
                         </property>
                         <property name="sizeType">
                             <enum>Expanding</enum>
                         </property>
                         <property name="sizeHint">
                             <size>
-                                <width>20</width>
+                                <width>16</width>
                                 <height>20</height>
                             </size>
                         </property>
                     </spacer>
-                </vbox>
+                    <widget class="QLayoutWidget" row="0" column="0">
+                        <property name="name">
+                            <cstring>layout31</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox4</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Colors</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout26</cstring>
+                                        </property>
+                                        <grid>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel" row="1" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3_2_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Bond Stretch :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="1" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_2</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>bond_stretch_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>255</red>
+                                                                <green>0</green>
+                                                                <blue>0</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>bond_stretch_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLabel" row="0" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Highlighting :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel" row="2" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3_3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Vane/Ribbon :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="0" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>bond_hilite_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>0</red>
+                                                                <green>0</green>
+                                                                <blue>159</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>bond_hilite_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="2" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_2_3</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>bond_vane_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>255</red>
+                                                                <green>0</green>
+                                                                <blue>0</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>bond_vane_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="3" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>bond_cpk_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>158</red>
+                                                                <green>158</green>
+                                                                <blue>158</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>bond_cpk_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLabel" row="3" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>CPK Cylinder :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                        </grid>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout25</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer20</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>40</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                            <widget class="QPushButton">
+                                                <property name="name">
+                                                    <cstring>reset_bond_colors_btn</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Reset Colors</string>
+                                                </property>
+                                            </widget>
+                                        </hbox>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer22</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>4</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </vbox>
+                    </widget>
+                </grid>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -426,7 +1024,7 @@
                                     </property>
                                     <widget class="QLabel" row="3" column="0">
                                         <property name="name">
-                                            <cstring>color2_lbl</cstring>
+                                            <cstring>bg2_color_lbl</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Color 2 :</string>
@@ -445,7 +1043,7 @@
                                             </property>
                                             <widget class="QFrame">
                                                 <property name="name">
-                                                    <cstring>color1_frame</cstring>
+                                                    <cstring>bg1_color_frame</cstring>
                                                 </property>
                                                 <property name="paletteBackgroundColor">
                                                     <color>
@@ -463,7 +1061,7 @@
                                             </widget>
                                             <widget class="QPushButton">
                                                 <property name="name">
-                                                    <cstring>choose_color1_btn</cstring>
+                                                    <cstring>choose_bg1_color_btn</cstring>
                                                 </property>
                                                 <property name="text">
                                                     <string>Choose...</string>
@@ -495,7 +1093,7 @@
                                             </property>
                                             <widget class="QFrame">
                                                 <property name="name">
-                                                    <cstring>color2_frame</cstring>
+                                                    <cstring>bg2_color_frame</cstring>
                                                 </property>
                                                 <property name="paletteBackgroundColor">
                                                     <color>
@@ -513,7 +1111,7 @@
                                             </widget>
                                             <widget class="QPushButton">
                                                 <property name="name">
-                                                    <cstring>choose_color2_btn</cstring>
+                                                    <cstring>choose_bg2_color_btn</cstring>
                                                 </property>
                                                 <property name="text">
                                                     <string>Choose...</string>
@@ -523,7 +1121,7 @@
                                     </widget>
                                     <widget class="QLabel" row="2" column="0">
                                         <property name="name">
-                                            <cstring>color1_lbl</cstring>
+                                            <cstring>bg1_color_lbl</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Color :</string>
@@ -754,21 +1352,135 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QCheckBox">
+                    <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>msg_serial_number_checkbox</cstring>
+                            <cstring>layout9</cstring>
                         </property>
-                        <property name="text">
-                            <string>Include message serial number</string>
-                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>textLabel1</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Height :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox">
+                                <property name="name">
+                                    <cstring>history_height_spinbox</cstring>
+                                </property>
+                                <property name="maxValue">
+                                    <number>20</number>
+                                </property>
+                                <property name="value">
+                                    <number>6</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Number of lines displayed in the history area.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>textLabel2_3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>lines</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer11_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
                     </widget>
-                    <widget class="QCheckBox">
+                    <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>msg_timestamp_checkbox</cstring>
+                            <cstring>layout11</cstring>
                         </property>
-                        <property name="text">
-                            <string>Include message timestamp</string>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>msg_serial_number_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Include message serial number</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer12</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout10</cstring>
                         </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>msg_timestamp_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Include message timestamp</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer13</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
                     </widget>
                     <spacer>
                         <property name="name">
@@ -783,56 +1495,176 @@
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>40</height>
+                                <height>80</height>
                             </size>
                         </property>
                     </spacer>
                 </vbox>
             </widget>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout28</cstring>
-            </property>
-            <hbox>
+            <widget class="QWidget">
                 <property name="name">
-                    <cstring>unnamed</cstring>
+                    <cstring>TabPage</cstring>
                 </property>
-                <spacer>
+                <attribute name="title">
+                    <string>Caption</string>
+                </attribute>
+                <grid>
                     <property name="name">
-                        <cstring>spacer7</cstring>
+                        <cstring>unnamed</cstring>
                     </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>240</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>ok_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>OK</string>
-                    </property>
-                </widget>
-            </hbox>
+                    <widget class="QLayoutWidget" row="0" column="0">
+                        <property name="name">
+                            <cstring>layout15</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox3</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Caption Format</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Window Border Caption Format</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Format Prefix and Suffix text the delimits the part name in the caption in window border.</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Caption Prefix for Modified File :</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>caption_prefix_linedit</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Caption Suffix for Modified File :</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>caption_suffix_linedit</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>caption_fullpath_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display full path of part</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer9_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>210</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>spacer11_3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
         </widget>
-    </vbox>
+    </grid>
 </widget>
 <connections>
     <connection>
-        <sender>ok_btn</sender>
+        <sender>atom_hilite_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>accept()</slot>
+        <slot>change_atom_hilite_color()</slot>
+    </connection>
+    <connection>
+        <sender>bond_cpk_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bond_cpk_color()</slot>
+    </connection>
+    <connection>
+        <sender>bond_hilite_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bond_hilite_color()</slot>
+    </connection>
+    <connection>
+        <sender>bond_stretch_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bond_stretch_color()</slot>
+    </connection>
+    <connection>
+        <sender>bond_vane_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bond_vane_color()</slot>
+    </connection>
+    <connection>
+        <sender>choose_bg1_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bg1_color()</slot>
+    </connection>
+    <connection>
+        <sender>compass_position_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_compass_position()</slot>
+    </connection>
+    <connection>
+        <sender>default_display_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_default_display_mode()</slot>
     </connection>
     <connection>
         <sender>display_compass_checkbox</sender>
@@ -853,10 +1685,16 @@
         <slot>display_pov_axis()</slot>
     </connection>
     <connection>
-        <sender>compass_position_btngrp</sender>
-        <signal>clicked(int)</signal>
+        <sender>fill_type_combox</sender>
+        <signal>activated(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>set_compass_position()</slot>
+        <slot>fill_type_changed()</slot>
+    </connection>
+    <connection>
+        <sender>free_valence_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_free_valence_color()</slot>
     </connection>
     <connection>
         <sender>gamess_choose_btn</sender>
@@ -865,10 +1703,16 @@
         <slot>set_gamess_path()</slot>
     </connection>
     <connection>
-        <sender>prefs_tab</sender>
-        <signal>selected(const QString&amp;)</signal>
+        <sender>high_order_bond_display_btngrp</sender>
+        <signal>clicked(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>setup_current_page()</slot>
+        <slot>change_high_order_bond_display()</slot>
+    </connection>
+    <connection>
+        <sender>history_height_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_history_height(int)</slot>
     </connection>
     <connection>
         <sender>mode_combox</sender>
@@ -877,16 +1721,28 @@
         <slot>mode_changed()</slot>
     </connection>
     <connection>
-        <sender>choose_color1_btn</sender>
+        <sender>ok_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_bgcolor1()</slot>
+        <slot>accept()</slot>
     </connection>
     <connection>
-        <sender>fill_type_combox</sender>
-        <signal>activated(const QString&amp;)</signal>
+        <sender>prefs_tab</sender>
+        <signal>selected(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>fill_type_changed()</slot>
+        <slot>setup_current_page()</slot>
+    </connection>
+    <connection>
+        <sender>reset_atom_colors_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>reset_atom_colors()</slot>
+    </connection>
+    <connection>
+        <sender>reset_bond_colors_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>reset_bond_colors()</slot>
     </connection>
     <connection>
         <sender>restore_bgcolor_btn</sender>
@@ -895,16 +1751,10 @@
         <slot>restore_default_bgcolor()</slot>
     </connection>
     <connection>
-        <sender>default_display_btngrp</sender>
-        <signal>clicked(int)</signal>
+        <sender>show_bond_labels_checkbox</sender>
+        <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>set_default_display_mode()</slot>
-    </connection>
-    <connection>
-        <sender>caption_fullpath_checkbox</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_caption_fullpath()</slot>
+        <slot>change_bond_labels(bool)</slot>
     </connection>
 </connections>
 <slots>
@@ -915,11 +1765,22 @@
     <slot>set_gamess_path()</slot>
     <slot>setup_current_page()</slot>
     <slot>mode_changed()</slot>
-    <slot>change_bgcolor1()</slot>
+    <slot>change_bg1_color()</slot>
     <slot>fill_type_changed()</slot>
     <slot>restore_default_bgcolor()</slot>
     <slot>set_default_display_mode()</slot>
     <slot>set_caption_fullpath()</slot>
+    <slot>set_history_height(int)</slot>
+    <slot>change_atom_hilite_color()</slot>
+    <slot>change_free_valence_color()</slot>
+    <slot>change_bond_hilite_color()</slot>
+    <slot>change_bond_stretch_color()</slot>
+    <slot>change_bond_cpk_color()</slot>
+    <slot>change_bond_vane_color()</slot>
+    <slot>change_high_order_bond_display()</slot>
+    <slot>change_bond_labels(bool)</slot>
+    <slot>reset_bond_colors()</slot>
+    <slot>reset_atom_colors()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

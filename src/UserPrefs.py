@@ -11,6 +11,8 @@ from UserPrefsDialog import UserPrefsDialog
 import preferences
 import os, sys
 from constants import *
+from debug import print_compact_traceback
+from handles import ave_colors
 
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
@@ -67,13 +69,13 @@ def validate_gamess_path(parent, gmspath):
         else: # No
             return gmspath
 
-def get_rgb_from_bgcolor(bgcolor):
-    "Returns the RGB integer values for bgcolor."
-    r = int (bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
-    g = int (bgcolor[1]*255 + 0.5)
-    b = int (bgcolor[2]*255 + 0.5)
-    return r, g, b
-        
+# RGBf_to_QColor should be moved to constants.py, I think.  Ask Bruce.  Mark 050730.
+def RGBf_to_QColor(fcolor):
+    "Converts RGB float to QColor."
+    r = int (fcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
+    g = int (fcolor[1]*255 + 0.5)
+    b = int (fcolor[2]*255 + 0.5)
+    return QColor(r, g, b)
 
 class UserPrefs(UserPrefsDialog):
     '''The User Preferences dialog used for accessing and changing user preferences
@@ -131,20 +133,38 @@ class UserPrefs(UserPrefsDialog):
 
         self.bg_solid_setup()
 
-    def _setup_display_page(self):
+    def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the display page.
         '''
+        # Set colors for atom color swatches
+        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
+        self.free_valence_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
+        
         self.default_display_btngrp.setButton(self.glpane.display)
+
+    def _setup_bonds_page(self):
+        ''' Setup widgets to initial (default or defined) values on the bonds page.
+        '''
+        # Set colors for bond color swatches
+        self.bond_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(blue))
+        self.bond_stretch_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
+        self.bond_vane_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(violet)) # Purple
+        self.bond_cpk_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(gray))
+        
+    def _setup_history_page(self):
+        ''' Setup widgets to initial (default or defined) values on the history page.
+        '''
+        self.history_height_spinbox.setValue(self.history.history_height)
+        self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
+        self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)
+
+    def _setup_caption_page(self):
+        ''' Setup widgets to initial (default or defined) values on the captions page.
+        '''
         self.caption_prefix_linedit.setText(self.win.caption_prefix)
         self.caption_suffix_linedit.setText(self.win.caption_suffix)
         self.caption_fullpath_checkbox.setChecked(self.win.caption_fullpath)
-
-    def _setup_history_page(self):
-        ''' Setup widgets to initial (default or defined) values on the display page.
-        '''
-        self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
-        self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)
-                                
+                                        
     def _update_prefs(self):
         '''Update user preferences and store them in the shelf.
         This method has two parts:
@@ -187,25 +207,30 @@ class UserPrefs(UserPrefsDialog):
         self.win.update_mainwindow_caption(self.win.assy.has_changed())
         
         # Update History pref variables
+        self.history.history_height = self.history_height_spinbox.value()
         self.history.msg_serial_number = self.msg_serial_number_checkbox.isChecked()
         self.history.msg_timestamp = self.msg_timestamp_checkbox.isChecked()
         
-        # General tab prefs
-        general_changes = { displayCompass_prefs_key: self.glpane.displayCompass,
-                                            compassPosition_prefs_key: self.glpane.compassPosition,
-                                            displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
-                                            displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
-                                            gmspath_prefs_key: self.gmspath,
-                                            defaultDisplayMode_prefs_key: self.glpane.display,
-                                            captionPrefix_prefs_key: self.win.caption_prefix,
-                                            captionSuffix_prefs_key: self.win.caption_suffix,
-                                            captionFullPath_prefs_key: self.win.caption_fullpath,
-                                            historyMsgSerialNumber_prefs_key: self.history.msg_serial_number,
-                                            historyMsgTimestamp_prefs_key: self.history.msg_timestamp
-                                             }
+        all_prefs = { displayCompass_prefs_key: self.glpane.displayCompass,
+                            compassPosition_prefs_key: self.glpane.compassPosition,
+                            displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
+                            displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
+                            gmspath_prefs_key: self.gmspath,
+                            defaultDisplayMode_prefs_key: self.glpane.display,
+                            captionPrefix_prefs_key: self.win.caption_prefix,
+                            captionSuffix_prefs_key: self.win.caption_suffix,
+                            captionFullPath_prefs_key: self.win.caption_fullpath,
+                            historyHeight_prefs_key: self.history.history_height,
+                            historyMsgSerialNumber_prefs_key: self.history.msg_serial_number,
+                            historyMsgTimestamp_prefs_key: self.history.msg_timestamp
+                            }
         
         prefs = preferences.prefs_context()
-        prefs.update(general_changes) # Open prefs db once.
+        
+        try:
+            prefs.update(all_prefs) # Opens prefs db only once.
+        except:
+            print_compact_traceback("bug in _update_prefs: ")
 
     ###### End of private methods. ########################
     
@@ -244,6 +269,92 @@ class UserPrefs(UserPrefsDialog):
             
     ########## End of slot methods for "General" page widgets ###########
     
+    ########## Slot methods for "Atoms" page widgets ################
+
+    def change_atom_hilite_color(self):
+        '''Change the atom highlight color.
+        '''
+        c = QColorDialog.getColor(self.atom_hilite_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.atom_hilite_color_frame.setPaletteBackgroundColor(c)
+            # No need to update the GLPane
+            
+    def change_free_valence_color(self):
+        '''Change the free valence color.
+        '''
+        c = QColorDialog.getColor(self.free_valence_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.free_valence_color_frame.setPaletteBackgroundColor(c)
+            self.glpane.gl_update()
+            
+    def reset_atom_colors(self):
+        print "Reset Pressed: Reset Atom Colors not implemented yet"
+        # self.glpane.gl_update()
+            
+    def set_default_display_mode(self, val):
+        '''Set default display mode of GLpane.
+        '''
+        self.glpane.setDisplay(val)
+        self.glpane.gl_update()
+        
+    ########## End of slot methods for "Atoms" page widgets ###########
+    
+    ########## Slot methods for "Bonds" page widgets ################
+    
+    def change_bond_hilite_color(self):
+        '''Change the bond highlight color.
+        '''
+        c = QColorDialog.getColor(self.bond_hilite_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.bond_hilite_color_frame.setPaletteBackgroundColor(c)
+            # No need to update the GLPane
+    
+    def change_bond_stretch_color(self):
+        '''Change the bond stretch color.
+        '''
+        c = QColorDialog.getColor(self.bond_stretch_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.bond_stretch_color_frame.setPaletteBackgroundColor(c)
+            self.glpane.gl_update()
+    
+    def change_bond_vane_color(self):
+        '''Change the bond vane color for pi orbitals.
+        '''
+        c = QColorDialog.getColor(self.bond_vane_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.bond_vane_color_frame.setPaletteBackgroundColor(c)
+            self.glpane.gl_update()
+    
+    def change_bond_cpk_color(self):
+        '''Change the bond CPK cylinder color.
+        '''
+        c = QColorDialog.getColor(self.bond_cpk_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.bond_cpk_color_frame.setPaletteBackgroundColor(c)
+            self.glpane.gl_update()
+    
+    def reset_bond_colors(self):
+        print "Reset Pressed: Reset Bond Colors not implemented yet"
+        # self.glpane.gl_update()
+        
+    def change_high_order_bond_display(self, val):
+        "Slot for the button group that sets the high order bond display."
+        print val
+        # self.glpane.gl_update()
+        
+    def change_bond_labels(self, val):
+        "Slot for the checkbox that turns bond labels on/off."
+        print val
+        # self.glpane.gl_update()
+            
+    ########## End of slot methods for "Bonds" page widgets ###########
+    
     ########## Slot methods for "Background" page widgets ################
 
     def mode_changed(self, val):
@@ -266,64 +377,54 @@ class UserPrefs(UserPrefsDialog):
     def bg_solid_setup(self):
         '''Setup the BG color page for a solid fill type.
         '''
-        self.color1_lbl.setText("Color :")
+        self.bg1_color_lbl.setText("Color :")
         # Get the bg color rgb values of the mode selected in the "Mode" combo box.
         mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
-        self.color1_frame.setPaletteBackgroundColor(QColor(r, g, b))
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
         
         # Hide the gradient widgets
         # I doubt I'll be able to get "Gradient" backgrounds working by A6.
         # Mark 050630
-        self.color2_lbl.hide()
-        self.color2_frame.hide()
-        self.choose_color2_btn.hide()
+        self.bg2_color_lbl.hide()
+        self.bg2_color_frame.hide()
+        self.choose_bg2_color_btn.hide()
         self.gradient_orient_btngrp.hide()
     
     def bg_gradient_setup(self):
         '''Setup the Background page for a gradient fill type.
         This is never called in A6.
         '''
-        self.color1_lbl.setText("Color 1 :")
+        self.bg1_color_lbl.setText("Color 1 :")
         # Get the bg color rgb values of the mode selected in the "Mode" combo box.
         mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
-        self.color1_frame.setPaletteBackgroundColor(QColor(r, g, b))
-        self.color2_frame.setPaletteBackgroundColor(QColor(r, g, b))
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
+        self.bg2_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
         
         # Show the gradient widgets.
-        self.color2_lbl.show()
-        self.color2_frame.show()
-        self.choose_color2_btn.show()
+        self.bg2_color_lbl.show()
+        self.bg2_color_frame.show()
+        self.choose_bg2_color_btn.show()
         self.gradient_orient_btngrp.show()
 
-    def change_bgcolor1(self):
-        '''Change a mode's background color.
+    def change_bg1_color(self):
+        '''Change a mode's primary background color.
         '''
-        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
-
         # Allow user to select a new background color and set it.
-        c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
+        c = QColorDialog.getColor(self.bg1_color_frame.paletteBackgroundColor(), self, "choose")
         if c.isValid():
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
             mode.set_backgroundColor( bgcolor )
-            self.color1_frame.setPaletteBackgroundColor(c)
+            self.bg1_color_frame.setPaletteBackgroundColor(c)
 
-    def change_bgcolor2(self):
-        '''Change a mode's second background color.
+    def change_bg2_color(self):
+        '''Change a mode's secondary background color, used for gradient backgrounds. NIY.
         '''
-        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor2)
-
-        # Allow user to select a new background color and set it.
-        c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
+        c = QColorDialog.getColor(self.bg2_color_frame.paletteBackgroundColor(), self, "choose")
         if c.isValid():
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            mode.set_backgroundColor2( bgcolor )
-            self.color2_frame.setPaletteBackgroundColor(c)
+            print "mode.set_backgroundColor2( bgcolor ) needs to be enabled" # Not implemented
+            self.bg2_color_frame.setPaletteBackgroundColor(c)
                 
     def restore_default_bgcolor(self):
         '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
@@ -333,40 +434,44 @@ class UserPrefs(UserPrefsDialog):
         # Set the background color to the default.
         mode.set_backgroundColor(mode.__class__.backgroundColor)
         # Now update the color square (frame).
-        r, g, b = get_rgb_from_bgcolor(mode.backgroundColor)
-        c = QColor(r, g, b)
-        self.color1_frame.setPaletteBackgroundColor(c)
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
         # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
         if mode == self.glpane.mode:
             self.glpane.gl_update()
         
     ########## End of slot methods for "Background" page widgets ###########
 
-    ########## Slot methods for "Display" page widgets ################
-
-    def set_default_display_mode(self, val):
-        '''Set default display mode of GLpane.
-        '''
-        self.glpane.setDisplay(val)
-        self.glpane.gl_update()
+    ########## Slot methods for "Caption" page widgets ################
         
     def set_caption_fullpath(self, val):
         self.win.caption_fullpath = val
         self.win.update_mainwindow_caption(self.win.assy.has_changed())
         
-    ########## End of slot methods for "Display" page widgets ###########
+    ########## End of slot methods for "Caption" page widgets ###########
+    
+    ########## Slot methods for "History" page widgets ################
+    
+    def set_history_height(self, height):
+        print 'set_history_height: height =', height
+        # HistoryWidget needs a new method to properly set the height of the widget given 'height'.
+        # Needs research - not obvious how to do this.  Mark 050729.
+        # self.history.set_height(height)
 
     ########## Slot methods for top level widgets ################
     
     def setup_current_page(self, pagename):
         if pagename == 'General':
             self._setup_general_page()
+        elif pagename == 'Atoms':
+            self._setup_atoms_page()
+        elif pagename == 'Bonds':
+            self._setup_bonds_page()
         elif pagename == 'Background':
             self._setup_background_page()
-        elif pagename == 'Display':
-            self._setup_display_page()
         elif pagename == 'History':
             self._setup_history_page()
+        elif pagename == 'Caption':
+            self._setup_caption_page()
         else:
             print 'Error: Preferences page unknown: ', pagename
             
@@ -378,7 +483,7 @@ class UserPrefs(UserPrefsDialog):
     def reject(self):
         '''The slot method for the "Cancel" button.'''
         # The Cancel button has been removed, but this still gets called
-        # when the user hits the dialog's "Close" button in the dialog's border.
+        # when the user hits the dialog's "Close" button in the dialog's window border (upper right X).
         # Since I've not implemented 'Cancel', it is safer to go ahead and
         # save all preferences anyway.  Otherwise, any changed preferences
         # will not be persistent (after this session).  
