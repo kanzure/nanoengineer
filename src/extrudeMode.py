@@ -895,7 +895,7 @@ class extrudeMode(basicMode):
         # make a handle just for dragging self.nice_offsets_handleset
         hset2 = self.nice_offsets_handle = draggableHandle_HandleSet( \
                     motion_callback = self.nice_offsets_handleset.move ,
-                    statusmsg = "use purple center to drag the clickable suggested-offset display"
+                    statusmsg = "use magenta center to drag the clickable suggested-offset display"
                 )
         hset2.addHandle( V(0,0,0), 0.66, None)
         hset2.addHandle( self.offset, 0.17, None) # kluge: will be kept patched with current offset
@@ -1000,7 +1000,7 @@ class extrudeMode(basicMode):
         "#doc; depends on offset and tol and len(bonds)"
         # kluge:
         try:
-            # teensy purple ball usually shows position of offset rel to the white balls (it's also draggable btw)
+            # teensy magenta ball usually shows position of offset rel to the white balls (it's also draggable btw)
             if len( self.bonds_for_current_offset_and_tol ) >= 1: ### worked with > 1, will it work with >= 1? ######@@@
                 teensy_ball_pos = V(0,0,0) # ... but make it not visible if there are any bonds [#e or change color??]
                 #e minor bug: it sometimes stays invisible even when there is only one bond again...
@@ -1008,7 +1008,7 @@ class extrudeMode(basicMode):
             else:
                 teensy_ball_pos = self.offset #k i think this is better than using self.offset_for_bonds
             hset2 = self.nice_offsets_handle
-            hset2.handle_setpos( 1, teensy_ball_pos ) # positions the teensy purple ball
+            hset2.handle_setpos( 1, teensy_ball_pos ) # positions the teensy magenta ball
             hset = self.nice_offsets_handleset
             hset.special_pos = self.offset_for_bonds # tells the white balls who contain this offset to be slightly blue
         except:
@@ -1093,7 +1093,7 @@ class extrudeMode(basicMode):
             p2 = s2.posn()
             drawline(white, p1, p2)
             ## #bruce 050324 experiment, worked:
-            ## s1.overdraw_with_special_color(purple)
+            ## s1.overdraw_with_special_color(magenta)
             ## s2.overdraw_with_special_color(yellow)
         return
     
@@ -1364,7 +1364,7 @@ class extrudeMode(basicMode):
             # since it might be obscured on the screen
             # by some atom the user is intending to click on.
             #  The only safe thing to find in this case would be something purely draggable
-            # with no hard-to-reverse effects, e.g. the "draggable purple handle",
+            # with no hard-to-reverse effects, e.g. the "draggable magenta handle",
             # or the base unit (useful only once we permit dragging the model using it).
             #  I might come back and make those exceptions here,
             # if I don't fix the overall bug soon enough. [bruce 041017]
@@ -1603,7 +1603,7 @@ class extrudeMode(basicMode):
                 assert hset2 in hsets
                 
                 ### i tried drawing those backs of hset2 into depth only here, but it failed to obscure parts of the mol...
-                # OH, the mol is way above! duh. it did obscure parts of the purple handle. ok.
+                # OH, the mol is way above! duh. it did obscure parts of the magenta handle. ok.
                 
                 # draw back faces of hset2 into depth buffer (so far this also draws a color - which one? or does it? yes, white.)
                 ## glCullFace(GL_FRONT)
@@ -1639,7 +1639,7 @@ class extrudeMode(basicMode):
 ##                glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA) # cf. redbook table 6-1 page 228
                 # so instead, I hacked hset2.draw to use alpha factor of 0.25, for now
                 # it looked bad until I remembered that I also need to disable writing the depth buffer.
-                # But the purple handle should have it enabled...
+                # But the magenta handle should have it enabled...
                 glDepthMask(GL_FALSE)
                 try:
                     hset2.draw(self.o)

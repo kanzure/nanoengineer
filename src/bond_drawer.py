@@ -113,7 +113,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
     shorten_tubes = highlighted
     
     if highlighted:
-        toolong_color = ave_colors( 0.8, purple, black) ##e should improve this color, and maybe let it mix in col
+        toolong_color = ave_colors( 0.8, magenta, black) ##e should improve this color, and maybe let it mix in col
     else:
         toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red
 
@@ -368,4 +368,3 @@ def writepov_bond(self, file, dispdef, col):
     return # from writepov_bond
 
 # end
-

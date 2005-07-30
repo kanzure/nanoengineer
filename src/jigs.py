@@ -1106,7 +1106,7 @@ class Thermo(Jig_onChunk_by1atom):
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = ThermoProp(self, self.assy.o)
 
-    # it's drawn as a wire cube around each atom (default color = purple)
+    # it's drawn as a wire cube around each atom.
     def _draw(self, win, dispdef):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)

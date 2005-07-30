@@ -156,7 +156,7 @@ class HandleSet:
 
 class draggableHandle_HandleSet(HandleSet):
     "a handleset, with behavior to let you drag the entire thing, and something else too" # used for "purple center"...
-    def __init__(self, color = purple, motion_callback = None, statusmsg = "draggable handle"):
+    def __init__(self, color = magenta, motion_callback = None, statusmsg = "draggable handle"):
         self.color = color
         self.motion_callback = motion_callback
         self.statusmsg = statusmsg
@@ -282,6 +282,5 @@ def ave_colors(weight, color1, color2):
 # just these kinds for now:
 # rep unit atoms
 # base unit atoms
-# purple
+# magenta
 # white
-

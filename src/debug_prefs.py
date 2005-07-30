@@ -13,7 +13,7 @@ __all__ = ['debug_pref', 'Choice', 'debug_prefs_menuspec'] # funcs to declare an
 __author__ = "bruce" # 050614
 
 from constants import noop
-from constants import black, white, red, green, blue, gray, orange, yellow, purple, pink
+from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
 
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
@@ -236,7 +236,7 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
         # but in present architecture we have no access to any recent values! Probably this should be passed in.
         # For now, just use the curval and some common vals.
         text = self.changer_menu_text( instance_name, curval) # e.g. "instance_name: curval"
-        values = [black, white, red, green, blue, gray, orange, yellow, purple, pink] #e need better order, maybe submenus
+        values = [black, white, red, green, blue, gray, orange, yellow, magenta, pink] #e need better order, maybe submenus
             ##e self.recent_values()
             #e should be able to put color names in menu - maybe even translate numbers to those?
         values = map( self.normalize_value, values) # needed for comparison

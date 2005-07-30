@@ -40,9 +40,9 @@ class Gamess(Jig):
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
         self.cancelled = False
-        # set default color of new gamess jig to purple
-        self.color = purple # This is the "draw" color.  When selected, this will become highlighted red.
-        self.normcolor = purple # This is the normal (unselected) color.
+        # set default color of new gamess jig to magenta
+        self.color = magenta # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = magenta # This is the normal (unselected) color.
         self.history = assy.w.history
         #self.psets = [] # list of parms set objects [as of circa 050704, only the first of these is ever defined (thinks bruce)]
         self.pset = gamessParms('Parameter Set 1')
@@ -53,7 +53,7 @@ class Gamess(Jig):
     def edit(self):
         self.gmsjob.edit()
         
-    # it's drawn as a wire cube around each atom (default color = black)
+    # it's drawn as a wire cube around each atom.
     def _draw(self, win, dispdef):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)

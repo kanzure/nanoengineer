@@ -205,11 +205,11 @@ class fusechunksMode(modifyMode):
         if self.bondable_pairs:
             for s1,s2 in self.bondable_pairs:
                 
-                # Color bondable pair singlets. Singlets with multiple pairs are colored purple.
+                # Color bondable pair singlets. Singlets with multiple pairs are colored magenta.
                 # Singlets with one way of bonding are colored blue (selected_chunk) or green (other chunks).
-                color = (self.ways_of_bonding[s1.key] > 1) and purple or blue
+                color = (self.ways_of_bonding[s1.key] > 1) and magenta or blue
                 s1.overdraw_with_special_color(color)
-                color = (self.ways_of_bonding[s2.key] > 1) and purple or green
+                color = (self.ways_of_bonding[s2.key] > 1) and magenta or green
                 s2.overdraw_with_special_color(color)
      
                 # Draw bond lines between singlets.
