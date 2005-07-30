@@ -74,11 +74,12 @@ orange = (1.0, 0.25, 0.0)
 red =    (1.0, 0.0, 0.0)
 yellow = (1.0, 1.0, 0.0)
 green =  (0.0, 1.0, 0.0)
-purple = (1.0, 0.0, 1.0)
+magenta = (1.0, 0.0, 1.0)
 white =  (1.0, 1.0, 1.0)
 gray =   (0.5, 0.5, 0.5)
 navy =   (0.0, 0.09, 0.44)
 darkred = (0.6, 0.0, 0.2) 
+violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
 
 LEDoff = (0.8, 0.0, 0.0)
 LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added another name; old value was (1.0, 0.5, 0.5)
@@ -121,15 +122,33 @@ SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in 
 
 # Keys for user preferences for A6 [moved here from UserPrefs.py by Mark 050629]
 
+# General prefs
 gmspath_prefs_key = 'A6/GAMESS Path'
 displayCompass_prefs_key = 'A6/Display Compass'
 compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
+
+# Atom prefs
+atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
+freeValenceColor_prefs_key = 'A6/Free Valence Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
+
+# Bond prefs
+bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
+bondStretchColor_prefs_key = 'A6/Bond Stretch Color'
+bondVaneColor_prefs_key = 'A6/Bond Vane Color'
+bondCPKColor_prefs_key = 'A6/Bond CPK Color'
+bondHybridsDisplay_prefs_key = 'A6/Bond Hybrid Display'
+bondShowLabels_prefs_key = 'A6/Bond Show Labels'
+
+# Caption prefs
 captionPrefix_prefs_key = 'A6/Caption Prefix'
 captionSuffix_prefs_key = 'A6/Caption Suffix'
 captionFullPath_prefs_key = 'A6/Caption Full Path'
+
+# History prefs
+historyHeight_prefs_key = 'A6/History Height'
 historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
 historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
 
