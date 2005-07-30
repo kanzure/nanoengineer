@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 VQT.py 
 
@@ -173,27 +173,44 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             # (only fixes y = V(0,0,0) which is not allowed here anyway, so not very important)
             # [I didn't yet verify it does this in correct order; could do that from its use
             # in bonds.py or maybe the new indirect use in jigs.py (if I checked iadd too). ###@@@]
+            #bruce 050730 bugfix: when x and y are very close to equal, original code treats them as opposite.
+            # Rewriting it to fix that, though not yet in an ideal way (just returns identity).
+            # Also, when they're close but not that close, original code might be numerically unstable.
+            # I didn't fix that problem.
             x = norm(x)
             y = norm(y)
+            dotxy = dot(x, y)
             v = cross(x, y)
-            theta = acos(min(1.0,max(-1.0,dot(x, y))))
-            if dot(y, cross(x, v)) > 0.0:
-                theta = 2.0 * pi - theta
-            w=cos(theta*0.5)
             vl = vlen(v)
-            # null rotation
-            if w==1.0: self.vec=V(1, 0, 0, 0)
-            # opposite pole
-            elif vl<0.000001:
-                ax1 = cross(x,V(1,0,0))
-                ax2 = cross(x,V(0,1,0))
-                if vlen(ax1)>vlen(ax2):
-                    self.vec = norm(V(0, ax1[0],ax1[1],ax1[2]))
+            if vl<0.000001:
+                # x,y are very close, or very close to opposite, or one of them is zero
+                if dotxy < 0:
+                    # close to opposite; treat as actually opposite (same as pre-050730 code)
+                    ax1 = cross(x,V(1,0,0))
+                    ax2 = cross(x,V(0,1,0))
+                    if vlen(ax1)>vlen(ax2):
+                        self.vec = norm(V(0, ax1[0],ax1[1],ax1[2]))
+                    else:
+                        self.vec = norm(V(0, ax2[0],ax2[1],ax2[2]))
                 else:
-                    self.vec = norm(V(0, ax2[0],ax2[1],ax2[2]))
+                    # very close, or one is zero -- we could pretend they're equal, but let's be a little
+                    # more accurate than that -- vl is sin of desired theta, so vl/2 is approximately sin(theta/2)
+                    # (##e could improve this further by using a better formula to relate sin(theta/2) to sin(theta)),
+                    # so formula for xyz part is v/vl * vl/2 == v/2 [bruce 050730]
+                    xyz = v/2.0
+                    sintheta2 = vl/2.0 # sin(theta/2)
+                    costheta2 = sqrt(1-sintheta2**2) # cos(theta/2)
+                    self.vec = V(costheta2, xyz[0], xyz[1], xyz[2])
             else:
+                # old code's method is numerically unstable if abs(dotxy) is close to 1. I didn't fix this.
+                # I also didn't review this code (unchanged from old code) for correctness. [bruce 050730]
+                theta = acos(min(1.0,max(-1.0,dotxy)))
+                if dot(y, cross(x, v)) > 0.0:
+                    theta = 2.0 * pi - theta
+                w=cos(theta*0.5)
                 s=sqrt(1-w**2)/vl
                 self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
+            pass
         
         elif type(x) in numTypes:
             # just one number [#k is this ever used?]
