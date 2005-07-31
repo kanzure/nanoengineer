@@ -757,7 +757,8 @@ def createWhatsThis(self):
                                         
         toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
-                       "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a slab of diamond lattice.</p>"
+                       "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a "\
+                       "slab of diamond lattice.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsCookieCutAction",
                                                        self. toolsCookieCutAction.iconSet().pixmap() )
@@ -768,7 +769,8 @@ def createWhatsThis(self):
 
         toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
-                       "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as a repeating unit.</p>"
+                       "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as "\
+                       "a repeating unit.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsExtrudeAction",
                                                        self. toolsExtrudeAction.iconSet().pixmap() )
@@ -801,7 +803,9 @@ def createWhatsThis(self):
 
         simSetupActionText = "<u><b>Simulator</b></u><br>"\
                        "<p><img source=\" simSetupAction\"><br> "\
-                       "Creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding of the entire model.  The user determines the number of frames in the movie, the time step, and the temperature for the simulation.</p>"
+                       "Creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding "\
+                       "of the entire model.  The user determines the number of frames in the movie, the time step, "\
+                       "and the temperature for the simulation.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " simSetupAction",
                                                        self. simSetupAction.iconSet().pixmap() )
@@ -812,7 +816,15 @@ def createWhatsThis(self):
 
         simPlotToolActionText = "<u><b>Plot Tool</b></u><br>"\
                        "<p><img source=\" simPlotToolAction\"><br> "\
-                       "Plots a simulator trace file using GNUplot.</p>"
+                       "Plots a simulator trace file using GNUplot.  A simulation must be run to create "\
+                       "the trace file, and the part must have a jig that writes output to the trace file. <br><br>"\
+                       "The following list of jigs write data to the trace file:<br>"\
+                       "<b>Rotary Motors:</b> speed (GHz) and torque (nn-nm)<br>"\
+                       "<b>Linear Motors:</b> displacement (pm)<br>"\
+                       "<b>Grounds:</b> torque (nn-nm)<br>"\
+                       "<b>Thermostats:</b> energy added (zJ)<br>"\
+                       "<b>Thermometer:</b> temperature (K)<br>"\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " simPlotToolAction",
                                                        self. simPlotToolAction.iconSet().pixmap() )
