@@ -1225,7 +1225,8 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if nsa > 200: 
             self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 200.  Try again."))
             return
-            
+        
+        # Bug 742.    Mark 050731.
         if nsa > 50:
             ret = QMessageBox.warning( self.assy.w, "Large GAMESS Jig",
                 "GAMESS Jigs with more than 50 atoms may take an\n"
