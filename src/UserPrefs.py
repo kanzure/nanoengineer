@@ -154,6 +154,12 @@ class UserPrefs(UserPrefsDialog):
     def _setup_history_page(self):
         ''' Setup widgets to initial (default or defined) values on the history page.
         '''
+        # History height widgets will be hidden for A6, to be reinstituted at a later time (A7 or A8) for
+        # Bruce to decide.  He will be implementing this feature.  Mark 050731.
+        self.history_height_lbl.hide()
+        self.history_height_spinbox.hide()
+        self.history_lines_lbl.hide()
+        
         self.history_height_spinbox.setValue(self.history.history_height)
         self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
         self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)

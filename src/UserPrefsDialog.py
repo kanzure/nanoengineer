@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sat Jul 30 14:44:16 2005
+# Created: Sun Jul 31 11:25:45 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -463,17 +463,17 @@ class UserPrefsDialog(QDialog):
 
         layout9_2 = QHBoxLayout(None,0,6,"layout9_2")
 
-        self.textLabel1 = QLabel(self.TabPage_4,"textLabel1")
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout9_2.addWidget(self.textLabel1)
+        self.history_height_lbl = QLabel(self.TabPage_4,"history_height_lbl")
+        self.history_height_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout9_2.addWidget(self.history_height_lbl)
 
         self.history_height_spinbox = QSpinBox(self.TabPage_4,"history_height_spinbox")
         self.history_height_spinbox.setMaxValue(20)
         self.history_height_spinbox.setValue(6)
         layout9_2.addWidget(self.history_height_spinbox)
 
-        self.textLabel2_3 = QLabel(self.TabPage_4,"textLabel2_3")
-        layout9_2.addWidget(self.textLabel2_3)
+        self.history_lines_lbl = QLabel(self.TabPage_4,"history_lines_lbl")
+        layout9_2.addWidget(self.history_lines_lbl)
         spacer11_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout9_2.addItem(spacer11_2)
         TabPageLayout_4.addLayout(layout9_2)
@@ -536,7 +536,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(476,314).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(476,318).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
@@ -632,9 +632,9 @@ class UserPrefsDialog(QDialog):
         self.horizontal_rbtn.setText(self.__tr("Horizontal"))
         self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Background"))
-        self.textLabel1.setText(self.__tr("Height :"))
+        self.history_height_lbl.setText(self.__tr("Height :"))
         QToolTip.add(self.history_height_spinbox,self.__tr("Number of lines displayed in the history area."))
-        self.textLabel2_3.setText(self.__tr("lines"))
+        self.history_lines_lbl.setText(self.__tr("lines"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
         self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
         self.prefs_tab.changeTab(self.TabPage_4,self.__tr("History"))

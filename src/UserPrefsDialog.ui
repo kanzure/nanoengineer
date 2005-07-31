@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>314</height>
+            <height>318</height>
         </rect>
     </property>
     <property name="caption">
@@ -1362,7 +1362,7 @@
                             </property>
                             <widget class="QLabel">
                                 <property name="name">
-                                    <cstring>textLabel1</cstring>
+                                    <cstring>history_height_lbl</cstring>
                                 </property>
                                 <property name="text">
                                     <string>Height :</string>
@@ -1387,7 +1387,7 @@
                             </widget>
                             <widget class="QLabel">
                                 <property name="name">
-                                    <cstring>textLabel2_3</cstring>
+                                    <cstring>history_lines_lbl</cstring>
                                 </property>
                                 <property name="text">
                                     <string>lines</string>
