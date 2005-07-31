@@ -1756,6 +1756,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>change_bond_labels(bool)</slot>
     </connection>
+    <connection>
+        <sender>caption_fullpath_checkbox</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_caption_fullpath()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>display_compass()</slot>
