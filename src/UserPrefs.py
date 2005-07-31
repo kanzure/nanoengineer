@@ -140,7 +140,9 @@ class UserPrefs(UserPrefsDialog):
         self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
         self.free_valence_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
         
-        self.default_display_btngrp.setButton(self.glpane.display)
+        # Bug 799 fix.  Mark 050731
+        prefs = preferences.prefs_context()
+        self.default_display_btngrp.setButton(prefs.get(defaultDisplayMode_prefs_key, diVDW))
 
     def _setup_bonds_page(self):
         ''' Setup widgets to initial (default or defined) values on the bonds page.
