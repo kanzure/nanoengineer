@@ -18,12 +18,13 @@ cmd = greenmsg("Plot Tool: ")
 
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
-        PlotToolDialog.__init__(self)
+        PlotToolDialog.__init__(self, modal=False)
         ## self.assy = assy
         self.history = assy.w.history #bruce 050326
         self.movie = movie # before bruce 050326 was assy.current_movie
         if self.setup(): return
-        self.exec_loop()
+        #self.exec_loop()
+        self.show() # Fixed bug 440-1.  Added "modal=False" above, too. Mark 050731.
 
     def setup(self):
         """Setup the Plot Tool dialog, including populating the combobox with plotting options.
@@ -97,9 +98,11 @@ class PlotTool(PlotToolDialog):
             for i in range(ncols):
                 gname =  traceLines[hloc + i]#linecache.getline(self.traceFile, hloc + 1 + i)
                 self.plot_combox.insertItem(gname[2:-1])
-        else: # No jigs in the part, so nothing to plot.
-            msg = redmsg("No jigs in this part.  Nothing to plot.")
+        else: # No jigs in the part, so nothing to plot.  Revised msgs per bug 440-2.  Mark 050731.
+            msg = redmsg("The part contains no jigs that write data to the trace file.  Nothing to plot.")
             self.history.message(cmd + msg)
+            msg = "The following jigs write output to the tracefile: Rotary Motors, Linear Motors, Grounds, Thermostats and Thermometers."
+            self.history.message(msg)
             return 1
         
         self.lastplot = 0
