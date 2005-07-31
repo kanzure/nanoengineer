@@ -1220,13 +1220,23 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             self.assy.w.history.message(cmd + redmsg("You must first select an atom(s) to create a Gamess Jig."))
             return
         
-        # Make sure that no more than 30 atoms are selected.
+        # Make sure that no more than 200 atoms are selected.
         nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+        if nsa > 200: 
+            self.assy.w.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 200.  Try again."))
             return
-        
-        
+            
+        if nsa > 50:
+            ret = QMessageBox.warning( self.assy.w, "Large GAMESS Jig",
+                "GAMESS Jigs with more than 50 atoms may take an\n"
+                "excessively long time to compute (days or weeks).\n"
+                "Are you sure you want to continue?",
+                "&Continue", "Cancel", None,
+                0, 1 )
+                
+            if ret==1: # Cancel
+                return
+                
         from jig_Gamess import Gamess
         m = Gamess(self.assy, self.selatoms.values())
         m.edit() #bruce 050701 split edit method out of the constructor,
