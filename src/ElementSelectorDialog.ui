@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>200</width>
-            <height>412</height>
+            <width>202</width>
+            <height>426</height>
         </rect>
     </property>
     <property name="minimumSize">
@@ -305,6 +305,21 @@
             <property name="name">
                 <cstring>elementButtonGroup</cstring>
             </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>126</height>
+                </size>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Plain</enum>
+            </property>
+            <property name="lineWidth">
+                <number>1</number>
+            </property>
             <property name="title">
                 <string></string>
             </property>
@@ -319,22 +334,17 @@
                     <number>2</number>
                 </property>
                 <property name="spacing">
-                    <number>1</number>
+                    <number>0</number>
                 </property>
-                <widget class="QPushButton" row="0" column="4">
+                <widget class="QToolButton" row="0" column="4">
                     <property name="name">
-                        <cstring>pushButton1</cstring>
+                        <cstring>toolButton1</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>H</string>
@@ -342,33 +352,19 @@
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
-                    <property name="on">
-                        <bool>false</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
                     <property name="buttonGroupId">
                         <number>1</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="0" column="5">
+                <widget class="QToolButton" row="0" column="5">
                     <property name="name">
-                        <cstring>pushButton2</cstring>
+                        <cstring>toolButton2</cstring>
                     </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>He</string>
@@ -380,20 +376,15 @@
                         <number>2</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="1" column="1">
+                <widget class="QToolButton" row="1" column="1">
                     <property name="name">
-                        <cstring>pushButton6</cstring>
+                        <cstring>toolButton6</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>C</string>
@@ -405,20 +396,15 @@
                         <number>6</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="1" column="2">
+                <widget class="QToolButton" row="1" column="2">
                     <property name="name">
-                        <cstring>pushButton7</cstring>
+                        <cstring>toolButton7</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>N</string>
@@ -430,20 +416,15 @@
                         <number>7</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="1" column="3">
+                <widget class="QToolButton" row="1" column="3">
                     <property name="name">
-                        <cstring>pushButton8</cstring>
+                        <cstring>toolButton8</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>O</string>
@@ -455,48 +436,15 @@
                         <number>8</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="1" column="4">
+                <widget class="QToolButton" row="1" column="5">
                     <property name="name">
-                        <cstring>pushButton9</cstring>
+                        <cstring>toolButton10</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>F</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>9</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="1" column="5">
-                    <property name="name">
-                        <cstring>pushButton10</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>Ne</string>
@@ -508,294 +456,35 @@
                         <number>10</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="2" column="3">
+                <widget class="QToolButton" row="1" column="4">
                     <property name="name">
-                        <cstring>pushButton16</cstring>
+                        <cstring>toolButton9</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
-                        <string>S</string>
+                        <string>F</string>
                     </property>
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
                     <property name="buttonGroupId">
-                        <number>16</number>
+                        <number>9</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="2" column="4">
+                <widget class="QToolButton" row="2" column="0">
                     <property name="name">
-                        <cstring>pushButton17</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="backgroundOrigin">
-                        <enum>ParentOrigin</enum>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Cl</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>17</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="2" column="5">
-                    <property name="name">
-                        <cstring>pushButton18</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Ar</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>18</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="3" column="1">
-                    <property name="name">
-                        <cstring>pushButton32</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Ge</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="on">
-                        <bool>false</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>32</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="3" column="2">
-                    <property name="name">
-                        <cstring>pushButton33</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>As</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>33</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="3" column="3">
-                    <property name="name">
-                        <cstring>pushButton34</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Se</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>34</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="3" column="4">
-                    <property name="name">
-                        <cstring>pushButton35</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Br</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>35</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="3" column="5">
-                    <property name="name">
-                        <cstring>pushButton36</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Kr</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>36</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="2" column="2">
-                    <property name="name">
-                        <cstring>pushButton15</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>P</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>15</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="2" column="1">
-                    <property name="name">
-                        <cstring>pushButton14</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Si</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                    <property name="buttonGroupId">
-                        <number>14</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="2" column="0">
-                    <property name="name">
-                        <cstring>pushButton13</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                        <cstring>toolButton13</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>Al</string>
@@ -807,20 +496,35 @@
                         <number>13</number>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="1" column="0">
+                <widget class="QToolButton" row="2" column="4">
                     <property name="name">
-                        <cstring>pushButton5</cstring>
+                        <cstring>toolButton17</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                    <property name="text">
+                        <string>Cl</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>17</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="1" column="0">
+                    <property name="name">
+                        <cstring>toolButton5</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>B</string>
@@ -830,6 +534,186 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>5</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="2" column="5">
+                    <property name="name">
+                        <cstring>toolButton10_2</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Ar</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>18</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="2" column="2">
+                    <property name="name">
+                        <cstring>toolButton15</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>P</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>15</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="2" column="3">
+                    <property name="name">
+                        <cstring>toolButton16</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>S</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>16</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="2" column="1">
+                    <property name="name">
+                        <cstring>toolButton14</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Si</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>14</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="2">
+                    <property name="name">
+                        <cstring>toolButton33</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>As</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>33</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="3">
+                    <property name="name">
+                        <cstring>toolButton34</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Se</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>34</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="4">
+                    <property name="name">
+                        <cstring>toolButton35</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Br</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>35</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="5">
+                    <property name="name">
+                        <cstring>toolButton36</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Kr</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>36</number>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="1">
+                    <property name="name">
+                        <cstring>toolButton32</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Ge</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>32</number>
                     </property>
                 </widget>
             </grid>
@@ -847,7 +731,7 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>10</height>
+                    <height>16</height>
                 </size>
             </property>
         </spacer>
@@ -936,7 +820,7 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>30</height>
+                    <height>40</height>
                 </size>
             </property>
         </spacer>
