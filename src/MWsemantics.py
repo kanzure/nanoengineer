@@ -1341,13 +1341,16 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         hist_geometry = self.history.widget.frameGeometry()
         hist_height = hist_geometry.height()
         
-        mmk_geometry = MMKitWin.frameGeometry()
-        mmk_height = mmk_geometry.height()
+        ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()
+        #mmk_geometry = MMKitWin.frameGeometry()
+        mmk_height = 470#mmk_geometry.height()
         
         ## 26 is an estimate of the bottom toolbar height
         toolbar_height = self.depositAtomDashboard.frameGeometry().height()
         
-        y = self.y() + self.geometry().height() - hist_height - mmk_height - toolbar_height
+        status_bar_height = self.statusBar().frameGeometry().height()
+        
+        y = self.y() + self.geometry().height() - hist_height - mmk_height - toolbar_height - status_bar_height
         if y < 0: y = 0
         x = self.x()
         
@@ -1365,9 +1368,16 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         MMKitWin = MMKit(self)
         MMKitWin.update_dialog(self.Element)
         pos = self._findGoodLocation()
-        MMKitWin.move(pos[0], pos[1])
-        MMKitWin.show()
-    
+        
+        ## On Linux, X11 has some problem for window location before it's shown. So a comprise way to do it, 
+        ## which will have the flash problem.
+        if sys.platform == 'linux2': 
+            MMKitWin.show()
+            MMKitWin.move(pos[0], pos[1])
+        else:
+            MMKitWin.move(pos[0], pos[1])
+            MMKitWin.show()
+            
     
     def closeMMKit(self):
         global MMKitWin
