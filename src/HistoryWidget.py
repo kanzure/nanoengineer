@@ -76,16 +76,18 @@ class message:
             except:
                 serno = -1
         self.serno = serno
-        self.hist = hist
+        self.hist = hist # mark added this
     def timestamp_text(self):
         #e should inherit the method from the display env
         if self.hist.msg_timestamp:
             timetuple = time.localtime(self.time)
+            # mark pulled the format string into this method
             return "[%s] " % (time.asctime(timetuple).split()[3]) ###stub; i hope this is hh:mm:ss
         else:
             return ''
     def serial_number_text(self):
         if self.hist.msg_serial_number:
+            # mark pulled the format string into this method
             return "%d. " % (self.serno)
         else:
             return ''
