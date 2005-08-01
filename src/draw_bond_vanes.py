@@ -50,6 +50,8 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     twisted = debug_pref('pi vanes/ribbons', Choice_boolean_False)
     poles = debug_pref('pi vanes/poles', Choice_boolean_True)
+    draw_outer_edges = debug_pref('pi vanes/draw edges', Choice_boolean_True)
+        #bruce 050730 new feature, so that edge-on vanes are still visible
     draw_normals = debug_pref('pi vanes/draw normals', Choice_boolean_False)
     print_vane_params = debug_pref('pi vanes/print params', Choice_boolean_False)
     if print_vane_params:
@@ -82,16 +84,13 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
     if not toolong:
         c1 = c2 = center # don't know if needed
     x_axis = a2pos - a1pos
-    if 0 and ord_pi == 1.0: # disable this special case optim for now [or forever if we want to put black outlines on vanes] ###@@@
-        radius_pairs = [(- 2.5, 2.5)] # units are multiples of rad (e.g. TubeRadius, but passed by caller)
-        ###@@@ if this case is ever used, we need to revise the lines code below to draw two lines not one, between corners of quads;
-        # and the direction re lighting (as it affects poygon winding order) must also be reviewed.
-    else:
-        # from 1 to 2.5, with 1 moved out to shrink width according to ord_pi
-        width = 1.5 * ord_pi
-        inner, outer = 2.5 - width, 2.5
-        radius_pairs = [(outer, inner), (-inner, -outer)]
-            # the order within each pair matters, since it affects the polys drawn below being CW or CCW!
+    # from 1 to 2.5, with 1 moved out to shrink width according to ord_pi
+    width = 1.5 * ord_pi
+    inner, outer = 2.5 - width, 2.5
+    radius_pairs = [(outer, inner, outer), (-inner, -outer, -outer)]
+        # the order within each pair matters, since it affects the polys drawn below being CW or CCW!
+        # but for purposes of edges, we also have to know which one is *really* outer...
+        # thus the third elt (edge_outer) of the tuple.
     # OpenGL code
     #e could optim this to use Numeric calcs and OpenGL vertex array,
     #  with vertex normals and smooth shading, maybe even color ramp of some kind...
@@ -109,9 +108,9 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
         # (For ribbon option, it's only ok if they're negated together; for quads case, independent negation is ok.
         #  I'm pretty sure calling code only negates them together.)
         # [bruce 050725]
-    if draw_normals:
+    for outer, inner, edge_outer in radius_pairs:
         normals = []
-    for outer, inner in radius_pairs:
+        edgeverts = []
         if twisted:
             glBegin(GL_TRIANGLE_STRIP)
             for i in range(1+ntwists):
@@ -124,12 +123,16 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
                 ## pvec *= (rad * 2.5) # could also "* ord_pi" rather than using color, if we worked out proper min radius
                 perpvec = norm(cross(x_axis, pvec))
                 glNormal3fv( perpvec) # test shows this is needed not only for smoothness, but to make the lighting work at all
-                glVertex3fv( axispos + pvec * rad * outer)
+                outervert = axispos + pvec * rad * outer
+                innervert = axispos + pvec * rad * inner
+                glVertex3fv( outervert)
                 ## glNormal3fv( perpvec) # not needed, since the same normal as above
-                glVertex3fv( axispos + pvec * rad * inner)
+                glVertex3fv( innervert)
                 #e color? want to smooth-shade it using atom colors, or the blue/gray for bond order, gray in center?
                 if draw_normals:
-                    normals.append(( axispos + pvec * rad * outer, perpvec ))
+                    normals.append(( axispos + pvec * rad * edge_outer, perpvec ))
+                if draw_outer_edges:
+                    edgeverts.append( axispos + pvec * rad * edge_outer )
             glEnd()
         else:
             glBegin(GL_QUADS)
@@ -138,17 +141,26 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
                 glNormal3fv( perpvec)
                 glVertex3fv( axispos   + pvec * rad * inner)
                 glVertex3fv( axispos   + pvec * rad * outer)
-                glVertex3fv( axispos_c + pvec * rad * outer) # this is the corner we connect by a line
+                glVertex3fv( axispos_c + pvec * rad * outer)
+                    # this (axispos_c + pvec * rad * outer) would be the corner we connect by a line,
+                    # even when not draw_outer_edges, if outer == edge_outer -- but it might or might not be.
                 glVertex3fv( axispos_c + pvec * rad * inner)
                 if draw_normals:
-                    normals.append(( axispos/2.0 + axispos_c/2.0 + pvec * rad * outer, perpvec ))
+                    normals.append(( axispos/2.0 + axispos_c/2.0 + pvec * rad * edge_outer, perpvec ))
+                if draw_outer_edges:
+                    edgeverts.reverse() # kluge to reverse order of first loop body but not second one
+                    edgeverts.append( axispos_c + pvec * rad * edge_outer)
+                    edgeverts.append( axispos   + pvec * rad * edge_outer)
+                else:
+                    # at least connect the halves of each vane, so that twist doesn't make them look like 2 vanes
+                    edgeverts.append( axispos_c + pvec * rad * edge_outer)
             glEnd()
-            # and connect the halves of each vane, so that twist doesn't make them look like 2 vanes
-            glBegin(GL_LINES)
-            glColor3fv(color)
-            for axispos, axispos_c, pvec in [(a1pos,c1,a1p), (a2pos,c2,a2p)]:
-                glVertex3fv( axispos_c + pvec * rad * outer)
-            glEnd()
+##            glBegin(GL_LINES)
+##            glColor3fv(color)
+##            for axispos, axispos_c, pvec in [(a1pos,c1,a1p), (a2pos,c2,a2p)]:
+##                glVertex3fv( axispos_c + pvec * rad * outer)
+##            glEnd()
+        glDisable(GL_LIGHTING) # for lines... don't know if this matters
         if poles:
             glBegin(GL_LINES)
             glColor3fv(color)
@@ -156,13 +168,20 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
                 glVertex3fv( axispos + pvec * rad *  outer)
                 glVertex3fv( axispos + pvec * rad * -outer)
             glEnd()
-        if draw_normals:
+        if normals:
             glBegin(GL_LINES)
             glColor3fv(white)
             for base, vec in normals:
                 glVertex3fv(base)
                 glVertex3fv(base + vec)
             glEnd()
+        if edgeverts:
+            glBegin(GL_LINE_STRIP)
+            glColor3fv(color)
+            for vert in edgeverts:
+                glVertex3fv(vert)
+            glEnd()
+        glEnable(GL_LIGHTING)
     glEnable(GL_CULL_FACE)
     glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)
     return
