@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
-# Created: Mon Jul 25 15:13:20 2005
+# Created: Mon Aug 1 14:34:13 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -50,6 +50,7 @@ class ElementSelectorDialog(QDialog):
         if not name:
             self.setName("ElementSelectorDialog")
 
+        self.setMinimumSize(QSize(200,150))
         pal = QPalette()
         cg = QColorGroup()
         cg.setColor(QColorGroup.Foreground,Qt.black)
@@ -106,7 +107,7 @@ class ElementSelectorDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-        ElementSelectorDialogLayout = QVBoxLayout(self,11,6,"ElementSelectorDialogLayout")
+        ElementSelectorDialogLayout = QVBoxLayout(self,2,2,"ElementSelectorDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
         self.elementFrame.setMinimumSize(QSize(200,150))
@@ -286,35 +287,44 @@ class ElementSelectorDialog(QDialog):
 
         elementButtonGroupLayout.addWidget(self.pushButton5,1,0)
         ElementSelectorDialogLayout.addWidget(self.elementButtonGroup)
+        spacer4_2_2_2 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        ElementSelectorDialogLayout.addItem(spacer4_2_2_2)
 
-        layout9 = QHBoxLayout(None,0,6,"layout9")
+        layout6 = QVBoxLayout(None,0,6,"layout6")
+
+        layout5 = QHBoxLayout(None,0,6,"layout5")
 
         self.TransmuteButton = QPushButton(self,"TransmuteButton")
         self.TransmuteButton.setSizePolicy(QSizePolicy(1,0,0,0,self.TransmuteButton.sizePolicy().hasHeightForWidth()))
-        layout9.addWidget(self.TransmuteButton)
+        layout5.addWidget(self.TransmuteButton)
+        spacer7 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout5.addItem(spacer7)
+        layout6.addLayout(layout5)
 
         self.transmuteCheckBox = QCheckBox(self,"transmuteCheckBox")
         self.transmuteCheckBox.setSizePolicy(QSizePolicy(1,0,0,0,self.transmuteCheckBox.sizePolicy().hasHeightForWidth()))
-        layout9.addWidget(self.transmuteCheckBox)
-        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout9.addItem(spacer7)
-        ElementSelectorDialogLayout.addLayout(layout9)
-        spacer9 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout6.addWidget(self.transmuteCheckBox)
+        ElementSelectorDialogLayout.addLayout(layout6)
+        spacer9 = QSpacerItem(20,30,QSizePolicy.Minimum,QSizePolicy.Expanding)
         ElementSelectorDialogLayout.addItem(spacer9)
 
-        layout10 = QHBoxLayout(None,0,6,"layout10")
-        spacer8 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout10.addItem(spacer8)
+        layout7 = QHBoxLayout(None,0,6,"layout7")
+        spacer8 = QSpacerItem(106,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout7.addItem(spacer8)
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
         self.closePTableButton.setSizePolicy(QSizePolicy(1,0,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
         self.closePTableButton.setDefault(1)
-        layout10.addWidget(self.closePTableButton)
-        ElementSelectorDialogLayout.addLayout(layout10)
+        layout7.addWidget(self.closePTableButton)
+        spacer4_2_3 = QSpacerItem(10,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        layout7.addItem(spacer4_2_3)
+        ElementSelectorDialogLayout.addLayout(layout7)
+        spacer4_2_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        ElementSelectorDialogLayout.addItem(spacer4_2_2)
 
         self.languageChange()
 
-        self.resize(QSize(274,407).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(200,412).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
