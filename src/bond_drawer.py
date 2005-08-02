@@ -102,8 +102,8 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 print_compact_stack("atom_debug: drawing bond %r which is illegal for its atomtypes: " % self)
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False #bruce 050717, might be temporary
         draw_bond_letters = debug_pref("bond letters", Choice_boolean_False)
-        draw_vanes = debug_pref("double-bond vanes", Choice_boolean_True) #e make dflt False when standard drawing available
-        draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_False) # cyls are nim [bruce 050725]  ###@@@
+        draw_vanes = debug_pref("double-bond vanes", Choice_boolean_False) #bruce 050802 made this True for A5.9
+        draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_True) #bruce 050802 made this True for A5.9
         draw_sigma_cyl = not draw_cyls
     else:
         # single bond
@@ -148,9 +148,6 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 del ord_pi_y, ord_pi_z
                 pvecs1 = multicyl_pvecs( howmany, a1py, a1pz )
                 pvecs2 = multicyl_pvecs( howmany, a2py, a2pz ) # leaves them as unit vectors for now
-                print howmany
-                print pvecs1
-                print pvecs2
                 if disp == diLINES:
                     scale = 1 # arbitrary, since cylinder thickness is not used when drawing lines
                     offset = 2
