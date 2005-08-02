@@ -18,13 +18,13 @@ cmd = greenmsg("Plot Tool: ")
 
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
-        PlotToolDialog.__init__(self, modal=False)
+        parent = assy.w
+        PlotToolDialog.__init__(self, parent)
         ## self.assy = assy
         self.history = assy.w.history #bruce 050326
         self.movie = movie # before bruce 050326 was assy.current_movie
-        if self.setup(): return
-        #self.exec_loop()
-        self.show() # Fixed bug 440-1.  Added "modal=False" above, too. Mark 050731.
+        self.setup()
+        self.show() # Fixed bug 440-1.  Mark 050802.
 
     def setup(self):
         """Setup the Plot Tool dialog, including populating the combobox with plotting options.
