@@ -91,11 +91,20 @@ class UserPrefs(UserPrefsDialog):
     def showDialog(self):
         '''Display the Preferences dialog'''
         # This sends a signal to self.setup_current_page(), which will call self._setup_general_page()
-        self.prefs_tab.setCurrentPage(0) 
+        self._init_prefs()
+        self.prefs_tab.setCurrentPage(0)  # Show General tab/page
         self.exec_loop()
 
     ###### Private methods ###############################
     
+    def _init_prefs(self):
+        '''Retreive preferences from the pref db that are needed before updating widgets in the UI.
+        '''
+        prefs = preferences.prefs_context()
+        self.gmspath = prefs.get(gmspath_prefs_key, '')
+        self.default_display_mode = prefs.get(defaultDisplayMode_prefs_key, diVDW)
+        
+        
     def _setup_general_page(self):
         ''' Setup widgets to initial (default or defined) values on the general page.
         '''
@@ -105,21 +114,13 @@ class UserPrefs(UserPrefsDialog):
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
                 
-        # GAMESS path label
+        # GAMESS path label and value.
         if sys.platform == 'win32': # Windows
             self.gamess_lbl.setText("PC GAMESS :")
         else:
             self.gamess_lbl.setText("GAMESS :")
 
-        # Get GAMESS executable path from prefs db and update the lineEdit widget.
-        prefs = preferences.prefs_context()
-        self.gmspath = prefs.get(gmspath_prefs_key, '')
-        self.gamess_path_linedit.setText(self.gmspath)
-        
-#        if self.gmspath:
-#            self.gamess_path_linedit.setText(self.gmspath)
-#        else:
-#            self.gamess_path_linedit.setText('')
+        self.gamess_path_linedit.setText(self.gmspath) # Retrieved from _init_prefs().
 
     def _setup_background_page(self):
         ''' Setup widgets to initial (default or defined) values on the background page.
@@ -141,8 +142,7 @@ class UserPrefs(UserPrefsDialog):
         self.free_valence_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
         
         # Bug 799 fix.  Mark 050731
-        prefs = preferences.prefs_context()
-        self.default_display_btngrp.setButton(prefs.get(defaultDisplayMode_prefs_key, diVDW))
+        self.default_display_btngrp.setButton(self.default_display_mode) # Retrieved from _init_prefs().
 
     def _setup_bonds_page(self):
         ''' Setup widgets to initial (default or defined) values on the bonds page.
@@ -224,7 +224,7 @@ class UserPrefs(UserPrefsDialog):
                             displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
                             displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
                             gmspath_prefs_key: self.gmspath,
-                            defaultDisplayMode_prefs_key: self.glpane.display,
+                            defaultDisplayMode_prefs_key: self.default_display_mode,
                             captionPrefix_prefs_key: self.win.caption_prefix,
                             captionSuffix_prefs_key: self.win.caption_suffix,
                             captionFullPath_prefs_key: self.win.caption_fullpath,
@@ -304,6 +304,7 @@ class UserPrefs(UserPrefsDialog):
     def set_default_display_mode(self, val):
         '''Set default display mode of GLpane.
         '''
+        self.default_display_mode = val
         self.glpane.setDisplay(val)
         self.glpane.gl_update()
         
