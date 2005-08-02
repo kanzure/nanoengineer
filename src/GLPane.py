@@ -991,7 +991,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
 
     def setDisplay(self, disp):
         if disp == diDEFAULT:
-            disp = default_display_mode #bruce 041129 to fix bug 21
+            #disp = default_display_mode #bruce 041129 to fix bug 21
+            prefs = preferences.prefs_context() #mark 050802 to fix bug 799
+            disp = prefs.get(defaultDisplayMode_prefs_key, default_display_mode)
         #e someday: if self.display == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.display = disp
