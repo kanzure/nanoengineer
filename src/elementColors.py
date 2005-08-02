@@ -12,15 +12,6 @@ from ThumbView import ElementView
 from HistoryWidget import redmsg # Mark 050311
 from VQT import V
 
-########################################################
-# Declaring tuples
-elementAMU = { 1 : "1.008", 2 : "4.003",
-                        5 : "10.811", 6 : "12.011" , 7 : "14.007", 8 : "15.999", 9 : "18.998", 10: "20.178",
-                        13 : "26.982", 14 : "28.086", 15 : "30.974", 16 : "32.066", 17 : "35.453", 18 : "39.948",
-                        32 : "72.610", 33 : "74.922", 34 : "78.960", 35 : "79.904", 36 : "83.800",
-                        51 : "121.760", 52 : "127.600", 53 : "126.904", 54 : "131.290" }
-########################################################
-
 class elementColors(ElementColorsDialog):
     _displayList = (diTUBES, diCPK, diVDW)
     
@@ -34,24 +25,12 @@ class elementColors(ElementColorsDialog):
         self.elemTable = PeriodicTable
         self.displayMode = self._displayList[0]
         
-        buttons = [(self.pushButton1, 1), (self.pushButton2, 2), (self.pushButton5, 5), (self.pushButton6, 6),
-                   (self.pushButton7,7), (self.pushButton8, 8), (self.pushButton9, 9), (self.pushButton10, 10),
-                   (self.pushButton13, 13), (self.pushButton14, 14), (self.pushButton15, 15), (self.pushButton16, 16),
-                   (self.pushButton17, 17), (self.pushButton18, 18), (self.pushButton32,32), (self.pushButton33, 33),
-                   (self.pushButton34, 34), (self.pushButton35, 35), (self.pushButton36, 36), (self.pushButton51, 51),
-                   (self.pushButton52, 52), (self.pushButton53, 53), (self.pushButton54, 54)]
-        
-        self.buttonGroup = QButtonGroup(self)
-        self.buttonGroup.setExclusive(True)
-        self.buttonGroup.hide()
-        for button in buttons: self.buttonGroup.insert(button[0], button[1])
-        self.connect(self.buttonGroup, SIGNAL("clicked(int)"), self.setElementInfo)
-         
         self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
         # Put the GL widget inside the frame
         flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
         flayout.addWidget(self.elemGLPane,1)
         
+        self.connectChangingControls()
         
     def closeEvent(self, e):
         """When user closes dialog by clicking the 'X' button on the dialog title bar, this method
@@ -61,6 +40,7 @@ class elementColors(ElementColorsDialog):
          
     
     def disConnectChangingControls(self):
+        '''Obsolete member funtion. '''
         self.disconnect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
         self.disconnect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
         self.disconnect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
@@ -68,7 +48,7 @@ class elementColors(ElementColorsDialog):
         self.disconnect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
         self.disconnect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
    
-    def reconnectChangingControls(self):
+    def connectChangingControls(self):
         self.connect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
         self.connect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
         self.connect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
@@ -81,7 +61,7 @@ class elementColors(ElementColorsDialog):
         """Load default set of color/rvdw for the current periodic table """    
         self.elemTable.loadDefaults()
         self._updateModelDisplay()
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
         
@@ -89,62 +69,66 @@ class elementColors(ElementColorsDialog):
         """Load alternate set of color/rvdw for the current periodic table """ 
         self.elemTable.loadAlternates()
         self._updateModelDisplay()
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
     
     def changeDisplayMode(self, value):
-        """Called when any of the display mode radioButton clicked. """
+        """Called when any of the display mode radioButton clicked. Obsolete."""
         assert value in [0, 1, 2]
         newMode = self._displayList[value]
         if newMode != self.displayMode:
             self.displayMode = newMode
-            elemNum =  self.buttonGroup.selectedId()
+            elemNum =  self.elementButtonGroup.selectedId()
             elm = self.elemTable.getElement(elemNum)
             self.elemGLPane.refreshDisplay(elm, self.displayMode)
  
-    # called as a slot from button push
     def setElementInfo(self,value):
+        '''Called as a slot from an element button push. '''
         self.setDisplay(value)
         
-    def setDisplay(self, value):
-        eInfoText =   str(value) + "<br>"#"</p> "
-        elemSymbol = self.elemTable.getElemSymbol(value)
-        elemName = self.elemTable.getElemName(value)
-        elemRvdw = str(self.elemTable.getElemRvdw(value))
-        elemBonds = str(self.elemTable.getElemBondCount(value))
-        if not elemSymbol: return
-        eInfoText +=   "<font size=18> <b>" + elemSymbol + "</b> </font> <br>"#</p>"
-        eInfoText +=  elemName + "<br>"#"</p>"
-        eInfoText += "Amu: " + elementAMU[value] + "<br>"#"</p>"
-        eInfoText += "Rvdw: " + elemRvdw + "<br>"#"</p>"
-        eInfoText += "Open Bonds: " + elemBonds #</p>"
-        self.elemInfoLabel.setText(eInfoText)
         
-        self.buttonGroup.setButton(value)
+    def setDisplay(self, value):
+        self.elementButtonGroup.setButton(value)
         self.updateElemGraphDisplay()
         
         r =  int(self.color[0]*255 + 0.5)
         g = int(self.color[1]*255 + 0.5)
         b = int(self.color[2]*255 + 0.5)
         
-        self.disConnectChangingControls()
+        #self.disConnectChangingControls()
         self.redSlider.setValue(r)
         self.greenSlider.setValue(g)
         self.blueSlider.setValue(b)
         self.redSpinBox.setValue(r)
         self.greenSpinBox.setValue(g)
         self.blueSpinBox.setValue(b)
-        self.reconnectChangingControls()
+        #self.reconnectChangingControls()
+
         
     def updateElemGraphDisplay(self):
         """Update non user interactive controls display for current selected element:
         element label info and element graphics info """
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.color = self.elemTable.getElemColor(elemNum)
         
         elm = self.elemTable.getElement(elemNum)
+        self.elemGLPane.resetView(scale = 4.0)
         self.elemGLPane.refreshDisplay(elm, self.displayMode)
+        
+        r =  int(self.color[0]*255 + 0.5)
+        g = int(self.color[1]*255 + 0.5)
+        b = int(self.color[2]*255 + 0.5)
+        self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
+ 
+    
+    def updateElemColorDisplay(self):
+        '''Update GL display for user's color change. '''
+        elemNum =  self.elementButtonGroup.selectedId()
+        self.color = self.elemTable.getElemColor(elemNum)
+        
+        elm = self.elemTable.getElement(elemNum)
+        self.elemGLPane.updateColorDisplay(elm, self.displayMode)
         
         r =  int(self.color[0]*255 + 0.5)
         g = int(self.color[1]*255 + 0.5)
@@ -174,7 +158,7 @@ class elementColors(ElementColorsDialog):
                 self.elemTable.setElemColors(colorTable)
                 self._updateModelDisplay()     
                 
-                elemNum =  self.buttonGroup.selectedId()
+                elemNum =  self.elementButtonGroup.selectedId()
                 self.setDisplay(elemNum)
         #After loading a file, reset the flag        
         self.isElementModified = False        
@@ -216,64 +200,60 @@ class elementColors(ElementColorsDialog):
             self.isFileSaved = True        
  
     def changeSliderBlue(self,a0):
-        self.disconnect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
+        self.blueSlider.blockSignals(True)
         self.blueSlider.setValue(a0)
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
-        self._updateModelDisplay()
-        self.connect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
-        self.updateElemGraphDisplay()
+        self.updateElemColorDisplay()
         self.isElementModified = True
+        self.blueSlider.blockSignals(False)
         
     def changeSpinRed(self,a0):
-        self.disconnect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
+        self.redSpinBox.blockSignals(True)
         self.redSpinBox.setValue(a0)
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [a0/255.0, self.color[1], self.color[2]])
-        self._updateModelDisplay()
-        self.connect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
-        self.updateElemGraphDisplay()
+        self.updateElemColorDisplay()
         self.isElementModified = True
+        self.redSpinBox.blockSignals(False)
         
     def changeSliderRed(self,a0):
-        self.disconnect( self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
+        self.redSlider.blockSignals(True)
         self.redSlider.setValue(a0)
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [a0/255.0, self.color[1], self.color[2]])
-        self._updateModelDisplay()
-        self.connect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
-        self.updateElemGraphDisplay()
+        self.updateElemColorDisplay()
         self.isElementModified = True
+        self.redSlider.blockSignals(False)
       
     def changeSpinBlue(self,a0):
-        self.disconnect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
+        self.blueSpinBox.blockSignals(True)
         self.blueSpinBox.setValue(a0)
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
-        self._updateModelDisplay()
-        self.connect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
-        self.updateElemGraphDisplay()
+        self.updateElemColorDisplay()
         self.isElementModified = True
+        self.blueSpinBox.blockSignals(False)
+        
         
     def changeSpinGreen(self,a0):
-        self.disconnect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
+        self.greenSpinBox.blockSignals(True)
         self.greenSpinBox.setValue(a0)
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
-        self._updateModelDisplay()
-        self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
-        self.updateElemGraphDisplay()
+        self.updateElemColorDisplay()
         self.isElementModified = True
+        self.greenSpinBox.blockSignals(False)
+        
                 
     def changeSliderGreen(self,a0): 
-        self.disconnect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
+        self.greenSlider.blockSignals(True)
         self.greenSlider.setValue(a0)
-        elemNum =  self.buttonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.selectedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
-        self._updateModelDisplay()
-        self.connect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
-        self.updateElemGraphDisplay()
+        self.updateElemColorDisplay()
         self.isElementModified = True
+        self.greenSlider.blockSignals(False)
         
     def ok(self):
         #if self.isElementModified and not self.isFileSaved:

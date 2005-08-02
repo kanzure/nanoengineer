@@ -470,7 +470,7 @@ class ElementView(ThumbView):
     """Element graphical display """    
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
-        self.scale = 3.0#5.0 ## the possible largest rvdw of all elements
+        self.scale = 3.5#5.0 ## the possible largest rvdw of all elements
         self.pos = V(0.0, 0.0, 0.0)
         self.mol = None
         
@@ -479,10 +479,10 @@ class ElementView(ThumbView):
         self.display = 0  
         self.selatom = None
     
-    def resetView(self):
+    def resetView(self, scale = 3.5):
         '''Reset current view'''
         ThumbView.resetView(self)
-        self.scale = 2.0
+        self.scale = scale
         
     def drawModel(self):
         """The method for element drawing """
@@ -493,8 +493,14 @@ class ElementView(ThumbView):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
         self.mol = self.constructModel(elm, self.pos, dispMode) 
-        self.resetView()
         self.updateGL()
+    
+    def updateColorDisplay(self, elm, dispMode=diVDW):
+        """Display the new element or the same element but new display mode"""   
+        self.makeCurrent()
+        self.mol = self.constructModel(elm, self.pos, dispMode) 
+        self.updateGL()
+    
     
     def constructModel(self, elm, pos, dispMode):
         """This is to try to repeat what 'oneUnbonded()' function does,
@@ -531,15 +537,50 @@ class ElementView(ThumbView):
             obj.draw_in_abs_coords(self, LEDon)
 
 
-class ElementHybridView(ElementView):
-    hybrid_type_name = None
-    elementMode = True
+class MMKitView(ThumbView):
+    
+    def __init__(self, parent, name, shareWidget = None):
+        ThumbView.__init__(self, parent, name, shareWidget)
+        self.scale = 2.0
+        self.pos = V(0.0, 0.0, 0.0)
+        self.mol = None
+        
+        ## Dummy attributes. A kludge, just try to make other code
+        ##  think it looks like a glpane object.
+        self.display = 0  
+        self.selatom = None
+        
+        hybrid_type_name = None
+        elementMode = True
+    
+        
+    def drawModel(self):
+        """The method for element drawing """
+        if self.mol:
+           self.mol.draw(self, None)
 
+   
+    def refreshDisplay(self, elm, dispMode=diVDW):
+        """Display the new element or the same element but new display mode"""   
+        self.makeCurrent()
+        self.mol = self.constructModel(elm, self.pos, dispMode) 
+        self.updateGL()
+        
 
     def changeHybridType(self, name):
         self.hybrid_type_name = name
     
     
+    def resetView(self):
+        '''Reset current view'''
+        ThumbView.resetView(self)
+        self.scale = 2.0
+    
+    def drawSelected(self, obj):
+        '''Override the parent version. Specific drawing code for the object. '''
+        if isinstance(obj, atom) and (obj.element is Singlet):
+            obj.draw_in_abs_coords(self, LEDon)
+        
     def constructModel(self, elm, pos, dispMode):
         """This is to try to repeat what 'oneUnbonded()' function does,
         but hope to remove some stuff not needed here.
@@ -607,7 +648,7 @@ class ElementHybridView(ElementView):
         
     
 class ChunkView(ThumbView):
-    """Chunk display """    
+    """Chunk display. Currrently it's not used. """    
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
         #self.scale = 3.0#5.0 ## the possible largest rvdw of all elements

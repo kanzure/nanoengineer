@@ -6,7 +6,7 @@ $Id$
 '''
 
 from MMKitDialog import *
-from ThumbView import ElementHybridView, ChunkView
+from ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
 from chem import atom
@@ -24,14 +24,23 @@ class MMKit(MMKitDialog):
         
         self.flayout = None
         
-        self._setNewView('ElementHybridView')
+        self._setNewView('MMKitView')
         
         # Set current element in element button group.
         self.elementButtonGroup.setButton(self.w.Element) 
         
         #Connect signal of listBox in MMK to pasteBox of mainwindow
         self.connect(self, PYSIGNAL("chunkSelectionChanged"), self.w.pasteComboBox, SIGNAL("activated(int)"))
-        
+        self.connect(self.w.hybridComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
+        self.connect(self.w.elemChangeComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
+
+
+    def change2ElemPage(self, junk_arg):
+        '''Slot method. Called when user change element/hybrid from dashboard. '''
+        #wg = self.tabWidget2.page(0) ##Element page
+        #self.tabpageChanged(wg)
+        if not self.tabWidget2.currentPageIndex() == 0:
+            self.tabWidget2.setCurrentPage(0)
 
     def setElementInfo(self,value):
         '''Called as a slot from button push of the element Button Group'''
@@ -137,6 +146,7 @@ class MMKit(MMKitDialog):
             #self._setNewView('ElementHybridView')
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
+            self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             
 
@@ -203,8 +213,8 @@ class MMKit(MMKitDialog):
         
         if viewClassName == 'ChunkView':
             self.elemGLPane = ChunkView(self.elementFrame, "chunk glPane", self.w.glpane)
-        elif viewClassName == 'ElementHybridView':
-            self.elemGLPane = ElementHybridView(self.elementFrame, "element Hybrid glPane", self.w.glpane)
+        elif viewClassName == 'MMKitView':
+            self.elemGLPane = MMKitView(self.elementFrame, "MMKitView glPane", self.w.glpane)
         
         self.flayout.addWidget(self.elemGLPane,1)
         

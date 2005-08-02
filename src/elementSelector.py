@@ -28,10 +28,10 @@ class elementSelector(ElementSelectorDialog):
 
     def update_dialog(self, elemNum):
         """Update non user interactive controls display for current selected element: element label info and element graphics info """
-        print "elementSelector.update_dialog called"
         self.color = self.elemTable.getElemColor(elemNum)
         elm = self.elemTable.getElement(elemNum)
         
+        self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(elm, self.displayMode)
         
     def transmutePressed(self):
