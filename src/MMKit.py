@@ -29,18 +29,35 @@ class MMKit(MMKitDialog):
         # Set current element in element button group.
         self.elementButtonGroup.setButton(self.w.Element) 
         
-        #Connect signal of listBox in MMK to pasteBox of mainwindow
         self.connect(self, PYSIGNAL("chunkSelectionChanged"), self.w.pasteComboBox, SIGNAL("activated(int)"))
+        self.connect(self.w.hybridComboBox, SIGNAL("activated(int)"), self.hybridChangedOutside)
+        
         self.connect(self.w.hybridComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
         self.connect(self.w.elemChangeComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
+        self.connect(self.w.pasteComboBox, SIGNAL("activated(const QString&)"), self.change2PastePage)
+        
+        self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("pressed()"), self.change2PastePage) 
+        self.connect(self.w.depositAtomDashboard.atomRB, SIGNAL("pressed()"), self.change2ElemPage)
+        
 
+    def hybridChangedOutside(self, newId):
+        '''Slot method. Called when user change element hybridization from the dashboard. 
+         This method achieves the same effect as user clicked one of the hybridization buttons.'''
+        self.hybrid_btngrp.setButton(newId)
+        self.set_hybrid_type(newId)
+        
 
-    def change2ElemPage(self, junk_arg):
-        '''Slot method. Called when user change element/hybrid from dashboard. '''
-        #wg = self.tabWidget2.page(0) ##Element page
-        #self.tabpageChanged(wg)
-        if not self.tabWidget2.currentPageIndex() == 0:
+    def change2ElemPage(self):
+        '''Slot method. Called when user changed element/hybrid or pressed deposit button from dashboard. '''
+        if not (self.tabWidget2.currentPageIndex() == 0):
             self.tabWidget2.setCurrentPage(0)
+            
+
+    def change2PastePage(self):
+        '''Slot method. Called when user changed pastable item or pressed paste button from dashboard. '''
+        #if not (self.tabWidget2.currentPageIndex() == 1):
+        self.tabWidget2.setCurrentPage(1)
+            
 
     def setElementInfo(self,value):
         '''Called as a slot from button push of the element Button Group'''
@@ -50,13 +67,20 @@ class MMKit(MMKitDialog):
         """Called when the current element has been changed.
            Update non user interactive controls display for current selected 
            element: element label info and element graphics info """
+        
+        ## The following statements are redundant in some situations.
+        self.elementButtonGroup.setButton(elemNum)
+        self.change2ElemPage()
+        
+        
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
         
         self.elemGLPane.changeHybridType(None)
-        
+        self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         self.update_hybrid_btngrp()
+     
         
     def update_hybrid_btngrp(self):
         '''Update the buttons of the current element's hybridization types into hybrid_btngrp; 
@@ -143,7 +167,6 @@ class MMKit(MMKitDialog):
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
         else:  ## Element page
-            #self._setNewView('ElementHybridView')
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
             self.elemGLPane.resetView()
@@ -184,9 +207,10 @@ class MMKit(MMKitDialog):
         
         self.chunkListBox.clear()
         self.chunkListBox.insertStringList(list)
-        if len(list): self.chunkListBox.setSelected(0, True)
+        if len(list): 
+            itIndex = self.w.pasteComboBox.currentItem()
+            self.chunkListBox.setSelected(itIndex, True)
         else: self.elemGLPane.updateModel(newChunk=None)
-        #self._setNewView('ChunkView')
         
         
             

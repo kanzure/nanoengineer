@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>212</width>
-            <height>466</height>
+            <height>470</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -380,11 +380,17 @@
                                 <property name="text">
                                     <string>H</string>
                                 </property>
+                                <property name="accel">
+                                    <string>H</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>1</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Hydrogen</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="0" column="5">
@@ -420,11 +426,17 @@
                                 <property name="text">
                                     <string>C</string>
                                 </property>
+                                <property name="accel">
+                                    <string>C</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>6</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Carbon</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="1" column="2">
@@ -440,11 +452,17 @@
                                 <property name="text">
                                     <string>N</string>
                                 </property>
+                                <property name="accel">
+                                    <string>N</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>7</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Nitrogen</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="1" column="3">
@@ -460,11 +478,17 @@
                                 <property name="text">
                                     <string>O</string>
                                 </property>
+                                <property name="accel">
+                                    <string>O</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>8</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Oxygen</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="1" column="5">
@@ -500,11 +524,17 @@
                                 <property name="text">
                                     <string>F</string>
                                 </property>
+                                <property name="accel">
+                                    <string>F</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>9</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Fluorine</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="2" column="0">
@@ -546,6 +576,9 @@
                                 <property name="buttonGroupId">
                                     <number>17</number>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Chlorine</string>
+                                </property>
                             </widget>
                             <widget class="QToolButton" row="1" column="0">
                                 <property name="name">
@@ -560,11 +593,17 @@
                                 <property name="text">
                                     <string>B</string>
                                 </property>
+                                <property name="accel">
+                                    <string>B</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>5</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Boron</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="2" column="5">
@@ -600,11 +639,17 @@
                                 <property name="text">
                                     <string>P</string>
                                 </property>
+                                <property name="accel">
+                                    <string>P</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>15</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Phosphorus</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="2" column="3">
@@ -620,11 +665,17 @@
                                 <property name="text">
                                     <string>S</string>
                                 </property>
+                                <property name="accel">
+                                    <string>S</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
                                 <property name="buttonGroupId">
                                     <number>16</number>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Sulfer</string>
                                 </property>
                             </widget>
                             <widget class="QToolButton" row="2" column="1">

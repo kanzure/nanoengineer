@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ElementColorsDialog.ui'
 #
-# Created: Mon Aug 1 16:34:57 2005
+# Created: Wed Aug 3 17:42:17 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -108,40 +108,20 @@ class ElementColorsDialog(QDialog):
 
         ElementColorsDialogLayout = QVBoxLayout(self,2,4,"ElementColorsDialogLayout")
 
-        layout25 = QHBoxLayout(None,0,6,"layout25")
-
         self.elementFrame = QFrame(self,"elementFrame")
         self.elementFrame.setSizePolicy(QSizePolicy(5,1,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
-        self.elementFrame.setMinimumSize(QSize(0,0))
+        self.elementFrame.setMinimumSize(QSize(0,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
-        layout25.addWidget(self.elementFrame)
+        ElementColorsDialogLayout.addWidget(self.elementFrame)
 
-        layout24 = QVBoxLayout(None,0,6,"layout24")
-
-        self.elemColorLabel = QLabel(self,"elemColorLabel")
-        self.elemColorLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.elemColorLabel.sizePolicy().hasHeightForWidth()))
-        self.elemColorLabel.setMinimumSize(QSize(0,30))
-        self.elemColorLabel.setMaximumSize(QSize(32767,50))
-        self.elemColorLabel.setTextFormat(QLabel.RichText)
-        self.elemColorLabel.setAlignment(QLabel.AlignCenter)
-        layout24.addWidget(self.elemColorLabel)
-
-        layout11 = QVBoxLayout(None,0,6,"layout11")
-
-        self.redSlider = QSlider(self,"redSlider")
-        self.redSlider.setEnabled(1)
-        self.redSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.redSlider.sizePolicy().hasHeightForWidth()))
-        self.redSlider.setPaletteForegroundColor(QColor(255,0,0))
-        self.redSlider.setMaxValue(255)
-        self.redSlider.setOrientation(QSlider.Horizontal)
-        self.redSlider.setTickmarks(QSlider.Above)
-        layout11.addWidget(self.redSlider)
+        layout12 = QGridLayout(None,1,1,0,6,"layout12")
 
         layout10 = QHBoxLayout(None,0,6,"layout10")
 
         self.textLabel2 = QLabel(self,"textLabel2")
         self.textLabel2.setMaximumSize(QSize(40,32767))
+        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout10.addWidget(self.textLabel2)
 
         self.redSpinBox = QSpinBox(self,"redSpinBox")
@@ -150,24 +130,14 @@ class ElementColorsDialog(QDialog):
         self.redSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
         self.redSpinBox.setMaxValue(255)
         layout10.addWidget(self.redSpinBox)
-        layout11.addLayout(layout10)
-        layout24.addLayout(layout11)
 
-        layout11_2 = QVBoxLayout(None,0,6,"layout11_2")
-
-        self.greenSlider = QSlider(self,"greenSlider")
-        self.greenSlider.setEnabled(1)
-        self.greenSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.greenSlider.sizePolicy().hasHeightForWidth()))
-        self.greenSlider.setPaletteForegroundColor(QColor(0,255,0))
-        self.greenSlider.setMaxValue(255)
-        self.greenSlider.setOrientation(QSlider.Horizontal)
-        self.greenSlider.setTickmarks(QSlider.Above)
-        layout11_2.addWidget(self.greenSlider)
+        layout12.addLayout(layout10,0,0)
 
         layout10_2 = QHBoxLayout(None,0,6,"layout10_2")
 
         self.textLabel2_2 = QLabel(self,"textLabel2_2")
         self.textLabel2_2.setMaximumSize(QSize(40,32767))
+        self.textLabel2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout10_2.addWidget(self.textLabel2_2)
 
         self.greenSpinBox = QSpinBox(self,"greenSpinBox")
@@ -175,10 +145,23 @@ class ElementColorsDialog(QDialog):
         self.greenSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
         self.greenSpinBox.setMaxValue(255)
         layout10_2.addWidget(self.greenSpinBox)
-        layout11_2.addLayout(layout10_2)
-        layout24.addLayout(layout11_2)
 
-        layout11_3 = QVBoxLayout(None,0,6,"layout11_3")
+        layout12.addLayout(layout10_2,1,0)
+
+        layout10_3 = QHBoxLayout(None,0,6,"layout10_3")
+
+        self.textLabel2_3 = QLabel(self,"textLabel2_3")
+        self.textLabel2_3.setMaximumSize(QSize(40,32767))
+        self.textLabel2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout10_3.addWidget(self.textLabel2_3)
+
+        self.blueSpinBox = QSpinBox(self,"blueSpinBox")
+        self.blueSpinBox.setEnabled(1)
+        self.blueSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
+        self.blueSpinBox.setMaxValue(255)
+        layout10_3.addWidget(self.blueSpinBox)
+
+        layout12.addLayout(layout10_3,2,0)
 
         self.blueSlider = QSlider(self,"blueSlider")
         self.blueSlider.setEnabled(1)
@@ -187,23 +170,32 @@ class ElementColorsDialog(QDialog):
         self.blueSlider.setMaxValue(255)
         self.blueSlider.setOrientation(QSlider.Horizontal)
         self.blueSlider.setTickmarks(QSlider.Above)
-        layout11_3.addWidget(self.blueSlider)
+        self.blueSlider.setTickInterval(25)
 
-        layout10_3 = QHBoxLayout(None,0,6,"layout10_3")
+        layout12.addWidget(self.blueSlider,2,1)
 
-        self.textLabel2_3 = QLabel(self,"textLabel2_3")
-        self.textLabel2_3.setMaximumSize(QSize(40,32767))
-        layout10_3.addWidget(self.textLabel2_3)
+        self.redSlider = QSlider(self,"redSlider")
+        self.redSlider.setEnabled(1)
+        self.redSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.redSlider.sizePolicy().hasHeightForWidth()))
+        self.redSlider.setPaletteForegroundColor(QColor(255,0,0))
+        self.redSlider.setMaxValue(255)
+        self.redSlider.setOrientation(QSlider.Horizontal)
+        self.redSlider.setTickmarks(QSlider.Above)
+        self.redSlider.setTickInterval(25)
 
-        self.blueSpinBox = QSpinBox(self,"blueSpinBox")
-        self.blueSpinBox.setEnabled(1)
-        self.blueSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
-        self.blueSpinBox.setMaxValue(255)
-        layout10_3.addWidget(self.blueSpinBox)
-        layout11_3.addLayout(layout10_3)
-        layout24.addLayout(layout11_3)
-        layout25.addLayout(layout24)
-        ElementColorsDialogLayout.addLayout(layout25)
+        layout12.addWidget(self.redSlider,0,1)
+
+        self.greenSlider = QSlider(self,"greenSlider")
+        self.greenSlider.setEnabled(1)
+        self.greenSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.greenSlider.sizePolicy().hasHeightForWidth()))
+        self.greenSlider.setPaletteForegroundColor(QColor(0,255,0))
+        self.greenSlider.setMaxValue(255)
+        self.greenSlider.setOrientation(QSlider.Horizontal)
+        self.greenSlider.setTickmarks(QSlider.Above)
+        self.greenSlider.setTickInterval(25)
+
+        layout12.addWidget(self.greenSlider,1,1)
+        ElementColorsDialogLayout.addLayout(layout12)
 
         self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
         self.elementButtonGroup.setMinimumSize(QSize(0,126))
@@ -353,45 +345,45 @@ class ElementColorsDialog(QDialog):
         spacer4_2_2_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Fixed)
         ElementColorsDialogLayout.addItem(spacer4_2_2_2)
 
-        layout12 = QGridLayout(None,1,1,0,6,"layout12")
+        layout12_2 = QGridLayout(None,1,1,0,6,"layout12_2")
 
         self.saveColorsPB = QPushButton(self,"saveColorsPB")
         self.saveColorsPB.setAutoDefault(0)
 
-        layout12.addWidget(self.saveColorsPB,0,1)
+        layout12_2.addWidget(self.saveColorsPB,0,1)
 
         self.defaultButton = QPushButton(self,"defaultButton")
         self.defaultButton.setAutoDefault(0)
 
-        layout12.addWidget(self.defaultButton,1,0)
+        layout12_2.addWidget(self.defaultButton,1,0)
 
         self.loadColorsPB = QPushButton(self,"loadColorsPB")
         self.loadColorsPB.setAutoDefault(0)
 
-        layout12.addWidget(self.loadColorsPB,0,0)
+        layout12_2.addWidget(self.loadColorsPB,0,0)
 
         self.cancelButton = QPushButton(self,"cancelButton")
         self.cancelButton.setAutoDefault(0)
 
-        layout12.addWidget(self.cancelButton,2,1)
+        layout12_2.addWidget(self.cancelButton,2,1)
 
         self.alterButton = QPushButton(self,"alterButton")
         self.alterButton.setAutoDefault(0)
 
-        layout12.addWidget(self.alterButton,1,1)
+        layout12_2.addWidget(self.alterButton,1,1)
 
         self.okButton = QPushButton(self,"okButton")
         self.okButton.setAutoDefault(0)
         self.okButton.setDefault(0)
 
-        layout12.addWidget(self.okButton,2,0)
-        ElementColorsDialogLayout.addLayout(layout12)
+        layout12_2.addWidget(self.okButton,2,0)
+        ElementColorsDialogLayout.addLayout(layout12_2)
         spacer4_2_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
         ElementColorsDialogLayout.addItem(spacer4_2_2)
 
         self.languageChange()
 
-        self.resize(QSize(217,490).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(211,513).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
@@ -411,7 +403,6 @@ class ElementColorsDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Element Color Settings"))
-        self.elemColorLabel.setText(QString.null)
         self.textLabel2.setText(self.__tr("Red:"))
         self.textLabel2_2.setText(self.__tr("Green:"))
         self.textLabel2_3.setText(self.__tr("Blue:"))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Fri Jul 29 15:04:26 2005
+# Created: Wed Aug 3 16:53:08 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -353,7 +353,7 @@ class MMKitDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(212,466).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(212,470).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
@@ -369,18 +369,35 @@ class MMKitDialog(QDialog):
         self.setCaption(self.__tr("Modeling Kit"))
         self.elementButtonGroup.setTitle(QString.null)
         self.toolButton1.setText(self.__tr("H"))
+        self.toolButton1.setAccel(self.__tr("H"))
+        QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
         self.toolButton2.setText(self.__tr("He"))
         self.toolButton6.setText(self.__tr("C"))
+        self.toolButton6.setAccel(self.__tr("C"))
+        QToolTip.add(self.toolButton6,self.__tr("Carbon"))
         self.toolButton7.setText(self.__tr("N"))
+        self.toolButton7.setAccel(self.__tr("N"))
+        QToolTip.add(self.toolButton7,self.__tr("Nitrogen"))
         self.toolButton8.setText(self.__tr("O"))
+        self.toolButton8.setAccel(self.__tr("O"))
+        QToolTip.add(self.toolButton8,self.__tr("Oxygen"))
         self.toolButton10.setText(self.__tr("Ne"))
         self.toolButton9.setText(self.__tr("F"))
+        self.toolButton9.setAccel(self.__tr("F"))
+        QToolTip.add(self.toolButton9,self.__tr("Fluorine"))
         self.toolButton13.setText(self.__tr("Al"))
         self.toolButton17.setText(self.__tr("Cl"))
+        QToolTip.add(self.toolButton17,self.__tr("Chlorine"))
         self.toolButton5.setText(self.__tr("B"))
+        self.toolButton5.setAccel(self.__tr("B"))
+        QToolTip.add(self.toolButton5,self.__tr("Boron"))
         self.toolButton10_2.setText(self.__tr("Ar"))
         self.toolButton15.setText(self.__tr("P"))
+        self.toolButton15.setAccel(self.__tr("P"))
+        QToolTip.add(self.toolButton15,self.__tr("Phosphorus"))
         self.toolButton16.setText(self.__tr("S"))
+        self.toolButton16.setAccel(self.__tr("S"))
+        QToolTip.add(self.toolButton16,self.__tr("Sulfer"))
         self.toolButton14.setText(self.__tr("Si"))
         self.toolButton33.setText(self.__tr("As"))
         self.toolButton34.setText(self.__tr("Se"))

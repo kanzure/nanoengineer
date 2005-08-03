@@ -113,13 +113,14 @@ class elementColors(ElementColorsDialog):
         self.color = self.elemTable.getElemColor(elemNum)
         
         elm = self.elemTable.getElement(elemNum)
-        self.elemGLPane.resetView(scale = 4.0)
+        self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(elm, self.displayMode)
         
-        r =  int(self.color[0]*255 + 0.5)
-        g = int(self.color[1]*255 + 0.5)
-        b = int(self.color[2]*255 + 0.5)
-        self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
+        if 0:
+            r =  int(self.color[0]*255 + 0.5)
+            g = int(self.color[1]*255 + 0.5)
+            b = int(self.color[2]*255 + 0.5)
+            self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
  
     
     def updateElemColorDisplay(self):
@@ -130,10 +131,11 @@ class elementColors(ElementColorsDialog):
         elm = self.elemTable.getElement(elemNum)
         self.elemGLPane.updateColorDisplay(elm, self.displayMode)
         
-        r =  int(self.color[0]*255 + 0.5)
-        g = int(self.color[1]*255 + 0.5)
-        b = int(self.color[2]*255 + 0.5)
-        self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
+        if 0:
+            r =  int(self.color[0]*255 + 0.5)
+            g = int(self.color[1]*255 + 0.5)
+            b = int(self.color[2]*255 + 0.5)
+            self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
  
 
     def read_element_rgb_table(self):
