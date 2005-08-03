@@ -1,10 +1,13 @@
 
 #include "simulator.h"
 
+static struct bondStretch *
+getBondStretchEntry(int element1, int element2, char bondOrder);
+
 struct atomType periodicTable[MAX_ELEMENT+1];
 
 static struct bondStretch *
-newBondStretch(char *bondName, double ks, double r0, double de, double beta)
+newBondStretch(char *bondName, double ks, double r0, double de, double beta, int generic)
 {
   struct bondStretch *stretch;
 
@@ -14,6 +17,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta)
   stretch->r0 = r0;
   stretch->de = de;
   stretch->beta = beta;
+  stretch->isGeneric = generic;
   initializeBondStretchInterpolater(stretch);
   return stretch;
 }
@@ -73,11 +77,11 @@ static struct hashtable *deHashtable;
 static struct hashtable *vanDerWaalsHashtable;
 
 static struct bondStretch *
-addBondStretch(char *bondName, double ks, double r0, double de, double beta)
+addBondStretch(char *bondName, double ks, double r0, double de, double beta, int generic)
 {
   struct bondStretch *stretch;
 
-  stretch = newBondStretch(bondName, ks, r0, de, beta);
+  stretch = newBondStretch(bondName, ks, r0, de, beta, generic);
   hashtable_put(bondStretchHashtable, bondName, stretch);
   return stretch;
 }
@@ -99,7 +103,7 @@ addInitialBondStretch(int element1, int element2, char order, double ks, double 
   char bondName[10]; // expand if atom types become longer than 2 chars
   
   generateBondName(bondName, element1, element2, order);
-  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2);
+  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, 0);
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
 
@@ -319,6 +323,32 @@ getDe(char *bondName)
   return 0.58;
 }
 
+static struct bondStretch *
+interpolateGenericBondStretch(char *bondName, int element1, int element2, float order)
+{
+  struct bondStretch *singleStretch;
+  struct bondStretch *doubleStretch;
+  double r0;
+  double ks;
+  double de;
+  double beta;
+
+  singleStretch = getBondStretchEntry(element1, element2, '1');
+  doubleStretch = getBondStretchEntry(element1, element2, '2');
+
+  // XXX check that singleStretch->r0 and doubleStretch->r0 are > 0!!!
+
+  // interpolate r0 reciprocally:
+  r0 = 1.0 / ((order - 1.0) / singleStretch->r0 + (2.0 - order) / doubleStretch->r0);
+
+  // interpolate ks and de linearly:
+  ks = (order - 1.0) * singleStretch->ks + (2.0 - order) * doubleStretch->ks ;
+  de = (order - 1.0) * singleStretch->de + (2.0 - order) * doubleStretch->de ;
+
+  beta = sqrt(ks / (2.0 * de));
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, 1);
+}
+
 /* generate a (hopefully not too bogus) set of bond stretch parameters
    for a bond type that we haven't entered real data for */
 static struct bondStretch *
@@ -333,18 +363,57 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     de = getDe(bondName);
     beta = 0.0;
     r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
-    if (r0 > 0) {
-      beta = 0.4 + 125.0 / (r0 * de);
-      ks = 200.0 * de * beta * beta ;
-      if (ks > 1000.0) {
-        ks = 1000.0;
-      }
+    if (r0 <= 0.0) {
+      // XXX warn about this
+      // maybe better to just fill out the periodic table...
+      r0 = 1.0;
     }
-    // XXX else warn, or maybe die
+    beta = 0.4 + 125.0 / (r0 * de);
+    ks = 200.0 * de * beta * beta ;
+    if (ks > 1000.0) {
+      ks = 1000.0;
+    }
     break;
+  case 'a':
+    return interpolateGenericBondStretch(bondName, element1, element2, 1.5);
+  case 'g':
+    return interpolateGenericBondStretch(bondName, element1, element2, 1.3333333333333);
+  case '2':
+    ks = 0.0;
+    de = getDe(bondName);
+    beta = 0.0;
+    r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
+    if (r0 <= 0.0) {
+      // XXX warn about this
+      // maybe better to just fill out the periodic table...
+      r0 = 1.0;
+    }
+    r0 *= 0.8; // XXX this is just completly wrong, assuming double bonds are 80% shorter than single
+    beta = 0.4 + 125.0 / (r0 * de);
+    ks = 200.0 * de * beta * beta ;
+    if (ks > 1000.0) {
+      ks = 1000.0;
+    }
+    break;
+  case '3':
+    ks = 0.0;
+    de = getDe(bondName);
+    beta = 0.0;
+    r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
+    if (r0 <= 0.0) {
+      // XXX warn about this
+      // maybe better to just fill out the periodic table...
+      r0 = 1.0;
+    }
+    r0 *= 0.7; // XXX this is just completly wrong, assuming triple bonds are 70% shorter than single
+    beta = 0.4 + 125.0 / (r0 * de);
+    ks = 200.0 * de * beta * beta ;
+    if (ks > 1000.0) {
+      ks = 1000.0;
+    }
   }
   
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, 1);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters
@@ -386,8 +455,8 @@ generateVanDerWaals(char *bondName, int element1, int element2)
   return vdw;
 }
 
-struct bondStretch *
-getBondStretch(int element1, int element2, char bondOrder)
+static struct bondStretch *
+getBondStretchEntry(int element1, int element2, char bondOrder)
 {
   struct bondStretch *entry;
   char bondName[10]; // expand if atom types become longer than 2 chars
@@ -397,6 +466,16 @@ getBondStretch(int element1, int element2, char bondOrder)
   if (entry == NULL) {
     entry = generateGenericBondStretch(bondName, element1, element2, bondOrder);
   }
+  return entry;
+}
+
+struct bondStretch *
+getBondStretch(int element1, int element2, char bondOrder)
+{
+  struct bondStretch *entry;
+
+  entry = getBondStretchEntry(element1, element2, bondOrder);
+  // XXX if (entry->isGeneric) { WARN ABOUT THIS }
   return entry;
 }
 

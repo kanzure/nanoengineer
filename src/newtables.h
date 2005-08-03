@@ -11,6 +11,8 @@ struct bondStretch
   double de;   // Morse/Lippincott
   double beta; // Morse/Lippincott
 
+  int isGeneric; // set to non-zero if the above are based on a heuristic
+  
   struct interpolationTable table;
 };
 

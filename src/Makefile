@@ -51,10 +51,11 @@ SIMOBJS=\
 	structcompare.o \
 	interpolate.o
 
-all: simulator
+#all: simulator
+all: noopt
 
 noopt:
-	make CFLAGS=-g all
+	make CFLAGS=-g simulator
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
