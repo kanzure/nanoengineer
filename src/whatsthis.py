@@ -361,14 +361,20 @@ def createWhatsThis(self):
 
         dispDefaultActionText = "<u><b>Display Default</b></u><br>"\
                        "<p><img source=\"dispDefaultAction\"><br> "\
-                       "This resets the display setting of the selected atoms or chunks to the "\
-                       "<b>Default Display Mode</b>.</p>"\
-                       "The active Default Display Mode is displayed in the lower right corner "\
-                       "of the main window.  The Default Display Mode can be easily changed "\
-                       "by unselecting everything (i.e. Select None) and selecting a "\
-                       "different Display Mode.</p>"\
-                       "<p><b>Display Default</b> mimics <b>Display VdW</b> when the "\
-                       "Default Display Mode is set to <b>Display Default</b>.</p>"
+                       "Changes the <i>display setting</i> of selected atoms or chunks to "\
+                       "<b>Default</b> , rendering them in the <b>Current Display Mode</b>."\
+                       "</p>"\
+                       "<p>If no atoms or chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to the <b>Default Display Mode</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will be rendered in the "\
+                       "<b>Default Display Mode</b>."\
+                       "</p>"\
+                       "<p>The <b>Default Display Mode</b> can be changed via the "\
+                       "<b>Edit > Preferences</b> menu and selecting the <b>General</b> tab."\
+                       "</p>"\
+                       "<p>The <b>Current or Default Display Mode</b> is displayed in the status bar in the "\
+                       "lower right corner of the main window."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispDefaultAction",
                                                        self.dispDefaultAction.iconSet().pixmap() )
@@ -379,13 +385,14 @@ def createWhatsThis(self):
 
         dispInvisActionText = "<u><b>Display Invisible</b></u><br>"\
                        "<p><img source=\"dispInvisAction\"><br> "\
-                       "Changes the display setting of the selected atoms or chunks to "\
-                       "<b>Invisible</b>.</p>"\
-                       "<p>This can also be used to change the active <b>Default Display "\
-                       "Mode</b> to <b>Display Invisible</b> by unselecting everything "\
-                       "(i.e. Select None) and selecting this action. Doing this will make "\
-                       "all atoms and chunks invisible that have their display setting set to "\
-                       "<b>Display Default</b>.</p>"
+                       "Changes the <i>display setting</i> of selected atoms or chunks to "\
+                       "<b>Invisible</b>, making them invisible."\
+                       "</p>"\
+                       "<p>If no atoms or chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>Invisible</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispInvisAction",
                                                        self.dispInvisAction.iconSet().pixmap() )
@@ -396,13 +403,14 @@ def createWhatsThis(self):
 
         dispLinesActionText = "<u><b>Display Lines</b></u><br>"\
                        "<p><img source=\"dispLinesAction\"><br> "\
-                       "Changes the display of the selected atoms or chunks to <b>Lines</b>.  "\
-                       "Only bonds are rendered as colored lines.</p>"\
-                       "<p>This can also be used to change the active <b>Default Display "\
-                       "Mode</b> to <b>Display Lines</b> by unselecting everything "\
-                       "(i.e. Select None) and selecting this action. Doing this will render "\
-                       "all atoms and chunks Lines mode that have their display setting set to "\
-                       "<b>Display Default</b> .</p>"
+                       "Changes the <i>display setting</i> of selected atoms or chunks to "\
+                       " <b>Lines</b>.  Only bonds are rendered as colored lines."\
+                       "</p>"\
+                       "<p>If no atoms or chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>Lines</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispLinesAction",
                                                        self.dispLinesAction.iconSet().pixmap() )
@@ -413,13 +421,14 @@ def createWhatsThis(self):
 
         dispTubesActionText = "<u><b>Display Tubes</b></u><br>"\
                        "<p><img source=\"dispTubesAction\"><br> "\
-                       "Changes the display setting of the selected atoms or chunks to "\
-                       "<b>Tubes</b>.  Atoms and bonds are rendered as colored tubes.</p>"\
-                       "<p>This can also be used to change the active <b>Default Display "\
-                       "Mode</b> to <b>Display Tubes</b> by unselecting everything "\
-                       "(i.e. Select None) and selecting this action. Doing this will render "\
-                       "all atoms and chunks in Tubes mode that have their display setting set to "\
-                       "<b>Display Default</b> .</p>"
+                       "Changes the <i>display setting</i> of selected atoms or chunks to "\
+                       "<b>Tubes</b>.  Atoms and bonds are rendered as colored tubes."\
+                       "</p>"\
+                       "<p>If no atoms or chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>Tubes</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
 
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispTubesAction",
@@ -431,14 +440,15 @@ def createWhatsThis(self):
 
         dispCPKActionText = "<u><b>Display CPK</b></u><br>"\
                        "<p><img source=\"dispCPKAction\"><br> "\
-                       "Changes the display of the selected atoms to <b>CPK</b> mode, "\
-                       "also known as <b>\"Ball and Sticks\"</b> mode.  Atoms are rendered "\
-                       "as spheres and bonds are rendered as grey cylinders.</p>"\
-                       "<p>This can also be used to change the active <b>Default Display "\
-                       "Mode</b> to <b>Display CPK</b> by unselecting everything "\
-                       "(i.e. Select None) and selecting this action. Doing this will render "\
-                       "all atoms and chunks in CPK mode that have their display setting set to "\
-                       "<b>Display Default</b> .</p>"
+                       "Changes the <i>display setting</i> of selected atoms or chunks to "\
+                       "<b>CPK</b> mode, also known as <b>\"Ball and Sticks\"</b> mode.  Atoms are rendered "\
+                       "as spheres and bonds are rendered as narrow cylinders."\
+                       "</p>"\
+                       "<p>If no atoms or chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>CPK</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
                                                        self.dispCPKAction.iconSet().pixmap() )
@@ -449,14 +459,15 @@ def createWhatsThis(self):
 
         dispVdWActionText = "<u><b>Display VdW</b></u><br>"\
                        "<p><img source=\"dispVdWAction\"><br> "\
-                       "Changes the display of the selected atoms to <b>Van der Waals</b> "\
-                       "mode.  Atoms are rendered as spheres with a size equal to the VdW "\
-                       "radius.  Bonds are not rendered.</p>"\
-                       "<p>This can also be used to change the active <b>Default Display "\
-                       "Mode</b> to <b>Display VdW</b> by unselecting everything "\
-                       "(i.e. Select None) and selecting this action. Doing this will render "\
-                       "all atoms and chunks in VdW mode that have their display setting set to "\
-                       "<b>Display Default</b> .</p>"
+                       "Changes the <i>display setting</i> of selected atoms or chunks to "\
+                       "<b>Van der Waals</b> mode.  Atoms are rendered as spheres with "\
+                       "a size equal to the VdW radius.  Bonds are not rendered."\
+                       "</p>"\
+                       "<p>If no atoms or chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>VdW</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
                       
         QMimeSourceFactory.defaultFactory().setPixmap( "dispVdWAction",
                                                        self.dispVdWAction.iconSet().pixmap() )
