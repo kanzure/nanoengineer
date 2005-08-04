@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sun Jul 31 12:33:09 2005
+# Created: Tue Aug 2 19:02:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -469,7 +469,7 @@ class UserPrefsDialog(QDialog):
 
         self.history_height_spinbox = QSpinBox(self.TabPage_4,"history_height_spinbox")
         self.history_height_spinbox.setMaxValue(20)
-        self.history_height_spinbox.setValue(6)
+        self.history_height_spinbox.setValue(4)
         layout9_2.addWidget(self.history_height_spinbox)
 
         self.history_lines_lbl = QLabel(self.TabPage_4,"history_lines_lbl")

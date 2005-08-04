@@ -1379,7 +1379,7 @@
                                     <number>20</number>
                                 </property>
                                 <property name="value">
-                                    <number>6</number>
+                                    <number>4</number>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Number of lines displayed in the history area.</string>
