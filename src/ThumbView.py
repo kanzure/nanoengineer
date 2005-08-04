@@ -47,10 +47,10 @@ class ThumbView(QGLWidget):
         # start in perspective mode
         self.ortho = False #True
         self.initialised = False
-        if shareWidget and hasattr(shareWidget.mode, 'backgroundColor'):
-            self.backgroundColor = shareWidget.mode.backgroundColor
-        else:
-            self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
+        #if shareWidget and hasattr(shareWidget.mode, 'backgroundColor'):
+        #    self.backgroundColor = shareWidget.mode.backgroundColor
+        #else:
+        self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
 
     
     def drawModel(self):
@@ -637,6 +637,8 @@ class MMKitView(ThumbView):
     
     def _fitInWindow(self):
         if not self.mol: return
+        
+        self.quat = Q(1, 0, 0, 0)
         
         self.mol._recompute_bbox()
         self.scale = self.mol.bbox.scale() 

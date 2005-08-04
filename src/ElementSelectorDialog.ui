@@ -349,6 +349,9 @@
                     <property name="text">
                         <string>H</string>
                     </property>
+                    <property name="accel">
+                        <string>H</string>
+                    </property>
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
@@ -389,6 +392,9 @@
                     <property name="text">
                         <string>C</string>
                     </property>
+                    <property name="accel">
+                        <string>C</string>
+                    </property>
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
@@ -409,6 +415,9 @@
                     <property name="text">
                         <string>N</string>
                     </property>
+                    <property name="accel">
+                        <string>N</string>
+                    </property>
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
@@ -427,6 +436,9 @@
                         </size>
                     </property>
                     <property name="text">
+                        <string>O</string>
+                    </property>
+                    <property name="accel">
                         <string>O</string>
                     </property>
                     <property name="toggleButton">
@@ -467,6 +479,9 @@
                         </size>
                     </property>
                     <property name="text">
+                        <string>F</string>
+                    </property>
+                    <property name="accel">
                         <string>F</string>
                     </property>
                     <property name="toggleButton">
@@ -529,6 +544,9 @@
                     <property name="text">
                         <string>B</string>
                     </property>
+                    <property name="accel">
+                        <string>B</string>
+                    </property>
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
@@ -569,6 +587,9 @@
                     <property name="text">
                         <string>P</string>
                     </property>
+                    <property name="accel">
+                        <string>P</string>
+                    </property>
                     <property name="toggleButton">
                         <bool>true</bool>
                     </property>
@@ -587,6 +608,9 @@
                         </size>
                     </property>
                     <property name="text">
+                        <string>S</string>
+                    </property>
+                    <property name="accel">
                         <string>S</string>
                     </property>
                     <property name="toggleButton">

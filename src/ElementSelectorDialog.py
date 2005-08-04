@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
-# Created: Mon Aug 1 15:27:56 2005
+# Created: Thu Aug 4 18:24:55 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -312,18 +312,26 @@ class ElementSelectorDialog(QDialog):
         self.setCaption(self.__tr("Element Selector"))
         self.elementButtonGroup.setTitle(QString.null)
         self.toolButton1.setText(self.__tr("H"))
+        self.toolButton1.setAccel(self.__tr("H"))
         self.toolButton2.setText(self.__tr("He"))
         self.toolButton6.setText(self.__tr("C"))
+        self.toolButton6.setAccel(self.__tr("C"))
         self.toolButton7.setText(self.__tr("N"))
+        self.toolButton7.setAccel(self.__tr("N"))
         self.toolButton8.setText(self.__tr("O"))
+        self.toolButton8.setAccel(self.__tr("O"))
         self.toolButton10.setText(self.__tr("Ne"))
         self.toolButton9.setText(self.__tr("F"))
+        self.toolButton9.setAccel(self.__tr("F"))
         self.toolButton13.setText(self.__tr("Al"))
         self.toolButton17.setText(self.__tr("Cl"))
         self.toolButton5.setText(self.__tr("B"))
+        self.toolButton5.setAccel(self.__tr("B"))
         self.toolButton10_2.setText(self.__tr("Ar"))
         self.toolButton15.setText(self.__tr("P"))
+        self.toolButton15.setAccel(self.__tr("P"))
         self.toolButton16.setText(self.__tr("S"))
+        self.toolButton16.setAccel(self.__tr("S"))
         self.toolButton14.setText(self.__tr("Si"))
         self.toolButton33.setText(self.__tr("As"))
         self.toolButton34.setText(self.__tr("Se"))

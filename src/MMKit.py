@@ -21,6 +21,7 @@ class MMKit(MMKitDialog):
         self.w = win
         self.elemTable = PeriodicTable
         self.displayMode = diTUBES
+        self.elm = None
         
         self.flayout = None
         
@@ -67,16 +68,20 @@ class MMKit(MMKitDialog):
         """Called when the current element has been changed.
            Update non user interactive controls display for current selected 
            element: element label info and element graphics info """
+
+        elm = self.elemTable.getElement(elemNum)
+        if elm == self.elm: return
         
         ## The following statements are redundant in some situations.
         self.elementButtonGroup.setButton(elemNum)
         self.change2ElemPage()
         
-        
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
         
-        self.elemGLPane.changeHybridType(None)
+        #type_id = self.w.hybridComboBox.currentItem()
+        #b_name = self.bond_id2name[type_id]
+        self.elemGLPane.changeHybridType(None)#b_name)
         self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         self.update_hybrid_btngrp()
@@ -153,7 +158,7 @@ class MMKit(MMKitDialog):
         self.w.hybridComboBox.setCurrentItem( type_id )
 
         b_name = self.bond_id2name[type_id]
-        print "Hybrid name: ", b_name
+        #print "Hybrid name: ", b_name
         self.elemGLPane.changeHybridType(b_name)
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
     

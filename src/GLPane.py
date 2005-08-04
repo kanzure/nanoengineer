@@ -896,6 +896,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         """Dispatches mouse motion events depending on shift and
         control key state.
         """
+        ## Huaicai 8/4/05. 
+        self.makeCurrent()
+        
         ##self.debug_event(event, 'mouseMoveEvent')
         but = event.state()
         but = self.fix_buttons(but, 'move')
@@ -925,10 +928,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
                 self.mode.rightDrag(event)
 
         else:
-            #Huaicai: To fix bugs related to multiple rendering contexts existed in our application.
-            # See comments in mousePressEvent() for more detail.
-            self.makeCurrent()
-            
             self.mode.bareMotion(event)
 
     def wheelEvent(self, event):

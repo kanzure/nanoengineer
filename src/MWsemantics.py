@@ -1387,6 +1387,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
+        
         try: #bruce 050606
             from depositMode import update_hybridComboBox
             update_hybridComboBox(self)
@@ -1411,6 +1412,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # element specified as element number
         global elementSelectorWin
         global MMKitWin
+        
         self.Element = elt
         if elementSelectorWin: elementSelectorWin.update_dialog(elt)
         if MMKitWin: MMKitWin.update_dialog(elt)
