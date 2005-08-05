@@ -284,8 +284,10 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
     struct xyz v2;
     double z;
     double m;
+    double theta;
     struct xyz q1;
     struct xyz q2;
+    struct xyz foo;
     struct vdWbuf *nvb;
 
     /* interpolation */
@@ -369,6 +371,9 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
         if (torq[j].dir2) {vsetn(v2,torq[j].b2->ru);}
         else {vset(v2,torq[j].b2->ru);}
 
+#define METHOD3
+
+#ifdef METHOD1
         z = vdot(v1,v2); // = cos(theta)
         m = torq[j].type->kb * (torq[j].type->cosTheta0 - z);
         vmul2c(q1, v1, z);
@@ -377,30 +382,44 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
         vsub(q2, v1);
         vmulc(q1, m * torq[j].b1->invlen);
         vmulc(q2, m * torq[j].b2->invlen);
-		    
-        /*
-		
-        // v1, v2 are the vectors FROM the central atom TO the neighbors
-        if (torq[j].dir1) {vsetn(v1,torq[j].b1->r);}
-        else {vset(v1,torq[j].b1->r);}
-        if (torq[j].dir2) {vsetn(v2,torq[j].b2->r);}
-        else {vset(v2,torq[j].b2->r);}
-				
-        // z = 1.0/sqrt(vdot(v1,v1)*vdot(v2,v2));
-        z = torq[j].b1->invlen * torq[j].b2->invlen;
-        theta = acos(vdot(v1, v2)*z);
+#endif
 
-        v2x(foo, v1, v2);
-        foo=uvec(foo);
-        q1=uvec(vx(v1, foo));
-        q2=uvec(vx(foo, v2));
+#ifdef METHOD2
+        theta = acos(vdot(v1, v2));
+
+        v2x(foo, v1, v2);     // foo = v1 cross v2
+        foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
+        q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
+        q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
 		
         ff = (theta - torq[j].theta0) * torq[j].kb1 * torq[j].b1->invlen;
         vmulc(q1,ff);
         ff = (theta - torq[j].theta0) * torq[j].kb2 * torq[j].b2->invlen;
         vmulc(q2,ff);
-        */
+#endif
 
+#ifdef METHOD3
+
+#define ACOS_POLY_A -0.0820599
+#define ACOS_POLY_B  0.142376
+#define ACOS_POLY_C -0.137239
+#define ACOS_POLY_D -0.969476
+        z = vlen(vsum(v1, v2));
+        theta = Pi + z * (ACOS_POLY_D +
+                     z * (ACOS_POLY_C +
+                     z * (ACOS_POLY_B +
+                     z *  ACOS_POLY_A   )));
+
+        v2x(foo, v1, v2);     // foo = v1 cross v2
+        foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
+        q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
+        q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
+		
+        ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b1->invlen;
+        vmulc(q1,ff);
+        ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b2->invlen;
+        vmulc(q2,ff);
+#endif
 		
 		
         vadd(force[torq[j].ac],q1);
@@ -1501,7 +1520,7 @@ main(int argc,char **argv)
 	    if ((i & 15) == 15)
 		if (PrintFrameNums) printf("\n");
 	    calcloop(IterPerFrame);
-	    snapshot(outf, i);
+	    snapshot(outf, i, AveragePositions);
 	}
 
 	/*  do the time-reversal (for debugging)
@@ -1513,7 +1532,7 @@ main(int argc,char **argv)
 	    if ((i & 15) == 15)
 		printf("\n");
 	    calcloop(IterPerFrame);
-	    snapshot(outf, i);
+	    snapshot(outf, i, AveragePositions);
 	}
 	 */
         writeOutputTrailer(outf, NumFrames);

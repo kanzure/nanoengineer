@@ -13,6 +13,8 @@
 #include "allocate.h"
 #include "hashtable.h"
 
+#include "readers.h"
+
 /* begin tables.h */
 extern struct atomtype element[];
 extern struct bsdata bstab[];
@@ -205,6 +207,8 @@ extern struct xyz *OldPositions;
 extern struct xyz *NewPositions;
 extern struct xyz *Positions;
 extern struct xyz *BestPositions;
+extern struct xyz *BasePositions;
+extern struct xyz *InitialPositions;
 extern struct xyz Center;
 extern struct xyz Bbox[2];
 extern struct A atom[];
@@ -218,9 +222,9 @@ extern struct vdWbuf *Dynobuf;
 extern int Dynoix;
 extern struct A *Space[SPWIDTH][SPWIDTH][SPWIDTH];
 extern int Nexcon;
-extern struct AXLE Constraint[100];
+extern struct AXLE Constraint[];
 extern int Nexmot;
-extern struct MOT Motor[100];
+extern struct MOT Motor[];
 extern double Dt;
 extern double Dx;
 extern double Temperature;

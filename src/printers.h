@@ -24,7 +24,7 @@ extern void writeOutputHeader(FILE *f);
 
 extern void writeOutputTrailer(FILE *f, int frameNumber);
 
-extern void snapshot(FILE *f, int n);
+extern void snapshot(FILE *f, int n, struct xyz *pos);
 
 extern int minshot(FILE *f, int final, struct xyz *pos, double rms, double hifsq, int frameNumber, char *callLocation);
 

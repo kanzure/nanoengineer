@@ -434,18 +434,18 @@ void printAllBonds(FILE *f)
 
 /**
  */
-void snapshot(FILE *outf, int n)
+void snapshot(FILE *outf, int n, struct xyz *pos)
 {
     switch (OutputFormat) {
     case 0:
         fprintf(outf, "%d\nFrame %d, Iteration: %d\n", Nexatom, n, Iteration);
-        writeXYZFrame(outf, AveragePositions);
+        writeXYZFrame(outf, pos);
         break;
     case 1:
-        writeOldFrame(outf, AveragePositions);
+        writeOldFrame(outf, pos);
         break;
     case 2:
-        writeNewFrame(outf, AveragePositions);
+        writeNewFrame(outf, pos);
         break;
     }
 
