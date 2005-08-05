@@ -176,7 +176,7 @@ static void buildIndex(FILE *f, int recordType)
         } else {
             indexBufferLength *= 2;
         }
-        frameIndex = realloc(frameIndex, indexBufferLength);
+        frameIndex = realloc(frameIndex, indexBufferLength * sizeof(struct indexEntry));
         if (frameIndex == NULL) {
             ERROR("out of memory");
         }
