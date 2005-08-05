@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Aug 2 19:02:47 2005
+# Created: Fri Aug 5 09:30:07 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,15 +20,6 @@ class UserPrefsDialog(QDialog):
 
 
         UserPrefsDialogLayout = QGridLayout(self,1,1,11,6,"UserPrefsDialogLayout")
-
-        layout28 = QHBoxLayout(None,0,6,"layout28")
-        spacer7 = QSpacerItem(240,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout28.addItem(spacer7)
-
-        self.ok_btn = QPushButton(self,"ok_btn")
-        layout28.addWidget(self.ok_btn)
-
-        UserPrefsDialogLayout.addLayout(layout28,1,0)
 
         self.prefs_tab = QTabWidget(self,"prefs_tab")
 
@@ -117,9 +108,107 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.tab,QString(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
-        TabPageLayout = QGridLayout(self.TabPage,1,1,11,6,"TabPageLayout")
-        spacer9 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout.addItem(spacer9,0,2)
+        TabPageLayout = QHBoxLayout(self.TabPage,11,6,"TabPageLayout")
+
+        layout59 = QVBoxLayout(None,0,6,"layout59")
+
+        self.atom_colors_grpbox = QGroupBox(self.TabPage,"atom_colors_grpbox")
+        self.atom_colors_grpbox.setColumnLayout(0,Qt.Vertical)
+        self.atom_colors_grpbox.layout().setSpacing(6)
+        self.atom_colors_grpbox.layout().setMargin(11)
+        atom_colors_grpboxLayout = QVBoxLayout(self.atom_colors_grpbox.layout())
+        atom_colors_grpboxLayout.setAlignment(Qt.AlignTop)
+
+        layout58 = QGridLayout(None,1,1,0,6,"layout58")
+
+        self.textLabel3_2_3 = QLabel(self.atom_colors_grpbox,"textLabel3_2_3")
+        self.textLabel3_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout58.addWidget(self.textLabel3_2_3,0,0)
+
+        layout37_2_2_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_2_2")
+
+        self.hotspot_color_frame = QFrame(self.atom_colors_grpbox,"hotspot_color_frame")
+        self.hotspot_color_frame.setMinimumSize(QSize(25,0))
+        self.hotspot_color_frame.setPaletteBackgroundColor(QColor(0,255,0))
+        self.hotspot_color_frame.setFrameShape(QFrame.Box)
+        self.hotspot_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2_2_2.addWidget(self.hotspot_color_frame)
+
+        self.hotspot_color_btn = QPushButton(self.atom_colors_grpbox,"hotspot_color_btn")
+        layout37_2_2_2_2_2_2.addWidget(self.hotspot_color_btn)
+
+        layout58.addLayout(layout37_2_2_2_2_2_2,3,1)
+
+        layout37_2_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_2")
+
+        self.free_valence_color_frame = QFrame(self.atom_colors_grpbox,"free_valence_color_frame")
+        self.free_valence_color_frame.setMinimumSize(QSize(25,0))
+        self.free_valence_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
+        self.free_valence_color_frame.setFrameShape(QFrame.Box)
+        self.free_valence_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2_2.addWidget(self.free_valence_color_frame)
+
+        self.free_valence_color_btn = QPushButton(self.atom_colors_grpbox,"free_valence_color_btn")
+        layout37_2_2_2_2_2.addWidget(self.free_valence_color_btn)
+
+        layout58.addLayout(layout37_2_2_2_2_2,1,1)
+
+        layout37_2_2_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_2_3")
+
+        self.free_valence_hilite_color_frame = QFrame(self.atom_colors_grpbox,"free_valence_hilite_color_frame")
+        self.free_valence_hilite_color_frame.setMinimumSize(QSize(25,0))
+        self.free_valence_hilite_color_frame.setPaletteBackgroundColor(QColor(255,133,133))
+        self.free_valence_hilite_color_frame.setFrameShape(QFrame.Box)
+        self.free_valence_hilite_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2_2_3.addWidget(self.free_valence_hilite_color_frame)
+
+        self.free_valence_hilite_color_btn = QPushButton(self.atom_colors_grpbox,"free_valence_hilite_color_btn")
+        layout37_2_2_2_2_2_3.addWidget(self.free_valence_hilite_color_btn)
+
+        layout58.addLayout(layout37_2_2_2_2_2_3,2,1)
+
+        layout37_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_3")
+
+        self.atom_hilite_color_frame = QFrame(self.atom_colors_grpbox,"atom_hilite_color_frame")
+        self.atom_hilite_color_frame.setMinimumSize(QSize(25,0))
+        self.atom_hilite_color_frame.setPaletteBackgroundColor(QColor(0,170,0))
+        self.atom_hilite_color_frame.setFrameShape(QFrame.Box)
+        self.atom_hilite_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_3.addWidget(self.atom_hilite_color_frame)
+
+        self.atom_hilite_color_btn = QPushButton(self.atom_colors_grpbox,"atom_hilite_color_btn")
+        layout37_2_2_2_3.addWidget(self.atom_hilite_color_btn)
+
+        layout58.addLayout(layout37_2_2_2_3,0,1)
+
+        self.textLabel3_2_2_2_3 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2_3")
+        self.textLabel3_2_2_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout58.addWidget(self.textLabel3_2_2_2_3,2,0)
+
+        self.textLabel3_2_2_2_2 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2_2")
+        self.textLabel3_2_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout58.addWidget(self.textLabel3_2_2_2_2,3,0)
+
+        self.textLabel3_2_2_2 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2")
+        self.textLabel3_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout58.addWidget(self.textLabel3_2_2_2,1,0)
+        atom_colors_grpboxLayout.addLayout(layout58)
+
+        layout25_2 = QHBoxLayout(None,0,6,"layout25_2")
+        spacer20_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout25_2.addItem(spacer20_2)
+
+        self.reset_atom_colors_btn = QPushButton(self.atom_colors_grpbox,"reset_atom_colors_btn")
+        layout25_2.addWidget(self.reset_atom_colors_btn)
+        atom_colors_grpboxLayout.addLayout(layout25_2)
+        layout59.addWidget(self.atom_colors_grpbox)
+        spacer11_4 = QSpacerItem(20,3,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout59.addItem(spacer11_4)
+        TabPageLayout.addLayout(layout59)
 
         layout22 = QVBoxLayout(None,0,6,"layout22")
 
@@ -152,112 +241,15 @@ class UserPrefsDialog(QDialog):
         layout22.addWidget(self.default_display_btngrp)
         spacer11 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout22.addItem(spacer11)
-
-        TabPageLayout.addLayout(layout22,0,1)
-
-        layout30 = QVBoxLayout(None,0,6,"layout30")
-
-        self.atom_colors_grpbox = QGroupBox(self.TabPage,"atom_colors_grpbox")
-        self.atom_colors_grpbox.setColumnLayout(0,Qt.Vertical)
-        self.atom_colors_grpbox.layout().setSpacing(6)
-        self.atom_colors_grpbox.layout().setMargin(11)
-        atom_colors_grpboxLayout = QVBoxLayout(self.atom_colors_grpbox.layout())
-        atom_colors_grpboxLayout.setAlignment(Qt.AlignTop)
-
-        layout29 = QGridLayout(None,1,1,0,6,"layout29")
-
-        layout37_2_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_2")
-
-        self.free_valence_color_frame = QFrame(self.atom_colors_grpbox,"free_valence_color_frame")
-        self.free_valence_color_frame.setMinimumSize(QSize(25,0))
-        self.free_valence_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
-        self.free_valence_color_frame.setFrameShape(QFrame.Box)
-        self.free_valence_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2_2.addWidget(self.free_valence_color_frame)
-
-        self.free_valence_color_btn = QPushButton(self.atom_colors_grpbox,"free_valence_color_btn")
-        layout37_2_2_2_2_2.addWidget(self.free_valence_color_btn)
-
-        layout29.addLayout(layout37_2_2_2_2_2,1,1)
-
-        self.textLabel3_2_2_2 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2")
-        self.textLabel3_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout29.addWidget(self.textLabel3_2_2_2,1,0)
-
-        layout37_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_3")
-
-        self.atom_hilite_color_frame = QFrame(self.atom_colors_grpbox,"atom_hilite_color_frame")
-        self.atom_hilite_color_frame.setMinimumSize(QSize(25,0))
-        self.atom_hilite_color_frame.setPaletteBackgroundColor(QColor(0,170,0))
-        self.atom_hilite_color_frame.setFrameShape(QFrame.Box)
-        self.atom_hilite_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_3.addWidget(self.atom_hilite_color_frame)
-
-        self.atom_hilite_color_btn = QPushButton(self.atom_colors_grpbox,"atom_hilite_color_btn")
-        layout37_2_2_2_3.addWidget(self.atom_hilite_color_btn)
-
-        layout29.addLayout(layout37_2_2_2_3,0,1)
-
-        self.textLabel3_2_3 = QLabel(self.atom_colors_grpbox,"textLabel3_2_3")
-        self.textLabel3_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout29.addWidget(self.textLabel3_2_3,0,0)
-        atom_colors_grpboxLayout.addLayout(layout29)
-
-        layout25_2 = QHBoxLayout(None,0,6,"layout25_2")
-        spacer20_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout25_2.addItem(spacer20_2)
-
-        self.reset_atom_colors_btn = QPushButton(self.atom_colors_grpbox,"reset_atom_colors_btn")
-        layout25_2.addWidget(self.reset_atom_colors_btn)
-        atom_colors_grpboxLayout.addLayout(layout25_2)
-        layout30.addWidget(self.atom_colors_grpbox)
-        spacer11_4 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout30.addItem(spacer11_4)
-
-        TabPageLayout.addLayout(layout30,0,0)
+        TabPageLayout.addLayout(layout22)
+        spacer9 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout.addItem(spacer9)
         self.prefs_tab.insertTab(self.TabPage,QString(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
-        TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
+        TabPageLayout_2 = QHBoxLayout(self.TabPage_2,11,6,"TabPageLayout_2")
 
-        layout27 = QVBoxLayout(None,0,6,"layout27")
-
-        self.high_order_bond_display_btngrp = QButtonGroup(self.TabPage_2,"high_order_bond_display_btngrp")
-        self.high_order_bond_display_btngrp.setExclusive(1)
-        self.high_order_bond_display_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.high_order_bond_display_btngrp.layout().setSpacing(6)
-        self.high_order_bond_display_btngrp.layout().setMargin(11)
-        high_order_bond_display_btngrpLayout = QGridLayout(self.high_order_bond_display_btngrp.layout())
-        high_order_bond_display_btngrpLayout.setAlignment(Qt.AlignTop)
-
-        self.radioButton11_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2")
-        self.high_order_bond_display_btngrp.insert( self.radioButton11_2,1)
-
-        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2,1,0)
-
-        self.radioButton11 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11")
-        self.radioButton11.setChecked(1)
-        self.high_order_bond_display_btngrp.insert( self.radioButton11,0)
-
-        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11,0,0)
-
-        self.radioButton11_2_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2_2")
-
-        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2_2,2,0)
-        layout27.addWidget(self.high_order_bond_display_btngrp)
-
-        self.show_bond_labels_checkbox = QCheckBox(self.TabPage_2,"show_bond_labels_checkbox")
-        layout27.addWidget(self.show_bond_labels_checkbox)
-        spacer18 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout27.addItem(spacer18)
-
-        TabPageLayout_2.addLayout(layout27,0,1)
-        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_2.addItem(spacer19,0,2)
-
-        layout31 = QVBoxLayout(None,0,6,"layout31")
+        layout63 = QVBoxLayout(None,0,6,"layout63")
 
         self.groupBox4 = QGroupBox(self.TabPage_2,"groupBox4")
         self.groupBox4.setColumnLayout(0,Qt.Vertical)
@@ -266,36 +258,7 @@ class UserPrefsDialog(QDialog):
         groupBox4Layout = QVBoxLayout(self.groupBox4.layout())
         groupBox4Layout.setAlignment(Qt.AlignTop)
 
-        layout26 = QGridLayout(None,1,1,0,6,"layout26")
-
-        self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
-        self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout26.addWidget(self.textLabel3_2_2,1,0)
-
-        layout37_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2")
-
-        self.bond_stretch_color_frame = QFrame(self.groupBox4,"bond_stretch_color_frame")
-        self.bond_stretch_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_stretch_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
-        self.bond_stretch_color_frame.setFrameShape(QFrame.Box)
-        self.bond_stretch_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2.addWidget(self.bond_stretch_color_frame)
-
-        self.bond_stretch_color_btn = QPushButton(self.groupBox4,"bond_stretch_color_btn")
-        layout37_2_2_2_2.addWidget(self.bond_stretch_color_btn)
-
-        layout26.addLayout(layout37_2_2_2_2,1,1)
-
-        self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
-        self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout26.addWidget(self.textLabel3_2,0,0)
-
-        self.textLabel3_3 = QLabel(self.groupBox4,"textLabel3_3")
-        self.textLabel3_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout26.addWidget(self.textLabel3_3,2,0)
+        layout61 = QGridLayout(None,1,1,0,6,"layout61")
 
         layout37_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2")
 
@@ -309,21 +272,7 @@ class UserPrefsDialog(QDialog):
         self.bond_hilite_color_btn = QPushButton(self.groupBox4,"bond_hilite_color_btn")
         layout37_2_2_2.addWidget(self.bond_hilite_color_btn)
 
-        layout26.addLayout(layout37_2_2_2,0,1)
-
-        layout37_2_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_3")
-
-        self.bond_vane_color_frame = QFrame(self.groupBox4,"bond_vane_color_frame")
-        self.bond_vane_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_vane_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
-        self.bond_vane_color_frame.setFrameShape(QFrame.Box)
-        self.bond_vane_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_frame)
-
-        self.bond_vane_color_btn = QPushButton(self.groupBox4,"bond_vane_color_btn")
-        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_btn)
-
-        layout26.addLayout(layout37_2_2_2_2_3,2,1)
+        layout61.addLayout(layout37_2_2_2,0,1)
 
         layout37_2_2 = QHBoxLayout(None,0,6,"layout37_2_2")
 
@@ -337,13 +286,75 @@ class UserPrefsDialog(QDialog):
         self.bond_cpk_color_btn = QPushButton(self.groupBox4,"bond_cpk_color_btn")
         layout37_2_2.addWidget(self.bond_cpk_color_btn)
 
-        layout26.addLayout(layout37_2_2,3,1)
+        layout61.addLayout(layout37_2_2,1,1)
+
+        layout37_2_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_3")
+
+        self.bond_vane_color_frame = QFrame(self.groupBox4,"bond_vane_color_frame")
+        self.bond_vane_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_vane_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
+        self.bond_vane_color_frame.setFrameShape(QFrame.Box)
+        self.bond_vane_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_frame)
+
+        self.bond_vane_color_btn = QPushButton(self.groupBox4,"bond_vane_color_btn")
+        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_btn)
+
+        layout61.addLayout(layout37_2_2_2_2_3,4,1)
+
+        self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
+        self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout61.addWidget(self.textLabel3_2_2,2,0)
+
+        self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
+        self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout61.addWidget(self.textLabel3_2,0,0)
+
+        layout37_2_2_2_2_4 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_4")
+
+        self.bond_stretch_hilite_color_frame = QFrame(self.groupBox4,"bond_stretch_hilite_color_frame")
+        self.bond_stretch_hilite_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_stretch_hilite_color_frame.setPaletteBackgroundColor(QColor(152,36,154))
+        self.bond_stretch_hilite_color_frame.setFrameShape(QFrame.Box)
+        self.bond_stretch_hilite_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2_4.addWidget(self.bond_stretch_hilite_color_frame)
+
+        self.bond_stretch_hilite_color_btn = QPushButton(self.groupBox4,"bond_stretch_hilite_color_btn")
+        layout37_2_2_2_2_4.addWidget(self.bond_stretch_hilite_color_btn)
+
+        layout61.addLayout(layout37_2_2_2_2_4,3,1)
+
+        self.textLabel3_3 = QLabel(self.groupBox4,"textLabel3_3")
+        self.textLabel3_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout61.addWidget(self.textLabel3_3,4,0)
+
+        self.textLabel3_2_2_3 = QLabel(self.groupBox4,"textLabel3_2_2_3")
+        self.textLabel3_2_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout61.addWidget(self.textLabel3_2_2_3,3,0)
+
+        layout37_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2")
+
+        self.bond_stretch_color_frame = QFrame(self.groupBox4,"bond_stretch_color_frame")
+        self.bond_stretch_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_stretch_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
+        self.bond_stretch_color_frame.setFrameShape(QFrame.Box)
+        self.bond_stretch_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2.addWidget(self.bond_stretch_color_frame)
+
+        self.bond_stretch_color_btn = QPushButton(self.groupBox4,"bond_stretch_color_btn")
+        layout37_2_2_2_2.addWidget(self.bond_stretch_color_btn)
+
+        layout61.addLayout(layout37_2_2_2_2,2,1)
 
         self.textLabel3 = QLabel(self.groupBox4,"textLabel3")
         self.textLabel3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout26.addWidget(self.textLabel3,3,0)
-        groupBox4Layout.addLayout(layout26)
+        layout61.addWidget(self.textLabel3,1,0)
+        groupBox4Layout.addLayout(layout61)
 
         layout25 = QHBoxLayout(None,0,6,"layout25")
         spacer20 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -352,11 +363,41 @@ class UserPrefsDialog(QDialog):
         self.reset_bond_colors_btn = QPushButton(self.groupBox4,"reset_bond_colors_btn")
         layout25.addWidget(self.reset_bond_colors_btn)
         groupBox4Layout.addLayout(layout25)
-        layout31.addWidget(self.groupBox4)
-        spacer22 = QSpacerItem(20,4,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout31.addItem(spacer22)
+        layout63.addWidget(self.groupBox4)
+        spacer22 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout63.addItem(spacer22)
+        TabPageLayout_2.addLayout(layout63)
 
-        TabPageLayout_2.addLayout(layout31,0,0)
+        layout62 = QVBoxLayout(None,0,6,"layout62")
+
+        self.high_order_bond_display_btngrp = QButtonGroup(self.TabPage_2,"high_order_bond_display_btngrp")
+        self.high_order_bond_display_btngrp.setExclusive(1)
+        self.high_order_bond_display_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.high_order_bond_display_btngrp.layout().setSpacing(6)
+        self.high_order_bond_display_btngrp.layout().setMargin(11)
+        high_order_bond_display_btngrpLayout = QVBoxLayout(self.high_order_bond_display_btngrp.layout())
+        high_order_bond_display_btngrpLayout.setAlignment(Qt.AlignTop)
+
+        self.radioButton11 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11")
+        self.radioButton11.setChecked(1)
+        self.high_order_bond_display_btngrp.insert( self.radioButton11,0)
+        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11)
+
+        self.radioButton11_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2")
+        self.high_order_bond_display_btngrp.insert( self.radioButton11_2,1)
+        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2)
+
+        self.radioButton11_2_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2_2")
+        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2_2)
+        layout62.addWidget(self.high_order_bond_display_btngrp)
+
+        self.show_bond_labels_checkbox = QCheckBox(self.TabPage_2,"show_bond_labels_checkbox")
+        layout62.addWidget(self.show_bond_labels_checkbox)
+        spacer18 = QSpacerItem(20,69,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout62.addItem(spacer18)
+        TabPageLayout_2.addLayout(layout62)
+        spacer19 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_2.addItem(spacer19)
         self.prefs_tab.insertTab(self.TabPage_2,QString(""))
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
@@ -534,9 +575,18 @@ class UserPrefsDialog(QDialog):
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
+        layout28 = QHBoxLayout(None,0,6,"layout28")
+        spacer7 = QSpacerItem(240,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout28.addItem(spacer7)
+
+        self.ok_btn = QPushButton(self,"ok_btn")
+        layout28.addWidget(self.ok_btn)
+
+        UserPrefsDialogLayout.addLayout(layout28,1,0)
+
         self.languageChange()
 
-        self.resize(QSize(476,318).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(520,370).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
@@ -563,11 +613,13 @@ class UserPrefsDialog(QDialog):
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
+        self.connect(self.free_valence_hilite_color_btn,SIGNAL("clicked()"),self.change_free_valence_hilite_color)
+        self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
+        self.connect(self.bond_stretch_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_hilite_color)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Preferences"))
-        self.ok_btn.setText(self.__tr("OK"))
         self.groupBox7_2.setTitle(self.__tr("Compass and Axes"))
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
         self.display_origin_axis_checkbox.setText(self.__tr("Display Origin Axis"))
@@ -582,33 +634,39 @@ class UserPrefsDialog(QDialog):
         self.gamess_lbl.setText(self.__tr("GAMESS Executable :"))
         QToolTip.add(self.gamess_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
+        self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
+        self.textLabel3_2_3.setText(self.__tr("Atom Highlighting :"))
+        self.hotspot_color_btn.setText(self.__tr("Choose..."))
+        self.free_valence_color_btn.setText(self.__tr("Choose..."))
+        self.free_valence_hilite_color_btn.setText(self.__tr("Choose..."))
+        self.atom_hilite_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel3_2_2_2_3.setText(self.__tr("Free Valence Highlighting  :"))
+        self.textLabel3_2_2_2_2.setText(self.__tr("Free Valence Hotspot  :"))
+        self.textLabel3_2_2_2.setText(self.__tr("Free Valences  :"))
+        self.reset_atom_colors_btn.setText(self.__tr("Reset Colors"))
         self.default_display_btngrp.setTitle(self.__tr("Default Display"))
         self.vwd_rbtn.setText(self.__tr("VdW"))
         self.cpk_rbtn.setText(self.__tr("CPK"))
         self.lines_rbtn.setText(self.__tr("Lines"))
         self.tubes_rbtn.setText(self.__tr("Tubes"))
-        self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
-        self.free_valence_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3_2_2_2.setText(self.__tr("Free Valences  :"))
-        self.atom_hilite_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3_2_3.setText(self.__tr("Highlighting :"))
-        self.reset_atom_colors_btn.setText(self.__tr("Reset Colors"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Atoms"))
-        self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bond Display"))
-        self.radioButton11_2.setText(self.__tr("Vanes"))
-        self.radioButton11.setText(self.__tr("Mulitple Cylinders"))
-        self.radioButton11_2_2.setText(self.__tr("Ribbons"))
-        self.show_bond_labels_checkbox.setText(self.__tr("Show Bond Labels"))
         self.groupBox4.setTitle(self.__tr("Colors"))
-        self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
-        self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3_2.setText(self.__tr("Highlighting :"))
-        self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
         self.bond_hilite_color_btn.setText(self.__tr("Choose..."))
-        self.bond_vane_color_btn.setText(self.__tr("Choose..."))
         self.bond_cpk_color_btn.setText(self.__tr("Choose..."))
+        self.bond_vane_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
+        self.textLabel3_2.setText(self.__tr("Bond Highlighting :"))
+        self.bond_stretch_hilite_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
+        self.textLabel3_2_2_3.setText(self.__tr("Bond Stretch Highlighting :"))
+        self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3.setText(self.__tr("CPK Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Reset Colors"))
+        self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bonds"))
+        self.radioButton11.setText(self.__tr("Mulitple Cylinders"))
+        self.radioButton11_2.setText(self.__tr("Vanes"))
+        self.radioButton11_2_2.setText(self.__tr("Ribbons"))
+        self.show_bond_labels_checkbox.setText(self.__tr("Show Bond Labels"))
         self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Bonds"))
         self.bg2_color_lbl.setText(self.__tr("Color 2 :"))
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
@@ -647,6 +705,7 @@ class UserPrefsDialog(QDialog):
         self.caption_suffix_linedit.setText(QString.null)
         self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Caption"))
+        self.ok_btn.setText(self.__tr("OK"))
 
 
     def display_compass(self):
@@ -717,6 +776,15 @@ class UserPrefsDialog(QDialog):
 
     def reset_atom_colors(self):
         print "UserPrefsDialog.reset_atom_colors(): Not implemented yet"
+
+    def change_free_valence_hilite_color(self):
+        print "UserPrefsDialog.change_free_valence_hilite_color(): Not implemented yet"
+
+    def change_hotspot_color(self):
+        print "UserPrefsDialog.change_hotspot_color(): Not implemented yet"
+
+    def change_bond_stretch_hilite_color(self):
+        print "UserPrefsDialog.change_bond_stretch_hilite_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)
