@@ -937,7 +937,7 @@
                                             <cstring>radioButton11</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Mulitple Cylinders</string>
+                                            <string>Multiple Cylinders</string>
                                         </property>
                                         <property name="checked">
                                             <bool>true</bool>

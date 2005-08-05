@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Aug 5 09:41:04 2005
+# Created: Fri Aug 5 09:48:50 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -619,7 +619,7 @@ class UserPrefsDialog(QDialog):
         self.textLabel3.setText(self.__tr("CPK Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Reset Colors"))
         self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bonds"))
-        self.radioButton11.setText(self.__tr("Mulitple Cylinders"))
+        self.radioButton11.setText(self.__tr("Multiple Cylinders"))
         self.radioButton11_2.setText(self.__tr("Vanes"))
         self.radioButton11_2_2.setText(self.__tr("Ribbons"))
         self.show_bond_labels_checkbox.setText(self.__tr("Show Bond Labels"))
