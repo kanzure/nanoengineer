@@ -37,9 +37,16 @@ class MMKit(MMKitDialog):
         self.connect(self.w.elemChangeComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
         self.connect(self.w.pasteComboBox, SIGNAL("activated(const QString&)"), self.change2PastePage)
         
-        self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("pressed()"), self.change2PastePage) 
+        #self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("pressed()"), self.change2PastePage) 
+        self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
         self.connect(self.w.depositAtomDashboard.atomRB, SIGNAL("pressed()"), self.change2ElemPage)
         
+    
+    def pasteBtnStateChanged(self, state):
+        '''Slot method. Called when the state of the paste button of deposit dashboard has been changed. '''
+        if state == QButton.On:
+            self.change2PastePage()
+
 
     def hybridChangedOutside(self, newId):
         '''Slot method. Called when user change element hybridization from the dashboard. 

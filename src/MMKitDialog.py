@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Wed Aug 3 16:53:08 2005
+# Created: Fri Aug 5 11:06:33 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -406,12 +406,16 @@ class MMKitDialog(QDialog):
         self.toolButton32.setText(self.__tr("Ge"))
         self.hybrid_btngrp.setTitle(QString.null)
         self.sp3_btn.setText(QString.null)
+        self.sp3_btn.setAccel(self.__tr("3"))
         QToolTip.add(self.sp3_btn,self.__tr("sp3"))
         self.sp2_btn.setText(QString.null)
+        self.sp2_btn.setAccel(self.__tr("2"))
         QToolTip.add(self.sp2_btn,self.__tr("sp2"))
         self.sp_btn.setText(QString.null)
+        self.sp_btn.setAccel(self.__tr("1"))
         QToolTip.add(self.sp_btn,self.__tr("sp"))
         self.graphitic_btn.setText(QString.null)
+        self.graphitic_btn.setAccel(self.__tr("4"))
         QToolTip.add(self.graphitic_btn,self.__tr("Graphitic"))
         self.tabWidget2.changeTab(self.tab,self.__tr("Atoms"))
         self.textLabel1.setText(self.__tr("Pastable Chunks:"))

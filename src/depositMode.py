@@ -153,22 +153,33 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.pasteRB = QPushButton("", bg)
     w.depositAtomDashboard.pasteRB.setPixmap(imagename_to_pixmap('paste1.png'))
     w.depositAtomDashboard.pasteRB.setToggleButton(1)
+    QToolTip.add(w.depositAtomDashboard.pasteRB, qApp.translate("MainWindow","Paste", None))
+    
     w.depositAtomDashboard.atomRB = QPushButton("", bg)
     w.depositAtomDashboard.atomRB.setPixmap(imagename_to_pixmap('atom.png'))
     w.depositAtomDashboard.atomRB.setToggleButton(1)
+    QToolTip.add(w.depositAtomDashboard.atomRB, qApp.translate("MainWindow","Deposit", None))
     
     w.depositAtomDashboard.bond1RB = QPushButton("", bg2)
     w.depositAtomDashboard.bond1RB.setPixmap(imagename_to_pixmap('bond1.png'))
     w.depositAtomDashboard.bond1RB.setToggleButton(1)
+    QToolTip.add(w.depositAtomDashboard.bond1RB, qApp.translate("MainWindow","Single bond", None))
+    
     w.depositAtomDashboard.bond2RB = QPushButton("", bg2)
     w.depositAtomDashboard.bond2RB.setPixmap(imagename_to_pixmap('bond2.png'))
     w.depositAtomDashboard.bond2RB.setToggleButton(1)
+    QToolTip.add(w.depositAtomDashboard.bond2RB, qApp.translate("MainWindow","Double bond", None))
+    
     w.depositAtomDashboard.bond3RB = QPushButton("", bg2)
     w.depositAtomDashboard.bond3RB.setPixmap(imagename_to_pixmap('bond3.png'))
     w.depositAtomDashboard.bond3RB.setToggleButton(1)
+    QToolTip.add(w.depositAtomDashboard.bond3RB, qApp.translate("MainWindow","Triple bond", None))
+    
     w.depositAtomDashboard.bondaRB = QPushButton("", bg2)
     w.depositAtomDashboard.bondaRB.setPixmap(imagename_to_pixmap('bonda.png'))
     w.depositAtomDashboard.bondaRB.setToggleButton(1)
+    QToolTip.add(w.depositAtomDashboard.bondaRB, qApp.translate("MainWindow","Aromatic bond", None))
+    
     
     # Bruce, the following line may be needed to fix a bug on MacOS, in which
     # a button with a pixmap will automatically shrink to a very small size and
@@ -588,6 +599,16 @@ class depositMode(basicMode):
         for sym, code, num in elemKeyTab:
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
+	
+	## Huaicai 8/5/05 Add accelerate key for bond hybrid comboBox
+	if self.w.hybridComboBox.isVisible():
+	    acKeys = [Qt.Key_3, Qt.Key_2, Qt.Key_1, Qt.Key_4]
+	    num = self.w.hybridComboBox.count()
+	    if key in acKeys[:num]:
+		hybridId = acKeys.index(key)
+		self.w.hybridComboBox.setCurrentItem(hybridId)
+		self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
+	
         basicMode.keyPress(self,key) # bruce 050128
         return
 
