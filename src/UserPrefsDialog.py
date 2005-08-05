@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Aug 5 09:30:07 2005
+# Created: Fri Aug 5 09:41:04 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -154,20 +154,6 @@ class UserPrefsDialog(QDialog):
 
         layout58.addLayout(layout37_2_2_2_2_2,1,1)
 
-        layout37_2_2_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_2_3")
-
-        self.free_valence_hilite_color_frame = QFrame(self.atom_colors_grpbox,"free_valence_hilite_color_frame")
-        self.free_valence_hilite_color_frame.setMinimumSize(QSize(25,0))
-        self.free_valence_hilite_color_frame.setPaletteBackgroundColor(QColor(255,133,133))
-        self.free_valence_hilite_color_frame.setFrameShape(QFrame.Box)
-        self.free_valence_hilite_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2_2_3.addWidget(self.free_valence_hilite_color_frame)
-
-        self.free_valence_hilite_color_btn = QPushButton(self.atom_colors_grpbox,"free_valence_hilite_color_btn")
-        layout37_2_2_2_2_2_3.addWidget(self.free_valence_hilite_color_btn)
-
-        layout58.addLayout(layout37_2_2_2_2_2_3,2,1)
-
         layout37_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_3")
 
         self.atom_hilite_color_frame = QFrame(self.atom_colors_grpbox,"atom_hilite_color_frame")
@@ -181,11 +167,6 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_3.addWidget(self.atom_hilite_color_btn)
 
         layout58.addLayout(layout37_2_2_2_3,0,1)
-
-        self.textLabel3_2_2_2_3 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2_3")
-        self.textLabel3_2_2_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout58.addWidget(self.textLabel3_2_2_2_3,2,0)
 
         self.textLabel3_2_2_2_2 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2_2")
         self.textLabel3_2_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
@@ -312,29 +293,10 @@ class UserPrefsDialog(QDialog):
 
         layout61.addWidget(self.textLabel3_2,0,0)
 
-        layout37_2_2_2_2_4 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_4")
-
-        self.bond_stretch_hilite_color_frame = QFrame(self.groupBox4,"bond_stretch_hilite_color_frame")
-        self.bond_stretch_hilite_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_stretch_hilite_color_frame.setPaletteBackgroundColor(QColor(152,36,154))
-        self.bond_stretch_hilite_color_frame.setFrameShape(QFrame.Box)
-        self.bond_stretch_hilite_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2_4.addWidget(self.bond_stretch_hilite_color_frame)
-
-        self.bond_stretch_hilite_color_btn = QPushButton(self.groupBox4,"bond_stretch_hilite_color_btn")
-        layout37_2_2_2_2_4.addWidget(self.bond_stretch_hilite_color_btn)
-
-        layout61.addLayout(layout37_2_2_2_2_4,3,1)
-
         self.textLabel3_3 = QLabel(self.groupBox4,"textLabel3_3")
         self.textLabel3_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout61.addWidget(self.textLabel3_3,4,0)
-
-        self.textLabel3_2_2_3 = QLabel(self.groupBox4,"textLabel3_2_2_3")
-        self.textLabel3_2_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout61.addWidget(self.textLabel3_2_2_3,3,0)
 
         layout37_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2")
 
@@ -613,9 +575,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
-        self.connect(self.free_valence_hilite_color_btn,SIGNAL("clicked()"),self.change_free_valence_hilite_color)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
-        self.connect(self.bond_stretch_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_hilite_color)
 
 
     def languageChange(self):
@@ -638,9 +598,7 @@ class UserPrefsDialog(QDialog):
         self.textLabel3_2_3.setText(self.__tr("Atom Highlighting :"))
         self.hotspot_color_btn.setText(self.__tr("Choose..."))
         self.free_valence_color_btn.setText(self.__tr("Choose..."))
-        self.free_valence_hilite_color_btn.setText(self.__tr("Choose..."))
         self.atom_hilite_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3_2_2_2_3.setText(self.__tr("Free Valence Highlighting  :"))
         self.textLabel3_2_2_2_2.setText(self.__tr("Free Valence Hotspot  :"))
         self.textLabel3_2_2_2.setText(self.__tr("Free Valences  :"))
         self.reset_atom_colors_btn.setText(self.__tr("Reset Colors"))
@@ -656,9 +614,7 @@ class UserPrefsDialog(QDialog):
         self.bond_vane_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
         self.textLabel3_2.setText(self.__tr("Bond Highlighting :"))
-        self.bond_stretch_hilite_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
-        self.textLabel3_2_2_3.setText(self.__tr("Bond Stretch Highlighting :"))
         self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3.setText(self.__tr("CPK Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Reset Colors"))
@@ -777,14 +733,8 @@ class UserPrefsDialog(QDialog):
     def reset_atom_colors(self):
         print "UserPrefsDialog.reset_atom_colors(): Not implemented yet"
 
-    def change_free_valence_hilite_color(self):
-        print "UserPrefsDialog.change_free_valence_hilite_color(): Not implemented yet"
-
     def change_hotspot_color(self):
         print "UserPrefsDialog.change_hotspot_color(): Not implemented yet"
-
-    def change_bond_stretch_hilite_color(self):
-        print "UserPrefsDialog.change_bond_stretch_hilite_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)
