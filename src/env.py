@@ -54,6 +54,8 @@ bruce 050610 made this module (since we've needed it for awhile), under the name
 (since "global" is a Python keyword).
 
 bruce 050627 renamed this module to "env.py", since "globals" is a Python builtin function.
+
+bruce 050803 new features to help with graphics updates when preferences are changed 
 '''
 
 __author__ = 'bruce'
@@ -132,6 +134,15 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
         process_changed_bond_types( _changed_bond_types)
             ###k our interface to that function needs review if it can recursively add bonds to this dict -- if so, it should .clear
         _changed_bond_types.clear()
+    return
+
+# ==
+
+def track(thing): #bruce 050804
+    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    if platform.atom_debug:
+        print "atom_debug: fyi (from env module): something asked to be tracked, but nothing is tracking: ", thing
+        # if this happens and is not an error, then we'll zap the message.
     return
 
 # end

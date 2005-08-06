@@ -66,7 +66,32 @@ default_display_mode = diVDW # Now in user prefs db, set in GLPane.__init__ [Mar
 
 TubeRadius = 0.3
 
-#colors
+# ave_colors() logically belongs in some "color utilities file",
+# but is here so it is defined early enough for use in computing default values
+# of user preferences in prefs_constants.py.
+
+def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handles.py, and revised it
+    """Return a weighted average of two colors,
+    where weight gives the amount of color1 to include.
+    (E.g., weight of 1.0 means use only color1, 0.0 means use only color2,
+    and ave_colors(0.8, color, black) makes color slightly darker.)
+       Color format is a 3-tuple of RGB components from 0.0 to 1.0
+    (e.g. black is (0.0, 0.0, 0.0), white is (1.0, 1.0, 1.0)).
+    This is also the standard format for colors in our preferences database
+    (which contains primitive Python objects encoded by the shelve module).
+       Input color components can be ints, but those are coerced to floats,
+    NOT treated as in the range [0,255] like some other color-related functions do.
+    Output components are always floats.
+       Input colors can be any 3-sequences (including Numeric arrays);
+    output color is always a tuple.
+    """
+    #e (perhaps we could optimize this using some Numeric method)
+    weight = float(weight)
+    return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
+
+# colors [some of the ones whose names describe their function
+# are default values for user preferences]
+
 black =  (0.0, 0.0, 0.0)
 blue =   (0.0, 0.0, 0.6)
 aqua =   (0.15, 1.0, 1.0)
@@ -82,9 +107,7 @@ darkred = (0.6, 0.0, 0.2)
 violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
 
 LEDoff = (0.8, 0.0, 0.0)
-LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added another name; old value was (1.0, 0.5, 0.5)
-
-bondColor = (0.25, 0.25, 0.25)
+LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added the name 'pink'; old value was (1.0, 0.5, 0.5)
 
 PickedColor = (0.0, 0.0, 1.0)
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)
@@ -120,36 +143,8 @@ SELWHAT_ATOMS = 0
 SELWHAT_CHUNKS = 2
 SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in messages
 
-# Keys for user preferences for A6 [moved here from UserPrefs.py by Mark 050629]
+# Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
 
-# General prefs
-gmspath_prefs_key = 'A6/GAMESS Path'
-displayCompass_prefs_key = 'A6/Display Compass'
-compassPosition_prefs_key = 'A6/Compass Position'
-displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
-displayPOVAxis_prefs_key = 'A6/Display POV Axis'
-
-# Atom prefs
-atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
-freeValenceColor_prefs_key = 'A6/Free Valence Color'
-defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
-
-# Bond prefs
-bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
-bondStretchColor_prefs_key = 'A6/Bond Stretch Color'
-bondVaneColor_prefs_key = 'A6/Bond Vane Color'
-bondCPKColor_prefs_key = 'A6/Bond CPK Color'
-bondHybridsDisplay_prefs_key = 'A6/Bond Hybrid Display'
-bondShowLabels_prefs_key = 'A6/Bond Show Labels'
-
-# Caption prefs
-captionPrefix_prefs_key = 'A6/Caption Prefix'
-captionSuffix_prefs_key = 'A6/Caption Suffix'
-captionFullPath_prefs_key = 'A6/Caption Full Path'
-
-# History prefs
-historyHeight_prefs_key = 'A6/History Height'
-historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
-historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
+from prefs_constants import * #e when it's practical after A6, this import should be removed
 
 # end

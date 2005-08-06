@@ -776,7 +776,7 @@ class Bond:
         callers change display mode but don't set havelist = 0, but maybe they do).
         Lines or tubes change color from atom to atom, and are red in the middle
         for long bonds. CPK bonds are drawn in the calling molecule's color or
-        in the constant bondColor (which is light gray).
+        in the user pref color whose default value used to be called bondColor (which is light gray).
            Note that all drawing coords are based on either .posn or .baseposn
         of the atoms, according to whether this is an external or internal bond,
         and the caller has to draw those kinds of bonds in the proper coordinate
@@ -796,6 +796,9 @@ class Bond:
 
     def legal_for_atomtypes(self): #bruce 050716
         v6 = self.v6
+        return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
+    
+    def permits_v6(self, v6): #bruce 050806 #e should merge this somehow with self.legal_for_atomtypes()
         return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
 
     def draw_in_abs_coords(self, glpane, color): #bruce 050609

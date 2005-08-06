@@ -377,20 +377,99 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False): #bruce
         pass
     return # from modify_iconset_On_states
 
+###e the following QToolButton stuff should probably be refiled into widgets.py ####@@@@
+
+from qt import QToolButton
+
 def hack_QToolButton(qtoolbutton, win): #bruce 050729 experiment to work around QToolButton bug in Mac OS X 10.4 Tiger
-    import platform
-    if platform.atom_debug:
-        print "atom_debug: win.usesBigPixmaps()", win.usesBigPixmaps() # spelling with 's' at end is correct
-        # This prints False for Tiger, but the actual buttons in toolbars are 32x32 with only 22x22 used in the middle,
-        # and the Small state pixmaps in the iconsets (22x22) are the ones being used here (based on which modifications matter).
-        # Doing win.setUsesBigPixmaps(1) worked, but looked bad - it just made them bigger and fuzzy-looking.
-        pass ## print " two iconsets:",qtoolbutton.iconSet(),qtoolbutton.iconSet() # the same as each other and as iconset var below
+    text = str( qtoolbutton.text() )
+    if text:
+        import platform
+        if platform.atom_debug:
+            print "not hacking one button since it has text:",text
+            # and since when we did, it became permanently blank. (Happens for element buttons in MMTK.)
+        return # return early
+##        print "atom_debug: win.usesBigPixmaps()", win.usesBigPixmaps() # spelling with 's' at end is correct
+##        # This prints False for Tiger, but the actual buttons in toolbars are 32x32 with only 22x22 used in the middle,
+##        # and the Small state pixmaps in the iconsets (22x22) are the ones being used here (based on which modifications matter).
+##        # Doing win.setUsesBigPixmaps(1) worked, but looked bad - it just made them bigger and fuzzy-looking.
+##        pass ## print " two iconsets:",qtoolbutton.iconSet(),qtoolbutton.iconSet() # the same as each other and as iconset var below
     iconset = qtoolbutton.iconSet()
     modify_iconset_On_states(iconset)
     qtoolbutton.setIconSet(iconset) #k might not be needed
-    if platform.atom_debug:
-        pass ## print " new iconset:",qtoolbutton.iconSet()," returned one was",iconset # now the returned one is different
+##    if platform.atom_debug:
+##        pass ## print " new iconset:",qtoolbutton.iconSet()," returned one was",iconset # now the returned one is different
     return
+
+def apply2allchildwidgets(widget, func):
+    func(widget)
+    kids = widget.children() # guess about how to call QObject.children()
+    if kids: #k not sure if test is needed
+        for kid in kids:
+            apply2allchildwidgets( kid, func)
+    return
+
+def hack_if_toolbutton(widget, win):
+    if isinstance(widget, QToolButton):
+##        import platform
+##        if platform.atom_debug:
+##            print "hacking", widget # not useful, only prints address of object, not any sort of name, or place in hierarchy
+        hack_QToolButton(widget, win)
+    return
+
+def hack_every_QToolButton(win): #bruce 050806
+    apply2allchildwidgets(win, lambda child: hack_if_toolbutton(child, win))
+    # Warning about MMTK widget: this has no effect on it if it's not yet created (or maybe, not presently shown, I don't know).
+    # If it is, then it messed up its toolbuttons by making the textual ones blank, though the iconic ones are ok.
+    # So I exclude them by detecting the fact that they have text. This works, but then they don't benefit from the workaround.
+    # As for its hybrid buttons, the ones visible at the time work, but if you change elements, they don't,
+    # not even if you change back to the same element (I don't know why). [as of bruce 050806 6:45pm]
+    #e It would be good to count how many we do this to, and return that, for printing into history,
+    # so if you do it again you can see if you caught more that time.
+    return
+
+# this stuff also needs refiling. Part of a hack to get another pref checkbox into A6. Maybe useful. [bruce 050806]
+
+def find_layout(widget):
+    "search all layouts under widget's toplevel widget to find the (first) (#e enabled?) layout controlling widget"
+    win = widget.topLevelWidget()
+    from qt import QLayout
+    res = []
+    keep = [] # for making debug print addrs not be reused
+    widgeo = widget.geometry() # QRect object
+    # comparing geometries is the only way i can figure out to find which layout controls which widget;
+    # I'll take the smallest area layout that contains the widget
+    ##print "widget geom",widgeo,widgeo.left(),widgeo.right(),widgeo.top(),widgeo.bottom()
+    def hmm(child):
+        if not isinstance(child,QLayout):
+            return
+##        print "layout name:",str(child.name())
+##            # they all say "unnamed" even though the source code gives them a name
+        geo = child.geometry() # QRect object
+        area = (geo.right() - geo.left()) * (geo.bottom() - geo.top())
+        contains = geo.contains(widgeo)
+        if not contains:
+            return
+        res.append(( area,child ))
+        return
+    apply2allchildwidgets(win, hmm)
+    res.sort()
+    return res[0][1]
+
+def qlayout_items(qlayout):
+    return qlayoutiterator_items( qlayout.iterator())
+
+def qlayoutiterator_items(qlayoutiterator):
+    res = []
+    res.append(qlayoutiterator.current()) #k not sure if needed, but apparently doesn't cause redundant item
+    while 1:
+        n1 = qlayoutiterator.next()
+        if not n1:
+            break
+        res.append(n1) # the ref to this might be needed to make the iterator keep going after it...
+        # no, that's not it - my debug prints are explained this way:
+        # if the ref is not kept, we reuse the same mem for each new python obj, so pyobj addr is same tho C obj is diff.
+    return res
 
 # ==
 

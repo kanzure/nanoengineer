@@ -17,6 +17,16 @@ See lower-down docstrings for usage.
 
 ==
 
+History:
+
+bruce 050106 or so: created it.
+
+[some minor changes since then]
+
+bruce 050804: added prefs usage/change tracking.
+
+==
+
 Should be used with bsddb,
 but works without it too, after printing a warning.
 The module bsddb is present in our standard installations
@@ -27,14 +37,20 @@ but we can add it, since it's easily available from
 
 (package bsddb3 4.1.6)
 
-BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK! ###@@@
-(It probably is.)
+BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
+(It probably is, and [050804] I think Huaicai investigated this
+ and confirmed that it is.)
 """
 
 __author__ = "Bruce"
 
 import os, sys, time
 import platform
+
+from changes import UsageTracker #bruce 050804 ###k recursive import issues??
+
+from prefs_constants import prefs_table #bruce 050805
+
 
 """
 Some internal & client-code documentation, as of 050106:
@@ -166,6 +182,8 @@ import shelve
 
 _shelfname = _shelf = _cache = None
 
+_defaults = _trackers = None #bruce 050804 new features
+
 def _make_prefs_shelf():
     """[private function]
     call this once per session,
@@ -174,7 +192,7 @@ def _make_prefs_shelf():
     and store a comment there about this process,
     and close the shelf again in case a concurrent process is sharing the same shelf with us.
     """
-    global _shelfname, _shelf, _cache
+    global _shelfname, _shelf, _cache, _defaults, _trackers
     nanorex = platform.find_or_make_Nanorex_directory()
     global dbname
     _shelfname = os.path.join( nanorex, "Preferences", "%s-shelf" % dbname )
@@ -188,6 +206,8 @@ def _make_prefs_shelf():
     _shelf = shelve.open(_shelfname)
     _cache = {}
     _cache.update(_shelf) # will this work?
+    _defaults = {}
+    _trackers = {}
     # zap obsolete contents
     obskeys = []
     for key in _cache.keys():
@@ -224,14 +244,14 @@ def _reopen():
     # don't bother to re-update our _cache! This would be too slow to do every time.
     return
 
-def _store_new_while_open(key, val):
+def _store_new_while_open(key, val): # [not used as of 050804]
     assert not _shelf.has_key(key) # checks _shelf, not merely _cache
     assert not _cache.has_key(key)
     _cache[key] = val
     _shelf[key] = val
     return
 
-def _store_while_open(key, val):
+def _store_while_open(key, val): # [used only when initializing the shelf, as of 050804]
     # don't assert _cache and _shelf are the same at this key -- it's not an error if they are not,
     # or if shelf has a value and cache does not, since a concurrent process is allowed to write
     # a prefs value on its own.
@@ -243,6 +263,91 @@ def _ensure_shelf_exists():
     if not _shelfname:
         _make_prefs_shelf()
     return
+
+#bruce 050804/050805 new features:
+
+def _track_change(pkey): 
+    _tracker_for_pkey( pkey).track_change()
+    
+def _track_use(pkey):
+    _tracker_for_pkey( pkey).track_use()
+    
+def _tracker_for_pkey(pkey):
+    try:
+        return _trackers[pkey]
+    except KeyError:
+        tracker = _trackers[pkey] = UsageTracker()
+        return tracker
+    pass
+
+def _get_pkey_key(pkey, key): #bruce 050804 split this out of __getitem__ so I can also use it in get (both methods)
+    _track_use(pkey) # note, this is done even if we raise KeyError below (which is good)
+    try:
+        return _cache[pkey]
+    except KeyError:
+        raise KeyError, key # note: exception detail is key, not pkey as it would be if we just said "raise"
+    pass
+
+def _get_pkey_faster(pkey): # optimization of _get_pkey_key(pkey, key) when the KeyError exception detail doesn't matter
+    _track_use(pkey)
+    return _cache[pkey]
+
+def _record_default( pkey, dflt):
+    """Record this default value (if none is yet known for pkey),
+    so other code can find out what the default value is,
+    for use in "restore defaults" buttons in prefs UI.
+    In debug version, also ensure this is the same as any previously recorded default value.
+       Note, dflt can be anything, even None, though some callers have a special case
+    which avoids calling this when dflt is None.
+    """
+    _defaults.setdefault( pkey, dflt) # only affects it the first time, for a given pkey
+    if platform.atom_debug:
+        # also check consistency each time
+        if dflt != _defaults[pkey]:
+            print "atom_debug: bug: ignoring inconsistent default %r for pref %r; retaining %r" % \
+                  ( dflt, key, _defaults[pkey] ) #e also print pkey if in future the key/pkey relation gets more complex
+    return
+
+def _restore_default_while_open( pkey): #bruce 050805
+    """Remove the pref for pkey from the prefs db (but no error if it's not present there).
+    As for the internal value of the pref (in _cache, and for track_change, and for subscriptions to its value):
+    If a default value has been recorded, change the cached value to that value
+    (as it would be if this pref had originally been missing from the db, and a default value was then recorded).
+    If not, remove it from _cache as well, and use the internal value of None.
+    Either way, if the new internal value differs from the one before this function was called,
+    track the change and fulfill any subscriptions to it.
+       If possible, don't track a use of the prefs value.
+    """
+    priorval = _cache.get(pkey) # might be None
+    if _shelf.has_key(pkey):
+        del _shelf[pkey]
+    try:
+        dflt = _defaults[pkey]
+    except KeyError:
+        if platform.atom_debug:
+            print "atom_debug: fyi: restore defaults finds no default yet recorded for %r; using None" % pkey
+        _cache[pkey] = dflt = None
+        del _cache[pkey]
+    else:
+        _cache[pkey] = dflt
+    if dflt != priorval:
+        _track_change(pkey)
+        #e fulfill any subscriptions to this value (if this is ever done by something other than track_change itself)
+    return
+
+def keys_list( keys): #bruce 050805
+    """Given a key or a list of keys (or a nested list), return an equivalent list of keys.
+    Note: tuples of keys are not allowed (someday they might be a new kind of primitive key).
+    """
+    res = []
+    if type(keys) == type([]):
+        for sub in keys:
+            res.extend( keys_list( sub) )
+                #e could be optimized (trivially, if we disallowed nested lists)
+    else:
+        assert type(keys) == type("a")
+        res.append(keys)
+    return res
 
 # ==
 
@@ -256,6 +361,7 @@ class _prefs_context:
     def __init__(self, modname):
         # modname is not presently used
         _ensure_shelf_exists() # needed before __getattr__ and __getitem__ are called
+        self.trackers = {}
     def _attr2key(self, attr):
         return "k " + attr # stub! (i guess)
     #e Someday we will support more complex keys,
@@ -264,28 +370,68 @@ class _prefs_context:
     def __setitem__(self, key, val):
         assert type(key) == type("a") # not unicode, numbers, lists, ... for now
         pkey = self._attr2key(key) # but we might use a more general func for this, at some point
+        try:
+            #bruce 050804 new feature: detect "change with no effect" (where new value equals existing value),
+            # so we can avoid tracking that as an actual change.
+            # We also avoid tracking this as a use (even though we do use the value for the comparison).
+            # And, while we're at it, optimize by not changing the prefs db in this case.
+            # This is not just an optimization, since if the prefs db contains no value for this pref,
+            # and no value other than the default value (according to the current code) has been stored during this session
+            # and if this remains true in the present call (i.e. val equals the default value),
+            # then (due to some of today's changes to other code here, particularly self.get storing dflt in cache), #####IMPLEM
+            # we won't store anything in the prefs db now.            
+            cached_val = _cache[pkey] # this might be a default value from the present code which is not in the prefs db
+        except KeyError:
+            same = False
+        else:
+            # If no default value is known, we consider any value to differ from it.
+            # [##e Would it be better to treat this as if the default value was None (like prefs.get does)??]
+            same = (val == cached_val)
+        if same:
+            if 0 and platform.atom_debug:
+                print "atom_debug: fyi: returning early from prefs.__setitem__(%r) since val == cached_val, %r == %r" % (key, val, cached_val)
+            return # see long comment above
         if _shelf:
             _shelf[pkey] = _cache[pkey] = val
+            _track_change(pkey) # do this only after the change happens, for the sake of formulas...
+                #e (someday we might pass an arg saying the change is done, or the curval is merely invalid,
+                #   and if the latter, whether another track_change will occur when the change is done.)
         else:
             try:
                 _reopen()
                 _shelf[pkey] = _cache[pkey] = val
+                _track_change(pkey)
             finally:
                 _close()
         return
     def __getitem__(self, key):
         assert type(key) == type("a")
         pkey = self._attr2key(key)
+        return _get_pkey_key( pkey, key)
+    def get(self, key, dflt = None): #bruce 050117; revised 050804
+        assert type(key) == type("a")
+        pkey = self._attr2key(key)
+        if dflt is not None:
+            _record_default( pkey, dflt)
+        del dflt
         try:
-            return _cache[pkey]
+            return _get_pkey_faster( pkey) # optim of self[key]
+                # note: usage of this pref is tracked in _get_pkey_faster even if it then raises KeyError.
         except KeyError:
-            raise KeyError, key # not pkey like the exception we're catching!
-        pass
-    def get(self, key, dflt = None): #bruce 050117
-        #e probably i can replace this by something like DictMixin...
-        try:
-            return self[key]
-        except KeyError:
+            #bruce 050804 new features (see long comment in __setitem__ for partial explanation):
+            # if default value must be used, then
+            # (1) let it be the first one recorded regardless of the one passed to this call, for consistency;
+            # (2) store it in _cache (so this isn't called again, and for other reasons mentioned in __setitem__)
+            # but not in the prefs db itself.
+            try:
+                dflt = _defaults[pkey] # might be None, if that was explicitly recorded by a direct call to _record_default
+            except KeyError:
+                # no default value was yet recorded
+                dflt = None # but don't save None in _cache in this case
+                if platform.atom_debug:
+                    print "atom_debug: warning: prefs.get(%r) returning None since no default value was yet recorded" % (key,)
+            else:
+                _cache[pkey] = dflt # store in cache but not in prefs-db
             return dflt
         pass
     def update(self, dict1): #bruce 050117
@@ -295,6 +441,7 @@ class _prefs_context:
                 #e (on one KeyError, should we store the rest?)
                 #e (better, should we check all keys before storing anything?)
                 self[key] = val #e could optimize, but at least this leaves it open
+                    # that will do _track_use(pkey); if we optimize this, remember to do that here.
         else:
             try:
                 _reopen()
@@ -302,7 +449,27 @@ class _prefs_context:
             finally:
                 _close()
         return
-        
+    def restore_defaults(self, keys): #bruce 050805
+        """Given a key or a list of keys,
+        restore the default value of each given preference
+        (if one has yet been recorded, e.g. if prefs.get has been provided with one),
+        with all side effects as if the user set it to that value,
+        but actually remove the value from the prefs db as well
+        (so if future code has a different default value for the same pref,
+         that newer value will be used by that future code).
+        [#e we might decide to make that prefs-db-removal feature optional.]
+        """
+        if _shelf:
+            for key in keys_list( keys):
+                pkey = self._attr2key(key)
+                _restore_default_while_open( pkey)
+        else:
+            try:
+                _reopen()
+                self.restore_defaults( keys)
+            finally:
+                _close()
+        return
     pass # end of class _prefs_context
 
 # for now, in this stub code, all modules use one context:
@@ -312,9 +479,51 @@ def prefs_context():
     ###@@@ stub: always use the same context, not customized to the calling module.
     return _global_context
 
+# ==
+
+# initialization code [bruce 050805]
+
+def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is same as prefs_table record format
+    assert typecode in ['color','boolean'] or type(typecode) == type([]) #e or others as we define them
+    #e create type object from typecode
+    #e get dflt from type object if it's None here, otherwise tell this dflt to type object
+    #e record type object
+    #e use attrname to set up faster/cleaner access to this pref?
+    #e etc.
+
+    # Record the default value now, before any other code can define it or ask for the pref.
+    # (This value is used if that pref is not yet in the db;
+    #  it's also used by "reset to default values" buttons in the UI,
+    #  though those will have the side effect of defining that value in the db.)
+    prefs = prefs_context()
+    if dflt is not None:
+        curvaljunk = prefs.get( prefskey, dflt)
+    return
+
+def init_prefs_table( prefs_table):
+    import platform
+    from debug import print_compact_traceback
+
+    for prefrec in prefs_table:
+        try:
+            declare_pref(*prefrec)
+        except:
+            print_compact_traceback( "ignoring prefs_table entry %r with this exception: " % (prefrec,) )
+        pass
+    
+    import env
+    env.prefs = prefs_context() # this is only ok because all modules use the same prefs context.
+    
+    if 0 and platform.atom_debug:
+        print "atom_debug: done with prefs_table" # remove when works
+    return
+
+init_prefs_table( prefs_table)
+
+# ==
 
 '''
-use this like:
+use prefs_context() like this:
 
 prefs = prefs_context() # once per module which uses it (must then use it in the same module)
 
@@ -334,7 +543,7 @@ once they are formalized.
 [these rules might be revised!]
 '''
 
-# == test code (very incomplete)
+# == test code (very incomplete) [revised 050804 since it was out of date]
 
 if __name__ == '__main__':
 ##    defaults = dict(hi=2,lo=1)
@@ -347,7 +556,7 @@ if __name__ == '__main__':
 
     # now try this:
     testprefs = prefs_context()
-    testprefs.x = 7
-    print "should be 7:",testprefs.x
+    testprefs['x'] = 7
+    print "should be 7:",testprefs['x']
     
 # end

@@ -10,7 +10,7 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL, QPixmap, QIconSet
+from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL, QPixmap, QIconSet, QColor
 
 def is_qt_widget(obj):
     return isinstance(obj, QWidget)
@@ -246,10 +246,10 @@ def makemenu_helper( widget, menu_spec):
 
 # ==
 
-# bruce 050614 found colorchoose as a method in MWsemantics.py, nowhere used,
+# bruce 050614 [comment revised 050805] found colorchoose as a method in MWsemantics.py, nowhere used,
 # so I moved it here for possible renovation and use.
-# See also some color utilities in debug_prefs.py.
-# Probably they should all go into a new file specifically for colors. #e
+# See also some color utilities in debug_prefs.py and prefs_widgets.py.
+# Maybe some of them should all go into a new file specifically for colors. #e
 
 def colorchoose(self, r, g, b):
     "#doc -- note that the args r,g,b should be ints, but the retval is a 3-tuple of floats. (Sorry, that's how I found it.)"
@@ -261,5 +261,13 @@ def colorchoose(self, r, g, b):
     else:
         return r/255.0, g/255.0, b/255.0 # returning None might be more useful, since it lets callers "not change anything"
     pass
+
+def RGBf_to_QColor(fcolor): # by Mark 050730
+    "Converts RGB float to QColor."
+    # moved here by bruce 050805 since it requires QColor and is only useful with Qt widgets
+    r = int (fcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
+    g = int (fcolor[1]*255 + 0.5)
+    b = int (fcolor[2]*255 + 0.5)
+    return QColor(r, g, b)
 
 # end

@@ -30,6 +30,10 @@ from chem import *
 
 from debug import print_compact_stack, print_compact_traceback
 from inval import InvalMixin
+from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
+    #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
+    # and chunks can know when they need to inval that because something drawn into it
+    # would draw differently due to a change in some graphics pref it used
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -59,7 +63,7 @@ _inval_all_bonds_counter = 1 #bruce 050516
 # problems, we should instead do it when we update the model tree or glpane,
 # since we need to ensure it's always done by the end of any user event.)
 
-class molecule(Node, InvalMixin):
+class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # class constants to serve as default values of attributes
     _hotspot = None
@@ -821,7 +825,12 @@ class molecule(Node, InvalMixin):
     def popMatrix(self): #bruce 050609
         "Undo the effect of self.pushMatrix()."
         glPopMatrix()
-        
+
+    def inval_display_list(self): #bruce 050804
+        "This is meant to be called when something whose usage we tracked (while making our display list) next changes."
+        self.changeapp(0) # that now tells self.glpane to update, if necessary
+        #########@@@@@@@@ glpane needs to track changes anyway due to external bonds....
+    
     def draw(self, glpane, dispdef):
         """draw all the atoms, using the atom's, molecule's,
         or GLPane's display mode in that order of preference.
@@ -837,6 +846,10 @@ class molecule(Node, InvalMixin):
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
         ##e bruce 041109: can't we figure it out from mol.dad?
         # (in getattr or in a special method)
+        #bruce 050804: this is now also used in self.changeapp(),
+        # since it's faster than self.track_change (whose features are overkill for this),
+        # though the fact that only one glpane can be recorded in self
+        # is a limitation we'll need to remove at some point.
 
         #Tried to fix some bugs by Huaicai 09/30/04
         if len(self.atoms) == 0:
@@ -852,6 +865,16 @@ class molecule(Node, InvalMixin):
         # the mol coord system has not changed by the time we're done:
         should_not_change = ( + self.basecenter, + self.quat )
 
+        #bruce 050804:
+        # tell whatever is now drawing our display list
+        # (presumably our arg, glpane, but we don't assume this right here)
+        # how to find out when our display list next becomes invalid,
+        # so it can know it needs to redraw us.
+        # (This is probably not actually needed at the moment,
+        #  due to a special system used by self.changeapp() in place of self.track_change(),
+        #  but it should be harmless.)
+        self.track_use()
+        
         # put it in its place
         glPushMatrix()
 
@@ -897,6 +920,7 @@ class molecule(Node, InvalMixin):
                 glCallList(self.displist)
             else:
                 self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way
+                match_checking_code = self.begin_tracking_usage()
                 glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
 
                 # bruce 041028 -- protect against exceptions while making display
@@ -910,6 +934,7 @@ class molecule(Node, InvalMixin):
                     # it might have left the externs incomplete # bruce 041105 night [not anymore -- bruce 050513]
                     ## self.invalidate_attr('externs')
                 glEndList()
+                self.end_tracking_usage( match_checking_code, self.inval_display_list )
                 # This is the only place where havelist is set to anything true;
                 # the value it's set to must match the value it's compared with, above.
                 # [bruce 050415 revised what it's set to/compared with; details above]
@@ -1395,6 +1420,8 @@ class molecule(Node, InvalMixin):
                     a.setDisplay(display)
                     n += 1
         return n
+
+    glpane = None #bruce 050804
             
     def changeapp(self, atoms):
         """call when you've changed appearance of the molecule
@@ -1410,6 +1437,19 @@ class molecule(Node, InvalMixin):
         if atoms: #bruce 041207 added this arg and its effect
             self.haveradii = 0 # invalidate self.sel_radii_squared
             # (using self.invalidate_attr would be too slow)
+        #bruce 050804 new feature (related to graphics prefs updating, probably more generally useful):
+        glpane = self.glpane # the last glpane that drew this chunk, or None if it was never drawn ###IMPLEM
+            # (if more than one can ever draw it at once, this code needs to be revised to scan them all ##k)
+        if glpane is not None:
+            try:
+                flag = glpane.wants_gl_update
+            except AttributeError:
+                pass # this will happen for ThumbViews
+                     # until they are fixed to use this system so they get updated when graphics prefs change
+            else:
+                if flag:
+                    glpane.wants_gl_update_was_True() # sets it False and does gl_update
+            pass
         return
         
     def getinfo(self):

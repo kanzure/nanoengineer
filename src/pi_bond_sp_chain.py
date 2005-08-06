@@ -41,8 +41,8 @@ def bond_get_pi_info(bond, **kws):
         #  If not, it must resort to similar code to remainder of this routine,
         #  since it can't return anything here to tell this routine to do that for it.)
         if obj._recompile_counter != _recompile_counter:
-            ## if not isinstance( obj, PiBondSpChain ):
-            #######@@@@@@@ remove when works (or do only when exceptions), since it defeats persistence, which we need to debug
+            # it would not be good to do this except when the module got recompiled due to being modified
+            # (ie not merely when it got reloaded), since that would defeat persistence of these objects, which we need to debug
             print "destroying %r of obsolete class" % obj # happens when we reload this module at runtime, during development
             obj.destroy()
             obj = None

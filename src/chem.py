@@ -470,13 +470,23 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 else:
                     color = PickedColor
                 drawwiresphere(color, pos, pickedrad)
+            #bruce 050806: the above only checks for number of bonds.
+            # Now that we have higher-order bonds, we also need to check valence more generally.
+            # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
+            #####@@@@@ need to do this in atom.getinfo().
+            #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
+            from GLPane import GLPane
+            if isinstance(glpane, GLPane) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
+                drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
+                #e we might want to not draw this when self.bad() but draw that differently,
+                # and optim this when atomtype is initial one (or its numbonds == valence).
         except:
             glPopName()
             print_compact_traceback("ignoring exception when drawing atom %r: " % self)
         else:
             glPopName()
         
-        return disp # bruce 050513 added retval to help with an optim
+        return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
     def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
         "is this atom breaking any rules?"
@@ -486,6 +496,81 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         else:
             numbonds = self.atomtype.numbonds
         return numbonds != len(self.bonds) ####@@@@ doesn't check bond valence at all... should it??
+
+    def bad_valence(self): #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ####@@@@
+        "is this atom's valence clearly wrong, considering valences presently assigned to its bonds?"
+        # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
+        #e we might optimize this by memoizing it (in a public attribute), and letting changes to any bond invalidate it.
+        bonds = self.bonds
+        if self.element is Singlet:
+            ok = (len(bonds) == 1)
+            return not ok # any open bond valence is legal, for now
+        if self.atomtype.numbonds != len(bonds):
+            ok = False
+            return not ok
+        minv = maxv = 0
+        for bond in bonds:
+            minv1, maxv1 = min_max_valences_from_v6(bond.v6)
+            minv += minv1
+            maxv += maxv1
+        # minv and maxv are the min and max reasonable interpretations of actual valence, based on bond types
+        want_valence = self.atomtype.valence
+        ok = (minv <= want_valence <= maxv)
+        if not ok:
+            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
+            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
+            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
+            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
+              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
+                ok = True
+        return not ok
+
+    def bad_valence_explanation(self): #bruce 050806 ####@@@@ use more widely
+        """Return the reason self's valence is bad (as a short text string), or '' if it's not bad.
+        [#e Some callers might want an even shorter string; if so, we'll add an option to ask for that,
+         and perhaps implement it by stripping off " -- " and whatever follows that.]
+        """
+        # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
+        bonds = self.bonds
+        if self.element is Singlet:
+            ok = (len(bonds) == 1)
+            return (not ok) and "internal error: open bond with wrong number of bonds" or ""
+        if self.atomtype.numbonds != len(bonds):
+            ok = False
+            return (not ok) and "wrong number of bonds" or ""
+        minv = maxv = 0
+        for bond in bonds:
+            minv1, maxv1 = min_max_valences_from_v6(bond.v6)
+            minv += minv1
+            maxv += maxv1
+        # minv and maxv are the min and max reasonable interpretations of actual valence, based on bond types
+        want_valence = self.atomtype.valence
+        ok = (minv <= want_valence <= maxv)
+        if not ok:
+            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
+            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
+            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
+            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
+              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
+                ok = True
+        if not ok:
+            if maxv < want_valence:
+                return "valence too small -- need higher order for some bonds" #e improve this text
+            elif minv > want_valence:
+                return "valence too large -- need lower order for some bonds"
+            else:
+                return "internal error in valence-checking code"
+        else:
+            return ""
+        pass
+
+    def mouseover_statusbar_message(self): #bruce 050806
+        from bond_constants import describe_atom_and_atomtype
+        msg = describe_atom_and_atomtype(self)
+        more = self.bad_valence_explanation()
+        if more:
+            msg += " (%s)" % more
+        return msg
 
     def overdraw_with_special_color(self, color, level = None):
         "Draw this atom slightly larger than usual with the given special color and optional drawlevel, in abs coords."
@@ -847,6 +932,10 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             # I hope this can't be called for singlets! [bruce 041217]
             ainfo += platform.fix_plurals(" (has %d bond(s), should have %d)" % \
                                           (len(self.bonds), self.atomtype.numbonds))
+        elif self.bad_valence(): #bruce 050806
+            msg = self.bad_valence_explanation()
+            ainfo += " (%s)" % msg
+        
         return ainfo
 
     def pick(self):

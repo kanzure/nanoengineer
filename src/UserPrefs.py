@@ -3,6 +3,12 @@
 UserPrefs.py
 
 $Id$
+
+History:
+
+Created by Mark.
+
+Modified somewhat by Bruce 050805 for bond color prefs.
 '''
 __author__ = "Mark"
 
@@ -12,7 +18,10 @@ import preferences
 import os, sys
 from constants import *
 from debug import print_compact_traceback
-from handles import ave_colors
+import env
+from widgets import RGBf_to_QColor #bruce 050805 moved RGBf_to_QColor from here to widgets.py
+from prefs_widgets import connect_colorpref_to_colorframe
+import platform
 
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
@@ -68,14 +77,6 @@ def validate_gamess_path(parent, gmspath):
             
         else: # No
             return gmspath
-
-# RGBf_to_QColor should be moved to constants.py, I think.  Ask Bruce.  Mark 050730.
-def RGBf_to_QColor(fcolor):
-    "Converts RGB float to QColor."
-    r = int (fcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
-    g = int (fcolor[1]*255 + 0.5)
-    b = int (fcolor[2]*255 + 0.5)
-    return QColor(r, g, b)
 
 class UserPrefs(UserPrefsDialog):
     '''The User Preferences dialog used for accessing and changing user preferences
@@ -138,20 +139,100 @@ class UserPrefs(UserPrefsDialog):
         ''' Setup widgets to initial (default or defined) values on the display page.
         '''
         # Set colors for atom color swatches
-        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
-        self.free_valence_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
+##        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
+##        self.free_valence_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
+
+        #bruce 050805 new way (see comment in _setup_bonds_page):
+        connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
+##        connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
         
         # Bug 799 fix.  Mark 050731
         self.default_display_btngrp.setButton(self.default_display_mode) # Retrieved from _init_prefs().
+            # bruce comments:
+            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs.
+            # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
+            #   match our internal display mode codes, and are set by buttongroup.insert in the pyuic output file,
+            #   but for some reason the buttons are inserted in a different order than they're shown.
 
+        return
+    
     def _setup_bonds_page(self):
         ''' Setup widgets to initial (default or defined) values on the bonds page.
         '''
         # Set colors for bond color swatches
-        self.bond_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(blue))
-        self.bond_stretch_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
-        self.bond_vane_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(violet)) # Purple
-        self.bond_cpk_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(gray))
+##        self.bond_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(blue))
+##        self.bond_stretch_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
+##        self.bond_vane_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(violet)) # Purple
+##        self.bond_cpk_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(gray))
+
+        #bruce 050805 here's the new way: subscribe to the preference value,
+        # but make sure to only have one such subs (for one widget's bgcolor) at a time.
+        # The colors in these frames will now automatically update whenever the prefs value changes.
+        ##e (should modify this code to share its prefskey list with the one for restore_defaults)
+        connect_colorpref_to_colorframe( bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
+        connect_colorpref_to_colorframe( bondStretchColor_prefs_key, self.bond_stretch_color_frame)
+        connect_colorpref_to_colorframe( bondVaneColor_prefs_key, self.bond_vane_color_frame)
+        connect_colorpref_to_colorframe( bondCPKColor_prefs_key, self.bond_cpk_color_frame)
+
+        # also handle the non-color prefs on this page:
+        #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
+        pibondstyle_sym = env.prefs[ pibondStyle_prefs_key]
+        button_code = { 'multicyl':0,'vane':1, 'ribbon':2 }.get( pibondstyle_sym, 0)
+            # Errors in prefs db are not detected -- we just use the first button because (we happen to know) it's the default.
+            # This int encoding is specific to this buttongroup.
+            # The prefs db and the rest of the code uses the symbolic strings listed above.
+        self.high_order_bond_display_btngrp.setButton( button_code)
+
+        #  ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
+        self.show_bond_labels_checkbox.setChecked( env.prefs[ pibondLetters_prefs_key] )
+            # I don't know whether this sends the signal as if the user changed it
+            # (and even if Qt doc says no, this needs testing since I've seen it be wrong about those things before),
+            # but in the present code it doesn't matter unless it causes storing default value explicitly into prefs db
+            # (I can't recall whether or not it does). Later this might matter more, e.g. if we have prefs-value modtimes.
+            # [bruce 050806]
+
+        # ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ),
+        # (This is a per-atom warning, but I decided to put it on the Bonds page since you need it when
+        #  working on high order bonds. And, since I could fit that into the UI more easily.)
+        try:
+            self.show_valence_errors_checkbox # this might not exist yet in the UI
+        except:
+            try:
+                # try to make one ourselves -- this can be removed (if desired) once it's added to the .ui file,
+                # but believe it or not, this code actually works fine (at least for me, on Mac OS X Tiger).
+                if platform.atom_debug:
+                    print "atom_debug: fyi: making our own show_valence_errors_checkbox since it's not in the .ui file"
+                tabpage = self.show_bond_labels_checkbox.parent()
+                self.show_valence_errors_checkbox = QCheckBox(QString("Show Valence Errors"),tabpage,"show_valence_errors_checkbox")
+                from debug_prefs import find_layout, qlayout_items
+                layout27 = find_layout(self.show_bond_labels_checkbox)
+                # we need to add our checkbox before the spacer.
+                items = qlayout_items(layout27)
+                spacer18 = items[-1]
+                layout27.removeItem(spacer18)
+                layout27.addWidget(self.show_valence_errors_checkbox)
+                layout27.addItem(spacer18) # this sequence actually works.
+                # get it to show up... at least some of this is required.
+                layout27.invalidate() #k helps?
+                layout27.activate() #k helps?
+                self.show_valence_errors_checkbox.show() #k removing this makes it not show up even with activate & update... why?
+                self.show_valence_errors_checkbox.topLevelWidget().update()#k helps??
+                # now connect it
+                self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
+                if platform.atom_debug:
+                    print "atom_debug: making show_valence_errors_checkbox worked!"
+            except:
+                # didn't work -- nevermind (we'll retry each time the page is shown -- nevermind that either)
+                if platform.atom_debug:
+                    print_compact_traceback("atom_debug: making show_valence_errors_checkbox didn't work: ")
+                self.show_valence_errors_checkbox = None
+                del self.show_valence_errors_checkbox
+        
+        if hasattr(self, 'show_valence_errors_checkbox'):
+            self.show_valence_errors_checkbox.setChecked( env.prefs[ showValenceErrors_prefs_key] )
+            # note: this does cause the checkbox to send its "toggled(bool)" signal to our slot method.
+        
+        return
         
     def _setup_history_page(self):
         ''' Setup widgets to initial (default or defined) values on the history page.
@@ -179,6 +260,17 @@ class UserPrefs(UserPrefsDialog):
             1. Update the preference variables stored in various objects (i.e. win, assy, history, etc.)
             2. Save the prefences to the shelf.
         '''
+        #bruce 050804/050806 comments: this method is wrong in at least these ways: ###@@@
+        # - it doesn't yet include all the prefs. (But the new ones are being handled separately, anyway.)
+        # - it's only called when we exit the dialog (or perhaps change the page), not when we e.g. choose individual new colors.
+        #   But that will be fixed not here, but by making individual pref controls update those prefs when changed.
+        #   That's already being done for the bond prefs and atom color prefs.
+        # - it updates the prefs db even for values which were not stored there before and not changed by the user.
+        #   [It's not clear that's wrong, but it does cause problems for change tracking,
+        #    and it causes bugs when the default values are wrong in new prefs code under development.
+        #    But probably those problems need to be addressed somehow within preferences.py itself.
+        #    I have addressed them for change tracking, and maybe for making default values, when set explicitly,
+        #    not get into the prefs db if nothing was yet there (but I'm not sure about that one #k).]
         
         # Do this just in case the user typed in the GAMESS executable path by hand.
         # We do not need to check whether the path exists as this is checked
@@ -215,6 +307,9 @@ class UserPrefs(UserPrefsDialog):
         self.win.update_mainwindow_caption(self.win.assy.has_changed())
         
         # Update History pref variables
+        # [this doesn't need to include the ones that update themselves whenever changed,
+        #  and the code should be revised so that all of them do that,
+        #  and then none of them will need to be updated here. bruce 050806 comment]
         self.history.history_height = self.history_height_spinbox.value()
         self.history.msg_serial_number = self.msg_serial_number_checkbox.isChecked()
         self.history.msg_timestamp = self.msg_timestamp_checkbox.isChecked()
@@ -279,27 +374,25 @@ class UserPrefs(UserPrefsDialog):
     
     ########## Slot methods for "Atoms" page widgets ################
 
+    def usual_change_color(self, prefs_key, caption = "choose"): #bruce 050805
+        from prefs_widgets import colorpref_edit_dialog
+        colorpref_edit_dialog( self, prefs_key, caption = caption)
+    
     def change_atom_hilite_color(self):
-        '''Change the atom highlight color.
-        '''
-        c = QColorDialog.getColor(self.atom_hilite_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.atom_hilite_color_frame.setPaletteBackgroundColor(c)
-            # No need to update the GLPane
+        '''Change the atom highlight color.'''
+        self.usual_change_color( atomHighlightColor_prefs_key)        
             
     def change_free_valence_color(self):
-        '''Change the free valence color.
-        '''
-        c = QColorDialog.getColor(self.free_valence_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.free_valence_color_frame.setPaletteBackgroundColor(c)
-            self.glpane.gl_update()
+        '''Change the free valence color.'''
+        ## self.usual_change_color( freeValenceColor_prefs_key) #[problematic]
+        print '''Change the free valence color -- not yet implemented.''' #####@@@@@
             
     def reset_atom_colors(self):
-        print "Reset Pressed: Reset Atom Colors not implemented yet"
-        # self.glpane.gl_update()
+        #bruce 050805 let's try it like this:
+        env.prefs.restore_defaults([ #e this list should be defined in a more central place.
+            atomHighlightColor_prefs_key,
+            ## freeValenceColor_prefs_key, #[problematic]
+        ])
             
     def set_default_display_mode(self, val):
         '''Set default display mode of GLpane.
@@ -313,55 +406,58 @@ class UserPrefs(UserPrefsDialog):
     ########## Slot methods for "Bonds" page widgets ################
     
     def change_bond_hilite_color(self):
-        '''Change the bond highlight color.
-        '''
-        c = QColorDialog.getColor(self.bond_hilite_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.bond_hilite_color_frame.setPaletteBackgroundColor(c)
-            # No need to update the GLPane
+        '''Change the bond highlight color.'''
+        self.usual_change_color( bondHighlightColor_prefs_key)        
     
     def change_bond_stretch_color(self):
-        '''Change the bond stretch color.
-        '''
-        c = QColorDialog.getColor(self.bond_stretch_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.bond_stretch_color_frame.setPaletteBackgroundColor(c)
-            self.glpane.gl_update()
+        '''Change the bond stretch color.'''
+        self.usual_change_color( bondStretchColor_prefs_key)        
     
     def change_bond_vane_color(self):
-        '''Change the bond vane color for pi orbitals.
-        '''
-        c = QColorDialog.getColor(self.bond_vane_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.bond_vane_color_frame.setPaletteBackgroundColor(c)
-            self.glpane.gl_update()
+        '''Change the bond vane color for pi orbitals.'''
+        self.usual_change_color( bondVaneColor_prefs_key)
     
     def change_bond_cpk_color(self):
-        '''Change the bond CPK cylinder color.
-        '''
-        c = QColorDialog.getColor(self.bond_cpk_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.bond_cpk_color_frame.setPaletteBackgroundColor(c)
-            self.glpane.gl_update()
+        '''Change the bond CPK cylinder color.'''
+        self.usual_change_color( bondCPKColor_prefs_key)        
     
     def reset_bond_colors(self):
-        print "Reset Pressed: Reset Bond Colors not implemented yet"
-        # self.glpane.gl_update()
+        #bruce 050805 let's try it like this:
+        env.prefs.restore_defaults([ #e this list should be defined in a more central place.
+            bondHighlightColor_prefs_key,
+            bondStretchColor_prefs_key,
+            bondVaneColor_prefs_key,
+            bondCPKColor_prefs_key,
+        ])
         
-    def change_high_order_bond_display(self, val):
+    def change_high_order_bond_display(self, val): #bruce 050806 filled this in
         "Slot for the button group that sets the high order bond display."
-        print val
-        # self.glpane.gl_update()
+        #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
+        try:
+            symbol = {0:'multicyl', 1:'vane', 2:'ribbon'}[val]
+            # note: this decoding must use the same (arbitrary) int->symbol mapping as the button group does.
+            # It's just a coincidence that the order is the same as in the prefs-type listed above.
+        except:
+            print "bug in change_high_order_bond_display: unknown val ignored:", val
+        else:
+            env.prefs[ pibondStyle_prefs_key ] = symbol
+        return
         
-    def change_bond_labels(self, val):
-        "Slot for the checkbox that turns bond labels on/off."
-        print val
-        # self.glpane.gl_update()
-            
+    def change_bond_labels(self, val): #bruce 050806 filled this in
+        "Slot for the checkbox that turns Pi Bond Letters on/off."
+        # (BTW, these are not "labels" -- someday we might add user-settable longer bond labels,
+        #  and the term "labels" should refer to that. These are just letters indicating the bond type. [bruce 050806])
+        env.prefs[ pibondLetters_prefs_key ] = not not val
+        # See also the other use of pibondLetters_prefs_key, where the checkbox is kept current when first shown.
+        return
+        
+    def change_show_valence_errors(self, val): #bruce 050806 made this up
+        "Slot for the checkbox that turns Show Valence Errors on/off."
+        env.prefs[ showValenceErrors_prefs_key ] = not not val
+##        if platform.atom_debug:
+##            print showValenceErrors_prefs_key, env.prefs[ showValenceErrors_prefs_key ] #k prints true, from our initial setup of page
+        return
+    
     ########## End of slot methods for "Bonds" page widgets ###########
     
     ########## Slot methods for "Background" page widgets ################

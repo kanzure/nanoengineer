@@ -293,9 +293,8 @@ class AtomType:
             if not self.is_N_sp:
                 res.append(V_AROMATIC)
                 res.append(V_GRAPHITE)
-        ###@@@ bruce 050802 for A5.9: don't offer carbomeric bond type in any menu  
-##        if self.element.symbol in "CX" and spX == 1:
-##            res.append(V_CARBOMERIC)
+        if self.element.symbol in "CX" and spX == 1:
+            res.append(V_CARBOMERIC)
         if not res:
             return
         if 0 and platform.atom_debug:

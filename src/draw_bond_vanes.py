@@ -13,6 +13,8 @@ from VQT import V, dot, cross, vlen, norm
 from VQT import pi, acos
 import platform
 from debug import print_compact_traceback, print_compact_stack
+import env
+from prefs_constants import pibondStyle_prefs_key
 
 from constants import TubeRadius, blue, gray, black, white
 from math import ceil
@@ -38,7 +40,7 @@ def draw_bond_vanes(bond, glpane, sigmabond_cyl_radius, col):
             draw_vane( bond, a1pz, a2pz, ord_pi_z, rad, col) 
     return
 
-def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
+def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
     """draw a vane (extending on two opposite sides of the bond axis) [#doc more];
     use ord_pi to determine how intense it is (not yet sure how, maybe by mixing in bgcolor??);
     a1p and a2p should be unit vectors perp to bond and no more than 90 degrees apart when seen along it;
@@ -48,7 +50,9 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
     which might be influenced by the pi orbital occupancy.
     """
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-    twisted = debug_pref('pi vanes/ribbons', Choice_boolean_False)
+    ## twisted = debug_pref('pi vanes/ribbons', Choice_boolean_False)
+    pi_bond_style = env.prefs[ pibondStyle_prefs_key] # one of ['multicyl','vane','ribbon']
+    twisted = (pi_bond_style == 'ribbon')
     poles = debug_pref('pi vanes/poles', Choice_boolean_True)
     draw_outer_edges = debug_pref('pi vanes/draw edges', Choice_boolean_True)
         #bruce 050730 new feature, so that edge-on vanes are still visible
@@ -68,16 +72,32 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col, prefs = {}):
             # since it's only compared to threshholds (by ceil()) which correspond to d12 values not near 1.0.
             # (#e btw, we could optim the common case (ntwists == 1) by inverting this comparison to get
             #  the equivalent threshhold for d12.)
-        maxtwist = prefs.get('maxtwist',MAXTWIST)
+        maxtwist = MAXTWIST # debug_pref doesn't yet have a PrefsType for this
         ntwists = max(1, int( ceil( twist / maxtwist ) )) # number of segments needed, to limit each segment's twist to MAXTWIST
-    from handles import ave_colors
     if col:
         color = col
     else:
-        #e optim: this color is a constant, so move it outside
-        ord_pi_for_color = 0.5 # was ord_pi
-        color = ave_colors(ord_pi_for_color, blue, gray) #stub; args are: weight, color for weight 1.0, color for weight 0.0
-        color = ave_colors(0.8, color, black)
+        #bruce 050804: initial test of bond color prefs; inadequate in several ways #######@@@@@@@
+        from preferences import prefs_context
+        prefs = prefs_context()
+        from prefs_constants import bondVaneColor_prefs_key
+        color = prefs.get(bondVaneColor_prefs_key) #k I hope this color tuple of floats is in the correct prefs format
+        assert len(color) == 3 # protect following code from color being None (which causes bus error, maybe in PyOpenGL)
+        
+        #####@@@@@ it would be much faster to update this pref (or almost any graphics color pref)
+        # if the OpenGL command to set the color was in its own display list, redefined when the redraw starts,
+        # and called from inside every other display list that needs it.
+        # Then when you changed it, gl_update would be enough -- the chunk display lists would not need to be remade.
+        
+        ###@@@ problems include:
+        # - being fast enough
+        # + dflt should be specified in just one place,
+        #   and earlier than in this place, so it can show up in prefs ui before this runs
+        #   (in fact, even earlier than when this module is first imported, which might be only when needed),
+        # - existing prefs don't have all the color vars needed (eg no toolong-highlighted color)
+        # - being able to track them only when finally used, not when pulled into convenience vars before final use --
+        #   this might even be an issue if we precompute a formula from a color-pref, but only count it as used if that result is used.
+        #   (we could decide to track the formula res as a separate thing, i suppose)
 ##    a1pos = bond.atom1.posn()
 ##    a2pos = bond.atom2.posn()
     a1pos, c1, center, c2, a2pos, toolong = bond.geom

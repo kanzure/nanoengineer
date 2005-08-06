@@ -15,7 +15,10 @@ __author__ = "Josh"
 
 
 from VQT import *
-from constants import *
+
+from constants import * # note: this doesn't import _default_toolong_hicolor due to its initial '_'
+from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
+
 import platform
 from debug import print_compact_stack, print_compact_traceback
 
@@ -35,7 +38,7 @@ from elements import Singlet
 
 from qt import QFont, QString, QColor ###k
 
-from handles import ave_colors
+import env
 
 CPKSigmaBondRadius = 0.1 #bruce 050719
     ###e should make this a named constant in constants.py (or bond_constants.py?),
@@ -58,7 +61,9 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
 
     # figure out how this display mode draws bonds; return now if it doesn't
     if disp == diLINES:
-        sigmabond_cyl_radius = CPKSigmaBondRadius # used for multiple bond spacing and for pi orbital vanes
+        sigmabond_cyl_radius = CPKSigmaBondRadius / 5.0
+            # used for multiple bond spacing (optimized here for that, by the "/ 5.0")
+            # and for pi orbital vanes (for which "/ 1.0" would probably be better)
     elif disp == diCPK:
         sigmabond_cyl_radius = CPKSigmaBondRadius # also used for central cylinder, in these other cases
     elif disp == diTUBES:
@@ -94,28 +99,38 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     return # from draw_bond, implem of Bond.draw
 
 def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_radius):
-    # figure out preferences (should do this less often somehow -- once per user event)
+    # figure out preferences (should do this less often somehow -- once per user event,
+    #  or at least, once per separate use of begin_tracking_usage/end_tracking_usage)
     if self.v6 != V_SINGLE:
         if platform.atom_debug:
             #bruce 050716 debug code (permanent, since this would always indicate a bug)
             if not self.legal_for_atomtypes():
                 print_compact_stack("atom_debug: drawing bond %r which is illegal for its atomtypes: " % self)
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False #bruce 050717, might be temporary
-        draw_bond_letters = debug_pref("bond letters", Choice_boolean_False)
-        draw_vanes = debug_pref("double-bond vanes", Choice_boolean_False) #bruce 050802 made this True for A5.9
-        draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_True) #bruce 050802 made this True for A5.9
+        ## from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False #bruce 050717, might be temporary
+        ## draw_bond_letters = debug_pref("bond letters", Choice_boolean_False)
+        draw_bond_letters = not highlighted and env.prefs[ pibondLetters_prefs_key]
+        ## draw_vanes = debug_pref("double-bond vanes", Choice_boolean_False) #bruce 050802 made this False for A5.9
+        ## draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_True) #bruce 050802 made this True for A5.9
+        pi_bond_style = env.prefs[ pibondStyle_prefs_key] # one of ['multicyl','vane','ribbon']
+        draw_cyls = (pi_bond_style == 'multicyl')
+        draw_vanes = not draw_cyls # this is true for either vanes or ribbons
         draw_sigma_cyl = not draw_cyls
     else:
-        # single bond
+        # single bond -- no need to check prefs or set variables for vanes, etc
         draw_cyls = False
         draw_sigma_cyl = True
+    draw_bands = draw_cyls # whether to ever draw bands around the cylinders for aromatic/graphite bonds
+    if draw_bands:
+        v6_for_bands = self.v6
+    else:
+        v6_for_bands = V_SINGLE
     
     shorten_tubes = highlighted
     
-    if highlighted:
-        toolong_color = ave_colors( 0.8, magenta, black) ##e should improve this color, and maybe let it mix in col
-    else:
-        toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red
+##    if highlighted:
+##        toolong_color = ave_colors( 0.8, magenta, black) ##e should improve this color, and maybe let it mix in col
+##    else:
+##        toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red
 
     # do calcs common to all bond-cylinders for multi-cylinder bonds
 
@@ -124,7 +139,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
     
     color1 = col or atom1.element.color
     color2 = col or atom2.element.color
-    bondcolor = col or bondColor
+    bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
    
     v1 = atom1.display != diINVISIBLE
     v2 = atom2.display != diINVISIBLE
@@ -168,14 +183,14 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                     a1posm = a1pos + offset * pvec1
                     a2posm = a2pos + offset * pvec2
                     geom = self.geom_from_posns(a1posm, a2posm)
-                    draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, \
-                                   cylrad, shorten_tubes, geom, self.v6 )
+                    draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
+                                   cylrad, shorten_tubes, geom, v6_for_bands )
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
         geom = self.geom #e could be optimized to compute less for CPK case
         cylrad = sigmabond_cyl_radius
-        draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, \
-                       cylrad, shorten_tubes, geom, self.v6 )
+        draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
+                       cylrad, shorten_tubes, geom, v6_for_bands )
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
@@ -221,27 +236,40 @@ def multicyl_pvecs( howmany, a2py, a2pz):
         assert 0
     pass
 
-def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolong_color, level, \
+def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
                    sigmabond_cyl_radius, shorten_tubes, geom, v6 ):
     """Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
     [private function for a single caller, which is the only reason such a long arglist is tolerable]
     """
     a1pos, c1, center, c2, a2pos, toolong = geom
 
-    # Figure out banding -- this part can be filled out by Mark & Huaicai,
-    # but probably only after the color-prefs and other bond prefs code is filled out by me [bruce 050728].
-    # If this depends on disp, I recommend using a separate if/elif chain here, not mixing it into the one below for drawing.
-    # If new color args are needed, they could be passed from the caller as args after the toolong_color arg,
-    # or figured out here (by prefs lookup -- code for that is not yet added) if the other args,
-    # plus the caller's highlighted arg, would be sufficient.
+    # Figure out banding (only in CPK or Tubes display modes).
+    # This is only done in multicyl mode, because caller makes our v6 equal V_SINGLE otherwise.
+    # If new color args are needed, they should be figured out here (perhaps by env.prefs lookup).
+    # This code ought to be good enough for A6, but if Mark wants to, he and Huaicai can modify it in this file.
+    # [bruce 050806]
     if v6 == V_AROMATIC:
-        pass # use aromatic banding on this cylinder (bond order 1.5)
+        banding = V_AROMATIC # use aromatic banding on this cylinder (bond order 1.5)
+        band_color = ave_colors(0.5, green, yellow)
     elif v6 == V_GRAPHITE:
-        pass # use graphite banding on this cylinder (bond order 1.33)
+        banding = V_GRAPHITE # use graphite banding on this cylinder (bond order 1.33)
+        band_color = ave_colors(0.8, green, yellow)
     elif v6 == V_CARBOMERIC:
-        pass # use carbomeric banding on this cylinder (bond order 2.5) (could be same as aromatic if you want)
+        banding = V_AROMATIC # use carbomeric banding on this cylinder (bond order 2.5) (length is same as aromatic for now)
+        band_color = ave_colors(0.7, red, white)
     else:
-        pass # no banding needed on this cylinder
+        banding = None # no banding needed on this cylinder
+    if banding and disp not in [diCPK, diTUBES]:
+        banding = None
+    if banding:
+        band_order = float(banding - V_SINGLE)/V_SINGLE # 0.33, 0.5, or for carbomeric, in principle 1.5 but in practice 0.5
+        bandvec = (a2pos - a1pos)/2.0 # from center to a2pos
+        bandextent = band_order/2.5 # if this was 1 we'd cover it entirely; this is measured to atom centers, not just visible part...
+        bandpos1 = center - bandvec * bandextent
+        bandpos2 = center + bandvec * bandextent
+        if highlighted:
+            band_color = ave_colors(0.5, band_color, blue)
+        band_color = ave_colors(0.8, band_color, black)
     # end of figuring out banding, though to use it, the code below must be modified.
     
     if disp == diLINES:
@@ -251,9 +279,15 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolon
         else:
             drawline(color1, a1pos, c1)
             drawline(color2, a2pos, c2)
-            drawline(red, c1, c2) # not toolong_color, since we're not sure highlighting bonds in LINES mode is good at all
+            toolong_color = env.prefs.get( bondStretchColor_prefs_key)
+                # toolong_color is never highlighted here, since we're not sure highlighting bonds in LINES mode is good at all
+            drawline( toolong_color, c1, c2)
     elif disp == diCPK:
+        if bondcolor is None: #bruce 050805
+            bondcolor = env.prefs.get( bondCPKColor_prefs_key) ## bondColor [before bruce 050805]
         drawcylinder(bondcolor, a1pos, a2pos, sigmabond_cyl_radius)
+        if banding:
+            drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
     elif disp == diTUBES:
         if shorten_tubes:
             rad = TubeRadius * 1.1 * 0.9 # see Atom.howdraw for tubes; the constant (0.9) might need adjusting
@@ -263,6 +297,7 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolon
                 a1pos = a1pos + vec * rad
             if atom2.element is not Singlet:
                 a2pos = a2pos - vec * rad
+            # note: this does not affect bandpos1, bandpos2 (which is good)
         ###e bruce 050513 future optim idea: when color1 == color2, draw just
         # one longer cylinder, then overdraw toolong indicator if needed.
         # Significant for big parts. BUT, why spend time on this when I
@@ -279,6 +314,10 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolon
                 if not (v1 and v2):
                     drawsphere(black, center, sigmabond_cyl_radius, level)
         else:
+            if highlighted:
+                toolong_color = _default_toolong_hicolor ## not yet in prefs db
+            else:
+                toolong_color = env.prefs.get( bondStretchColor_prefs_key)
             drawcylinder(toolong_color, c1, c2, sigmabond_cyl_radius)
             if v1:
                 drawcylinder(color1, a1pos, c1, sigmabond_cyl_radius)
@@ -288,6 +327,8 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, toolon
                 drawcylinder(color2, a2pos, c2, sigmabond_cyl_radius)
             else:
                 drawsphere(black, c2, sigmabond_cyl_radius, level)
+        if banding:
+            drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
     return # from draw_bond_cyl
 
 # ==

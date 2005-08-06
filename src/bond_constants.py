@@ -18,6 +18,7 @@ __author__ = 'bruce'
 
 import platform
 from VQT import Q
+from math import floor, ceil #guess
 
 # Bond valence constants -- exact ints, 6 times the numeric valence they represent.
 # If these need an order, their standard order is the same as the order of their numeric valences
@@ -29,6 +30,8 @@ V_AROMATIC = 6 * 3/2
 V_DOUBLE = 6 * 2
 V_CARBOMERIC = 6 * 5/2 # for the bonds in a carbomer of order 2.5 (which alternate with aromatic bonds); saved as bonda for now [050705]
 V_TRIPLE = 6 * 3
+
+V_UNKNOWN = 6 * 7/6 # not in most tables here, and not yet used; someday might be used internally by bond-type inference code
 
 BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_CARBOMERIC, V_TRIPLE]
 BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bonda', 'bond3'] # duplication of bonda is intentional (for now)
@@ -55,6 +58,26 @@ BOND_LETTERS[0] = '0' # see comment in bond_letter_from_v6
 
 BOND_LETTERS = "".join(BOND_LETTERS)
     ## print "BOND_LETTERS:",BOND_LETTERS # 0?????1?ga??2?????3
+
+BOND_MIN_VALENCES = [ 999.0] * (V_TRIPLE+1) #bruce 050806; will be modified below
+BOND_MAX_VALENCES = [-999.0] * (V_TRIPLE+1)
+
+bond_valence_epsilon = 1.0 / 64 # an exact float; arbitrary, but must be less than 1/(2n) where no atom has more than n bonds
+
+for v6 in BOND_VALENCES:
+    if v6 % V_SINGLE == 0: # exact valence
+        BOND_MIN_VALENCES[v6] = BOND_MAX_VALENCES[v6] = v6 / 6.0
+    else:
+        # non-integral (and inexact) valence
+        BOND_MIN_VALENCES[v6] = floor(v6 / 6.0) + bond_valence_epsilon
+        BOND_MAX_VALENCES[v6] = ceil(v6 / 6.0)  - bond_valence_epsilon
+    pass
+
+BOND_MIN_VALENCES[V_UNKNOWN] = 1.0 # guess, not yet used
+BOND_MAX_VALENCES[V_UNKNOWN] = 3.0 # ditto
+
+def min_max_valences_from_v6(v6):
+    return BOND_MIN_VALENCES[v6], BOND_MAX_VALENCES[v6]
 
 def bond_letter_from_v6(v6): #bruce 050705
     """Return a bond letter summarizing the given v6,

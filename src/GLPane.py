@@ -54,6 +54,7 @@ from widgets import makemenu_helper
 from debug import DebugMenuMixin, print_compact_traceback
 import preferences
 import env
+from changes import SubUsageTrackingMixin
 
 
 debug_lighting = False #bruce 050418
@@ -116,7 +117,7 @@ for q in pquats:
 allQuats = quats100 + quats110 + quats111
 
 
-class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
+class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.
     """
     # Note: external code expects self.mode to always be a working
@@ -1136,6 +1137,23 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         return # from paintGL
 
     special_topnode = None #bruce 050627 only used experimentally so far
+
+    # The following behavior (in several methods herein) related to wants_gl_update
+    # should probably also be done in ThumbViews
+    # if they want to get properly updated when graphics prefs change. [bruce 050804 guess] ####@@@@
+    
+    wants_gl_update = True #bruce 050804
+        # this is set to True after we redraw, and to False by the following method
+
+    def wants_gl_update_was_True(self): #bruce 050804
+        """Outside code should call this if it changes what our redraw would draw,
+        and then sees self.wants_gl_update being true,
+        if it might not otherwise call self.gl_update
+        (which is also ok to do, but might be slower -- whether it's actually slower is not known).
+           This can also be used as an invalidator for passing to self.end_tracking_usage().
+        """
+        self.wants_gl_update = False
+        self.gl_update()
     
     def standard_repaint(self, special_topnode = None): #bruce 050617 split this out, added arg
         ###e not sure of name or exact role; might be called on proxy for subrect?
@@ -1143,14 +1161,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
         this routine sets its own matrixmode but depends on other gl state being standard when entered.
         """
         self.special_topnode = special_topnode # this will be detected by assy.draw()
+        match_checking_code = self.begin_tracking_usage() #bruce 050806
         try:
-            self.standard_repaint_0()
-        except:
-            print_compact_traceback("exception in standard_repaint_0 ignored: ")
-            # we're not restoring stack depths here, so this will mess up callers, so we'll reraise
+            try:
+                self.standard_repaint_0()
+            except:
+                print "exception in standard_repaint_0 (being reraised)"
+                    # we're not restoring stack depths here, so this will mess up callers, so we'll reraise;
+                    # so the caller will print a traceback, thus we don't need to print one here. [bruce 050806]
+                raise
+        finally:
+            self.wants_gl_update = True #bruce 050804
             self.special_topnode = None #k or old one??
-            raise
-        self.special_topnode = None #k or old one??
+            self.end_tracking_usage( match_checking_code, self.wants_gl_update_was_True ) # same invalidator even if exception
         return
 
     def standard_repaint_0(self):
@@ -1403,7 +1426,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin):
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
             # Temporary fix, since Build mode's messages are better and should be restored.
             if selobj is not None:
-                msg = "%s" % (selobj,)
+                try:
+                    try:
+                        #bruce 050806 let selobj control this
+                        method = selobj.mouseover_statusbar_message # only defined for atoms, for now
+                    except AttributeError:
+                        msg = "%s" % (selobj,)
+                    else:
+                        msg = method()
+                except:
+                    msg = "<exception in selobj statusbar message code>"
             else:
                 msg = " "
             self.win.history.transient_msg(msg)

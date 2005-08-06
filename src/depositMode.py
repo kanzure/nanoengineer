@@ -23,16 +23,12 @@ from debug import print_compact_traceback
 from elements import PeriodicTable
 from Utility import imagename_to_pixmap
 
-from handles import ave_colors
+from prefs_constants import HICOLOR_singlet
+    ###e should replace uses of these with prefs gets [bruce 050805] #####@@@@@
 
-#e these colors should of course be user-preference items
-HICOLOR_real_atom = ave_colors( 0.8, orange, black)
-HICOLOR_singlet = LEDon
-
-HICOLOR_real_bond = ave_colors( 0.8, blue, black)
-HICOLOR_singlet_bond = ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_bond) #k
-    # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
-
+HICOLOR_singlet_bond = white ## ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_bond)
+    # note: HICOLOR_singlet_bond is no longer used (unless there are bugs),
+    # since singlet-bond is part of singlet for selobj purposes [bruce 050708]
 
 _count = 0
 
@@ -673,16 +669,16 @@ class depositMode(basicMode):
         """
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
-                return HICOLOR_singlet
+                return HICOLOR_singlet ###@@@ this one is not yet in prefs db
             else:
-                return HICOLOR_real_atom
+                return env.prefs.get( atomHighlightColor_prefs_key) ## was HICOLOR_real_atom before bruce 050805
         elif isinstance(selobj, Bond):
             ###@@@ use checkbox to control this; when false, return None
             if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
                 return HICOLOR_singlet_bond
             else:
-                return HICOLOR_real_bond
+                return env.prefs.get( bondHighlightColor_prefs_key) ## was HICOLOR_real_bond before bruce 050805
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             return None # (jigs aren't yet able to draw themselves with a highlight-color)
         else:

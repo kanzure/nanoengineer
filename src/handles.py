@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 handles.py
 
@@ -9,6 +9,9 @@ Needs cleanup.
 """
 
 from modes import * # this has a lot of stuff, e.g. VQT
+
+from constants import ave_colors #bruce 050805 moved that function from here to there
+    #k this import might not be needed
 
 class handleWithHandleSet:
     "used to wrap handles returned from a handleset, so they can use its methods"
@@ -251,10 +254,6 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
         return
     pass
 
-def ave_colors(weight, color1, color2):
-    "weight 1.0 => color1, 0.0 => color2, between => between" ###k calls
-    #e should use some Numeric method
-    return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
 
 # we'll use the atoms of the mols
 # and a sep set or two
@@ -284,3 +283,5 @@ def ave_colors(weight, color1, color2):
 # base unit atoms
 # magenta
 # white
+
+# end

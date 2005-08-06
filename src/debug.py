@@ -293,8 +293,15 @@ class DebugMenuMixin:
             res.extend( [
                 ('ATOM_DEBUG', self._debug_enable_atom_debug ),
             ] )
+
+        if sys.platform == 'darwin' and self._debug_win:
+            #bruce 050806 to give Alpha6 a workaround for Mac OS X 10.4 Tiger QToolButton bug
+            res.extend( [
+                ('Mac OS 10.4 QToolButton workaround', self._debug_QToolButton_workaround ),
+            ] )
+            
         if platform.atom_debug:
-            res.append( debug_prefs_menuspec() ) #bruce 050614
+            res.append( debug_prefs_menuspec() ) #bruce 050614 (submenu)
         res.extend( [
             ('choose font', self._debug_choose_font),
         ] )
@@ -440,6 +447,18 @@ class DebugMenuMixin:
             # e.g. "GLPane debug menu"
         return
 
+    def _debug_QToolButton_workaround(self): #bruce 050806
+        "[only provided in menu on Mac, and only needed for Mac OS X 10.4 Tiger, but might work for all platforms -- who knows]"
+        ###e ask user if ok; if we add that feature, also add "..." to menu command text
+        history = self._debug_history()
+        from HistoryWidget import orangemsg, redmsg, greenmsg
+        history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
+        history.message( redmsg( "(As of 050806, this doesn't yet work perfectly for the MMTK buttons.)" ))
+        from debug_prefs import hack_every_QToolButton
+        hack_every_QToolButton( self._debug_win )
+        history.message( "Done.")
+        return
+        
     pass # end of class DebugMenuMixin
 
 # ===
