@@ -274,7 +274,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
         self.display = prefs.get(defaultDisplayMode_prefs_key, diVDW)
-        self.win.dispbarLabel.setText( "Default Display: " + dispLabel[self.display] )
+        self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.display] )
         
         ###### End of User Preference initialization ########################## 
         
@@ -989,7 +989,23 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.gl_update()
         return what
 
-    def setDisplay(self, disp):
+    def setDisplay(self, disp, default_display=False):
+        '''Set the display mode of the GLPane, where:
+            "disp" is the display mode, and
+            "default_display" is True when the GLPane's display mode is set to the Default Display Mode,
+            when the user selects the "Default Display" action on the display toolbar/menu,
+            or when the user changes the "Default Display Mode" via the Preferences dialog.
+        '''
+        
+        # Fix to bug 800. Mark 050807
+        if default_display:
+            # Used when the user presses "Default Display" or changes the "Default Display"
+            # in the preferences dialog.  
+            header = "Default Display: " 
+        else:
+            # Used for all other purposes.
+            header = "Current Display: " 
+            
         if disp == diDEFAULT:
             #disp = default_display_mode #bruce 041129 to fix bug 21
             prefs = preferences.prefs_context() #mark 050802 to fix bug 799
@@ -1001,7 +1017,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if self.mode.modename == 'COOKIE':
             self.win.dispbarLabel.setText("    ")
         else:    
-            self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
+            #self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
+            self.win.dispbarLabel.setText( header + dispLabel[disp] )
         #bruce 050415: following should no longer be needed
         # (and it wasn't enough, anyway, since missed mols in non-current parts;
         #  see comments in chunk.py about today's bugfix in molecule.draw for

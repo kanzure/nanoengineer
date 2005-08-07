@@ -887,7 +887,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     # set display formats in whatever is selected,
     # or the GLPane global default if nothing is
     def dispDefault(self):
-        self.setDisplay(diDEFAULT)
+        self.setDisplay(diDEFAULT, True)
 
     def dispInvis(self):
         self.setDisplay(diINVISIBLE)
@@ -904,7 +904,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     def dispLines(self):
         self.setDisplay(diLINES)
 
-    def setDisplay(self, form):
+    def setDisplay(self, form, default_display=False):
         if self.assy and self.assy.selatoms:
             for ob in self.assy.selatoms.itervalues():
                 ob.setDisplay(form)
@@ -918,15 +918,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 # since it's not expensive to changeapp and repaint if user
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
-            self.glpane.setDisplay(form)
+            self.glpane.setDisplay(form, default_display)
         self.win_update() # bruce 041206, needed for model tree display mode icons
         ## was self.glpane.paintGL() [but now would be self.glpane.gl_update]
-
-
-    def setdisplay(self, a0):
-        #bruce 041129 suspects this is obsolete
-        print 'setdisplay', a0
-
 
     # set the color of the selected molecule
     # atom colors cannot be changed singly
