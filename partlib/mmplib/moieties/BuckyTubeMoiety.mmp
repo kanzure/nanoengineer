@@ -1,35 +1,39 @@
-mmpformat 050130 required; 050217 optional
+mmpformat 050502 required; 050706 preferred
 kelvin 300
-group (Data)
+group (View Data)
+info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (8.791591) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.791591) (0.000000, 0.000000, 0.000000) (1.000000)
-datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
-datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-egroup (Data)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.600650) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
 group (BuckyTubeMoiety)
-mol (Moiety) cpk
+info opengroup open = True
+mol (Moiety) tub
 atom 1 (6) (225, 3920, 4866) def
+info atom atomtype = sp2
 atom 2 (6) (200, 3920, 6289) def
-bond1 1
+info atom atomtype = sp2
+bonda 1
 atom 3 (6) (-923, 3522, 4130) def
-bond1 1
+info atom atomtype = sp2
+bonda 1
 atom 4 (6) (-990, 3544, 6960) def
-bond1 2
+info atom atomtype = sp2
+bonda 2
 atom 5 (0) (893, 3851, 4488) def
-bond1 1
+bonda 1
 atom 6 (0) (-909, 3523, 3359) def
-bond1 3
+bonda 3
 atom 7 (0) (863, 3864, 6675) def
-bond1 2
+bonda 2
 atom 8 (0) (-1050, 3618, 7724) def
-bond1 4
+bonda 4
 atom 9 (0) (-1397, 3047, 4507) def
-bond1 3
+bonda 3
 atom 10 (0) (-1444, 3055, 6574) def
-bond1 4
+bonda 4
 egroup (BuckyTubeMoiety)
 end1
 group (Clipboard)
+info opengroup open = False
 egroup (Clipboard)
 end molecular machine part BuckyTubeMoiety
