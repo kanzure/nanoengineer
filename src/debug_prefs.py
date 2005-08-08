@@ -475,6 +475,9 @@ def qlayoutiterator_items(qlayoutiterator):
 
 def debug_prefs_menuspec():
     "Return a single menu item (as a menu_spec tuple) usable to see and edit settings of all active debug prefs."
+    import platform
+    if platform.atom_debug: #bruce 050808
+        testcolor = debug_pref("atom_debug test color", ColorType(green))
     text = "debug prefs submenu"
     submenu = []
     items = debug_prefs.items()
@@ -489,6 +492,7 @@ def debug_prefs_menuspec():
 
 if __name__ == '__main__':
     spinsign = debug_pref("spinsign",Choice([1,-1]))
+    testcolor = debug_pref("test color", ColorType(green))
     print debug_prefs_menuspec()
     
 # end

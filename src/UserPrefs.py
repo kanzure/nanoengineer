@@ -144,8 +144,10 @@ class UserPrefs(UserPrefsDialog):
 
         #bruce 050805 new way (see comment in _setup_bonds_page):
         connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
-##        connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
-        
+        ## not implemented:
+        ##   connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
+        connect_colorpref_to_colorframe( atomHotspotColor_prefs_key, self.hotspot_color_frame)
+
         # Bug 799 fix.  Mark 050731
         self.default_display_btngrp.setButton(self.default_display_mode) # Retrieved from _init_prefs().
             # bruce comments:
@@ -385,13 +387,20 @@ class UserPrefs(UserPrefsDialog):
     def change_free_valence_color(self):
         '''Change the free valence color.'''
         ## self.usual_change_color( freeValenceColor_prefs_key) #[problematic]
-        print '''Change the free valence color -- not yet implemented.''' #####@@@@@
-            
+        print '''Change the free valence color -- not yet implemented.''' ###@@@
+        # fyi, i recommended implementing this preference in Element Colors Dialog, rather than here. [bruce 050808]
+
+    def change_hotspot_color(self): #bruce 050808 implement new slot which Mark recently added to .ui file
+        '''Change the free valence hotspot color.'''
+        #e fyi, we might rename hotspot to something like "bonding point" someday...
+        self.usual_change_color( atomHotspotColor_prefs_key)
+    
     def reset_atom_colors(self):
         #bruce 050805 let's try it like this:
         env.prefs.restore_defaults([ #e this list should be defined in a more central place.
             atomHighlightColor_prefs_key,
             ## freeValenceColor_prefs_key, #[problematic]
+            atomHotspotColor_prefs_key,
         ])
             
     def set_default_display_mode(self, val):

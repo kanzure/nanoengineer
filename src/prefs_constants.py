@@ -35,6 +35,7 @@ displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 freeValenceColor_prefs_key = 'A6/Free Valence Color'
+atomHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
 
 # Bond prefs
@@ -94,8 +95,9 @@ prefs_table = (
     
     ('atom_highlight_color',         'color', atomHighlightColor_prefs_key, _default_HICOLOR_real_atom ),
 ##    ('freevalence_color',            'color', freeValenceColor_prefs_key, red ), ###k red; ### use it --
-##        ## problematic, so not yet implemented -- I think it's treated internally as an "element color"
+##        ## freevalence_color is problematic, so not yet implemented -- it's treated internally as an "element color"
     ## ('openbond_highlight_color',  'color', xxx_prefs_key, HICOLOR_singlet ), ## pink [not yet in prefs db]
+    ('atom_hotspot_color',           'color', atomHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
 
     # Atom preferences - other
     
