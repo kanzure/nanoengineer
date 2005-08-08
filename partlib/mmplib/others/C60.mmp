@@ -3,7 +3,7 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (0.386032, -0.377708, 0.326080, -0.775879) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.284715, -0.553292, 0.477052, -0.620667) (3.869395) (0.009500, -0.010000, 0.003500) (1.000000)
+csys (LastView) (0.881052, 0.410822, 0.215635, 0.092059) (5.330072) (0.009500, -0.010000, 0.003500) (1.000000)
 egroup (View Data)
 group (C60)
 info opengroup open = True
@@ -18,85 +18,78 @@ atom 4 (6) (3246, -1108, -485) def
 info atom atomtype = sp2
 atom 5 (6) (3411, -130, 480) def
 info atom atomtype = sp2
-bond1 1
-bonda 4
+bonda 1 4
 atom 6 (6) (2602, 1817, 1264) def
 info atom atomtype = sp2
-bond1 1
+bonda 1
 atom 7 (6) (-51, 3454, -277) def
 info atom atomtype = sp2
-bond1 2
-bonda 3
+bonda 2 3
 atom 8 (6) (-2086, 2547, -1182) def
 info atom atomtype = sp2
-bond1 3
+bonda 3
 atom 9 (6) (2593, -2285, -167) def
 info atom atomtype = sp2
-bond1 4
+bonda 4
 atom 10 (6) (-1132, -2176, 2423) def
 info atom atomtype = sp2
 atom 11 (6) (-1619, -963, 2882) def
 info atom atomtype = sp2
-bond1 10
+bonda 10
 atom 12 (6) (229, -2435, 2451) def
 info atom atomtype = sp2
 bonda 10
 atom 13 (6) (-2681, -589, 2075) def
 info atom atomtype = sp2
-bond1 11
+bonda 11
 atom 14 (6) (-743, -4, 3366) def
 info atom atomtype = sp2
 bonda 11
 atom 15 (6) (-932, 1330, 3049) def
 info atom atomtype = sp2
-bond1 14
+bonda 14
 atom 16 (6) (1104, -1476, 2931) def
 info atom atomtype = sp2
-bond1 12
+bonda 12
 atom 17 (6) (618, -260, 3382) def
 info atom atomtype = sp2
-bond1 14
-bonda 16
+bonda 14 16
 atom 18 (6) (-2886, 746, 1759) def
 info atom atomtype = sp2
 bonda 13
 atom 19 (6) (-2017, 1700, 2268) def
 info atom atomtype = sp2
-bond1 18
-bonda 15
+bonda 18 15
 atom 20 (6) (1272, 917, 3056) def
 info atom atomtype = sp2
-bond1 17
+bonda 17
 atom 21 (6) (319, 1900, 2852) def
 info atom atomtype = sp2
-bond1 15 20
+bonda 15 20
 atom 22 (6) (-2845, -1571, 1111) def
 info atom atomtype = sp2
-bond1 13
+bonda 13
 atom 23 (6) (-1888, -2547, 1324) def
 info atom atomtype = sp2
-bond1 10 22
+bonda 10 22
 atom 24 (6) (524, 2853, 1866) def
 info atom atomtype = sp2
 bonda 21
 atom 25 (6) (2413, 879, 2270) def
 info atom atomtype = sp2
-bond1 6
-bonda 20
+bonda 6 20
 atom 26 (6) (-1848, 2668, 1302) def
 info atom atomtype = sp2
-bond1 19
+bonda 19
 atom 27 (6) (2248, -1517, 2154) def
 info atom atomtype = sp2
-bond1 16
+bonda 16
 atom 28 (6) (-538, 3259, 1085) def
 info atom atomtype = sp2
-bond1 24 7
-bonda 26
+bonda 24 7 26
 atom 29 (6) (2899, -339, 1832) def
 info atom atomtype = sp2
-bond1 25 5
-bonda 27
+bonda 25 5 27
 atom 30 (6) (-1284, -3172, 244) def
 info atom atomtype = sp2
 bonda 23
@@ -105,77 +98,66 @@ info atom atomtype = sp2
 bonda 22
 atom 32 (6) (-3268, 1098, 470) def
 info atom atomtype = sp2
-bond1 18
+bonda 18
 atom 33 (6) (833, -3066, 1379) def
 info atom atomtype = sp2
-bond1 12
+bonda 12
 atom 34 (6) (73, -3434, 283) def
 info atom atomtype = sp2
-bond1 30
-bonda 33
+bonda 30 33
 atom 35 (6) (-3430, 108, -486) def
 info atom atomtype = sp2
-bond1 31
-bonda 32
+bonda 31 32
 atom 36 (6) (-2641, 2289, 146) def
 info atom atomtype = sp2
-bond1 26 32
-bonda 8
+bonda 26 32 8
 atom 37 (6) (2079, -2496, 1191) def
 info atom atomtype = sp2
-bond1 27 33
-bonda 9
+bonda 27 33 9
 atom 38 (6) (1650, 2806, 1058) def
 info atom atomtype = sp2
-bond1 24 2
-bonda 6
+bonda 24 2 6
 atom 39 (6) (2684, 589, -2083) def
 info atom atomtype = sp2
 atom 40 (6) (1617, 965, -2882) def
 info atom atomtype = sp2
-bond1 39
+bonda 39
 atom 41 (6) (2881, -747, -1770) def
 info atom atomtype = sp2
-bond1 4
-bonda 39
+bonda 4 39
 atom 42 (6) (1131, 2175, -2415) def
 info atom atomtype = sp2
-bond1 40
+bonda 40
 atom 43 (6) (742, 5, -3366) def
 info atom atomtype = sp2
 bonda 40
 atom 44 (6) (-619, 258, -3389) def
 info atom atomtype = sp2
-bond1 43
+bonda 43
 atom 45 (6) (2005, -1705, -2249) def
 info atom atomtype = sp2
-bond1 41
+bonda 41
 atom 46 (6) (933, -1327, -3043) def
 info atom atomtype = sp2
-bond1 43
-bonda 45
+bonda 43 45
 atom 47 (6) (-230, 2442, -2442) def
 info atom atomtype = sp2
-bond1 3
-bonda 42
+bonda 3 42
 atom 48 (6) (-1095, 1484, -2950) def
 info atom atomtype = sp2
-bond1 47
-bonda 44
+bonda 47 44
 atom 49 (6) (-314, -1897, -2846) def
 info atom atomtype = sp2
-bond1 46
+bonda 46
 atom 50 (6) (-1274, -923, -3062) def
 info atom atomtype = sp2
-bond1 44 49
+bonda 44 49
 atom 51 (6) (1896, 2542, -1319) def
 info atom atomtype = sp2
-bond1 42
-bonda 2
+bonda 42 2
 atom 52 (6) (2851, 1562, -1113) def
 info atom atomtype = sp2
-bond1 39 51
-bonda 1
+bonda 39 51 1
 atom 53 (6) (-2421, -912, -2281) def
 info atom atomtype = sp2
 bonda 50
@@ -184,25 +166,22 @@ info atom atomtype = sp2
 bonda 49
 atom 55 (6) (-2250, 1525, -2200) def
 info atom atomtype = sp2
-bond1 48 8
+bonda 48 8
 atom 56 (6) (1830, -2656, -1260) def
 info atom atomtype = sp2
-bond1 45 9
+bonda 45 9
 atom 57 (6) (-2932, 292, -1845) def
 info atom atomtype = sp2
-bond1 35 53
-bonda 55
+bonda 35 53 55
 atom 58 (6) (-2594, -1839, -1264) def
 info atom atomtype = sp2
-bond1 31 53
+bonda 31 53
 atom 59 (6) (583, -3223, -1069) def
 info atom atomtype = sp2
-bond1 34 54
-bonda 56
+bonda 34 54 56
 atom 60 (6) (-1628, -2813, -1051) def
 info atom atomtype = sp2
-bond1 30 54
-bonda 58
+bonda 30 54 58
 egroup (C60)
 end1
 group (Clipboard)
