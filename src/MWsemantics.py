@@ -905,6 +905,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.setDisplay(diLINES)
 
     def setDisplay(self, form, default_display=False):
+        '''Set the display of the selection to 'form'.  If nothing is selected, then change
+        the GLPane's current display to 'form'.
+        '''
         if self.assy and self.assy.selatoms:
             for ob in self.assy.selatoms.itervalues():
                 ob.setDisplay(form)
@@ -918,7 +921,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 # since it's not expensive to changeapp and repaint if user
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
-            self.glpane.setDisplay(form, default_display)
+            self.glpane.setDisplay(form, default_display) # See docstring for info about default_display
         self.win_update() # bruce 041206, needed for model tree display mode icons
         ## was self.glpane.paintGL() [but now would be self.glpane.gl_update]
 

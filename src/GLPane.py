@@ -992,9 +992,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def setDisplay(self, disp, default_display=False):
         '''Set the display mode of the GLPane, where:
             "disp" is the display mode, and
-            "default_display" is True when the GLPane's display mode is set to the Default Display Mode,
-            when the user selects the "Default Display" action on the display toolbar/menu,
-            or when the user changes the "Default Display Mode" via the Preferences dialog.
+            "default_display" changes the header of the display status bar to either "Default Display" (True)
+            or "Current Display (False, the default).
         '''
         
         # Fix to bug 800. Mark 050807
