@@ -81,8 +81,7 @@ class MMKit(MMKitDialog):
         
         ## The following statements are redundant in some situations.
         self.elementButtonGroup.setButton(elemNum)
-        self.change2ElemPage()
-        
+
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
         
@@ -92,7 +91,14 @@ class MMKit(MMKitDialog):
         self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         self.update_hybrid_btngrp()
-     
+        
+        # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
+        # when the user selects Copy and Paste from the Edit toolbar/menu, the MMKit should show
+        # the Clipboard, not the Atoms page. Mark 050808
+        if self.w.pasteP:
+            self.change2PastePage()
+        else:
+            self.change2ElemPage()
         
     def update_hybrid_btngrp(self):
         '''Update the buttons of the current element's hybridization types into hybrid_btngrp; 
@@ -179,6 +185,7 @@ class MMKit(MMKitDialog):
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
         else:  ## Element page
+            print "MMKit.tabpageChanged: pasteP=False"
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
             self.elemGLPane.resetView()
