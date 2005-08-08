@@ -1,407 +1,265 @@
-mmpformat 050130 required; 050217 optional
+mmpformat 050502 required; 050706 preferred
 kelvin 300
-group (Data)
+group (View Data)
+info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.731422, 0.680619, -0.021680, 0.036181) (16.400479) (0.340000, 0.000000, 0.615000) (1.000000)
-datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
-datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-egroup (Data)
-group (graphene)
-mol (graphene.pdb) def
-atom 1 (6) (-8526, 0, -11076) def
-atom 2 (6) (-7075, 0, -11076) def
-bond1 1
-atom 3 (6) (-4263, 0, -11076) def
-atom 4 (6) (-2812, 0, -11076) def
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.675788) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (3.503761) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Graphene)
+info opengroup open = True
+mol (Graphene- C62H20) cpk
+atom 1 (6) (-3675, 2840, 0) def
+info atom atomtype = sp2
+atom 2 (6) (-3675, 5680, 0) def
+info atom atomtype = sp2
+atom 3 (6) (-4904, 4969, 0) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (1) (-5778, 5474, 0) def
 bond1 3
-atom 5 (6) (0, 0, -11076) def
-atom 6 (6) (1451, 0, -11076) def
-bond1 5
-atom 7 (6) (4263, 0, -11076) def
-atom 8 (6) (5714, 0, -11076) def
-bond1 7
-atom 9 (6) (8526, 0, -11076) def
-atom 10 (6) (-9207, 0, -9845) def
+atom 5 (6) (-4904, 3550, 0) def
+info atom atomtype = sp2
 bond1 1
-atom 11 (6) (-8526, 0, -8614) def
-bond1 10
-atom 12 (6) (-7075, 0, -8614) def
-bond1 11
-atom 13 (6) (-6394, 0, -9845) def
-bond1 2 12
-atom 14 (6) (-4944, 0, -9845) def
-bond1 3 13
-atom 15 (6) (-4263, 0, -8614) def
-bond1 14
-atom 16 (6) (-2812, 0, -8614) def
-bond1 15
-atom 17 (6) (-2131, 0, -9845) def
-bond1 4 16
-atom 18 (6) (-681, 0, -9845) def
-bond1 5 17
-atom 19 (6) (0, 0, -8614) def
-bond1 18
-atom 20 (6) (1451, 0, -8614) def
-bond1 19
-atom 21 (6) (2131, 0, -9845) def
-bond1 6 20
-atom 22 (6) (3582, 0, -9845) def
-bond1 7 21
-atom 23 (6) (4263, 0, -8614) def
-bond1 22
-atom 24 (6) (5714, 0, -8614) def
-bond1 23
-atom 25 (6) (6395, 0, -9845) def
-bond1 8 24
-atom 26 (6) (7845, 0, -9845) def
-bond1 9 25
-atom 27 (6) (8526, 0, -8614) def
-bond1 26
-atom 28 (6) (-9207, 0, -7384) def
-bond1 11
-atom 29 (6) (-8526, 0, -6153) def
-bond1 28
-atom 30 (6) (-7075, 0, -6153) def
-bond1 29
-atom 31 (6) (-6394, 0, -7384) def
-bond1 12 30
-atom 32 (6) (-4944, 0, -7384) def
-bond1 15 31
-atom 33 (6) (-4263, 0, -6153) def
-bond1 32
-atom 34 (6) (-2812, 0, -6153) def
-bond1 33
-atom 35 (6) (-2131, 0, -7384) def
-bond1 16 34
-atom 36 (6) (-681, 0, -7384) def
-bond1 19 35
-atom 37 (6) (0, 0, -6153) def
-bond1 36
-atom 38 (6) (1451, 0, -6153) def
-bond1 37
-atom 39 (6) (2131, 0, -7384) def
-bond1 20 38
-atom 40 (6) (3582, 0, -7384) def
-bond1 23 39
-atom 41 (6) (4263, 0, -6153) def
-bond1 40
-atom 42 (6) (5714, 0, -6153) def
-bond1 41
-atom 43 (6) (6395, 0, -7384) def
-bond1 24 42
-atom 44 (6) (7845, 0, -7384) def
-bond1 27 43
-atom 45 (6) (8526, 0, -6153) def
-bond1 44
-atom 46 (6) (-9207, 0, -4922) def
-bond1 29
-atom 47 (6) (-8526, 0, -3692) def
-bond1 46
-atom 48 (6) (-7075, 0, -3692) def
-bond1 47
-atom 49 (6) (-6394, 0, -4922) def
-bond1 30 48
-atom 50 (6) (-4944, 0, -4922) def
-bond1 33 49
-atom 51 (6) (-4263, 0, -3692) def
-bond1 50
-atom 52 (6) (-2812, 0, -3692) def
-bond1 51
-atom 53 (6) (-2131, 0, -4922) def
-bond1 34 52
-atom 54 (6) (-681, 0, -4922) def
-bond1 37 53
-atom 55 (6) (0, 0, -3692) def
-bond1 54
-atom 56 (6) (1451, 0, -3692) def
-bond1 55
-atom 57 (6) (2131, 0, -4922) def
-bond1 38 56
-atom 58 (6) (3582, 0, -4922) def
-bond1 41 57
-atom 59 (6) (4263, 0, -3692) def
-bond1 58
-atom 60 (6) (5714, 0, -3692) def
-bond1 59
-atom 61 (6) (6395, 0, -4922) def
-bond1 42 60
-atom 62 (6) (7845, 0, -4922) def
-bond1 45 61
-atom 63 (6) (8526, 0, -3692) def
-bond1 62
-atom 64 (6) (-9207, 0, -2461) def
-bond1 47
-atom 65 (6) (-8526, 0, -1231) def
-bond1 64
-atom 66 (6) (-7075, 0, -1231) def
-bond1 65
-atom 67 (6) (-6394, 0, -2461) def
-bond1 48 66
-atom 68 (6) (-4944, 0, -2461) def
-bond1 51 67
-atom 69 (6) (-4263, 0, -1231) def
-bond1 68
-atom 70 (6) (-2812, 0, -1231) def
-bond1 69
-atom 71 (6) (-2131, 0, -2461) def
-bond1 52 70
-atom 72 (6) (-681, 0, -2461) def
-bond1 55 71
-atom 73 (6) (0, 0, -1231) def
-bond1 72
-atom 74 (6) (1451, 0, -1231) def
-bond1 73
-atom 75 (6) (2131, 0, -2461) def
-bond1 56 74
-atom 76 (6) (3582, 0, -2461) def
-bond1 59 75
-atom 77 (6) (4263, 0, -1231) def
-bond1 76
-atom 78 (6) (5714, 0, -1231) def
-bond1 77
-atom 79 (6) (6395, 0, -2461) def
-bond1 60 78
-atom 80 (6) (7845, 0, -2461) def
-bond1 63 79
-atom 81 (6) (8526, 0, -1231) def
-bond1 80
-atom 82 (6) (-9207, 0, 0) def
-bond1 65
-atom 83 (6) (-8526, 0, 1231) def
-bond1 82
-atom 84 (6) (-7075, 0, 1231) def
-bond1 83
-atom 85 (6) (-6394, 0, 0) def
-bond1 66 84
-atom 86 (6) (-4944, 0, 0) def
-bond1 69 85
-atom 87 (6) (-4263, 0, 1231) def
-bond1 86
-atom 88 (6) (-2812, 0, 1231) def
-bond1 87
-atom 89 (6) (-2131, 0, 0) def
-bond1 70 88
-atom 90 (6) (-681, 0, 0) def
-bond1 73 89
-atom 91 (6) (0, 0, 1231) def
-bond1 90
-atom 92 (6) (1451, 0, 1231) def
-bond1 91
-atom 93 (6) (2131, 0, 0) def
-bond1 74 92
-atom 94 (6) (3582, 0, 0) def
-bond1 77 93
-atom 95 (6) (4263, 0, 1231) def
-bond1 94
-atom 96 (6) (5714, 0, 1231) def
-bond1 95
-atom 97 (6) (6395, 0, 0) def
-bond1 78 96
-atom 98 (6) (7845, 0, 0) def
-bond1 81 97
-atom 99 (6) (8526, 0, 1231) def
-bond1 98
-atom 100 (6) (-9207, 0, 2461) def
-bond1 83
-atom 101 (6) (-8526, 0, 3692) def
-bond1 100
-atom 102 (6) (-7075, 0, 3692) def
-bond1 101
-atom 103 (6) (-6394, 0, 2461) def
-bond1 84 102
-atom 104 (6) (-4944, 0, 2461) def
-bond1 87 103
-atom 105 (6) (-4263, 0, 3692) def
-bond1 104
-atom 106 (6) (-2812, 0, 3692) def
-bond1 105
-atom 107 (6) (-2131, 0, 2461) def
-bond1 88 106
-atom 108 (6) (-681, 0, 2461) def
-bond1 91 107
-atom 109 (6) (0, 0, 3692) def
-bond1 108
-atom 110 (6) (1451, 0, 3692) def
-bond1 109
-atom 111 (6) (2131, 0, 2461) def
-bond1 92 110
-atom 112 (6) (3582, 0, 2461) def
-bond1 95 111
-atom 113 (6) (4263, 0, 3692) def
-bond1 112
-atom 114 (6) (5714, 0, 3692) def
-bond1 113
-atom 115 (6) (6395, 0, 2461) def
-bond1 96 114
-atom 116 (6) (7845, 0, 2461) def
-bond1 99 115
-atom 117 (6) (8526, 0, 3692) def
-bond1 116
-atom 118 (6) (-9207, 0, 4922) def
-bond1 101
-atom 119 (6) (-8526, 0, 6153) def
-bond1 118
-atom 120 (6) (-7075, 0, 6153) def
-bond1 119
-atom 121 (6) (-6394, 0, 4922) def
-bond1 102 120
-atom 122 (6) (-4944, 0, 4922) def
-bond1 105 121
-atom 123 (6) (-4263, 0, 6153) def
-bond1 122
-atom 124 (6) (-2812, 0, 6153) def
-bond1 123
-atom 125 (6) (-2131, 0, 4922) def
-bond1 106 124
-atom 126 (6) (-681, 0, 4922) def
-bond1 109 125
-atom 127 (6) (0, 0, 6153) def
-bond1 126
-atom 128 (6) (1451, 0, 6153) def
-bond1 127
-atom 129 (6) (2131, 0, 4922) def
-bond1 110 128
-atom 130 (6) (3582, 0, 4922) def
-bond1 113 129
-atom 131 (6) (4263, 0, 6153) def
-bond1 130
-atom 132 (6) (5714, 0, 6153) def
-bond1 131
-atom 133 (6) (6395, 0, 4922) def
-bond1 114 132
-atom 134 (6) (7845, 0, 4922) def
-bond1 117 133
-atom 135 (6) (8526, 0, 6153) def
-bond1 134
-atom 136 (6) (-9207, 0, 7384) def
-bond1 119
-atom 137 (6) (-8526, 0, 8614) def
-bond1 136
-atom 138 (6) (-7075, 0, 8614) def
-bond1 137
-atom 139 (6) (-6394, 0, 7384) def
-bond1 120 138
-atom 140 (6) (-4944, 0, 7384) def
-bond1 123 139
-atom 141 (6) (-4263, 0, 8614) def
-bond1 140
-atom 142 (6) (-2812, 0, 8614) def
-bond1 141
-atom 143 (6) (-2131, 0, 7384) def
-bond1 124 142
-atom 144 (6) (-681, 0, 7384) def
-bond1 127 143
-atom 145 (6) (0, 0, 8614) def
-bond1 144
-atom 146 (6) (1451, 0, 8614) def
-bond1 145
-atom 147 (6) (2131, 0, 7384) def
-bond1 128 146
-atom 148 (6) (3582, 0, 7384) def
-bond1 131 147
-atom 149 (6) (4263, 0, 8614) def
-bond1 148
-atom 150 (6) (5714, 0, 8614) def
-bond1 149
-atom 151 (6) (6395, 0, 7384) def
-bond1 132 150
-atom 152 (6) (7845, 0, 7384) def
-bond1 135 151
-atom 153 (6) (8526, 0, 8614) def
-bond1 152
-atom 154 (6) (-9207, 0, 9845) def
-bond1 137
-atom 155 (6) (-6394, 0, 9845) def
-bond1 138
-atom 156 (6) (-4944, 0, 9845) def
-bond1 141 155
-atom 157 (6) (-2131, 0, 9845) def
-bond1 142
-atom 158 (6) (-681, 0, 9845) def
-bond1 145 157
-atom 159 (6) (2131, 0, 9845) def
-bond1 146
-atom 160 (6) (3582, 0, 9845) def
-bond1 149 159
-atom 161 (6) (6395, 0, 9845) def
-bond1 150
-atom 162 (6) (7845, 0, 9845) def
-bond1 153 161
-atom 163 (0) (9296, 0, 6153) def
-bond1 135
-atom 164 (0) (9296, 0, -1231) def
-bond1 81
-atom 165 (0) (9296, 0, -8614) def
-bond1 27
-atom 166 (0) (9296, 0, 3692) def
-bond1 117
-atom 167 (0) (9296, 0, -3692) def
-bond1 63
-atom 168 (0) (9296, 0, -11076) def
-bond1 9
-atom 169 (0) (9296, 0, 1231) def
-bond1 99
-atom 170 (0) (9296, 0, -6153) def
-bond1 45
-atom 171 (0) (9296, 0, 8614) def
-bond1 153
-atom 172 (0) (-9977, 0, 9845) def
-bond1 154
-atom 173 (0) (-9977, 0, 0) def
-bond1 82
-atom 174 (0) (-9977, 0, -7384) def
-bond1 28
-atom 175 (0) (-9977, 0, 7384) def
-bond1 136
-atom 176 (0) (-9977, 0, 4922) def
-bond1 118
-atom 177 (0) (-9977, 0, -2461) def
-bond1 64
-atom 178 (0) (-9977, 0, -9845) def
-bond1 10
-atom 179 (0) (-9977, 0, 2461) def
-bond1 100
-atom 180 (0) (-9977, 0, -4922) def
-bond1 46
-atom 181 (0) (-6702, 0, -11749) def
-bond1 2
-atom 182 (0) (-4635, 0, -11749) def
-bond1 3
-atom 183 (0) (-2439, 0, -11749) def
-bond1 4
-atom 184 (0) (-372, 0, -11749) def
-bond1 5
-atom 185 (0) (1823, 0, -11749) def
+bonda 3
+atom 6 (6) (-1225, 2840, 0) def
+info atom atomtype = sp2
+atom 7 (6) (-1225, 5680, 0) def
+info atom atomtype = sp2
+atom 8 (6) (-2454, 4969, 0) def
+info atom atomtype = sp2
+bonda 7 2
+atom 9 (6) (-2454, 3550, 0) def
+info atom atomtype = sp2
 bond1 6
-atom 186 (0) (3890, 0, -11749) def
+bonda 8 1
+atom 10 (6) (1224, 2840, 0) def
+info atom atomtype = sp2
+atom 11 (6) (1224, 5680, 0) def
+info atom atomtype = sp2
+atom 12 (1) (1224, 6690, 0) def
+bond1 11
+atom 13 (6) (-4, 4969, 0) def
+info atom atomtype = sp2
+bonda 11 7
+atom 14 (6) (-4, 3550, 0) def
+info atom atomtype = sp2
+bond1 10
+bonda 13 6
+atom 15 (6) (3674, 2840, 0) def
+info atom atomtype = sp2
+atom 16 (6) (3674, 5680, 0) def
+info atom atomtype = sp2
+atom 17 (1) (3674, 6690, 0) def
+bond1 16
+atom 18 (6) (2445, 4969, 0) def
+info atom atomtype = sp2
+bonda 16 11
+atom 19 (6) (2445, 3550, 0) def
+info atom atomtype = sp2
+bond1 15
+bonda 18 10
+atom 20 (6) (-2454, 709, 0) def
+info atom atomtype = sp2
+atom 21 (6) (-2454, -709, 0) def
+info atom atomtype = sp2
+bonda 20
+atom 22 (6) (1224, -1419, 0) def
+info atom atomtype = sp2
+atom 23 (6) (1224, 1420, 0) def
+info atom atomtype = sp2
+bonda 10
+atom 24 (6) (-4, 709, 0) def
+info atom atomtype = sp2
+bond1 23
+atom 25 (6) (-4, -709, 0) def
+info atom atomtype = sp2
+bond1 22
+bonda 24
+atom 26 (6) (3674, -1419, 0) def
+info atom atomtype = sp2
+atom 27 (6) (3674, 1420, 0) def
+info atom atomtype = sp2
+bonda 15
+atom 28 (6) (2445, 709, 0) def
+info atom atomtype = sp2
+bond1 27
+bonda 23
+atom 29 (6) (2445, -709, 0) def
+info atom atomtype = sp2
+bond1 26
+bonda 22 28
+atom 30 (6) (-3675, -1419, 0) def
+info atom atomtype = sp2
+bonda 21
+atom 31 (6) (-3675, 1420, 0) def
+info atom atomtype = sp2
+bonda 20 1
+atom 32 (6) (-4904, 709, 0) def
+info atom atomtype = sp2
+bond1 31
+atom 33 (6) (-4904, -709, 0) def
+info atom atomtype = sp2
+bond1 30
+bonda 32
+atom 34 (6) (-1225, -1419, 0) def
+info atom atomtype = sp2
+bond1 21
+bonda 25
+atom 35 (6) (-1225, 1420, 0) def
+info atom atomtype = sp2
+bond1 20
+bonda 24 6
+atom 36 (6) (-2454, -3550, 0) def
+info atom atomtype = sp2
+atom 37 (6) (-2454, -4969, 0) def
+info atom atomtype = sp2
+bonda 36
+atom 38 (6) (1224, -5679, 0) def
+info atom atomtype = sp2
+atom 39 (1) (1224, -6689, 0) def
+bond1 38
+atom 40 (6) (1224, -2839, 0) def
+info atom atomtype = sp2
+bonda 22
+atom 41 (6) (-4, -3550, 0) def
+info atom atomtype = sp2
+bond1 40
+atom 42 (6) (-4, -4969, 0) def
+info atom atomtype = sp2
+bonda 38 41
+atom 43 (6) (3674, -5679, 0) def
+info atom atomtype = sp2
+atom 44 (1) (3674, -6689, 0) def
+bond1 43
+atom 45 (6) (3674, -2839, 0) def
+info atom atomtype = sp2
+bonda 26
+atom 46 (6) (2445, -3550, 0) def
+info atom atomtype = sp2
+bond1 45
+bonda 40
+atom 47 (6) (2445, -4969, 0) def
+info atom atomtype = sp2
+bonda 38 43 46
+atom 48 (1) (-5778, -5474, 0) def
+atom 49 (6) (-3675, -5679, 0) def
+info atom atomtype = sp2
+bonda 37
+atom 50 (1) (-3675, -6689, 0) def
+bond1 49
+atom 51 (6) (-3675, -2839, 0) def
+info atom atomtype = sp2
+bonda 36 30
+atom 52 (6) (-4904, -3550, 0) def
+info atom atomtype = sp2
+bond1 51
+atom 53 (6) (-4904, -4969, 0) def
+info atom atomtype = sp2
+bond1 48
+bonda 49 52
+atom 54 (6) (-1225, -5679, 0) def
+info atom atomtype = sp2
+bonda 37 42
+atom 55 (1) (-1225, -6689, 0) def
+bond1 54
+atom 56 (6) (-1225, -2839, 0) def
+info atom atomtype = sp2
+bond1 36
+bonda 41 34
+atom 57 (1) (-3675, 6690, 0) def
+bond1 2
+atom 58 (1) (-1225, 6690, 0) def
 bond1 7
-atom 187 (0) (6086, 0, -11749) def
-bond1 8
-atom 188 (0) (8153, 0, -11749) def
-bond1 9
-atom 189 (0) (-8898, 0, -11749) def
-bond1 1
-atom 190 (0) (-308, 0, 10518) def
-bond1 158
-atom 191 (0) (1758, 0, 10519) def
-bond1 159
-atom 192 (0) (3954, 0, 10518) def
-bond1 160
-atom 193 (0) (6022, 0, 10518) def
-bond1 161
-atom 194 (0) (8217, 0, 10518) def
-bond1 162
-atom 195 (0) (-8834, 0, 10518) def
-bond1 154
-atom 196 (0) (-6766, 0, 10518) def
-bond1 155
-atom 197 (0) (-4571, 0, 10518) def
-bond1 156
-atom 198 (0) (-2503, 0, 10518) def
-bond1 157
-egroup (graphene)
+atom 59 (6) (4903, 4969, 0) def
+info atom atomtype = sp2
+bonda 16
+atom 60 (1) (5778, 5474, 0) def
+bond1 59
+atom 61 (6) (4903, 3550, 0) def
+info atom atomtype = sp2
+bonda 15 59
+atom 62 (6) (4903, 709, 0) def
+info atom atomtype = sp2
+bonda 27
+atom 63 (6) (6133, 2840, 0) def
+info atom atomtype = sp2
+bonda 61
+atom 64 (1) (7007, 3346, 0) def
+bond1 63
+atom 65 (6) (6133, 1419, 0) def
+info atom atomtype = sp2
+bonda 63 62
+atom 66 (1) (7008, 915, 0) def
+bond1 65
+atom 67 (6) (-6133, 2840, 0) def
+info atom atomtype = sp2
+bonda 5
+atom 68 (1) (-7008, 3345, 0) def
+bond1 67
+atom 69 (6) (-6134, 1419, 0) def
+info atom atomtype = sp2
+bonda 32 67
+atom 70 (1) (-7008, 914, 0) def
+bond1 69
+atom 71 (6) (4903, -709, 0) def
+info atom atomtype = sp2
+bonda 26 62
+atom 72 (6) (-6133, -1419, 0) def
+info atom atomtype = sp2
+bonda 33
+atom 73 (1) (-7008, -914, 0) def
+bond1 72
+atom 74 (6) (-6134, -2840, 0) def
+info atom atomtype = sp2
+bonda 52 72
+atom 75 (1) (-7008, -3345, 0) def
+bond1 74
+atom 76 (6) (4903, -3550, 0) def
+info atom atomtype = sp2
+bonda 45
+atom 77 (6) (6133, -1419, 0) def
+info atom atomtype = sp2
+bonda 71
+atom 78 (1) (7007, -913, 0) def
+bond1 77
+atom 79 (6) (6133, -2840, 0) def
+info atom atomtype = sp2
+bonda 77 76
+atom 80 (1) (7008, -3344, 0) def
+bond1 79
+atom 81 (6) (4903, -4969, 0) def
+info atom atomtype = sp2
+bonda 76 43
+atom 82 (1) (5777, -5475, 0) def
+bond1 81
+egroup (Graphene)
 end1
 group (Clipboard)
+info opengroup open = True
+mol (moiety) tub
+atom 83 (0) (-1844, 0, 1065) def
+atom 84 (0) (614, 0, -1065) def
+atom 85 (0) (614, 0, 1065) def
+atom 86 (6) (0, 0, 1420) def
+info atom atomtype = sp2
+bonda 85
+atom 87 (0) (0, 0, 2130) def
+bonda 86
+atom 88 (6) (0, 0, -1420) def
+info atom atomtype = sp2
+bonda 84
+atom 89 (0) (0, 0, -2130) def
+bonda 88
+atom 90 (6) (-1229, 0, -709) def
+info atom atomtype = sp2
+bond1 88
+atom 91 (0) (-1844, 0, -1064) def
+bonda 90
+atom 92 (6) (-1229, 0, 710) def
+info atom atomtype = sp2
+bond1 86
+bonda 83 90
 egroup (Clipboard)
-end molecular machine part graphene
+end molecular machine part Graphene
