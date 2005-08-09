@@ -159,6 +159,11 @@ class ElementPeriodicTable(Singleton):
                         "Se" :  (  1.881,), "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
                         "Ti" :  ( 2.300,)
                      }
+                     
+# Format of _mendeleev:
+# Symbol, Element Name, atomic mass in 10-27 kg, 
+# [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
+
     _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
                   ("H",  "Hydrogen",    1.6737, [[1, 30, onebond]]),
                   ("He", "Helium",      6.646,  None),
