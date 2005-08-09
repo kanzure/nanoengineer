@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Thu Aug 4 18:24:55 2005
+# Created: Tue Aug 9 18:45:46 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,34 +12,28 @@ from qt import *
 
 image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
-    "\x1c\x49\x44\x41\x54\x78\x9c\xed\x93\xb1\x6a\xc2" \
-    "\x40\x18\xc7\x7f\x57\x1c\xa5\x8b\x53\x9e\xa1\x4d" \
-    "\xe7\x82\xef\x50\x28\xb7\x95\x0e\x82\xd0\x9b\xe2" \
-    "\x52\xc8\xa6\x64\x72\x28\x74\xca\x74\x0e\xe2\x20" \
-    "\x2e\x0e\x85\xbe\x43\x8e\x2c\x72\xd2\xb4\xe2\xe6" \
-    "\xe2\x13\xf4\x05\xec\x10\x12\x92\x96\x48\x89\x38" \
-    "\x54\xfa\x9b\xbe\xbb\x3f\xf7\xdd\xf1\xe3\x3e\x61" \
-    "\x8c\xe1\x18\x34\xea\x1e\x54\x4a\xed\xaa\x32\xad" \
-    "\xb5\x38\xab\xdb\x18\x20\x89\x66\x24\xd1\x0c\x80" \
-    "\xe9\x28\x66\x3a\x8a\xf3\xec\xa0\xc6\xfb\x38\x5a" \
-    "\xe3\xdc\xf1\x3e\x67\x55\xb8\xed\xbb\xbc\xbe\x7f" \
-    "\xb8\x2e\x65\xa5\x17\xb7\xba\x96\x56\xd7\x02\xb0" \
-    "\x1e\x6c\x59\x0f\xb6\x00\x98\x61\x8c\x19\xa6\xfe" \
-    "\xc6\x9b\x15\xe3\xcd\x0a\x80\xe6\xd2\xa7\xb9\xf4" \
-    "\x81\x53\x70\x2c\xb2\x01\xa9\xe3\xb8\x8a\x1f\xff" \
-    "\xb8\xdf\x8b\xe9\xf7\x52\x4f\x52\x4a\xa4\x94\x00" \
-    "\x04\x8e\x25\x70\x52\xf7\x76\xee\x60\xe7\x4e\xba" \
-    "\xbf\x70\x09\x16\x2e\xf0\xef\xb8\x02\xad\xb5\x68" \
-    "\x14\x17\x59\xad\x94\xda\xbd\xbe\xbc\x03\x70\x73" \
-    "\x7b\xc9\x24\x89\x00\xe8\xb8\x6d\xde\xfc\x4f\x00" \
-    "\xae\x9e\xce\xf9\x78\xee\x00\x70\xf1\x38\xc9\xfd" \
-    "\x66\x83\xf2\x87\x1d\x17\x39\xd4\x77\xc9\xf1\xf7" \
-    "\xa0\x78\x49\x18\x86\x00\x78\x9e\xc7\x6f\x6a\x38" \
-    "\x19\xc7\x45\xea\xf8\xd6\x5a\x8b\x2f\x29\x94\x78" \
-    "\x0c\x77\x48\xb1\xfb\x00\x00\x00\x00\x49\x45\x4e" \
-    "\x44\xae\x42\x60\x82"
+    "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
+    "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
+    "\xd7\x49\x44\x41\x54\x78\x9c\xe5\x93\x31\x8a\x02" \
+    "\x41\x10\x45\xdf\x18\x9b\x19\x4d\xe4\x09\xfe\x69" \
+    "\xfa\x08\xe6\x86\x66\xca\x44\x66\x5e\xc0\xc0\x44" \
+    "\x33\x6f\xe0\x01\xb4\x93\xa1\x15\x41\x0c\x84\x49" \
+    "\x3c\xc1\x80\xf1\x37\x18\x58\x56\xcc\x96\x16\x76" \
+    "\xd9\x17\x16\xd4\xaf\xcf\x83\x82\xcc\x14\x3f\x59" \
+    "\x92\xe4\xac\x2d\x24\x99\xf6\x6c\xda\xb3\x25\xf9" \
+    "\x74\x78\xf8\x74\x78\x58\x92\x7b\x59\x2f\x01\xd9" \
+    "\x03\x0b\xc8\xeb\xe4\xab\xe1\x60\x94\x18\x8c\x12" \
+    "\x00\xd7\xd9\x9d\xeb\xec\x0e\xc0\x7e\x1e\xd9\xcf" \
+    "\x23\x00\xab\xe6\xc2\xaa\xb9\x00\xd0\x3f\x4e\xe8" \
+    "\x1f\x27\x00\x6c\x96\x91\xcd\x32\xbe\x06\x66\x6f" \
+    "\x98\x8b\xcf\x39\x9c\x8e\x23\xd3\x71\xe7\x21\x84" \
+    "\x40\x08\x01\x80\xaa\x4c\x54\x65\xe7\x36\x6d\x4b" \
+    "\xd2\xb6\xec\xe6\xb5\xa8\x6a\x01\xff\xde\xe1\x1b" \
+    "\x92\xdc\xdc\x0a\x37\xb7\xc2\x92\x5c\xd3\xba\xa6" \
+    "\xb5\x24\x7b\x3d\xb4\xd7\xc3\xee\x67\x77\x0b\xf7" \
+    "\x76\x8b\xbf\xfa\xcb\xdf\xf9\xa8\xcf\x5f\xc1\x13" \
+    "\xdd\x30\x66\xf2\xaf\x98\x1f\x6d\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class ElementSelectorDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
@@ -310,37 +304,61 @@ class ElementSelectorDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Element Selector"))
+        QToolTip.add(self.elementFrame,self.__tr("3D thumbnail view"))
+        QWhatsThis.add(self.elementFrame,self.__tr("3D view of current atom type"))
         self.elementButtonGroup.setTitle(QString.null)
         self.toolButton1.setText(self.__tr("H"))
         self.toolButton1.setAccel(self.__tr("H"))
+        QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
         self.toolButton2.setText(self.__tr("He"))
+        QToolTip.add(self.toolButton2,self.__tr("Helium"))
         self.toolButton6.setText(self.__tr("C"))
         self.toolButton6.setAccel(self.__tr("C"))
+        QToolTip.add(self.toolButton6,self.__tr("Carbon"))
         self.toolButton7.setText(self.__tr("N"))
         self.toolButton7.setAccel(self.__tr("N"))
+        QToolTip.add(self.toolButton7,self.__tr("Nitrogen"))
         self.toolButton8.setText(self.__tr("O"))
         self.toolButton8.setAccel(self.__tr("O"))
+        QToolTip.add(self.toolButton8,self.__tr("Oxygen"))
         self.toolButton10.setText(self.__tr("Ne"))
+        QToolTip.add(self.toolButton10,self.__tr("Neon"))
         self.toolButton9.setText(self.__tr("F"))
         self.toolButton9.setAccel(self.__tr("F"))
+        QToolTip.add(self.toolButton9,self.__tr("Fluorine"))
         self.toolButton13.setText(self.__tr("Al"))
+        QToolTip.add(self.toolButton13,self.__tr("Aluminum"))
         self.toolButton17.setText(self.__tr("Cl"))
+        QToolTip.add(self.toolButton17,self.__tr("Chlorine"))
         self.toolButton5.setText(self.__tr("B"))
         self.toolButton5.setAccel(self.__tr("B"))
+        QToolTip.add(self.toolButton5,self.__tr("Boron"))
         self.toolButton10_2.setText(self.__tr("Ar"))
+        QToolTip.add(self.toolButton10_2,self.__tr("Argon"))
         self.toolButton15.setText(self.__tr("P"))
         self.toolButton15.setAccel(self.__tr("P"))
+        QToolTip.add(self.toolButton15,self.__tr("Phosphorus"))
         self.toolButton16.setText(self.__tr("S"))
         self.toolButton16.setAccel(self.__tr("S"))
+        QToolTip.add(self.toolButton16,self.__tr("Sulfur"))
         self.toolButton14.setText(self.__tr("Si"))
+        QToolTip.add(self.toolButton14,self.__tr("Silicon"))
         self.toolButton33.setText(self.__tr("As"))
+        QToolTip.add(self.toolButton33,self.__tr("Arsenic"))
         self.toolButton34.setText(self.__tr("Se"))
+        QToolTip.add(self.toolButton34,self.__tr("Selenium"))
         self.toolButton35.setText(self.__tr("Br"))
+        QToolTip.add(self.toolButton35,self.__tr("Bromine"))
         self.toolButton36.setText(self.__tr("Kr"))
+        QToolTip.add(self.toolButton36,self.__tr("Krypton"))
         self.toolButton32.setText(self.__tr("Ge"))
+        QToolTip.add(self.toolButton32,self.__tr("Germanium"))
         self.TransmuteButton.setText(self.__tr("Transmute"))
+        QToolTip.add(self.TransmuteButton,self.__tr("Transmutes selected atoms in the 3D workspace to current atom type above"))
+        QWhatsThis.add(self.TransmuteButton,self.__tr("Transmutes selected atoms in the 3D workspace to current atom above."))
         self.transmuteCheckBox.setText(self.__tr("Force to Keep Bonds"))
-        QToolTip.add(self.transmuteCheckBox,self.__tr("Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong."))
+        QToolTip.add(self.transmuteCheckBox,self.__tr("Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong"))
+        QWhatsThis.add(self.transmuteCheckBox,self.__tr("Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong."))
         self.closePTableButton.setText(self.__tr("Close"))
 
 

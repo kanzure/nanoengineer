@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>211</width>
-            <height>513</height>
+            <width>226</width>
+            <height>517</height>
         </rect>
     </property>
     <property name="palette">
@@ -603,6 +603,9 @@
                     <property name="buttonGroupId">
                         <number>1</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Hydrogen</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="0" column="5">
                     <property name="name">
@@ -622,6 +625,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>2</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Helium</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="1" column="1">
@@ -643,6 +649,9 @@
                     <property name="buttonGroupId">
                         <number>6</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Carbon</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="1" column="2">
                     <property name="name">
@@ -662,6 +671,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>7</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Nitrogen</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="1" column="3">
@@ -683,6 +695,9 @@
                     <property name="buttonGroupId">
                         <number>8</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Oxygen</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="1" column="5">
                     <property name="name">
@@ -702,6 +717,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>10</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Neon</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="1" column="4">
@@ -723,6 +741,9 @@
                     <property name="buttonGroupId">
                         <number>9</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Fluorine</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="2" column="0">
                     <property name="name">
@@ -742,6 +763,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>13</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Aluminum</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="2" column="4">
@@ -763,6 +787,9 @@
                     <property name="buttonGroupId">
                         <number>17</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Chlorine</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="1" column="0">
                     <property name="name">
@@ -782,6 +809,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>5</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Boron</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="2" column="5">
@@ -803,6 +833,9 @@
                     <property name="buttonGroupId">
                         <number>18</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Argon</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="2" column="2">
                     <property name="name">
@@ -822,6 +855,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>15</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Phosphorus</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="2" column="3">
@@ -843,6 +879,9 @@
                     <property name="buttonGroupId">
                         <number>16</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Sulfur</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="2" column="1">
                     <property name="name">
@@ -862,6 +901,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>14</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Silicon</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="3" column="2">
@@ -883,6 +925,9 @@
                     <property name="buttonGroupId">
                         <number>33</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Arsenic</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="3" column="3">
                     <property name="name">
@@ -902,6 +947,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>34</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Selenium</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="3" column="4">
@@ -923,6 +971,9 @@
                     <property name="buttonGroupId">
                         <number>35</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Bromine</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="3" column="5">
                     <property name="name">
@@ -943,6 +994,9 @@
                     <property name="buttonGroupId">
                         <number>36</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Krypton</string>
+                    </property>
                 </widget>
                 <widget class="QToolButton" row="3" column="1">
                     <property name="name">
@@ -962,6 +1016,9 @@
                     </property>
                     <property name="buttonGroupId">
                         <number>32</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Germanium</string>
                     </property>
                 </widget>
             </grid>
@@ -1002,7 +1059,10 @@
                         <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Save the current color setting for elements in a text file.</string>
+                        <string>Save the current element color settings to a file</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Save the current color settings for elements in a text file.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton" row="1" column="0">
@@ -1010,13 +1070,16 @@
                         <cstring>defaultButton</cstring>
                     </property>
                     <property name="text">
-                        <string>Set To Default</string>
+                        <string>Restore Defaults</string>
                     </property>
                     <property name="autoDefault">
                         <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Set element color to the default set.</string>
+                        <string>Restore current element colors to the default colors.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Restore current element colors to the default colors.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton" row="0" column="0">
@@ -1030,6 +1093,9 @@
                         <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
+                        <string>Load element colors from file</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
                         <string>Load element colors from an external text file.</string>
                     </property>
                 </widget>
@@ -1055,7 +1121,10 @@
                         <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Set elements color to the alternate set.</string>
+                        <string>Set element colors to the alternate color set</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Set element colors to the alternate color set.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton" row="2" column="0">
@@ -1095,7 +1164,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="341">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011c49444154789ced93b16ac24018c77f571ca58b539ea14de782ef5028b7950e82d09be252c8a664722874ca740ee2202e0e85be438e2c72d2b4e2e6e213f405ec1012929648893854fa9bbebb3ff7ddf1e33e618ce11834ea1e544aedaa32adb538abdb1820896624d10c80e928663a8af3eca0c6fb385ae3dcf13e6755b8edbbbcbe7fb82e65a517b7ba9656d702b01e6c590fb60098618c19a6fec69b15e3cd0a80e6d2a7b9f48153702cb201a9e3b88a1fffb8df8be9f7524f524aa49400048e257052f776ee60e74ebabf7009162ef0efb802adb568141759ad94dabdbebc0370737bc9248900e8b86ddefc4f00ae9ecef978ee0070f138c9fd6683f2871d1739d477c9f1f7a07849188600789ec76f6a3819c745eaf8d65a8b2f2994780c7748b1fb0000000049454e44ae426082</data>
+        <data format="PNG" length="272">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000d749444154789ce593318a02411045df189b194de409fe69fa08e68666ca44665ec0c044336fe001b493a115410c84493cc180f137185856cc961676d91716d4afcf8382cc143f5992e4ac2d2499f66cdab325f97478f8747858927b592f01d9030bc8ebe4abe16094188c1200d7d99debec0ec07e1ed9cf2300abe6c2aab900d03f4ee81f27006c9691cd32be06666f988bcf399c8e23d371e7218440080180aa4c5465e7366d4bd2b6ece6b5a86a01ffdee11b92dcdc0a37b7c2925cd3baa6b5247b3db4d7c3ee67770bf7768bbffacbdff9a8cf5fc113dd3066f2af981f6d0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
