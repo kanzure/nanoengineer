@@ -23,6 +23,7 @@ class rotateMode(basicMode):
         basicMode.Enter(self)
         # Set background color to the previous mode's bg color
         bg = self.backgroundColor = self.o.prevModeColor
+        gradient = self.backgroundGradient = self.o.prevModeGradient
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
