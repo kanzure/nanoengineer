@@ -143,21 +143,25 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bond1RB = QToolButton(bg2, "")
     w.depositAtomDashboard.bond1RB.setPixmap(imagename_to_pixmap('bond1.png'))
     w.depositAtomDashboard.bond1RB.setToggleButton(1)
+    w.depositAtomDashboard.bond1RB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.bond1RB, qApp.translate("MainWindow","Single bond", None))
     
     w.depositAtomDashboard.bond2RB = QToolButton(bg2, "")
     w.depositAtomDashboard.bond2RB.setPixmap(imagename_to_pixmap('bond2.png'))
     w.depositAtomDashboard.bond2RB.setToggleButton(1)
+    w.depositAtomDashboard.bond2RB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.bond2RB, qApp.translate("MainWindow","Double bond", None))
     
     w.depositAtomDashboard.bond3RB = QToolButton(bg2, "")
     w.depositAtomDashboard.bond3RB.setPixmap(imagename_to_pixmap('bond3.png'))
     w.depositAtomDashboard.bond3RB.setToggleButton(1)
+    w.depositAtomDashboard.bond3RB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.bond3RB, qApp.translate("MainWindow","Triple bond", None))
     
     w.depositAtomDashboard.bondaRB = QToolButton(bg2, "")
     w.depositAtomDashboard.bondaRB.setPixmap(imagename_to_pixmap('bonda.png'))
     w.depositAtomDashboard.bondaRB.setToggleButton(1)
+    w.depositAtomDashboard.bondaRB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.bondaRB, qApp.translate("MainWindow","Aromatic bond", None))
     
     
