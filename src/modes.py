@@ -229,9 +229,15 @@ class basicMode(anyMode):
         # then besides this, we'd also need to clear the prefs cache for
         # this key... and update it more often.)
         self.backgroundColor = bgcolor
+        
+        # New feature.  See docstring for set_backgroundGradient. Mark 050808
+        self.bggradient_prefs_key = key = "A6/mode %s backgroundGradient" % self.modename
+        self.backgroundGradient = prefs.get( key, False )
+
         return
 
     def set_backgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
+        '''Sets the mode's background color and stores it in the prefs db.'''
         self.backgroundColor = color
         # bruce 041118 comment: the above, by itself, would only last until the
         # next time this mode object was remade (presently, whenever a new file
@@ -241,6 +247,18 @@ class basicMode(anyMode):
         prefs[key] = color # this stores the new color into a prefs db file
         return
 
+    def set_backgroundGradient(self, gradient): # mark 050808 new feature
+        '''Stores the background gradient prefs value in the prefs db.
+        gradient can be either True or False.  
+        If True, the background gradient is set to a 'Blue Sky' gradient.
+        If False, the background color is used to fill the GLPane.
+        See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.'''
+        self.backgroundGradient = gradient
+        prefs = self.prefs
+        key = self.bggradient_prefs_key
+        prefs[key] = gradient
+        return
+        
     #bruce 050416 revised makeMenus-related methods to permit "dynamic context menus",
     # then revised them again 050420 to fix bug 554 which this introduced.
 
