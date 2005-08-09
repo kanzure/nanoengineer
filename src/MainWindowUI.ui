@@ -670,13 +670,6 @@
                 <height>29</height>
             </rect>
         </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-            </color>
-        </property>
         <property name="backgroundOrigin">
             <enum>WidgetOrigin</enum>
         </property>

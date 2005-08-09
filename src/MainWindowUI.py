@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Jul 29 19:25:17 2005
+# Created: Mon Aug 8 23:30:46 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6582,7 +6582,6 @@ class MainWindow(QMainWindow):
 
         self.fuseChunksDashboard.setEnabled(1)
         self.fuseChunksDashboard.setGeometry(QRect(467,48,92,29))
-        self.fuseChunksDashboard.setPaletteBackgroundColor(QColor(236,233,216))
         self.fuseChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
