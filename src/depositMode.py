@@ -77,24 +77,8 @@ def find_hotspot_for_pasting(obj):
         return True, obj.hotspot or obj.singlets[0]
     pass
 
-    #bruce 050217: fix_bad_hotspot won't be needed anymore, since I'm making mol.hotspot use getattr to fix other bugs
-##def fix_bad_hotspot(mol): # bug workaround [guessing it'll fix a bug I noticed, but this is speculative so far -- bruce 050121]
-##    if mol.hotspot is not None and (mol.hotspot not in mol.singlets): # revised 050513
-##        if platform.atom_debug:
-##            print "atom_debug: fix_bad_hotspot removed a bad hotspot from %r" % mol
-##        mol.hotspot = None
-##    return
-
 def do_what_MainWindowUI_should_do(w):
 
-    # this code (disabled) shows one way to work around QToolButton bug on Mac OS X 10.4 Tiger [bruce 050729]
-    if "this OS" == "tiger": # never true -- I don't know how to detect whether we're running on Jaguar, Panther, or Tiger
-        try:
-            from debug_prefs import hack_QToolButton
-            hack_QToolButton( w.toolsDepositAtomAction, w ) # make button look different when On
-        except:
-            print_compact_traceback()
-    
     w.depositAtomDashboard.clear()
 
     w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")

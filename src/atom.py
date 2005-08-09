@@ -44,6 +44,14 @@ if __name__=='__main__':
     except:
         print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
         raise
+    if sys.platform == 'darwin': #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
+        try:
+            import widget_hacks
+            widget_hacks.doit3()
+        except:
+            print "exception in widget_hacks.doit3() (or in importing it) ignored"
+        pass
+    pass
 
 from qt import QApplication, SIGNAL, QRect, QDesktopWidget
 

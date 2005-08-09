@@ -453,8 +453,9 @@ class DebugMenuMixin:
         history = self._debug_history()
         from HistoryWidget import orangemsg, redmsg, greenmsg
         history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
-        history.message( redmsg( "(As of 050806, this doesn't yet work perfectly for the MMTK buttons.)" ))
-        from debug_prefs import hack_every_QToolButton
+        from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
+        if hack_every_QToolButton_warning:
+            history.message( orangemsg( hack_every_QToolButton_warning ))
         hack_every_QToolButton( self._debug_win )
         history.message( "Done.")
         return
