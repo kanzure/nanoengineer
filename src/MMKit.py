@@ -185,7 +185,6 @@ class MMKit(MMKitDialog):
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
         else:  ## Element page
-            print "MMKit.tabpageChanged: pasteP=False"
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
             self.elemGLPane.resetView()
