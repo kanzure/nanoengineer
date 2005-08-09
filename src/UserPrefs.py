@@ -133,7 +133,12 @@ class UserPrefs(UserPrefsDialog):
         else:
             self.mode_combox.setCurrentItem(0) # Set to Select Chunks
 
-        self.bg_solid_setup()
+        self.bg_mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        
+        if self.bg_mode.backgroundGradient:
+            self.bg_gradient_setup()
+        else:
+            self.bg_solid_setup()
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the display page.
@@ -196,40 +201,7 @@ class UserPrefs(UserPrefsDialog):
         # ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ),
         # (This is a per-atom warning, but I decided to put it on the Bonds page since you need it when
         #  working on high order bonds. And, since I could fit that into the UI more easily.)
-        try:
-            self.show_valence_errors_checkbox # this might not exist yet in the UI
-        except:
-            try:
-                # try to make one ourselves -- this can be removed (if desired) once it's added to the .ui file,
-                # but believe it or not, this code actually works fine (at least for me, on Mac OS X Tiger).
-                if platform.atom_debug:
-                    print "atom_debug: fyi: making our own show_valence_errors_checkbox since it's not in the .ui file"
-                tabpage = self.show_bond_labels_checkbox.parent()
-                self.show_valence_errors_checkbox = QCheckBox(QString("Show Valence Errors"),tabpage,"show_valence_errors_checkbox")
-                from debug_prefs import find_layout, qlayout_items
-                layout27 = find_layout(self.show_bond_labels_checkbox)
-                # we need to add our checkbox before the spacer.
-                items = qlayout_items(layout27)
-                spacer18 = items[-1]
-                layout27.removeItem(spacer18)
-                layout27.addWidget(self.show_valence_errors_checkbox)
-                layout27.addItem(spacer18) # this sequence actually works.
-                # get it to show up... at least some of this is required.
-                layout27.invalidate() #k helps?
-                layout27.activate() #k helps?
-                self.show_valence_errors_checkbox.show() #k removing this makes it not show up even with activate & update... why?
-                self.show_valence_errors_checkbox.topLevelWidget().update()#k helps??
-                # now connect it
-                self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
-                if platform.atom_debug:
-                    print "atom_debug: making show_valence_errors_checkbox worked!"
-            except:
-                # didn't work -- nevermind (we'll retry each time the page is shown -- nevermind that either)
-                if platform.atom_debug:
-                    print_compact_traceback("atom_debug: making show_valence_errors_checkbox didn't work: ")
-                self.show_valence_errors_checkbox = None
-                del self.show_valence_errors_checkbox
-        
+
         if hasattr(self, 'show_valence_errors_checkbox'):
             self.show_valence_errors_checkbox.setChecked( env.prefs[ showValenceErrors_prefs_key] )
             # note: this does cause the checkbox to send its "toggled(bool)" signal to our slot method.
@@ -407,7 +379,7 @@ class UserPrefs(UserPrefsDialog):
         '''Set default display mode of GLpane.
         '''
         self.default_display_mode = val
-        self.glpane.setDisplay(val)
+        self.glpane.setDisplay(val, True)
         self.glpane.gl_update()
         
     ########## End of slot methods for "Atoms" page widgets ###########
@@ -474,51 +446,58 @@ class UserPrefs(UserPrefsDialog):
     def mode_changed(self, val):
         '''Slot called when the user changes the mode in the drop box.
         '''
-        # Gradient option is disabled for A6.  This will alway call bg_solid_setup() until A7.
-        if self.fill_type_combox.currentText() == 'Solid':
-            self.bg_solid_setup()
-        else: # Gradient
+        self.bg_mode = self.glpane._find_mode(modes[val])
+        
+        # Update the background page.
+        if self.bg_mode.backgroundGradient:
             self.bg_gradient_setup()
+        else:
+            self.bg_solid_setup()
     
     def fill_type_changed(self, ftype):
         '''Slot called when the user changes the Fill Type.
         '''
         if ftype == 'Solid':
             self.bg_solid_setup()
-        else:
+        else: # 'Blue Sky'
             self.bg_gradient_setup()
+        
+        # Update the GLPane if the selected mode is the current mode.
+        if self.bg_mode == self.glpane.mode:
+            self.glpane.gl_update()
         
     def bg_solid_setup(self):
         '''Setup the BG color page for a solid fill type.
         '''
-        self.bg1_color_lbl.setText("Color :")
-        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
+        #self.bg1_color_lbl.show()
+        #self.bg1_color_frame.show()
+        #self.choose_bg1_color_btn.show()
         
-        # Hide the gradient widgets
-        # I doubt I'll be able to get "Gradient" backgrounds working by A6.
-        # Mark 050630
-        self.bg2_color_lbl.hide()
-        self.bg2_color_frame.hide()
-        self.choose_bg2_color_btn.hide()
-        self.gradient_orient_btngrp.hide()
+        self.bg1_color_lbl.setEnabled(True)
+        self.bg1_color_frame.setEnabled(True)
+        self.choose_bg1_color_btn.setEnabled(True)
+        
+        self.fill_type_combox.setCurrentItem(0) # Solid
+        
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.bg_mode.backgroundColor))
+        
+        self.bg_mode.set_backgroundGradient(False) # This also stores the pref in the db.
     
     def bg_gradient_setup(self):
         '''Setup the Background page for a gradient fill type.
-        This is never called in A6.
         '''
-        self.bg1_color_lbl.setText("Color 1 :")
-        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
-        self.bg2_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
+        #self.bg1_color_lbl.hide()
+        #self.bg1_color_frame.hide()
+        #self.choose_bg1_color_btn.hide()
         
-        # Show the gradient widgets.
-        self.bg2_color_lbl.show()
-        self.bg2_color_frame.show()
-        self.choose_bg2_color_btn.show()
-        self.gradient_orient_btngrp.show()
+        self.bg1_color_lbl.setEnabled(False)
+        self.bg1_color_frame.setEnabled(False)
+        self.choose_bg1_color_btn.setEnabled(False)
+        
+        self.fill_type_combox.setCurrentItem(1) # Gradient
+        
+        self.bg_mode.set_backgroundGradient(True) # This also stores the pref in the db.
 
     def change_bg1_color(self):
         '''Change a mode's primary background color.
@@ -527,30 +506,18 @@ class UserPrefs(UserPrefsDialog):
         c = QColorDialog.getColor(self.bg1_color_frame.paletteBackgroundColor(), self, "choose")
         if c.isValid():
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-            mode.set_backgroundColor( bgcolor )
+            self.bg_mode.set_backgroundColor( bgcolor )
             self.bg1_color_frame.setPaletteBackgroundColor(c)
-
-    def change_bg2_color(self):
-        '''Change a mode's secondary background color, used for gradient backgrounds. NIY.
-        '''
-        c = QColorDialog.getColor(self.bg2_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            print "mode.set_backgroundColor2( bgcolor ) needs to be enabled" # Not implemented
-            self.bg2_color_frame.setPaletteBackgroundColor(c)
                 
     def restore_default_bgcolor(self):
         '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
         '''
-        # Get the mode object selected in the combo box.
-        mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
         # Set the background color to the default.
-        mode.set_backgroundColor(mode.__class__.backgroundColor)
-        # Now update the color square (frame).
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(mode.backgroundColor))
+        self.bg_mode.set_backgroundColor(self.bg_mode.__class__.backgroundColor)
+        # Now update the UI.
+        self.bg_solid_setup()
         # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
-        if mode == self.glpane.mode:
+        if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()
         
     ########## End of slot methods for "Background" page widgets ###########
