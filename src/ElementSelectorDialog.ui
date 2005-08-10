@@ -854,7 +854,7 @@
                                 <string>Transmute</string>
                             </property>
                             <property name="toolTip" stdset="0">
-                                <string>Transmutes selected atoms in the 3D workspace to current atom type above</string>
+                                <string>Transmute Selected Atoms</string>
                             </property>
                             <property name="whatsThis" stdset="0">
                                 <string>Transmutes selected atoms in the 3D workspace to current atom above.</string>

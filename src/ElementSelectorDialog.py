@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
 #
-# Created: Tue Aug 9 18:45:46 2005
+# Created: Wed Aug 10 00:23:01 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -354,7 +354,7 @@ class ElementSelectorDialog(QDialog):
         self.toolButton32.setText(self.__tr("Ge"))
         QToolTip.add(self.toolButton32,self.__tr("Germanium"))
         self.TransmuteButton.setText(self.__tr("Transmute"))
-        QToolTip.add(self.TransmuteButton,self.__tr("Transmutes selected atoms in the 3D workspace to current atom type above"))
+        QToolTip.add(self.TransmuteButton,self.__tr("Transmute Selected Atoms"))
         QWhatsThis.add(self.TransmuteButton,self.__tr("Transmutes selected atoms in the 3D workspace to current atom above."))
         self.transmuteCheckBox.setText(self.__tr("Force to Keep Bonds"))
         QToolTip.add(self.transmuteCheckBox,self.__tr("Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong"))
