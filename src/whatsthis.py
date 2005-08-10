@@ -515,7 +515,7 @@ def createWhatsThis(self):
         
         #### Select Connected ####
 
-        selectConnectedActionText = "<u><b>Select Connected</b></u>     (Ctrl + Shift+C)</b></p><br>"\
+        selectConnectedActionText = "<u><b>Select Connected</b></u>     (Ctrl + Shift + C)</b></p><br>"\
             "<p><img source=\"selectConnectedAction\"><br> "\
             "Selects all the atoms that can be reached by the currently selected atom "\
             "via an unbroken chain of bonds. </p>"\
@@ -606,20 +606,7 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyPassivateAction",
                                                        self.modifyPassivateAction.iconSet().pixmap() )
 
-        self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )   
-        
-        #### Element Selector ####
-
-        modifySetElementActionText = "<u><b>Element Selector</b></u>    (Ctrl + E)</b></p><br>"\
-                       "<p><img source=\"modifySetElementAction\"><br> "\
-                       "Allows you to change the element type of selected atoms.  "\
-                       "You can also use the <b>Element Selector</b> while in "\
-                       "<b>Build Atom</b> mode to change atom types.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifySetElementAction",
-                                                       self.modifySetElementAction.iconSet().pixmap() )
-
-        self.modifySetElementAction.setWhatsThis(modifySetElementActionText )  
+        self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )
         
         #### Stretch ####
 
@@ -1117,3 +1104,130 @@ def createWhatsThis(self):
                                                        self.dispOpenBondsAction.iconSet().pixmap() )
        
         self.dispOpenBondsAction.setWhatsThis(dispOpenBondsText )
+        
+
+def create_whats_this_descriptions_for_selectAtomsMode(w):
+    "Create What's This descriptions for the Select Atoms mode dashboard widgets."
+    
+    #### Element Selector ####
+
+    eSelectorText = "<u><b>Element Selector</b></u><br>"\
+                       "<p><img source=\"eselectoricon\"><br> "\
+                       "Opens the <b>Element Selector</b>, which aids in atom selection when the "\
+                       "<b>Selection Filter</b> is activated."\
+                       "</p>"\
+                       "<p>It also contains a <b>Transmute</b> button, which allows the user to change the "\
+                       "selected atoms to the current atom type (in the Element Selector)."\
+                       "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "eselectoricon",
+                                                       w.modifySetElementAction.iconSet().pixmap() )
+       
+    w.modifySetElementAction.setWhatsThis(eSelectorText )
+    
+    # Filter Checkbox #
+    
+    filterText = "<u><b>Selection Filter</b></u><br> "\
+                        "When turned on, only atoms of the current atom type are selected."\
+                        "</p>"
+
+    QWhatsThis.add ( w.filterCheckBox, filterText )
+    
+    # Atom Type Combobox #
+    
+    elemFilterText = "<u><b>Atom Type</b></u><br> "\
+                        "When the <i>Selection Filter</i> is on, only atoms of this type are selected."\
+                        "</p>"
+                        
+    QWhatsThis.add ( w.elemFilterComboBox, elemFilterText)
+    
+def create_whats_this_descriptions_for_depositMode(w):
+    "Create What's This descriptions for the deposit (Build) mode dashboard widgets."
+    
+    #### Modeling Kit ####
+
+    mmkitText = "<u><b>Modeling Kit</b></u><br>"\
+                       "<p><img source=\"mmkiticon\"><br> "\
+                       "Opens the Modeling Kit, which aids in atom and clipboard selection."\
+                       "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "mmkiticon",
+                                                       w.modifyMMKitAction.iconSet().pixmap() )
+       
+    w.modifyMMKitAction.setWhatsThis(mmkitText )
+        
+    # Deposit Atom button
+    
+    depositText = "<u><b>Deposit Atom</b></u><br> "\
+                        "<p><img source=\"eyedroppericon\"><br> "\
+                        "Sets <i>Deposit Atom</i> mode."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "eyedroppericon",
+                        w.depositAtomDashboard.atomRB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.atomRB, depositText )
+    
+    # Paste button
+    
+    pasteText = "<u><b>Paste from Clipboard</b></u><br> "\
+                        "<p><img source=\"clipboardicon\"><br> "\
+                        "Sets <i>Paste</i> mode."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "clipboardicon",
+                        w.depositAtomDashboard.pasteRB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.pasteRB, pasteText )
+    
+    # Single Bond button
+    
+    singleBondText = "<u><b>Single Bond Mode</b></u><br> "\
+                        "<p><img source=\"singlebondicon\"><br> "\
+                        "Sets <i>Single Bond</i> mode.  Clicking on a highlighted bond "\
+                        "will change the bond to a single bond, if permitted."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "singlebondicon",
+                        w.depositAtomDashboard.bond1RB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.bond1RB, singleBondText )
+    
+    # Double Bond button
+    
+    doubleBondText = "<u><b>Double Bond Mode</b></u><br> "\
+                        "<p><img source=\"doublebondicon\"><br> "\
+                        "Sets <i>Double Bond</i> mode.  Clicking on a highlighted bond "\
+                        "will change the bond to a double bond, if permitted."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "doublebondicon",
+                        w.depositAtomDashboard.bond2RB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.bond2RB, doubleBondText )
+    
+    # Triple Bond button
+    
+    tripleBondText = "<u><b>Triple Bond Mode</b></u><br> "\
+                        "<p><img source=\"triplebondicon\"><br> "\
+                        "Sets <i>Triple Bond</i> mode.  Clicking on a highlighted bond "\
+                        "will change the bond to a triple bond, if permitted."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "triplebondicon",
+                        w.depositAtomDashboard.bond3RB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.bond3RB, tripleBondText )
+    
+    # Aromatic Bond button
+    
+    aromaticBondText = "<u><b>Aromatic Bond Mode</b></u><br> "\
+                        "<p><img source=\"aromaticbondicon\"><br> "\
+                        "Sets <i>Aromatic Bond</i> mode.  Clicking on a highlighted bond "\
+                        "will change the bond to an aromatic bond, if permitted."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "aromaticbondicon",
+                        w.depositAtomDashboard.bondaRB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.bondaRB, aromaticBondText )

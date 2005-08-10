@@ -13,16 +13,33 @@ import env
 def do_what_MainWindowUI_should_do(w):
     '''This creates the Select Atoms (not the Select Chunks) dashboard .
     '''
+    
+    # This dashboard needs to be redesigned.  Working on the tooltips and What's This descriptions
+    # made me realize how poorly the UI is laid out.  Ideas for improvements include:
+    # - totally removing the "Element Selector".  It isn't necessary and confuses the UI.
+    # - add a "Transmute" icon/button to the dashboard
+    # - add "Force to Keep Bonds" checkbox or toggle button on dashboard.
+    # - adding a more sophisticated filter that can allow the user to filter more than one atom.
+    # Mark 050810.
+     
     w.selectAtomsDashboard.clear()
 
     w.depositAtomLabel = QLabel(w.selectAtomsDashboard,"Select Atoms")
     w.depositAtomLabel.setText(" Select Atoms ")
     w.selectAtomsDashboard.addSeparator()
 
-    w.filterCheckBox = QCheckBox(" Filter : ", w.selectAtomsDashboard)
+    w.filterCheckBox = QCheckBox(" Select Only : ", w.selectAtomsDashboard)
+    QToolTip.add(w.filterCheckBox, qApp.translate("MainWindow","Selection Filter", None))
     
     w.elemFilterComboBox = QComboBox(0,w.selectAtomsDashboard, "elemFilterComboBox")
 
+    # This was an experiment to see how easy it would be to move the Transmute button and checkbox
+    # from the Element Selector to the dashboard.  Very easy.  I'll wait to discuss with Bruce during A7.
+    # Mark 050810.
+#    w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
+#    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
+#    w.transmuteCheckBox = QCheckBox(" Force to Keep Bonds", w.selectAtomsDashboard)
+    
     w.modifySetElementAction.addTo(w.selectAtomsDashboard)
 
     w.selectAtomsDashboard.addSeparator()
@@ -67,7 +84,9 @@ def do_what_MainWindowUI_should_do(w):
     #w.elemFilterComboBox.insertItem("Xenon")
     w.connect(w.elemFilterComboBox,SIGNAL("activated(int)"),w.elemChange)
     
-    
+    from whatsthis import create_whats_this_descriptions_for_selectAtomsMode
+    create_whats_this_descriptions_for_selectAtomsMode(w)
+            
 class selectMode(basicMode):
     "the default mode of GLPane"
     
