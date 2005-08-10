@@ -600,3 +600,7 @@ class GamessProp(GamessPropDialog):
         self.gamessJig.color = self.gamessJig.normcolor = self.originalColor
         self.gamessJig.cancelled = True
         self.glpane.gl_update()
+        
+    def whats_this(self):
+        from qt import QWhatsThis
+        QWhatsThis.enterWhatsThisMode()
