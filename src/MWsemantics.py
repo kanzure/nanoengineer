@@ -1426,7 +1426,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
         #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentItem should have called
         # (not sure in principle that this is always safe or always a complete fix, but it seems to work)
-        self.elemFilterComboBox.setCurrentItem(line)
+        
+        # Huaicai 8/10/05: remove the synchronization.
+        #self.elemFilterComboBox.setCurrentItem(line)
+        
         self.elemChange(line) #k arg is a guess, but seems to work
             # (btw if you use keypress to change to the same element you're in, it *doesn't* reset that element
             #  to its default atomtype (hybridization combobox in build dashboard);

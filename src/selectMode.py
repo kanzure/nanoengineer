@@ -28,28 +28,38 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomLabel.setText(" Select Atoms ")
     w.selectAtomsDashboard.addSeparator()
 
+    ## Kludge to make it work, it's really not good, may need to rework it later. Huaicai 8/10/05
     w.filterCheckBox = QCheckBox(" Select Only : ", w.selectAtomsDashboard)
-    QToolTip.add(w.filterCheckBox, qApp.translate("MainWindow","Selection Filter", None))
+    w.filterCheckBox.hide()
+    #QToolTip.add(w.filterCheckBox, qApp.translate("MainWindow","Selection Filter", None))
+    selectLabel = QLabel(w.selectAtomsDashboard, "Select:")
+    selectLabel.setText("Select: ")
     
     w.elemFilterComboBox = QComboBox(0,w.selectAtomsDashboard, "elemFilterComboBox")
-
-    # This was an experiment to see how easy it would be to move the Transmute button and checkbox
-    # from the Element Selector to the dashboard.  Very easy.  I'll wait to discuss with Bruce during A7.
-    # Mark 050810.
-#    w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
-#    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
-#    w.transmuteCheckBox = QCheckBox(" Force to Keep Bonds", w.selectAtomsDashboard)
     
-    w.modifySetElementAction.addTo(w.selectAtomsDashboard)
-
-    w.selectAtomsDashboard.addSeparator()
-
     w.selectConnectedAction.addTo(w.selectAtomsDashboard)
     w.selectDoublyAction.addTo(w.selectAtomsDashboard)
     
     w.selectAtomsDashboard.addSeparator()
+
+
+    # This was an experiment to see how easy it would be to move the Transmute button and checkbox
+    # from the Element Selector to the dashboard.  Very easy.  I'll wait to discuss with Bruce during A7.
+    # Mark 050810.
+    transmute2Label = QLabel(w.selectAtomsDashboard, "Transmute_to:")
+    transmute2Label.setText("Transmute to: ")
+    w.transmute2ComboBox = QComboBox(0,w.selectAtomsDashboard, "transmute2ComboBox")
+    w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
+    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
+                 
+    w.transmuteCheckBox = QCheckBox(" Force to Keep Bonds", w.selectAtomsDashboard)
+    QToolTip.add(w.transmuteCheckBox, qApp.translate("MainWindow","Check to keep bonds when transmute.", None))
+    w.modifySetElementAction.setEnabled(False) #addTo(w.selectAtomsDashboard)
+
+    w.selectAtomsDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.selectAtomsDashboard)
     w.selectAtomsDashboard.setLabel("Select Atoms")
+
     w.elemFilterComboBox.clear()
     # WARNING:
     # these are identified by *position*, not by their text, using corresponding entries in eCCBtab1;
@@ -59,6 +69,7 @@ def do_what_MainWindowUI_should_do(w):
     # Both eCCBtab1 and eCCBtab2 are set up and used in MWsemantics but should be moved here,
     # or perhaps with some part moved into elements.py if it ought to share code with elementSelector.py
     # and elementColors.py (though it doesn't now).
+    w.elemFilterComboBox.insertItem("All Elements")
     w.elemFilterComboBox.insertItem("Hydrogen")
     w.elemFilterComboBox.insertItem("Helium")
     w.elemFilterComboBox.insertItem("Boron")
@@ -82,11 +93,33 @@ def do_what_MainWindowUI_should_do(w):
     #w.elemFilterComboBox.insertItem("Tellurium")
     #w.elemFilterComboBox.insertItem("Iodine")
     #w.elemFilterComboBox.insertItem("Xenon")
-    w.connect(w.elemFilterComboBox,SIGNAL("activated(int)"),w.elemChange)
+    
+    
+    w.transmute2ComboBox.clear()
+    w.transmute2ComboBox.insertItem("Hydrogen")
+    w.transmute2ComboBox.insertItem("Helium")
+    w.transmute2ComboBox.insertItem("Boron")
+    w.transmute2ComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
+    w.transmute2ComboBox.insertItem("Nitrogen")
+    w.transmute2ComboBox.insertItem("Oxygen")
+    w.transmute2ComboBox.insertItem("Fluorine")
+    w.transmute2ComboBox.insertItem("Neon")
+    w.transmute2ComboBox.insertItem("Aluminum")
+    w.transmute2ComboBox.insertItem("Silicon")
+    w.transmute2ComboBox.insertItem("Phosphorus")
+    w.transmute2ComboBox.insertItem("Sulfur")
+    w.transmute2ComboBox.insertItem("Chlorine")
+    w.transmute2ComboBox.insertItem("Argon")
+    w.transmute2ComboBox.insertItem("Germanium")
+    w.transmute2ComboBox.insertItem("Arsenic")
+    w.transmute2ComboBox.insertItem("Selenium")
+    w.transmute2ComboBox.insertItem("Bromine")
+    w.transmute2ComboBox.insertItem("Krypton")
     
     from whatsthis import create_whats_this_descriptions_for_selectAtomsMode
     create_whats_this_descriptions_for_selectAtomsMode(w)
-            
+
+    
 class selectMode(basicMode):
     "the default mode of GLPane"
     
@@ -481,6 +514,8 @@ class selectAtomsMode(selectMode):
         modename = 'SELECTATOMS'
         default_mode_status_text = "Mode: Select Atoms"
         
+        eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
+                
         def Enter(self): 
             basicMode.Enter(self)
             self.o.assy.selectAtoms()
@@ -491,13 +526,38 @@ class selectAtomsMode(selectMode):
             selectMode.init_gui(self)
             self.o.setCursor(self.w.SelectAtomsCursor)
             self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
+            
+            self.w.filterCheckBox.setChecked(0)
+            self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
+            self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed) 
+            
             self.w.selectAtomsDashboard.show() 
+
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
-            self.w.filterCheckBox.setChecked(0)
+         
             
+        def transmutePressed(self):
+            '''Slot method, called when transmute button was pressed. '''
+            force = self.w.transmuteCheckBox.isChecked()
+            
+            dstElem = self.eCCBtab1[self.w.transmute2ComboBox.currentItem()] 
+            self.modifyTransmute(dstElem, force = force)
+            
+            
+        def elemChange(self, idx):
+            '''Slot method, called when element is changed.'''
+            if idx == 0: ## The first item: all types
+                self.w.filterCheckBox.setChecked(False)
+            else:
+                self.w.filterCheckBox.setChecked(True)
+                self.w.Element = self.eCCBtab1[idx-1]
+
+                
         def keyPress(self,key):
+            from MWsemantics import eCCBtab2
+            
             basicMode.keyPress(self, key)
             if key == Qt.Key_Shift:
                 self.o.setCursor(self.w.SelectAtomsAddCursor)
@@ -506,8 +566,11 @@ class selectAtomsMode(selectMode):
             # Shortcut keys for atom type in selection filter.  Bug/NFR 649.  Mark 050711.
             for sym, code, num in elemKeyTab:
                 if key == code:
-                    self.w.setElement(num)
-                                
+                    line = eCCBtab2[num] + 1
+                    self.w.elemFilterComboBox.setCurrentItem(line)
+                    self.elemChange(line)
+                    
+                              
         def keyRelease(self,key):
             basicMode.keyRelease(self, key)
             if key == Qt.Key_Shift or key == Qt.Key_Control:
