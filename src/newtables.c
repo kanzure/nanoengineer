@@ -262,6 +262,9 @@ initializeBondTable()
 
   bendDataHashtable = hashtable_new(40);
 
+#include "bends.h"
+
+#ifdef OLD_BENDS
   //                 bendName      kb, theta0
   //                         zJ/rad^2, radians
   //
@@ -309,6 +312,7 @@ initializeBondTable()
   addInitialBendData("C-2-C-1-C", 550, 2.119); 
   addInitialBendData("C-3-C-1-C", 200, 3.1415926); 
   addInitialBendData("C-1-C-2-O", 460, 2.138);
+#endif
 
   vanDerWaalsHashtable = hashtable_new(40);
 }

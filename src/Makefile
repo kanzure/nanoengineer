@@ -2,7 +2,8 @@
 
 CC=gcc
 
-CFLAGS=-O2 -g
+#CFLAGS=-O2 -g
+CFLAGS=-g
 
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
@@ -40,6 +41,9 @@ tables.c: gentab.py
 bonds.h: parmlist.py stretch.parms
 	python parmlist.py stretch.parms > bonds.h
 
+bends.h: bend.perl bending.parms
+	./bend.perl < bending.parms > bends.h
+
 SIMOBJS=\
 	simulator.o \
 	lin-alg.o \
@@ -51,17 +55,20 @@ SIMOBJS=\
 	structcompare.o \
 	interpolate.o
 
-#all: simulator
-all: noopt
-
 noopt:
 	make CFLAGS=-g simulator
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
 
-testminimize: minimize.o allocate.o
-	$(CC) -o testminimize $(LDFLAGS) minimize.o allocate.o
+testminimize: minimize.c allocate.o
+	$(CC) -o testminimize.o $(CFLAGS) -DTEST -c minimize.c
+	$(CC) -o testminimize $(LDFLAGS) testminimize.o allocate.o
+
+teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o printers.o
+	$(CC) -o teststructcompare.o $(CFLAGS) -DTEST -c structcompare.c
+	$(CC) -o teststructcompare $(LDFLAGS) teststructcompare.o minimize.o allocate.o lin-alg.o printers.o
+
 
 install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
