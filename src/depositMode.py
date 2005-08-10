@@ -130,14 +130,21 @@ def do_what_MainWindowUI_should_do(w):
 #    w.depositAtomDashboard.pasteRB = QRadioButton("Paste", bg)
 #    w.depositAtomDashboard.atomRB = QRadioButton("Atom", bg)
 ##    w.depositAtomDashboard.pasteRB = QToolButton( bg)
+
+    # QToolButton property "setAutoRaise" looks much better on Linux and Windows.
+    # It also looks good on Panther.  Maybe this will solve the problem on Tiger?
+    # Let's ask Bruce.  Mark 050809
+    
     w.depositAtomDashboard.pasteRB = QToolButton(bg,"")
     w.depositAtomDashboard.pasteRB.setPixmap(imagename_to_pixmap('paste1.png'))
     w.depositAtomDashboard.pasteRB.setToggleButton(1)
+    w.depositAtomDashboard.pasteRB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.pasteRB, qApp.translate("MainWindow","Paste", None))
     
     w.depositAtomDashboard.atomRB = QToolButton(bg,"")
     w.depositAtomDashboard.atomRB.setPixmap(imagename_to_pixmap('atom.png'))
     w.depositAtomDashboard.atomRB.setToggleButton(1)
+    w.depositAtomDashboard.atomRB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.atomRB, qApp.translate("MainWindow","Deposit", None))
     
     w.depositAtomDashboard.bond1RB = QToolButton(bg2, "")
@@ -206,6 +213,9 @@ def do_what_MainWindowUI_should_do(w):
     #w.elemChangeComboBox.insertItem("Iodine")
     #w.elemChangeComboBox.insertItem("Xenon")
     w.connect(w.elemChangeComboBox,SIGNAL("activated(int)"),w.elemChange)
+    
+    from whatsthis import create_whats_this_descriptions_for_depositMode
+    create_whats_this_descriptions_for_depositMode(w)
 
 def update_hybridComboBox(win, text = None): #bruce 050606
     "put the names of the current element's hybridization types into win.hybridComboBox; select the specified one if provided"
@@ -234,7 +244,7 @@ def update_hybridComboBox(win, text = None): #bruce 050606
     else:
         win.hybridComboBox.hide()
     return
-
+        
 class depositMode(basicMode):
     """ This class is used to manually add atoms to create any structure.
        Users know it as "Build mode".
