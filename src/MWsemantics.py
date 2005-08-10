@@ -1420,8 +1420,11 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         global MMKitWin
         
         self.Element = elt
-        if elementSelectorWin: elementSelectorWin.update_dialog(elt)
-        if MMKitWin: MMKitWin.update_dialog(elt)
+
+        #Huaicai: These are redundant since the elemChange() will do all of them. 8/10/05
+        #if elementSelectorWin: elementSelectorWin.update_dialog(elt)
+        #if MMKitWin: MMKitWin.update_dialog(elt)
+        
         line = eCCBtab2[elt]
         self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
         #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentItem should have called
@@ -1435,7 +1438,9 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
             #  to its default atomtype (hybridization combobox in build dashboard);
             #  this is due to a special case in update_hybridComboBox;
             #  I'm not sure whether this is good or bad. #k [bruce 050706])
+
         return
+    
 
     def setCarbon(self):
         self.setElement(6) 

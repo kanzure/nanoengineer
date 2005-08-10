@@ -39,7 +39,7 @@ class MMKit(MMKitDialog):
         
         #self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("pressed()"), self.change2PastePage) 
         self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
-        self.connect(self.w.depositAtomDashboard.atomRB, SIGNAL("pressed()"), self.change2ElemPage)
+        self.connect(self.w.depositAtomDashboard.atomRB, SIGNAL("stateChanged(int)"), self.atomBtnStateChanged)
         
     
     def pasteBtnStateChanged(self, state):
@@ -48,15 +48,25 @@ class MMKit(MMKitDialog):
             self.change2PastePage()
 
 
+    def atomBtnStateChanged(self, state):
+        '''Slot method. Called when the state of the atom button of deposit dashboard has been changed. ''' 
+        if state == QButton.On:
+           self.change2ElemPage() 
+
+
     def hybridChangedOutside(self, newId):
         '''Slot method. Called when user change element hybridization from the dashboard. 
          This method achieves the same effect as user clicked one of the hybridization buttons.'''
         self.hybrid_btngrp.setButton(newId)
         self.set_hybrid_type(newId)
         
+        ## fix bug 868
+        self.w.depositAtomDashboard.atomRB.setOn(True)
+       
 
     def change2ElemPage(self):
-        '''Slot method. Called when user changed element/hybrid or pressed deposit button from dashboard. '''
+        '''Slot method. Called when user changed element/hybrid or pressed deposit button from dashboard.
+        '''
         if not (self.tabWidget2.currentPageIndex() == 0):
             self.tabWidget2.setCurrentPage(0)
             
@@ -70,6 +80,7 @@ class MMKit(MMKitDialog):
     def setElementInfo(self,value):
         '''Called as a slot from button push of the element Button Group'''
         self.w.setElement(value)
+
 
     def update_dialog(self, elemNum):
         """Called when the current element has been changed.
@@ -85,12 +96,10 @@ class MMKit(MMKitDialog):
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
         
-        #type_id = self.w.hybridComboBox.currentItem()
-        #b_name = self.bond_id2name[type_id]
-        self.elemGLPane.changeHybridType(None)#b_name)
+        self.update_hybrid_btngrp()
+        
         self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
-        self.update_hybrid_btngrp()
         
         # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
         # when the user selects Copy and Paste from the Edit toolbar/menu, the MMKit should show
@@ -99,6 +108,7 @@ class MMKit(MMKitDialog):
             self.change2PastePage()
         else:
             self.change2ElemPage()
+            
         
     def update_hybrid_btngrp(self):
         '''Update the buttons of the current element's hybridization types into hybrid_btngrp; 
@@ -117,10 +127,18 @@ class MMKit(MMKitDialog):
             self.setup_S_hybrid_buttons()
         else:
             self.hybrid_btngrp.hide()
+            self.elemGLPane.changeHybridType(None)
             return
         
-        self.hybrid_btngrp.setButton(0)
+        #if len(atypes) > 1:
+        # Prequisite: w.hybridComboBox has been updated at this moment.
+        type_id = self.w.hybridComboBox.currentItem()
+        b_name = self.bond_id2name[type_id]
+        self.elemGLPane.changeHybridType(b_name)
+        self.hybrid_btngrp.setButton(type_id)
+            
         self.hybrid_btngrp.show()
+
 
     def setup_C_hybrid_buttons(self):
         '''Displays the Carbon hybrid buttons.
@@ -133,6 +151,7 @@ class MMKit(MMKitDialog):
         self.sp_btn.setPixmap(imagename_to_pixmap('C_sp.png'))
         self.sp_btn.show()
         self.graphitic_btn.hide()
+    
         
     def setup_N_hybrid_buttons(self):
         '''Displays the Nitrogen hybrid buttons.
@@ -146,6 +165,7 @@ class MMKit(MMKitDialog):
         self.graphitic_btn.setPixmap(imagename_to_pixmap('N_graphitic.png'))
         self.graphitic_btn.show()
         
+        
     def setup_O_hybrid_buttons(self):
         '''Displays the Oxygen hybrid buttons.
         '''
@@ -155,6 +175,7 @@ class MMKit(MMKitDialog):
         self.sp2_btn.show()
         self.sp_btn.hide()
         self.graphitic_btn.hide()
+        
         
     def setup_S_hybrid_buttons(self):
         '''Displays the Sulfur hybrid buttons.
@@ -166,6 +187,7 @@ class MMKit(MMKitDialog):
         self.sp_btn.hide()
         self.graphitic_btn.hide()
     
+    
     def set_hybrid_type(self, type_id):
         '''Slot method. Called when any of the hybrid type buttons was clicked. '''
         self.w.hybridComboBox.setCurrentItem( type_id )
@@ -174,6 +196,7 @@ class MMKit(MMKitDialog):
         #print "Hybrid name: ", b_name
         self.elemGLPane.changeHybridType(b_name)
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
+        
     
     def tabpageChanged(self, wg):
         '''Slot method. Called when user clicked to change the tab page'''
@@ -195,8 +218,7 @@ class MMKit(MMKitDialog):
         '''Slot method. Called when user changed the selected chunk. '''
         itemId = self.chunkListBox.index(item)
         newChunk = self.pastableItems[itemId]
-        
-        
+                
         #self.w.pasteComboBox.setCurrentItem(itemId)
         #buildModeObj = self.w.glpane.modetab['DEPOSIT']
         #assert buildModeObj
