@@ -59,6 +59,10 @@ historyHeight_prefs_key = 'A6/History Height'
 historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
 historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
 
+# Bug-workaround prefs, Mac-specific
+
+QToolButton_MacOSX_Tiger_workaround_prefs_key = 'A6/QToolButton MacOSX Tiger workaround' #bruce 050810
+
 # Table of internal attribute names, default values, types, and prefs-db formats for some of these preferences.
 # (This needs to be defined in a central place, and set up by code in preferences.py
 #  before any code can ask for preference values, so the default values can come from here.)
@@ -116,6 +120,10 @@ prefs_table = (
     ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
+
+    # ...
+
+    ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810
 
 )
 

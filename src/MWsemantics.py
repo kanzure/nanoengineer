@@ -214,8 +214,14 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.caption_suffix = prefs.get(captionSuffix_prefs_key, '*')
         self.caption_fullpath = prefs.get(captionFullPath_prefs_key, False)
         
-        ###### End of User Preference initialization ########################## 
+        ###### End of User Preference initialization ##########################
 
+        #bruce 050810 part of QToolButton Tiger bug workaround
+        # [intentionally called on all systems,
+        #  though it will only do anything on Macs except during debugging]
+        if 1:
+            from debug import auto_enable_MacOSX_Tiger_workaround_if_desired
+            auto_enable_MacOSX_Tiger_workaround_if_desired( self)
 
         self.initialised = 1
 

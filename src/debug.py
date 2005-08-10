@@ -24,6 +24,8 @@ frame when it's first seen, and perhaps incrementing it each time it's seen).
 
 import sys, os, time
 from constants import debugButtons, noop
+from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key
+import env
 
 from debug_prefs import debug_prefs_menuspec # bruce 050614
 
@@ -294,10 +296,14 @@ class DebugMenuMixin:
                 ('ATOM_DEBUG', self._debug_enable_atom_debug ),
             ] )
 
-        if sys.platform == 'darwin' and self._debug_win:
+        if (sys.platform == 'darwin' or platform.atom_debug) and self._debug_win:
             #bruce 050806 to give Alpha6 a workaround for Mac OS X 10.4 Tiger QToolButton bug
+            #bruce 050810 use checkmark item to let that be a persistent pref,
+            # and provide this on all platforms when ATOM_DEBUG is set
+            # (so we can see if it works and we like it, on other systems)
+            checked = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
             res.extend( [
-                ('Mac OS 10.4 QToolButton workaround', self._debug_QToolButton_workaround ),
+                ('Mac OS 10.4 QToolButton workaround', self._debug_toggle_QToolButton_workaround, checked and 'checked' or None ),
             ] )
             
         if platform.atom_debug:
@@ -447,20 +453,42 @@ class DebugMenuMixin:
             # e.g. "GLPane debug menu"
         return
 
-    def _debug_QToolButton_workaround(self): #bruce 050806
-        "[only provided in menu on Mac, and only needed for Mac OS X 10.4 Tiger, but might work for all platforms -- who knows]"
-        ###e ask user if ok; if we add that feature, also add "..." to menu command text
+    def _debug_toggle_QToolButton_workaround(self): #bruce 050806, revised 050810
+        """[only provided in menu on Mac (or maybe on all systems when ATOM_DEBUG is set),
+        and only needed for Mac OS X 10.4 Tiger, but might work for all platforms -- who knows]
+        """
+        enabled_now = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
+        enable = not enabled_now
         history = self._debug_history()
         from HistoryWidget import orangemsg, redmsg, greenmsg
-        history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
-        from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
-        if hack_every_QToolButton_warning:
-            history.message( orangemsg( hack_every_QToolButton_warning ))
-        hack_every_QToolButton( self._debug_win )
-        history.message( "Done.")
+        if enable:
+            ###e ask user if ok; if we add that feature, also add "..." to menu command text
+            # note: if we enable, disable, and enable, all in one session, the following happens twice, but that's ok.
+            history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
+            from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
+            if hack_every_QToolButton_warning:
+                history.message( orangemsg( hack_every_QToolButton_warning ))
+            hack_every_QToolButton( self._debug_win )
+            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = True
+            history.message( "Done. This will be redone automatically in new sessions (with no history message)" \
+                             " unless you disable this menu item.")
+            # see auto_enable_MacOSX_Tiger_workaround_if_desired and its call, for how it gets enabled in new sessions.
+        else:
+            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = False
+            history.message( orangemsg(
+                "Disabled the workaround for the QToolButton bug in Mac OS X 10.4 Tiger." \
+                " This change in pressed toolbutton appearance will only take effect" \
+                " after you quit and restart this program." ))
         return
         
     pass # end of class DebugMenuMixin
+
+def auto_enable_MacOSX_Tiger_workaround_if_desired( win): #bruce 050810
+    enable = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
+    if enable:
+        from widget_hacks import hack_every_QToolButton
+        hack_every_QToolButton( win)
+    return
 
 # ===
 
