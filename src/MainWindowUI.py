@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Aug 9 18:46:41 2005
+# Created: Tue Aug 9 22:48:33 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7080,7 +7080,6 @@ class MainWindow(QMainWindow):
         self.toggleDatumDispTbarAction.setMenuText(self.__tr("Datum Display"))
         self.modifySetElementAction.setText(self.__tr("Element Selector"))
         self.modifySetElementAction.setMenuText(self.__tr("&Element Selector..."))
-        self.modifySetElementAction.setAccel(self.__tr("Ctrl+E"))
         self.fileInsertAction.setText(self.__tr("Inser&t..."))
         self.fileInsertAction.setMenuText(self.__tr("Inser&t..."))
         self.modifyDehydrogenateAction.setText(self.__tr("Dehydrogenate"))

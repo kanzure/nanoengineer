@@ -2095,9 +2095,6 @@
         <property name="menuText">
             <string>&amp;Element Selector...</string>
         </property>
-        <property name="accel">
-            <string>Ctrl+E</string>
-        </property>
     </action>
     <action>
         <property name="name">
