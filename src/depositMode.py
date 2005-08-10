@@ -95,6 +95,11 @@ def do_what_MainWindowUI_should_do(w):
     w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard, "elemChangeComboBox")
 
     w.hybridComboBox = QComboBox(0,w.depositAtomDashboard, "hybridComboBox") #bruce 050606 for choice of atomtypes
+    
+    # Set the width of the hybrid drop box.  Mark 050810.
+    width = w.hybridComboBox.fontMetrics().width(" sp2(graphitic) ")
+    w.hybridComboBox.setMinimumSize ( QSize (width, 0) )
+
     ## not needed, I hope:
     ## w.connect(w.hybridComboBox,SIGNAL("activated(int)"),w.elemChange_hybrid) #bruce 050606
     w.hybridComboBox_elem = None
