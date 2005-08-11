@@ -69,7 +69,7 @@ class SimRunner:
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
         self.set_waitcursor(True)
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
-            self.write_sim_input_file() #e should use simaspect to write file; this puts it into movie.alist too, via writemovie
+            self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
             self.spawn_process()
                 # spawn_process also includes monitor_progress [and insert results back into part]
                 # for now; result error code (or abort button flag) stored in self.errcode
@@ -855,7 +855,8 @@ class simSetup_CommandRun(CommandRun):
 
 
 class Minimize_CommandRun(CommandRun):
-    """Class for single runs of the Minimize Selection or Minimize All commands;
+    """Class for single runs of the Minimize Selection or Minimize All commands
+    (which one is determined by an __init__ arg, stored in self.args by superclass);
     create it when the command is invoked, to prep to run the command once;
     then call self.run() to actually run it.
     [#e A future code cleanup might split this into a Minimize superclass
