@@ -174,10 +174,11 @@ class ops_copy_Mixin:
         # 2. prep this for copy by including other required objects, context, etc...
         # (eg a new group to include it all, new chunks for bare atoms)
         # and emit message about what we're about to do
-        if "developing": #####@@@@@
+        if platform.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
+            print "atom_debug: fyi: importing or reloading ops_copy from itself"
             import ops_copy as hmm
             reload(hmm)
-            from ops_copy import Copier # use latest code for that class, even if not for this mixin method!
+        from ops_copy import Copier # use latest code for that class, even if not for this mixin method!
         copier = Copier(sel) #e sel.copier()?
         copier.prep_for_copy_to_shelf()
         if copier.ok():
