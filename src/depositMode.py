@@ -1035,7 +1035,8 @@ class depositMode(basicMode):
                 else:
                     # user wants to create an atom of type atype
                     # (revised by bruce 050511)
-                    if 1: # during devel, at least
+                    # if 1: # during devel, at least
+                    if platform.atom_debug: # Need this for A6 package builder to work.  Mark 050811.
                         import build_utils
                         reload(build_utils)
                     from build_utils import AtomTypeDepositionTool
