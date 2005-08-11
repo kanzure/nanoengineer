@@ -403,6 +403,15 @@ class Bond:
         if self.atom1.molecule is self.atom2.molecule:
             # we're in that molecule's display list, so it needs to know we'll look different when redrawn
             self.atom1.molecule.changeapp(0)
+        else:
+            # Fix for bug 886 [bruce 050811]:
+            # Both atoms might look different if whether they have valence errors changes (re bug 886),
+            # so if valence errors are presently being displayed, invalidate both of their display lists.
+            # If valence errors are not being displayed, I think we don't have to inval either display list,
+            # but I'm not sure, so to be safe for A6, just do it regardless. Potential optim: check whether
+            # presence of valence error actually changes, for each atom. (But it often does, so nevermind for now.)
+            self.atom1.molecule.changeapp(0)
+            self.atom2.molecule.changeapp(0)
         from env import _changed_bond_types #bruce 050726
         _changed_bond_types[id(self)] = self
         return
