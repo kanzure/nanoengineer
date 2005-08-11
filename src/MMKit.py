@@ -212,8 +212,10 @@ class MMKit(MMKitDialog):
             self.w.depositAtomDashboard.atomRB.setOn(True)
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
-            
 
+        self.elemGLPane.setFocus()
+        
+        
     def chunkChanged(self, item):
         '''Slot method. Called when user changed the selected chunk. '''
         itemId = self.chunkListBox.index(item)
@@ -234,7 +236,6 @@ class MMKit(MMKitDialog):
     def updatePastableItems(self):
         '''Slot method. Called when user clicks the 'Update' button. '''
         self._clipboardPageView()
-        
         
     
     def _clipboardPageView(self):

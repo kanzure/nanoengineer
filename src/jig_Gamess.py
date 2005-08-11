@@ -7,7 +7,7 @@ $Id$
 __author__ = "Mark"
 
 from jigs import Jig
-from drawer import drawwirecube
+from drawer import drawwirecube, drawLineCube
 from GamessProp import *
 from GamessJob import *
 from povheader import povpoint # Fix for bug 692 Mark 050628
@@ -58,6 +58,7 @@ class Gamess(Jig):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
+            #drawLineCube(self.color, a.posn(), rad)
             
     # Write "gamess" record to POV-Ray file in the format:
     # gamess(<box-center>,box-radius,<r, g, b>)

@@ -129,7 +129,7 @@ DiGridSp = sp4
 
 sphereList = []
 numSphereSizes = 3
-CylList = diamondGridList = CapList = CubeList = solidCubeList = None
+CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = None
 
 halfHeight = 0.45
@@ -194,9 +194,9 @@ def _makeGraphiteCell(zIndex):
 def setup():
     global CylList, diamondGridList, CapList, CubeList, solidCubeList
     global sphereList, rotSignList, linearLineList, linearArrowList
-    global circleList, lonsGridList, lonsEdges
+    global circleList, lonsGridList, lonsEdges, lineCubeList
 
-    listbase = glGenLists(numSphereSizes + 18)
+    listbase = glGenLists(numSphereSizes + 19)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -331,6 +331,7 @@ def setup():
         glVertex3f(x, y, 0.0)
     glEnd()    
     glEndList()
+    
     
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
@@ -528,6 +529,23 @@ def drawline(color,pos1,pos2, dashEnabled=False):
     if dashEnabled: 
         glDisable(GL_LINE_STIPPLE)
     glEnable(GL_LIGHTING)
+
+def drawLineCube(color, pos, radius):
+    global cubeVertices
+    vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
+    glEnableClientState(GL_VERTEX_ARRAY)
+    glVertexPointer(3, GL_FLOAT, 0, cubeVertices)
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glPushMatrix()
+    glTranslatef(pos[0], pos[1], pos[2])
+    glScale(radius,radius,radius)
+    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices)
+    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices+4)
+    glPopMatrix()
+    glEnable(GL_LIGHTING)
+    glDisableClientState(GL_VERTEX_ARRAY)
+    
 
 def drawwirecube(color, pos, radius):
     global CubeList

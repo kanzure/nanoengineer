@@ -1405,6 +1405,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # Update the MMKit dialog   
         global MMKitWin
         if MMKitWin and not MMKitWin.isHidden():
+           self.pasteP = False
            MMKitWin.update_dialog(self.Element)     
            MMKitWin.show()
            
