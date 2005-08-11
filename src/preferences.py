@@ -484,7 +484,7 @@ def prefs_context():
 # initialization code [bruce 050805]
 
 def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is same as prefs_table record format
-    assert typecode in ['color','boolean'] or type(typecode) == type([]) #e or others as we define them
+    assert typecode in ['color','boolean','string'] or type(typecode) == type([]) #e or others as we define them
     #e create type object from typecode
     #e get dflt from type object if it's None here, otherwise tell this dflt to type object
     #e record type object
@@ -519,6 +519,12 @@ def init_prefs_table( prefs_table):
     return
 
 init_prefs_table( prefs_table)
+    # this is guaranteed to be done before any prefs_context object exists, including env.prefs
+    # (but not necessarily just after this module is imported, though presently, it is;
+    #  similarly, it's not guaranteed that env.prefs exists arbitrarily early,
+    #  though in practice it does after this module is imported, and for now it's ok
+    #  to write code which would fail if that changed, since it'll be easy to fix that code
+    #  (and to detect that we need to) if it ever does change.)
 
 # ==
 

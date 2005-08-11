@@ -28,6 +28,7 @@ import platform # for atom_debug, and more
 from debug import DebugMenuMixin
 from constants import *
 import preferences
+import env #bruce 050810
 
 
 # [formatters by Mark; moved into this file by bruce 050107;
@@ -79,19 +80,19 @@ class message:
         self.hist = hist # mark added this
     def timestamp_text(self):
         #e should inherit the method from the display env
-        if self.hist.msg_timestamp:
+        if env.prefs[historyMsgTimestamp_prefs_key]: #bruce 050810 revised this to not store pref in an instance variable
             timetuple = time.localtime(self.time)
             # mark pulled the format string into this method
             return "[%s] " % (time.asctime(timetuple).split()[3]) ###stub; i hope this is hh:mm:ss
         else:
             return ''
     def serial_number_text(self):
-        if self.hist.msg_serial_number:
+        if env.prefs[historyMsgSerialNumber_prefs_key]: #bruce 050810 revised this to not store pref in an instance variable
             # mark pulled the format string into this method
             return "%d. " % (self.serno)
         else:
             return ''
-    def widget_text_header(self):
+    def widget_text_header(self): # mark revised the subrs, so this can now be "".
         return self.serial_number_text() + self.timestamp_text()
     def widget_text(self):
         return self.widget_text_header() + self.text
@@ -99,7 +100,7 @@ class message:
         ###e also escape < > and & ? not appropriate when self.text contains html, as it sometimes does!
         # maybe it's best in the long run to just require the source messages to escape these if they need to.
         # if not, we'll need some sort of hueristic to escape them except when part of well-formatted tags.
-        return _graymsg(self.widget_text_header()) + self.text
+        return _graymsg(self.widget_text_header()) + self.text #e could remove _graymsg when what's inside it is ""
     def xml_text(self):
         assert 0, "nim" # same fields as widget text, but in xml, and not affected by display prefs
     pass
@@ -185,12 +186,9 @@ class HistoryWidget:
         # If they are not found, set default values here.
         # The keys are located in constants.py
         # Mark 050716
-        
-        prefs = preferences.prefs_context()
-        
-        self.history_height = prefs.get(historyHeight_prefs_key, 4)
-        self.msg_serial_number = prefs.get(historyMsgSerialNumber_prefs_key, True)
-        self.msg_timestamp = prefs.get(historyMsgTimestamp_prefs_key, True)
+        # [revised by bruce 050810; comment above is now no longer up to date]
+                
+        self.history_height = env.prefs.get(historyHeight_prefs_key, 4)
         
         ###### End of User Preference initialization ########################## 
         

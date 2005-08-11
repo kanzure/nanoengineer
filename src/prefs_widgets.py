@@ -17,9 +17,10 @@ import env # for env.prefs
 from debug import print_compact_traceback
 import platform
 
-from changes import Formula ###IMPLEM
+from changes import Formula
 from widgets import RGBf_to_QColor
 from qt import QColorDialog
+from qt import SIGNAL
 
 def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805
     #bruce 050805: heavily modified this from some slot methods in UserPrefs.py.
@@ -67,9 +68,63 @@ def connect_colorpref_to_colorframe( pref_key, colorframe ): #bruce 050805
             print_compact_traceback( "bug (ignored): exception in formula-setter: " ) #e include formula obj in this msg?
         pass
     conn = Formula( lambda: env.prefs.get( pref_key) , colorframe_bgcolor_setter )
-        # this calls the setter now and whenever the lambda-value changes, until it' destroyed
+        # this calls the setter now and whenever the lambda-value changes, until it's destroyed
         # or until there's any exception in either arg that it calls.
     colorframe.__bgcolor_conn = conn
+    return
+
+class destroyable_Qt_connection:
+    "holds a Qt signal/slot connection, but has a destroy method which disconnects it [#e no way to remain alive but discon/con it]"
+    def __init__(self, sender, signal, slot, owner = None):
+        if owner is None:
+            owner = sender # I hope that's ok -- not sure it is -- if not, put owner first in arglist, or, use topLevelWidget
+        self.vars = owner, sender, signal, slot
+        owner.connect(sender, signal, slot)
+    def destroy(self):
+        owner, sender, signal, slot = self.vars
+        owner.disconnect(sender, signal, slot)
+        self.vars = None # error to destroy self again
+    pass
+
+class list_of_destroyables:
+    "hold 0 or more objects, so that when we're destroyed, so are they"
+    def __init__(self, *objs):
+        self.objs = objs
+    def destroy(self):
+        for obj in self.objs:
+            #e could let obj be a list and do this recursively
+            obj.destroy()
+        self.objs = None # error to destroy self again (if that's bad, set this to [] instead)
+    pass
+
+def connect_checkbox_with_boolean_pref( qcheckbox, pref_key ): #bruce 050810
+    """Cause the checkbox to track the value of the given boolean preference,
+    and cause changes to the checkbox to change the preference.
+    (Use of the word "with" in the function name, rather than "to" or "from",
+     is meant to indicate that this connection is two-way.)
+    First remove any prior connection of the same type on the same checkbox.
+    Legal for more than one checkbox to track and control the same pref [but that might be untested].
+    """
+    # first destroy any prior connection trying to control the same thing
+    # [modified from code in connect_colorpref_to_colorframe; ##e should make this common code of some kind]
+    try:
+        conn = qcheckbox.__boolean_pref_conn # warning: this is *not* name-mangled, since we're not inside a class.
+        assert conn is not None
+    except: # several kinds of exceptions are possible
+        pass
+    else:
+        conn.destroy() # this removes any subscriptions that object held
+    qcheckbox.__boolean_pref_conn = None # in case of exceptions in the following
+    setter = qcheckbox.setChecked #e or we might prefer a setter which wraps this with .blockSignals(True)/(False)
+    conn1 = Formula( lambda: env.prefs.get( pref_key) , setter )
+        # this calls the setter now and whenever the lambda-value changes, until it's destroyed
+        # or until there's any exception in either arg that it calls.
+    def prefsetter(val):
+        #e should we assert val is boolean? nah, just coerce it:
+        val = not not val
+        env.prefs[pref_key] = val
+    conn2 = destroyable_Qt_connection( qcheckbox, SIGNAL("toggled(bool)"), prefsetter )
+    qcheckbox.__boolean_pref_conn = list_of_destroyables( conn1, conn2)
     return
 
 # end

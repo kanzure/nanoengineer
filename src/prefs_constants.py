@@ -121,6 +121,17 @@ prefs_table = (
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
 
+    # Caption preferences [added to this table by bruce 050810]
+
+    ('', 'string', captionPrefix_prefs_key, "" ),
+    ('', 'string', captionSuffix_prefs_key, "*" ),
+    ('', 'boolean', captionFullPath_prefs_key, False ),
+
+    # History preferences [added to this table by bruce 050810]
+
+    ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
+    ('', 'boolean', historyMsgTimestamp_prefs_key, True),
+    
     # ...
 
     ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810

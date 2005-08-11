@@ -201,21 +201,18 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
 
-        ###### User Preference initialization ##############################
+        #bruce 050810 replaced user preference initialization with this, and revised update_mainwindow_caption to match
+        from changes import Formula
+        self._caption_formula = Formula(
+            # this should depend on whatever update_mainwindow_caption_properly depends on;
+            # but it can't yet depend on assy.has_changed(),
+            # so that calls update_mainwindow_caption_properly (or the equiv) directly.
+            lambda: (env.prefs[captionPrefix_prefs_key],
+                     env.prefs[captionSuffix_prefs_key],
+                     env.prefs[captionFullPath_prefs_key]),
+            self.update_mainwindow_caption_properly
+        )
         
-        # Get MainWindowUI related settings from prefs db.
-        # If they are not found, set default values here.
-        # The keys are located in constants.py 
-        # Mark 050716
-        
-        prefs = preferences.prefs_context()
-        
-        self.caption_prefix = prefs.get(captionPrefix_prefs_key, '')
-        self.caption_suffix = prefs.get(captionSuffix_prefs_key, '*')
-        self.caption_fullpath = prefs.get(captionFullPath_prefs_key, False)
-        
-        ###### End of User Preference initialization ##########################
-
         #bruce 050810 part of QToolButton Tiger bug workaround
         # [intentionally called on all systems,
         #  though it will only do anything on Macs except during debugging]
@@ -1715,30 +1712,48 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
                 self.cookieSelectDashboard]:
                     self.setAppropriate(obj, False)
 
-    def update_mainwindow_caption(self, Changed=False):
+    def update_mainwindow_caption_properly(self, junk = None): #bruce 050810 added this
+        self.update_mainwindow_caption(self.assy.has_changed())
+
+    def update_mainwindow_caption(self, Changed=False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
         '''Update the caption at the top of the of the main window. 
         Example:  "nanoENGINEER-1 - [partname.mmp]"
         Changed=True will add the prefix and suffix to the caption denoting the part has been changed.
         '''
+        caption_prefix = env.prefs[captionPrefix_prefs_key]
+        caption_suffix = env.prefs[captionSuffix_prefs_key]
+        caption_fullpath = env.prefs[captionFullPath_prefs_key]
         
         if Changed:
-            prefix = self.caption_prefix
-            suffix = self.caption_suffix + '*'
+            prefix = caption_prefix
+            suffix = caption_suffix
         else:
             prefix = ''
             suffix = ''
+
+        # this is not needed here since it's already done in the prefs values themselves when we set them:
+        # if prefix and not prefix.endswith(" "):
+        #     prefix = prefix + " "
+        # if suffix and not suffix.startswith(" "):
+        #     suffix = " " + suffix
+        
         try:
             junk, basename = os.path.split(self.assy.filename)
             assert basename # it's normal for this to fail, when there is no file yet
             
-            if self.caption_fullpath:
+            if caption_fullpath:
                 partname = self.assy.filename
             else:
                 partname = basename
         
         except:
             partname = 'Untitled'
-        
+
+        ##e [bruce 050811 comment:] perhaps we should move prefix to the beginning, rather than just before "[";
+        # and in any case the other stuff here, self.name() + " - " + "[" + "]", should also be user-changeable, IMHO.
         self.setCaption(self.trUtf8(self.name() + " - " + prefix + "[" + partname + "]" + suffix))
-            
-    # end of class MWsemantics
+        return
+    
+    pass # end of class MWsemantics
+
+# end

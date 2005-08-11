@@ -8,7 +8,8 @@ History:
 
 Created by Mark.
 
-Modified somewhat by Bruce 050805 for bond color prefs.
+Modified somewhat by Bruce 050805 for bond color prefs,
+and 050810 to fix bugs 785 (partly in MWsemantics.py) and 881 for Alpha6.
 '''
 __author__ = "Mark"
 
@@ -20,7 +21,7 @@ from constants import *
 from debug import print_compact_traceback
 import env
 from widgets import RGBf_to_QColor #bruce 050805 moved RGBf_to_QColor from here to widgets.py
-from prefs_widgets import connect_colorpref_to_colorframe
+from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
 
 # This list of mode names correspond to the names listed in the modes combo box.
@@ -84,27 +85,63 @@ class UserPrefs(UserPrefsDialog):
        
     def __init__(self, assy):
         UserPrefsDialog.__init__(self)
-        self.win = assy.w
-        self.history = assy.w.history
+        ## self.history = assy.w.history
+        ## self.win = assy.w
+            #bruce 050810 removed those -- they were only used for prefs code, not history messages
         self.glpane = assy.o
         self.gmspath = None
-        
+        #bruce 050811 added these:
+        self._setup_caption_page() # make sure the LineEdits are initialized before we hear their signals
+        self._setup_caption_signals()
+        return
+
+    def _setup_caption_signals(self):
+        # caption_prefix signals
+        self.connect( self.caption_prefix_linedit, SIGNAL("textChanged ( const QString & ) "), \
+                      self.caption_prefix_linedit_textChanged )
+        self.connect( self.caption_prefix_linedit, SIGNAL("returnPressed()"), \
+                      self.caption_prefix_linedit_returnPressed )
+        # caption_suffix signals
+        self.connect( self.caption_suffix_linedit, SIGNAL("textChanged ( const QString & ) "), \
+                      self.caption_suffix_linedit_textChanged )
+        self.connect( self.caption_suffix_linedit, SIGNAL("returnPressed()"), \
+                      self.caption_suffix_linedit_returnPressed )
+        return
+
+    # caption_prefix slot methods [#e should probably refile these with other slot methods?]
+    def caption_prefix_linedit_textChanged(self, qstring):
+        ## print "caption_prefix_linedit_textChanged: %r" % str(qstring) # this works
+        self.any_caption_text_changed()
+    
+    def caption_prefix_linedit_returnPressed(self):
+        ## print "caption_prefix_linedit_returnPressed"
+            # This works, but the Return press also closes the dialog!
+            # (Both for the lineedit whose signal we're catching, and the one whose signal catching is initially nim.)
+            # Certainly that makes it a good idea to catch it, though it'd be better to somehow "capture" it
+            # so it would not close the dialog.
+        self.any_caption_text_changed()        
+
+    # caption_suffix slot methods can be equivalent to the ones for caption_prefix
+    caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
+    caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
+    
     def showDialog(self):
         '''Display the Preferences dialog'''
         # This sends a signal to self.setup_current_page(), which will call self._setup_general_page()
         self._init_prefs()
         self.prefs_tab.setCurrentPage(0)  # Show General tab/page
         self.exec_loop()
+        # bruce comment 050811: using exec_loop rather than show forces this dialog to be modal.
+        # For now, it's probably still only correct if it's modal, so I won't change this for A6.
+        return
 
     ###### Private methods ###############################
     
-    def _init_prefs(self):
+    def _init_prefs(self): #bruce 050810 revised this
         '''Retreive preferences from the pref db that are needed before updating widgets in the UI.
         '''
-        prefs = preferences.prefs_context()
-        self.gmspath = prefs.get(gmspath_prefs_key, '')
-        self.default_display_mode = prefs.get(defaultDisplayMode_prefs_key, diVDW)
-        
+        self.gmspath = env.prefs.get(gmspath_prefs_key, '')
+        return
         
     def _setup_general_page(self):
         ''' Setup widgets to initial (default or defined) values on the general page.
@@ -141,7 +178,7 @@ class UserPrefs(UserPrefsDialog):
             self.bg_solid_setup()
 
     def _setup_atoms_page(self):
-        ''' Setup widgets to initial (default or defined) values on the display page.
+        ''' Setup widgets to initial (default or defined) values on the atoms page.
         '''
         # Set colors for atom color swatches
 ##        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
@@ -154,12 +191,14 @@ class UserPrefs(UserPrefsDialog):
         connect_colorpref_to_colorframe( atomHotspotColor_prefs_key, self.hotspot_color_frame)
 
         # Bug 799 fix.  Mark 050731
-        self.default_display_btngrp.setButton(self.default_display_mode) # Retrieved from _init_prefs().
+        self.default_display_btngrp.setButton( env.prefs[defaultDisplayMode_prefs_key] ) #bruce 050810 revised this
             # bruce comments:
-            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs.
+            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
             # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
             #   match our internal display mode codes, and are set by buttongroup.insert in the pyuic output file,
             #   but for some reason the buttons are inserted in a different order than they're shown.
+            # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
+            #   while the dialog is shown.
 
         return
     
@@ -217,35 +256,63 @@ class UserPrefs(UserPrefsDialog):
         self.history_height_spinbox.hide()
         self.history_lines_lbl.hide()
         
-        self.history_height_spinbox.setValue(self.history.history_height)
-        self.msg_serial_number_checkbox.setChecked(self.history.msg_serial_number)
-        self.msg_timestamp_checkbox.setChecked(self.history.msg_timestamp)
+        ## self.history_height_spinbox.setValue(self.history.history_height) #bruce 050810 removed this
+        
+        #bruce 050810 revised the following; nothing else about those checkboxes or prefs_keys is needed.
+##        self.msg_serial_number_checkbox.setChecked(env.prefs[historyMsgSerialNumber_prefs_key])
+##        self.msg_timestamp_checkbox.setChecked(env.prefs[historyMsgTimestamp_prefs_key])
+        connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
+        connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
+        return
 
-    def _setup_caption_page(self):
+    def _setup_caption_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
         ''' Setup widgets to initial (default or defined) values on the captions page.
         '''
-        self.caption_prefix_linedit.setText(self.win.caption_prefix)
-        self.caption_suffix_linedit.setText(self.win.caption_suffix)
-        self.caption_fullpath_checkbox.setChecked(self.win.caption_fullpath)
-                                        
-    def _update_prefs(self):
-        '''Update user preferences and store them in the shelf.
-        This method has two parts:
-            1. Update the preference variables stored in various objects (i.e. win, assy, history, etc.)
-            2. Save the prefences to the shelf.
-        '''
-        #bruce 050804/050806 comments: this method is wrong in at least these ways: ###@@@
-        # - it doesn't yet include all the prefs. (But the new ones are being handled separately, anyway.)
-        # - it's only called when we exit the dialog (or perhaps change the page), not when we e.g. choose individual new colors.
-        #   But that will be fixed not here, but by making individual pref controls update those prefs when changed.
-        #   That's already being done for the bond prefs and atom color prefs.
-        # - it updates the prefs db even for values which were not stored there before and not changed by the user.
-        #   [It's not clear that's wrong, but it does cause problems for change tracking,
-        #    and it causes bugs when the default values are wrong in new prefs code under development.
-        #    But probably those problems need to be addressed somehow within preferences.py itself.
-        #    I have addressed them for change tracking, and maybe for making default values, when set explicitly,
-        #    not get into the prefs db if nothing was yet there (but I'm not sure about that one #k).]
+        self.caption_prefix_linedit.setText(env.prefs[captionPrefix_prefs_key])
+        self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
+            ##e someday we should make a 2-way connector function for LineEdits too
+        connect_checkbox_with_boolean_pref( self.caption_fullpath_checkbox, captionFullPath_prefs_key )
+        return
+
+    #e this is really a slot method -- should refile it
+    def any_caption_text_changed(self):
+        # Update Caption prefs
+        # The prefix and suffix updates should be done via slots [bruce 050811 doing that now] and include a validator.
+        # Will do later.  Mark 050716.
+
+        # (in theory, only one of these has changed, and even though we resave prefs for both,
+        #  only the changed one will trigger any formulas watching the prefs value for changes. [bruce 050811])        
+        prefix = QString(self.caption_prefix_linedit.text())
+        text = prefix.stripWhiteSpace() # make sure prefix is not just whitespaces
+        if text: 
+            env.prefs[captionPrefix_prefs_key] = str(text) + ' '
+        else:
+            env.prefs[captionPrefix_prefs_key] = ''
         
+        suffix = QString(self.caption_suffix_linedit.text())
+        text = suffix.stripWhiteSpace() # make sure suffix is not just whitespaces
+        if text: 
+            env.prefs[captionSuffix_prefs_key] = ' ' + str(text)
+        else:
+            env.prefs[captionSuffix_prefs_key] = ''
+        return
+    
+    def _update_prefs(self): #bruce 050810 revised this; see comments inside.
+        '''Update the user preferences which are not updated immediately when they're changed,
+        both within the program and in the prefs db.
+        '''
+        # [bruce comments 050811:]
+        #    This function is only called when we exit the dialog (or perhaps change the tab page? not sure).
+        # This is bad, since changes prefs should be updated immediately.
+        # Thus, it's in the process of being removed, by changing individual prefs to be updated immediately
+        # and removing them from the ones updated here.
+        #    Worse, it caused serious bugs (at least bug 881) to update prefs here from widgets
+        # on tab pages other than the first one, when the code didn't initialize those widgets
+        # to correct prefs values until those tab pages were first shown (i.e. maybe never).
+        #    To fix those bugs for Alpha6, I removed all prefs from this system except the ones
+        # on the first page. Removing the remaining prefs can wait until after Alpha6 goes out.
+
+        # Gamess prefs:
         # Do this just in case the user typed in the GAMESS executable path by hand.
         # We do not need to check whether the path exists as this is checked
         # each time GAMESS is launched.  If the path is wrong, the user will be
@@ -258,56 +325,26 @@ class UserPrefs(UserPrefsDialog):
         # help them.  I'm leaving this for later until I discuss with Bruce.
         # Mark 050630.
 #        self.gmspath = validate_gamess_path(self, str(self.gamess_path_linedit.text()))
+
+##        self.history.history_height = self.history_height_spinbox.value() #bruce 050810 removed this
+
+        #bruce 050811 comment: note that it's only correct to get the following values from
+        # anywhere other than widgets on the first tab page if the caller has called another method
+        # which gets them from those widgets (and stores them in the following places),
+        # before it calls this method, or if they have slot methods which immediately update the
+        # following places -- I think they all do, but I haven't thoroughly verified this.
         
-        # Update Caption prefs #########################################
-        # The prefix and suffix updates should be done via slots and include a validator.
-        # Will do later.  Mark 050716.
-        prefix = QString(self.caption_prefix_linedit.text())
-        
-        text = prefix.stripWhiteSpace() # make sure prefix is not just whitespaces
-        if text: 
-            self.win.caption_prefix = str(text) + ' '
-        else:
-            self.win.caption_prefix = ''
-        
-        suffix = QString(self.caption_suffix_linedit.text())
-        
-        text = suffix.stripWhiteSpace() # make sure suffix is not just whitespaces
-        if text: 
-            self.win.caption_suffix = ' ' + str(text)
-        else:
-            self.win.caption_suffix = ''
-            
-        self.win.update_mainwindow_caption(self.win.assy.has_changed())
-        
-        # Update History pref variables
-        # [this doesn't need to include the ones that update themselves whenever changed,
-        #  and the code should be revised so that all of them do that,
-        #  and then none of them will need to be updated here. bruce 050806 comment]
-        self.history.history_height = self.history_height_spinbox.value()
-        self.history.msg_serial_number = self.msg_serial_number_checkbox.isChecked()
-        self.history.msg_timestamp = self.msg_timestamp_checkbox.isChecked()
-        
-        all_prefs = { displayCompass_prefs_key: self.glpane.displayCompass,
-                            compassPosition_prefs_key: self.glpane.compassPosition,
-                            displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
-                            displayPOVAxis_prefs_key: self.glpane.displayPOVAxis,
-                            gmspath_prefs_key: self.gmspath,
-                            defaultDisplayMode_prefs_key: self.default_display_mode,
-                            captionPrefix_prefs_key: self.win.caption_prefix,
-                            captionSuffix_prefs_key: self.win.caption_suffix,
-                            captionFullPath_prefs_key: self.win.caption_fullpath,
-                            historyHeight_prefs_key: self.history.history_height,
-                            historyMsgSerialNumber_prefs_key: self.history.msg_serial_number,
-                            historyMsgTimestamp_prefs_key: self.history.msg_timestamp
-                            }
-        
-        prefs = preferences.prefs_context()
-        
+        all_prefs = {   displayCompass_prefs_key:    self.glpane.displayCompass,
+                        compassPosition_prefs_key:   self.glpane.compassPosition,
+                        displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
+                        displayPOVAxis_prefs_key:    self.glpane.displayPOVAxis,
+                        gmspath_prefs_key:           self.gmspath,
+                    } #bruce 050810-050811 removed most prefs from this
         try:
-            prefs.update(all_prefs) # Opens prefs db only once.
+            env.prefs.update(all_prefs) # Opens prefs db only once.
         except:
             print_compact_traceback("bug in _update_prefs: ")
+        return
 
     ###### End of private methods. ########################
     
@@ -375,10 +412,12 @@ class UserPrefs(UserPrefsDialog):
             atomHotspotColor_prefs_key,
         ])
             
-    def set_default_display_mode(self, val):
+    def set_default_display_mode(self, val): #bruce 050810 revised this to set the pref immediately
         '''Set default display mode of GLpane.
         '''
-        self.default_display_mode = val
+        # set the pref
+        env.prefs[defaultDisplayMode_prefs_key] = val
+        # change the current display mode too
         self.glpane.setDisplay(val, True)
         self.glpane.gl_update()
         
@@ -523,10 +562,15 @@ class UserPrefs(UserPrefsDialog):
     ########## End of slot methods for "Background" page widgets ###########
 
     ########## Slot methods for "Caption" page widgets ################
-        
-    def set_caption_fullpath(self, val):
-        self.win.caption_fullpath = val
-        self.win.update_mainwindow_caption(self.win.assy.has_changed())
+
+    #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
+    
+    def set_caption_fullpath(self, val): #bruce 050810 revised this
+        # there is now a separate connection which sets the pref, so this is not needed:
+        ## self.win.caption_fullpath = val
+        # and there is now a Formula in MWsemantics which makes the following no longer needed:
+        ## self.win.update_mainwindow_caption(self.win.assy.has_changed())
+        pass
         
     ########## End of slot methods for "Caption" page widgets ###########
     
@@ -572,3 +616,8 @@ class UserPrefs(UserPrefsDialog):
         # Mark 050629.
         self._update_prefs()
         QDialog.reject(self)
+
+    pass # end of class UserPrefs
+
+# end
+

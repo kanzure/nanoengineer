@@ -273,7 +273,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # even tho there is only one assembly to a window,
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
-        self.display = prefs.get(defaultDisplayMode_prefs_key, diVDW)
+        self.display = prefs.get(defaultDisplayMode_prefs_key, default_display_mode)
+            #bruce 050810 diVDW -> default_display_mode (equivalent)
         self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.display] )
         
         ###### End of User Preference initialization ########################## 
