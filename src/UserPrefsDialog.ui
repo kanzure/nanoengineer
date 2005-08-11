@@ -417,10 +417,10 @@
                                             </widget>
                                             <widget class="QLabel" row="3" column="0">
                                                 <property name="name">
-                                                    <cstring>textLabel3_2_2_2_2</cstring>
+                                                    <cstring>hotspot_lbl</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>Free Valence Hotspot  :</string>
+                                                    <string>Open Bonds Hotspot  :</string>
                                                 </property>
                                                 <property name="alignment">
                                                     <set>AlignVCenter|AlignRight</set>

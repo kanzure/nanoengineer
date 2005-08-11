@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Aug 8 22:43:52 2005
+# Created: Thu Aug 11 17:42:27 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -163,10 +163,10 @@ class UserPrefsDialog(QDialog):
 
         layout58.addLayout(layout37_2_2_2_3,0,1)
 
-        self.textLabel3_2_2_2_2 = QLabel(self.atom_colors_grpbox,"textLabel3_2_2_2_2")
-        self.textLabel3_2_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.hotspot_lbl = QLabel(self.atom_colors_grpbox,"hotspot_lbl")
+        self.hotspot_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout58.addWidget(self.textLabel3_2_2_2_2,3,0)
+        layout58.addWidget(self.hotspot_lbl,3,0)
         atom_colors_grpboxLayout.addLayout(layout58)
 
         layout25_2 = QHBoxLayout(None,0,6,"layout25_2")
@@ -566,7 +566,7 @@ class UserPrefsDialog(QDialog):
         self.textLabel3_2_3.setText(self.__tr("Atom Highlighting :"))
         self.hotspot_color_btn.setText(self.__tr("Choose..."))
         self.atom_hilite_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3_2_2_2_2.setText(self.__tr("Free Valence Hotspot  :"))
+        self.hotspot_lbl.setText(self.__tr("Open Bonds Hotspot  :"))
         self.reset_atom_colors_btn.setText(self.__tr("Restore Default Colors"))
         self.default_display_btngrp.setTitle(self.__tr("Default Display"))
         self.vwd_rbtn.setText(self.__tr("VdW"))
