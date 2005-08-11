@@ -118,7 +118,7 @@ digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
         [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
         [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
         
-cubeVertices = [[-1, 1, -1], [-1, 1, 1], [1, 1, 1], [1, 1, -1], [-1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, -1, -1]]
+cubeVertices = [[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0], [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
 sq3 = sqrt(3.0)/3.0
 cubeNormals = [[-sq3, sq3, -sq3], [-sq3, sq3, sq3], [sq3, sq3, sq3], [sq3, sq3, -sq3], [-sq3, -sq3, -sq3], [-sq3, -sq3, sq3], [sq3, -sq3, sq3], [sq3, -sq3, -sq3]]
 cubeIndices = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [0, 3, 7, 4], [4, 7, 6, 5]]        
@@ -332,6 +332,15 @@ def setup():
     glEnd()    
     glEndList()
     
+    cvIndices = [0,1, 2,3, 4,5, 6,7, 0,3, 1,2, 5,6, 4,7, 0,4, 1,5, 2,6, 3,7]
+    lineCubeList = circleList + 1
+    glNewList(lineCubeList, GL_COMPILE)
+    glBegin(GL_LINES)
+    for i in cvIndices:
+        glVertex3fv(tuple(cubeVertices[i]))
+    glEnd()    
+    glEndList()
+    
     
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
@@ -531,7 +540,7 @@ def drawline(color,pos1,pos2, dashEnabled=False):
     glEnable(GL_LIGHTING)
 
 def drawLineCube(color, pos, radius):
-    global cubeVertices
+    cubeVertices = [-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0]
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
     glEnableClientState(GL_VERTEX_ARRAY)
     glVertexPointer(3, GL_FLOAT, 0, cubeVertices)
@@ -541,14 +550,16 @@ def drawLineCube(color, pos, radius):
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices)
-    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices+4)
+    #glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices[4])
+    #glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices[8])
+    #glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_BYTE, vtIndices[12])
     glPopMatrix()
     glEnable(GL_LIGHTING)
     glDisableClientState(GL_VERTEX_ARRAY)
     
 
 def drawwirecube(color, pos, radius):
-    global CubeList
+    global CubeList, lineCubeList
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
@@ -557,7 +568,8 @@ def drawwirecube(color, pos, radius):
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
-    glCallList(CubeList)
+    #glCallList(CubeList)
+    glCallList(lineCubeList)
     glPopMatrix()
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)

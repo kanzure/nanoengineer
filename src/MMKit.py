@@ -88,7 +88,7 @@ class MMKit(MMKitDialog):
            element: element label info and element graphics info """
 
         elm = self.elemTable.getElement(elemNum)
-        if elm == self.elm: return
+        if elm == self.elm and self.tabWidget2.currentPageIndex() == 0: return
         
         ## The following statements are redundant in some situations.
         self.elementButtonGroup.setButton(elemNum)

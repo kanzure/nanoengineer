@@ -58,7 +58,6 @@ class Gamess(Jig):
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
-            #drawLineCube(self.color, a.posn(), rad)
             
     # Write "gamess" record to POV-Ray file in the format:
     # gamess(<box-center>,box-radius,<r, g, b>)
