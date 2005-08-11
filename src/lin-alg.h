@@ -24,6 +24,16 @@ extern double vang(struct xyz v, struct xyz w);
 
 extern struct xyz vx(struct xyz v, struct xyz w);
 
+extern void matrixRotateX(double *m, double theta);
+
+extern void matrixRotateY(double *m, double theta);
+
+extern void matrixRotateZ(double *m, double theta);
+
+extern void matrixMultiply(double *prod, double *a, double *b);
+
+extern void matrixTransform(struct xyz *out, double *m, struct xyz *in);
+
 
 /** vector addition (incremental: add src to dest) */
 #define vadd(dest,src) dest.x+=src.x; dest.y+=src.y; dest.z+=src.z
@@ -49,6 +59,7 @@ extern struct xyz vx(struct xyz v, struct xyz w);
 #define vdiv(dest,src) dest.x/=src.x; dest.y/=src.y; dest.z/=src.z
 #define vdiv2(dest,src1,src2) dest.x=src1.x/src2.x; \
     dest.y=src1.y/src2.y; dest.z=src1.z/src2.z
+#define vdivc(dest,src) dest.x/=src; dest.y/=src; dest.z/=src
 
 /** */
 #define vset(dest,src) dest.x=src.x; dest.y=src.y; dest.z=src.z

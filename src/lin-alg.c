@@ -54,6 +54,7 @@ struct xyz uvec(struct xyz v) {	/* unit vector in given direction */
 	return w;
 }
 
+// angle between vectors
 double vang(struct xyz v, struct xyz w) {
 	struct xyz u1, u2;
 	u1=uvec(v);
@@ -61,6 +62,7 @@ double vang(struct xyz v, struct xyz w) {
 	return acos(vdot(u1,u2));
 }
 
+// cross product
 struct xyz vx(struct xyz v, struct xyz w) {
 	struct xyz u;
 	u.x = v.y * w.z - v.z * w.y;
@@ -68,3 +70,103 @@ struct xyz vx(struct xyz v, struct xyz w) {
 	u.z = v.x * w.y - v.y * w.x;
 	return u;
 }
+
+// a rotation matrix is organized like this:
+//
+// 0 1 2
+// 3 4 5
+// 6 7 8
+//
+// they are assumed to be pre-allocated before these routines are
+// called.
+
+// fill in a pre-allocated rotation matrix to rotate theta radians
+// around the x axis
+void
+matrixRotateX(double *m, double theta)
+{
+  double sinTheta = sin(theta);
+  double cosTheta = cos(theta);
+
+  m[0] = 1.0;
+  m[1] = 0.0;
+  m[2] = 0.0;
+
+  m[3] = 0.0;
+  m[4] = cosTheta;
+  m[5] = -sinTheta;
+
+  m[6] = 0.0;
+  m[7] = sinTheta;
+  m[8] = cosTheta;
+}
+
+// fill in a pre-allocated rotation matrix to rotate theta radians
+// around the y axis
+void
+matrixRotateY(double *m, double theta)
+{
+  double sinTheta = sin(theta);
+  double cosTheta = cos(theta);
+
+  m[0] = cosTheta;
+  m[1] = 0.0;
+  m[2] = -sinTheta;
+
+  m[3] = 0.0;
+  m[4] = 1.0;
+  m[5] = 0.0;
+
+  m[6] = sinTheta;
+  m[7] = 0.0;
+  m[8] = cosTheta;
+}
+
+// fill in a pre-allocated rotation matrix to rotate theta radians
+// around the z axis
+void
+matrixRotateZ(double *m, double theta)
+{
+  double sinTheta = sin(theta);
+  double cosTheta = cos(theta);
+
+  m[0] = cosTheta;
+  m[1] = -sinTheta;
+  m[2] = 0.0;
+
+  m[3] = sinTheta;
+  m[4] = cosTheta;
+  m[5] = 0.0;
+
+  m[6] = 0.0;
+  m[7] = 0.0;
+  m[8] = 1.0;
+}
+
+// prod = a * b
+// all three are pre-allocated rotation matrices
+void
+matrixMultiply(double *prod, double *a, double *b)
+{
+  int i;
+  int j;
+  
+  for (i=0; i<3; i++) {
+    for (j=0; j<3; j++) {
+      prod[i+3*j] = a[i] * b[3*j] + a[i+3] * b[1+3*j] + a[i+6] * b[2+3*j];
+    }
+  }
+}
+
+// transform in by matrix m to produce out.
+// everything is pre-allocated.
+void
+matrixTransform(struct xyz *out, double *m, struct xyz *in)
+{
+  out->x = in->x * m[0] + in->y * m[1] + in->z * m[2];
+  out->y = in->x * m[3] + in->y * m[4] + in->z * m[5];
+  out->z = in->x * m[6] + in->y * m[7] + in->z * m[8];
+}
+
+
+
