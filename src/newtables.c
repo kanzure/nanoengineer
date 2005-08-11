@@ -112,7 +112,7 @@ addInitialBendData(char *bendName, double kb, double theta0)
 {
   struct bendData *bend;
 
-  bend = newBendData(bendName, kb*1000.0, theta0);
+  bend = newBendData(bendName, kb*1000000.0, theta0);
   hashtable_put(bendDataHashtable, bendName, bend);
 }
 
