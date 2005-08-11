@@ -1262,7 +1262,8 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     workaround_for_bug_296( assy, onepart = part)
     fp = open(filename, "w")
-    mapping = writemmp_mapping(assy, leave_out_sim_disabled_nodes = True)
+    mapping = writemmp_mapping(assy, leave_out_sim_disabled_nodes = True, sim = True)
+        #bruce 050811 added sim = True to fix bug 254 for sim runs... needs review and testing to see if safe for A6. ###@@@
     mapping.set_fp(fp)
     try:
         mapping.write_header() ###e header should differ in this case
