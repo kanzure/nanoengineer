@@ -1,7 +1,7 @@
 [Project]
-FileName=Simulator.dev
+FileName=simulator.dev
 Name=Simulator
-UnitCount=6
+UnitCount=12
 Type=1
 Ver=1
 ObjFiles=
@@ -39,18 +39,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit2]
-FileName=tables.c
-CompileCpp=0
-Folder=Simulator
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit4]
-FileName=printers.c
+FileName=readers.c
 CompileCpp=0
 Folder=Simulator
 Compile=1
@@ -60,7 +50,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=readers.c
+FileName=simulator.c
 CompileCpp=0
 Folder=Simulator
 Compile=1
@@ -70,7 +60,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=simulator.c
+FileName=hashtable.c
 CompileCpp=0
 Folder=Simulator
 Compile=1
@@ -80,7 +70,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit7]
-FileName=readers.c
+FileName=newtables.c
 CompileCpp=0
 Folder=Simulator
 Compile=1
@@ -90,7 +80,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit8]
-FileName=simulator.c
+FileName=interpolate.c
 CompileCpp=0
 Folder=Simulator
 Compile=1
@@ -118,7 +108,57 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit3]
+FileName=printers.c
+CompileCpp=0
+Folder=Simulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
 FileName=lin-alg.c
+CompileCpp=0
+Folder=Simulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit9]
+FileName=allocate.c
+CompileCpp=0
+Folder=Simulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit10]
+FileName=structcompare.c
+CompileCpp=0
+Folder=Simulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit11]
+FileName=bends.h
+CompileCpp=0
+Folder=Simulator
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit12]
+FileName=bonds.h
 CompileCpp=0
 Folder=Simulator
 Compile=1
