@@ -154,7 +154,9 @@
         <action name="simPlotToolAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
-        <action name="helpAssistantAction"/>
+        <separator/>
+        <action name="helpMouseControlsAction"/>
+        <action name="helpKeyboardShortcutsAction"/>
         <separator/>
         <action name="helpAboutAction"/>
     </item>
@@ -174,6 +176,9 @@
                 <width>70</width>
                 <height>29</height>
             </rect>
+        </property>
+        <property name="backgroundOrigin">
+            <enum>WidgetOrigin</enum>
         </property>
         <property name="label">
             <string>File</string>
@@ -241,6 +246,9 @@
         <property name="name">
             <cstring>molecularDispToolbar</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
                 <x>502</x>
@@ -294,7 +302,7 @@
             <rect>
                 <x>838</x>
                 <y>0</y>
-                <width>70</width>
+                <width>42</width>
                 <height>29</height>
             </rect>
         </property>
@@ -304,7 +312,6 @@
         <property name="label">
             <string>Help</string>
         </property>
-        <action name="helpAssistantAction"/>
         <action name="helpWhatsThisAction"/>
     </toolbar>
     <toolbar dock="3">
@@ -402,7 +409,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1034</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3734,10 +3741,38 @@
             <string>Modeling Kit</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>helpMouseControlsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Mouse Controls...</string>
+        </property>
+        <property name="toolTip">
+            <string>Mouse Controls</string>
+        </property>
+        <property name="whatsThis">
+            <string>Displays help for mouse controls</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpKeyboardShortcutsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Keyboard Shortcuts...</string>
+        </property>
+        <property name="toolTip">
+            <string>Keyboard Shortcuts</string>
+        </property>
+        <property name="whatsThis">
+            <string>Displays help for keyboard shortcuts</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="1370">789c8dd2d96eda401406e07b9ec282bba86a86b13d36aa7a910dc216c8aa4a552f660d8b0960f6547df7fafc50174813f508019f7e3873cec0e989f7addbf64e4e0bb3b99cf7b5a77b32f54ecc6234da7cfff1f567a1c8b9973d42e6958b9f0ac5aea7bd126322943eb1933320b6c0b2105bde81a18865486ce614c41b500b2d63e20368859115e213b1cc859392d800fd886d794df4652c143adf823a8e143aa7c4eca38e31e2222756186da918e3c41a5896a146ab1790ab32039739d13901fd8c11d18181e20c2b4cc130a3226ec04805cc11e7c498ab0ac718e73b4a8e312ec040298e737ba0509aa3f31094cafad8a84eac0825353a2b30d622c0d58d41ade300e919513ae34738a84d544cc7062bacc0c084112e76026a2363b47a048d6106e93d5173e31b4d7c0643e32af8701f94964b1c64419d117f862a684cc560aa35d1468e1ba486e84257b18638db515a4b9460e494c3d55d8171461c5402a5d30e1b0d40edb2b18897a071d6e147d139b1c22b689d7338e8338802f32a95febe3f48a452f24da24df69435b5d98bd1fbc973af3f90c32419ca41bff7bc9fd8d1cb78324dd3e964fc32b2fbc96cbe4892659a2e9364319f1d4cb04ad25d25abc3d9d69b3fc9667d98bc9e9d5fa0cecf5e8ff6b9bcdad5e5db4dabb5ebeb5af51f77506f345bad66a3fe2669df74ba59756edac7c9ed5d1775777b94dc3f74b649e7e1fe30797ceaeeeae9f17fbff3fe391fccf6fe3e1fdcc151157f7d29fc06c95b39b5</data>
+        <data format="XPM.GZ" length="3593">789c7d97c96ee4460c86ef7e8ac6f0360838ad5d429083f77d6ccfea9920075695e4b5bdb6d720ef9ed24f4a03c4766078f94c8a2a923f59f687f793c3fdddc9fb0f0bb773999ff8893f969bc9fb70379b3dfdf9d71f7f2fbc4b9a493a9d2465fcf6eeb78577c2133fa169561692f74ca7e0b2aca4e89967e0aacc9b0ef6d2b8961276f597b230fb2dd8c5e7357ed7739296cee2ef828bd22b4b306e351ead82ab3248067e02d765a7e791b591d57f13dcc4e7d5ae2c91f17e4ac0ae4aa402ff04fb2a9506fcb9e734a90a65b90067552902fb14dc54de4d619f837de5c423ff6fc6415a30f2cba6556bfcddb87309e25d82d3aa13d44b50bfacac53b3235e560dcc1f8db326c09f0676a80f7f054b9dab9daec0a12e1ceacb87e0b62e95a5356e9cf6afe8394fea4ae3c916388d76f53f036703d327705e3b877aca23b818984ec055ed353e9d8dac769c37af07961db0d4add91b7068a64efb730fee9ac4399cf7aee7226972877cf91a9c46463fe8195c34a5da05fa8dcdad1dfa4137601759eb351f59eda847e11b71da1fe8b9088df3e83f431f65d9741efa62e41ba761aa2c47c68957fda27f6523a9d77ea01ebd5a558f8c7e45f589ea95ef47d67e2c832b711e7a94757023dea31eb4018eeaf39a0ff411d536f59acf4acff5d425cab204ce5c6aecc1511d5ee7b71b38e879946b57a89d1db81939316e72ed17f4538bab82d60b7aa9bb38fe604a7b8edd158b8f7e34a59feafc31fad1d43eb1f9c4bcc76a4749c09e1a97a5e6ffa3e758fdc18e798dd52f4acd07fa8cd52f03fc05f3277964d493178d9b5af527e0220eb4c6c33e91b8aecc8e7d2995aff579827e63377cd07a7f310eade60b7df6dd09aa27e83776a35366ec1f9786a4523d1f80b3c8ba3f504fd7844ce30bf4e67c285b9d47e8d18550b5d87f84f976ddc8e73dfb69649de70770129a56e713e7f1691490ea71dfd8359adf92b16f6bd8919fcf463bf4de57d39e1fd8193f1b7b7d3fdf1a07bb3f9606d6f9a6c581f57d047dc66e788b2723eb79368ced79463f627706fb1ed885d6de5f817d3b6db5ffd08f6f23ab3e368c13b39f1ba7ba0f380777a3bf1827c6bbc6a93e4fc7236b7ee86f9846c6be12dc6f2169b356fb8ffe857464e41fb281e5dcb86c55dfd80f211f98717f46750cfb6f1b2c6d6376f56f5bd7a93e2b63dfe93c62bf846eb033e6259ed6f4cc0fc6b142888ff96df3b6edb4bec8b7952ee9545f7bc6a93267c699ea9fea813bed2feee7f8f6c1ee06b678f9c87a7f60bfc5d3e7f63cee8fb6eb8a4efbbf665c5a7e2b23239ea05ef1b455a7fb06f58ad1eb4ef72dde1fa337ca84fa74fdf5adfd7c1859fb897dde3fad76b93776e61f8cbdfa13eee718dd29f3b6b1d919fbbc8f66f11747567d0463f317d4bff7367b691c8ceb91755fe1ef93dedbec4f23ebbec1fcf656b33f1ab7cab43fb2fa63dff5568b3f3336ff83f9c86a871eba2e72a7f6e18389851d7b0edc72c7474cbf6cfff13ce6133ee5333e8f9f33bee0e3373d2ff98aaff9866f79ce777ccf0ffcf8d2939ff89917798997798557798dd7798337798bb75f78eef02e7fe43ddee703fec49ff94bfcf92b7f6379e129fc9d0ff907ffe429279c72c63917f1772f3dcbe85b71cd0d311109b9789e8a3c859719514b1d1dd1319dd0299dc5ef4791cf69f68ae7055dd2155dd30dddd29ceee83ef2c5ab9e0ff4484ff44c8bb444cbb442abb446eb6fd4b3a10ddaa42ddaa61ddaa58fb4f756e5699f0ee8137da62ff495bec5f77f7fcb33fa1ed20ffa49534a28a5ed5f1dfacf39337ccda9a0329eb6a2fd48b3fff1aca911161254fc6d4f897fd94b5c98d2c911edf5515f3fa71ccb899cca999ccb4c2ee452ae5ef7946bb9915b99cb9ddccb035dcaa33cc9f3ab9e8bb214ff75599615da97d5788a355997fbd77a241bb2295bdcf671e459b66527f2eee8f9cfef0bff0227347ebf</data>
     </image>
     <image name="image1">
         <data format="PNG" length="803">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002ea49444154789cb594cf4b1b691cc63fef3bf9231a74638a6d1773157a183c795058e2a127490a1ea4edc5b2044a0dfd9135bbb22c145a5ca9608d08a62c3d08fea841367a59a49d424f85801efac32ea27b179299ccfbc6f410339b64a22d2d7d2eeff032f37c9eef3333afb02c8befa140eb86699ad5d36eb62c4b7ca9b16cb7b9b4b4e45de7de3fe4c1b36b1ef42c70a3446b15a66956b5d654ab55969797191e1ef6003baf77198fcdb7356a9da6ad71a954a25aad051342b0baba4a3c1ef701dac1ea00615996afd76c36cbd0d0d0ff74211042b0b6b6c6c8c8880768542bc0334e3f8923a460e2fa5f00643219a2d168736f4220a52497cb313a3a0ac08367d7885ceef101bc9757d1c79c8f8479fa2ac5af7357c92c8c130c06595959c1711c1cc7c1b66d8ac522fdfdfdecefef333737c7786c9e68f72d765eef027890a62a16fe4922a4444a813424ef0b7ba46fd426989a9a626060c03741201060737393b1b131afa268f7ad5ae27ae16fdfbc452b85561ae56ace47bac85af7493f89934824884422acafaf63db36b66d532a95383a3ac2344db6b6b69aa04ddff11f896574b9665a510ae56ab452842361b22fef919e8d914c26e9eded656363c303148b450e0f0fdb1bd753bf2b7c40bb2ecaada05c7502aa4dd11509b3f8e22ee9d918a9548abebe3ef2f93cb66d532e974f4f0cf030f91c55d628d745bb0aa5746d75955753a8a78bc5177799988d313939f979e37aeabddd8fa8f2491527ab2a6b5f4d5d3d21006cdbc6719c2663df2104309dfa1b809f7f1be4871f43c88a441a924a4562188263238090c718b2966b7b7b9b60307876159665897af2e95ff2dc1ecef0ef4e6d02ed2a5f4dc94757989999f155d13671632da66956a727f200dc4c0f12bad479328181218fe9e8ee00a05028343def3b844e53e37972333d48e86207226020a5e4e0dd018feee480961fe44bd458d1e3749ef1ab0b6c3ddf439715e7c2e748fcfed3d7253e6b82b189013a2f74621882830ffff1e7fd8daf376e0768d4371b9fa64f3380b1fdda0cc3a90000000049454e44ae426082</data>
@@ -4935,6 +4970,18 @@
         <receiver>MainWindow</receiver>
         <slot>modifyMMKit()</slot>
     </connection>
+    <connection>
+        <sender>helpKeyboardShortcutsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpKeyboardShortcuts()</slot>
+    </connection>
+    <connection>
+        <sender>helpMouseControlsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpMouseControls()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5093,6 +5140,8 @@
     <slot>JobManager()</slot>
     <slot>serverManager()</slot>
     <slot>modifyMMKit()</slot>
+    <slot>helpMouseControls()</slot>
+    <slot>helpKeyboardShortcuts()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

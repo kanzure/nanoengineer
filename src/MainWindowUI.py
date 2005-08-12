@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Aug 9 22:48:33 2005
+# Created: Fri Aug 12 11:54:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,79 +11,196 @@
 from qt import *
 
 image0_data = [
-"22 22 50 1",
-"P c #0065a3",
-"O c #0065a4",
-"L c #0166a4",
-"R c #0568a5",
-"K c #0568a6",
-"N c #0c6ca8",
-"T c #0e6da9",
-"V c #126faa",
-"J c #1370aa",
-"H c #3a86b5",
-"Q c #3c87b6",
-"r c #70af00",
-"u c #70af01",
-"m c #70b002",
-"G c #71a5c5",
-"n c #72b105",
-"v c #72b106",
-"l c #73b107",
-"f c #74b208",
-"q c #75b20b",
-"y c #77b40f",
-"t c #82b921",
-"B c #82ba22",
-"C c #84bb25",
-"h c #86bc28",
-"k c #8abe30",
-"I c #96bacf",
-"b c #98c649",
-"o c #9cc84f",
-"A c #afd372",
-"M c #b0c8d7",
-"w c #b4d57a",
-"p c #bcda89",
-"U c #bdd0da",
-"S c #c2d3dc",
-"g c #c5df99",
-"i c #cae2a2",
-"e c #cce2a4",
-"F c #cdd9df",
-"x c #e7f2d4",
-"d c #f5f9ed",
-"s c #f5faee",
-"a c #f7fbf1",
-"E c #f8fbf2",
-"# c #fafcf7",
-"j c #fcfdf9",
-"D c #fdfefb",
-"c c #fdfefc",
-"z c #fefffe",
-". c #ffffff",
-"..........##..........",
-".........abba.........",
-"....cd...effe...dc....",
-"....ghijakllkajihg....",
-"....emnopqrrqponme....",
-"....stullvrrvlluts....",
-".....wlrrrrrrrrlw.....",
-".....xyrrrrrrrryx.....",
-".....zABCCCCCCBAz.....",
-"......DEEEEEEEED......",
-"........FGHHGF........",
-".......IJKLLKJI.......",
-"......MNOPPPPONM......",
-"......QRPPPPPPRQ......",
-".....STOPPPPPPOTS.....",
-".....UVPPPPPPPPVU.....",
-".....STOPPPPPPOTS.....",
-"......QRPPPPPPRQ......",
-"......MNOPPPPONM......",
-".......IJKLLKJI.......",
-"........FGHHGF........",
-"......................"
+"19 20 169 2",
+"a. c #0365a4",
+"#j c #0667a5",
+".m c #07649f",
+"#6 c #0768a6",
+".j c #0a659f",
+"#s c #0b67a2",
+"af c #126ba4",
+"#M c #156ca4",
+"ad c #156ea6",
+"#E c #176da3",
+"#y c #186fa5",
+"aF c #186fa6",
+"#I c #196ea5",
+"aI c #1a6ea2",
+"#1 c #1b71a7",
+"#Z c #1c72a9",
+"#S c #2175a9",
+"an c #2376aa",
+"#0 c #297cb0",
+"at c #2c7bac",
+".V c #2c7dae",
+".M c #307eae",
+".W c #307fb1",
+"#o c #327faf",
+"aj c #3682b1",
+"#V c #3782b1",
+".N c #37839d",
+"a# c #3783b3",
+".U c #3a849d",
+"#p c #3d85b4",
+".X c #3e86b4",
+"ae c #3e89b6",
+".5 c #4187b3",
+"aJ c #4289b4",
+"ak c #4389b4",
+"#R c #448bb7",
+"ax c #458bb7",
+"#i c #478cb6",
+"#k c #478cb7",
+"#U c #488cb7",
+"aL c #4a8eb7",
+"#9 c #4d90b9",
+"#v c #4f91bb",
+".u c #5194bd",
+".q c #5294bc",
+"#z c #5596bd",
+"am c #5a98be",
+"#r c #5b98bd",
+"#t c #5b98be",
+"#5 c #5c9abf",
+"as c #5d9bc0",
+".n c #669fc2",
+".i c #68a0c2",
+"ag c #68a1c3",
+"#N c #69a2c4",
+".k c #6ea5a7",
+".p c #75aaa2",
+".v c #75aaa3",
+"aC c #77abca",
+"aG c #79accb",
+"#H c #7daecd",
+"## c #7fb0ce",
+"#D c #80b1ce",
+"aB c #83b2ce",
+"ac c #86b4cf",
+"#f c #86b4d2",
+".f c #88b5cf",
+".b c #89b5cf",
+".1 c #89b949",
+"#J c #8ab7d0",
+".R c #8fba40",
+"#2 c #90bad2",
+".r c #96c0a9",
+".t c #98c1a9",
+"#F c #9fc4d9",
+".2 c #9fc66b",
+"#Y c #a0c4d9",
+".0 c #a1c56f",
+"#x c #a2c6db",
+"ao c #a4c6da",
+".A c #a4c987",
+"#a c #a5c7d9",
+".I c #a6ca87",
+"#. c #a7c8da",
+"#L c #acccde",
+"#T c #accde0",
+"#q c #aecddf",
+"au c #b1cfdf",
+".S c #b2d17d",
+".Q c #b3d17e",
+".J c #b9d3de",
+"ai c #bcd6e4",
+"#n c #bdd7e5",
+"#e c #bfd7e5",
+"#l c #c0d7e4",
+"aw c #c1d9e6",
+"#u c #c2dae7",
+".P c #c2db9a",
+"#B c #c2dce8",
+".T c #c3db9a",
+"#g c #c6dae7",
+".g c #c6dbe7",
+".z c #c6dce4",
+".s c #c6dda6",
+".B c #c6ddbb",
+"#A c #c6dde8",
+"#c c #c7dce7",
+".a c #c7dce8",
+".H c #c7ddbb",
+".L c #c8dce8",
+".O c #cbdee4",
+".7 c #cce0ea",
+".Y c #cee0eb",
+"aH c #cee1ea",
+".l c #cee2bf",
+".4 c #cfe0eb",
+"aa c #cfe1eb",
+"aM c #cfe2ea",
+"#h c #cfe2eb",
+"#Q c #d0e2ec",
+"ay c #d1e3ed",
+".e c #d2e3ed",
+".c c #d3e3ed",
+"al c #d3e6ef",
+"#C c #d4e6ef",
+".E c #d6e6bd",
+"aK c #dae9ef",
+".C c #deebf0",
+"#7 c #deecf2",
+".G c #dfebf0",
+".o c #e2ede0",
+".w c #e2eee1",
+"ar c #e4eef4",
+".h c #eaf1f6",
+"#O c #eaf2f6",
+".3 c #eaf3df",
+"#8 c #eaf3f7",
+".Z c #ebf3df",
+"#b c #ebf3f6",
+"#4 c #ebf3f7",
+"aD c #ecf4f7",
+".9 c #eff5f8",
+".F c #eff6f2",
+".D c #eff6f6",
+"aE c #f1f7f9",
+"#K c #f3f8fa",
+"ab c #f4f9fa",
+"#G c #f7fafb",
+"#w c #f7fafc",
+"ap c #f8fafb",
+"av c #f8fbfb",
+"#d c #f8fcfc",
+"#X c #f9fbfc",
+".K c #f9fcfc",
+".# c #fafbfc",
+"aA c #fafbfd",
+".d c #fafcfc",
+"ah c #fbfcfd",
+".6 c #fbfdfd",
+".8 c #fbfdfe",
+"#W c #fcfdfd",
+".y c #fcfdfe",
+"az c #fdfdfd",
+".x c #fdfefd",
+"#P c #fdfefe",
+"aq c #fefdfe",
+"#m c #fefefd",
+"Qt c #fefefe",
+"#3 c #fffeff",
+"QtQtQtQtQt.#.a.b.c.d.e.f.g.#QtQtQtQtQt",
+"QtQtQtQtQt.h.i.j.k.l.k.m.n.hQtQtQtQtQt",
+"QtQtQtQtQt.o.p.q.r.s.t.u.v.w.xQtQtQtQt",
+"QtQtQt.y.z.A.B.C.D.E.F.G.H.I.J.KQtQtQt",
+"QtQtQt.L.M.N.O.P.Q.R.S.T.O.U.V.aQtQtQt",
+"QtQtQt.a.W.X.Y.Z.0.1.2.3.4.5.W.aQtQtQt",
+"QtQtQt.6.a.7.8.9#.###a#b.y.7#c#dQtQtQt",
+"QtQtQtQt#e#f#g#h#i#j#k#h#g#f#l#mQtQtQt",
+"QtQtQtQt#n#o#p#q#r#s#t#u#v#o#n#mQtQtQt",
+"QtQtQtQt#w#x#y#z#A#B#C#D#E#F#GQtQtQtQt",
+"QtQtQtQtQt.9#H#I#J#K#L#M#N#OQtQtQtQtQt",
+"QtQtQtQtQt#P#Q#R#S#T#U#V#u#WQtQtQtQtQt",
+"QtQtQtQtQtQt#X#Y#Z#0#1#2#K.xQtQtQtQtQt",
+"QtQtQtQt#3QtQt#4#5#6#z#7#PQt#mQtQtQtQt",
+"QtQtQtQt#3QtQt#8#9a.a#aaQtQt#mQtQtQtQt",
+"QtQtQtQt#3Qtabacadaeafag#O#PQtQtQtQtQt",
+"QtQtQtQtQtahaiajakalamanaoapQtQtQtQtQt",
+"QtQtQtQtaqarasatauavaw#oaxayazQtQtQtQt",
+"QtQtQtQtaAaB#1aCaD#PaEacaFaGav#mQtQtQt",
+"QtQtQtQtaHaIaJ.eazQtazaKaLaIaM#mQtQtQt"
 ]
 image1_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
@@ -6387,12 +6504,15 @@ class MainWindow(QMainWindow):
         self.setViewOppositeAction.setIconSet(QIconSet(self.image134))
         self.modifyMMKitAction = QAction(self,"modifyMMKitAction")
         self.modifyMMKitAction.setIconSet(QIconSet(self.image57))
+        self.helpMouseControlsAction = QAction(self,"helpMouseControlsAction")
+        self.helpKeyboardShortcutsAction = QAction(self,"helpKeyboardShortcutsAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.fileToolbar.setEnabled(1)
         self.fileToolbar.setGeometry(QRect(0,0,70,29))
+        self.fileToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.fileOpenAction.addTo(self.fileToolbar)
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6423,6 +6543,7 @@ class MainWindow(QMainWindow):
         self.setViewOppositeAction.addTo(self.viewToolbar)
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.molecularDispToolbar.setEnabled(1)
         self.molecularDispToolbar.setGeometry(QRect(502,0,182,29))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
@@ -6442,9 +6563,8 @@ class MainWindow(QMainWindow):
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(838,0,70,29))
+        self.helpToolbar.setGeometry(QRect(838,0,42,29))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.helpAssistantAction.addTo(self.helpToolbar)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
@@ -6468,7 +6588,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6737,7 +6857,9 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.simulatorMenu,12)
 
         self.helpMenu = QPopupMenu(self)
-        self.helpAssistantAction.addTo(self.helpMenu)
+        self.helpMenu.insertSeparator()
+        self.helpMouseControlsAction.addTo(self.helpMenu)
+        self.helpKeyboardShortcutsAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
         self.MenuBar.insertItem(QString(""),self.helpMenu,13)
@@ -6880,6 +7002,8 @@ class MainWindow(QMainWindow):
         self.connect(self.serverManagerAction,SIGNAL("activated()"),self.serverManager)
         self.connect(self.setViewOppositeAction,SIGNAL("activated()"),self.setViewOpposite)
         self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
+        self.connect(self.helpKeyboardShortcutsAction,SIGNAL("activated()"),self.helpKeyboardShortcuts)
+        self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
 
 
     def languageChange(self):
@@ -7316,6 +7440,12 @@ class MainWindow(QMainWindow):
         self.setViewOppositeAction.setStatusTip(self.__tr("Opposite View"))
         self.modifyMMKitAction.setText(self.__tr("Molecular Modeling Kit"))
         self.modifyMMKitAction.setToolTip(self.__tr("Modeling Kit"))
+        self.helpMouseControlsAction.setText(self.__tr("Mouse Controls..."))
+        self.helpMouseControlsAction.setToolTip(self.__tr("Mouse Controls"))
+        self.helpMouseControlsAction.setWhatsThis(self.__tr("Displays help for mouse controls"))
+        self.helpKeyboardShortcutsAction.setText(self.__tr("Keyboard Shortcuts..."))
+        self.helpKeyboardShortcutsAction.setToolTip(self.__tr("Keyboard Shortcuts"))
+        self.helpKeyboardShortcutsAction.setWhatsThis(self.__tr("Displays help for keyboard shortcuts"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7838,6 +7968,12 @@ class MainWindow(QMainWindow):
 
     def modifyMMKit(self):
         print "MainWindow.modifyMMKit(): Not implemented yet"
+
+    def helpMouseControls(self):
+        print "MainWindow.helpMouseControls(): Not implemented yet"
+
+    def helpKeyboardShortcuts(self):
+        print "MainWindow.helpKeyboardShortcuts(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
