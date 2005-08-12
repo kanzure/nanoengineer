@@ -66,18 +66,22 @@ class Help(HelpDialog):
         "Shift+Left-Drag moves atoms or open bonds.<br>"\
         "Cntl+Left-Click deletes a highlighted atom.<br>"
 
-        
-        self.mouse_controls_textbrowser.setText(text)
-        
-        # Huaicai to get this working.  Mark 050812
-        # self.mouse_controls_textbrowser.setSource(QString("../doc/mousecontrols.htm"))
+        #self.mouse_controls_textbrowser.setText(text)
+
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        htmlDoc = os.path.normpath(filePath + '/../doc/mousecontrols.htm')
+        self.mouse_controls_textbrowser.setSource(htmlDoc)
+
         
     def _setup_keyboard_shortcuts_page(self):
         ''' Setup the Keyboard Shortcuts help page.
         '''
-        text = "Keyboard Shortcuts"
-        
-        self.keyboard_shortcuts_textbrowser.setText(text)
+        #text = "Keyboard Shortcuts"
+        #self.keyboard_shortcuts_textbrowser.setText(text)
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        htmlDoc = os.path.normpath(filePath + '/../doc/keyboardaccelerators.htm')
+        self.keyboard_shortcuts_textbrowser.setSource(htmlDoc)
+
         
     def setup_current_page(self, pagename):
         if pagename == 'Mouse Controls':

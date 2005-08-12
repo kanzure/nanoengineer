@@ -569,7 +569,9 @@ def drawwirecube(color, pos, radius):
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
     #glCallList(CubeList)
+    glLineWidth(3.0)
     glCallList(lineCubeList)
+    glLineWidth(1.0) ## restore its state
     glPopMatrix()
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)

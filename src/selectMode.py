@@ -341,7 +341,7 @@ class selectMode(basicMode):
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         
-        current_glselect = (wX,wY,1,1) 
+        current_glselect = (wX,wY,3,3) 
         self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
         
         glSelectBuffer(self.o.glselectBufferSize)
