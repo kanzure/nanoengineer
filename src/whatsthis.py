@@ -575,7 +575,7 @@ def createWhatsThis(self):
         
         #### Hydrogenate ####
 
-        modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u>    (Ctrl + H)</b></p><br>"\
+        modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u> </b></p><br>"\
                        "<p><img source=\"modifyHydrogenateAction\"><br> "\
                        "Adds hydrogen atoms to all the open bonds in the selection.</p>"
 
@@ -740,7 +740,7 @@ def createWhatsThis(self):
                        "<p><b>Left Click</b> - adds an atom or pastes a chunk from the clipboard. "\
                        "New atoms can be connected to an existing chunk if an open bond is highlighted "\
                        "during a left click.</p>"\
-                       "<p><b>Ctrl+Left Click</b> - deletes a highlighted atom.</p>"\
+                       "<p><b>Ctrl+Left Click</b> - deletes a highlighted atom or bond.</p>"\
                        "<p><b>Shift+Left Drag</b> - moves an atom or open bond. An open bond will be "\
                        "connected to another open bond if the mouse button is released over a different "\
                        "open bond."\
@@ -756,7 +756,7 @@ def createWhatsThis(self):
         toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
                        "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a "\
-                       "slab of diamond lattice.</p>"
+                       "slab of diamond or londaleite lattice.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsCookieCutAction",
                                                        self. toolsCookieCutAction.iconSet().pixmap() )
