@@ -1,7 +1,7 @@
 nanoENGINEER-1™ v0.0.6 (Alpha 6)
 
 
-Bug Fixes In Alpha 6
+Some of the Bug Fixes In Alpha 6
 
 * Bug # 102: ‘Select Doubly’ can often take a long time to complete.
 * Bug # 187: Align to common axis averages the axis vectors of the selected chunks. 
@@ -19,20 +19,14 @@ Unsupported Features:
 
 4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. (569)
 
-5. The 'Clipboard' is still experimental and has some bugs related to history messages it emits. 
+5. The symmetry information for a selected chunk cannot be obtained. (261)
 
-6. The symmetry information for a selected chunk cannot be obtained. (261)
-
-7. sp and sp2 bonds are not supported.
-
-8. Aromatic bonds are not supported.
-
-9. Bonds are not selectable.
-
-10. Unicode characters are not supported for naming the items in the model tree. (474)
+6. Unicode characters are not supported for naming the items in the model tree. (474)
 
 
 Known Bugs (All Platforms)
+
+Various Delete Operations
 
 1. Delete operation cannot be undone. In fact, Undo/Redo are not implemented yet. SAVE YOUR WORK OFTEN!
 
@@ -42,21 +36,23 @@ Known Bugs (All Platforms)
 
 4. Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)
 
-5. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. nanoENGINEER-1 doesn't give any warning message for users trying to save such features in a PDB file. (252)
+5. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  nE-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)
 
-6. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at “ www.nanoengineer-1.com/mambo/index.php?option=com_content&task=view&id=23&Itemid=37  “
+6. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at www.nanoengineer-1.com under Documentation section. 
 
 7. Simulator: In some cases, hydrogen atoms or other elements ‘fly away’ while running a simulation movie. (528, 558) 
 
-8. Minimize sometimes gives partial results. For some structures it needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567) 
+8. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option ‘recenter on atoms’    (168) 
 
-9. Povray file of a model neglects the user defined lighting and displays the povray image in nE-1’s default lighting. (447)
+Selection Modes (Select Atoms and Select Chunks modes)
 
-10. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. (168) 
+9. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms or bonds in that chunk. (11)
 
-11. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms or bonds in that chunk. (11)
+10. It is difficult to select jigs (other than motors) by clicking them in the 3D workspace (graphics area) while in select atoms mode. A simple work around is to select them from the Model Tree instead of the 3D workspace (graphics area)
 
-12. Extrude Tool: The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
+Extrude Mode
+
+11.  The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps: 
 
 -- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their open bonds highlighted in a way you would like to bond them. (In general, while in the ring mode, adjustments made from graphics area don’t work)
 
@@ -66,45 +62,77 @@ Known Bugs (All Platforms)
 
 -- Select the 'Done' button on the dashboard when finished. (155)
 
-13. Extrude Tool: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
+12. Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
 
-14. Extrude Tool: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
+13. Extrude: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)
 
-15. Exrude Tool: Extrude’s ring feature doesn’t take the curvature into account for the bonds formed. (494)
+14. Extrude’s ring feature doesn’t take the curvature into account while forming the bonds. (494)
 
-16.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode , after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
+Movie 
 
-17. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. nE-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5)
+15.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
 
-18. Cookie Cutter: Large selections can cause response latency. (8)
+16. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. nE-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5)
 
-19. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
+Cookie Cutter
 
-20. Cookie Cutter: the graphics area turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
+17. Cookie Cutter: Large selections can cause response latency. (8)
 
-21. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
+18. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
 
-22. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)
+19. Cookie Cutter: the 3D workspace (graphics area) turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
 
-23. Fuse Chunks: Some history message generated are not correct for current version but these will become valid once bond ontology is implemented in nE-1 because of the same reason the back up button in fuse chunks has a related bug. (580)
+Fuse Chunks Mode
 
-24. Fuse Chunks: operations while in this mode are sluggish if it’s a large model and has large number of open bonds. (689)
+20. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)
 
-25. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
+21. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)
 
-26. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
+22. Fuse Chunks can not bond elements of two or more chunks if they are already bonded. Also, some history messages are not correct.  (580)
 
-27. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck on pressing the Shift or Cntl/Cmd key will usually fix the cursor. (113, 158)
+23. Fuse Chunks: operations while in this mode are sluggish if it’s a large model and has large number of open bonds. (689)
 
-28. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+24. Naming: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64)
 
-29. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+25. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360)
 
-30. Display: The front clipping plane will sometimes clip objects that should not be clipped.
+Cursor and Display related bugs:
 
-31. Dialogs and Dashboard: Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Element Selector need resizing etc. (231, 513, 581)
+26. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck. Usually, if you press and release the Shift or Ctrl/Cmd key, the appropriate cursor is restored.(113, 158,404)
 
-32. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+27. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)
+
+28. Display: Larger atoms can obscure open bonds when displayed in VdW mode. (258) 
+
+29. Display: Open bonds are not seen in sp, sp2 Carbon and sp2 Oxygen, when these are represented with Van der Waals display (656)
+
+30. Display: The front clipping plane will sometimes clip objects that should not be clipped
+
+31. Display: bond and atom center highlighting in build mode has some bugs. The highlighting flicker whenever there is a selection or valence error wire frame around the atom center. 
+
+Dialogs and Dashboard
+
+32. Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Molecular Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)
+
+33. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+
+Povray
+
+34.  Povray rendering of lines display is shown as black lines, motor arrows are not rendered (226, 527)
+
+35. Povray file of a model neglects the user defined lighting and displays the povray image in nE-1’s default lighting. (447)
+
+36. Povray: Background fill type is not saved in a povray file. Only solid background can be rendered. (888)
+
+Modeling Kit in Build mode
+
+This feature is still under development and has some known bugs. 
+37. Sometimes this dialog box doesn’t close even after main window of ne-1 is closed. It dies away after a few seconds though. (852)
+
+Minimize
+
+38. For some structures minimize needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567)
+39. Minimize operation for some elements with higher order bond types doesn’t work. (805)
 
 
 Windows Only Bugs
@@ -127,3 +155,7 @@ Linux Only Bugs
 
 
 1. Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)
+
+2. Molecular Modeling Kit (MMKit): When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area)  for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
+
+
