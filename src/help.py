@@ -1,90 +1,88 @@
 # Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
-"""Help system: at the moment it just pops up a crib-note window
+"""
 $Id$
+
+History:
+
+Rewritten by Mark as a mininal help facility for Alpha 6.
+
 """
 
 __author__ = "Josh"
 
-import sys
-import qt
 
-class Help(qt.QMainWindow):
-    def __init__(self,parent = None,name = None,fl = 0):
-        qt.QMainWindow.__init__(self,parent,name,fl)
-        if name == None:
-            self.setName("Help")
+from qt import *
+from HelpDialog import HelpDialog
+import os, sys
 
-        self.resize(500,800)
-        self.setCaption(self.trUtf8("Fiat Lux"))
+class Help(HelpDialog):
+    '''The Help dialog used for mouse controls and keyboard shortcuts
+    '''
+       
+    def __init__(self):
+        HelpDialog.__init__(self)
+        return
+    
+    def showDialog(self, pagenum):
+        '''Display the Help dialog with either the Mouse Controls or Keyboard Shortcuts page
+        pagenum is the page number, where:
+        0 = Mouse Controls
+        1 = Keyboard Shortcuts'''
+        
+        if pagenum == 0:
+            self._setup_mouse_controls_page()
+        elif pagenum == 1:
+            self._setup_keyboard_shortcuts_page()
+        else:
+            print "Error: unknown page."
+            return
+            
+        self.help_tab.setCurrentPage(pagenum) 
+        self.show() # Non-modal
+        return
 
-        self.setCentralWidget(qt.QWidget(self,"qt_central_widget"))
+    ###### Private methods ###############################
+    
+    def _setup_mouse_controls_page(self):
+        ''' Setup the Mouse Controls help page.
+        '''
+        text = "<b>Mouse Controls</b>"\
+        "<p>"\
+        "Left Button does something according to mode, see below"\
+        "<p>"\
+        "Middle Button : Rotate View"\
+        "<p>"\
+        "Middle Button+Shift : Pan View"\
+        "<p>"\
+        "Middle Button+Cntl/Cmd : Zoom View (vertical mouse motion) / Turn (horizontal mouse motion)"\
+        "<p>"\
+        "Mouse Wheel : Zoom, half-speed with Shift, double-speed with Cntl/Cmd"\
+        "<p>"\
+        "Right Button : Context Menu"\
+        "<p>"\
+        "<b>Build Mode:</b><br>"\
+        "Left-Click deposits an atom or chunk from the clipboard in empty space or bonds it to an open bond.<br>"\
+        "Left-Drag on an atom moves the molecule.<br>"\
+        "Shift+Left-Drag moves atoms or open bonds.<br>"\
+        "Cntl+Left-Click deletes a highlighted atom.<br>"
 
-        self.textLabel1 = qt.QLabel(self.centralWidget(),"textLabel1")
-        self.textLabel1.setGeometry(qt.QRect(2,2,496,796))
-        textLabel1_font = qt.QFont(self.textLabel1.font())
-        textLabel1_font.setFamily("Helvetica [Adobe]")
-        textLabel1_font.setPointSize(14)
-        self.textLabel1.setFont(textLabel1_font)
-        self.textLabel1.setText(self.trUtf8("""Mouse controls:
-
-General: 
-
-Left button does something according to mode, see below
-
-Middle button always controls motion (using ProE style:
-  bare: trackball
-  shift: Pan
-  Cntl: Zoom (vertical mouse motion) / turn (horizontal)
-  Wheel does zoom, half-speed with shift, double with cntl
-
-Right button always pops up a menu appropriate to mode.
-
-Default (selection) mode:
-
-single click left button selects atoms (or parts if parts are selected)
-bare left button selects / dragging does "rectangle" or "lasso" selection
-shift left button unselects / dragging does "rectangle" or "lasso" unselection
-control left button unselects what's outside the shape
-double-click left button selects parts
-
-Cookie cutter mode:
-single click left button draws rubber-band lines
-bare left button dragging does "rectangle" or "lasso" cutout
-shift left button dragging does "rectangle" or "lasso" holes
-control left button logical ANDs shape
-
-Move mode:
-bare left button moves object
-shift left button trackballs object
-cntl left button rotates or moves object on its own axis
-double click goes back to select mode
-
-Build Mode:
-type an element's symbol or select it in the dashboard
-(H, B, C, N, O, F, A=Al, Q=Si, P, S, L=Cl)
-Left-click deposits the element in empty space or bonds it to an open bond.
-Left-drag on an atom moves the molecule.
-Shift-left-drag moves atoms or open bonds.
-Cntl-left-click deletes atoms.
-If something is selected (real or clipboard) left-click will paste it
-instead of an atom.
-
-modes to come:
-
-extrude
-revolve
-
-"""))
-
-
-
-if __name__=='__main__':
-    qt.QApplication.setColorSpec(qt.QApplication.CustomColor)
-    app=qt.QApplication(sys.argv)
-
-
-    foo = Help()
-#  app.setMainWidget(foo)
-    app.connect(app,qt.SIGNAL("lastWindowClosed ()"),app.quit)
-    foo.show()
-    app.exec_loop()
+        
+        self.mouse_controls_textbrowser.setText(text)
+        
+        # Huaicai to get this working.  Mark 050812
+        # self.mouse_controls_textbrowser.setSource(QString("../doc/mousecontrols.htm"))
+        
+    def _setup_keyboard_shortcuts_page(self):
+        ''' Setup the Keyboard Shortcuts help page.
+        '''
+        text = "Keyboard Shortcuts"
+        
+        self.keyboard_shortcuts_textbrowser.setText(text)
+        
+    def setup_current_page(self, pagename):
+        if pagename == 'Mouse Controls':
+            self._setup_mouse_controls_page()
+        elif pagename == 'Keyboard Shortcuts':
+            self._setup_keyboard_shortcuts_page()
+        else:
+            print 'Error: Preferences page unknown: ', pagename
