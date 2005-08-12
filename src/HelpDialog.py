@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\HelpDialog.ui'
 #
-# Created: Fri Aug 12 14:11:02 2005
+# Created: Fri Aug 12 14:25:49 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -126,6 +126,7 @@ class HelpDialog(QDialog):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.help_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
+        self.connect(self.close_btn,SIGNAL("clicked()"),self,SLOT("close()"))
 
 
     def languageChange(self):

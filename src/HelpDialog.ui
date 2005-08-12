@@ -112,6 +112,12 @@
         <receiver>HelpDialog</receiver>
         <slot>setup_current_page()</slot>
     </connection>
+    <connection>
+        <sender>close_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>HelpDialog</receiver>
+        <slot>close()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>setup_current_page()</slot>
