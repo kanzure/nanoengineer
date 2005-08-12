@@ -309,9 +309,9 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         mat1 += mat
         
         fill(mat1,array([1,1]),1)
-        mat1 -= mat
+        mat1 -= mat #Which means boundary line is counted as inside the shape.
         # boolean raster of filled-in shape
-        self.matrix = mat1
+        self.matrix = mat1  ## For any element inside the matrix, if it is 0, then it's inside.
         # where matrix[0,0] is in x,y space
         self.matbase = ibblo
 

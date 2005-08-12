@@ -1136,8 +1136,10 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
     # Atom Type Combobox #
     
     elemFilterText = "<u><b>Atom Type</b></u><br> "\
-                        "When the <i>Selection Filter</i> is on, only atoms of this type are selected."\
-                        "</p>"
+                        "Decides the type of atoms that will be selected while performing select atoms operation in the 3D workspace. \
+Example: if this combobox is showing 'Carbon' as the element type, only carbon atoms will be selected when 'select atoms' operation is performed the next time \
+in the 3 D workspace."\
+"</p>"
                         
     QWhatsThis.add ( w.elemFilterComboBox, elemFilterText)
     
