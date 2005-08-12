@@ -1,0 +1,120 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>HelpDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>HelpDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>600</width>
+            <height>480</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>nanoENGINEER-1 Help</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QTabWidget">
+            <property name="name">
+                <cstring>help_tab</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Mouse Controls</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QTextBrowser" row="0" column="0">
+                        <property name="name">
+                            <cstring>mouse_controls_textbrowser</cstring>
+                        </property>
+                    </widget>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Keyboard Shortcuts</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QTextBrowser" row="0" column="0">
+                        <property name="name">
+                            <cstring>keyboard_shortcuts_textbrowser</cstring>
+                        </property>
+                    </widget>
+                </grid>
+            </widget>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>close_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1218">789c75d14d6fe2301006e03bbf22821b5a51e7cb4eb4da03a5857ed1424f2badf630b113a0146809b484d5fef7cdbc064aba6594cbf3ca8ec79eb3a6f373d0779a67b57c45ab8976f498964ed3ac67b3e2d7ef1f7f6a754f38e51748c7ad7fabd573473b0d2164483eb3383060f640574acb25e8950c99e7a02f95e50a0c6564d93950326f0f54cc0d28656cf90aaa3dd7a0969a2266174ca5a198390333995a5e335d4f6644cc29e82b61f90c062513e60da8946779c5f484529432ef414f459431fb60a8c8b20dc64a2782494c3f8c5d81a77b02551424b8fe10a4485ace411da904af91300319c776af06b338b534cc9028b04c99d225253ce60b1891d060b6632230d00b30255f63640d6679f94ca0e701e852a8d1d5231892d2e8ea8e59b6e86a3cce3b33f69348e3fa6fa04cc872c22c8f710d9a5c3013a12383098e416384c1141e0ec49f2fc1d4b89623a6f68c6f34730b1a131b1cd4626628f08b42def8bfec7a2a571ca28ff5ade444ae4fe4e6449e9ec833dbdc683caaf469f3c9d3f479365f7cce5f5e97799eafd66fd5fc7d53e45cc574fb9197d53ecf6d752e8ef3cbee2ece7b57c7f9f87a9f1737c7f9a85becf376e5fff3d52ebfbdabe48bb5ddd0ebb72a79eb6ddae915bdcdfdc3a7bcb51d0ce7c3c7ca3b7c31c7bfdf6bff00de480d67</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>help_tab</sender>
+        <signal>selected(const QString&amp;)</signal>
+        <receiver>HelpDialog</receiver>
+        <slot>setup_current_page()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>setup_current_page()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
