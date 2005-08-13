@@ -13,15 +13,21 @@ Unsupported Features:
 
 1. Undo/Redo not implemented. 
 
-2. Points, lines, and planes are not implemented yet. (47) 
+2. Points, lines, and planes are not implemented yet. (47)
 
-3. Simulator will support bonding between elements specified in the element selector of nanoENGINEER-1. Multiple bonding is not supported for alpha. 
+3. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn’t save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond.  Therefore, save your models ONLY in MMP  file format in such cases to avoid major loss of work (569, 763)
+ 
+4. Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. But note that it doesn’t handle bond stretching with Fluorine atom or bond bending when the involved atom is Boron.
 
-4. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. (569)
+5. Simulator/Minimize: Multiple bonding between certain elements is supported but the others are not.  For example structures involving a double bond to nitrogen it is not supported.
 
-5. The symmetry information for a selected chunk cannot be obtained. (261)
+6. Simulator/Minimize: The simulator doesn’t take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would.  
 
-6. Unicode characters are not supported for naming the items in the model tree. (474)
+7. Simulator: Electrostatic interactions are not supported. Also, the hydrogen or dative bonds are not handled.
+
+8. The symmetry information for a selected chunk cannot be obtained. (261)
+
+9. Unicode characters are not supported for naming the items in the model tree. (474)
 
 
 Known Bugs (All Platforms)
@@ -38,7 +44,7 @@ Various Delete Operations
 
 5. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  nE-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)
 
-6. The MMP File Format specification included in the nanoENGINEER-1 Assistant is obsolete. The most current version can be found at www.nanoengineer-1.com under Documentation section. 
+6. The most current version of MMP file format can be found at www.nanoengineer-1.com under Documentation section. 
 
 7. Simulator: In some cases, hydrogen atoms or other elements ‘fly away’ while running a simulation movie. (528, 558) 
 
@@ -48,7 +54,9 @@ Selection Modes (Select Atoms and Select Chunks modes)
 
 9. Selection: Can not select a chunk if cursor is inside the selection polyhedron but not pointing inside perimeter of any of the atoms or bonds in that chunk. (11)
 
-10. It is difficult to select jigs (other than motors) by clicking them in the 3D workspace (graphics area) while in select atoms mode. A simple work around is to select them from the Model Tree instead of the 3D workspace (graphics area)
+Move Mode
+
+10. Move: Keyboard modifier keys that constrain translation or rotation around an axis (e.g. press ‘Y’ and ‘R’ to rotate the selected chunk around Y axis.), doesn’t work for the first time after you perform ‘delta +’ or ‘delta –‘ operations (which move a chunk by a specific distance). A workaround is to press and release the modifier keys and then press them again to perform these operations. (674)
 
 Extrude Mode
 
@@ -70,7 +78,7 @@ Extrude Mode
 
 Movie 
 
-15.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as ‘bondables’ with their copy units. (495)
+15.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as ‘bondable’ with their copy units. (495)
 
 16. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. nE-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5)
 
@@ -80,7 +88,7 @@ Cookie Cutter
 
 18. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)
 
-19. Cookie Cutter: the 3D workspace (graphics area) turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
+19. Cookie Cutter/Display bug: the 3D workspace (graphics area) turns into a black display if you resize the nE-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687)
 
 Fuse Chunks Mode
 
@@ -112,7 +120,7 @@ Cursor and Display related bugs:
 
 Dialogs and Dashboard
 
-32. Users operating nE-1 with a low screen resolution report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Molecular Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)
+32. Users operating nE-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)
 
 33. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
@@ -124,15 +132,19 @@ Povray
 
 36. Povray: Background fill type is not saved in a povray file. Only solid background can be rendered. (888)
 
-Modeling Kit in Build mode
+Build Mode
+37. Build: While in this mode, you can not delete an atom on the 3D workspace using Ctrl + left click (Cmd +click on MAC) operation if that atom is represented in lines display. The atom center doesn’t get highlighted while in lines display. For the same reason, you can not move the atom using left mouse drag. Simple workaround exists. Change the display representation to Tubes or CPK or VDW , then highlight the atom center and do Ctrl+ left click or left drag  or shift + left drag operation.(715-2)
 
-This feature is still under development and has some known bugs. 
-37. Sometimes this dialog box doesn’t close even after main window of ne-1 is closed. It dies away after a few seconds though. (852)
+Modeling Kit in Build mode: This feature is still under development and has some known bugs. Also refer to Linux Only Bugs and ‘Dialogs and Dashboards’ bug sections for some related issues
+
+38. Sometimes this dialog box doesn’t close even after main window of ne-1 is closed. It dies away after a few seconds though. (852)
+
+39. For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(844)
 
 Minimize
 
-38. For some structures minimize needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567)
-39. Minimize operation for some elements with higher order bond types doesn’t work. (805)
+40. For some structures minimize needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567)
+41. Minimize operation for some elements with higher order bond types doesn’t work. (805)
 
 
 Windows Only Bugs
