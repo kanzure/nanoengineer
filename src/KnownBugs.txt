@@ -25,10 +25,10 @@ Example:
 -- You can change this bond type to a triple bond by:  (a) highlight the open bond, right click and then from the context menu that popped up, select triple bond. OR (b) from the Build dashboard, click on the button that corresponds to a triple bond, now move your mouse such that the bond gets highlighted and then left click. 
 -- By following this procedure, you can change the bond order. Observe that, when the triple bond is formed, the valence error wire frames will go away. 
 
+3. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn’t save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond.  Therefore, save your models ONLY in MMP  file format in such cases to avoid major loss of work (569, 763)
+
 Simulator / Minimize
 
-3. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn’t save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond.  Therefore, save your models ONLY in MMP  file format in such cases to avoid major loss of work (569, 763)
- 
 4. Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. But note that it doesn’t handle bond stretching with Fluorine atom or bond bending when the involved atom is Boron.
 
 5. Simulator/Minimize: Multiple bonding between certain elements is supported but the others are not.  For example structures involving a double bond to nitrogen it is not supported.
@@ -176,6 +176,7 @@ Povray Rendering
 
 45. Povray: Background fill type is not saved in a povray file. Only solid background can be rendered. (888)
 Miscellaneous
+
 
 46. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  nE-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)
 
