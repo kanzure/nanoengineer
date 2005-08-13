@@ -13,7 +13,19 @@ Unsupported Features:
 
 1. Undo/Redo not implemented. 
 
-2. Points, lines, and planes are not implemented yet. (47)
+2. Bond Inference not supported.
+
+By the term ‘bond inference’ we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of nE-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in ‘Build mode’. However, if the structure is not chemically correct (bad valences etc), nE-1 shows a ‘pink wire frame’ around each atom indicating valence errors.  This ‘valence error’ display, by default, is set to ON. It can be turned On or Off from the ‘Bonds’ tab in the Preferences dialog. (Edit>Preference…)
+ 
+Example:
+-- In Build mode, select ‘Carbon’ and then change its hybridization to ‘sp’ by clicking on the appropriate button in this dialog.
+-- Deposit this (sp) Carbon in the 3D Workspace. Observe that both open bonds of the deposited are single bonds and a pink wire frame appears around the atom center indicating valence errors.
+-- Now select (sp) Nitrogen from the Modeling Kit
+-- Highlight one of the open bonds of (sp) carbon and deposit this (sp) Nitrogen, Notice that a single bond will be formed between the C(sp) and N(sp). But nE-1 will display valence error wire frames around these atoms. 
+-- You can change this bond type to a triple bond by:  (a) highlight the open bond, right click and then from the context menu that popped up, select triple bond. OR (b) from the Build dashboard, click on the button that corresponds to a triple bond, now move your mouse such that the bond gets highlighted and then left click. 
+-- By following this procedure, you can change the bond order. Observe that, when the triple bond is formed, the valence error wire frames will go away. 
+
+Simulator / Minimize
 
 3. nanoENGINEER-1 (nE-1) treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn’t save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond.  Therefore, save your models ONLY in MMP  file format in such cases to avoid major loss of work (569, 763)
  
@@ -25,12 +37,18 @@ Unsupported Features:
 
 7. Simulator: Electrostatic interactions are not supported. Also, the hydrogen or dative bonds are not handled.
 
+Miscellaneous
+
 8. The symmetry information for a selected chunk cannot be obtained. (261)
 
 9. Unicode characters are not supported for naming the items in the model tree. (474)
 
+10. Points, lines, and planes are not implemented yet. (47)
+
+
 
 Known Bugs (All Platforms)
+
 
 Various Delete Operations
 
@@ -134,17 +152,25 @@ Povray
 
 Build Mode
 37. Build: While in this mode, you can not delete an atom on the 3D workspace using Ctrl + left click (Cmd +click on MAC) operation if that atom is represented in lines display. The atom center doesn’t get highlighted while in lines display. For the same reason, you can not move the atom using left mouse drag. Simple workaround exists. Change the display representation to Tubes or CPK or VDW , then highlight the atom center and do Ctrl+ left click or left drag  or shift + left drag operation.(715-2)
+38. Build/ Bond Order : The context menu ‘Reposition Open Bonds’ of an atom reorients the open bonds but wile doing so, it makes the open bond type as single  Let’s assume that a Carbon atom with (sp2) hybridization is deposited in build mode. Now you highlight one of its open bonds, right click and select ‘double bond’ from the context menu. The representation of the open bond will change to a double bond representation. Now if you highlight the atom center, right click and select ‘reposition open bonds’ , it will clear the ‘would be a double bond’ representation you just made and thus, all three open bonds of (sp2) carbon will be represented as single bond types.
 
 Modeling Kit in Build mode: This feature is still under development and has some known bugs. Also refer to Linux Only Bugs and ‘Dialogs and Dashboards’ bug sections for some related issues
 
-38. Sometimes this dialog box doesn’t close even after main window of ne-1 is closed. It dies away after a few seconds though. (852)
+39. The Modeling Kit has two tabs in it viz. ‘Atoms’ and ‘Clipboard’. The ‘Clipboard’ tab, when displayed, will allow one to deposit ‘paste-able chunks’ (if any) in the 3D Workspace. (simply select a chunk in the list and then single click into the 3D workspace(Graphics area) in order to ‘paste’ this whole chunk . 
+Now, the bug or unsupported feature: Suppose ‘Paste’ tab of Modeling Kit dialog is ‘open’, Now you select a chunk from the Model Tree and copy it to the clipboard (by Edit>Copy) , the list of the ‘Paste able chunks’ under the Clipboard tab of the dialog is supposed to get updated. But it doesn’t do so automatically. You must hit ‘Update’ button inside this dialog to see an updated list of available chunks to paste. 
 
-39. For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(844)
+40. Sometimes this dialog box doesn’t close even after main window of ne-1 is closed. It dies away after a few seconds though. (852)
+
+41. For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(844)
+
+42. If the ‘Clipboard’ tab of Build mode’s Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g. C, ‘S’, ‘1’ etc), the program is supposed to switch back to ‘Atoms’ tab (i.e. the next time you  click inside the 3D workspace, it will deposit the atom displayed in the ‘preview’  window of that dialog and not the ‘paste able chunk’ on the clipboard) . 
+---But in some cases, it doesn’t because of a ‘keyfocus’ problem. In order to over come this bug, try clicking inside 3D workspace once, then hit a modifier key…now it should change to ‘Atoms’ tab.
+--- There are some other related bugs too. Examples: the preview window sometimes doesn’t show 
 
 Minimize
 
-40. For some structures minimize needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567)
-41. Minimize operation for some elements with higher order bond types doesn’t work. (805)
+43. For some structures minimize needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567)
+44. Minimize operation for some elements with higher order bond types doesn’t work. (805)
 
 
 Windows Only Bugs
