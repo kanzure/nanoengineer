@@ -3,10 +3,11 @@ nanoENGINEER-1™ v0.0.6 (Alpha 6)
 
 Some of the Bug Fixes In Alpha 6
 
-* Bug # 102: ‘Select Doubly’ can often take a long time to complete.
+* Bug # 102: ‘Select Doubly’ can often take a long time to complete and sometimes it is not correct.
 * Bug # 187: Align to common axis averages the axis vectors of the selected chunks. 
 * Bug # 393 : Linear motors are not supported by the simulator 
 * Bug # 474-1: Bugs due to the use of closing parenthesis symbol ‘)’ while naming the objects in the model tree. (part of bug 474 ) 
+* Bug # 624: Movie player becomes very slow while playing movies for large models.
 
 
 Unsupported Features:
