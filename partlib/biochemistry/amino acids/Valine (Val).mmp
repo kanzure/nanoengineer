@@ -1,0 +1,96 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.946419, 0.041236, 0.319429, 0.023579) (5.192726) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.936660, -0.136584, 0.320417, -0.036680) (5.192726) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Valine %28Val%29)
+info opengroup open = True
+mol (Valine) def
+atom 1 (6) (-644, 18, 0) def
+atom 2 (6) (-1533, -870, 889) def
+bond1 1
+atom 3 (6) (209, 872, 854) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (-25, 2107, 946) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (1256, 321, 1545) def
+bond1 3
+atom 6 (1) (-26, -599, -617) def
+bond1 1
+atom 7 (7) (-1493, 867, -848) def
+bond1 1
+atom 8 (1) (-2070, 1444, -271) def
+bond1 7
+atom 9 (1) (-915, 1444, -1426) def
+bond1 7
+atom 10 (1) (1604, 1037, 2082) def
+bond1 5
+atom 11 (6) (-643, -1759, 1777) def
+bond1 2
+atom 12 (1) (-26, -2377, 1158) def
+bond1 11
+atom 13 (1) (-1260, -2377, 2395) def
+bond1 11
+atom 14 (1) (-24, -1142, 2394) def
+bond1 11
+atom 15 (6) (-2422, -1759, 0) def
+bond1 2
+atom 16 (1) (-3039, -1141, -618) def
+bond1 15
+atom 17 (1) (-3040, -2376, 617) def
+bond1 15
+atom 18 (1) (-1804, -2377, -617) def
+bond1 15
+atom 19 (1) (-2151, -251, 1506) def
+bond1 2
+egroup (Valine %28Val%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Valine-copy) def
+atom 20 (6) (-643, -1759, 1777) def
+atom 21 (1) (-26, -2377, 1158) def
+bond1 20
+atom 22 (6) (-644, 18, 0) def
+atom 23 (6) (-1533, -870, 889) def
+bond1 22 20
+atom 24 (6) (209, 872, 854) def
+info atom atomtype = sp2
+bond1 22
+atom 25 (8) (-25, 2107, 946) def
+info atom atomtype = sp2
+bond2 24
+atom 26 (8) (1256, 321, 1545) def
+bond1 24
+atom 27 (1) (-26, -599, -617) def
+bond1 22
+atom 28 (7) (-1493, 867, -848) def
+bond1 22
+atom 29 (1) (-1260, -2377, 2395) def
+bond1 20
+atom 30 (1) (-24, -1142, 2394) def
+bond1 20
+atom 31 (6) (-2422, -1759, 0) def
+bond1 23
+atom 32 (1) (-3039, -1141, -618) def
+bond1 31
+atom 33 (1) (-3040, -2376, 617) def
+bond1 31
+atom 34 (1) (-1804, -2377, -617) def
+bond1 31
+atom 35 (1) (-2151, -251, 1506) def
+bond1 23
+atom 36 (0) (-1897, 1271, -443) def
+bond1 28
+atom 37 (0) (-1088, 1270, -1252) def
+bond1 28
+atom 38 (0) (1495, 813, 1914) def
+bond1 26
+egroup (Clipboard)
+end molecular machine part Valine (Val)

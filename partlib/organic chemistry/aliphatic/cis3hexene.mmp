@@ -1,0 +1,53 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.043911, -0.039650, -0.453622, 0.889228) (3.261875) (-0.731500, 1.915000, -1.512000) (1.000000)
+egroup (View Data)
+group (cis3hexene)
+info opengroup open = True
+mol (cis3hexene) def
+atom 1 (1) (-2492, -2336, 2193) def
+atom 2 (6) (-2235, -1481, 1558) def
+bond1 1
+atom 3 (1) (-2544, -1686, 526) def
+bond1 2
+atom 4 (6) (-722, -1250, 1600) def
+bond1 2
+atom 5 (6) (0, -2500, 1090) def
+info atom atomtype = sp2
+bond1 4
+atom 6 (6) (1331, -2540, 1074) def
+info atom atomtype = sp2
+bond2 5
+atom 7 (6) (2140, -1337, 1565) def
+bond1 6
+atom 8 (6) (3635, -1641, 1441) def
+bond1 7
+atom 9 (1) (4214, -780, 1792) def
+bond1 8
+atom 10 (1) (3881, -1843, 392) def
+bond1 8
+atom 11 (1) (3881, -2519, 2049) def
+bond1 8
+atom 12 (1) (1894, -1135, 2614) def
+bond1 7
+atom 13 (1) (1894, -459, 957) def
+bond1 7
+atom 14 (1) (1848, -3435, 708) def
+bond1 6
+atom 15 (1) (-579, -3362, 738) def
+bond1 5
+atom 16 (1) (-412, -1045, 2632) def
+bond1 4
+atom 17 (1) (-465, -395, 965) def
+bond1 4
+atom 18 (1) (-2751, -586, 1923) def
+bond1 2
+egroup (cis3hexene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cis3hexene

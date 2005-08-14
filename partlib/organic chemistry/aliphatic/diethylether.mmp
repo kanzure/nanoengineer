@@ -1,0 +1,45 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.164697, -0.671209, 0.434665, -0.577425) (4.124327) (-0.193000, -0.094500, -0.000000) (1.000000)
+egroup (View Data)
+group (diethylether)
+info opengroup open = True
+mol (diethylether) def
+atom 1 (6) (-570, 190, 1252) def
+atom 2 (6) (909, -28, 1660) def
+bond1 1
+atom 3 (1) (1030, 151, 2740) def
+bond1 2
+atom 4 (1) (1580, 666, 1139) def
+bond1 2
+atom 5 (1) (1212, -1063, 1439) def
+bond1 2
+atom 6 (1) (-837, 1252, 1279) def
+bond1 1
+atom 7 (1) (-1194, -330, 1998) def
+bond1 1
+atom 8 (8) (-956, -411, 0) def
+bond1 1
+atom 9 (6) (-570, 190, -1252) def
+bond1 8
+atom 10 (1) (-837, 1252, -1279) def
+bond1 9
+atom 11 (1) (-1194, -330, -1998) def
+bond1 9
+atom 12 (6) (909, -28, -1660) def
+bond1 9
+atom 13 (1) (1030, 151, -2740) def
+bond1 12
+atom 14 (1) (1212, -1063, -1439) def
+bond1 12
+atom 15 (1) (1580, 666, -1139) def
+bond1 12
+egroup (diethylether)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part diethylether

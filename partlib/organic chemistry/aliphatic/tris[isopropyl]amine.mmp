@@ -1,0 +1,77 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.598722, 0.256941, -0.717346, -0.246835) (4.765854) (-0.000000, -0.000000, -0.000000) (1.000000)
+egroup (View Data)
+group (tris[isopropyl]amine)
+info opengroup open = True
+mol (tris[isopropyl]amine) def
+atom 1 (6) (-1916, 1189, 1096) def
+atom 2 (6) (-1120, 700, -144) def
+bond1 1
+atom 3 (7) (263, 389, 98) def
+bond1 2
+atom 4 (6) (780, -252, -1081) def
+bond1 3
+atom 5 (6) (2169, -916, -954) def
+bond1 4
+atom 6 (6) (316, -564, 1173) def
+bond1 3
+atom 7 (6) (1647, -613, 1958) def
+bond1 6
+atom 8 (6) (-1343, 1805, -1204) def
+bond1 2
+atom 9 (6) (936, 708, -2287) def
+bond1 4
+atom 10 (6) (-226, -1966, 839) def
+bond1 6
+atom 11 (1) (-2943, 1526, 831) def
+bond1 1
+atom 12 (1) (-1409, 2049, 1590) def
+bond1 1
+atom 13 (1) (-2115, 388, 1843) def
+bond1 1
+atom 14 (1) (-1648, -220, -500) def
+bond1 2
+atom 15 (1) (82, -1074, -1381) def
+bond1 4
+atom 16 (1) (2522, -1332, -1925) def
+bond1 5
+atom 17 (1) (2171, -1816, -307) def
+bond1 5
+atom 18 (1) (2943, -190, -618) def
+bond1 5
+atom 19 (1) (-330, -170, 1995) def
+bond1 6
+atom 20 (1) (1477, -906, 3020) def
+bond1 7
+atom 21 (1) (2141, 385, 1981) def
+bond1 7
+atom 22 (1) (2371, -1369, 1596) def
+bond1 7
+atom 23 (1) (-1400, 1408, -2238) def
+bond1 8
+atom 24 (1) (-574, 2606, -1129) def
+bond1 8
+atom 25 (1) (-2324, 2317, -1100) def
+bond1 8
+atom 26 (1) (1700, 372, -3020) def
+bond1 9
+atom 27 (1) (1257, 1723, -1963) def
+bond1 9
+atom 28 (1) (25, 770, -2917) def
+bond1 9
+atom 29 (1) (-245, -2606, 1751) def
+bond1 10
+atom 30 (1) (391, -2500, 87) def
+bond1 10
+atom 31 (1) (-1265, -1936, 446) def
+bond1 10
+egroup (tris[isopropyl]amine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part tris[isopropyl]amine

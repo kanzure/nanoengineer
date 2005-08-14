@@ -1,0 +1,27 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.897620, -0.095941, -0.350009, 0.250135) (4.668852) (-0.258000, -0.000000, -0.443500) (1.000000)
+egroup (View Data)
+group (methanol)
+info opengroup open = True
+mol (methanol) def
+atom 1 (8) (0, 0, -320) def
+atom 2 (6) (0, 0, 1090) def
+bond1 1
+atom 3 (1) (1033, 0, 1455) def
+bond1 2
+atom 4 (1) (-517, -895, 1455) def
+bond1 2
+atom 5 (1) (-517, 895, 1455) def
+bond1 2
+atom 6 (1) (463, -801, -568) def
+bond1 1
+egroup (methanol)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part methanol

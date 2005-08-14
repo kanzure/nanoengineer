@@ -1,0 +1,37 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.925641) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (acetone)
+info opengroup open = True
+mol (acetone) def
+atom 1 (6) (148, -529, -248) def
+atom 2 (6) (-375, 572, 675) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-82, 1743, 460) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (6) (-1266, 212, 1867) def
+bond1 2
+atom 5 (1) (-1540, 1125, 2407) def
+bond1 4
+atom 6 (1) (-722, -460, 2540) def
+bond1 4
+atom 7 (1) (-2174, -285, 1508) def
+bond1 4
+atom 8 (1) (763, -83, -1038) def
+bond1 1
+atom 9 (1) (-697, -1060, -700) def
+bond1 1
+atom 10 (1) (754, -1235, 331) def
+bond1 1
+egroup (acetone)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part acetone

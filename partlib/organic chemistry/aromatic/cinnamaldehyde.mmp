@@ -1,0 +1,61 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.735596, -0.139628, -0.302771, -0.589688) (3.757985) (1.535500, 1.957500, -1.644500) (1.000000)
+egroup (View Data)
+group (cinnamaldehyde)
+info opengroup open = True
+mol (cinnamaldehyde) def
+atom 1 (6) (-1053, 1307, 1375) def
+info atom atomtype = sp2
+atom 2 (6) (-273, 189, 1071) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-756, -1094, 1340) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-2019, -1258, 1913) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-2799, -140, 2218) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-2315, 1142, 1949) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (-675, 2308, 1166) def
+bond1 1
+atom 8 (1) (713, 317, 624) def
+bond1 2
+atom 9 (1) (-148, -1966, 1102) def
+bond1 3
+atom 10 (6) (-2552, -2672, 2210) def
+info atom atomtype = sp2
+bond1 4
+atom 11 (1) (-3784, -269, 2665) def
+bond1 5
+atom 12 (1) (-2924, 2015, 2186) def
+bond1 6
+atom 13 (6) (-1797, -3755, 1915) def
+info atom atomtype = sp2
+bond2 10
+atom 14 (6) (-2330, -5169, 2211) def
+info atom atomtype = sp2
+bond1 13
+atom 15 (8) (-1595, -6223, 1924) def
+info atom atomtype = sp2
+bond2 14
+atom 16 (1) (-3537, -2801, 2657) def
+bond1 10
+atom 17 (1) (-811, -3626, 1467) def
+bond1 13
+atom 18 (1) (-3316, -5297, 2659) def
+bond1 14
+egroup (cinnamaldehyde)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cinnamaldehyde

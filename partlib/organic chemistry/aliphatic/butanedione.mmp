@@ -1,0 +1,43 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.053392) (3.295500, -2.213000, 5.682500) (1.000000)
+egroup (View Data)
+group (butanedione)
+info opengroup open = True
+mol (butanedione) def
+atom 1 (6) (-4341, 2834, -4048) def
+atom 2 (6) (-3751, 2796, -5470) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (6) (-2840, 1630, -5894) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (6) (-2250, 1592, -7316) def
+bond1 3
+atom 5 (8) (-4026, 3762, -6322) def
+info atom atomtype = sp2
+bond2 2
+atom 6 (8) (-2566, 664, -5042) def
+info atom atomtype = sp2
+bond2 3
+atom 7 (1) (-3532, 2854, -3319) def
+bond1 1
+atom 8 (1) (-4955, 1948, -3885) def
+bond1 1
+atom 9 (1) (-4955, 3728, -3933) def
+bond1 1
+atom 10 (1) (-1636, 2478, -7479) def
+bond1 4
+atom 11 (1) (-3060, 1573, -8045) def
+bond1 4
+atom 12 (1) (-1636, 699, -7431) def
+bond1 4
+egroup (butanedione)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part butanedione

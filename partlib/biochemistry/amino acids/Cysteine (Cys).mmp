@@ -1,0 +1,75 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.989153, 0.133682, 0.044065, -0.041999) (6.252215) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (6.877436) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Cysteine %28Cys%29)
+info opengroup open = True
+mol (Cysteine %28Cys%29) def
+atom 1 (6) (-983, -215, 55) def
+atom 2 (6) (-47, 664, 784) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-166, 1916, 703) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (951, 120, 1547) def
+bond1 2
+atom 5 (1) (-431, -966, -469) def
+bond1 1
+atom 6 (7) (-1759, 582, -905) def
+bond1 1
+atom 7 (1) (-2275, 1283, -414) def
+bond1 6
+atom 8 (1) (-1136, 1017, -1555) def
+bond1 6
+atom 9 (1) (1369, 867, 1981) def
+bond1 4
+atom 10 (6) (-1942, -886, 1056) def
+bond1 1
+atom 11 (16) (-2876, 385, 1941) def
+bond1 10
+atom 12 (1) (-3605, -176, 2916) def
+bond1 11
+atom 13 (1) (-1378, -1467, 1756) def
+bond1 10
+atom 14 (1) (-2620, -1524, 528) def
+bond1 10
+egroup (Cysteine %28Cys%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Cysteine %28Cys%29-copy5) tub
+atom 15 (7) (-1881, 548, -733) def
+atom 16 (1) (-3637, 520, 3204) def
+atom 17 (6) (-2151, -621, 1410) def
+atom 18 (16) (-2891, 858, 2144) def
+bond1 17 16
+atom 19 (6) (-1164, -207, 303) def
+bond1 15 17
+atom 20 (6) (-101, 638, 883) def
+info atom atomtype = sp2
+bond1 19
+atom 21 (8) (-75, 1875, 639) def
+info atom atomtype = sp2
+bond2 20
+atom 22 (1) (-1629, -1171, 2166) def
+bond1 17
+atom 23 (1) (-2921, -1234, 990) def
+bond1 17
+atom 24 (8) (859, 80, 1684) def
+bond1 20
+atom 25 (1) (-727, -1081, -130) def
+bond1 19
+atom 26 (0) (-2168, 1120, -448) def
+bond1 15
+atom 27 (0) (-1433, 737, -1236) def
+bond1 15
+atom 28 (0) (1217, 589, 1903) def
+bond1 24
+egroup (Clipboard)
+end molecular machine part Cysteine (Cys)

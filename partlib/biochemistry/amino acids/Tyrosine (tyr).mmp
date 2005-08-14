@@ -1,0 +1,128 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.988015, 0.100426, 0.075708, -0.089492) (8.362216) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (6.096055) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Tyrosine %28tyr%29)
+info opengroup open = True
+mol (Tyrosine %28Tyr%29) def
+atom 1 (6) (-1027, -314, -521) def
+atom 2 (6) (-1155, -963, 867) def
+bond1 1
+atom 3 (6) (264, 398, -614) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (292, 1658, -603) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (1) (-1110, -205, 1621) def
+bond1 2
+atom 6 (1) (-354, -1658, 1010) def
+bond1 2
+atom 7 (8) (1432, -310, -715) def
+bond1 3
+atom 8 (1) (-1072, -1071, -1275) def
+bond1 1
+atom 9 (7) (-2128, 640, -718) def
+bond1 1
+atom 10 (1) (-2086, 1347, -13) def
+bond1 9
+atom 11 (1) (-2045, 1062, -1621) def
+bond1 9
+atom 12 (1) (2128, 349, -679) def
+bond1 7
+atom 13 (6) (-2448, -1676, 961) def
+info atom atomtype = sp2
+bond1 2
+atom 14 (6) (-3665, -963, 802) def
+info atom atomtype = sp2
+bonda 13
+atom 15 (1) (-3649, 30, 625) def
+bond1 14
+atom 16 (6) (-4906, -1648, 892) def
+info atom atomtype = sp2
+bonda 14
+atom 17 (1) (-5772, -1140, 779) def
+bond1 16
+atom 18 (6) (-4929, -3046, 1141) def
+info atom atomtype = sp2
+bonda 16
+atom 19 (6) (-2471, -3074, 1209) def
+info atom atomtype = sp2
+bonda 13
+atom 20 (1) (-1605, -3581, 1322) def
+bond1 19
+atom 21 (6) (-3711, -3759, 1300) def
+info atom atomtype = sp2
+bonda 19 18
+atom 22 (1) (-3728, -4753, 1477) def
+bond1 21
+atom 23 (8) (-6126, -3706, 1228) def
+bond1 18
+atom 24 (1) (-6589, -3287, 1957) def
+bond1 23
+egroup (Tyrosine %28tyr%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Tyrosine-copy9) tub
+atom 25 (6) (-2448, -1676, 961) def
+info atom atomtype = sp2
+atom 26 (6) (-3665, -963, 802) def
+info atom atomtype = sp2
+bonda 25
+atom 27 (1) (-3649, 30, 625) def
+bond1 26
+atom 28 (6) (-4906, -1648, 892) def
+info atom atomtype = sp2
+bonda 26
+atom 29 (1) (-5772, -1140, 779) def
+bond1 28
+atom 30 (6) (-4929, -3046, 1141) def
+info atom atomtype = sp2
+bonda 28
+atom 31 (6) (-2471, -3074, 1209) def
+info atom atomtype = sp2
+bonda 25
+atom 32 (1) (-1605, -3581, 1322) def
+bond1 31
+atom 33 (6) (-3711, -3759, 1300) def
+info atom atomtype = sp2
+bonda 30 31
+atom 34 (1) (-3728, -4753, 1477) def
+bond1 33
+atom 35 (8) (-6126, -3706, 1228) def
+bond1 30
+atom 36 (1) (-6589, -3287, 1957) def
+bond1 35
+atom 37 (6) (-1027, -314, -521) def
+atom 38 (6) (-1155, -963, 867) def
+bond1 37 25
+atom 39 (6) (264, 398, -614) def
+info atom atomtype = sp2
+bond1 37
+atom 40 (8) (292, 1658, -603) def
+info atom atomtype = sp2
+bond2 39
+atom 41 (1) (-1110, -205, 1621) def
+bond1 38
+atom 42 (1) (-354, -1658, 1010) def
+bond1 38
+atom 43 (8) (1432, -310, -715) def
+bond1 39
+atom 44 (1) (-1072, -1071, -1275) def
+bond1 37
+atom 45 (7) (-2128, 640, -718) def
+bond1 37
+atom 46 (0) (-2069, 935, -1349) def
+bond1 45
+atom 47 (0) (-2098, 1135, -224) def
+bond1 45
+atom 48 (0) (1910, 143, -690) def
+bond1 43
+egroup (Clipboard)
+end molecular machine part Tyrosine (tyr)

@@ -1,0 +1,67 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.710471, -0.393812, -0.499919, -0.300374) (3.364549) (-24.320500, -6.915000, 20.769500) (1.000000)
+egroup (View Data)
+group (amphetamine)
+info opengroup open = True
+mol (amphetamine.pdb) def
+atom 1 (6) (26851, 6922, -21801) def
+info atom atomtype = sp2
+atom 2 (6) (25525, 6514, -21959) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (24604, 6715, -20928) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (25010, 7323, -19738) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (26336, 7731, -19580) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (27257, 7530, -20611) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (27569, 6765, -22605) def
+bond1 1
+atom 8 (1) (25208, 6039, -22888) def
+bond1 2
+atom 9 (6) (23142, 6265, -21103) def
+bond1 3
+atom 10 (1) (24292, 7480, -18934) def
+bond1 4
+atom 11 (1) (26653, 8206, -18651) def
+bond1 5
+atom 12 (1) (28292, 7849, -20487) def
+bond1 6
+atom 13 (6) (22345, 6601, -19829) def
+bond1 9
+atom 14 (6) (22389, 8119, -19581) def
+bond1 13
+atom 15 (7) (20902, 6157, -20001) def
+bond1 13
+atom 16 (1) (23111, 5190, -21278) def
+bond1 9
+atom 17 (1) (22701, 6784, -21954) def
+bond1 9
+atom 18 (1) (22786, 6082, -18978) def
+bond1 13
+atom 19 (1) (23424, 8439, -19458) def
+bond1 14
+atom 20 (1) (21949, 8640, -20432) def
+bond1 14
+atom 21 (1) (21826, 8358, -18679) def
+bond1 14
+atom 22 (1) (20470, 6667, -20837) def
+bond1 15
+atom 23 (1) (20349, 6390, -19116) def
+bond1 15
+egroup (amphetamine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part amphetamine

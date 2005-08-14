@@ -1,0 +1,41 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (0.891619, 0.317770, -0.052755, 0.318207) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (11.103712) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (5CarbonRing)
+info opengroup open = True
+mol (5 Carbon Ring) tub
+atom 1 (0) (-11, 1588, 611) def
+atom 2 (0) (-1631, 343, 644) def
+atom 3 (0) (-963, -1577, 654) def
+atom 4 (0) (1651, 409, 617) def
+atom 5 (0) (1069, -1544, 619) def
+atom 6 (6) (-14, 1151, -22) def
+bond1 1
+atom 7 (0) (-33, 1590, -654) def
+bond1 6
+atom 8 (6) (-1234, 212, -1) def
+bond1 6 2
+atom 9 (0) (-1673, 347, -620) def
+bond1 8
+atom 10 (6) (1247, 270, -23) def
+bond1 6 4
+atom 11 (0) (1673, 427, -644) def
+bond1 10
+atom 12 (6) (802, -1196, -13) def
+bond1 10 5
+atom 13 (0) (1063, -1545, -648) def
+bond1 12
+atom 14 (6) (-727, -1226, 11) def
+bond1 8 12 3
+atom 15 (0) (-987, -1590, -615) def
+bond1 14
+egroup (5CarbonRing)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 5CarbonRing

@@ -1,0 +1,79 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.813570, 0.562649, -0.120583, -0.083610) (4.233779) (-0.312000, 0.616000, 7.609000) (1.000000)
+egroup (View Data)
+group (tert butyl methoxyphenol)
+info opengroup open = True
+mol (tert butyl methoxyphenol.pdb) def
+atom 1 (6) (-694, 115, -8785) def
+info atom atomtype = sp2
+atom 2 (6) (634, -259, -8569) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (1109, -428, -7266) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (255, -223, -6180) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-1073, 151, -6396) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-1548, 320, -7699) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (-1064, 247, -9802) def
+bond1 1
+atom 8 (8) (1551, -479, -9736) def
+bond1 2
+atom 9 (6) (2573, -840, -7027) def
+bond1 3
+atom 10 (1) (626, -354, -5163) def
+bond1 4
+atom 11 (8) (-1990, 371, -5229) def
+bond1 5
+atom 12 (1) (-2584, 612, -7868) def
+bond1 6
+atom 13 (6) (-3416, 773, -5462) def
+bond1 11
+atom 14 (1) (1194, -352, -10715) def
+bond1 8
+atom 15 (6) (3510, 223, -7630) def
+bond1 9
+atom 16 (6) (2840, -2200, -7700) def
+bond1 9
+atom 17 (6) (2834, -956, -5514) def
+bond1 9
+atom 18 (1) (-3919, 5, -6050) def
+bond1 13
+atom 19 (1) (-3444, 1720, -6001) def
+bond1 13
+atom 20 (1) (-3923, 885, -4503) def
+bond1 13
+atom 21 (1) (3326, 305, -8701) def
+bond1 15
+atom 22 (1) (3322, 1186, -7154) def
+bond1 15
+atom 23 (1) (4547, -69, -7461) def
+bond1 15
+atom 24 (1) (2176, -2952, -7273) def
+bond1 16
+atom 25 (1) (2655, -2118, -8771) def
+bond1 16
+atom 26 (1) (3876, -2491, -7531) def
+bond1 16
+atom 27 (1) (2171, -1708, -5088) def
+bond1 17
+atom 28 (1) (2645, 7, -5038) def
+bond1 17
+atom 29 (1) (3870, -1247, -5345) def
+bond1 17
+egroup (tert butyl methoxyphenol)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part tert butyl methoxyphenol

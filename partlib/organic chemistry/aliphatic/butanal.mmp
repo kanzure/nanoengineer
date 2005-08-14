@@ -1,0 +1,43 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.676988, -0.027849, -0.726963, -0.111521) (4.050624) (0.074000, 0.270500, -0.273000) (1.000000)
+egroup (View Data)
+group (butanal)
+info opengroup open = True
+mol (butanal) def
+atom 1 (6) (214, -890, 658) def
+atom 2 (6) (265, -872, 2207) def
+bond1 1
+atom 3 (1) (908, -51, 2562) def
+bond1 2
+atom 4 (1) (672, -1824, 2584) def
+bond1 2
+atom 5 (1) (-746, -734, 2623) def
+bond1 2
+atom 6 (1) (1232, -1045, 262) def
+bond1 1
+atom 7 (6) (-356, 438, 95) def
+bond1 1
+atom 8 (1) (-417, -1731, 326) def
+bond1 1
+atom 9 (1) (268, 1283, 430) def
+bond1 7
+atom 10 (1) (-1380, 596, 468) def
+bond1 7
+atom 11 (6) (-396, 395, -1412) def
+info atom atomtype = sp2
+bond1 7
+atom 12 (8) (264, 1177, -2077) def
+info atom atomtype = sp2
+bond2 11
+atom 13 (1) (-1016, -339, -1925) def
+bond1 11
+egroup (butanal)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part butanal

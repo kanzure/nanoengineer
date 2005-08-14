@@ -1,0 +1,107 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.478842, 0.139800, -0.866488, 0.019072) (11.905014) (-1.579000, -5.142500, 12.336000) (1.000000)
+egroup (View Data)
+group (polyoxyethylene)
+info opengroup open = True
+mol (polyoxyethylene.pdb) def
+atom 1 (6) (5527, 7061, -4233) def
+atom 2 (6) (4701, 7590, -5421) def
+bond1 1
+atom 3 (6) (4405, 6435, -6395) def
+bond1 2
+atom 4 (6) (3579, 6964, -7582) def
+bond1 3
+atom 5 (6) (3282, 5809, -8556) def
+bond1 4
+atom 6 (6) (2456, 6338, -9743) def
+bond1 5
+atom 7 (6) (2160, 5183, -10718) def
+bond1 6
+atom 8 (6) (1334, 5712, -11905) def
+bond1 7
+atom 9 (6) (1037, 4556, -12879) def
+bond1 8
+atom 10 (6) (211, 5085, -14066) def
+bond1 9
+atom 11 (6) (-85, 3930, -15041) def
+bond1 10
+atom 12 (6) (-911, 4459, -16228) def
+bond1 11
+atom 13 (8) (-1200, 3334, -17177) def
+bond1 12
+atom 14 (6) (-2005, 3849, -18333) def
+bond1 13
+atom 15 (6) (-2301, 2694, -19308) def
+bond1 14
+atom 16 (8) (-3106, 3209, -20464) def
+bond1 15
+atom 17 (1) (6466, 6646, -4600) def
+bond1 1
+atom 18 (1) (4964, 6285, -3716) def
+bond1 1
+atom 19 (1) (5737, 7879, -3544) def
+bond1 1
+atom 20 (1) (3763, 8006, -5054) def
+bond1 2
+atom 21 (1) (5264, 8367, -5938) def
+bond1 2
+atom 22 (1) (3841, 5659, -5877) def
+bond1 3
+atom 23 (1) (5343, 6019, -6762) def
+bond1 3
+atom 24 (1) (2640, 7380, -7215) def
+bond1 4
+atom 25 (1) (4142, 7740, -8100) def
+bond1 4
+atom 26 (1) (2719, 5032, -8039) def
+bond1 5
+atom 27 (1) (4221, 5393, -8923) def
+bond1 5
+atom 28 (1) (1518, 6753, -9377) def
+bond1 6
+atom 29 (1) (3020, 7114, -10261) def
+bond1 6
+atom 30 (1) (1596, 4406, -10200) def
+bond1 7
+atom 31 (1) (3098, 4767, -11085) def
+bond1 7
+atom 32 (1) (395, 6127, -11538) def
+bond1 8
+atom 33 (1) (1897, 6488, -12423) def
+bond1 8
+atom 34 (1) (474, 3780, -12362) def
+bond1 9
+atom 35 (1) (1976, 4141, -13246) def
+bond1 9
+atom 36 (1) (-727, 5501, -13700) def
+bond1 10
+atom 37 (1) (775, 5862, -14584) def
+bond1 10
+atom 38 (1) (-649, 3154, -14523) def
+bond1 11
+atom 39 (1) (853, 3515, -15408) def
+bond1 11
+atom 40 (1) (-1850, 4875, -15861) def
+bond1 12
+atom 41 (1) (-348, 5236, -16745) def
+bond1 12
+atom 42 (1) (-2943, 4265, -17966) def
+bond1 14
+atom 43 (1) (-1441, 4626, -18851) def
+bond1 14
+atom 44 (1) (-2864, 1918, -18790) def
+bond1 15
+atom 45 (1) (-1362, 2279, -19675) def
+bond1 15
+atom 46 (1) (-3308, 2422, -21128) def
+bond1 16
+egroup (polyoxyethylene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part polyoxyethylene

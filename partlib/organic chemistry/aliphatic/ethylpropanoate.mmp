@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.297558) (0.069000, -0.000500, 0.081000) (1.000000)
+egroup (View Data)
+group (ethylpropanoate)
+info opengroup open = True
+mol (ethylpropanoate.pdb) def
+atom 1 (1) (-2914, 1740, 572) def
+atom 2 (6) (-2757, 887, 1251) def
+bond1 1
+atom 3 (1) (-2292, 1254, 2180) def
+bond1 2
+atom 4 (6) (-1849, -174, 578) def
+bond1 2
+atom 5 (1) (-3736, 448, 1497) def
+bond1 2
+atom 6 (6) (-491, 374, 217) def
+info atom atomtype = sp2
+bond1 4
+atom 7 (1) (-2335, -540, -339) def
+bond1 4
+atom 8 (1) (-1712, -1025, 1265) def
+bond1 4
+atom 9 (8) (-185, 1534, 448) def
+info atom atomtype = sp2
+bond2 6
+atom 10 (8) (329, -511, -365) def
+bond1 6
+atom 11 (6) (1625, 21, -706) def
+bond1 10
+atom 12 (1) (2149, 374, 196) def
+bond1 11
+atom 13 (1) (1526, 858, -1419) def
+bond1 11
+atom 14 (6) (2459, -1103, -1365) def
+bond1 11
+atom 15 (1) (3459, -733, -1639) def
+bond1 14
+atom 16 (1) (1953, -1464, -2274) def
+bond1 14
+atom 17 (1) (2571, -1947, -665) def
+bond1 14
+egroup (ethylpropanoate)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ethylpropanoate

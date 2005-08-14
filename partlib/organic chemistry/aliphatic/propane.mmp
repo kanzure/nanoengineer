@@ -1,0 +1,37 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.816669) (0.361000, 0.625000, 0.296000) (1.000000)
+egroup (View Data)
+group (propane)
+info opengroup open = True
+mol (propane) def
+atom 1 (6) (0, 0, -441) def
+atom 2 (6) (0, 0, 1090) def
+bond1 1
+atom 3 (1) (517, 895, 1455) def
+bond1 2
+atom 4 (1) (517, -895, 1455) def
+bond1 2
+atom 5 (1) (-1033, 0, 1455) def
+bond1 2
+atom 6 (1) (1033, 0, -806) def
+bond1 1
+atom 7 (1) (-517, 895, -806) def
+bond1 1
+atom 8 (6) (-722, -1250, -951) def
+bond1 1
+atom 9 (1) (-205, -2145, -586) def
+bond1 8
+atom 10 (1) (-722, -1250, -2047) def
+bond1 8
+atom 11 (1) (-1755, -1250, -586) def
+bond1 8
+egroup (propane)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part propane

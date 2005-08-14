@@ -1,0 +1,83 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.988336, 0.062990, -0.010892, 0.138224) (4.102432) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.989304, 0.119061, -0.053365, 0.065219) (4.102432) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Proline%28Pro%29)
+info opengroup open = True
+mol (Proline %28Pro%29) def
+atom 1 (6) (-1050, 39, 143) def
+atom 2 (6) (301, 793, 63) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (477, 1988, 179) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (1422, -129, -46) def
+bond1 2
+atom 5 (1) (-1134, -664, -680) def
+bond1 1
+atom 6 (7) (-2161, 1052, 42) def
+bond1 1
+atom 7 (1) (2228, 401, -16) def
+bond1 4
+atom 8 (6) (-1188, -707, 1495) def
+bond1 1
+atom 9 (6) (-2494, -207, 2154) def
+bond1 8
+atom 10 (6) (-3079, 884, 1224) def
+bond1 9 6
+atom 11 (1) (-1761, 1986, 53) def
+bond1 6
+atom 12 (1) (-3156, 1830, 1754) def
+bond1 10
+atom 13 (1) (-4064, 592, 870) def
+bond1 10
+atom 14 (1) (-3201, -1026, 2258) def
+bond1 9
+atom 15 (1) (-2285, 207, 3137) def
+bond1 9
+atom 16 (1) (-337, -489, 2135) def
+bond1 8
+atom 17 (1) (-1241, -1780, 1331) def
+bond1 8
+egroup (Proline%28Pro%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Proline %28Pro%29-copy9) tub
+atom 18 (1) (-297, -422, 2091) def
+atom 19 (8) (1374, -134, 117) def
+atom 20 (1) (-1201, -675, -701) def
+atom 21 (7) (-2193, 1056, 22) def
+atom 22 (1) (-1183, -1746, 1322) def
+atom 23 (1) (-4073, 577, 896) def
+atom 24 (1) (-3158, 1827, 1756) def
+atom 25 (6) (-1153, -669, 1469) def
+bond1 18 22
+atom 26 (6) (-2464, -200, 2145) def
+bond1 25
+atom 27 (6) (-3083, 881, 1226) def
+bond1 21 26 24 23
+atom 28 (6) (-1070, 52, 95) def
+bond1 20 21 25
+atom 29 (6) (278, 803, -105) def
+info atom atomtype = sp2
+bond1 28 19
+atom 30 (8) (527, 1889, 371) def
+info atom atomtype = sp2
+bond2 29
+atom 31 (1) (-3154, -1034, 2252) def
+bond1 26
+atom 32 (1) (-2259, 213, 3129) def
+bond1 26
+atom 33 (0) (-1928, 1703, 17) def
+bond1 21
+atom 34 (0) (1936, 201, 34) def
+bond1 19
+egroup (Clipboard)
+end molecular machine part Proline(Pro)

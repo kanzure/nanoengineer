@@ -1,0 +1,23 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.141949, 0.442441, -0.521174, 0.715873) (3.128059) (-0.947000, 0.291500, 3.566500) (1.000000)
+egroup (View Data)
+group (hydrogen_peroxide)
+info opengroup open = True
+mol (hydrogen_peroxide.pdb) def
+atom 1 (8) (1059, -578, -4216) def
+atom 2 (8) (832, -2, -2912) def
+bond1 1
+atom 3 (1) (2009, -648, -4374) def
+bond1 1
+atom 4 (1) (-116, 65, -2754) def
+bond1 2
+egroup (hydrogen_peroxide)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part hydrogen_peroxide

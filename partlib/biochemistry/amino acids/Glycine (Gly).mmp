@@ -1,0 +1,61 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.006370) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (3.618714) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Glycine %28Gly%29)
+info opengroup open = True
+mol (Glycine %28Gly%29) def
+atom 1 (6) (-832, -425, 42) def
+atom 2 (6) (558, 30, 246) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (784, 1173, 726) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (1604, -788, -89) def
+bond1 2
+atom 5 (1) (-933, -835, -939) def
+bond1 1
+atom 6 (7) (-1748, 713, 195) def
+bond1 1
+atom 7 (1) (2390, -321, 203) def
+bond1 4
+atom 8 (1) (-1071, -1173, 767) def
+bond1 1
+atom 9 (1) (-2390, 527, 939) def
+bond1 6
+atom 10 (1) (-2254, 851, -655) def
+bond1 6
+egroup (Glycine %28Gly%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Glycine %28Gly%29-copy) tub
+atom 11 (6) (-308, -736, -196) def
+atom 12 (6) (544, 118, 657) def
+info atom atomtype = sp2
+bond1 11
+atom 13 (8) (310, 1353, 749) def
+info atom atomtype = sp2
+bond2 12
+atom 14 (8) (1591, -433, 1348) def
+bond1 12
+atom 15 (1) (309, -1352, -813) def
+bond1 11
+atom 16 (7) (-1157, 112, -1044) def
+bond1 11
+atom 17 (1) (-925, -1352, 420) def
+bond1 11
+atom 18 (0) (-1830, -24, -911) def
+bond1 16
+atom 19 (0) (-1020, -18, -1717) def
+bond1 16
+atom 20 (0) (1830, 59, 1717) def
+bond1 14
+egroup (Clipboard)
+end molecular machine part Glycine (Gly)

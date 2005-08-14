@@ -1,0 +1,61 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.593283, -0.047584, -0.587604, 0.548154) (5.950136) (2.701500, 2.159000, -0.854500) (1.000000)
+egroup (View Data)
+group (vanillin)
+info opengroup open = True
+mol (vanillin) def
+atom 1 (6) (-1533, -113, -98) def
+info atom atomtype = sp2
+atom 2 (6) (-2142, -1287, -548) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-2600, -2232, 373) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-2448, -2004, 1742) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-1839, -830, 2191) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-1382, 116, 1271) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (-1176, 625, -817) def
+bond1 1
+atom 8 (8) (-2304, -1532, -2019) def
+bond1 2
+atom 9 (8) (-3253, -3493, -110) def
+bond1 3
+atom 10 (1) (-2806, -2742, 2460) def
+bond1 4
+atom 11 (6) (-1673, -578, 3702) def
+info atom atomtype = sp2
+bond1 5
+atom 12 (1) (-907, 1032, 1622) def
+bond1 6
+atom 13 (8) (-1099, 529, 4125) def
+info atom atomtype = sp2
+bond2 11
+atom 14 (1) (-1960, -821, -2711) def
+bond1 8
+atom 15 (6) (-3745, -4509, 878) def
+bond1 9
+atom 16 (1) (-2029, -1316, 4420) def
+bond1 11
+atom 17 (1) (-4496, -4053, 1524) def
+bond1 15
+atom 18 (1) (-2910, -4860, 1484) def
+bond1 15
+atom 19 (1) (-4187, -5350, 345) def
+bond1 15
+egroup (vanillin)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part vanillin

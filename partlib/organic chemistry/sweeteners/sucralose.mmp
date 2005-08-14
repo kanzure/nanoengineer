@@ -1,0 +1,97 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.371070, 0.149852, -0.531849, 0.746316) (9.854938) (-0.111000, 0.124500, 0.305000) (1.000000)
+egroup (View Data)
+group (sucralose)
+info opengroup open = True
+mol (sucralose.) def
+atom 1 (8) (2150, 907, -4101) def
+atom 2 (6) (1615, 1014, -2770) def
+bond1 1
+atom 3 (6) (916, 2575, -900) def
+atom 4 (6) (-482, 620, -1379) def
+atom 5 (8) (-396, 1994, -966) def
+bond1 3 4
+atom 6 (6) (169, 458, -2775) def
+bond1 2 4
+atom 7 (6) (1603, 2490, -2290) def
+bond1 2 3
+atom 8 (1) (1527, 2009, -178) def
+bond1 3
+atom 9 (8) (182, -292, -481) def
+bond1 4
+atom 10 (1) (2638, 2863, -2215) def
+bond1 7
+atom 11 (1) (-428, 1010, -3518) def
+bond1 6
+atom 12 (17) (779, 3499, -3489) def
+bond1 7
+atom 13 (1) (2229, 409, -2080) def
+bond1 2
+atom 14 (6) (790, 4038, -398) def
+bond1 3
+atom 15 (1) (-1546, 356, -1475) def
+bond1 4
+atom 16 (8) (147, -921, -3179) def
+bond1 6
+atom 17 (6) (-452, -655, 763) def
+bond1 9
+atom 18 (1) (625, -1480, -2576) def
+bond1 16
+atom 19 (1) (3046, 1221, -4163) def
+bond1 1
+atom 20 (1) (1777, 4530, -380) def
+bond1 14
+atom 21 (8) (185, 4094, 904) def
+bond1 14
+atom 22 (1) (129, 4609, -1067) def
+bond1 14
+atom 23 (1) (713, 3671, 1573) def
+bond1 21
+atom 24 (6) (-1792, -1406, 562) def
+bond1 17
+atom 25 (6) (-1892, -2366, 1778) def
+bond1 24
+atom 26 (6) (-426, -2479, 2285) def
+bond1 25
+atom 27 (8) (312, -1734, 1310) def
+bond1 17 26
+atom 28 (6) (-555, 511, 1782) def
+bond1 17
+atom 29 (8) (-1749, -2150, -669) def
+bond1 24
+atom 30 (1) (-2653, -721, 507) def
+bond1 24
+atom 31 (8) (-2754, -1803, 2783) def
+bond1 25
+atom 32 (1) (-2310, -3334, 1451) def
+bond1 25
+atom 33 (6) (100, -3931, 2362) def
+bond1 26
+atom 34 (1) (-309, -1989, 3265) def
+bond1 26
+atom 35 (1) (-1014, -2753, -706) def
+bond1 29
+atom 36 (1) (-2824, -2357, 3553) def
+bond1 31
+atom 37 (17) (1063, 930, 2356) def
+bond1 28
+atom 38 (1) (-1035, 1392, 1334) def
+bond1 28
+atom 39 (1) (-1142, 230, 2667) def
+bond1 28
+atom 40 (1) (1158, -3930, 2669) def
+bond1 33
+atom 41 (1) (18, -4420, 1379) def
+bond1 33
+atom 42 (17) (-829, -4858, 3547) def
+bond1 33
+egroup (sucralose)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part sucralose

@@ -1,0 +1,87 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.855702, 0.149567, 0.493955, 0.037575) (4.852120) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.938019, 0.264251, 0.116964, 0.191341) (4.852120) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Threonine %28Thr%29)
+info opengroup open = True
+mol (Threonine %28Thr%29) def
+atom 1 (6) (-983, -215, 55) def
+atom 2 (6) (-47, 664, 784) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-166, 1916, 703) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (951, 120, 1547) def
+bond1 2
+atom 5 (1) (-431, -966, -469) def
+bond1 1
+atom 6 (7) (-1759, 582, -905) def
+bond1 1
+atom 7 (1) (-2275, 1283, -414) def
+bond1 6
+atom 8 (1) (-1136, 1016, -1555) def
+bond1 6
+atom 9 (1) (1369, 867, 1981) def
+bond1 4
+atom 10 (6) (-1942, -886, 1056) def
+bond1 1
+atom 11 (1) (-1378, -1467, 1756) def
+bond1 10
+atom 12 (8) (-2680, 118, 1755) def
+bond1 10
+atom 13 (1) (-2324, 113, 2647) def
+bond1 12
+atom 14 (6) (-2917, -1803, 296) def
+bond1 10
+atom 15 (1) (-3481, -1223, -403) def
+bond1 14
+atom 16 (1) (-3583, -2270, 991) def
+bond1 14
+atom 17 (1) (-2365, -2556, -227) def
+bond1 14
+egroup (Threonine %28Thr%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Threonine %28Thr%29-copy8) tub
+atom 18 (8) (-2680, 118, 1755) def
+atom 19 (1) (-2365, -2556, -227) def
+atom 20 (1) (-2324, 113, 2647) def
+bond1 18
+atom 21 (6) (-2917, -1803, 296) def
+bond1 19
+atom 22 (1) (-3481, -1223, -403) def
+bond1 21
+atom 23 (6) (-983, -215, 55) def
+atom 24 (6) (-47, 664, 784) def
+info atom atomtype = sp2
+bond1 23
+atom 25 (8) (-166, 1916, 703) def
+info atom atomtype = sp2
+bond2 24
+atom 26 (8) (951, 120, 1547) def
+bond1 24
+atom 27 (1) (-431, -966, -469) def
+bond1 23
+atom 28 (7) (-1759, 582, -905) def
+bond1 23
+atom 29 (6) (-1942, -886, 1056) def
+bond1 23 18 21
+atom 30 (1) (-1378, -1467, 1756) def
+bond1 29
+atom 31 (1) (-3583, -2270, 991) def
+bond1 21
+atom 32 (0) (-2120, 1073, -561) def
+bond1 28
+atom 33 (0) (-1322, 886, -1360) def
+bond1 28
+atom 34 (0) (1238, 633, 1845) def
+bond1 26
+egroup (Clipboard)
+end molecular machine part Threonine (Thr)

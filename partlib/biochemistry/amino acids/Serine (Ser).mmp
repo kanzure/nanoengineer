@@ -1,0 +1,76 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.130120) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.895173, 0.291759, 0.307650, 0.137454) (9.130120) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Serine %28Ser%29)
+info opengroup open = True
+mol (Serine %28Ser%29) def
+atom 1 (6) (-983, -215, 55) def
+atom 2 (6) (-47, 664, 784) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-166, 1916, 703) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (951, 120, 1547) def
+bond1 2
+atom 5 (1) (-431, -966, -469) def
+bond1 1
+atom 6 (7) (-1759, 582, -905) def
+bond1 1
+atom 7 (1) (-2275, 1283, -414) def
+bond1 6
+atom 8 (1) (-1136, 1016, -1555) def
+bond1 6
+atom 9 (1) (1369, 867, 1981) def
+bond1 4
+atom 10 (6) (-1942, -886, 1056) def
+bond1 1
+atom 11 (1) (-1378, -1467, 1756) def
+bond1 10
+atom 12 (1) (-2620, -1524, 528) def
+bond1 10
+atom 13 (8) (-2680, 118, 1755) def
+bond1 10
+atom 14 (1) (-2324, 113, 2647) def
+bond1 13
+egroup (Serine %28Ser%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Serine %28Ser%29-copy) tub
+atom 15 (8) (-2680, 118, 1755) def
+atom 16 (1) (-2324, 113, 2647) def
+bond1 15
+atom 17 (6) (-983, -215, 55) def
+atom 18 (6) (-47, 664, 784) def
+info atom atomtype = sp2
+bond1 17
+atom 19 (8) (-166, 1916, 703) def
+info atom atomtype = sp2
+bond2 18
+atom 20 (8) (951, 120, 1547) def
+bond1 18
+atom 21 (1) (-431, -966, -469) def
+bond1 17
+atom 22 (7) (-1759, 582, -905) def
+bond1 17
+atom 23 (6) (-1942, -886, 1056) def
+bond1 17 15
+atom 24 (1) (-1378, -1467, 1756) def
+bond1 23
+atom 25 (1) (-2620, -1524, 528) def
+bond1 23
+atom 26 (0) (-2120, 1073, -561) def
+bond1 22
+atom 27 (0) (-1322, 886, -1360) def
+bond1 22
+atom 28 (0) (1238, 633, 1845) def
+bond1 20
+egroup (Clipboard)
+end molecular machine part Serine (Ser)

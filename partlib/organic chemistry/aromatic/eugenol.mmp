@@ -1,0 +1,70 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.235315, -0.586494, 0.076712, -0.771211) (4.635469) (-0.940500, 0.358000, -0.444500) (1.000000)
+egroup (View Data)
+group (eugenol)
+info opengroup open = True
+mol (eugenol) def
+atom 1 (8) (-478, 408, -3061) def
+atom 2 (6) (-483, 468, -1664) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (6) (-501, 531, 1148) def
+info atom atomtype = sp2
+atom 4 (6) (-475, -721, -931) def
+info atom atomtype = sp2
+bonda 2
+atom 5 (6) (-495, 1693, -984) def
+info atom atomtype = sp2
+bonda 2
+atom 6 (6) (-499, 1722, 413) def
+info atom atomtype = sp2
+bonda 3 5
+atom 7 (6) (-489, -691, 466) def
+info atom atomtype = sp2
+bonda 3 4
+atom 8 (8) (-450, -1945, -1598) def
+bond1 4
+atom 9 (1) (-500, 2629, -1534) def
+bond1 5
+atom 10 (1) (-497, 2678, 927) def
+bond1 6
+atom 11 (1) (-485, -1625, 1018) def
+bond1 7
+atom 12 (6) (-511, 559, 2683) def
+bond1 3
+atom 13 (1) (-467, 1257, -3490) def
+bond1 1
+atom 14 (6) (878, -2432, -1842) def
+bond1 8
+atom 15 (1) (1417, -2589, -894) def
+bond1 14
+atom 16 (1) (1443, -1727, -2471) def
+bond1 14
+atom 17 (1) (802, -3394, -2369) def
+bond1 14
+atom 18 (6) (872, 509, 3289) def
+info atom atomtype = sp2
+bond1 12
+atom 19 (1) (-1089, -300, 3057) def
+bond1 12
+atom 20 (1) (-1014, 1474, 3032) def
+bond1 12
+atom 21 (6) (2013, 449, 2589) def
+info atom atomtype = sp2
+bond2 18
+atom 22 (1) (936, 524, 4379) def
+bond1 18
+atom 23 (1) (2970, 416, 3109) def
+bond1 21
+atom 24 (1) (2041, 431, 1501) def
+bond1 21
+egroup (eugenol)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part eugenol

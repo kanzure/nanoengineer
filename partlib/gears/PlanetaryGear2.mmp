@@ -1,0 +1,194 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (0.727720, 0.391340, 0.008317, 0.563212) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.937317) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (0.727720, 0.391340, 0.008317, 0.563212) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (7.288629) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (PlanetaryGear2)
+info opengroup open = True
+mol (Planet Gear.1) def
+atom 1 (6) (-4935, 60, 69) def
+atom 2 (7) (-4354, 1330, -443) def
+bond1 1
+atom 3 (7) (-4484, -159, 1475) def
+bond1 1
+atom 4 (7) (-4455, -1057, -775) def
+bond1 1
+atom 5 (6) (-3480, 984, -1579) def
+bond1 2
+atom 6 (6) (-3482, 1853, 611) def
+bond1 2
+atom 7 (6) (-3569, 932, 1816) def
+bond1 3 6
+atom 8 (6) (-3684, -1386, 1490) def
+bond1 3
+atom 9 (6) (-3656, -1921, 89) def
+bond1 4 8
+atom 10 (6) (-3540, -515, -1780) def
+bond1 4 5
+atom 11 (6) (-2077, 830, -1049) def
+bond1 5
+atom 12 (1) (-3605, 1617, -2484) def
+bond1 5
+atom 13 (6) (-2086, 1347, 340) def
+bond1 6 11
+atom 14 (1) (-3606, 2935, 795) def
+bond1 6
+atom 15 (6) (-2163, 445, 1547) def
+bond1 7 13
+atom 16 (1) (-3753, 1405, 2805) def
+bond1 7
+atom 17 (6) (-2227, -1011, 1357) def
+bond1 8 15
+atom 18 (1) (-3965, -2121, 2262) def
+bond1 8
+atom 19 (6) (-2195, -1545, -45) def
+bond1 9 17
+atom 20 (1) (-3957, -2935, 20) def
+bond1 9
+atom 21 (6) (-2129, -651, -1244) def
+bond1 10 11 19
+atom 22 (1) (-3711, -889, -2805) def
+bond1 10
+atom 23 (8) (-962, 1343, -1763) def
+bond1 11
+atom 24 (8) (-982, 2172, 499) def
+bond1 13
+atom 25 (8) (-1095, 735, 2426) def
+bond1 15
+atom 26 (8) (-1197, -1650, 2114) def
+bond1 17
+atom 27 (8) (-1147, -2497, -105) def
+bond1 19
+atom 28 (8) (-1044, -1034, -2079) def
+bond1 21
+atom 29 (6) (176, 780, -1081) def
+bond1 23
+atom 30 (6) (160, 1311, 406) def
+bond1 24 29
+atom 31 (6) (89, 363, 1689) def
+bond1 25 30
+atom 32 (6) (30, -1187, 1499) def
+bond1 26 31
+atom 33 (6) (56, -1729, 16) def
+bond1 27 32
+atom 34 (6) (124, -773, -1278) def
+bond1 28 29 33
+atom 35 (8) (1363, 1260, -1705) def
+bond1 29
+atom 36 (8) (1335, 2081, 546) def
+bond1 30
+atom 37 (8) (1233, 634, 2485) def
+bond1 31
+atom 38 (8) (1151, -1746, 2185) def
+bond1 32
+atom 39 (8) (1187, -2579, -56) def
+bond1 33
+atom 40 (8) (1288, -1124, -2018) def
+bond1 34
+atom 41 (6) (2472, 696, -1007) def
+bond1 35
+atom 42 (6) (2452, 1218, 461) def
+bond1 36 41
+atom 43 (6) (2386, 278, 1732) def
+bond1 37 42
+atom 44 (6) (2337, -1254, 1547) def
+bond1 38 43
+atom 45 (6) (2356, -1782, 77) def
+bond1 39 44
+atom 46 (6) (2423, -837, -1200) def
+bond1 40 41 45
+atom 47 (8) (3671, 1182, -1621) def
+bond1 41
+atom 48 (8) (3635, 1995, 600) def
+bond1 42
+atom 49 (8) (3536, 561, 2527) def
+bond1 43
+atom 50 (8) (3471, -1800, 2226) def
+bond1 44
+atom 51 (8) (3495, -2618, 1) def
+bond1 45
+atom 52 (8) (3599, -1172, -1931) def
+bond1 46
+atom 53 (6) (4779, 624, -910) def
+bond1 47
+atom 54 (6) (4754, 1159, 535) def
+bond1 48 53
+atom 55 (6) (4690, 222, 1779) def
+bond1 49 54
+atom 56 (6) (4649, -1298, 1585) def
+bond1 50 55
+atom 57 (6) (4657, -1822, 141) def
+bond1 51 56
+atom 58 (6) (4725, -887, -1102) def
+bond1 52 53 57
+atom 59 (1) (5705, 1007, -1398) def
+bond1 53
+atom 60 (1) (5649, 1808, 661) def
+bond1 54
+atom 61 (1) (5569, 456, 2420) def
+bond1 55
+atom 62 (1) (5521, -1735, 2121) def
+bond1 56
+atom 63 (1) (5545, -2482, 77) def
+bond1 57
+atom 64 (1) (5638, -1152, -1680) def
+bond1 58
+atom 65 (0) (-5705, 90, 53) def
+bond1 1
+egroup (PlanetaryGear2)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (PlanetGearMoiety) tub
+atom 66 (6) (-48, -1, -1480) def
+atom 67 (6) (-51, -26, 1615) def
+atom 68 (6) (-51, 1312, -757) def
+bond1 66
+atom 69 (6) (-95, 1297, 798) def
+bond1 67 68
+atom 70 (6) (-14, -1359, 799) def
+bond1 67
+atom 71 (6) (-30, -1327, -705) def
+bond1 66 70
+atom 72 (8) (1236, -1920, -1073) def
+bond1 71
+atom 73 (8) (1186, 0, 2298) def
+bond1 67
+atom 74 (8) (1143, 1801, -980) def
+bond1 68
+atom 75 (8) (1234, -43, -2169) def
+bond1 66
+atom 76 (8) (1241, -1989, 1101) def
+bond1 70
+atom 77 (8) (1142, 1848, 1194) def
+bond1 69
+atom 78 (0) (1765, -10, 1981) def
+bond1 73
+atom 79 (0) (1755, 1574, -879) def
+bond1 74
+atom 80 (0) (1724, 1596, 1008) def
+bond1 77
+atom 81 (0) (1815, -1696, 958) def
+bond1 76
+atom 82 (0) (1810, -1641, -905) def
+bond1 72
+atom 83 (0) (1810, -21, -1847) def
+bond1 75
+atom 84 (0) (-702, -1650, -898) def
+bond1 71
+atom 85 (0) (-720, -26, 1995) def
+bond1 67
+atom 86 (0) (-748, 1603, -905) def
+bond1 68
+atom 87 (0) (-733, -7, -1831) def
+bond1 66
+atom 88 (0) (-683, -1702, 966) def
+bond1 70
+atom 89 (0) (-767, 1604, 1014) def
+bond1 69
+egroup (Clipboard)
+end molecular machine part PlanetaryGear2

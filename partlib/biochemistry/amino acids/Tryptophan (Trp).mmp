@@ -1,0 +1,145 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.770071) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.054604, 0.576294, 0.644261, 0.499832) (11.816125) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Tryptophan %28Trp%29)
+info opengroup open = True
+mol (Tryptophan %28Trp%29) def
+atom 1 (6) (130, 860, -293) def
+atom 2 (6) (57, -677, -239) def
+bond1 1
+atom 3 (6) (1402, 1438, 302) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (1468, 2451, 958) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (2505, 744, -31) def
+bond1 3
+atom 6 (7) (-1031, 1469, 369) def
+bond1 1
+atom 7 (1) (127, 1206, -1354) def
+bond1 1
+atom 8 (1) (3248, 1233, 359) def
+bond1 5
+atom 9 (1) (-1836, 1509, -254) def
+bond1 6
+atom 10 (1) (-836, 2437, 626) def
+bond1 6
+atom 11 (1) (899, -1063, -774) def
+bond1 2
+atom 12 (1) (-810, -1149, -649) def
+bond1 2
+atom 13 (6) (221, -1112, 1165) def
+info atom atomtype = sp2
+bond1 2
+atom 14 (6) (1502, -1492, 1646) def
+info atom atomtype = sp2
+bond2 13
+atom 15 (1) (2310, -1439, 1043) def
+bond1 14
+atom 16 (7) (1622, -1947, 2981) def
+bond1 14
+atom 17 (1) (2295, -1416, 3496) def
+bond1 16
+atom 18 (6) (252, -1694, 3441) def
+info atom atomtype = sp2
+bond1 16
+atom 19 (6) (-611, -1204, 2350) def
+info atom atomtype = sp2
+bond1 13
+bonda 18
+atom 20 (6) (-371, -1841, 4708) def
+info atom atomtype = sp2
+bonda 18
+atom 21 (1) (160, -2179, 5497) def
+bond1 20
+atom 22 (6) (-1744, -1513, 4865) def
+info atom atomtype = sp2
+bonda 20
+atom 23 (1) (-2188, -1617, 5766) def
+bond1 22
+atom 24 (6) (-1984, -845, 2282) def
+info atom atomtype = sp2
+bonda 19
+atom 25 (1) (-2380, -526, 1409) def
+bond1 24
+atom 26 (6) (-2645, -986, 3598) def
+info atom atomtype = sp2
+bonda 24 22
+atom 27 (1) (-3625, -761, 3698) def
+bond1 26
+egroup (Tryptophan %28Trp%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Tryptophan %28Trp%29-copy) tub
+atom 28 (6) (-2645, -986, 3598) def
+info atom atomtype = sp2
+atom 29 (1) (-3625, -761, 3698) def
+bond1 28
+atom 30 (6) (221, -1112, 1165) def
+info atom atomtype = sp2
+atom 31 (6) (1502, -1492, 1646) def
+info atom atomtype = sp2
+bond2 30
+atom 32 (1) (2310, -1439, 1043) def
+bond1 31
+atom 33 (7) (1622, -1947, 2981) def
+bond1 31
+atom 34 (1) (2295, -1416, 3496) def
+bond1 33
+atom 35 (6) (252, -1694, 3441) def
+info atom atomtype = sp2
+bond1 33
+atom 36 (6) (130, 860, -293) def
+atom 37 (6) (57, -677, -239) def
+bond1 36 30
+atom 38 (6) (1402, 1438, 302) def
+info atom atomtype = sp2
+bond1 36
+atom 39 (8) (1468, 2451, 958) def
+info atom atomtype = sp2
+bond2 38
+atom 40 (8) (2505, 744, -31) def
+bond1 38
+atom 41 (7) (-1031, 1469, 369) def
+bond1 36
+atom 42 (1) (127, 1206, -1354) def
+bond1 36
+atom 43 (1) (899, -1063, -774) def
+bond1 37
+atom 44 (1) (-810, -1149, -649) def
+bond1 37
+atom 45 (6) (-611, -1204, 2350) def
+info atom atomtype = sp2
+bond1 30
+bonda 35
+atom 46 (6) (-371, -1841, 4708) def
+info atom atomtype = sp2
+bonda 35
+atom 47 (1) (160, -2179, 5497) def
+bond1 46
+atom 48 (6) (-1744, -1513, 4865) def
+info atom atomtype = sp2
+bonda 46 28
+atom 49 (1) (-2188, -1617, 5766) def
+bond1 48
+atom 50 (6) (-1984, -845, 2282) def
+info atom atomtype = sp2
+bonda 45 28
+atom 51 (1) (-2380, -526, 1409) def
+bond1 50
+atom 52 (0) (-897, 2133, 545) def
+bond1 41
+atom 53 (0) (-1584, 1496, -59) def
+bond1 41
+atom 54 (0) (3009, 1076, 234) def
+bond1 40
+egroup (Clipboard)
+end molecular machine part Tryptophan (Trp)

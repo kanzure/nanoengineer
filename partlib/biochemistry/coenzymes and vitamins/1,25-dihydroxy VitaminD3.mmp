@@ -1,0 +1,169 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.494806, 0.340087, -0.488335, -0.633274) (7.245780) (1.454500, -1.070500, 1.648000) (1.000000)
+egroup (View Data)
+group (1,25-dihydroxy VitaminD3)
+info opengroup open = True
+mol (1,25-dihydroxy VitaminD3) def
+atom 1 (1) (809, -1594, 486) def
+atom 2 (6) (728, -1120, 1459) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (6) (1643, -240, 1899) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (6) (2821, 111, 1103) def
+info atom atomtype = sp2
+bond1 3
+atom 5 (6) (2814, 663, -127) def
+info atom atomtype = sp2
+bond2 4
+atom 6 (1) (3776, 858, -596) def
+bond1 5
+atom 7 (6) (1647, 1059, -893) def
+info atom atomtype = sp2
+bond1 5
+atom 8 (6) (1651, 1569, -2141) def
+info atom atomtype = sp2
+bond2 7
+atom 9 (6) (2915, 1834, -2943) def
+bond1 8
+atom 10 (1) (3666, 2327, -2316) def
+bond1 9
+atom 11 (6) (2670, 2726, -4164) def
+bond1 9
+atom 12 (1) (3600, 2836, -4735) def
+bond1 11
+atom 13 (1) (2408, 3735, -3818) def
+bond1 11
+atom 14 (6) (1557, 2221, -5097) def
+bond1 11
+atom 15 (6) (405, 1482, -4370) def
+bond1 14
+atom 16 (6) (380, 1936, -2882) def
+bond1 8 15
+atom 17 (1) (329, 3037, -2859) def
+bond1 16
+atom 18 (6) (-977, 1450, -2374) def
+bond1 16
+atom 19 (6) (-1901, 1511, -3594) def
+bond1 18
+atom 20 (1) (-2710, 2234, -3437) def
+bond1 19
+atom 21 (6) (-1031, 1913, -4811) def
+bond1 15 19
+atom 22 (6) (-1607, 1388, -6160) def
+bond1 21
+atom 23 (6) (-696, 1729, -7347) def
+bond1 22
+atom 24 (1) (269, 1223, -7277) def
+bond1 23
+atom 25 (1) (-523, 2808, -7418) def
+bond1 23
+atom 26 (1) (-1145, 1397, -8290) def
+bond1 23
+atom 27 (6) (-3016, 1976, -6456) def
+bond1 22
+atom 28 (1) (-3126, 2957, -5979) def
+bond1 27
+atom 29 (6) (-4171, 1058, -6031) def
+bond1 27
+atom 30 (1) (-4147, 897, -4953) def
+bond1 29
+atom 31 (1) (-4045, 83, -6513) def
+bond1 29
+atom 32 (6) (-5524, 1662, -6424) def
+bond1 29
+atom 33 (1) (-5615, 2662, -5976) def
+bond1 32
+atom 34 (6) (-6761, 828, -6033) def
+bond1 32
+atom 35 (6) (-6778, -538, -6719) def
+bond1 34
+atom 36 (1) (-6683, -429, -7806) def
+bond1 35
+atom 37 (1) (-7733, -1049, -6544) def
+bond1 35
+atom 38 (1) (-5975, -1190, -6363) def
+bond1 35
+atom 39 (8) (-7918, 1535, -6502) def
+bond1 34
+atom 40 (1) (-7945, 2397, -6052) def
+bond1 39
+atom 41 (6) (-6903, 663, -4519) def
+bond1 34
+atom 42 (1) (-6108, 42, -4094) def
+bond1 41
+atom 43 (1) (-7865, 202, -4268) def
+bond1 41
+atom 44 (1) (-6888, 1637, -4017) def
+bond1 41
+atom 45 (1) (-5544, 1836, -7508) def
+bond1 32
+atom 46 (1) (-3125, 2152, -7534) def
+bond1 27
+atom 47 (1) (-1686, 294, -6117) def
+bond1 22
+atom 48 (1) (-1040, 3013, -4861) def
+bond1 21
+atom 49 (1) (-2356, 525, -3734) def
+bond1 19
+atom 50 (1) (-934, 421, -1998) def
+bond1 18
+atom 51 (1) (-1352, 2079, -1559) def
+bond1 18
+atom 52 (6) (600, -49, -4519) def
+bond1 15
+atom 53 (1) (1561, -382, -4115) def
+bond1 52
+atom 54 (1) (583, -350, -5571) def
+bond1 52
+atom 55 (1) (-180, -623, -4009) def
+bond1 52
+atom 56 (1) (1174, 3087, -5651) def
+bond1 14
+atom 57 (1) (2013, 1563, -5847) def
+bond1 14
+atom 58 (1) (3338, 879, -3277) def
+bond1 9
+atom 59 (1) (693, 932, -387) def
+bond1 7
+atom 60 (6) (4123, -170, 1831) def
+bond1 4
+atom 61 (1) (4976, 211, 1255) def
+bond1 60
+atom 62 (1) (4250, -1258, 1910) def
+bond1 60
+atom 63 (6) (4150, 448, 3241) def
+bond1 60
+atom 64 (6) (2900, 95, 4043) def
+bond1 63
+atom 65 (6) (1620, 419, 3267) def
+bond1 3 64
+atom 66 (8) (500, -27, 4034) def
+bond1 65
+atom 67 (1) (468, 536, 4825) def
+bond1 66
+atom 68 (1) (1512, 1503, 3136) def
+bond1 65
+atom 69 (1) (2889, 644, 4994) def
+bond1 64
+atom 70 (1) (2913, -972, 4306) def
+bond1 64
+atom 71 (1) (5036, 88, 3776) def
+bond1 63
+atom 72 (8) (4260, 1871, 3173) def
+bond1 63
+atom 73 (1) (5006, 2086, 2588) def
+bond1 72
+atom 74 (1) (-127, -1393, 2070) def
+bond1 2
+egroup (1,25-dihydroxy VitaminD3)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 1,25-dihydroxy VitaminD3

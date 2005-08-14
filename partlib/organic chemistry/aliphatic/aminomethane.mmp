@@ -1,0 +1,29 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.837205) (-0.039500, -0.000000, -0.270500) (1.000000)
+egroup (View Data)
+group (aminomethane)
+info opengroup open = True
+mol (aminomethane) def
+atom 1 (6) (-573, -137, -177) def
+atom 2 (7) (830, -53, 253) def
+bond1 1
+atom 3 (1) (946, 740, 869) def
+bond1 2
+atom 4 (1) (1084, -900, 743) def
+bond1 2
+atom 5 (1) (-699, -997, -844) def
+bond1 1
+atom 6 (1) (-848, 780, -708) def
+bond1 1
+atom 7 (1) (-1218, -258, 700) def
+bond1 1
+egroup (aminomethane)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part aminomethane

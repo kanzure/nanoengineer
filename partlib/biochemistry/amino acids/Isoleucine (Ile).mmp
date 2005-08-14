@@ -1,0 +1,108 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.986343, 0.035622, -0.083251, -0.137575) (3.920740) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (0.953995, 0.068044, -0.291523, -0.016647) (4.431845) (-0.603000, 0.557500, 0.318500) (1.000000)
+egroup (View Data)
+group (Isoleucine %28Ile%29)
+info opengroup open = True
+mol (Isoeucine %28Ile%29) def
+atom 1 (6) (130, 860, -293) def
+atom 2 (6) (57, -677, -239) def
+bond1 1
+atom 3 (6) (1402, 1438, 302) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (1468, 2451, 958) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (2505, 744, -31) def
+bond1 3
+atom 6 (7) (-1031, 1469, 369) def
+bond1 1
+atom 7 (6) (-1195, -1359, -832) def
+bond1 2
+atom 8 (6) (-2437, -1283, 73) def
+bond1 7
+atom 9 (1) (127, 1206, -1354) def
+bond1 1
+atom 10 (1) (3248, 1233, 359) def
+bond1 5
+atom 11 (1) (-1836, 1509, -254) def
+bond1 6
+atom 12 (1) (-836, 2437, 626) def
+bond1 6
+atom 13 (1) (-948, -2451, -915) def
+bond1 7
+atom 14 (1) (-2203, -1612, 1111) def
+bond1 8
+atom 15 (1) (-3248, -1945, -308) def
+bond1 8
+atom 16 (1) (-2862, -259, 125) def
+bond1 8
+atom 17 (1) (899, -1063, -774) def
+bond1 2
+atom 18 (1) (-1425, -1016, -1819) def
+bond1 7
+atom 19 (6) (228, -1130, 1222) def
+bond1 2
+atom 20 (1) (-552, -708, 1819) def
+bond1 19
+atom 21 (1) (179, -2197, 1272) def
+bond1 19
+atom 22 (1) (1176, -798, 1589) def
+bond1 19
+egroup (Isoleucine %28Ile%29)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Isoeucine %28Ile%29-copy) tub
+atom 23 (6) (733, 303, 291) def
+atom 24 (6) (660, -1235, 345) def
+bond1 23
+atom 25 (6) (2005, 881, 887) def
+info atom atomtype = sp2
+bond1 23
+atom 26 (8) (2071, 1894, 1543) def
+info atom atomtype = sp2
+bond2 25
+atom 27 (8) (3108, 187, 553) def
+bond1 25
+atom 28 (7) (-429, 912, 954) def
+bond1 23
+atom 29 (6) (-593, -1917, -248) def
+bond1 24
+atom 30 (1) (50, -1266, 2404) def
+atom 31 (6) (-1834, -1841, 658) def
+bond1 29
+atom 32 (1) (730, 649, -770) def
+bond1 23
+atom 33 (1) (-346, -3009, -331) def
+bond1 29
+atom 34 (1) (-1600, -2170, 1696) def
+bond1 31
+atom 35 (1) (-2645, -2503, 276) def
+bond1 31
+atom 36 (1) (-2260, -817, 710) def
+bond1 31
+atom 37 (6) (831, -1687, 1806) def
+bond1 24 30
+atom 38 (1) (782, -2755, 1857) def
+bond1 37
+atom 39 (1) (1779, -1356, 2174) def
+bond1 37
+atom 40 (1) (1502, -1620, -190) def
+bond1 24
+atom 41 (1) (-822, -1573, -1235) def
+bond1 29
+atom 42 (0) (-295, 1576, 1130) def
+bond1 28
+atom 43 (0) (-981, 939, 525) def
+bond1 28
+atom 44 (0) (3612, 519, 818) def
+bond1 27
+egroup (Clipboard)
+end molecular machine part Isoleucine (Ile)

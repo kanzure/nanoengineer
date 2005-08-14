@@ -1,0 +1,54 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.074952, -0.782400, 0.174743, -0.593041) (3.059714) (0.024000, -0.000000, -2.218500) (1.000000)
+egroup (View Data)
+group (4hydroxybenzaldehyde)
+info opengroup open = True
+mol (4hydroxybenzaldehyde) def
+atom 1 (6) (0, 0, -455) def
+info atom atomtype = sp2
+atom 2 (6) (0, 0, 1076) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (6) (0, 1200, 1769) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (6) (0, 1200, 3155) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (6) (0, 0, 3848) def
+info atom atomtype = sp2
+bond1 4
+atom 6 (6) (0, -1200, 3155) def
+info atom atomtype = sp2
+bond2 5
+atom 7 (6) (0, -1200, 1769) def
+info atom atomtype = sp2
+bond1 6
+bond2 2
+atom 8 (1) (0, -2150, 1221) def
+bond1 7
+atom 9 (1) (0, -2150, 3703) def
+bond1 6
+atom 10 (8) (0, 0, 5258) def
+bond1 5
+atom 11 (1) (-48, 924, 5506) def
+bond1 10
+atom 12 (1) (0, 2150, 3703) def
+bond1 4
+atom 13 (1) (0, 2150, 1221) def
+bond1 3
+atom 14 (8) (0, -1062, -1069) def
+info atom atomtype = sp2
+bond2 1
+atom 15 (1) (0, 949, -1002) def
+bond1 1
+egroup (4hydroxybenzaldehyde)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 4hydroxybenzaldehyde

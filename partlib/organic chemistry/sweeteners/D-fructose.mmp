@@ -1,0 +1,65 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834839, 0.472583, -0.233343, 0.158933) (5.711608) (-0.067500, -0.202500, -0.206000) (1.000000)
+egroup (View Data)
+group (D-fructose)
+info opengroup open = True
+mol (D-fructose.pdb) def
+atom 1 (6) (2985, -678, 994) def
+atom 2 (8) (4244, -296, 433) def
+bond1 1
+atom 3 (6) (1866, -107, 157) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (6) (429, -367, 538) def
+bond1 3
+atom 5 (8) (181, 153, 1847) def
+bond1 4
+atom 6 (6) (-497, 318, -466) def
+bond1 4
+atom 7 (6) (-1952, 54, -79) def
+bond1 6
+atom 8 (6) (-2877, 740, -1084) def
+bond1 7
+atom 9 (8) (-4239, 493, -722) def
+bond1 8
+atom 10 (8) (-2199, -1354, -87) def
+bond1 7
+atom 11 (8) (-249, 1726, -458) def
+bond1 6
+atom 12 (8) (2122, 560, -820) def
+info atom atomtype = sp2
+bond2 3
+atom 13 (1) (2910, -296, 2009) def
+bond1 1
+atom 14 (1) (2910, -1764, 1008) def
+bond1 1
+atom 15 (1) (4969, -659, 965) def
+bond1 2
+atom 16 (1) (241, -1439, 532) def
+bond1 4
+atom 17 (1) (-309, -78, -1462) def
+bond1 6
+atom 18 (1) (766, -277, 2491) def
+bond1 5
+atom 19 (1) (-2140, 450, 916) def
+bond1 7
+atom 20 (1) (-834, 2169, -1093) def
+bond1 11
+atom 21 (1) (-2689, 1811, -1078) def
+bond1 8
+atom 22 (1) (-2689, 344, -2079) def
+bond1 8
+atom 23 (1) (-3121, -1530, 157) def
+bond1 10
+atom 24 (1) (-4834, 925, -1355) def
+bond1 9
+egroup (D-fructose)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part D-fructose

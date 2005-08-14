@@ -1,0 +1,31 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.782802) (0.501000, -0.557000, 6.139500) (1.000000)
+egroup (View Data)
+group (acetaldehyde)
+info opengroup open = True
+mol (acetaldehyde) def
+atom 1 (6) (-112, 781, -6569) def
+info atom atomtype = sp2
+atom 2 (8) (-74, 2049, -6517) def
+info atom atomtype = sp2
+bond2 1
+atom 3 (1) (639, 255, -7156) def
+bond1 1
+atom 4 (6) (-1193, -14, -5815) def
+bond1 1
+atom 5 (1) (-1122, 195, -4747) def
+bond1 4
+atom 6 (1) (-2180, 278, -6176) def
+bond1 4
+atom 7 (1) (-1046, -1080, -5986) def
+bond1 4
+egroup (acetaldehyde)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part acetaldehyde

@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.947068, -0.074751, -0.059669, 0.306454) (4.421421) (-0.001000, 0.002000, -0.000500) (1.000000)
+egroup (View Data)
+group (cyclohex-chair)
+info opengroup open = True
+mol (cyclohex-chair) def
+atom 1 (6) (-543, 115, 1371) def
+atom 2 (6) (-867, 1160, 294) def
+bond1 1
+atom 3 (6) (-820, 535, -1108) def
+bond1 2
+atom 4 (6) (543, -119, -1371) def
+bond1 3
+atom 5 (6) (868, -1164, -294) def
+bond1 4
+atom 6 (6) (821, -539, 1108) def
+bond1 1 5
+atom 7 (1) (-1337, -670, 1378) def
+bond1 1
+atom 8 (1) (-548, 594, 2380) def
+bond1 1
+atom 9 (1) (-130, 1996, 353) def
+bond1 2
+atom 10 (1) (-1876, 1600, 481) def
+bond1 2
+atom 11 (1) (-1022, 1316, -1880) def
+bond1 3
+atom 12 (1) (-1625, -233, -1200) def
+bond1 3
+atom 13 (1) (1337, 666, -1379) def
+bond1 4
+atom 14 (1) (547, -600, -2379) def
+bond1 4
+atom 15 (1) (1878, -1602, -481) def
+bond1 5
+atom 16 (1) (131, -2000, -353) def
+bond1 5
+atom 17 (1) (1024, -1319, 1880) def
+bond1 6
+atom 18 (1) (1625, 230, 1200) def
+bond1 6
+egroup (cyclohex-chair)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cyclohex-chair
