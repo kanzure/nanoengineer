@@ -163,29 +163,31 @@ Cursor and Display Related Bugs
 39. Display: bond and atom center highlighting in build mode has some bugs. The highlighting flicker whenever there is a selection or valence error wire frame around the atom center. (715)
 
 40. Display: Valence error wire frame is displayed even for invisible atoms. Also, while Build mode when you move cursor inside such a wire frame, even the invisible atom center gets highlighted. (870)
+
+41.  Background Display: Display->Background color will not change background if under the Preferences  you have set the fill type as ‘Blue Sky’ instead of solid. A simple solution is to go to Edit>Preferences, then under the tab ‘Background’ select the fill type as solid and then change this color by clicking on the color chooser button below. (894) 
 Dialogs and Dashboard
 
-41. Users operating nE-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)
+42. Users operating nE-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)
 
-42. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
+43. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
 
 Povray Rendering
 
-43.  Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)
+44.  Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)
 
-44.  Povray rendering of lines display is shown as black lines, motor arrows are not rendered (226, 527)
+45.  Povray rendering of lines display is shown as black lines, motor arrows are not rendered (226, 527)
 
-45. Povray file of a model neglects the user defined lighting and displays the povray image in nE-1’s default lighting. (447)
+46. Povray file of a model neglects the user defined lighting and displays the povray image in nE-1’s default lighting. (447)
 
-46. Povray: Background fill type is not saved in a povray file. Only solid background can be rendered. (888)
+47. Povray: Background fill type is not saved in a povray file. Only solid background can be rendered. (888)
 Miscellaneous
 
 
-47. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  nE-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)
+48. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  nE-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)
 
-48. Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)
+49. Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)
 
-49. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option ‘recenter on atoms’    (168) 
+50. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option ‘recenter on atoms’    (168) 
 
 
 Windows Only Bugs
