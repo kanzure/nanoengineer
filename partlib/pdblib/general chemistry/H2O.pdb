@@ -1,8 +1,0 @@
-COMPNDStr1
-REMARK [OH2] 
-ATOM      1  O           1       0.082   0.207   0.197
-ATOM      2  H           1       0.655  -0.360  -0.342
-ATOM      3  H           1      -0.819  -0.054  -0.051
-TER   
-CONECT    1    2    3    0    0
-.
