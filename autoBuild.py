@@ -97,6 +97,7 @@ o an executable and affiliated files.
                     os.chdir(self.atomPath)
                     tarName = self.appName + '-' + self.version + '.' + self.releaseNo + '.tar.gz'
                     if os.system('tar -czvf %s *' % tarName): raise Exception, "Tar making failed."
+                    print "The tar file: %s has been successfully created." % tarName
            
             os.chdir('sim/src')
             if os.system('make'): raise Exception, "Simulator building failed."
@@ -688,7 +689,8 @@ def main():
     builder.build()
 
     if sys.platform == 'linux2':
-        builder.clean(rootDir, cleanAll = True)
+        pass
+        #builder.clean(rootDir, cleanAll = True)
     else:
         builder.clean(rootDir)
 
