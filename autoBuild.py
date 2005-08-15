@@ -77,16 +77,16 @@ o an executable and affiliated files.
             if not self.cvsTag:
                 if os.system('cvs -Q checkout -R cad/src'): raise Exception, "cvs checkout cad/src failed."
                 if os.system('cvs -Q checkout -R cad/images'): raise Exception, "cvs checkout cad/images failed."
-                if os.system('cvs -Q checkout -R cad/doc/html'): raise Exception, "cvs checkout cad/doc/html failed."
-                if os.system('cvs -Q checkout -R cad/partlib/mmplib'): raise Exception, "cvs checkout cad/partlib/mmplib failed."
-                if os.system('cvs -Q checkout -R cad/partlib/pdblib'): raise Exception, "cvs checkout cad/partlib/pdblib failed."
+                if os.system('cvs -Q checkout -l cad/doc'): raise Exception, "cvs checkout cad/doc failed."
+                if os.system('cvs -Q checkout -P cad/partlib'): raise Exception, "cvs checkout cad/partlib failed."
+                #if os.system('cvs -Q checkout -R cad/partlib/pdblib'): raise Exception, "cvs checkout cad/partlib/pdblib failed."
                 if os.system('cvs -Q checkout -R sim'): raise Exception, "cvs checkout sim failed."
             else:
                 if os.system('cvs -Q checkout -r %s -R cad/src' % self.cvsTag): raise Exception, "cvs checkout cad/src failed."
                 if os.system('cvs -Q checkout -r %s -R cad/images' % self.cvsTag): raise Exception, "cvs checkout cad/images failed."
-                if os.system('cvs -Q checkout -r %s -R cad/doc/html' % self.cvsTag): raise Exception, "cvs checkout cad/doc/html failed."
-                if os.system('cvs -Q checkout -r %s -R cad/partlib/mmplib' % self.cvsTag): raise Exception, "cvs checkout cad/partlib/mmplib failed."
-                if os.system('cvs -Q checkout -r %s -R cad/partlib/pdblib' % self.cvsTag): raise Exception, "cvs checkout cad/partlib/pdblib failed."
+                if os.system('cvs -Q checkout -r %s -l cad/doc' % self.cvsTag): raise Exception, "cvs checkout cad/doc failed."
+                if os.system('cvs -Q checkout -r %s -P cad/partlib' % self.cvsTag): raise Exception, "cvs checkout cad/partlib failed."
+                #if os.system('cvs -Q checkout -r %s -R cad/partlib/pdblib' % self.cvsTag): raise Exception, "cvs checkout cad/partlib/pdblib failed."
                 if os.system('cvs -Q checkout -r %s -R sim' % self.cvsTag): raise Exception, "cvs checkout sim failed."
             
             # Remove all those 'CVS' directories and their entries.
@@ -149,7 +149,6 @@ o an executable and affiliated files.
 
                         print "------All python modules are packaged tegether."
                         return True
-
 
 
             os.chdir(os.path.join(self.atomPath,'cad'))
@@ -688,10 +687,10 @@ def main():
     builder = NanoBuild(appName, iconFile, rootDir, version, releaseNo, status, cvsTag)
     builder.build()
 
-    #if sys.platform == 'linux2':
-    #    builder.clean(rootDir, cleanAll = True)
-    #else:
-    #    builder.clean()
+    if sys.platform == 'linux2':
+        builder.clean(rootDir, cleanAll = True)
+    else:
+        builder.clean()
 
     if os.path.isdir(rootDir) and not os.listdir(rootDir): os.rmdir(rootDir)
 
