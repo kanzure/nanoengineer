@@ -1,0 +1,48 @@
+QA Test Procedure for nanoENGINEER-1 Installation Packages
+----------------------------------------------------------
+
+1. Install nanoENGINEER-1 on new account
+2. Start nanoENGINEER-1
+  a. from Start Menu (Windows)
+  b. from Desktop Icon (Windows) 
+3. Start nanoENGINEER-1 Assistant
+  a. Verify that default page is "nanoENGINEER-1 Reference Documentation"
+  b. Click on "About Nanorex" to verify browser opens 
+4. Open file "Small Bearing Test.mmp" (to be committed) 
+5. Run Simulator:
+  a. Parameters: Frames = 1000, Steps per Frame = 1000, Temp = 300K
+  b. Abort after 1 minute (confirm that sim process is killed)
+  c. Restart simulation with same parameters, run to completion
+  d. Open tracefile. (by hand)
+6. Play movie:
+  a. Play
+  b. Skip 1, 2, 3, 4, 5
+  c. Pause
+  d. Type 500 into Frames spinbox
+  e. Reset
+  f. Play
+  g. Save movie
+7. Run Simulator again: Frames = 100, Steps per Frame = 100, Temp = 300K 
+8. Play Movie:
+  a. Reset ( |< )
+  b. Open previous movie (saved in step 7g)
+  c. Play to end.
+9. Save all files types:
+  a. MMP
+  b. PDB
+  c. POV-Ray (create ray trace image in POV-Ray)
+  d. JPEG
+  e. PNG
+  f. MDL
+10. Open all file types:
+  a. MMP
+  b. PDB
+11. Display debug menu using Shift+Alt+Control in the GLpane.  
+    Verify it does NOT include the menu item "run py code". 
+12. Uninstall nanoENGINEER-1
+13. Reinstall nanoENGINEER-1
+14. Quick test:
+  a. Start nanoENGINEER-1 from Start Menu
+  b. Open MMP part
+  c. Run quick simulation
+  d. Play movie

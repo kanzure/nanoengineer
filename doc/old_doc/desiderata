@@ -1,0 +1,215 @@
+Desiderata for Diamond Age 
+
+Files:
+
+    Loading molecule (atomic position) files in various formats [pdb, mmp]
+
+    Saving to various formats [mmp]
+      as single file [*]
+      as multiple files
+
+    Managing project directories and libraries
+
+    Producing pictures, movies [ppm]
+
+File structure:
+
+    Atoms [*]
+
+    Bonds [*]
+
+    Parts/molecule hierarchy [1]
+
+    Jigs
+      Shapes
+      Motors [1]
+      Springs
+      Dashpots
+      Constraints [1]
+      Heatsinks
+
+    Instrumentation
+      Position, velocity readouts
+      Thermometers
+      Dynamometers
+      Other force, energy readouts
+
+    Movie files
+      video [1]
+      trajectory
+
+Display:
+
+    Multiple assemblies [*]
+
+    Multiple views per assembly
+
+    Measurement
+      Grids [2]
+      Rulers
+      Dividers
+      Parallels
+      Pantographs
+      Envelopes
+
+    Representations
+      Invisible [*]
+      bond-lines [*]
+      CPK [*]
+      van der Waals [*]
+      Lozenge
+      Open bonds
+      Bounded continuum
+      Surface types
+      Structural
+      Diagrammatic
+
+    Variation of Representation
+      Hierarchical [3]
+      Zoned [.5]
+      Structure-dependent
+
+    Manipulation
+      Viewpoint
+        Trackball [*]
+	Pan [*]
+	Zoom [*]
+	predefined orientations [*]
+      Selection
+        All [2]
+	None [*]
+	Invert [2]
+	Connected [*]
+	Doubly Connected [*]
+	By pointing [2]
+	By circling [1]
+      Motion of selection
+        Trackball [*]
+	XYZ  [*]
+
+    Info displays (status line, etc)
+      Indicator for invisible selection
+      Other selection status
+      Forces, stiffnesses, thermal postional uncertainty
+      Atom type, bonding
+      
+    Side view
+      clipping planes
+      Cookie-cutter sheet surfaces
+      Point of view
+
+    Hardware
+      Joystick
+      Spaceball
+      Dataglove
+      Haptic manipulator
+      Stereo view
+      Multiple monitors
+
+Structural manipulation
+
+    Edit as tree structure
+      With copying
+      With reference
+      With parametrization
+      With analogical quadrature
+
+    Undo
+
+    Selection
+      Separate [*]
+      Merge
+      Unbond
+      Bond
+      Delete [*]
+      Duplicate [*]
+ 
+    Creating Structure
+      Cutting out shapes [*]
+      Filling CSG shapes
+      Welding existing structure
+      Structure-shape interaction
+      Creating/modifying motors and instruments [2]
+      Creating/modifying shapes as jigs
+      
+    Deposition
+      Atom-by atom
+      Spray
+      Passivation by transmutation [*]
+      
+    Multiple application
+      Copy-Move-Bond
+      iterative (crystal lattice)
+      Symmetrical
+        Bilateral
+	Radial
+	Cylindrical
+      Recursive (L-systems)
+      Macros
+        Keyboard
+	Scripts
+
+    Minimization
+      Free
+      With applied forces
+      With motion constraints
+
+Libraries
+
+    Ontology
+
+    Parametrization
+
+    Substructures (Kaehler brackets)
+
+    Parts
+
+    Higher-level structures
+
+    Automatic parts selection
+
+Analysis
+
+    Static
+      Stiffness
+      Thermal variation
+      PES mapping
+      Configuration space
+    
+    Dynamic
+      Molecular dynamics [*]
+      Kinematic trajectory
+      Multi-level simulation
+        Ab initio
+	Density functional
+	Charge semi-empirical
+	Bond mechanics [*]
+	  Reduced hydrogen model
+	Bounded Continuum
+	Finite element
+	Rigid parts
+	Schematic
+
+    Control inputs for tests
+      Real-time manual
+      Signal trace (Line Graphs)
+      Scripts
+
+    Output for instruments
+      Real-time meters, graphics
+      Signal trace (Line Graphs)
+      Statistical Summaries
+
+Program organization
+
+    Stand-alone
+
+    Client-server
+
+    Interoperability
+
+    Scripting
+
+    Plug-ins
+
+    Collaborative design assistance
