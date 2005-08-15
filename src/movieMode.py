@@ -481,7 +481,7 @@ class movieDashboardSlotsMixin:
         sfilter = QString("Differential Position Bytes Format (*.dpb)")
         
         fn = QFileDialog.getSaveFileName(sdir,
-                    "Differential Position Bytes Format (*.dpb);;XYZ Format (*.xyz)",
+                    "Differential Position Bytes Format (*.dpb);;XYZ Format (*.xyz);;This writes a series of files:;;povray (*.pov)",
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
@@ -532,6 +532,9 @@ class movieDashboardSlotsMixin:
                 self.history.message("DPB movie file saved: " + safile)
                 # note that we are still playing it from the old file and filename... does it matter? [bruce 050427 question]
                 self.assy.current_movie._setup()
+
+            elif ext == '.pov':
+                self.assy.current_movie._writeas( os.path.join(dir, fil))
                 
             else: 
                 # writemovie() in runSim.py creates either an dpb or xyz file based on the 
