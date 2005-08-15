@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
+# Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Tue Aug 9 18:47:53 2005
+# Created: Mon Aug 15 10:58:12 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -388,8 +388,10 @@ class MMKitDialog(QDialog):
         self.toolButton9.setAccel(self.__tr("F"))
         QToolTip.add(self.toolButton9,self.__tr("Fluorine"))
         self.toolButton13.setText(self.__tr("Al"))
+        self.toolButton13.setAccel(self.__tr("A"))
         QToolTip.add(self.toolButton13,self.__tr("Aluminum"))
         self.toolButton17.setText(self.__tr("Cl"))
+        self.toolButton17.setAccel(self.__tr("L"))
         QToolTip.add(self.toolButton17,self.__tr("Chlorine"))
         self.toolButton5.setText(self.__tr("B"))
         self.toolButton5.setAccel(self.__tr("B"))
@@ -403,6 +405,7 @@ class MMKitDialog(QDialog):
         self.toolButton16.setAccel(self.__tr("S"))
         QToolTip.add(self.toolButton16,self.__tr("Sulfur"))
         self.toolButton14.setText(self.__tr("Si"))
+        self.toolButton14.setAccel(self.__tr("Q"))
         QToolTip.add(self.toolButton14,self.__tr("Silicon"))
         self.toolButton33.setText(self.__tr("As"))
         QToolTip.add(self.toolButton33,self.__tr("Arsenic"))

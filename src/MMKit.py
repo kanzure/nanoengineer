@@ -182,7 +182,7 @@ class MMKit(MMKitDialog):
         '''
         self.sp3_btn.setPixmap(imagename_to_pixmap('O_sp3.png')) # S and O are the same.
         self.sp3_btn.show()
-        self.sp3_btn.setPixmap(imagename_to_pixmap('O_sp3.png'))
+        self.sp2_btn.setPixmap(imagename_to_pixmap('O_sp2.png'))
         self.sp2_btn.show()
         self.sp_btn.hide()
         self.graphitic_btn.hide()

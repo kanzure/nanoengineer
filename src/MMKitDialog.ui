@@ -565,6 +565,9 @@
                                 <property name="text">
                                     <string>Al</string>
                                 </property>
+                                <property name="accel">
+                                    <string>A</string>
+                                </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
                                 </property>
@@ -587,6 +590,9 @@
                                 </property>
                                 <property name="text">
                                     <string>Cl</string>
+                                </property>
+                                <property name="accel">
+                                    <string>L</string>
                                 </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>
@@ -711,6 +717,9 @@
                                 </property>
                                 <property name="text">
                                     <string>Si</string>
+                                </property>
+                                <property name="accel">
+                                    <string>Q</string>
                                 </property>
                                 <property name="toggleButton">
                                     <bool>true</bool>

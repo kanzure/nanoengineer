@@ -350,7 +350,9 @@ def writegms_inpfile(filename, gamessJig):
         fpos = (float(pos[0]), float(pos[1]), float(pos[2]))
         f.write("%2s" % a.element.symbol)
         f.write("%8.1f" % a.element.eltnum)
-        f.write("%8.3f%8.3f%8.3f\n" % fpos)
+        ##Huaicai 8/15/05: to fix bug 892
+        #f.write("%8.3f%8.3f%8.3f\n" % fpos)
+        f.write(" %.3f %.3f %.3f\n" % fpos)
 
     #  $END
     f.write(' $END\n')     
