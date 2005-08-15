@@ -690,7 +690,7 @@ def main():
     if sys.platform == 'linux2':
         builder.clean(rootDir, cleanAll = True)
     else:
-        builder.clean()
+        builder.clean(rootDir)
 
     if os.path.isdir(rootDir) and not os.listdir(rootDir): os.rmdir(rootDir)
 
