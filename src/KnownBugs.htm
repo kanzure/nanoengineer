@@ -19,17 +19,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <o:DocumentProperties>
   <o:Author>Mark Sims</o:Author>
   <o:LastAuthor>Ninad Sathaye</o:LastAuthor>
-  <o:Revision>70</o:Revision>
-  <o:TotalTime>2099</o:TotalTime>
+  <o:Revision>78</o:Revision>
+  <o:TotalTime>2117</o:TotalTime>
   <o:Created>2005-08-13T15:16:00Z</o:Created>
-  <o:LastSaved>2005-08-14T17:03:00Z</o:LastSaved>
+  <o:LastSaved>2005-08-15T02:56:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>2739</o:Words>
-  <o:Characters>15616</o:Characters>
+  <o:Words>2810</o:Words>
+  <o:Characters>16020</o:Characters>
   <o:Company> </o:Company>
-  <o:Lines>130</o:Lines>
-  <o:Paragraphs>36</o:Paragraphs>
-  <o:CharactersWithSpaces>18319</o:CharactersWithSpaces>
+  <o:Lines>133</o:Lines>
+  <o:Paragraphs>37</o:Paragraphs>
+  <o:CharactersWithSpaces>18793</o:CharactersWithSpaces>
   <o:Version>11.5703</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
@@ -460,7 +460,7 @@ ul
 	mso-bidi-language:#0400;}
 </style>
 <![endif]--><!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext="edit" spidmax="18434"/>
+ <o:shapedefaults v:ext="edit" spidmax="19458"/>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <o:shapelayout v:ext="edit">
   <o:idmap v:ext="edit" data="1"/>
@@ -521,7 +521,8 @@ Features:<o:p></o:p></span></u></b></p>
 
 <ol style='margin-top:0in' start=2 type=1>
  <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'><span
-     style='font-family:Arial'>Bond Inference not supported.<o:p></o:p></span></li>
+     style='font-family:Arial'>Bond Inference not <span class=GramE>supported .</span>
+     <o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -535,7 +536,11 @@ single bonds. User must manually change the bond type between the elements in
 etc), nE-1 shows a ‘pink wire frame’ around each atom indicating valence
 errors.<span style='mso-spacerun:yes'>  </span>This ‘valence error’ display, by
 default, is set to ON. It can be turned <span class=GramE>On</span> or Off from
-the ‘Bonds’ tab in the Preferences dialog. (Edit&gt;Preference…)<o:p></o:p></span></p>
+the ‘Bonds’ tab in the Preferences dialog. (Edit&gt;Preference…). But also note
+that there are some kinds of chemical errors this doesn't detect. For example,
+it can't tell whether rings should be aromatic or not. All it checks is that
+the bonds on each atom could possibly add up to the right number of valence
+electrons.<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><span
 style='mso-spacerun:yes'> </span><o:p></o:p></span></p>
@@ -820,14 +825,14 @@ chunks to paste. <o:p></o:p></span></p>
 
 <ol style='margin-top:0in' start=11 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
-     style='font-family:Arial'>Modeling Kit: If the ‘Clipboard’ tab of Build
-     mode’s Modeling Kit dialog is open and then you hit a keyboard modifier key
-     (e.g. C, ‘S’, ‘1’ etc), the program is supposed to switch back to ‘Atoms’
-     tab (i.e. the next time <span class=GramE>you<span
-     style='mso-spacerun:yes'>  </span>click</span> inside the 3D workspace, it
-     will deposit the atom displayed in the ‘thumbnail view’<span
-     style='mso-spacerun:yes'>  </span>window of that dialog and not the ‘paste
-     able chunk’ on the clipboard) . <o:p></o:p></span></li>
+     style='font-family:Arial'>Modeling Kit: If the ‘Clipboard’ tab of Build mode’s
+     Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g.
+     C, ‘S’, ‘1’ etc), the program is supposed to switch back to ‘Atoms’ tab
+     (i.e. the next time <span class=GramE>you<span style='mso-spacerun:yes'> 
+     </span>click</span> inside the 3D workspace, it will deposit the atom
+     displayed in the ‘thumbnail view’<span style='mso-spacerun:yes'> 
+     </span>window of that dialog and not the ‘paste able chunk’ on the
+     clipboard) . <o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:1.0in'><span style='font-family:Arial'>---But
@@ -883,8 +888,8 @@ sometimes doesn’t show updated display etc. (876)<o:p></o:p></span></p>
 <p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
 text-autospace:none'><span style='font-family:Arial'>-- Get everything adjusted
 first in the 'rod mode'.<span style='mso-spacerun:yes'>  </span>For example,
-select the proper bond offset sphere or arrange the copy units such that you can
-see their open bonds highlighted in a way you would like to bond them. (In
+select the proper bond offset sphere or arrange the copy units such that you
+can see their open bonds highlighted in a way you would like to bond them. (In
 general, while in the ring mode, adjustments made from graphics area don’t
 work)<o:p></o:p></span></p>
 
@@ -1026,10 +1031,10 @@ info. (805)<o:p></o:p></span></p>
 
 <ol style='margin-top:0in' start=27 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
-     style='font-family:Arial'>Simulator: In some cases, hydrogen atoms or other
-     elements ‘fly away’ while running a simulation movie. This happens when
-     atom centers are very close and therefore the repulsive force becomes very
-     high (528, 558) <o:p></o:p></span></li>
+     style='font-family:Arial'>Simulator: In some cases, hydrogen atoms or
+     other elements ‘fly away’ while running a simulation movie. This happens
+     when atom centers are very close and therefore the repulsive force becomes
+     very high (528, 558) <o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -1040,10 +1045,10 @@ info. (805)<o:p></o:p></span></p>
 
 <ol style='margin-top:0in' start=28 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
-     style='font-family:Arial'><span style='mso-spacerun:yes'> </span>Extrude
-     Tool/Movie: Simulation movie becomes invalid if it is created while in
-     extrude mode, after adjusting the chunks (to be extruded) as ‘bondable’
-     with their copy units. (495)<o:p></o:p></span></li>
+     style='font-family:Arial'><span style='mso-spacerun:yes'> </span>Extrude Tool/Movie:
+     Simulation movie becomes invalid if it is created while in extrude mode,
+     after adjusting the chunks (to be extruded) as ‘bondable’ with their copy
+     units. (495)<o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -1171,13 +1176,13 @@ info. (805)<o:p></o:p></span></p>
 <ol style='margin-top:0in' start=41 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'><span
-     style='mso-spacerun:yes'> </span>Background Display: Display-&gt;Background
-     color will not change background if under the <span class=GramE>Preferences
-     <span style='mso-spacerun:yes'> </span>you</span> have set the fill type as
-     ‘Blue Sky’ instead of solid. A simple solution is to go to
-     Edit&gt;Preferences, then under the tab ‘Background’ select the fill type
-     as solid and then change this color by clicking on the color chooser
-     button below. (894) <o:p></o:p></span></li>
+     style='mso-spacerun:yes'> </span>Background Display:
+     Display-&gt;Background color will not change background if under the <span
+     class=GramE>Preferences<span style='mso-spacerun:yes'>  </span>you</span>
+     have set the fill type as ‘Blue Sky’ instead of solid. A simple solution
+     is to go to Edit&gt;Preferences, then under the tab ‘Background’ select
+     the fill type as solid and then change this color by clicking on the color
+     chooser button below. (894) <o:p></o:p></span></li>
 </ol>
 
 <h3><span style='font-family:Arial'>Dialogs and Dashboard<o:p></o:p></span></h3>
@@ -1198,8 +1203,8 @@ info. (805)<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l6 level1 lfo4;
 tab-stops:list -.25in .5in'><![if !supportLists]><span style='font-family:Arial;
-mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>43.<span
+style='font:7.0pt "Times New Roman"'> </span></span></span><![endif]><span
 class=GramE><span style='font-family:Arial'>Zoom</span></span><span
 style='font-family:Arial'> Tool: Some Mac users report cosmetic bugs. It is a
 good idea to save your work before using it.<o:p></o:p></span></p>
@@ -1210,16 +1215,16 @@ good idea to save your work before using it.<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=2 type=1>
+<ol style='margin-top:0in' start=44 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
-     style='font-family:Arial'><span style='mso-spacerun:yes'> </span>Povray
-     rendering doesn't show different bond types (it will be supported feature
-     for this version) (830)<o:p></o:p></span></li>
+     style='font-family:Arial'><span style='mso-spacerun:yes'> </span>Povray rendering
+     doesn't show different bond types (it will be supported feature for this
+     version) (830)<o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=3 type=1>
+<ol style='margin-top:0in' start=45 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'><span style='mso-spacerun:yes'> </span>Povray
      rendering of lines display is shown as black lines, motor arrows are not
@@ -1228,7 +1233,7 @@ good idea to save your work before using it.<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=4 type=1>
+<ol style='margin-top:0in' start=46 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'>Povray file of a model neglects the user defined
      lighting and displays the povray image in nE-1’s default lighting. (447)<o:p></o:p></span></li>
@@ -1236,7 +1241,7 @@ good idea to save your work before using it.<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=5 type=1>
+<ol style='margin-top:0in' start=47 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'>Povray: Background fill type is not saved in a
      povray file. Only solid background can be rendered. (888)<o:p></o:p></span></li>
@@ -1248,7 +1253,7 @@ good idea to save your work before using it.<o:p></o:p></span></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<ol style='margin-top:0in' start=6 type=1>
+<ol style='margin-top:0in' start=48 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'>User can not save exclusive features of
      nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file
@@ -1260,7 +1265,7 @@ good idea to save your work before using it.<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=7 type=1>
+<ol style='margin-top:0in' start=49 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'>Only open one main window. Opening more than one
      nanoENGINEER-1 application window will have unexpected results. (362)<o:p></o:p></span></li>
@@ -1268,7 +1273,7 @@ good idea to save your work before using it.<o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-left:.25in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 
-<ol style='margin-top:0in' start=8 type=1>
+<ol style='margin-top:0in' start=50 type=1>
  <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'><span
      style='font-family:Arial'>Jigs: Rotary and Linear motors do not move with
      the chunks they are attached to. However, after moving the chunks, you can
@@ -1337,8 +1342,8 @@ Only Bugs<o:p></o:p></span></u></b></p>
 
 <ol style='margin-top:0in' start=3 type=1>
  <li class=MsoNormal style='mso-list:l1 level1 lfo6;tab-stops:list .5in'><span
-     style='font-family:Arial'>Occasionally, bouncing between programs will lead
-     to the menu (screen top) disappearing, only to re-appear with <span
+     style='font-family:Arial'>Occasionally, bouncing between programs will
+     lead to the menu (screen top) disappearing, only to re-appear with <span
      class=SpellE>mouseover</span> (or <span class=SpellE>mouseover+click</span>).<o:p></o:p></span></li>
 </ol>
 
@@ -1346,9 +1351,13 @@ Only Bugs<o:p></o:p></span></u></b></p>
 
 <ol style='margin-top:0in' start=4 type=1>
  <li class=MsoNormal style='mso-list:l1 level1 lfo6;tab-stops:list .5in'><span
-     style='font-family:Arial'>On Mac OS X Tiger, if you click on buttons in
-     the Modeling Kit dialog to select an element, they don’t look ‘pressed’.
-     On other platforms this is not a problem. <o:p></o:p></span></li>
+     style='font-family:Arial'>On Mac OS X Tiger, the tool buttons don’t look
+     ‘pressed’. On other platforms this is not a problem. <span class=GramE>nE-1</span>
+     provides a workaround for this. In the 3D Workspace (i.e. Graphics area),
+     press Shift and Option keys and do Command click to bring up the context
+     menu. Now select the &quot;Mac OS 10.4 <span class=SpellE>QToolbutton</span>
+     Workaround&quot; command from this context menu. This will resolve the
+     issue. (878)<o:p></o:p></span></li>
 </ol>
 
 <p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
@@ -1373,9 +1382,9 @@ Only Bugs<o:p></o:p></span></u></b></p>
      style='font-family:Arial'>Modeling Kit in Build Mode: When you enter build
      mode, this dialog first appears in the middle of the 3D workspace
      (graphics area<span class=GramE>)<span style='mso-spacerun:yes'> 
-     </span>for</span> a fraction of second and then it is moved to the left
-     hand side of the ne-1 main window. The amount of time this dialog stays
-     inside the 3D workspace depends on the model size. (844) <o:p></o:p></span></li>
+     </span>for</span> a fraction of second and then it is moved to the left hand
+     side of the ne-1 main window. The amount of time this dialog stays inside
+     the 3D workspace depends on the model size. (844) <o:p></o:p></span></li>
 </ol>
 
 </div>

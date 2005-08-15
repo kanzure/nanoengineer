@@ -14,9 +14,9 @@ Unsupported Features:
 
 1. Undo/Redo not implemented. 
 
-2. Bond Inference not supported.
+2. Bond Inference not supported . 
 
-By the term ‘bond inference’ we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of nE-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in ‘Build mode’. However, if the structure is not chemically correct (bad valences etc), nE-1 shows a ‘pink wire frame’ around each atom indicating valence errors.  This ‘valence error’ display, by default, is set to ON. It can be turned On or Off from the ‘Bonds’ tab in the Preferences dialog. (Edit>Preference…)
+By the term ‘bond inference’ we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of nE-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in ‘Build mode’. However, if the structure is not chemically correct (bad valences etc), nE-1 shows a ‘pink wire frame’ around each atom indicating valence errors.  This ‘valence error’ display, by default, is set to ON. It can be turned On or Off from the ‘Bonds’ tab in the Preferences dialog. (Edit>Preference…). But also note that there are some kinds of chemical errors this doesn't detect. For example, it can't tell whether rings should be aromatic or not. All it checks is that the bonds on each atom could possibly add up to the right number of valence electrons.
  
 Example:
 -- In Build mode, select ‘Carbon’ and then change its hybridization to ‘sp’ by clicking on the appropriate button in this dialog.
@@ -204,7 +204,7 @@ Macintosh Only Bugs
 
 3. Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).
 
-4. On Mac OS X Tiger, if you click on buttons in the Modeling Kit dialog to select an element, they don’t look ‘pressed’. On other platforms this is not a problem. 
+4. On Mac OS X Tiger, the tool buttons don’t look ‘pressed’. On other platforms this is not a problem. nE-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the context menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this context menu. This will resolve the issue. (878)
 
 Linux Only Bugs
 
