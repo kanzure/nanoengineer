@@ -1,0 +1,80 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.010830, 0.403838, -0.777794, 0.481491) (2.299024) (0.000000, 0.039500, 0.000000) (1.000000)
+egroup (View Data)
+group (l_tryptophan_mm2_neutral)
+info opengroup open = True
+mol (l_tryptophan_mm2_neutral) def
+atom 1 (7) (-2211, 1684, -1982) def
+atom 2 (6) (-2657, 678, -1006) def
+bond1 1
+atom 3 (6) (-1929, -654, -1252) def
+bond1 2
+atom 4 (6) (-2517, 1202, 410) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-2948, 2475, 505) def
+bond1 4
+atom 6 (8) (-2104, 604, 1374) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (-442, -553, -1058) def
+info atom atomtype = sp2
+bond1 3
+atom 8 (6) (331, -1092, 17) def
+info atom atomtype = sp2
+bond1 7
+atom 9 (6) (1673, -765, -215) def
+info atom atomtype = sp2
+bond2 8
+atom 10 (6) (444, 66, -1907) def
+info atom atomtype = sp2
+bond2 7
+atom 11 (7) (1724, -57, -1397) def
+bond1 9 10
+atom 12 (6) (-31, -1840, 1167) def
+info atom atomtype = sp2
+bond1 8
+atom 13 (6) (2700, -1155, 680) def
+info atom atomtype = sp2
+bond1 9
+atom 14 (6) (971, -2217, 2037) def
+info atom atomtype = sp2
+bond2 12
+atom 15 (6) (2333, -1875, 1796) def
+info atom atomtype = sp2
+bond1 14
+bond2 13
+atom 16 (1) (-2774, 2533, -1917) def
+bond1 1
+atom 17 (1) (-2319, 1349, -2938) def
+bond1 1
+atom 18 (1) (-3751, 520, -1173) def
+bond1 2
+atom 19 (1) (-2117, -997, -2297) def
+bond1 3
+atom 20 (1) (-2345, -1443, -585) def
+bond1 3
+atom 21 (1) (-2831, 2718, 1439) def
+bond1 5
+atom 22 (1) (256, 589, -2850) def
+bond1 10
+atom 23 (1) (2594, 321, -1836) def
+bond1 11
+atom 24 (1) (-1079, -2112, 1363) def
+bond1 12
+atom 25 (1) (3751, -890, 484) def
+bond1 13
+atom 26 (1) (714, -2797, 2938) def
+bond1 14
+atom 27 (1) (3105, -2196, 2514) def
+bond1 15
+egroup (l_tryptophan_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_tryptophan_mm2_neutral

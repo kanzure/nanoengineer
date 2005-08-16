@@ -1,0 +1,61 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.461670) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_leucine_mm2_neutral)
+info opengroup open = True
+mol (l_leucine_mm2_neutral) def
+atom 1 (7) (-1383, 1300, -1334) def
+atom 2 (6) (-1544, 409, -172) def
+bond1 1
+atom 3 (6) (-680, -856, -322) def
+bond1 2
+atom 4 (6) (-1343, 1149, 1137) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-1576, 2469, 1008) def
+bond1 4
+atom 6 (8) (-1045, 665, 2202) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (837, -709, -72) def
+bond1 3
+atom 8 (6) (1525, -2078, -239) def
+bond1 7
+atom 9 (6) (1514, 322, -988) def
+bond1 7
+atom 10 (1) (-2013, 2100, -1271) def
+bond1 1
+atom 11 (1) (-1622, 822, -2202) def
+bond1 1
+atom 12 (1) (-2620, 102, -172) def
+bond1 2
+atom 13 (1) (-837, -1273, -1346) def
+bond1 3
+atom 14 (1) (-1073, -1624, 388) def
+bond1 3
+atom 15 (1) (-1460, 2841, 1900) def
+bond1 5
+atom 16 (1) (1000, -386, 986) def
+bond1 7
+atom 17 (1) (2612, -2017, -3) def
+bond1 8
+atom 18 (1) (1425, -2454, -1282) def
+bond1 8
+atom 19 (1) (1084, -2841, 443) def
+bond1 8
+atom 20 (1) (2620, 313, -856) def
+bond1 9
+atom 21 (1) (1183, 1359, -755) def
+bond1 9
+atom 22 (1) (1300, 112, -2060) def
+bond1 9
+egroup (l_leucine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_leucine_mm2_neutral

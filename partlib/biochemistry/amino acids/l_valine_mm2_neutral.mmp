@@ -1,0 +1,55 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.998781, 0.015572, 0.038226, -0.027056) (3.892387) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_valine_mm2_neutral)
+info opengroup open = True
+mol (l_valine_mm2_neutral) def
+atom 1 (7) (-396, 1425, -1254) def
+atom 2 (6) (-792, 551, -137) def
+bond1 1
+atom 3 (6) (-103, -823, -280) def
+bond1 2
+atom 4 (6) (-581, 1273, 1182) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-1200, 2470, 1174) def
+bond1 4
+atom 6 (8) (30, 897, 2153) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (1432, -737, -215) def
+bond1 3
+atom 8 (6) (-633, -1852, 733) def
+bond1 3
+atom 9 (1) (-948, 2283, -1259) def
+bond1 1
+atom 10 (1) (-568, 978, -2153) def
+bond1 1
+atom 11 (1) (-1895, 393, -228) def
+bond1 2
+atom 12 (1) (-364, -1212, -1300) def
+bond1 3
+atom 13 (1) (-1014, 2864, 2041) def
+bond1 5
+atom 14 (1) (1895, -1733, -400) def
+bond1 7
+atom 15 (1) (1786, -389, 781) def
+bond1 7
+atom 16 (1) (1838, -40, -982) def
+bond1 7
+atom 17 (1) (-212, -2864, 533) def
+bond1 8
+atom 18 (1) (-1742, -1939, 678) def
+bond1 8
+atom 19 (1) (-365, -1586, 1779) def
+bond1 8
+egroup (l_valine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_valine_mm2_neutral

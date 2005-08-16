@@ -1,0 +1,45 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.533810) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_cysteine_mm2_neutral)
+info opengroup open = True
+mol (l_cysteine_mm2_neutral) def
+atom 1 (7) (-592, 883, -1308) def
+atom 2 (6) (-919, -15, -188) def
+bond1 1
+atom 3 (6) (-149, -1342, -313) def
+bond1 2
+atom 4 (6) (-744, 676, 1153) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-962, 2001, 1065) def
+bond1 4
+atom 6 (8) (-480, 148, 2206) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (16) (1647, -1049, -200) def
+bond1 3
+atom 8 (1) (-1140, 1741, -1260) def
+bond1 1
+atom 9 (1) (-816, 457, -2206) def
+bond1 1
+atom 10 (1) (-2013, -235, -263) def
+bond1 2
+atom 11 (1) (-389, -1825, -1289) def
+bond1 3
+atom 12 (1) (-471, -2047, 488) def
+bond1 3
+atom 13 (1) (-853, 2343, 1969) def
+bond1 5
+atom 14 (1) (2013, -2343, -253) def
+bond1 7
+egroup (l_cysteine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_cysteine_mm2_neutral

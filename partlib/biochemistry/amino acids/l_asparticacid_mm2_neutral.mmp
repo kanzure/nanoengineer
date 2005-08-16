@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (3.831325) (0.000000, -0.153500, 0.000000) (1.000000)
+egroup (View Data)
+group (l_asparticacid_mm2_neutral)
+info opengroup open = True
+mol (l_asparticacid_mm2_neutral.pdb) def
+atom 1 (7) (-1079, 897, -1349) def
+atom 2 (6) (-1386, 78, -165) def
+bond1 1
+atom 3 (6) (-605, -1246, -230) def
+bond1 2
+atom 4 (6) (-1147, 844, 1124) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-1335, 2167, 965) def
+bond1 4
+atom 6 (8) (-850, 367, 2193) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (903, -1077, -167) def
+info atom atomtype = sp2
+bond1 3
+atom 8 (8) (1533, -2253, -347) def
+bond1 7
+atom 9 (8) (1521, -56, 19) def
+info atom atomtype = sp2
+bond2 7
+atom 10 (1) (-1472, 1834, -1259) def
+bond1 1
+atom 11 (1) (-1493, 500, -2193) def
+bond1 1
+atom 12 (1) (-2482, -138, -189) def
+bond1 2
+atom 13 (1) (-860, -1770, -1182) def
+bond1 3
+atom 14 (1) (-917, -1908, 611) def
+bond1 3
+atom 15 (1) (-1162, 2560, 1836) def
+bond1 5
+atom 16 (1) (2482, -2052, -280) def
+bond1 8
+egroup (l_asparticacid_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_asparticacid_mm2_neutral
