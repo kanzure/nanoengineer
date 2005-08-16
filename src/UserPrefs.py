@@ -125,11 +125,28 @@ class UserPrefs(UserPrefsDialog):
     caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
     caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
     
-    def showDialog(self):
-        '''Display the Preferences dialog'''
+    def showDialog(self, pagename='General'):
+        '''Display the Preferences dialog with page 'pagename'. '''
+
         # This sends a signal to self.setup_current_page(), which will call self._setup_general_page()
         self._init_prefs()
-        self.prefs_tab.setCurrentPage(0)  # Show General tab/page
+        
+        # Added to fix bug 894.  Mark.
+        if pagename == 'General': # Default
+            self.prefs_tab.setCurrentPage(0)
+        elif pagename == 'Atoms':
+            self.prefs_tab.setCurrentPage(1)
+        elif pagename == 'Bonds':
+            self.prefs_tab.setCurrentPage(2)
+        elif pagename == 'Background':
+            self.prefs_tab.setCurrentPage(3)
+        elif pagename == 'History':
+            self.prefs_tab.setCurrentPage(4)
+        elif pagename == 'Caption':
+            self.prefs_tab.setCurrentPage(5)
+        else:
+            print 'Error: Preferences page unknown: ', pagename
+
         self.exec_loop()
         # bruce comment 050811: using exec_loop rather than show forces this dialog to be modal.
         # For now, it's probably still only correct if it's modal, so I won't change this for A6.
@@ -620,4 +637,3 @@ class UserPrefs(UserPrefsDialog):
     pass # end of class UserPrefs
 
 # end
-

@@ -982,22 +982,10 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.history.message(msg)
                     
     def dispBGColor(self):
-        "let user change the current mode's background color"
-        # get r, g, b values of current background color
-        r = int (self.glpane.mode.backgroundColor[0] * 255)
-        g = int (self.glpane.mode.backgroundColor[1] * 255)
-        b = int (self.glpane.mode.backgroundColor[2] * 255) 
-
-        # allow user to select a new background color and set it.
-        # bruce 050105: now this new color persists after new files are opened,
-        # and into new sessions as well.
-        c = QColorDialog.getColor(QColor(r, g, b), self, "choose")
-        if c.isValid():
-            color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.glpane.mode.set_backgroundColor( color ) #bruce 050105
-            self.glpane.gl_update()
-
-
+        "Let user change the current mode's background color"
+        # Fixed bug 894.  Mark
+        self.uprefs.showDialog(pagename='Background')
+    
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
         """Allows user to change default colors of elements and save them to a file.
