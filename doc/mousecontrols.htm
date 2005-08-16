@@ -1,20 +1,737 @@
-<b>Mouse Controls</b>
-<p>
-Left Button does something according to mode, see below
-<p>
-Middle Button : Rotate View
-<p>
-Middle Button+Shift : Pan View
-<p>
-Middle Button+Cntl/Cmd : Zoom View (vertical mouse motion) / Turn (horizontal mouse motion)
-<p>
-Mouse Wheel : Zoom, half-speed with Shift, double-speed with Cntl/Cmd
-<p>
-Right Button : Context Menu
-<p>
-<b>Build Mode:</b><br>
-Left-Click deposits an atom or chunk from the clipboard in empty space or bonds it to an open bond.<br>
-Left-Drag on an atom moves the molecule.<br>
-Shift+Left-Drag moves atoms or open bonds.<br>
-Cntl+Left-Click deletes a highlighted atom.<br>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
 
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 11">
+<meta name=Originator content="Microsoft Word 11">
+<link rel=File-List href="mousecontrols_files/filelist.xml">
+<title>Mouse Controls </title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Ninad Sathaye</o:Author>
+  <o:LastAuthor>Ninad Sathaye</o:LastAuthor>
+  <o:Revision>93</o:Revision>
+  <o:TotalTime>147</o:TotalTime>
+  <o:Created>2005-08-15T21:16:00Z</o:Created>
+  <o:LastSaved>2005-08-15T23:43:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>788</o:Words>
+  <o:Characters>4492</o:Characters>
+  <o:Company>Nanorex, Inc.</o:Company>
+  <o:Lines>37</o:Lines>
+  <o:Paragraphs>10</o:Paragraphs>
+  <o:CharactersWithSpaces>5270</o:CharactersWithSpaces>
+  <o:Version>11.5703</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:DisplayBackgroundShape/>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-update:auto;
+	mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-indent:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	mso-list:l1 level1 lfo2;
+	tab-stops:list .25in;
+	font-size:11.0pt;
+	font-family:Arial;
+	mso-bidi-font-style:italic;}
+h3
+	{mso-style-update:auto;
+	mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:.25in;
+	text-indent:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	mso-list:l3 level1 lfo4;
+	tab-stops:list .5in;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-bidi-font-family:Arial;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:401608332;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1771386904 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:455489264;
+	mso-list-template-ids:-430807022;}
+@list l1:level1
+	{mso-level-number-format:alpha-upper;
+	mso-level-style-link:"Heading 2";
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:0in;
+	text-indent:0in;}
+@list l1:level2
+	{mso-level-number-format:alpha-upper;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.5in;
+	text-indent:0in;}
+@list l1:level3
+	{mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:0in;}
+@list l1:level4
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"%4\)";
+	mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.5in;
+	text-indent:0in;}
+@list l1:level5
+	{mso-level-text:"\(%5\)";
+	mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.0in;
+	text-indent:0in;}
+@list l1:level6
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"\(%6\)";
+	mso-level-tab-stop:2.75in;
+	mso-level-number-position:left;
+	margin-left:2.5in;
+	text-indent:0in;}
+@list l1:level7
+	{mso-level-number-format:roman-lower;
+	mso-level-text:"\(%7\)";
+	mso-level-tab-stop:3.25in;
+	mso-level-number-position:left;
+	margin-left:3.0in;
+	text-indent:0in;}
+@list l1:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"\(%8\)";
+	mso-level-tab-stop:3.75in;
+	mso-level-number-position:left;
+	margin-left:3.5in;
+	text-indent:0in;}
+@list l1:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-text:"\(%9\)";
+	mso-level-tab-stop:4.25in;
+	mso-level-number-position:left;
+	margin-left:4.0in;
+	text-indent:0in;}
+@list l2
+	{mso-list-id:470440948;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1016443388 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l2:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;}
+@list l2:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:1105346448;
+	mso-list-template-ids:-1023927302;}
+@list l3:level1
+	{mso-level-number-format:roman-upper;
+	mso-level-style-link:"Heading 3";
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:0in;}
+@list l3:level2
+	{mso-level-number-format:alpha-upper;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:0in;}
+@list l3:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:0in;}
+@list l3:level4
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"%4\)";
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:0in;}
+@list l3:level5
+	{mso-level-text:"\(%5\)";
+	mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:0in;}
+@list l3:level6
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"\(%6\)";
+	mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	margin-left:2.75in;
+	text-indent:0in;}
+@list l3:level7
+	{mso-level-number-format:roman-lower;
+	mso-level-text:"\(%7\)";
+	mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	margin-left:3.25in;
+	text-indent:0in;}
+@list l3:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"\(%8\)";
+	mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	margin-left:3.75in;
+	text-indent:0in;}
+@list l3:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-text:"\(%9\)";
+	mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	margin-left:4.25in;
+	text-indent:0in;}
+@list l4
+	{mso-list-id:1822574621;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1031310498 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l4:level1
+	{mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;}
+@list l4:level2
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;}
+@list l4:level4
+	{mso-level-tab-stop:1.75in;
+	mso-level-number-position:left;
+	margin-left:1.75in;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-tab-stop:2.25in;
+	mso-level-number-position:left;
+	margin-left:2.25in;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-tab-stop:2.75in;
+	mso-level-number-position:left;
+	margin-left:2.75in;
+	text-indent:-.25in;}
+@list l4:level7
+	{mso-level-tab-stop:3.25in;
+	mso-level-number-position:left;
+	margin-left:3.25in;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-tab-stop:3.75in;
+	mso-level-number-position:left;
+	margin-left:3.75in;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-tab-stop:4.25in;
+	mso-level-number-position:left;
+	margin-left:4.25in;
+	text-indent:-.25in;}
+@list l5
+	{mso-list-id:1929271949;
+	mso-list-type:hybrid;
+	mso-list-template-ids:821868112 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l5:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l6
+	{mso-list-id:2022972448;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1609258874 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l6:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l6:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7
+	{mso-list-id:2071728437;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1614031662 67698703 -659368250 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l7:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l7:level2
+	{mso-level-start-at:0;
+	mso-level-number-format:bullet;
+	mso-level-text:-;
+	mso-level-tab-stop:1.35in;
+	mso-level-number-position:left;
+	margin-left:1.35in;
+	text-indent:-.35in;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+@list l7:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ansi-language:#0400;
+	mso-fareast-language:#0400;
+	mso-bidi-language:#0400;}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1><span style='font-size:13.0pt'>Mouse Controls <o:p></o:p></span></h1>
+
+<h2 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>A.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]>Middle
+Mouse Button </h2>
+
+<p class=MsoNormal>Middle Mouse Button operations for all modes are identical.
+These are as follows:</p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l4 level1 lfo6;
+tab-stops:list .25in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Middle
+Button Drag</u>: Rotate View </p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l4 level1 lfo6;
+tab-stops:list .25in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Middle
+Button+ Shift Drag</u> : Pan View </p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l4 level1 lfo6;
+tab-stops:list .25in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Middle
+Button+ Ctrl/<span class=SpellE>Cmd</span> Drag</u> : Zoom View (vertical mouse
+motion) / Turn (horizontal mouse motion) </p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-list:l4 level1 lfo6;
+tab-stops:list .25in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Mouse
+Wheel</u> : Zoom, half-speed with Shift, double-speed with Ctrl/<span
+class=SpellE>Cmd</span> </p>
+
+<h2 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>B.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]>Right
+Mouse Button</h2>
+
+<p class=MsoNormal>Right Mouse Button operation for all modes is identical. It
+simply brings up the mode specific context menu. In <u>Build mode</u>, different
+context menu items are provided for open bonds or a bond between two elements
+or when an atom center is highlighted. </p>
+
+<h2 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>C.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]>Left
+Mouse Button </h2>
+
+<p class=MsoNormal>Left Button does something according to the mode. The mode
+specific operations are given below. </p>
+
+<h3 style='text-indent:0in'><![if !supportLists]><span style='mso-bidi-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>I.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Build Mode</h3>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l2 level1 lfo8;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u><span
+style='mso-bidi-font-weight:bold'>Left </span>Click</u><span style='mso-bidi-font-weight:
+bold'>:</span> <span style='mso-bidi-font-weight:bold'>Deposits an atom or
+chunk from the clipboard in the 3D workspace or bonds it to an open bond of an
+already deposited atom.</span></p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l2 level1 lfo8;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Left
+Drag</u>: When an atom center highlighted (by moving mouse cursor over the atom
+center), Left Drag on this atom moves the complete chunk to the desired
+position.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l2 level1 lfo8;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Shift
++ Left Drag</u>: When an atom center is highlighted, Shift + Left Drag <span
+class=GramE>moves</span> the highlighted atom. When an open bond is
+highlighted, this operation can move the open bond. Thus, to create a bond
+between atom-A and atom-B:</p>
+
+<p class=MsoNormal style='margin-left:1.0in'>- Highlight open bond of atom-A</p>
+
+<p class=MsoNormal style='margin-left:1.0in'>- Press Shift key and also hold
+the left mouse button down</p>
+
+<p class=MsoNormal style='margin-left:1.0in'>- Start dragging the mouse. Notice
+that a white rubber band line appears between the cursor position and the open
+bond on atom-A</p>
+
+<p class=MsoNormal style='margin-left:1.0in'>- Now highlight the open bond on
+atom-B and release left mouse button as well as the Shift key. A bond will be
+formed between these two atoms. </p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l2 level1 lfo8;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Ctrl
++ Left Click</u>: Deletes a highlighted atom or bond. </p>
+
+<h3 style='text-indent:0in'><![if !supportLists]><span style='mso-bidi-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>II.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Select Atoms and Select Chunks Mode</h3>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l7 level1 lfo10;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u><span
+style='mso-bidi-font-weight:bold'>Left </span>Click Operations:</u></p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Single Left Click</u>:<span
+style='mso-spacerun:yes'>  </span>Selects the atom below the cursor if it is
+Select Atoms mode and selects chunk if it is Select Chunks mode. In order to
+select a chunk, the cursor must point on an atom center or a bond within that
+chunk. Left Click on a jig will select that jig in both, Select Atoms and
+Select Chunks mode. Single left click also deselects everything else (that
+doesn’t lie below the mouse cursor)</p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Shift + Left Click</u>: It works just like Single
+Left Click except that it keeps the other already selected objects as selected
+(even when those are not directly below the mouse cursor).</p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Ctrl + Left Click</u>: It deselects the objects
+(atoms / chunks or jigs) that lie directly below the cursor. It doesn’t
+deselect anything else. </p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l7 level1 lfo10;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Left
+Drag Operations:</u> </p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Single Left Drag:</u> Selects atoms or chunks that
+lie inside the selection rectangle or lasso. While doing so, it also deselects
+everything (i.e. atoms or chunks) that lie outside the selection rectangle.
+Note that any of the Left Drag operation will NEVER select the jigs inside the
+selection rectangle. </p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Shift + Left Drag</u>: It works just like Single
+Left Drag except that it keeps the other already selected objects as selected
+(even when those lie outside of the selection rectangle or lasso).</p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Ctrl + Left Drag</u>: It deselects the objects
+(atoms / chunks or jigs) that lie inside the selection rectangle. It doesn’t
+deselect anything else.</p>
+
+<h3 style='text-indent:0in'><![if !supportLists]><span style='mso-bidi-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>III.<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span></span><![endif]>Move and Fuse Chunks Mode</h3>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l6 level1 lfo12;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u><span
+style='mso-bidi-font-weight:bold'>Left </span>Click Operations:</u> All the
+left click operations in Move and Fuse Chunks mode are identical to the ones in
+Select Chunks modes. </p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l6 level1 lfo12;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Left
+Drag Operations:</u> For Left Drag operations to work in these modes, one or
+more chunks must be selected. </p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Single Left Drag:</u> Translates the selected
+chunk(s) in the same plane as the display screen. </p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Shift + Left Drag:</u> Translates the selected chunk
+along the axis passing through its center of mass (if it is a translation)
+and/or rotates the chunk(s) around this axis.</p>
+
+<p class=MsoNormal style='margin-left:1.35in;text-indent:-.35in;mso-list:l7 level2 lfo10;
+tab-stops:list 1.35in'><![if !supportLists]><span style='mso-list:Ignore'>-<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]><u>Ctrl + Left Drag:</u> Rotates the selected chunk
+freely around its center of mass. </p>
+
+<h3 style='text-indent:0in'><![if !supportLists]><span style='mso-bidi-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>IV.<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span></span><![endif]>Cookie Cutter</h3>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l5 level1 lfo15;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><u>Left
+Click - Free Mouse Drag- Left Click</u>: If an auto-shape is selected, left
+click will anchor the center or corner of the auto shape depending upon the
+type of <span class=SpellE>autoshape</span>. The free mouse drag will then expand
+the selection wire frame. Left click again (inside the 3D workspace) will
+complete the wire frame drawing and the cookie drawing will be created inside
+the wire frame. </p>
+
+<p class=MsoNormal style='margin-left:1.0in'>- If no keyboard key is pressed
+while doing above operations, it will add whatever is drawn inside the wire frame
+to the existing cookie drawing in the cookie <span class=GramE>cutter .</span></p>
+
+<p class=MsoNormal style='margin-left:1.0in'><span
+style='mso-spacerun:yes'> </span>- If Shift key is held down before the above
+operation begins, it will keep the already existing cookie drawing inside the
+wire frame but will delete the drawing outside it. </p>
+
+<p class=MsoNormal style='margin-left:1.0in'>-<span style='mso-spacerun:yes'> 
+</span>If Shift key is held down before the above operation begins, it will
+delete the existing cookie drawing inside the wire frame but will keep the
+other drawings intact. </p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l5 level1 lfo15;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Left
+Drag Operations: It will draw selection rectangles or lasso outlines inside
+which cookie drawing will be created (or deleted etc depending on which
+modifier key is pressed) </p>
+
+<h3 style='text-indent:0in'><![if !supportLists]><span style='mso-bidi-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>V.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Extrude Mode</h3>
+
+<p class=MsoNormal>While in this mode, selection of the chunks from the 3D
+workspace is not permitted. (However, one can select them from the Model <span
+class=GramE>Tree )</span></p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo14;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Single
+<u>Left</u> Drag: Drags the <u>repeat units</u> (Repeat Units are the extrude copies
+of the original chunk to be extruded). The cursor must point on any of the atom
+centers of the <u>repeat units</u> in order to move them. </p>
+
+<h3 style='text-indent:0in'><![if !supportLists]><span style='mso-bidi-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>VI.<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span></span><![endif]>Movie Player </h3>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>       </span>Left mouse
+controls are not available in this mode. </p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</body>
+
+</html>
