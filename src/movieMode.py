@@ -480,8 +480,10 @@ class movieDashboardSlotsMixin:
 
         sfilter = QString("Differential Position Bytes Format (*.dpb)")
         
+        # Removed .xyz as an option in the sfilter since the section of code below 
+        # to save XYZ files never worked anyway.  This also fixes bug 492.  Mark 050816.
         fn = QFileDialog.getSaveFileName(sdir,
-                    "Differential Position Bytes Format (*.dpb);;XYZ Format (*.xyz);;This writes a series of files:;;povray (*.pov)",
+                    "Differential Position Bytes Format (*.dpb);;POV-Ray Series (*.pov)",
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
@@ -536,7 +538,12 @@ class movieDashboardSlotsMixin:
             elif ext == '.pov':
                 self.assy.current_movie._writeas( os.path.join(dir, fil))
                 
-            else: 
+            else: #.xyz
+                # XYZ option removed above from call to QFileDialog.getSaveFileName().  
+                # This section of code should not be called now (for A6).  Bruce was correct
+                # in his comments below; this section of code never worked anyway.
+                # Mark 050816
+                #
                 # writemovie() in runSim.py creates either an dpb or xyz file based on the 
                 # file extension in assy.current_movie.filename.  To make this work for now, we
                 # need to temporarily save assy.current_movie.filename of the current movie (dpb) file,
