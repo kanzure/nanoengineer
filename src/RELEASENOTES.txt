@@ -1,12 +1,137 @@
-RELEASE NOTES 
+Release Notes for nanoENGINEER-1 v0.0.6 (Alpha 6)
 
-What is new in nanoENGINEER-1 v0.0.5 (Alpha 5):
+
+What's new in nanoENGINEER-1 v0.0.6 (8/17/2005):
+
+1. Atomic hybridization and higher order bond types:
+  - Support for the following atomic hybrid orbitals:
+     - Carbon: sp3, sp2, sp
+     - Nitrogen: sp3, sp2, sp, graphitic
+     - Oxygen: sp3, sp2
+     - Sulfur: sp3, sp2
+     - Hydrogen: s
+  - Support for the following bond types:
+     - single
+     - double
+     - triple
+     - aromatic
+     - graphitic
+     - carbomeric*
+
+* carbomeric bonds are an order-2.5 bond, sometimes used in carbomers. Alpha 6 
+supports drawing and valence checking of carbomeric bonds, but they are 
+simulated and stored in the mmp file as aromatic bonds.  This means carbomeric
+bonds can't be stored and reloaded from a mmp file, which is a known bug we'll
+fix for Alpha 7.
+
+2. Build Mode:
+  - New Molecular Modeling Kit (MMKit) used for selecting elements and 
+    atomic hybridizations
+  - Bonds are selectable and can be deleted using CTRL+ Left-click (or 
+    CMD + Left-click on MacOS X)
+  - Bonds can be changed using new sub-modes on the dashboard
+  - Clipboard integration with the MMKit for copying and pasting molecules
+  - Keyboard accelerators for element and atomic hybridization selections
+
+3. Select Atoms Mode:
+  - Support for copying/pasting selected atoms
+  - Improved dashboard for selecting (and transmuting) atoms
+  - Selection Filter now works for Select Connected and Select Doubly
+  - Select Connected and Select Doubly have been added to the dashboard
+  - Select Doubly much faster
+
+4. New GAMESS client interface:
+  - Energy calculations
+  - Optimizations
+  - Supports PC GAMESS on Windows
+  - Supports GAMESS-US on Linux/MacOSX
+
+5. Jigs:
+  - Selection of Jigs in the 3D workspace (graphic area)
+  - Copying and pasting of jigs (together with their chunk/atoms)
+  - New model tree context menu item to select all atoms of any Jig or set 
+    of Jigs
+  - New model tree context menu item to disable/enable Jigs, which determines
+    whether the Jig is used during a simulation
+  - New model tree context menu item for Rotary/Linear Motors "Align to Chunk",
+    which relaigns the motor
+    to the first chunk it is attached to
+  - New model tree context menu item for Rotary/Linear Motors "Recenter on 
+    Atoms", which recenters the motor to the atoms it is attached to
+
+6. Molecular Dynamics Simulator:
+  - Revised Simulator Setup dialog
+  - Support for Linear motor
+  - Jigs can be disabled (and enabled) in the model tree via their context menu
+  - MD supported for atomic hybridizations and higher order bonds (see list 
+    above) with the following exceptions:
+     - Still no torsion; this will make systems with double or 
+       aromatic/graphitic bonds act less stiff than they really should.  
+       The parameters for aromatic and graphitic bonds are interpolated rather
+       than measured directly
+     - The simulator does not handle hydrogen bonds or dative bonds
+     - The parameters for stretches with fluorine and bends with boron or 
+       a double bond to nitrogen are estimated rather than computed
+     - The whole set may need an overall correction factor of some kind. The 
+       main variable, absolute energy numbers from Gamess, is self canceling 
+       since we're only using relative energies, and we used the same level 
+       of theory for all the runs. Still there may be some systematic 
+       correction that is needed
+     - A more sophisticated fitting procedure, and support for electrostatics,
+       is in the works for Alpha 7
+
+7. New Preferences dialog (Edit > Preferences):
+  - atom highlight color
+  - free valence color
+  - free valence hotspot color
+  - bond highlight color
+  - bond vanes/ribbons color
+  - bond stretch color
+  - CPK cylinder color
+  - higher order bond display modes: multiple cylinders, vanes, or ribbons
+  - show valence erros on/off
+  - turn on/off bond letters for double, triple, aromatic and graphitic bonds
+  - background color (solid or gradient)
+  - compass location
+  - compass on/off
+  - origin axis on/off
+  - point of view axis on/off
+
+8. Move Chunks:
+  - New dashboard dropbox includes the following options:
+     - Translate
+     - Rotate X (by specified angle "Theta")
+     - Rotate Y (by specified angle "Theta")
+     - Rotate Z (by specified angle "Theta")
+
+9. Movie Player:
+  - Significant speed improvement
+  - Circular arrow on end of rotary motor shaft rotates with motor
+  - New "POV-Ray Series" save option that allows the user to dump the current
+    movie as a series of .pov files (which can then be povrayed by the user
+    and collected into an mpeg offline)
+
+10. Model Tree:
+  - New model tree context menu item "Delete all clipboard items"
+  - New model tree context menu item "Create new empty clipboard item"
+
+11. Opposite View:
+  - New command (View > Opposite View) that flips the current view to the
+    opposite side
+
+12. Align to Common Axis:
+  - Now aligns selected chunks to the first selected chunk's axis (instead
+    of the average axis of all selected chunks)
+
+
+
+What was new in nanoENGINEER-1 v0.0.5 (5/2/2005):
 
 1. Minimize Selection: Will minimize the current selection only.
 2. Cookie Cutter:
   - Support for Lonsdaleite (hexagonal diamond)
   - Modify selection curve(s) for any cookie layer
-  - Diamond surface orientation displayed in the  status bar
+  - Diamond surface orientation displayed in the status bar
   - Rotate lattice grid by increments, around the POV (point of view) axis.
   - Abort/restart the current selection using the Esc key
   - Cookie layers are displayed in different colors
