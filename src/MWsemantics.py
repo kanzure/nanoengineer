@@ -1172,7 +1172,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         """
         product = "nanoENGINEER-1 "
         version = "v0.0.6 (Alpha)" # This should come from __version__
-        date = "Release Date: August 15, 2005" # This should come from __vdate__ or something similar
+        date = "Release Date: August 17, 2005" # This should come from __vdate__ or something similar
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         installdir = "Running from: " + filePath
         copyright = "Copyright (C) 2005, Nanorex, Inc."
