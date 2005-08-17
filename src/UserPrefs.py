@@ -128,10 +128,12 @@ class UserPrefs(UserPrefsDialog):
     def showDialog(self, pagename='General'):
         '''Display the Preferences dialog with page 'pagename'. '''
 
-        # This sends a signal to self.setup_current_page(), which will call self._setup_general_page()
+        # This sends a signal to self.setup_current_page(), which will always call self._setup_general_page()
+        # and will also call the setup routine for the specified page (if different) [as revised by bruce 050817]
         self._init_prefs()
         
         # Added to fix bug 894.  Mark.
+        # [circa 050817, adds bruce; what's new is the pagename argument]
         if pagename == 'General': # Default
             self.prefs_tab.setCurrentPage(0)
         elif pagename == 'Atoms':
@@ -163,7 +165,6 @@ class UserPrefs(UserPrefsDialog):
     def _setup_general_page(self):
         ''' Setup widgets to initial (default or defined) values on the general page.
         '''
-
         self.display_compass_checkbox.setChecked(self.glpane.displayCompass)
         self.compass_position_btngrp.setButton(self.glpane.compassPosition)
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
@@ -601,7 +602,15 @@ class UserPrefs(UserPrefsDialog):
 
     ########## Slot methods for top level widgets ################
     
-    def setup_current_page(self, pagename):
+    def setup_current_page(self, pagename):        
+        #bruce 050817 fix new A6 bug introduced by Mark's fix of bug 894
+        # (which was: lack of showing general page could reset gamess path to ""):
+        # always call self._setup_general_page regardless of argument,
+        # as well as the page named in the argument.
+        if pagename != 'General':
+            self._setup_general_page()
+        # end of bruce 050817 fix
+        
         if pagename == 'General':
             self._setup_general_page()
         elif pagename == 'Atoms':
