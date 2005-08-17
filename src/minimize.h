@@ -50,7 +50,10 @@ struct functionDefinition
   // This is the user function that is called to evaluate the gradient
   // of the potential energy function.  It should take p->coordinate
   // as it's arguments, and set p->grandient to the result.  Note that
-  // p->gradient is allocated before dfunc is called.
+  // p->gradient is allocated before dfunc is called.  If dfunc is
+  // NULL, the gradient will be calculated from the potential
+  // function, make sure gradient_delta is set.  Don't do this for
+  // high values of dimension!
   void (*dfunc)(struct configuration *p);
 
   // Called whenever a configuration is freed, if the extra field is
@@ -58,13 +61,22 @@ struct functionDefinition
   void (*freeExtra)(struct configuration *p);
 
   // How close do we need to get to the minimum?  Should be no smaller
-  // than the square root of the machine precision.  Can it just be a
-  // global?
-  //double tolerance;
+  // than the square root of the machine precision.  First we minimize
+  // to coarse_tolerance, then to fine_tolerance.
+  double coarse_tolerance;
+  double fine_tolerance;
+
+  // Step size for default calculation of gradient (only used if dfunc
+  // is NULL).
+  double gradient_delta;
 
   // How big are the coordinate and gradient arrays?  This is the "N"
   // in N-dimensional below.
   int dimension;
+
+  // When searching for a minimum while bracketing, what should the
+  // gradient be initially multiplied by.  Try 1.0 as a wild guess.
+  double initial_parameter_guess;
 
   // How many times have we called (*func)()?
   int functionEvaluationCount;
@@ -83,6 +95,8 @@ extern void SetConfiguration(struct configuration **dst, struct configuration *s
 extern double evaluate(struct configuration *p);
 
 extern void evaluateGradient(struct configuration *p);
+
+extern struct configuration *gradientOffset(struct configuration *p, double q);
 
 extern struct configuration *minimize(struct configuration *p, int *iteration, int iterationLimit);
 

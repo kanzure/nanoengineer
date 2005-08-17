@@ -30,9 +30,13 @@ extern void matrixRotateY(double *m, double theta);
 
 extern void matrixRotateZ(double *m, double theta);
 
+extern void matrixRotateXYZ(double *rotation, double thetaX, double thetaY, double thetaZ);
+
 extern void matrixMultiply(double *prod, double *a, double *b);
 
 extern void matrixTransform(struct xyz *out, double *m, struct xyz *in);
+
+extern void matrixInverseTransform(struct xyz *out, double *m, struct xyz *in);
 
 
 /** vector addition (incremental: add src to dest) */

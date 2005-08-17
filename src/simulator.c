@@ -13,7 +13,7 @@ int Nexbon=0, Nextorq=0, Nexatom=0;
 // units for positions are 1e-12 meters == picometers
 // units for force are piconewtons
 struct xyz Force[NATOMS];
-struct xyz OldForce[NATOMS]; /* used in minimize */
+struct xyz OldForce[NATOMS]; /* used in originalMinimize */
 struct xyz AveragePositions[NATOMS];
 static struct xyz position_arrays[4*NATOMS];
 static void *aux_data[4];
@@ -37,7 +37,7 @@ void **OldAuxData, **NewAuxData, **AuxData, **BestAuxData;
 // conjugate gradient terminates when rms_force is below this value (in picoNewtons)
 #define RMS_FINAL (1.0)
 
-/* we save the rms value from the initialization iterations in minimize() here: */
+/* we save the rms value from the initialization iterations in originalMinimize() here: */
 static float initial_rms;
 /* and terminate minimization if rms ever gets above this: */
 #define MAX_RMS (1000.0 * initial_rms)
@@ -1201,7 +1201,7 @@ minimizeConjugateGradients(int numFrames, int *frameNumber)
 }
 
 static void
-minimize(int numFrames)
+originalMinimize(int numFrames)
 {
     int frameNumber;
     int steepestDescentFrames;
@@ -1385,19 +1385,25 @@ main(int argc,char **argv)
     if (baseFilename != NULL) {
         int i1;
         int i2;
-        
-        if (ofilename == NULL) {
-            fprintf(stderr, "need to specify output filename for structure compare\n");
+        struct configuration *structureMinimum = NULL;
+
+        BasePositions = readXYZ(baseFilename, &i1);
+        if (BasePositions == NULL) {
+            fprintf(stderr, "could not read base positions file from -B<filename>\n");
             exit(1);
         }
-        BasePositions = readXYZ(baseFilename, &i1);
         InitialPositions = readXYZ(filename, &i2);
+        if (InitialPositions == NULL) {
+            fprintf(stderr, "could not read comparison positions file\n");
+            exit(1);
+        }
         if (i1 != i2) {
             fprintf(stderr, "structures to compare must have same number of atoms\n");
             exit(1);
         }
-        strcpy(OutFileName,ofilename);
-        doStructureCompare(i1);
+        structureMinimum = doStructureCompare(i1, &Iteration, NumFrames);
+        printf("average structure distance: %e\n", structureMinimum->functionValue);
+        SetConfiguration(&structureMinimum, NULL);
         exit(0);
     }
 
@@ -1511,7 +1517,7 @@ main(int argc,char **argv)
     writeOutputHeader(outf);
 
     if  (ToMinimize) {
-	minimize(NumFrames);
+	originalMinimize(NumFrames);
     }
     else {
 	for (i=0; i<NumFrames; i++) {

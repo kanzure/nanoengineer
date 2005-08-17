@@ -13,6 +13,9 @@
 #include "allocate.h"
 #include "hashtable.h"
 
+#include "minimize.h"
+#include "structcompare.h"
+
 #include "readers.h"
 
 /* begin tables.h */

@@ -143,6 +143,20 @@ matrixRotateZ(double *m, double theta)
   m[8] = 1.0;
 }
 
+void
+matrixRotateXYZ(double *rotation, double thetaX, double thetaY, double thetaZ)
+{
+  double oneAxis[9];
+  double tmp[9];
+
+  // rotate first around X, then Y, then Z
+  matrixRotateX(rotation, thetaX);
+  matrixRotateY(oneAxis, thetaY);
+  matrixMultiply(tmp, rotation, oneAxis);
+  matrixRotateZ(oneAxis, thetaZ);
+  matrixMultiply(rotation, tmp, oneAxis);
+}
+
 // prod = a * b
 // all three are pre-allocated rotation matrices
 void
@@ -166,6 +180,17 @@ matrixTransform(struct xyz *out, double *m, struct xyz *in)
   out->x = in->x * m[0] + in->y * m[1] + in->z * m[2];
   out->y = in->x * m[3] + in->y * m[4] + in->z * m[5];
   out->z = in->x * m[6] + in->y * m[7] + in->z * m[8];
+}
+
+// transform in by matrix Transpose(m) to produce out.
+// everything is pre-allocated.
+// since rotation matricies are orthogonal, Transpose(m) == m^-1
+void
+matrixInverseTransform(struct xyz *out, double *m, struct xyz *in)
+{
+  out->x = in->x * m[0] + in->y * m[3] + in->z * m[6];
+  out->y = in->x * m[1] + in->y * m[4] + in->z * m[7];
+  out->z = in->x * m[2] + in->y * m[5] + in->z * m[8];
 }
 
 

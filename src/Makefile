@@ -51,6 +51,7 @@ SIMOBJS=\
 	printers.o \
 	allocate.o \
 	hashtable.o \
+	minimize.o \
 	newtables.o \
 	structcompare.o \
 	interpolate.o
@@ -65,9 +66,9 @@ testminimize: minimize.c allocate.o
 	$(CC) -o testminimize.o $(CFLAGS) -DTEST -c minimize.c
 	$(CC) -o testminimize $(LDFLAGS) testminimize.o allocate.o
 
-teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o printers.o
+teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o
 	$(CC) -o teststructcompare.o $(CFLAGS) -DTEST -c structcompare.c
-	$(CC) -o teststructcompare $(LDFLAGS) teststructcompare.o minimize.o allocate.o lin-alg.o printers.o
+	$(CC) -o teststructcompare $(LDFLAGS) teststructcompare.o minimize.o allocate.o lin-alg.o
 
 
 install: simulator

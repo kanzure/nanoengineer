@@ -48,8 +48,6 @@
 #define PARABOLIC_BRACKET_LIMIT 10.0
 #define TOLERANCE_AT_ZERO 1e-10
 #define LINEAR_ITERATION_LIMIT 100
-#define COARSE_TOLERANCE 1e-5
-#define FINE_TOLERANCE 3e-8
 #define EPSILON 1e-10
 
 static int allocationCount = 0;
@@ -162,17 +160,32 @@ void
 evaluateGradient(struct configuration *p)
 {
   struct functionDefinition *fd = p->functionDefinition;
-
+  struct configuration *pPlusDelta = NULL;
+  int i;
+  int j;
+  
   if (p->gradient == NULL) {
     p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
-    (*fd->dfunc)(p);
+    if (fd->dfunc == NULL) {
+      for (i=0; i<fd->dimension; i++) {
+        pPlusDelta = makeConfiguration(fd);
+        for (j=0; j<fd->dimension; j++) {
+          pPlusDelta->coordinate[j] = p->coordinate[j];
+        }
+        pPlusDelta->coordinate[i] += fd->gradient_delta;
+        p->gradient[i] = (evaluate(p) - evaluate(pPlusDelta)) / fd->gradient_delta;
+        SetConfiguration(&pPlusDelta, NULL);
+      }
+    } else {
+      (*fd->dfunc)(p);
+    }
     fd->gradientEvaluationCount++;
     p->parameter = 0.0;
   }
 }
 
 // Return a new configuration which is p+q*gradient(p)
-static struct configuration *
+struct configuration *
 gradientOffset(struct configuration *p, double q)
 {
   struct functionDefinition *fd = p->functionDefinition;
@@ -211,7 +224,8 @@ bracketMinimum(struct configuration **ap,
   Enter();
   SetConfiguration(&a, p);
   a->parameter = 0.0;
-  b = gradientOffset(p, 1.0); // wild guess
+  evaluateGradient(p); // this lets (*dfunc)() set initial_parameter_guess
+  b = gradientOffset(p, p->functionDefinition->initial_parameter_guess);
   if (evaluate(b) > evaluate(a)) {
     // swap a and b, so b is downhill of a
     u = a;
@@ -487,6 +501,7 @@ linearMinimize(struct configuration *p, double tolerance)
   Enter();
   bracketMinimum(&a, &b, &c, p);
   min = brent(p, a, b, c, tolerance);
+  //printf("minimum at parameter value: %e, function value: %e\n", min->parameter, evaluate(min));
   SetConfiguration(&a, NULL);
   SetConfiguration(&b, NULL);
   SetConfiguration(&c, NULL);
@@ -573,12 +588,12 @@ minimize(struct configuration *initial_p,
   intermediate = minimize_one_tolerance(initial_p,
                                         &coarse_iter,
                                         iterationLimit * 0.8,
-                                        COARSE_TOLERANCE);
+                                        initial_p->functionDefinition->coarse_tolerance);
   //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
   final = minimize_one_tolerance(intermediate,
                                  &fine_iter,
                                  iterationLimit - coarse_iter,
-                                 FINE_TOLERANCE);
+                                 initial_p->functionDefinition->fine_tolerance);
   SetConfiguration(&intermediate, NULL);
   *iteration = coarse_iter + fine_iter;
   Leave(minimize, 1);
@@ -631,7 +646,10 @@ testMinimize()
   fd.func = testFunction;
   fd.dfunc = testGradient;
   fd.freeExtra = NULL;
+  fd.coarse_tolerance = 1e-5;
+  fd.fine_tolerance = 1e-8;
   fd.dimension = 2;
+  fd.initial_parameter_guess = 1.0;
   fd.functionEvaluationCount = 0;
   fd.gradientEvaluationCount = 0;
 
