@@ -8,6 +8,7 @@ $Id$
 __author__ = "Mark"
 
 from modes import *
+from constants import GL_FAR_Z
 
 
 class zoomMode(basicMode):
@@ -154,7 +155,7 @@ class zoomMode(basicMode):
         winCenterZ = glReadPixelsf(int(winCenterX), int(winCenterY), 1, 1, GL_DEPTH_COMPONENT)
         
         assert winCenterZ[0][0] >= 0.0 and winCenterZ[0][0] <= 1.0
-        if winCenterZ[0][0] >= 1.0:  ### window center touches nothing
+        if winCenterZ[0][0] >= GL_FAR_Z:  ### window center touches nothing
                  p1 = A(gluUnProject(winCenterX, winCenterY, 0.005))
                  p2 = A(gluUnProject(winCenterX, winCenterY, 1.0))
 

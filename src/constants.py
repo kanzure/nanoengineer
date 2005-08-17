@@ -147,4 +147,9 @@ SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in 
 
 from prefs_constants import * #e when it's practical after A6, this import should be removed
 
+# The far clipping plane normalized z value, actually it's a little closer than the actual far clipping 
+# plane to the eye. This is used to draw the blue sky backround polygon, and also used to check if user
+# click on empty space on the screen.
+GL_FAR_Z = 0.999
+
 # end

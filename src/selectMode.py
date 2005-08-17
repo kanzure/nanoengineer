@@ -319,6 +319,7 @@ class selectMode(basicMode):
     def jigGLSelect(self, event, selSense):
         '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
            matrix before return. '''
+        from constants import GL_FAR_Z
         
         if not self.jigSelectionEnabled: return False
         
@@ -329,7 +330,7 @@ class selectMode(basicMode):
         
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         gz = wZ[0][0]
-        if gz >= 1.0:  # Empty space was clicked
+        if gz >= GL_FAR_Z:  # Empty space was clicked
             return False  
         
         pxyz = A(gluUnProject(wX, wY, gz))

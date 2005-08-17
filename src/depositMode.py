@@ -17,7 +17,7 @@ from modes import *
 from VQT import *
 from chem import *
 import drawer
-from constants import elemKeyTab
+from constants import elemKeyTab, GL_FAR_Z
 import platform
 from debug import print_compact_traceback
 from elements import PeriodicTable
@@ -755,7 +755,7 @@ class depositMode(basicMode):
             # depth (range 0 to 1, 0 is nearest) of most recent drawing at this mouse position
         new_selobj_unknown = False
             # following code should either set this True or set new_selobj to correct new value (None or an object)
-        if wZ >= 1.0:
+        if wZ >= GL_FAR_Z: ## Huaicai 8/17/05 for blue sky plane z value
             # far depth (this happens when no object is touched)
             new_selobj = None
         else:

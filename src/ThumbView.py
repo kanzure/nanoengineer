@@ -355,7 +355,7 @@ class ThumbView(QGLWidget):
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         gz = wZ[0][0]
         
-        if gz >= 1.0: ##Empty space was clicked
+        if gz >= GL_FAR_Z: ##Empty space was clicked
             return None
         
         pxyz = A(gluUnProject(wX, wY, gz))

@@ -395,8 +395,10 @@ class UserPrefs(UserPrefsDialog):
     def set_gamess_path(self):
         '''Slot for GAMESS path "Modify" button.
         '''
-        self.gmspath = get_gamess_path(self)
-        if self.gmspath:
+        newPath = get_gamess_path(self)
+         
+        if newPath:
+            self.gmspath = newPath
             self.gamess_path_linedit.setText(self.gmspath)
             
     ########## End of slot methods for "General" page widgets ###########

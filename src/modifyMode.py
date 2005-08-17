@@ -183,6 +183,8 @@ class modifyMode(basicMode):
     def leftDown(self, event):
         """Move the selected object(s).
         """
+        from constants import GL_FAR_Z
+        
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
@@ -194,7 +196,8 @@ class modifyMode(basicMode):
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        if wZ[0][0] >= 1.0: 
+        
+        if wZ[0][0] >= GL_FAR_Z:
             junk, self.movingPoint = self.o.mousepoints(event)
         else:
             self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))

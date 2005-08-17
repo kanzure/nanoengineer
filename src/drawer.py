@@ -958,17 +958,18 @@ def drawFullWindow(vtColors):
        left-down, right-down, right-up, left-up window corners.
        To draw the full window, the modelview and projection should be set in identity.
        """
+    from constants import GL_FAR_Z
     glDisable(GL_LIGHTING)
     
     glBegin(GL_QUADS)
     glColor3fv(vtColors[0])
-    glVertex3f(-1, -1, 0.999)
+    glVertex3f(-1, -1, GL_FAR_Z)
     glColor3fv(vtColors[1])            
-    glVertex3f(1, -1, 0.999)
+    glVertex3f(1, -1, GL_FAR_Z)
     glColor3fv(vtColors[2])
-    glVertex3f(1, 1, 0.999)
+    glVertex3f(1, 1, GL_FAR_Z)
     glColor3fv(vtColors[3])
-    glVertex3f(-1, 1, 0.999)
+    glVertex3f(-1, 1, GL_FAR_Z)
     glEnd()
     
     glEnable(GL_LIGHTING)

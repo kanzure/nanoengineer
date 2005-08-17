@@ -1650,13 +1650,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         # Set compass position using glOrtho
         if self.compassPosition == UPPER_RIGHT:
-            glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -10, 10) # Upper Right
+            glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
         elif self.compassPosition == UPPER_LEFT:
-            glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -10, 10) # Upper Left
+            glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
         elif self.compassPosition == LOWER_LEFT:
-            glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -10, 10) # Lower Left
+            glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -5, 500) # Lower Left
         else:
-            glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -10, 10) # Lower Right
+            glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -5, 500) # Lower Right
         
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
