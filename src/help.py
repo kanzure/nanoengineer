@@ -27,18 +27,10 @@ class Help(HelpDialog):
         '''Display the Help dialog with either the Mouse Controls or Keyboard Shortcuts page
         pagenum is the page number, where:
         0 = Mouse Controls
-        1 = Keyboard Shortcuts'''
-        
-        if pagenum == 0:
-            self._setup_mouse_controls_page()
-        elif pagenum == 1:
-            self._setup_keyboard_shortcuts_page()
-        else:
-            print "Error: unknown page."
-            return
-            
-        self.help_tab.setCurrentPage(pagenum) 
-        self.show() # Non-modal
+        1 = Keyboard Shortcuts
+        '''
+        self.help_tab.setCurrentPage(pagenum) # Sends signal to setup_current_page()
+        self.show() # Non-modal 
         return
 
     ###### Private methods ###############################
@@ -51,9 +43,14 @@ class Help(HelpDialog):
             htmlDoc = os.path.normpath(filePath + '/../doc/mousecontrols-mac.htm')
         else:
             htmlDoc = os.path.normpath(filePath + '/../doc/mousecontrols.htm')
-        self.mouse_controls_textbrowser.setSource(htmlDoc)
-
         
+        # Make sure help document exists.  If not, display msg in textbrowser.
+        if os.path.exists(htmlDoc):
+            self.mouse_controls_textbrowser.setSource(htmlDoc)
+        else:
+            msg =  "Help file " + htmlDoc + " not found."
+            self.mouse_controls_textbrowser.setText(msg)
+
     def _setup_keyboard_shortcuts_page(self):
         ''' Setup the Keyboard Shortcuts help page.
         '''
@@ -63,8 +60,13 @@ class Help(HelpDialog):
             htmlDoc = os.path.normpath(filePath + '/../doc/keyboardshortcuts-mac.htm')
         else:
             htmlDoc = os.path.normpath(filePath + '/../doc/keyboardshortcuts.htm')
-        self.keyboard_shortcuts_textbrowser.setSource(htmlDoc)
-
+        
+        # Make sure help document exists.  If not, display msg in textbrowser.
+        if os.path.exists(htmlDoc):
+            self.keyboard_shortcuts_textbrowser.setSource(htmlDoc)
+        else:
+            msg =  "Help file " + htmlDoc + " not found."
+            self.keyboard_shortcuts_textbrowser.setText(msg)
         
     def setup_current_page(self, pagename):
         if pagename == 'Mouse Controls':
