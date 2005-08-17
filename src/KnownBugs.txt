@@ -1,4 +1,4 @@
-nanoENGINEER-1 v0.0.6 (Alpha 6)
+nanoENGINEER-1(TM) v0.0.6 (Alpha 6)
 
  Some of the Bug Fixes In Alpha 6
 
