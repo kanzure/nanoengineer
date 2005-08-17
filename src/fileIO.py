@@ -98,8 +98,9 @@ def writepovfile(assy, filename):
     pov_in = (-assy.o.out[0], -assy.o.out[1], assy.o.out[2])
     
     ### sets the near and far clipping plane
-    f.write("clipped_by { plane { " + povpoint(-assy.o.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
-    f.write("             plane { " + povpoint(assy.o.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
+    ## removed 050817 josh -- caused crud to appear in the output (and slowed rendering 5x!!)
+    ## f.write("clipped_by { plane { " + povpoint(-assy.o.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
+    ## f.write("             plane { " + povpoint(assy.o.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
     f.write("}\n\n")  
 
     f.close()
