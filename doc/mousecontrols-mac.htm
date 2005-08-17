@@ -1,1203 +1,586 @@
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-xmlns:w="urn:schemas-microsoft-com:office:word"
-xmlns="http://www.w3.org/TR/REC-html40">
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
 <head>
-<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<meta name=ProgId content=Word.Document>
-<meta name=Generator content="Microsoft Word 11">
-<meta name=Originator content="Microsoft Word 11">
-<link rel=File-List href="mousecontrols-mac_files/filelist.xml">
-<title>Mouse Controls </title>
-<!--[if gte mso 9]><xml>
- <o:DocumentProperties>
-  <o:Author>Ninad Sathaye</o:Author>
-  <o:LastAuthor>Mark Sims</o:LastAuthor>
-  <o:Revision>5</o:Revision>
-  <o:TotalTime>335</o:TotalTime>
-  <o:Created>2005-08-17T18:55:00Z</o:Created>
-  <o:LastSaved>2005-08-17T19:00:00Z</o:LastSaved>
-  <o:Pages>1</o:Pages>
-  <o:Words>889</o:Words>
-  <o:Characters>5070</o:Characters>
-  <o:Company>Nanorex, Inc.</o:Company>
-  <o:Lines>42</o:Lines>
-  <o:Paragraphs>11</o:Paragraphs>
-  <o:CharactersWithSpaces>5948</o:CharactersWithSpaces>
-  <o:Version>11.6408</o:Version>
- </o:DocumentProperties>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <w:WordDocument>
-  <w:View>Print</w:View>
-  <w:DisplayBackgroundShape/>
-  <w:SpellingState>Clean</w:SpellingState>
-  <w:GrammarState>Clean</w:GrammarState>
-  <w:PunctuationKerning/>
-  <w:ValidateAgainstSchemas/>
-  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
-  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
-  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
-  <w:Compatibility>
-   <w:BreakWrappedTables/>
-   <w:SnapToGridInCell/>
-   <w:WrapTextWithPunct/>
-   <w:UseAsianBreakRules/>
-   <w:DontGrowAutofit/>
-  </w:Compatibility>
-  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
- </w:WordDocument>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
- </w:LatentStyles>
-</xml><![endif]-->
-<style>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Untitled Document</title>
+<style type="text/css">
 <!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0in;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";}
-h1
-	{mso-style-next:Normal;
-	margin-top:12.0pt;
-	margin-right:0in;
-	margin-bottom:3.0pt;
-	margin-left:0in;
-	mso-pagination:widow-orphan;
-	page-break-after:avoid;
-	mso-outline-level:1;
-	font-size:16.0pt;
-	font-family:Arial;
-	mso-font-kerning:16.0pt;}
-h2
-	{mso-style-update:auto;
-	mso-style-next:Normal;
-	margin-top:12.0pt;
-	margin-right:0in;
-	margin-bottom:3.0pt;
-	margin-left:0in;
-	mso-pagination:widow-orphan;
-	page-break-after:avoid;
-	mso-outline-level:2;
-	font-size:10.0pt;
-	font-family:Arial;
-	mso-bidi-font-style:italic;}
-h3
-	{mso-style-update:auto;
-	mso-style-next:Normal;
-	margin-top:12.0pt;
-	margin-right:0in;
-	margin-bottom:3.0pt;
-	margin-left:.25in;
-	text-indent:0in;
-	mso-pagination:widow-orphan;
-	page-break-after:avoid;
-	mso-outline-level:3;
-	mso-list:l0 level1 lfo2;
-	tab-stops:list .5in;
-	font-size:11.0pt;
-	font-family:"Times New Roman";
-	mso-bidi-font-family:Arial;}
-span.SpellE
-	{mso-style-name:"";
-	mso-spl-e:yes;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;
-	mso-header-margin:.5in;
-	mso-footer-margin:.5in;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
- /* List Definitions */
- @list l0
-	{mso-list-id:1105346448;
-	mso-list-template-ids:-1023927302;}
-@list l0:level1
-	{mso-level-number-format:roman-upper;
-	mso-level-style-link:"Heading 3";
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	margin-left:.25in;
-	text-indent:0in;}
-@list l0:level2
-	{mso-level-number-format:alpha-upper;
-	mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	margin-left:.75in;
-	text-indent:0in;}
-@list l0:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	margin-left:1.25in;
-	text-indent:0in;}
-@list l0:level4
-	{mso-level-number-format:alpha-lower;
-	mso-level-text:"%4\)";
-	mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	margin-left:1.75in;
-	text-indent:0in;}
-@list l0:level5
-	{mso-level-text:"\(%5\)";
-	mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	margin-left:2.25in;
-	text-indent:0in;}
-@list l0:level6
-	{mso-level-number-format:alpha-lower;
-	mso-level-text:"\(%6\)";
-	mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	margin-left:2.75in;
-	text-indent:0in;}
-@list l0:level7
-	{mso-level-number-format:roman-lower;
-	mso-level-text:"\(%7\)";
-	mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	margin-left:3.25in;
-	text-indent:0in;}
-@list l0:level8
-	{mso-level-number-format:alpha-lower;
-	mso-level-text:"\(%8\)";
-	mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	margin-left:3.75in;
-	text-indent:0in;}
-@list l0:level9
-	{mso-level-number-format:roman-lower;
-	mso-level-text:"\(%9\)";
-	mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	margin-left:4.25in;
-	text-indent:0in;}
-ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
+.style1 {font-size: medium}
 -->
 </style>
-<!--[if gte mso 10]>
-<style>
- /* Style Definitions */
- table.MsoNormalTable
-	{mso-style-name:"Table Normal";
-	mso-tstyle-rowband-size:0;
-	mso-tstyle-colband-size:0;
-	mso-style-noshow:yes;
-	mso-style-parent:"";
-	mso-padding-alt:0in 5.4pt 0in 5.4pt;
-	mso-para-margin:0in;
-	mso-para-margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:10.0pt;
-	font-family:"Times New Roman";
-	mso-ansi-language:#0400;
-	mso-fareast-language:#0400;
-	mso-bidi-language:#0400;}
-table.MsoTableGrid
-	{mso-style-name:"Table Grid";
-	mso-tstyle-rowband-size:0;
-	mso-tstyle-colband-size:0;
-	border:solid windowtext 1.0pt;
-	mso-border-alt:solid windowtext .5pt;
-	mso-padding-alt:0in 5.4pt 0in 5.4pt;
-	mso-border-insideh:.5pt solid windowtext;
-	mso-border-insidev:.5pt solid windowtext;
-	mso-para-margin:0in;
-	mso-para-margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:10.0pt;
-	font-family:"Times New Roman";
-	mso-ansi-language:#0400;
-	mso-fareast-language:#0400;
-	mso-bidi-language:#0400;}
-</style>
-<![endif]-->
 </head>
 
-<body lang=EN-US style='tab-interval:.5in'>
-
-<div class=Section1>
-
-<h2>Mouse Wheel (Zoom)</h2>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Mouse wheel
-operations for all modes are identical. <o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Users
-without a mouse wheel should use the <b>Zoom Tool</b> and <b>Fit to Window</b>
-(CMD + F) to zoom in/out.<o:p></o:p></span></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+<body>
+<div class=Section1 style1>
+  <h2>Mouse Wheel (Zoom)</h2>
+  <p class=MsoNormal><span style='font-family:Arial'>Mouse wheel operations for all modes are identical. <o:p></o:p></span></p>
+  <p class=MsoNormal><span style='font-family:Arial'>Users without a mouse wheel should use the <b>Zoom Tool</b> and <b>Fit to Window</b> (CMD + F) to zoom in/out.<o:p></o:p></span></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-right:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-right:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
-  mso-border-bottom-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  mso-border-bottom-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Mouse
-  Wheel<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Mouse Wheel<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Quick Zoom<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Quick Zoom<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:2'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  Mouse Wheel<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + Mouse Wheel<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Quick Zoom
-  (half-speed)<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:3;mso-yfti-lastrow:yes'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Quick Zoom (half-speed)<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:3;mso-yfti-lastrow:yes'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD +
-  Mouse Wheel<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + Mouse Wheel<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Quick Zoom
-  (double-speed)<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<h2>Middle Mouse Button (Viewing Controls)</h2>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Middle Mouse
-Button (MMB) operations for all modes are identical. <o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Mac users
-with a single mouse button can hold down the <b>Option</b> key to emulate the
-MMB.<o:p></o:p></span></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Quick Zoom (double-speed)<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <h2>Middle Mouse Button (Viewing Controls)</h2>
+  <p class=MsoNormal><span style='font-family:Arial'>Middle Mouse Button (MMB) operations for all modes are identical. <o:p></o:p></span></p>
+  <p class=MsoNormal><span style='font-family:Arial'>Mac users with a single mouse button can hold down the <b>Option</b> key to emulate the MMB.<o:p></o:p></span></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-right:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-right:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
-  mso-border-bottom-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  mso-border-bottom-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>MMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>MMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Spin<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Spin<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:2'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  MMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + MMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Pan<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:3'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Pan<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:3'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD + MMB
-  + Vertical Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + MMB + Vertical Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Move Model
-  In/Out<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
-  <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Move Model In/Out<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
+      <td valign=top style='border-top:none;border-left:solid windowtext 1.0pt;
   border-bottom:solid windowtext 1.0pt;border-right:none;mso-border-top-alt:
   solid windowtext .5pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:
   solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;padding:
-  0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD + MMB
-  + Horizontal Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + MMB + Horizontal Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-bottom-alt:solid windowtext .5pt;
-  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Rotate<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<h2>Right Mouse Button (Context Menus)</h2>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Right Mouse Button
-operations for all modes are identical. It simply brings up the mode specific
-context menu. In <b>Build Mode</b>, different context menus are provided when
-the cursor is over an open bond or a bond between two atoms or when an atom
-center is highlighted.<o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Mac users
-with a single mouse button can hold down the <b>Control</b> key to emulate the
-RMB.<o:p></o:p></span></p>
-
-<h2>Left Mouse Button (Selection)</h2>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left Mouse
-Button (LMB) operations will change according to the current mode. Mode
-specific operations are given below.<o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><b><span style='font-size:8.0pt;font-family:Arial'>Build
-Mode<o:p></o:p></span></b></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  mso-border-right-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Rotate<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <h2>Right Mouse Button (Context Menus)</h2>
+  <p class=MsoNormal><span style='font-family:Arial'>Right Mouse Button operations for all modes are identical. It simply brings up the mode specific context menu. In <b>Build Mode</b>, different context menus are provided when the cursor is over an open bond or a bond between two atoms or when an atom center is highlighted.<o:p></o:p></span></p>
+  <p class=MsoNormal><span style='font-family:Arial'>Mac users with a single mouse button can hold down the <b>Control</b> key to emulate the RMB.<o:p></o:p></span></p>
+  <h2>Left Mouse Button (Selection)</h2>
+  <p class=MsoNormal><span style='font-family:Arial'>Left Mouse Button (LMB) operations will change according to the current mode. Mode specific operations are given below.<o:p></o:p></span></p>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+  <p class=MsoNormal><b><span style='font-family:Arial'>Build Mode<o:p></o:p></span></b></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Description<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Description<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Deposit<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Deposit<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial;mso-bidi-font-weight:
-  bold'>Deposits an atom or chunk from the clipboard in the 3D workspace or
-  bonds it to an open bond of an existing atom.</span><span style='font-size:
-  8.0pt;font-family:Arial'><o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial;mso-bidi-font-weight: bold'>Deposits an atom or chunk from the clipboard in the 3D workspace or bonds it to an open bond of an existing atom.</span><span style='font-family:Arial'><o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:2'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>LMB + Drag<br>
-  (highlighted atom)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>LMB + Drag<br>
+          (highlighted atom)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Move Chunk<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Move Chunk<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Moves the complete
-  chunk the highlighted atom is attached to.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:3'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Moves the complete chunk the highlighted atom is attached to.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:3'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  LMB + Drag<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>(highlighted
-  atom)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + LMB + Drag<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>(highlighted atom)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Move Atom <o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Move Atom <o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Moves the
-  highlighted atom. <o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:4'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Moves the highlighted atom. <o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:4'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  LMB + Drag<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>(highlighted
-  open bond)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + LMB + Drag<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>(highlighted open bond)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Reorient
-  Open Bond<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Reorient Open Bond<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Rotates
-  the open bond.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:5'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Rotates the open bond.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:5'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  LMB + Drag<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>(highlighted
-  open bond)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + LMB + Drag<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>(highlighted open bond)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Create New
-  Bond<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Create New Bond<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Creates a
-  new bond between two atoms (atom-A and atom-B):<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>1.
-  Highlight the open bond of atom-A<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>2. Press
-  and hold SHIFT + LMB<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>3. Start
-  dragging the mouse. A white rubber band line appears between the cursor position
-  and the open bond on atom-A<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>4. Now
-  highlight the open bond on atom-B and release the LMB. A bond will be formed
-  between these two atoms.<o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>NOTE:
-  Repeating this procedure on open bonds of the same two atoms will form a
-  double bond between them.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:6;mso-yfti-lastrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Creates a new bond between two atoms (atom-A and atom-B):<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>1. Highlight the open bond of atom-A<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>2. Press and hold SHIFT + LMB<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>3. Start dragging the mouse. A white rubber band line appears between the cursor position and the open bond on atom-A<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>4. Now highlight the open bond on atom-B and release the LMB. A bond will be formed between these two atoms.<o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'>NOTE: Repeating this procedure on open bonds of the same two atoms will form a double bond between them.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:6;mso-yfti-lastrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD + LMB
-  + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Delete<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Delete<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Deletes a
-  highlighted atom or bond.<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><b><span style='font-size:8.0pt;font-family:Arial'>Select
-Chunks and Select Atoms Mode<o:p></o:p></span></b></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Deletes a highlighted atom or bond.<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+  <p class=MsoNormal><b><span style='font-family:Arial'>Select Chunks and Select Atoms Mode<o:p></o:p></span></b></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Description<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Description<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  Chunk/Atom<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select Chunk/Atom<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Selects
-  any chunk/atom or jig under the cursor.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Selects any chunk/atom or jig under the cursor.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:2'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left-click
-  (on empty space)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Left-click (on empty space)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Deselect
-  All<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Deselect All<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>If nothing
-  is under the cursor, everything is deselected.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:3'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>If nothing is under the cursor, everything is deselected.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:3'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Add)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Add)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Adds any
-  chunk/atom or jig under the cursor to the current selection.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:4'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Adds any chunk/atom or jig under the cursor to the current selection.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:4'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD +
-  Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Remove)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Remove)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Removes any
-  chunk/atom or jig from the current selection.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:5'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Removes any chunk/atom or jig from the current selection.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:5'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>LMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span class=SpellE><span style='font-size:8.0pt;
-  font-family:Arial'>Rect</span></span><span style='font-size:8.0pt;font-family:
-  Arial'>/Lasso Selection<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span class=SpellE><span style='font-family:Arial'>Rect</span></span><span style='font-family: Arial'>/Lasso Selection<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Selects
-  chunks/atoms (but not jigs) that lie inside the selection rectangle or lasso.
-  While doing so, it also deselects all currently select chunks/atoms and jigs
-  that lie outside the selection rectangle.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:6'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Selects chunks/atoms (but not jigs) that lie inside the selection rectangle or lasso. While doing so, it also deselects all currently select chunks/atoms and jigs that lie outside the selection rectangle.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:6'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  LMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span class=SpellE><span style='font-size:8.0pt;
-  font-family:Arial'>Rect</span></span><span style='font-size:8.0pt;font-family:
-  Arial'>/Lasso Selection (Add)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span class=SpellE><span style='font-family:Arial'>Rect</span></span><span style='font-family: Arial'>/Lasso Selection (Add)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Adds
-  chunks/atoms (but not jigs) to the current selections that lie inside the
-  selection rectangle or lasso.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:7;mso-yfti-lastrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Adds chunks/atoms (but not jigs) to the current selections that lie inside the selection rectangle or lasso.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:7;mso-yfti-lastrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD + LMB
-  + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span class=SpellE><span style='font-size:8.0pt;
-  font-family:Arial'>Rect</span></span><span style='font-size:8.0pt;font-family:
-  Arial'>/Lasso Selection (Remove)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span class=SpellE><span style='font-family:Arial'>Rect</span></span><span style='font-family: Arial'>/Lasso Selection (Remove)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Removes
-  chunks/atoms (but not jigs) from the current selections that lie inside the
-  selection rectangle or lasso.<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><b><span style='font-size:8.0pt;font-family:Arial'>Move and
-Fuse Chunks Mode<o:p></o:p></span></b></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>While in
-Move or Fuse Chunks Mode, selection of jigs from the 3D workspace is not
-permitted. You can select jigs from the Model Tree, however.<o:p></o:p></span></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Removes chunks/atoms (but not jigs) from the current selections that lie inside the selection rectangle or lasso.<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+  <p class=MsoNormal><b><span style='font-family:Arial'>Move and Fuse Chunks Mode<o:p></o:p></span></b></p>
+  <p class=MsoNormal><span style='font-family:Arial'>While in Move or Fuse Chunks Mode, selection of jigs from the 3D workspace is not permitted. You can select jigs from the Model Tree, however.<o:p></o:p></span></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Description<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Description<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  Chunk<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select Chunk<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Selects
-  any chunk under the cursor.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Selects any chunk under the cursor.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:2'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left-click
-  (on empty space)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Left-click (on empty space)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Deselect
-  All<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Deselect All<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>If nothing
-  is under the cursor, everything is deselected.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:3'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>If nothing is under the cursor, everything is deselected.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:3'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Add)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Add)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Adds any
-  chunk under the cursor to the current selection.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:4'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Adds any chunk under the cursor to the current selection.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:4'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD +
-  Left-click<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + Left-click<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Remove)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Remove)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Removes any
-  chunk from the current selection.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:5'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Removes any chunk from the current selection.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:5'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>LMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translate
-  Chunks<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translate Chunks<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translates
-  the selected chunk(s) in the same plane as the screen.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:6'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translates the selected chunk(s) in the same plane as the screen.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:6'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>X + LMB +
-  Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>X + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translate/Rotate
-  Chunks Along X Axis<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translate/Rotate Chunks Along X Axis<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translates/rotates
-  the selected chunk(s) along the X axis. Movement can be constrained to
-  translation or rotation by holding down either the T key (translation only)
-  or the R key (rotation only) at the same time.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:7'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translates/rotates the selected chunk(s) along the X axis. Movement can be constrained to translation or rotation by holding down either the T key (translation only) or the R key (rotation only) at the same time.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:7'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Y + LMB +
-  Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Y + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translate/Rotate
-  Chunks Along Y Axis<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translate/Rotate Chunks Along Y Axis<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translates/rotates
-  the selected chunk(s) along the Y axis. Movement can be constrained to
-  translation or rotation by holding down either the T key (translation only)
-  or the R key (rotation only) at the same time.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:8'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translates/rotates the selected chunk(s) along the Y axis. Movement can be constrained to translation or rotation by holding down either the T key (translation only) or the R key (rotation only) at the same time.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:8'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Z + LMB +
-  Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Z + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translate/Rotate
-  Chunks Along Z Axis<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translate/Rotate Chunks Along Z Axis<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translates/rotates
-  the selected chunk(s) along the Z axis. Movement can be constrained to
-  translation or rotation by holding down either the T key (translation only)
-  or the R key (rotation only) at the same time.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:9'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translates/rotates the selected chunk(s) along the Z axis. Movement can be constrained to translation or rotation by holding down either the T key (translation only) or the R key (rotation only) at the same time.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:9'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  LMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Move
-  Chunks Along Axis<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Move Chunks Along Axis<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Translates
-  the selected chunk along the axis passing through its center of mass (if it
-  is a translation) and/or rotates the chunk(s) around this axis.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:10;mso-yfti-lastrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Translates the selected chunk along the axis passing through its center of mass (if it is a translation) and/or rotates the chunk(s) around this axis.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:10;mso-yfti-lastrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD + LMB
-  + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Spin
-  Chunks<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Spin Chunks<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Freely
-  rotates the selected chunk around its center of mass.<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><b><span style='font-size:8.0pt;font-family:Arial'>Cookie
-Cutter Mode<o:p></o:p></span></b></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>While in
-Cookie Cutter Mode, selection of chunks or jigs from the 3D workspace is not
-permitted. You can select chunks and jigs from the Model Tree, however.<o:p></o:p></span></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Freely rotates the selected chunk around its center of mass.<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+  <p class=MsoNormal><b><span style='font-family:Arial'>Cookie Cutter Mode<o:p></o:p></span></b></p>
+  <p class=MsoNormal><span style='font-family:Arial'>While in Cookie Cutter Mode, selection of chunks or jigs from the 3D workspace is not permitted. You can select chunks and jigs from the Model Tree, however.<o:p></o:p></span></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Description<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Description<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>LBM + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>LBM + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Add)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Add)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Adds new
-  lattice selection to the current selection.<o:p></o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Adds new lattice selection to the current selection.<o:p></o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:2'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>SHIFT +
-  LMB + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>SHIFT + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Keep)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Keep)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Keep only
-  what is inside the selection that is already selected, removing everything
-  outside. <o:p></o:p></span></p>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:3;mso-yfti-lastrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Keep only what is inside the selection that is already selected, removing everything outside. <o:p></o:p></span></p>
+          <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:3;mso-yfti-lastrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>CMD + LMB
-  + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>CMD + LMB + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Select
-  (Remove)<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Select (Remove)<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Removes
-  new lattice selection from the current selection.<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><b><span style='font-size:8.0pt;font-family:Arial'>Extrude
-Mode<o:p></o:p></span></b></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>While in
-Extrude Mode, selection of chunks or jigs from the 3D workspace is not
-permitted. You can select chunks and jigs from the Model Tree, however.<o:p></o:p></span></p>
-
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Removes new lattice selection from the current selection.<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span><span style='font-family:Arial'><o:p></o:p></span></p>
+  <p class=MsoNormal><b><span style='font-family:Arial'>Extrude Mode<o:p></o:p></span></b></p>
+  <p class=MsoNormal><span style='font-family:Arial'>While in Extrude Mode, selection of chunks or jigs from the 3D workspace is not permitted. You can select chunks and jigs from the Model Tree, however.<o:p></o:p></span></p>
+  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
  mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
  .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
- <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Action<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+    <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Action<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Result<o:p></o:p></span></u></b></p>
-  </td>
-  <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Result<o:p></o:p></span></u></b></p></td>
+      <td valign=top style='border:solid windowtext 1.0pt;border-left:none;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><b><u><span style='font-size:8.0pt;font-family:Arial'>Description<o:p></o:p></span></u></b></p>
-  </td>
- </tr>
- <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
-  <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><b><u><span style='font-family:Arial'>Description<o:p></o:p></span></u></b></p></td>
+    </tr>
+    <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+      <td valign=top style='border:solid windowtext 1.0pt;border-top:none;
   mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>LBM + Drag<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>LBM + Drag<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Move<o:p></o:p></span></p>
-  </td>
-  <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Move<o:p></o:p></span></p></td>
+      <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;
   border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;
   mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
-  padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Moves a <i>Repeat
-  Unit</i>, which is one of the extrude copies of the original chunk to be
-  extruded. The cursor must point on any of the atom centers of the repeat
-  units in order to move them.<span style='mso-spacerun:yes'>  </span>This is useful
-  for connecting repeat units together in a chain, resulting in an extruded
-  chunk.<o:p></o:p></span></p>
-  </td>
- </tr>
-</table>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><b><span style='font-size:8.0pt;font-family:Arial'>Movie
-Player Mode<o:p></o:p></span></b></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Left mouse
-controls are not available in this mode. <o:p></o:p></span></p>
-
-<p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal style='margin-left:.5in'><span style='font-size:8.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></p>
-
+  padding:0in 5.4pt 0in 5.4pt'><p class=MsoNormal><span style='font-family:Arial'>Moves a <i>Repeat Unit</i>, which is one of the extrude copies of the original chunk to be extruded. The cursor must point on any of the atom centers of the repeat units in order to move them.<span style='mso-spacerun:yes'>&nbsp; </span>This is useful for connecting repeat units together in a chain, resulting in an extruded chunk.<o:p></o:p></span></p></td>
+    </tr>
+  </table>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+  <p class=MsoNormal><b><span style='font-family:Arial'>Movie Player Mode<o:p></o:p></span></b></p>
+  <p class=MsoNormal><span style='font-family:Arial'>Left mouse controls are not available in this mode. <o:p></o:p></span></p>
+  <p class=MsoNormal><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+  <p class=MsoNormal style='margin-left:.5in'><span style='font-family:Arial'><o:p>&nbsp;</o:p></span></p>
 </div>
-
 </body>
-
 </html>
