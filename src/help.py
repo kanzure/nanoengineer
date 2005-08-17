@@ -74,4 +74,4 @@ class Help(HelpDialog):
         elif pagename == 'Keyboard Shortcuts':
             self._setup_keyboard_shortcuts_page()
         else:
-            print 'Error: Preferences page unknown: ', pagename
+            print 'Error: Help page unknown: ', pagename
