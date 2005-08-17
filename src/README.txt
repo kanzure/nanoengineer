@@ -84,10 +84,9 @@ New Features:
 
 Known Bugs and Unsupported Features:
 
-  See KnownBugs.htm for the latest info regarding new,fixed bugs and 
-  unsupported features.  You may access the most current copy of this 
-  file on-line at:
-  http://www.nanoengineer-1.com in the Documentation section.
+  See KnownBugs.txt for the latest info regarding new bug, fixed bugs and 
+  unsupported features.  You may access the most current copy of this file
+  on-line at: http://www.nanoengineer-1.com in the Documentation section.
 
 
 Copyright:
