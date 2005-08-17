@@ -1,3 +1,448 @@
+KNOWN BUGS
+ 
+Bug Fixes In Alpha 6
+--------------------
+
+Bug 6: Jigs are not selectable in the 3D workspace. 
+Bug 102: 'Select Doubly' can often take a long time to complete and 
+         sometimes it is not correct. 
+Bug 187: Align to common axis averages the axis vectors of the selected 
+         chunks. 
+Bug 393: Linear motors are not supported by the simulator 
+Bug 474-1: Bugs due to the use of closing parenthesis symbol ')' while 
+         naming the objects in the model tree. (part of bug 474 ) 
+Bug 624: Movie player can become slow when playing movies for large models.
+
+
+Unsupported Features
+--------------------
+ 
+1.Undo/Redo is not implemented (this will be added in Alpha 7). 
+ 
+2.Bond Inference not supported but a limited valence error check supported. 
+ 
+By the term 'bond inference', we mean automatically deciding what type of 
+bond will be formed between the participating elements. It is not supported 
+for this version of ne-1. When an element is deposited, by default, all the 
+bonds are single bonds. User must manually change the bond type between the 
+elements in 'Build mode'. However, if the structure is not chemically correct 
+(bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating 
+valence errors.  This 'valence error' display, by default, is set to ON. It 
+can be turned On or Off from the 'Bonds' tab in the Preferences dialog. 
+(Edit>Preference?). 
+ 
+Note that there are some kinds of chemical errors this(the Valence Error 
+Checker) doesn't detect. For example, it can't tell whether rings should be 
+aromatic or not. All it checks is that the bonds on each atom could possibly 
+add up to the right number of valence electrons. The Valence Error Checker 
+doesn't treat graphitic and aromatic bonds differently.
+ 
+Example:
+-- In Build mode, select 'Carbon' and then change its hybridization to 'sp' 
+   by clicking on the appropriate button in this dialog.
+-- Deposit this (sp) Carbon in the 3D Workspace. Observe that both open bonds 
+   of the deposited are single bonds and a pink wire frame appears around the
+   atom center indicating valence errors.
+-- Now select (sp) Nitrogen from the Modeling Kit
+-- Highlight one of the open bonds of (sp) carbon and deposit this (sp) 
+   Nitrogen, Notice that a single bond will be formed between the C(sp) and 
+   N(sp). But ne-1 will display valence error wire frames around these atoms. 
+-- You can change this bond type to a triple bond by:  (a) highlight the open
+   bond, right click and then from the context menu that popped up, select
+   triple bond. OR (b) from the Build dashboard, click on the button that
+   corresponds to a triple bond, now move your mouse such that the bond gets
+   highlighted and then left click. 
+-- By following this procedure, you can change the bond order. Observe that,
+   when the triple bond is formed, the valence error wire frames will go away. 
+ 
+3.PDBs With Multiple Bond Information Not Supported 
+ 
+This version of ne-1 treats all bond types as single bonds while reading from
+or writing to a PDB file. Also, it doesn't save the hybridization type into 
+the PDB file. For example, (sp2) hybridized Carbon in a structure will be 
+saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead 
+of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond.  
+Therefore, save your models ONLY in MMP file format in such cases to avoid 
+major loss of work (569, 763)
+ 
+Simulator / Minimize
+ 
+4.Simulator/Minimize: will support bonding between elements specified in the 
+  element selector of nanoENGINEER-1. But note that bond stretching involving 
+  Fluorine atoms, or bond bending involving Boron, use estimated rather than 
+  calculated parameters. 
+ 
+5.Simulator/Minimize: Multiple bonding between certain elements is generally 
+  supported, but some parameters, notably for double bonds involving nitrogen, 
+  are estimated. 
+ 
+6.Simulator/Minimize: The simulator doesn't take into account the effect of 
+  torsion. This will make systems with double or aromatic/graphitic bonds act 
+  less stiff than they really would.  
+ 
+7.Simulator: Electrostatic interactions are not supported; in particular, 
+  the hydrogen and dative bonds are not handled. 
+
+GAMESS Jig
+
+8.GAMESS jig can be added by selecting some atoms first in 'Select Atoms' mode 
+  and then attaching this jig by using Menu item: Jigs>Gamess. This jig can 
+  be attached to a maximum of 200 atoms.
+-- Certain GAMESS optimization runs or Energy calculation can take very long
+   time (hours/days). While a GAMESS job is being performed, user is not
+   allowed to do any other operation in that session of ne-1. User must wait
+   until the GAMESS job is finished or opt to terminate it by hitting 'Cancel'
+   button in the progress bar. 
+-- Also, certain GAMESS run may create large output files. So make sure that
+   your system has enough disk space to handle such runs. ALL GAMESS jobs are
+   save inside the 'Job Manager' directory. (User's home directory 
+   ~/Nanorex/Job Manager) (742)
+ 
+Miscellaneous
+ 
+1.The symmetry information for a selected chunk cannot be obtained. (261) 
+ 
+2.Unicode characters are not supported for naming the items in the model 
+  tree. (474) 
+ 
+3.Points, lines, and planes are not implemented yet. (47) 
+ 
+ 
+Known Bugs (All Platforms)
+--------------------------
+ 
+Various Delete Operations
+ 
+1.Delete operation cannot be undone. In fact, Undo/Redo are not implemented 
+  yet. SAVE YOUR WORK OFTEN! 
+ 
+2.If you select the part icon (top icon in the model tree) and hit the delete
+  key (or click Delete), the entire part will be deleted without asking the
+  user for confirmation. (147) 
+ 
+3.Any file currently opened by nanoENGINEER-1 can be manually deleted from
+  the computer without any warning message. (215)
+
+Selection Modes (Select Atoms and Select Chunks)
+ 
+4.Selection: Can not select a chunk if cursor is inside the selection 
+  polyhedron but not pointing inside perimeter of any of the atoms or bonds
+  in that chunk. (11)
+
+5.Selection/Display/Jigs: If more than 1 jig (other than motors) is attached
+  to the same atom , only first jig in the order (model tree) gets highlighted
+  (756) 
+ 
+Build Mode
+
+6.Build: While in this mode, you can not delete an atom in the 3D workspace 
+  using Ctrl + left click (Cmd +click on MAC) operation if that atom is
+  represented in 'lines display'. The atom center doesn't get highlighted
+  while in lines display. For the same reason, you can not move the atom
+  using left mouse drag. Simple workaround exists. Change the display
+  representation to Tubes or CPK or VDW , then highlight the atom center
+  and do Ctrl+ left click or left drag  or shift + left drag operation.
+  (715-2) 
+ 
+7.Build/ Bond Order : The context menu 'Reposition Open Bonds' of an atom
+  reorients the open bonds but while doing so, it makes the open bond type
+  as single.  Let's assume that a Carbon atom with (sp2) hybridization is
+  deposited in build mode. Now you highlight one of its open bonds, right
+  click and select 'double bond' from the context menu. The representation
+  of the open bond will change to a 'double open bond'. Now, if you highlight
+  the atom center, right click and select 'reposition open bonds', it will
+  clear the 'double open bond' representation you just made and thus, all
+  three open bonds of (sp2) carbon will be represented as single bond types.
+  (839) 
+ 
+Modeling Kit in Build Mode
+ 
+This feature is still under development and has some known bugs. Also refer to
+Linux Only Bugs and 'Dialogs and Dashboards' bug sections for some related
+issues. 
+ 
+8.The Modeling Kit has two tabs in it viz. 'Atoms' and 'Clipboard'. The 
+  'Clipboard' tab, when displayed, will allow one to deposit 'paste-able 
+  chunks' (if any) in the 3D Workspace. (simply select a chunk in the list and
+  then single click into the 3D workspace(Graphics area) in order to 'paste'
+  this whole chunk . 
+ 
+The bug or unsupported feature: Suppose 'Paste' tab of Modeling Kit dialog is
+'open', Now you select a chunk from the Model Tree and copy it to the 
+clipboard (by Edit>Copy) , the list of the 'paste able chunks' under the 
+Clipboard tab of the dialog is supposed to get updated. But it doesn't do 
+so automatically. You must hit 'Update' button inside this dialog to see an 
+updated list of available chunks to paste. 
+ 
+9.Modeling Kit: Sometimes this dialog box doesn't close even after main window
+  of ne-1 is closed. It dies away after a few seconds though. (852) 
+ 
+10.Modeling Kit: For lower resolution screens the Modeling kit occupies most
+   of the Model Tree space, thus obscures most of the Model Tree area.(844) 
+ 
+11.Modeling Kit: If the 'Clipboard' tab of Build mode's Modeling Kit dialog
+   is open and then you hit a keyboard modifier key (e.g. C, 'S', '1' etc),
+   the program is supposed to switch back to 'Atoms' tab (i.e. the next time
+   you  click inside the 3D workspace, it will deposit the atom displayed in
+   the 'thumbnail view'  window of that dialog and not the 'paste able chunk'
+   on the clipboard) . 
+---But in some cases, it doesn't because of a 'keyfocus' problem. In order
+   to over come this bug, try clicking inside 3D workspace once, then hit
+   a modifier key?now it should change to 'Atoms' tab. 
+---There are some other related bugs too. Examples: the thumbnail view window
+   sometimes doesn't show updated display etc. (876)
+
+Move Mode
+ 
+12.Move: Keyboard modifier keys that constrain translation or rotation around
+   an axis (e.g. press 'Y' and 'R' to rotate the selected chunk around Y axis),
+   doesn't work for the first time after you perform 'delta +' or 'delta -'
+   operations (which move a chunk by a specific distance). A workaround is to
+   press and release the modifier keys and then press them again to perform
+   these operations. (674) 
+ 
+13.Move absolute: if more than 1 chunk is selected, and you hit 'Move Absolute'
+   button on the dashboard, it doesn't move the individual chunk's CG to the
+   specified X,Y,Z location. (879) 
+ 
+Extrude Mode
+ 
+14. The 'extrude a ring' feature has some bugs. These will be fixed for the
+    Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively,
+    make sure you follow these steps: 
+ 
+-- Get everything adjusted first in the 'rod mode'.  For example, select the
+   proper bond offset sphere or arrange the copy units such that you can see
+   their open bonds highlighted in a way you would like to bond them. (In
+   general, while in the ring mode, adjustments made from graphics area don't
+   work)
+ 
+-- Then, you may switch to "Ring Mode" by selecting ring from the rod pulldown
+   menu on the dashboard. While viewing the ring, you may increase the number
+   of copies. 
+ 
+-- If you need to do any further adjustments, switch back to "Rod Mode", make
+   changes and switch back to the "Ring Mode". 
+ 
+-- Select the 'Done' button on the dashboard when finished. (155)
+ 
+15.Extrude: Separates the chunk permanently when atoms are partially selected
+   and then extrude mode is cancelled. (198) 
+ 
+16.Extrude: Multiple chunks are automatically merged into a single chuck, even
+   when cancel is hit. (397) 
+ 
+17.Extrude's ring feature doesn't take the curvature into account while 
+   forming the bonds. (494) 
+
+Cookie Cutter
+ 
+18.Cookie Cutter: Large selections can cause response latency. (8) 
+ 
+19.Cookie Cutter: Right click while rotating the grid using middle mouse drag
+   operation, changes the grid orientation (59) 
+ 
+20.Cookie Cutter/Display bug: the 3D workspace (graphics area) turns into a
+   black display if you resize the ne-1 window while drawing an auto shape
+   (e.g. a circle or a hexagon, etc). The original display can be regained
+   by hitting any key. (687) 
+ 
+Fuse Chunks Mode
+ 
+21.Fuse Chunks: If the chunks were 'merged' in previous operation while
+   bonding them together, 'Back Up' button on the dashboard doesn't 'unmerge'
+   them. It only deletes the bond formed in earlier operation. (486-10) 
+ 
+22.Fuse Chunks: Back up button on dashboard to delete a bond formed in
+   previous operation deletes the bond, but it doesn't restore the previous
+   bond angles. (502-16) 
+ 
+23.Fuse Chunks can not bond elements of two or more chunks if they are already
+   bonded. Also, some history messages are not correct. (580) 
+ 
+24.Fuse Chunks: operations while in this mode are sluggish if it's a large
+   model and has large number of open bonds. (689) 
+ 
+Minimize/Simulator
+
+(see also: the Unsupported Features section)
+25. For some structures minimize needs multiple executions of 'minimize' to
+    boil down the high force to a lower value. (567)
+ 
+26. Minimize operation for some elements with higher order bond types doesn't
+    work. See 'Unsupported Features' section for more info. (805)
+ 
+27.Simulator: In some cases, hydrogen atoms or other elements 'fly away' while
+   running a simulation movie. This happens when atom centers are very close
+   and therefore the repulsive force becomes very high (528, 558) 
+ 
+Movie Player
+ 
+28. Extrude Tool/Movie: Simulation movie becomes invalid if it is created
+    while in extrude mode, after adjusting the chunks (to be extruded) as
+    'bondable' with their copy units. (495) 
+ 
+29.Movie/Clipboard: While playing a simulation movie, if you click on a
+   different clipboard item (rather a clipboard 'Part'), then the movie can
+   not be 'viewed'. But it continues to run. ne-1 doesn't print a warning
+   message to instruct user to click on the appropriate 'Part', for which the
+   movie is created for,  to view the movie. (578-5) 
+ 
+Naming
+ 
+30.Naming of created items: When starting a new part or opening a new file,
+   the object name indexing is not reset to 1. For example, new chunk names
+   continue to increment from the previous part's index number. (64)
+ 
+31.Naming GAMESS Jigs: If a Gamess jig contains a Forward or Backward Slash
+   in it (e.g. "AM1/None"), then the Gamess job will fail. So do not include
+   these characters while naming this jig. (796) 
+ 
+32.Naming a File (plot tool bug): Do not save a file with a single quote
+   symbol in it. This affects the plot tool and you won't be able to see the
+   plot tool results. For example, if a file is named as : " Bob's molecule ",
+   the plot tool will not plot the results if any. (712) 
+ 
+33.Model Tree: Dragging and dropping objects onto the part icon at the top of
+   the list places the items(s) at the bottom of the list. Similarly, dragging
+   and dropping items onto a group folder places them at the bottom of the
+   group, not the top. (360) 
+ 
+Cursor and Display Related Bugs
+ 
+34.Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck. 
+   Usually, if you press and release the Shift or Ctrl/Cmd key, the appropriate
+   cursor is restored. (113, 158, 404) 
+ 
+35.Cursors: The skull and crossbones cursor in build mode will not display
+   (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217) 
+ 
+36.Display: Larger atoms can obscure open bonds when displayed in VdW mode.
+   (258) 
+ 
+37.Display: Open bonds are not seen in sp, sp2 Carbon and sp2 Oxygen, when
+   these are represented with Van der Waals display (656) 
+ 
+38.Display: The front clipping plane will sometimes clip objects that should
+   not be clipped 
+ 
+39.Display: bond and atom center highlighting in build mode has some bugs.
+   The highlighting flicker whenever there is a selection or valence error
+   wire frame around the atom center. (715) 
+ 
+40.Display: Valence error wire frame is displayed even for invisible atoms.
+   Also, while Build mode when you move cursor inside such a wire frame, even
+   the invisible atom center gets highlighted. (870) 
+ 
+41.Background Display: Display->Background color will not change background
+   if under the Preferences  you have set the fill type as 'Blue Sky' instead
+   of solid. A simple solution is to go to Edit>Preferences, then under the
+   tab 'Background' select the fill type as solid and then change this color
+   by clicking on the color chooser button below. (894) 
+ 
+42.Display: Preferences Dialog (Edit>Preferences) has an option to change the
+   'Default Display' under 'Atoms' tab. Note that this Default Display doesn't
+   change the 'Default Display' of an individual atom but it sets the user
+   defined Default Display of the 3-D workspace in which you construct the
+   model. (i.e. Graphics Area) (845)
+
+Dialogs and Dashboard
+ 
+43.Users operating ne-1 with a low screen resolution and large font size
+   report bugs in the dialog boxes and dashboards. In such cases, the
+   dashboard items of some modes are not visible, tolerance slider bars don't
+   operate correctly, some property forms such as Modeling Kit occupy most of
+   the space in model tree etc. (513, 581, 844) 
+ 
+44.Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save
+   your work before using it.
+ 
+Povray Rendering
+ 
+45. Povray rendering doesn't show different bond types (it will be supported
+    feature for this version) (830) 
+ 
+46. Povray rendering of lines display is shown as black lines, motor arrows
+    are not rendered (226, 527) 
+ 
+47. Povray file of a model neglects the user defined lighting and displays
+    the povray image in ne-1's default lighting. (447) 
+ 
+48. Povray: Background fill type is not saved in a povray file. Only solid
+    background can be rendered. (888)
+
+Miscellaneous
+ 
+49.User can not save exclusive features of nanoENGINEER-1 into the PDB file
+   format. Some examples of such 'MMP file only' features include jigs, 
+   groups, hidden states of chunks, multiple chunks, entire clipboard feature
+   etc.  ne-1 doesn't give enough warning messages for users trying to save
+   such features into a PDB file. (252) 
+ 
+50.Only open one main window. Opening more than one nanoENGINEER-1 application
+   window will have unexpected results. (362) 
+ 
+51.Jigs: Rotary and Linear motors do not move with the chunks they are
+   attached to. However, after moving the chunks, you can reposition the
+   motor by right clicking on the motor name in the Model Tree and then using
+   context menu option 'recenter on atoms' (168)
+
+52.Bond lengths: After minimize operation the bonds between some elements are
+   shown stretched. This is because bond lengths of some elements used in ne-1
+   simulator are slightly  different than the ones used in ne-1's CAD code.
+   This will be fixed in a future release. (900) 
+ 
+ 
+Windows Only Bugs
+-----------------
+ 
+1.During drag-and-drop, node icons are not shown in the cursor's drag object.
+  (360) 
+ 
+2.On very rear occasions, the File>Open , Save , Save dialogs don't pop up
+  because of some python.exe application problems. It might happen if you are
+  working with a huge file with lots of GAMESS jigs in it. Again, it is very
+  unlikely to happen. Saving your work often while working on large file is
+  recommended. (774) 
+ 
+Macintosh Only Bugs
+-------------------
+ 
+1.Sometimes a cursor's bitmask will suddenly not work, leaving a white square
+  around the cursor. 
+ 
+2.Icon tray/bar redrawing of the icon images will show up overlapped,
+  zig-zagged, cracked, etc. in certain situations. In worst cases, the
+  right-side icon bars will go invisible until the invisible bar is clicked
+  on, which redraws the bar but changes your button. This usually only happens
+  when resizing the main window by dragging its "resize handle" on the lower
+  right of the window frame. The workaround is to resize it to be a bit smaller
+  than you want, and then make it a bit bigger again so that it's the desired
+  size. Some users report that the toolbars always draw wrongly after that
+  initial down-sizing, but then they always draw properly again after that
+  final small up-sizing. 
+ 
+3.Occasionally, bouncing between programs will lead to the menu (screen top)
+  disappearing, only to re-appear with mouseover (or mouseover+click). 
+ 
+4.On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms
+  this is not a problem. ne-1 provides a workaround for this. In the 3D
+  Workspace (i.e. Graphics area), press Shift and Option keys and do Command
+  click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton
+  Workaround" command from this debug menu. This will resolve the issue. (878) 
+ 
+Linux Only Bugs
+---------------
+ 
+1.Opening a plot file from the plot tool dialogs needs 'kwrite' editor which
+  is available with only with KDE desktop (434) 
+ 
+2.Modeling Kit in Build Mode: When you enter build mode, this dialog first
+  appears in the middle of the 3D workspace (graphics area)  for a fraction of
+  second and then it is moved to the left hand side of the ne-1 main window.
+  The amount of time this dialog stays inside the 3D workspace depends on the
+  model size. (844) 
+=======
 nanoENGINEER-1(TM) v0.0.6 (Alpha 6)
 
  Some of the Bug Fixes In Alpha 6
