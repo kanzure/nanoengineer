@@ -50,8 +50,8 @@ Installation:
   3. To use the new 'GAMESS jig' feature: (optional)
   
      For Windows XP, a copy of 'PCGAMESS' must be installed. 
-     Visit: http://classic.chem.msu.su/gran/gamess for more 
-     information on obtaining PCGAMESS for Windows platform
+     Visit: http://quantum-2.chem.msu.ru/gran/gamess/index.old.html
+     for more information on obtaining PCGAMESS for Windows platform
      
      For Linux and MAC OS, a copy of 'GAMESS' should be installed. 
      Visit: http://www.msg.ameslab.gov/GAMESS/GAMESS.html for more 
