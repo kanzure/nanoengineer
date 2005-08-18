@@ -13,7 +13,10 @@ int Nexbon=0, Nextorq=0, Nexatom=0;
 // units for positions are 1e-12 meters == picometers
 // units for force are piconewtons
 struct xyz Force[NATOMS];
-struct xyz OldForce[NATOMS]; /* used in originalMinimize */
+
+struct xyz OldForce[NATOMS], newForce[NATOMS]; /* used in minimize */
+struct xyz OldDirVec[NATOMS], DirVec[NATOMS]; /* used in minimize */
+
 struct xyz AveragePositions[NATOMS];
 static struct xyz position_arrays[4*NATOMS];
 static void *aux_data[4];
@@ -1001,8 +1004,8 @@ minimizeSteepestDescent(int steepestDescentFrames,
     double max_forceSquared;
     double forceSquared;
     double movfac = 1.5;
-    double sum_force_dot_old_force;
     double xxx, yyy;
+    double sum_newforceSquared;
     
     // 2 fixed steps to initialize
     for (i=0; i<2; i++) {
@@ -1011,7 +1014,6 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	calculateForces(1, Positions, Force);
 	for (j=0; j<Nexatom; j++) {
 	    f = Force[j];
-	    OldForce[j] = f;
 	    forceSquared = vdot(f,f);
 	    sum_forceSquared += forceSquared;
 	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
@@ -1019,7 +1021,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	    vadd2(NewPositions[j], Positions[j], f);
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
-        groundAtoms(Positions, NewPositions);
+        // groundAtoms(Positions, NewPositions);
         updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
     initial_rms = rms_force;
@@ -1030,14 +1032,12 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	last_sum_forceSquared = sum_forceSquared;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
-	sum_force_dot_old_force=0.0;
-	calculateForces(1, Positions, Force);
+	calculateForces(0, Positions, Force);
 	for (j=0; j<Nexatom; j++) {
 	    f= Force[j];
 	    forceSquared = vdot(f,f);
 	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
 	    sum_forceSquared += forceSquared;
-	    sum_force_dot_old_force += vdot(f,OldForce[j]);
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
 
@@ -1047,37 +1047,36 @@ minimizeSteepestDescent(int steepestDescentFrames,
             (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED)) {
             break;
         }
-        
-	xxx = sqrt(last_sum_forceSquared); // == previous rms_force * sqrt(Nexatom)
-	yyy = sum_force_dot_old_force/xxx;
-        DPRINT(D_MINIMIZE, "                         %f <? %f - %f (%f)\n", yyy, xxx, xxx/movfac, xxx-xxx/movfac);
-	if (yyy < (xxx - xxx/(movfac))) {
-            movcon *= xxx/(xxx-yyy);
-            DPRINT(D_MINIMIZE, "                         movcon *= %f / %f (%f)\n", xxx, xxx-yyy, xxx/(xxx-yyy));
-        } else {
-            movcon *= movfac;
-            DPRINT(D_MINIMIZE, "                         movcon *= movfac\n", xxx, yyy, movcon);
-        }
-        DPRINT(D_MINIMIZE, "                         %f\n", movcon);
-        
-	for (j=0; j<Nexatom; j++) {
-	    f= Force[j];
-	    OldForce[j] = f;
-	    vmulc(f, movcon);
-	    vadd2(NewPositions[j], Positions[j], f);
+
+	// move along direction of force but back up if new force is higher
+	for (sum_newforceSquared=sum_forceSquared+1.0, movcon *= 2.4; sum_newforceSquared>sum_forceSquared; movcon *= 0.5) {
+
+	    for (j=0; j<Nexatom; j++) {
+		f= Force[j];
+		vmulc(f, movcon);
+		vadd2(NewPositions[j], Positions[j], f);
+	    }
+	    calculateForces(0, NewPositions, newForce);
+	    for (j=0, sum_newforceSquared=0.0; j<Nexatom; j++) {
+		f= newForce[j];
+		sum_newforceSquared += vdot(f,f);
+	    }
 	}
-        groundAtoms(Positions, NewPositions);
+
+        // groundAtoms(Positions, NewPositions);
+
         updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
     if (rms_force <= RMS_CUTOVER && max_forceSquared <= MAX_CUTOVER_SQUARED) {
         fprintf(tracef, "# Switching to Conjugate-Gradient\n");
+	for (j=0; j<Nexatom; j++) OldForce[j] = Force[j];
         return 1;
     } else {
 	interruptionWarning = minshot(outf, 1, BestPositions, best_rms, best_max_forceSquared,
                                       (*frameNumber)++, "SDfinal");
         if (!interruptionWarning) {
             if (*frameNumber > steepestDescentFrames) {
-                WARNING("minimization terminated after %d iterations", steepestDescentFrames);
+                WARNING("SD minimization terminated after %d iterations", steepestDescentFrames);
             } else if (rms_force >= MAX_RMS) {
                 WARNING("minimization terminated due to excessive force");
             } else{
@@ -1089,13 +1088,128 @@ minimizeSteepestDescent(int steepestDescentFrames,
     }
 }
 
+double fSquare(struct xyz *force) {
+    struct xyz f;
+    int j;
+    double val;
+
+    for (j=0, val=0.0; j<Nexatom; j++) {
+	f= force[j];
+	val += vdot(f,f);
+    }
+    return val;
+}
+
+// note this leaves the force vector in force
+double evalPos(struct xyz *pos, struct xyz *force) {
+    struct xyz f;
+    int j;
+
+    calculateForces(0, pos, force);
+    return fSquare(force);
+}
+
+
+static void setPos(struct xyz *newpos, struct xyz *oldpos, struct xyz *force, double offset) {
+    struct xyz f;
+    int j;
+    double val;
+
+    for (j=0; j<Nexatom; j++) {
+	f= force[j];
+	vmulc(f, offset);
+	vadd2(newpos[j], oldpos[j], f);
+    }
+}
+
+static void copyForce(struct xyz *force, struct xyz *force2) {
+    int j;
+
+    for (j=0; j<Nexatom; j++) force[j] = force2[j];
+}
+
+static void axpyForce(struct xyz *force, double factor, struct xyz *force2) {
+    struct xyz f;
+    int j;
+
+    for (j=0; j<Nexatom; j++) {
+	f= force2[j];
+	vmulc(f, factor);
+	vadd(force[j],f);
+    }
+}
+ 
+// expects the point in Positions
+// will leave direction in Force and return offset
+static void lineSearch(struct xyz *dirvec, double step) {
+    double phi = 1.618034;
+    double near = 0.0;
+    double far, center, new;
+    double valNear, valFar, valCenter, valNew;
+    int i;
+
+    valNear=evalPos(Positions, Force);
+    center = step/phi;
+    setPos(NewPositions, Positions, dirvec, center);
+    valCenter=evalPos(NewPositions, newForce);
+    far=step;
+    setPos(NewPositions, Positions, dirvec, far);
+    valFar=evalPos(NewPositions, newForce);
+    
+    
+    // step out until we find a minimum
+    for (; valFar<valCenter; step *= phi) {
+	near = center;
+	valNear = valCenter;
+	center = far;
+	valCenter = valFar;
+	far = far+step;
+	setPos(NewPositions, Positions, dirvec, far);
+	valFar=evalPos(NewPositions, newForce);
+    }
+    // do a golden search within the segment
+    for (i=0; i<10; i++) {
+	if (center-near < far-center) { // do near...center...new...far
+	    new = far - phi*(far-center);
+	    setPos(NewPositions, Positions, dirvec, new);
+	    valNew=evalPos(NewPositions, newForce);
+	    if (valNew < valCenter) { // new pts are center...new...far
+		near = center;
+		valNear = valCenter;
+		center = new;
+		valCenter = valNew;
+	    }
+	    else {// new pts are near...center...new
+		far = new;
+		valFar = valNew;
+	    }}
+	else { // do near...new...center...far
+	    new = near + phi*(center-near);
+	    setPos(NewPositions, Positions, dirvec, new);
+	    valNew=evalPos(NewPositions, newForce);
+	    if (valNew < valCenter) { // new pts are near...new...center
+		far = center;
+		valFar = valCenter;
+		center = new;
+		valCenter = valNew;
+	    }
+	    else { // new pts are new...center...far
+		near = new;
+		valNear = valNew;
+	    }}
+    }
+    setPos(NewPositions, Positions, dirvec, center);
+}
+
+
+
 static void
 minimizeConjugateGradients(int numFrames, int *frameNumber)
 {
     int i, j, k;
     int interruptionWarning;
-    double forceSquared, max_forceSquared;
-    double sum_old_force_squared;
+    double forceSquared, max_forceSquared, forceMult;
+    double old_force_squared;
     double last_sum_forceSquared;
     double sum_force_dot_old_force;
     double gamma; // = sum_forceSquared / last_sum_forceSquared
@@ -1104,93 +1218,38 @@ minimizeConjugateGradients(int numFrames, int *frameNumber)
     double rms_force;
     double old_movcon = movcon;
     double movfac = 3.0;
-    
-    max_forceSquared = 0.0;
-    last_sum_forceSquared = sum_forceSquared;
-    sum_forceSquared = 0.0;
-    calculateForces(1, Positions, Force);
-    for (j=0; j<Nexatom; j++) {
-	f= Force[j];
-	forceSquared = vdot(f,f);
-	if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
-	sum_forceSquared += forceSquared;
-    }
-    rms_force = sqrt(sum_forceSquared/Nexatom);
 
-    // conjugate gradients for a while
+    evalPos(NewPositions, DirVec);
+    lineSearch(DirVec, movcon);
+    old_force_squared = fSquare(DirVec);
+    forceSquared = evalPos(NewPositions, Force);
+    rms_force = sqrt(forceSquared/Nexatom);
+    updatePositionsArrays(rms_force, max_forceSquared, PTR_NEW);
+
+    // conjugate gradients search
     while (rms_force>RMS_FINAL && rms_force < MAX_RMS && *frameNumber<numFrames && !Interrupted) {
-	//for (i=0; i<20 ;  i++) {
-	minshot(outf, 0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "3");
-	gamma = sum_forceSquared/last_sum_forceSquared;
-	// compute the conjugate direction 
-	last_sum_forceSquared=sum_forceSquared;
-	sum_old_force_squared=0.0;
-	sum_force_dot_old_force=0.0;
-	for (j=0; j<Nexatom; j++) {
-	    vmul2c(f,OldForce[j],gamma);
-	    vadd(f,Force[j]);
-	    OldForce[j]=f;
-	    sum_old_force_squared += vdot(f,f);
-	    sum_force_dot_old_force += vdot(Force[j],OldForce[j]);
-	}
-	xxx = sqrt(sum_old_force_squared);
-	yyy = sum_force_dot_old_force/xxx;
-	zzz = yyy;
-        DPRINT(D_MINIMIZE, "xxx: %f yyy: %f\n", xxx, yyy);
-	for (k=0; k<10 && yyy*yyy>1.0 && (DumpAsText || *frameNumber<numFrames) && !Interrupted; k++) {
-	    for (j=0; j<Nexatom; j++) {
-		f=OldForce[j];
-		vmulc(f, movcon);
-		vadd2(NewPositions[j],Positions[j], f);
-	    }
-            groundAtoms(Positions, NewPositions);
-	    sum_forceSquared = 0.0;
-	    sum_force_dot_old_force=0.0;
-	    calculateForces(0, NewPositions, Force);
-	    for (j=0; j<Nexatom; j++) {
-		f= Force[j];
-		forceSquared = vdot(f,f);
-		if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
-		sum_forceSquared += forceSquared;
-		sum_force_dot_old_force += vdot(f,OldForce[j]);
-	    }
-	    rms_force = sqrt(sum_forceSquared/Nexatom);
-            /*
-            minshot(outf, 0, NewPositions, rms_force, max_forceSquared, (*frameNumber)++, "4"); 
-            */
-	    yyy = sum_force_dot_old_force/xxx;
-	    if (yyy<zzz-zzz/(movfac)) movcon *= zzz/(zzz-yyy);
-	    else movcon *= movfac;
-            DPRINT(D_MINIMIZE, "xxx: %f yyy: %f zzz: %f movcon: %f\n", xxx, yyy, zzz, movcon);
-	}
-	old_movcon=movcon;
-	if (yyy<xxx-xxx/(movfac+1.0)) movcon *= xxx/(xxx-yyy)-1.0;
-	else movcon *= movfac;
-        DPRINT(D_MINIMIZE, "xxx: %f yyy: %f movcon: %f\n", xxx, yyy, movcon);
-	for (j=0; j<Nexatom; j++) {
-	    f= OldForce[j];
-	    vmulc(f, movcon);
-	    vadd(NewPositions[j], f);
-	}
-        groundAtoms(Positions, NewPositions);
-	if (movcon<0) movcon = old_movcon+movcon;
-	max_forceSquared = 0.0;
-	sum_forceSquared = 0.0;
-	calculateForces(0, NewPositions, Force);
-	for (j=0; j<Nexatom; j++) {
-	    f= Force[j];
-	    forceSquared = vdot(f,f);
-	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
-	    sum_forceSquared += forceSquared;
-	}
-	rms_force = sqrt(sum_forceSquared/Nexatom);
+
+	gamma = forceSquared/old_force_squared;
+
+	// printf("CG: rms=%f, gamma = %f\n",rms_force,gamma);
+
+	axpyForce(Force, gamma, DirVec);
+	copyForce(DirVec, Force);
+
+	lineSearch(DirVec, movcon);
+	old_force_squared = forceSquared;
+	forceSquared = evalPos(NewPositions, Force);
+	rms_force = sqrt(forceSquared/Nexatom);
+
+	minshot(outf, 0, Positions, rms_force, 0.0, (*frameNumber)++, "3");
+
         updatePositionsArrays(rms_force, max_forceSquared, PTR_NEW);
     }
     interruptionWarning = minshot(outf, 1, BestPositions, best_rms, best_max_forceSquared,
                                   (*frameNumber)++, "final");
     if (rms_force > RMS_FINAL && !interruptionWarning) {
         if (*frameNumber > numFrames) {
-            WARNING("minimization terminated after %d iterations", numFrames);
+            WARNING("CG minimization terminated after %d iterations", numFrames);
         } else if (rms_force >= MAX_RMS) {
             WARNING("minimization terminated due to excessive force");
         } else{
