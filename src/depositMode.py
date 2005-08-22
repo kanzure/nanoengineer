@@ -676,6 +676,16 @@ class depositMode(basicMode):
             else:
                 return env.prefs.get( atomHighlightColor_prefs_key) ## was HICOLOR_real_atom before bruce 050805
         elif isinstance(selobj, Bond):
+            #bruce 050822 experiment: debug_pref to control whether to highlight bonds
+            # (when False they'll still obscure other things -- need to see if this works for Mark ####@@@@)
+            # ###@@@ PROBLEM with this implem: they still have a cmenu and can be deleted by cmd-del (since still in selobj);
+            # how would we *completely* turn this off? Need to see how GLPane decides whether a drawn thing is highlightable --
+            # maybe just by whether it can draw_with_abs_coords? Maybe by whether it has a glname (not toggleable instantly)?
+            # ... now i've modified GLPane to probably fix that...
+            from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+            highlight_bonds = debug_pref("highlight bonds", Choice_boolean_True)
+            if not highlight_bonds:
+                return None
             ###@@@ use checkbox to control this; when false, return None
             if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]

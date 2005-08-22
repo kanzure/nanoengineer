@@ -1229,7 +1229,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             try:
                 # this 'try' might not be needed once the following method is fully implemented,
                 # but it's good anyway for robustness
-                if not self.mode.selobj_still_ok(self.selobj):
+                if not self.mode.selobj_still_ok(self.selobj) or self.selobj_hicolor(self.selobj) is None:
+                    #bruce 050822 added the selobj_hicolor test
                     self.set_selobj(None)
             except:
                 # bug, but for now, don't disallow this selobj in this case
@@ -1333,13 +1334,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
             # first gather info needed to know what to do -- highlight color (and whether to draw that at all)
             # and whether object might be bigger when highlighted (affects whether depth write is needed now).
-            try:
-                hicolor = self.mode.selobj_highlight_color( self.selobj) #e should implem noop version in basicMode
-                # mode can decide whether selobj should be highlighted (return None if not), and if so, in what color
-            except:
+            hicolor = self.selobj_hicolor( self.selobj) #bruce 050822 revised this; ###@@@ should record it from earlier test above
+            # if that is None, should we act as if selobj is not still_ok?
+            # guess: yes, but related code needs review.
+            # I think I've now effectively implemented this separately, next to the still_ok test above.
+            # [bruce 050822 comment]
+            if hicolor is None:
                 if platform.atom_debug:
-                    print_compact_traceback("atom_debug: selobj_highlight_color exception for %r: " % self.selobj)
-                hicolor = LEDon #e more correct: basicMode default for that, which is None to avoid showing mouseover objs
+                    print "atom_debug: probable bug: self.selobj_hicolor( self.selobj) is None for %r" % self.selobj #bruce 050822
             highlight_might_be_bigger = True # True is always ok; someday we might let some objects tell us this can be False
 
             # color-writing is needed here, iff the mode asked for it, for this selobj.
@@ -1435,7 +1437,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)
         
         return # from standard_repaint_0 (which is the central submethod of paintGL)
-
+    
+    def selobj_hicolor(self, obj): #bruce 050822 split this out
+        """If obj was to be highlighted as selobj (whether or not it's presently self.selobj),
+        what would its highlight color be?
+        Or return None if obj should not be allowed as selobj.
+        """
+        try:
+            hicolor = self.mode.selobj_highlight_color( obj) #e should implem noop version in basicMode [or maybe i did]
+            # mode can decide whether selobj should be highlighted (return None if not), and if so, in what color
+        except:
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: selobj_highlight_color exception for %r: " % obj)
+            hicolor = None #bruce 050822 changed this from LEDon to None
+        return hicolor
+    
     selobj = None #bruce 050609
 
     def set_selobj(self, selobj, why = "why?"):
@@ -1492,7 +1508,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 print "bug? ignored: %r has no draw_in_abs_coords method" % (obj,)
             else:
                 try:
-                    method(self, black) # draw depth info (color doesn't matter since we're not drawing pixels)
+                    method(self, white) # draw depth info (color doesn't matter since we're not drawing pixels)
+                        #bruce 050822 changed black to white in case some draw methods have boolean-test bugs for black (unlikely)
                         ###@@@ in principle, this needs bugfixes; in practice the bugs are tolerable in the short term
                         # (see longer discussion in other comments):
                         # - if no one reaches target depth, or more than one does, be smarter about what to do?
@@ -1502,6 +1519,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                         #    maybe drawn bigger (selatom)
                         #    moved towards screen
                     newpicked = self.check_target_depth( obj)
+                        # returns obj or None -- not sure if that should be guaranteed [bruce 050822 comment]
                     if newpicked is not None:
                         break
                 except:
@@ -1515,6 +1533,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # in case they check this dict to decide whether they're
             # being called by draw_in_abs_coords
             # [which would be deprecated! but would work, not counting display lists.]
+        #bruce 050822 new feature: objects which had no highlight color should not be allowed in self.selobj
+        # (to make sure they can't be operated on without user intending this),
+        # though they should still obscure other objects.
+        if newpicked is not None:
+            hicolor = self.selobj_hicolor( newpicked)
+            if hicolor is None:
+                newpicked = None
         return newpicked # might be None in case of errors
 
     def check_target_depth(self, candidate): #bruce 050609; tolerance revised 050702
