@@ -17,7 +17,7 @@ class MMKit(MMKitDialog):
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     
     def __init__(self, win):
-        MMKitDialog.__init__(self, win)
+        MMKitDialog.__init__(self, win, fl=Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
         self.w = win
         self.elemTable = PeriodicTable
         self.displayMode = diTUBES

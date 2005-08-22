@@ -49,6 +49,15 @@ def do_what_MainWindowUI_should_do(w):
     transmute2Label = QLabel(w.selectAtomsDashboard, "Transmute_to:")
     transmute2Label.setText("Transmute to: ")
     w.transmute2ComboBox = QComboBox(0,w.selectAtomsDashboard, "transmute2ComboBox")
+    w.connect(w.transmute2ComboBox, SIGNAL("activated(int)"), w.transmuteElementChanged)
+
+    w.hybridComboBox = QComboBox(0, w.selectAtomsDashboard, "hybridComboBox") 
+    # Set the width of the hybrid drop box.  Mark 050810.
+    width = w.hybridComboBox.fontMetrics().width(" sp2(graphitic) ")
+    w.hybridComboBox.setMinimumSize ( QSize (width, 0) )
+
+    w.hybridComboBox_elem = None
+    
     w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
     QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
                  
@@ -118,6 +127,7 @@ def do_what_MainWindowUI_should_do(w):
     
     from whatsthis import create_whats_this_descriptions_for_selectAtomsMode
     create_whats_this_descriptions_for_selectAtomsMode(w)
+
 
     
 class selectMode(basicMode):
@@ -283,7 +293,7 @@ class selectMode(basicMode):
     # bruce 041216: renamed elemSet to modifyTransmute, added force option,
     # made it work on selected chunks as well as selected atoms
     # [that last part is undiscussed, we might remove it]
-    def modifyTransmute(self, elem, force = False): 
+    def modifyTransmute(self, elem, force = False, atomType=None): 
         # elem is an element number
         # make it current in the element selector dialog
         self.w.setElement(elem) # bruce comment 040922 -- this line is an inlined version of the superclass method.
@@ -293,7 +303,7 @@ class selectMode(basicMode):
         from elements import PeriodicTable
         if self.o.assy.selatoms:
             for atm in self.o.assy.selatoms.values():
-                atm.Transmute(PeriodicTable.getElement(elem), force = force)
+                atm.Transmute(PeriodicTable.getElement(elem), force = force, atomtype=atomType)
                 # bruce 041215 fix bug 131 by replacing low-level mvElement call
                 # with new higher-level method Transmute. Note that singlets
                 # can't be selected, so the fact that Transmute does nothing to
@@ -304,7 +314,7 @@ class selectMode(basicMode):
         elif self.o.assy.selmols:
             for mol in self.o.assy.selmols[:]:
                 for atm in mol.atoms.values():
-                    atm.Transmute(PeriodicTable.getElement(elem), force = force)
+                    atm.Transmute(PeriodicTable.getElement(elem), force = force, atomtype=atomType)
                         # this might run on some killed singlets; should be ok
             self.o.gl_update()
         return
@@ -532,19 +542,49 @@ class selectAtomsMode(selectMode):
             self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
             self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed) 
             
+            self.update_hybridComboBox(self.w)
+            
             self.w.selectAtomsDashboard.show() 
 
             
         def restore_gui(self):
             self.w.selectAtomsDashboard.hide()
          
+        
+        def getDstElement(self):
+            '''Return the destination element user wants to transmute to. '''
+            return self.eCCBtab1[self.w.transmute2ComboBox.currentItem()] 
             
+            
+        def getAtomtype(self, elmNo): 
+            '''<Param> elm: the current transmuted to element 'atom number'.
+                return the current pastable atomtype'''
+            elm = PeriodicTable.getElement(elmNo)
+            atomtype = None
+            if len(elm.atomtypes) > 1: 
+                try: 
+                    hybname = self.w.hybridComboBox.currentText()
+                    atype = elm.find_atomtype(hybname)
+                    if atype is not None:
+                        atomtype = atype
+                except:
+                    print_compact_traceback("exception (ignored): ") # error, but continue
+                pass
+            if atomtype is not None and atomtype.element is elm:
+                return atomtype
+            
+            # For element that doesn't support hybridization
+            return elm.atomtypes[0]
+            
+    
+    
         def transmutePressed(self):
             '''Slot method, called when transmute button was pressed. '''
             force = self.w.transmuteCheckBox.isChecked()
             
-            dstElem = self.eCCBtab1[self.w.transmute2ComboBox.currentItem()] 
-            self.modifyTransmute(dstElem, force = force)
+            dstElem = self.getDstElement()
+            atomType = self.getAtomtype(dstElem)
+            self.modifyTransmute(dstElem, force = force, atomType=atomType)
             
             
         def elemChange(self, idx):
@@ -554,7 +594,7 @@ class selectAtomsMode(selectMode):
             else:
                 self.w.filterCheckBox.setChecked(True)
                 self.w.Element = self.eCCBtab1[idx-1]
-
+            
                 
         def keyPress(self,key):
             from MWsemantics import eCCBtab2
@@ -585,3 +625,33 @@ class selectAtomsMode(selectMode):
         def rightCntlDown(self, event):          
             basicMode.rightCntlDown(self, event)
             self.o.setCursor(self.w.SelectAtomsCursor)         
+            
+        
+        def update_hybridComboBox(self, win, text = None): #bruce 050606
+            "put the names of the current element's hybridization types into win.hybridComboBox; select the specified one if provided"
+            # I'm not preserving current setting, since when user changes C(sp2) to N, they might not want N(sp2).
+            # It might be best to "intelligently modify it", or at least to preserve it when element doesn't change,
+            # but even the latter is not obvious how to do in this code (right here, we don't know the prior element).
+            #e Actually it'd be easy if I stored the element right here, since this is the only place I set the items --
+            # provided this runs often enough (whenever anything changes the current element), which remains to be seen.
+            
+            elem = PeriodicTable.getElement(self.getDstElement()) 
+            if text is None and win.hybridComboBox_elem is elem:
+                # Preserve current setting (by name) when possible, and when element is unchanged (not sure if that ever happens).
+                # I'm not preserving it when element changes, since when user changes C(sp2) to N, they might not want N(sp2).
+                # [It might be best to "intelligently modify it" (to the most similar type of the new element) in some sense,
+                #  or it might not (too unpredictable); I won't try this for now.]
+                text = str(win.hybridComboBox.currentText() )
+            win.hybridComboBox.clear()
+            win.hybridComboBox_elem = elem
+            atypes = elem.atomtypes
+            if len(atypes) > 1:
+                for atype in atypes:
+                    win.hybridComboBox.insertItem( atype.name)
+                    if atype.name == text:
+                        win.hybridComboBox.setCurrentItem( win.hybridComboBox.count() - 1 ) #k sticky as more added?
+                win.hybridComboBox.show()
+            else:
+                win.hybridComboBox.hide()
+            return
+         

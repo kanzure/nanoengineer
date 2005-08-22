@@ -1376,7 +1376,13 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         global MMKitWin
         if MMKitWin and MMKitWin.isShown():
             MMKitWin.hide()
-      
+    
+    def transmuteElementChanged(self, a0):
+        '''Slot method, called when user changes the items in the <Transmute to> comboBox of selectAtom Dashboard.
+           I put it here instead of the more relevant selectMode.py is because selectMode is not of 
+           QObject, so it doesn't support signal/slots. --Huaicai '''
+        self.glpane.mode.update_hybridComboBox(self)
+            
         
     def elemChange(self, a0):
         self.Element = eCCBtab1[a0]
