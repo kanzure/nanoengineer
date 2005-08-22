@@ -636,7 +636,9 @@ class RotaryMotor(Motor):
         self.sradius = sradius
    
     def _getinfo(self):
-        return "[Object: Rotary Motor] [Name: " + str(self.name) + "] [Torque = " + str(self.torque) + "] [Speed = " +str(self.speed) + "]"
+        return  "[Object: Rotary Motor] [Name: " + str(self.name) + "] " + \
+                    "[Torque = " + str(self.torque) + " nN-nm] " + \
+                    "[Speed = " + str(self.speed) + " GHz]"
         
     def getstatistics(self, stats):
         stats.nrmotors += 1
@@ -845,9 +847,9 @@ class LinearMotor(Motor):
         self.sradius = sradius
 
     def _getinfo(self):
-        return "[Object: Linear Motor] [Name: " + str(self.name) + \
-                    "] [Force = " + str(self.force) + \
-                    "] [Stiffness = " +str(self.stiffness) + "]"
+        return  "[Object: Linear Motor] [Name: " + str(self.name) + "] " + \
+                    "[Force = " + str(self.force) + " pN] " + \
+                    "[Stiffness = " + str(self.stiffness) + " N/m]"
 
     def getstatistics(self, stats):
         stats.nlmotors += 1
