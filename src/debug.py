@@ -210,6 +210,27 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
 
 # ==
 
+#bruce 050823 preliminary system for letting other modules register commands for debug menu (used by Undo experimental code)
+
+_commands = {}
+
+def register_debug_menu_command( name, func):
+    """Let other modules register commands which appear in the debug menu.
+    When called, they get one arg, the widget in which the debug menu appeared.
+    ###e No provision yet for commands to filter themselves by widget or env, or have varying text or state...
+    would be better to register a command_spec or menu_spec maker function, rerun it each time.
+    """
+    _commands[name] = func
+
+def registered_commands_menuspec( widget):
+    items = _commands.items()
+    items.sort()
+    # it's already a menu spec except for what args the things take, so fix that
+    # (the func=func was apparently necessary, otherwise the wrong func got called, always the last one processed here)
+    return [ (name, lambda func=func, widget=widget: func(widget)) for name, func in items ]
+
+# ==
+
 # Mixin class to help some of our widgets offer a debug menu.
 # [split from some GLPane methods and moved here by bruce 050112]
 
@@ -308,6 +329,11 @@ class DebugMenuMixin:
             
         if platform.atom_debug:
             res.append( debug_prefs_menuspec() ) #bruce 050614 (submenu)
+
+        if 1: #bruce 050823
+            some = registered_commands_menuspec( self)
+            res.extend(some)
+        
         res.extend( [
             ('choose font', self._debug_choose_font),
         ] )
@@ -510,5 +536,12 @@ def overridden_attrs( class1, instance1 ): #bruce 050108
                 pass
             res.append(attr)
     return res
+
+# ==
+
+#bruce 050823 a convenient place to import some Undo experimental code --
+# though it's not a sensible permanent place for that ####@@@@
+
+import undo
 
 # end
