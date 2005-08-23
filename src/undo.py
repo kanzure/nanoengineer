@@ -36,20 +36,25 @@ def load_obj(filename):
     return res
 
 def time_taken(func):
-    "call func and measure how long this takes. return a pair (time-taken, result-of-func)."
-    from time import time as clock
-    t1 = clock()
+    "call func and measure how long this takes. return a triple (real-time-taken, cpu-time-taken, result-of-func)."
+    from time import time, clock
+    t1c = clock()
+    t1t = time()
     res = func()
-    t2 = clock()
-    return (t2 - t1, res)
+    t2c = clock()
+    t2t = time()
+    return (t2t - t1t, t2c - t1c, res)
 
 def saveposns(part, filename):
     env.history.message( "save main part atom posns to file: " + filename )
     def doit():
         save_atpos_list(part, filename)
-    time, junk = time_taken(doit)
-    env.history.message( "done; took %s" % time )
-    return
+    call_func_with_timing_histmsg( doit)
+
+def call_func_with_timing_histmsg( func):
+    realtime, cputime, res = time_taken(func)
+    env.history.message( "done; took %s real secs, %s cpu secs" % (realtime, cputime) )
+    return res
 
 def saveposns_cmd( target): # arg is the widget that has this debug menu
     win = target.topLevelWidget()
@@ -65,8 +70,7 @@ def loadposns( part, filename): # doesn't move atoms (just a file-reading speed 
     env.history.message( "load atom posns from file (discards them, doesn't move atoms): " + filename )
     def doit():
         return load_obj(filename)
-    time, posns_junk = time_taken(doit)
-    env.history.message( "done; took %s" % time )
+    posns = call_func_with_timing_histmsg( doit)
     return
 
 def loadposns_cmd( target):
