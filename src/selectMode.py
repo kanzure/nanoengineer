@@ -51,13 +51,11 @@ def do_what_MainWindowUI_should_do(w):
     w.transmute2ComboBox = QComboBox(0,w.selectAtomsDashboard, "transmute2ComboBox")
     w.connect(w.transmute2ComboBox, SIGNAL("activated(int)"), w.transmuteElementChanged)
 
-    w.hybridComboBox = QComboBox(0, w.selectAtomsDashboard, "hybridComboBox") 
+    w.atomSelect_hybridComboBox = QComboBox(0, w.selectAtomsDashboard, "hybridComboBox") 
     # Set the width of the hybrid drop box.  Mark 050810.
     width = w.hybridComboBox.fontMetrics().width(" sp2(graphitic) ")
-    w.hybridComboBox.setMinimumSize ( QSize (width, 0) )
+    w.atomSelect_hybridComboBox.setMinimumSize ( QSize (width, 0) )
 
-    w.hybridComboBox_elem = None
-    
     w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
     QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
                  
@@ -526,7 +524,7 @@ class selectAtomsMode(selectMode):
         default_mode_status_text = "Mode: Select Atoms"
         
         eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
-                
+        
         def Enter(self): 
             basicMode.Enter(self)
             self.o.assy.selectAtoms()
@@ -563,7 +561,7 @@ class selectAtomsMode(selectMode):
             atomtype = None
             if len(elm.atomtypes) > 1: 
                 try: 
-                    hybname = self.w.hybridComboBox.currentText()
+                    hybname = self.w.atomSelect_hybridComboBox.currentText()
                     atype = elm.find_atomtype(hybname)
                     if atype is not None:
                         atomtype = atype
@@ -627,8 +625,9 @@ class selectAtomsMode(selectMode):
             self.o.setCursor(self.w.SelectAtomsCursor)         
             
         
-        def update_hybridComboBox(self, win, text = None): #bruce 050606
-            "put the names of the current element's hybridization types into win.hybridComboBox; select the specified one if provided"
+        def update_hybridComboBox(self, win, text = None): 
+            '''Based on the same named function in depositMode.py.
+              Put the names of the current element's hybridization types into win.hybridComboBox; select the specified one if provided'''
             # I'm not preserving current setting, since when user changes C(sp2) to N, they might not want N(sp2).
             # It might be best to "intelligently modify it", or at least to preserve it when element doesn't change,
             # but even the latter is not obvious how to do in this code (right here, we don't know the prior element).
@@ -636,22 +635,21 @@ class selectAtomsMode(selectMode):
             # provided this runs often enough (whenever anything changes the current element), which remains to be seen.
             
             elem = PeriodicTable.getElement(self.getDstElement()) 
-            if text is None and win.hybridComboBox_elem is elem:
+            if text is None: 
                 # Preserve current setting (by name) when possible, and when element is unchanged (not sure if that ever happens).
                 # I'm not preserving it when element changes, since when user changes C(sp2) to N, they might not want N(sp2).
                 # [It might be best to "intelligently modify it" (to the most similar type of the new element) in some sense,
                 #  or it might not (too unpredictable); I won't try this for now.]
-                text = str(win.hybridComboBox.currentText() )
-            win.hybridComboBox.clear()
-            win.hybridComboBox_elem = elem
+                text = str(win.atomSelect_hybridComboBox.currentText() )
+            win.atomSelect_hybridComboBox.clear()
             atypes = elem.atomtypes
             if len(atypes) > 1:
                 for atype in atypes:
-                    win.hybridComboBox.insertItem( atype.name)
+                    win.atomSelect_hybridComboBox.insertItem( atype.name)
                     if atype.name == text:
-                        win.hybridComboBox.setCurrentItem( win.hybridComboBox.count() - 1 ) #k sticky as more added?
-                win.hybridComboBox.show()
+                        win.atomSelect_hybridComboBox.setCurrentItem( win.atomSelect_hybridComboBox.count() - 1 ) #k sticky as more added?
+                win.atomSelect_hybridComboBox.show()
             else:
-                win.hybridComboBox.hide()
+                win.atomSelect_hybridComboBox.hide()
             return
          
