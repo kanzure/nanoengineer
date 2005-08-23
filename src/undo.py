@@ -37,7 +37,7 @@ def load_obj(filename):
 
 def time_taken(func):
     "call func and measure how long this takes. return a pair (time-taken, result-of-func)."
-    from time import clock
+    from time import time as clock
     t1 = clock()
     res = func()
     t2 = clock()
