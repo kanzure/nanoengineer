@@ -109,12 +109,16 @@ class ProgressBar( ProgressBarDialog ):
             self.abort = True
 
     def reject(self):
-        '''Slot for Escape key. From the documentation:
+        '''Slot for Escape key or when the user hits the close button in the dialog border. 
+        
+        From the Qt documentation:
         "If the user presses the Escape key in a dialog, QDialog.reject() will be called. 
         This will cause the window to close, but note that no closeEvent will occur."
-        Hitting the Escape key makes the dialog close and it cannot be redisplayed,
-        which is a problem if the user wants to see progress info or abort the run.
-        We simply call abort run if QDialog.reject() is called. 
+        
+        In other words, hitting the Escape key closes the dialog and it cannot be 
+        retrieved.  This is very confusing since the simulation run is still running, but
+        there is no way to see progress info or abort the run.  To fix this situation,
+        we simply call abort_run if QDialog.reject() is called.
         '''
         self.abort_run()
         
