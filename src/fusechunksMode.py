@@ -92,7 +92,9 @@ class fusechunksMode(modifyMode):
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
     tol = 1.0 # tol is the distance between two bondable singlets.
-    rfactor = .75 # 
+    rfactor = .8 # radius factor, used in find_bondable_pairs() to ignore chunks that are too
+    # far from the selected chunk(s) to form bonds.
+    # fractor changed to .8 after discovering .75 wasn't large enough.  Mark 050824.
 
     def Enter(self):
         modifyMode.Enter(self)
