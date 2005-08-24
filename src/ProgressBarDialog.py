@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ProgressBarDialog.ui'
 #
-# Created: Fri Apr 15 20:06:54 2005
+# Created: Wed Aug 24 15:33:53 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -377,6 +377,7 @@ class ProgressBarDialog(QDialog):
             self.setName("ProgressBarDialog")
 
         self.setIcon(self.image0)
+        self.setFocusPolicy(QDialog.NoFocus)
 
         ProgressBarDialogLayout = QVBoxLayout(self,11,6,"ProgressBarDialogLayout")
 
@@ -401,6 +402,7 @@ class ProgressBarDialog(QDialog):
         layout25.addItem(spacer2)
 
         self.abortPB = QPushButton(self,"abortPB")
+        self.abortPB.setFocusPolicy(QPushButton.TabFocus)
         layout25.addWidget(self.abortPB)
         spacer1 = QSpacerItem(91,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout25.addItem(spacer1)
@@ -411,7 +413,7 @@ class ProgressBarDialog(QDialog):
         self.resize(QSize(348,186).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.abortPB,SIGNAL("clicked()"),self.abort)
+        self.connect(self.abortPB,SIGNAL("clicked()"),self.abort_run)
 
 
     def languageChange(self):
@@ -421,8 +423,8 @@ class ProgressBarDialog(QDialog):
         self.abortPB.setText(self.__tr("Abort"))
 
 
-    def abort(self):
-        print "ProgressBarDialog.abort(): Not implemented yet"
+    def abort_run(self):
+        print "ProgressBarDialog.abort_run(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ProgressBarDialog",s,c)

@@ -18,6 +18,9 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
+    <property name="focusPolicy">
+        <enum>NoFocus</enum>
+    </property>
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
@@ -99,6 +102,9 @@
                     <property name="name">
                         <cstring>abortPB</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>TabFocus</enum>
+                    </property>
                     <property name="text">
                         <string>Abort</string>
                     </property>
@@ -134,11 +140,11 @@
         <sender>abortPB</sender>
         <signal>clicked()</signal>
         <receiver>ProgressBarDialog</receiver>
-        <slot>abort()</slot>
+        <slot>abort_run()</slot>
     </connection>
 </connections>
 <slots>
-    <slot>abort()</slot>
+    <slot>abort_run()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

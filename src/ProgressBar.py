@@ -9,7 +9,7 @@ __author__ = "Mark"
 
 import os, time
 
-from qt import qApp
+from qt import qApp, QMessageBox
 from ProgressBarDialog import ProgressBarDialog
     #bruce 050415 removed "import *" from both of those
 
@@ -93,9 +93,30 @@ class ProgressBar( ProgressBarDialog ):
             # [bruce 050415 comment: we should probably reset it at start of launch method, too. ###e]
         return 0
         
-    def abort(self):
-        """Slot for abort button"""
-        self.abort = True
+    def abort_run(self):
+        "Slot for abort button"
+        
+        # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
+        ret = QMessageBox.warning( self, "Confirm",
+            "Please confirm you want to abort.\n",
+            "Confirm",
+            "Cancel", 
+            None, 
+            1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
+            1)  # Escape (1= Cancel)
+          
+        if ret==0: # Confirmed
+            self.abort = True
+
+    def reject(self):
+        '''Slot for Escape key. From the documentation:
+        "If the user presses the Escape key in a dialog, QDialog.reject() will be called. 
+        This will cause the window to close, but note that no closeEvent will occur."
+        Hitting the Escape key makes the dialog close and it cannot be redisplayed,
+        which is a problem if the user wants to see progress info or abort the run.
+        We simply call abort run if QDialog.reject() is called. 
+        '''
+        self.abort_run()
         
     def hhmmss_str(self, secs):
         """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
