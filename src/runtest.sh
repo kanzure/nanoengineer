@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# runtest.sh description.test
+# runtest.sh description.test [/absolute/path/to/resulting/$base.xyz]
 #
 # runs the described test and concatenates the results
 # to stdout (after removing lines which vary inconsequentially (e.g. dates)
@@ -50,6 +50,17 @@ INPUT="$base.mmp"
 OUTPUT="exitvalue stderr stdout $base.trc $base.xyz"
 PROGRAM="simulator -m -x $base.mmp"
 
+DO_STRUCT_COMPARE=false
+if [ -f $dir/$base.xyzcmp ]; then
+    DO_STRUCT_COMPARE=true
+fi
+
+DO_OUTPUT_XYX=false
+if [ x$2 != x ]; then
+    outxyz=`pwd`/$2
+    DO_OUTPUT_XYX=true
+fi
+
 trap 'rm -rf $TMPDIR' 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 18 19 20 21 22 23 24 25 26 27 28 29 30 31
 
 while read key value; do
@@ -83,6 +94,15 @@ for i in $INPUT; do
 	fi
 done
 
+if $DO_STRUCT_COMPARE; then
+    if cp $dir/$base.xyzcmp $TMPDIR; then
+	true;
+    else
+	echo failed to copy $dir/$base.xyzcmp to $TMPDIR 1>&2;
+	exit 1
+    fi
+fi
+
 echo ======= $base.test =======
 cat $DESC
 
@@ -91,9 +111,20 @@ cd $TMPDIR
 $PROGRAM > stdout 2> stderr
 echo $? > exitvalue
 
+if $DO_STRUCT_COMPARE; then
+    echo == structure comparison == >> stdout
+    echo == structure comparison == >> stderr
+    simulator -B$base.xyzcmp $base.xyz >> stdout 2>> stderr
+    echo struct compare $? >> exitvalue
+fi
+
 for i in $OUTPUT; do
 	echo ======= $i =======
 	cat $i
 done | sed '/Date and Time: /d'
+
+if $DO_OUTPUT_XYX; then
+    cp $base.xyz $outxyz
+fi
 
 exit 0

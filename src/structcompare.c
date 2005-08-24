@@ -1,7 +1,15 @@
 #include "simulator.h"
 
 static int atomCount;
+static int allowScaling; // non-zero if a scale difference will be allowed
 
+// The "extra" field in this case is the array of coordinates of the
+// atom positions.  The position and orientation of the structure as a
+// whole is stored in the coordinate array, and it is that position
+// which is minimized.  The set of atom positions is a temporary value
+// used by the potential function.  This is the routine that defines
+// the meaning of the transformations described by the coordinates
+// being minimized.
 static void
 structCompareSetExtra(struct configuration *p)
 {
@@ -9,6 +17,7 @@ structCompareSetExtra(struct configuration *p)
   struct xyz translate;
   struct xyz t;
   double rotation[9];
+  double scale;
   
   if (p->extra != NULL) {
     return;
@@ -18,11 +27,17 @@ structCompareSetExtra(struct configuration *p)
   translate.x = p->coordinate[0];
   translate.y = p->coordinate[1];
   translate.z = p->coordinate[2];
+  if (allowScaling) {
+    scale = p->coordinate[6];
+  }
 
   matrixRotateXYZ(rotation, p->coordinate[3], p->coordinate[4], p->coordinate[5]);
 
   for (i=0; i<atomCount; i++) {
     vadd2(t, InitialPositions[i], translate);
+    if (allowScaling) {
+      vmulc(t, scale);
+    }
     matrixTransform(&((struct xyz *)p->extra)[i], rotation, &t);
   }
 }
@@ -36,6 +51,80 @@ structCompareFreeExtra(struct configuration *p)
   }
 }
 
+// Handle the final result for a structure compare.  Pass in an upper
+// limit for the standard deviation of atom positions between the two
+// structures, and an upper limit for the maximum distance that any
+// single atom has moved between the two structures, and an upper
+// limit to the scale difference between the structures.  Returns
+// non-zero if the configuration exceeds any of these limits.
+//
+// May want to do a Chi-Squared test here, but I'm not sure of the
+// applicability.  Besides, generating Chi-Square values for large
+// numbers of degrees of freedom is non-trivial.
+static int
+structCompareResult(struct configuration *p,
+                    double deviationLimit,
+                    double maxDeltaLimit,
+                    double maxScale)
+{
+  int i;
+  int ret = 0;
+  struct xyz delta;
+  double squareSum = 0.0;
+  double deltaLenSquared;
+  double maxDeltaLenSquared = 0.0;
+  double maxDeltaLen;
+  double standardDeviation;
+  double scale;
+  
+  structCompareSetExtra(p);
+  for (i=0; i<atomCount; i++) {
+    delta = vdif(BasePositions[i], ((struct xyz *)p->extra)[i]);
+    deltaLenSquared = vdot(delta, delta);
+    squareSum += deltaLenSquared;
+    if (maxDeltaLenSquared < deltaLenSquared) {
+      maxDeltaLenSquared = deltaLenSquared;
+    }
+  }
+  if (atomCount < 2) {
+    standardDeviation = 0.0;
+  } else {
+    standardDeviation = squareSum / (atomCount - 1);
+  }
+  maxDeltaLen = sqrt(maxDeltaLenSquared);
+  if (allowScaling) {
+    scale = fabs(p->coordinate[6]);
+    if (scale < 1.0) {
+      if (scale > 0.0) {
+        scale = 1.0 / scale;
+      } // shouldn't ever be zero!
+    }
+  }
+  
+  printf("at: translate (%f %f %f)\n       rotate (%f %f %f)\n        scale %f,\nstandard deviation = %e, max delta = %e\n",
+         p->coordinate[0], p->coordinate[1], p->coordinate[2],
+         p->coordinate[3], p->coordinate[4], p->coordinate[5],
+         allowScaling ? scale : 1.0,
+         standardDeviation, maxDeltaLen);
+
+  if (standardDeviation > deviationLimit) {
+    printf("standard deviation exeeded deviationLimit of %e\n", deviationLimit);
+    ret = 1;
+  }
+  if (maxDeltaLen > maxDeltaLimit) {
+    printf("maximum delta exceeded max delta limit of %e\n", maxDeltaLimit);
+    ret = 1;
+  }
+  if (scale > maxScale) {
+    printf("scale exceeded limit of %e\n", maxScale);
+    ret = 1;
+  }
+  return ret;
+}
+
+// This is the potential function which is being minimized.  We're
+// basically doing a least-squares fit for the coordinates fo the
+// structure as a whole.
 static void
 structComparePotential(struct configuration *p)
 {
@@ -57,6 +146,9 @@ structComparePotential(struct configuration *p)
   */
 }
 
+// Before starting to rotate the structures, we translate both of them
+// to their respective centers of mass.  We're taking each atom as a
+// unit mass, ignoring element type.
 static void
 translateToCenterOfMass(struct xyz *pos, int atomCount)
 {
@@ -75,13 +167,37 @@ translateToCenterOfMass(struct xyz *pos, int atomCount)
 
 static struct functionDefinition structCompareFunctions;
 
-struct configuration *
-doStructureCompare(int numberOfAtoms, int *iter, int iterLimit)
+// Compare two structures to see if they are the same.  The atom
+// positions must have been pre-loaded into BasePositions and
+// InitialPositions.  The structures are translated to their
+// respective centers of mass.  Then, the InitialPositions structure
+// is rotated, translated, and optionally scaled (if maxScale > 1.0)
+// to minimize the least-square distance between corresponding atoms
+// in the two structures.  At most iterLimit iterations of the
+// minimize routine are performed.
+//
+// Prints the final coordinates reached.  
+//
+// Pass in an upper limit for the standard deviation of atom positions
+// between the two structures, and an upper limit for the maximum
+// distance that any single atom has moved between the two
+// structures, and an upper limit to the scale difference between the
+// structures.  Returns non-zero if the configuration exceeds any of
+// these limits.
+int
+doStructureCompare(int numberOfAtoms,
+                   int iterLimit,
+                   double deviationLimit,
+                   double maxDeltaLimit,
+                   double maxScale)
 {
+  int iter;
+  int ret;
   struct configuration *initial = NULL;
   struct configuration *final = NULL;
 
   atomCount = numberOfAtoms;
+  allowScaling = maxScale > 1.0;
 
   translateToCenterOfMass(BasePositions, atomCount);
   translateToCenterOfMass(InitialPositions, atomCount);
@@ -92,7 +208,7 @@ doStructureCompare(int numberOfAtoms, int *iter, int iterLimit)
   structCompareFunctions.freeExtra = structCompareFreeExtra;
   structCompareFunctions.coarse_tolerance = 1e-3;
   structCompareFunctions.fine_tolerance = 1e-8;
-  structCompareFunctions.dimension = 6;
+  structCompareFunctions.dimension = allowScaling ? 7 : 6;
   structCompareFunctions.initial_parameter_guess = 0.001;
   structCompareFunctions.functionEvaluationCount = 0;
   structCompareFunctions.gradientEvaluationCount = 0;
@@ -104,11 +220,15 @@ doStructureCompare(int numberOfAtoms, int *iter, int iterLimit)
   initial->coordinate[3] = 0.0;
   initial->coordinate[4] = 0.0;
   initial->coordinate[5] = 0.0;
+  if (allowScaling) {
+    initial->coordinate[6] = 1.0;
+  }
 
-  *iter = 0;
-  final = minimize(initial, iter, iterLimit);
+  final = minimize(initial, &iter, iterLimit);
+  ret = structCompareResult(final, deviationLimit, maxDeltaLimit, maxScale);
   SetConfiguration(&initial, NULL);
-  return final;
+  SetConfiguration(&final, NULL);
+  return ret;
 }
 
 
@@ -121,8 +241,6 @@ struct xyz *InitialPositions;
 static void
 testStructureCompare()
 {
-  struct configuration *final = NULL;
-  int Iteration;
   int numberOfAtoms;
   
   numberOfAtoms = 3;
@@ -149,21 +267,7 @@ testStructureCompare()
   InitialPositions[2].y = - 30.0;
   InitialPositions[2].z =    0.0;
 
-  final = doStructureCompare(numberOfAtoms, &Iteration, 400);
-
-  fprintf(stderr, "final minimum at (%f %f %f) (%f %f %f): %e\n",
-          final->coordinate[0],
-          final->coordinate[1],
-          final->coordinate[2],
-          final->coordinate[3],
-          final->coordinate[4],
-          final->coordinate[5],
-          evaluate(final));
-  fprintf(stderr, "after %d iterations, %d function evals, %d gradient evals\n",
-          Iteration,
-          final->functionDefinition->functionEvaluationCount,
-          final->functionDefinition->gradientEvaluationCount);
-  SetConfiguration(&final, NULL);
+  doStructureCompare(numberOfAtoms, 400, 1e-2, 1e-1, 0.0);
 }
 
 int

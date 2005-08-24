@@ -1444,8 +1444,7 @@ main(int argc,char **argv)
     if (baseFilename != NULL) {
         int i1;
         int i2;
-        struct configuration *structureMinimum = NULL;
-
+        
         BasePositions = readXYZ(baseFilename, &i1);
         if (BasePositions == NULL) {
             fprintf(stderr, "could not read base positions file from -B<filename>\n");
@@ -1460,10 +1459,7 @@ main(int argc,char **argv)
             fprintf(stderr, "structures to compare must have same number of atoms\n");
             exit(1);
         }
-        structureMinimum = doStructureCompare(i1, &Iteration, NumFrames);
-        printf("average structure distance: %e\n", structureMinimum->functionValue);
-        SetConfiguration(&structureMinimum, NULL);
-        exit(0);
+        exit(doStructureCompare(i1, NumFrames, 1e-8, 1e-4, 1.0+1e-4));
     }
 
     //if (ToMinimize) printf("Minimize\n");
