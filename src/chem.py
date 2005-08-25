@@ -458,7 +458,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         try:
             if disp in [diVDW, diCPK, diTUBES]:
                 drawsphere(color, pos, drawrad, level)
-            if self.picked:
+            if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
                 #bruce 041217 experiment: show valence errors for picked atoms by
                 # using a different color for the wireframe.
                 # (Since Transmute operates on picked atoms, and leaves them picked,
@@ -469,17 +469,19 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                     color = ErrorPickedColor
                 else:
                     color = PickedColor
-                drawwiresphere(color, pos, pickedrad)
-            #bruce 050806: the above only checks for number of bonds.
-            # Now that we have higher-order bonds, we also need to check valence more generally.
-            # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
-            #####@@@@@ need to do this in atom.getinfo().
-            #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
-            from GLPane import GLPane
-            if isinstance(glpane, GLPane) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
-                drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
-                #e we might want to not draw this when self.bad() but draw that differently,
-                # and optim this when atomtype is initial one (or its numbonds == valence).
+                drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
+            #bruce 050806: check valence more generally, and not only for picked atoms.
+            if disp != diINVISIBLE: #bruce 050825 added this condition to fix bug 870
+                # The above only checks for number of bonds.
+                # Now that we have higher-order bonds, we also need to check valence more generally.
+                # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
+                #####@@@@@ need to do this in atom.getinfo().
+                #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
+                from GLPane import GLPane
+                if isinstance(glpane, GLPane) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
+                    drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
+                    #e we might want to not draw this when self.bad() but draw that differently,
+                    # and optim this when atomtype is initial one (or its numbonds == valence).
         except:
             glPopName()
             print_compact_traceback("ignoring exception when drawing atom %r: " % self)
@@ -602,6 +604,11 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
         drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+            #bruce 050825 comment: it's probably incorrect to do this even for invisible atoms.
+            # This probably caused the "highlighting part" of bug 870, but bug 870 has been fixed
+            # by other changes today, but this still might cause other bugs of highlighting
+            # otherwise-invisible atoms. Needs review. ###@@@
+            # (Indirectly related: drawwiresphere acts like drawsphere for hit-test purposes.)
         if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature
             dispdef = self.molecule.get_dispdef()
                 #bruce 050719 question: is it correct to ignore .display of self and its base atom? ###@@@
