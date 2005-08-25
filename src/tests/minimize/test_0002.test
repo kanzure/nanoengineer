@@ -1,1 +1,3 @@
-PROGRAM simulator -f300 -m -X -x test_0002.mmp
+TYPE fail
+PROGRAM simulator -f500 -m -x test_0002.mmp
+
