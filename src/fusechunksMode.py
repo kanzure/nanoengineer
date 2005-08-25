@@ -92,9 +92,6 @@ class fusechunksMode(modifyMode):
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
     tol = 1.0 # tol is the distance between two bondable singlets.
-    rfactor = .8 # radius factor, used in find_bondable_pairs() to ignore chunks that are too
-    # far from the selected chunk(s) to form bonds.
-    # fractor changed to .8 after discovering .75 wasn't large enough.  Mark 050824.
 
     def Enter(self):
         modifyMode.Enter(self)
@@ -227,24 +224,15 @@ class fusechunksMode(modifyMode):
         
         for chunk in self.o.assy.selmols:
         
-            # Get center and sphere of the selected chunk.
-            chunk_ctr = chunk.bbox.center()
-            chunk_rad = chunk.bbox.scale() * self.rfactor
-        
             # Loop through all the mols in the part to search for bondable pairs of singlets.
             for mol in self.o.assy.molecules:
                 if chunk == mol: continue # Skip itself
                 if mol.hidden: continue # Skip hidden chunks
                 if mol in self.o.assy.selmols: continue # Skip other selected chunks
                 
-                # Skip this chunk if it's bounding box does not overlap the selected chunk's bbox.
-                mol_ctr = mol.bbox.center()
-                mol_rad = mol.bbox.scale()* self.rfactor
-                
-                # I add self.tol twice - tol is a radius, and extreme situations require a diameter
-                # to catch all possible bonds.  Extreme situations happen in bonds b/w long, skinny rods.
+                # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
                 # Remember: chunk = a selected chunk, mol = a non-selected chunk.
-                if vlen (mol_ctr - chunk_ctr) > mol_rad + chunk_rad + self.tol + self.tol:
+                if vlen (mol.bbox.center() - chunk.bbox.center()) > mol.bbox.scale() + chunk.bbox.scale():
                     # Skip this chunk.
                     # print "Skipped ", mol.name
                     continue
