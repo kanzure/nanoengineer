@@ -4,8 +4,6 @@ bonds.py -- class Bond, for any supported type of chemical bond between two atom
 (one of which might be a "singlet" to represent an "open bond" in the UI),
 and related code
 
-TEMPORARILY OWNED BY BRUCE AS OF 050502 for introducing higher-valence bonds #####@@@@@
-
 $Id$
 
 History:
@@ -58,9 +56,6 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
   # from platform.atom_debug since it can be changed at runtime
 
 from elements import *
-
-## no, better to use it directly so changeable at runtime:
-## debug_bonds = platform.atom_debug #####@@@@@ DO NOT COMMIT with 1
 
 from chem import singlet_atom, stringVec, atom
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
@@ -614,7 +609,7 @@ class Bond:
 
     # ==
     
-    def get_pi_info(self, **kws): #bruce 050718 ######@@@@@@ also call this from depmode making singlets
+    def get_pi_info(self, **kws): #bruce 050718
         """Return the pi orbital orientation/occupancy info for this bond, if any [#doc the format], or None
         if this is a single bond (which is not always a bug, e.g. in -C#C- chains, if we someday extend the
         subrs this calls to do any bond inference -- presently they just trust the existing bond order, self.v6).
@@ -622,9 +617,9 @@ class Bond:
         all at once for all pi bonds in a chain connected by sp atoms with 2 bonds.
            If computed, and if it's partly arbitrary, **kws (out/up) might be used.
         """
-        if platform.atom_debug: #######@@@@@@@ remove reload when works -- too slow even for debug
-            import pi_bond_sp_chain
-            reload(pi_bond_sp_chain)
+        if platform.atom_debug:
+            import pi_bond_sp_chain, debug
+            debug.reload_once_per_event(pi_bond_sp_chain) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from pi_bond_sp_chain import bond_get_pi_info
         return bond_get_pi_info(self, **kws) # no need to pass an index -- that method can find one on self if it stored one
     
@@ -796,9 +791,9 @@ class Bond:
         # a1pos, a2pos, c1, c2, as created by self.__setup_update().
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
-        if platform.atom_debug: #######@@@@@@@ too slow to leave in after devel, even for debug, unless we make it once per user-event
-            import bond_drawer
-            reload( bond_drawer)
+        if platform.atom_debug:
+            import bond_drawer, debug
+            debug.reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, level, **kws)
         return

@@ -194,9 +194,9 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
-            if 0 and platform.atom_debug:
-                import draw_bond_vanes
-                reload(draw_bond_vanes) #e too slow to always do this here, even in debug, once devel done!
+            if platform.atom_debug:
+                import draw_bond_vanes, debug
+                debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from draw_bond_vanes import draw_bond_vanes
             draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
         if draw_bond_letters: ####@@@@ not tested recently enough, as of 050727

@@ -65,6 +65,10 @@ import platform
 
 history = None # will be changed by MWsemantics when it inits [bruce 050727]
 
+redraw_counter = 0 #bruce 050825
+
+# ==
+
 _last_glselect_name = 0
 
 obj_with_glselect_name = {} # public for lookup ###e this needs to be made weak-valued ASAP! #######@@@@@@@
@@ -83,6 +87,8 @@ def alloc_my_glselect_name(obj):
     name = new_glselect_name()
     obj_with_glselect_name[name] = obj
     return name
+
+# ==
 
 # dict for atoms or singets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
 #e (doesn't yet include all killed atoms or singlets, but maybe it ought to)

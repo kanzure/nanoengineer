@@ -1101,6 +1101,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 ##            pass
 ####            if platform.atom_debug:
 ####                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
+
+        env.redraw_counter += 1 #bruce 050825
         
         #bruce 050707 (for bond inference -- easiest place we can be sure to update bonds whenever needed)
         #bruce 050717 bugfix: always do this, not only when "self._needs_repaint"; otherwise,

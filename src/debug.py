@@ -539,6 +539,34 @@ def overridden_attrs( class1, instance1 ): #bruce 050108
 
 # ==
 
+def reload_once_per_event(module):
+    """Reload module (given as object or as name),
+    but at most once per user-event or redraw, and only if platform.atom_debug.
+    Assumes w/o checking that this is a module it's ok to reload.
+    """
+    import platform
+    if not platform.atom_debug:
+        return
+    if type(module) == type(""):
+        # also support module names
+        module = sys.modules[module]
+    now = env.redraw_counter
+    try:
+        old = module.redraw_counter_when_reloaded
+    except AttributeError:
+        old = -1
+    if old == now:
+        return
+    assert sys.modules[module.__name__] is module
+    module.redraw_counter_when_reloaded = now # do first in case of exceptions in this or below
+    if old == -1:
+        print "reloading",module.__name__
+        print "  (and will do so up to once per redraw w/o saying so again)"
+    reload(module)
+    return
+
+# ==
+
 #bruce 050823 a convenient place to import some Undo experimental code --
 # though it's not a sensible permanent place for that ####@@@@
 
