@@ -12,25 +12,25 @@ atom 1 (6) (225, 3920, 4866) def
 info atom atomtype = sp2
 atom 2 (6) (200, 3920, 6289) def
 info atom atomtype = sp2
-bonda 1
+bondg 1
 atom 3 (6) (-923, 3522, 4130) def
 info atom atomtype = sp2
-bonda 1
+bondg 1
 atom 4 (6) (-990, 3544, 6960) def
 info atom atomtype = sp2
-bonda 2
+bondg 2
 atom 5 (0) (893, 3851, 4488) def
-bonda 1
+bondg 1
 atom 6 (0) (-909, 3523, 3359) def
-bonda 3
+bondg 3
 atom 7 (0) (863, 3864, 6675) def
-bonda 2
+bondg 2
 atom 8 (0) (-1050, 3618, 7724) def
-bonda 4
+bondg 4
 atom 9 (0) (-1397, 3047, 4507) def
-bonda 3
+bondg 3
 atom 10 (0) (-1444, 3055, 6574) def
-bonda 4
+bondg 4
 egroup (BuckyTubeMoiety)
 end1
 group (Clipboard)
