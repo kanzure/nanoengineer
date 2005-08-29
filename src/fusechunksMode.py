@@ -232,7 +232,7 @@ class fusechunksMode(modifyMode):
                 
                 # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
                 # Remember: chunk = a selected chunk, mol = a non-selected chunk.
-                if vlen (mol.bbox.center() - chunk.bbox.center()) > mol.bbox.scale() + chunk.bbox.scale():
+                if vlen (mol.bbox.center() - chunk.bbox.center()) > mol.bbox.scale() + chunk.bbox.scale() + self.tol + self.tol:
                     # Skip this chunk.
                     # print "Skipped ", mol.name
                     continue
