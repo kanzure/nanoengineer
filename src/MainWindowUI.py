@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Aug 12 11:54:47 2005
+# Created: Mon Aug 29 13:09:55 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -6096,11 +6096,11 @@ class MainWindow(QMainWindow):
         self.fileExitAction = QAction(self,"fileExitAction")
         self.editUndoAction = QAction(self,"editUndoAction")
         self.editUndoAction.setIconSet(QIconSet(self.image4))
-        self.editUndoAction.setVisible(0)
+        self.editUndoAction.setVisible(1)
         self.editRedoAction = QAction(self,"editRedoAction")
         self.editRedoAction.setOn(0)
         self.editRedoAction.setIconSet(QIconSet(self.image5))
-        self.editRedoAction.setVisible(0)
+        self.editRedoAction.setVisible(1)
         self.editCutAction = QAction(self,"editCutAction")
         self.editCutAction.setEnabled(1)
         self.editCutAction.setIconSet(QIconSet(self.image6))
@@ -6506,6 +6506,7 @@ class MainWindow(QMainWindow):
         self.modifyMMKitAction.setIconSet(QIconSet(self.image57))
         self.helpMouseControlsAction = QAction(self,"helpMouseControlsAction")
         self.helpKeyboardShortcutsAction = QAction(self,"helpKeyboardShortcutsAction")
+        self.modifyCenterCommonAxisAction = QAction(self,"modifyCenterCommonAxisAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6517,7 +6518,7 @@ class MainWindow(QMainWindow):
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.editToolbar.setGeometry(QRect(70,0,126,29))
+        self.editToolbar.setGeometry(QRect(70,0,182,29))
         self.editToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.editUndoAction.addTo(self.editToolbar)
         self.editRedoAction.addTo(self.editToolbar)
@@ -6527,7 +6528,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.viewToolbar.setGeometry(QRect(196,0,306,29))
+        self.viewToolbar.setGeometry(QRect(252,0,306,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -6544,7 +6545,7 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setEnabled(1)
-        self.molecularDispToolbar.setGeometry(QRect(502,0,182,29))
+        self.molecularDispToolbar.setGeometry(QRect(558,0,182,29))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
@@ -6554,7 +6555,7 @@ class MainWindow(QMainWindow):
         self.dispVdWAction.addTo(self.molecularDispToolbar)
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
-        self.selectToolbar.setGeometry(QRect(684,0,154,29))
+        self.selectToolbar.setGeometry(QRect(740,0,154,29))
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
         self.selectInvertAction.addTo(self.selectToolbar)
@@ -6563,7 +6564,7 @@ class MainWindow(QMainWindow):
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(838,0,42,29))
+        self.helpToolbar.setGeometry(QRect(894,0,42,29))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -6788,7 +6789,6 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.viewMenu,6)
 
         self.displayMenu = QPopupMenu(self)
-        self.displayMenu.insertSeparator()
         self.dispDefaultAction.addTo(self.displayMenu)
         self.dispInvisAction.addTo(self.displayMenu)
         self.dispLinesAction.addTo(self.displayMenu)
@@ -6827,6 +6827,7 @@ class MainWindow(QMainWindow):
         self.modifyMergeAction.addTo(self.modifyMenu)
         self.modifyInvertAction.addTo(self.modifyMenu)
         self.modifyAlignCommonAxisAction.addTo(self.modifyMenu)
+        self.modifyCenterCommonAxisAction.addTo(self.modifyMenu)
         self.MenuBar.insertItem(QString(""),self.modifyMenu,9)
 
         self.toolsMenu = QPopupMenu(self)
@@ -6857,7 +6858,6 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.simulatorMenu,12)
 
         self.helpMenu = QPopupMenu(self)
-        self.helpMenu.insertSeparator()
         self.helpMouseControlsAction.addTo(self.helpMenu)
         self.helpKeyboardShortcutsAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
@@ -7004,6 +7004,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
         self.connect(self.helpKeyboardShortcutsAction,SIGNAL("activated()"),self.helpKeyboardShortcuts)
         self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
+        self.connect(self.modifyCenterCommonAxisAction,SIGNAL("activated()"),self.modifyCenterCommonAxis)
 
 
     def languageChange(self):
@@ -7446,6 +7447,7 @@ class MainWindow(QMainWindow):
         self.helpKeyboardShortcutsAction.setText(self.__tr("Keyboard Shortcuts..."))
         self.helpKeyboardShortcutsAction.setToolTip(self.__tr("Keyboard Shortcuts"))
         self.helpKeyboardShortcutsAction.setWhatsThis(self.__tr("Displays help for keyboard shortcuts"))
+        self.modifyCenterCommonAxisAction.setText(self.__tr("Center on Common Axis"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7974,6 +7976,9 @@ class MainWindow(QMainWindow):
 
     def helpKeyboardShortcuts(self):
         print "MainWindow.helpKeyboardShortcuts(): Not implemented yet"
+
+    def modifyCenterCommonAxis(self):
+        print "MainWindow.modifyCenterCommonAxis(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

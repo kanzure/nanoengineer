@@ -91,7 +91,6 @@
         <action name="setViewOppositeAction"/>
     </item>
     <item text="&amp;Display" name="displayMenu">
-        <separator/>
         <action name="dispDefaultAction"/>
         <action name="dispInvisAction"/>
         <action name="dispLinesAction"/>
@@ -128,6 +127,7 @@
         <action name="modifyMergeAction"/>
         <action name="modifyInvertAction"/>
         <action name="modifyAlignCommonAxisAction"/>
+        <action name="modifyCenterCommonAxisAction"/>
     </item>
     <item text="&amp;Tools" name="toolsMenu">
         <action name="toolsSelectMoleculesAction"/>
@@ -154,7 +154,6 @@
         <action name="simPlotToolAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
-        <separator/>
         <action name="helpMouseControlsAction"/>
         <action name="helpKeyboardShortcutsAction"/>
         <separator/>
@@ -194,7 +193,7 @@
             <rect>
                 <x>70</x>
                 <y>0</y>
-                <width>126</width>
+                <width>182</width>
                 <height>29</height>
             </rect>
         </property>
@@ -217,7 +216,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>196</x>
+                <x>252</x>
                 <y>0</y>
                 <width>306</width>
                 <height>29</height>
@@ -251,7 +250,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>502</x>
+                <x>558</x>
                 <y>0</y>
                 <width>182</width>
                 <height>29</height>
@@ -276,7 +275,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>684</x>
+                <x>740</x>
                 <y>0</y>
                 <width>154</width>
                 <height>29</height>
@@ -300,7 +299,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>838</x>
+                <x>894</x>
                 <y>0</y>
                 <width>42</width>
                 <height>29</height>
@@ -939,7 +938,7 @@
             <string>Ctrl+Z</string>
         </property>
         <property name="visible">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
     </action>
     <action>
@@ -962,7 +961,7 @@
             <string>Ctrl+Y</string>
         </property>
         <property name="visible">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
     </action>
     <action>
@@ -3769,6 +3768,14 @@
             <string>Displays help for keyboard shortcuts</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>modifyCenterCommonAxisAction</cstring>
+        </property>
+        <property name="text">
+            <string>Center on Common Axis</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4982,6 +4989,12 @@
         <receiver>MainWindow</receiver>
         <slot>helpMouseControls()</slot>
     </connection>
+    <connection>
+        <sender>modifyCenterCommonAxisAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyCenterCommonAxis()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5142,6 +5155,7 @@
     <slot>modifyMMKit()</slot>
     <slot>helpMouseControls()</slot>
     <slot>helpKeyboardShortcuts()</slot>
+    <slot>modifyCenterCommonAxis()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
