@@ -1148,8 +1148,13 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.assy.Invert()
 
     def modifyAlignCommonAxis(self):
-        """ Align selected chunks by rotating them """
+        """ Align selected chunks to the computed axis of the first chunk by rotating them """
         self.assy.align()
+        self.win_update()
+        
+    def modifyCenterCommonAxis(self):
+        """ Align selected chunks to the computed axis of the first selected chunk """
+        self.assy.alignmove()
         self.win_update()
         
     ###################################
