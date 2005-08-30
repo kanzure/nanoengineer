@@ -86,7 +86,8 @@ class ops_motion_Mixin:
             m.rot(Q(m.getaxis(),ax))
         self.o.gl_update()
         
-        info = fix_plurals( "Aligned %d chunk(s) to chunk %s" % (len(self.selmols) - 1, self.selmols[0].name))
+        info = fix_plurals( "Aligned %d chunk(s)" % (len(self.selmols) - 1) ) \
+            + " to chunk %s" % self.selmols[0].name
         self.w.history.message( cmd + info)
         
     def alignmove(self):
@@ -97,7 +98,7 @@ class ops_motion_Mixin:
             msg = redmsg("Need two or more selected chunks to align")
             self.w.history.message(cmd + msg)
             return
-        self.changed() #bruce 050131 bugfix or precaution
+        self.changed()
         #ax = V(0,0,0)
         #for m in self.selmols:
         #    ax += m.getaxis()
@@ -110,7 +111,8 @@ class ops_motion_Mixin:
         
         self.o.gl_update()
         
-        info = fix_plurals( "Aligned %d chunk(s) to chunk %s" % (len(self.selmols) - 1, self.selmols[0].name))
+        info = fix_plurals( "Aligned %d chunk(s)" % (len(self.selmols) - 1) ) \
+            + " to chunk %s" % self.selmols[0].name
         self.w.history.message( cmd + info)
         
     pass # end of class ops_motion_Mixin
