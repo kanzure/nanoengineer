@@ -1153,7 +1153,17 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.win_update()
         
     def modifyCenterCommonAxis(self):
-        """ Align selected chunks to the computed axis of the first selected chunk """
+        '''Same as "Align to Common Axis", except that it moves all the selected chunks to the 
+        center of the first selected chunk after aligning/rotating the other chunks
+        '''
+
+        # This is still not fully implemented as intended.  Instead of moving all the selected 
+        # chunks to the center of the first selected chunk, I want to have them moved to the closest 
+        # (perpendicular) point of the first chunk's axis.  I've studied and understand the math involved; 
+        # I just need to implement the code.  I plan to ask Bruce for help since the two of us will get it 
+        # done much more quickly together than me doing it alone.
+        # Mark 050829.
+
         self.assy.alignmove()
         self.win_update()
         
