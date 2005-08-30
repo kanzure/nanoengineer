@@ -286,7 +286,9 @@ class MMKit(MMKitDialog):
         # Move all stuff under assembly.tree into assy.shelf. This is needed to draw hotspot singlet
         def addChild(child):
             self.newModel.shelf.addchild(child)
-            
+        
+        # Remove existing clipboard items from the libary part before adopting childern from 'tree'.
+        self.newModel.shelf.members = []
         self.newModel.tree.apply2all(addChild)
         
         self.newModel.shelf.prior_part = None
