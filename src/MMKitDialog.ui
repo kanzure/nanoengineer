@@ -1125,6 +1125,14 @@
                     </widget>
                 </vbox>
             </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>libraryPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Library</string>
+                </attribute>
+            </widget>
         </widget>
         <spacer row="2" column="0">
             <property name="name">

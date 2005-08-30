@@ -11,6 +11,7 @@ from OpenGL.GLU import *
 from VQT import *
 import drawer
 from constants import *
+from assembly import assembly 
 import env
 
 class ThumbView(QGLWidget):
@@ -538,32 +539,42 @@ class ElementView(ThumbView):
 
 
 class MMKitView(ThumbView):
+    '''Currently used as the GLWidget for the graphical display and manipulation for element/clipboard/part.
+       Initial attempt was to subclass this for each of above type models, but find trouble to dynamically
+       change the GLWidget when changing tab page. '''
     
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
         self.scale = 2.0
         self.pos = V(0.0, 0.0, 0.0)
-        self.mol = None
+        self.model = None
         
         ## Dummy attributes. A kludge, just try to make other code
         ##  think it looks like a glpane object.
         self.display = 0  
         self.selatom = None
+        self.special_topnode = None
+
+        self.hotspotAtom = None #The current hotspot singlet for the part
+        self.lastHotspotChunk = None # The previous chunk of the hotspot for the part
         
         hybrid_type_name = None
-        elementMode = True
+        elementMode = True  #Used to differentiate elment page versus clipboard/part page
     
         
     def drawModel(self):
         """The method for element drawing """
-        if self.mol:
-           self.mol.draw(self, None)
+        if self.model:
+           if isinstance(self.model, molecule):
+               self.model.draw(self, None)
+           else: ## assembly
+               self.model.draw(self)
 
    
     def refreshDisplay(self, elm, dispMode=diVDW):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
-        self.mol = self.constructModel(elm, self.pos, dispMode) 
+        self.model = self.constructModel(elm, self.pos, dispMode)
         self.updateGL()
         
 
@@ -576,11 +587,13 @@ class MMKitView(ThumbView):
         ThumbView.resetView(self)
         self.scale = 2.0
     
+    
     def drawSelected(self, obj):
         '''Override the parent version. Specific drawing code for the object. '''
         if isinstance(obj, atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, LEDon)
-        
+
+            
     def constructModel(self, elm, pos, dispMode):
         """This is to try to repeat what 'oneUnbonded()' function does,
         but hope to remove some stuff not needed here.
@@ -596,7 +609,6 @@ class MMKitView(ThumbView):
         if 0:#1:
             assy = DummyAssy()
         else:
-            from assembly import assembly 
             assy = assembly(None)
             assy.o = self
                 
@@ -617,15 +629,31 @@ class MMKitView(ThumbView):
 
     def leftDown(self, event):
         '''When in clipboard mode, set hotspot if a Singlet is highlighted. '''
+        if self.elementMode: return
+        
         obj = self.selectedObj
         if isinstance(obj, atom) and (obj.element is Singlet):
-            self.mol.set_hotspot(obj)
+            mol = obj.molecule
+            if not mol is self.lastHotspotChunk:
+                if self.lastHotspotChunk: # Unset previous hotspot
+                    self.lastHotspotChunk.set_hotspot(None)
+                self.lastHotspotChunk = mol 
+                       
+            mol.set_hotspot(obj)
+            
+            self.hotspotAtom = obj
             self.updateGL()
 
 
-    def updateModel(self, newChunk):
-        '''Set new chunk for display'''
-        self.mol = newChunk
+    def updateModel(self, newObj):
+        '''Set new chunk or assembly for display'''
+        self.model = newObj
+
+        #Reset hotspot related stuff for a new assembly
+        if isinstance(newObj, assembly):
+            self.hotspotAtom = None
+            self.lastHotspotChunk = None
+        
         self._fitInWindow()
         self.elementMode = False
         self.updateGL()
@@ -636,16 +664,22 @@ class MMKitView(ThumbView):
     
     
     def _fitInWindow(self):
-        if not self.mol: return
+        if not self.model: return
         
         self.quat = Q(1, 0, 0, 0)
         
-        self.mol._recompute_bbox()
-        self.scale = self.mol.bbox.scale() 
+        if isinstance(self.model, molecule):
+            self.model._recompute_bbox()
+            bbox = self.model.bbox
+        else: ## assembly
+            part = self.model.part
+            bbox = part.bbox
+        
+        self.scale = bbox.scale() 
         aspect = float(self.width) / self.height
         if aspect < 1.0:
            self.scale /= aspect
-        center = self.mol.bbox.center()
+        center = bbox.center()
         self.pov = V(-center[0], -center[1], -center[2])
         
     

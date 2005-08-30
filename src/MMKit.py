@@ -12,16 +12,26 @@ from constants import diTUBES
 from chem import atom
 from chunk import molecule
 from Utility import imagename_to_pixmap
+from DirView import FileItem, Directory, DirView
+from assembly import assembly
+from files_mmp import readmmp
+from part import Part
+import os
+import sys
 
 class MMKit(MMKitDialog):
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     
     def __init__(self, win):
-        MMKitDialog.__init__(self, win)#, fl=Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
+        MMKitDialog.__init__(self, win, fl=Qt.WType_Dialog)# Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
         self.w = win
         self.elemTable = PeriodicTable
         self.displayMode = diTUBES
         self.elm = None
+        
+        self.newModel = None  ## used to save the selected lib part
+        
+        self.pageId = 0 ## Display the first tab page by default
         
         self.flayout = None
         
@@ -40,6 +50,8 @@ class MMKit(MMKitDialog):
         #self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("pressed()"), self.change2PastePage) 
         self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
         self.connect(self.w.depositAtomDashboard.atomRB, SIGNAL("stateChanged(int)"), self.atomBtnStateChanged)
+        
+        self.connect(self.dirView, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
         
     
     def pasteBtnStateChanged(self, state):
@@ -200,19 +212,24 @@ class MMKit(MMKitDialog):
     
     def tabpageChanged(self, wg):
         '''Slot method. Called when user clicked to change the tab page'''
-        pageId = self.tabWidget2.indexOf(wg)
+        self.pageId = self.tabWidget2.indexOf(wg)
         
-        if pageId == 1: ## Clipboard page
+        if self.pageId == 1: ## Clipboard page
             self.w.pasteP = True
             self.w.depositAtomDashboard.pasteRB.setOn(True)
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
-        else:  ## Element page
+        elif self.pageId == 0:  ## Element page
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
-
+        
+        elif self.pageId == 2:
+            if self.rootDir:
+                self.elemGLPane.setDisplay(self.displayMode)
+                self._libPageView()
+ 
         self.elemGLPane.setFocus()
         
         
@@ -236,7 +253,47 @@ class MMKit(MMKitDialog):
     def updatePastableItems(self):
         '''Slot method. Called when user clicks the 'Update' button. '''
         self._clipboardPageView()
+    
         
+    def partChanged(self, item):
+        '''Slot method, called when user changed the partlib brower tree'''
+        if isinstance(item, FileItem):
+           self._libPageView(True)
+        else:
+           self.newModel = None
+           self.elemGLPane.updateModel(self.newModel)
+ 
+
+    def getPastablePart(self):
+        '''Public method. Retrieve pastable part and hotspot if current tab page is in libary, otherwise, return None. '''
+        if self.pageId == 2:
+            return self.newModel, self.elemGLPane.hotspotAtom
+        return None, None
+    
+           
+    def _libPageView(self, isFile=False):
+        item = self.dirView.selectedItem()
+        if not isFile and not isinstance(item, FileItem):
+            self.newModel = None
+            self.elemGLPane.updateModel(self.newModel)
+            return
+        
+        mmpfile = str(item.getFileObj())
+        self.newModel = assembly(self.w, "assembly 1")
+        self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
+        readmmp(self.newModel, mmpfile)
+        
+        # Move all stuff under assembly.tree into assy.shelf. This is needed to draw hotspot singlet
+        def addChild(child):
+            self.newModel.shelf.addchild(child)
+            
+        self.newModel.tree.apply2all(addChild)
+        
+        self.newModel.shelf.prior_part = None
+        self.newModel.part = Part(self.newModel, self.newModel.shelf)
+            
+        self.elemGLPane.updateModel(self.newModel)
+                
     
     def _clipboardPageView(self):
         '''Construct clipboard page view. '''
@@ -251,7 +308,7 @@ class MMKit(MMKitDialog):
         if len(list): 
             itIndex = self.w.pasteComboBox.currentItem()
             self.chunkListBox.setSelected(itIndex, True)
-        else: self.elemGLPane.updateModel(newChunk=None)
+        else: self.elemGLPane.updateModel(None)
         
         
             
@@ -283,5 +340,21 @@ class MMKit(MMKitDialog):
         
         self.flayout.addWidget(self.elemGLPane,1)
         
-     
+        self.dirView = DirView(self.libraryPage)
+        
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        libDir = os.path.normpath(filePath + '/../partlib')
+        #print "The root libray directory is: ", libDir
+        
+        if os.path.isdir(libDir):
+            self.rootDir = Directory(self.dirView, libDir)
+            self.rootDir.setOpen(True)
+        else:
+            self.rootDir = None
+            from HistoryWidget import redmsg
+            self.w.history.message(redmsg("No partlib exists."))
+        
+            
+        
+        
         

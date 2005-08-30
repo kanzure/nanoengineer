@@ -27,11 +27,27 @@ class ops_motion_Mixin:
             mol.move(offset)
  
     def rotsel(self, quat):
-        "rotate selected chunks in space"
+        '''Rotate selected chunks in space. [Huaicai 8/30/05: Fixed the problem of each rotating
+           around its own center, they will now rotate around their common center]'''
+        # Find the common center of all selected chunks to fix bug 594 
+        numSelected = len(self.selmols)
+        if numSelected > 0:
+            comCenter = V(0.0, 0.0, 0.0)
+            for m in self.selmols: comCenter += m.center
+            comCenter /= numSelected
+        
+        # Move the selected chunks    
         for mol in self.selmols:
             self.changed()
-            mol.rot(quat)
-
+            
+            # Get the moving offset because of the rotation around each chunk's own center
+            rotOff = quat.rot(mol.center - comCenter)    
+            rotOff = comCenter - mol.center + rotOff
+            
+            mol.move(rotOff) 
+            mol.rot(quat) 
+   
+            
     #stretch a molecule
     def Stretch(self):
         

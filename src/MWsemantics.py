@@ -1371,7 +1371,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         # This should probably be moved elsewhere
         global MMKitWin
         if MMKitWin and MMKitWin.isShown():
-            return 
+            return MMKitWin
         
         MMKitWin = MMKit(self)
         MMKitWin.update_dialog(self.Element)
@@ -1385,7 +1385,8 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         else:
             MMKitWin.move(pos[0], pos[1])
             MMKitWin.show()
-            
+        return MMKitWin
+    
     
     def closeMMKit(self):
         global MMKitWin

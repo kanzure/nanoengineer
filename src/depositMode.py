@@ -23,6 +23,9 @@ from debug import print_compact_traceback
 from elements import PeriodicTable
 from Utility import imagename_to_pixmap
 
+from bonds import bond_atoms
+from bond_constants import V_SINGLE
+
 from prefs_constants import HICOLOR_singlet
     ###e should replace uses of these with prefs gets [bruce 050805] #####@@@@@
 
@@ -346,7 +349,7 @@ class depositMode(basicMode):
         self.dont_update_gui = False
 	
 	# Huaicai 7/29/05: Open the MMKit every time entering this mode.
-	self.w.modifyMMKit()
+	self.modellingKit = self.w.modifyMMKit()
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
 
@@ -1001,7 +1004,90 @@ class depositMode(basicMode):
         elif platform.atom_debug:
             pass ## status += " (atom_debug: already visible)"
         return status
-        
+    
+    def __createBond(self, s1, a1, s2, a2):
+	'''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets '''
+	
+	try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
+            v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
+            assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
+        except:
+            # old code can be used for now
+            s1.kill()
+            s2.kill()
+            bond_atoms(a1,a2)
+	    return
+	
+	vnew = min(v1,v2)
+        bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
+           
+    
+    def _pastePart(self, newAssy, hotspotAtom, atom_or_pos): 
+	'''Huaicai 8/25/05: This method serves as an overloaded method, <atom_or_pos> is 
+           the Singlet atom or the empty position that the new part <newAssy> will be attached to or placed at.
+	   Currently, it doesn't consider group or jigs in the <newAssy>. Not so sure if my attempt to copy a part into
+	   another assembly is all right. 
+           Copies all molecules in the <newAssy>, change their assy attribute to current assembly, move them into <pos>. '''
+        attach2Bond = False	
+	
+	if isinstance(atom_or_pos, Atom):
+	    attch2Singlet = atom_or_pos
+	    if hotspotAtom and hotspotAtom.is_singlet() and attch2Singlet .is_singlet():
+		newMol = hotspotAtom.molecule.copy(None)
+		newMol.assy = self.o.assy
+		hs = newMol.hotspot
+                ha = hs.singlet_neighbor() # hotspot neighbor atom
+		attch2Atom = attch2Singlet.singlet_neighbor() # atttch to atom
+
+		rotCenter = newMol.center
+		rotOffset = Q(ha.posn()-hs.posn(), attch2Singlet.posn()-attch2Atom.posn())
+		newMol.rot(rotOffset)
+		
+		moveOffset = attch2Singlet.posn() - hs.posn()
+		newMol.move(moveOffset)
+                
+   		self.__createBond(hs, ha, attch2Singlet, attch2Atom)
+		
+		self.o.assy.addmol(newMol)
+		
+	    else: ## something is wrong, do nothing
+		return
+	    attach2Bond = True
+	else:
+	    placedPos = atom_or_pos
+	    if hotspotAtom:
+		hotspotAtomPos = hotspotAtom.posn()
+		moveOffset = placedPos - hotspotAtomPos
+	    else:
+		if newAssy.molecules:
+		    moveOffset = placedPos - newAssy.molecules[0].center
+	
+	if attach2Bond: # Connect part to an open bond of an existing chunk
+	    for m in newAssy.molecules:
+              if not m is hotspotAtom.molecule: 
+		newMol = m.copy(None)
+		newMol.assy = self.o.assy
+		
+		## Get each of all other chunks' center movement for the rotation around 'rotCenter'
+		coff = rotOffset.rot(newMol.center - rotCenter)
+		coff = rotCenter - newMol.center + coff 
+		
+		# The order of the following 2 statements doesn't matter
+		newMol.rot(rotOffset)
+		newMol.move(moveOffset + coff)
+		
+		
+		self.o.assy.addmol(newMol)
+	else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
+	    for m in newAssy.molecules:
+		newMol = m.copy(None)
+		newMol.assy = self.o.assy
+		
+		newMol.move(moveOffset)
+		
+		self.o.assy.addmol(newMol)
+ 
+    
     def leftDown(self, event):
         """If there's nothing nearby, deposit a new atom.
         If cursor is on a singlet, deposit an atom bonded to it.
@@ -1022,11 +1108,21 @@ class depositMode(basicMode):
         atype = self.pastable_atomtype()
         self.modified = 1
         self.o.assy.changed()
+	
+	# Possible pastable part and its anchor point [Huaicai 8/26/05]
+	newAssy, anchorAtom = self.modellingKit.getPastablePart()
+	    
         if a: # if some atom (not bond) was "lit up"
+            ## self.w.history.message("%r" % a) #bruce 04
             ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element is Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
-                if self.w.pasteP:
+		
+		if newAssy and anchorAtom : # Try to paste part if it's possible[Huaicai]
+		    self._pastePart(newAssy, anchorAtom, a)
+		elif newAssy and not anchorAtom: self.w.history.message("No open bond or no hotspot open bond.")
+		
+                elif self.w.pasteP:
                     # user wants to paste something
                     if self.pastable:
                         chunk, desc = self.pasteBond(a)
@@ -1063,8 +1159,10 @@ class depositMode(basicMode):
                     del a1, desc
                 self.o.selatom = None
                 self.dragmol = None
-                status = self.ensure_visible(chunk, status) #bruce 041207
-                self.w.history.message(status)
+		
+		if not (newAssy and anchorAtom):  ##Added the condition [Huaicai 8/26/05]
+		    status = self.ensure_visible(chunk, status) #bruce 041207
+		    self.w.history.message(status)
                 self.w.win_update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
@@ -1114,7 +1212,11 @@ class depositMode(basicMode):
             # nothing was "lit up" -- we're in empty space;
             # create something and (if an atom) drag it rigidly
             atomPos = self.getCoords(event)
-            if self.w.pasteP:
+	    
+	    if newAssy:
+		self._pastePart(newAssy, anchorAtom, atomPos)
+		
+            elif self.w.pasteP:
                 if self.pastable:
                     chunk, desc = self.pasteFree(atomPos)
                     self.dragmol = None
@@ -1130,9 +1232,10 @@ class depositMode(basicMode):
                 chunk = self.o.selatom.molecule #bruce 041207
             # now fix bug 229 part B (as called in comment #2),
             # by making this new chunk visible if it otherwise would not be
-            status = self.ensure_visible(chunk, status) #bruce 041207
-            self.w.history.message(status)
-            # fall thru
+	    if not newAssy:  ##Added the condition [Huaicai 8/26/05]
+		status = self.ensure_visible(chunk, status) #bruce 041207
+		self.w.history.message(status)
+		# fall thru
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
         self.pivax = None

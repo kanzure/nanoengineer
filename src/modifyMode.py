@@ -289,11 +289,9 @@ class modifyMode(basicMode):
             qrot = Q(ma,-dy) # Quat for rotation delta.
             self.rotDelta += qrot.angle *180.0/pi * sign(dy) # Increment rotation delta (and convert to degrees)
             
-            # Move the selected chunks    
-            for mol in self.o.assy.selmols:
-                mol.move(dx*ma) # Translate
-                mol.rot(qrot) # Rotate
-        
+            self.o.assy.movesel(dx*ma) # [Huaicai 8/30/05: call this method instead]
+            self.o.assy.rotsel(qrot) # [Huaicai 8/30/05: call this method instead]
+            
             # Print status bar msg indicating the current translation and rotation delta.
             if self.o.assy.selmols:
                 msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
@@ -531,11 +529,10 @@ class modifyMode(basicMode):
         dy = theta / 180.0 * pi # Convert to radians
         qrot = Q(ma,dy) # Quat for rotation delta.
         
-        # Rotate the selected chunks    
-        for mol in self.o.assy.selmols:
-            mol.rot(qrot) # Rotate
+        self.o.assy.rotsel(qrot) # [Huaicai 8/30/05: call this method instead]
             
         self.o.gl_update()
+      
         
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Mon Aug 15 10:58:12 2005
+# Created: Wed Aug 24 17:27:44 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -329,6 +329,9 @@ class MMKitDialog(QDialog):
         tabLayout_2.addLayout(layout5)
         self.tabWidget2.insertTab(self.tab_2,QString(""))
 
+        self.libraryPage = QWidget(self.tabWidget2,"libraryPage")
+        self.tabWidget2.insertTab(self.libraryPage,QString(""))
+
         MMKitDialogLayout.addWidget(self.tabWidget2,1,0)
         spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
         MMKitDialogLayout.addItem(spacer4_2,2,0)
@@ -435,6 +438,7 @@ class MMKitDialog(QDialog):
         self.updateButton.setText(self.__tr("Update"))
         QToolTip.add(self.updateButton,self.__tr("Synchronize list with the Model Tree clipboard."))
         self.tabWidget2.changeTab(self.tab_2,self.__tr("Clipboard"))
+        self.tabWidget2.changeTab(self.libraryPage,self.__tr("Library"))
         self.closePTableButton.setText(self.__tr("Close"))
 
 

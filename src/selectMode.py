@@ -525,6 +525,15 @@ class selectAtomsMode(selectMode):
         
         eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
         
+        def __init__(self, glpane):
+            """The initial function is called only once for the whole program """
+            selectMode.__init__(self, glpane)
+            
+            self.w.filterCheckBox.setChecked(0)
+            self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
+            self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed) 
+            
+    
         def Enter(self): 
             basicMode.Enter(self)
             self.o.assy.selectAtoms()
@@ -535,10 +544,6 @@ class selectAtomsMode(selectMode):
             selectMode.init_gui(self)
             self.o.setCursor(self.w.SelectAtomsCursor)
             self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
-            
-            self.w.filterCheckBox.setChecked(0)
-            self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
-            self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed) 
             
             self.update_hybridComboBox(self.w)
             
