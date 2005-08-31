@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Aug 11 17:42:27 2005
+# Created: Wed Aug 31 16:34:57 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -117,7 +117,7 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.tab,QString(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
-        TabPageLayout = QHBoxLayout(self.TabPage,11,6,"TabPageLayout")
+        TabPageLayout = QGridLayout(self.TabPage,1,1,11,6,"TabPageLayout")
 
         layout59 = QVBoxLayout(None,0,6,"layout59")
 
@@ -179,9 +179,12 @@ class UserPrefsDialog(QDialog):
         layout59.addWidget(self.atom_colors_grpbox)
         spacer11_4 = QSpacerItem(20,3,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout59.addItem(spacer11_4)
-        TabPageLayout.addLayout(layout59)
 
-        layout22 = QVBoxLayout(None,0,6,"layout22")
+        TabPageLayout.addLayout(layout59,0,0)
+        spacer9 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout.addItem(spacer9,0,2)
+
+        layout25 = QVBoxLayout(None,0,6,"layout25")
 
         self.default_display_btngrp = QButtonGroup(self.TabPage,"default_display_btngrp")
         self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
@@ -209,12 +212,20 @@ class UserPrefsDialog(QDialog):
         self.default_display_btngrp.insert( self.tubes_rbtn,5)
 
         default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
-        layout22.addWidget(self.default_display_btngrp)
+        layout25.addWidget(self.default_display_btngrp)
+
+        layout24 = QVBoxLayout(None,0,6,"layout24")
+
+        self.textLabel1 = QLabel(self.TabPage,"textLabel1")
+        layout24.addWidget(self.textLabel1)
+
+        self.line_thickness_combox = QComboBox(0,self.TabPage,"line_thickness_combox")
+        layout24.addWidget(self.line_thickness_combox)
+        layout25.addLayout(layout24)
         spacer11 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout22.addItem(spacer11)
-        TabPageLayout.addLayout(layout22)
-        spacer9 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout.addItem(spacer9)
+        layout25.addItem(spacer11)
+
+        TabPageLayout.addLayout(layout25,0,1)
         self.prefs_tab.insertTab(self.TabPage,QString(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
@@ -310,13 +321,13 @@ class UserPrefsDialog(QDialog):
         layout61.addWidget(self.textLabel3,1,0)
         groupBox4Layout.addLayout(layout61)
 
-        layout25 = QHBoxLayout(None,0,6,"layout25")
+        layout25_3 = QHBoxLayout(None,0,6,"layout25_3")
         spacer20 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout25.addItem(spacer20)
+        layout25_3.addItem(spacer20)
 
         self.reset_bond_colors_btn = QPushButton(self.groupBox4,"reset_bond_colors_btn")
-        layout25.addWidget(self.reset_bond_colors_btn)
-        groupBox4Layout.addLayout(layout25)
+        layout25_3.addWidget(self.reset_bond_colors_btn)
+        groupBox4Layout.addLayout(layout25_3)
         layout63.addWidget(self.groupBox4)
         spacer22 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout63.addItem(spacer22)
@@ -542,6 +553,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
+        self.connect(self.line_thickness_combox,SIGNAL("activated(int)"),self.change_line_thickness)
 
 
     def languageChange(self):
@@ -573,6 +585,16 @@ class UserPrefsDialog(QDialog):
         self.cpk_rbtn.setText(self.__tr("CPK"))
         self.lines_rbtn.setText(self.__tr("Lines"))
         self.tubes_rbtn.setText(self.__tr("Tubes"))
+        self.textLabel1.setText(self.__tr("Line thickness :"))
+        QToolTip.add(self.textLabel1,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
+        QWhatsThis.add(self.textLabel1,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
+        self.line_thickness_combox.clear()
+        self.line_thickness_combox.insertItem(self.__tr("1"))
+        self.line_thickness_combox.insertItem(self.__tr("1 (nice)"))
+        self.line_thickness_combox.insertItem(self.__tr("2"))
+        self.line_thickness_combox.insertItem(self.__tr("3"))
+        QToolTip.add(self.line_thickness_combox,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
+        QWhatsThis.add(self.line_thickness_combox,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Atoms"))
         self.groupBox4.setTitle(self.__tr("Colors"))
         self.bond_hilite_color_btn.setText(self.__tr("Choose..."))
@@ -698,6 +720,9 @@ class UserPrefsDialog(QDialog):
 
     def change_show_valence_errors(self):
         print "UserPrefsDialog.change_show_valence_errors(): Not implemented yet"
+
+    def change_line_thickness(self):
+        print "UserPrefsDialog.change_line_thickness(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

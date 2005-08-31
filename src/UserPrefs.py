@@ -93,6 +93,12 @@ class UserPrefs(UserPrefsDialog):
         #bruce 050811 added these:
         self._setup_caption_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
+        
+        # This is where What's This descriptions should go for UserPrefs.
+        # Mark 050831.
+        from whatsthis import create_whats_this_descriptions_for_UserPrefs_dialog
+        create_whats_this_descriptions_for_UserPrefs_dialog(self)
+    
         return
 
     def _setup_caption_signals(self):
@@ -218,6 +224,9 @@ class UserPrefs(UserPrefsDialog):
             # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
             #   while the dialog is shown.
 
+        # Easy NFR: Set Lines Dislplay Mode line thickness.  Mark 050831.
+        self.line_thickness_combox.setCurrentItem( env.prefs[linesDisplayModeThickness_prefs_key] )
+        
         return
     
     def _setup_bonds_page(self):
@@ -439,6 +448,18 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[defaultDisplayMode_prefs_key] = val
         # change the current display mode too
         self.glpane.setDisplay(val, True)
+        self.glpane.gl_update()
+        
+    def change_line_thickness(self, pixel_thickness): #mark 050831
+        '''Set the default line thickness for Lines Display Mode.  
+        pixel_thickness can be 0, 1, 2 or 3, where:
+                0 = 1 pixel, but 0 is faster to draw than 1; openGL will use the fastest line drawing 
+                      method, even if it looks worse.
+                1 = 1 pixel (nice mode)
+                2 = 2 pixels
+                3 = 3 pixels
+        '''
+        env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
         self.glpane.gl_update()
         
     ########## End of slot methods for "Atoms" page widgets ###########

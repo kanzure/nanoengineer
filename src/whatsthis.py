@@ -1233,3 +1233,25 @@ def create_whats_this_descriptions_for_depositMode(w):
                         w.depositAtomDashboard.bondaRB.iconSet().pixmap() )
 
     QWhatsThis.add ( w.depositAtomDashboard.bondaRB, aromaticBondText )
+    
+
+def create_whats_this_descriptions_for_UserPrefs_dialog(w):
+    "Create What's This descriptions for the User Prefs dialog widgets."
+
+    ########## "Atoms" page widgets ################
+        
+    #### Line Thickness ####
+
+    lineThicknessText = "<u><b>Line Thickness</b></u><br>"\
+                       "Sets the <i>Line Thickness</i> (in pixels) for Lines Display Mode."\
+                       "This will also effect the thickness of bonds where atoms or chunks "\
+                       "have been set to <b>Lines</b> display."\
+                       "</p>"
+       
+    QWhatsThis.add ( w.line_thickness_combox, lineThicknessText )
+    
+    ########## End of "Atoms" page widgets ###########
+    
+    ########## "Bonds" page widgets ################
+    
+    ########## End of "Bonds" page widgets ###########

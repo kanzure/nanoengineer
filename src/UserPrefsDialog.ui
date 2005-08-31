@@ -289,11 +289,11 @@
                 <attribute name="title">
                     <string>Atoms</string>
                 </attribute>
-                <hbox>
+                <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget">
+                    <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
                             <cstring>layout59</cstring>
                         </property>
@@ -484,9 +484,26 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <widget class="QLayoutWidget">
+                    <spacer row="0" column="2">
                         <property name="name">
-                            <cstring>layout22</cstring>
+                            <cstring>spacer9</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>3</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget" row="0" column="1">
+                        <property name="name">
+                            <cstring>layout25</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -549,6 +566,61 @@
                                     </widget>
                                 </grid>
                             </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout24</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Line thickness :</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox">
+                                        <item>
+                                            <property name="text">
+                                                <string>1</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>1 (nice)</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>2</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>3</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>line_thickness_combox</cstring>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
                             <spacer>
                                 <property name="name">
                                     <cstring>spacer11</cstring>
@@ -568,24 +640,7 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <spacer>
-                        <property name="name">
-                            <cstring>spacer9</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>3</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                </hbox>
+                </grid>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -1737,6 +1792,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>change_show_valence_errors()</slot>
     </connection>
+    <connection>
+        <sender>line_thickness_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_line_thickness()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>display_compass()</slot>
@@ -1763,6 +1824,7 @@
     <slot>reset_atom_colors()</slot>
     <slot>change_hotspot_color()</slot>
     <slot>change_show_valence_errors()</slot>
+    <slot>change_line_thickness()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

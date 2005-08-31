@@ -37,6 +37,8 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 freeValenceColor_prefs_key = 'A6/Free Valence Color'
 atomHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
+#display lines mode line thickness, mark 050831
+linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
