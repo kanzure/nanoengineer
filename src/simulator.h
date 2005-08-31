@@ -18,15 +18,6 @@
 
 #include "readers.h"
 
-/* begin tables.h */
-extern struct atomtype element[];
-extern struct bsdata bstab[];
-extern struct angben bendata[];
-extern const int NUMELTS;
-extern const int BSTABSIZE;
-extern const int BENDATASIZE;
-/* end tables.h */
-
 #define NATOMS 100000
 #define NBONDS 12
 /* that's bonds per atom! */

@@ -501,7 +501,8 @@ jigMotorPreforce(int j, struct xyz *position, double deltaTframe)
 
     if (mot->speed==0.0) { // just add torque to force
 
-        // set the center of torque each time
+        // set the center of torque each time to the average position
+        // of the atoms in the motor
         n=Constraint[j].natoms;
         vsetc(rx, 0.0);
         for (k=0; k<n; k++) {
@@ -648,7 +649,7 @@ jigMotor(int j, double deltaTframe, struct xyz *position, struct xyz *new_positi
 }
 
 static void
-jigLinearMotor(int j, struct xyz *position, double deltaTframe)
+jigLinearMotor(int j, struct xyz *position, struct xyz *new_position, double deltaTframe)
 {
     struct MOT *mot;
     int i, k;
@@ -659,14 +660,15 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
 
     mot=Constraint[j].motor;
 
+    // calculate the average position of all atoms in the motor (r)
     r = vcon(0.0);
     for (i=0;i<Constraint[j].natoms;i++) {
         /* for each atom connected to the "shaft" */
-        r=vsum(r,Positions[Constraint[j].atoms[i]]);
+        r=vsum(r,position[Constraint[j].atoms[i]]);
     }
     r=vprodc(r, 1.0/Constraint[j].natoms);
     	
-    // x is length of projection of r onto axis
+    // x is length of projection of r onto axis (axis is unit vector)
     x=vdot(r,mot->axis);
     Constraint[j].data = x - mot->theta;
     
@@ -678,8 +680,16 @@ jigLinearMotor(int j, struct xyz *position, double deltaTframe)
 	ff = mot->speed * (mot->theta0 - x) / Constraint[j].natoms;
 	f = vprodc(mot->axis, ff);
     }
+    // Calculate the resulting force on each atom, and project it onto
+    // the motor axis.  This dissapates lateral force from the system
+    // without translating it anywhere else, or reporting it out.
+    // XXX report resulting force on linear bearing out to higher level
     for (i=0;i<Constraint[j].natoms;i++) {
-        vadd(Force[Constraint[j].atoms[i]], f);
+        a1 = Constraint[j].atoms[i];
+        ff = vdot(vdif(new_position[a1], position[a1]), mot->axis);
+        vadd2(new_position[a1], position[a1], vprodc(mot->axis, ff));
+        ff = vdot(vsum(Force[a1], f), mot->axis) ;
+        vmul2c(Force[a1], mot->axis, ff);
     }
 }
 
@@ -829,7 +839,7 @@ calcloop(int iters) {
                 jigMotorPreforce(j, Positions, deltaTframe);
                 break;
 	    case CODElmotor:
-		jigLinearMotor(j, Positions, deltaTframe);
+		jigLinearMotor(j, Positions, NewPositions, deltaTframe);
                 break;
 	    }
 	}
