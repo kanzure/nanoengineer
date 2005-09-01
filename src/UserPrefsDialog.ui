@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>495</width>
-            <height>318</height>
+            <width>499</width>
+            <height>347</height>
         </rect>
     </property>
     <property name="caption">
@@ -289,11 +289,11 @@
                 <attribute name="title">
                     <string>Atoms</string>
                 </attribute>
-                <grid>
+                <hbox>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" row="0" column="0">
+                    <widget class="QLayoutWidget">
                         <property name="name">
                             <cstring>layout59</cstring>
                         </property>
@@ -484,26 +484,9 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <spacer row="0" column="2">
+                    <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>spacer9</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>3</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="0" column="1">
-                        <property name="name">
-                            <cstring>layout25</cstring>
+                            <cstring>layout24</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -566,64 +549,148 @@
                                     </widget>
                                 </grid>
                             </widget>
-                            <widget class="QLayoutWidget">
+                            <spacer>
                                 <property name="name">
-                                    <cstring>layout24</cstring>
+                                    <cstring>spacer11</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>16</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </vbox>
+                    </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer9</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>3</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </hbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Bonds</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <spacer row="0" column="2">
+                        <property name="name">
+                            <cstring>spacer19</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>16</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget" row="0" column="1">
+                        <property name="name">
+                            <cstring>layout26</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QButtonGroup">
+                                <property name="name">
+                                    <cstring>high_order_bond_display_btngrp</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>High Order Bonds</string>
+                                </property>
+                                <property name="exclusive">
+                                    <bool>true</bool>
                                 </property>
                                 <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLabel">
+                                    <widget class="QRadioButton">
                                         <property name="name">
-                                            <cstring>textLabel1</cstring>
+                                            <cstring>radioButton11</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Line thickness :</string>
+                                            <string>Multiple Cylinders</string>
                                         </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        <property name="checked">
+                                            <bool>true</bool>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        <property name="buttonGroupId">
+                                            <number>0</number>
                                         </property>
                                     </widget>
-                                    <widget class="QComboBox">
-                                        <item>
-                                            <property name="text">
-                                                <string>1</string>
-                                            </property>
-                                        </item>
-                                        <item>
-                                            <property name="text">
-                                                <string>1 (nice)</string>
-                                            </property>
-                                        </item>
-                                        <item>
-                                            <property name="text">
-                                                <string>2</string>
-                                            </property>
-                                        </item>
-                                        <item>
-                                            <property name="text">
-                                                <string>3</string>
-                                            </property>
-                                        </item>
+                                    <widget class="QRadioButton">
                                         <property name="name">
-                                            <cstring>line_thickness_combox</cstring>
+                                            <cstring>radioButton11_2</cstring>
                                         </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        <property name="text">
+                                            <string>Vanes</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Line thickness (in pixels) for Lines Display Mode</string>
+                                        <property name="buttonGroupId">
+                                            <number>1</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton">
+                                        <property name="name">
+                                            <cstring>radioButton11_2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Ribbons</string>
                                         </property>
                                     </widget>
                                 </vbox>
                             </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>show_bond_labels_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show Bond Type Letters</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>show_valence_errors_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show Valence Errors</string>
+                                </property>
+                            </widget>
                             <spacer>
                                 <property name="name">
-                                    <cstring>spacer11</cstring>
+                                    <cstring>spacer18</cstring>
                                 </property>
                                 <property name="orientation">
                                     <enum>Vertical</enum>
@@ -640,22 +707,9 @@
                             </spacer>
                         </vbox>
                     </widget>
-                </grid>
-            </widget>
-            <widget class="QWidget">
-                <property name="name">
-                    <cstring>TabPage</cstring>
-                </property>
-                <attribute name="title">
-                    <string>Bonds</string>
-                </attribute>
-                <grid>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
                     <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
-                            <cstring>layout63</cstring>
+                            <cstring>layout30</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -951,6 +1005,72 @@
                                     </widget>
                                 </vbox>
                             </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout29</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Bond line thickness :</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSpinBox">
+                                        <property name="name">
+                                            <cstring>bond_line_thickness_spinbox</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>3</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>1</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>pixels</string>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer22_2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </hbox>
+                            </widget>
                             <spacer>
                                 <property name="name">
                                     <cstring>spacer22</cstring>
@@ -965,115 +1085,6 @@
                                     <size>
                                         <width>20</width>
                                         <height>16</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </vbox>
-                    </widget>
-                    <spacer row="0" column="2">
-                        <property name="name">
-                            <cstring>spacer19</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>16</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="0" column="1">
-                        <property name="name">
-                            <cstring>layout64</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QButtonGroup">
-                                <property name="name">
-                                    <cstring>high_order_bond_display_btngrp</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>High Order Bonds</string>
-                                </property>
-                                <property name="exclusive">
-                                    <bool>true</bool>
-                                </property>
-                                <vbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QRadioButton">
-                                        <property name="name">
-                                            <cstring>radioButton11</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Multiple Cylinders</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>0</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton">
-                                        <property name="name">
-                                            <cstring>radioButton11_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Vanes</string>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>1</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton">
-                                        <property name="name">
-                                            <cstring>radioButton11_2_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Ribbons</string>
-                                        </property>
-                                    </widget>
-                                </vbox>
-                            </widget>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>show_bond_labels_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Show Bond Type Letters</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>show_valence_errors_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Show Valence Errors</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer18</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>30</height>
                                     </size>
                                 </property>
                             </spacer>
@@ -1673,6 +1684,12 @@
         <slot>change_bond_vane_color()</slot>
     </connection>
     <connection>
+        <sender>caption_fullpath_checkbox</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_caption_fullpath()</slot>
+    </connection>
+    <connection>
         <sender>choose_bg1_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -1733,6 +1750,12 @@
         <slot>set_history_height(int)</slot>
     </connection>
     <connection>
+        <sender>hotspot_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_hotspot_color()</slot>
+    </connection>
+    <connection>
         <sender>mode_combox</sender>
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -1775,28 +1798,16 @@
         <slot>change_bond_labels(bool)</slot>
     </connection>
     <connection>
-        <sender>caption_fullpath_checkbox</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_caption_fullpath()</slot>
-    </connection>
-    <connection>
-        <sender>hotspot_color_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_hotspot_color()</slot>
-    </connection>
-    <connection>
         <sender>show_valence_errors_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_show_valence_errors()</slot>
     </connection>
     <connection>
-        <sender>line_thickness_combox</sender>
-        <signal>activated(int)</signal>
+        <sender>bond_line_thickness_spinbox</sender>
+        <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_line_thickness()</slot>
+        <slot>change_bond_line_thickness()</slot>
     </connection>
 </connections>
 <slots>
@@ -1824,7 +1835,7 @@
     <slot>reset_atom_colors()</slot>
     <slot>change_hotspot_color()</slot>
     <slot>change_show_valence_errors()</slot>
-    <slot>change_line_thickness()</slot>
+    <slot>change_bond_line_thickness()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

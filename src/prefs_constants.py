@@ -122,6 +122,7 @@ prefs_table = (
     ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
+    ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
 
     # Caption preferences [added to this table by bruce 050810]
 

@@ -1240,15 +1240,15 @@ def create_whats_this_descriptions_for_UserPrefs_dialog(w):
 
     ########## "Atoms" page widgets ################
         
-    #### Line Thickness ####
+    #### Bond Thickness ####
 
-    lineThicknessText = "<u><b>Line Thickness</b></u><br>"\
-                       "Sets the <i>Line Thickness</i> (in pixels) for Lines Display Mode."\
-                       "This will also effect the thickness of bonds where atoms or chunks "\
+    bondThicknessText = "<u><b>Bond Thickness</b></u><br>"\
+                       "Sets the <i>Bond Thickness</i> (in pixels) for Lines Display Mode."\
+                       "This will also affect the thickness of bonds where atoms or chunks "\
                        "have been set to <b>Lines</b> display."\
                        "</p>"
        
-    QWhatsThis.add ( w.line_thickness_combox, lineThicknessText )
+    QWhatsThis.add ( w.bond_line_thickness_spinbox, bondThicknessText )
     
     ########## End of "Atoms" page widgets ###########
     

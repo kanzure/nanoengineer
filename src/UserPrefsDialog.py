@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Aug 31 16:34:57 2005
+# Created: Wed Aug 31 21:48:17 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -117,7 +117,7 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.tab,QString(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
-        TabPageLayout = QGridLayout(self.TabPage,1,1,11,6,"TabPageLayout")
+        TabPageLayout = QHBoxLayout(self.TabPage,11,6,"TabPageLayout")
 
         layout59 = QVBoxLayout(None,0,6,"layout59")
 
@@ -179,12 +179,9 @@ class UserPrefsDialog(QDialog):
         layout59.addWidget(self.atom_colors_grpbox)
         spacer11_4 = QSpacerItem(20,3,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout59.addItem(spacer11_4)
+        TabPageLayout.addLayout(layout59)
 
-        TabPageLayout.addLayout(layout59,0,0)
-        spacer9 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout.addItem(spacer9,0,2)
-
-        layout25 = QVBoxLayout(None,0,6,"layout25")
+        layout24 = QVBoxLayout(None,0,6,"layout24")
 
         self.default_display_btngrp = QButtonGroup(self.TabPage,"default_display_btngrp")
         self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
@@ -212,26 +209,53 @@ class UserPrefsDialog(QDialog):
         self.default_display_btngrp.insert( self.tubes_rbtn,5)
 
         default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
-        layout25.addWidget(self.default_display_btngrp)
-
-        layout24 = QVBoxLayout(None,0,6,"layout24")
-
-        self.textLabel1 = QLabel(self.TabPage,"textLabel1")
-        layout24.addWidget(self.textLabel1)
-
-        self.line_thickness_combox = QComboBox(0,self.TabPage,"line_thickness_combox")
-        layout24.addWidget(self.line_thickness_combox)
-        layout25.addLayout(layout24)
-        spacer11 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout25.addItem(spacer11)
-
-        TabPageLayout.addLayout(layout25,0,1)
+        layout24.addWidget(self.default_display_btngrp)
+        spacer11 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout24.addItem(spacer11)
+        TabPageLayout.addLayout(layout24)
+        spacer9 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout.addItem(spacer9)
         self.prefs_tab.insertTab(self.TabPage,QString(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
         TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
+        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_2.addItem(spacer19,0,2)
 
-        layout63 = QVBoxLayout(None,0,6,"layout63")
+        layout26 = QVBoxLayout(None,0,6,"layout26")
+
+        self.high_order_bond_display_btngrp = QButtonGroup(self.TabPage_2,"high_order_bond_display_btngrp")
+        self.high_order_bond_display_btngrp.setExclusive(1)
+        self.high_order_bond_display_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.high_order_bond_display_btngrp.layout().setSpacing(6)
+        self.high_order_bond_display_btngrp.layout().setMargin(11)
+        high_order_bond_display_btngrpLayout = QVBoxLayout(self.high_order_bond_display_btngrp.layout())
+        high_order_bond_display_btngrpLayout.setAlignment(Qt.AlignTop)
+
+        self.radioButton11 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11")
+        self.radioButton11.setChecked(1)
+        self.high_order_bond_display_btngrp.insert( self.radioButton11,0)
+        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11)
+
+        self.radioButton11_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2")
+        self.high_order_bond_display_btngrp.insert( self.radioButton11_2,1)
+        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2)
+
+        self.radioButton11_2_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2_2")
+        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2_2)
+        layout26.addWidget(self.high_order_bond_display_btngrp)
+
+        self.show_bond_labels_checkbox = QCheckBox(self.TabPage_2,"show_bond_labels_checkbox")
+        layout26.addWidget(self.show_bond_labels_checkbox)
+
+        self.show_valence_errors_checkbox = QCheckBox(self.TabPage_2,"show_valence_errors_checkbox")
+        layout26.addWidget(self.show_valence_errors_checkbox)
+        spacer18 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout26.addItem(spacer18)
+
+        TabPageLayout_2.addLayout(layout26,0,1)
+
+        layout30 = QVBoxLayout(None,0,6,"layout30")
 
         self.groupBox4 = QGroupBox(self.TabPage_2,"groupBox4")
         self.groupBox4.setColumnLayout(0,Qt.Vertical)
@@ -321,53 +345,34 @@ class UserPrefsDialog(QDialog):
         layout61.addWidget(self.textLabel3,1,0)
         groupBox4Layout.addLayout(layout61)
 
-        layout25_3 = QHBoxLayout(None,0,6,"layout25_3")
+        layout25 = QHBoxLayout(None,0,6,"layout25")
         spacer20 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout25_3.addItem(spacer20)
+        layout25.addItem(spacer20)
 
         self.reset_bond_colors_btn = QPushButton(self.groupBox4,"reset_bond_colors_btn")
-        layout25_3.addWidget(self.reset_bond_colors_btn)
-        groupBox4Layout.addLayout(layout25_3)
-        layout63.addWidget(self.groupBox4)
+        layout25.addWidget(self.reset_bond_colors_btn)
+        groupBox4Layout.addLayout(layout25)
+        layout30.addWidget(self.groupBox4)
+
+        layout29 = QHBoxLayout(None,0,6,"layout29")
+
+        self.textLabel1 = QLabel(self.TabPage_2,"textLabel1")
+        layout29.addWidget(self.textLabel1)
+
+        self.bond_line_thickness_spinbox = QSpinBox(self.TabPage_2,"bond_line_thickness_spinbox")
+        self.bond_line_thickness_spinbox.setMaxValue(3)
+        self.bond_line_thickness_spinbox.setMinValue(1)
+        layout29.addWidget(self.bond_line_thickness_spinbox)
+
+        self.textLabel1_2 = QLabel(self.TabPage_2,"textLabel1_2")
+        layout29.addWidget(self.textLabel1_2)
+        spacer22_2 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout29.addItem(spacer22_2)
+        layout30.addLayout(layout29)
         spacer22 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout63.addItem(spacer22)
+        layout30.addItem(spacer22)
 
-        TabPageLayout_2.addLayout(layout63,0,0)
-        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_2.addItem(spacer19,0,2)
-
-        layout64 = QVBoxLayout(None,0,6,"layout64")
-
-        self.high_order_bond_display_btngrp = QButtonGroup(self.TabPage_2,"high_order_bond_display_btngrp")
-        self.high_order_bond_display_btngrp.setExclusive(1)
-        self.high_order_bond_display_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.high_order_bond_display_btngrp.layout().setSpacing(6)
-        self.high_order_bond_display_btngrp.layout().setMargin(11)
-        high_order_bond_display_btngrpLayout = QVBoxLayout(self.high_order_bond_display_btngrp.layout())
-        high_order_bond_display_btngrpLayout.setAlignment(Qt.AlignTop)
-
-        self.radioButton11 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11")
-        self.radioButton11.setChecked(1)
-        self.high_order_bond_display_btngrp.insert( self.radioButton11,0)
-        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11)
-
-        self.radioButton11_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2")
-        self.high_order_bond_display_btngrp.insert( self.radioButton11_2,1)
-        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2)
-
-        self.radioButton11_2_2 = QRadioButton(self.high_order_bond_display_btngrp,"radioButton11_2_2")
-        high_order_bond_display_btngrpLayout.addWidget(self.radioButton11_2_2)
-        layout64.addWidget(self.high_order_bond_display_btngrp)
-
-        self.show_bond_labels_checkbox = QCheckBox(self.TabPage_2,"show_bond_labels_checkbox")
-        layout64.addWidget(self.show_bond_labels_checkbox)
-
-        self.show_valence_errors_checkbox = QCheckBox(self.TabPage_2,"show_valence_errors_checkbox")
-        layout64.addWidget(self.show_valence_errors_checkbox)
-        spacer18 = QSpacerItem(20,30,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout64.addItem(spacer18)
-
-        TabPageLayout_2.addLayout(layout64,0,1)
+        TabPageLayout_2.addLayout(layout30,0,0)
         self.prefs_tab.insertTab(self.TabPage_2,QString(""))
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
@@ -525,7 +530,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(495,318).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(499,347).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
@@ -533,6 +538,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
+        self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
@@ -543,6 +549,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
+        self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
@@ -550,10 +557,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
-        self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
-        self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
-        self.connect(self.line_thickness_combox,SIGNAL("activated(int)"),self.change_line_thickness)
+        self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
 
 
     def languageChange(self):
@@ -585,17 +590,13 @@ class UserPrefsDialog(QDialog):
         self.cpk_rbtn.setText(self.__tr("CPK"))
         self.lines_rbtn.setText(self.__tr("Lines"))
         self.tubes_rbtn.setText(self.__tr("Tubes"))
-        self.textLabel1.setText(self.__tr("Line thickness :"))
-        QToolTip.add(self.textLabel1,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
-        QWhatsThis.add(self.textLabel1,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
-        self.line_thickness_combox.clear()
-        self.line_thickness_combox.insertItem(self.__tr("1"))
-        self.line_thickness_combox.insertItem(self.__tr("1 (nice)"))
-        self.line_thickness_combox.insertItem(self.__tr("2"))
-        self.line_thickness_combox.insertItem(self.__tr("3"))
-        QToolTip.add(self.line_thickness_combox,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
-        QWhatsThis.add(self.line_thickness_combox,self.__tr("Line thickness (in pixels) for Lines Display Mode"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Atoms"))
+        self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bonds"))
+        self.radioButton11.setText(self.__tr("Multiple Cylinders"))
+        self.radioButton11_2.setText(self.__tr("Vanes"))
+        self.radioButton11_2_2.setText(self.__tr("Ribbons"))
+        self.show_bond_labels_checkbox.setText(self.__tr("Show Bond Type Letters"))
+        self.show_valence_errors_checkbox.setText(self.__tr("Show Valence Errors"))
         self.groupBox4.setTitle(self.__tr("Colors"))
         self.bond_hilite_color_btn.setText(self.__tr("Choose..."))
         self.bond_cpk_color_btn.setText(self.__tr("Choose..."))
@@ -607,12 +608,12 @@ class UserPrefsDialog(QDialog):
         self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3.setText(self.__tr("CPK Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Restore Default Colors"))
-        self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bonds"))
-        self.radioButton11.setText(self.__tr("Multiple Cylinders"))
-        self.radioButton11_2.setText(self.__tr("Vanes"))
-        self.radioButton11_2_2.setText(self.__tr("Ribbons"))
-        self.show_bond_labels_checkbox.setText(self.__tr("Show Bond Type Letters"))
-        self.show_valence_errors_checkbox.setText(self.__tr("Show Valence Errors"))
+        self.textLabel1.setText(self.__tr("Bond line thickness :"))
+        QToolTip.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
+        QWhatsThis.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
+        QToolTip.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
+        QWhatsThis.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
+        self.textLabel1_2.setText(self.__tr("pixels"))
         self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Bonds"))
         self.groupBox11.setTitle(self.__tr("Mode Colors"))
         self.mode_lbl.setText(self.__tr("Mode :"))
@@ -721,8 +722,8 @@ class UserPrefsDialog(QDialog):
     def change_show_valence_errors(self):
         print "UserPrefsDialog.change_show_valence_errors(): Not implemented yet"
 
-    def change_line_thickness(self):
-        print "UserPrefsDialog.change_line_thickness(): Not implemented yet"
+    def change_bond_line_thickness(self):
+        print "UserPrefsDialog.change_bond_line_thickness(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

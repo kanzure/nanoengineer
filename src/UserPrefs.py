@@ -224,9 +224,6 @@ class UserPrefs(UserPrefsDialog):
             # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
             #   while the dialog is shown.
 
-        # Easy NFR: Set Lines Dislplay Mode line thickness.  Mark 050831.
-        self.line_thickness_combox.setCurrentItem( env.prefs[linesDisplayModeThickness_prefs_key] )
-        
         return
     
     def _setup_bonds_page(self):
@@ -271,6 +268,9 @@ class UserPrefs(UserPrefsDialog):
         if hasattr(self, 'show_valence_errors_checkbox'):
             self.show_valence_errors_checkbox.setChecked( env.prefs[ showValenceErrors_prefs_key] )
             # note: this does cause the checkbox to send its "toggled(bool)" signal to our slot method.
+        
+        # Set Lines Dislplay Mode line thickness.  Mark 050831.
+        self.bond_line_thickness_spinbox.setValue( env.prefs[linesDisplayModeThickness_prefs_key] )
         
         return
         
@@ -450,18 +450,6 @@ class UserPrefs(UserPrefsDialog):
         self.glpane.setDisplay(val, True)
         self.glpane.gl_update()
         
-    def change_line_thickness(self, pixel_thickness): #mark 050831
-        '''Set the default line thickness for Lines Display Mode.  
-        pixel_thickness can be 0, 1, 2 or 3, where:
-                0 = 1 pixel, but 0 is faster to draw than 1; openGL will use the fastest line drawing 
-                      method, even if it looks worse.
-                1 = 1 pixel (nice mode)
-                2 = 2 pixels
-                3 = 3 pixels
-        '''
-        env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
-        self.glpane.gl_update()
-        
     ########## End of slot methods for "Atoms" page widgets ###########
     
     ########## Slot methods for "Bonds" page widgets ################
@@ -518,6 +506,12 @@ class UserPrefs(UserPrefsDialog):
 ##        if platform.atom_debug:
 ##            print showValenceErrors_prefs_key, env.prefs[ showValenceErrors_prefs_key ] #k prints true, from our initial setup of page
         return
+        
+    def change_bond_line_thickness(self, pixel_thickness): #mark 050831
+        '''Set the default bond line thickness for Lines display.  
+        pixel_thickness can be 1, 2 or 3.
+        '''
+        env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
     
     ########## End of slot methods for "Bonds" page widgets ###########
     
