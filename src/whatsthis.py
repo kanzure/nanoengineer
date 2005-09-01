@@ -756,7 +756,7 @@ def createWhatsThis(self):
         toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
                        "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a "\
-                       "slab of diamond or londaleite lattice.</p>"
+                       "slab of diamond or lonsdaleite lattice.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsCookieCutAction",
                                                        self. toolsCookieCutAction.iconSet().pixmap() )
