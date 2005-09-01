@@ -179,11 +179,22 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bondaRB.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.bondaRB, qApp.translate("MainWindow","Aromatic bond", None))
     
+    w.depositAtomDashboard.bondgRB = QToolButton(bg2, "")
+    w.depositAtomDashboard.bondgRB.setPixmap(imagename_to_pixmap('bondg.png'))
+    w.depositAtomDashboard.bondgRB.setToggleButton(1)
+    w.depositAtomDashboard.bondgRB.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.bondgRB, qApp.translate("MainWindow","Graphitic bond", None))
+    
     
     # Bruce, the following line may be needed to fix a bug on MacOS, in which
     # a button with a pixmap will automatically shrink to a very small size and
     # the image is not visible. Let me know if this is needed or not.  Mark 050727
-##    w.depositAtomDashboard.pasteRB.setMinimumSize(QSize(30,30))  
+##    w.depositAtomDashboard.pasteRB.setMinimumSize(QSize(30,30))
+
+    w.depositAtomDashboard.addSeparator()
+    
+    w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
+    w.depositAtomDashboard.autobondCB.setChecked(1)
     
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
@@ -379,6 +390,8 @@ class depositMode(basicMode):
                        SIGNAL("toggled(bool)"), self.setBond3)
         change_connect(self.w.depositAtomDashboard.bondaRB,
                        SIGNAL("toggled(bool)"), self.setBonda)
+        change_connect(self.w.depositAtomDashboard.bondgRB,
+                       SIGNAL("toggled(bool)"), self.setBondg)
         return
 
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?)
@@ -1667,6 +1680,9 @@ class depositMode(basicMode):
     def setBonda(self, state):
         self.setBond(V_AROMATIC, state, self.w.depositAtomDashboard.bondaRB )
 
+    def setBondg(self, state): #mark 050831
+        self.setBond(V_GRAPHITE, state, self.w.depositAtomDashboard.bondgRB )
+        
     def setBond(self, v6, state, button = None):
         "#doc; v6 might be None, I guess, though this is not yet used"
         if state:
