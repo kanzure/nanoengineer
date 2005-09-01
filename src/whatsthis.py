@@ -1247,6 +1247,20 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bondgRB, graphiticBondText )
     
+    # Graphitic Bond button
+    
+    autoBondText = "<u><b>Autobond</b></u><br> "\
+                        "Enables/disables <b>Autobonding</b>.<br> "\
+                        "<br> When <b>enabled</b>, additional bonds are formed "\
+                        "<b>automatically</b> with the deposited atom  if any "\
+                        "open bonds of neighboring atoms fall within the VdW radius, "\
+                        "and the deposited atom has extra bonds available.<br>"\
+                        "<br>When <b>disabled</b>, the deposited atom will form only a single "\
+                        "bond <b>manually</b> with the open bond selected by the user."\
+                        "</p>"
+
+    QWhatsThis.add ( w.depositAtomDashboard.autobondCB, autoBondText )
+    
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."
