@@ -60,13 +60,18 @@ class AtomTypeDepositionTool(DepositionTool):
     # bruce 041123 new features:
     # return the new atom and a description of it, or None and the reason we made nothing.
 
-    def attach_to( self, singlet, autobond = True): # in AtomTypeDepositionTool [bruce 050831 added autobond option]
+    def attach_to( self, singlet, autobond = True, autobond_msg = True): # in AtomTypeDepositionTool
+        # [bruce 050831 added autobond option; 050901 added autobond_msg]
         """[public method]
         Deposit a new atom of self.atomtype onto the given singlet,
-        and make other bonds (to other near-enough atoms with singlets)
-        as appropriate. (Maybe more than one bond per other atom, in some cases??)###@@@
+        and (if autobond is true) make other bonds (to other near-enough atoms with singlets)
+        as appropriate. (But never more than one bond per other real atom.)
            Return the new atom and a description of it, or None and the reason we made nothing. #k
         ###@@@ should worry about bond direction! at least as a filter!
+           If autobond_msg is true, mention the autobonding done or not done (depending on autobond option),
+        in the returned message, if any atoms were near enough for autobonding to be done.
+        This option is independent from the autobond option.
+        [As of 050901 not all combos of these options have been tested. ###@@@]
         """
         atype = self.atomtype
         if not atype.numbonds:
@@ -79,7 +84,7 @@ class AtomTypeDepositionTool(DepositionTool):
             #  (tho it probably always was), or even that the list was nonempty,
             #  without analyzing the subrs in more detail than I'd like!)
 
-        if autobond: #bruce 050831 added this condition
+        if autobond or autobond_msg: #bruce 050831 added this condition; 050901 added autobond_msg
             # extend pl to make additional bonds, by adding more (singlet, spot) pairs
             rl = [singlet.singlet_neighbor()]
                 # list of real neighbors of singlets in pl [for bug 232 fix]
@@ -127,20 +132,29 @@ class AtomTypeDepositionTool(DepositionTool):
                 break
             del mol, s, real
         
-        n = min(atype.numbonds, len(pl)) # number of real bonds to make; always >= 1
+        n = min(atype.numbonds, len(pl)) # number of real bonds to make (if this was computed above); always >= 1
         pl = pl[0:n] # discard the extra pairs (old code did this too, implicitly)
+        if autobond_msg and not autobond:
+            pl = pl[0:1] # don't actually make the bonds we only wanted to tell the user we *might* have made
+        # now pl tells which bonds to actually make, and (if autobond_msg) n tells how many we might have made.
         
         # bruce 041215 change: for n > 4, old code gave up now;
         # new code makes all n bonds for any n, tho it won't add singlets
         # for n > 4. (Both old and new code don't know how to add enough
         # singlets for n >= 3 and numbonds > 4. They might add some, tho.)
-        # Note: new_bonded_n uses len(pl) as its n.
+        # Note: new_bonded_n uses len(pl) as its n. As of 050901 this might differ from the variable n.
         atm = self.new_bonded_n( pl)
         atm.make_enough_singlets() # (tries its best, but doesn't always make enough)
         desc = "%r (in %r)" % (atm, atm.molecule.name)
         #e what if caller renames atm.molecule??
         if n > 1: #e really: if n > (number of singlets clicked on at once)
-            desc += " (%d bonds made)" % n
+            if autobond:
+                msg = " (%d bonds made)" % n
+            else:
+                msg = " (%d bond(s) NOT made, since autobond is off)" % (n-1) #bruce 050901 new feature
+            from platform import fix_plurals
+            msg = fix_plurals(msg) # only needed in the (n-1) case above
+            desc += msg
         return atm, desc
 
     # given self.atomtype and a singlet, find the place an atom of that type
