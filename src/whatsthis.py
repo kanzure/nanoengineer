@@ -1234,13 +1234,24 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bondaRB, aromaticBondText )
     
+    # Graphitic Bond button
+    
+    graphiticBondText = "<u><b>Graphitic Bond Mode</b></u><br> "\
+                        "<p><img source=\"graphiticbondicon\"><br> "\
+                        "Sets <i>Graphitic Bond</i> mode.  Clicking on a highlighted bond "\
+                        "will change the bond to a graphitic bond, if permitted."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "graphiticbondicon",
+                        w.depositAtomDashboard.bondgRB.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.bondgRB, graphiticBondText )
+    
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."
 
-    ########## "Atoms" page widgets ################
-        
-    #### Bond Thickness ####
+    #### Bond Line Thickness ####
 
     bondThicknessText = "<u><b>Bond Thickness</b></u><br>"\
                        "Sets the <i>Bond Thickness</i> (in pixels) for Lines Display Mode."\
@@ -1250,8 +1261,3 @@ def create_whats_this_descriptions_for_UserPrefs_dialog(w):
        
     QWhatsThis.add ( w.bond_line_thickness_spinbox, bondThicknessText )
     
-    ########## End of "Atoms" page widgets ###########
-    
-    ########## "Bonds" page widgets ################
-    
-    ########## End of "Bonds" page widgets ###########
