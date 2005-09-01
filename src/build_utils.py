@@ -30,7 +30,7 @@ class PastableDepositionTool(DepositionTool): # not yet filled in (with code fro
     def __init__(self, pastable):
         self.pastable = pastable
         return
-    def attach_to(self, singlet): # NIM (in PastableDepositionTool)
+    def attach_to(self, singlet, autobond = True): # NIM (in PastableDepositionTool)
         assert 0, "nim"
     pass
 
@@ -60,7 +60,7 @@ class AtomTypeDepositionTool(DepositionTool):
     # bruce 041123 new features:
     # return the new atom and a description of it, or None and the reason we made nothing.
 
-    def attach_to( self, singlet): # in AtomTypeDepositionTool
+    def attach_to( self, singlet, autobond = True): # in AtomTypeDepositionTool [bruce 050831 added autobond option]
         """[public method]
         Deposit a new atom of self.atomtype onto the given singlet,
         and make other bonds (to other near-enough atoms with singlets)
@@ -78,52 +78,54 @@ class AtomTypeDepositionTool(DepositionTool):
             #  before this there was no guarantee singlet was in the list
             #  (tho it probably always was), or even that the list was nonempty,
             #  without analyzing the subrs in more detail than I'd like!)
-        rl = [singlet.singlet_neighbor()]
-            # list of real neighbors of singlets in pl [for bug 232 fix]
-        mol = singlet.molecule
-        cr = atype.rcovalent
 
-        # bruce 041215: might as well fix the bug about searching for open bonds
-        # in other mols too, since it's easy; search in this one first, and stop
-        # when you find enough atoms to bond to.
-        searchmols = list(singlet.molecule.part.molecules) #bruce 050510 revised this
-        searchmols.remove(singlet.molecule)
-        searchmols.insert(0, singlet.molecule)
-        # max number of real bonds we can make (now this can be more than 4)
-        maxpl = atype.numbonds
-        
-        for mol in searchmols:
-          for s in mol.nearSinglets(spot, cr * 1.9):
-              #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
-              # see email discussion (ninad, bruce, josh)
-            #bruce 041203 quick fix for bug 232:
-            # don't include two singlets on the same real atom!
-            # (It doesn't matter which one we pick, in terms of which atom we'll
-            #  bond to, but it might affect the computation in the bonding
-            #  method of where to put the new atom, so ideally we'd do something
-            #  more principled than just using the findSpot output from the first
-            #  singlet in the list for a given real atom -- e.g. maybe we should
-            #  average the spots computed for all singlets of the same real atom.
-            #  But this is good enough for now.)
-            #bruce 050510 adds: worse, the singlets are in an arb position... really we should just ask if
-            # it makes sense to bond to each nearby *atom*, for the ones too near to comfortably *not* be bonded to. ###@@@
-            ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
-            # guess: mol.singlets is not always invalidated when it should be. But even that theory
-            # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
-            try:
-                real = s.singlet_neighbor() 
-            except:
-                print_compact_traceback("bug 372 caught red-handed: ")
-                print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
-                continue
-            if real not in rl:
-                pl += [(s, self.findSpot(s))]
-                rl += [real]
-          # after we're done with each mol (but not in the middle of any mol),
-          # stop if we have as many open bonds as we can use
-          if len(pl) >= maxpl:
-            break
-        del mol, s, real
+        if autobond: #bruce 050831 added this condition
+            # extend pl to make additional bonds, by adding more (singlet, spot) pairs
+            rl = [singlet.singlet_neighbor()]
+                # list of real neighbors of singlets in pl [for bug 232 fix]
+            ## mol = singlet.molecule
+            cr = atype.rcovalent
+            # bruce 041215: might as well fix the bug about searching for open bonds
+            # in other mols too, since it's easy; search in this one first, and stop
+            # when you find enough atoms to bond to.
+            searchmols = list(singlet.molecule.part.molecules) #bruce 050510 revised this
+            searchmols.remove(singlet.molecule)
+            searchmols.insert(0, singlet.molecule)
+            # max number of real bonds we can make (now this can be more than 4)
+            maxpl = atype.numbonds
+            
+            for mol in searchmols:
+              for s in mol.nearSinglets(spot, cr * 1.9):
+                  #bruce 041216 changed 1.5 to 1.9 above (it's a heuristic);
+                  # see email discussion (ninad, bruce, josh)
+                #bruce 041203 quick fix for bug 232:
+                # don't include two singlets on the same real atom!
+                # (It doesn't matter which one we pick, in terms of which atom we'll
+                #  bond to, but it might affect the computation in the bonding
+                #  method of where to put the new atom, so ideally we'd do something
+                #  more principled than just using the findSpot output from the first
+                #  singlet in the list for a given real atom -- e.g. maybe we should
+                #  average the spots computed for all singlets of the same real atom.
+                #  But this is good enough for now.)
+                #bruce 050510 adds: worse, the singlets are in an arb position... really we should just ask if
+                # it makes sense to bond to each nearby *atom*, for the ones too near to comfortably *not* be bonded to. ###@@@
+                ###@@@ bruce 050221: bug 372: sometimes s is not a singlet. how can this be??
+                # guess: mol.singlets is not always invalidated when it should be. But even that theory
+                # doesn't seem to fully explain the bug report... so let's find out a bit more, at least:
+                try:
+                    real = s.singlet_neighbor() 
+                except:
+                    print_compact_traceback("bug 372 caught red-handed: ")
+                    print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
+                    continue
+                if real not in rl:
+                    pl += [(s, self.findSpot(s))]
+                    rl += [real]
+              # after we're done with each mol (but not in the middle of any mol),
+              # stop if we have as many open bonds as we can use
+              if len(pl) >= maxpl:
+                break
+            del mol, s, real
         
         n = min(atype.numbonds, len(pl)) # number of real bonds to make; always >= 1
         pl = pl[0:n] # discard the extra pairs (old code did this too, implicitly)

@@ -394,12 +394,13 @@ class depositMode(basicMode):
                        SIGNAL("toggled(bool)"), self.setBondg)
         return
 
-    def update_bond_buttons(self): #bruce 050728 (should this be used more widely?)
+    def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
         "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
         self.w.depositAtomDashboard.bond1RB.setOn( self.bondclick_v6 == V_SINGLE)
         self.w.depositAtomDashboard.bond2RB.setOn( self.bondclick_v6 == V_DOUBLE)
         self.w.depositAtomDashboard.bond3RB.setOn( self.bondclick_v6 == V_TRIPLE)
         self.w.depositAtomDashboard.bondaRB.setOn( self.bondclick_v6 == V_AROMATIC)
+        self.w.depositAtomDashboard.bondgRB.setOn( self.bondclick_v6 == V_GRAPHITE)
         return
     
     def update_gui(self): #bruce 050121 heavily revised this [called by basicMode.UpdateDashboard]
@@ -1160,7 +1161,9 @@ class depositMode(basicMode):
                         reload(build_utils)
                     from build_utils import AtomTypeDepositionTool
                     deptool = AtomTypeDepositionTool( atype)
-                    a1, desc = deptool.attach_to(a) #e this might need to take over the generation of the following status msg...
+                    autobond = self.w.depositAtomDashboard.autobondCB.isChecked() #bruce 050831
+                    a1, desc = deptool.attach_to(a, autobond = autobond)
+                        #e this might need to take over the generation of the following status msg...
                     ## a1, desc = self.attach(el, a)
                     if a1 is not None:
                         self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
