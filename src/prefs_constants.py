@@ -37,8 +37,6 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 freeValenceColor_prefs_key = 'A6/Free Valence Color'
 atomHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
-#display lines mode line thickness, mark 050831
-linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -50,6 +48,8 @@ pibondStyle_prefs_key = 'A6/Pi Bond Style'      ## was: bondHybridsDisplay_prefs
 pibondLetters_prefs_key = 'A6/Pi Bond Letters'  ## was:  bondShowLabels_prefs_key = 'A6/Bond Show Labels'
 #bruce 050806 made this up:
 showValenceErrors_prefs_key = 'A6/Show Valence Errors'
+#display lines mode line thickness, mark 050831
+linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 
 # Caption prefs
 captionPrefix_prefs_key = 'A6/Caption Prefix'

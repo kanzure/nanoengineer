@@ -273,15 +273,19 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     # end of figuring out banding, though to use it, the code below must be modified.
     
     if disp == diLINES:
+        width = env.prefs[linesDisplayModeThickness_prefs_key] #bruce 050831
+        if width <= 0:
+            # fix illegal value to prevent exception
+            width = 1
         if not toolong:
-            drawline(color1, a1pos, center)
-            drawline(color2, a2pos, center)
+            drawline(color1, a1pos, center, width = width)
+            drawline(color2, a2pos, center, width = width)
         else:
-            drawline(color1, a1pos, c1)
-            drawline(color2, a2pos, c2)
+            drawline(color1, a1pos, c1, width = width)
+            drawline(color2, a2pos, c2, width = width)
             toolong_color = env.prefs.get( bondStretchColor_prefs_key)
                 # toolong_color is never highlighted here, since we're not sure highlighting bonds in LINES mode is good at all
-            drawline( toolong_color, c1, c2)
+            drawline( toolong_color, c1, c2, width = width)
     elif disp == diCPK:
         if bondcolor is None: #bruce 050805
             bondcolor = env.prefs.get( bondCPKColor_prefs_key) ## bondColor [before bruce 050805]

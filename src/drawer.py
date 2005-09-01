@@ -525,16 +525,29 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
     if capped: glCallList(CapList)
     glPopMatrix()
 
-def drawline(color,pos1,pos2, dashEnabled=False):
+def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
+    """Draw a line from pos1 to pos2 of the given color.
+    If dashEnabled is True, it will be dashed.
+    If width is not 1, it should be an int or float (more than 0)
+    and the line will have that width, in pixels.
+    (Whether the line is antialiased is determined by GL state variables
+     which are not set by this code.)
+    """
+    # WARNING: some callers pass dashEnabled as a positional argument rather than a named argument.
+    # [bruce 050831 added docstring, this comment, and the width argument.]
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     if dashEnabled: 
         glLineStipple(1, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
+    if width != 1:
+        glLineWidth(width)
     glBegin(GL_LINES)
     glVertex(pos1[0], pos1[1], pos1[2])
     glVertex(pos2[0], pos2[1], pos2[2])
     glEnd()
+    if width != 1:
+        glLineWidth(1.0) # restore default state
     if dashEnabled: 
         glDisable(GL_LINE_STIPPLE)
     glEnable(GL_LIGHTING)
