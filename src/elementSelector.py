@@ -36,5 +36,5 @@ class elementSelector(ElementSelectorDialog):
         
     def transmutePressed(self):
         force = self.transmuteCheckBox.isChecked()
-        self.w.glpane.mode.modifyTransmute(self.w.Element, force = force)
+        self.w.assy.modifyTransmute(self.w.Element, force = force)
         # bruce 041216: renamed elemSet to modifyTransmute, added force option

@@ -1131,7 +1131,7 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
                         "When turned on, only atoms of the current atom type are selected."\
                         "</p>"
 
-    QWhatsThis.add ( w.filterCheckBox, filterText )
+    #QWhatsThis.add ( w.filterCheckBox, filterText )
     
     # Atom Type Combobox #
     

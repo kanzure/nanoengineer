@@ -29,8 +29,8 @@ def do_what_MainWindowUI_should_do(w):
     w.selectAtomsDashboard.addSeparator()
 
     ## Kludge to make it work, it's really not good, may need to rework it later. Huaicai 8/10/05
-    w.filterCheckBox = QCheckBox(" Select Only : ", w.selectAtomsDashboard)
-    w.filterCheckBox.hide()
+    #w.filterCheckBox = QCheckBox(" Select Only : ", w.selectAtomsDashboard)
+    #w.filterCheckBox.hide()
     #QToolTip.add(w.filterCheckBox, qApp.translate("MainWindow","Selection Filter", None))
     selectLabel = QLabel(w.selectAtomsDashboard, "Select:")
     selectLabel.setText("Select: ")
@@ -288,6 +288,7 @@ class selectMode(basicMode):
         # here and in Move mode (to get back).
 
     
+    #### The following method is obsolete, a modified version is moved into ops_atoms.py. [Huaicai 9/1/05] 
     # bruce 041216: renamed elemSet to modifyTransmute, added force option,
     # made it work on selected chunks as well as selected atoms
     # [that last part is undiscussed, we might remove it]
@@ -316,6 +317,7 @@ class selectMode(basicMode):
                         # this might run on some killed singlets; should be ok
             self.o.gl_update()
         return
+
 
     def setJigSelectionEnabled(self):
         self.jigSelectionEnabled = not self.jigSelectionEnabled
@@ -525,15 +527,11 @@ class selectAtomsMode(selectMode):
         
         eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
         
-        def __init__(self, glpane):
-            """The initial function is called only once for the whole program """
-            selectMode.__init__(self, glpane)
+        #def __init__(self, glpane):
+        #    selectMode.__init__(self, glpane)
+        #    self.w.filterCheckBox.setChecked(0)
             
-            self.w.filterCheckBox.setChecked(0)
-            self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
-            self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed) 
-            
-    
+     
         def Enter(self): 
             basicMode.Enter(self)
             self.o.assy.selectAtoms()
@@ -545,12 +543,15 @@ class selectAtomsMode(selectMode):
             self.o.setCursor(self.w.SelectAtomsCursor)
             self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
             
-            self.update_hybridComboBox(self.w)
+            #self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
+            self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
             
+            self.update_hybridComboBox(self.w)
             self.w.selectAtomsDashboard.show() 
 
             
         def restore_gui(self):
+            self.w.disconnect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
             self.w.selectAtomsDashboard.hide()
          
         
@@ -587,17 +588,16 @@ class selectAtomsMode(selectMode):
             
             dstElem = self.getDstElement()
             atomType = self.getAtomtype(dstElem)
-            self.modifyTransmute(dstElem, force = force, atomType=atomType)
+            self.w.assy.modifyTransmute(dstElem, force = force, atomType=atomType)
             
             
-        def elemChange(self, idx):
-            '''Slot method, called when element is changed.'''
-            if idx == 0: ## The first item: all types
-                self.w.filterCheckBox.setChecked(False)
-            else:
-                self.w.filterCheckBox.setChecked(True)
-                self.w.Element = self.eCCBtab1[idx-1]
-            
+        #def elemChange(self, idx):
+        #    '''Slot method, called when element is changed.'''
+            #if idx == 0: ## The first item: all types
+            #    self.w.filterCheckBox.setChecked(False)
+            #else:
+            #    self.w.filterCheckBox.setChecked(True)
+                
                 
         def keyPress(self,key):
             from MWsemantics import eCCBtab2
@@ -607,12 +607,12 @@ class selectAtomsMode(selectMode):
                 self.o.setCursor(self.w.SelectAtomsAddCursor)
             if key == Qt.Key_Control:
                 self.o.setCursor(self.w.SelectAtomsSubtractCursor)
-            # Shortcut keys for atom type in selection filter.  Bug/NFR 649.  Mark 050711.
+            # Shortcut keys for atom type in selection filter.  Bug/NFR 649. Mark 050711.
             for sym, code, num in elemKeyTab:
                 if key == code:
                     line = eCCBtab2[num] + 1
                     self.w.elemFilterComboBox.setCurrentItem(line)
-                    self.elemChange(line)
+                    #self.elemChange(line)
                     
                               
         def keyRelease(self,key):

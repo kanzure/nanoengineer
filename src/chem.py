@@ -949,9 +949,12 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """make the atom selected
         """
         if self.element is Singlet: return
+        
+        # It's better to pass the following condition as argument, so it can be reused.--Huaicai
         # If select atoms filter is on, only pick element type in the filter combobox
-        if self.molecule.assy.w.filterCheckBox.isChecked() and \
+        if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
             self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return
+        
         if not self.picked:
             self.picked = 1
             self.molecule.assy.selatoms[self.key] = self
@@ -967,6 +970,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             # If atoms can someday be picked from the mtree (directly or by selecting a jig that
             # connects to them), this will need review.
         return
+
     
     def unpick(self):
         """make the atom unselected

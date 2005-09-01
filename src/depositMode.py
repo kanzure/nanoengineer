@@ -1020,7 +1020,8 @@ class depositMode(basicMode):
         return status
     
     def __createBond(self, s1, a1, s2, a2):
-	'''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets '''
+	'''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets. No rotation/movement involved. Based on
+           a method 'actually_bond()' in bonds.py--[Huaicai 8/25/05] '''
 	
 	try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
             v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
@@ -1090,7 +1091,6 @@ class depositMode(basicMode):
 		newMol.rot(rotOffset)
 		newMol.move(moveOffset + coff)
 		
-		
 		self.o.assy.addmol(newMol)
 	else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
 	    for m in newAssy.molecules:
@@ -1127,7 +1127,6 @@ class depositMode(basicMode):
 	newAssy, anchorAtom = self.modellingKit.getPastablePart()
 	    
         if a: # if some atom (not bond) was "lit up"
-            ## self.w.history.message("%r" % a) #bruce 04
             ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element is Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!

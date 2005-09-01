@@ -20,7 +20,38 @@ from elements import Singlet
 class ops_atoms_Mixin:
     "Mixin class for providing these methods to class Part"
     
-    ###e should modifyTransmute also be brought in here?
+    def modifyTransmute(self, elem, force = False, atomType=None): 
+        ''' Transmute selected atoms into <elem> and with optional <atomType>. 
+            <elem> is an element number that selected atoms will be transmuted to.
+            <force>: boolean variable meaning keeping existing bond or not.
+            <atomType>: the optional hybrid bond type if the element support hybrid. --Huaicai'''
+                
+        # now change selected atoms to the specified element
+        # [bruce 041215: this should probably be made available for any modes
+        #  in which "selected atoms" are permitted, not just Select modes. #e]
+        from elements import PeriodicTable
+        if self.selatoms:
+            dstElem = PeriodicTable.getElement(elem)
+            for atm in self.selatoms.values():
+                atm.Transmute(dstElem, force = force, atomtype=atomType)
+                # bruce 041215 fix bug 131 by replacing low-level mvElement call
+                # with new higher-level method Transmute. Note that singlets
+                # can't be selected, so the fact that Transmute does nothing to
+                # them is not (presently) relevant.
+            #e status message?
+            # (Presently a.Transmute makes one per "error or refusal".)
+            self.o.gl_update()
+            
+        elif self.selmols:
+            PeriodicTable.getElement(elem)
+            for mol in self.selmols[:]:
+                for atm in mol.atoms.values():
+                    atm.Transmute(dstElem, force = force, atomtype=atomType)
+                        # this might run on some killed singlets; should be ok
+            self.o.gl_update()
+        
+        return
+    
     
     def modifyDeleteBonds(self):
         """Delete all bonds between selected and unselected atoms or chunks
