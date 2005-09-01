@@ -277,10 +277,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             #bruce 050810 diVDW -> default_display_mode (equivalent)
         self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.display] )
         
-        # The default line thickness for Lines Display Mode.  Mark 050831
-        self.lines_display_mode_thickness = prefs.get(linesDisplayModeThickness_prefs_key, 0)
-#        print "GLPane.__init__: lines_display_mode_thickness =", self.lines_display_mode_thickness
-        
         ###### End of User Preference initialization ########################## 
         
         self.makeCurrent()
