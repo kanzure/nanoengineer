@@ -6,6 +6,12 @@ experimental code related to user preferences
 (not presently used as of 050612, but works; very incomplete)
 
 $Id$
+
+History:
+
+bruce 050613 started this.
+
+bruce 050901 used env.history in some places.
 '''
 
 __author__ = "bruce"
@@ -14,6 +20,7 @@ from Utility import Node, Group
 import time, sys, os
 from part import Part
 from constants import noop, dispLabel, default_display_mode
+import env #bruce 050901
 
 debug_prefstree = 1 ###@@@ safe for commit even when 1
 
@@ -113,7 +120,7 @@ class MainPrefsGroup(PrefsGroup): # kind of like PartGroup; where do we say it's
         """
         path = prefsPath(self.assy)
         self.part.writemmpfile( path)
-        self.assy.w.history.message( "saved Preferences Group" )
+        env.history.message( "saved Preferences Group" )
     # kluge: zap some useless cmenu items for this kind of node (activates special kluge in mtree cmenu maker)
     __CM_Hide = None
     __CM_Group = None
@@ -165,7 +172,10 @@ class prefsTree_class:
 def read_mmp_single_part(assy, filename):
     from files_mmp import _readmmp
     # start incredible kluge block
-    history = assy.w.history
+    history = env.history
+        #bruce 050901 revised this.
+        # It depends on there being only one active history object at a time
+        # (i.e. on win.history is env.history, if win.history still exists).
     oldmessage = history.message
     from constants import noop
     history.message = noop # don't bother user with this file being nonstd (bad, should pass a flag, so other errors seen)

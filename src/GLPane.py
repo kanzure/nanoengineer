@@ -164,7 +164,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # the context is initialized.
             msg = ("Warning: your graphics hardware did not provide an OpenGL stencil buffer.\n"
                    "This will slow down some graphics operations.")
-            ## assy.w.history.message( regmsg( msg)) -- too early for that to work (need to fix that sometime, to queue the msg)
+            ## env.history.message( regmsg( msg)) -- too early for that to work (need to fix that sometime, to queue the msg)
             print msg
             if platform.atom_debug:
                 print "atom_debug: details of lack of stencil bits: " \

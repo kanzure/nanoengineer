@@ -27,6 +27,8 @@ History:
 
 - bruce 050610 changing how atoms are highlighted during Build mode mouseover. ###@@@ might not be done
 
+bruce 050901 used env.history in some places.
+
 '''
 __author__ = "Josh"
 
@@ -1508,7 +1510,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         if best_atype is atype_now:
             return # never happens if atype_now is None
         if atype_now is not None:
-            self.molecule.assy.w.history.message("changing %s atomtype from %s to %s" % (self, atype_now.name, best_atype.name))
+            env.history.message("changing %s atomtype from %s to %s" % (self, atype_now.name, best_atype.name))
             # this will often happen twice, plus a third message from Build that it increased bond order,
             # so i'm likely to decide not to print it
         if best_atype.numbonds == len(self.bonds):
@@ -1650,11 +1652,11 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             name = atomtype.fullname_for_msg()
             if force:
                 msg = "warning: Transmute broke valence rules, made (e.g.) %s with %d bonds" % (name, nbonds)
-                self.molecule.assy.w.history.message( orangemsg(msg) )
+                env.history.message( orangemsg(msg) )
                 # fall through
             else:
                 msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (name, nbonds)
-                self.molecule.assy.w.history.message( orangemsg(msg) )
+                env.history.message( orangemsg(msg) )
                 return
         # in all other cases, do the change (even if it's a noop) and also replace all singlets with 0 or more new ones
         self.direct_Transmute( elt, atomtype)

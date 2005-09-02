@@ -34,6 +34,7 @@ smaller files, some existing (jigs.py) and some new (ops_*.py).
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
+bruce 050901 used env.history in some places.
 """
 
 ###e imports -- many of these are probably not needed [bruce 050507 removed some of them]
@@ -51,6 +52,7 @@ from Utility import *
 from HistoryWidget import greenmsg, redmsg
 from inval import InvalMixin
 from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
+import env #bruce 050901
 
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
@@ -669,7 +671,7 @@ class Part( jigmakers_Mixin, InvalMixin,
         def errfunc(msg):
             "local function for error message output"
             # I think this should never happen
-            self.assy.w.history.message( redmsg( "Internal error making new jig: " + msg))
+            env.history.message( redmsg( "Internal error making new jig: " + msg))
         fix_one_or_complain( jig, self.topnode, errfunc)
         return
     

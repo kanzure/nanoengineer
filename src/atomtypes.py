@@ -19,6 +19,7 @@ and their .valence attribute is probably not yet used.)
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
+050901 bruce used env.history in some places.
 """
 
 # element.atomtypes -> list of atom types usable for that element
@@ -28,6 +29,7 @@ on __xxx__ attrs in python objects.
 from VQT import Q
 from HistoryWidget import redmsg, orangemsg
 import platform
+import env
 
 from bond_constants import *
 
@@ -219,7 +221,7 @@ class AtomType:
         atom.Transmute( self.element, atomtype = self)
         if atom.atomtype is not self:
             # it didn't work for some reason (clean up way of finding history, and/or get Transmute to say why it failed #e)
-            atom.molecule.assy.w.history.message( redmsg( "Can't change %r to %s" % (atom, self.fullname_for_msg()))) #e say why not
+            env.history.message( redmsg( "Can't change %r to %s" % (atom, self.fullname_for_msg()))) #e say why not
 
     def ok_to_apply_to(self, atom):
         return True

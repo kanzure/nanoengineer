@@ -7,6 +7,8 @@ $Id$
 History: this was part of fileIO.py,
 until bruce 050414 started splitting that
 into separate modules for each file format.
+
+bruce 050901 used env.history in some places.
 """
 
 import os
@@ -17,6 +19,7 @@ from elements import PeriodicTable, Singlet
 from platform import fix_plurals
 from HistoryWidget import redmsg
 from VQT import A
+import env #bruce 050901
 
 def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & docstring in several ways
     """Read a Protein DataBank-format file into a single new chunk, which is returned,
@@ -46,7 +49,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
                 #bruce 050322 replaced print with history warning,
                 # and generalized exception from KeyError
                 # (since a test reveals AssertionError is what happens)
-                assy.w.history.message( redmsg( "Warning: Pdb file: unknown element %s in: %s" % (sym,card) ))
+                env.history.message( redmsg( "Warning: Pdb file: unknown element %s in: %s" % (sym,card) ))
                 ## print 'unknown element "',sym,'" in: ',card
             else:
                 xyz = map(float, [card[30:38],card[38:46],card[46:54]])
@@ -62,7 +65,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
                 # but we don't try to distinguish these here. BTW this also happens
                 # as a consequence of not finding the element symbol, above,
                 # since atoms with unknown elements are not created.
-                assy.w.history.message( redmsg( "Warning: Pdb file: can't find first atom in CONECT record: %s" % (card,) ))
+                env.history.message( redmsg( "Warning: Pdb file: can't find first atom in CONECT record: %s" % (card,) ))
             else:
                 for i in range(11, 70, 5):
                     try:
@@ -75,12 +78,12 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
                     except KeyError:
                         #bruce 050322-23 added history warning for this,
                         # assuming it comes from ndix[] lookup.
-                        assy.w.history.message( redmsg( "Warning: Pdb file: can't find atom %s in: %s" % (card[i:i+5], card) ))
+                        env.history.message( redmsg( "Warning: Pdb file: can't find atom %s in: %s" % (card[i:i+5], card) ))
                         continue
                     bond_atoms(a1, a2)
     #bruce 050322 part of fix for bug 433: don't return an empty chunk
     if not mol.atoms:
-        assy.w.history.message( redmsg( "Warning: Pdb file contained no atoms"))
+        env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
         return None
     return mol
     
@@ -169,7 +172,7 @@ def writepdb(assy, filename):
     if excluded:
         msg = "Warning: excluded %d open bond(s) from saved PDB file; consider Hydrogenating and resaving." % excluded
         msg = fix_plurals(msg)
-        assy.w.history.message( redmsg( msg))
+        env.history.message( redmsg( msg))
     return # from writepdb
 
 # end

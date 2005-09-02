@@ -20,6 +20,8 @@ since it's mostly not together now.)
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
+bruce 050901 used env.history in some places.
+
 ===
 
 Notes by bruce 050217 about mmp file format version strings:
@@ -115,6 +117,7 @@ from povheader import povheader, povpoint # this might no longer be needed [bruc
 from mdldata import * # this might no longer be needed [bruce 050414 comment]
 from HistoryWidget import redmsg
 from elements import PeriodicTable
+import env #bruce 050901
 
 # == patterns for reading mmp files
 
@@ -175,7 +178,7 @@ class _readmmp_state:
     # (e.g. for reading sim input files for minimize selection)
     def __init__(self, assy, isInsert):
         self.assy = assy
-        self.history = assy.w.history
+        ## self.history = env.history ###k probably not needed
         self.isInsert = isInsert
         #bruce 050405 made the following from old _readmmp localvars, and revised their comments
         self.mol = None # the current molecule being built, if any [bruce comment 050228]
@@ -193,7 +196,7 @@ class _readmmp_state:
         return
 
     def destroy(self):
-        self.assy = self.history = self.mol = self.ndix = self.groupstack = self.markers = None
+        self.assy = self.mol = self.ndix = self.groupstack = self.markers = None
 
     def extract_toplevel_items(self):
         """for use only when done: extract the list of toplevel items
@@ -213,10 +216,10 @@ class _readmmp_state:
         return res
 
     def warning(self, msg):
-        self.history.message( redmsg( "Warning: " + msg))
+        env.history.message( redmsg( "Warning: " + msg))
 
     def format_error(self, msg): ###e use more?
-        self.history.message( redmsg( "Warning: mmp format error: " + msg)) ###e and say what we'll do? review calls; syntax error
+        env.history.message( redmsg( "Warning: mmp format error: " + msg)) ###e and say what we'll do? review calls; syntax error
     
     def readmmp_line(self, card):
         "returns None, or error msg(#k), or raises exception on bugs or maybe some syntax errors"

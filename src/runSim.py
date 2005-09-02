@@ -19,6 +19,8 @@ of the experimental CommandRun class.
 
 Bruce 050331 is splitting writemovie into several methods in more than
 one subclass (eventually) of a new SimRunner class.
+
+bruce 050901 used env.history in some places.
 '''
 
 from debug import print_compact_traceback
@@ -29,6 +31,8 @@ from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess
 from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg
+import env #bruce 050901
+
 # more imports lower down
 
 debug_sim = 0 # DO NOT COMMIT with 1
@@ -50,7 +54,7 @@ class SimRunner:
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         self.tmpFilePath = assy.w.tmpFilePath
-        self.history = assy.w.history
+        ## self.history = env.history ###k probably not needed
         self.win = assy.w  # might be used only for self.win.progressbar.launch
         self.part = part # needed?
         self.mflag = mflag # see docstring
@@ -81,7 +85,7 @@ class SimRunner:
         self.set_waitcursor(False)
         if not self.errcode:
             return # success
-        history = self.history
+        history = env.history
         if self.errcode == 1: # User pressed Abort button in progress dialog.
             msg = redmsg("Aborted.")
             history.message(cmd + msg)         
@@ -136,7 +140,7 @@ class SimRunner:
                 msg = redmsg("Can't create movie.  No chunks in part.")
                     ####@@@@ is this redundant with callers? yes for simSetup,
                     # don't know about minimize, or the weird fileSave call in MWsem.
-                self.history.message(msg)
+                env.history.message(msg)
                 return -1
             movie.set_alist_from_entire_part(part) ###@@@ needs improvement, see comments in it
             for atm in movie.alist:
@@ -177,7 +181,7 @@ class SimRunner:
         # Make sure the simulator exists
         if not os.path.exists(program):
             msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return -1
         self.program = program
         
@@ -209,7 +213,7 @@ class SimRunner:
             moviefile = movie.filename
         else:
             msg = redmsg("Can't create movie.  Empty filename.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return -1
             
         # Check that the moviefile has a valid extension.
@@ -217,7 +221,7 @@ class SimRunner:
         if ext not in ['.dpb', '.xyz']:
             # Don't recognize the moviefile extension.
             msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             print "writeMovie: " + msg
             return -1
         movie.filetype = ext #bruce 050404 added this
@@ -497,7 +501,7 @@ class SimRunner:
                 msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
                         + ", Steps per Frame: " + str(movie.stepsper)\
                         + ", Temperature: " + str(movie.temp)
-                self.history.message(cmd + msg)
+                env.history.message(cmd + msg)
         #bruce 050415: let caller specify caption via movie object's _cmdname
         # (might not be set, depending on caller) [needs cleanup].
         # For important details see same-dated comment above.
@@ -554,13 +558,13 @@ class SimRunner:
                     if start != "# Done:":
                         self.said_we_are_done = False # not needed if lines come in their usual order
                         if not seen:
-                            self.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
+                            env.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
                             self.mentioned_sim_trace_file = True
                         if start == "# Warning:":
                             cline = orangemsg(line)
                         else:
                             cline = redmsg(line)
-                        self.history.message( cline) # leave in the '#' I think
+                        env.history.message( cline) # leave in the '#' I think
                         seen[start] = True
                     else:
                         # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
@@ -571,14 +575,14 @@ class SimRunner:
                                 line = redmsg(line)
                             elif "# Warning:" in seen:
                                 line = orangemsg(line)
-                            self.history.message( line) #k is this the right way to choose the color?
+                            env.history.message( line) #k is this the right way to choose the color?
                             ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
                             ## self.said_we_are_done = True # so we don't have to say it again [bruce 050415]
         if not donecount:
             self.said_we_are_done = False # not needed unless other code has bugs
             # Note [bruce 050415]: this happens when user presses Abort,
             # since we don't abort the sim process gently enough. This should be fixed.
-            self.history.message( redmsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
+            env.history.message( redmsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
             self.mentioned_sim_trace_file = True
         if self.mentioned_sim_trace_file:
             # sim trace file was mentioned; user might wonder where it is...
@@ -592,7 +596,7 @@ class SimRunner:
                 if preach:
                     msg += " It might be overwritten the next time you run a similar command."
                 msg += ")"
-                self.history.message( msg)
+                env.history.message( msg)
         return
         
     pass # end of class SimRunner
@@ -760,7 +764,7 @@ class CommandRun: # bruce 050324; mainly a stub for future use when we have a CL
         self.assy = win.assy
         self.part = win.assy.part
             # current Part (when the command is invoked), on which most commands will operate
-        self.history = win.history # where this command can write history messages
+        ## self.history = env.history # where this command can write history messages ###k probably not needed
         self.glpane = win.assy.o #e or let it be accessed via part??
         return
     # end of class CommandRun
@@ -775,10 +779,10 @@ class simSetup_CommandRun(CommandRun):
         # and cleaned it up a bit in terms of how it finds the movie to use.
         if not self.part.molecules: # Nothing in the part to simulate.
             msg = redmsg("Nothing to simulate.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
         
-        self.history.message(cmd + "Enter simulation parameters and select <b>Run Simulation.</b>")
+        env.history.message(cmd + "Enter simulation parameters and select <b>Run Simulation.</b>")
 
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
         # iff it's the current mode.
@@ -802,7 +806,7 @@ class simSetup_CommandRun(CommandRun):
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
                 estr = self.progressbar.hhmmss_str(self.progressbar.duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
-                self.history.message(cmd + msg) 
+                env.history.message(cmd + msg) 
             msg = "Movie written to [" + movie.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon " \
                         "and press Play on the Movie Mode dashboard." #bruce 050510 added note about Play button.
@@ -811,13 +815,13 @@ class simSetup_CommandRun(CommandRun):
             #   If so, make sure it plays the correct one even if new ones have been made since then!)
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.win.simMoviePlayerAction.iconSet().pixmap() )
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
             assert not movie
-            self.history.message(cmd + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
+            env.history.message(cmd + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
         return
 
     def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
@@ -827,7 +831,7 @@ class simSetup_CommandRun(CommandRun):
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge
             msg = redmsg( "Simulator is not yet implemented for clipboard items.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return -1
         ###@@@ else use suffix below!
         
@@ -891,8 +895,8 @@ class Minimize_CommandRun(CommandRun):
 
         # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Grounds), for now...)
         if not self.part.molecules: # Nothing in the part to minimize.
-            self.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to minimize."))
-#            self.history.message(redmsg("%s: Nothing to minimize." % cmdname))
+            env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to minimize."))
+#            env.history.message(redmsg("%s: Nothing to minimize." % cmdname))
             return
 
         if not entire_part:
@@ -900,7 +904,7 @@ class Minimize_CommandRun(CommandRun):
             if not selection.nonempty():
                 msg = greenmsg("Minimize Selection: ") + redmsg("Nothing selected. (Use Minimize All to minimize entire Part.)")
 #                msg = greenmsg("Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
-                self.history.message( redmsg( msg))
+                env.history.message( redmsg( msg))
                 return
         else:
             selection = self.part.selection_for_all()
@@ -910,7 +914,7 @@ class Minimize_CommandRun(CommandRun):
         self.selection = selection #e might become a feature of all CommandRuns, at some point
 
         # At this point, the conditions are met to try to do the command.
-        self.history.message(greenmsg( startmsg)) #bruce 050412 doing this earlier
+        env.history.message(greenmsg( startmsg)) #bruce 050412 doing this earlier
         
         # Disable Minimize, Simulator and Movie Player during the minimize function.
         self.win.modifyMinimizeSelAction.setEnabled(0) # Disable "Minimize Selection"
@@ -929,7 +933,7 @@ class Minimize_CommandRun(CommandRun):
                 nsinglets_H = simaspect.nsinglets_H()
                 if nsinglets_H:
                     info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during minimization)" % nsinglets_H )
-                    self.history.message( info)
+                    env.history.message( info)
                 nsinglets_leftout = simaspect.nsinglets_leftout()
                 assert nsinglets_leftout == 0 # for now
                 # history message about how much we're working on; these atomcounts include singlets since they're written as H
@@ -940,7 +944,7 @@ class Minimize_CommandRun(CommandRun):
                     them_or_it = (nmoving == 1) and "it" or "them"
                     info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )
                 info += ")"
-                self.history.message( info) 
+                env.history.message( info) 
             self.makeMinMovie(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
         finally:
@@ -950,7 +954,7 @@ class Minimize_CommandRun(CommandRun):
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
         simrun = self._movie._simrun #bruce 050415 klugetower
         if not simrun.said_we_are_done:
-            self.history.message("Done.")
+            env.history.message("Done.")
         return
     def makeMinMovie(self, mtype = 1, simaspect = None):
         """Minimize self.part (for Minimize All),
@@ -963,7 +967,7 @@ class Minimize_CommandRun(CommandRun):
         #bruce 050324 made this from the Part method makeMinMovie.
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
-            self.w.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
+            env.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
             return
         #e use suffix below? maybe no need since it's ok if the same filename is reused for this.
 
@@ -1012,7 +1016,7 @@ class Minimize_CommandRun(CommandRun):
                 self.part.gl_update()
             else:
                 #bruce 050404: print error message to history
-                self.history.message(redmsg( newPositions))
+                env.history.message(redmsg( newPositions))
         else: # Play multi-frame DPB movie file.
             ###@@@ bruce 050324 comment: can this still happen? [no] is it correct [probably not]
             # (what about changing mode to movieMode, does it ever do that?) [don't know]

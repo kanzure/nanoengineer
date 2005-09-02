@@ -8,6 +8,8 @@ $Id$
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
+
+bruce 050901 used env.history in some places.
 """
 
 from changes import begin_event_handler, end_event_handler
@@ -20,6 +22,7 @@ import platform # for atom_debug
 from debug import print_compact_stack
 from jigs import gensym # [I think this code, when in part.py, was using jigs.gensym rather than chem.gensym [bruce 050507]]
 from ops_select import selection_from_part
+import env #bruce 050901
 
 class ops_copy_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -42,8 +45,6 @@ class ops_copy_Mixin:
         
         cmd = greenmsg("Cut: ")
         
-        part = self
-        history = part.assy.w.history
         eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
 ##        center_these = []
         try:
@@ -51,7 +52,7 @@ class ops_copy_Mixin:
                 #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
                 # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
                 msg = redmsg("Cutting selected atoms is not yet supported.")
-                history.message(cmd + msg) #bruce 050201
+                env.history.message(cmd + msg) #bruce 050201
                 ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
                 # note: we will check selatoms again, below, to know whether we emitted this message
             new = Group(gensym("Copy"), self.assy, None)
@@ -66,10 +67,10 @@ class ops_copy_Mixin:
                 # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
                 # (No such restriction will be required for assy.copy_sel, even when it copies entire groups.)
                 self.topnode.unpick_top()
-                ## history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
+                ## env.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
                 ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
                 msg = "Can't cut the entire Part; copying its toplevel Group, cutting its members."
-                history.message(cmd + msg) #bruce 050201
+                env.history.message(cmd + msg) #bruce 050201
                 # new code to handle this case [bruce 050201]
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
@@ -121,12 +122,12 @@ class ops_copy_Mixin:
                 ## ob.pick() # bruce 050131 removed this
                 nshelf_after = len(self.shelf.members) #bruce 050201
                 msg = fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." 
-                history.message(cmd + msg) #bruce 050201
+                env.history.message(cmd + msg) #bruce 050201
                     ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
             else:
                 if not (use_selatoms and self.selatoms):
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
-                    history.message(cmd + redmsg("Nothing to cut.")) #bruce 050201
+                    env.history.message(cmd + redmsg("Nothing to cut.")) #bruce 050201
         finally:
             end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
             # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
@@ -169,7 +170,6 @@ class ops_copy_Mixin:
         cmd = greenmsg ("Copy: ")
         
         part = self
-        history = part.assy.w.history
         sel = selection_from_part(part, use_selatoms = use_selatoms)
         # 2. prep this for copy by including other required objects, context, etc...
         # (eg a new group to include it all, new chunks for bare atoms)
@@ -187,10 +187,10 @@ class ops_copy_Mixin:
                 text = "Copy %s" % desc
             else:
                 text = "Copy"
-            history.message(cmd + text)
+            env.history.message(cmd + text)
         else:
             whynot = copier.whynot()
-            history.message(cmd + redmsg(whynot))
+            env.history.message(cmd + redmsg(whynot))
             return
         # 3. do it
         new = copier.copy_as_node_for_shelf()
@@ -221,8 +221,6 @@ class ops_copy_Mixin:
         cmd = greenmsg("Delete: ")
         info = ''
             
-        part = self
-        history = part.assy.w.history
         ###@@@ #e this also needs a results-message, below.
         if use_selatoms and self.selatoms:
             self.changed()
@@ -245,7 +243,7 @@ class ops_copy_Mixin:
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         
-        self.w.history.message( cmd + info) # Mark 050715
+        env.history.message( cmd + info) # Mark 050715
         
         self.w.win_update()
         return
@@ -457,7 +455,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             newstuff = newstuff[0].steal_members()
         if not newstuff:
             # everything refused to be copied. Can happen (e.g. for a single selected jig at the top).
-            self.assy.w.history.message( redmsg( "That selection can't be copied by itself." )) ###e improve message
+            env.history.message( redmsg( "That selection can't be copied by itself." )) ###e improve message
             return None
 
         # further processing depends on the caller (a public method of this class)

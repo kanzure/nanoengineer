@@ -13,6 +13,8 @@ This file should have a more descriptive name, but that can wait.
 
 History: originally by Josh; gradually has been greatly extended by Bruce
 but the basic structure of Nodes and Groups has not been changed.
+
+050901 bruce used env.history in some places.
 """
 __author__ = "Josh"
 
@@ -25,6 +27,7 @@ from GroupProp import *
 from debug import print_compact_stack, print_compact_traceback
 import platform
 from changes import changed #bruce 050303
+import env #bruce 050901
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
@@ -250,13 +253,9 @@ class Node:
         "Should this node look disabled when shown in model tree (but remain fully functional for selection)?"
         return False 
     
-    def redmsg(self, msg): #bruce 050203
+    def redmsg(self, msg): #bruce 050203; revised 050901 to work even after assy set to None in Node.kill
         from HistoryWidget import redmsg
-        ###@@@ we ought to make this work even after assy set to None in Node.kill!
-        if self.assy is not None:
-            self.assy.w.history.message( redmsg( msg ))
-        else:
-            print "bug: redmsg in killed node:", msg #bruce 050527
+        env.history.message( redmsg( msg ))
 
     def is_top_of_selection_group(self): #bruce 050131 for Alpha [#e rename is_selection_group?] [#e rename concept "selectable set"?]
         """Whether this node is the top of a "selection group".
@@ -1421,7 +1420,7 @@ class Group(Node):
         # I'm very skeptical of doing this history.message
         # recursively, but I'm not changing it for Alpha
         msg = self.description_for_history() # bruce 050121 let subclass decide on this
-        self.assy.w.history.message( msg )
+        env.history.message( msg )
         return
 
     def description_for_history(self):
@@ -1913,7 +1912,7 @@ class ClipboardShelfGroup(Group):
     def pick(self): #bruce 050131 for Alpha
         msg = "Clipboard can't be selected or dragged. (Individual clipboard items can be.)"
         ## bruce 050316: no longer do this: self.redmsg( msg)
-        self.assy.w.history.transient_msg( msg)
+        env.history.transient_msg( msg)
     def is_selection_group_container(self): return True #bruce 050131 for Alpha
     def rename_enabled(self): return False
     def drag_move_ok(self): return False
@@ -1949,7 +1948,7 @@ class ClipboardShelfGroup(Group):
 ##                if 0 and platform.atom_debug:
 ##                    print "atom_debug: added autogroup to shared part of its nodes"
             nodes = [new] # a new length-1 list of nodes
-            self.assy.w.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
+            env.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
         return Group.drop_on(self, drag_type, nodes)
     def permits_ungrouping(self): return False
     ##bruce 050316: does always being openable work around the bugs in which this node is not open when it should be?
