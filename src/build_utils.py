@@ -149,11 +149,11 @@ class AtomTypeDepositionTool(DepositionTool):
         #e what if caller renames atm.molecule??
         if n > 1: #e really: if n > (number of singlets clicked on at once)
             if autobond:
-                msg = " (%d bonds made)" % n
+                msg = " (%d bond(s) made)" % n
             else:
                 msg = " (%d bond(s) NOT made, since autobond is off)" % (n-1) #bruce 050901 new feature
             from platform import fix_plurals
-            msg = fix_plurals(msg) # only needed in the (n-1) case above
+            msg = fix_plurals(msg)
             desc += msg
         return atm, desc
 
