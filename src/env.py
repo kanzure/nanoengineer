@@ -63,7 +63,22 @@ __author__ = 'bruce'
 from constants import *
 import platform
 
-history = None # will be changed by MWsemantics when it inits [bruce 050727]
+class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemantics.py
+    too_early = 1
+        # defined so insiders can detect that it's too early (using hasattr)
+        # and not call us at all (as they could have using hasattr on win.history
+        #  before this "safety net" for early messages was added)
+    def message(self, msg, **options):
+        """This exists to handle messages sent to win.history or env.history during
+        win.__init__, before the history widget has been created!
+        Someday it might save them up and print them when that becomes possible.
+        """
+        if platform.atom_debug:
+            print "fyi: too early for this status msg:", msg
+        pass # too early
+    pass
+
+history = pre_init_fake_history_widget() # this will be changed by MWsemantics.__init__ [bruce 050727]
 
 redraw_counter = 0 #bruce 050825
 

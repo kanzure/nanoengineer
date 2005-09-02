@@ -54,18 +54,7 @@ def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
     m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
-class pre_init_fake_history_widget:
-    too_early = 1
-        # defined so insiders can detect that it's too early (using hasattr)
-        # and not call us at all (as they could have using hasattr on win.history
-        #  before this "safety net" for early messages was added)
-    def message(self, msg, **options):
-        """This exists to handle messages sent to win.history during
-        win.__init__, before the history widget has been created!"""
-        if platform.atom_debug:
-            print "fyi: too early for this status msg:", msg
-        pass # too early
-    pass
+import env #bruce 050901 (also moved pre_init_fake_history_widget into env.py)
 
 class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     "The single Main Window object."
@@ -74,7 +63,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
     # in the list of superclasses, since MainWindow overrides its methods with "NIM stubs".
     
     initialised = 0 #bruce 041222
-    history = pre_init_fake_history_widget() #bruce 050107
+    history = env.history #bruce 050107, revised 050901; see also the set of self.history in __init__, below
     
     def __init__(self, parent = None, name = None):
     
@@ -157,8 +146,7 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         self.history = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
             # this is not a Qt widget, but its owner;
             # use self.history.widget for Qt calls that need the widget itself
-
-        import env
+        
         env.history = self.history #bruce 050727
 
         # ... and some final vsplitter setup [bruce 041223]
