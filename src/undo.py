@@ -2,17 +2,20 @@
 '''
 undo.py
 
-experimental Undo code. Might turn into a real source file.
+Experimental Undo code. Might turn into a real source file.
+
+Creates some debug menu commands which we'll remove before releasing A7.
 
 $Id$
 '''
 __author__ = 'bruce'
 
-###@@@ import this module from somewhere!
+###@@@ import this module from a better place than we do now!
 
 from cPickle import dump, load, HIGHEST_PROTOCOL
 import env
-from debug import register_debug_menu_command
+from debug import register_debug_menu_command ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
+    # or let them only show up if a related flag is set, or so...
 
 def atpos_list(part):
     "Return a list of atom-position arrays, one per chunk in part. Warning: might include shared mutable arrays."
@@ -149,7 +152,7 @@ register_debug_menu_command("save bond type v6 ints", savebtypes_cmd)
 
 # ==
 
-# this depends on undotest.pyx ####@@@@
+# this depends on undotest.pyx having been compiled by Pyrex ####@@@@
 
 def count_bonds_cmd( target):
     win = target.topLevelWidget()
