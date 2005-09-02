@@ -1133,7 +1133,7 @@ class depositMode(basicMode):
 		
 		if newAssy and anchorAtom : # Try to paste part if it's possible[Huaicai]
 		    self._pastePart(newAssy, anchorAtom, a)
-		elif newAssy and not anchorAtom: self.w.history.message("No open bond or no hotspot open bond.")
+		elif newAssy and not anchorAtom: self.w.history.message("The part you want to paste doesn't have open bond or has open bond but without hotspot.")
 		
                 elif self.w.pasteP:
                     # user wants to paste something
@@ -1175,7 +1175,7 @@ class depositMode(basicMode):
                 self.o.selatom = None
                 self.dragmol = None
 		
-		if not (newAssy and anchorAtom):  ##Added the condition [Huaicai 8/26/05]
+		if not newAssy :  ##Added the condition [Huaicai 8/26/05]
 		    status = self.ensure_visible(chunk, status) #bruce 041207
 		    self.w.history.message(status)
                 self.w.win_update()

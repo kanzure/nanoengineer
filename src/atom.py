@@ -20,6 +20,7 @@ __author__ = "Josh"
 
 import sys, os
 
+
 # user-specific debug code to be run before any other imports [bruce 040903]
 if __name__=='__main__':
     # gpl_only check at startup [bruce 041217]

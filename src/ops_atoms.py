@@ -21,10 +21,11 @@ class ops_atoms_Mixin:
     "Mixin class for providing these methods to class Part"
     
     def modifyTransmute(self, elem, force = False, atomType=None): 
-        ''' Transmute selected atoms into <elem> and with optional <atomType>. 
+        ''' This method was originally a method of class mode and selectMode.
+            Transmute selected atoms into <elem> and with an optional <atomType>. 
             <elem> is an element number that selected atoms will be transmuted to.
             <force>: boolean variable meaning keeping existing bond or not.
-            <atomType>: the optional hybrid bond type if the element support hybrid. --Huaicai'''
+            <atomType>: the optional hybrid bond type if the element support hybrid. --Huaicai[9/1/05]'''
                 
         # now change selected atoms to the specified element
         # [bruce 041215: this should probably be made available for any modes
@@ -43,7 +44,7 @@ class ops_atoms_Mixin:
             self.o.gl_update()
             
         elif self.selmols:
-            PeriodicTable.getElement(elem)
+            dstElm = PeriodicTable.getElement(elem)
             for mol in self.selmols[:]:
                 for atm in mol.atoms.values():
                     atm.Transmute(dstElem, force = force, atomtype=atomType)

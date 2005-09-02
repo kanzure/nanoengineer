@@ -1360,9 +1360,13 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         global MMKitWin
         if MMKitWin and MMKitWin.isShown():
             return MMKitWin
-        
-        MMKitWin = MMKit(self)
-        MMKitWin.update_dialog(self.Element)
+
+        # It's very important to add the following condition, so only a single instance
+        # of the MMKit has been created and used. This is to fix bug 934, which is kind
+        # of hard to find. [Huaicai 9/2/05]
+        if not MMKitWin: 
+            MMKitWin = MMKit(self)
+            MMKitWin.update_dialog(self.Element)
         pos = self._findGoodLocation()
         
         ## On Linux, X11 has some problem for window location before it's shown. So a comprise way to do it, 

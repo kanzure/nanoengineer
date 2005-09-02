@@ -952,7 +952,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         if self.element is Singlet: return
         
-        # It's better to pass the following condition as argument, so it can be reused.--Huaicai
+        # It would be better to pass the following condition as argument, so it can be reused.--Huaicai [9/1/05]
         # If select atoms filter is on, only pick element type in the filter combobox
         if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
             self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return

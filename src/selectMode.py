@@ -288,37 +288,6 @@ class selectMode(basicMode):
         # here and in Move mode (to get back).
 
     
-    #### The following method is obsolete, a modified version is moved into ops_atoms.py. [Huaicai 9/1/05] 
-    # bruce 041216: renamed elemSet to modifyTransmute, added force option,
-    # made it work on selected chunks as well as selected atoms
-    # [that last part is undiscussed, we might remove it]
-    def modifyTransmute(self, elem, force = False, atomType=None): 
-        # elem is an element number
-        # make it current in the element selector dialog
-        self.w.setElement(elem) # bruce comment 040922 -- this line is an inlined version of the superclass method.
-        # now change selected atoms to the specified element
-        # [bruce 041215: this should probably be made available for any modes
-        #  in which "selected atoms" are permitted, not just Select modes. #e]
-        from elements import PeriodicTable
-        if self.o.assy.selatoms:
-            for atm in self.o.assy.selatoms.values():
-                atm.Transmute(PeriodicTable.getElement(elem), force = force, atomtype=atomType)
-                # bruce 041215 fix bug 131 by replacing low-level mvElement call
-                # with new higher-level method Transmute. Note that singlets
-                # can't be selected, so the fact that Transmute does nothing to
-                # them is not (presently) relevant.
-            #e status message?
-            # (Presently a.Transmute makes one per "error or refusal".)
-            self.o.gl_update()
-        elif self.o.assy.selmols:
-            for mol in self.o.assy.selmols[:]:
-                for atm in mol.atoms.values():
-                    atm.Transmute(PeriodicTable.getElement(elem), force = force, atomtype=atomType)
-                        # this might run on some killed singlets; should be ok
-            self.o.gl_update()
-        return
-
-
     def setJigSelectionEnabled(self):
         self.jigSelectionEnabled = not self.jigSelectionEnabled
                  
@@ -535,8 +504,10 @@ class selectAtomsMode(selectMode):
         def Enter(self): 
             basicMode.Enter(self)
             self.o.assy.selectAtoms()
+            self.w.elemFilterComboBox.setCurrentItem(0) ## Disable filter by default
             # Reinitialize previously picked atoms (ppas).
             self.o.assy.ppa2 = self.o.assy.ppa3 = None
+            
             
         def init_gui(self):
             selectMode.init_gui(self)

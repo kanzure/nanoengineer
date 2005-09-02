@@ -1066,13 +1066,6 @@ class basicMode(anyMode):
     # [remaining methods not yet analyzed by bruce 040922]
 
     
-    #### The following method is obsolete, not needed here. [Huaicai 9/1/05] 
-    # bruce 041216: renamed elemSet to modifyTransmute, added force option
-    # (fyi: this is overridden in selectMode)
-    def modifyTransmute(self, elem, force = False):
-        self.w.setElement(elem) # doesn't use force option
-
-
     # Key event handling revised by bruce 041220 to fix some bugs;
     # see comments in the GLPane methods, which now contain Mac-specific Delete
     # key fixes that used to be done here. For the future: The keyPressEvent and
