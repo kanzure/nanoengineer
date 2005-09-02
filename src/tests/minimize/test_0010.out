@@ -35,14 +35,14 @@ final RMS gradient=0.857123 after 13 iterations
 5 119.61 215.29
 6 45.96 66.56
 # Switching to Conjugate-Gradient
-7 25.15 0.00
-8 18.91 0.00
-9 8.88 0.00
-10 3.56 0.00
-11 2.19 0.00
-12 0.86 0.00
-13 0.86 nan
-# Done: Minimization final rms: 0.857123, highForce: nan
+7 25.15 31.11
+8 18.91 21.34
+9 8.88 17.14
+10 3.56 4.76
+11 2.19 3.01
+12 0.86 1.28
+13 0.86 1.28
+# Done: Minimization final rms: 0.857123, highForce: 1.276734
 ======= test_0010.xyz =======
 8
 RMS=0.857123

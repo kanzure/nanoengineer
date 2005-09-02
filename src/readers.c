@@ -193,6 +193,7 @@ static int makcon(int typ, struct MOT *mot, int n, int *atnos) {
     Constraint[Nexcon].type = typ;
     Constraint[Nexcon].natoms=n;
     Constraint[Nexcon].motor=mot;
+    Constraint[Nexcon].atoms = (int *)allocate(n * sizeof(int));
     for (i=0; i<n; i++) Constraint[Nexcon].atoms[i]=atnos[i];
     return Nexcon++;
 }

@@ -1098,25 +1098,31 @@ minimizeSteepestDescent(int steepestDescentFrames,
     }
 }
 
-double fSquare(struct xyz *force) {
+double fSquare(struct xyz *force, double *max_forceSquared) {
     struct xyz f;
     int j;
     double val;
+    double forceSquared;
 
+    *max_forceSquared = 0.0;
     for (j=0, val=0.0; j<Nexatom; j++) {
 	f= force[j];
-	val += vdot(f,f);
+        forceSquared = vdot(f,f);
+        if (forceSquared > *max_forceSquared) {
+            *max_forceSquared = forceSquared;
+        }
+	val += forceSquared;
     }
     return val;
 }
 
 // note this leaves the force vector in force
-double evalPos(struct xyz *pos, struct xyz *force) {
+double evalPos(struct xyz *pos, struct xyz *force, double *max_forceSquared) {
     struct xyz f;
     int j;
 
     calculateForces(0, pos, force);
-    return fSquare(force);
+    return fSquare(force, max_forceSquared);
 }
 
 
@@ -1156,15 +1162,16 @@ static void lineSearch(struct xyz *dirvec, double step) {
     double near = 0.0;
     double far, center, new;
     double valNear, valFar, valCenter, valNew;
+    double max_forceSquared;
     int i;
 
-    valNear=evalPos(Positions, Force);
+    valNear=evalPos(Positions, Force, &max_forceSquared);
     center = step/phi;
     setPos(NewPositions, Positions, dirvec, center);
-    valCenter=evalPos(NewPositions, newForce);
+    valCenter=evalPos(NewPositions, newForce, &max_forceSquared);
     far=step;
     setPos(NewPositions, Positions, dirvec, far);
-    valFar=evalPos(NewPositions, newForce);
+    valFar=evalPos(NewPositions, newForce, &max_forceSquared);
     
     
     // step out until we find a minimum
@@ -1175,14 +1182,14 @@ static void lineSearch(struct xyz *dirvec, double step) {
 	valCenter = valFar;
 	far = far+step;
 	setPos(NewPositions, Positions, dirvec, far);
-	valFar=evalPos(NewPositions, newForce);
+	valFar=evalPos(NewPositions, newForce, &max_forceSquared);
     }
     // do a golden search within the segment
     for (i=0; i<10; i++) {
 	if (center-near < far-center) { // do near...center...new...far
 	    new = far - phi*(far-center);
 	    setPos(NewPositions, Positions, dirvec, new);
-	    valNew=evalPos(NewPositions, newForce);
+	    valNew=evalPos(NewPositions, newForce, &max_forceSquared);
 	    if (valNew < valCenter) { // new pts are center...new...far
 		near = center;
 		valNear = valCenter;
@@ -1196,7 +1203,7 @@ static void lineSearch(struct xyz *dirvec, double step) {
 	else { // do near...new...center...far
 	    new = near + phi*(center-near);
 	    setPos(NewPositions, Positions, dirvec, new);
-	    valNew=evalPos(NewPositions, newForce);
+	    valNew=evalPos(NewPositions, newForce, &max_forceSquared);
 	    if (valNew < valCenter) { // new pts are near...new...center
 		far = center;
 		valFar = valCenter;
@@ -1218,7 +1225,10 @@ minimizeConjugateGradients(int numFrames, int *frameNumber)
 {
     int i, j, k;
     int interruptionWarning;
-    double forceSquared, max_forceSquared, forceMult;
+    double forceSquared;
+    double max_forceSquared;
+    double oldmax;
+    double forceMult;
     double old_force_squared;
     double last_sum_forceSquared;
     double sum_force_dot_old_force;
@@ -1229,10 +1239,10 @@ minimizeConjugateGradients(int numFrames, int *frameNumber)
     double old_movcon = movcon;
     double movfac = 3.0;
 
-    evalPos(NewPositions, DirVec);
+    evalPos(NewPositions, DirVec, &max_forceSquared);
     lineSearch(DirVec, movcon);
-    old_force_squared = fSquare(DirVec);
-    forceSquared = evalPos(NewPositions, Force);
+    old_force_squared = fSquare(DirVec, &oldmax);
+    forceSquared = evalPos(NewPositions, Force, &max_forceSquared);
     rms_force = sqrt(forceSquared/Nexatom);
     updatePositionsArrays(rms_force, max_forceSquared, PTR_NEW);
 
@@ -1248,10 +1258,10 @@ minimizeConjugateGradients(int numFrames, int *frameNumber)
 
 	lineSearch(DirVec, movcon);
 	old_force_squared = forceSquared;
-	forceSquared = evalPos(NewPositions, Force);
+	forceSquared = evalPos(NewPositions, Force, &max_forceSquared);
 	rms_force = sqrt(forceSquared/Nexatom);
 
-	minshot(outf, 0, Positions, rms_force, 0.0, (*frameNumber)++, "3");
+	minshot(outf, 0, Positions, rms_force, max_forceSquared, (*frameNumber)++, "3");
 
         updatePositionsArrays(rms_force, max_forceSquared, PTR_NEW);
     }

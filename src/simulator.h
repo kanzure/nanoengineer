@@ -152,7 +152,7 @@ struct AXLE {
         struct MOT *motor;
         int natoms;
         /** atoms connected to the shaft */
-        int atoms[NJATOMS];
+        int *atoms;
     // string from file
     char *name;
     // a pun

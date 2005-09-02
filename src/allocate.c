@@ -13,6 +13,17 @@ allocate(int size)
   return ret;
 }
 
+void *
+reallocate(void *p, int size)
+{
+  void *ret = realloc(p, size);
+  if (ret == NULL) {
+    fprintf(stderr, "Out of memory\n");
+    exit(1);
+  }
+  return ret;
+}
+
 char *
 copy_string(char *s)
 {
