@@ -294,7 +294,7 @@ class usage_tracker_obj: #bruce 050804
         """This gets called (via env.track) by everything that wants to record one use of its value.
         The argument subslist is a subscription-list object which permits subscribing to future changes
         (or invalidations) to the value whose use now is being tracked.
-        [This method gets installed as env.track, which is called often, so it needs to be fast.]
+        [This method, self.track, gets installed as env.track, which is called often, so it needs to be fast.]
         """
         # For now, just store subslist, at most one copy. Later we'll subscribe just once to each one stored.
         self.data[id(subslist)] = subslist
