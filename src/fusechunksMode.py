@@ -35,9 +35,14 @@ def do_what_MainWindowUI_should_do(w):
     
     w.fuseChunksDashboard.addSeparator()
     
-    w.makeBondsPB = QPushButton("Make Bonds", w.fuseChunksDashboard)
+    w.fuseActionLabel = QLabel(w.fuseChunksDashboard)
+    w.fuseActionLabel.setText(" Action : ")
     
-    w.mergeCB = QCheckBox("Merge", w.fuseChunksDashboard)
+    w.fuseTypeCBox = QComboBox(0, w.fuseChunksDashboard, "fuseTypeCBox")
+    
+    w.goPB = QPushButton("Make Bonds", w.fuseChunksDashboard)
+    
+    w.mergeCB = QCheckBox("Merge chunks", w.fuseChunksDashboard)
     w.mergeCB.setChecked(True)
     
     w.fuseChunksDashboard.addSeparator()
@@ -47,11 +52,17 @@ def do_what_MainWindowUI_should_do(w):
     w.toleranceSL = QSlider(0,300,5,100,Qt.Horizontal,w.fuseChunksDashboard)
     w.toleranceLB = QLabel(w.fuseChunksDashboard)
     w.toleranceLB.setText("100% => 0 bondable pairs")
-        
+    
     w.fuseChunksDashboard.addSeparator()
     
     w.toolsBackUpAction.addTo(w.fuseChunksDashboard)
     w.toolsDoneAction.addTo(w.fuseChunksDashboard)
+    
+    w.fuseChunksDashboard.setLabel("Fuse Chunks") #Toolbar tooltip label
+    w.fuseTypeCBox.clear()
+    # these are identified by *position*, not by their text
+    w.fuseTypeCBox.insertItem("Make Bonds")
+    w.fuseTypeCBox.insertItem("Fuse Atoms")
     
 def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
     if nbonds < 0:
@@ -74,12 +85,28 @@ def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
 #    return "%s => %s/%s bonds" % (tol_str,nbonds_str,mbonds_str)
 #    return "%s => [%s bondable pairs] [%s bonds / %s multibonds] " % (tol_str,bondable_pairs,nbonds_str,mbonds_str)
     return "%s => %s bondable pairs %s" % (tol_str,bondable_pairs,mbonds_str)
+
+def fusechunks_lambda_tol_natoms(tol, natoms):
+    if natoms < 0:
+        natoms_str = "?"
+    else:
+        natoms_str = "%d" % (natoms,)
+
+    tol_str = ("      %d" % int(tol*100.0))[-3:]
+    # fixed-width (3 digits) but using initial spaces
+    # (doesn't have all of desired effect, due to non-fixed-width font)
+    tol_str = tol_str + "%"
     
+    return "%s => %s overlapping atoms" % (tol_str, natoms_str)
+
+MAKEBONDS = 0
+FUSEATOMS = 1
+
 class fusechunksMode(modifyMode):
     "Allows user to move one chunk and fuse it to other chunks in the part"
 
     # class constants
-    backgroundColor = 200/255.0, 200/255.0, 200/255.0
+    backgroundColor = 220/255.0, 220/255.0, 220/255.0
     modename = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
     
@@ -92,20 +119,21 @@ class fusechunksMode(modifyMode):
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that have been bonded.
     tol = 1.0 # tol is the distance between two bondable singlets.
+    fuse_type = 0 # 0 = Make Bonds, 1 = Fuse Atoms
 
     def Enter(self):
         modifyMode.Enter(self)
         self.saveDisp = self.o.display
         self.o.setDisplay(diTUBES)
+        self.change_fuse_type(self.fuse_type) # Syncs the dashboard and glpane.
             
     def init_gui(self):
         self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsFuseChunksAction.setOn(1) # toggle on the Fuse Chunks icon
         self.w.fuseChunksDashboard.show() # show the Fuse Chunks dashboard
-        self.w.connect(self.w.makeBondsPB,SIGNAL("clicked()"),self.make_bonds)
-        self.w.connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
-        # This is so we can use the X, Y, Z modifier keys from modifyMode.
-        self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        
+        # connect signals (these all need to be disconnected in restore_gui) [mark 050901]
+        self.connect_or_disconnect_signals(True)
         
         if self.o.assy.selmols:
             self.something_was_picked = True
@@ -117,9 +145,21 @@ class fusechunksMode(modifyMode):
 
     def restore_gui(self):
         self.w.fuseChunksDashboard.hide()
-        self.w.disconnect(self.w.makeBondsPB,SIGNAL("clicked()"),self.make_bonds)
-        self.w.disconnect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
-        self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        self.connect_or_disconnect_signals(False)
+        
+    def connect_or_disconnect_signals(self, connect): #copied from depositMode.py. mark 050901
+        if connect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
+            
+        change_connect(self.w.goPB,SIGNAL("clicked()"),self.fuse_something)
+        change_connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
+        # This is so we can use the X, Y, Z modifier keys from modifyMode.
+        change_connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        change_connect(self.w.fuseTypeCBox, SIGNAL("activated(int)"), self.change_fuse_type)
+        
+        return
 
     def restore_patches(self):
         self.o.setDisplay(self.saveDisp)
@@ -128,13 +168,31 @@ class fusechunksMode(modifyMode):
         self.tol = val * .01
         
         if self.o.assy.selmols:
-            self.find_bondable_pairs() # This will update the slider tolerance label
+            if self.fuse_type == MAKEBONDS:
+                self.find_bondable_pairs() # This will update the slider tolerance label
+            else:
+                self.find_overlapping_atoms() # This will update the slider tolerance label
             self.o.gl_update()
         else:
             # Since no chunk is select, there are no bonds, but the slider tolerance label still needs updating.  
             # This fixed bug 502-14.  Mark 050407
             tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
             self.w.toleranceLB.setText(tol_str) 
+        
+    def change_fuse_type(self, val):
+        '''Sets the Fuse Type action, where val:
+            0 = Make Bonds
+            1 = Fuse Atoms
+            '''
+            
+        self.fuse_type = val
+
+        if self.fuse_type == MAKEBONDS:
+            self.w.goPB.setText("Make Bonds")
+        else:
+            self.w.goPB.setText("Fuse Atoms")
+        
+        self.o.gl_update()
 
     def Backup(self):
         '''Undo any bonds made between chunks.
@@ -167,7 +225,10 @@ class fusechunksMode(modifyMode):
                     cnames += '[' + chunk.name + '] '
                 self.w.history.message(cnames)
             
-            self.find_bondable_pairs() # Find bondable pairs of singlets
+            if self.fuse_type == MAKEBONDS:
+                self.find_bondable_pairs() # Find bondable pairs of singlets
+            else:
+                self.find_overlapping_atoms() # Find overlapping pairs of atoms
             self.o.gl_update()
                         
         else:
@@ -179,14 +240,24 @@ class fusechunksMode(modifyMode):
         pass
 
     def Draw(self):
+        
+        # This Draw method lack some basic optimization.  For example, if the user 
+        # only rotates the view or zooms in/out, we shouldn't to call find_bondable_pairs
+        # since the last of of bondable_pairs is unchanged.  This severly impacts 
+        # performance unnecessarily. 
+        # Mark 050902.
 
         # This is important and needed in case there is nothing selected.  I mention this because
         # it looks redundant since is the first thing done in find_bondable_pairs(). 
         self.bondable_pairs = []
         self.ways_of_bonding = {}
+        self.overlapping_atoms = []
         
         if self.o.assy.selmols: 
-            self.find_bondable_pairs() # Find bondable pairs of singlets
+            if self.fuse_type == MAKEBONDS:
+                self.find_bondable_pairs() # Find bondable pairs of singlets
+            else:
+                self.find_overlapping_atoms() # Find bondable pairs of singlets
             if not self.something_was_picked: 
                 self.something_was_picked = True
         else:
@@ -194,7 +265,10 @@ class fusechunksMode(modifyMode):
             # Check if we need to update the slider tolerance label.
             # This fixed bug 502-14.  Mark 050407
             if self.something_was_picked:
-                tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
+                if self.fuse_type == MAKEBONDS:
+                    tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
+                else:
+                    tol_str = fusechunks_lambda_tol_natoms(self.tol, 0) # 0 atoms
                 self.w.toleranceLB.setText(tol_str)
                 self.something_was_picked = False # Reset flag
 
@@ -214,18 +288,31 @@ class fusechunksMode(modifyMode):
                 # Draw bond lines between singlets.
                 # Color should be set from user preferences.
                 drawline(self.bondcolor, s1.posn(), s2.posn()) 
+                
+        # Color the overlapping atoms
+        if self.overlapping_atoms:
+            for a1,a2 in self.overlapping_atoms:
+                
+                # Color bondable pair singlets. Singlets with multiple pairs are colored magenta.
+                # Singlets with one way of bonding are colored blue (selected_chunk) or green (other chunks).
+                # a1.overdraw_with_special_color(blue)
+                a2.overdraw_with_special_color(green)
 
-    def find_bondable_pairs(self):
+    def find_bondable_pairs(self, chunk_list = None):
         '''Checks the open bonds of the selected chunk to see if they are close enough
-        to bond with any other open bonds in the part.  Hidden chunks are skipped.
+        to bond with any other open bonds in a list of chunks.  Hidden chunks are skipped.
         '''
         self.bondable_pairs = []
         self.ways_of_bonding = {}
         
+        if not chunk_list:
+            chunk_list = self.o.assy.molecules
+        
         for chunk in self.o.assy.selmols:
         
             # Loop through all the mols in the part to search for bondable pairs of singlets.
-            for mol in self.o.assy.molecules:
+            # for mol in self.o.assy.molecules:
+            for mol in chunk_list:
                 if chunk == mol: continue # Skip itself
                 if mol.hidden: continue # Skip hidden chunks
                 if mol in self.o.assy.selmols: continue # Skip other selected chunks
@@ -271,6 +358,12 @@ class fusechunksMode(modifyMode):
         tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds, mbonds, singlet_pairs)
         self.w.toleranceLB.setText(tol_str)
 
+    def fuse_something(self):
+        if self.fuse_type == MAKEBONDS:
+            self.make_bonds()
+        else:
+            self.fuse_atoms()
+            
     def make_bonds(self):
         "Make bonds between all bondable pairs of singlets"
         
@@ -365,5 +458,98 @@ class fusechunksMode(modifyMode):
                     mbonds += self.ways_of_bonding[s2.key] - 1 # The first one doesn't count.
 
         return mbonds, len(mbond_singlets), sbond_singlets
+    
+    ######### Overlapping Atoms methods #############
+    
+    def find_overlapping_atoms(self):
+        '''Checks atoms of the selected chunk to see if they overlap atoms
+        in other chunks of the same type (element).  Hidden chunks are skipped.
+        '''
+        # Future versions should allow more flexible rules for overlapping atoms,
+        # but this needs to be discussed with others before implementing anything.
+        # For now, only atoms of the same type qualify as overlapping atoms.
+        # As is, it is extremely useful for fusing chunks of diamond, lonsdaleite or SiC,
+        # which is done quite a lot with casings.  This will save me hours of 
+        # modeling work.
+        # Mark 050902
         
+        self.overlapping_atoms = []
+        
+        for chunk in self.o.assy.selmols:
+        
+            # Loop through all the mols in the part to search for bondable pairs of singlets.
+            for mol in self.o.assy.molecules:
+                if chunk == mol: continue # Skip itself
+                if mol.hidden: continue # Skip hidden chunks
+                if mol in self.o.assy.selmols: continue # Skip other selected chunks
+                
+                # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
+                # Remember: chunk = a selected chunk, mol = a non-selected chunk.
+                if vlen (mol.bbox.center() - chunk.bbox.center()) > mol.bbox.scale() + chunk.bbox.scale() + self.tol + self.tol:
+                    # Skip this chunk.
+                    # print "Skipped ", mol.name
+                    continue
+                else:
+
+                    # Loop through all the atoms in the selected chunk.
+                    for a1 in chunk.atoms.itervalues(): # or should it be values()??? Ask Bruce.
+                    # for a1 in chunk.atoms.values():
+                        # Loop through all the atoms in this chunk.
+                        for a2 in mol.atoms.itervalues():
+                        #for a2 in mol.atoms.values(): # or should it be values()??? Ask Bruce.
+                        
+                            # Compares the distance between a1 and a2.  If the distance
+                            # is <= tol, then we have an overlapping atom.  I know this isn't 
+                            # a proper use of tol, but it works for now.   Mark 050901
+                            if vlen (a1.posn() - a2.posn()) <= self.tol:
+                                if a1.element == a2.element: # Keep atoms of the same type only
+                                    if a1.element is not Singlet: # We aren't interested in singlets.
+                                        self.overlapping_atoms.append( (a1,a2) ) # Add this pair to the list
+                                        break # No need to check other atoms in this chunk.
+                                    
+        # Update tolerance label and status bar msgs.
+        natoms = len(self.overlapping_atoms)
+        tol_str = fusechunks_lambda_tol_natoms(self.tol, natoms)
+        self.w.toleranceLB.setText(tol_str)
+        
+
+    def fuse_atoms(self):
+        '''Deletes overlapping atoms with the selected chunk(s).  If the "Merge Chunks" checkbox
+        is checked, then find_bondable_pairs() and make_bonds() is called, resulting
+        in the merging of chunks.
+        '''
+        
+        total_atoms_fused = 0 # The total number of atoms fused.
+       
+        # fused_chunks stores the list of chunks that contain overlapping atoms 
+        # (but no selected chunks, though)
+        fused_chunks = []
+        
+        # Delete overlapping atoms.
+        for a1, a2 in self.overlapping_atoms:
+            if a2.molecule not in fused_chunks:
+                fused_chunks.append(a2.molecule)
+            a2.kill()
+        
+#        print "Fused chunks list:", fused_chunks
+        
+        # Merge the chunks if the "merge chunks" checkbox is checked
+        if self.w.mergeCB.isChecked() and self.overlapping_atoms:
+            # This will bond and merge the selected chunks only with
+            # chunks that had overlapping atoms.
+            self.find_bondable_pairs(fused_chunks)
+            self.make_bonds()
+                        
+        # Print history msgs to inform the user what happened.                         
+        total_atoms_fused = len(self.overlapping_atoms)
+        msg = fix_plurals( "%d atom(s) fused with %d chunk(s)" % (total_atoms_fused, len(fused_chunks)))
+        self.w.history.message(msg)
+        #"%s => %s overlapping atoms" % (tol_str, natoms_str)
+        
+        # Update the slider tolerance label.
+        tol_str = fusechunks_lambda_tol_natoms(self.tol, 0)
+        self.w.toleranceLB.setText(tol_str)
+                
+        self.w.win_update()
+
 # end of class fusechunksMode
