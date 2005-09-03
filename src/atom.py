@@ -1,162 +1,113 @@
 #! /usr/bin/python
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 
-"""Atom
-
-142C41+
-
+"""
 atom.py is the startup script for nanoENGINEER-1.
-OS-dependent code runs before this and somehow starts the
-right python interpreter and has it run this script
-(possibly with arguments, that might not be implemented yet),
-which imports and starts everything else.
+
+$Id$
+
+This file should not be imported as the "atom" module -- doing so
+prints a warning [as of 050902] and doesn't run the contained code.
+If necessary, it can be imported as the __main__ module
+from within the nE-1 process it starts, by "import __main__".
+Such an import doesn't rerun the contained code -- only reload(__main__)
+would do that, and that should not be done.
+
+Depending on the details of the package building process,
+this file might be renamed and/or moved to a different directory
+from the other modules under cad/src. As of 050902, it's always
+moved to a different directory (by package building on any platform),
+and this is detected at runtime (using __main__.__file__) as a way
+of distinguishing end-user runs from developer runs.
+
+When an end-user runs the nE-1 application, OS-dependent code somehow
+starts the right python interpreter and has it run this script
+(possibly passing command-line arguments, but that might not be implemented yet).
+
+Developers running nE-1 from cvs can run this script using a command line
+like "python atom.py" or "pythonw atom.py", depending on the Python
+installation. Some Python or Qt installations require that the absolute
+pathname of atom.py be used, but the current directory should always be
+the one containing this file, when it's run manually in this way.
+
+This script then imports and starts everything else.
+
 As of 041217 everything runs in that one process,
 except for occasional temporary subprocesses it might start.
 
-$Id$
+History:
+
+[mostly unrecorded except in cvs; originally by Josh; lots of changes by
+various developers.]
+
+bruce 050902 revised module docstring, and added comments explaining why
+there are two separate tests of __name__ == '__main__'
+(which surrounds most code in this module).
+The reason this condition is needed at all is to reduce the harm caused
+by someone accidentally running "import atom" (which is wrong but causes no harm).
 """
 
 __author__ = "Josh"
 
-import sys, os
+if __name__ != '__main__':
+    #bruce 050902 added this warning
+    print
+    print "Warning: atom.py should not be imported except as the __main__ module."
+    print " (It is now being imported under the name %r.\n" \
+          "  This is a bug, but should cause no direct harm.)" % (__name__,)
+    print
 
+import startup_funcs # this has no side effects, it only defines a few functions
+    # bruce 050902 moved some code from this file into new module startup_funcs
 
-# user-specific debug code to be run before any other imports [bruce 040903]
-if __name__=='__main__':
-    # gpl_only check at startup [bruce 041217]
-    try:
-        import gpl_only as _gpl_only
-            # if this module is there, this lets it verify it should be there,
-            # and if not, complain (to developers) whenever the program starts
-        print "(running a GPL distribution)" #e retain or zap this?
-    except ImportError:
-        print "(running a non-GPL distribution)" #e retain or zap this?
-        pass # this is normal for non-GPL distributions
-    try:
-        rc = "~/.atom-debug-rc"
-        rc = os.path.expanduser(rc)
-        if os.path.exists(rc):
-            ## execfile(rc) -- not allowed!
-            import debug as _debug
-            _debug.legally_execfile_in_globals(rc, globals(), error_exception = False)
-                # might fail in non-GPL versions; prints error message but
-                # does not raise an exception.
-                # (doing it like this is required by our licenses for Qt/PyQt)
-    except:
-        print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
-        raise
-    if sys.platform == 'darwin': #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
-        try:
-            import widget_hacks
-            widget_hacks.doit3()
-        except:
-            print "exception in widget_hacks.doit3() (or in importing it) ignored"
-        pass
+import sys, os # all other imports should be added lower down
+
+if __name__ == '__main__':
+    # This condition surrounds most code in this file, but it occurs twice,
+    # so that the first occurrence can come before most of the imports,
+    # while letting most imports occur at the top level of the file.
+    # [bruce 050902 comment about older situation]
+    
+    main_globals = globals() # needed in case .atom-debug-rc is executed, since it must be executed in that global namespace
+    
+    startup_funcs.before_most_imports( main_globals )
+        # "Do things that should be done before anything that might possibly have side effects."
+    
     pass
 
-from qt import QApplication, SIGNAL, QRect, QDesktopWidget
+# most imports in this file should be done here, or inside functions in startup_funcs
 
-from constants import *
+from qt import QApplication, SIGNAL ## bruce 050902 removed QRect, QDesktopWidget
 
-from MWsemantics import MWsemantics
+## from constants import *
+    #bruce 050902 removing import of constants since I doubt it's still needed here.
+    # This might conceivably cause bugs, but it's unlikely.
 
-##############################################################################
+from MWsemantics import MWsemantics # (this might have side effects other than defining things)
 
-if __name__=='__main__':
+if __name__ == '__main__':
+    # [see comment above about why there are two occurrences of this statement]
     
-    # the default (1000) bombs with large molecules
-    sys.setrecursionlimit(5000)
-
-    # bruce 050119: get working directory from preferences database.
-    # (It used to be stored in ~/.ne1rc; this file is now optional,
-    #  used only if preferences doesn't find anything; it's no longer
-    #  ever created or written to.)
-    from preferences import prefs_context
-    prefs = prefs_context()
-    where = "preferences database" # only matters when wd is non-null
-    wd = prefs.get('WorkingDirectory')
-    if not wd:
-        # see if it's stored in the old location
-        # (this won't be needed in the Alpha release, but is needed for our own
-        #  internal users who have these files lying around - but only until the
-        #  next time they run the program, since we'll write wd found in .ne1rc
-        #  into the prefs db, too.)
-        # old code [slightly modified by bruce 050119]:
-        # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
-        # .ne1rc contains one line, the Working Directory
-        # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
-        rc = os.path.expanduser("~/.ne1rc")
-        if os.path.exists(rc):
-            where = rc
-            f=open(rc,'r')
-            wd = os.path.normpath(f.readline())
-            f.close()
-            prefs['WorkingDirectory'] = wd # whether or not isdir(wd)!
-             # After this, in theory, this ~/.ne1rc is never again needed.
-    if wd:
-        if os.path.isdir(wd):
-            globalParms['WorkingDirectory'] = wd
-        else:
-            print "Warning: working directory \"%s\" (from %s)" % (wd, where)
-            print " no longer exists; using \"%s\" for this session." % globalParms['WorkingDirectory']
-            #e Ideally we'd print this into win.history, but that doesn't exist yet.
-            #e Someday we should save it up somewhere and print it into the history when that's created.
-        pass
+    startup_funcs.before_creating_app()
+        # "Do whatever needs to be done before creating the application object, but after importing MWsemantics."
     
     QApplication.setColorSpec(QApplication.CustomColor)
-    app=QApplication(sys.argv)
-    app.connect(app,SIGNAL("lastWindowClosed ()"),app.quit)
+    app = QApplication(sys.argv)
+    app.connect(app, SIGNAL("lastWindowClosed ()"), app.quit)
 
-    foo = MWsemantics()
+    foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
-        meth = atom_debug_pre_main_show 
+        meth = atom_debug_pre_main_show
     except:
         pass
     else:
         meth()
 
-    # Determine the screen resolution and compute the normal window size for NE-1
-    # [bruce 041230 corrected this for Macintosh, and made sure it never exceeds
-    #  screen size even on a very small screen.]
-    # [bruce 050118 further modified this and removed some older comments
-    #  (see cvs for those); also split out some code into platform.py.]
-    import platform as _platform
-    ((x0, y0), (screen_w, screen_h)) = _platform.screen_pos_size()
-    # note: y0 is nonzero on mac, due to menubar at top of screen.
-    
-    # use 85% of screen width and 90% of screen height, or more if that would be
-    # less than 780 by 560 pixels, but never more than the available space.
-    norm_w = int( min(screen_w - 2, max(780, screen_w * 0.85)))
-    norm_h = int( min(screen_h - 2, max(560, screen_h * 0.90)))
-        #bruce 050118 reduced max norm_h to never overlap mac menubar (bugfix?)
-    
-    # determine normal window origin
-    # [bruce 041230 changed this to center it, but feel free to change this back
-    #  by changing the next line to center_it = 0]
-    center_it = 1
-    if center_it:
-        # centered in available area
-        norm_x = (screen_w - norm_w) / 2 + x0
-        norm_y = (screen_h - norm_h) / 2 + y0
-    else:
-        # at the given absolute position within the available area
-        # (but moved towards (0,0) from that, if necessary to keep it all on-screen)
-        want_x = 4 # Left (4 pixels)
-        want_y = 36 # Top (36 pixels)
-        norm_x = min( want_x, (screen_w - norm_w)) + x0
-        norm_y = min( want_y, (screen_h - norm_h)) + y0
-    
-    # Set the main window geometry, then show the window 
-    foo.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
-    foo.show()
+    startup_funcs.pre_main_show(foo) # this sets foo's geometry, among other things
 
-# This is debugging code used to find out the origin and size of the fullscreen window
-#    foo.setGeometry(QRect(600,50,1000,800)) # KEEP FOR DEBUGGING
-#    fooge = QRect(foo.geometry())
-#    print "Window origin = ",fooge.left(),",",fooge.top()
-#    print "Window width =",fooge.width(),", Window height =",fooge.height()
+    foo.show() # show the main window
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
@@ -165,6 +116,8 @@ if __name__=='__main__':
         pass
     else:
         meth()
+
+    startup_funcs.post_main_show(foo) # bruce 050902 added this
 
     # now run the main Qt event loop --
     # perhaps with profiling, if user requested this via .atom-debug-rc.
@@ -200,4 +153,6 @@ if __name__=='__main__':
         # if you change this code, also change the string literal just above
         app.exec_loop() 
 
-    # end
+    pass
+
+# end
