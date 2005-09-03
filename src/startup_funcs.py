@@ -44,14 +44,51 @@ def before_most_imports( main_globals ):
     except:
         print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
         raise
-    if sys.platform == 'darwin': #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
+
+    #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
+    if sys.platform == 'darwin':
         try:
             import widget_hacks
             widget_hacks.doit3()
         except:
             print "exception in widget_hacks.doit3() (or in importing it) ignored"
         pass
-    return
+
+    # Figure out whether we're run by a developer from cvs sources (_end_user = False),
+    # or by an end-user from an installer-created program (_end_user = True).
+    # Use two methods, warn if they disagree, and if either one think's we're an end user,
+    # assume we are (so as to turn off certain code it might not be safe for end-users to run).
+    # [bruce 050902 new feature]
+
+    # Method 1. As of 050902, package builders on all platforms reportedly move atom.py
+    # (the __main__ script) into a higher directory than the compiled python files.
+    # But developers running from cvs leave them all in cad/src.
+    # So we compare the directories.
+    import __main__ # this is still being imported, but we only need its __file__ attribute, which should be already defined
+    maindir, filejunk = os.path.split( __main__.__file__ )
+    ourdir,  filejunk = os.path.split( __file__ )
+    guess1 = (maindir != ourdir)
+
+    # Method 2. As of 050902, package builders on all platforms remove the .py files, leaving only .pyc files.
+    guess2 = not os.path.exists( os.path.join( ourdir, __name__ + ".py" ))
+
+    __main__._end_user = _end_user = guess1 or guess2
+    if guess1 != guess2:
+        print "Warning: two methods of guessing whether we're being run by an end-user disagreed (%r and %r)." % (guess1, guess2)
+        print "To be safe, assuming we are (disabling some developer-only features)."
+        print "If this ever happens, it's a bug, and the methods need to be updated."
+        print
+    if _end_user:
+        pass # normally no message in this case
+    else:
+        print "enabling developer features"
+        # The actual enabling is done by other code which checks the value of __main__._end_user.
+        # Note: most code should NOT behave differently based on that value!
+        # (Doing so might cause bugs to exist in the end-user version but not the developer version,
+        #  which would make them very hard to notice or debug. This risk is only justified in a few
+        #  special cases.)
+    
+    return # from before_most_imports
 
     
 def before_creating_app():
