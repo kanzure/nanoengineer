@@ -494,16 +494,17 @@ class fusechunksMode(modifyMode):
                             continue
                         # Loop through all the atoms in this chunk.
                         for a2 in mol.atoms.itervalues():
-                            if a2.element is Singlet: # Singlets can't be overlapping atoms.
+                            # Only atoms of the same type can be overlapping.
+                            # This also screens singlets, since a1 can't be a singlet.
+                            if a1.element is not a2.element: 
                                 continue
 
                             # Compares the distance between a1 and a2.  If the distance
                             # is <= tol, then we have an overlapping atom.  I know this isn't 
                             # a proper use of tol, but it works for now.   Mark 050901
                             if vlen (a1.posn() - a2.posn()) <= self.tol:
-                                if a1.element is a2.element: # Keep atoms of the same type only
-                                    self.overlapping_atoms.append( (a1,a2) ) # Add this pair to the list
-                                    break # No need to check other atoms in this chunk.
+                                self.overlapping_atoms.append( (a1,a2) ) # Add this pair to the list
+                                break # No need to check other atoms in this chunk.
                                     
         # Update tolerance label and status bar msgs.
         natoms = len(self.overlapping_atoms)
