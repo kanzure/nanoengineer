@@ -297,7 +297,14 @@ class fusechunksMode(modifyMode):
             return False
         else:
             return True
-                
+    
+    def atom_overlapping_chunk(self, atom, chunk):
+        "Returns True if atom is within chunk's bbox"
+        if vlen (atom.posn() - chunk.bbox.center()) > chunk.bbox.scale() + self.tol:
+            return False
+        else:
+            return True
+            
     def find_bondable_pairs(self, chunk_list = None):
         '''Checks the open bonds of the selected chunk to see if they are close enough
         to bond with any other open bonds in a list of chunks.  Hidden chunks are skipped.
@@ -326,6 +333,9 @@ class fusechunksMode(modifyMode):
 
                     # Loop through all the singlets in the selected chunk.
                     for s1 in chunk.singlets:
+                        # We can skip mol if the singlet lies outside it's bbox.
+                        if not self.atom_overlapping_chunk(s1, mol):
+                            continue
                         # Loop through all the singlets in this chunk.
                         for s2 in mol.singlets:
                         
@@ -492,6 +502,10 @@ class fusechunksMode(modifyMode):
                     for a1 in chunk.atoms.itervalues(): # Use values() if the loop ever modifies chunk or mol
                         if a1.element is Singlet: # Singlets can't be overlapping atoms.
                             continue
+                        # We can skip mol if the atom lies outside it's bbox.
+                        if not self.atom_overlapping_chunk(a1, mol):
+                            continue
+
                         # Loop through all the atoms in this chunk.
                         for a2 in mol.atoms.itervalues():
                             # Only atoms of the same type can be overlapping.
