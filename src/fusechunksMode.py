@@ -101,6 +101,7 @@ def fusechunks_lambda_tol_natoms(tol, natoms):
     
     return "%s => %s overlapping atoms" % (tol_str, natoms_str)
 
+
 class fusechunksMode(modifyMode):
     "Allows user to move one chunk and fuse it to other chunks in the part"
 
@@ -288,23 +289,13 @@ class fusechunksMode(modifyMode):
         # Color the overlapping atoms green
         if self.overlapping_atoms:
             for a1,a2 in self.overlapping_atoms:
-                a2.overdraw_with_special_color(green) # a2 atoms are the unselected chunk(s) atoms
+                # a2 atoms are the unselected chunk(s) atoms
+                a2.overdraw_with_special_color(green) 
+                # This is experimental code to try different highlighting colors. 
+                # IMHO, green is still better, but there may be times when the user
+                # wants something similar to the atom colors.  Mark 050905.
+                #a2.overdraw_with_special_color(ave_colors( 0.8, a2.element.color, white)) 
 
-    def overlapping_chunks(self, chunk1, chunk2):
-        'Returns True if chunk1 and chunk2 overlap.  Returns False if they do not overlap'
-        if vlen (chunk1.bbox.center() - chunk2.bbox.center()) > \
-                        chunk1.bbox.scale() + chunk2.bbox.scale() + self.tol + self.tol:
-            return False
-        else:
-            return True
-    
-    def atom_overlapping_chunk(self, atom, chunk):
-        "Returns True if atom is within chunk's bbox"
-        if vlen (atom.posn() - chunk.bbox.center()) > chunk.bbox.scale() + self.tol:
-            return False
-        else:
-            return True
-            
     def find_bondable_pairs(self, chunk_list = None):
         '''Checks the open bonds of the selected chunk to see if they are close enough
         to bond with any other open bonds in a list of chunks.  Hidden chunks are skipped.
@@ -326,7 +317,7 @@ class fusechunksMode(modifyMode):
                 
                 # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
                 # Remember: chunk = a selected chunk, mol = a non-selected chunk.
-                if not self.overlapping_chunks(chunk, mol):
+                if not chunk.overlapping_chunk(mol, self.tol):
                     # print "Skipping ", mol.name
                     continue
                 else:
@@ -334,7 +325,7 @@ class fusechunksMode(modifyMode):
                     # Loop through all the singlets in the selected chunk.
                     for s1 in chunk.singlets:
                         # We can skip mol if the singlet lies outside it's bbox.
-                        if not self.atom_overlapping_chunk(s1, mol):
+                        if not mol.overlapping_atom(s1, self.tol):
                             continue
                         # Loop through all the singlets in this chunk.
                         for s2 in mol.singlets:
@@ -493,7 +484,7 @@ class fusechunksMode(modifyMode):
                 
                 # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
                 # Remember: chunk = a selected chunk, mol = a non-selected chunk.
-                if not self.overlapping_chunks(chunk, mol):
+                if not chunk.overlapping_chunk(mol, self.tol):
                     # print "Skipping ", mol.name
                     continue
                 else:
@@ -503,7 +494,7 @@ class fusechunksMode(modifyMode):
                         if a1.element is Singlet: # Singlets can't be overlapping atoms.
                             continue
                         # We can skip mol if the atom lies outside it's bbox.
-                        if not self.atom_overlapping_chunk(a1, mol):
+                        if not mol.overlapping_atom(a1, self.tol):
                             continue
 
                         # Loop through all the atoms in this chunk.
