@@ -2279,6 +2279,28 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         "return a sequence of the singlets of molecule self"
         return self.singlets # might be recomputed by _recompute_singlets
 
+    def overlapping_chunk(self, chunk, tol=0.0):
+        '''Returns True if any atom of chunk is within the bounding sphere of this chunk. 
+        Otherwise, returns False.  tol is an optional arguement containing an additional 
+        distance to be added to the bounding sphere in the check.
+        '''
+        if vlen (self.bbox.center() - chunk.bbox.center()) > \
+                    self.bbox.scale() + chunk.bbox.scale() + tol:
+            return False
+        else:
+            return True
+    
+    def overlapping_atom(self, atom, tol = 0.0):
+        '''Returns True if atom is within the bounding sphere of this chunk. 
+        Otherwise, returns False.  tol is an optional arguement containing an 
+        additional distance to be added to the bounding sphere in the check.
+        '''
+        # This currently checks the bounding sphere.
+        if vlen (atom.posn() - self.bbox.center()) > self.bbox.scale() + tol:
+            return False
+        else:
+            return True
+            
     pass # end of class molecule
 
 # ==
