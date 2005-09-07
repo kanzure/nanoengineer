@@ -991,11 +991,13 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # of hard to find. [Huaicai 9/2/05]
         if not MMKitWin: 
             MMKitWin = MMKit(self)
-            MMKitWin.update_dialog(self.Element)
+       
         pos = self._findGoodLocation()
         
         ## On Linux, X11 has some problem for window location before it's shown. So a comprise way to do it, 
         ## which will have the flash problem.
+        MMKitWin.update_dialog(self.Element)
+        
         if sys.platform == 'linux2': 
             MMKitWin.show()
             MMKitWin.move(pos[0], pos[1])
@@ -1027,11 +1029,13 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             if platform.atom_debug:
                 print_compact_traceback( "atom_debug: ignoring exception from update_hybridComboBox: ")
             pass # might never fail, not sure...
-        global elementSelectorWin
-        if elementSelectorWin and not elementSelectorWin.isHidden():
-           elementSelectorWin.update_dialog(self.Element)     
-           elementSelectorWin.show()
-        # Update the MMKit dialog   
+        
+        #[Huaicai 9/6/05: The element selector feature is obsolete.
+        #global elementSelectorWin
+        #if elementSelectorWin and not elementSelectorWin.isHidden():
+        #   elementSelectorWin.update_dialog(self.Element)     
+        #   elementSelectorWin.show()
+        
         global MMKitWin
         if MMKitWin and not MMKitWin.isHidden():
            self.pasteP = False
