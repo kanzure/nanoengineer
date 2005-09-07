@@ -344,17 +344,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else: # This should never happen.
             self.history.message(redmsg( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext))
 
-    def closeEvent(self,ce):
-        #bruce 090507 comment: this method needs to be split in two,
-        # with only the outer part (moved back to MWsemantics, still called closeEvent)
-        # knowing ce arg and using isEventAccepted value (renamed),
-        # and with inner part returning shouldEventBeAccepted, but staying here with its file-related code.
-        # But for the sake of viewcvs and testing, I should not do this in the same commit
-        # that splits this file (ops_files.py) out of MWsemantics.
-        """  via File > Exit or clicking X titlebar button """
-        isEventAccepted = True
+    def prepareToClose(self): #bruce 050907 split this out of MWsemantics.closeEvent method, added docstring
+        """Prepare to close the main window and exit (e.g. ask user whether to save file if necessary).
+        If user cancels, or anything else means we should not actually close and exit,
+        return False; otherwise return True.
+        """
         if not self.assy.has_changed():
-            ce.accept()
+            return True
         else:
             rc = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
@@ -364,21 +360,31 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 2 )     # Escape == button 2
 
             if rc == 0:
+                # Save
                 isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-                ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses ## "Cancel", the "Exit" action should be ignored. bug 300
+                ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses
+                ## "Cancel", the "Exit" action should be ignored. bug 300
                 if isFileSaved:
-                    ce.accept()
+                    return True
                 else:
-                    ce.ignore()
-                    isEventAccepted = False
-            elif rc == 1:
-                ce.accept()
-            else:
-                ce.ignore()
-                isEventAccepted = False
-        
-        #if isEventAccepted: self.periodicTable.close()
+                    return False
+            elif rc == 1: # Discard
+                return True
+            else: # Cancel
+                return False
+        pass
             
+    def closeEvent(self,ce): #bruce 050907 split this into two methods, revised docstring
+        """slot method, called via File > Exit or clicking X titlebar button"""
+        #bruce 090507 comment: this slot method should be moved back to MWsemantics.py.
+        shouldEventBeAccepted = self.prepareToClose()
+        if shouldEventBeAccepted:
+            ce.accept()
+            ##self.periodicTable.close()
+        else:
+            ce.ignore()
+            self.history.message("Cancelled exit.") # bruce 050907 added this message
+        return
 
     def fileClose(self):
         
