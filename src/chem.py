@@ -911,20 +911,9 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 try:
                     # bruce 050218 protecting angle computation from exceptions
                     # (to reduce severity of undiagnosed bug 361).
-                    v1 = norm(self.posn()-self.molecule.assy.ppa2.posn())
-                    v2 = norm(self.molecule.assy.ppa3.posn()-self.molecule.assy.ppa2.posn())
-                    dotprod = dot(v1,v2)
-                    if dotprod > 1.0:
-                        #bruce 050414 investigating bugs 361 and 498 (probably the same underlying bug);
-                        # though (btw) it would probably be better to skip this angle-printing entirely ###e
-                        # if angle obviously 0 since atoms 1 and 3 are the same.
-                        # This case (dotprod > 1.0) can happen due to numeric roundoff in norm();
-                        # e.g. I've seen this be 1.0000000000000002 (as printed by '%r').
-                        # If not corrected, it can make acos() return nan or have an exception!
-                        dotprod = 1.0
-                    elif dotprod < -1.0:
-                        dotprod = -1.0
-                    ang = acos(dotprod) * 180/pi
+                    #bruce 050906 splitting angle computation into separate function.
+                    ###e its inaccuracy for angles near 0 and 180 degrees should be fixed!
+                    ang = atom_angle_radians( self, self.molecule.assy.ppa2, self.molecule.assy.ppa3 ) * 180/pi
                     ainfo += (" Angle for %s-%s-%s is %.2f degrees." %\
                         (self, self.molecule.assy.ppa2, self.molecule.assy.ppa3, ang))
                 except:
@@ -1911,6 +1900,35 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     atm.make_singlets_when_no_bonds() # notices atomtype
     assy.addmol(mol)
     return atm
+
+# ==
+
+#bruce 050906 splitting angle computation into separate function
+###e its inaccuracy for angles near 0 and 180 degrees should be fixed!
+###e it should be further split into a function that gives angle between three points.
+
+def atom_angle_radians(atom1, atom2, atom3):
+    """Return the bond angle between the positions of atom1-atom2-atom3, in radians.
+    If these atoms are bonded, this is the angle between the atom2-atom1 and atom2-atom3 bonds,
+    but this function does not assume they are bonded.
+       Warning: current implementation is inaccurate for angles near 0.0 or pi (0 or 180 degrees).
+    """
+    atom2posn = atom2.posn()
+    v1 = norm(atom1.posn() - atom2posn)
+    v2 = norm(atom3.posn() - atom2posn)
+    dotprod = dot(v1,v2)
+    if dotprod > 1.0:
+        #bruce 050414 investigating bugs 361 and 498 (probably the same underlying bug);
+        # though (btw) it would probably be better to skip this [now caller's] angle-printing entirely ###e
+        # if angle obviously 0 since atoms 1 and 3 are the same.
+        # This case (dotprod > 1.0) can happen due to numeric roundoff in norm();
+        # e.g. I've seen this be 1.0000000000000002 (as printed by '%r').
+        # If not corrected, it can make acos() return nan or have an exception!
+        dotprod = 1.0
+    elif dotprod < -1.0:
+        dotprod = -1.0
+    ang = acos(dotprod)
+    return ang
 
 # ==
 
