@@ -3,6 +3,16 @@
 MWsemantics.py provides the main window class, MWsemantics.
 
 $Id$
+
+History: too much to mention, except for breakups of the file.
+
+[maybe some of those are not listed here?]
+Huaicai ??? split out cookieMode slots (into separate class)
+bruce 050413 split out movieDashboardSlotsMixin
+bruce 050907 split out fileSlotsMixin
+
+[Much more splitup of this file is needed. Ideally we would
+split up the class MWsemantics (as for cookieMode), not just the file.]
 '''
 
 ## bruce 050408 removed: import qt
@@ -23,9 +33,13 @@ from elementColors import elementColors ## bruce 050408 removed: import *
 from elementSelector import elementSelector ## bruce 050408 removed: import *
 from MMKit import MMKit
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
+
+# most of the file format imports are probably no longer needed; I'm removing some of them
+# (but we need to check for imports of them from here by other modules) [bruce 050907]
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import readgms, insertgms
-from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
+from files_mmp import readmmp, insertmmp
+
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
@@ -33,8 +47,10 @@ from assistant import AssistantWindow
 from HistoryWidget import greenmsg, redmsg
 
 from movieMode import movieDashboardSlotsMixin
+from ops_files import fileSlotsMixin #bruce 050907
 from changes import register_postinit_object
 import preferences
+import env #bruce 050901 (also moved pre_init_fake_history_widget into env.py)
 
 elementSelectorWin = None
 elementColorsWin = None
@@ -46,21 +62,13 @@ eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
-    
-def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
-    """breaks name into directory, main name, and extension in a tuple.
-    fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
-    """
-    m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
-    return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
-import env #bruce 050901 (also moved pre_init_fake_history_widget into env.py)
-
-class MWsemantics( movieDashboardSlotsMixin, MainWindow):
+class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     "The single Main Window object."
 
     #bruce 050413 split out movieDashboardSlotsMixin, which needs to come before MainWindow
     # in the list of superclasses, since MainWindow overrides its methods with "NIM stubs".
+    #bruce 050906: same for fileSlotsMixin.
     
     initialised = 0 #bruce 041222
     history = env.history #bruce 050107, revised 050901; see also the set of self.history in __init__, below
@@ -311,401 +319,18 @@ class MWsemantics( movieDashboardSlotsMixin, MainWindow):
         
 
     ###################################
-    # File Toolbar Slots
+    # File Toolbar Slots 
     ###################################
 
-    def fileNew(self):
-        """If this window is empty (has no assembly), do nothing.
-        Else create a new empty one.
-        """
-        #bruce 050418 comment: this has never worked correctly to my knowledge,
-        # and therefore it was made unavailable from the UI some time ago.
-        foo = MWsemantics()
-        foo.show()
+    # file toolbar slots are inherited from fileSlotsMixin (in ops_files.py) as of bruce 050907.
+    # Notes:
+    #   #e closeEvent method (moved to fileSlotsMixin) should be split in two
+    # and the outer part moved back into this file.
+    #   __clear method was moved to fileSlotsMixin (as it should be), even though
+    # its name-mangled name thereby changed, and some comments in other code
+    # still refer to it as MWsemantics.__clear. It should be given an ordinary name.
 
-    def fileInsert(self):
-        
-        self.history.message(greenmsg("Insert File:"))
-         
-        wd = globalParms['WorkingDirectory']
-        fn = QFileDialog.getOpenFileName(wd,
-                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All of the above (*.pdb *.mmp *.out)",
-                self )
-                
-        if not fn:
-             self.history.message("Cancelled")
-             return
-        
-        if fn:
-            fn = str(fn)
-            if not os.path.exists(fn):
-                #bruce 050415: I think this should never happen;
-                # in case it does, I added a history message (to existing if/return code).
-                self.history.message( redmsg( "File not found: " + fn) )
-                return
-
-            if fn[-3:] == "mmp":
-                try:
-                    insertmmp(self.assy, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
-                    self.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
-                else:
-                    self.assy.changed() # The file and the part are not the same.
-                    self.history.message( "MMP file inserted: " + fn )
-            
-            if fn[-3:] in ["pdb","PDB"]:
-                try:
-                    insertpdb(self.assy, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
-                    self.history.message( redmsg( "Internal error while inserting PDB file: " + fn) )
-                else:
-                    self.assy.changed() # The file and the part are not the same.
-                    self.history.message( "PDB file inserted: " + fn )
-            
-            if fn[-3:] in ["out","OUT"]:
-                try:
-                    r = insertgms(self.assy, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting GAMESS OUT file [%s]: " % fn )
-                    self.history.message( redmsg( "Internal error while inserting GAMESS OUT file: " + fn) )
-                else:
-                    if r:
-                        self.history.message( redmsg("File not inserted."))
-                    else:
-                        self.assy.changed() # The file and the part are not the same.
-                        self.history.message( "GAMESS file inserted: " + fn )
-                    
-                    
-            self.glpane.scale = self.assy.bbox.scale()
-            self.glpane.gl_update()
-            self.mt.mt_update()
-
-
-    def fileOpen(self):
-        
-        self.history.message(greenmsg("Open File:"))
-        
-        if self.assy.has_changed():
-            ret = QMessageBox.warning( self, self.name(),
-                "The part contains unsaved changes.\n"
-                "Do you want to save the changes before opening a new part?",
-                "&Save", "&Discard", "Cancel",
-                0,      # Enter == button 0
-                2 )     # Escape == button 2
-            
-            if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
-                ##Huaicai 1/6/05: If user canceled save operation, return 
-                ## without letting user open another file
-                if not self.fileSave(): return
-                
-            ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
-            elif ret==1: pass#self.__clear() 
-            
-            elif ret==2: 
-                self.history.message("Cancelled.")
-                return # Cancel clicked or Alt+C pressed or Escape pressed
-
-        # Determine what directory to open.
-        if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
-        else: odir = globalParms['WorkingDirectory']
-
-        fn = QFileDialog.getOpenFileName(odir,
-                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
-                self )
-                
-        if not fn:
-            self.history.message("Cancelled.")
-            return
-
-        if fn:
-            self.__clear()
-                
-            fn = str(fn)
-            if not os.path.exists(fn): return
-
-            isMMPFile = False
-            if fn[-3:] == "mmp":
-                readmmp(self.assy,fn)
-                    #bruce 050418 comment: we need to check for an error return
-                    # and in that case don't clear or have other side effects on assy;
-                    # this is not yet perfectly possible in readmmmp.
-                self.history.message("MMP file opened: [" + fn + "]")
-                isMMPFile = True
-                
-            if fn[-3:] in ["pdb","PDB"]:
-                readpdb(self.assy,fn)
-                self.history.message("PDB file opened: [" + fn + "]")
-
-            dir, fil, ext = fileparse(fn)
-            self.assy.name = fil
-            self.assy.filename = fn
-            self.assy.reset_changed() # The file and the part are now the same
-
-#            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-            self.update_mainwindow_caption()
-
-            if isMMPFile:
-                #bruce 050418 moved this code into a new function in files_mmp.py
-                # (but my guess is it should mostly be done by readmmp itself)
-                fix_assy_and_glpane_views_after_readmmp( self.assy, self.glpane)
-            else: ###PDB or other file format        
-                self.setViewFitToWindow()
-
-            self.glpane.gl_update() #bruce 050418
-            self.mt.mt_update()
-
-    def fileSave(self):
-        
-        self.history.message(greenmsg("Save File:"))
-        
-        #Huaicai 1/6/05: by returning a boolean value to say if it is really 
-        # saved or not, user may choose "Cancel" in the "File Save" dialog          
-        if self.assy:
-            if self.assy.filename: 
-                self.saveFile(self.assy.filename)
-                return True
-            else: 
-                return self.fileSaveAs()
-
-
-    def fileSaveAs(self):
-        if self.assy:
-            if self.assy.filename:
-                dir, fil, ext = fileparse(self.assy.filename)
-                sdir = self.assy.filename
-            else: 
-                dir, fil = "./", self.assy.name
-                ext = ".mmp"
-                sdir = globalParms['WorkingDirectory']
-        else:
-            self.history.message( "Save Ignored: Part is currently empty." )
-            return False
-
-        if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
-        else: sfilter = QString("Molecular machine parts (*.mmp)")
-        
-        fn = QFileDialog.getSaveFileName(sdir,
-                    "Molecular Machine Part (*.mmp);;"\
-                    "Protein Data Bank (*.pdb);;"\
-                    "POV-Ray (*.pov);;"\
-                    "Model MDL (*.mdl);;"\
-                    "JPEG (*.jpg);;"\
-                    "Portable Network Graphics (*.png)",
-                    self, "IDONTKNOWWHATTHISIS",
-                    "Save As",
-                    sfilter)
-        
-        if fn:
-            fn = str(fn)
-            dir, fil, ext2 = fileparse(fn)
-            ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
-            safile = dir + fil + ext # full path of "Save As" filename
-            
-            if self.assy.filename != safile: # If the current part name and "Save As" filename are not the same...
-                if os.path.exists(safile): # ...and if the "Save As" file exists...
-
-                    # ... confirm overwrite of the existing file.
-                    ret = QMessageBox.warning( self, self.name(),
-                        "The file \"" + fil + ext + "\" already exists.\n"\
-                        "Do you want to overwrite the existing file or cancel?",
-                        "&Overwrite", "&Cancel", None,
-                        0,      # Enter == button 0
-                        1 )     # Escape == button 1
-
-                    if ret==1: # The user cancelled
-                        self.history.message( "Cancelled.  Part not saved." )
-                        return False # Cancel clicked or Alt+C pressed or Escape pressed
-            
-            self.saveFile(safile)
-            return True
-            
-        else: return False ## User canceled.
-            
-
-    def saveFile(self, safile):
-        
-        dir, fil, ext = fileparse(safile)
-#            print "saveFile: ext = [",ext,"]"
-
-        if ext == ".pdb": # Write PDB file.
-            try:
-                writepdb(self.assy, safile)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving PDB file: " + safile ))
-            else:
-                self.assy.filename = safile
-                self.assy.name = fil
-                self.assy.reset_changed() # The file and the part are now the same.
-#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                self.update_mainwindow_caption()
-                self.history.message( "PDB file saved: " + self.assy.filename )
-                self.mt.mt_update()
-            
-        elif ext == ".pov": # Write POV-Ray file
-            try:
-                writepovfile(self.assy, safile)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving POV-Ray file: " + safile ))
-            else:
-                self.history.message( "POV-Ray file saved: " + safile )
-            
-        elif ext == ".mdl": # Write MDL file
-            try:
-                writemdlfile(self.assy, safile)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving MDL file: " + safile ))
-            else:
-                self.history.message( "MDL file saved: " + safile )
-            
-        elif ext == ".jpg": # Write JPEG file
-            try:
-                image = self.glpane.grabFrameBuffer()
-                image.save(safile, "JPEG", 85)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving JPEG file: " + safile ))
-            else:
-                self.history.message( "JPEG file saved: " + safile )
-            
-        elif ext == ".png": # Write PNG file
-            try:
-                image = self.glpane.grabFrameBuffer()
-                image.save(safile, "PNG")
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving PNG file: " + safile ))
-            else:
-                self.history.message( "PNG file saved: " + safile )
-                    
-        elif ext == ".mmp" : # Write MMP file
-            try:
-                tmpname = os.path.join(dir, '~' + fil + '.m~')
-                self.assy.writemmpfile(tmpname)
-            except:
-                #bruce 050419 revised printed error message
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file [%s]: " % safile )
-                self.history.message(redmsg( "Problem saving file: " + safile ))
-                
-                # If you want to see what was wrong with the MMP file, you
-                # can comment this out so you can see what's in
-                # the temp MMP file.  Mark 050128.
-                if os.path.exists(tmpname):
-                    os.remove (tmpname) # Delete tmp MMP file
-            else:
-                if os.path.exists(safile):
-                    os.remove (safile) # Delete original MMP file
-
-                os.rename( tmpname, safile) # Move tmp file to saved filename. 
-                
-                self.assy.filename = safile
-                self.assy.name = fil
-                self.assy.reset_changed() # The file and the part are now the same.
-#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                self.update_mainwindow_caption()
-                self.history.message( "MMP file saved: " + self.assy.filename )
-                self.mt.mt_update()
-            
-        else: # This should never happen.
-            self.history.message(redmsg( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext))
-
-    def closeEvent(self,ce): 
-        """  via File > Exit or clicking X titlebar button """
-        isEventAccepted = True
-        if not self.assy.has_changed():
-            ce.accept()
-        else:
-            rc = QMessageBox.warning( self, self.name(),
-                "The part contains unsaved changes.\n"
-                "Do you want to save the changes before exiting?",
-                "&Save", "&Discard", "Cancel",
-                0,      # Enter == button 0
-                2 )     # Escape == button 2
-
-            if rc == 0:
-                isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-                ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses ## "Cancel", the "Exit" action should be ignored. bug 300
-                if isFileSaved:
-                    ce.accept()
-                else:
-                    ce.ignore()
-                    isEventAccepted = False
-            elif rc == 1:
-                ce.accept()
-            else:
-                ce.ignore()
-                isEventAccepted = False
-        
-        #if isEventAccepted: self.periodicTable.close()
-            
-
-    def fileClose(self):
-        
-        self.history.message(greenmsg("Close File:"))
-        
-        isFileSaved = True
-        if self.assy.has_changed():
-            ret = QMessageBox.warning( self, self.name(),
-                "The part contains unsaved changes.\n"
-                "Do you want to save the changes before closing this part?",
-                "&Save", "&Discard", "Cancel",
-                0,      # Enter == button 0
-                2 )     # Escape == button 2
-            
-            if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-            elif ret==1:
-                self.history.message("Changes discarded.")
-            elif ret==2: 
-                self.history.message("Cancelled.")
-                return # Cancel clicked or Alt+C pressed or Escape pressed
-        
-        if isFileSaved: 
-                self.__clear()
-                self.assy.reset_changed() #bruce 050429, part of fixing bug 413
-                self.win_update()
-
-
-    def fileSetWorkDir(self):
-        """Sets working directory"""
-
-        self.history.message(greenmsg("Set Working Directory:"))
-        
-        wd = globalParms['WorkingDirectory']
-        wdstr = "Current Working Directory - [" + wd  + "]"
-        wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
-        
-        if not wd:
-            self.history.message("Cancelled.")
-            return
-            
-        if wd:
-            wd = str(wd)
-            wd = os.path.normpath(wd)
-            globalParms['WorkingDirectory'] = wd
-            
-            self.history.message( "Working Directory set to " + wd )
-
-            # bruce 050119: store this in prefs database so no need for ~/.ne1rc
-            from preferences import prefs_context
-            prefs = prefs_context()
-            prefs['WorkingDirectory'] = wd
-                
-    def __clear(self):
-        # assyList refs deleted by josh 10/4
-        self.assy = assembly(self, "Untitled")
-#        self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
-        self.update_mainwindow_caption()
-        self.glpane.setAssy(self.assy)
-        self.assy.mt = self.mt
-        
-        ### Hack by Huaicai 2/1 to fix bug 369
-        self.mt.resetAssy_and_clear() 
-
-
+    
     ###################################
     # Edit Toolbar Slots
     ###################################
