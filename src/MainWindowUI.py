@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Aug 29 13:09:55 2005
+# Created: Thu Sep 8 09:17:50 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -3836,37 +3836,73 @@ image79_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
-    "\x52\x49\x44\x41\x54\x78\x9c\xed\x95\x31\x8a\xc2" \
-    "\x50\x10\x86\xbf\x2c\xab\x57\xb0\xf1\x08\x5e\xe0" \
-    "\x95\x62\x63\x21\x8f\x14\xb1\xb1\x16\x12\x3c\x90" \
-    "\x98\x90\x3a\xb5\x8d\x57\x48\x7a\xaf\x60\x27\x28" \
-    "\x06\x1e\x16\x26\xe2\x16\x4b\x86\x17\x12\xb3\x6b" \
-    "\x61\xe7\x0f\x03\xf3\x98\x2f\x1f\xc9\x10\x12\x27" \
-    "\x4d\x53\xde\x91\xaf\xb7\x58\x3f\x62\x3b\xdf\xf6" \
-    "\xc1\xf7\xfd\x47\x17\x1c\x04\x01\x9b\xcd\xe6\x35" \
-    "\xb1\xef\xfb\x8f\x20\x08\x18\x0c\x06\xad\xe0\x74" \
-    "\x3a\x45\x29\x45\x17\x03\x30\x1a\x8d\x98\xcf\xe7" \
-    "\xbf\xe2\x4a\x3a\x99\x4c\x5a\xe1\xe1\x70\x28\xd2" \
-    "\x67\x4c\xc5\xcd\x66\xb3\xfa\x1d\xaf\x56\xab\xce" \
-    "\x47\xdb\xef\xf7\x9d\x73\x80\xf1\x78\x2c\xbd\x88" \
-    "\x0f\x87\x03\xf7\xfb\xbd\xf5\x82\xe3\xf1\xc8\x72" \
-    "\xb9\x64\xb7\xdb\x75\x32\x76\xe4\xad\x28\x8a\x82" \
-    "\xdb\xed\x26\xa5\xb5\x96\xbe\x8d\xb1\xe7\x36\xd3" \
-    "\x10\xf7\x7a\x3d\xfa\xfd\xbe\x14\x80\xe7\x79\xd2" \
-    "\x67\x59\x26\x8c\xe7\x79\x00\x0d\xde\x8e\xac\xa2" \
-    "\x28\x0a\x5c\xd7\x6d\x00\x5a\x6b\xe2\x38\x46\x29" \
-    "\xc5\x76\xbb\xad\x31\x5a\x6b\xe9\xe3\x38\x7e\x2e" \
-    "\x4e\x92\x44\x06\x8b\xc5\x02\x80\x24\x49\xb8\x5c" \
-    "\x2e\x35\xc6\x9e\x55\xa9\x98\xc6\x2a\xae\xd7\x2b" \
-    "\xc6\x18\x29\x80\x28\x8a\x30\xc6\x90\xe7\x39\x59" \
-    "\x96\x09\x13\x45\x11\x40\x8d\xcf\xf3\xbc\x5d\x5c" \
-    "\x96\x65\xad\xd6\xeb\x75\xed\xac\x94\xea\x9c\x97" \
-    "\x65\xd9\xbe\x0a\x63\x0c\xe7\xf3\xb9\xb1\x63\x3b" \
-    "\xff\x61\x4e\xa7\x13\x61\x18\x3a\x4e\x9a\xa6\x7f" \
-    "\x7e\x23\x5e\x49\x18\x86\x0e\x80\xf3\xf9\x83\xbc" \
-    "\x5d\xfc\x03\x4b\x71\xe8\xe6\xab\x72\x50\x00\x00" \
-    "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+    "\x72\x49\x44\x41\x54\x78\x9c\xc5\x94\x3f\x6a\xc3" \
+    "\x30\x14\xc6\x3f\x17\x43\xc8\x94\x31\x8b\x2f\x10" \
+    "\x88\x0e\xa0\x0e\x85\xec\x21\x9d\x7c\x87\xdc\xc2" \
+    "\xf8\x30\x81\x42\xb6\x1c\xa1\x43\xb5\x5b\x43\x20" \
+    "\x6b\x96\xc4\x60\x4f\x01\x23\xff\x79\xea\x50\xac" \
+    "\x58\xb1\xd3\x3a\x4d\x4b\x3e\x10\xb2\xde\x7b\xfa" \
+    "\xe9\x93\xc0\x0f\x78\xa4\xdc\x01\xf4\x2d\x71\x00" \
+    "\x78\xfa\x2d\xfc\x3b\x28\x00\x38\x7d\x20\xa5\x82" \
+    "\x53\xc7\xae\x7d\x37\x6b\xfb\x9a\x85\x3b\x80\xee" \
+    "\x72\xfc\x93\xeb\x5e\xe0\x5b\xe2\xff\xaa\xd6\x7b" \
+    "\x30\xc6\xee\x76\x21\xa5\x74\xdc\x4b\xe8\x72\xb9" \
+    "\xc4\x78\x3c\xb6\x0a\xc3\x30\xc4\xe8\x6d\x84\xe1" \
+    "\x70\x08\x00\x38\xbc\x1e\x10\x04\x81\x55\x33\x9d" \
+    "\x4e\xe1\xfb\xbe\x59\x1b\x30\x63\x4c\xaf\xd7\xeb" \
+    "\xd6\xe9\xbe\xef\x63\xf2\x3e\x31\xeb\xed\xcb\x16" \
+    "\x97\x75\x9e\xe7\x61\x3e\x9f\x7f\xe5\x77\xf2\x0c" \
+    "\x66\x8c\xe9\x28\x8a\x3a\xaf\xb5\x8a\x56\xe7\x1b" \
+    "\x81\x01\x1d\x65\xb3\xd9\xac\x15\x33\x8e\xf7\xfb" \
+    "\xbd\x09\x56\x55\x05\x00\x58\x2c\x16\x60\x1f\xcc" \
+    "\xc4\xe5\xb3\xc4\x66\xb3\xb1\x00\x71\x1c\x77\x1a" \
+    "\xea\xfd\xe7\xdd\x2a\x03\x2e\x8a\x02\x45\x51\x20" \
+    "\xcb\x32\xe4\x79\x8e\x3c\xcf\x21\x84\x00\x11\x81" \
+    "\x88\x50\x55\x15\x84\x10\x26\x57\x8f\xde\xe0\xe6" \
+    "\x26\xce\xb9\x05\xe6\x9c\xb7\xc0\xd7\xe0\x6e\x13" \
+    "\xdc\x9c\x6b\x11\x91\x35\x5f\xe6\xb3\x2c\xeb\xe7" \
+    "\x58\x29\x65\x46\xf3\x29\x88\x08\x42\x08\x2b\xaf" \
+    "\x94\xba\xea\xd8\x80\xcb\xb2\x6c\x0d\xce\x39\xb4" \
+    "\xd6\xd0\x5a\x83\x88\xc0\x39\xef\xac\xab\xb5\xdd" \
+    "\x49\xd3\xdd\xcc\x53\x9c\x4e\x27\xa4\x69\xda\x3a" \
+    "\xb9\xbe\x45\xad\xe3\xf1\xd8\xe9\x30\x49\x12\xab" \
+    "\x65\x3a\xc0\xdf\xf5\x87\x7b\x19\x8f\xd5\x27\x23" \
+    "\xcd\x18\x13\x35\x5e\x8d\x91\x00\x00\x00\x00\x49" \
+    "\x45\x4e\x44\xae\x42\x60\x82"
 image80_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x47\x49\x44\x41\x54\x78\x9c\xc5\x94\x3d\x8a\x83" \
+    "\x40\x14\xc7\xff\x2e\x42\xb0\x4a\x69\xe3\x05\x02" \
+    "\x8e\x47\x58\x48\x2f\x6c\x65\x95\x0b\x78\x0b\xb1" \
+    "\xcb\x45\x02\x0b\xde\x62\x8f\xa0\x85\x90\x4a\xb0" \
+    "\x89\x82\x56\x82\xf8\xbd\x45\x70\x36\x33\x63\x12" \
+    "\x4d\xb2\xe4\x35\x33\xef\x63\x7e\xef\xcf\x43\x1f" \
+    "\xf0\x4e\x93\x57\x18\x96\xc4\x01\xe0\xe3\x51\xf8" \
+    "\x2d\x28\x00\x48\x73\x20\x6d\x05\x69\x8c\x5d\xbb" \
+    "\x5f\xd6\xce\x15\x0b\x79\x85\x61\x4a\xf1\x3d\xd5" \
+    "\xb3\xc0\x4b\xe2\xff\x6a\xc2\x3c\x08\x21\x4f\xab" \
+    "\x08\x82\x40\x92\x79\xa8\x6d\xdb\x50\x55\x95\x29" \
+    "\x74\x5d\x17\xeb\xef\x35\x14\x45\x01\x00\x9c\xbe" \
+    "\x4e\x70\x1c\x87\xa9\xd1\x75\x1d\x96\x65\x51\x9f" \
+    "\x82\x09\x21\x83\xe7\x79\x42\x77\xcb\xb2\xb0\xf9" \
+    "\xd9\x50\x3f\xfc\x0c\xc1\xd7\x69\x9a\x06\xd3\x34" \
+    "\xcf\xf9\x63\xf0\x07\x26\x84\x0c\xbe\xef\x0b\x50" \
+    "\xc3\x30\x70\xf0\x0f\xd4\xdf\x19\x3b\x4c\xd5\x6d" \
+    "\xb7\x5b\x21\x46\x15\xc7\x71\x4c\x83\x5d\xd7\xd1" \
+    "\xfb\xbe\xd8\x33\x0f\xa2\x28\x62\xfc\x34\x4d\x05" \
+    "\x28\xb0\xe0\xcf\x5b\x6a\x54\x71\xd3\x34\x00\x80" \
+    "\xb6\x6d\x99\x82\xbe\xef\x01\x00\xc3\x70\xfe\x58" \
+    "\xea\xba\x7e\x0c\x3c\x9e\x3c\x78\x3c\x79\xf0\xb5" \
+    "\x46\x8b\xc1\x7c\xbe\x2c\xcb\x79\xe0\xaa\xaa\x6e" \
+    "\x82\xf9\xfc\x5d\xc5\xe3\x6c\xf9\x19\x8f\xb3\x1d" \
+    "\xc1\x7c\xfe\xd2\x0f\x8f\x01\xdd\x6e\x14\x5c\x14" \
+    "\x05\xf2\x3c\x17\x3a\x37\x4d\xc3\xa8\x4c\x92\x64" \
+    "\x52\x61\x96\x65\xcc\xca\x94\x80\xd7\xed\x87\x67" \
+    "\x19\xef\xb5\x5f\x0b\xce\xbb\x2a\x97\xb7\xdf\x16" \
+    "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image81_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -3910,7 +3946,7 @@ image80_data = \
     "\x71\xac\x71\xfd\x01\x2e\xe2\x2d\x8a\xb6\x2e\xbd" \
     "\xb3\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image81_data = \
+image82_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -3967,7 +4003,7 @@ image81_data = \
     "\x4e\x5b\xea\x1b\xd7\x51\x22\xdf\x15\xff\x21\xfe" \
     "\x02\x36\x0d\x29\x15\x19\x6c\xc9\xed\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image82_data = \
+image83_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4024,7 +4060,7 @@ image82_data = \
     "\x64\xc6\xb5\x9f\xc8\x75\xc5\xff\x88\xbf\xc9\x2e" \
     "\x2e\xdd\x85\xb0\xef\xb1\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
-image83_data = \
+image84_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4084,7 +4120,7 @@ image83_data = \
     "\x02\x06\x5a\xef\xec\x96\x2d\x53\x15\xff\xc3\x7e" \
     "\x03\x0e\xb4\xdc\xde\xa0\x45\x57\x38\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image84_data = \
+image85_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4136,7 +4172,7 @@ image84_data = \
     "\x13\xd2\x8f\xe2\xc3\x55\xc4\xff\x19\xff\x00\x0b" \
     "\xe8\x7b\x73\x06\xa2\xa5\x02\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
-image85_data = \
+image86_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4188,7 +4224,7 @@ image85_data = \
     "\x23\xf0\x55\xe2\x20\xf1\x72\x16\xf8\x7f\xed\x2f" \
     "\x63\x42\x89\x15\x60\x44\x6d\x1d\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image86_data = \
+image87_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4242,7 +4278,7 @@ image86_data = \
     "\x60\xa1\x7e\x01\xaf\x81\x2d\xa1\x1f\x99\xce\x79" \
     "\xe0\xff\x95\x7f\xd8\x18\x46\x82\x1b\xa2\x52\xa8" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image87_data = \
+image88_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4269,7 +4305,7 @@ image87_data = \
     "\x68\xe2\x12\x22\x72\xd0\xb7\x34\x16\x49\xf1\x49" \
     "\x3c\x00\x94\x11\xce\x77\x9f\x87\xb1\x19\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image88_data = \
+image89_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -4300,7 +4336,7 @@ image88_data = \
     "\x5a\x32\x3a\xe3\x0d\x4e\x52\x62\xcc\xfc\x04\x5b" \
     "\xf3\xd3\xe1\xe8\x27\x04\xc6\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
-image89_data = \
+image90_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -4338,7 +4374,7 @@ image89_data = \
     "\x9e\xfe\x41\xfe\x6a\x3f\x52\x3a\xe1\x7b\x91\x56" \
     "\x25\xc2\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
-image90_data = \
+image91_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4363,7 +4399,7 @@ image90_data = \
     "\xf8\x37\xfa\xa3\x7f\xc5\x77\x80\x7f\x00\xfa\x0f" \
     "\xfb\x8b\xed\x28\xae\xbd\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
-image91_data = \
+image92_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4389,7 +4425,7 @@ image91_data = \
     "\xab\xac\xb8\xa2\x27\x56\x5c\x4e\x86\xd2\xd1\x8f" \
     "\x27\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image92_data = \
+image93_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4398,7 +4434,7 @@ image92_data = \
     "\x83\x47\x0d\x1e\x35\x78\xd4\xe0\x11\x64\x30\x00" \
     "\x6b\x80\x02\x7e\xf2\x7e\x60\x06\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image93_data = \
+image94_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4453,7 +4489,7 @@ image93_data = \
     "\x35\x60\xb7\xa4\xff\x89\xa6\xfd\x9a\x7e\x03\xb4" \
     "\x13\xf5\x80\xea\x10\xda\x72\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
-image94_data = \
+image95_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4478,7 +4514,7 @@ image94_data = \
     "\xec\x4c\xf0\x9b\x3a\x01\xca\x5e\xcb\x57\x7e\xfc" \
     "\xba\xaf\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
-image95_data = \
+image96_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4499,7 +4535,7 @@ image95_data = \
     "\x73\x2b\x7a\xef\x8b\x75\xf7\x77\x5f\xd3\x30\xf8" \
     "\x0b\x76\x73\x83\x6c\x23\x8c\xb7\xfb\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image96_data = \
+image97_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4523,7 +4559,7 @@ image96_data = \
     "\x94\x05\x65\x61\x30\xb8\x2b\xff\xfb\x34\x75\xe5" \
     "\x0d\x1a\x40\x64\x9f\xcd\x67\x89\x5a\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image97_data = \
+image98_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4546,7 +4582,7 @@ image97_data = \
     "\x77\x10\xa5\x54\x13\x03\xf6\xc2\x53\xe5\x7f\x5b" \
     "\xd3\x54\x79\x03\x86\x45\x68\xd5\x0f\xd8\x4b\x58" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image98_data = \
+image99_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4566,7 +4602,7 @@ image98_data = \
     "\xa9\x4e\x8a\x9f\xfb\xbb\xaf\xa9\x1b\xfc\x01\x0a" \
     "\x83\x8a\xce\x1e\xd0\x35\xbf\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
-image99_data = \
+image100_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4584,7 +4620,7 @@ image99_data = \
     "\x62\xba\xc5\x18\xd9\x51\x28\xf1\x2f\xd1\xef\xbe" \
     "\x26\x35\xf0\x09\x8d\xfb\x2c\xbf\x94\x57\xbb\x40" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image100_data = \
+image101_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4607,7 +4643,7 @@ image100_data = \
     "\xdf\x6a\x3a\x2b\x6f\x19\x6a\x7f\x3b\xd9\xbd\xe9" \
     "\xf8\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image101_data = \
+image102_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -4639,7 +4675,7 @@ image101_data = \
     "\xc0\x98\xf8\xaf\xd0\x8f\xc0\x9f\xea\x1b\x8e\x85" \
     "\xca\x2a\x91\x75\x9f\x28\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
-image102_data = \
+image103_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4662,7 +4698,7 @@ image102_data = \
     "\x9a\x92\x09\xbf\x01\xda\xf2\x39\x25\x06\x67\xaf" \
     "\x84\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image103_data = \
+image104_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4678,7 +4714,7 @@ image103_data = \
     "\xc8\x9e\x90\x89\x4d\xfc\xce\x06\xc3\xa6\x19\x22" \
     "\xc1\x7c\x38\x06\x00\x00\x00\x00\x49\x45\x4e\x44" \
     "\xae\x42\x60\x82"
-image104_data = \
+image105_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4701,7 +4737,7 @@ image104_data = \
     "\xfa\x83\xb8\x02\x57\x98\x0d\x0e\xe5\x7f\xbf\xa6" \
     "\x50\xbe\xee\x34\x7d\x39\x66\xa1\x8f\x05\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image105_data = \
+image106_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x15" \
     "\x08\x06\x00\x00\x00\x42\x20\x1e\x95\x00\x00\x01" \
@@ -4729,7 +4765,7 @@ image105_data = \
     "\xbc\x86\x7b\x2c\x15\x1b\x25\xa8\xf2\x07\xa9\x83" \
     "\x27\x31\x6f\x71\xd7\xd2\xad\xab\x02\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image106_data = \
+image107_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4780,7 +4816,7 @@ image106_data = \
     "\x5f\x55\xd1\x28\xbf\x00\x6a\x77\xcf\x6b\x82\xd5" \
     "\x03\x9c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
-image107_data = \
+image108_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -4809,7 +4845,7 @@ image107_data = \
     "\x9f\xbd\x35\xa3\x56\xcc\xd1\x27\x88\xfa\x7e\xe5" \
     "\xf9\xae\xb4\xb8\x00\x00\x00\x00\x49\x45\x4e\x44" \
     "\xae\x42\x60\x82"
-image108_data = \
+image109_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -4863,7 +4899,7 @@ image108_data = \
     "\xfe\xc5\x97\xf7\x0e\xc0\x50\xf4\x53\x1d\x03\xe6" \
     "\xfa\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image109_data = \
+image110_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4888,7 +4924,7 @@ image109_data = \
     "\x62\x2a\x53\x58\xca\x80\x19\x04\x63\xe3\xab\xf7" \
     "\x00\x98\x6c\x53\x8f\x06\x80\x32\xd3\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image110_data = \
+image111_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4908,7 +4944,7 @@ image110_data = \
     "\x46\x32\xec\x58\xe1\x00\x38\xd2\xcc\x0b\xd7\xff" \
     "\x71\x01\x72\x06\x88\xa3\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
-image111_data = \
+image112_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -4933,7 +4969,7 @@ image111_data = \
     "\x05\x1c\xf7\xb8\x6b\xfe\xf8\x0f\x32\xf5\xdc\x01" \
     "\x60\x77\x80\x89\x5e\x69\xe2\x45\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image112_data = \
+image113_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -4962,7 +4998,7 @@ image112_data = \
     "\xc1\x5d\xca\xfd\x13\xf8\x9b\xcf\x53\x96\x65\x44" \
     "\x7d\x3d\xa6\x4f\x81\x86\xb0\x6f\x66\x78\x22\xbe" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image113_data = \
+image114_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5007,7 +5043,7 @@ image113_data = \
     "\x07\x81\xff\xd5\xfe\x00\x7f\x22\xf9\xb4\x6a\x42" \
     "\xc8\x63\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
-image114_data = \
+image115_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5031,7 +5067,7 @@ image114_data = \
     "\x65\x29\x3a\xda\x3e\xcc\x82\x7f\xcb\xbe\x00\x3a" \
     "\x30\x71\xaa\xdb\x32\x9e\xe4\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
-image115_data = \
+image116_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5071,7 +5107,7 @@ image115_data = \
     "\x8a\xa0\x45\xf6\x07\x0f\x32\xf3\xd3\x14\xa3\x0e" \
     "\xfc\x3f\xec\x1f\x11\x16\x75\x77\x3c\x4c\x13\x40" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image116_data = \
+image117_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5110,7 +5146,7 @@ image116_data = \
     "\xe3\x9a\xfa\x93\x99\xbf\x68\xe8\x78\x9e\xf6\x0f" \
     "\x31\xd0\x97\x9a\x3a\x0a\x41\x94\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image117_data = \
+image118_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5138,7 +5174,7 @@ image117_data = \
     "\x93\x52\xe4\xe4\x6f\xae\x3e\x00\xda\x1e\x68\x0e" \
     "\x24\x8c\x24\xa3\x00\x00\x00\x00\x49\x45\x4e\x44" \
     "\xae\x42\x60\x82"
-image118_data = \
+image119_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5160,7 +5196,7 @@ image118_data = \
     "\x46\x7f\xf0\x5b\xc3\xe7\x76\x56\xf7\xb3\xe2\x05" \
     "\x16\x41\x76\xed\x12\xf6\xbe\x0d\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image119_data = \
+image120_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5179,7 +5215,7 @@ image119_data = \
     "\xb5\xe6\xdc\xdb\xf7\x01\x2c\x62\x5e\x2f\x14\xd1" \
     "\xdc\x4d\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
-image120_data = \
+image121_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5205,7 +5241,7 @@ image120_data = \
     "\x07\xfe\x7d\x3d\x01\xf8\x71\x03\x48\x3d\x15\xca" \
     "\x49\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image121_data = \
+image122_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5230,7 +5266,7 @@ image121_data = \
     "\x9b\xa4\xeb\x03\xf8\xd3\xba\x03\xcf\x63\x74\xaa" \
     "\x3c\xa1\x5e\x3e\x00\x00\x00\x00\x49\x45\x4e\x44" \
     "\xae\x42\x60\x82"
-image122_data = \
+image123_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5272,7 +5308,7 @@ image122_data = \
     "\xfc\x4a\x19\xe9\x49\xe0\x37\xa4\xad\x74\x41\x91" \
     "\xf2\x4f\x18\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
     "\x42\x60\x82"
-image123_data = \
+image124_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5307,7 +5343,7 @@ image123_data = \
     "\x4d\x14\xf2\xdd\xa4\xef\x5a\xa2\xaa\x9b\x5d\xf1" \
     "\x8a\x7e\x01\x1d\x32\x7c\x2b\xdc\xc2\x1e\xab\x00" \
     "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image124_data = \
+image125_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5333,7 +5369,7 @@ image124_data = \
     "\xfe\xdd\xe0\x7d\x00\x55\xfa\xb8\xd8\xc1\x05\x7d" \
     "\x7c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image125_data = \
+image126_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5374,7 +5410,7 @@ image125_data = \
     "\x75\xa6\xe3\x47\x66\x7e\xa5\xac\xf4\x24\xe2\x37" \
     "\x3b\xaf\x77\x2f\x4a\x3d\x62\x77\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image126_data = \
+image127_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -5436,7 +5472,7 @@ image126_data = \
     "\x0a\x59\x8a\x48\x90\xb9\x5f\xd5\x62\x27\x58\x72" \
     "\x8d\x97\xab\xdf\xa7\x8d\x37\xda\xc8\x5d\xb6\x7d" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image127_data = \
+image128_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -5485,7 +5521,7 @@ image127_data = \
     "\xa9\xea\xb7\x61\x3f\xf1\xa1\xff\x5f\xfb\x03\xa5" \
     "\xea\x01\xa1\x66\x0c\x15\x92\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
-image128_data = \
+image129_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5534,7 +5570,7 @@ image128_data = \
     "\xe9\x47\x1f\x25\x7f\x00\xb9\xed\x13\x38\xa5\x3e" \
     "\x10\xe2\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
-image129_data = \
+image130_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -5599,7 +5635,7 @@ image129_data = \
     "\x4c\x9f\x23\xf8\x7f\xea\x0f\x19\xf4\x27\xdc\x79" \
     "\x99\x50\x91\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
     "\x42\x60\x82"
-image130_data = \
+image131_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
@@ -5621,7 +5657,7 @@ image130_data = \
     "\x1b\xfd\x97\x15\x34\x9f\xa6\x51\x67\x7a\x72\x78" \
     "\xb6\x73\xbf\xf9\x8f\x00\x00\x00\x00\x49\x45\x4e" \
     "\x44\xae\x42\x60\x82"
-image131_data = \
+image132_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -5653,7 +5689,7 @@ image131_data = \
     "\x73\xe3\x4f\xe7\x17\x44\x84\x89\xf6\xfe\x47\x09" \
     "\x0c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
     "\x82"
-image132_data = \
+image133_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -5717,7 +5753,7 @@ image132_data = \
     "\x4e\x9b\x7b\x8a\x39\xae\x3f\xcf\xcb\x54\xfc\x97" \
     "\x7e\x03\x8d\x94\x33\xf7\x50\x80\xd2\x47\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image133_data = \
+image134_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
@@ -5782,7 +5818,7 @@ image133_data = \
     "\xd5\x23\x66\x4e\xeb\xcf\xb3\xd3\x15\xff\xa5\x3f" \
     "\x9d\xab\x43\x15\x5f\x65\x91\x7e\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image134_data = \
+image135_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
@@ -6064,6 +6100,8 @@ class MainWindow(QMainWindow):
         self.image133.loadFromData(image133_data,"PNG")
         self.image134 = QPixmap()
         self.image134.loadFromData(image134_data,"PNG")
+        self.image135 = QPixmap()
+        self.image135.loadFromData(image135_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6334,109 +6372,111 @@ class MainWindow(QMainWindow):
         self.toolsFuseChunksAction = QAction(self.toolsModeActionGroup,"toolsFuseChunksAction")
         self.toolsFuseChunksAction.setToggleAction(1)
         self.toolsFuseChunksAction.setIconSet(QIconSet(self.image79))
+        self.toolsFuseAtomsAction = QAction(self.toolsModeActionGroup,"toolsFuseAtomsAction")
+        self.toolsFuseAtomsAction.setIconSet(QIconSet(self.image80))
         self.modifyStretchAction = QAction(self,"modifyStretchAction")
-        self.modifyStretchAction.setIconSet(QIconSet(self.image80))
+        self.modifyStretchAction.setIconSet(QIconSet(self.image81))
         self.MoveOptionsGroup = QActionGroup(self,"MoveOptionsGroup")
         self.MoveOptionsGroup.setUsesDropDown(0)
         self.transXAction = QAction(self.MoveOptionsGroup,"transXAction")
         self.transXAction.setToggleAction(1)
-        self.transXAction.setIconSet(QIconSet(self.image81))
+        self.transXAction.setIconSet(QIconSet(self.image82))
         self.transYAction = QAction(self.MoveOptionsGroup,"transYAction")
         self.transYAction.setToggleAction(1)
-        self.transYAction.setIconSet(QIconSet(self.image82))
+        self.transYAction.setIconSet(QIconSet(self.image83))
         self.transZAction = QAction(self.MoveOptionsGroup,"transZAction")
         self.transZAction.setToggleAction(1)
-        self.transZAction.setIconSet(QIconSet(self.image83))
+        self.transZAction.setIconSet(QIconSet(self.image84))
         self.rotXAction = QAction(self.MoveOptionsGroup,"rotXAction")
         self.rotXAction.setToggleAction(1)
-        self.rotXAction.setIconSet(QIconSet(self.image84))
+        self.rotXAction.setIconSet(QIconSet(self.image85))
         self.rotYAction = QAction(self.MoveOptionsGroup,"rotYAction")
         self.rotYAction.setToggleAction(1)
-        self.rotYAction.setIconSet(QIconSet(self.image85))
+        self.rotYAction.setIconSet(QIconSet(self.image86))
         self.rotZAction = QAction(self.MoveOptionsGroup,"rotZAction")
         self.rotZAction.setToggleAction(1)
-        self.rotZAction.setIconSet(QIconSet(self.image86))
+        self.rotZAction.setIconSet(QIconSet(self.image87))
         self.moveFreeAction = QAction(self.MoveOptionsGroup,"moveFreeAction")
         self.moveFreeAction.setToggleAction(1)
         self.moveFreeAction.setOn(1)
-        self.moveFreeAction.setIconSet(QIconSet(self.image87))
+        self.moveFreeAction.setIconSet(QIconSet(self.image88))
         self.rotFreeAction = QAction(self.MoveOptionsGroup,"rotFreeAction")
         self.rotFreeAction.setToggleAction(1)
-        self.rotFreeAction.setIconSet(QIconSet(self.image88))
+        self.rotFreeAction.setIconSet(QIconSet(self.image89))
         self.moveConstrainedAction = QAction(self.MoveOptionsGroup,"moveConstrainedAction")
         self.moveConstrainedAction.setToggleAction(1)
-        self.moveConstrainedAction.setIconSet(QIconSet(self.image89))
+        self.moveConstrainedAction.setIconSet(QIconSet(self.image90))
         self.moveXAction = QAction(self.MoveOptionsGroup,"moveXAction")
         self.moveXAction.setToggleAction(1)
-        self.moveXAction.setIconSet(QIconSet(self.image90))
+        self.moveXAction.setIconSet(QIconSet(self.image91))
         self.moveYAction = QAction(self.MoveOptionsGroup,"moveYAction")
         self.moveYAction.setToggleAction(1)
-        self.moveYAction.setIconSet(QIconSet(self.image91))
+        self.moveYAction.setIconSet(QIconSet(self.image92))
         self.nullAction = QAction(self,"nullAction")
         self.nullAction.setEnabled(0)
-        self.nullAction.setIconSet(QIconSet(self.image92))
+        self.nullAction.setIconSet(QIconSet(self.image93))
         self.nullAction.setVisible(1)
         self.jigsStatAction = QAction(self,"jigsStatAction")
-        self.jigsStatAction.setIconSet(QIconSet(self.image93))
+        self.jigsStatAction.setIconSet(QIconSet(self.image94))
         self.dispResetChunkColorAction = QAction(self,"dispResetChunkColorAction")
         self.helpWhatsThisAction = QAction(self,"helpWhatsThisAction")
-        self.helpWhatsThisAction.setIconSet(QIconSet(self.image94))
+        self.helpWhatsThisAction.setIconSet(QIconSet(self.image95))
         self.movieResetAction = QAction(self,"movieResetAction")
-        self.movieResetAction.setIconSet(QIconSet(self.image95))
+        self.movieResetAction.setIconSet(QIconSet(self.image96))
         self.moviePlayRevActiveAction = QAction(self,"moviePlayRevActiveAction")
-        self.moviePlayRevActiveAction.setIconSet(QIconSet(self.image96))
+        self.moviePlayRevActiveAction.setIconSet(QIconSet(self.image97))
         self.moviePlayActiveAction = QAction(self,"moviePlayActiveAction")
-        self.moviePlayActiveAction.setIconSet(QIconSet(self.image97))
+        self.moviePlayActiveAction.setIconSet(QIconSet(self.image98))
         self.movieMoveToEndAction = QAction(self,"movieMoveToEndAction")
-        self.movieMoveToEndAction.setIconSet(QIconSet(self.image98))
+        self.movieMoveToEndAction.setIconSet(QIconSet(self.image99))
         self.moviePauseAction = QAction(self,"moviePauseAction")
-        self.moviePauseAction.setIconSet(QIconSet(self.image99))
+        self.moviePauseAction.setIconSet(QIconSet(self.image100))
         self.moviePlayAction = QAction(self,"moviePlayAction")
-        self.moviePlayAction.setIconSet(QIconSet(self.image100))
+        self.moviePlayAction.setIconSet(QIconSet(self.image101))
         self.moviePlayAction.setVisible(1)
         self.setViewHomeToCurrentAction = QAction(self,"setViewHomeToCurrentAction")
         self.modifyAlignCommonAxisAction = QAction(self,"modifyAlignCommonAxisAction")
-        self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image101))
+        self.modifyAlignCommonAxisAction.setIconSet(QIconSet(self.image102))
         self.dispSetEltable1Action = QAction(self,"dispSetEltable1Action")
         self.dispSetEltable2Action = QAction(self,"dispSetEltable2Action")
         self.movieDoneAction = QAction(self,"movieDoneAction")
         self.movieDoneAction.setIconSet(QIconSet(self.image17))
         self.movieNextFrameAction = QAction(self,"movieNextFrameAction")
-        self.movieNextFrameAction.setIconSet(QIconSet(self.image102))
+        self.movieNextFrameAction.setIconSet(QIconSet(self.image103))
         self.moviePrevFrameAction = QAction(self,"moviePrevFrameAction")
-        self.moviePrevFrameAction.setIconSet(QIconSet(self.image103))
+        self.moviePrevFrameAction.setIconSet(QIconSet(self.image104))
         self.fileSaveMovieAction = QAction(self,"fileSaveMovieAction")
         self.fileSaveMovieAction.setIconSet(QIconSet(self.image2))
         self.moviePlayRevAction = QAction(self,"moviePlayRevAction")
-        self.moviePlayRevAction.setIconSet(QIconSet(self.image104))
+        self.moviePlayRevAction.setIconSet(QIconSet(self.image105))
         self.fileOpenMovieAction = QAction(self,"fileOpenMovieAction")
         self.fileOpenMovieAction.setIconSet(QIconSet(self.image1))
         self.movieInfoAction = QAction(self,"movieInfoAction")
-        self.movieInfoAction.setIconSet(QIconSet(self.image105))
+        self.movieInfoAction.setIconSet(QIconSet(self.image106))
         self.zoomToolAction = QAction(self,"zoomToolAction")
         self.zoomToolAction.setToggleAction(1)
-        self.zoomToolAction.setIconSet(QIconSet(self.image106))
+        self.zoomToolAction.setIconSet(QIconSet(self.image107))
         self.panToolAction = QAction(self,"panToolAction")
         self.panToolAction.setToggleAction(1)
-        self.panToolAction.setIconSet(QIconSet(self.image107))
+        self.panToolAction.setIconSet(QIconSet(self.image108))
         self.rotateWindowAction = QAction(self,"rotateWindowAction")
-        self.rotateWindowAction.setIconSet(QIconSet(self.image108))
+        self.rotateWindowAction.setIconSet(QIconSet(self.image109))
         self.jigsThermoAction = QAction(self,"jigsThermoAction")
-        self.jigsThermoAction.setIconSet(QIconSet(self.image109))
+        self.jigsThermoAction.setIconSet(QIconSet(self.image110))
         self.panDoneAction = QAction(self,"panDoneAction")
         self.panDoneAction.setIconSet(QIconSet(self.image17))
         self.rotateToolAction = QAction(self,"rotateToolAction")
         self.rotateToolAction.setToggleAction(1)
-        self.rotateToolAction.setIconSet(QIconSet(self.image110))
+        self.rotateToolAction.setIconSet(QIconSet(self.image111))
         self.modifyDeleteBondsAction = QAction(self,"modifyDeleteBondsAction")
         self.modifyDeleteBondsAction.setIconSet(QIconSet(self.image75))
         self.dispElementColorSettingsAction = QAction(self,"dispElementColorSettingsAction")
         self.simSetupAction = QAction(self,"simSetupAction")
         self.simSetupAction.setEnabled(1)
-        self.simSetupAction.setIconSet(QIconSet(self.image111))
+        self.simSetupAction.setIconSet(QIconSet(self.image112))
         self.simPlotToolAction = QAction(self,"simPlotToolAction")
         self.simPlotToolAction.setEnabled(1)
-        self.simPlotToolAction.setIconSet(QIconSet(self.image112))
+        self.simPlotToolAction.setIconSet(QIconSet(self.image113))
         self.dispLightingAction = QAction(self,"dispLightingAction")
         self.selecttestAction = QAction(self,"selecttestAction")
         self.dispResetAtomsDisplayAction = QAction(self,"dispResetAtomsDisplayAction")
@@ -6448,60 +6488,60 @@ class MainWindow(QMainWindow):
         self.CookieSelectionGroup.setUsesDropDown(0)
         self.CircleSelAction = QAction(self.CookieSelectionGroup,"CircleSelAction")
         self.CircleSelAction.setToggleAction(1)
-        self.CircleSelAction.setIconSet(QIconSet(self.image113))
+        self.CircleSelAction.setIconSet(QIconSet(self.image114))
         self.RectCtrSelAction = QAction(self.CookieSelectionGroup,"RectCtrSelAction")
         self.RectCtrSelAction.setToggleAction(1)
-        self.RectCtrSelAction.setIconSet(QIconSet(self.image114))
+        self.RectCtrSelAction.setIconSet(QIconSet(self.image115))
         self.HexagonSelAction = QAction(self.CookieSelectionGroup,"HexagonSelAction")
         self.HexagonSelAction.setToggleAction(1)
-        self.HexagonSelAction.setIconSet(QIconSet(self.image115))
+        self.HexagonSelAction.setIconSet(QIconSet(self.image116))
         self.TriangleSelAction = QAction(self.CookieSelectionGroup,"TriangleSelAction")
         self.TriangleSelAction.setToggleAction(1)
-        self.TriangleSelAction.setIconSet(QIconSet(self.image116))
+        self.TriangleSelAction.setIconSet(QIconSet(self.image117))
         self.RectCornerSelAction = QAction(self.CookieSelectionGroup,"RectCornerSelAction")
         self.RectCornerSelAction.setToggleAction(1)
-        self.RectCornerSelAction.setIconSet(QIconSet(self.image117))
+        self.RectCornerSelAction.setIconSet(QIconSet(self.image118))
         self.LassoSelAction = QAction(self.CookieSelectionGroup,"LassoSelAction")
         self.LassoSelAction.setToggleAction(1)
-        self.LassoSelAction.setIconSet(QIconSet(self.image118))
+        self.LassoSelAction.setIconSet(QIconSet(self.image119))
         self.DefaultSelAction = QAction(self.CookieSelectionGroup,"DefaultSelAction")
         self.DefaultSelAction.setToggleAction(1)
         self.DefaultSelAction.setOn(1)
-        self.DefaultSelAction.setIconSet(QIconSet(self.image119))
+        self.DefaultSelAction.setIconSet(QIconSet(self.image120))
         self.DiamondSelAction = QAction(self.CookieSelectionGroup,"DiamondSelAction")
         self.DiamondSelAction.setToggleAction(1)
-        self.DiamondSelAction.setIconSet(QIconSet(self.image120))
+        self.DiamondSelAction.setIconSet(QIconSet(self.image121))
         self.SquareSelAction = QAction(self.CookieSelectionGroup,"SquareSelAction")
         self.SquareSelAction.setToggleAction(1)
-        self.SquareSelAction.setIconSet(QIconSet(self.image121))
+        self.SquareSelAction.setIconSet(QIconSet(self.image122))
         self.moveDeltaPlusAction = QAction(self,"moveDeltaPlusAction")
-        self.moveDeltaPlusAction.setIconSet(QIconSet(self.image122))
+        self.moveDeltaPlusAction.setIconSet(QIconSet(self.image123))
         self.moveAbsoluteAction = QAction(self,"moveAbsoluteAction")
-        self.moveAbsoluteAction.setIconSet(QIconSet(self.image123))
+        self.moveAbsoluteAction.setIconSet(QIconSet(self.image124))
         self.modifyMinimizeAllAction = QAction(self,"modifyMinimizeAllAction")
-        self.modifyMinimizeAllAction.setIconSet(QIconSet(self.image124))
+        self.modifyMinimizeAllAction.setIconSet(QIconSet(self.image125))
         self.moveDeltaMinusAction = QAction(self,"moveDeltaMinusAction")
-        self.moveDeltaMinusAction.setIconSet(QIconSet(self.image125))
+        self.moveDeltaMinusAction.setIconSet(QIconSet(self.image126))
         self.modifyInvertAction = QAction(self,"modifyInvertAction")
-        self.modifyInvertAction.setIconSet(QIconSet(self.image126))
+        self.modifyInvertAction.setIconSet(QIconSet(self.image127))
         self.rotateClockwiseAction = QAction(self,"rotateClockwiseAction")
         self.rotateClockwiseAction.setToggleAction(0)
-        self.rotateClockwiseAction.setIconSet(QIconSet(self.image127))
+        self.rotateClockwiseAction.setIconSet(QIconSet(self.image128))
         self.rotateCounterClockwiseAction = QAction(self,"rotateCounterClockwiseAction")
         self.rotateCounterClockwiseAction.setToggleAction(0)
-        self.rotateCounterClockwiseAction.setIconSet(QIconSet(self.image128))
+        self.rotateCounterClockwiseAction.setIconSet(QIconSet(self.image129))
         self.jigsGamessAction = QAction(self,"jigsGamessAction")
-        self.jigsGamessAction.setIconSet(QIconSet(self.image129))
+        self.jigsGamessAction.setIconSet(QIconSet(self.image130))
         self.simJobManagerAction = QAction(self,"simJobManagerAction")
-        self.simJobManagerAction.setIconSet(QIconSet(self.image130))
+        self.simJobManagerAction.setIconSet(QIconSet(self.image131))
         self.serverManagerAction = QAction(self,"serverManagerAction")
-        self.serverManagerAction.setIconSet(QIconSet(self.image131))
+        self.serverManagerAction.setIconSet(QIconSet(self.image132))
         self.moveThetaMinusAction = QAction(self,"moveThetaMinusAction")
-        self.moveThetaMinusAction.setIconSet(QIconSet(self.image132))
+        self.moveThetaMinusAction.setIconSet(QIconSet(self.image133))
         self.moveThetaPlusAction = QAction(self,"moveThetaPlusAction")
-        self.moveThetaPlusAction.setIconSet(QIconSet(self.image133))
+        self.moveThetaPlusAction.setIconSet(QIconSet(self.image134))
         self.setViewOppositeAction = QAction(self,"setViewOppositeAction")
-        self.setViewOppositeAction.setIconSet(QIconSet(self.image134))
+        self.setViewOppositeAction.setIconSet(QIconSet(self.image135))
         self.modifyMMKitAction = QAction(self,"modifyMMKitAction")
         self.modifyMMKitAction.setIconSet(QIconSet(self.image57))
         self.helpMouseControlsAction = QAction(self,"helpMouseControlsAction")
@@ -6556,6 +6596,7 @@ class MainWindow(QMainWindow):
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.selectToolbar.setGeometry(QRect(740,0,154,29))
+        self.selectToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
         self.selectInvertAction.addTo(self.selectToolbar)
@@ -6582,6 +6623,7 @@ class MainWindow(QMainWindow):
         self.ccLabel = QLabel(self.cookieCutterDashboard,"ccLabel")
         self.moveChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
+        self.moveChunksDashboard.setEnabled(1)
         self.moveChunksDashboard.setGeometry(QRect(189,0,96,19))
         self.moveChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -6610,6 +6652,7 @@ class MainWindow(QMainWindow):
         self.skipTL = QLabel(self.moviePlayerDashboard,"skipTL")
 
         self.skipSB = QSpinBox(self.moviePlayerDashboard,"skipSB")
+        self.skipSB.setMaxValue(9999)
         self.moviePlayerDashboard.addSeparator()
 
         self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
@@ -6877,12 +6920,16 @@ class MainWindow(QMainWindow):
         self.connect(self.dispDatumLinesAction,SIGNAL("activated()"),self.dispDatumLines)
         self.connect(self.dispDatumPlanesAction,SIGNAL("activated()"),self.dispDatumPlanes)
         self.connect(self.dispDefaultAction,SIGNAL("activated()"),self.dispDefault)
+        self.connect(self.dispElementColorSettingsAction,SIGNAL("activated()"),self.dispElementColorSettings)
         self.connect(self.dispGridAction,SIGNAL("activated()"),self.dispGrid)
         self.connect(self.dispInvisAction,SIGNAL("activated()"),self.dispInvis)
+        self.connect(self.dispLightingAction,SIGNAL("activated()"),self.dispLighting)
         self.connect(self.dispLinesAction,SIGNAL("activated()"),self.dispLines)
         self.connect(self.dispObjectColorAction,SIGNAL("activated()"),self.dispObjectColor)
         self.connect(self.dispOpenBondsAction,SIGNAL("activated()"),self.dispOpenBonds)
+        self.connect(self.dispResetAtomsDisplayAction,SIGNAL("activated()"),self.dispResetAtomsDisplay)
         self.connect(self.dispResetChunkColorAction,SIGNAL("activated()"),self.dispResetChunkColor)
+        self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
         self.connect(self.dispTrihedronAction,SIGNAL("activated()"),self.dispTrihedron)
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
         self.connect(self.dispVdWAction,SIGNAL("activated()"),self.dispVdW)
@@ -6910,9 +6957,12 @@ class MainWindow(QMainWindow):
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
         self.connect(self.helpAssistantAction,SIGNAL("activated()"),self.helpAssistant)
         self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
+        self.connect(self.helpKeyboardShortcutsAction,SIGNAL("activated()"),self.helpKeyboardShortcuts)
+        self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
         self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
         self.connect(self.jigsBearingAction,SIGNAL("activated()"),self.makeBearing)
         self.connect(self.jigsDynoAction,SIGNAL("activated()"),self.makeDyno)
+        self.connect(self.jigsGamessAction,SIGNAL("activated()"),self.makeGamess)
         self.connect(self.jigsGroundAction,SIGNAL("activated()"),self.makeGround)
         self.connect(self.jigsHandleAction,SIGNAL("activated()"),self.makeHandle)
         self.connect(self.jigsHeatsinkAction,SIGNAL("activated()"),self.makeHeatsink)
@@ -6922,16 +6972,21 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
         self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
         self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
+        self.connect(self.modifyCenterCommonAxisAction,SIGNAL("activated()"),self.modifyCenterCommonAxis)
         self.connect(self.modifyCopyBondAction,SIGNAL("activated()"),self.modifyCopyBond)
         self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
         self.connect(self.modifyDeleteBondsAction,SIGNAL("activated()"),self.modifyDeleteBonds)
         self.connect(self.modifyEdgeBondAction,SIGNAL("activated()"),self.modifyEdgeBond)
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
+        self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
+        self.connect(self.modifyMergeAction,SIGNAL("activated()"),self.modifyMerge)
+        self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
         self.connect(self.modifyMinimizeSelAction,SIGNAL("activated()"),self.modifyMinimizeSel)
+        self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
+        self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
         self.connect(self.modifySetElementAction,SIGNAL("activated()"),self.modifySetElement)
         self.connect(self.modifyStretchAction,SIGNAL("activated()"),self.modifyStretch)
-        self.connect(self.modifyMergeAction,SIGNAL("activated()"),self.modifyMerge)
         self.connect(self.movieDoneAction,SIGNAL("activated()"),self.movieDone)
         self.connect(self.movieInfoAction,SIGNAL("activated()"),self.movieInfo)
         self.connect(self.movieMoveToEndAction,SIGNAL("activated()"),self.movieMoveToEnd)
@@ -6950,6 +7005,7 @@ class MainWindow(QMainWindow):
         self.connect(self.selectDoublyAction,SIGNAL("activated()"),self.selectDoubly)
         self.connect(self.selectInvertAction,SIGNAL("activated()"),self.selectInvert)
         self.connect(self.selectNoneAction,SIGNAL("activated()"),self.selectNone)
+        self.connect(self.serverManagerAction,SIGNAL("activated()"),self.serverManager)
         self.connect(self.setViewBackAction,SIGNAL("activated()"),self.setViewBack)
         self.connect(self.setViewBottomAction,SIGNAL("activated()"),self.setViewBottom)
         self.connect(self.setViewFitToWindowAction,SIGNAL("activated()"),self.setViewFitToWindow)
@@ -6957,11 +7013,16 @@ class MainWindow(QMainWindow):
         self.connect(self.setViewHomeAction,SIGNAL("activated()"),self.setViewHome)
         self.connect(self.setViewHomeToCurrentAction,SIGNAL("activated()"),self.setViewHomeToCurrent)
         self.connect(self.setViewLeftAction,SIGNAL("activated()"),self.setViewLeft)
+        self.connect(self.setViewOppositeAction,SIGNAL("activated()"),self.setViewOpposite)
         self.connect(self.setViewOrthoAction,SIGNAL("activated()"),self.setViewOrtho)
         self.connect(self.setViewPerspecAction,SIGNAL("activated()"),self.setViewPerspec)
         self.connect(self.setViewRecenterAction,SIGNAL("activated()"),self.setViewRecenter)
         self.connect(self.setViewRightAction,SIGNAL("activated()"),self.setViewRight)
         self.connect(self.setViewTopAction,SIGNAL("activated()"),self.setViewTop)
+        self.connect(self.simJobManagerAction,SIGNAL("activated()"),self.JobManager)
+        self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
+        self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
+        self.connect(self.simSetupAction,SIGNAL("activated()"),self.simSetup)
         self.connect(self.toggleDatumDispTbarAction,SIGNAL("activated()"),self.toggleDatumDispTbar)
         self.connect(self.toggleEditTbarAction,SIGNAL("activated()"),self.toggleEditTbar)
         self.connect(self.toggleFileTbarAction,SIGNAL("activated()"),self.toggleFileTbar)
@@ -6972,6 +7033,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toggleViewTbarAction,SIGNAL("activated()"),self.toggleViewTbar)
         self.connect(self.toolsAddBondAction,SIGNAL("activated()"),self.toolsAddBond)
         self.connect(self.toolsBackUpAction,SIGNAL("activated()"),self.toolsBackUp)
+        self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
         self.connect(self.toolsCancelAction,SIGNAL("activated()"),self.toolsCancel)
         self.connect(self.toolsCookieCutAction,SIGNAL("activated()"),self.toolsCookieCut)
         self.connect(self.toolsDeleteBondAction,SIGNAL("activated()"),self.toolsDeleteBond)
@@ -6981,30 +7043,12 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsMirrorAction,SIGNAL("activated()"),self.toolsMirror)
         self.connect(self.toolsMirrorCircularBoundaryAction,SIGNAL("activated()"),self.toolsMirrorCircularBoundary)
         self.connect(self.toolsMoveMoleculeAction,SIGNAL("activated()"),self.toolsMoveMolecule)
-        self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
         self.connect(self.toolsRevolveAction,SIGNAL("activated()"),self.toolsRevolve)
         self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
-        self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
-        self.connect(self.dispElementColorSettingsAction,SIGNAL("activated()"),self.dispElementColorSettings)
-        self.connect(self.simSetupAction,SIGNAL("activated()"),self.simSetup)
-        self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
-        self.connect(self.dispLightingAction,SIGNAL("activated()"),self.dispLighting)
-        self.connect(self.dispResetAtomsDisplayAction,SIGNAL("activated()"),self.dispResetAtomsDisplay)
-        self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
-        self.connect(self.toolsFuseChunksAction,SIGNAL("activated()"),self.toolsFuseChunks)
-        self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
-        self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
-        self.connect(self.jigsGamessAction,SIGNAL("activated()"),self.makeGamess)
-        self.connect(self.simJobManagerAction,SIGNAL("activated()"),self.JobManager)
-        self.connect(self.serverManagerAction,SIGNAL("activated()"),self.serverManager)
-        self.connect(self.setViewOppositeAction,SIGNAL("activated()"),self.setViewOpposite)
-        self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
-        self.connect(self.helpKeyboardShortcutsAction,SIGNAL("activated()"),self.helpKeyboardShortcuts)
-        self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
-        self.connect(self.modifyCenterCommonAxisAction,SIGNAL("activated()"),self.modifyCenterCommonAxis)
+        self.connect(self.toolsFuseAtomsAction,SIGNAL("activated()"),self.toolsFuseAtoms)
 
 
     def languageChange(self):
@@ -7272,6 +7316,8 @@ class MainWindow(QMainWindow):
         self.toolsFuseChunksAction.setText(self.__tr("Fuse Chunks"))
         self.toolsFuseChunksAction.setMenuText(self.__tr("Fuse Chunks"))
         self.toolsFuseChunksAction.setToolTip(self.__tr("Fuse Chunks"))
+        self.toolsFuseAtomsAction.setText(self.__tr("Fuse Atoms"))
+        self.toolsFuseAtomsAction.setToolTip(self.__tr("Fuse Atoms"))
         self.modifyStretchAction.setText(self.__tr("Stretch"))
         self.modifyStretchAction.setMenuText(self.__tr("S&tretch"))
         self.MoveOptionsGroup.setText(self.__tr("Move Chunks"))
@@ -7979,6 +8025,9 @@ class MainWindow(QMainWindow):
 
     def modifyCenterCommonAxis(self):
         print "MainWindow.modifyCenterCommonAxis(): Not implemented yet"
+
+    def toolsFuseAtoms(self):
+        print "MainWindow.toolsFuseAtoms(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
