@@ -67,6 +67,11 @@ def before_most_imports( main_globals ):
     import __main__ # this is still being imported, but we only need its __file__ attribute, which should be already defined
     maindir, filejunk = os.path.split( __main__.__file__ )
     ourdir,  filejunk = os.path.split( __file__ )
+    def canon(path):
+        #bruce 050908 bugfix in case developer runs python with relative (or other non-canonical) path as argument
+        return os.path.normcase( os.path.abspath(path) )
+    maindir = canon(maindir)
+    ourdir = canon(ourdir)
     guess1 = (maindir != ourdir)
 
     # Method 2. As of 050902, package builders on all platforms remove the .py files, leaving only .pyc files.
