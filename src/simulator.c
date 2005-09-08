@@ -1523,6 +1523,11 @@ main(int argc,char **argv)
     if (! strchr(TraceFileName, '.')) {
         strcat(TraceFileName,".trc");
     }
+    tracef = fopen(TraceFileName, "w");
+    if (!tracef) {
+        perror(TraceFileName);
+        exit(1);
+    }
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
@@ -1531,7 +1536,8 @@ main(int argc,char **argv)
     //testInterpolateBondStretch(1, 6, 6);
     //testNewBondStretchTable();
 
-    filred(buf);
+    //filred(buf);
+    readMMP(buf);
     
     // this doesn't seem to make any difference... -emm
     //orion();
@@ -1559,11 +1565,6 @@ main(int argc,char **argv)
     fprintf(stderr, " center of mass: %f -- %f\n", vlen(CoM(Positions)), vlen(Cog));
     fprintf(stderr, " total momentum: %f\n",P);
     */
-    tracef = fopen(TraceFileName, "w");
-    if (!tracef) {
-        perror(TraceFileName);
-        exit(1);
-    }
     printheader(tracef, filename, OutFileName, TraceFileName, 
                 Nexatom, NumFrames, IterPerFrame, Temperature);
 

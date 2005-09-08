@@ -34,6 +34,7 @@ newtables.o: simulator.h bonds.h
 structcompare.o: simulator.h
 interpolate.o: simulator.h
 minimize.o: allocate.h minimize.h
+readmmp.o: simulator.h
 
 tables.c: gentab.py
 	python gentab.py > tables.c
@@ -54,6 +55,7 @@ SIMOBJS=\
 	minimize.o \
 	newtables.o \
 	structcompare.o \
+	readmmp.o \
 	interpolate.o
 
 noopt:

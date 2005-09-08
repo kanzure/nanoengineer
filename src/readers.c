@@ -6,7 +6,8 @@
 
 /** uses global Nexatom, atom, element, positions, old_positions, Dt, Dx, Boltz, and
     Temperature */
-static void makatom(int elem, struct xyz posn) {
+void
+makatom(int elem, struct xyz posn) {
     struct xyz foo, v, p;
     double mass, therm;
 	
@@ -65,7 +66,8 @@ static void makatom(int elem, struct xyz posn) {
 /** an actual bond is ordered so it has a positive type,
     e.g. atom[a].elt <= atom[b].elt */
 /* file format now guarantees no bond before its atoms */
-static void makbond(int a, int b, char ord) {
+void
+makbond(int a, int b, char ord) {
     int n, t, typ, ta, tb, a1, a2;
     double bl, sbl;
 
@@ -111,7 +113,8 @@ static void makbond(int a, int b, char ord) {
 }
 
 /** torqs are ordered so the bonds match those in bendata */
-static void maktorq(int center, int a, int b)
+void
+maktorq(int center, int a, int b)
 {
   // center is index into atom[]
   // a and b are indexes into bond[]
@@ -187,7 +190,8 @@ void makvdw(int a1, int a2) {
 }
 
 
-static int makcon(int typ, struct MOT *mot, int n, int *atnos) {
+int
+makcon(int typ, struct MOT *mot, int n, int *atnos) {
     int i;
 	
     Constraint[Nexcon].type = typ;
@@ -202,7 +206,7 @@ static int makcon(int typ, struct MOT *mot, int n, int *atnos) {
     store in pN*pm, rad/Dt
 */
 
-static struct MOT *
+struct MOT *
 makmot(double stall, double speed, struct xyz vec1,  struct xyz vec2)
 {
     int i;
@@ -215,7 +219,8 @@ makmot(double stall, double speed, struct xyz vec1,  struct xyz vec2)
     return Motor+Nexmot++;
 }
 
-static void makmot2(int i) {
+void
+makmot2(int i) {
     struct MOT *mot;
     struct xyz r, q, vrmax;
     int j, *atlis;
@@ -269,7 +274,7 @@ static void makmot2(int i) {
     internal units are pN and pm, so no translation necessary
 */
 
-static struct MOT *
+struct MOT *
 maklmot(double force, double stiff, struct xyz vec1,  struct xyz vec2)
 {
     int i;
@@ -281,7 +286,8 @@ maklmot(double force, double stiff, struct xyz vec1,  struct xyz vec2)
     return Motor+Nexmot++;
 }
 
-static void maklmot2(int i) {
+void
+maklmot2(int i) {
     struct MOT *mot;
     struct xyz r, q, vrmax;
     int j, *atlis;

@@ -13,6 +13,7 @@ This method is called "Linear Probing" in Knuth Vol 3 p. 518.
 */
 
 #include <stdio.h>
+#include <string.h>
 #include "allocate.h"
 #include "hashtable.h"
   

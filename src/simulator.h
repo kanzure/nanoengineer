@@ -16,8 +16,6 @@
 #include "minimize.h"
 #include "structcompare.h"
 
-#include "readers.h"
-
 #define NATOMS 100000
 #define NBONDS 12
 /* that's bonds per atom! */
@@ -269,6 +267,8 @@ extern struct xyz sxyz(double *v);
 
 extern int Count;
 extern void findnobo(struct xyz *position, int a1);
+
+#include "readers.h"
 
 
 /*
