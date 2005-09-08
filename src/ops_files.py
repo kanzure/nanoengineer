@@ -170,6 +170,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.history.message("PDB file opened: [" + fn + "]")
 
             dir, fil, ext = fileparse(fn)
+            ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
             self.assy.name = fil
             self.assy.filename = fn
             self.assy.reset_changed() # The file and the part are now the same
@@ -258,92 +259,109 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def saveFile(self, safile):
         
         dir, fil, ext = fileparse(safile)
-#            print "saveFile: ext = [",ext,"]"
+            #e only ext needed in most cases here, could replace with os.path.split [bruce 050907 comment]
+                    
+        if ext == ".mmp" : # Write MMP file
+            self.save_mmp_file( safile)
 
-        if ext == ".pdb": # Write PDB file.
+        elif ext == ".pdb": # Write PDB file.
             try:
                 writepdb(self.assy, safile)
             except:
                 print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
                 self.history.message(redmsg( "Problem saving PDB file: " + safile ))
             else:
-                self.assy.filename = safile
-                self.assy.name = fil
-                self.assy.reset_changed() # The file and the part are now the same.
-#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                self.update_mainwindow_caption()
+                self.saved_main_file(safile, fil)
+                    #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
                 self.history.message( "PDB file saved: " + self.assy.filename )
-                self.mt.mt_update()
-            
-        elif ext == ".pov": # Write POV-Ray file
-            try:
+                    #bruce 050907 moved this after mt_update (which is now in saved_main_file)
+        else:
+            self.saveSeparateFile( safile)
+        return
+
+    def saveSeparateFile( self, safile): #bruce 050908 split this out, reorganized code, revised bug-only history messages
+        "Save some aspect of the current part in a separate file, without resetting the current part's changed flag or filename."
+        #e later we might add ability to specify *what* part to save (main part, some clipboard part, selection),
+        # and/or ability for format to be mmp or pdb.
+        # Or (better), this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
+        dir, fil, ext = fileparse(safile)
+            #e only ext needed in most cases here, could replace with os.path.split [bruce 050908 comment]
+        type = "this" # never used (even if caller passes in unsupported filetype) unless there are bugs in this routine
+        saved = True # be optimistic (not bugsafe; fix later by having save methods which return a success code)
+        try:
+            # all these cases modify type variable, for use only in subsequent messages
+            if ext == ".pov":
+                type = "POV-Ray"
                 writepovfile(self.assy, safile)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving POV-Ray file: " + safile ))
-            else:
-                self.history.message( "POV-Ray file saved: " + safile )
-            
-        elif ext == ".mdl": # Write MDL file
-            try:
+            elif ext == ".mdl":
+                type = "MDL"
                 writemdlfile(self.assy, safile)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving MDL file: " + safile ))
-            else:
-                self.history.message( "MDL file saved: " + safile )
-            
-        elif ext == ".jpg": # Write JPEG file
-            try:
+            elif ext == ".jpg":
+                type = "JPEG"
                 image = self.glpane.grabFrameBuffer()
                 image.save(safile, "JPEG", 85)
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving JPEG file: " + safile ))
-            else:
-                self.history.message( "JPEG file saved: " + safile )
-            
-        elif ext == ".png": # Write PNG file
-            try:
+            elif ext == ".png":
+                type = "PNG"
                 image = self.glpane.grabFrameBuffer()
                 image.save(safile, "PNG")
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving PNG file: " + safile ))
-            else:
-                self.history.message( "PNG file saved: " + safile )
-                    
-        elif ext == ".mmp" : # Write MMP file
-            try:
-                tmpname = os.path.join(dir, '~' + fil + '.m~')
-                self.assy.writemmpfile(tmpname)
-            except:
-                #bruce 050419 revised printed error message
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file [%s]: " % safile )
-                self.history.message(redmsg( "Problem saving file: " + safile ))
-                
-                # If you want to see what was wrong with the MMP file, you
-                # can comment this out so you can see what's in
-                # the temp MMP file.  Mark 050128.
-                if os.path.exists(tmpname):
-                    os.remove (tmpname) # Delete tmp MMP file
-            else:
-                if os.path.exists(safile):
-                    os.remove (safile) # Delete original MMP file
+            else: # caller passed in unsupported filetype (should never happen)
+                saved = False
+                self.history.message(redmsg( "File Not Saved. Unknown extension: " + ext))
+        except:
+            print_compact_traceback( "error writing file %r: " % safile )
+            self.history.message(redmsg( "Problem saving %s file: " % type + safile ))
+        else:
+            if saved:
+                self.history.message( "%s file saved: " % type + safile )
+        return
 
-                os.rename( tmpname, safile) # Move tmp file to saved filename. 
-                
-                self.assy.filename = safile
-                self.assy.name = fil
-                self.assy.reset_changed() # The file and the part are now the same.
-#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-                self.update_mainwindow_caption()
-                self.history.message( "MMP file saved: " + self.assy.filename )
-                self.mt.mt_update()
+    def save_mmp_file(self, safile): #bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
+        dir, fil, extjunk = fileparse(safile)
+        try:
+            tmpname = os.path.join(dir, '~' + fil + '.m~')
+            self.assy.writemmpfile(tmpname)
+        except:
+            #bruce 050419 revised printed error message
+            print_compact_traceback( "MWsemantics.py: saveFile(): error writing file [%s]: " % safile )
+            self.history.message(redmsg( "Problem saving file: " + safile ))
             
-        else: # This should never happen.
-            self.history.message(redmsg( "MWSemantics.py: fileSaveAs() - File Not Saved. Unknown extension:" + ext))
+            # If you want to see what was wrong with the MMP file, you
+            # can comment this out so you can see what's in
+            # the temp MMP file.  Mark 050128.
+            if os.path.exists(tmpname):
+                os.remove (tmpname) # Delete tmp MMP file
+        else:
+            if os.path.exists(safile):
+                os.remove (safile) # Delete original MMP file
+                #bruce 050907 suspects this is never necessary, but not sure;
+                # if true, it should be removed, so there is never a time with no file at that filename.
+                # (#e In principle we could try just moving it first, and only if that fails, try removing and then moving.)
 
+            os.rename( tmpname, safile) # Move tmp file to saved filename.
+
+            self.saved_main_file(safile, fil)
+            self.history.message( "MMP file saved: " + self.assy.filename )
+                #bruce 050907 moved this after mt_update (which is now in saved_main_file)
+        return
+
+    def saved_main_file(self, safile, fil): #bruce 050907 split this out of mmp and pdb saving code
+        """Record the fact that self.assy itself is now saved into (the same or a new) main file
+        (and will continue to be saved into that file, until further notice)
+        (as opposed to part or all of it being saved into some separate file, with no change in status of main file).
+        Do necessary changes (filename, window caption, assy.changed status) and updates, but emit no history message.
+        """
+        # (It's probably bad design of pdb save semantics for it to rename the assy filename -- it's more like saving pov, etc.
+        #  This relates to some bug reports. [bruce 050907 comment])
+        # [btw some of this should be split out into an assy method, or more precisely a savable-object method #e]
+        self.assy.filename = safile
+        self.assy.name = fil
+        self.assy.reset_changed() # The file and the part are now the same.
+#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+        self.update_mainwindow_caption()
+        self.mt.mt_update() # since it displays self.assy.name [bruce comment 050907; a guess]
+            # [note, before this routine was split out, the mt_update happened after the history message printed by our callers]
+        return
+        
     def prepareToClose(self): #bruce 050907 split this out of MWsemantics.closeEvent method, added docstring
         """Prepare to close the main window and exit (e.g. ask user whether to save file if necessary).
         If user cancels, or anything else means we should not actually close and exit,
