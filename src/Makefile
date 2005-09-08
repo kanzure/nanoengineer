@@ -84,6 +84,9 @@ clean:
 	rm -f simulator moldisp molsim physeng
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
+	rm -f tests/minimize/*.altout
+	rm -f tests/minimize/*.diff
+	rm -f tests/dynamics/*.diff
 
 dist_clean: clean
 	rm -f TAGS

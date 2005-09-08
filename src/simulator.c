@@ -1031,7 +1031,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	    vadd2(NewPositions[j], Positions[j], f);
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
-        // groundAtoms(Positions, NewPositions);
+        groundAtoms(Positions, NewPositions);
         updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
     initial_rms = rms_force;
@@ -1073,7 +1073,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	    }
 	}
 
-        // groundAtoms(Positions, NewPositions);
+        groundAtoms(Positions, NewPositions);
 
         updatePositionsArrays(rms_force, max_forceSquared, PTR_CUR);
     }
@@ -1136,6 +1136,7 @@ static void setPos(struct xyz *newpos, struct xyz *oldpos, struct xyz *force, do
 	vmulc(f, offset);
 	vadd2(newpos[j], oldpos[j], f);
     }
+    groundAtoms(oldpos, newpos);
 }
 
 static void copyForce(struct xyz *force, struct xyz *force2) {
