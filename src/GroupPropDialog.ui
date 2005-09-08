@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>GroupPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>314</width>
-            <height>136</height>
+            <width>258</width>
+            <height>357</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,60 +18,113 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="0" column="0">
             <property name="name">
-                <cstring>layout98</cstring>
+                <cstring>layout8</cstring>
             </property>
-            <hbox>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout6</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>nameLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Name:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignLeft</set>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>nameLineEdit</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
+                            <property name="frameShape">
+                                <enum>LineEditPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignLeft</set>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
                 <widget class="QLabel">
                     <property name="name">
-                        <cstring>textLabel1</cstring>
+                        <cstring>mmpformatLabel</cstring>
                     </property>
                     <property name="text">
-                        <string>Name:</string>
+                        <string>Group Statistics:</string>
                     </property>
                     <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
+                        <set>AlignVCenter|AlignLeft</set>
                     </property>
                 </widget>
-                <widget class="QLineEdit">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>nameLineEdit</cstring>
+                        <cstring>layout7</cstring>
                     </property>
-                    <property name="frameShape">
-                        <enum>LineEditPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="text">
-                        <string></string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QListView">
+                            <column>
+                                <property name="text">
+                                    <string>Object Name</string>
+                                </property>
+                                <property name="clickable">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="resizable">
+                                    <bool>true</bool>
+                                </property>
+                            </column>
+                            <column>
+                                <property name="text">
+                                    <string>Value</string>
+                                </property>
+                                <property name="clickable">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="resizable">
+                                    <bool>true</bool>
+                                </property>
+                            </column>
+                            <property name="name">
+                                <cstring>statsView</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>NoFocus</enum>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>textLabel2</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>30</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>                      </string>
-                    </property>
-                </widget>
-            </hbox>
+            </vbox>
         </widget>
-        <spacer>
+        <spacer row="1" column="0">
             <property name="name">
                 <cstring>spacer11</cstring>
             </property>
@@ -84,23 +137,17 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>40</height>
+                    <height>16</height>
                 </size>
             </property>
         </spacer>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="2" column="0">
             <property name="name">
                 <cstring>layout96</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>10</number>
-                </property>
-                <property name="spacing">
-                    <number>65</number>
                 </property>
                 <widget class="QPushButton">
                     <property name="name">
@@ -138,11 +185,11 @@
                 </widget>
             </hbox>
         </widget>
-    </vbox>
+    </grid>
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="1310">789cb5d15b4fe2401806e07b7e450377c4d49ea7938d172a2a1e50e4ca64e3c51c0515b11c44dcec7fb7df3b2d74a397ebfb119227efcc34d3ee77bdbbe1c0ebeeb7164bb19c284f8dc5dcebead574baf97d7ff0a7d58e22affc259917b6f75aedbea7bc4e96d210d74416d2100b62ce69886f442e990cc131a84b0ae22b5184ccb8b607a62c0e34f18928c39cbbf61ae434c45bd0721e819aa8521aa202332edcdef32df1dc1b9071152ae206e4228870850e68441445c46347591e4d3c016dd966c411518734c45390c93c09885350489b61af0011e20034324a62e23bd14432767c7454618aa38e40264d8af60cb452b8c517441b9884e182124c69880b90d9c07d941548ef0e5798835aa70c0f5a8256b15412878e9ab92b3cd7cc13e25545cbd05e3a9ad87156b15a3ca9281d1f1c6d9c63b1adc9c1c38a8c63f14b456919d154b46ef1474d81fbfa35ad05bfcd0f359d32427ed374e84f69f9a551be29e32bc46dad1bfb40c16235c6d6ba993caa5d9e74a3795653df7fc19e99ff5a349ab95a982acbd5dbbad1bc6f3e0eab1c1df79acdc9a999b8ccce54bf79daf985b974b91a8cfbd78de6c60cebdcf6d6a35d237a8df40bb16ba42ed6db14cd9bfa528cb6f9e7edfcef2ff7b5f9fbabf50962432d0c</data>
+        <data format="PNG" length="431">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d0000017649444154789ce594bf2f43511480bfd79634123a0949b5823461e86024919445241683894dc25403a388c9c6c264788bc47f2024966e6d2422a48d5442157df550fd91563c527d86f228f7512bdf76ce3df7bbf7dc9b7be1df217d0c826b6e5d54d43b752189f2df125c73eb6604569a840b89b001ec2c35ea3d93e7802c2cf2f95502349b4afba7af8d0e6c46b62003599329cbf8fcaa70e478cb873c67d527169352a51040d3b83cda2371bc2b949ad1d50ae1ed61dd3bb429550a53707a18c2e91dc5e35b2de78a1ad8eca6b23232eb0bf37cd961a99402c0d5edc238cfca258568aac2d3b3a05c8985b1d6d46277b48096f9d9f44a3a734b9d56f8244ca828c9188d6d1dc00314cc2ee8034528dee7484543d4395b81c8bbf0adddf73eb4aa84855c9658fc919199880460791bbb514eb03534d139380e89f8cfb257324a8cf45dda880de1597c1f4fdf40d522338c96258b0587b31da207bf129c5f25b16b7923369eccc66c7dd5eff53363cbf9df7f1e7f8717977790c4d6041ad50000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -158,15 +205,12 @@
         <receiver>GroupPropDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
-        <sender>nameLineEdit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>GroupPropDialog</receiver>
-        <slot>nameChanged()</slot>
-    </connection>
 </connections>
-<slots>
-    <slot>nameChanged()</slot>
-</slots>
+<tabstops>
+    <tabstop>nameLineEdit</tabstop>
+    <tabstop>okPushButton</tabstop>
+    <tabstop>cancelPushButton</tabstop>
+    <tabstop>statsView</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
