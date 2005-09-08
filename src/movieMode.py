@@ -536,7 +536,7 @@ class movieDashboardSlotsMixin:
                 self.assy.current_movie._setup()
 
             elif ext == '.pov':
-                self.assy.current_movie._writeas( os.path.join(dir, fil))
+                self.assy.current_movie._write_povray_series( os.path.normpath(dir+"/"+fil))
                 
             else: #.xyz
                 # XYZ option removed above from call to QFileDialog.getSaveFileName().  
