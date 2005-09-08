@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Sat Jul 9 00:00:08 2005
+# Created: Thu Sep 8 09:02:05 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -239,8 +239,13 @@ class RotaryMotorPropDialog(QDialog):
         self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
+        self.setTabOrder(self.nameLineEdit,self.torqueLineEdit)
         self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
-        self.setTabOrder(self.speedLineEdit,self.ok_btn)
+        self.setTabOrder(self.speedLineEdit,self.lengthLineEdit)
+        self.setTabOrder(self.lengthLineEdit,self.radiusLineEdit)
+        self.setTabOrder(self.radiusLineEdit,self.sradiusLineEdit)
+        self.setTabOrder(self.sradiusLineEdit,self.choose_color_btn)
+        self.setTabOrder(self.choose_color_btn,self.ok_btn)
         self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 

@@ -1810,6 +1810,42 @@
         <slot>change_bond_line_thickness()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>prefs_tab</tabstop>
+    <tabstop>display_compass_checkbox</tabstop>
+    <tabstop>display_origin_axis_checkbox</tabstop>
+    <tabstop>display_pov_axis_checkbox</tabstop>
+    <tabstop>upper_right_btn</tabstop>
+    <tabstop>gamess_path_linedit</tabstop>
+    <tabstop>gamess_choose_btn</tabstop>
+    <tabstop>atom_hilite_color_btn</tabstop>
+    <tabstop>hotspot_color_btn</tabstop>
+    <tabstop>reset_atom_colors_btn</tabstop>
+    <tabstop>vwd_rbtn</tabstop>
+    <tabstop>cpk_rbtn</tabstop>
+    <tabstop>tubes_rbtn</tabstop>
+    <tabstop>lines_rbtn</tabstop>
+    <tabstop>bond_hilite_color_btn</tabstop>
+    <tabstop>bond_cpk_color_btn</tabstop>
+    <tabstop>bond_stretch_color_btn</tabstop>
+    <tabstop>bond_vane_color_btn</tabstop>
+    <tabstop>reset_bond_colors_btn</tabstop>
+    <tabstop>bond_line_thickness_spinbox</tabstop>
+    <tabstop>radioButton11</tabstop>
+    <tabstop>show_bond_labels_checkbox</tabstop>
+    <tabstop>show_valence_errors_checkbox</tabstop>
+    <tabstop>mode_combox</tabstop>
+    <tabstop>fill_type_combox</tabstop>
+    <tabstop>choose_bg1_color_btn</tabstop>
+    <tabstop>restore_bgcolor_btn</tabstop>
+    <tabstop>history_height_spinbox</tabstop>
+    <tabstop>msg_serial_number_checkbox</tabstop>
+    <tabstop>msg_timestamp_checkbox</tabstop>
+    <tabstop>caption_prefix_linedit</tabstop>
+    <tabstop>caption_suffix_linedit</tabstop>
+    <tabstop>caption_fullpath_checkbox</tabstop>
+</tabstops>
 <slots>
     <slot>display_compass()</slot>
     <slot>display_origin_axis()</slot>

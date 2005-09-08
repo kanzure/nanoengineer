@@ -280,6 +280,9 @@
     </connection>
 </connections>
 <tabstops>
+    <tabstop>nameLineEdit</tabstop>
+    <tabstop>choose_color_btn</tabstop>
+    <tabstop>ok_btn</tabstop>
     <tabstop>cancel_btn</tabstop>
 </tabstops>
 <slots>

@@ -149,6 +149,13 @@
         <slot>openTraceFile()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>plot_combox</tabstop>
+    <tabstop>plot_btn</tabstop>
+    <tabstop>done_btn</tabstop>
+    <tabstop>open_trace_file_btn</tabstop>
+    <tabstop>open_gnuplot_btn</tabstop>
+</tabstops>
 <slots>
     <slot>genPlot()</slot>
     <slot>openTraceFile()</slot>

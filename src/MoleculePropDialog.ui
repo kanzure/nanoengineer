@@ -351,6 +351,15 @@
         <slot>make_atoms_visible()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>nameLineEdit</tabstop>
+    <tabstop>atomsTextBrowser</tabstop>
+    <tabstop>choose_color_btn</tabstop>
+    <tabstop>reset_color_btn</tabstop>
+    <tabstop>make_atoms_visible_btn</tabstop>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>cancel_btn</tabstop>
+</tabstops>
 <slots>
     <slot>reset_chunk_color()</slot>
     <slot>choose_color()</slot>

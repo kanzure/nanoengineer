@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\PlotToolDialog.ui'
 #
-# Created: Mon Jul 4 15:46:52 2005
+# Created: Thu Sep 8 09:02:01 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,6 +66,11 @@ class PlotToolDialog(QDialog):
         self.connect(self.plot_btn,SIGNAL("clicked()"),self.genPlot)
         self.connect(self.open_gnuplot_btn,SIGNAL("clicked()"),self.openGNUplotFile)
         self.connect(self.open_trace_file_btn,SIGNAL("clicked()"),self.openTraceFile)
+
+        self.setTabOrder(self.plot_combox,self.plot_btn)
+        self.setTabOrder(self.plot_btn,self.done_btn)
+        self.setTabOrder(self.done_btn,self.open_trace_file_btn)
+        self.setTabOrder(self.open_trace_file_btn,self.open_gnuplot_btn)
 
 
     def languageChange(self):

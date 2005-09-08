@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LightingToolDialog.ui'
 #
-# Created: Thu Mar 24 11:42:58 2005
+# Created: Thu Sep 8 09:01:39 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -242,6 +242,18 @@ class LightingToolDialog(QDialog):
         self.connect(self.light2CB,SIGNAL("clicked()"),self.setLights)
         self.connect(self.light3CB,SIGNAL("clicked()"),self.setLights)
         self.connect(self.restoreDefaultsPB,SIGNAL("clicked()"),self.restore)
+
+        self.setTabOrder(self.light1CB,self.ambLight1SL)
+        self.setTabOrder(self.ambLight1SL,self.diffuseLight1SL)
+        self.setTabOrder(self.diffuseLight1SL,self.light2CB)
+        self.setTabOrder(self.light2CB,self.ambLight2SL)
+        self.setTabOrder(self.ambLight2SL,self.diffuseLight2SL)
+        self.setTabOrder(self.diffuseLight2SL,self.light3CB)
+        self.setTabOrder(self.light3CB,self.ambLight3SL)
+        self.setTabOrder(self.ambLight3SL,self.diffuseLight3SL)
+        self.setTabOrder(self.diffuseLight3SL,self.okPB)
+        self.setTabOrder(self.okPB,self.restoreDefaultsPB)
+        self.setTabOrder(self.restoreDefaultsPB,self.cancelPB)
 
 
     def languageChange(self):

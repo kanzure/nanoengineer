@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ThermoPropDialog.ui'
 #
-# Created: Fri Jul 8 23:58:44 2005
+# Created: Thu Sep 8 09:02:38 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -145,6 +145,10 @@ class ThermoPropDialog(QDialog):
         self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
+        self.setTabOrder(self.nameLineEdit,self.molnameLineEdit)
+        self.setTabOrder(self.molnameLineEdit,self.choose_color_btn)
+        self.setTabOrder(self.choose_color_btn,self.ok_btn)
+        self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 
     def languageChange(self):

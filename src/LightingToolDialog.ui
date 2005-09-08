@@ -582,6 +582,20 @@
         <slot>restore()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>light1CB</tabstop>
+    <tabstop>ambLight1SL</tabstop>
+    <tabstop>diffuseLight1SL</tabstop>
+    <tabstop>light2CB</tabstop>
+    <tabstop>ambLight2SL</tabstop>
+    <tabstop>diffuseLight2SL</tabstop>
+    <tabstop>light3CB</tabstop>
+    <tabstop>ambLight3SL</tabstop>
+    <tabstop>diffuseLight3SL</tabstop>
+    <tabstop>okPB</tabstop>
+    <tabstop>restoreDefaultsPB</tabstop>
+    <tabstop>cancelPB</tabstop>
+</tabstops>
 <slots>
     <slot>valueChangedAmbient1()</slot>
     <slot>valueChangedDiffuse1()</slot>

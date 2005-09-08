@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>PartPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -243,7 +243,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="962">789ca5d3c14ec2401485e17d9f62c2ec88116c214a8c8fa07169625c0cd32953a02d85b230c67797ffb6e0d0b011cf61d12f273724348c86eaedf5590d47d1ae314d6e95f566ab86e9be283edf3f9ebea2411c2b3e89ba1bdc44835b65d54b553a9ecde159c729851e4ec6142ee034a1700e67530a2d3496c206cec714ee84130a374243e15ee8282ca14d28dc0aef2974c21985b550be185642476101d384c2b5f081c2957046e1522881b930a35043175398c26c42612694c8af7a31ff5cb4f9cdd9a2cddc7649cf166ddc31d9225c8221f53e58ce2e7c7863b253bc5f8437464bf23c77be77a38f93ebdf2c97ab36176edae12f37eb75d1a6ecdf1455974dffa6aab76d76871b6383a5aecb364d379c96fdf1773efcab6cf87e8257d30dd7bdedefc7e8070397f33b</data>
+        <data format="PNG" length="339">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000011a49444154789cd5d531ae45401406e0df73d9c01412b103bd44a9934cabd7ea2cc13a24d663014aad4e4225919891f72ac29d3143a178a79239f2f973e6248cbaaef146fdbca2be097f544dcff37e29a5b7b1b22c0d2dbca15996c1711c2518c731c2303c9d49e10dadaa4a9b3208022449229c0bf013d4f77d445124ed9d2eef69d2344d0100841075624a299aa6d1a200f6a484100cc3a08601a0eb3a29b4aeebfedcf7fd0995e1b7f7d8344de1ec0a9526668c010038e7da8fa9120bb065594ad8b6ed5b89855130c6f6d4b25a96459af8bb2e4771077f3c63150a00f33c0b89b533668c81737e5a2f5de2b66d5114851ade2e4db5155bef88baae6b1cdf11e0699a308ee3257aac2b540ae7797e0b0570890280f1effe797f4c28a5de385730200000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -260,6 +260,13 @@
         <slot>reject()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>nameLineEdit</tabstop>
+    <tabstop>statsView</tabstop>
+    <tabstop>okPushButton</tabstop>
+    <tabstop>cancelPushButton</tabstop>
+    <tabstop>tabWidget3</tabstop>
+</tabstops>
 <slots>
     <slot>applyButtonClicked()</slot>
     <slot>nameChanged()</slot>

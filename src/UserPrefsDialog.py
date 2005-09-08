@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Aug 31 21:48:17 2005
+# Created: Thu Sep 8 09:02:41 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -559,6 +559,40 @@ class UserPrefsDialog(QDialog):
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
+
+        self.setTabOrder(self.ok_btn,self.prefs_tab)
+        self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
+        self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
+        self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
+        self.setTabOrder(self.display_pov_axis_checkbox,self.upper_right_btn)
+        self.setTabOrder(self.upper_right_btn,self.gamess_path_linedit)
+        self.setTabOrder(self.gamess_path_linedit,self.gamess_choose_btn)
+        self.setTabOrder(self.gamess_choose_btn,self.atom_hilite_color_btn)
+        self.setTabOrder(self.atom_hilite_color_btn,self.hotspot_color_btn)
+        self.setTabOrder(self.hotspot_color_btn,self.reset_atom_colors_btn)
+        self.setTabOrder(self.reset_atom_colors_btn,self.vwd_rbtn)
+        self.setTabOrder(self.vwd_rbtn,self.cpk_rbtn)
+        self.setTabOrder(self.cpk_rbtn,self.tubes_rbtn)
+        self.setTabOrder(self.tubes_rbtn,self.lines_rbtn)
+        self.setTabOrder(self.lines_rbtn,self.bond_hilite_color_btn)
+        self.setTabOrder(self.bond_hilite_color_btn,self.bond_cpk_color_btn)
+        self.setTabOrder(self.bond_cpk_color_btn,self.bond_stretch_color_btn)
+        self.setTabOrder(self.bond_stretch_color_btn,self.bond_vane_color_btn)
+        self.setTabOrder(self.bond_vane_color_btn,self.reset_bond_colors_btn)
+        self.setTabOrder(self.reset_bond_colors_btn,self.bond_line_thickness_spinbox)
+        self.setTabOrder(self.bond_line_thickness_spinbox,self.radioButton11)
+        self.setTabOrder(self.radioButton11,self.show_bond_labels_checkbox)
+        self.setTabOrder(self.show_bond_labels_checkbox,self.show_valence_errors_checkbox)
+        self.setTabOrder(self.show_valence_errors_checkbox,self.mode_combox)
+        self.setTabOrder(self.mode_combox,self.fill_type_combox)
+        self.setTabOrder(self.fill_type_combox,self.choose_bg1_color_btn)
+        self.setTabOrder(self.choose_bg1_color_btn,self.restore_bgcolor_btn)
+        self.setTabOrder(self.restore_bgcolor_btn,self.history_height_spinbox)
+        self.setTabOrder(self.history_height_spinbox,self.msg_serial_number_checkbox)
+        self.setTabOrder(self.msg_serial_number_checkbox,self.msg_timestamp_checkbox)
+        self.setTabOrder(self.msg_timestamp_checkbox,self.caption_prefix_linedit)
+        self.setTabOrder(self.caption_prefix_linedit,self.caption_suffix_linedit)
+        self.setTabOrder(self.caption_suffix_linedit,self.caption_fullpath_checkbox)
 
 
     def languageChange(self):
