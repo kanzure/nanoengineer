@@ -578,17 +578,23 @@ class Movie:
         else:
             self._continue()
 
-    # josh 050815
-    def _writeas(self, name):
-        """write the movie out as a series of files.
-        if your trajectory file was foobar.dpb, this will write, e.g., foobar.000000.pov thru foobar.000999.pov (assuming your
-        movie has 1000 frames).
-        you may then run
-        for FN in foobar.000*.pov; { povray +W800 +H600 +A -D $FN; } &> /dev/null &
-        (if you have bash) to generate the .png files. This is not to be done under nE1 because it typically takes several hours
+    # josh 050815.
+    # Changed name from _writeas to _write_povray_series.  mark 050908.
+    # I plan to write a special Movie Maker dialog that would call this with arguments.
+    # Mark 050908
+    def _write_povray_series(self, name):
+        """Writes the movie out as a series of POV-Ray files, starting with the current frame
+        until the last frame, skipping frames using the "Skip" value from the dashboard.
+        
+        If your trajectory file was foobar.dpb, this will write, e.g., foobar.000000.pov thru 
+        foobar.000999.pov (assuming your movie has 1000 frames).
+        If you have bash, you may then run:
+            for FN in foobar.000*.pov; { povray +W800 +H600 +A -D $FN; } &> /dev/null &
+        to generate the .png files. 
+        This is not to be done under nE1 because it typically takes several hours
         and will be best done on a renderfarm with commands appropriate to the renderfarm.
-        you may then make a move of it with
-        mencoder "mf://*.png" -mf fps=25 -o output.avi -ovc lavc -lavcopts vcodec=mpeg4
+        you may then make a move of it with:
+            mencoder "mf://*.png" -mf fps=25 -o output.avi -ovc lavc -lavcopts vcodec=mpeg4
         """
         from fileIO import writepovfile
         
@@ -599,17 +605,21 @@ class Movie:
                 msg = "Movie file is not presently playable." ###e needs more detail, especially when error happened long before.
             self.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
             return
-        
-        msg = "Writing %s.nnnnnn.pov" % (name)
-        
-        self.history.message( greenmsg( msg ))
 
         self.playDirection = 1
-        self._reset()
-        for i in range(self.totalFramesActual):
-             self.alist_and_moviefile.play_frame(i)
-             writepovfile(self.assy, "%s.%06d.pov" % (name,i))
-        self.history.message( greenmsg( "%d files written" % self.totalFramesActual ))
+
+        # Writes the POV-Ray series starting at the current frame until the last frame, 
+        # skipping frames if "Skip" (on the dashboard) is != 0.  Mark 050908
+        nfiles = 0
+        for i in range(self.currentFrame, self.totalFramesActual+1, self.win.skipSB.value()+1):
+            self.alist_and_moviefile.play_frame(i)
+            filename = "%s.%06d.pov" % (name,i)
+            self.history.message( "Writing file: " + filename )
+            writepovfile(self.assy, filename)
+            nfiles += 1
+        
+        msg = platform.fix_plurals("%d file(s) written. Done." % nfiles)
+        self.history.message( greenmsg( msg))
              
         
     def _continue(self, hflag = True): # [bruce 050427 comment: only called from self._play]
