@@ -26,7 +26,6 @@ from PartProp import *
 from GroupProp import *
 from debug import print_compact_stack, print_compact_traceback
 import platform
-from changes import changed #bruce 050303
 import env #bruce 050901
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
@@ -710,6 +709,7 @@ class Node:
         records info to permit updating other things later.
         """
         node = self
+        ## from changes import changed #bruce 050303, removed 050909
         ## not needed as of 050309:
         ## changed.dads.record(node) # make sure node's Part will be updated later if needed [bruce 050303]
         assert node.dad is not None #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
