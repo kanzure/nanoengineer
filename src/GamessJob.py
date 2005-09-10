@@ -440,7 +440,11 @@ class JobProgressDialog(QDialog):
         pass
 
 
-class FileWriting(QThread):
+try:
+  # bruce 050701 (committed 050910) put this inside a try/except clause,
+  # so this file can be imported by developers whose Qt installations
+  # don't have QThread compiled in, even though it won't run there.
+  class FileWriting(QThread):
     def __init__(self, output):
         QThread.__init__(self)
         self.output = output
@@ -468,4 +472,12 @@ class FileWriting(QThread):
         
     def stop(self):
         self.end = True        
-        
+    pass # end of class FileWriting
+
+except:
+  print
+  print "WARNING: unable to define class FileWriting(QThread) in this Qt installation."
+  print "Some GamessJob functions won't work."
+  pass
+
+# end
