@@ -60,6 +60,55 @@ bruce 050803 new features to help with graphics updates when preferences are cha
 
 __author__ = 'bruce'
 
+# This module defines stub functions which are replaced with different implementations
+# by the changes module when it's imported.
+# So this module should not import the changes module, directly or indirectly.
+# But in case it does, by accident or if in future it needs to,
+# we'll define those stub functions as early as possible.
+# (One motivation for this (not yet made use of as of 050908)
+#  is to enable stripped-down code to call these functions
+#  even if the functionality of the changes module is never needed.
+#  The immediate motivation is to allow them to be called arbitrarily early during init.)
+
+def track(thing): #bruce 050804
+    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    import platform
+    if platform.atom_debug:
+        print "atom_debug: fyi (from env module): something asked to be tracked, but nothing is tracking: ", thing
+        # if this happens and is not an error, then we'll zap the message.
+    return
+
+#bruce 050908 stubs for Undo  ####@@@@
+
+def begin_op(*args):
+    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    return "fake begin" #k needed?
+
+def end_op(*args):
+    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    pass
+
+in_op = begin_op
+after_op = end_op
+begin_recursive_event_processing = begin_op
+end_recursive_event_processing = end_op
+
+# end of stubs to be replaced by changes module
+
+def call_qApp_processEvents(*args): #bruce 050908
+    "No other code should directly call qApp.processEvents -- always call it via this function."
+    from qt import qApp #k ??
+    mc = begin_recursive_event_processing()
+    try:
+        res = qApp.processEvents(*args)
+    finally:
+        end_recursive_event_processing(mc)
+    return res
+    
+# ==
+
+# most imports should occur here
+
 from constants import *
 import platform
 
@@ -158,12 +207,5 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
     return
 
 # ==
-
-def track(thing): #bruce 050804
-    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
-    if platform.atom_debug:
-        print "atom_debug: fyi (from env module): something asked to be tracked, but nothing is tracking: ", thing
-        # if this happens and is not an error, then we'll zap the message.
-    return
 
 # end

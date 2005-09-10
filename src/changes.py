@@ -2,25 +2,23 @@
 """
 changes.py
 
-A fast general-purpose change-tracker, and related utilities.
+Utilities for tracking changes, usage, nested events, etc.
 
 [This module is owned by Bruce until further notice.]
 
 $Id$
 
-This will eventually be used to help with Undo, among other things.
+History:
 
-Its initial use is to help fix up Part membership of Nodes after they move
-(but as of 050803 I think it's not used for that except as stub code).
+original features were stubs and have mostly been removed.
 
-bruce 050803 new features to help with graphics updates when preferences are changed 
+bruce 050803 new features to help with graphics updates when preferences are changed.
 
 """
-
 __author__ = "Bruce"
 
-import os, sys, time # needed?
-from debug import print_compact_traceback, print_compact_stack, compact_stack
+import os, sys, time #k needed?
+from debug import print_compact_traceback, print_compact_stack
 import env
 from constants import noop
 import platform
@@ -184,6 +182,7 @@ class begin_end_matcher: #bruce 050804
     (This only works if the constructor promises to return unique objects, since we use their id()
     to detect matching.)
     """
+    active = False # flag to warn outside callers that we're processing a perhaps-nonreentrant method [bruce 050909]
     def __init__(self, constructor, stack_changed_func = None):
         """Constructor is given all args (including keyword args) to self.begin(),
         and from them should construct objects with begin(), end(), and error(text) methods
@@ -195,23 +194,35 @@ class begin_end_matcher: #bruce 050804
         self.constructor = constructor or (lambda arg: arg)
         self.stack_changed = stack_changed_func or noop
         self.stack = []
-        self.stack_changed(self) # callers depend on this being called when we're first created
+        self.active_apply( self.stack_changed, (self,) ) # self.stack_changed(self)
+            # callers depend on stack_changed being called when we're first created
+            #k is active_apply needed here??
+    def active_apply(self, func, args, kws = {}):
+        self.active = True
+        try:
+            return apply(func, args, kws)
+        finally:
+            self.active = False
     def begin(self, *args, **kws):
         """Construct a new object using our constructor;
-        activate it by calling its .begin() method [#k needed??];
+        activate it by calling its .begin() method [#k needed??] [before it's pushed onto the stack];
         push it on self.stack (and inform observers that self.stack was modified);
         return a currently-unique match_checking_code which must be passed to the matching self.end() call.
         """
-        newobj = self.constructor(*args, **kws) # exceptions in this mean no change to our stack, which is fine
-        newobj.begin()
-        self.stack.append(newobj)
-        self.stack_changed(self)
-        # for debugging, we could record compact_stack in newobj, and print that on error...
-        # but newobj __init__ can do this if it wants to, without any help from this code.
-        return id(newobj) # match_checking_code
+        self.active = True
+        try:
+            newobj = self.constructor(*args, **kws) # exceptions in this mean no change to our stack, which is fine
+            newobj.begin()
+            self.stack.append(newobj)
+            self.stack_changed(self)
+            # for debugging, we could record compact_stack in newobj, and print that on error...
+            # but newobj __init__ can do this if it wants to, without any help from this code.
+            return id(newobj) # match_checking_code
+        finally:
+            self.active = False
     def end(self, match_checking_code):
         """This must be passed the return value from the matching self.begin() call.
-        Verify begin/end matches, pop and deactivate (using .end()) the matching object, return it.
+        Verify begin/end matches, pop and deactivate (using .end(), after it's popped) the matching object, return it.
            Error handling:
            - Objects which had begin but no end recieve .error(errmsg_text) before their .end().
            - Ends with no matching begin (presumably a much rarer mistake -- only likely if some code
@@ -222,8 +233,12 @@ class begin_end_matcher: #bruce 050804
         if stack and id(stack[-1]) == match_checking_code:
             # usual case, no error, be fast
             doneobj = stack.pop()
-            self.stack_changed(self)
-            doneobj.end() # finalize doneobj
+            self.active = True
+            try:
+                self.stack_changed(self)
+                doneobj.end() # finalize doneobj
+            finally:
+                self.active = False
             return doneobj
         # some kind of error
         ids = map( id, stack )
@@ -231,13 +246,21 @@ class begin_end_matcher: #bruce 050804
             # some subroutines did begin and no end, but the present end has a begin -- we can recover from this error
             doneobj = stack.pop()
             while id(doneobj) != match_checking_code:
-                self.stack_changed(self) # needed here in case doneobj.end() looks at something this updates from self.stack
-                doneobj.error("begin, with no matching end by the time some outer begin got its matching end")
-                doneobj.end() # might be needed -- in fact, it might look at stack and send messages to its top
+                self.active = True
+                try:
+                    self.stack_changed(self) # needed here in case doneobj.end() looks at something this updates from self.stack
+                    doneobj.error("begin, with no matching end by the time some outer begin got its matching end")
+                    doneobj.end() # might be needed -- in fact, it might look at stack and send messages to its top
+                finally:
+                    self.active = False
                 doneobj = stack.pop()
             # now doneobj is correct
-            self.stack_changed(self)
-            doneobj.end()
+            self.active = True
+            try:
+                self.stack_changed(self)
+                doneobj.end()
+            finally:
+                self.active = False
             return doneobj
         # otherwise the error is that this end doesn't match any begin, so we can't safely pop anything from the stack
         print_compact_stack( "bug, ignored for now: end(%r) with no matching begin, in %r: " % (match_checking_code, self) )
@@ -515,160 +538,123 @@ def keep_forever(thing):
 
 # ==
 
-# Objects to record changes as they're reported, fairly efficiently.
+_op_id = 0
 
-class changed_aspect_tracker:
-    """Support one changeable aspect of one set of objects of one type.
-    Help those objects record which of them changed, in this aspect,
-    since the last "update", or since any specific prior update.
-    [Right now it only records the set of changed objects since an update.
-     It might do more in the future, e.g. help maintain
-     a stack of nested change-records, or propogate change-consequences.]
-    """
-    def __init__(self, aspect_name = "??", debug_print = False):
-        """#doc ...
-        Notes:
-        - self.changedobjs is a public attribute, but use of
-        self.changed_objects() is preferred when it's sufficient.
-        - aspect_name, if supplied, should be a nonempty string
-        (useable as the end of a python identifier)
-        which names the aspect of objects whose changes we help track.
-        This might be an attribute name, but is often an informal name
-        for an otherwise unnamed aspect of these objects.
-        Note that the default value is not usable in a python identifier.
-        (Presently [050303], this is only used for debugging, so it doesn't
-         yet matter whether it can be used in an identifier name.)
-        - If an object has a "change method" used to tell us that a change just occurred
-        to an aspect X of that object, that method is conventionally named
-        "changed_X". This is purely a convention; the client code is responsible
-        for defining that method and having it call this object's record method.
-        """
-        self.aspect_name = aspect_name # for debug messages only, i think
-        self.debug_print = debug_print # flag
-        self.changedobjs = {}
-        return
-    def record(self, obj): # used to be called record_obj_changed
-        """Helper function for conventional changed_X methods:
-        record that obj changed, wrt our aspect;
-        ok if this runs more than once for one obj.
-           For now, this doesn't record any inferred changes that are a
-        consequence of this one; that can be done when the set of all changes
-        to this aspect is analyzed. It would be easy to add "realtime inferred
-        change recording" if that was desired, though. #e
-        """
-        if self.debug_print:
-            print "%r.record(%r)" % (self,obj)
-        # record the fact of the change (but not its "value" or "diff" --
-        # the client code can do that separately if it wants to)
-        self.changedobjs[ id(obj) ] = obj
-            # This is a strongref, so it keeps obj alive until changes are
-            # next processed; that's good. It also means it's safe to use the
-            # Python built-in id() as a key, even though the same id might be
-            # reused for another object after its first object dies.
-        return
-    def __repr__(self):
-        return "<%s for %r, %d changed objs>" % (
-            self.__class__.__name__,
-            self.aspect_name,
-            len(self.changedobjs)
-        )
-    def changed_objects(self):
-        return self.changedobjs.values()
-    def reset_changes(self):
-        """Call this after you're done contemplating one round of changes,
-        as stored in self.changedobjs, and want to clear it and start another
-        cycle of recording.
-        """
-        self.changedobjs.clear()
-            # (this is where finished objs die from lack of references)
-        return
-    def grab_and_reset_changed_objects(self): #e the name 'pop' is misleading if self is stacked
-        objs = self.changed_objects()
-        self.reset_changes()
-        return objs
-    ###e more methods, to help analyze the changes, or save the old ones too??
-    pass # end of class changed_aspect_tracker; used to be called changeable_aspect
-
-
-# == an object to hold all the changed_aspect_trackers of interest
-
-# typical client code:
-##from changes import changed # not yet set up for runtime reload during debugging
-##... changed.dads.record(child)
-##... changed.members.record(parent)
-
-class _global_changes: pass
-
-changed = _global_changes()
-
-changed.dads = changed_aspect_tracker("dads")
-changed.members = changed_aspect_tracker("members")
-
-#e someday we might let these change_trackers get pushed and popped,
-# either individually or as a set. This is not yet needed.
-
-# ==
-
-# code for fixing up parts from changed.dads... doesn't belong in this file.
-
-# ==
-
-###e guess: these will change into more kinds of begin/end, so subcommands work on same stack
-
-# maybe: superclass for doing the handler stacking, and talking to changed_aspect_tracker stacks;
-# subclasses for specific kinds of state to worry about and kinds of change-events
-# to package it all into (undoable, what invariants are maintained, etc; relates to what
-# objs changed, but even more to what *kind* of objs changed and how this code thinks of them.)
-#  so for a user event, unlike others, we make a whole undoable, print history, update screen, etc.
-# but for smaller pieces of commands (like elements of a script) we'd still record changes of
-# each one, at least sometimes. And for invariant-maintenance, we'd lock objs, and fix them up
-# when we unlock, based on recorded changes (e.g. for commit to a database? not sure what in nE-1
-# might need this, but maybe consistency of chunk state, as we rotate, might need it....)
-# ... eventually we'll build user events into bigger things (drags, undoables-as-a-unit),
-# and divide them into smaller things (individual debugger-visible events, incl script commands),
-# but we don't need any of that for immediate purposes. Invariants need maintenance more often
-# but not in a nested way -- though nesting helps you not forgot to fix them up when you're done.
-# So let's have begin/end for internal commands, and have end fix invariants, and have begin/end
-# for user events too, and some other scheme to help build drags and undoables from those.
-# I wonder if begin/end have the class (user event or not) as a *parameter*.... 
-
-class event_handler:
-    def __init__( self, whats_running, prior_handler):
-        self.whats_running = whats_running
-        self.prior_handler = prior_handler
-        self.begin() #e unless optional arg says to defer this so can be done separately
+class op_run:
+    "Track one run of one operation or suboperation, as reported to env.begin_op and env.end_op in nested pairs"
+    def __init__(self, op_type = None):
+        "[this gets all the args passed to env.begin_op()]"
+        self.op_type = op_type
+        global _op_id
+        _op_id += 1
+        self.op_id = _op_id
     def begin(self):
-        pass
+        if platform.atom_debug:
+            self.printmsg( "%sbegin op_id %r, op_type %r" % (self.indent(), self.op_id, self.op_type) )
+        pass # not sure it's good that begin_end_matcher requires us to define this
     def end(self):
-        return self.prior_handler
+        if platform.atom_debug:
+            self.printmsg( "%send op_id %r, op_type %r" % (self.indent(), self.op_id, self.op_type) )
+        pass
+    def error(self, errmsg_text):
+        "called for begin_op with no matching end_op, just before our .end() and the next outer end_op is called"
+        if platform.atom_debug: # 
+            self.printmsg( "%serror op_id %r, op_type %r, errmsg %r" % (self.indent(), self.op_id, self.op_type, errmsg_text) )
+        pass
+    def printmsg(self, text):
+        # print "atom_debug: fyi: %s" % text
+        import env
+        env.history.message( "debug: " + text ) # might be recursive call of history.message; ok in theory but untested ###@@@
+    def indent(self):
+        "return an indent string based on the stack length; we assume the stack does not include this object"
+        #e (If the stack did include this object, we should subtract 1 from its length. But for now, it never does.)
+        return "| " * len(op_tracker.stack)
     pass
 
-handler = None # dynamic variable -- current handler [not sure if public (so anyone can send it tracking records) or private]
+def _op_tracker_stack_changed( tracker ): #bruce 050908 for Undo
+    "[private] called when op_tracker's begin/end stack is created, and after every time it changes"
+    #e we might modify some sort of env.prefs object, or env.history (to filter out history messages)...
+    #e and we might figure out when outer-level ops happen, as part of undo system
+    #e and we might install something to receive reports about possible missing begin_op or end_op calls
+    pass
 
-def begin_event_handler( whats_running = None):
-    """Start tracking everything needed when the UI handles one user-event.
-    whats_running is presently an optional command-name for debugging or messages;
-    someday it might be an object which is overseeing one run of a high-level command
-    which is the command which user event was interpreted as needing to do.
-       Return value MUST be passed to end_event_handler at the end of the user-event
-    (or perhaps in another user event, as needed for mouse-drags -- this is not yet decided).
-       Present stub callers do their own updates after end_event_handler returns,
-    but the future plan is that end_event_handler itself will do all needed updates,
-    as well as printing high-level summaries of changes to the history, etc.
+op_tracker = begin_end_matcher( op_run, _op_tracker_stack_changed )
+
+def env_begin_op(*args, **kws):
+    return op_tracker.begin(*args, **kws)
+
+def env_end_op(mc):
+    return op_tracker.end(mc) #e more args?
+
+env.begin_op = env_begin_op
+env.end_op = env_end_op
+
+global_mc = None
+_in_op_recursing = False
+
+def env_in_op(*args, **kws):
     """
-    global handler
-    #k handler should normally be None now... ##k
-    handler = event_handler( whats_running, handler)
-    return handler
-
-def end_event_handler(eh):
-    global handler
-    while handler is not None and handler is not eh: #bruce 050516 'is not'
-        handler = handler.end_was_forgotten()
-    if handler:
-        handler = handler.end()
-    else:
-        print_compact_stack("error: end_event_handler finds no corresponding begin: ")
+    This gets called by various code which might indicate that an operation is ongoing,
+    to detect ops in legacy code which don't yet call env.begin_op when they start.
+       The resulting "artificial op" will continue until the next GLPane repaint event
+    (other than one known to occur inside recursive event processing,
+     which should itself be wrapped by begin_op/end_op [with a special flag ###doc? or just in order to mask the artificial op?]),
+    which will end it.
+       This system is subject to bugs if recursive event processing is not wrapped,
+    and some op outside of that has begin but no matching end -- then a redraw during
+    the unwrapped recursive event processing might terminate this artificial op too early,
+    and subsequent ends will have no begin (since their begin got terminated early as if it had no end)
+    and (presently) print debug messages, or (in future, perhaps) result in improperly nested ops.
+    """
+    global global_mc, _in_op_recursing
+    if not op_tracker.stack and not _in_op_recursing and not op_tracker.active:
+        _in_op_recursing = True # needed when env_begin_op (before pushing to stack) calls env.history.message calls this func
+        try:
+            assert global_mc is None
+            global_mc = env_begin_op(*args, **kws)
+        finally:
+            _in_op_recursing = False
     return
 
+def env_after_op():
+    """This gets called at the start of GLPane repaint events
+    [#e or at other times not usually inside user-event handling methods],
+    which don't occur during an "op" unless there is recursive Qt event processing.
+    """
+    global global_mc
+    if global_mc is not None and len(op_tracker.stack) == 1:
+        #e might want to check whether we're inside recursive event processing (if so, topmost op on stack should be it).
+        # for now, assume no nonmatch errors, and either we're inside it and nothing else was wrapped
+        # (impossible if the wrapper for it first calls env_in_op),
+        # or we're not, so stack must hold an artificial op.
+        mc = global_mc
+        global_mc = None #k even if following has an error??
+        env_end_op(mc)
+    return
+
+env.in_op = env_in_op
+env.after_op = env_after_op
+
+def env_begin_recursive_event_processing():
+    "call this just before calling qApp.processEvents()"
+    env_in_op('(env_begin_recursive_event_processing)')
+    return env_begin_op('(recursive_event_processing)')
+
+def env_end_recursive_event_processing(mc):
+    "call this just after calling qApp.processEvents()"
+    return env_end_op(mc)
+
+env.begin_recursive_event_processing = env_begin_recursive_event_processing
+env.end_recursive_event_processing = env_end_recursive_event_processing
+
+#e desired improvements:
+# - begin_op could look at existing stack frames, see which ones are new, sometimes do artificial begin_ops on those,
+#   with the end_ops happening either from __del__ methods, or if that doesn't work (due to saved tracebacks),
+#   from every later stack-scan realizing those frames are missing and doing something about it
+#   (like finding the innermost still-valid stack-frame-op and then the next inner one and ending its stack-suffix now).
+#   (If we can run any code when tracebacks are created, that would help too. I don't know if we can.)
+#   This should give you valid begin/end on every python call which contained any begin_op call which did this
+#   (so it might be important for only some of them to do this, or for the results to often be discarded).
+#   It matters most for history message emission (to understand py stack context of that). [050909]
+   
 # end

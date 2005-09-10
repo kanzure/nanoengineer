@@ -12,7 +12,6 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 bruce 050901 used env.history in some places.
 """
 
-from changes import begin_event_handler, end_event_handler
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from Utility import Group
@@ -42,18 +41,14 @@ class ops_copy_Mixin:
     
     def cut_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
-        
-        cmd = greenmsg("Cut: ")
-        
-        eh = begin_event_handler("Cut") # bruce ca. 050307; stub for future undo work; experimental
-##        center_these = []
+        mc = env.begin_op("Cut") #bruce 050908 for Undo
         try:
+            cmd = greenmsg("Cut: ")
             if use_selatoms and self.selatoms:
-                #bruce 050201-bug370 (2nd commit here, similar issue to bug 370):
-                # changed condition to not use selwhat, since jigs can be selected even in Select Atoms mode
+                # condition should not use selwhat, since jigs can be selected even in Select Atoms mode
                 msg = redmsg("Cutting selected atoms is not yet supported.")
-                env.history.message(cmd + msg) #bruce 050201
-                ## return #bruce 050201-bug370: don't return yet, in case some jigs were selected too.
+                env.history.message(cmd + msg)
+                # don't return yet, in case some jigs were selected too.
                 # note: we will check selatoms again, below, to know whether we emitted this message
             new = Group(gensym("Copy"), self.assy, None)
                 # bruce 050201 comment: this group is usually, but not always, used only for its members list
@@ -70,8 +65,7 @@ class ops_copy_Mixin:
                 ## env.history.message(redmsg("Can't cut the entire Part -- cutting its members instead.")) #bruce 050201
                 ###@@@ following should use description_for_history, but so far there's only one such Part so it doesn't matter yet
                 msg = "Can't cut the entire Part; copying its toplevel Group, cutting its members."
-                env.history.message(cmd + msg) #bruce 050201
-                # new code to handle this case [bruce 050201]
+                env.history.message(cmd + msg)
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
                 use.name = self.topnode.name # not copying any other properties of the Group (if it has any)
@@ -91,7 +85,8 @@ class ops_copy_Mixin:
             # but neither they nor the group "new" is in its final location.
             # (But they still belong to their original Part, until this is changed later.)
             
-            #e much of the following might someday be done automatically by end_event_handler and by methods in a Cut command object
+            #e some of the following might someday be done automatically by something like end_event_handler (obs)
+            # and/or by methods in a Cut command object [bruce 050908 revised comment]
             
             if new.members:
                 # move them to the clipboard (individually for now, though this
@@ -109,17 +104,6 @@ class ops_copy_Mixin:
                     # based on the theory that chunks remaining in assy.molecules is the problem:
                     ## self.sanitize_for_clipboard(ob) ## zapped 050307 since obs
                     self.shelf.addchild(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
-                    # If the new member is a molecule, move it to the center of its space --
-                    # but not yet, since it messes up break_interpart_bonds which we'll do later!
-                    # This caused bug 452 item 18.
-                    # Doing the centering later is a temporary fix, should not be necessary,
-                    # since the better fix is for breaking a bond to not care if its endpoint coords make sense.
-                    # (That is, to reposition the singlets from scratch, not based on the existing bond.)
-                    # [bruce 050321]
-                    #bruce 050531 no longer do this centering:
-##                    if isinstance(ob, molecule):
-##                        center_these.append(ob) ## was: ob.move(-ob.center)
-                ## ob.pick() # bruce 050131 removed this
                 nshelf_after = len(self.shelf.members) #bruce 050201
                 msg = fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." 
                 env.history.message(cmd + msg) #bruce 050201
@@ -129,15 +113,9 @@ class ops_copy_Mixin:
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
                     env.history.message(cmd + redmsg("Nothing to cut.")) #bruce 050201
         finally:
-            end_event_handler(eh) # this should fix Part membership of moved nodes, break inter-Part bonds #####@@@@@ doit
-            # ... but it doesn't, so instead, do this: ######@@@@@@ and review this situation and clean it up:
             self.assy.update_parts()
-##            for ob in center_these: #bruce 050321
-##                if ob.is_top_of_selection_group(): # should be always True, but check to be safe
-##                    ob.move(-ob.center)
-##                elif platform.atom_debug:
-##                    print "atom_debug: bug? mol we should center no longer is_top_of_selection_group", ob
-            self.w.win_update() ###stub of how this relates to ending the handler
+            self.w.win_update()
+            env.end_op(mc)
         return
 
     def copy(self):

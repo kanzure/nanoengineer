@@ -1079,6 +1079,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Guess: it's a special method name known to the superclass widget.
         # (Presumably the Qt docs spell this out... find out sometime! #k)
 
+        env.after_op() #bruce 050908
+
         if not self.initialised: return
 
         #e Future: it might be good to set standard GL state, e.g. matrixmode, before checking self.redrawGL here,
