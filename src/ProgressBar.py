@@ -69,7 +69,9 @@ class ProgressBar( ProgressBarDialog ):
         while filesize < nsteps:
             if os.path.exists(filename): filesize = os.path.getsize(filename)
             self.progress.setProgress( filesize )
-            qApp.processEvents() # Process queued events (i.e. clicking Abort button).
+            import env
+            env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
+                # Process queued events (i.e. clicking Abort button).
             
             if show_duration: # Display duration.
                 elapsedtime = self.duration

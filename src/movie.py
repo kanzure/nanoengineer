@@ -829,7 +829,8 @@ class Movie:
 ##                self.update_dashboard_currentFrame()
                         
             # Process queued events [bruce comment 050516: note that this will do a paintGL from our earlier gl_update above ####@@@@]
-            qApp.processEvents()
+            import env
+            env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 #e bruce 050427 comment: should we check to see if the user changed the controls,
                 # and (if so) change the fnum we're heading for?? ###@@@
                 

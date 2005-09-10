@@ -2128,7 +2128,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         splitter.update()
         win.mt.setContentsPos( x, y) # do this 3 times ... doesn't help avoid a "flicker to no scrollbar state"
             # but i bet setting the contents height initially would help! try it sometime. ###e
-        qApp.processEvents() # might be needed before setContentPos in order to make it work
+        import env
+        env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
+            # might be needed before setContentPos in order to make it work
         win.mt.setContentsPos( x, y) # do this 3 times - was not enough to do it before updateGeometry above
 ##        win.mt.show()
 ##        self.hide()

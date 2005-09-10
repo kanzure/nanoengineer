@@ -910,7 +910,9 @@ class extrudeMode(basicMode):
         sings1 = sings2 = self.basemol_singlets
         transient_id = (self, self.__class__.recompute_for_new_unit, "scanning all pairs")
         for i1 in range(len(sings1)):
-            qApp.processEvents() # [bruce 050114, copied from movie.py]
+            import env
+            env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
+                # [bruce 050114, copied from movie.py]
                 # Process queued events [enough to get statusbar msgs to show up]
                 ###@@@ #e for safety we might want to pass the argument: QEventLoop::ExcludeUserInput;
                 #e OTOH we'd rather have some way to let the user abort this if it takes too long!

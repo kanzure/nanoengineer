@@ -19,6 +19,7 @@ from qt import *
 from qt import QMessageBox
 import preferences
 from constants import *
+import env
 
 
 failpat = re.compile("-ABNORMALLY-")
@@ -307,7 +308,7 @@ class GamessJob(SimJob):
         progressDialog.show()
         i = 55; pInc = True
         while process.isRunning():
-                qApp.processEvents()
+                env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 if  progressDialog.wasCanceled():
                     process.kill()
                     os.chdir(oldir)
@@ -410,7 +411,7 @@ class JobProgressDialog(QDialog):
         self.show()
         
         while 1:
-                qApp.processEvents()
+                env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 if self.Rejected:
                     break
                 
