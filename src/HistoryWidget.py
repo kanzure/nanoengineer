@@ -349,6 +349,16 @@ class HistoryWidget:
             self.transient_msg("") # no longer show it in true statusbar
                 # (this might clear someone else's message from there; no way to avoid this
                 #  that I know of; not too bad, since lots of events beyond our control do it too)
+        
+        # "call env.in_op() from code that runs soon after missing env.begin_op() calls" [bruce 050908]
+        # (##fix: we do this after the saved-up message, but that's cheating,
+        #  since non-missing begin_ops need some other way to handle that,
+        #  namely, saving up a message object, which grabs some current-op info
+        #  when created rather than when printed.)
+        env.in_op('(history message)') # note, this is also called for transient_id messages which get initially put into sbar...
+            # is it ok if env.in_op recursively calls this method, self.message??
+            # I think so, at least if subcall doesn't use transient_id option. ##k [bruce 050909]
+            
         # never save or emit a null msg (whether or not it came with a transient_id)
         if not msg:
             return

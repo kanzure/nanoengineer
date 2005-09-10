@@ -744,6 +744,9 @@ class assembly:
         # hereby reserved for this purpose! [For beta, I plan to put in a
         # uniform system for efficiently recording and propogating change-
         # notices of that kind, as part of implementing Undo (among other uses).]
+
+        env.in_op("(assy.changed)") #bruce 050908, for Undo -- will this call be too slow??
+        
         if not self._modified:
             self._modified = 1
             # Feel free to add more side effects here, inside this 'if'
