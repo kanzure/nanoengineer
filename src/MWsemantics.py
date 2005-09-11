@@ -597,7 +597,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def dispBGColor(self):
         "Let user change the current mode's background color"
         # Fixed bug 894.  Mark
-        self.uprefs.showDialog(pagename='Background')
+        # Changed "Background" to "Modes". Mark 050911.
+        self.uprefs.showDialog(pagename='Modes')
     
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
