@@ -146,7 +146,7 @@ class UserPrefs(UserPrefsDialog):
             self.prefs_tab.setCurrentPage(1)
         elif pagename == 'Bonds':
             self.prefs_tab.setCurrentPage(2)
-        elif pagename == 'Background':
+        elif pagename == 'Modes':
             self.prefs_tab.setCurrentPage(3)
         elif pagename == 'History':
             self.prefs_tab.setCurrentPage(4)
@@ -184,8 +184,9 @@ class UserPrefs(UserPrefsDialog):
 
         self.gamess_path_linedit.setText(self.gmspath) # Retrieved from _init_prefs().
 
-    def _setup_background_page(self):
-        ''' Setup widgets to initial (default or defined) values on the background page.
+# Changed "Background" page to "Modes" page.  Mark 050911.
+    def _setup_modes_page(self):
+        ''' Setup widgets to initial (default or defined) values on the Modes page.
         '''
         # Set the mode drop box to the current mode, 
         # or "Select Chunks" if the mode is not in the "modes" list.
@@ -195,6 +196,10 @@ class UserPrefs(UserPrefsDialog):
             self.mode_combox.setCurrentItem(0) # Set to Select Chunks
 
         self.bg_mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
+        
+        # Update the "Startup Mode" and "Default Mode" combo boxes.
+        self.startup_mode_combox.setCurrentItem(modes.index(env.prefs[ startupMode_prefs_key ]))
+        self.default_mode_combox.setCurrentItem(modes.index(env.prefs[ defaultMode_prefs_key ]))
         
         if self.bg_mode.backgroundGradient:
             self.bg_gradient_setup()
@@ -515,19 +520,29 @@ class UserPrefs(UserPrefsDialog):
     
     ########## End of slot methods for "Bonds" page widgets ###########
     
-    ########## Slot methods for "Background" page widgets ################
+    ########## Slot methods for "Modes" page widgets ################
 
     def mode_changed(self, val):
         '''Slot called when the user changes the mode in the drop box.
         '''
         self.bg_mode = self.glpane._find_mode(modes[val])
         
-        # Update the background page.
+        # Update the modes page.
         if self.bg_mode.backgroundGradient:
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
-    
+
+    def change_startup_mode(self, val):
+        "Slot for the checkbox that sets the Startup Mode."
+        env.prefs[ startupMode_prefs_key ] = modes[self.startup_mode_combox.currentItem()]
+        return
+        
+    def change_default_mode(self, val):
+        "Slot for the checkbox that sets the Default Mode."
+        env.prefs[ defaultMode_prefs_key ] = modes[self.default_mode_combox.currentItem()]
+        return
+            
     def fill_type_changed(self, ftype):
         '''Slot called when the user changes the Fill Type.
         '''
@@ -559,7 +574,7 @@ class UserPrefs(UserPrefsDialog):
         self.bg_mode.set_backgroundGradient(False) # This also stores the pref in the db.
     
     def bg_gradient_setup(self):
-        '''Setup the Background page for a gradient fill type.
+        '''Setup the Modes page for the background gradient fill type.
         '''
         #self.bg1_color_lbl.hide()
         #self.bg1_color_frame.hide()
@@ -594,7 +609,7 @@ class UserPrefs(UserPrefsDialog):
         if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()
         
-    ########## End of slot methods for "Background" page widgets ###########
+    ########## End of slot methods for "Modes" page widgets ###########
 
     ########## Slot methods for "Caption" page widgets ################
 
@@ -634,8 +649,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_atoms_page()
         elif pagename == 'Bonds':
             self._setup_bonds_page()
-        elif pagename == 'Background':
-            self._setup_background_page()
+        elif pagename == 'Modes':
+            self._setup_modes_page()
         elif pagename == 'History':
             self._setup_history_page()
         elif pagename == 'Caption':

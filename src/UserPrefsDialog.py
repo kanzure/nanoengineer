@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Sep 8 09:02:41 2005
+# Created: Sat Sep 10 15:53:32 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -377,10 +377,33 @@ class UserPrefsDialog(QDialog):
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
         TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
-        spacer8_4 = QSpacerItem(60,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer8_4 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout_3.addItem(spacer8_4,0,1)
 
-        layout65 = QVBoxLayout(None,0,6,"layout65")
+        layout66 = QVBoxLayout(None,0,6,"layout66")
+
+        layout60 = QGridLayout(None,1,1,0,6,"layout60")
+
+        self.startup_mode_lbl = QLabel(self.TabPage_3,"startup_mode_lbl")
+        self.startup_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout60.addWidget(self.startup_mode_lbl,0,0)
+
+        self.startup_mode_combox = QComboBox(0,self.TabPage_3,"startup_mode_combox")
+
+        layout60.addWidget(self.startup_mode_combox,0,1)
+
+        self.default_mode_lbl = QLabel(self.TabPage_3,"default_mode_lbl")
+        self.default_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout60.addWidget(self.default_mode_lbl,1,0)
+
+        self.default_mode_combox = QComboBox(0,self.TabPage_3,"default_mode_combox")
+
+        layout60.addWidget(self.default_mode_combox,1,1)
+        layout66.addLayout(layout60)
+        spacer8_3_2 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        layout66.addItem(spacer8_3_2)
 
         self.groupBox11 = QGroupBox(self.TabPage_3,"groupBox11")
         self.groupBox11.setColumnLayout(0,Qt.Vertical)
@@ -389,16 +412,39 @@ class UserPrefsDialog(QDialog):
         groupBox11Layout = QGridLayout(self.groupBox11.layout())
         groupBox11Layout.setAlignment(Qt.AlignTop)
 
-        layout62 = QGridLayout(None,1,1,0,6,"layout62")
+        self.restore_bgcolor_btn = QPushButton(self.groupBox11,"restore_bgcolor_btn")
+
+        groupBox11Layout.addWidget(self.restore_bgcolor_btn,1,1)
+        spacer7_2 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox11Layout.addItem(spacer7_2,1,0)
+
+        layout65 = QGridLayout(None,1,1,0,6,"layout65")
+
+        layout64 = QVBoxLayout(None,0,6,"layout64")
 
         self.mode_lbl = QLabel(self.groupBox11,"mode_lbl")
         self.mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout64.addWidget(self.mode_lbl)
 
-        layout62.addWidget(self.mode_lbl,0,0)
+        self.fill_type_lbl = QLabel(self.groupBox11,"fill_type_lbl")
+        self.fill_type_lbl.setEnabled(1)
+        self.fill_type_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout64.addWidget(self.fill_type_lbl)
+
+        self.bg1_color_lbl = QLabel(self.groupBox11,"bg1_color_lbl")
+        self.bg1_color_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout64.addWidget(self.bg1_color_lbl)
+
+        layout65.addLayout(layout64,0,0)
+
+        layout63 = QVBoxLayout(None,0,6,"layout63")
 
         self.mode_combox = QComboBox(0,self.groupBox11,"mode_combox")
+        layout63.addWidget(self.mode_combox)
 
-        layout62.addWidget(self.mode_combox,0,1)
+        self.fill_type_combox = QComboBox(0,self.groupBox11,"fill_type_combox")
+        self.fill_type_combox.setEnabled(1)
+        layout63.addWidget(self.fill_type_combox)
 
         layout37 = QHBoxLayout(None,0,6,"layout37")
 
@@ -411,37 +457,16 @@ class UserPrefsDialog(QDialog):
 
         self.choose_bg1_color_btn = QPushButton(self.groupBox11,"choose_bg1_color_btn")
         layout37.addWidget(self.choose_bg1_color_btn)
+        layout63.addLayout(layout37)
 
-        layout62.addLayout(layout37,2,1)
+        layout65.addLayout(layout63,0,1)
 
-        self.bg1_color_lbl = QLabel(self.groupBox11,"bg1_color_lbl")
-        self.bg1_color_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        groupBox11Layout.addMultiCellLayout(layout65,0,0,0,1)
+        layout66.addWidget(self.groupBox11)
+        spacer8_3 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout66.addItem(spacer8_3)
 
-        layout62.addWidget(self.bg1_color_lbl,2,0)
-
-        self.fill_type_lbl = QLabel(self.groupBox11,"fill_type_lbl")
-        self.fill_type_lbl.setEnabled(1)
-        self.fill_type_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout62.addWidget(self.fill_type_lbl,1,0)
-
-        self.fill_type_combox = QComboBox(0,self.groupBox11,"fill_type_combox")
-        self.fill_type_combox.setEnabled(1)
-
-        layout62.addWidget(self.fill_type_combox,1,1)
-
-        groupBox11Layout.addMultiCellLayout(layout62,0,0,0,1)
-
-        self.restore_bgcolor_btn = QPushButton(self.groupBox11,"restore_bgcolor_btn")
-
-        groupBox11Layout.addWidget(self.restore_bgcolor_btn,1,1)
-        spacer7_2 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        groupBox11Layout.addItem(spacer7_2,1,0)
-        layout65.addWidget(self.groupBox11)
-        spacer8_3 = QSpacerItem(20,30,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout65.addItem(spacer8_3)
-
-        TabPageLayout_3.addLayout(layout65,0,0)
+        TabPageLayout_3.addLayout(layout66,0,0)
         self.prefs_tab.insertTab(self.TabPage_3,QString(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
@@ -530,12 +555,13 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(499,347).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(495,347).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
         self.connect(self.bond_cpk_color_btn,SIGNAL("clicked()"),self.change_bond_cpk_color)
         self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
+        self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
@@ -558,7 +584,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
-        self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
+        self.connect(self.startup_mode_combox,SIGNAL("activated(int)"),self.change_startup_mode)
+        self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
 
         self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
@@ -649,8 +676,23 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
         self.textLabel1_2.setText(self.__tr("pixels"))
         self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Bonds"))
-        self.groupBox11.setTitle(self.__tr("Mode Colors"))
+        self.startup_mode_lbl.setText(self.__tr("Startup Mode :"))
+        self.startup_mode_combox.clear()
+        self.startup_mode_combox.insertItem(self.__tr("Select Chunks"))
+        self.startup_mode_combox.insertItem(self.__tr("Select Atoms"))
+        self.startup_mode_combox.insertItem(self.__tr("Move Chunks"))
+        self.startup_mode_combox.insertItem(self.__tr("Build"))
+        self.default_mode_lbl.setText(self.__tr("Default Mode :"))
+        self.default_mode_combox.clear()
+        self.default_mode_combox.insertItem(self.__tr("Select Chunks"))
+        self.default_mode_combox.insertItem(self.__tr("Select Atoms"))
+        self.default_mode_combox.insertItem(self.__tr("Move Chunks"))
+        self.default_mode_combox.insertItem(self.__tr("Build"))
+        self.groupBox11.setTitle(self.__tr("Background"))
+        self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.mode_lbl.setText(self.__tr("Mode :"))
+        self.fill_type_lbl.setText(self.__tr("Fill Type :"))
+        self.bg1_color_lbl.setText(self.__tr("Color :"))
         self.mode_combox.clear()
         self.mode_combox.insertItem(self.__tr("Select Chunks"))
         self.mode_combox.insertItem(self.__tr("Select Atoms"))
@@ -660,14 +702,11 @@ class UserPrefsDialog(QDialog):
         self.mode_combox.insertItem(self.__tr("Extrude"))
         self.mode_combox.insertItem(self.__tr("Fuse Chunks"))
         self.mode_combox.insertItem(self.__tr("Movie Player"))
-        self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
-        self.bg1_color_lbl.setText(self.__tr("Color :"))
-        self.fill_type_lbl.setText(self.__tr("Fill Type :"))
         self.fill_type_combox.clear()
         self.fill_type_combox.insertItem(self.__tr("Solid"))
         self.fill_type_combox.insertItem(self.__tr("Blue Sky"))
-        self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
-        self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Background"))
+        self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
+        self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
         self.history_height_lbl.setText(self.__tr("Height :"))
         QToolTip.add(self.history_height_spinbox,self.__tr("Number of lines displayed in the history area."))
         self.history_lines_lbl.setText(self.__tr("lines"))
@@ -758,6 +797,12 @@ class UserPrefsDialog(QDialog):
 
     def change_bond_line_thickness(self):
         print "UserPrefsDialog.change_bond_line_thickness(): Not implemented yet"
+
+    def change_startup_mode(self):
+        print "UserPrefsDialog.change_startup_mode(): Not implemented yet"
+
+    def change_default_mode(self):
+        print "UserPrefsDialog.change_default_mode(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

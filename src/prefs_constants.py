@@ -51,6 +51,10 @@ showValenceErrors_prefs_key = 'A6/Show Valence Errors'
 #display lines mode line thickness, mark 050831
 linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 
+# Modes prefs [added to this table by mark 050910]
+startupMode_prefs_key = 'A7/Startup Mode'
+defaultMode_prefs_key = 'A7/Default Mode'
+
 # Caption prefs
 captionPrefix_prefs_key = 'A6/Caption Prefix'
 captionSuffix_prefs_key = 'A6/Caption Suffix'
@@ -123,6 +127,11 @@ prefs_table = (
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
     ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
+    
+    # Modes preferences [added to this table by mark 050910]
+    
+    ('startup_mode', 'string', startupMode_prefs_key,   'SELECTMOLS' ),
+    ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
 
     # Caption preferences [added to this table by bruce 050810]
 
