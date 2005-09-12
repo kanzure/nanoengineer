@@ -143,6 +143,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         # Create the glpane - where all the action is!
         self.glpane = GLPane(self.assy, splitter, "glpane", self)
+            #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
+            # we change it below, since doing so now would be too early for some modes permitted as startup mode
+            # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
 
         # Some final splitter setup
         splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)
@@ -220,11 +223,14 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             from debug import auto_enable_MacOSX_Tiger_workaround_if_desired
             auto_enable_MacOSX_Tiger_workaround_if_desired( self)
 
-        self.initialised = 1
+        self.initialised = 1 # enables win_update
 
         # be told to add new Jigs menu items, now or as they become available [bruce 050504]
         register_postinit_object( "Jigs menu items", self )
 
+        self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
+            # (no longer done in GLPane.__init__, which used a hardcoded default mode)
+        
         self.win_update() # bruce 041222
         
         return # from MWsemantics.__init__

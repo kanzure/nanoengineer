@@ -523,7 +523,7 @@ class UserPrefs(UserPrefsDialog):
     ########## Slot methods for "Modes" page widgets ################
 
     def mode_changed(self, val):
-        '''Slot called when the user changes the mode in the drop box.
+        '''Slot called when the user changes the mode in the mode-bgcolor drop box.
         '''
         self.bg_mode = self.glpane._find_mode(modes[val])
         
@@ -534,12 +534,12 @@ class UserPrefs(UserPrefsDialog):
             self.bg_solid_setup()
 
     def change_startup_mode(self, val):
-        "Slot for the checkbox that sets the Startup Mode."
+        "Slot for the combobox that sets the Startup Mode."
         env.prefs[ startupMode_prefs_key ] = modes[self.startup_mode_combox.currentItem()]
         return
         
     def change_default_mode(self, val):
-        "Slot for the checkbox that sets the Default Mode."
+        "Slot for the combobox that sets the Default Mode."
         env.prefs[ defaultMode_prefs_key ] = modes[self.default_mode_combox.currentItem()]
         return
             
@@ -552,6 +552,9 @@ class UserPrefs(UserPrefsDialog):
             self.bg_gradient_setup()
         
         # Update the GLPane if the selected mode is the current mode.
+        # [bruce comment 050911: this and related code needs review when dialog becomes non-modal,
+        #  since mode objects might be replaced with new instances,
+        #  so it ought to store modenames, not mode objects, in self. ###@@@]
         if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()
         

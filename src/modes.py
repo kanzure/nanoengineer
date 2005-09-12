@@ -84,6 +84,7 @@ from debug import print_compact_traceback
 from platform import *
 import platform # not redundant with "from platform import *" -- we need both
 import preferences
+import env #bruce 050911
 
 class anyMode:
     "abstract superclass for all mode objects"
@@ -137,7 +138,7 @@ class nullMode(anyMode):
             raise AttributeError, attr #e args?
     def Draw(self):
         # this happens... is that ok? note: see
-        # "self.start_using_mode( self.default_mode)" below -- that
+        # "self.start_using_mode( '$DEFAULT_MODE')" below -- that
         # might be the cause.  if so, it's ok that it happens and good
         # that we turn it into a noop. [bruce 040924]
         pass
@@ -657,15 +658,14 @@ class basicMode(anyMode):
            any internal state it might have without checking whether
            that's ok (if that check might be needed, we assume it
            already happened).  Ask our glpane to change to new_mode
-           (which might be a modename or a mode object), if provided
+           (which might be a modename or a mode object or None), if provided
            (and if that mode accepts being the new mode), otherwise to
            its default mode.  Unlikely to be overridden by subclasses.
            [by bruce 040922]
         """
         self._cleanup()
-        if not new_mode:
-            new_mode = self.o.default_mode
-        #e might be cleaner to pass symbolic mode-name 'default' as new_mode
+        if new_mode is None:
+            new_mode = '$DEFAULT_MODE'
         self.o.start_using_mode(new_mode)
         return
 
@@ -1139,9 +1139,9 @@ class basicMode(anyMode):
 
 class modeMixin:
     """Mixin class for supporting mode-switching. Maintains instance
-       attributes mode, nullmode, default_mode, as well as modetab
-       (assumed by mode objects -- we should change that #e). Used by
-       GLPane.
+       attributes mode, nullmode, as well as modetab
+       (assumed by mode objects -- we should change that #e).
+       Used by GLPane.
     """
     
     mode = None # Note (from point of view of class GLPane):
@@ -1158,16 +1158,20 @@ class modeMixin:
         self.nullmode = nullMode()
         # a safe place to absorb events that come at the wrong time
         # (in case of bugs)
-        self.mode = self.default_mode = self.nullmode
+        self.mode = self.nullmode
         # initial safe values, changed before __init__ ends
 
-    def _reinit_modes(self):
+    def _reinit_modes(self): #bruce 050911 revised this
         """[bruce comment 040922, when I split this out from GLPane's
            setAssy method; comment is fairly specific to GLPane:] Call
            this near the end of __init__, and whenever the mode
            objects need to be remade.  Create new mode objects (one
            for each mode, ready to take over mouse-interaction
-           whenever that mode is in effect).  We redo this whenever
+           whenever that mode is in effect).
+
+           [As of 050911, leave self.mode as nullmode, not the default mode.]
+
+           We redo this whenever
            the current assembly changes, since the mode objects store
            the current assembly in some menus they make. (At least
            that's one reason I noticed -- there might be more. None of
@@ -1189,22 +1193,24 @@ class modeMixin:
                 self.mode.Abandon()
             except:
                 print "bug, error while abandoning old mode; ignore it if we can..." #e
-        self.mode = self.nullmode
+        self.mode = self.nullmode # not sure what bgcolor it has, but it won't last long... see also self.use_nullmode
         self.modetab = {}
         # this destroys any mode objects that already existed [note,
         # this name is hardcoded into the mode objects]
 
         # create new mode objects; they know about our self.modetab
         # member and add themselves to it; they know their own names
+        #bruce 050911 revised this: other_mode_classes -> mode_classes (includes class of default mode)
+        for mc in self.mode_classes: 
+            mc(self) # kluge: new mode object adds itself to self.modetab -- this needs to be cleaned up sometime.
 
-        self.default_mode = self.default_mode_class(self)
-        for mc in self.other_mode_classes:
-            mc(self) # new mode object adds itself to self.modetab
-
-        self.start_using_mode( self.default_mode)
-            #k ok that it updates, in this call? [find out by trying
-            #it... seems to be ok. Is that why we needed
-            #nullMode.Draw()??]
+        #bruce 050911 removed this; now we leave it at nullmode,
+        # let direct or indirect callers put in the mode they want
+        # (since different callers want different modes, and during init
+        #  some modes are not ready to be entered anyway)
+        ## self.start_using_mode( '$DEFAULT_MODE')
+        
+        return # from _reinit_modes
     
     # methods for starting to use a given mode (after it's already
     # chosen irrevocably, and any prior mode has been cleaned up)
@@ -1227,13 +1233,12 @@ class modeMixin:
         
     def start_using_mode(self, mode):
         """Semi-internal method (meant to be called only from self
-           (typically a GLPane) or
-           from one of our mode objects): Start using the given mode
-           (name or object), ignoring any prior mode.  If the new mode
-           refuses to become current (e.g. if it requires certain
-           kinds of selection which are not present), it should emit
-           an appropriate message and return True; then we'll start
-           using our default mode.
+           (typically a GLPane) or from one of our mode objects):
+           Start using the given mode (name or object), ignoring any prior mode.
+           If the new mode refuses to become current
+           (e.g. if it requires certain kinds of selection which are not present),
+           it should emit an appropriate message and return True; we'll then
+           start using our default mode, or if that fails, some always-safe mode.
         """
         #bruce 050317: do update_parts to insulate new mode from prior one's bugs
         try:
@@ -1242,7 +1247,7 @@ class modeMixin:
             # extrude, and really it's a bug that it doesn't do this itself),
             # and potentially too slow (though I doubt it),
             # and not a substitute for doing this at the end of operations
-            # that need it (esp. once we have Undo); but will make things
+            # that need it (esp. once we have Undo); but doing it here will make things
             # more robust. Ideally we should "assert_this_was_not_needed".
         except:
             print_compact_traceback("bug: update_parts: ")
@@ -1250,93 +1255,108 @@ class modeMixin:
             if platform.atom_debug:
                 self.assy.checkparts() #bruce 050315 assy/part debug code
         
-        #e (Would it be better to go back to using the immediately
+        #e (Q: If the new mode refuses to start,
+        #   would it be better to go back to using the immediately
         #   prior mode, if different? Probably not... if so, we'd need
         #   to split this into the query to the new mode for whether
         #   it will accept, and the switch to it, so the prior mode
         #   needn't worry about its state if the new mode won't even
         #   accept.)
         self.use_nullmode()
-        # temporary (prevent bug-risk of reentrant event processing by
-        # current mode)
-        mode = self._find_mode(mode)
+            # temporary (prevent bug-risk of reentrant event processing by
+            # current mode)
 
-        #bruce 050515: moved this "Entering Mode" message to before _enterMode
-        # so it comes before any history messages that emits. If the new mode
-        # refuses (but has no exception), assume it will emit a message about that.
-        #bruce 050106: added this status/history message about new mode...
-        # I'm not sure this is the best place to put it, but it's the best
-        # existing single place I could find.
-        msg = "Entering %s" % mode.default_mode_status_text
-            # semi-kluge, since that text starts with "Mode: ..." by convention;
-            # also, not clear if we should use get_mode_status_text instead.
-        import MWsemantics
-        greenmsg = MWsemantics.greenmsg
-        redmsg = MWsemantics.redmsg
-        try: # bruce 050112
-            # (could be made cleaner by defining too_early in HistoryWidget,
-            #  or giving message() a too_early_ok option)
-            too_early = self.win.history.too_early # true when early in init
-        except AttributeError: # not defined after init!
-            too_early = 0
-        if not too_early:
-            self.win.history.message( greenmsg( msg), norepeat_id = msg )
-
-        try:
-            refused = mode._enterMode()
-                # let the mode get ready for use; it can assume self.mode
-                # will be set to it, but not that it already has been.  It
-                # should emit a message and return True if it wants to
-                # refuse becoming the new mode.
-        except:
-            msg = "bug: exception in _enterMode for mode %r; using default mode" % (mode.modename,)
-            print_compact_traceback("%s: " % msg)
-            if not too_early:
-                self.win.history.message( redmsg( "internal error while entering mode, using default mode" ))
-            refused = 1
-        if refused:
-            # as of 040922 this never happens, but it might be routine
-            # for fancier new modes like Extrude
-            mode = self.default_mode
-            refused1 = mode._enterMode()
-            assert not refused1, "default mode should never refuse"
-        self.mode = mode # finally it's ok to send events to the new mode
-        
-        #bruce 050515: this is old location of Entering Mode histmsg, now moved before _enterMode
-        
+        #bruce 050911: we'll try a list of modes in order, but never try to enter the same mode-object more than once.
+        modes = [mode, '$DEFAULT_MODE', '$SAFE_MODE']
+        del mode
+        mode_objects = [] # so we don't try the same object twice
+            # Note: we keep objects, not ids, so objects are kept alive so their ids are not recycled.
+            # This doesn't matter as of 050911 but it might in the future if mode objects become more transient
+            # (though at that point the test might fail to avoid trying some mode-classes twice, so it will need review).
+        for mode in modes:
+            # mode can be mode name (perhaps symbolic) or mode object
+            try:
+                modename = '???' # in case of exception before (or when) we set it from mode object
+                mode = self._find_mode(mode) # figure out which mode object to use
+                    # [#k can this ever fail?? should it know default mode?##]
+                modename = mode.modename # store this now, so we can handle exceptions later or one from this line
+                if id(mode) in map(id, mode_objects):
+                    continue
+                self.__Entering_Mode_message( mode)
+                    #bruce 050515: moved this "Entering Mode" message to before _enterMode
+                    # so it comes before any history messages that emits. If the new mode
+                    # refuses (but has no exception), assume it will emit a message about that.
+                    #bruce 050106: added this status/history message about new mode...
+                    # I'm not sure this is the best place to put it, but it's the best
+                    # existing single place I could find.
+                refused = mode._enterMode()
+                    # let the mode get ready for use; it can assume self.mode
+                    # will be set to it, but not that it already has been.  It
+                    # should emit a message and return True if it wants to
+                    # refuse becoming the new mode.
+            except:
+                msg = "bug: exception entering mode %r" % (modename,)
+                print_compact_traceback("%s: " % msg)
+                from HistoryWidget import redmsg
+                env.history.message( redmsg( "internal error entering mode, trying default or safe mode" ))
+                    # Emit this whether or not it's too_early!
+                    # Assuming not too early, no need to name mode since prior histmsg did so.
+                refused = 1
+            if not refused:
+                # We're in the new mode -- start sending glpane events to it.
+                self.mode = mode
+                break
+                #bruce 050515: this is old location of Entering Mode histmsg, now moved before _enterMode
+                # [that comment is from before the for loop existed]
+            # exception or refusal: try the next mode in the list (if any)
+            continue
+        # if even $SAFE_MODE failed (serious bug), we might as well just stick with self.mode being nullMode...
         self.update_after_new_mode()
         return # from start_using_mode
     
-    def _find_mode(self, modename_or_obj = None):
-        """internal method: look up the specified mode (name or
-           object) which other code wants us to switch to; return mode
-           object, or self.nullmode, or self.default_mode, as
-           appropriate. [bruce 040922]
+    def __Entering_Mode_message(self, mode): #bruce 050911 split this out of its sole caller
+        msg = "Entering %s" % mode.default_mode_status_text
+            # semi-kluge, since that text starts with "Mode: ..." by convention;
+            # also, not clear if we should use get_mode_status_text instead.
+        try: # bruce 050112
+            # (could be made cleaner by defining too_early in HistoryWidget,
+            #  or giving message() a too_early_ok option)
+            too_early = env.history.too_early # true when early in init
+        except AttributeError: # not defined after init!
+            too_early = 0
+        if not too_early:
+            from HistoryWidget import greenmsg
+            env.history.message( greenmsg( msg), norepeat_id = msg )
+        return
+    
+    def _find_mode(self, modename_or_obj = None): #bruce 050911 revised this
+        """Internal method: look up the specified internal mode name (e.g. 'MODIFY' for Move mode)
+        or mode-role symbolic name (e.g. '$DEFAULT_MODE') in self.modetab, and return the mode object found.
+        Or if a mode object is provided, return the same-named object in self.modetab
+        (warning if it's not the same object, since this might indicate a bug).
+           Exception if requested mode object is not found -- unlike pre-050911 code,
+         never return some other mode than asked for -- let caller do that if desired.
         """
         assert modename_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (modename_or_obj,)
         if type(modename_or_obj) == type(''):
-            # this happens whenever a toolbar button, or another mode,
-            # asks for some mode by name
+            # usual case - internal or symbolic modename string
             modename = modename_or_obj
-            mode = self.modetab.get(modename)
-            if not mode:
-                mode = self.default_mode
-                self.warning("bug: unimplemented mode %r, using default mode %r" % (modename, mode.modename))
-            return mode
+            if modename == '$SAFE_MODE':
+                modename = 'SELECTMOLS' #k
+            elif modename == '$STARTUP_MODE':
+                modename = env.prefs[startupMode_prefs_key]
+            elif modename == '$DEFAULT_MODE':
+                modename = env.prefs[defaultMode_prefs_key]
+            return self.modetab[ modename]
         else:
             # assume it's a mode object; make sure it's legit
-            mode = modename_or_obj
-            if not mode in self.modetab.values():
+            mode0 = modename_or_obj
+            modename = mode0.modename
+            mode1 = self.modetab[modename] # the one we'll return
+            if mode1 is not mode0:
                 # this should never happen
-                try:
-                    modename = mode.modename
-                    mode = self.modetab[modename]
-                    # try getting the same-named valid mode #e remove
-                    # this once i see it's not needed??
-                except:
-                    mode = self.default_mode
-                self.warning("bug: invalid internal mode; using mode %r" % (mode.modename,))
-            return mode
+                print "bug: invalid internal mode; using mode %r" % (modename,)
+            return mode1
         pass
 
     # user requests a specific new mode.
@@ -1358,7 +1378,7 @@ class modeMixin:
         When it is, it'll be done in update_after_new_mode().
         
         The modename argument should be the modename as a string,
-        e.g. 'SELECT', 'DEPOSIT', 'COOKIE'.
+        e.g. 'SELECT', 'DEPOSIT', 'COOKIE', or symbolic name, e.g. '$DEFAULT_MODE'.
         """
         # don't try to optimize for already being in the same mode --
         # let individual modes do that if (and how) they wish
@@ -1392,7 +1412,7 @@ class modeMixin:
                 self.mode.restore_gui()
             except:
                 print "(...even the old mode's restore_gui method, run by itself, had a bug...)"
-            self.start_using_mode( self.default_mode)
+            self.start_using_mode( '$DEFAULT_MODE' )
         return
 
     pass # end of class modeMixin

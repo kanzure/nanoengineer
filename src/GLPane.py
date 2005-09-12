@@ -122,9 +122,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """
     # Note: external code expects self.mode to always be a working
     # mode object, which has certain callable methods.  Our modes
-    # themselves expect certain other attributes (like
-    # self.default_mode, self.modetab) to be present.  This is all set
-    # up and maintained by our mixin class, modeMixin. [bruce 040922]
+    # themselves expect certain other attributes (like self.modetab)
+    # to be present.  This is all set up and maintained by our mixin
+    # class, modeMixin. [bruce 040922]
     #
     # [bruce 050112 adds: the reason the glpane is central to holding
     #  and switching a mode object might be that the mode object gets
@@ -136,11 +136,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     #  in the glpane rather than to the pane as a whole. We'll see.
     #  For now, here it is.]
 
-    # constants needed by modeMixin:
-    default_mode_class = selectMolsMode
-    other_mode_classes = [selectAtomsMode, modifyMode, depositMode, cookieMode,
-                          extrudeMode, revolveMode, fusechunksMode, movieMode,
-                          zoomMode, panMode, rotateMode]
+    # class constants (needed by modeMixin):
+    mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
+                    cookieMode, extrudeMode, revolveMode, fusechunksMode,
+                    movieMode, zoomMode, panMode, rotateMode]
     
     def __init__(self, assy, master=None, name=None, win=None):
         
@@ -282,7 +281,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.makeCurrent()
         
         drawer.setup()
-        self.setAssy(assy)
+        self.setAssy(assy) # leaves self.mode as nullmode, as of 050911
 
         self.loadLighting() #bruce 050311
         
@@ -372,7 +371,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     # ==
     
-    def setAssy(self, assy):
+    def setAssy(self, assy): #bruce 050911 revised this
         """[bruce comment 040922] This is called from self.__init__,
         and from MWSemantics.__clear when user asks to open a new
         file, etc.  Apparently, it is supposed to forget whatever is
@@ -387,6 +386,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         evidently not given any chance to save unsaved changes, or get
         back to current state if the openfile fails... tho I'm not
         sure I'm right about that, since I didn't test it.
+           Revised 050911: leaves self.mode as nullmode.
         """
         assy.o = self ###@@@ should only the part know the glpane?? or, only the mode itself? [bruce 050418 comment]
         self.assy = assy
@@ -401,12 +401,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             mainpart = Part(self) #bruce 050418 -- might be common during init; use this just for its lastCsys
             self._setInitialViewFromPart( mainpart)
         else:
-            if 0 and platform.atom_debug:
-                print "atom_debug: had mainpart in setAssy" # [bruce 050428: this always happens, so disabling the message]
+            # [bruce 050428: this apparently always happens]
             self.set_part( mainpart)
         
         # defined in modeMixin [bruce 040922]; requires self.assy
-        self._reinit_modes()
+        self._reinit_modes() # leaves mode as nullmode as of 050911
+        return
 
     # == view toolbar helper methods
     

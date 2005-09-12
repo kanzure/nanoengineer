@@ -1732,7 +1732,7 @@ class extrudeMode(basicMode):
             print_compact_traceback("exc in self.restore_gui(), ignored: ")
         for clas in [extrudeMode, revolveMode]:
             try:
-                self.o.other_mode_classes.remove(clas) # was: self.__class__
+                self.o.mode_classes.remove(clas) # was: self.__class__
             except ValueError:
                 print "a mode class was not in modetab (normal if last reload of it had syntax error)"
         import handles
@@ -1745,10 +1745,12 @@ class extrudeMode(basicMode):
         except:
             print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
         ## self.o.modetab['EXTRUDE'] = extrudeMode
-        self.o.other_mode_classes.append(extrudeMode)
-        self.o.other_mode_classes.append(revolveMode)
+        self.o.mode_classes.append(extrudeMode)
+        self.o.mode_classes.append(revolveMode)
         print "about to reinit modes"
-        self.o._reinit_modes()
+        self.o._reinit_modes() # leaves mode as nullmode as of 050911
+        self.o.start_using_mode( '$DEFAULT_MODE' )
+            ###e or could use modename of prior self.mode 
         print "done with reinit modes, now see if you can select the reloaded mode"
         return
 

@@ -151,10 +151,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             return
 
         if fn:
-            self.__clear()
+            self.__clear() # leaves glpane.mode as nullmode, as of 050911
+            self.glpane.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
             fn = str(fn)
             if not os.path.exists(fn): return
+
+            #k Can that return ever happen? Does it need an error message?
+            # Should preceding clear and modechange be moved down here??
+            # (Moving modechange even farther below would be needed,
+            #  if we ever let the default mode be one that cares about the
+            #  model or viewpoint when it's entered.)
+            # [bruce 050911 questions]
 
             isMMPFile = False
             if fn[-3:] == "mmp":
@@ -425,10 +433,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
         if isFileSaved: 
-                self.__clear()
+                self.__clear() # leaves glpane.mode as nullmode, as of 050911
+                self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
                 self.assy.reset_changed() #bruce 050429, part of fixing bug 413
                 self.win_update()
-
+        return
 
     def fileSetWorkDir(self):
         """Sets working directory"""
@@ -455,8 +464,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             prefs = prefs_context()
             prefs['WorkingDirectory'] = wd
                 
-    def __clear(self):
-        #bruce 050907 comment: this is only called from this mixin, so I moved it here from MWsemantics
+    def __clear(self): #bruce 050911 revised this: leaves glpane.mode as nullmode
+        #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
         # even though its name-mangled name was thereby changed. It should really be given a normal name.
         # Some comments in other files still call it MWsemantics.__clear.
         
@@ -464,7 +473,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.assy = assembly(self, "Untitled")
 #        self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
         self.update_mainwindow_caption()
-        self.glpane.setAssy(self.assy)
+        self.glpane.setAssy(self.assy) # leaves glpane.mode as nullmode, as of 050911
         self.assy.mt = self.mt
         
         ### Hack by Huaicai 2/1 to fix bug 369
