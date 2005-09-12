@@ -1039,6 +1039,22 @@ class Node:
     def getinfo(self):
         pass
 
+    def init_statistics(self, stats):
+        'Initialize statistics for this Node'
+        # Currently, this is only used by "part" and "group" nodes.
+        # See PartProp.__init__() or GroupProp.__init__().
+        # Mark 050911.
+        stats.nchunks = 0
+        stats.natoms = 0
+        stats.nsinglets = 0
+        stats.nrmotors = 0
+        stats.nlmotors = 0
+        stats.ngrounds = 0
+        stats.nstats = 0
+        stats.nthermos = 0
+        stats.ngamess = 0
+        stats.ngroups = -1 # Must subtract self.
+        
     def getstatistics(self, stats):
         pass
 

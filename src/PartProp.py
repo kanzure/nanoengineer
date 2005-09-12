@@ -17,19 +17,8 @@ class PartProp(PartPropDialog):
         
         self.mmpformatLabel.setText("MMP File Format: " + self.assy.mmpformat)
 
-        # Initialize all part statistics
-        self.nchunks = 0
-        self.natoms = 0
-        self.nsinglets = 0
-        self.nrmotors = 0
-        self.nlmotors = 0
-        self.ngrounds = 0
-        self.nstats = 0
-        self.nthermos = 0
-        self.ngamess = 0
-        self.ngroups = -1 # Must subtract tree group.
-
         # Get statistics of part from tree members.
+        self.assy.tree.init_statistics(self)
         self.assy.tree.getstatistics(self)
 
         # Subtract singlets from total number of atoms            

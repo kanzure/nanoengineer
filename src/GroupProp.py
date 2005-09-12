@@ -17,21 +17,8 @@ class GroupProp(GroupPropDialog):
         
         self.nameLineEdit.setText(group.name)
         
-        # Statistics code copied from PartProp.__init__().  Mark 050908.
-        
-        # Initialize all part statistics
-        self.nchunks = 0
-        self.natoms = 0
-        self.nsinglets = 0
-        self.nrmotors = 0
-        self.nlmotors = 0
-        self.ngrounds = 0
-        self.nstats = 0
-        self.nthermos = 0
-        self.ngamess = 0
-        self.ngroups = -1 # Must subtract self.
-
         # Get statistics of group.
+        self.group.init_statistics(self)
         self.group.getstatistics(self)
 
         # Subtract singlets from total number of atoms            
