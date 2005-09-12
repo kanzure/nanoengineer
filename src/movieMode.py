@@ -499,7 +499,8 @@ class movieDashboardSlotsMixin:
                 #bruce 050413 comment: the above assumes that len(ext) is always 4 (.xxx).
                 # I'm speculating that this is ok for now since it has to be one of the ones
                 # provided to the getSaveFileName method above.
-            safile = os.path.join(dir, fil + ext) # full path of "Save As" filename
+            # Changed os.path.join > os.path.normpath to partially fix bug #956.  Mark 050911.
+            safile = os.path.normpath(dir+"/"+fil+ext) # full path of "Save As" filename
             
             if os.path.exists(safile): # ...and if the "Save As" file exists...
 
@@ -533,7 +534,9 @@ class movieDashboardSlotsMixin:
 
                 self.history.message("DPB movie file saved: " + safile)
                 # note that we are still playing it from the old file and filename... does it matter? [bruce 050427 question]
-                self.assy.current_movie._setup()
+                
+                # Added "hflag=False" to suppress history msg, fixing bug #956.  Mark 050911.
+                self.assy.current_movie._setup(hflag=False) # Do not print info to history widget.
 
             elif ext == '.pov':
                 self.assy.current_movie._write_povray_series( os.path.normpath(dir+"/"+fil))
