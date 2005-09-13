@@ -85,9 +85,6 @@ class UserPrefs(UserPrefsDialog):
        
     def __init__(self, assy):
         UserPrefsDialog.__init__(self)
-        ## self.history = assy.w.history
-        ## self.win = assy.w
-            #bruce 050810 removed those -- they were only used for prefs code, not history messages
         self.glpane = assy.o
         self.gmspath = None
         #bruce 050811 added these:
