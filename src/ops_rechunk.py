@@ -8,12 +8,15 @@ $Id$
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
+
+bruce 050913 used env.history in some places.
 """
 
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from chunk import molecule
 from jigs import gensym # [I think this code, when in part.py, was using jigs.gensym rather than chem.gensym [bruce 050507]] 
+import env
 
 class ops_rechunk_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -48,7 +51,7 @@ class ops_rechunk_Mixin:
         
         if not self.selatoms: # optimization, and different status msg
             msg =  redmsg("No atoms selected")
-            self.w.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
@@ -64,7 +67,7 @@ class ops_rechunk_Mixin:
                 if new_old_callback:
                     new_old_callback(numol, mol) # new feature 040929
         msg = fix_plurals("Created %d new chunk(s)" % len(numolist))
-        self.w.history.message(cmd + msg)
+        env.history.message(cmd + msg)
         self.w.win_update() #e do this in callers instead?
 
     #merge selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
@@ -79,7 +82,7 @@ class ops_rechunk_Mixin:
         
         if len(self.selmols) < 2:
             msg = redmsg("Need two or more selected chunks to merge")
-            self.w.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
         self.changed() #bruce 050131 bugfix or precaution
         mol = self.selmols[0]

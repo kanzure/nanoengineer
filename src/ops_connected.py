@@ -11,10 +11,14 @@ bruce 050507 made this by collecting appropriate methods (by Josh) from class Pa
 bruce 050520 added new code (mostly in a separate new file) for Select Doubly.
 
 bruce 050629 code cleanup.
+
+bruce 050913 used env.history in some places.
 """
+
 __author__ = ["Josh", "bruce"]
 
 from HistoryWidget import greenmsg, redmsg
+import env
 
 class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
@@ -27,8 +31,8 @@ class ops_connected_Mixin:
         cmd = greenmsg("Select Connected: ")
         
         if not self.selatoms:
-            msg =redmsg("No atoms selected")
-            self.w.history.message(cmd + msg)
+            msg = redmsg("No atoms selected")
+            env.history.message(cmd + msg)
             return
         
         alreadySelected = len(self.selatoms.values())
@@ -37,7 +41,7 @@ class ops_connected_Mixin:
         
         from platform import fix_plurals
         info = fix_plurals( "%d connected atom(s) selected." % totalSelected)
-        self.w.history.message( cmd + info)
+        env.history.message( cmd + info)
         
         if totalSelected > alreadySelected:
             ## Otherwise, that just means no new atoms selected, so no update necessary    
@@ -55,7 +59,7 @@ class ops_connected_Mixin:
         
         if not self.selatoms:
             msg = redmsg("No atoms selected")
-            self.w.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
         
         alreadySelected = len(self.selatoms.values())
@@ -67,7 +71,7 @@ class ops_connected_Mixin:
         from platform import fix_plurals
         info = fix_plurals("%d new atom(s) selected (besides the %d initially selected)." % \
                                (totalSelected - alreadySelected, alreadySelected) )
-        self.w.history.message( cmd + info)
+        env.history.message( cmd + info)
                 
         if totalSelected > alreadySelected:
             ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet 

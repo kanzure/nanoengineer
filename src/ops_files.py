@@ -12,6 +12,8 @@ History:
 
 bruce 050907 split this out of MWsemantics.py.
 [But it still needs major cleanup and generalization.]
+
+bruce 050913 used env.history in some places.
 '''
 
 from qt import QFileDialog, QMessageBox, QString
@@ -56,7 +58,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def fileInsert(self):
         
-        self.history.message(greenmsg("Insert File:"))
+        env.history.message(greenmsg("Insert File:"))
          
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd,
@@ -64,7 +66,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self )
                 
         if not fn:
-             self.history.message("Cancelled")
+             env.history.message("Cancelled")
              return
         
         if fn:
@@ -72,7 +74,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if not os.path.exists(fn):
                 #bruce 050415: I think this should never happen;
                 # in case it does, I added a history message (to existing if/return code).
-                self.history.message( redmsg( "File not found: " + fn) )
+                env.history.message( redmsg( "File not found: " + fn) )
                 return
 
             if fn[-3:] == "mmp":
@@ -80,33 +82,33 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     insertmmp(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
-                    self.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
+                    env.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    self.history.message( "MMP file inserted: " + fn )
+                    env.history.message( "MMP file inserted: " + fn )
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
                     insertpdb(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
-                    self.history.message( redmsg( "Internal error while inserting PDB file: " + fn) )
+                    env.history.message( redmsg( "Internal error while inserting PDB file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    self.history.message( "PDB file inserted: " + fn )
+                    env.history.message( "PDB file inserted: " + fn )
             
             if fn[-3:] in ["out","OUT"]:
                 try:
                     r = insertgms(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting GAMESS OUT file [%s]: " % fn )
-                    self.history.message( redmsg( "Internal error while inserting GAMESS OUT file: " + fn) )
+                    env.history.message( redmsg( "Internal error while inserting GAMESS OUT file: " + fn) )
                 else:
                     if r:
-                        self.history.message( redmsg("File not inserted."))
+                        env.history.message( redmsg("File not inserted."))
                     else:
                         self.assy.changed() # The file and the part are not the same.
-                        self.history.message( "GAMESS file inserted: " + fn )
+                        env.history.message( "GAMESS file inserted: " + fn )
                     
                     
             self.glpane.scale = self.assy.bbox.scale()
@@ -116,7 +118,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def fileOpen(self):
         
-        self.history.message(greenmsg("Open File:"))
+        env.history.message(greenmsg("Open File:"))
         
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, self.name(),
@@ -135,7 +137,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             elif ret==1: pass#self.__clear() 
             
             elif ret==2: 
-                self.history.message("Cancelled.")
+                env.history.message("Cancelled.")
                 return # Cancel clicked or Alt+C pressed or Escape pressed
 
         # Determine what directory to open.
@@ -147,7 +149,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self )
                 
         if not fn:
-            self.history.message("Cancelled.")
+            env.history.message("Cancelled.")
             return
 
         if fn:
@@ -170,12 +172,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
-                self.history.message("MMP file opened: [" + fn + "]")
+                env.history.message("MMP file opened: [" + fn + "]")
                 isMMPFile = True
                 
             if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
-                self.history.message("PDB file opened: [" + fn + "]")
+                env.history.message("PDB file opened: [" + fn + "]")
 
             dir, fil, ext = fileparse(fn)
             ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
@@ -198,7 +200,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def fileSave(self):
         
-        self.history.message(greenmsg("Save File:"))
+        env.history.message(greenmsg("Save File:"))
         
         #Huaicai 1/6/05: by returning a boolean value to say if it is really 
         # saved or not, user may choose "Cancel" in the "File Save" dialog          
@@ -220,7 +222,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 ext = ".mmp"
                 sdir = globalParms['WorkingDirectory']
         else:
-            self.history.message( "Save Ignored: Part is currently empty." )
+            env.history.message( "Save Ignored: Part is currently empty." )
             return False
 
         if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
@@ -255,7 +257,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                         1 )     # Escape == button 1
 
                     if ret==1: # The user cancelled
-                        self.history.message( "Cancelled.  Part not saved." )
+                        env.history.message( "Cancelled.  Part not saved." )
                         return False # Cancel clicked or Alt+C pressed or Escape pressed
             
             self.saveFile(safile)
@@ -277,11 +279,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 writepdb(self.assy, safile)
             except:
                 print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                self.history.message(redmsg( "Problem saving PDB file: " + safile ))
+                env.history.message(redmsg( "Problem saving PDB file: " + safile ))
             else:
                 self.saved_main_file(safile, fil)
                     #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
-                self.history.message( "PDB file saved: " + self.assy.filename )
+                env.history.message( "PDB file saved: " + self.assy.filename )
                     #bruce 050907 moved this after mt_update (which is now in saved_main_file)
         else:
             self.saveSeparateFile( safile)
@@ -314,13 +316,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 image.save(safile, "PNG")
             else: # caller passed in unsupported filetype (should never happen)
                 saved = False
-                self.history.message(redmsg( "File Not Saved. Unknown extension: " + ext))
+                env.history.message(redmsg( "File Not Saved. Unknown extension: " + ext))
         except:
             print_compact_traceback( "error writing file %r: " % safile )
-            self.history.message(redmsg( "Problem saving %s file: " % type + safile ))
+            env.history.message(redmsg( "Problem saving %s file: " % type + safile ))
         else:
             if saved:
-                self.history.message( "%s file saved: " % type + safile )
+                env.history.message( "%s file saved: " % type + safile )
         return
 
     def save_mmp_file(self, safile): #bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
@@ -331,7 +333,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         except:
             #bruce 050419 revised printed error message
             print_compact_traceback( "MWsemantics.py: saveFile(): error writing file [%s]: " % safile )
-            self.history.message(redmsg( "Problem saving file: " + safile ))
+            env.history.message(redmsg( "Problem saving file: " + safile ))
             
             # If you want to see what was wrong with the MMP file, you
             # can comment this out so you can see what's in
@@ -348,7 +350,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             os.rename( tmpname, safile) # Move tmp file to saved filename.
 
             self.saved_main_file(safile, fil)
-            self.history.message( "MMP file saved: " + self.assy.filename )
+            env.history.message( "MMP file saved: " + self.assy.filename )
                 #bruce 050907 moved this after mt_update (which is now in saved_main_file)
         return
 
@@ -409,12 +411,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             ##self.periodicTable.close()
         else:
             ce.ignore()
-            self.history.message("Cancelled exit.") # bruce 050907 added this message
+            env.history.message("Cancelled exit.") # bruce 050907 added this message
         return
 
     def fileClose(self):
         
-        self.history.message(greenmsg("Close File:"))
+        env.history.message(greenmsg("Close File:"))
         
         isFileSaved = True
         if self.assy.has_changed():
@@ -427,9 +429,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
             elif ret==1:
-                self.history.message("Changes discarded.")
+                env.history.message("Changes discarded.")
             elif ret==2: 
-                self.history.message("Cancelled.")
+                env.history.message("Cancelled.")
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
         if isFileSaved: 
@@ -442,14 +444,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def fileSetWorkDir(self):
         """Sets working directory"""
 
-        self.history.message(greenmsg("Set Working Directory:"))
+        env.history.message(greenmsg("Set Working Directory:"))
         
         wd = globalParms['WorkingDirectory']
         wdstr = "Current Working Directory - [" + wd  + "]"
         wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
         
         if not wd:
-            self.history.message("Cancelled.")
+            env.history.message("Cancelled.")
             return
             
         if wd:
@@ -457,7 +459,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             wd = os.path.normpath(wd)
             globalParms['WorkingDirectory'] = wd
             
-            self.history.message( "Working Directory set to " + wd )
+            env.history.message( "Working Directory set to " + wd )
 
             # bruce 050119: store this in prefs database so no need for ~/.ne1rc
             from preferences import prefs_context

@@ -10,12 +10,15 @@ History:
 
 bruce 050507 made this by collecting appropriate methods (by various authors)
 from existing modules, from class Part and class basicMode.
+
+bruce 050913 used env.history in some places.
 """
 
 from HistoryWidget import greenmsg, redmsg
 from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from platform import fix_plurals
 from elements import Singlet
+import env
 
 class ops_atoms_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -62,7 +65,7 @@ class ops_atoms_Mixin:
         
         if not self.selatoms and not self.selmols: # optimization, and different status msg
             msg = redmsg("Nothing selected")
-            self.w.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
         
         cutbonds = 0
@@ -87,7 +90,7 @@ class ops_atoms_Mixin:
                     cutbonds += 1
                     
         msg = fix_plurals("%d bond(s) deleted" % cutbonds)
-        self.w.history.message(cmd + msg)
+        env.history.message(cmd + msg)
         
         if self.selatoms and cutbonds:
             self.modifySeparate() # Separate the selected atoms into a new chunk
@@ -104,7 +107,7 @@ class ops_atoms_Mixin:
         
         if not self.selatoms and not self.selmols: # optimization, and different status msg
             msg = redmsg("Nothing selected")
-            self.w.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
             
         if self.selwhat == SELWHAT_CHUNKS:
@@ -181,7 +184,7 @@ class ops_atoms_Mixin:
         if fixmols:
             self.changed()
             self.w.win_update()
-        self.w.history.message(cmd + didwhat)
+        env.history.message(cmd + didwhat)
         return
 
     # Remove hydrogen atoms from each selected atom/chunk
@@ -244,7 +247,7 @@ class ops_atoms_Mixin:
         if fixmols:
             self.changed() #e shouldn't we do this in lower-level methods?
             self.w.win_update()
-        self.w.history.message(cmd + didwhat)
+        env.history.message(cmd + didwhat)
         return
 
     pass # end of class ops_atoms_Mixin

@@ -8,11 +8,14 @@ $Id$
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
+
+bruce 050913 used env.history in some places.
 """
 
 from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from elements import Singlet
 from VQT import V, A, norm, cross, transpose, dot
+import env
 
 class ops_select_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -227,11 +230,11 @@ class ops_select_Mixin:
                     # bruce 041214 added that, since pickpart used to do it and
                     # calls of that now come here; in theory it's never needed.
                 atm.molecule.pick()
-                self.w.history.message(atm.molecule.getinfo())
+                env.history.message(atm.molecule.getinfo())
             else:
                 assert self.selwhat == SELWHAT_ATOMS
                 atm.pick()
-                self.w.history.message(atm.getinfo())
+                env.history.message(atm.getinfo())
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified
