@@ -20,6 +20,12 @@ and sys module documentation about exc_info() and _getframe().
 - in compact_stack, include info about how many times each frame has been
 previously printed, and/or when it was first seen (by storing something in the
 frame when it's first seen, and perhaps incrementing it each time it's seen).
+
+History:
+
+Created by bruce.
+
+bruce 050913 used env.history in some places.
 '''
 
 import sys, os, time
@@ -241,6 +247,8 @@ class DebugMenuMixin:
     Caller of _init1 should provide main window win, or [temporary kluge?]
     let this be found at self.win; some menu items affect it or emit
     history messages to it.
+    [As of 050913 they should (and probably do) no longer use win for history,
+    but use env.history instead.]
     """
     #doc better
     #e rename private attrs to start with '_debug' instead of 'debug'
@@ -276,14 +284,6 @@ class DebugMenuMixin:
         from widgets import makemenu_helper
         return makemenu_helper(self, menu_spec)
     
-    def _debug_history(self):
-        # figure out where to send history messages
-        # (can't be done at init time since value of win.history can change)
-        try:
-            return self._debug_win.history
-        except: # (more than one error possible here)
-            return None
-
     def debug_menu_items(self):
         """#doc; as of 050416 this will be called every time the debug menu needs to be put up,
         so that the menu contents can be different each time (i.e. so it can be a dynamic menu)
@@ -355,15 +355,13 @@ class DebugMenuMixin:
         from platform import save_window_pos_size
         win = self._debug_win
         keyprefix = "main window/geometry"
-        histfunc = self._debug_history().message
-        save_window_pos_size( win, keyprefix, histmessage = histfunc)
+        save_window_pos_size( win, keyprefix)
 
     def _debug_load_window_layout(self):
         from platform import load_window_pos_size
         win = self._debug_win
         keyprefix = "main window/geometry"
-        histfunc = self._debug_history().message
-        load_window_pos_size( win, keyprefix, histmessage = histfunc)
+        load_window_pos_size( win, keyprefix)
 
     def _debug_update_parts(self):
         win = self._debug_win
@@ -485,23 +483,22 @@ class DebugMenuMixin:
         """
         enabled_now = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
         enable = not enabled_now
-        history = self._debug_history()
         from HistoryWidget import orangemsg, redmsg, greenmsg
         if enable:
             ###e ask user if ok; if we add that feature, also add "..." to menu command text
             # note: if we enable, disable, and enable, all in one session, the following happens twice, but that's ok.
-            history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
+            env.history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
             from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
             if hack_every_QToolButton_warning:
-                history.message( orangemsg( hack_every_QToolButton_warning ))
+                env.history.message( orangemsg( hack_every_QToolButton_warning ))
             hack_every_QToolButton( self._debug_win )
             env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = True
-            history.message( "Done. This will be redone automatically in new sessions (with no history message)" \
-                             " unless you disable this menu item.")
+            env.history.message( "Done. This will be redone automatically in new sessions (with no history message)" \
+                                 " unless you disable this menu item.")
             # see auto_enable_MacOSX_Tiger_workaround_if_desired and its call, for how it gets enabled in new sessions.
         else:
             env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = False
-            history.message( orangemsg(
+            env.history.message( orangemsg(
                 "Disabled the workaround for the QToolButton bug in Mac OS X 10.4 Tiger." \
                 " This change in pressed toolbutton appearance will only take effect" \
                 " after you quit and restart this program." ))

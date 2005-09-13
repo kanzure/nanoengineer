@@ -430,7 +430,7 @@ class movieDashboardSlotsMixin:
         # [bruce 050324 made that a function and made it print the history messages
         #  which I've commented out below.]
         from movie import _checkMovieFile
-        r = _checkMovieFile(self.assy.part, fn, env.history)
+        r = _checkMovieFile(self.assy.part, fn)
         
         if r == 1:
 ##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")

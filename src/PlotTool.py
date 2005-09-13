@@ -223,12 +223,12 @@ class PlotTool(PlotToolDialog):
     def openTraceFile(self):
         """Opens the current tracefile in an editor.
         """
-        open_file_in_editor(self.traceFile, history = env.history)
+        open_file_in_editor(self.traceFile)
 
     def openGNUplotFile(self):
         """Opens the current GNUplot file in an editor.
         """
-        open_file_in_editor(self.plotFile, history = env.history)
+        open_file_in_editor(self.plotFile)
 
 # == 
 

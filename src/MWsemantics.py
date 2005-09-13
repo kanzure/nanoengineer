@@ -14,7 +14,9 @@ bruce 050907 split out fileSlotsMixin
 [Much more splitup of this file is needed. Ideally we would
 split up the class MWsemantics (as for cookieMode), not just the file.]
 
-bruce 050913 used env.history in some places.
+bruce 050913 used env.history in some places; also officially
+deprecated any remaining uses of win.history, and print a console
+warning whenever they occur.
 '''
 
 ## bruce 050408 removed: import qt
@@ -73,7 +75,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     #bruce 050906: same for fileSlotsMixin.
     
     initialised = 0 #bruce 041222
-    history = env.history #bruce 050107, revised 050901; see also the set of self.history in __init__, below
+    ## history = env.history #bruce 050107, revised 050901; see also the set of self.history in __init__, below [removed, 050913]
     
     def __init__(self, parent = None, name = None):
     
@@ -156,15 +158,18 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # Create the history area at the bottom
         from HistoryWidget import HistoryWidget
         histfile = platform.make_history_filename()
-        self.history = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
+        #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
+        # to self.history; code should use env.history to emit messages, self.history_widget
+        # to see the history widget, or self.history_object to see its owning object per se
+        # rather than as a place to emit messages (this is rarely needed).
+        self.history_object = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
             # this is not a Qt widget, but its owner;
             # use self.history_widget for Qt calls that need the widget itself.
-        self.history_widget = self.history.widget
+        self.history_widget = self.history_object.widget
             #bruce 050913, in case future code splits history widget (as main window subwidget)
             # from history message recipient (the global object env.history).
-            # After that's done, self.history might not exist, but self.history_widget will.
         
-        env.history = self.history #bruce 050727
+        env.history = self.history_object #bruce 050727, revised 050913
 
         # ... and some final vsplitter setup [bruce 041223]
         vsplitter.setResizeMode(self.history_widget, QSplitter.KeepSize)
@@ -240,7 +245,13 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.win_update() # bruce 041222
         
         return # from MWsemantics.__init__
-
+    
+    def __getattr__(self, attr): #bruce 050913 report deprecated uses of win.history
+        if attr == 'history':
+            print_compact_traceback("deprecated code warning: win.history should be env.history: ")
+            return env.history
+        raise AttributeError, attr
+    
     def postinit_item(self, item): #bruce 050504
         try:
             item(self)
@@ -327,10 +338,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             return #bruce 041222
         self.glpane.gl_update() ###e should inval instead -- soon, this method will!
         self.mt.mt_update()
-        self.history.h_update() #bruce 050104
-            # leaving this as self.history (not env.history) for now,
-            # since it is really about this window's widget,
-            # not the place to print history messages [bruce 050913]
+        self.history_object.h_update() #bruce 050104
+            # this is self.history_object, not env.history,
+            # since it's really about this window's widget-owner,
+            # not about the place to print history messages [bruce 050913]
         
 
     ###################################
@@ -976,7 +987,6 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         global MMKitWin
         
         hist_geometry = self.history_widget.frameGeometry()
-            # this self.history should not be changed to env.history [bruce 050913]
         hist_height = hist_geometry.height()
         
         ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()

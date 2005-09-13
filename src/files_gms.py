@@ -4,8 +4,12 @@ files_gms.py -- reading and writing GAMESS files
 
 $Id$
 
-History: GAMESS file IO was part of GamessJob.py until I moved it here 
+History:
+
+GAMESS file IO was part of GamessJob.py until I moved it here 
 to make it more modular and consistent.
+
+bruce 050913 used env.history in some places.
 """
 
 __author__ = "Mark"
@@ -18,6 +22,7 @@ from elements import PeriodicTable, Singlet
 from platform import fix_plurals, get_gms_name
 from HistoryWidget import redmsg, orangemsg
 from VQT import A
+import env
 
 failpat = re.compile("ABNORMALLY")
 errorPat = re.compile("Fatal error")
@@ -97,7 +102,7 @@ def _readgms(assy, filename, isInsert=False):
             try:
                 PeriodicTable.getElement(sym)
             except:
-                assy.w.history.message( redmsg( "Warning: GAMESS DAT file: unknown element %s in: %s" % (sym,card) ))
+                env.history.message( redmsg( "Warning: GAMESS DAT file: unknown element %s in: %s" % (sym,card) ))
             else:
                 xyz = map(float, (m.group(2),m.group(3), m.group(4)))
                 a = atom(sym, A(xyz), mol)
@@ -107,7 +112,7 @@ def _readgms(assy, filename, isInsert=False):
     # Don't return an empty chunk.
     if not mol.atoms:
         msg = "Warning: GAMESS file contains no equilibrium geometry.  No atoms read into part."
-        assy.w.history.message( redmsg(msg))
+        env.history.message( redmsg(msg))
         return None
     
     # Need to compute and add bonds for this chunk.  I'll ask Bruce how to best accomplish this.
@@ -115,7 +120,7 @@ def _readgms(assy, filename, isInsert=False):
     # is impossible to see this in vdW display mode.  
     # Mark 050623.
     msg = "Warning: Equilibrium geometry found.  Atoms read into part, but there are no bonds."
-    assy.w.history.message( orangemsg(msg))
+    env.history.message( orangemsg(msg))
     return mol
     
 # Read a GAMESS DAT file into a single molecule (chunk)
@@ -204,12 +209,12 @@ def _get_atomlist_from_gms_outfile(assy, filename):
 
         if failpat.search(card): # GAMESS Aborted.  No atom data will be found.
             print card
-            assy.w.history.message( redmsg( card ))
+            env.history.message( redmsg( card ))
             break
             
         if noconvpat.search(card): # Geometry search is not converged.
             print card
-            assy.w.history.message( redmsg( card ))
+            env.history.message( redmsg( card ))
             break
         
         # If this card is found:
@@ -263,7 +268,7 @@ def _get_atomlist_from_gms_outfile(assy, filename):
             try:
                 PeriodicTable.getElement(sym)
             except:
-                assy.w.history.message( redmsg( "Warning: GAMESS OUT file: unknown element %s in: %s" % (sym,card) ))
+                env.history.message( redmsg( "Warning: GAMESS OUT file: unknown element %s in: %s" % (sym,card) ))
             else:
                 xyz = map(float, (m.group(2),m.group(3), m.group(4)))
                 a = atom(sym, A(xyz), mol)
@@ -272,7 +277,7 @@ def _get_atomlist_from_gms_outfile(assy, filename):
 # Let caller handle history msgs.  Mark 050712
 #    if not newAtomList:
 #        msg = "Warning: GAMESS file contains no equilibrium geometry.  No atoms read into part."
-#        assy.w.history.message( redmsg(msg))
+#        env.history.message( redmsg(msg))
 #        return None
     
     return newAtomList

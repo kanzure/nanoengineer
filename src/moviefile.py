@@ -4,6 +4,9 @@ moviefile.py -- classes and other code for interpreting movie files
 (of various formats, once we have them)
 
 $Id$
+
+bruce 050913 used env.history in some places, removed history args
+from some function/method APIs.
 """
 __author__ = "Bruce" #k for now... I might bring in some older code too
 
@@ -19,8 +22,9 @@ from struct import unpack # fyi: used for old-format header, no longer for delta
 from Numeric import array, Int8
 import platform
 from debug import print_compact_stack, print_compact_traceback
+import env
 
-def MovieFile(filename, history = None):
+def MovieFile(filename): #bruce 050913 removed history arg, since all callers passed env.history
     """Given the name of an existing old-format movie file,
     return an object which can read frames from it
     (perhaps only after receiving further advice from its client code,
@@ -28,7 +32,7 @@ def MovieFile(filename, history = None):
        The returned object should also know whatever can be known
     from the moviefile itself about the movie... like number of frames and atoms...
     for the old format, that's all there is.
-       In case of a fatal error, print an appropriate message to history (if provided)
+       In case of a fatal error, print an appropriate message to env.history
     and return None. We might also print warnings to history (I don't know #k).
        In future, when new format is available, we'll detect the format in the file
     and open it in the proper way, perhaps also taking optional arguments for a trace filename,
@@ -36,15 +40,14 @@ def MovieFile(filename, history = None):
        See also the docstring of class OldFormatMovieFile.
     """
     # for now, assume old format, and assume file exists and has reached its final size.
-    reader = OldFormatMovieFile_startup( filename, history)
+    reader = OldFormatMovieFile_startup( filename)
     if reader.open_and_read_header_errQ():
         return None
     return OldFormatMovieFile( reader)
 
 class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to recheck header later, and big one needs invalid state anyway
-    def __init__(self, filename, history = None):
+    def __init__(self, filename): #bruce 050913 removed history arg
         self.filename = filename
-        self.history = history
         self.fileobj = None
         self.errcode = None
     def open_and_read_header_errQ(self):
@@ -74,11 +77,8 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         return
     def error(self, msg):
         self.errcode = msg or "error" # public attr for callers to see...
-        if self.history:
-            from HistoryWidget import redmsg
-            self.history.message( redmsg( msg))
-        else:
-            print "error:",msg
+        from HistoryWidget import redmsg
+        env.history.message( redmsg( msg))
         return
     def delta_frame_bytes(self, n):
         "return the bytes of the delta frame which has index n (assuming our file is open and n is within legal range)"

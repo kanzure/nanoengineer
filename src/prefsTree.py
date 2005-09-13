@@ -11,7 +11,7 @@ History:
 
 bruce 050613 started this.
 
-bruce 050901 used env.history in some places.
+bruce 050901, 050913 used env.history in some places.
 '''
 
 __author__ = "bruce"
@@ -20,7 +20,7 @@ from Utility import Node, Group
 import time, sys, os
 from part import Part
 from constants import noop, dispLabel, default_display_mode
-import env #bruce 050901
+import env
 
 debug_prefstree = 1 ###@@@ safe for commit even when 1
 
@@ -174,8 +174,8 @@ def read_mmp_single_part(assy, filename):
     # start incredible kluge block
     history = env.history
         #bruce 050901 revised this.
-        # It depends on there being only one active history object at a time
-        # (i.e. on win.history is env.history, if win.history still exists).
+        # It depends on there being only one active history object at a time.
+        # (Before 050913, that object was stored as both env.history and win.history.)
     oldmessage = history.message
     from constants import noop
     history.message = noop # don't bother user with this file being nonstd (bad, should pass a flag, so other errors seen)

@@ -31,11 +31,7 @@ import env
 
 Purpose and future plans:
 
-Soon we should move some more variables here from platform, assy, win, and/or globalParms,
-especially win.history (as a place to record things, of which there is one at a time,
-even if we someday have more than one widget to view it, and change it dynamically to record
-object-specific histories -- well, in that case an object-attr might be appropriate,
-but not an assy or win attr like now!).
+Soon we should move some more variables here from platform, assy, win, and/or globalParms.
 
 We might also put some "dynamic variables" here, like the current Part --
 this is not yet decided.
@@ -43,7 +39,7 @@ this is not yet decided.
 Generators used to allocate things also might belong here, whether or not
 we have global dicts of allocated things. (E.g. the one for atom keys.)
 
-The main test of whether something might belong here is whether there will always be at most one
+One test of whether something might belong here is whether there will always be at most one
 of them per process (or per active thread), even when we support multiple open files,
 multiple main windows, multiple glpanes and model trees, etc.
 
@@ -55,7 +51,10 @@ bruce 050610 made this module (since we've needed it for awhile), under the name
 
 bruce 050627 renamed this module to "env.py", since "globals" is a Python builtin function.
 
-bruce 050803 new features to help with graphics updates when preferences are changed 
+bruce 050803 new features to help with graphics updates when preferences are changed
+
+bruce 050913 converted most or all remaining uses of win.history to env.history,
+and officially deprecated win.history.
 '''
 
 __author__ = 'bruce'
@@ -114,11 +113,12 @@ import platform
 
 class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemantics.py
     too_early = 1
-        # defined so insiders can detect that it's too early (using hasattr)
-        # and not call us at all (as they could have using hasattr on win.history
-        #  before this "safety net" for early messages was added)
+        # defined so insiders can detect that it's too early (using hasattr on history)
+        # and not call us at all (though it'd be better for them to check something else,
+        # like win.initialised, and make sure messages sent to this object get saved up
+        # and printed into the widget once it exists) [bruce 050913 revised comment]
     def message(self, msg, **options):
-        """This exists to handle messages sent to win.history or env.history during
+        """This exists to handle messages sent to win.history [deprecated] or env.history during
         win.__init__, before the history widget has been created!
         Someday it might save them up and print them when that becomes possible.
         """

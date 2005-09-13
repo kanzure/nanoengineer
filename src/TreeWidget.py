@@ -15,6 +15,8 @@ and split it into three modules:
 - TreeWidget.py (event handling, and some conventions suitable for
   all our tree widgets, if we define other ones), and
 - modelTree.py (customized for showing a "model tree" per se).
+
+bruce 050913 used env.history in some places.
 """
 
 from TreeView import * # including class TreeView, and import * from many other modules
@@ -24,8 +26,9 @@ from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
 from selectMode import selectMode
 from selectMode import selectMolsMode, selectAtomsMode
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
-
 from platform import tupleFromQPoint, fix_plurals
+import os
+import env
 
 # but platform thinks "# def qpointFromTuple - not needed"; for now, don't argue, just do it here:
 def QPointFromTuple((x,y)):
@@ -36,7 +39,6 @@ debug_dragstuff = 0 # DO NOT COMMIT with 1. - at least not for the alpha-release
     # import TreeWidget@@@TreeWidget.debug_dragstuff = 1
 
 # catch and fix error of my having committed this code with debug_dragstuff set:
-import os
 if not (os.path.isdir("/Users/bruce") and os.path.isdir("/Huge")):
     # oops, I committed with that set to 1! sorry.
     # (well, since this check is here, i might commit it with 1 a few times, but remove it pre-release)
@@ -508,7 +510,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def statusbar_msg(self, msg):
         #e should store the current one for this widget, to share sbar with other widgets;
         # or better, the method we're calling should do that for all widgets (or their parts) in a uniform way
-        self.win.history.transient_msg( msg)
+        env.history.transient_msg( msg)
 
     # external update methods
     
@@ -1767,7 +1769,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             #  someone drops way too much text onto us, which they can easily avoid doing.)
             if len(text) > 250:
                 text = text[:250] + "..."
-            self.win.history.message("fyi: accepted (but ignoring) this dropped text from outside this widget: %r" % text)
+            env.history.message("fyi: accepted (but ignoring) this dropped text from outside this widget: %r" % text)
         else:
             # drop was not able to provide us with text -- can't possibly be one of ours
             if self.drag_handler and self.drag_handler.doing_our_own_drag:
@@ -1781,7 +1783,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def redmsg(self, errmsg): #e someday this might come from the subclass #e refile this method near statusbar_msg
         "put an error message into the History"
         from HistoryWidget import redmsg
-        self.win.history.message( redmsg(errmsg))
+        env.history.message( redmsg(errmsg))
         self.statusbar_msg(" ") # probably a good idea -- not sure!
         return
 
@@ -1994,7 +1996,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             ## newname = oldname # since newname should be what we want to show in the node now!
             ##      # [bruce 050128 to fix new bug mentioned by Ninad and in the catchall bug report]
             res = "can't rename %s to \"%s\": %s" % (what, text_now_displayed, reason) #e redmsg too?
-            ##e not sure this is legal (it's a func but maybe not a method): res = self.win.history.redmsg(res)
+            ##e not sure this is legal (it's a func but maybe not a method): res = env.history.redmsg(res)
         newname = item.object.name # better to just get it from here -- shouldn't even return it from try_rename! #e
         if (not ok) or text_now_displayed != newname:
             # (this can happen for multiple reasons, depending on Node.try_rename:
@@ -2003,7 +2005,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # (might happen later, too, if try_rename invalidated this node;
             #  even so it's good to do it now so user sees it a bit sooner)
             item.setText(col, newname)
-        self.win.history.message( res)
+        env.history.message( res)
         #obs: # no need for more mtree updating than that, I hope (maybe selection? not sure)
         #bruce 050128 precautionary change -- undo the picking done by the
         # first click of the double-click that started the renaming
@@ -2128,14 +2130,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
         splitter.update()
         win.mt.setContentsPos( x, y) # do this 3 times ... doesn't help avoid a "flicker to no scrollbar state"
             # but i bet setting the contents height initially would help! try it sometime. ###e
-        import env
         env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
             # might be needed before setContentPos in order to make it work
         win.mt.setContentsPos( x, y) # do this 3 times - was not enough to do it before updateGeometry above
 ##        win.mt.show()
 ##        self.hide()
         print "done reloading... I guess"
-        win.history.message( "reloaded model tree, init time %s" % win.mt._init_time)
+        env.history.message( "reloaded model tree, init time %s" % win.mt._init_time)
         return
 
     def filter_reload_modules(self, modules):

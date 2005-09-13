@@ -178,7 +178,6 @@ class _readmmp_state:
     # (e.g. for reading sim input files for minimize selection)
     def __init__(self, assy, isInsert):
         self.assy = assy
-        ## self.history = env.history ###k probably not needed
         self.isInsert = isInsert
         #bruce 050405 made the following from old _readmmp localvars, and revised their comments
         self.mol = None # the current molecule being built, if any [bruce comment 050228]
@@ -817,7 +816,7 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
 # ==
 
 def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & docstring
-    """Read an mmp file, print errors and warnings to assy.history,
+    """Read an mmp file, print errors and warnings to history,
     modify assy in various ways (a bad design, see comment in insertmmp)
     (but don't actually add file contents to assy -- let caller do that if and where it prefers),
     and return either None (after an error for which caller should store no file contents at all)

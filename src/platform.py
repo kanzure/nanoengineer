@@ -7,12 +7,16 @@ Also includes some other code that might conceivably vary by platform,
 but mainly is here since it had no better place to live.
 
 $Id$
+
+bruce 050913 used env.history in some places, revised open_file_in_editor API.
 """
 __author__ = "bruce"
 
 import sys, os, time
 from qt import Qt, QDesktopWidget, QRect
 from constants import * # e.g. for leftButton
+
+import env
 
 # file utilities
 
@@ -507,7 +511,7 @@ def get_window_pos_size(win):
     pos = tupleFromQPoint( win.pos())
     return pos, size
 
-def save_window_pos_size( win, keyprefix, histmessage = None):
+def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
     """Save the size and position of the given main window, win,
     in the preferences database, using keys based on the given keyprefix,
     which caller ought to reserve for geometry aspects of the main window.
@@ -519,11 +523,10 @@ def save_window_pos_size( win, keyprefix, histmessage = None):
     pos, size = get_window_pos_size(win)
     changes = { ksize: size, kpos: pos }
     prefs.update( changes) # use update so it only opens/closes dbfile once
-    if histmessage:
-        histmessage("saved window position %r and size %r" % (pos,size))
+    env.history.message("saved window position %r and size %r" % (pos,size))
     return
 
-def load_window_pos_size( win, keyprefix, defaults = None, screen = None, histmessage = None):
+def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruce 050913 removed histmessage arg
     """Load the last-saved size and position of the given main window, win,
     from the preferences database, using keys based on the given keyprefix,
     which caller ought to reserve for geometry aspects of the main window.
@@ -555,27 +558,26 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None, histme
     if py < y0: py = y0
     if px > x1 - sx: px = x1 - sx
     if py > y1 - sy: py = y1 - sy
-    if histmessage:
-        histmessage("restoring last-saved window position %r and size %r" % ((px,py),(sx,sy)))
+    env.history.message("restoring last-saved window position %r and size %r" % ((px,py),(sx,sy)))
     win.resize(sx,sy)
     win.move(px,py)
     return
 
-def open_file_in_editor(file, history = None): #bruce 050704 added history arg 
-    """Opens a file in a standard text editor. If history arg is provided,
-    it should be the history widget, and error messages will be printed there;
-    in all cases, the same error messages are printed to the console.
+def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
+    """Opens a file in a standard text editor.
+    Error messages go to console and (unless hflag is false) to env.history.
     """
+    #bruce 050913 replaced history arg with hflag = True, since all callers passed env.history to history arg.
     file = os.path.normpath(file)
     
-    if history is not None:
+    if hflag:
         from HistoryWidget import redmsg
     
     if not os.path.exists(file):
         msg = "File does not exist: " + file
         print msg
-        if history is not None:
-            history.message(redmsg(msg))
+        if hflag:
+            env.history.message(redmsg(msg))
         return
         
     editor_and_args = get_text_editor()
@@ -601,12 +603,12 @@ def open_file_in_editor(file, history = None): #bruce 050704 added history arg
             print_compact_traceback("Exception in editor; continuing: ")
             msg = "Cannot open file " + file + ".  Trouble spawning editor " + editor
             print msg
-            if history is not None:
-                history.message(redmsg(msg))
+            if hflag:
+                env.history.message(redmsg(msg))
     else:
         msg = "Cannot open file " + file + ".  Editor " + editor + " not found."
-        if history is not None:
-            history.message(redmsg(msg))
+        if hflag:
+            env.history.message(redmsg(msg))
     return
             
 def get_text_editor(): #bruce 050704 revised API

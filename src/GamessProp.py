@@ -539,7 +539,7 @@ class GamessProp(GamessPropDialog):
         writegms_inpfile(tmp_inputfile, self.gamessJig)
         
         from platform import open_file_in_editor
-        open_file_in_editor(tmp_inputfile, history = env.history)
+        open_file_in_editor(tmp_inputfile)
                 
     def run_job(self):
         """Slot method for the 'Save and Run' button """

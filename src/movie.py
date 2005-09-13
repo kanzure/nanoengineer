@@ -12,7 +12,8 @@ Initially by Mark.
 
 Some parts rewritten by Bruce circa 050427.
 
-bruce 050913 used env.history in some places.
+bruce 050913 used env.history in some places, removed history args
+from some function/method APIs.
 """
 
 __author__ = "Mark"
@@ -234,7 +235,9 @@ class Movie:
         return
     
     def __getattr__(self, attr):
-        if attr == 'history': #bruce 050913 revised this; I suspect it's not needed and could be removed
+        if attr == 'history':
+            #bruce 050913 revised this; I suspect it's not needed and could be removed
+            print_compact_traceback("deprecated code warning: something accessed Movie.history attribute: ")
             return env.history
 ##        if attr == 'part':
 ##            if self.alist:
@@ -1132,8 +1135,8 @@ class alist_and_moviefile:
         (#e but in future we might decide instead to check it, or to use it in some other way...).
         """
         self.alist = alist # needed for rechecking the match
-        self.history = env.history # not yet used, but probably will be used for error messages
-        self.moviefile = MovieFile( filename, history = env.history)
+        ## self.history = env.history # not yet used, but probably will be used for error messages [bruce 050913 removed this]
+        self.moviefile = MovieFile( filename)
         self.movable_atoms = None 
         if not self.moviefile:
             pass ## MovieFile will have emitted a history message (I hope)
@@ -1217,11 +1220,11 @@ def find_saved_movie( assy, mfile):
     # otherwise it failed but did NOT already emit error messages about that (should it? in future, only it knows why it failed)
     return None
 
-def _checkMovieFile(part, filename, history = None):
+def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all callers pass env.history
     """Returns 0 if filename is (or might be) a valid movie file for the specified part.
     Returns 1 if filename does not exist.
     Returns 2 if the movie file does not match the part.
-    If history arg is provided, prints error messages to it
+    Prints error messages to env.history
     (whenever return value is not zero).
     """
     #bruce 050427 comment: This should be merged with related code in moviefile.py,
@@ -1229,14 +1232,14 @@ def _checkMovieFile(part, filename, history = None):
     #bruce 050324 made this a separate function, since it's not about a specific
     # Movie instance, just about a Part and a filename. Both args are now required,
     # and a new optional arg "history" is both where and whether to print errors
-    # (both existing calls have been changed to pass it).
+    # (both existing calls have been changed to pass it). [bruce 050913 hardcoded that arg to env.history.]
     # This function only checks number of atoms, and assumes all atoms of the Part
     # must be involved in the movie (in an order known to the Part, not checked,
     # though the order can easily be wrong).
     # It is not yet updated to handle the "new dpb format" (ie it doesn't get help
     # from either file keys or movie ids or atom positions) or movies made from
     # a possible future "simulate selection" operation.
-    print_errors = not not history
+    print_errors = True
     
     if DEBUG1: print "movie._checkMovieFile() function called. filename = ", filename
     
@@ -1244,7 +1247,7 @@ def _checkMovieFile(part, filename, history = None):
     if not os.path.exists(filename):
         if print_errors:
             msg = redmsg("Cannot play movie file [" + filename + "]. It does not exist.")
-            history.message(msg)
+            env.history.message(msg)
         return 1
 
     #bruce 050411: protect against no part (though better if caller does this); see bug 497.
@@ -1259,7 +1262,7 @@ def _checkMovieFile(part, filename, history = None):
             ## can't do this, no movie arg!!! self.debug_print_movie_info()
         if print_errors:
             msg = redmsg("Movie file [" + filename + "] can't be played for current part.") # vaguer & different wording, since bug
-            history.message(msg)
+            env.history.message(msg)
         return 2
 
     # start of code that should be moved into moviefile.py and merged with similar code there
@@ -1283,7 +1286,7 @@ def _checkMovieFile(part, filename, history = None):
             print "atom_debug: not natoms == part.natoms, %d %d" % (natoms, part.natoms)
         if print_errors:
             msg = redmsg("Movie file [" + filename + "] not valid for the current part.")
-            history.message(msg)
+            env.history.message(msg)
         return 2
     pass
 

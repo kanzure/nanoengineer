@@ -3,6 +3,10 @@
 jig_Gamess.py
 
 $Id$
+
+Created by Mark.
+
+bruce 050913 used env.history in some places.
 '''
 __author__ = "Mark"
 
@@ -13,6 +17,8 @@ from GamessJob import *
 from povheader import povpoint # Fix for bug 692 Mark 050628
 from SimServer import SimServer
 from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
+import env
+from HistoryWidget import redmsg #bruce 050913 precaution -- probably covered by some "import *" above, but good to do explicitly
 
 # == GAMESS
 
@@ -43,7 +49,8 @@ class Gamess(Jig):
         # set default color of new gamess jig to magenta
         self.color = magenta # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = magenta # This is the normal (unselected) color.
-        self.history = assy.w.history
+        #bruce 050913 thinks self.history is no longer needed:
+        ## self.history = env.history
         #self.psets = [] # list of parms set objects [as of circa 050704, only the first of these is ever defined (thinks bruce)]
         self.pset = gamessParms('Parameter Set 1')
         self.gmsjob = GamessJob(Gamess.job_parms, jig=self)
@@ -141,9 +148,9 @@ class Gamess(Jig):
         if r == 0: # Success
             self.print_energy()
         elif r==1: # Job was cancelled
-            self.history.message( redmsg( "GAMESS job cancelled."))
+            env.history.message( redmsg( "GAMESS job cancelled."))
         else: # Job failed.
-            self.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
+            env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
             
     def __CM_Optimize(self):
         '''Gamess Jig context menu "Optimize"
@@ -171,20 +178,20 @@ class Gamess(Jig):
             except:
                 print_compact_traceback( "GamessProp.run_job(): error reading GAMESS OUT file [%s]: " % \
                     self.outputfile )
-                self.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + self.outputfile) )
+                env.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + self.outputfile) )
             else:
                 if r2:
-                    self.history.message(redmsg( "Atoms not adjusted."))
+                    env.history.message(redmsg( "Atoms not adjusted."))
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     self.print_energy() # Print the final energy from the optimize OUT file, too.
-                    self.history.message( "Atoms adjusted.")
+                    env.history.message( "Atoms adjusted.")
                     
         elif r==1: # Job was cancelled
-            self.history.message( redmsg( "GAMESS job cancelled."))
+            env.history.message( redmsg( "GAMESS job cancelled."))
             
         else: # Job failed.
-            self.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
+            env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
     
     def __CM_Optimize__options(self):
         if Jig.is_disabled(self):
@@ -205,22 +212,22 @@ class Gamess(Jig):
 
         if r == 1: # GAMESS terminated abnormally.
             if final_energy_str:
-                self.history.message(redmsg(final_energy_str + " Check if you have set the right Gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+                env.history.message(redmsg(final_energy_str + " Check if you have set the right Gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
                 return
                 
             msg = "Final energy value not found. The output file is located at: " + self.outputfile
-            self.history.message(redmsg(msg))
+            env.history.message(redmsg(msg))
         
         elif r == 2: # The output file not exist
             msg = "The output file %s doesn't exist. The reason is either that Gamess didn't run or the output file has been deleted. " % self.outputfile
-            self.history.message(redmsg(msg))
+            env.history.message(redmsg(msg))
             
         else: # Final energy was found.
             gmstr = self.gms_parms_info()
             msg = "GAMESS finished. The output file is located at: " + self.outputfile
-            self.history.message(msg)
+            env.history.message(msg)
             msg = "Parameters: " + gmstr + ".  The final energy is: " + final_energy_str + " Hartree."
-            self.history.message(msg)
+            env.history.message(msg)
 
     mmp_record_name = "gamess" #bruce 050701
 
@@ -237,7 +244,7 @@ class Gamess(Jig):
             #self.assy.w.win_update()
             return 0
         else:
-            self.history.message(redmsg( newPositions))
+            env.history.message(redmsg( newPositions))
             return 1
                 
     def move_atoms(self, newPositions): # used when reading xyz files
@@ -363,7 +370,7 @@ class Gamess(Jig):
         orig.addsibling(copy)
         if copy.part is None: #bruce 050707 see if this is enough to fix bug 755
             self.assy.update_parts()
-        self.assy.w.history.message( "Made duplicate Gamess jig on same atoms: [%s]" % copy.name )
+        env.history.message( "Made duplicate Gamess jig on same atoms: [%s]" % copy.name )
             # note: the wire cubes from multiple jigs on the sme atoms get overdrawn,
             # which will mess up the selection coloring of those wirecubes
             # since the order of drawing them is unrelated to which one is selected
@@ -585,8 +592,9 @@ class gamessParms:
             line = "info gamess %s %s = %s\n" % (pset_index, name, valstring)
             if len(line) > 511:
                 msg = "can't write this mmp line (too long for mmp format): " + line
+                    #bruce 050913 comment: this restriction might no longer be valid for sim executables as of a few days ago
                 print msg
-                history.message( redmsg( "Error: " + msg) )
+                env.history.message( redmsg( "Error: " + msg) )
                 mapping.write("# didn't write too-long valstring for info gamess %s %s = ...\n" % (pset_index, name))
             else:
                 mapping.write(line)
