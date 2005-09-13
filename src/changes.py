@@ -563,7 +563,6 @@ class op_run:
         pass
     def printmsg(self, text):
         # print "atom_debug: fyi: %s" % text
-        import env
         env.history.message( "debug: " + text ) # might be recursive call of history.message; ok in theory but untested ###@@@
     def indent(self):
         "return an indent string based on the stack length; we assume the stack does not include this object"
