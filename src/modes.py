@@ -95,6 +95,7 @@ class anyMode:
     # them in subclasses and/or instances, and modify them directly.
     
     backgroundColor = 0.0, 0.0, 0.0
+    backgroundGradient = False #bruce 050913 bugfix of Mark 050808 code (all mode objects must now have this attribute)
     # internal name of mode, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
     modename = "(bug: missing modename 1)" 
