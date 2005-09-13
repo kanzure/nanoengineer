@@ -14,6 +14,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from VQT import V, norm, Q
+import env
 
 class ops_motion_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -50,26 +51,32 @@ class ops_motion_Mixin:
             
     #stretch a molecule
     def Stretch(self):
-        
-        cmd = greenmsg("Stretch: ")
-        
-        if not self.selmols:
-            msg =  redmsg("No selected chunks to stretch")
-            self.w.history.message(cmd + msg)
-            return
-        self.changed()
-        for m in self.selmols:
-            m.stretch(1.1)
-        self.o.gl_update()
-        
-        # Added history message.  Mark 050413.
-        info = fix_plurals( "Stretched %d chunk(s)" % len(self.selmols))
-        self.w.history.message( cmd + info)
 
+        mc = env.begin_op("Stretch")
+        try:
+            cmd = greenmsg("Stretch: ")
+            
+            if not self.selmols:
+                msg =  redmsg("No selected chunks to stretch")
+                self.w.history.message(cmd + msg)
+            else:
+                self.changed()
+                for m in self.selmols:
+                    m.stretch(1.1)
+                self.o.gl_update()
+                
+                # Added history message.  Mark 050413.
+                info = fix_plurals( "Stretched %d chunk(s)" % len(self.selmols))
+                self.w.history.message( cmd + info)
+        finally:
+            env.end_op(mc)
+        return
+    
     #invert a chunk
     def Invert(self):
         '''Invert the atoms of the selected chunk(s)'''
-        
+
+        mc = env.begin_op("Invert")
         cmd = greenmsg("Invert: ")
         
         if not self.selmols:
@@ -83,6 +90,7 @@ class ops_motion_Mixin:
         
         info = fix_plurals( "Inverted %d chunk(s)" % len(self.selmols))
         self.w.history.message( cmd + info)
+        env.end_op(mc) #e try/finally?
     
     def align(self):
         
