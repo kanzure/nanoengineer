@@ -283,6 +283,9 @@ def remake_bonds_in_selection( selection ):
         "on %d selected atoms, replaced %d old bond(s) with %d new (or same) bond(s); changed %d atomtype(s) to default" %
         (n_atoms, n_bonds_destroyed, n_bonds_made, n_atomtypes_changed)
      )
+    #e note, present implem marks lots of atoms as changed (from destroying and remaking bonds) which did not change;
+    # this only matters much for redrawing speed (of unchanged chunks) and since file is always marked as changed
+    # even if nothing changed at all.
     return
 
 register_command( "Remake bonds", remake_bonds_in_selection ) ###IMPLEM, and have it add in the initial history message
