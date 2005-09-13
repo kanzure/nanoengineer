@@ -8,7 +8,8 @@ $Id$
 
 - bruce 050513 optims: using 'is' and 'is not' rather than '==', '!='
   for atoms, elements, atomtypes, in several places (not all commented individually); 050513
- 
+
+bruce 050913 used env.history in some places.
 """
 __author__ = "Josh"
 
@@ -28,6 +29,8 @@ from bond_constants import V_SINGLE
 
 from prefs_constants import HICOLOR_singlet
     ###e should replace uses of these with prefs gets [bruce 050805] #####@@@@@
+
+import env
 
 HICOLOR_singlet_bond = white ## ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_bond)
     # note: HICOLOR_singlet_bond is no longer used (unless there are bugs),
@@ -870,7 +873,7 @@ class depositMode(basicMode):
             # come up with a status bar message about what we would paste now.
             # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
             msg = self.describe_leftDown_action( glpane.selatom)
-            self.w.history.transient_msg( msg) # uses status bar #e rename that method
+            env.history.transient_msg( msg) # uses status bar #e rename that method
         if glpane.selatom is not oldselatom:
             # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
             glpane.gl_update() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
@@ -897,7 +900,7 @@ class depositMode(basicMode):
             # come up with a status bar message about what we would paste now.
             # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
             msg = self.describe_leftDown_action( self.o.selatom)
-            self.w.history.transient_msg( msg) # uses status bar #e rename that method
+            env.history.transient_msg( msg) # uses status bar #e rename that method
         if self.o.selatom is not oldselatom:
             # update display
             self.o.gl_update() # draws selatom too, since its chunk is not hidden
@@ -1109,7 +1112,7 @@ class depositMode(basicMode):
         """
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
-        self.w.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
+        env.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
@@ -1127,14 +1130,15 @@ class depositMode(basicMode):
 	newAssy, anchorAtom = self.modellingKit.getPastablePart()
 	    
         if a: # if some atom (not bond) was "lit up"
-            ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
+            ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element is Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
 		
 		if newAssy and anchorAtom : # Try to paste part if it's possible[Huaicai]
 		    self._pastePart(newAssy, anchorAtom, a)
-		elif newAssy and not anchorAtom: self.w.history.message("The part you want to paste has either no open bonds or has open bonds but none of them is set as a hotspot.")
-		
+		elif newAssy and not anchorAtom:
+                    env.history.message("The part you want to paste has either no open bonds " \
+                                        "or has open bonds but none of them is set as a hotspot.")
                 elif self.w.pasteP:
                     # user wants to paste something
                     if self.pastable:
@@ -1177,7 +1181,7 @@ class depositMode(basicMode):
 		
 		if not newAssy :  ##Added the condition [Huaicai 8/26/05]
 		    status = self.ensure_visible(chunk, status) #bruce 041207
-		    self.w.history.message(status)
+		    env.history.message(status)
                 self.w.win_update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
@@ -1249,7 +1253,7 @@ class depositMode(basicMode):
             # by making this new chunk visible if it otherwise would not be
 	    if not newAssy:  ##Added the condition [Huaicai 8/26/05]
 		status = self.ensure_visible(chunk, status) #bruce 041207
-		self.w.history.message(status)
+		env.history.message(status)
 		# fall thru
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
@@ -1334,7 +1338,7 @@ class depositMode(basicMode):
         the real atoms it's bonded to).
         """
         #bruce 041130 revised docstring
-        self.w.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
+        env.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.line = None #bruce 041130 precaution
         self.baggage = [] #bruce 041130 precaution
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
@@ -1343,7 +1347,7 @@ class depositMode(basicMode):
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
-        ## self.w.history.message("%r" % a) #bruce 041208 to zap leftover msgs
+        ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.changed()
         if a.element is Singlet:
@@ -1438,12 +1442,12 @@ class depositMode(basicMode):
             else:
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
             this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
-            self.w.history.message(msg, transient_id = this_drag_id)
+            env.history.message(msg, transient_id = this_drag_id)
         self.o.gl_update()
         return
 
     def leftShiftUp(self, event):
-        self.w.history.flush_saved_transients()
+        env.history.flush_saved_transients()
             # flush any transient message it saved up
         if not self.dragatom: return
         self.baggage = []
@@ -1477,12 +1481,12 @@ class depositMode(basicMode):
         flag, status = bond_at_singlets(dragatom, selatom, \
                          print_error_details = print_error_details, increase_bond_order = True)
         # we ignore flag, which says whether it's ok, warning, or error
-        self.w.history.message("%s: %s" % (self.msg_modename, status))
+        env.history.message("%s: %s" % (self.msg_modename, status))
         return
 
     ## delete with cntl-left mouse
     def leftCntlDown(self, event):
-        self.w.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
+        env.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         a = self.o.selatom
@@ -1490,12 +1494,12 @@ class depositMode(basicMode):
         if a is not None:
             # this may change hybridization someday
             if a.element is Singlet: return
-            self.w.history.message("deleting %r" % a) #bruce 041208
+            env.history.message("deleting %r" % a) #bruce 041208
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.changed()
         elif isinstance( selobj, Bond) and not selobj.is_open_bond(): #bruce 050727 new feature
-            self.w.history.message_no_html("breaking bond %s" % selobj)
+            env.history.message_no_html("breaking bond %s" % selobj)
                 ###e %r doesn't show bond type, but %s doesn't work in history since it contains "<-->" which looks like HTML.
                 ###e Should fix with a utility to quote HTML-active chars, to call here on the message.
             self.o.selobj = None # without this, the bond remains highlighted even after it's broken (visible if it's toolong)
@@ -1641,7 +1645,7 @@ class depositMode(basicMode):
 ##                # remove it from the statusbar when it's no longer
 ##                # accurate!
 ##                #
-##                ## self.w.history.message("Ready to paste %r" % self.pastable.name)
+##                ## env.history.message("Ready to paste %r" % self.pastable.name)
 ##            except: # IndexError (or its name is messed up)
 ##                # should never happen, but be robust [bruce 041124]
 ##                self.pastable = None
@@ -1696,10 +1700,10 @@ class depositMode(basicMode):
                 self.bondclick_v6 = v6
             if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
-                self.w.history.transient_msg("click bonds to make them %s" % name) # name is 'single' etc
+                env.history.transient_msg("click bonds to make them %s" % name) # name is 'single' etc
             else:
                 # this never happens (as explained above)
-                self.w.history.transient_msg(" ") # clicking bonds now does nothing
+                env.history.transient_msg(" ") # clicking bonds now does nothing
                 ## print "turned it off"
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one

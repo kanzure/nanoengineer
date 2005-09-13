@@ -3,8 +3,18 @@
 GamessProp.py
 
 $Id$
+
+History:
+
+Created by Mark.
+
+bruce 050913 used env.history in some places.
+
 '''
 __author__ = "Mark"
+
+import env
+# many more imports lower down
 
 
 # Ask Bruce where all this should ultimately live.
@@ -238,7 +248,6 @@ class GamessProp(GamessPropDialog):
         self.pset = self.gamessJig.pset
         self.win = self.gamessJig.assy.w
         self.glpane = self.gamessJig.assy.o
-        self.history = self.gamessJig.assy.w.history
         
         if self._setup(): return
         self.exec_loop()
@@ -530,7 +539,7 @@ class GamessProp(GamessPropDialog):
         writegms_inpfile(tmp_inputfile, self.gamessJig)
         
         from platform import open_file_in_editor
-        open_file_in_editor(tmp_inputfile, history = self.history)
+        open_file_in_editor(tmp_inputfile, history = env.history)
                 
     def run_job(self):
         """Slot method for the 'Save and Run' button """
@@ -544,11 +553,11 @@ class GamessProp(GamessPropDialog):
         r = self.job.launch()
         
         if r==1: # Job was cancelled
-            self.history.message( redmsg( "GAMESS job cancelled."))
+            env.history.message( redmsg( "GAMESS job cancelled."))
             return
             
         if r==2: # Job failed.
-            self.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
+            env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
             return
         
         # Job success.  
@@ -563,14 +572,14 @@ class GamessProp(GamessPropDialog):
                 # r = insertgms(self.gamessJig.assy, fn)
             except:
                 print_compact_traceback( "GamessProp.run_job(): error reading GAMESS OUT file [%s]: " % fn )
-                self.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + fn) )
+                env.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + fn) )
             else:
                 if r:
-                    self.history.message(redmsg( "Atoms not adjusted."))
+                    env.history.message(redmsg( "Atoms not adjusted."))
                 else:
                     self.gamessJig.assy.changed() # The file and the part are not the same.
                     self.gamessJig.print_energy() # Print the final energy from the optimize OUT file, too.
-                    self.history.message( "Atoms adjusted.")
+                    env.history.message( "Atoms adjusted.")
                     
     def accept(self):
         """The slot method for the 'Save' button."""

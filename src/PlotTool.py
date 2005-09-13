@@ -3,6 +3,8 @@
 PlotTool.py
 
 $Id$
+
+bruce 050913 used env.history in some places.
 '''
 __author__ = "Mark"
 
@@ -13,6 +15,7 @@ import sys, os, string, linecache
 from HistoryWidget import redmsg, greenmsg
 from movie import find_saved_movie #bruce 050329 fix bug 499
 from platform import open_file_in_editor
+import env
 
 cmd = greenmsg("Plot Tool: ")
 
@@ -20,8 +23,6 @@ class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
         parent = assy.w
         PlotToolDialog.__init__(self, parent)
-        ## self.assy = assy
-        self.history = assy.w.history #bruce 050326
         self.movie = movie # before bruce 050326 was assy.current_movie
         self.setup()
         self.show() # Fixed bug 440-1.  Mark 050802.
@@ -43,7 +44,7 @@ class PlotTool(PlotToolDialog):
         # Make sure there is a DPB file for the assy. 
         if not self.movie or not self.movie.filename:
             msg = redmsg("No tracefile exists for this part.  To create one, run a simulation.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return 1
         
         # Construct the trace file name.
@@ -53,7 +54,7 @@ class PlotTool(PlotToolDialog):
         # Make sure the tracefile exists
         if not os.path.exists(self.traceFile):
             msg = redmsg("Trace file [" + self.traceFile + "] is missing.  Plot aborted.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return 1
             
         # Construct the GNUplot filename.
@@ -100,9 +101,9 @@ class PlotTool(PlotToolDialog):
                 self.plot_combox.insertItem(gname[2:-1])
         else: # No jigs in the part, so nothing to plot.  Revised msgs per bug 440-2.  Mark 050731.
             msg = redmsg("The part contains no jigs that write data to the trace file.  Nothing to plot.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             msg = "The following jigs write output to the tracefile: Rotary Motors, Linear Motors, Grounds, Thermostats and Thermometers."
-            self.history.message(msg)
+            env.history.message(msg)
             return 1
         
         self.lastplot = 0
@@ -163,7 +164,7 @@ class PlotTool(PlotToolDialog):
         # Make sure plotfile exists
         if not os.path.exists(plotfile):
             msg = redmsg("Plotfile [" + program + "] is missing.  Plot aborted.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
             
         # filePath = the current directory NE-1 is running from.
@@ -189,7 +190,7 @@ class PlotTool(PlotToolDialog):
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
             msg = redmsg("GNUplot executable [" + program + "] is missing.  Plot aborted.")
-            self.history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return
         
         # Create arguments list for plotProcess.
@@ -208,9 +209,9 @@ class PlotTool(PlotToolDialog):
             rst = plotProcess.start(environVb)
                
             if not rst: 
-                self.history.message(redmsg("GNUplot failed to run!"))
+                env.history.message(redmsg("GNUplot failed to run!"))
             else: 
-                self.history.message("Running GNUplot file: " + plotfile)
+                env.history.message("Running GNUplot file: " + plotfile)
             
         except: # We had an exception.
             print"exception in GNUplot; continuing: "
@@ -222,12 +223,12 @@ class PlotTool(PlotToolDialog):
     def openTraceFile(self):
         """Opens the current tracefile in an editor.
         """
-        open_file_in_editor(self.traceFile, history = self.history)
+        open_file_in_editor(self.traceFile, history = env.history)
 
     def openGNUplotFile(self):
         """Opens the current GNUplot file in an editor.
         """
-        open_file_in_editor(self.plotFile, history = self.history)
+        open_file_in_editor(self.plotFile, history = env.history)
 
 # == 
 
@@ -247,8 +248,6 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
     # (since plotting from an old file shouldn't require movie to be valid for current part).
     #    This method should be moved into some other file.
 
-    history = assy.w.history
-    
     if assy.current_movie and assy.current_movie.filename:
         # (bruce 050326 asks: can an existing movie ever not have a filename? Depends on whether stored on error...)
         return PlotTool(assy, assy.current_movie) # Open Plot Tool dialog [and wait until it's dismissed]
@@ -257,11 +256,11 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
 
     # no valid current movie, look for saved one with same name as assy
     msg = redmsg("No simulation has been run yet.")
-    history.message(cmd + msg)
+    env.history.message(cmd + msg)
     if assy.filename:
         if assy.part is not assy.tree.part:
             msg = redmsg("Warning: Looking for saved movie for main part, not for displayed clipboard item.")
-            history.message(cmd + msg)
+            env.history.message(cmd + msg)
         mfile = assy.filename[:-4] + ".dpb"
         movie = find_saved_movie( assy, mfile)
             # just checks existence, not validity for current part or main part
@@ -275,11 +274,11 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
             msg = "Using previously saved movie for this part."
-            history.message(cmd + msg)
+            env.history.message(cmd + msg)
             return PlotTool(assy, movie)
         else:
             msg = redmsg("Can't find previously saved movie for this part.")
-            history.message(cmd + msg)
+            env.history.message(cmd + msg)
     return
 
 # end

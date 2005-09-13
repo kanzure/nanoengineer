@@ -137,8 +137,10 @@ def before_creating_app():
         else:
             print "Warning: working directory \"%s\" (from %s)" % (wd, where)
             print " no longer exists; using \"%s\" for this session." % globalParms['WorkingDirectory']
-            #e Ideally we'd print this into win.history, but that doesn't exist yet.
-            #e Someday we should save it up somewhere and print it into the history when that's created.
+            #e Ideally we'd print this into env.history, but as of 050913 it might be too early,
+            # and I'm not even 100% sure we can safely import env at this point (#k that should be found out).
+            #e Someday we should perhaps save this message somewhere and print it into the history widget
+            # when that's created (or make sure env.history can do this, and is importable now).
         pass
     return
 

@@ -1,8 +1,10 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 fusechunksMode.py
 
 $Id$
+
+bruce 050913 used env.history in some places.
 """
 
 __author__ = "Mark"
@@ -12,6 +14,7 @@ from extrudeMode import mergeable_singlets_Q_and_offset
 from chunk import bond_at_singlets
 from HistoryWidget import redmsg, orangemsg
 from platform import fix_plurals
+import env
 
 def do_what_MainWindowUI_should_do(w):
     'Populate the Fuse Chunks dashboard'
@@ -222,22 +225,22 @@ class fusechunksMode(modifyMode):
             if self.merged_chunks:
                 nchunks_str = "%d" % (len(self.merged_chunks) + 1,)   
                 msg = "Fuse Chunks: Bonds broken between %s chunks." % (nchunks_str)
-                self.w.history.message(msg)
+                env.history.message(msg)
                 msg = "Warning: Cannot separate the original chunks. You can do this yourself using <b>Modify > Separate</b>."
-                self.w.history.message(orangemsg(msg))
+                env.history.message(orangemsg(msg))
             
                 cnames = "Their names were: "
                 # Here are the original names...
                 for chunk in self.merged_chunks:
                     cnames += '[' + chunk.name + '] '
-                self.w.history.message(cnames)
+                env.history.message(cnames)
             
             self.find_fusables()
             self.o.gl_update()
                         
         else:
             msg = "Fuse Chunks: No bonds have been made yet.  Undo ignored."
-            self.w.history.message(redmsg(msg))
+            env.history.message(redmsg(msg))
         
     def leftDouble(self, event):
         # This keeps us from leaving Fuse Chunks mode, as is the case in Move Chunks mode.
@@ -411,13 +414,13 @@ class fusechunksMode(modifyMode):
                 msg = "%d open bond had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
             else:
                 msg = "%d open bonds had more than one option to form bonds with. They were not bonded." % (singlets_not_bonded,)
-            self.w.history.message(orangemsg(msg))
+            env.history.message(orangemsg(msg))
             
         else:  # All bond pairs had only one way to bond.
             total_bonds_made = len(self.bondable_pairs_atoms)
             
         msg = fix_plurals( "%d bond(s) made" % total_bonds_made)
-        self.w.history.message(msg)
+        env.history.message(msg)
 
         # This must be done before gl_update, or it will try to draw the 
         # bondable singlets again, which generates errors.
@@ -548,7 +551,7 @@ class fusechunksMode(modifyMode):
         # Print history msgs to inform the user what happened.                         
         total_atoms_fused = len(self.overlapping_atoms)
         msg = fix_plurals( "%d atom(s) fused with %d chunk(s)" % (total_atoms_fused, len(fused_chunks)))
-        self.w.history.message(msg)
+        env.history.message(msg)
         #"%s => %s overlapping atoms" % (tol_str, natoms_str)
         
         # Update the slider tolerance label.

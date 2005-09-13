@@ -6,6 +6,8 @@ Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-2
 Revised by many other developers since then (and perhaps before).
 
 $Id$
+
+bruce 050913 used env.history in some places.
 """
 
 ## bruce 050408 removed several "import *" below
@@ -517,7 +519,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         """[experimental method by bruce 040922]
 
-            ###@@@ need to merge this with self.win.history.message
+            ###@@@ need to merge this with env.history.message
             or make a sibling method! [bruce 041223]
         
            Show a warning to the user, without interrupting them
@@ -742,7 +744,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 val[name] = params
             # save the prefs to the database file
             prefs[key] = val
-            self.win.history.message( greenmsg( "Lighting preferences saved" ))
+            env.history.message( greenmsg( "Lighting preferences saved" ))
         except:
             print_compact_traceback("bug: exception in saveLighting (pref changes not saved): ")
             #e redmsg?
@@ -787,7 +789,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def restoreDefaultLighting(self, gl_update = True): # not yet tested, sole caller not yet used ###@@@
         "restore the default (built-in) lighting preferences (but don't save them)."
         self.setLighting( self._default_lights,  gl_update = gl_update )
-        ## self.win.history.message( greenmsg( "Lighting preferences restored to defaults (but not saved)" )) # not desired for now
+        ## env.history.message( greenmsg( "Lighting preferences restored to defaults (but not saved)" )) # not desired for now
         return True
     
     # ==
@@ -1319,7 +1321,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # or, just store it so code knows it's there, and (later) overdraw it for highlighting.
             self.set_selobj( newpicked, "newpicked")
             ###e we'll probably need to notify some observers that selobj changed (if in fact it did). ###@@@
-            ## self.win.history.transient_msg("%s" % newpicked) -- messed up by depmode "click to do x" msg
+            ## env.history.transient_msg("%s" % newpicked) -- messed up by depmode "click to do x" msg
         
         # otherwise don't change prior selobj -- we have a separate system to set it back to None when needed
         # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
@@ -1475,7 +1477,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     msg = "<exception in selobj statusbar message code>"
             else:
                 msg = " "
-            self.win.history.transient_msg(msg)
+            env.history.transient_msg(msg)
         self.selobj = selobj
         #e notify some observers?
         return
@@ -1795,7 +1797,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def enter_custom_mode( self, modename, modefile): #bruce 050515 experiment
         fn = modefile
         if not os.path.exists(fn):
-            self.win.history.message("should never happen: file does not exist: [%s]" % fn)
+            env.history.message("should never happen: file does not exist: [%s]" % fn)
             return
         dir, file = os.path.split(fn)
         base, ext = os.path.splitext(file)

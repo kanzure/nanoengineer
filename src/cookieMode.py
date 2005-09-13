@@ -1,12 +1,14 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 cookieMode.py -- cookie cutter mode.
 
 $Id$
 
+bruce 050913 used env.history in some places.
 """
 from modes import *
 from CookieCtrlPanel import CookieCtrlPanel
+import env
 
 class cookieMode(basicMode):
 
@@ -104,7 +106,7 @@ class cookieMode(basicMode):
             #Save current pov before free view transformation
             self.cookiePov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
             
-            self.w.history.message(redmsg("Enter into 'Free View' of cookie cutter mode. No cookie can be cut until exit from it."))
+            env.history.message(redmsg("Enter into 'Free View' of cookie cutter mode. No cookie can be cut until exit from it."))
             self.o.setCursor(QCursor(Qt.ArrowCursor))
             self.w.setViewOrthoAction.setEnabled(True)
             self.w.setViewPerspecAction.setEnabled(True)
@@ -118,7 +120,7 @@ class cookieMode(basicMode):
             
             if self.cookieDrawBegins: #Cancel any unfinished cookie drawing
                 self._afterCookieSelection()
-                self.w.history.message(redmsg("In free view mode,the unfinished cookie selection has be cancelled."))
+                env.history.message(redmsg("In free view mode,the unfinished cookie selection has be cancelled."))
             
         else: ## cookie cutting mode
             self.o.setCursor(self.w.CookieAddCursor)
@@ -288,7 +290,7 @@ class cookieMode(basicMode):
         if self.selectionShape == 'DEFAULT':
             self.selLassRect = self.pickLineLength < 2*netdist
         
-        self.w.history.transient_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
+        env.history.transient_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
         self.pickdraw()
         
     
@@ -408,9 +410,9 @@ class cookieMode(basicMode):
                 print self.sellist
             if self.Rubber:
                 self.rubberWithoutMoving = False
-                self.w.history.transient_msg("Double click to end selection; Press <Esc> key to cancel selection.")
+                env.history.transient_msg("Double click to end selection; Press <Esc> key to cancel selection.")
             else:
-                self.w.history.transient_msg("Left click to end selection; Press <Esc> key to cancel selection.")
+                env.history.transient_msg("Left click to end selection; Press <Esc> key to cancel selection.")
             self.pickdraw()
             ######self.o.gl_update()
    
@@ -425,7 +427,7 @@ class cookieMode(basicMode):
             self.sellist = []
             self.o.backlist = []
             
-            self.w.history.transient_msg("   ")
+            env.history.transient_msg("   ")
             # Restore the cursor when the selection is done.
             self.o.setCursor(self.w.CookieAddCursor)
             
@@ -745,7 +747,7 @@ class cookieMode(basicMode):
        
         ##Cancel any selection if any.
         if self.cookieDrawBegins:
-            self.w.history.message(redmsg("Layer changed during cookie selection, cancel this selection."))
+            env.history.message(redmsg("Layer changed during cookie selection, cancel this selection."))
             self._cancelSelection()
        
         self.o.gl_update()
@@ -797,7 +799,7 @@ class cookieMode(basicMode):
             #Cancel current selection if any. Otherwise, it may cause
             #bugs like 587
             if self.sellist: ##
-                self.w.history.message(redmsg("Current cookie selection was cancelled because of selection shape change. "))
+                env.history.message(redmsg("Current cookie selection was cancelled because of selection shape change. "))
                 self._cancelSelection()
             self.selectionShape = newShape
     

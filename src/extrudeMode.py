@@ -8,6 +8,8 @@ Unfinished [as of 050518], especially ring mode.
 $Id$
 
 History: by bruce, 040924/041011/041015... 050107...
+
+bruce 050913 used env.history in some places.
 """
 __author__ = "bruce"
 
@@ -24,6 +26,8 @@ from widgets import FloatSpinBox, TogglePrefCheckBox
 
 from VQT import check_floats_near, check_posns_near, check_quats_near
     #bruce 050518 moved those defs out of this file
+
+import env
 
 show_revolve_ui_features = 1 # for now
 
@@ -921,7 +925,7 @@ class extrudeMode(basicMode):
                 #bruce 050118 try only every 10th one, is it faster?
                 #e should processEvents be in here too??
                 ###e would be more sensible: compare real time passed...
-                self.w.history.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
+                env.history.message("scanning open bond pairs... %d/%d done" % (i1, len(sings1)) ,
                              transient_id = transient_id
                             ) # this is our slowness warning
             ##e should correct that message for effect of i2 < i1 optim, by reporting better numbers...
@@ -943,8 +947,8 @@ class extrudeMode(basicMode):
 
         # final msg with same transient_id
         msg = "scanned %d open-bond pairs..." % ( len(sings1) * len(sings2) ,) # longer msg below
-        self.w.history.message( msg, transient_id = transient_id, repaint = 1 )
-        self.w.history.message("") # make it get into history right away
+        env.history.message( msg, transient_id = transient_id, repaint = 1 )
+        env.history.message("") # make it get into history right away
         del transient_id
 
         # make handles from mergeables.
@@ -1032,13 +1036,13 @@ class extrudeMode(basicMode):
         else:
             if not self.offset_for_bonds:
                 msg = "error: bond-offsets not yet computed, but computing them for %r is not yet implemented" % self.product_type
-                self.w.history.message(msg, norepeat_id = msg)
+                env.history.message(msg, norepeat_id = msg)
                 return
             else:
                 msg = """warning: for %r, correct bond-offset computation is not yet implemented;\n""" \
                       """using bond-offsets computed for "rod", at last offset of the rod, not current offset""" % \
                       self.product_type
-                self.w.history.message(msg, norepeat_id = msg)
+                env.history.message(msg, norepeat_id = msg)
             #e we could optim by returning if only offset but not tol changed, but we don't bother yet
         
         self.redo_look_of_bond_offset_spheres() # uses both self.offset and self.offset_for_bonds
@@ -1259,14 +1263,14 @@ class extrudeMode(basicMode):
             ###@@@ this 'then clause', and the condition being inclusive enough, is untested as of 050317
             msg = "warning: can't bond deleted repeat-units"
                 #e should collapse several warnings into one
-            self.w.history.message( redmsg( msg))
+            env.history.message( redmsg( msg))
             return
         if unit1.part != unit2.part:
             #bruce 050317: avoid making inter-part bonds (even if merging units could fix that)
             msg = "warning: can't bond repeat-units in different Parts"
                 ###e could improve, name the parts, collapse several to 1 or name the units
                 # (but not high priority, since we haven't documented this as a feature)
-            self.w.history.message( redmsg( msg))
+            env.history.message( redmsg( msg))
             return
         for (offset,permitted_error,(i1,i2)) in bonds:
             # ignore offset,permitted_error; i1,i2 are singlet indices
@@ -1350,7 +1354,7 @@ class extrudeMode(basicMode):
         return
 
     def status_msg(self, text): # bruce 050106 simplified this
-        self.w.history.message(text)
+        env.history.message(text)
 
     show_bond_offsets_handlesets = [] # (default value) the handlesets to be visible iff self.show_bond_offsets
     

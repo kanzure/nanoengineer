@@ -57,6 +57,7 @@ Prior history unclear; almost certainly originated by Josh.
 bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
 
+bruce 050913 used env.history in some places.
 """
 
 ###@@@ Note: lots of old code below has been commented out for the initial
@@ -595,8 +596,8 @@ class assembly:
             msg = "showing %r (%s)" % (sg.part.topnode.name, sg.part.location_name())
                 # AttributeError: 'NoneType' object has no attribute 'topnode' ######@@@@@@
             ## this was too frequent to leave them all in, when clicking around the clipboard:
-            ## self.w.history.message( greenmsg( msg)) ###e need option for this?
-            self.w.history.message( msg, transient_id = "current_selgroup_changed")
+            ## env.history.message( greenmsg( msg)) ###e need option for this?
+            env.history.message( msg, transient_id = "current_selgroup_changed")
         except:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: bug?? or just init?: can't print changed-part msg: ")
@@ -622,7 +623,7 @@ class assembly:
                     raise 
                 msg = "Warning: deselected some previously selected items"
             try:
-                self.w.history.message( redmsg( msg))
+                env.history.message( redmsg( msg))
             except:
                 pass # too early? (can this happen?)
 
@@ -767,7 +768,7 @@ class assembly:
 #                msg = "The file %r now has unsaved changes." % basename
 #            except:
 #                msg = "The part now has unsaved changes." # there is no file yet, so we can't say "the file". #e improve?
-#            self.w.history.message( msg)
+#            env.history.message( msg)
 
             # Many programs denote a file change by adding an asterisk to the end of the filename in 
             # the window caption.  I'd like to try this for awhile and see how we like it.

@@ -13,6 +13,7 @@ Adding various comments and revising docstrings; perhaps not signing every such 
 (Most movie code revisions will be in other files, and most revisions here will
  probably just be to adapt this file to the external changes.)
 
+bruce 050913 used env.history in some places.
 """
 
 __author__ = "Mark"
@@ -21,6 +22,8 @@ from modes import *
 from HistoryWidget import redmsg, orangemsg
 
 from qt import QFileDialog, QMessageBox, QString, QMimeSourceFactory
+
+import env
 
 auto_play = False # whether to automatically start playing the movie when you enter the mode
     # bruce 050510 disabling automatic play per Mark urgent request (this is also a bug or NFR in bugzilla).
@@ -102,7 +105,7 @@ class movieMode(basicMode):
         if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
             movie._setup() # Cue movie. [bruce 050501 comment: I don't think this actually starts playing it, and I hope not.]
             if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
-                self.w.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
+                env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
             self._controls(0) # Movie control buttons are disabled.
 
@@ -221,14 +224,13 @@ def simMoviePlayer(assy):
     # (by rewriting it from original and from rewritten simPlot function)
     # [bruce 050327]
     from movie import find_saved_movie, Movie #bruce 050329 precaution (in case of similar bug to bug 499)
-    history = assy.w.history
     win = assy.w
     if not assy.molecules: # No model, so no movie could be valid for current part.
         # bruce 050327 comment: even so, a movie file might be valid for some other Part...
         # not yet considered here. [050427 addendum: note that user can't yet autoload a new Part
         # just by opening a movie file, so there's no point in going into the mode -- it's only meant
         # for playing a movie for the *current contents of the current part*, for now.]
-        history.message(redmsg("Movie Player: Need a model."))
+        env.history.message(redmsg("Movie Player: Need a model."))
         return
 
     if assy.current_movie and assy.current_movie.might_be_playable():
@@ -238,11 +240,11 @@ def simMoviePlayer(assy):
         return
 
     # no valid current movie, look for saved one with same name as assy
-    ## history.message("Plot Tool: No simulation has been run yet.")
+    ## env.history.message("Plot Tool: No simulation has been run yet.")
     if assy.filename:
         if assy.part is not assy.tree.part:
             msg = "Movie Player: Warning: Looking for saved movie for main part, not for displayed clipboard item."
-            history.message(orangemsg(msg))
+            env.history.message(orangemsg(msg))
         mfile = assy.filename[:-4] + ".dpb"
         movie = find_saved_movie( assy, mfile)
             # checks existence -- should also check validity for current part or main part, but doesn't yet ###e
@@ -254,7 +256,7 @@ def simMoviePlayer(assy):
             # No current way to tell how to do that, and this might be done even if it's not valid
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
-            history.message("Movie Player: %s previously saved movie for this part." % (auto_play and "playing" or "loading"))
+            env.history.message("Movie Player: %s previously saved movie for this part." % (auto_play and "playing" or "loading"))
             win.glpane.setMode('MOVIE')
             if auto_play:
                 win.moviePlay()
@@ -390,7 +392,7 @@ class movieDashboardSlotsMixin:
         """
         if not self.assy.current_movie:
             return
-        self.history.message(greenmsg("Movie Information"))
+        env.history.message(greenmsg("Movie Information"))
         self.assy.current_movie._info()
         
     def fileOpenMovie(self):
@@ -399,12 +401,12 @@ class movieDashboardSlotsMixin:
         # bruce 050327 comment: this is not yet updated for "multiple movie objects"
         # and bugfixing of bugs introduced by that is in progress (only done in a klugy
         # way so far). ####@@@@
-        self.history.message(greenmsg("Open Movie File:"))
+        env.history.message(greenmsg("Open Movie File:"))
         assert self.assy.current_movie
             # (since (as a temporary kluge) we create an empty one, if necessary, before entering
             #  Movie Mode, of which this is a dashboard method [bruce 050328])
         if self.assy.current_movie and self.assy.current_movie.currentFrame != 0:
-            self.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
+            env.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
             return
         
         # Determine what directory to open. [bruce 050427 comment: if no moviefile, we should try assy.filename's dir next ###e]
@@ -419,7 +421,7 @@ class movieDashboardSlotsMixin:
                 self )
 
         if not fn:
-            self.history.message("Cancelled.")
+            env.history.message("Cancelled.")
             return
         
         fn = str(fn)
@@ -428,18 +430,18 @@ class movieDashboardSlotsMixin:
         # [bruce 050324 made that a function and made it print the history messages
         #  which I've commented out below.]
         from movie import _checkMovieFile
-        r = _checkMovieFile(self.assy.part, fn, self.history)
+        r = _checkMovieFile(self.assy.part, fn, env.history)
         
         if r == 1:
 ##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
-##            self.history.message(msg)
+##            env.history.message(msg)
             return
         elif r == 2: 
 ##            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
-##            self.history.message(msg)
+##            env.history.message(msg)
             if self.assy.current_movie and self.assy.current_movie.might_be_playable(): #bruce 050427 isOpen -> might_be_playable()
                 msg = "(Previous movie file [" + self.assy.current_movie.filename + "] is still open.)"
-                self.history.message(msg)
+                env.history.message(msg)
             return
 
 
@@ -455,7 +457,7 @@ class movieDashboardSlotsMixin:
             # should never happen due to _checkMovieFile call, so this msg is ok
             # (but if someday we do _checkMovieFile inside find_saved_movie and not here,
             #  then this will happen as an error return from find_saved_movie)
-            self.history.message(redmsg("Internal error in fileOpenMovie"))
+            env.history.message(redmsg("Internal error in fileOpenMovie"))
         return
 
     def fileSaveMovie(self):
@@ -466,14 +468,14 @@ class movieDashboardSlotsMixin:
           or not os.path.exists(self.assy.current_movie.filename):
             
             msg = redmsg("Save Movie File: No movie file to save.")
-            self.history.message(msg)
+            env.history.message(msg)
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
             QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
                         self.simSetupAction.iconSet().pixmap() )
-            self.history.message(msg)
+            env.history.message(msg)
             return
         
-        self.history.message(greenmsg("Save Movie File:"))
+        env.history.message(greenmsg("Save Movie File:"))
         
         if self.assy.filename: sdir = self.assy.filename
         else: sdir = globalParms['WorkingDirectory']
@@ -489,7 +491,7 @@ class movieDashboardSlotsMixin:
                     sfilter)
         
         if not fn:
-            self.history.message("Cancelled.")
+            env.history.message("Cancelled.")
             return
         else:
             fn = str(fn)
@@ -513,7 +515,7 @@ class movieDashboardSlotsMixin:
                         1 )     # Escape == button 1
 
                 if ret==1: # The user cancelled
-                    self.history.message( "Cancelled.  File not saved." )
+                    env.history.message( "Cancelled.  File not saved." )
                     return # Cancel clicked or Alt+C pressed or Escape pressed
             
             if ext == '.dpb':
@@ -532,7 +534,7 @@ class movieDashboardSlotsMixin:
                     tfile2 = fullpath + "-trace.txt"
                     shutil.copy(tfile1, tfile2)
 
-                self.history.message("DPB movie file saved: " + safile)
+                env.history.message("DPB movie file saved: " + safile)
                 # note that we are still playing it from the old file and filename... does it matter? [bruce 050427 question]
                 
                 # Added "hflag=False" to suppress history msg, fixing bug #956.  Mark 050911.
@@ -560,7 +562,7 @@ class movieDashboardSlotsMixin:
                     # [bruce 050325 revised this but it looks wrong anyway, what about mflag??
                     #  Besides, it runs the sim, so it will do a minimize... maybe it never worked, I don't know.]
                 if not r: # Movie file saved successfully.
-                    self.history.message("XYZ trajectory movie file saved: " + safile)
+                    env.history.message("XYZ trajectory movie file saved: " + safile)
                 self.assy.current_movie.filename = tmpname # restore the dpb filename.
                 self.assy.current_movie._setup(0) # To fix bug 358.  Mark  050201
         return # from fileSaveMovie

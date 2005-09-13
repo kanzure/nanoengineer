@@ -320,7 +320,8 @@ class HistoryWidget:
     saved_msg = saved_options = saved_transient_id = None
     saved_norepeat_id = None
     
-    # the main public method, typically accessed as win.history.message():
+    # the main public method, typically accessed in new code as env.history.message(),
+    # or in older code via the MainWindow object (e.g. win.history or w.history or self.history):
     
     def message(self, msg, transient_id = None, repaint = 0, norepeat_id = None, **options):
         """Compatibility method -- pretend we're a statusbar and this is its "set text" call.

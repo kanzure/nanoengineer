@@ -11,6 +11,8 @@ History:
 Initially by Mark.
 
 Some parts rewritten by Bruce circa 050427.
+
+bruce 050913 used env.history in some places.
 """
 
 __author__ = "Mark"
@@ -24,7 +26,9 @@ import platform
 from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
 ## can't do this here (recursive import), so done at runtime:
-## from movieMode import _controls 
+## from movieMode import _controls
+
+import env
 
 ADD = True
 SUBTRACT = False
@@ -130,7 +134,6 @@ class Movie:
         self.win = self.assy.w
         self.glpane = self.assy.o ##e if in future there's more than one glpane, recompute this whenever starting to play the movie
         
-        ## self.history = self.assy.w.history ###@@@ might not work, might need getattr, until we remake Movies as needed
         # for future use: name of the movie that appears in the modelTree. 
         self.name = name or "" # assumed to be a string by some code
         # the name of the movie file
@@ -231,8 +234,8 @@ class Movie:
         return
     
     def __getattr__(self, attr):
-        if attr == 'history':
-            return self.assy.w.history
+        if attr == 'history': #bruce 050913 revised this; I suspect it's not needed and could be removed
+            return env.history
 ##        if attr == 'part':
 ##            if self.alist:
 ##                part = self.alist[0].molecule.part
@@ -255,7 +258,7 @@ class Movie:
         # (eg it doesn't destroy our big fancy subobjects);
         # it should be revised to work either way and _close if necessary.
         # for now, just break cycles.
-        self.win = self.assy = self.part = self.alist = self.history = self.fileobj = None
+        self.win = self.assy = self.part = self.alist = self.fileobj = None
         del self.fileobj # obs attrname
         del self.part
 
@@ -274,7 +277,7 @@ class Movie:
             assert not part # this is nim; should call the validity checker
             return True
         else:
-            pass #e self.history.message(redmsg(...)) -- is this a good idea? I think caller wants to do this... ###k
+            pass #e env.history.message(redmsg(...)) -- is this a good idea? I think caller wants to do this... ###k
             self.destroy()
             return False
         pass
@@ -351,7 +354,7 @@ class Movie:
         we_set_alist = False
         we_set_alist_and_moviefile = False
         if not self.might_be_playable():
-            self.history.message( redmsg( "Movie is not playable.")) # can't happen, I think... if it can, it should give more info.
+            env.history.message( redmsg( "Movie is not playable.")) # can't happen, I think... if it can, it should give more info.
             return False
         if not self.alist_and_moviefile:
             # we haven't yet set up this correspondence. Do it now. Note that the filename needs to be set up here,
@@ -367,7 +370,7 @@ class Movie:
             if self.currentFrame != 0:
                 # shouldn't ever happen, I think, since this movie was not played yet since self created;
                 # so if it does, tell me, since it might be a bug; maybe useful to say anyway [bruce 050427]
-                self.history.message( greenmsg( "(Starting movie from frame %d.)" % self.currentFrame ))
+                env.history.message( greenmsg( "(Starting movie from frame %d.)" % self.currentFrame ))
                 # [note: self.currentFrame is maintained independently of a similar variable
                 #  inside a lower-level moviefile-related object.]
             self.alist_and_moviefile = alist_and_moviefile( self.assy, self.alist, self.filename, curframe_in_alist = self.currentFrame)
@@ -414,7 +417,7 @@ class Movie:
         if DEBUG1: print "movie._setup() called. filename = [" + self.filename + "]"
 
         if self.isOpen and platform.atom_debug:
-            self.history.message( redmsg( "atom_debug: redundant _setup? bug if it means atoms are still frozen"))
+            env.history.message( redmsg( "atom_debug: redundant _setup? bug if it means atoms are still frozen"))
 
         kluge_ensure_natoms_correct( self.assy.part) # matters for some warn_if_other_part messages, probably not for anything else
         
@@ -451,11 +454,11 @@ class Movie:
             msg = "Movie Ready: Number of Frames: " + str(self.totalFramesActual) + \
                     ", Current Frame:" +  str(self.currentFrame) +\
                     ", Number of Atoms:" + str(self.natoms)
-            self.history.message(msg)
+            env.history.message(msg)
 
             ## filepos = self.fileobj.tell() # Current file position
             msg = "Current frame:" + str(self.currentFrame) ## + ", filepos =" + str(filepos)
-            self.history.message(msg)
+            env.history.message(msg)
         
     def update_dashboard_currentFrame(self):
         "update dashboard controls which show self.currentFrame, except for the ones being used to change it"
@@ -525,7 +528,7 @@ class Movie:
         return
 
     def warning(self, text):
-        self.history.message( orangemsg( "Warning: " + text))
+        env.history.message( orangemsg( "Warning: " + text))
         
     def _close(self):
         """Close movie file and adjust atom positions.
@@ -564,7 +567,7 @@ class Movie:
                 msg = "Movie file is not presently playable: %s." ## % (self.why_not_playable,)
             else:
                 msg = "Movie file is not presently playable." ###e needs more detail, especially when error happened long before.
-            self.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
+            env.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
             return
         
         if direction == FWD and self.currentFrame == self.totalFramesActual: return
@@ -573,7 +576,7 @@ class Movie:
         self.playDirection = direction
         
         if self.currentFrame == 0: 
-            self.history.message("Playing movie file [" + self.filename + "]")
+            env.history.message("Playing movie file [" + self.filename + "]")
             self._continue(0)
         else:
             self._continue()
@@ -603,7 +606,7 @@ class Movie:
                 msg = "Movie file is not presently playable: %s." ## % (self.why_not_playable,)
             else:
                 msg = "Movie file is not presently playable." ###e needs more detail, especially when error happened long before.
-            self.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
+            env.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
             return
 
         self.playDirection = 1
@@ -614,12 +617,12 @@ class Movie:
         for i in range(self.currentFrame, self.totalFramesActual+1, self.win.skipSB.value()+1):
             self.alist_and_moviefile.play_frame(i)
             filename = "%s.%06d.pov" % (name,i)
-            self.history.message( "Writing file: " + filename )
+            env.history.message( "Writing file: " + filename )
             writepovfile(self.assy, filename)
             nfiles += 1
         
         msg = platform.fix_plurals("%d file(s) written. Done." % nfiles)
-        self.history.message( greenmsg( msg))
+        env.history.message( greenmsg( msg))
              
         
     def _continue(self, hflag = True): # [bruce 050427 comment: only called from self._play]
@@ -631,7 +634,7 @@ class Movie:
         # In case the movie is already playing (usually the other direction).
         self._pause(0) 
         
-        if hflag: self.history.message("Movie continued: " + playDirection[ self.playDirection ])
+        if hflag: env.history.message("Movie continued: " + playDirection[ self.playDirection ])
 
         self.warn_if_other_part(self.assy.part) #bruce 050427
         
@@ -659,7 +662,7 @@ class Movie:
         self.win.moviePlayRevActiveAction.setVisible(0)
         self.win.moviePlayRevAction.setVisible(1)
 #        self.update_dashboard_currentFrame()
-        if hflag: self.history.message("Movie paused.")
+        if hflag: env.history.message("Movie paused.")
         self.debug_dump("_pause call done")
 
     def debug_dump(self, heading = "debug_dump", **kws):
@@ -751,12 +754,12 @@ class Movie:
                 if delta != 1:
                     if delta > 1000:
                         waitCursor = True
-                        self.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You may select Pause at any time.")
+                        env.history.message(playDirection[ inc ] + "ing to frame " + str(fnum) + ".  You may select Pause at any time.")
                     else:
-                        self.history.message(playDirection[ inc ] + "ing to frame " + str(fnum))
+                        env.history.message(playDirection[ inc ] + "ing to frame " + str(fnum))
         else:
             if abs(fnum - self.currentFrame) > 1000:
-                self.history.message("Advancing to frame " + str(fnum) + ". Please wait...")
+                env.history.message("Advancing to frame " + str(fnum) + ". Please wait...")
                 waitCursor = True
         if waitCursor:
             self.waitCursor = True
@@ -906,14 +909,14 @@ class Movie:
         """
         if DEBUG0: print "movie._info() called."
         if not self.filename:
-            self.history.message("No movie file loaded.")
+            env.history.message("No movie file loaded.")
             return
-        self.history.message("Filename: [" + self.filename + "]")
+        env.history.message("Filename: [" + self.filename + "]")
         msg = "Number of Frames: " + str(self.totalFramesActual) + ".  Number of Atoms: " + str(self.natoms)
-        self.history.message(msg)
-#        self.history.message("Temperature:" + str(self.temp) + "K")
-#        self.history.message("Steps per Frame:" + str(self.stepsper))
-#        self.history.message("Time Step:" + str(self.stepsper))
+        env.history.message(msg)
+#        env.history.message("Temperature:" + str(self.temp) + "K")
+#        env.history.message("Steps per Frame:" + str(self.stepsper))
+#        env.history.message("Time Step:" + str(self.stepsper))
 
     def get_trace_filename(self):
         """Returns the trace filename for the current movie.
@@ -1043,7 +1046,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
 ##        if 0: #e do we want this? maybe as a warning?
 ##            # check them all before freezing any (does this cover killed atoms too? I think so.)
 ##            if len(self.parts) > 1 or self.parts[0] is None: #revised 050513
-##                self.history.message( redmsg( "Can't play movie, since not all its atoms are still in the same Part, or some have been deleted" ))
+##                env.history.message( redmsg( "Can't play movie, since not all its atoms are still in the same Part, or some have been deleted" ))
 ##                assert 0 # not sure how well this will be caught... #e should use retval, fix caller ####@@@@
 ##            part = self.parts[0] # only ok if we don't keep going above when >1 part...
 ##            self.assy.set_current_part(part) #obs comment: ###@@@ ok here?? should also do this whenever movie dashboard is used, i think...
@@ -1129,8 +1132,8 @@ class alist_and_moviefile:
         (#e but in future we might decide instead to check it, or to use it in some other way...).
         """
         self.alist = alist # needed for rechecking the match
-        self.history = assy.w.history # not yet used, but probably will be used for error messages
-        self.moviefile = MovieFile( filename, history = self.history)
+        self.history = env.history # not yet used, but probably will be used for error messages
+        self.moviefile = MovieFile( filename, history = env.history)
         self.movable_atoms = None 
         if not self.moviefile:
             pass ## MovieFile will have emitted a history message (I hope)
@@ -1138,7 +1141,7 @@ class alist_and_moviefile:
         self._valid = self.moviefile.matches_alist(alist) # this never emits a history message (for now)
         if not self._valid:
             # for now, we happen to know exactly why they're not valid... [bruce 050428]
-            self.history.message( redmsg( "Movie file contents not valid for this Part (wrong number of atoms)."))
+            env.history.message( redmsg( "Movie file contents not valid for this Part (wrong number of atoms)."))
             self.moviefile.destroy()
             self.moviefile = None
             return # caller should check self.valid()

@@ -1,13 +1,16 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 modifyMode.py
 
 $Id$
+
+bruce 050913 used env.history in some places.
 """
 
 from modes import *
 from widgets import FloatSpinBox
 from HistoryWidget import redmsg
+import env
 
 def do_what_MainWindowUI_should_do(w):
     'Populate the Move Chunks dashboard'
@@ -257,7 +260,7 @@ class modifyMode(basicMode):
             if self.o.assy.selmols:
                 self.moveOffset += norm(point - self.movingPoint) # Increment move offset
                 msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
-                self.w.history.transient_msg(msg)
+                env.history.transient_msg(msg)
 
             self.o.assy.movesel(point - self.movingPoint)
             self.movingPoint = point
@@ -295,7 +298,7 @@ class modifyMode(basicMode):
             # Print status bar msg indicating the current translation and rotation delta.
             if self.o.assy.selmols:
                 msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
-                self.w.history.transient_msg(msg)
+                env.history.transient_msg(msg)
             
         # end of Translate section
 
@@ -537,7 +540,7 @@ class modifyMode(basicMode):
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
         if not self.o.assy.selmols: 
-            self.w.history.message(redmsg("No chunks selected."))
+            env.history.message(redmsg("No chunks selected."))
             return
         offset = get_move_xyz(self.w, 1)
         self.o.assy.movesel(offset)
@@ -546,7 +549,7 @@ class modifyMode(basicMode):
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
         if not self.o.assy.selmols: 
-            self.w.history.message(redmsg("No chunks selected."))
+            env.history.message(redmsg("No chunks selected."))
             return
         offset = get_move_xyz(self.w, 0)
         self.o.assy.movesel(offset)
@@ -557,7 +560,7 @@ class modifyMode(basicMode):
         of everything as if they were one big chunk, then move everything as a unit.
         '''
         if not self.o.assy.selmols: 
-            self.w.history.message(redmsg("No chunks selected."))
+            env.history.message(redmsg("No chunks selected."))
             return
         # Compute bbox for selected chunk(s).
         from shape import BBox
@@ -573,7 +576,7 @@ class modifyMode(basicMode):
             msg = "Chunk [%s] moved to [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.o.assy.selmols[0].name, pt2[0], pt2[1], pt2[2])
         else:
             msg = "Selected chunks moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
-        self.w.history.message(msg)
+        env.history.message(msg)
         self.o.gl_update()
         
     def changeMoveOption(self, action):

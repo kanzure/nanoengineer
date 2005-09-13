@@ -1,8 +1,14 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 '''
 MMKit.py
 
 $Id$
+
+History:
+
+Created by Huaicai.
+
+bruce 050913 used env.history in some places.
 '''
 
 from MMKitDialog import *
@@ -18,6 +24,7 @@ from files_mmp import readmmp
 from part import Part
 import os
 import sys
+import env
 
 class MMKit(MMKitDialog):
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
@@ -354,7 +361,7 @@ class MMKit(MMKitDialog):
         else:
             self.rootDir = None
             from HistoryWidget import redmsg
-            self.w.history.message(redmsg("No partlib exists."))
+            env.history.message(redmsg("No partlib exists."))
         
             
         

@@ -20,7 +20,7 @@ of the experimental CommandRun class.
 Bruce 050331 is splitting writemovie into several methods in more than
 one subclass (eventually) of a new SimRunner class.
 
-bruce 050901 used env.history in some places.
+bruce 050901 and 050913 used env.history in some places.
 '''
 
 from debug import print_compact_traceback
@@ -54,7 +54,6 @@ class SimRunner:
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         self.tmpFilePath = assy.w.tmpFilePath
-        ## self.history = env.history ###k probably not needed
         self.win = assy.w  # might be used only for self.win.progressbar.launch
         self.part = part # needed?
         self.mflag = mflag # see docstring
@@ -85,10 +84,9 @@ class SimRunner:
         self.set_waitcursor(False)
         if not self.errcode:
             return # success
-        history = env.history
         if self.errcode == 1: # User pressed Abort button in progress dialog.
             msg = redmsg("Aborted.")
-            history.message(cmd + msg)         
+            env.history.message(cmd + msg)         
             
             ##Tries to terminate the process the nice way first, so the process
             ## can do whatever clean up it requires. If the process
@@ -104,7 +102,7 @@ class SimRunner:
             
         else: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
-            history.message(cmd + msg)
+            env.history.message(cmd + msg)
         self.said_we_are_done = True # since saying we aborted or had an error is good enough... ###e revise if kill can take time.
         return # caller should look at self.errcode
         # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
@@ -286,7 +284,7 @@ class SimRunner:
         
         # Tell user we're creating the movie file...
     #    msg = "Creating movie file [" + moviefile + "]"
-    #    history.message(msg)
+    #    env.history.message(msg)
 
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
             part.writemmpfile( mmpfile) # as of 050412 this doesn't yet turn singlets into H
@@ -764,7 +762,6 @@ class CommandRun: # bruce 050324; mainly a stub for future use when we have a CL
         self.assy = win.assy
         self.part = win.assy.part
             # current Part (when the command is invoked), on which most commands will operate
-        ## self.history = env.history # where this command can write history messages ###k probably not needed
         self.glpane = win.assy.o #e or let it be accessed via part??
         return
     # end of class CommandRun

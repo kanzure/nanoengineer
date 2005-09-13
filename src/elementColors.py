@@ -3,6 +3,8 @@
 elementColors.py
 
 $Id$
+
+bruce 050913 used env.history in some places.
 '''
 from ElementColorsDialog import *
 from elements import PeriodicTable 
@@ -11,6 +13,7 @@ from ThumbView import ElementView
 
 from HistoryWidget import redmsg # Mark 050311
 from VQT import V
+import env
 
 class elementColors(ElementColorsDialog):
     _displayList = (diTUBES, diCPK, diVDW)
@@ -152,9 +155,9 @@ class elementColors(ElementColorsDialog):
             colorTable = readElementColors(self.fileName)
             
             if not colorTable:
-                self.w.history.message(redmsg("Error in element colors file: [" + self.fileName + "]. Colors not loaded."))
+                env.history.message(redmsg("Error in element colors file: [" + self.fileName + "]. Colors not loaded."))
             else:
-                self.w.history.message("Element colors loaded from file: [" + self.fileName + "].")
+                env.history.message("Element colors loaded from file: [" + self.fileName + "].")
                 for row in colorTable:
                      row[1] /= 255.0; row[2] /= 255.0; row[3] /= 255.0
                 self.elemTable.setElemColors(colorTable)
@@ -197,7 +200,7 @@ class elementColors(ElementColorsDialog):
                     
             # write the current set of element colors into a file    
             saveElementColors(fn, self.elemTable.getAllElements())
-            self.w.history.message("Element colors saved in file: [" + fn + "]")
+            env.history.message("Element colors saved in file: [" + fn + "]")
             #After saving a file, reset the flag        
             self.isFileSaved = True        
  

@@ -13,6 +13,8 @@ bruce 050907 split out fileSlotsMixin
 
 [Much more splitup of this file is needed. Ideally we would
 split up the class MWsemantics (as for cookieMode), not just the file.]
+
+bruce 050913 used env.history in some places.
 '''
 
 ## bruce 050408 removed: import qt
@@ -110,7 +112,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.hideDashboards()
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
-        # (see also self.history.message())
+        # (see also env.history.message())
         self.createStatusBars()
         
         # Create Assistant - Mark 11-23-2004
@@ -156,12 +158,16 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         histfile = platform.make_history_filename()
         self.history = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
             # this is not a Qt widget, but its owner;
-            # use self.history.widget for Qt calls that need the widget itself
+            # use self.history_widget for Qt calls that need the widget itself.
+        self.history_widget = self.history.widget
+            #bruce 050913, in case future code splits history widget (as main window subwidget)
+            # from history message recipient (the global object env.history).
+            # After that's done, self.history might not exist, but self.history_widget will.
         
         env.history = self.history #bruce 050727
 
         # ... and some final vsplitter setup [bruce 041223]
-        vsplitter.setResizeMode(self.history.widget, QSplitter.KeepSize)
+        vsplitter.setResizeMode(self.history_widget, QSplitter.KeepSize)
         vsplitter.setOpaqueResize(False)
         self.setCentralWidget(vsplitter) # this was required (what exactly does it do?)
 
@@ -322,6 +328,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.glpane.gl_update() ###e should inval instead -- soon, this method will!
         self.mt.mt_update()
         self.history.h_update() #bruce 050104
+            # leaving this as self.history (not env.history) for now,
+            # since it is really about this window's widget,
+            # not the place to print history messages [bruce 050913]
         
 
     ###################################
@@ -342,10 +351,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     ###################################
 
     def editUndo(self):
-        self.history.message(redmsg("Undo: Not implemented yet."))
+        env.history.message(redmsg("Undo: Not implemented yet."))
 
     def editRedo(self):
-        self.history.message(redmsg("Redo: Not implemented yet."))
+        env.history.message(redmsg("Redo: Not implemented yet."))
 
     # bruce 050131 moved some history messages from the following methods
     # into the assy methods they call, so the menu command versions also have them
@@ -360,7 +369,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     def editPaste(self):
         if self.assy.shelf.members:
-            self.history.message(greenmsg("Paste:"))
+            env.history.message(greenmsg("Paste:"))
             self.pasteP = True
             self.glpane.setMode('DEPOSIT')
             
@@ -384,21 +393,21 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         """Reset view to Home view"""
         cmd = greenmsg("Current View: ")
         info = 'Home'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.setViewHome()
 
     def setViewFitToWindow(self):
         """ Fit to Window """
         cmd = greenmsg("Fit to Window: ")
         info = ''
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.setViewFitToWindow()
             
     def setViewHomeToCurrent(self): #bruce 050418 revised docstring, and moved bodies of View methods into GLPane
         """Changes Home view of the model to the current view in the glpane."""
         cmd = greenmsg("Set Home View to Current View: ")
         info = 'Home'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.setViewHomeToCurrent()
             
     def setViewRecenter(self):
@@ -406,7 +415,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         """
         cmd = greenmsg("Recenter View: ")
         info = 'View Recentered'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.setViewRecenter()
                 
     def zoomTool(self):
@@ -424,7 +433,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         # This should be placed in zoomMode.Enter or init_gui, but it always appears 
         # before the green "Entering Mode: Zoom" msg.  So I put it here.  Mark 050130
-        self.history.message("You may hit the Esc key to exit Zoom Tool.")
+        env.history.message("You may hit the Esc key to exit Zoom Tool.")
 
     def panTool(self):
         """Pan Tool allows X-Y panning using the left mouse button.
@@ -436,7 +445,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
 
         self.glpane.setMode('PAN')
-        self.history.message("You may hit the Esc key to exit Pan Tool.")
+        env.history.message("You may hit the Esc key to exit Pan Tool.")
 
     def rotateTool(self):
         """Rotate Tool allows free rotation using the left mouse button.
@@ -448,7 +457,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
 
         self.glpane.setMode('ROTATE')
-        self.history.message("You may hit the Esc key to exit Rotate Tool.")
+        env.history.message("You may hit the Esc key to exit Rotate Tool.")
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
@@ -463,49 +472,49 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         '''Set view to the opposite of current view. '''
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat += Q(V(0,1,0), pi)
         self.glpane.gl_update()
 
     def setViewBack(self):
         cmd = greenmsg("Back View: ")
         info = 'Current view is Back View'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat = Q(V(0,1,0),pi)
         self.glpane.gl_update()
 
     def setViewBottom(self):
         cmd = greenmsg("Bottom View: ")
         info = 'Current view is Bottom View'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat = Q(V(1,0,0),-pi/2)
         self.glpane.gl_update()
 
     def setViewFront(self):
         cmd = greenmsg("Front View: ")
         info = 'Current view is Front View'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat = Q(1,0,0,0)
         self.glpane.gl_update()
 
     def setViewLeft(self):
         cmd = greenmsg("Left View: ")
         info = 'Current view is Left View'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat = Q(V(0,1,0),pi/2)
         self.glpane.gl_update()
 
     def setViewRight(self):
         cmd = greenmsg("Right View: ")
         info = 'Current view is Right View'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat = Q(V(0,1,0),-pi/2)
         self.glpane.gl_update()
 
     def setViewTop(self):
         cmd = greenmsg("Top View: ")
         info = 'Current view is Top View'
-        self.history.message(cmd + info)
+        env.history.message(cmd + info)
         self.glpane.quat = Q(V(1,0,0),pi/2)
         self.glpane.gl_update()
 
@@ -558,7 +567,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     # atom colors cannot be changed singly
     def dispObjectColor(self):
         if not self.assy.selmols: 
-            self.history.message(redmsg("Set Chunk Color: No chunks selected.")) #bruce 050505 added this message
+            env.history.message(redmsg("Set Chunk Color: No chunks selected.")) #bruce 050505 added this message
             return
         c = QColorDialog.getColor(self.paletteBackgroundColor(), self, "Choose color")
         if c.isValid():
@@ -570,7 +579,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def dispResetChunkColor(self):
         "Resets the selected chunk's atom colors to the current element colors"
         if not self.assy.selmols: 
-            self.history.message(redmsg("Reset Chunk Color: No chunks selected."))
+            env.history.message(redmsg("Reset Chunk Color: No chunks selected."))
             return
         
         for chunk in self.assy.selmols:
@@ -580,25 +589,25 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def dispResetAtomsDisplay(self):
         "Resets the display setting for each atom in the selected chunks to Default display mode"
         if not self.assy.selmols: 
-            self.history.message(redmsg("Reset Atoms Display: No chunks selected."))
+            env.history.message(redmsg("Reset Atoms Display: No chunks selected."))
             return
             
         self.assy.resetAtomsDisplay()
-        self.history.message(greenmsg("Reset Atoms Display:"))
+        env.history.message(greenmsg("Reset Atoms Display:"))
         msg = "Display setting for all atoms in selected chunk(s) reset to Default."
-        self.history.message(msg)
+        env.history.message(msg)
 
         
     def dispShowInvisAtoms(self):
         "Resets the display setting for each invisible atom in the selected chunks to Default display mode"
         if not self.assy.selmols: 
-            self.history.message(redmsg("Show Invisible Atoms: No chunks selected."))
+            env.history.message(redmsg("Show Invisible Atoms: No chunks selected."))
             return
             
         nia = self.assy.showInvisibleAtoms() # nia = Number of Invisible Atoms
-        self.history.message(greenmsg("Show Invisible Atoms:"))
+        env.history.message(greenmsg("Show Invisible Atoms:"))
         msg = str(nia) + " invisible atoms found."
-        self.history.message(msg)
+        env.history.message(msg)
                     
     def dispBGColor(self):
         "Let user change the current mode's background color"
@@ -624,7 +633,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def dispLighting(self):
         """Allows user to change lighting brightness.
         """
-        self.history.message(greenmsg("Lighting:"))
+        env.history.message(greenmsg("Lighting:"))
 
         from LightingTool import LightingTool
         self.lightcntl = LightingTool(self.glpane) # Open Lighting Tool dialog
@@ -639,12 +648,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         If some atoms are selected, select all atoms in the parts
         in which some atoms are selected.
         """
-        self.history.message(greenmsg("Select All:"))
+        env.history.message(greenmsg("Select All:"))
         self.assy.selectAll()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectNone(self):
-        self.history.message(greenmsg("Select None:"))
+        env.history.message(greenmsg("Select None:"))
         self.assy.selectNone()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
@@ -655,7 +664,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
         """
-        self.history.message(greenmsg("Invert Selection:"))
+        env.history.message(greenmsg("Invert Selection:"))
         # assy method revised by bruce 041217 after discussion with Josh
         self.assy.selectInvert()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -920,11 +929,11 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
     # Mirror Tool
     def toolsMirror(self):
-        self.history.message(redmsg("Mirror Tool: Not implemented yet."))
+        env.history.message(redmsg("Mirror Tool: Not implemented yet."))
              
     # Mirror Circular Boundary Tool
     def toolsMirrorCircularBoundary(self):
-        self.history.message(redmsg("Mirror Circular Boundary Tool: Not implemented yet."))
+        env.history.message(redmsg("Mirror Circular Boundary Tool: Not implemented yet."))
 
     ###################################
     # Slots for Dashboard widgets
@@ -966,7 +975,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
            has been created.'''
         global MMKitWin
         
-        hist_geometry = self.history.widget.frameGeometry()
+        hist_geometry = self.history_widget.frameGeometry()
+            # this self.history should not be changed to env.history [bruce 050913]
         hist_height = hist_geometry.height()
         
         ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()
@@ -1148,15 +1158,15 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     def dispDatumLines(self):
         """ Toggle on/off datum lines """
-        self.history.message(redmsg("Display Datum Lines: Not implemented yet."))
+        env.history.message(redmsg("Display Datum Lines: Not implemented yet."))
 
     def dispDatumPlanes(self):
         """ Toggle on/off datum planes """
-        self.history.message(redmsg("Display Datum Planes: Not implemented yet."))
+        env.history.message(redmsg("Display Datum Planes: Not implemented yet."))
 
     def dispOpenBonds(self):
         """ Toggle on/off open bonds """
-        self.history.message(redmsg("Display Open Bonds: Not implemented yet."))
+        env.history.message(redmsg("Display Open Bonds: Not implemented yet."))
              
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
@@ -1304,7 +1314,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     
     def createStatusBars(self):
         """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
-        # (see also self.history.message())
+        # (see also env.history.message())
 
         # Mark - Set up display mode bar (right) in status bar area.        
         self.dispbarLabel = QLabel(self.statusBar(), "dispbarLabel")
