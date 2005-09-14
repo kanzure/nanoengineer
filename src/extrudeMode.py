@@ -1679,8 +1679,10 @@ class extrudeMode(basicMode):
         else:
             self.draw_model()
         return # from Draw
-   
-    def makeMenus(self): ### mostly not yet reviewed for extrude or revolve mode
+    
+    call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes bug 971]
+    
+    def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude or revolve cmenu
         
         self.Menu_spec = [
             ('Cancel', self.Cancel),
@@ -1691,7 +1693,6 @@ class extrudeMode(basicMode):
         self.debug_Menu_spec = [
             ('debug: reload module', self.extrude_reload),
             ('debug: transparent=1', self.set_transparent),
-            ###e make these a submenu:
             ('debug: overrides', [
                 ('debug: print overrides', self.print_overrides),
                 ('debug: print overrides win', self.print_overrides_win),

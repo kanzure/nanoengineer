@@ -419,8 +419,9 @@ class modifyMode(basicMode):
         if self.sellist: self.pickdraw()
         if self.o.assy: self.o.assy.draw(self.o)
 
+    call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes an unreported bug analogous to 971]
 
-    def makeMenus(self): # menus modified by bruce 041103, 041217
+    def makeMenus(self): # menus modified by bruce 041103, 041217, and made dynamic 050914
         
         self.Menu_spec = [
             ('Stretch', self.o.assy.Stretch),

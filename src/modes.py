@@ -310,6 +310,13 @@ class basicMode(anyMode):
         if platform.atom_debug and self.debug_Menu_spec:
             # put the debug items into the main menu
             self.Menu_spec.extend( [None] + self.debug_Menu_spec )
+            # [note, bruce 050914, re bug 971: for modes that don't remake their menus on each use,
+            #  the user who turns on ATOM-DEBUG won't see the menu items defined by debug_Menu_spec
+            #  until they remake all mode objects by opening a new file. This might change if we remake mode objects
+            #  more often (like whenever the mode is entered), but the best fix would be to remake all menus on each use.
+            #  But this requires review of the menu-spec making code for each mode (for correctness when run often),
+            #  so for now, it has to be enabled per-mode by setting self.call_makeMenus_for_each_event for that mode.
+            #  It's worth doing this in the modes that define self.debug_Menu_spec.]
         
         # new feature, bruce 041103:
         # add submenus to Menu_spec for each modifier-key menu which is
