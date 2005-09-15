@@ -873,7 +873,7 @@ class depositMode(basicMode):
             # come up with a status bar message about what we would paste now.
             # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
             msg = self.describe_leftDown_action( glpane.selatom)
-            env.history.transient_msg( msg) # uses status bar #e rename that method
+            env.history.statusbar_msg( msg)
         if glpane.selatom is not oldselatom:
             # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
             glpane.gl_update() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
@@ -900,7 +900,7 @@ class depositMode(basicMode):
             # come up with a status bar message about what we would paste now.
             # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
             msg = self.describe_leftDown_action( self.o.selatom)
-            env.history.transient_msg( msg) # uses status bar #e rename that method
+            env.history.statusbar_msg( msg)
         if self.o.selatom is not oldselatom:
             # update display
             self.o.gl_update() # draws selatom too, since its chunk is not hidden
@@ -1112,7 +1112,7 @@ class depositMode(basicMode):
         """
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
-        env.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
+        env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
@@ -1338,7 +1338,7 @@ class depositMode(basicMode):
         the real atoms it's bonded to).
         """
         #bruce 041130 revised docstring
-        env.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
+        env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.line = None #bruce 041130 precaution
         self.baggage = [] #bruce 041130 precaution
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
@@ -1486,7 +1486,7 @@ class depositMode(basicMode):
 
     ## delete with cntl-left mouse
     def leftCntlDown(self, event):
-        env.history.transient_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
+        env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         a = self.o.selatom
@@ -1700,10 +1700,10 @@ class depositMode(basicMode):
                 self.bondclick_v6 = v6
             if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
-                env.history.transient_msg("click bonds to make them %s" % name) # name is 'single' etc
+                env.history.statusbar_msg("click bonds to make them %s" % name) # name is 'single' etc
             else:
                 # this never happens (as explained above)
-                env.history.transient_msg(" ") # clicking bonds now does nothing
+                env.history.statusbar_msg(" ") # clicking bonds now does nothing
                 ## print "turned it off"
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one

@@ -260,7 +260,7 @@ class modifyMode(basicMode):
             if self.o.assy.selmols:
                 self.moveOffset += norm(point - self.movingPoint) # Increment move offset
                 msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
-                env.history.transient_msg(msg)
+                env.history.statusbar_msg(msg)
 
             self.o.assy.movesel(point - self.movingPoint)
             self.movingPoint = point
@@ -298,7 +298,7 @@ class modifyMode(basicMode):
             # Print status bar msg indicating the current translation and rotation delta.
             if self.o.assy.selmols:
                 msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
-                env.history.transient_msg(msg)
+                env.history.statusbar_msg(msg)
             
         # end of Translate section
 

@@ -504,13 +504,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # erase any statusbar messages that might be left over from other widgets
         # (eg advice from Build mode in glpane)
         ###e [should replace it with "our current sbar text", not " " --
-        # see comment near a call of history.transient_msg]
+        # see comment near a call of history.statusbar_msg]
         self.statusbar_msg(" ") # bruce 050126; works
 
     def statusbar_msg(self, msg):
         #e should store the current one for this widget, to share sbar with other widgets;
         # or better, the method we're calling should do that for all widgets (or their parts) in a uniform way
-        env.history.transient_msg( msg)
+        env.history.statusbar_msg( msg)
 
     # external update methods
     

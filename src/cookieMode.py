@@ -290,7 +290,7 @@ class cookieMode(basicMode):
         if self.selectionShape == 'DEFAULT':
             self.selLassRect = self.pickLineLength < 2*netdist
         
-        env.history.transient_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
+        env.history.statusbar_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
         self.pickdraw()
         
     
@@ -410,9 +410,9 @@ class cookieMode(basicMode):
                 print self.sellist
             if self.Rubber:
                 self.rubberWithoutMoving = False
-                env.history.transient_msg("Double click to end selection; Press <Esc> key to cancel selection.")
+                env.history.statusbar_msg("Double click to end selection; Press <Esc> key to cancel selection.")
             else:
-                env.history.transient_msg("Left click to end selection; Press <Esc> key to cancel selection.")
+                env.history.statusbar_msg("Left click to end selection; Press <Esc> key to cancel selection.")
             self.pickdraw()
             ######self.o.gl_update()
    
@@ -427,7 +427,7 @@ class cookieMode(basicMode):
             self.sellist = []
             self.o.backlist = []
             
-            env.history.transient_msg("   ")
+            env.history.statusbar_msg("   ")
             # Restore the cursor when the selection is done.
             self.o.setCursor(self.w.CookieAddCursor)
             

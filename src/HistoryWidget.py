@@ -349,7 +349,7 @@ class HistoryWidget:
         if self.saved_transient_id and self.saved_transient_id != transient_id:
             self.widget_msg( self.saved_msg, self.saved_options)
             self.saved_msg = self.saved_options = self.saved_transient_id = None # just an optim
-            self.transient_msg("") # no longer show it in true statusbar
+            self.statusbar_msg("") # no longer show it in true statusbar
                 # (this might clear someone else's message from there; no way to avoid this
                 #  that I know of; not too bad, since lots of events beyond our control do it too)
         
@@ -367,7 +367,7 @@ class HistoryWidget:
             return
         # now handle the present msg: save (and show transiently) or emit
         if transient_id:
-            self.transient_msg(msg, repaint = repaint) # (no html allowed in msg!)
+            self.statusbar_msg(msg, repaint = repaint) # (no html allowed in msg!)
             # (Actually we should make a message object now, so the timestamp is
             # made when the message was generated (not when emitted, if that's delayed),
             # and then show its plain text version transiently (including a text
@@ -396,7 +396,7 @@ class HistoryWidget:
         self.message(None)
         # [passing None is a private implem -- outsiders should not do this!]
     
-    def transient_msg(self, msg_text, repaint = 0): #e will soon rename this to statusbar_msg [bruce 050914]
+    def statusbar_msg(self, msg_text, repaint = 0): #bruce 050914 renamed transient_msg => statusbar_msg
         """Show the message (which must be plain text and short) in Qt's main status bar.
         This only works for plain text messages, not html.
         If the message is too long, it might make the window become too wide, perhaps off the screen!

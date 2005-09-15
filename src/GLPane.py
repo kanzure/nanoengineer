@@ -1321,7 +1321,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # or, just store it so code knows it's there, and (later) overdraw it for highlighting.
             self.set_selobj( newpicked, "newpicked")
             ###e we'll probably need to notify some observers that selobj changed (if in fact it did). ###@@@
-            ## env.history.transient_msg("%s" % newpicked) -- messed up by depmode "click to do x" msg
+            ## env.history.statusbar_msg("%s" % newpicked) -- messed up by depmode "click to do x" msg
         
         # otherwise don't change prior selobj -- we have a separate system to set it back to None when needed
         # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
@@ -1477,7 +1477,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     msg = "<exception in selobj statusbar message code>"
             else:
                 msg = " "
-            env.history.transient_msg(msg)
+            env.history.statusbar_msg(msg)
         self.selobj = selobj
         #e notify some observers?
         return

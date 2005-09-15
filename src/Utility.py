@@ -1928,7 +1928,7 @@ class ClipboardShelfGroup(Group):
     def pick(self): #bruce 050131 for Alpha
         msg = "Clipboard can't be selected or dragged. (Individual clipboard items can be.)"
         ## bruce 050316: no longer do this: self.redmsg( msg)
-        env.history.transient_msg( msg)
+        env.history.statusbar_msg( msg)
     def is_selection_group_container(self): return True #bruce 050131 for Alpha
     def rename_enabled(self): return False
     def drag_move_ok(self): return False
