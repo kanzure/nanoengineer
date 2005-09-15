@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\LightingToolDialog.ui'
+# Form implementation generated from reading ui file 'LightingToolDialog.ui'
 #
-# Created: Thu Sep 8 09:01:39 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -230,8 +230,8 @@ class LightingToolDialog(QDialog):
         self.resize(QSize(411,470).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.okPB,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.cancelPB,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.okPB,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancelPB,SIGNAL("clicked()"),self.reject)
         self.connect(self.ambLight1SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient1)
         self.connect(self.diffuseLight1SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse1)
         self.connect(self.diffuseLight2SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse2)

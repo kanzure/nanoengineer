@@ -965,6 +965,75 @@ def drawCubeCell(color):
     
     glEnable(GL_LIGHTING) 
 
+
+def drawPlane(color, w, h):
+    '''Draw polygon with size of <w>*<h> and with color <color>. '''
+    vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
+    
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    
+    glPushMatrix()
+    glScalef(w, h, 1.0)
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    glDisable(GL_CULL_FACE) 
+    
+    glBegin(GL_QUADS)
+    for v in vs:
+        glVertex3fv(v)
+    glEnd()
+    
+    glEnable(GL_CULL_FACE) 
+    
+    glPopMatrix()
+    glEnable(GL_LIGHTING)
+    
+            
+def drawPlaneGrid(color, w, h, uw, uh):
+    '''Draw grid lines with <color>, unit size is <uw>*<uh>'''
+
+    if uw > w: uw = w
+    if uh > h: uh = h
+    
+    Z_OFF = 0.001
+    
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    
+    hw = w/2.0; hh = h/2.0
+
+    glEnable(GL_LINE_SMOOTH)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE)#_MINUS_SRC_ALPHA)
+        
+    glBegin(GL_LINES)
+    
+    #Draw horizontal lines
+    y1 = hh
+    while y1 >= -hh:
+        glVertex3f(-hw, y1, Z_OFF)
+        glVertex3f(hw, y1, Z_OFF)
+    
+        y1 -= uh
+        
+    #Draw vertical lines    
+    x1 = -hw
+    while x1 <= hw:        
+        glVertex3f(x1, hh, Z_OFF)
+        glVertex3f(x1, -hh, Z_OFF)
+    
+        x1 += uw
+            
+    glEnd()
+    
+    glDisable(GL_LINE_SMOOTH)
+    glDisable(GL_BLEND)
+    
+    glEnable(GL_LIGHTING)
+    
+
+
 def drawFullWindow(vtColors):
     """Draw gradient background color.
        <vtColors> is a 4 element list specifying colors for the  

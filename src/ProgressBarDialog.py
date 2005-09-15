@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ProgressBarDialog.ui'
+# Form implementation generated from reading ui file 'ProgressBarDialog.ui'
 #
-# Created: Wed Aug 24 15:33:53 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -388,7 +388,7 @@ class ProgressBarDialog(QDialog):
         layout24.addWidget(self.msgLabel)
 
         self.progress = QProgressBar(self,"progress")
-        self.progress.setSizePolicy(QSizePolicy(7,0,0,0,self.progress.sizePolicy().hasHeightForWidth()))
+        self.progress.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Fixed,0,0,self.progress.sizePolicy().hasHeightForWidth()))
         self.progress.setTotalSteps(0)
         layout24.addWidget(self.progress)
         ProgressBarDialogLayout.addLayout(layout24)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GroupPropDialog.ui'
+# Form implementation generated from reading ui file 'GroupPropDialog.ui'
 #
-# Created: Thu Sep 8 12:10:45 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -113,8 +113,8 @@ class GroupPropDialog(QDialog):
         self.resize(QSize(258,357).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self.reject)
 
         self.setTabOrder(self.nameLineEdit,self.okPushButton)
         self.setTabOrder(self.okPushButton,self.cancelPushButton)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
+# Form implementation generated from reading ui file 'GamessPropDialog.ui'
 #
-# Created: Tue Aug 9 21:36:33 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -226,7 +226,7 @@ class GamessPropDialog(QDialog):
         layout71 = QHBoxLayout(None,0,6,"layout71")
 
         self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
+        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
         self.colorPixmapLabel.setMinimumSize(QSize(40,0))
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
         self.colorPixmapLabel.setScaledContents(1)
@@ -234,7 +234,7 @@ class GamessPropDialog(QDialog):
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(1,0,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
         layout71.addWidget(self.choose_color_btn)
         layout72.addLayout(layout71)
         spacer13_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -485,11 +485,11 @@ class GamessPropDialog(QDialog):
         self.resize(QSize(509,551).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ecm_btngrp,SIGNAL("clicked(int)"),self.set_ecmethod)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
         self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
-        self.connect(self.save_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.save_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.runtyp_combox,SIGNAL("activated(int)"),self.calculate_changed)
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
         self.connect(self.whats_this_btn,SIGNAL("clicked()"),self.whats_this)

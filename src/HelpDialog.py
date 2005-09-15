@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\HelpDialog.ui'
+# Form implementation generated from reading ui file 'HelpDialog.ui'
 #
-# Created: Fri Aug 12 14:25:49 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -101,7 +101,7 @@ class HelpDialog(QDialog):
         self.mouse_controls_textbrowser = QTextBrowser(self.tab,"mouse_controls_textbrowser")
 
         tabLayout.addWidget(self.mouse_controls_textbrowser,0,0)
-        self.help_tab.insertTab(self.tab,QString(""))
+        self.help_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.tab_2 = QWidget(self.help_tab,"tab_2")
         tabLayout_2 = QGridLayout(self.tab_2,1,1,11,6,"tabLayout_2")
@@ -109,7 +109,7 @@ class HelpDialog(QDialog):
         self.keyboard_shortcuts_textbrowser = QTextBrowser(self.tab_2,"keyboard_shortcuts_textbrowser")
 
         tabLayout_2.addWidget(self.keyboard_shortcuts_textbrowser,0,0)
-        self.help_tab.insertTab(self.tab_2,QString(""))
+        self.help_tab.insertTab(self.tab_2,QString.fromLatin1(""))
         HelpDialogLayout.addWidget(self.help_tab)
 
         layout1 = QHBoxLayout(None,0,6,"layout1")
@@ -126,7 +126,7 @@ class HelpDialog(QDialog):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.help_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
-        self.connect(self.close_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
 
 
     def languageChange(self):

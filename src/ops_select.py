@@ -26,6 +26,20 @@ class ops_select_Mixin:
     #  do necessary updates at the end, e.g. win_update, and should print
     #  history messages, etc]
 
+    def getSelectedJigs(self):
+        '''Huaicai 9/15/05: Find all selected jigs in current part. '''
+        
+        selJigs = []
+        
+        from jigs import Jig
+        def addSelectedJig(obj, jigs=selJigs):
+            if isinstance(obj, Jig): jigs += [obj]
+        
+        self.topnode.apply2picked(addSelectedJig)
+        
+        return selJigs
+    
+
     def selectAll(self):
         """Select all parts if nothing selected.
         If some parts are selected, select all atoms in those parts.

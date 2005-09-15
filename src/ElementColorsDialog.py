@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementColorsDialog.ui'
+# Form implementation generated from reading ui file 'ElementColorsDialog.ui'
 #
-# Created: Tue Aug 9 18:46:26 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -103,7 +103,7 @@ class ElementColorsDialog(QDialog):
         ElementColorsDialogLayout = QVBoxLayout(self,2,4,"ElementColorsDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
-        self.elementFrame.setSizePolicy(QSizePolicy(5,1,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
+        self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Minimum,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(0,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
@@ -120,7 +120,7 @@ class ElementColorsDialog(QDialog):
 
         self.redSpinBox = QSpinBox(self,"redSpinBox")
         self.redSpinBox.setEnabled(1)
-        self.redSpinBox.setSizePolicy(QSizePolicy(1,0,0,0,self.redSpinBox.sizePolicy().hasHeightForWidth()))
+        self.redSpinBox.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.redSpinBox.sizePolicy().hasHeightForWidth()))
         self.redSpinBox.setFocusPolicy(QSpinBox.ClickFocus)
         self.redSpinBox.setMaxValue(255)
         layout10.addWidget(self.redSpinBox)
@@ -159,7 +159,7 @@ class ElementColorsDialog(QDialog):
 
         self.blueSlider = QSlider(self,"blueSlider")
         self.blueSlider.setEnabled(1)
-        self.blueSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.blueSlider.sizePolicy().hasHeightForWidth()))
+        self.blueSlider.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Fixed,0,0,self.blueSlider.sizePolicy().hasHeightForWidth()))
         self.blueSlider.setPaletteForegroundColor(QColor(0,0,255))
         self.blueSlider.setMaxValue(255)
         self.blueSlider.setOrientation(QSlider.Horizontal)
@@ -170,7 +170,7 @@ class ElementColorsDialog(QDialog):
 
         self.redSlider = QSlider(self,"redSlider")
         self.redSlider.setEnabled(1)
-        self.redSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.redSlider.sizePolicy().hasHeightForWidth()))
+        self.redSlider.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Fixed,0,0,self.redSlider.sizePolicy().hasHeightForWidth()))
         self.redSlider.setPaletteForegroundColor(QColor(255,0,0))
         self.redSlider.setMaxValue(255)
         self.redSlider.setOrientation(QSlider.Horizontal)
@@ -181,7 +181,7 @@ class ElementColorsDialog(QDialog):
 
         self.greenSlider = QSlider(self,"greenSlider")
         self.greenSlider.setEnabled(1)
-        self.greenSlider.setSizePolicy(QSizePolicy(5,0,0,0,self.greenSlider.sizePolicy().hasHeightForWidth()))
+        self.greenSlider.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Fixed,0,0,self.greenSlider.sizePolicy().hasHeightForWidth()))
         self.greenSlider.setPaletteForegroundColor(QColor(0,255,0))
         self.greenSlider.setMaxValue(255)
         self.greenSlider.setOrientation(QSlider.Horizontal)
@@ -383,7 +383,7 @@ class ElementColorsDialog(QDialog):
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
         self.connect(self.loadColorsPB,SIGNAL("clicked()"),self.read_element_rgb_table)
         self.connect(self.saveColorsPB,SIGNAL("clicked()"),self.write_element_rgb_table)
-        self.connect(self.cancelButton,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.cancelButton,SIGNAL("clicked()"),self.reject)
         self.connect(self.defaultButton,SIGNAL("clicked()"),self.loadDefaultProp)
         self.connect(self.alterButton,SIGNAL("clicked()"),self.loadAlterProp)
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)

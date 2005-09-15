@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\PlotToolDialog.ui'
+# Form implementation generated from reading ui file 'PlotToolDialog.ui'
 #
-# Created: Thu Sep 8 09:02:01 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -62,7 +62,7 @@ class PlotToolDialog(QDialog):
         self.resize(QSize(264,148).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.done_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.done_btn,SIGNAL("clicked()"),self.close)
         self.connect(self.plot_btn,SIGNAL("clicked()"),self.genPlot)
         self.connect(self.open_gnuplot_btn,SIGNAL("clicked()"),self.openGNUplotFile)
         self.connect(self.open_trace_file_btn,SIGNAL("clicked()"),self.openTraceFile)

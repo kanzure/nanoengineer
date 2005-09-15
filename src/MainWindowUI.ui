@@ -40,7 +40,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>29</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -58,7 +58,6 @@
         <action name="fileSaveAsAction"/>
         <separator/>
         <action name="fileExitAction"/>
-        <separator/>
     </item>
     <item text="&amp;Edit" name="editMenu">
         <action name="editUndoAction"/>
@@ -147,6 +146,7 @@
         <action name="jigsStatAction"/>
         <action name="jigsThermoAction"/>
         <action name="jigsGamessAction"/>
+        <action name="jigsGridPlaneAction"/>
     </item>
     <item text="Simulator" name="simulatorMenu">
         <action name="simSetupAction"/>
@@ -188,6 +188,9 @@
     <toolbar dock="2">
         <property name="name">
             <cstring>editToolbar</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
         </property>
         <property name="geometry">
             <rect>
@@ -273,6 +276,9 @@
         <property name="name">
             <cstring>selectToolbar</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
                 <x>740</x>
@@ -327,8 +333,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>94</width>
-                <height>19</height>
+                <width>77</width>
+                <height>16</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -352,10 +358,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>94</x>
+                <x>77</x>
                 <y>0</y>
-                <width>95</width>
-                <height>19</height>
+                <width>79</width>
+                <height>16</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -382,10 +388,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>189</x>
+                <x>156</x>
                 <y>0</y>
-                <width>96</width>
-                <height>19</height>
+                <width>81</width>
+                <height>16</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -413,8 +419,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>19</y>
-                <width>1036</width>
+                <y>16</y>
+                <width>971</width>
                 <height>29</height>
             </rect>
         </property>
@@ -561,9 +567,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
-                <y>48</y>
-                <width>128</width>
+                <x>971</x>
+                <y>16</y>
+                <width>112</width>
                 <height>29</height>
             </rect>
         </property>
@@ -587,11 +593,14 @@
         <property name="name">
             <cstring>zoomDashboard</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
-                <x>128</x>
-                <y>48</y>
-                <width>115</width>
+                <x>0</x>
+                <y>45</y>
+                <width>100</width>
                 <height>29</height>
             </rect>
         </property>
@@ -616,11 +625,14 @@
         <property name="name">
             <cstring>panDashboard</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
-                <x>243</x>
-                <y>48</y>
-                <width>104</width>
+                <x>100</x>
+                <y>45</y>
+                <width>92</width>
                 <height>29</height>
             </rect>
         </property>
@@ -647,9 +659,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>347</x>
-                <y>48</y>
-                <width>120</width>
+                <x>192</x>
+                <y>45</y>
+                <width>105</width>
                 <height>29</height>
             </rect>
         </property>
@@ -679,9 +691,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>467</x>
-                <y>48</y>
-                <width>92</width>
+                <x>297</x>
+                <y>45</y>
+                <width>77</width>
                 <height>29</height>
             </rect>
         </property>
@@ -709,8 +721,8 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>559</x>
-                <y>48</y>
+                <x>374</x>
+                <y>45</y>
                 <width>19</width>
                 <height>29</height>
             </rect>
@@ -745,6 +757,9 @@
     <toolbar dock="4">
         <property name="name">
             <cstring>modifyToolbar</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
         </property>
         <property name="geometry">
             <rect>
@@ -3799,6 +3814,25 @@
             <string>Center on Common Axis</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>jigsGrid_PlaneAction</cstring>
+        </property>
+        <property name="text">
+            <string>Grid Plane</string>
+        </property>
+        <property name="menuText">
+            <string>Grid Plane</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>jigsGridPlaneAction</cstring>
+        </property>
+        <property name="text">
+            <string>Grid Plane</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -5027,6 +5061,12 @@
         <receiver>MainWindow</receiver>
         <slot>toolsFuseAtoms()</slot>
     </connection>
+    <connection>
+        <sender>jigsGridPlaneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeGridPlane()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5171,7 +5211,7 @@
     <slot>dispResetAtomsDisplay()</slot>
     <slot>dispShowInvisAtoms()</slot>
     <slot>cookieFullModel(bool)</slot>
-    <slot>changeCCLayer(int)</slot>
+    <slot>makeGridPlane()</slot>
     <slot>setViewOpposite()</slot>
     <slot>changeCCTubeButton()</slot>
     <slot>toolsBuildAtoms()</slot>
@@ -5189,6 +5229,7 @@
     <slot>helpKeyboardShortcuts()</slot>
     <slot>modifyCenterCommonAxis()</slot>
     <slot>toolsFuseAtoms()</slot>
+    <slot>createRecentFilesList()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

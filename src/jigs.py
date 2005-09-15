@@ -31,6 +31,7 @@ from LinearMotorProp import *
 from GroundProp import *
 from StatProp import *
 from ThermoProp import *
+from GridPlaneProp import *
 from HistoryWidget import redmsg, greenmsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
@@ -86,7 +87,6 @@ class Jig(Node):
         ## this is now the default for all Nodes [050505]: self.disabled_by_user_choice = False #bruce 050421
 
         # Huaicai 7/15/05: support jig graphically select
-        import env
         self.glname = env.alloc_my_glselect_name( self) 
         
         return
@@ -904,6 +904,73 @@ class LinearMotor(Motor):
     
     pass # end of class LinearMotor
 
+
+class GridPlane(Jig):
+    ''' '''
+    sym = "Grid Plane"
+    icon_names = ["ground.png", "ground-hide.png"]
+    
+    def __init__(self, assy, list):
+        Jig.__init__(self, assy, list)
+        
+        self.width = 16
+        self.height = 16
+        
+        self.gridW = 2
+        self.gridH = 2
+        
+        self.color = black
+        self.normcolor = black
+        self.gridColor = white
+        self.cancelled = True # We will assume the user will cancel
+
+        self.atomPos = []
+        
+        for a in list:
+            self.atomPos += [a.posn()]
+    
+        self.planeNorm = self._getPlaneOrientation(self.atomPos)
+        self.quat = Q(V(0.0, 0.0, 1.0), self.planeNorm)
+        self.center = add.reduce(self.atomPos)/len(self.atomPos)
+        
+    def set_cntl(self): 
+        self.cntl = GridPlaneProp(self, self.assy.o)
+        
+
+    def getaxis(self):
+        return self.quat.rot(norm(self.planeNorm))
+
+        
+    def move(self, offset):
+        '''Move the plane by <offset>, which is a 'V' object. '''
+        self.center += offset
+
+        
+    def rot(self, q):
+        self.quat += q
+    
+        
+    def _getPlaneOrientation(self, atomPos):
+        assert len(atomPos) >= 3
+        v1 = atomPos[1] - atomPos[0]
+        v2 = atomPos[2] - atomPos[0]
+        
+        return cross(v1, v2)
+        
+        
+    def _draw(self, win, dispdef):
+        glPushMatrix()
+
+        glTranslatef( self.center[0], self.center[1], self.center[2])
+        q = self.quat
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+        
+        drawPlane(self.color, self.width, self.height)
+        drawPlaneGrid(self.gridColor, self.width, self.height, self.gridW, self.gridH)
+        
+        glPopMatrix()
+        
+
 # == Ground
 
 class Ground(Jig):
@@ -1329,6 +1396,35 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         env.history.message(cmd + "Thermometer created")
         self.assy.w.win_update()
+        
+        
+    def makeGridPlane(self):
+        cmd = greenmsg("Grid Plane: ")
+        
+        if not self.assy.selatoms:
+            msg = redmsg("You must select at least 3 atoms you want to put a grid plane.")
+            env.history.message(cmd + msg)
+            return
+        
+        # Make sure only one atom is selected.
+        if len(self.assy.selatoms)  <3: 
+            msg = redmsg("To create a grid plane, at least 3 atoms must be selected.  Try again.")
+            env.history.message(cmd + msg)
+            return
+        
+        m = GridPlane(self.assy, self.selatoms.values())
+        m.edit()
+        if m.cancelled: # User hit 'Cancel' button in the jig dialog.
+            #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
+            env.history.message(cmd + "Cancelled")
+            return 
+        
+        self.unpickatoms()
+        self.place_new_jig(m)
+        
+        env.history.message(cmd + "grid plane created")
+        self.assy.w.win_update()
+        
 
     pass # end of class jigmakers_Mixin
     

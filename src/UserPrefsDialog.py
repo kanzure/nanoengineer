@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Sat Sep 10 15:53:32 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Wed Sep 14 17:32:11 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -99,7 +99,7 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout.addWidget(self.gamess_choose_btn,1,2)
 
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
         self.gamess_lbl.setMinimumSize(QSize(60,0))
         self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
@@ -114,7 +114,7 @@ class UserPrefsDialog(QDialog):
         tabLayout.addMultiCellWidget(self.file_locations_grp,1,1,0,1)
         spacer23 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
         tabLayout.addItem(spacer23,2,0)
-        self.prefs_tab.insertTab(self.tab,QString(""))
+        self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
         TabPageLayout = QHBoxLayout(self.TabPage,11,6,"TabPageLayout")
@@ -215,7 +215,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout.addLayout(layout24)
         spacer9 = QSpacerItem(3,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout.addItem(spacer9)
-        self.prefs_tab.insertTab(self.TabPage,QString(""))
+        self.prefs_tab.insertTab(self.TabPage,QString.fromLatin1(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
         TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
@@ -309,7 +309,7 @@ class UserPrefsDialog(QDialog):
         layout61.addLayout(layout37_2_2_2_2_3,4,1)
 
         self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
-        self.textLabel3_2_2.setSizePolicy(QSizePolicy(5,5,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
         self.textLabel3_2_2.setMinimumSize(QSize(0,0))
         self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
@@ -373,7 +373,7 @@ class UserPrefsDialog(QDialog):
         layout30.addItem(spacer22)
 
         TabPageLayout_2.addLayout(layout30,0,0)
-        self.prefs_tab.insertTab(self.TabPage_2,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_2,QString.fromLatin1(""))
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
         TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
@@ -467,7 +467,7 @@ class UserPrefsDialog(QDialog):
         layout66.addItem(spacer8_3)
 
         TabPageLayout_3.addLayout(layout66,0,0)
-        self.prefs_tab.insertTab(self.TabPage_3,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
         TabPageLayout_4 = QVBoxLayout(self.TabPage_4,11,6,"TabPageLayout_4")
@@ -506,7 +506,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout_4.addLayout(layout10)
         spacer10 = QSpacerItem(20,80,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_4.addItem(spacer10)
-        self.prefs_tab.insertTab(self.TabPage_4,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
         TabPageLayout_5 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_5")
@@ -549,7 +549,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout_5.addLayout(layout15,0,0)
         spacer11_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_5.addItem(spacer11_3,1,0)
-        self.prefs_tab.insertTab(self.TabPage_5,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
@@ -577,7 +577,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)

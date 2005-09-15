@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MoleculePropDialog.ui'
+# Form implementation generated from reading ui file 'MoleculePropDialog.ui'
 #
-# Created: Thu Sep 8 09:01:49 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -88,7 +88,7 @@ class MoleculePropDialog(QDialog):
         layout8 = QHBoxLayout(None,0,6,"layout8")
 
         self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
+        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
         self.colorPixmapLabel.setMinimumSize(QSize(40,0))
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(230,231,230))
         self.colorPixmapLabel.setFrameShape(QLabel.Box)
@@ -136,8 +136,8 @@ class MoleculePropDialog(QDialog):
         self.resize(QSize(243,354).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.reset_color_btn,SIGNAL("clicked()"),self.reset_chunk_color)
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
         self.connect(self.make_atoms_visible_btn,SIGNAL("clicked()"),self.make_atoms_visible)

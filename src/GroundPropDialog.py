@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GroundPropDialog.ui'
+# Form implementation generated from reading ui file 'GroundPropDialog.ui'
 #
-# Created: Thu Sep 8 09:01:18 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -104,7 +104,7 @@ class GroundPropDialog(QDialog):
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(5,0,1,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Fixed,1,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
         layout83.addWidget(self.choose_color_btn)
         layout84.addLayout(layout83)
         spacer8 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -135,8 +135,8 @@ class GroundPropDialog(QDialog):
         self.resize(QSize(245,145).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
         self.setTabOrder(self.nameLineEdit,self.choose_color_btn)

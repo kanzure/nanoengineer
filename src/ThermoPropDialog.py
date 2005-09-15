@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ThermoPropDialog.ui'
+# Form implementation generated from reading ui file 'ThermoPropDialog.ui'
 #
-# Created: Thu Sep 8 09:02:38 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:28 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -53,7 +53,7 @@ class ThermoPropDialog(QDialog):
         if not name:
             self.setName("ThermoPropDialog")
 
-        self.setSizePolicy(QSizePolicy(7,7,0,0,self.sizePolicy().hasHeightForWidth()))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
@@ -64,12 +64,12 @@ class ThermoPropDialog(QDialog):
         layout91 = QVBoxLayout(None,0,6,"layout91")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
+        self.nameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout91.addWidget(self.nameTextLabel)
 
         self.molnameTextLabel = QLabel(self,"molnameTextLabel")
-        self.molnameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
+        self.molnameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
         self.molnameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout91.addWidget(self.molnameTextLabel)
 
@@ -100,7 +100,7 @@ class ThermoPropDialog(QDialog):
         layout86 = QHBoxLayout(None,0,6,"layout86")
 
         self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
+        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
         self.colorPixmapLabel.setMinimumSize(QSize(40,0))
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
         self.colorPixmapLabel.setScaledContents(1)
@@ -108,7 +108,7 @@ class ThermoPropDialog(QDialog):
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(1,0,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
         layout86.addWidget(self.choose_color_btn)
         layout87.addLayout(layout86)
         spacer19 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -141,8 +141,8 @@ class ThermoPropDialog(QDialog):
         self.resize(QSize(307,170).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
         self.setTabOrder(self.nameLineEdit,self.molnameLineEdit)

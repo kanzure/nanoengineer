@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\JobManagerDialog.ui'
+# Form implementation generated from reading ui file 'JobManagerDialog.ui'
 #
-# Created: Thu Jun 16 18:19:15 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -143,7 +143,7 @@ class JobManagerDialog(QDialog):
         self.resize(QSize(1009,258).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.close_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
         self.connect(self.job_table,SIGNAL("clicked(int,int,int,const QPoint&)"),self.cell_clicked)
         self.connect(self.delete_btn,SIGNAL("clicked()"),self.delete_job)
         self.connect(self.refresh_btn,SIGNAL("clicked()"),self.refresh_job_table)

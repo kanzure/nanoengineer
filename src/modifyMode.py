@@ -101,7 +101,6 @@ class modifyMode(basicMode):
         self.o.assy.selectParts()
         self.dragdist = 0.0
         
-
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
     # init_gui handles all the GUI display when entering this mode [mark 041004]
@@ -194,7 +193,10 @@ class modifyMode(basicMode):
         self.transDelta = 0 # X, Y or Z deltas for translate.
         self.rotDelta = 0 # delta for constrained rotations.
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
-
+        
+        self.jigsSelected = self.o.assy.getSelectedJigs()
+        if not (self.jigsSelected or self.o.assy.selmols): return
+        
         # Move section
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
@@ -242,6 +244,8 @@ class modifyMode(basicMode):
         # Call. 
         if not self.picking: return
         
+        if not (self.jigsSelected or self.o.assy.selmols): return
+        
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
 
@@ -257,7 +261,7 @@ class modifyMode(basicMode):
                 point = ptonline(self.movingPoint, p1, norm(p2-p1))
         
             # Print status bar msg indicating the current move delta.
-            if self.o.assy.selmols:
+            if 1:
                 self.moveOffset += norm(point - self.movingPoint) # Increment move offset
                 msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
                 env.history.statusbar_msg(msg)
@@ -317,6 +321,9 @@ class modifyMode(basicMode):
         """Pick if click
         """
         if not self.picking: return
+        
+        if not (self.jigsSelected or self.o.assy.selmols): return
+        
         self.picking = False
 
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -335,6 +342,8 @@ class modifyMode(basicMode):
     def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.
         """
+        if not (self.jigsSelected or self.o.assy.selmols): return
+        
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
@@ -346,6 +355,8 @@ class modifyMode(basicMode):
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
+        
+        if not (self.jigsSelected or self.o.assy.selmols): return
 
         self.o.setCursor(self.w.RotateMolCursor)
         
@@ -367,9 +378,11 @@ class modifyMode(basicMode):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
         """
+        if not (self.jigsSelected or self.o.assy.selmols): return
+        
         self.o.SaveMouse(event)
         ma = V(0,0,0)
-        for mol in self.o.assy.selmols:
+        for mol in self.o.assy.selmols + self.jigsSelected:
             ma += mol.getaxis()
         ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
         self.Zmat = A([ma,[-ma[1],ma[0]]])
@@ -383,6 +396,8 @@ class modifyMode(basicMode):
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
 
+        if not (self.jigsSelected or self.o.assy.selmols): return
+        
         self.o.setCursor(self.w.MoveRotateMolCursor)
         
         w=self.o.width+0.0
@@ -391,7 +406,7 @@ class modifyMode(basicMode):
                        self.o.MousePos[1] - event.pos().y())
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
-        for mol in self.o.assy.selmols:
+        for mol in self.o.assy.selmols + self.jigsSelected:
             ma = mol.getaxis()
             mol.move(dx*ma)
             mol.rot(Q(ma,-dy))
@@ -519,6 +534,10 @@ class modifyMode(basicMode):
                 
     def moveTheta(self, rotype, theta):
         "Rotate the selected chunk(s) around the specified axis by theta (degrees)"
+        self.jigsSelected = self.o.assy.getSelectedJigs()
+        if not (self.jigsSelected or self.o.assy.selmols): 
+            env.history.message(redmsg("No chunks or jigs selected."))
+            return
         
         if rotype == 'Rotate X':
             ma = V(1,0,0) # X Axis
@@ -540,18 +559,22 @@ class modifyMode(basicMode):
         
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
-        if not self.o.assy.selmols: 
-            env.history.message(redmsg("No chunks selected."))
+        self.jigsSelected = self.o.assy.getSelectedJigs()
+        if not (self.jigsSelected or self.o.assy.selmols): 
+            env.history.message(redmsg("No chunks or jigs selected."))
             return
+        
         offset = get_move_xyz(self.w, 1)
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
-        if not self.o.assy.selmols: 
-            env.history.message(redmsg("No chunks selected."))
+        self.jigsSelected = self.o.assy.getSelectedJigs()
+        if not (self.jigsSelected or self.o.assy.selmols): 
+            env.history.message(redmsg("No chunks or jigs selected."))
             return
+        
         offset = get_move_xyz(self.w, 0)
         self.o.assy.movesel(offset)
         self.o.gl_update()
@@ -560,9 +583,11 @@ class modifyMode(basicMode):
         '''Move selected chunk(s) to absolute X, Y, and Z by computing the bbox center
         of everything as if they were one big chunk, then move everything as a unit.
         '''
-        if not self.o.assy.selmols: 
-            env.history.message(redmsg("No chunks selected."))
+        self.jigsSelected = self.o.assy.getSelectedJigs()
+        if not (self.jigsSelected or self.o.assy.selmols): 
+            env.history.message(redmsg("No chunks or jigs selected."))
             return
+        
         # Compute bbox for selected chunk(s).
         from shape import BBox
         bbox = BBox()

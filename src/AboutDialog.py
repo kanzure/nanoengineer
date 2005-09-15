@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/huaicai/atom/cad/src/AboutDialog.ui'
+# Form implementation generated from reading ui file 'AboutDialog.ui'
 #
-# Created: Thu Dec 9 14:04:20 2004
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -1972,7 +1972,7 @@ class AboutDialog(QDialog):
         self.resize(QSize(322,261).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self.close)
 
 
     def languageChange(self):

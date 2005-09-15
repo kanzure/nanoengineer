@@ -28,16 +28,29 @@ class ops_motion_Mixin:
         for mol in self.selmols:
             self.changed()
             mol.move(offset)
+            
+        jigs = self.getSelectedJigs()
+        for jig in jigs:
+            self.changed()
+            jig.move(offset)
+        
  
     def rotsel(self, quat):
         '''Rotate selected chunks in space. [Huaicai 8/30/05: Fixed the problem of each rotating
            around its own center, they will now rotate around their common center]'''
         # Find the common center of all selected chunks to fix bug 594 
-        numSelected = len(self.selmols)
-        if numSelected > 0:
-            comCenter = V(0.0, 0.0, 0.0)
+        comCenter = V(0.0, 0.0, 0.0)
+            
+        numMols = len(self.selmols)
+        if numMols > 0:
             for m in self.selmols: comCenter += m.center
-            comCenter /= numSelected
+        
+        jigs = self.getSelectedJigs()
+        numJigs = len(jigs)
+        if numJigs > 0:
+            for jig in jigs: comCenter += jig.center
+            
+        comCenter /= (numMols + numJigs)
         
         # Move the selected chunks    
         for mol in self.selmols:
@@ -49,6 +62,16 @@ class ops_motion_Mixin:
             
             mol.move(rotOff) 
             mol.rot(quat) 
+
+        for jig in jigs:
+            self.changed()
+            
+            # Get the moving offset because of the rotation around each chunk's own center
+            rotOff = quat.rot(jig.center - comCenter)    
+            rotOff = comCenter - jig.center + rotOff
+            
+            jig.move(rotOff) 
+            jig.rot(quat) 
    
             
     #stretch a molecule

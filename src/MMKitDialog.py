@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Wed Aug 24 17:27:44 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -44,7 +44,7 @@ class MMKitDialog(QDialog):
         if not name:
             self.setName("MMKitDialog")
 
-        self.setSizePolicy(QSizePolicy(5,1,0,0,self.sizePolicy().hasHeightForWidth()))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Minimum,0,0,self.sizePolicy().hasHeightForWidth()))
         pal = QPalette()
         cg = QColorGroup()
         cg.setColor(QColorGroup.Foreground,Qt.black)
@@ -104,7 +104,7 @@ class MMKitDialog(QDialog):
         MMKitDialogLayout = QGridLayout(self,1,1,2,2,"MMKitDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
-        self.elementFrame.setSizePolicy(QSizePolicy(5,5,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
+        self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(200,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
@@ -305,7 +305,7 @@ class MMKitDialog(QDialog):
         tabLayout.addWidget(self.hybrid_btngrp,2,0)
         spacer14 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
         tabLayout.addItem(spacer14,1,0)
-        self.tabWidget2.insertTab(self.tab,QString(""))
+        self.tabWidget2.insertTab(self.tab,QString.fromLatin1(""))
 
         self.tab_2 = QWidget(self.tabWidget2,"tab_2")
         tabLayout_2 = QVBoxLayout(self.tab_2,11,6,"tabLayout_2")
@@ -314,23 +314,23 @@ class MMKitDialog(QDialog):
         tabLayout_2.addWidget(self.textLabel1)
 
         self.chunkListBox = QListBox(self.tab_2,"chunkListBox")
-        self.chunkListBox.setSizePolicy(QSizePolicy(7,7,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
+        self.chunkListBox.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
         self.chunkListBox.setMinimumSize(QSize(0,150))
         tabLayout_2.addWidget(self.chunkListBox)
 
         layout5 = QHBoxLayout(None,0,6,"layout5")
 
         self.updateButton = QPushButton(self.tab_2,"updateButton")
-        self.updateButton.setSizePolicy(QSizePolicy(1,0,0,0,self.updateButton.sizePolicy().hasHeightForWidth()))
+        self.updateButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.updateButton.sizePolicy().hasHeightForWidth()))
         self.updateButton.setDefault(1)
         layout5.addWidget(self.updateButton)
         spacer13 = QSpacerItem(61,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout5.addItem(spacer13)
         tabLayout_2.addLayout(layout5)
-        self.tabWidget2.insertTab(self.tab_2,QString(""))
+        self.tabWidget2.insertTab(self.tab_2,QString.fromLatin1(""))
 
         self.libraryPage = QWidget(self.tabWidget2,"libraryPage")
-        self.tabWidget2.insertTab(self.libraryPage,QString(""))
+        self.tabWidget2.insertTab(self.libraryPage,QString.fromLatin1(""))
 
         MMKitDialogLayout.addWidget(self.tabWidget2,1,0)
         spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
@@ -343,7 +343,7 @@ class MMKitDialog(QDialog):
         layout3.addItem(spacer8)
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setSizePolicy(QSizePolicy(1,0,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
+        self.closePTableButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
         self.closePTableButton.setDefault(1)
         layout3.addWidget(self.closePTableButton)
         spacer4_2_3 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
@@ -356,7 +356,7 @@ class MMKitDialog(QDialog):
         self.resize(QSize(212,482).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
         self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
         self.connect(self.tabWidget2,SIGNAL("currentChanged(QWidget*)"),self.tabpageChanged)

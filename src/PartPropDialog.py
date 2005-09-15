@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\PartPropDialog.ui'
+# Form implementation generated from reading ui file 'PartPropDialog.ui'
 #
-# Created: Thu Sep 8 09:01:59 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -113,7 +113,7 @@ class PartPropDialog(QDialog):
         layout8.addLayout(layout7)
 
         tabLayout.addLayout(layout8,0,0)
-        self.tabWidget3.insertTab(self.tab,QString(""))
+        self.tabWidget3.insertTab(self.tab,QString.fromLatin1(""))
 
         PartPropDialogLayout.addWidget(self.tabWidget3,0,0)
 
@@ -122,8 +122,8 @@ class PartPropDialog(QDialog):
         self.resize(QSize(396,402).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.okPushButton,SIGNAL("clicked()"),self,SLOT("accept()"))
-        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self,SLOT("reject()"))
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self.reject)
 
         self.setTabOrder(self.nameLineEdit,self.statsView)
         self.setTabOrder(self.statsView,self.okPushButton)

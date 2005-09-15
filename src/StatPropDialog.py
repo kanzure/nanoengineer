@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\StatPropDialog.ui'
+# Form implementation generated from reading ui file 'StatPropDialog.ui'
 #
-# Created: Thu Sep 8 09:02:36 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:28 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -120,7 +120,7 @@ class StatPropDialog(QDialog):
         if not name:
             self.setName("StatPropDialog")
 
-        self.setSizePolicy(QSizePolicy(7,7,0,0,self.sizePolicy().hasHeightForWidth()))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
@@ -131,7 +131,7 @@ class StatPropDialog(QDialog):
         layout80 = QVBoxLayout(None,0,6,"layout80")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
+        self.nameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout80.addWidget(self.nameTextLabel)
 
@@ -140,7 +140,7 @@ class StatPropDialog(QDialog):
         layout80.addWidget(self.nameTextLabel_2)
 
         self.molnameTextLabel = QLabel(self,"molnameTextLabel")
-        self.molnameTextLabel.setSizePolicy(QSizePolicy(5,5,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
+        self.molnameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
         self.molnameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout80.addWidget(self.molnameTextLabel)
 
@@ -163,7 +163,7 @@ class StatPropDialog(QDialog):
         layout100 = QHBoxLayout(None,0,6,"layout100")
 
         self.tempSpinBox = QSpinBox(self,"tempSpinBox")
-        self.tempSpinBox.setSizePolicy(QSizePolicy(1,0,1,0,self.tempSpinBox.sizePolicy().hasHeightForWidth()))
+        self.tempSpinBox.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,1,0,self.tempSpinBox.sizePolicy().hasHeightForWidth()))
         self.tempSpinBox.setMaxValue(9999)
         self.tempSpinBox.setValue(300)
         layout100.addWidget(self.tempSpinBox)
@@ -189,7 +189,7 @@ class StatPropDialog(QDialog):
         layout71 = QHBoxLayout(None,0,6,"layout71")
 
         self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(5,5,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
+        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
         self.colorPixmapLabel.setMinimumSize(QSize(40,0))
         self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
         self.colorPixmapLabel.setScaledContents(1)
@@ -197,7 +197,7 @@ class StatPropDialog(QDialog):
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(1,0,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
         layout71.addWidget(self.choose_color_btn)
         layout72.addLayout(layout71)
         spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -230,8 +230,8 @@ class StatPropDialog(QDialog):
         self.resize(QSize(299,202).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("reject()"))
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
 
         self.setTabOrder(self.nameLineEdit,self.tempSpinBox)

@@ -186,6 +186,21 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         from UserPrefs import UserPrefs
         self.uprefs = UserPrefs(self.assy)
         
+        #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
+        from qt import QSettings
+        self.prefsSetting = QSettings()
+        popupMenu = QPopupMenu(self)        
+        self.fileMenu.insertSeparator(9)
+        self.fileMenu.insertItem(qApp.translate("Main Window", "Recently opened files ...", None), popupMenu, 10, 10)
+                
+        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        if len(fileList): 
+            self.fileMenu.setItemEnabled(10, True)
+            self._createRecentFilesList()
+        else:
+            self.fileMenu.setItemEnabled(10, False)
+
+            
         # Create the Help dialog.
         # Mark 050812
         from help import Help
@@ -726,6 +741,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     def makeLinearMotor(self):
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
+        
+    def makeGridPlane(self):
+        self.assy.makeGridPlane()
 
     ###################################
     # Modify Toolbar Slots

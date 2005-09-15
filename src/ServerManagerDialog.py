@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Huaicai\atom\cad\src\ServerManagerDialog.ui'
+# Form implementation generated from reading ui file 'ServerManagerDialog.ui'
 #
-# Created: Mon Jun 20 15:02:03 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:27 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -127,7 +127,7 @@ class ServerManagerDialog(QDialog):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.new_btn,SIGNAL("clicked()"),self.addServer)
-        self.connect(self.exit_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.exit_btn,SIGNAL("clicked()"),self.close)
         self.connect(self.server_listview,SIGNAL("currentChanged(QListViewItem*)"),self.changeServer)
         self.connect(self.engine_combox,SIGNAL("activated(const QString&)"),self.engineChanged)
         self.connect(self.del_btn,SIGNAL("clicked()"),self.deleteServer)

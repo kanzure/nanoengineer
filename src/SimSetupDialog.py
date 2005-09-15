@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'SimSetupDialog.ui'
 #
-# Created: Sun Jul 3 23:50:27 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:28 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -131,7 +131,7 @@ class SimSetupDialog(QDialog):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
 
 
     def languageChange(self):

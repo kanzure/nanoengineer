@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementSelectorDialog.ui'
+# Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
-# Created: Wed Aug 10 00:23:01 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Tue Sep 13 16:00:26 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -262,14 +262,14 @@ class ElementSelectorDialog(QDialog):
         layout5 = QHBoxLayout(None,0,6,"layout5")
 
         self.TransmuteButton = QPushButton(self,"TransmuteButton")
-        self.TransmuteButton.setSizePolicy(QSizePolicy(1,0,0,0,self.TransmuteButton.sizePolicy().hasHeightForWidth()))
+        self.TransmuteButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.TransmuteButton.sizePolicy().hasHeightForWidth()))
         layout5.addWidget(self.TransmuteButton)
         spacer7 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout5.addItem(spacer7)
         layout6.addLayout(layout5)
 
         self.transmuteCheckBox = QCheckBox(self,"transmuteCheckBox")
-        self.transmuteCheckBox.setSizePolicy(QSizePolicy(1,0,0,0,self.transmuteCheckBox.sizePolicy().hasHeightForWidth()))
+        self.transmuteCheckBox.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.transmuteCheckBox.sizePolicy().hasHeightForWidth()))
         layout6.addWidget(self.transmuteCheckBox)
         ElementSelectorDialogLayout.addLayout(layout6)
         spacer9 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
@@ -280,7 +280,7 @@ class ElementSelectorDialog(QDialog):
         layout7.addItem(spacer8)
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setSizePolicy(QSizePolicy(1,0,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
+        self.closePTableButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
         self.closePTableButton.setDefault(1)
         layout7.addWidget(self.closePTableButton)
         spacer4_2_3 = QSpacerItem(10,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
@@ -294,7 +294,7 @@ class ElementSelectorDialog(QDialog):
         self.resize(QSize(202,426).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.closePTableButton,SIGNAL("clicked()"),self,SLOT("close()"))
+        self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
         self.connect(self.TransmuteButton,SIGNAL("clicked()"),self.transmutePressed)
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
 

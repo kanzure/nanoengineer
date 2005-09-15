@@ -16,7 +16,7 @@ bruce 050907 split this out of MWsemantics.py.
 bruce 050913 used env.history in some places.
 '''
 
-from qt import QFileDialog, QMessageBox, QString
+from qt import QFileDialog, QMessageBox, QString, qApp, QSettings
 from assembly import assembly
 import os
 import platform
@@ -116,7 +116,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.mt.mt_update()
 
 
-    def fileOpen(self):
+    def fileOpen(self, recentedFile=None):
         
         env.history.message(greenmsg("Open File:"))
         
@@ -144,15 +144,25 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
         else: odir = globalParms['WorkingDirectory']
 
-        fn = QFileDialog.getOpenFileName(odir,
-                "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
-                self )
-                
-        if not fn:
-            env.history.message("Cancelled.")
-            return
-
+        if recentedFile:
+            if not os.path.exists(recentedFile):
+              QMessageBox.warning( self, self.name(),
+                "This file doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
+              return
+            
+            fn = recentedFile
+        else:
+            fn = QFileDialog.getOpenFileName(odir,
+                    "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
+                    self )
+                    
+            if not fn:
+                env.history.message("Cancelled.")
+                return
+        
         if fn:
+            self._updateOpenedFileList(fn)
+
             self.__clear() # leaves glpane.mode as nullmode, as of 050911
             self.glpane.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
@@ -480,6 +490,62 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         ### Hack by Huaicai 2/1 to fix bug 369
         self.mt.resetAssy_and_clear() 
+
+    
+    def _updateOpenedFileList(self, fileName):
+        '''Add the <fileName> into the recent file list '''
+        LIST_CAPACITY = 4 #This could be set by user preference, not added yet        
+     
+        fileName = fileName
+        
+        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        
+        if len(fileList) > 0:
+           if fileName == fileList[0]:
+               return
+           else:
+               for ii in range(len(fileList)):
+                   if fileList[ii] == fileName: ## Put this one at the top
+                       del fileList[ii]
+                       break
+        
+        
+        fileList.prepend(fileName)
+        #for ii in range(LIST_CAPACITY, len(fileList)):
+        #    del fileList[ii]
+        fileList = fileList[:LIST_CAPACITY]
+        
+        self.prefsSetting.writeEntry('recentFiles', fileList)
+        
+        self._createRecentFilesList()
+        
+        
+
+    def _openRecentFile(self, idx):
+        '''Slot method when user choose from the recently opened files submenu. '''
+        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+   
+        assert idx <= len(fileList)
+        
+        selectedFile = str(fileList[idx])
+        self.fileOpen(selectedFile)
+        
+        
+    def _createRecentFilesList(self):
+        '''Dynamically construct the list of rencently opened files submenus '''
+        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        
+        self.recentFilePopupMenu = QPopupMenu(self)
+        for ii in range(len(fileList)):
+            self.recentFilePopupMenu.insertItem(qApp.translate("Main Window",  "&" + str(ii+1) + "  " + str(fileList[ii]), None), ii)
+        
+        self.fileMenu.removeItemAt(10)
+        self.fileMenu.insertItem(qApp.translate("Main Window", "Recently opened files ...", None), self.recentFilePopupMenu, 10, 10)
+        #self.fileMenu.setWhatsThis(10, "Recently opened files ...")        
+        
+        self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
+        
+
 
     pass # end of class fileSlotsMixin
 

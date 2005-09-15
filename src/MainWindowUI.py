@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Thu Sep 8 09:17:50 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Wed Sep 14 23:04:41 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -6547,6 +6547,8 @@ class MainWindow(QMainWindow):
         self.helpMouseControlsAction = QAction(self,"helpMouseControlsAction")
         self.helpKeyboardShortcutsAction = QAction(self,"helpKeyboardShortcutsAction")
         self.modifyCenterCommonAxisAction = QAction(self,"modifyCenterCommonAxisAction")
+        self.jigsGrid_PlaneAction = QAction(self,"jigsGrid_PlaneAction")
+        self.jigsGridPlaneAction = QAction(self,"jigsGridPlaneAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6558,6 +6560,7 @@ class MainWindow(QMainWindow):
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.editToolbar.setEnabled(1)
         self.editToolbar.setGeometry(QRect(70,0,182,29))
         self.editToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.editUndoAction.addTo(self.editToolbar)
@@ -6595,6 +6598,7 @@ class MainWindow(QMainWindow):
         self.dispVdWAction.addTo(self.molecularDispToolbar)
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.selectToolbar.setEnabled(1)
         self.selectToolbar.setGeometry(QRect(740,0,154,29))
         self.selectToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.selectAllAction.addTo(self.selectToolbar)
@@ -6611,27 +6615,27 @@ class MainWindow(QMainWindow):
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectAtomsDashboard.setEnabled(1)
-        self.selectAtomsDashboard.setGeometry(QRect(0,0,94,19))
+        self.selectAtomsDashboard.setGeometry(QRect(0,0,77,16))
         self.selectAtomsDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.cookieCutterDashboard.setGeometry(QRect(94,0,95,19))
+        self.cookieCutterDashboard.setGeometry(QRect(77,0,79,16))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.ccLabel = QLabel(self.cookieCutterDashboard,"ccLabel")
         self.moveChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moveChunksDashboard.setEnabled(1)
-        self.moveChunksDashboard.setGeometry(QRect(189,0,96,19))
+        self.moveChunksDashboard.setGeometry(QRect(156,0,81,16))
         self.moveChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,16,971,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6680,14 +6684,15 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard.addSeparator()
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.selectMolDashboard.setGeometry(QRect(0,48,128,29))
+        self.selectMolDashboard.setGeometry(QRect(971,16,112,29))
         self.selectMolDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
         self.nullAction.addTo(self.selectMolDashboard)
         self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.zoomDashboard.setGeometry(QRect(128,48,115,29))
+        self.zoomDashboard.setEnabled(1)
+        self.zoomDashboard.setGeometry(QRect(0,45,100,29))
         self.zoomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
@@ -6695,7 +6700,8 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.zoomDashboard)
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.panDashboard.setGeometry(QRect(243,48,104,29))
+        self.panDashboard.setEnabled(1)
+        self.panDashboard.setGeometry(QRect(100,45,92,29))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.panTextLabel = QLabel(self.panDashboard,"panTextLabel")
@@ -6703,7 +6709,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(347,48,120,29))
+        self.rotateDashboard.setGeometry(QRect(192,45,105,29))
         self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -6712,14 +6718,14 @@ class MainWindow(QMainWindow):
         self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.fuseChunksDashboard.setEnabled(1)
-        self.fuseChunksDashboard.setGeometry(QRect(467,48,92,29))
+        self.fuseChunksDashboard.setGeometry(QRect(297,45,77,29))
         self.fuseChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.depositAtomDashboard.setEnabled(1)
-        self.depositAtomDashboard.setGeometry(QRect(559,48,19,29))
+        self.depositAtomDashboard.setGeometry(QRect(374,45,19,29))
         self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
@@ -6735,6 +6741,7 @@ class MainWindow(QMainWindow):
         self.HexagonSelAction.addTo(self.cookieSelectDashboard)
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
+        self.modifyToolbar.setEnabled(1)
         self.modifyToolbar.setGeometry(QRect(0,257,30,311))
         self.modifyToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.modifyMinimizeSelAction.addTo(self.modifyToolbar)
@@ -6781,7 +6788,7 @@ class MainWindow(QMainWindow):
         self.MenuBar = QMenuBar(self,"MenuBar")
 
         self.MenuBar.setEnabled(1)
-        self.MenuBar.setGeometry(QRect(0,0,1115,33))
+        self.MenuBar.setGeometry(QRect(0,0,1115,29))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -6796,7 +6803,6 @@ class MainWindow(QMainWindow):
         self.fileSaveAsAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
-        self.fileMenu.insertSeparator()
         self.MenuBar.insertItem(QString(""),self.fileMenu,4)
 
         self.editMenu = QPopupMenu(self)
@@ -6892,6 +6898,7 @@ class MainWindow(QMainWindow):
         self.jigsStatAction.addTo(self.jigsMenu)
         self.jigsThermoAction.addTo(self.jigsMenu)
         self.jigsGamessAction.addTo(self.jigsMenu)
+        self.jigsGridPlaneAction.addTo(self.jigsMenu)
         self.MenuBar.insertItem(QString(""),self.jigsMenu,11)
 
         self.simulatorMenu = QPopupMenu(self)
@@ -6943,7 +6950,7 @@ class MainWindow(QMainWindow):
         self.connect(self.editUndoAction,SIGNAL("activated()"),self.editUndo)
         self.connect(self.fileClearAction,SIGNAL("activated()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("activated()"),self.fileClose)
-        self.connect(self.fileExitAction,SIGNAL("activated()"),self,SLOT("close()"))
+        self.connect(self.fileExitAction,SIGNAL("activated()"),self.close)
         self.connect(self.fileImageAction,SIGNAL("activated()"),self.fileImage)
         self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
         self.connect(self.fileOpenAction,SIGNAL("activated()"),self.fileOpen)
@@ -7049,6 +7056,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
         self.connect(self.toolsFuseAtomsAction,SIGNAL("activated()"),self.toolsFuseAtoms)
+        self.connect(self.jigsGridPlaneAction,SIGNAL("activated()"),self.makeGridPlane)
 
 
     def languageChange(self):
@@ -7494,6 +7502,9 @@ class MainWindow(QMainWindow):
         self.helpKeyboardShortcutsAction.setToolTip(self.__tr("Keyboard Shortcuts"))
         self.helpKeyboardShortcutsAction.setWhatsThis(self.__tr("Displays help for keyboard shortcuts"))
         self.modifyCenterCommonAxisAction.setText(self.__tr("Center on Common Axis"))
+        self.jigsGrid_PlaneAction.setText(self.__tr("Grid Plane"))
+        self.jigsGrid_PlaneAction.setMenuText(self.__tr("Grid Plane"))
+        self.jigsGridPlaneAction.setText(self.__tr("Grid Plane"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7975,8 +7986,8 @@ class MainWindow(QMainWindow):
     def cookieFullModel(self,a0):
         print "MainWindow.cookieFullModel(bool): Not implemented yet"
 
-    def changeCCLayer(self,a0):
-        print "MainWindow.changeCCLayer(int): Not implemented yet"
+    def makeGridPlane(self):
+        print "MainWindow.makeGridPlane(): Not implemented yet"
 
     def setViewOpposite(self):
         print "MainWindow.setViewOpposite(): Not implemented yet"
@@ -8028,6 +8039,9 @@ class MainWindow(QMainWindow):
 
     def toolsFuseAtoms(self):
         print "MainWindow.toolsFuseAtoms(): Not implemented yet"
+
+    def createRecentFilesList(self):
+        print "MainWindow.createRecentFilesList(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
