@@ -50,7 +50,7 @@ from fileIO import * #bruce 050414 comment: this might no longer be needed;
     # don't occur in GLPane; but I didn't check for the few that are still
     # defined in fileIO.
 from HistoryWidget import greenmsg, redmsg
-from platform import fix_buttons_helper
+from platform import fix_event_helper
 import platform # for platform.atom_debug
 from widgets import makemenu_helper
 from debug import DebugMenuMixin, print_compact_traceback
@@ -805,17 +805,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glLoadIdentity()
         return
 
-    def fix_buttons(self, but, when):
-        return fix_buttons_helper(self, but, when)
+    def fix_event(self, but, when, target): #bruce 050913 revised this from fix_buttons
+        return fix_event_helper(self, but, when, target)
 
     def mouseDoubleClickEvent(self, event):
         self.debug_event(event, 'mouseDoubleClickEvent')
-        but = event.stateAfter()
+        ## but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent; test
         #this [bruce 040917]
         #print "Double clicked: ", but
         
-        but = self.fix_buttons(but, 'press')
+        but = self.fix_event(event, 'press', self.mode)
         if but & leftButton:
             self.mode.leftDouble(event)
         if but & midButton:
@@ -833,8 +833,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
-        but = event.stateAfter()
-        but = self.fix_buttons(but, 'press')
+        ## but = event.stateAfter()
+        but = self.fix_event(event, 'press', self.mode)
         
         #print "Button pressed: ", but
         
@@ -866,8 +866,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         """Only used to detect the end of a freehand selection curve.
         """
         self.debug_event(event, 'mouseReleaseEvent')
-        but = event.state()
-        but = self.fix_buttons(but, 'release')
+        ## but = event.state()
+        but = self.fix_event(event, 'release', self.mode)
         
         #print "Button released: ", but
         
@@ -904,8 +904,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.makeCurrent()
         
         ##self.debug_event(event, 'mouseMoveEvent')
-        but = event.state()
-        but = self.fix_buttons(but, 'move')
+        ## but = event.state()
+        but = self.fix_event(event, 'move', self.mode)
         
         if but & leftButton:
             if but & shiftButton:

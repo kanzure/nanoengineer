@@ -122,6 +122,14 @@ def middle_button_prefix():
 # helpers for processing modifiers on mouse events
 # [moved here from GLPane.py -- bruce 050112]
 
+def fix_event_helper(self, event, when, target = None): #bruce 050913 new API; should merge them, use target, doc this one
+    if when == 'press':
+        but = event.stateAfter()
+    else:
+        but = event.state()
+    but = fix_buttons_helper(self, but, when)
+    return but
+
 def fix_buttons_helper(self, but, when):
     """
     Every mouse event's button and modifier key flags should be
