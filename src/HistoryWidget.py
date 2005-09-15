@@ -80,14 +80,14 @@ class message:
         self.hist = hist # mark added this
     def timestamp_text(self):
         #e should inherit the method from the display env
-        if env.prefs[historyMsgTimestamp_prefs_key]: #bruce 050810 revised this to not store pref in an instance variable
+        if env.prefs[historyMsgTimestamp_prefs_key]:
             timetuple = time.localtime(self.time)
             # mark pulled the format string into this method
             return "[%s] " % (time.asctime(timetuple).split()[3]) ###stub; i hope this is hh:mm:ss
         else:
             return ''
     def serial_number_text(self):
-        if env.prefs[historyMsgSerialNumber_prefs_key]: #bruce 050810 revised this to not store pref in an instance variable
+        if env.prefs[historyMsgSerialNumber_prefs_key]:
             # mark pulled the format string into this method
             return "%d. " % (self.serno)
         else:
@@ -105,16 +105,19 @@ class message:
         assert 0, "nim" # same fields as widget text, but in xml, and not affected by display prefs
     pass
 
-class History_QTextEdit(QTextEdit, DebugMenuMixin):
+hte_super = QTextEdit # also works (sort of) with QTextBrowser [bruce 050914]
+m_super = DebugMenuMixin
+
+class History_QTextEdit(hte_super, m_super):
     def __init__(self, parent):#050304
-        QTextEdit.__init__(self, parent)
-        DebugMenuMixin._init1(self) # provides self.debug_event()
+        hte_super.__init__(self, parent)
+        m_super._init1(self) # provides self.debug_event()
     def focusInEvent(self, event):
         ## print "fyi: hte focus in" # debug
-        return QTextEdit.focusInEvent(self, event)
+        return hte_super.focusInEvent(self, event)
     def focusOutEvent(self, event):
         ## print "fyi:   hte focus out" # debug
-        return QTextEdit.focusOutEvent(self, event)
+        return hte_super.focusOutEvent(self, event)
     def event(self, event):
         # this is getting called for various events, but of the ones in the QTextEdit, not for any mouse events,
         # but is called for KeyEvents (2 each, presumably one press res T, and one release res F).
@@ -127,7 +130,7 @@ class History_QTextEdit(QTextEdit, DebugMenuMixin):
             except:
                 after = "<no stateAfter>" # needed for Wheel events, at least [code copied from GLPane.py]
             print "fyi: hte event %r; stateAfter = %r" % (event, after)
-        res = QTextEdit.event(self, event)
+        res = hte_super.event(self, event)
         if debug:
             print " (event done, res = %r)" % res
         #e now if it was a paintevent, try painting something else over it... or try implementing the method for catching those...
@@ -136,14 +139,13 @@ class History_QTextEdit(QTextEdit, DebugMenuMixin):
     def contentsMousePressEvent(self, event):#050304
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
-        return QTextEdit.contentsMousePressEvent(self, event)
+        return hte_super.contentsMousePressEvent(self, event)
     def repaint(self, *args):
         print "repaint, %r" % args # this is not being called, even though we're getting PaintEvents above.
-        return QTextEdit.repaint(*args)
+        return hte_super.repaint(*args)
     def debug_menu_items(self):
-        "overrides method from DebugMenuMixin"
-        super = DebugMenuMixin
-        usual = super.debug_menu_items(self)
+        "[overrides method from m_super (DebugMenuMixin)]"
+        usual = m_super.debug_menu_items(self)
             # list of (text, callable) pairs, None for separator
         ours = [
                 ## ("reload modules and remake widget", self._reload_and_remake),
@@ -394,8 +396,8 @@ class HistoryWidget:
         self.message(None)
         # [passing None is a private implem -- outsiders should not do this!]
     
-    def transient_msg(self, msg_text, repaint = 0):
-        """Show the message transiently (for now, as a Temporary message in Qt's main status bar).
+    def transient_msg(self, msg_text, repaint = 0): #e will soon rename this to statusbar_msg [bruce 050914]
+        """Show the message (which must be plain text and short) in Qt's main status bar.
         This only works for plain text messages, not html.
         If the message is too long, it might make the window become too wide, perhaps off the screen!
         Thus use this with care.
