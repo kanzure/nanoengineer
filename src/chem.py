@@ -2,8 +2,6 @@
 '''
 chem.py -- class Atom, for single atoms, and related code
 
-TEMPORARILY OWNED BY BRUCE AS OF 050502 for introducing higher-valence bonds #####@@@@@
-
 $Id$
 
 History:
@@ -27,8 +25,7 @@ History:
 
 - bruce 050610 changing how atoms are highlighted during Build mode mouseover. ###@@@ might not be done
 
-bruce 050901 used env.history in some places.
-
+- bruce 050901 used env.history in some places.
 '''
 __author__ = "Josh"
 

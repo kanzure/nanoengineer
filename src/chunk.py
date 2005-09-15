@@ -3,8 +3,6 @@
 chunk.py -- provides class molecule, for a chunk of atoms
 which can be moved and selected as a unit.
 
-TEMPORARILY OWNED BY BRUCE AS OF 050502 for introducing higher-valence bonds #####@@@@@
-
 $Id$
 
 History:
@@ -17,7 +15,6 @@ History:
 
 - bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
   for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
-
 '''
 __author__ = "Josh"
 

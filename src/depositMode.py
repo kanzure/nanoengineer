@@ -2,14 +2,12 @@
 """
 depositMode.py -- Build mode.
 
-Owned by bruce while atomtypes and higher-order bonds are being implemented.
-
 $Id$
 
 - bruce 050513 optims: using 'is' and 'is not' rather than '==', '!='
   for atoms, elements, atomtypes, in several places (not all commented individually); 050513
 
-bruce 050913 used env.history in some places.
+- bruce 050913 used env.history in some places.
 """
 __author__ = "Josh"
 

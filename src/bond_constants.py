@@ -2,8 +2,6 @@
 '''
 bond_constants.py -- constants for higher-order bonds, and related simple functions.
 
-OWNED BY BRUCE for the time being.
-
 $Id$
 
 History:
