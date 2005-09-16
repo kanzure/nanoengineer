@@ -784,7 +784,18 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseChunksAction",
                                                        self. toolsFuseChunksAction.iconSet().pixmap() )
        
-        self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )  
+        self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
+        
+        #### Fuse Atoms Tool ####
+
+        toolsFuseAtomsActionText = "<u><b>Fuse Atoms Tool</b></u><br>"\
+                       "<p><img source=\" toolsFuseAtomsAction\"><br> "\
+                       "<b>Fuse Atoms</b> fuses the overlapping atoms between two or more chunks.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseAtomsAction",
+                                                       self. toolsFuseAtomsAction.iconSet().pixmap() )
+       
+        self.toolsFuseAtomsAction.setWhatsThis( toolsFuseAtomsActionText )  
 
         #### Movie Player ####
 
@@ -1278,4 +1289,18 @@ def create_whats_this_descriptions_for_UserPrefs_dialog(w):
                        "</p>"
        
     QWhatsThis.add ( w.bond_line_thickness_spinbox, bondThicknessText )
+
+def create_whats_this_descriptions_for_NanoHive_dialog(w):
+    "Create What's This descriptions for the Nano-Hive dialog widgets."
     
+    #### MPQC Electrostatics Potential Plane ####
+
+    MPQCESPText = "<u><b>MPQC Electrostatics Potential Plane</b></u><br>"\
+                       "Enables the <i>MPQC Electrostatics Potential Plane</i> plugin. "\
+                       "</p>"
+       
+    QWhatsThis.add ( w.MPQC_ESP_checkbox, MPQCESPText )
+    
+    MPQCESPTipText = "Enables/disables MPQC Electrostatics Potential Plane Plugin"
+
+    QToolTip.add(w.MPQC_ESP_checkbox, MPQCESPTipText)
