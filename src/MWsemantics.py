@@ -186,6 +186,11 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         from UserPrefs import UserPrefs
         self.uprefs = UserPrefs(self.assy)
         
+        # Create the Nano-Hive dialog widget.
+        # Mark 050914.
+        from NanoHive import NanoHive
+        self.nanohive = NanoHive(self.assy)
+        
         #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
         from qt import QSettings
         self.prefsSetting = QSettings()
@@ -200,7 +205,6 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         else:
             self.fileMenu.setItemEnabled(10, False)
 
-            
         # Create the Help dialog.
         # Mark 050812
         from help import Help
@@ -910,6 +914,14 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         cmdrun = simSetup_CommandRun( self)
         cmdrun.run()
         return
+
+    def simNanoHive(self):
+        """Opens the Nano-Hive dialog... for details see subroutine's docstring.
+        """
+        # This should be probably be modeled after the simSetup_CommandRun class
+        # I'll do this if Bruce agrees.  For now, I want to get this working ASAP.
+        # Mark 050915.
+        self.nanohive.showDialog(self.assy)
 
     def simPlot(self):
         """Opens the Plot Tool dialog... for details see subroutine's docstring.

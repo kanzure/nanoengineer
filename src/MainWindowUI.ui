@@ -40,7 +40,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>29</height>
+            <height>33</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -150,6 +150,7 @@
     </item>
     <item text="Simulator" name="simulatorMenu">
         <action name="simSetupAction"/>
+        <action name="simNanoHiveAction"/>
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
     </item>
@@ -333,8 +334,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>77</width>
-                <height>16</height>
+                <width>94</width>
+                <height>19</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -358,10 +359,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>77</x>
+                <x>94</x>
                 <y>0</y>
-                <width>79</width>
-                <height>16</height>
+                <width>95</width>
+                <height>19</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -388,10 +389,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>156</x>
+                <x>189</x>
                 <y>0</y>
-                <width>81</width>
-                <height>16</height>
+                <width>96</width>
+                <height>19</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -419,8 +420,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>16</y>
-                <width>971</width>
+                <y>19</y>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -567,9 +568,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>971</x>
-                <y>16</y>
-                <width>112</width>
+                <x>0</x>
+                <y>48</y>
+                <width>128</width>
                 <height>29</height>
             </rect>
         </property>
@@ -598,9 +599,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
-                <y>45</y>
-                <width>100</width>
+                <x>128</x>
+                <y>48</y>
+                <width>115</width>
                 <height>29</height>
             </rect>
         </property>
@@ -630,9 +631,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>100</x>
-                <y>45</y>
-                <width>92</width>
+                <x>243</x>
+                <y>48</y>
+                <width>104</width>
                 <height>29</height>
             </rect>
         </property>
@@ -659,9 +660,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>192</x>
-                <y>45</y>
-                <width>105</width>
+                <x>347</x>
+                <y>48</y>
+                <width>120</width>
                 <height>29</height>
             </rect>
         </property>
@@ -691,9 +692,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>297</x>
-                <y>45</y>
-                <width>77</width>
+                <x>467</x>
+                <y>48</y>
+                <width>92</width>
                 <height>29</height>
             </rect>
         </property>
@@ -721,8 +722,8 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>374</x>
-                <y>45</y>
+                <x>559</x>
+                <y>48</y>
                 <width>19</width>
                 <height>29</height>
             </rect>
@@ -851,7 +852,7 @@
                 <x>0</x>
                 <y>851</y>
                 <width>30</width>
-                <height>95</height>
+                <height>122</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -861,6 +862,7 @@
             <string>Simulator</string>
         </property>
         <action name="simSetupAction"/>
+        <action name="simNanoHiveAction"/>
         <action name="simMoviePlayerAction"/>
         <action name="simPlotToolAction"/>
     </toolbar>
@@ -3816,18 +3818,24 @@
     </action>
     <action>
         <property name="name">
-            <cstring>jigsGrid_PlaneAction</cstring>
+            <cstring>simNanoHiveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image136</iconset>
         </property>
         <property name="text">
-            <string>Grid Plane</string>
+            <string>Nano-Hive</string>
         </property>
         <property name="menuText">
-            <string>Grid Plane</string>
+            <string>Nano-Hive...</string>
         </property>
     </action>
     <action>
         <property name="name">
             <cstring>jigsGridPlaneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image137</iconset>
         </property>
         <property name="text">
             <string>Grid Plane</string>
@@ -4242,6 +4250,12 @@
     </image>
     <image name="image135">
         <data format="PNG" length="345">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000012049444154789ccd95b18e445014867f1bccbe8146345a9a29f47a25efe0dd781ab752ab48d48673e56ee5ba96c5ccdacdfc8910f97df91de71cc01f48bf41bc2f5405a9d7da9560decfbc8fdf8201801eebb7bf343130a75e817ddf7faaf88cb1cd70fa77689aa6b02c6b17e6791e9224d9f548b0effb22cbb2c384b66d238aa2439f3e418ba2383403401886a77c32715555f2e6388e188601a6692ecc4dd39c820217b5db96646222826118701c67f595cbb27c7a4c1760d775b5adbe1c860100309dcf48968288c018135383abd344442022745df75a6255c6e75c91beef5f4fcc39c7fd7ed7f41b04efa1a90b85732e0f553f4ddd22711004129ae7b90080388eb53ccf455dd78b87dab6dd8502caae98a06776c511748efdd6bf92ffd21702838a420726bd740000000049454e44ae426082</data>
+    </image>
+    <image name="image136">
+        <data format="PNG" length="785">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002d849444154789cbd94cb4b546118c69fef3b7391a02ce8e2252fe544719c2ef40f04fd03492dda44616e5a15b4e8b20985080adab5302f3364ab826646d72a44e1ae56eae8a2333339596ad064373ccef73e2d94a3c7f1888be88503e73dbcd71fcf7981ff653999e6c97294274c84a332c4a0b8116668133c6e42ccc974459c5eef7c923ce79667e17e247e7f74b1f0e70b8accd1a5eb25ba7459648e5f7fcfc3cd03e582c6dcf22c8acc050e81b8586cc982c0cad390016d820eb35e92c32c6d820d69e5c5b56457e202271665366d38ce775890cf2b895450d4b068050e58612926d95d7ac0ba245897046f15da69138c8bc5942408003fa4c44133c0fbf99b5e5c77e901534c06a3b0091f8afa5ecb7b6fea8d326e427cc5be1514196c1f8525a1c0a6cb6a09a2cac1eb6e98d757583384b05405e7a9e0ba21467cbe2f74d00c707e710e9de9dba0125c3a73152924d0b6d88e978567d03b897ba71f6377f51e4c16c6d13bf2040a1a77cf77e240750ddaf495cd5bc78dc5a393e135b9a5156d82cd6fd77836bf016da32ae4d62ada07c30755b4413940727e2e0a8a1e208418868204a3484b92f38b73e84adf01005c3b7b03f1c653287dff86aef737213f818b8d5791d995c00574e0f9eb7e004067db231ca8aec1397d797314ada2796cb2ca5bf1502a429b604a928c1b8bb57d9b4bb1250b9e309160b9118232963cbfac5cef3b95f8d6e30664dc80c257585123c235b985195de5a51192a8e70315b285d15b683cc5249f7e7bc8a644947549b0ab709d8366803fa444004849827163b1d568dece77b0bedfdae62f2d606c427bec1ad39aada2e9c8140160413e73489e575cb7d884a62d0896db2a8f75eb12f4f2817dba563932454bc200cabe1c4d0b40805467e870cc1de6910f8a31077cf1ab873374fc875e5c1625c717bf7a1873c098038eb9c32c4a2e78e20675583932c568b3862883bd6a3f1ad4619f36233aa200605486b8a3290281418daec74175688b4bf20fed2f0d22c996b4bb09f10000000049454e44ae426082</data>
+    </image>
+    <image name="image137">
+        <data format="PNG" length="164">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006b49444154789c6360186a80115dc0da40f53fa5861ebd701bc35c0c833bd25c48e2c3f43351ea3a5c806606a3006a050303035ae4591ba8fef7359327db619b4f3da46dc431300cc5c8a37d1853337c19188674180f8934ccc040ebb282daae6560a075e4d1acd6a0050000164d573ca14e125b0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5062,6 +5076,12 @@
         <slot>toolsFuseAtoms()</slot>
     </connection>
     <connection>
+        <sender>simNanoHiveAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>simNanoHive()</slot>
+    </connection>
+    <connection>
         <sender>jigsGridPlaneAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -5229,6 +5249,7 @@
     <slot>helpKeyboardShortcuts()</slot>
     <slot>modifyCenterCommonAxis()</slot>
     <slot>toolsFuseAtoms()</slot>
+    <slot>simNanoHive()</slot>
     <slot>createRecentFilesList()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
