@@ -1,0 +1,404 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>NanoHiveDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>NanoHiveDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>333</width>
+            <height>561</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Nano-Hive Setup</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="modal">
+        <bool>true</bool>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="spacing">
+            <number>21</number>
+        </property>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout21</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>namelbl</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Name :</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>name_linedit</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QGroupBox" row="1" column="0">
+            <property name="name">
+                <cstring>parms_grpbox</cstring>
+            </property>
+            <property name="title">
+                <string>Parameters</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout27</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout24</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel5</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Total Frames:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Steps per Frame :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel3</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Temperature :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout25</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>nframes_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>90000</number>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>15</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>900</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>stepsper_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>99999</number>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>temp_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>99999</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>300</number>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout26</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer4</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>255</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2_2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>0.1 femtosecond</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel3_2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Kelvin</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QButtonGroup" row="2" column="0">
+            <property name="name">
+                <cstring>buttonGroup1</cstring>
+            </property>
+            <property name="title">
+                <string>Physical Interaction Plugins</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>MPQC_ESP_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>MPQC - Electrostatic Potential Plane</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>MPQC_GD_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>MPQC - Gradient Dynamics</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>AIREBO_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>AIREBO</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QButtonGroup" row="3" column="0">
+            <property name="name">
+                <cstring>buttonGroup1_2</cstring>
+            </property>
+            <property name="title">
+                <string>Results Plugins</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>Measurements_to_File_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Measurement Set to File</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>POVRayVideo_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>POV-Ray Video</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QGroupBox" row="4" column="0">
+            <property name="name">
+                <cstring>server_grpbox</cstring>
+            </property>
+            <property name="title">
+                <string>Server</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QComboBox" row="0" column="0">
+                    <item>
+                        <property name="text">
+                            <string>My Computer</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>server_combox</cstring>
+                    </property>
+                </widget>
+                <spacer row="0" column="1">
+                    <property name="name">
+                        <cstring>spacer5</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </grid>
+        </widget>
+        <spacer row="5" column="0">
+            <property name="name">
+                <cstring>spacer6</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget" row="6" column="0">
+            <property name="name">
+                <cstring>layout28</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>run_sim_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Run Simulation</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="779">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000002d249444154789c8594cd6b135114c5cf7b930f11b40a7ed4d6b4b58d28d3f881ff80e03f60d1851b51aa1b570a2efcd8480b525070e7a2b69a605d2998b45dab208a3b5d69d32e9c241a5bdb0a8dd52a4ef3ee71517dc9741a7a61e0cd70ee7bf777e6cc00755590291eaac679d0c4f842c68906f59ca374091e301116642aa0d3ff175fa4c8d9e569f89f885f9f7cccfffe8a320bf4e9db069f3ecb2cf0dbaf39f845a05ad2985d9e469985f0e12971d8950781952b310aba043de6add8639e2ec1444e595d577e45179a50945913ef3ddf625e66561aa8a0a8e1d069e446adb2cc70b032c0960cd89201af947ae9124c89c3aca409003fa4c23133c29bc5cb5637581960969930b24b04905b871dbb6e1f8e3365227ccafb2bc8a3581fd99148c3e997d51f88aa36c6ab9bcf6ea81941543634d6abc6fb4518b36b2b1b33239c5b9c455fee2aa804a78f9e431669f42cf6e249e921f426e2c6913bd8d2b41513a5f7187e7e170a1ad74ff4616753337af4d9e09129e370df44b4169b9ca24bb0e375cdaf8e57a06b542836dda22db4354eb441b5417482fc0a8ad6084418858284917392e1dce22cfa73d70000178e5d42aaed302adf17d0ffee32e42770aaed1c4637a77112e7f1e8e50300405fcf6dec6c6ac6717d2688dc2d9afb273658943dd9185d8259c930651ceebabf76a4baf2e041130bc7861054f1c71e5055be7d4e258197cc55d6b00ed96ea8a811632d3651c6ff79a21191b8bdafb9572ba3d7c8689619de5bb8c5f6749c2d19b0bf74916366843fa44200c84a9a29e3b0db685e2d9e67eb03679d4f4fc0e4076dbd69cb69768ba6279304807999e1b83c0afd6d921f345d413836ffb8ebb008da3e60bbdea53c99a4235100d5408fa6036055e43ed3e31bff19f77e544c7ae0e3a5217ea617fcc18acfb214f8786988490f4c7ae01bff19cb52084f98509dca9349c63b3444196c533b90509d816cc5744c01c00b19e7c6f6180406cdba15bbd51eabfb0bbe4bc9967bd332160000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>run_sim_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+</connections>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
