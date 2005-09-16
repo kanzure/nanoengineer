@@ -908,7 +908,7 @@ class LinearMotor(Motor):
 class GridPlane(Jig):
     ''' '''
     sym = "Grid Plane"
-    icon_names = ["ground.png", "ground-hide.png"]
+    icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
     
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
