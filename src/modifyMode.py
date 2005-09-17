@@ -194,8 +194,7 @@ class modifyMode(basicMode):
         self.rotDelta = 0 # delta for constrained rotations.
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
         
-        self.jigsSelected = self.o.assy.getSelectedJigs()
-        if not (self.jigsSelected or self.o.assy.selmols): return
+        if not self.o.assy.getMovables(): return
         
         # Move section
         wX = event.pos().x()
@@ -244,7 +243,7 @@ class modifyMode(basicMode):
         # Call. 
         if not self.picking: return
         
-        if not (self.jigsSelected or self.o.assy.selmols): return
+        if not self.o.assy.getMovables(): return
         
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
@@ -322,8 +321,6 @@ class modifyMode(basicMode):
         """
         if not self.picking: return
         
-        if not (self.jigsSelected or self.o.assy.selmols): return
-        
         self.picking = False
 
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -342,7 +339,7 @@ class modifyMode(basicMode):
     def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.
         """
-        if not (self.jigsSelected or self.o.assy.selmols): return
+        if not self.o.assy.getMovables(): return
         
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
@@ -351,12 +348,12 @@ class modifyMode(basicMode):
 
    
     def leftCntlDrag(self, event):
-        """Do an incremental trackball action on each selected part.
+        """Do an incremental trackball action on all selected part(s).
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
         
-        if not (self.jigsSelected or self.o.assy.selmols): return
+        if not self.o.assy.getMovables(): return
 
         self.o.setCursor(self.w.RotateMolCursor)
         
@@ -378,16 +375,18 @@ class modifyMode(basicMode):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
         """
-        if not (self.jigsSelected or self.o.assy.selmols): return
+        movables = self.o.assy.getMovables()
+        if not movables: return
         
         self.o.SaveMouse(event)
         ma = V(0,0,0)
-        for mol in self.o.assy.selmols + self.jigsSelected:
+        for mol in movables:
             ma += mol.getaxis()
         ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
         self.Zmat = A([ma,[-ma[1],ma[0]]])
         self.picking = True
         self.dragdist = 0.0
+
         
     def leftShiftDrag(self, event):
         """move part along its axis (mouse goes up or down)
@@ -396,7 +395,8 @@ class modifyMode(basicMode):
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
 
-        if not (self.jigsSelected or self.o.assy.selmols): return
+        movables = self.o.assy.getMovables()
+        if not movables: return
         
         self.o.setCursor(self.w.MoveRotateMolCursor)
         
@@ -406,7 +406,7 @@ class modifyMode(basicMode):
                        self.o.MousePos[1] - event.pos().y())
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
-        for mol in self.o.assy.selmols + self.jigsSelected:
+        for mol in movables:
             ma = mol.getaxis()
             mol.move(dx*ma)
             mol.rot(Q(ma,-dy))
@@ -414,6 +414,7 @@ class modifyMode(basicMode):
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.gl_update()
+    
     
     def leftShiftUp(self, event):
         self.EndPick(event, 1)
@@ -531,11 +532,11 @@ class modifyMode(basicMode):
         rotype = self.w.movetype_combox.currentText()
         theta = self.w.moveThetaSpinBox.floatValue() * -1.0
         self.moveTheta( rotype, theta)
-                
+        
+        
     def moveTheta(self, rotype, theta):
-        "Rotate the selected chunk(s) around the specified axis by theta (degrees)"
-        self.jigsSelected = self.o.assy.getSelectedJigs()
-        if not (self.jigsSelected or self.o.assy.selmols): 
+        "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
+        if not self.o.assy.getMovables(): 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
@@ -553,14 +554,13 @@ class modifyMode(basicMode):
         qrot = Q(ma,dy) # Quat for rotation delta.
         
         self.o.assy.rotsel(qrot) # [Huaicai 8/30/05: call this method instead]
-            
+    
         self.o.gl_update()
       
         
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
-        self.jigsSelected = self.o.assy.getSelectedJigs()
-        if not (self.jigsSelected or self.o.assy.selmols): 
+        if not self.o.assy.getMovables(): 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
@@ -568,10 +568,10 @@ class modifyMode(basicMode):
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
+
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
-        self.jigsSelected = self.o.assy.getSelectedJigs()
-        if not (self.jigsSelected or self.o.assy.selmols): 
+        if not self.o.assy.getMovables(): 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
@@ -579,31 +579,36 @@ class modifyMode(basicMode):
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
+
     def moveAbsolute(self):
-        '''Move selected chunk(s) to absolute X, Y, and Z by computing the bbox center
+        '''Move selected chunk(s), jig(s) to absolute X, Y, and Z by computing the bbox center
         of everything as if they were one big chunk, then move everything as a unit.
         '''
-        self.jigsSelected = self.o.assy.getSelectedJigs()
-        if not (self.jigsSelected or self.o.assy.selmols): 
+        movables = self.o.assy.getMovables()
+        if not movables: 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
-        # Compute bbox for selected chunk(s).
+        ## Compute bbox for selected chunk(s).
         from shape import BBox
         bbox = BBox()
-        for mol in self.o.assy.selmols:
-              bbox.merge(mol.bbox)
+        for m in movables(): 
+              bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
+       
         pt2 = get_move_xyz(self.w, 1) # pt2 = X, Y, Z values from dashboard.
         offset = pt2 - pt1 # Compute offset for movesel.
-        self.o.assy.movesel(offset) # Move the selected chunk(s).
+        
+        self.o.assy.movesel(offset) # Move the selected chunk(s)/jig(s).
+    
         # Print history message about what happened.
-        if len(self.o.assy.selmols) == 1:
-            msg = "Chunk [%s] moved to [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.o.assy.selmols[0].name, pt2[0], pt2[1], pt2[2])
+        if len(movables) == 1:
+            msg = "[%s] moved to [X: %.2f] [Y: %.2f] [Z: %.2f]" % (movables[0].name, pt2[0], pt2[1], pt2[2])
         else:
-            msg = "Selected chunks moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
+            msg = "Selected chunks/jigs moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
         env.history.message(msg)
         self.o.gl_update()
+        
         
     def changeMoveOption(self, action):
         '''Slot for Move Chunks dashboard's Move Options

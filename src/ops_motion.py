@@ -24,55 +24,39 @@ class ops_motion_Mixin:
     ###@@@ move/rot should be extended to apply to jigs too (and fit into some naming convention)
     
     def movesel(self, offset):
-        "move selected chunks in space"
-        for mol in self.selmols:
-            self.changed()
-            mol.move(offset)
-            
-        jigs = self.getSelectedJigs()
-        for jig in jigs:
-            self.changed()
-            jig.move(offset)
+        "move selected chunks and jigs in space"
+        movables = self.getMovables()
         
- 
+        for m in movables:
+            self.changed() #Not check if this can be combined into one call
+            m.move(offset)
+  
+  
     def rotsel(self, quat):
-        '''Rotate selected chunks in space. [Huaicai 8/30/05: Fixed the problem of each rotating
+        '''Rotate selected chunks/jigs in space. [Huaicai 8/30/05: Fixed the problem of each rotating
            around its own center, they will now rotate around their common center]'''
         # Find the common center of all selected chunks to fix bug 594 
         comCenter = V(0.0, 0.0, 0.0)
             
-        numMols = len(self.selmols)
-        if numMols > 0:
-            for m in self.selmols: comCenter += m.center
+        movables = self.getMovables()
+        numMovables = len(movables)
         
-        jigs = self.getSelectedJigs()
-        numJigs = len(jigs)
-        if numJigs > 0:
-            for jig in jigs: comCenter += jig.center
+        if numMovables:
+            for m in movables: comCenter += m.center
             
-        comCenter /= (numMols + numJigs)
+            comCenter /= numMovables
         
-        # Move the selected chunks    
-        for mol in self.selmols:
-            self.changed()
-            
-            # Get the moving offset because of the rotation around each chunk's own center
-            rotOff = quat.rot(mol.center - comCenter)    
-            rotOff = comCenter - mol.center + rotOff
-            
-            mol.move(rotOff) 
-            mol.rot(quat) 
-
-        for jig in jigs:
-            self.changed()
-            
-            # Get the moving offset because of the rotation around each chunk's own center
-            rotOff = quat.rot(jig.center - comCenter)    
-            rotOff = comCenter - jig.center + rotOff
-            
-            jig.move(rotOff) 
-            jig.rot(quat) 
-   
+            # Move the selected chunks    
+            for m in movables:
+                self.changed() #Not sure if this can be combined into one call
+                
+                # Get the moving offset because of the rotation around each movable's own center
+                rotOff = quat.rot(m.center - comCenter)    
+                rotOff = comCenter - m.center + rotOff
+                
+                m.move(rotOff) 
+                m.rot(quat) 
+        
             
     #stretch a molecule
     def Stretch(self):

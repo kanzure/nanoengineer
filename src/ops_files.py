@@ -161,7 +161,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return
         
         if fn:
-            self._updateOpenedFileList(fn)
+            self._updateRecentFileList(fn)
 
             self.__clear() # leaves glpane.mode as nullmode, as of 050911
             self.glpane.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
@@ -291,6 +291,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
                 env.history.message(redmsg( "Problem saving PDB file: " + safile ))
             else:
+                self._updateRecentFileList(safile)
+                
                 self.saved_main_file(safile, fil)
                     #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
                 env.history.message( "PDB file saved: " + self.assy.filename )
@@ -351,6 +353,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if os.path.exists(tmpname):
                 os.remove (tmpname) # Delete tmp MMP file
         else:
+            self._updateRecentFileList(safile)
+            
             if os.path.exists(safile):
                 os.remove (safile) # Delete original MMP file
                 #bruce 050907 suspects this is never necessary, but not sure;
@@ -492,7 +496,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.mt.resetAssy_and_clear() 
 
     
-    def _updateOpenedFileList(self, fileName):
+    def _updateRecentFileList(self, fileName):
         '''Add the <fileName> into the recent file list '''
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet        
      
@@ -511,8 +515,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         
         fileList.prepend(fileName)
-        #for ii in range(LIST_CAPACITY, len(fileList)):
-        #    del fileList[ii]
         fileList = fileList[:LIST_CAPACITY]
         
         self.prefsSetting.writeEntry('recentFiles', fileList)
@@ -539,9 +541,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         for ii in range(len(fileList)):
             self.recentFilePopupMenu.insertItem(qApp.translate("Main Window",  "&" + str(ii+1) + "  " + str(fileList[ii]), None), ii)
         
-        self.fileMenu.removeItemAt(10)
-        self.fileMenu.insertItem(qApp.translate("Main Window", "Recently opened files ...", None), self.recentFilePopupMenu, 10, 10)
-        #self.fileMenu.setWhatsThis(10, "Recently opened files ...")        
+        menuIndex = self.RECENT_FILES_MENU_INDEX
+        self.fileMenu.removeItemAt(menuIndex)
+        self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
+        #self.fileMenu.setWhatsThis(menuIndex, "Recently opened files ...")        
         
         self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
         

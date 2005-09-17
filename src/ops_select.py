@@ -27,7 +27,7 @@ class ops_select_Mixin:
     #  history messages, etc]
 
     def getSelectedJigs(self):
-        '''Huaicai 9/15/05: Find all selected jigs in current part. '''
+        '''Find all selected jigs in current part. [Huaicai 9/15/05]'''
         
         selJigs = []
         
@@ -38,6 +38,12 @@ class ops_select_Mixin:
         self.topnode.apply2picked(addSelectedJig)
         
         return selJigs
+
+    
+    def getMovables(self):
+        '''Return the list of movable objects, currently including selected chunks and jigs.
+        [Huaicai 9/16/05]'''
+        return self.selmols + self.getSelectedJigs()    
     
 
     def selectAll(self):

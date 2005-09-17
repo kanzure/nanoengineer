@@ -926,13 +926,33 @@ class GridPlane(Jig):
 
         self.atomPos = []
         
-        for a in list:
+        for a in list[:3]:
             self.atomPos += [a.posn()]
     
         self.planeNorm = self._getPlaneOrientation(self.atomPos)
         self.quat = Q(V(0.0, 0.0, 1.0), self.planeNorm)
         self.center = add.reduce(self.atomPos)/len(self.atomPos)
+
+
+    def __computeBBox(self):
+        '''Compute current bounding box. '''
+        from shape import BBox
         
+        hw = self.width/2.0; hh = self.height/2.0
+        corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
+        for pos in corners_pos:
+            pos = self.quat.rot(pos) + self.center
+        
+        return BBox(corners_pos)
+        
+        
+    def __getattr__(self, name):
+        if name == 'bbox':
+            return self.__computeBBox()
+        else:
+            raise AttributeError, 'Grid Plane has no "%s"' % name
+
+
     def set_cntl(self): 
         self.cntl = GridPlaneProp(self, self.assy.o)
         

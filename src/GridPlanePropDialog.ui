@@ -62,7 +62,7 @@
                                         <cstring>textLabel1_3</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Grid Width:</string>
+                                        <string>Cell Width:</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -95,6 +95,12 @@
                                             <width>0</width>
                                             <height>30</height>
                                         </size>
+                                    </property>
+                                    <property name="frameShape">
+                                        <enum>LineEditPanel</enum>
+                                    </property>
+                                    <property name="frameShadow">
+                                        <enum>Sunken</enum>
                                     </property>
                                 </widget>
                                 <widget class="QLineEdit">
@@ -428,7 +434,7 @@
                                         <cstring>textLabel1_2_2</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Grid Height:</string>
+                                        <string>Cell Height:</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">

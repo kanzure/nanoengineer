@@ -76,6 +76,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     
     initialised = 0 #bruce 041222
     ## history = env.history #bruce 050107, revised 050901; see also the set of self.history in __init__, below [removed, 050913]
+
+    RECENT_FILES_MENU_INDEX = 10 
     
     def __init__(self, parent = None, name = None):
     
@@ -193,17 +195,17 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
         from qt import QSettings
+        menuIndex = self.RECENT_FILES_MENU_INDEX
         self.prefsSetting = QSettings()
         popupMenu = QPopupMenu(self)        
-        self.fileMenu.insertSeparator(9)
-        self.fileMenu.insertItem(qApp.translate("Main Window", "Recently opened files ...", None), popupMenu, 10, 10)
+        self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), popupMenu, menuIndex, menuIndex)
                 
         fileList = self.prefsSetting.readListEntry('recentFiles')[0]
         if len(fileList): 
-            self.fileMenu.setItemEnabled(10, True)
+            self.fileMenu.setItemEnabled(menuIndex, True)
             self._createRecentFilesList()
         else:
-            self.fileMenu.setItemEnabled(10, False)
+            self.fileMenu.setItemEnabled(menuIndex, False)
 
         # Create the Help dialog.
         # Mark 050812

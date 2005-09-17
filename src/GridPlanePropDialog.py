@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GridPlanePropDialog.ui'
 #
-# Created: Wed Sep 14 15:29:39 2005
+# Created: Fri Sep 16 16:58:35 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,6 +42,8 @@ class GridPlanePropDialog(QDialog):
 
         self.wdLineEdit = QLineEdit(self,"wdLineEdit")
         self.wdLineEdit.setMinimumSize(QSize(0,30))
+        self.wdLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.wdLineEdit.setFrameShadow(QLineEdit.Sunken)
         layout13.addWidget(self.wdLineEdit)
 
         self.uwLineEdit = QLineEdit(self,"uwLineEdit")
@@ -233,11 +235,11 @@ class GridPlanePropDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Grid Plane Properties"))
         self.textLabel1.setText(self.__tr("Plane Width:"))
-        self.textLabel1_3.setText(self.__tr("Grid Width:"))
+        self.textLabel1_3.setText(self.__tr("Cell Width:"))
         self.colorTextLabel.setText(self.__tr("Plane Color:"))
         self.planeColorButton.setText(QString.null)
         self.textLabel1_2.setText(self.__tr("Plane Height:"))
-        self.textLabel1_2_2.setText(self.__tr("Grid Height:"))
+        self.textLabel1_2_2.setText(self.__tr("Cell Height:"))
         self.colorTextLabel_2.setText(self.__tr("Grid Color:"))
         self.gridColorButton.setText(QString.null)
         self.okButton.setText(self.__tr("&OK"))
