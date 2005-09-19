@@ -259,22 +259,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         # Get glpane related settings from prefs db.
         # If they are not found, set default values here.
-        # The keys are located in constants.py  Maybe Bruce
-        # would like them elsewhere?  Will ask him.
-        # Mark 050629
+        # Should these stay here or be moved to prefs_constants.py.  Need to talk to Bruce.
+        # Mark 050919.
         
-        prefs = preferences.prefs_context()
-        
-        self.displayCompass = prefs.get(displayCompass_prefs_key, True)
-        self.compassPosition = prefs.get(compassPosition_prefs_key, UPPER_RIGHT)
-        self.displayOriginAxis = prefs.get(displayOriginAxis_prefs_key, True)
-        self.displayPOVAxis = prefs.get(displayPOVAxis_prefs_key, True)
+        self.displayCompass = env.prefs.get(displayCompass_prefs_key, True)
+        self.compassPosition = env.prefs.get(compassPosition_prefs_key, UPPER_RIGHT)
+        self.displayOriginAxis = env.prefs.get(displayOriginAxis_prefs_key, True)
+        self.displayPOVAxis = env.prefs.get(displayPOVAxis_prefs_key, True)
+        self.ortho = env.prefs.get(defaultProjection_prefs_key, 0)
 
         # default display form for objects in the window
         # even tho there is only one assembly to a window,
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
-        self.display = prefs.get(defaultDisplayMode_prefs_key, default_display_mode)
+        self.display = env.prefs.get(defaultDisplayMode_prefs_key, default_display_mode)
             #bruce 050810 diVDW -> default_display_mode (equivalent)
         self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.display] )
         
@@ -453,6 +451,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # - doesn't this need to correct for aspect ratio, like setViewFitToWindow does? ###e
             # - why does it mark part as changed? I doubt it should (side effect of computeBoundingBox shouldn't require it).
         part.changed()
+        self.gl_update()
+        
+    def setViewProjection(self, projection): # Added by Mark 050918.
+        "Set projection, where 0 = Perspective and 1 = Orthographic"
+        # Still need to toggle the Ortho/Perspective action item in the View menu.  Mark 050918.
+        self.ortho = projection
         self.gl_update()
     
     # == "callback methods" from modeMixin:
