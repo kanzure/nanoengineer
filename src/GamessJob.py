@@ -139,8 +139,11 @@ class GamessJob(SimJob):
             0, 1 )
                 
         if ret==0: # OK
-            from UserPrefs import get_gamess_path
-            self.server.program = get_gamess_path(parent)
+            #from UserPrefs import get_gamess_path
+            #self.server.program = get_gamess_path(parent)
+            from UserPrefs import get_filename_and_save_in_prefs
+            self.server.program = \
+                get_filename_and_save_in_prefs(parent, gmspath_prefs_key, 'Choose GAMESS Executable')
             if not self.server.program:
                 return 1 # Cancelled from file chooser.
             
@@ -313,7 +316,7 @@ class GamessJob(SimJob):
                     process.kill()
                     os.chdir(oldir)
                     return 1 # Job cancelled.
-                    
+                        
                 progressDialog.setProgress(i)
                 if pInc:
                     if i < 75: i += 1
@@ -355,7 +358,24 @@ class GamessJob(SimJob):
         
         
         return simProgressDialog
-        
+
+# Added by Mark 050919 for bug #915.  Not used yet.   
+    def _job_cancelation_confirmed(self):
+        ret = QMessageBox.warning( None, "Confirm",
+            "Please confirm you want to abort the GAMESS simulation.\n",
+            "Confirm",
+            "Cancel", 
+            None, 
+            1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
+            1)  # Escape (1= Cancel)
+          
+        if ret==0: # Confirmed
+            print "CONFIRMED"
+            return True
+        else:
+            "CANCELLED"
+            return False
+            
 
 class JobProgressDialog(QDialog):
     
