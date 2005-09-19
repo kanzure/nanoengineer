@@ -117,7 +117,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
 
     def fileOpen(self, recentedFile=None):
-        
+        '''By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
+           is openning a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist. '''
         env.history.message(greenmsg("Open File:"))
         
         if self.assy.has_changed():
@@ -500,9 +501,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         '''Add the <fileName> into the recent file list '''
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet        
      
-        fileName = fileName
+        if not __debug__:
+            fileName = str(fileName)
         
-        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        if __debug__:
+            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        else:
+            fileList = self.prefsSetting.get('recentFiles', [])
         
         if len(fileList) > 0:
            if fileName == fileList[0]:
@@ -513,11 +518,17 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                        del fileList[ii]
                        break
         
-        
-        fileList.prepend(fileName)
+        if __debug__:
+            fileList.prepend(fileName)
+        else:
+            fileList.insert(0, fileName)
+            
         fileList = fileList[:LIST_CAPACITY]
         
-        self.prefsSetting.writeEntry('recentFiles', fileList)
+        if __debug__:
+            self.prefsSetting.writeEntry('recentFiles', fileList)
+        else:
+            self.prefsSetting['recentFiles'] = fileList 
         
         self._createRecentFilesList()
         
@@ -525,8 +536,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def _openRecentFile(self, idx):
         '''Slot method when user choose from the recently opened files submenu. '''
-        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
-   
+        if __debug__:
+            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        else:
+            fileList = self.prefsSetting.get('recentFiles', [])
+        
         assert idx <= len(fileList)
         
         selectedFile = str(fileList[idx])
@@ -535,7 +549,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
     def _createRecentFilesList(self):
         '''Dynamically construct the list of rencently opened files submenus '''
-        fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        if __debug__:
+            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+        else:
+            fileList = self.prefsSetting.get('recentFiles', [])
         
         self.recentFilePopupMenu = QPopupMenu(self)
         for ii in range(len(fileList)):
@@ -544,7 +561,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         menuIndex = self.RECENT_FILES_MENU_INDEX
         self.fileMenu.removeItemAt(menuIndex)
         self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
-        #self.fileMenu.setWhatsThis(menuIndex, "Recently opened files ...")        
         
         self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
         

@@ -976,7 +976,7 @@ def drawPlane(color, w, h):
     glPushMatrix()
     glScalef(w, h, 1.0)
     
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
     glDisable(GL_CULL_FACE) 
     
     glBegin(GL_QUADS)
@@ -996,7 +996,7 @@ def drawPlaneGrid(color, w, h, uw, uh):
     if uw > w: uw = w
     if uh > h: uh = h
     
-    Z_OFF = 0.001
+    Z_OFF = 0.0 #0.001
     
     glDisable(GL_LIGHTING)
     glColor3fv(color)
@@ -1010,16 +1010,16 @@ def drawPlaneGrid(color, w, h, uw, uh):
     glBegin(GL_LINES)
     
     #Draw horizontal lines
-    y1 = hh
-    while y1 >= -hh:
+    y1 = hh - uh
+    while y1 > -hh:
         glVertex3f(-hw, y1, Z_OFF)
         glVertex3f(hw, y1, Z_OFF)
     
         y1 -= uh
         
     #Draw vertical lines    
-    x1 = -hw
-    while x1 <= hw:        
+    x1 = -hw + uw
+    while x1 < hw:        
         glVertex3f(x1, hh, Z_OFF)
         glVertex3f(x1, -hh, Z_OFF)
     
