@@ -88,7 +88,6 @@ class UserPrefs(UserPrefsDialog):
         UserPrefsDialog.__init__(self)
         self.glpane = assy.o
         self.w = assy.w
-        self.gmspath = None
         #bruce 050811 added these:
         self._setup_caption_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
@@ -132,10 +131,6 @@ class UserPrefs(UserPrefsDialog):
     
     def showDialog(self, pagename='General'):
         '''Display the Preferences dialog with page 'pagename'. '''
-
-        # This sends a signal to self.setup_current_page(), which will always call self._setup_general_page()
-        # and will also call the setup routine for the specified page (if different) [as revised by bruce 050817]
-#        self._init_prefs()
         
         # Added to fix bug 894.  Mark.
         # [circa 050817, adds bruce; what's new is the pagename argument]
@@ -147,7 +142,7 @@ class UserPrefs(UserPrefsDialog):
             self.prefs_tab.setCurrentPage(2)
         elif pagename == 'Modes':
             self.prefs_tab.setCurrentPage(3)
-        elif pagename == 'Modes':
+        elif pagename == 'Files':
             self.prefs_tab.setCurrentPage(4)
         elif pagename == 'History':
             self.prefs_tab.setCurrentPage(5)
@@ -178,18 +173,17 @@ class UserPrefs(UserPrefsDialog):
         ''' Setup widgets to initial (default or defined) values on the Files page.
         '''
         
-        # GAMESS path label and value.
+        # GAMESS label.
         if sys.platform == 'win32': # Windows
             self.gamess_lbl.setText("PC GAMESS :")
         else:
             self.gamess_lbl.setText("GAMESS :")
 
-        self.gmspath = env.prefs.get(gmspath_prefs_key, '')
-        self.gamess_path_linedit.setText(self.gmspath)
+        # GAMESS executable path.
+        self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
         
-        # Nano-Hive path.
-        self.nanohive_path = env.prefs.get(nanohive_path_prefs_key, '')
-        self.nanohive_path_linedit.setText(self.nanohive_path)
+        # Nano-Hive executable path.
+        self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
 
 # Changed "Background" page to "Modes" page.  Mark 050911.
     def _setup_modes_page(self):
@@ -334,56 +328,6 @@ class UserPrefs(UserPrefsDialog):
             env.prefs[captionSuffix_prefs_key] = ' ' + str(text)
         else:
             env.prefs[captionSuffix_prefs_key] = ''
-        return
-    
-    def _update_prefs(self): #bruce 050810 revised this; see comments inside.
-        '''Update the user preferences which are not updated immediately when they're changed,
-        both within the program and in the prefs db.
-        This is obsolete and not used as of 050919.  Mark
-        '''
-        # [bruce comments 050811:]
-        #    This function is only called when we exit the dialog (or perhaps change the tab page? not sure).
-        # This is bad, since changes prefs should be updated immediately.
-        # Thus, it's in the process of being removed, by changing individual prefs to be updated immediately
-        # and removing them from the ones updated here.
-        #    Worse, it caused serious bugs (at least bug 881) to update prefs here from widgets
-        # on tab pages other than the first one, when the code didn't initialize those widgets
-        # to correct prefs values until those tab pages were first shown (i.e. maybe never).
-        #    To fix those bugs for Alpha6, I removed all prefs from this system except the ones
-        # on the first page. Removing the remaining prefs can wait until after Alpha6 goes out.
-
-        # Gamess prefs:
-        # Do this just in case the user typed in the GAMESS executable path by hand.
-        # We do not need to check whether the path exists as this is checked
-        # each time GAMESS is launched.  If the path is wrong, the user will be
-        # alerted and asked to supply a new path via the file chooser.
-        # Mark 050629
-        self.gmspath = str(self.gamess_path_linedit.text())
-        
-        # Bruce suggested I validate the gamess path before updating the prefs.  
-        # This works, but it needs more thought.  It will annoy users more than
-        # help them.  I'm leaving this for later until I discuss with Bruce.
-        # Mark 050630.
-#        self.gmspath = validate_gamess_path(self, str(self.gamess_path_linedit.text()))
-
-##        self.history.history_height = self.history_height_spinbox.value() #bruce 050810 removed this
-
-        #bruce 050811 comment: note that it's only correct to get the following values from
-        # anywhere other than widgets on the first tab page if the caller has called another method
-        # which gets them from those widgets (and stores them in the following places),
-        # before it calls this method, or if they have slot methods which immediately update the
-        # following places -- I think they all do, but I haven't thoroughly verified this.
-        
-        all_prefs = {   displayCompass_prefs_key:    self.glpane.displayCompass,
-                        compassPosition_prefs_key:   self.glpane.compassPosition,
-                        displayOriginAxis_prefs_key: self.glpane.displayOriginAxis,
-                        displayPOVAxis_prefs_key:    self.glpane.displayPOVAxis,
-                        gmspath_prefs_key:           self.gmspath,
-                    } #bruce 050810-050811 removed most prefs from this
-        try:
-            env.prefs.update(all_prefs) # Opens prefs db only once.
-        except:
-            print_compact_traceback("bug in _update_prefs: ")
         return
 
     ###### End of private methods. ########################
@@ -636,20 +580,18 @@ class UserPrefs(UserPrefsDialog):
     def set_gamess_path(self):
         '''Slot for GAMESS path "Choose" button.
         '''
-        newPath = get_filename_and_save_in_prefs(self, gmspath_prefs_key, 'Choose GAMESS Executable')
+        gamess_exe = get_filename_and_save_in_prefs(self, gmspath_prefs_key, 'Choose GAMESS Executable')
          
-        if newPath:
-            self.gmspath = newPath
-            self.gamess_path_linedit.setText(self.gmspath)
+        if gamess_exe:
+            self.gamess_path_linedit.setText(gamess_exe)
 
     def set_nanohive_path(self):
         '''Slot for Nano-Hive path "Choose" button.
         '''
-        newPath = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
+        nanohive_exe = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
          
-        if newPath:
-            self.nanohive_path = newPath
-            self.nanohive_path_linedit.setText(self.nanohive_path)
+        if nanohive_exe:
+            self.nanohive_path_linedit.setText(nanohive_exe)
                             
     ########## End of slot methods for "Files" page widgets ###########
 
