@@ -26,11 +26,11 @@ from constants import *
 # Keys for user preferences for A6 [ by Mark 050629]
 
 # General prefs
-gmspath_prefs_key = 'A6/GAMESS Path'
 displayCompass_prefs_key = 'A6/Display Compass'
 compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
+defaultProjection_prefs_key = 'A7/Default Projection'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -54,6 +54,10 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 # Modes prefs [added to this table by mark 050910]
 startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
+
+# Files prefs [added to this table by mark 050918]
+gmspath_prefs_key = 'A6/GAMESS Path'
+nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
 
 # Caption prefs
 captionPrefix_prefs_key = 'A6/Caption Prefix'
