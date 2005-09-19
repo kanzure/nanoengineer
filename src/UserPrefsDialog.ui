@@ -69,200 +69,6 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QGroupBox" row="0" column="0">
-                        <property name="name">
-                            <cstring>groupBox7_2</cstring>
-                        </property>
-                        <property name="title">
-                            <string>Compass and Axes</string>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>display_compass_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Display Compass</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>display_origin_axis_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Display Origin Axis</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>display_pov_axis_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Display Point of View Axis</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
-                    <widget class="QButtonGroup" row="0" column="1">
-                        <property name="name">
-                            <cstring>compass_position_btngrp</cstring>
-                        </property>
-                        <property name="title">
-                            <string>Compass Position</string>
-                        </property>
-                        <property name="exclusive">
-                            <bool>true</bool>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QRadioButton" row="0" column="1">
-                                <property name="name">
-                                    <cstring>upper_right_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Upper Right</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
-                            <widget class="QRadioButton" row="0" column="0">
-                                <property name="name">
-                                    <cstring>upper_left_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Upper Left</string>
-                                </property>
-                            </widget>
-                            <widget class="QRadioButton" row="2" column="0">
-                                <property name="name">
-                                    <cstring>lower_left_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Lower Left</string>
-                                </property>
-                            </widget>
-                            <widget class="QRadioButton" row="2" column="1">
-                                <property name="name">
-                                    <cstring>lower_right_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Lower Right</string>
-                                </property>
-                            </widget>
-                            <spacer row="1" column="0">
-                                <property name="name">
-                                    <cstring>spacer8</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>16</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <spacer row="1" column="1">
-                                <property name="name">
-                                    <cstring>spacer8_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>16</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </grid>
-                    </widget>
-                    <widget class="QGroupBox" row="1" column="0" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>file_locations_grp</cstring>
-                        </property>
-                        <property name="title">
-                            <string>File Locations</string>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QPushButton" row="1" column="2">
-                                <property name="name">
-                                    <cstring>gamess_choose_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Choose...</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="0">
-                                <property name="name">
-                                    <cstring>gamess_lbl</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>1</hsizetype>
-                                        <vsizetype>5</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>60</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="text">
-                                    <string>GAMESS Executable :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="1" column="1">
-                                <property name="name">
-                                    <cstring>gamess_path_linedit</cstring>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                            </widget>
-                        </grid>
-                    </widget>
                     <spacer row="2" column="0">
                         <property name="name">
                             <cstring>spacer23</cstring>
@@ -276,10 +82,213 @@
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>16</height>
+                                <height>20</height>
                             </size>
                         </property>
                     </spacer>
+                    <widget class="QLayoutWidget" row="0" column="0">
+                        <property name="name">
+                            <cstring>layout31</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox7_2</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Compass and Axes</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>display_compass_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display Compass</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>display_origin_axis_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display Origin Axis</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>display_pov_axis_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display Point of View Axis</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QButtonGroup">
+                                <property name="name">
+                                    <cstring>compass_position_btngrp</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Compass Position</string>
+                                </property>
+                                <property name="exclusive">
+                                    <bool>true</bool>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QRadioButton" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>upper_right_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Upper Right</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>upper_left_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Upper Left</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="2" column="0">
+                                        <property name="name">
+                                            <cstring>lower_left_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Lower Left</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="2" column="1">
+                                        <property name="name">
+                                            <cstring>lower_right_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Lower Right</string>
+                                        </property>
+                                    </widget>
+                                    <spacer row="1" column="0">
+                                        <property name="name">
+                                            <cstring>spacer8</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Vertical</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>20</width>
+                                                <height>16</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <spacer row="1" column="1">
+                                        <property name="name">
+                                            <cstring>spacer8_2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Vertical</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>20</width>
+                                                <height>16</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </grid>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="1" column="0">
+                        <property name="name">
+                            <cstring>layout32</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QButtonGroup">
+                                <property name="name">
+                                    <cstring>default_projection_btngrp</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Default Projection</string>
+                                </property>
+                                <property name="exclusive">
+                                    <bool>true</bool>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QRadioButton" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>radioButton12</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Perspective</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>radioButton13</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Orthogonal</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer25</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -1018,7 +1027,7 @@
                                             <cstring>textLabel1</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Bond line thickness :</string>
+                                            <string>Bond Line Thickness :</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Bond thickness (in pixels) for Lines Display Mode</string>
@@ -1462,6 +1471,175 @@
                     <cstring>TabPage</cstring>
                 </property>
                 <attribute name="title">
+                    <string>Files</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>spacer24</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>40</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QGroupBox" row="0" column="0">
+                        <property name="name">
+                            <cstring>file_locations_grp</cstring>
+                        </property>
+                        <property name="title">
+                            <string>File Locations</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget" row="0" column="0">
+                                <property name="name">
+                                    <cstring>layout79</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>gamess_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>GAMESS Executable :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>nanohive_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>Nano-Hive Executable :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="0" column="1">
+                                <property name="name">
+                                    <cstring>layout80</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLineEdit" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>nanohive_path_linedit</cstring>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>LineEditPanel</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>Sunken</enum>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>gamess_path_linedit</cstring>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>LineEditPanel</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>Sunken</enum>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>nanohive_choose_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Choose...</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>gamess_choose_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Choose...</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                        </grid>
+                    </widget>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
                     <string>History</string>
                 </attribute>
                 <vbox>
@@ -1833,6 +2011,12 @@
         <slot>set_default_display_mode()</slot>
     </connection>
     <connection>
+        <sender>default_mode_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_default_mode()</slot>
+    </connection>
+    <connection>
         <sender>display_compass_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -1855,12 +2039,6 @@
         <signal>activated(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>fill_type_changed()</slot>
-    </connection>
-    <connection>
-        <sender>gamess_choose_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_gamess_path()</slot>
     </connection>
     <connection>
         <sender>high_order_bond_display_btngrp</sender>
@@ -1935,10 +2113,22 @@
         <slot>change_startup_mode()</slot>
     </connection>
     <connection>
-        <sender>default_mode_combox</sender>
-        <signal>activated(int)</signal>
+        <sender>gamess_choose_btn</sender>
+        <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_default_mode()</slot>
+        <slot>set_gamess_path()</slot>
+    </connection>
+    <connection>
+        <sender>nanohive_choose_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_nanohive_path()</slot>
+    </connection>
+    <connection>
+        <sender>default_projection_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_default_projection()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -1948,8 +2138,6 @@
     <tabstop>display_origin_axis_checkbox</tabstop>
     <tabstop>display_pov_axis_checkbox</tabstop>
     <tabstop>upper_right_btn</tabstop>
-    <tabstop>gamess_path_linedit</tabstop>
-    <tabstop>gamess_choose_btn</tabstop>
     <tabstop>atom_hilite_color_btn</tabstop>
     <tabstop>hotspot_color_btn</tabstop>
     <tabstop>reset_atom_colors_btn</tabstop>
@@ -2005,6 +2193,8 @@
     <slot>change_bond_line_thickness()</slot>
     <slot>change_startup_mode()</slot>
     <slot>change_default_mode()</slot>
+    <slot>set_nanohive_path()</slot>
+    <slot>set_default_projection()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

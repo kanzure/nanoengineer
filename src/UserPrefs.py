@@ -27,28 +27,29 @@ import platform
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
 
-def get_gamess_path(parent):
-    '''Present user with the Qt file chooser to select the GAMESS executable.
-    This routine also updates the shelf with the GAMESS executable path.
+def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
+    '''Present user with the Qt file chooser to select a file.
+    prefs_key is the key to save the filename in the prefs db
+    caption is the string for the dialog caption.
     '''
     from platform import get_rootdir
     
-    gmspath = str(QFileDialog.getOpenFileName(
+    filename = str(QFileDialog.getOpenFileName(
                     get_rootdir(), # Def
                     None,
                     parent,
                     None,
-                    "Choose GAMESS executable." ))
+                    caption ))
                 
-    if not gmspath: # Cancelled.
+    if not filename: # Cancelled.
         return None
     
-    # Save GAMESS executable path in prefs db.    
+    # Save filename in prefs db.    
     prefs = preferences.prefs_context()
-    prefs[gmspath_prefs_key] = str(gmspath)
+    prefs[prefs_key] = str(filename)
         
-    return gmspath
-
+    return filename
+    
 def validate_gamess_path(parent, gmspath):
     '''Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
     if they want to use the File Chooser to select the GAMESS executable.
@@ -86,6 +87,7 @@ class UserPrefs(UserPrefsDialog):
     def __init__(self, assy):
         UserPrefsDialog.__init__(self)
         self.glpane = assy.o
+        self.w = assy.w
         self.gmspath = None
         #bruce 050811 added these:
         self._setup_caption_page() # make sure the LineEdits are initialized before we hear their signals
@@ -133,7 +135,7 @@ class UserPrefs(UserPrefsDialog):
 
         # This sends a signal to self.setup_current_page(), which will always call self._setup_general_page()
         # and will also call the setup routine for the specified page (if different) [as revised by bruce 050817]
-        self._init_prefs()
+#        self._init_prefs()
         
         # Added to fix bug 894.  Mark.
         # [circa 050817, adds bruce; what's new is the pagename argument]
@@ -145,10 +147,12 @@ class UserPrefs(UserPrefsDialog):
             self.prefs_tab.setCurrentPage(2)
         elif pagename == 'Modes':
             self.prefs_tab.setCurrentPage(3)
-        elif pagename == 'History':
+        elif pagename == 'Modes':
             self.prefs_tab.setCurrentPage(4)
-        elif pagename == 'Caption':
+        elif pagename == 'History':
             self.prefs_tab.setCurrentPage(5)
+        elif pagename == 'Caption':
+            self.prefs_tab.setCurrentPage(6)
         else:
             print 'Error: Preferences page unknown: ', pagename
 
@@ -158,28 +162,34 @@ class UserPrefs(UserPrefsDialog):
         return
 
     ###### Private methods ###############################
-    
-    def _init_prefs(self): #bruce 050810 revised this
-        '''Retreive preferences from the pref db that are needed before updating widgets in the UI.
-        '''
-        self.gmspath = env.prefs.get(gmspath_prefs_key, '')
-        return
         
     def _setup_general_page(self):
-        ''' Setup widgets to initial (default or defined) values on the general page.
+        ''' Setup widgets to initial (default or defined) values on the General page.
         '''
         self.display_compass_checkbox.setChecked(self.glpane.displayCompass)
         self.compass_position_btngrp.setButton(self.glpane.compassPosition)
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
-                
+        
+        self.default_projection_btngrp.setButton(env.prefs.get(defaultProjection_prefs_key, 0))
+
+
+    def _setup_files_page(self):
+        ''' Setup widgets to initial (default or defined) values on the Files page.
+        '''
+        
         # GAMESS path label and value.
         if sys.platform == 'win32': # Windows
             self.gamess_lbl.setText("PC GAMESS :")
         else:
             self.gamess_lbl.setText("GAMESS :")
 
-        self.gamess_path_linedit.setText(self.gmspath) # Retrieved from _init_prefs().
+        self.gmspath = env.prefs.get(gmspath_prefs_key, '')
+        self.gamess_path_linedit.setText(self.gmspath)
+        
+        # Nano-Hive path.
+        self.nanohive_path = env.prefs.get(nanohive_path_prefs_key, '')
+        self.nanohive_path_linedit.setText(self.nanohive_path)
 
 # Changed "Background" page to "Modes" page.  Mark 050911.
     def _setup_modes_page(self):
@@ -329,6 +339,7 @@ class UserPrefs(UserPrefsDialog):
     def _update_prefs(self): #bruce 050810 revised this; see comments inside.
         '''Update the user preferences which are not updated immediately when they're changed,
         both within the program and in the prefs db.
+        This is obsolete and not used as of 050919.  Mark
         '''
         # [bruce comments 050811:]
         #    This function is only called when we exit the dialog (or perhaps change the tab page? not sure).
@@ -382,36 +393,45 @@ class UserPrefs(UserPrefsDialog):
     def display_compass(self, val):
         '''Display or Hide the Compass
         '''
+        # set the pref
+        env.prefs[displayCompass_prefs_key] = val
+        # update the glpane
         self.glpane.displayCompass = val
         self.glpane.gl_update()
         
     def display_origin_axis(self, val):
         '''Display or Hide Origin Axis
         '''
+        # set the pref
+        env.prefs[displayOriginAxis_prefs_key] = val
+        # update the glpane
         self.glpane.displayOriginAxis = val
         self.glpane.gl_update()
         
     def display_pov_axis(self, val):
         '''Display or Hide Point of View Axis
         '''
+        # set the pref
+        env.prefs[displayPOVAxis_prefs_key] = val
+        # update the glpane
         self.glpane.displayPOVAxis = val
         self.glpane.gl_update()
 
     def set_compass_position(self, val):
         '''Set position of compass
         '''
+        # set the pref
+        env.prefs[compassPosition_prefs_key] = val
+        # update the glpane
         self.glpane.compassPosition = val
         self.glpane.gl_update()
 
-    def set_gamess_path(self):
-        '''Slot for GAMESS path "Modify" button.
-        '''
-        newPath = get_gamess_path(self)
-         
-        if newPath:
-            self.gmspath = newPath
-            self.gamess_path_linedit.setText(self.gmspath)
-            
+    def set_default_projection(self, projection):
+        "Set projection, where 0 = Perspective and 1 = Orthographic"
+        # set the pref
+        env.prefs[defaultProjection_prefs_key] = projection
+        self.glpane.setViewProjection(projection)
+        
     ########## End of slot methods for "General" page widgets ###########
     
     ########## Slot methods for "Atoms" page widgets ################
@@ -610,6 +630,28 @@ class UserPrefs(UserPrefsDialog):
             self.glpane.gl_update()
         
     ########## End of slot methods for "Modes" page widgets ###########
+    
+    ########## Slot methods for "Files" page widgets ################
+
+    def set_gamess_path(self):
+        '''Slot for GAMESS path "Choose" button.
+        '''
+        newPath = get_filename_and_save_in_prefs(self, gmspath_prefs_key, 'Choose GAMESS Executable')
+         
+        if newPath:
+            self.gmspath = newPath
+            self.gamess_path_linedit.setText(self.gmspath)
+
+    def set_nanohive_path(self):
+        '''Slot for Nano-Hive path "Choose" button.
+        '''
+        newPath = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
+         
+        if newPath:
+            self.nanohive_path = newPath
+            self.nanohive_path_linedit.setText(self.nanohive_path)
+                            
+    ########## End of slot methods for "Files" page widgets ###########
 
     ########## Slot methods for "Caption" page widgets ################
 
@@ -651,6 +693,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_bonds_page()
         elif pagename == 'Modes':
             self._setup_modes_page()
+        elif pagename == 'Files':
+            self._setup_files_page()
         elif pagename == 'History':
             self._setup_history_page()
         elif pagename == 'Caption':
@@ -660,7 +704,7 @@ class UserPrefs(UserPrefsDialog):
             
     def accept(self):
         '''The slot method for the 'OK' button.'''
-        self._update_prefs()
+        # self._update_prefs() # Mark 050919
         QDialog.accept(self)
         
     def reject(self):
@@ -672,7 +716,7 @@ class UserPrefs(UserPrefsDialog):
         # will not be persistent (after this session).  
         # This will need to be removed when we implement a true cancel function.
         # Mark 050629.
-        self._update_prefs()
+        # self._update_prefs() # Removed by Mark 050919.
         QDialog.reject(self)
 
     pass # end of class UserPrefs

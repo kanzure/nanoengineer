@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Sep 14 17:32:11 2005
+# Created: Mon Sep 19 12:02:39 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,6 +34,10 @@ class UserPrefsDialog(QDialog):
 
         self.tab = QWidget(self.prefs_tab,"tab")
         tabLayout = QGridLayout(self.tab,1,1,11,6,"tabLayout")
+        spacer23 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        tabLayout.addItem(spacer23,2,0)
+
+        layout31 = QHBoxLayout(None,0,6,"layout31")
 
         self.groupBox7_2 = QGroupBox(self.tab,"groupBox7_2")
         self.groupBox7_2.setColumnLayout(0,Qt.Vertical)
@@ -53,8 +57,7 @@ class UserPrefsDialog(QDialog):
         self.display_pov_axis_checkbox = QCheckBox(self.groupBox7_2,"display_pov_axis_checkbox")
         self.display_pov_axis_checkbox.setChecked(1)
         groupBox7_2Layout.addWidget(self.display_pov_axis_checkbox)
-
-        tabLayout.addWidget(self.groupBox7_2,0,0)
+        layout31.addWidget(self.groupBox7_2)
 
         self.compass_position_btngrp = QButtonGroup(self.tab,"compass_position_btngrp")
         self.compass_position_btngrp.setExclusive(1)
@@ -84,36 +87,33 @@ class UserPrefsDialog(QDialog):
         compass_position_btngrpLayout.addItem(spacer8,1,0)
         spacer8_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
         compass_position_btngrpLayout.addItem(spacer8_2,1,1)
+        layout31.addWidget(self.compass_position_btngrp)
 
-        tabLayout.addWidget(self.compass_position_btngrp,0,1)
+        tabLayout.addLayout(layout31,0,0)
 
-        self.file_locations_grp = QGroupBox(self.tab,"file_locations_grp")
-        self.file_locations_grp.setColumnLayout(0,Qt.Vertical)
-        self.file_locations_grp.layout().setSpacing(6)
-        self.file_locations_grp.layout().setMargin(11)
-        file_locations_grpLayout = QGridLayout(self.file_locations_grp.layout())
-        file_locations_grpLayout.setAlignment(Qt.AlignTop)
+        layout32 = QHBoxLayout(None,0,6,"layout32")
 
-        self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
+        self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
+        self.default_projection_btngrp.setExclusive(1)
+        self.default_projection_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.default_projection_btngrp.layout().setSpacing(6)
+        self.default_projection_btngrp.layout().setMargin(11)
+        default_projection_btngrpLayout = QGridLayout(self.default_projection_btngrp.layout())
+        default_projection_btngrpLayout.setAlignment(Qt.AlignTop)
 
-        file_locations_grpLayout.addWidget(self.gamess_choose_btn,1,2)
+        self.radioButton12 = QRadioButton(self.default_projection_btngrp,"radioButton12")
+        self.radioButton12.setChecked(1)
 
-        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
-        self.gamess_lbl.setMinimumSize(QSize(60,0))
-        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        default_projection_btngrpLayout.addWidget(self.radioButton12,0,0)
 
-        file_locations_grpLayout.addWidget(self.gamess_lbl,1,0)
+        self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
 
-        self.gamess_path_linedit = QLineEdit(self.file_locations_grp,"gamess_path_linedit")
-        self.gamess_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
-        self.gamess_path_linedit.setFrameShadow(QLineEdit.Sunken)
+        default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
+        layout32.addWidget(self.default_projection_btngrp)
+        spacer25 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout32.addItem(spacer25)
 
-        file_locations_grpLayout.addWidget(self.gamess_path_linedit,1,1)
-
-        tabLayout.addMultiCellWidget(self.file_locations_grp,1,1,0,1)
-        spacer23 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        tabLayout.addItem(spacer23,2,0)
+        tabLayout.addLayout(layout32,1,0)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -470,50 +470,107 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
-        TabPageLayout_4 = QVBoxLayout(self.TabPage_4,11,6,"TabPageLayout_4")
+        TabPageLayout_4 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_4")
+        spacer24 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_4.addItem(spacer24,1,0)
+
+        self.file_locations_grp = QGroupBox(self.TabPage_4,"file_locations_grp")
+        self.file_locations_grp.setColumnLayout(0,Qt.Vertical)
+        self.file_locations_grp.layout().setSpacing(6)
+        self.file_locations_grp.layout().setMargin(11)
+        file_locations_grpLayout = QGridLayout(self.file_locations_grp.layout())
+        file_locations_grpLayout.setAlignment(Qt.AlignTop)
+
+        layout79 = QVBoxLayout(None,0,6,"layout79")
+
+        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
+        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setMinimumSize(QSize(60,0))
+        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout79.addWidget(self.gamess_lbl)
+
+        self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
+        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
+        self.nanohive_lbl.setMinimumSize(QSize(60,0))
+        self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout79.addWidget(self.nanohive_lbl)
+
+        file_locations_grpLayout.addLayout(layout79,0,0)
+
+        layout80 = QGridLayout(None,1,1,0,6,"layout80")
+
+        self.nanohive_path_linedit = QLineEdit(self.file_locations_grp,"nanohive_path_linedit")
+        self.nanohive_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.nanohive_path_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.nanohive_path_linedit.setReadOnly(1)
+
+        layout80.addWidget(self.nanohive_path_linedit,1,0)
+
+        self.gamess_path_linedit = QLineEdit(self.file_locations_grp,"gamess_path_linedit")
+        self.gamess_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.gamess_path_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.gamess_path_linedit.setReadOnly(1)
+
+        layout80.addWidget(self.gamess_path_linedit,0,0)
+
+        self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
+
+        layout80.addWidget(self.nanohive_choose_btn,1,1)
+
+        self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
+
+        layout80.addWidget(self.gamess_choose_btn,0,1)
+
+        file_locations_grpLayout.addLayout(layout80,0,1)
+
+        TabPageLayout_4.addWidget(self.file_locations_grp,0,0)
+        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
+
+        self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
+        TabPageLayout_5 = QVBoxLayout(self.TabPage_5,11,6,"TabPageLayout_5")
 
         layout9 = QHBoxLayout(None,0,6,"layout9")
 
-        self.history_height_lbl = QLabel(self.TabPage_4,"history_height_lbl")
+        self.history_height_lbl = QLabel(self.TabPage_5,"history_height_lbl")
         self.history_height_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout9.addWidget(self.history_height_lbl)
 
-        self.history_height_spinbox = QSpinBox(self.TabPage_4,"history_height_spinbox")
+        self.history_height_spinbox = QSpinBox(self.TabPage_5,"history_height_spinbox")
         self.history_height_spinbox.setMaxValue(20)
         self.history_height_spinbox.setValue(4)
         layout9.addWidget(self.history_height_spinbox)
 
-        self.history_lines_lbl = QLabel(self.TabPage_4,"history_lines_lbl")
+        self.history_lines_lbl = QLabel(self.TabPage_5,"history_lines_lbl")
         layout9.addWidget(self.history_lines_lbl)
         spacer11_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout9.addItem(spacer11_2)
-        TabPageLayout_4.addLayout(layout9)
+        TabPageLayout_5.addLayout(layout9)
 
         layout11 = QHBoxLayout(None,0,6,"layout11")
 
-        self.msg_serial_number_checkbox = QCheckBox(self.TabPage_4,"msg_serial_number_checkbox")
+        self.msg_serial_number_checkbox = QCheckBox(self.TabPage_5,"msg_serial_number_checkbox")
         layout11.addWidget(self.msg_serial_number_checkbox)
         spacer12 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout11.addItem(spacer12)
-        TabPageLayout_4.addLayout(layout11)
+        TabPageLayout_5.addLayout(layout11)
 
         layout10 = QHBoxLayout(None,0,6,"layout10")
 
-        self.msg_timestamp_checkbox = QCheckBox(self.TabPage_4,"msg_timestamp_checkbox")
+        self.msg_timestamp_checkbox = QCheckBox(self.TabPage_5,"msg_timestamp_checkbox")
         layout10.addWidget(self.msg_timestamp_checkbox)
         spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout10.addItem(spacer13)
-        TabPageLayout_4.addLayout(layout10)
+        TabPageLayout_5.addLayout(layout10)
         spacer10 = QSpacerItem(20,80,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_4.addItem(spacer10)
-        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
+        TabPageLayout_5.addItem(spacer10)
+        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
-        self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
-        TabPageLayout_5 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_5")
+        self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
+        TabPageLayout_6 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_6")
 
         layout15 = QHBoxLayout(None,0,6,"layout15")
 
-        self.groupBox3 = QGroupBox(self.TabPage_5,"groupBox3")
+        self.groupBox3 = QGroupBox(self.TabPage_6,"groupBox3")
         self.groupBox3.setColumnLayout(0,Qt.Vertical)
         self.groupBox3.layout().setSpacing(6)
         self.groupBox3.layout().setMargin(11)
@@ -546,10 +603,10 @@ class UserPrefsDialog(QDialog):
         spacer9_2 = QSpacerItem(210,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout15.addItem(spacer9_2)
 
-        TabPageLayout_5.addLayout(layout15,0,0)
+        TabPageLayout_6.addLayout(layout15,0,0)
         spacer11_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_5.addItem(spacer11_3,1,0)
-        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
+        TabPageLayout_6.addItem(spacer11_3,1,0)
+        self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
@@ -568,11 +625,11 @@ class UserPrefsDialog(QDialog):
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
+        self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
         self.connect(self.display_pov_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_pov_axis)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
-        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
@@ -585,16 +642,16 @@ class UserPrefsDialog(QDialog):
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(int)"),self.change_startup_mode)
-        self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
+        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
+        self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
+        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
 
         self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
         self.setTabOrder(self.display_pov_axis_checkbox,self.upper_right_btn)
-        self.setTabOrder(self.upper_right_btn,self.gamess_path_linedit)
-        self.setTabOrder(self.gamess_path_linedit,self.gamess_choose_btn)
-        self.setTabOrder(self.gamess_choose_btn,self.atom_hilite_color_btn)
+        self.setTabOrder(self.upper_right_btn,self.atom_hilite_color_btn)
         self.setTabOrder(self.atom_hilite_color_btn,self.hotspot_color_btn)
         self.setTabOrder(self.hotspot_color_btn,self.reset_atom_colors_btn)
         self.setTabOrder(self.reset_atom_colors_btn,self.vwd_rbtn)
@@ -634,11 +691,9 @@ class UserPrefsDialog(QDialog):
         self.upper_left_btn.setText(self.__tr("Upper Left"))
         self.lower_left_btn.setText(self.__tr("Lower Left"))
         self.lower_right_btn.setText(self.__tr("Lower Right"))
-        self.file_locations_grp.setTitle(self.__tr("File Locations"))
-        self.gamess_choose_btn.setText(self.__tr("Choose..."))
-        self.gamess_lbl.setText(self.__tr("GAMESS Executable :"))
-        QToolTip.add(self.gamess_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
-        self.gamess_path_linedit.setText(QString.null)
+        self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
+        self.radioButton12.setText(self.__tr("Perspective"))
+        self.radioButton13.setText(self.__tr("Orthogonal"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
         self.textLabel3_2_3.setText(self.__tr("Atom Highlighting :"))
@@ -669,7 +724,7 @@ class UserPrefsDialog(QDialog):
         self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3.setText(self.__tr("CPK Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Restore Default Colors"))
-        self.textLabel1.setText(self.__tr("Bond line thickness :"))
+        self.textLabel1.setText(self.__tr("Bond Line Thickness :"))
         QToolTip.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
         QWhatsThis.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
         QToolTip.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
@@ -707,12 +762,22 @@ class UserPrefsDialog(QDialog):
         self.fill_type_combox.insertItem(self.__tr("Blue Sky"))
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
+        self.file_locations_grp.setTitle(self.__tr("File Locations"))
+        self.gamess_lbl.setText(self.__tr("GAMESS Executable :"))
+        QToolTip.add(self.gamess_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        self.nanohive_lbl.setText(self.__tr("Nano-Hive Executable :"))
+        QToolTip.add(self.nanohive_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        self.nanohive_path_linedit.setText(QString.null)
+        self.gamess_path_linedit.setText(QString.null)
+        self.nanohive_choose_btn.setText(self.__tr("Choose..."))
+        self.gamess_choose_btn.setText(self.__tr("Choose..."))
+        self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Files"))
         self.history_height_lbl.setText(self.__tr("Height :"))
         QToolTip.add(self.history_height_spinbox,self.__tr("Number of lines displayed in the history area."))
         self.history_lines_lbl.setText(self.__tr("lines"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
         self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
-        self.prefs_tab.changeTab(self.TabPage_4,self.__tr("History"))
+        self.prefs_tab.changeTab(self.TabPage_5,self.__tr("History"))
         self.groupBox3.setTitle(self.__tr("Window Caption Format"))
         QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
         QWhatsThis.add(self.groupBox3,self.__tr("Format Prefix and Suffix text the delimits the part name in the caption in window border."))
@@ -720,7 +785,7 @@ class UserPrefsDialog(QDialog):
         self.textLabel2_2.setText(self.__tr("Caption Suffix for Modified File :"))
         self.caption_suffix_linedit.setText(QString.null)
         self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
-        self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Caption"))
+        self.prefs_tab.changeTab(self.TabPage_6,self.__tr("Caption"))
 
 
     def display_compass(self):
@@ -803,6 +868,12 @@ class UserPrefsDialog(QDialog):
 
     def change_default_mode(self):
         print "UserPrefsDialog.change_default_mode(): Not implemented yet"
+
+    def set_nanohive_path(self):
+        print "UserPrefsDialog.set_nanohive_path(): Not implemented yet"
+
+    def set_default_projection(self):
+        print "UserPrefsDialog.set_default_projection(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)
