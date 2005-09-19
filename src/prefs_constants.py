@@ -23,6 +23,20 @@ from constants import *
 
 # ==
 
+# Compass position constants.  These are used to preserve the preference value
+# for the compass position and relate directly to the radio button group values for the options 
+# presented in the Prefences/General dialog.  Do not change the value of these 4 constants!
+# Mark 050919.
+UPPER_RIGHT = 0
+UPPER_LEFT = 1
+LOWER_LEFT = 2
+LOWER_RIGHT = 3
+
+PERSPECTIVE = 0
+ORTHO = 1
+
+# ==
+
 # Keys for user preferences for A6 [ by Mark 050629]
 
 # General prefs
@@ -104,6 +118,14 @@ _default_bondColor = (0.25, 0.25, 0.25)
 prefs_table = (
     # entries are: (attribute name, prefs type-and-db-format code, prefs key, optional default value)
     ##e add categories or tags?
+    
+    # General preferences [added to this table by mark 050919]
+
+    ('display_compass', 'boolean', displayCompass_prefs_key, True),
+    ('display_position', 'int', compassPosition_prefs_key, UPPER_RIGHT),
+    ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
+    ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
+    ('default_projection', 'int', defaultProjection_prefs_key, PERSPECTIVE),
 
     # Atom preferences - colors (other than element colors, handled separately)
     
@@ -115,7 +137,7 @@ prefs_table = (
 
     # Atom preferences - other
     
-    ## defaultDisplayMode_prefs_key -- not yet in this table
+    ('display_mode', 'int', defaultDisplayMode_prefs_key, diVDW),
 
     # Bond preferences - colors
     
@@ -136,6 +158,11 @@ prefs_table = (
     
     ('startup_mode', 'string', startupMode_prefs_key,   'SELECTMOLS' ),
     ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
+    
+    # Files preferences [added to this table by mark 050919]
+    
+    ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
+    ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
 
     # Caption preferences [added to this table by bruce 050810]
 
