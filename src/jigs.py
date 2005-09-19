@@ -998,10 +998,10 @@ class GridPlane(RectGadget):
         glPopMatrix()
 
 
-class ESPPlane(RectGadget):
+class ESPWindow(RectGadget):
     ''' '''
-    sym = "ESP Plane"
-    icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
+    sym = "ESP Window"
+    icon_names = ["espwindow.png", "espwindow-hide.png"] # Added espwindow icons.  Mark 050919.
     
     def __init__(self, assy, list):
         RectGadget.__init__(self, assy, list)
@@ -1501,7 +1501,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + msg)
             return
         
-        m = ESPPlane(self.assy, self.selatoms.values())
+        m = ESPWindow(self.assy, self.selatoms.values())
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
             #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
