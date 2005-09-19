@@ -69,15 +69,6 @@ paneno = 0
 
 ## normalGridLines = (0.0, 0.0, 0.6) # bruce 050410 removed this, and related code
 
-# Compass position constants.  These are used to preserve the preference value
-# for the compass position and relate directly to the radio button group values for the options 
-# presented in the Prefences/General dialog.  Do not change the value of these 4 constants!
-# Mark 050630.
-UPPER_RIGHT = 0
-UPPER_LEFT = 1
-LOWER_LEFT = 2
-LOWER_RIGHT = 3
-
 pi2 = pi/2.0
 pi3 = pi/3.0
 pi4 = pi/4.0
@@ -258,21 +249,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         ###### User Preference initialization ##############################
         
         # Get glpane related settings from prefs db.
-        # If they are not found, set default values here.
-        # Should these stay here or be moved to prefs_constants.py.  Need to talk to Bruce.
+        # Default values are set in "prefs_table" in prefs_constants.py.
         # Mark 050919.
         
-        self.displayCompass = env.prefs.get(displayCompass_prefs_key, True)
-        self.compassPosition = env.prefs.get(compassPosition_prefs_key, UPPER_RIGHT)
-        self.displayOriginAxis = env.prefs.get(displayOriginAxis_prefs_key, True)
-        self.displayPOVAxis = env.prefs.get(displayPOVAxis_prefs_key, True)
-        self.ortho = env.prefs.get(defaultProjection_prefs_key, 0)
+        self.displayCompass = env.prefs[displayCompass_prefs_key]
+        self.compassPosition = env.prefs[compassPosition_prefs_key]
+        self.displayOriginAxis = env.prefs[displayOriginAxis_prefs_key]
+        self.displayPOVAxis = env.prefs[displayPOVAxis_prefs_key]
+        self.ortho = env.prefs[defaultProjection_prefs_key]
 
         # default display form for objects in the window
         # even tho there is only one assembly to a window,
         # this is here in anticipation of being able to have
         # multiple windows on the same assembly
-        self.display = env.prefs.get(defaultDisplayMode_prefs_key, default_display_mode)
+        self.display = env.prefs[defaultDisplayMode_prefs_key]
             #bruce 050810 diVDW -> default_display_mode (equivalent)
         self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.display] )
         
