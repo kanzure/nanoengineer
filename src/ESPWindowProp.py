@@ -1,17 +1,17 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
-GridPlaneProp.py
+ESPWindowPropDialog
 
 $Id$
 """
 
 from qt import *
-from GridPlanePropDialog import *
+from ESPWindowPropDialog import *
 
-class GridPlaneProp(GridPlanePropDialog):
+class ESPWindowProp(ESPWindowPropDialog):
     def __init__(self, gridPlane, glpane):
 
-        GridPlanePropDialog.__init__(self)
+        ESPWindowPropDialog.__init__(self)
         self.plane = gridPlane
         self.glpane = glpane
        
@@ -21,7 +21,7 @@ class GridPlaneProp(GridPlanePropDialog):
     def setup(self):
         self.oldNormColor = self.plane.normcolor
         self.oldGridColor = self.plane.gridColor
-        
+                
         self.planeColor = QColor(int(self.plane.normcolor[0]*255), 
                          int(self.plane.normcolor[1]*255), 
                          int(self.plane.normcolor[2]*255))
@@ -30,9 +30,7 @@ class GridPlaneProp(GridPlanePropDialog):
                          int(self.plane.gridColor[2]*255))
         
         self.wdLineEdit.setText(str(self.plane.width))
-        self.htLineEdit.setText(str(self.plane.height))
-        self.uwLineEdit.setText(str(self.plane.gridW))
-        self.uhLineEdit.setText(str(self.plane.gridH))
+        self.resolutionLineEdit.setText(str(self.plane.resolution))
         
         self.planeColorButton.setPaletteBackgroundColor(self.planeColor)
         self.gridColorButton.setPaletteBackgroundColor(self.gridColor)
@@ -61,9 +59,7 @@ class GridPlaneProp(GridPlanePropDialog):
         self.plane.cancelled = False    
         
         self.plane.width = float(str(self.wdLineEdit.text()))
-        self.plane.height = float(str(self.htLineEdit.text()))
-        self.plane.gridW = float(str(self.uwLineEdit.text()))
-        self.plane.gridH = float(str(self.uhLineEdit.text()))
+        self.plane.resolution = float(str(self.resolutionLineEdit.text()))
         
         self.plane.assy.w.win_update() # Update model tree
         self.plane.assy.changed()

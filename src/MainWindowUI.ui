@@ -147,6 +147,7 @@
         <action name="jigsThermoAction"/>
         <action name="jigsGamessAction"/>
         <action name="jigsGridPlaneAction"/>
+        <action name="jigsESPWindowAction"/>
     </item>
     <item text="Simulator" name="simulatorMenu">
         <action name="simSetupAction"/>
@@ -421,7 +422,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1034</width>
+                <width>1036</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3844,6 +3845,17 @@
             <string>Grid Plane</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>jigsESPWindowAction</cstring>
+        </property>
+        <property name="text">
+            <string>ESP Window</string>
+        </property>
+        <property name="menuText">
+            <string>ESP Window</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -5090,6 +5102,12 @@
         <receiver>MainWindow</receiver>
         <slot>makeGridPlane()</slot>
     </connection>
+    <connection>
+        <sender>jigsESPWindowAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeESPWindow()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5254,6 +5272,7 @@
     <slot>toolsFuseAtoms()</slot>
     <slot>simNanoHive()</slot>
     <slot>createRecentFilesList()</slot>
+    <slot>makeESPWindow()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

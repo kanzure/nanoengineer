@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Sep 19 11:08:24 2005
+# Created: Mon Sep 19 18:05:07 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6638,6 +6638,7 @@ class MainWindow(QMainWindow):
         self.jigsGridPlaneAction = QAction(self,"jigsGridPlaneAction")
         self.jigsGridPlaneAction.setOn(0)
         self.jigsGridPlaneAction.setIconSet(QIconSet(self.image137))
+        self.jigsESPWindowAction = QAction(self,"jigsESPWindowAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6724,7 +6725,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6989,6 +6990,7 @@ class MainWindow(QMainWindow):
         self.jigsThermoAction.addTo(self.jigsMenu)
         self.jigsGamessAction.addTo(self.jigsMenu)
         self.jigsGridPlaneAction.addTo(self.jigsMenu)
+        self.jigsESPWindowAction.addTo(self.jigsMenu)
         self.MenuBar.insertItem(QString(""),self.jigsMenu,11)
 
         self.simulatorMenu = QPopupMenu(self)
@@ -7149,6 +7151,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsFuseAtomsAction,SIGNAL("activated()"),self.toolsFuseAtoms)
         self.connect(self.simNanoHiveAction,SIGNAL("activated()"),self.simNanoHive)
         self.connect(self.jigsGridPlaneAction,SIGNAL("activated()"),self.makeGridPlane)
+        self.connect(self.jigsESPWindowAction,SIGNAL("activated()"),self.makeESPWindow)
 
 
     def languageChange(self):
@@ -7597,6 +7600,8 @@ class MainWindow(QMainWindow):
         self.simNanoHiveAction.setText(self.__tr("Nano-Hive"))
         self.simNanoHiveAction.setMenuText(self.__tr("Nano-Hive..."))
         self.jigsGridPlaneAction.setText(self.__tr("Grid Plane"))
+        self.jigsESPWindowAction.setText(self.__tr("ESP Window"))
+        self.jigsESPWindowAction.setMenuText(self.__tr("ESP Window"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8137,6 +8142,9 @@ class MainWindow(QMainWindow):
 
     def createRecentFilesList(self):
         print "MainWindow.createRecentFilesList(): Not implemented yet"
+
+    def makeESPWindow(self):
+        print "MainWindow.makeESPWindow(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

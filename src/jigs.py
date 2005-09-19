@@ -32,6 +32,7 @@ from GroundProp import *
 from StatProp import *
 from ThermoProp import *
 from GridPlaneProp import *
+from ESPWindowProp import *
 from HistoryWidget import redmsg, greenmsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
@@ -904,20 +905,12 @@ class LinearMotor(Motor):
     
     pass # end of class LinearMotor
 
-
-class GridPlane(Jig):
-    ''' '''
-    sym = "Grid Plane"
-    icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
-    
+class RectGadget(Jig):
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
         
         self.width = 16
         self.height = 16
-        
-        self.gridW = 2
-        self.gridH = 2
         
         self.color = black
         self.normcolor = black
@@ -945,22 +938,12 @@ class GridPlane(Jig):
         
         return BBox(corners_pos)
         
-        
     def __getattr__(self, name):
         if name == 'bbox':
             return self.__computeBBox()
         else:
             raise AttributeError, 'Grid Plane has no "%s"' % name
 
-
-    def set_cntl(self): 
-        self.cntl = GridPlaneProp(self, self.assy.o)
-        
-
-    def getaxis(self):
-        return self.quat.rot(norm(self.planeNorm))
-
-        
     def move(self, offset):
         '''Move the plane by <offset>, which is a 'V' object. '''
         self.center += offset
@@ -976,8 +959,32 @@ class GridPlane(Jig):
         v2 = atomPos[2] - atomPos[0]
         
         return cross(v1, v2)
+    
+
+    def _draw(self, win, dispdef):
+        pass
+    
+
+class GridPlane(RectGadget):
+    ''' '''
+    sym = "Grid Plane"
+    icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
+    
+    def __init__(self, assy, list):
+        RectGadget.__init__(self, assy, list)
         
+        self.gridW = 2
+        self.gridH = 2
+    
+
+    def set_cntl(self): 
+        self.cntl = GridPlaneProp(self, self.assy.o)
         
+
+    def getaxis(self):
+        return self.quat.rot(norm(self.planeNorm))
+
+
     def _draw(self, win, dispdef):
         glPushMatrix()
 
@@ -989,7 +996,41 @@ class GridPlane(Jig):
         drawPlaneGrid(self.gridColor, self.width, self.height, self.gridW, self.gridH)
         
         glPopMatrix()
+
+
+class ESPPlane(RectGadget):
+    ''' '''
+    sym = "ESP Plane"
+    icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
+    
+    def __init__(self, assy, list):
+        RectGadget.__init__(self, assy, list)
         
+        self.resolution = 20
+
+    def set_cntl(self): 
+        self.cntl = ESPWindowProp(self, self.assy.o)
+        
+
+    def getaxis(self):
+        return self.quat.rot(norm(self.planeNorm))
+
+
+    def _draw(self, win, dispdef):
+        glPushMatrix()
+
+        glTranslatef( self.center[0], self.center[1], self.center[2])
+        q = self.quat
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+        
+        drawPlane(self.color, self.width, self.width, SOLID=True)
+        
+        hw = self.width/2.0
+        corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
+        drawLineLoop(self.gridColor, corners_pos)        
+        
+        glPopMatrix()
+                
 
 # == Ground
 
@@ -1445,7 +1486,34 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         env.history.message(cmd + "grid plane created")
         self.assy.w.win_update()
         
-
+        
+    def makeESPWindow(self):
+        cmd = greenmsg("ESP Plane: ")
+        
+        if not self.assy.selatoms:
+            msg = redmsg("You must select at least 3 atoms you want to put a ESP plane.")
+            env.history.message(cmd + msg)
+            return
+        
+        # Make sure only one atom is selected.
+        if len(self.assy.selatoms)  <3: 
+            msg = redmsg("To create a ESP plane, at least 3 atoms must be selected.  Try again.")
+            env.history.message(cmd + msg)
+            return
+        
+        m = ESPPlane(self.assy, self.selatoms.values())
+        m.edit()
+        if m.cancelled: # User hit 'Cancel' button in the jig dialog.
+            #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
+            env.history.message(cmd + "Cancelled")
+            return 
+        
+        self.unpickatoms()
+        self.place_new_jig(m)
+        
+        env.history.message(cmd + "ESP plane created")
+        self.assy.w.win_update()
+        
     pass # end of class jigmakers_Mixin
     
 # end of module jigs.py

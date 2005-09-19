@@ -763,6 +763,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def makeGridPlane(self):
         self.assy.makeGridPlane()
 
+    def makeESPWindow(self):
+        self.assy.makeESPWindow()
+
     ###################################
     # Modify Toolbar Slots
     ###################################

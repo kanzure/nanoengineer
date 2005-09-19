@@ -966,7 +966,7 @@ def drawCubeCell(color):
     glEnable(GL_LIGHTING) 
 
 
-def drawPlane(color, w, h):
+def drawPlane(color, w, h, SOLID=False):
     '''Draw polygon with size of <w>*<h> and with color <color>. '''
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
     
@@ -976,7 +976,10 @@ def drawPlane(color, w, h):
     glPushMatrix()
     glScalef(w, h, 1.0)
     
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    if SOLID:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    else:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
     glDisable(GL_CULL_FACE) 
     
     glBegin(GL_QUADS)
@@ -984,8 +987,9 @@ def drawPlane(color, w, h):
         glVertex3fv(v)
     glEnd()
     
-    glEnable(GL_CULL_FACE) 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    glEnable(GL_CULL_FACE)
+    if not SOLID:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     
     glPopMatrix()
     glEnable(GL_LIGHTING)
