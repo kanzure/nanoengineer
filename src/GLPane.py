@@ -454,7 +454,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.gl_update()
         
     def setViewProjection(self, projection): # Added by Mark 050918.
-        "Set projection, where 0 = Perspective and 1 = Orthographic"
+        '''Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
+        prefs db value itself, since we don't want all user changes to projection to be stored
+        in the prefs db, only the ones done from the Preferences dialog.
+        '''
         # Still need to toggle the Ortho/Perspective action item in the View menu.  Mark 050918.
         self.ortho = projection
         self.gl_update()
