@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Sep 16 17:27:51 2005
+# Created: Mon Sep 19 11:08:24 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -5848,6 +5848,88 @@ image135_data = \
     "\x67\x76\xc5\x11\x74\x8e\xfd\xd6\xbf\x92\xff\xd2" \
     "\x17\x02\x83\x8a\x42\x07\x26\xbd\x74\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image136_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
+    "\xd8\x49\x44\x41\x54\x78\x9c\xbd\x94\xcb\x4b\x54" \
+    "\x61\x18\xc6\x9f\xef\x3b\x73\x91\xa0\x2c\xe8\xe2" \
+    "\x25\x2f\xe5\x44\x71\x9c\x2e\xf4\x0f\x04\xfd\x03" \
+    "\x49\x2d\xda\x44\x61\x6e\x5a\x15\xb4\xe8\xb2\x09" \
+    "\x85\x08\x0a\xda\xb5\x30\x2f\x33\x64\xab\x82\x66" \
+    "\x46\xd7\x2a\x44\xe1\xae\x56\xea\xe8\xa2\x33\x33" \
+    "\x39\x59\x6a\xd0\x64\x37\x3c\xce\xf7\x3e\x2d\x94" \
+    "\xa3\xc7\xf1\x88\x8b\xe8\x85\x03\xe7\x3d\xbc\xd7" \
+    "\x1f\xcf\x79\x81\xff\x65\x39\x99\xe6\xc9\x72\x94" \
+    "\x27\x4c\x84\xa3\x32\xc4\xa0\xb8\x11\x66\x68\x13" \
+    "\x3c\x6e\x42\xcc\xc9\x74\x45\x9c\x5e\xef\x7c\x92" \
+    "\x3c\xe7\x96\x67\xe1\x7e\x24\x7e\x7f\x74\xb1\xf0" \
+    "\xe7\x0b\x8a\xcc\xd1\xa5\xeb\x25\xba\x74\x59\x64" \
+    "\x8e\x5f\x7f\xcf\xc3\xcd\x03\xe5\x82\xc6\xdc\xf2" \
+    "\x2c\x8a\xcc\x05\x0e\x81\xb8\x58\x6c\xc9\x82\xc0" \
+    "\xca\xd3\x90\x01\x6d\x82\x0e\xb3\x5e\x92\xc3\x2c" \
+    "\x6d\x82\x0d\x69\xe5\xc5\xb5\x64\x57\xe2\x02\x27" \
+    "\x16\x65\x36\x6d\x38\xce\x77\x58\x90\xcf\x2b\x89" \
+    "\x54\x50\xd4\xb0\x68\x05\x0e\x58\x61\x29\x26\xd9" \
+    "\x5d\x7a\xc0\xba\x24\x58\x97\x04\x6f\x15\xda\x69" \
+    "\x13\x8c\x8b\xc5\x94\x24\x08\x00\x3f\xa4\xc4\x41" \
+    "\x33\xc0\xfb\xf9\x9b\x5e\x5c\x77\xe9\x01\x53\x4c" \
+    "\x06\xa3\xb0\x09\x1f\x8a\xfa\x5e\xcb\x7b\x6f\xea" \
+    "\x8d\x32\x6e\x42\x7c\xc5\xbe\x15\x14\x19\x6c\x1f" \
+    "\x85\x25\xa1\xc0\xa6\xcb\x6a\x09\xa2\xca\xc1\xeb" \
+    "\x6e\x98\xd7\x57\x58\x33\x84\xb0\x54\x05\xe7\xa9" \
+    "\xe0\xba\x21\x46\x7c\xbe\x2f\x74\xd0\x0c\x70\x7e" \
+    "\x71\x0e\x9d\xe9\xdb\xa0\x12\x5c\x3a\x73\x15\x29" \
+    "\x24\xd0\xb6\xd8\x8e\x97\x85\x67\xd0\x3b\x89\x7b" \
+    "\xa7\x1f\x63\x77\xf5\x1e\x4c\x16\xc6\xd1\x3b\xf2" \
+    "\x04\x0a\x1a\x77\xcf\x77\xe2\x40\x75\x0d\xda\xf4" \
+    "\x95\xcd\x5b\xc7\x8d\xc5\xa3\x93\xe1\x35\xb9\xa5" \
+    "\x15\x6d\x82\xcd\x6f\xd7\x78\x36\xbf\x01\x6d\xa3" \
+    "\x2a\xe4\xd6\x2a\xda\x07\xc3\x07\x55\xb4\x41\x39" \
+    "\x40\x72\x7e\x2e\x0a\x8a\x1e\x20\x84\x18\x86\x82" \
+    "\x04\xa3\x48\x4b\x92\xf3\x8b\x73\xe8\x4a\xdf\x01" \
+    "\x00\x5c\x3b\x7b\x03\xf1\xc6\x53\x28\x7d\xff\x86" \
+    "\xae\xf7\x37\x21\x3f\x81\x8b\x8d\x57\x91\xd9\x95" \
+    "\xc0\x05\x74\xe0\xf9\xeb\x7e\x00\x40\x67\xdb\x23" \
+    "\x1c\xa8\xae\xc1\x39\x7d\x79\x73\x14\xad\xa2\x79" \
+    "\x6c\xb2\xca\x5b\xf1\x50\x2a\x42\x9b\x60\x4a\x92" \
+    "\x8c\x1b\x8b\xb5\x7d\x9b\x4b\xb1\x25\x0b\x9e\x30" \
+    "\x91\x60\xb9\x11\x82\x32\x96\x3c\xbf\xac\x5c\xef" \
+    "\x3b\x95\xf8\xd6\xe3\x06\x64\xdc\x80\xc2\x57\x58" \
+    "\x51\x23\xc2\x35\xb9\x85\x19\x5d\xe5\xa5\x11\x92" \
+    "\xa8\xe7\x03\x15\xb2\x85\xd1\x5b\x68\x3c\xc5\x24" \
+    "\x9f\x7e\x7b\xc8\xa6\x44\x94\x75\x49\xb0\xab\x70" \
+    "\x9d\x83\x66\x80\x3f\xa4\x44\x00\x48\x49\x82\x71" \
+    "\x63\xb1\xd5\x68\xde\xce\x77\xb0\xbe\xdf\xda\xe6" \
+    "\x2f\x2d\x60\x6c\x42\x7b\xec\x1a\xd3\x9a\xad\xa2" \
+    "\xe9\xc8\x14\x01\x60\x41\x3e\x73\x48\x9e\x57\x5c" \
+    "\xb7\xd8\x84\xa6\x2d\x08\x96\xdb\x2a\x8f\x75\xeb" \
+    "\x12\xf4\xf2\x81\x7d\xba\x56\x39\x32\x45\x4b\xc2" \
+    "\x00\xca\xbe\x1c\x4d\x0b\x40\x80\x54\x67\xe8\x70" \
+    "\xcc\x1d\xe6\x91\x0f\x8a\x31\x07\x7c\xf1\xab\x87" \
+    "\x33\x74\xfc\x87\x5e\x5c\x16\x25\xc7\x17\xbf\x7a" \
+    "\x18\x73\xc0\x98\x03\x8e\xb9\xc3\x2c\x4a\x2e\x78" \
+    "\xe2\x06\x75\x58\x39\x32\xc5\x68\xb3\x86\x28\x83" \
+    "\xbd\x6a\x3f\x1a\xd4\x61\x9f\x36\x23\x3a\xa2\x00" \
+    "\x60\x54\x86\xb8\xa3\x29\x02\x81\x41\x8d\xae\xc7" \
+    "\x41\x75\x68\x8b\x4b\xf2\x0f\xed\x2f\x0d\x22\xc9" \
+    "\x96\xb4\xbb\x09\xf1\x00\x00\x00\x00\x49\x45\x4e" \
+    "\x44\xae\x42\x60\x82"
+image137_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\x6b\x49\x44\x41\x54\x78\x9c\x63\x60\x18\x6a\x80" \
+    "\x11\x5d\xc0\xda\x40\xf5\x3f\xa5\x86\x1e\xbd\x70" \
+    "\x1b\xc3\x5c\x0c\x83\x3b\xd2\x5c\x48\xe2\xc3\xf4" \
+    "\x33\x51\xea\x3a\x5c\x80\x66\x06\xa3\x00\x6a\x05" \
+    "\x03\x03\x03\x5a\xe4\x59\x1b\xa8\xfe\xf7\x35\x93" \
+    "\x27\xdb\x61\x9b\x4f\x3d\xa4\x6d\xc4\x31\x30\x0c" \
+    "\xc5\xc8\xa3\x7d\x18\x53\x33\x7c\x19\x18\x86\x74" \
+    "\x18\x0f\x89\x34\xcc\xc0\x40\xeb\xb2\x82\xda\xae" \
+    "\x65\x60\xa0\x75\xe4\xd1\xac\xd6\xa0\x05\x00\x00" \
+    "\x16\x4d\x57\x3c\xa1\x4e\x12\x5b\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6102,6 +6184,10 @@ class MainWindow(QMainWindow):
         self.image134.loadFromData(image134_data,"PNG")
         self.image135 = QPixmap()
         self.image135.loadFromData(image135_data,"PNG")
+        self.image136 = QPixmap()
+        self.image136.loadFromData(image136_data,"PNG")
+        self.image137 = QPixmap()
+        self.image137.loadFromData(image137_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6547,8 +6633,11 @@ class MainWindow(QMainWindow):
         self.helpMouseControlsAction = QAction(self,"helpMouseControlsAction")
         self.helpKeyboardShortcutsAction = QAction(self,"helpKeyboardShortcutsAction")
         self.modifyCenterCommonAxisAction = QAction(self,"modifyCenterCommonAxisAction")
-        self.jigsGrid_PlaneAction = QAction(self,"jigsGrid_PlaneAction")
+        self.simNanoHiveAction = QAction(self,"simNanoHiveAction")
+        self.simNanoHiveAction.setIconSet(QIconSet(self.image136))
         self.jigsGridPlaneAction = QAction(self,"jigsGridPlaneAction")
+        self.jigsGridPlaneAction.setOn(0)
+        self.jigsGridPlaneAction.setIconSet(QIconSet(self.image137))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6635,7 +6724,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1034,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6778,9 +6867,10 @@ class MainWindow(QMainWindow):
         self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.simToolbar.setEnabled(1)
-        self.simToolbar.setGeometry(QRect(0,851,30,95))
+        self.simToolbar.setGeometry(QRect(0,851,30,122))
         self.simToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.simSetupAction.addTo(self.simToolbar)
+        self.simNanoHiveAction.addTo(self.simToolbar)
         self.simMoviePlayerAction.addTo(self.simToolbar)
         self.simPlotToolAction.addTo(self.simToolbar)
 
@@ -6801,7 +6891,6 @@ class MainWindow(QMainWindow):
         self.fileMenu.insertSeparator()
         self.fileSaveAction.addTo(self.fileMenu)
         self.fileSaveAsAction.addTo(self.fileMenu)
-        self.fileMenu.insertSeparator()
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.MenuBar.insertItem(QString(""),self.fileMenu,4)
@@ -6904,6 +6993,7 @@ class MainWindow(QMainWindow):
 
         self.simulatorMenu = QPopupMenu(self)
         self.simSetupAction.addTo(self.simulatorMenu)
+        self.simNanoHiveAction.addTo(self.simulatorMenu)
         self.simMoviePlayerAction.addTo(self.simulatorMenu)
         self.simPlotToolAction.addTo(self.simulatorMenu)
         self.MenuBar.insertItem(QString(""),self.simulatorMenu,12)
@@ -7057,6 +7147,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
         self.connect(self.toolsFuseAtomsAction,SIGNAL("activated()"),self.toolsFuseAtoms)
+        self.connect(self.simNanoHiveAction,SIGNAL("activated()"),self.simNanoHive)
         self.connect(self.jigsGridPlaneAction,SIGNAL("activated()"),self.makeGridPlane)
 
 
@@ -7503,8 +7594,8 @@ class MainWindow(QMainWindow):
         self.helpKeyboardShortcutsAction.setToolTip(self.__tr("Keyboard Shortcuts"))
         self.helpKeyboardShortcutsAction.setWhatsThis(self.__tr("Displays help for keyboard shortcuts"))
         self.modifyCenterCommonAxisAction.setText(self.__tr("Center on Common Axis"))
-        self.jigsGrid_PlaneAction.setText(self.__tr("Grid Plane"))
-        self.jigsGrid_PlaneAction.setMenuText(self.__tr("Grid Plane"))
+        self.simNanoHiveAction.setText(self.__tr("Nano-Hive"))
+        self.simNanoHiveAction.setMenuText(self.__tr("Nano-Hive..."))
         self.jigsGridPlaneAction.setText(self.__tr("Grid Plane"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
@@ -8040,6 +8131,9 @@ class MainWindow(QMainWindow):
 
     def toolsFuseAtoms(self):
         print "MainWindow.toolsFuseAtoms(): Not implemented yet"
+
+    def simNanoHive(self):
+        print "MainWindow.simNanoHive(): Not implemented yet"
 
     def createRecentFilesList(self):
         print "MainWindow.createRecentFilesList(): Not implemented yet"
