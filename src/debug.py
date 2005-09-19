@@ -233,7 +233,10 @@ def registered_commands_menuspec( widget):
     items.sort()
     # it's already a menu spec except for what args the things take, so fix that
     # (the func=func was apparently necessary, otherwise the wrong func got called, always the last one processed here)
-    return [ (name, lambda func=func, widget=widget: func(widget)) for name, func in items ]
+    newitems = [ (name, lambda func=func, widget=widget: func(widget)) for name, func in items ]
+    if not newitems:
+        return newitems # i.e. []
+    return [ ('other', newitems) ]
 
 # ==
 

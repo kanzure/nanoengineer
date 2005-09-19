@@ -55,6 +55,7 @@ from ops_files import fileSlotsMixin #bruce 050907
 from changes import register_postinit_object
 import preferences
 import env #bruce 050901 (also moved pre_init_fake_history_widget into env.py)
+import undo #bruce 050917
 
 elementSelectorWin = None
 elementColorsWin = None
@@ -75,15 +76,19 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     #bruce 050906: same for fileSlotsMixin.
     
     initialised = 0 #bruce 041222
-    ## history = env.history #bruce 050107, revised 050901; see also the set of self.history in __init__, below [removed, 050913]
 
     RECENT_FILES_MENU_INDEX = 10 
-    
+
     def __init__(self, parent = None, name = None):
     
         global windowList
-
+        
+        undo.just_before_mainwindow_super_init()
+        
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
+            # fyi: this connects 138 or more signals to our slot methods [bruce 050917 comment]
+
+        undo.just_after_mainwindow_super_init()
 
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into atom.py at some point)
@@ -271,7 +276,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             # (no longer done in GLPane.__init__, which used a hardcoded default mode)
         
         self.win_update() # bruce 041222
-        
+
+        undo.just_before_mainwindow_init_returns()
+
         return # from MWsemantics.__init__
     
     def __getattr__(self, attr): #bruce 050913 report deprecated uses of win.history

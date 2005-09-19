@@ -142,6 +142,8 @@ def before_creating_app():
             #e Someday we should perhaps save this message somewhere and print it into the history widget
             # when that's created (or make sure env.history can do this, and is importable now).
         pass
+    import undo
+    undo.call_asap_after_QWidget_and_platform_imports_are_ok() #bruce 050917
     return
 
 

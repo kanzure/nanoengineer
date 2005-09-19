@@ -100,6 +100,9 @@ def call_qApp_processEvents(*args): #bruce 050908
     mc = begin_recursive_event_processing()
     try:
         res = qApp.processEvents(*args)
+        # Qt doc says: Processes pending events, for 3 seconds or until there
+        # are no more events to process, whichever is shorter.
+        # (Or it can take one arg, int maxtime (in milliseconds), to change the timing.)
     finally:
         end_recursive_event_processing(mc)
     return res
