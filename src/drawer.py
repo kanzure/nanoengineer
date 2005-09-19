@@ -985,6 +985,7 @@ def drawPlane(color, w, h):
     glEnd()
     
     glEnable(GL_CULL_FACE) 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     
     glPopMatrix()
     glEnable(GL_LIGHTING)
@@ -1003,9 +1004,9 @@ def drawPlaneGrid(color, w, h, uw, uh):
     
     hw = w/2.0; hh = h/2.0
 
-    glEnable(GL_LINE_SMOOTH)
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE)#_MINUS_SRC_ALPHA)
+    #glEnable(GL_LINE_SMOOTH)
+    #glEnable(GL_BLEND)
+    #glBlendFunc(GL_SRC_ALPHA, GL_ONE)#_MINUS_SRC_ALPHA)
         
     glBegin(GL_LINES)
     
@@ -1027,8 +1028,8 @@ def drawPlaneGrid(color, w, h, uw, uh):
             
     glEnd()
     
-    glDisable(GL_LINE_SMOOTH)
-    glDisable(GL_BLEND)
+    #glDisable(GL_LINE_SMOOTH)
+    #glDisable(GL_BLEND)
     
     glEnable(GL_LIGHTING)
     
