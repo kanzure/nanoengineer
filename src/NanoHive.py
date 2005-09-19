@@ -178,94 +178,98 @@ class NanoHive(NanoHiveDialog):
         
         f.write ('<simulation>\n')
         #f.write('    <description>%s</description>\n' % self.description_textedit.text())
-        f.write('    <description>nanoENGINEER-1</description>\n') # Temp description.
-        f.write('    <parameter name="timeQuantumLength" value="%e" />\n' % spf)
-        f.write('    <parameter name="environmentTemperature" value="%d" />\n' % temp)
-        f.write('    <parameter name="startIteration" value="0" />\n')
-        f.write('    <parameter name="iterations" value="%d" />\n' % iterations)
-        
-        f.write('        <simulationFlow file="%s">\n' % simflow_filename)
-        f.write('          <input type="nanorexMMP" file="%s" />\n' % mmp_filename)
+        f.write('  <description>nanoENGINEER-1</description>\n') # Temp description.
+        f.write('  <parameter name="timeQuantumLength" value="%e" />\n' % spf)
+        f.write('  <parameter name="environmentTemperature" value="%d" />\n' % temp)
+        f.write('  <parameter name="startIteration" value="0" />\n')
+        f.write('  <parameter name="iterations" value="%d" />\n' % iterations)
+        f.write('\n')
+        f.write('  <simulationFlow file="%s">\n' % simflow_filename)
+        f.write('    <input type="nanorexMMP" file="%s" />\n' % mmp_filename)
         
         # This traverser is for the local machine.
-        f.write('          <traverser name="traverser" plugin="RC_Traverser" />\n')
+        f.write('    <traverser name="traverser" plugin="RC_Traverser" />\n')
         
         # The bond calculator
-        f.write('          <calculator name="bondCalculator" plugin="BondCalculator" />\n')
+        f.write('    <calculator name="bondCalculator" plugin="BondCalculator" />\n')
         
         # Physical Interaction Plugins ########################################
         
         if self.MPQC_ESP_checkbox.isChecked():
-            f.write('          <calculator name="qmCalculator" plugin="MPQC_SClib">\n')
-            f.write('          <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
-            f.write('          <parameter name="dataDirectory" value="%s/data/MQPC_SClib" />\n' % nh_home)
-            f.write('          <parameter name="basis" value="STO-3G" />\n')
-            f.write('          <parameter name="method" value="HF" />\n')
-            f.write('          <parameter name="gradientDynamics" value="no" />\n')
-            f.write('          <parameter name="outputType" value="ESPplane" />\n')
-            f.write('          <parameter name="resolution" value="20" />\n')
-            f.write('          <parameter name="centerPoint" value="0e-10,0.3e-10, 0e-10" />\n')
-            f.write('          <parameter name="normalPoint" value="0e-10 1.3e-10 0e-10" />\n')
-            f.write('          <parameter name="outputLength" value="10.0e-10" />\n')
-            f.write('          <parameter name="cutoffHeight" value="1.0e-10" />\n')
-            f.write('          <parameter name="cutoffWidth" value="0.5e-10" />\n')
-            f.write('          </calculator>\n')
+            f.write('\n')
+            f.write('    <calculator name="qmCalculator" plugin="MPQC_SClib">\n')
+            f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
+            f.write('      <parameter name="dataDirectory" value="%s/data/MQPC_SClib" />\n' % nh_home)
+            f.write('      <parameter name="basis" value="STO-3G" />\n')
+            f.write('      <parameter name="method" value="HF" />\n')
+            f.write('      <parameter name="gradientDynamics" value="no" />\n')
+            f.write('      <parameter name="outputType" value="ESPplane" />\n')
+            f.write('      <parameter name="resolution" value="20" />\n')
+            f.write('      <parameter name="centerPoint" value="0e-10,0.3e-10, 0e-10" />\n')
+            f.write('      <parameter name="normalPoint" value="0e-10 1.3e-10 0e-10" />\n')
+            f.write('      <parameter name="outputLength" value="10.0e-10" />\n')
+            f.write('      <parameter name="cutoffHeight" value="1.0e-10" />\n')
+            f.write('      <parameter name="cutoffWidth" value="0.5e-10" />\n')
+            f.write('    </calculator>\n')
             
         if self.MPQC_GD_checkbox.isChecked():
-            f.write('          <calculator name="qmDynamicsInteraction" plugin="MPQC_SClib">\n')
-            f.write('          <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
-            f.write('          <parameter name="dataDirectory" value="%s/data/MQPC_SClib" />\n' % nh_home)
-            f.write('          <parameter name="basis" value="STO-3G" />\n')
-            f.write('          <parameter name="method" value="HF" />\n')
-            f.write('          <parameter name="gradientDynamics" value="yes" />\n')
-            f.write('          <parameter name="deltaTbyTau" value="1.0" />\n')
-            f.write('          </calculator>\n')
+            f.write('\n')
+            f.write('    <calculator name="qmDynamicsInteraction" plugin="MPQC_SClib">\n')
+            f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
+            f.write('      <parameter name="dataDirectory" value="%s/data/MQPC_SClib" />\n' % nh_home)
+            f.write('      <parameter name="basis" value="STO-3G" />\n')
+            f.write('      <parameter name="method" value="HF" />\n')
+            f.write('      <parameter name="gradientDynamics" value="yes" />\n')
+            f.write('      <parameter name="deltaTbyTau" value="1.0" />\n')
+            f.write('    </calculator>\n')
                 
         if self.AIREBO_checkbox.isChecked():
-            f.write('          <calculator name="physicalInteraction" plugin="REBO_MBM">\n')
-            f.write('              <parameter name="dataDirectory" value="%s/data/REBO_MBM" />\n' % nh_home)
-            f.write('          </calculator>\n')
+            f.write('\n')
+            f.write('    <calculator name="physicalInteraction" plugin="REBO_MBM">\n')
+            f.write('      <parameter name="dataDirectory" value="%s/data/REBO_MBM" />\n' % nh_home)
+            f.write('    </calculator>\n')
 
         # Results Plugins ########################################
         
         if self.Measurements_to_File_checkbox.isChecked():
-            f.write('          <result name="MeasurementSetToFile" plugin="MeasurementSetToFile">\n')
-            f.write('            <parameter name="outputInterval" value="1" />\n')
-            f.write('            <parameter name="outputFile"\n')
-            f.write('                       value="%s/data.txt" />\n' % outdir)
-            f.write('            <parameter name="datumSeparator" value="\t" />\n')
-            f.write('          </result>\n')
+            f.write('\n')
+            f.write('    <result name="MeasurementSetToFile" plugin="MeasurementSetToFile">\n')
+            f.write('      <parameter name="outputInterval" value="1" />\n')
+            f.write('      <parameter name="outputFile"\n')
+            f.write('        value="%s/data.txt" />\n' % outdir)
+            f.write('      <parameter name="datumSeparator" value="\t" />\n')
+            f.write('    </result>\n')
 
         if self.POVRayVideo_checkbox.isChecked():
             # Need subdirectory for all the POV-Ray pov files.
             # Also need to add lighting, scene setup, background color, etc.
-            
-            f.write('          <result name="POVRayVideo" plugin="POVRayVideo">\n')
-            f.write('          <parameter name="outputInterval" value="1" />\n')
-            f.write('          <parameter name="lengthMultiplier" value="1e10" />\n')
-            f.write('          <parameter name="outputDirectory"\n')
-            f.write('             value="%s/povray" />\n' % outdir)
-            f.write('          <parameter name="outputIdentifier" value="%s" />\n' % partname)
+            f.write('\n')
+            f.write('    <result name="POVRayVideo" plugin="POVRayVideo">\n')
+            f.write('      <parameter name="outputInterval" value="1" />\n')
+            f.write('      <parameter name="lengthMultiplier" value="1e10" />\n')
+            f.write('      <parameter name="outputDirectory"\n')
+            f.write('        value="%s/povray" />\n' % outdir)
+            f.write('      <parameter name="outputIdentifier" value="%s" />\n' % partname)
             # POV-Ray template.  Mark needs to write the include file for lighting and camera angle(s)
             # and put that file in the appropriate place (outdir/povray).
-            f.write('          <parameter name="povTemplateFilename"\n')
-            f.write('            value="%s/data/pov.tmplt" />')
-            f.write('          <parameter name="mpegTemplateFilename"\n')
-            f.write('            value="%s/data/mpeg_encode.param.tmplt" />\n' % nh_home)
-            f.write('          </result>\n')
+            f.write('      <parameter name="povTemplateFilename"\n')
+            f.write('        value="%s/data/pov.tmplt" />')
+            f.write('      <parameter name="mpegTemplateFilename"\n')
+            f.write('        value="%s/data/mpeg_encode.param.tmplt" />\n' % nh_home)
+            f.write('    </result>\n')
 
         # NetCDF Plugin
-        
-        f.write('          <result name="simResult" plugin="NetCDF_DataSet">\n')
-        f.write('              <parameter name="outputInterval" value="1" />\n')
-        f.write('              <parameter name="outputDirectory"\n')
-        f.write('                       value="%s" />\n' % outdir)
-        f.write('              <parameter name="maxDataSets" value="-1" />\n')
-        f.write('          </result>\n')
+        f.write('\n')
+        f.write('    <result name="simResult" plugin="NetCDF_DataSet">\n')
+        f.write('      <parameter name="outputInterval" value="1" />\n')
+        f.write('      <parameter name="outputDirectory"\n')
+        f.write('        value="%s" />\n' % outdir)
+        f.write('      <parameter name="maxDataSets" value="-1" />\n')
+        f.write('    </result>\n')
         
         # Footer
-        
-        f.write('      </simulationFlow>\n')
+        f.write('\n')
+        f.write('  </simulationFlow>\n')
         f.write('</simulation>\n')
         
         f.close()
@@ -312,7 +316,7 @@ class NanoHive(NanoHiveDialog):
             #self.server.program = get_gamess_path(parent)
             from UserPrefs import get_filename_and_save_in_prefs
             self.server.program = \
-                get_filename_and_save_in_prefs(parent, gmspath_prefs_key, 'Choose Nano-Hive Executable')
+                get_filename_and_save_in_prefs(parent, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
             if not self.server.program:
                 return 1 # Cancelled from file chooser.
             
