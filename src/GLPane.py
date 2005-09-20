@@ -448,6 +448,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         prefs db value itself, since we don't want all user changes to projection to be stored
         in the prefs db, only the ones done from the Preferences dialog.
         '''
+        if self.ortho == projection:
+            return
         # Still need to toggle the Ortho/Perspective action item in the View menu.  Mark 050918.
         self.ortho = projection
         self.gl_update()
