@@ -592,7 +592,7 @@ class modifyMode(basicMode):
         ## Compute bbox for selected chunk(s).
         from shape import BBox
         bbox = BBox()
-        for m in movables(): 
+        for m in movables:
               bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
        
