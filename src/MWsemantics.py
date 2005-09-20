@@ -509,10 +509,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
-        self.glplane.setViewProjection(1)
+        self.glpane.setViewProjection(ORTHOGRAPHIC)
 
     def setViewPerspec(self):
-        self.glplane.setViewProjection(0)
+        self.glpane.setViewProjection(PERSPECTIVE)
 
     def setViewOpposite(self):
         '''Set view to the opposite of current view. '''
