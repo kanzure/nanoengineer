@@ -219,6 +219,9 @@
         <property name="name">
             <cstring>viewToolbar</cstring>
         </property>
+        <property name="enabled">
+            <bool>true</bool>
+        </property>
         <property name="geometry">
             <rect>
                 <x>252</x>
@@ -422,7 +425,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1036</width>
+                <width>1034</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3849,6 +3852,9 @@
         <property name="name">
             <cstring>jigsESPWindowAction</cstring>
         </property>
+        <property name="iconSet">
+            <iconset>image138</iconset>
+        </property>
         <property name="text">
             <string>ESP Window</string>
         </property>
@@ -4271,6 +4277,9 @@
     </image>
     <image name="image137">
         <data format="PNG" length="164">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006b49444154789c6360186a80115dc0da40f53fa5861ebd701bc35c0c833bd25c48e2c3f43351ea3a5c806606a3006a050303035ae4591ba8fef7359327db619b4f3da46dc431300cc5c8a37d1853337c19188674180f8934ccc040ebb282daae6560a075e4d1acd6a0050000164d573ca14e125b0000000049454e44ae426082</data>
+    </image>
+    <image name="image138">
+        <data format="PNG" length="386">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000014949444154789cd594b14ec3301086ff20a6eced1b64bc285b23327666e62d589b4748d7be030333cf10c458f9c6aa62447276af660836b66327112c7092a5f8ceffe73ff139c07f8b2c4c3455a17f0bedcf97ec3656b87fed7f0c7db96b000051f0521cf2ad7d3e2a195d73b3043063cd26c968aa42774aea4e49ad81d941449a88ecbc5352bbe713fd14c64549040010ccb666728f6fcfe3bc7ef0eab3600370c52604b3857f5cdf936fbf787846ecba12cc7633c11c3dc024381403df1d70c8b79ef35844bbc2751042db7c830c1ad9d7e54ab59b75dc5485762fc6514960b74f0a8948330b000380f162f4e78bbdc951c76dbec1d36e8f51e8e7476839c9251dc716129568731f4e54da6e39d5e564f324784eec3a9d6bb52438141ba0d9e054fbf3d56066312b76739d1aa2e00c9876447820a1d8ad776a987444d271cac5daba07363fe83f1f9fc88ab64324d4ef6c0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>

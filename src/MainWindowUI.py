@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Sep 19 18:05:07 2005
+# Created: Mon Sep 19 20:08:23 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -5930,6 +5930,40 @@ image137_data = \
     "\x65\x60\xa0\x75\xe4\xd1\xac\xd6\xa0\x05\x00\x00" \
     "\x16\x4d\x57\x3c\xa1\x4e\x12\x5b\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
+image138_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x49\x49\x44\x41\x54\x78\x9c\xd5\x94\xb1\x4e\xc3" \
+    "\x30\x10\x86\xff\x20\xa6\xec\xed\x1b\x64\xbc\x28" \
+    "\x5b\x23\x32\x76\x66\xe6\x2d\x58\x9b\x47\x48\xd7" \
+    "\xbe\x03\x03\x33\xcf\x10\xc4\x58\xf9\xc6\xaa\x62" \
+    "\x44\x72\x76\xaf\x66\x08\x36\xb6\x63\x27\x11\x2c" \
+    "\x70\x92\xa5\xf8\xce\xff\xe7\x3f\xf1\x39\xc0\x7f" \
+    "\x8b\x2c\x4c\x34\x55\xa1\x7f\x0b\xed\xcf\x97\xec" \
+    "\x36\x56\xb8\x7f\xed\x7f\x0c\x7d\xb9\x6b\x00\x00" \
+    "\x51\xf0\x52\x1c\xf2\xad\x7d\x3e\x2a\x19\x5d\x73" \
+    "\xb3\x04\x30\x63\xcd\x26\xc9\x68\xaa\x42\x77\x4a" \
+    "\xea\x4e\x49\xad\x81\xd9\x41\x44\x9a\x88\xec\xbc" \
+    "\x53\x52\xbb\xe7\x13\xfd\x14\xc6\x45\x49\x04\x00" \
+    "\x10\xcc\xb6\x66\x72\x8f\x6f\xcf\xe3\xbc\x7e\xf0" \
+    "\xea\xb3\x60\x03\x70\xc5\x26\x04\xb3\x85\x7f\x5c" \
+    "\xdf\x93\x6f\xbf\x78\x78\x46\xec\xba\x12\xcc\x76" \
+    "\x33\xc1\x1c\x3d\xc0\x24\x38\x14\x03\xdf\x1d\x70" \
+    "\xc8\xb7\x9e\xf3\x58\x44\xbb\xc2\x75\x10\x42\xdb" \
+    "\x7c\x83\x0c\x1a\xd9\xd7\xe5\x4a\xb5\x9b\x75\xdc" \
+    "\x54\x85\x76\x2f\xc6\x51\x49\x60\xb7\x4f\x0a\x89" \
+    "\x48\x33\x0b\x00\x03\x80\xf1\x62\xf4\xe7\x8b\xbd" \
+    "\xc9\x51\xc7\x6d\xbe\xc1\xd3\x6e\x8f\x51\xe8\xe7" \
+    "\x47\x68\x39\xc9\x25\x1d\xc7\x16\x12\x95\x68\x73" \
+    "\x1f\x4e\x54\xda\x6e\x39\xd5\xe5\x64\xf3\x24\x78" \
+    "\x4e\xec\x3a\x9d\x6b\xb5\x24\x38\x14\x1b\xa0\xd9" \
+    "\xe0\x54\xfb\xf3\xd5\x60\x66\x31\x2b\x76\x73\x9d" \
+    "\x1a\xa2\xe0\x0c\x98\x76\x44\x78\x20\xa1\xd8\xad" \
+    "\x77\x6a\x98\x74\x44\xd2\x71\xca\xc5\xda\xba\x07" \
+    "\x36\x3f\xe8\x3f\x1f\x9f\xc8\x8a\xb6\x43\x24\xd4" \
+    "\xef\x6c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6188,6 +6222,8 @@ class MainWindow(QMainWindow):
         self.image136.loadFromData(image136_data,"PNG")
         self.image137 = QPixmap()
         self.image137.loadFromData(image137_data,"PNG")
+        self.image138 = QPixmap()
+        self.image138.loadFromData(image138_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6639,6 +6675,7 @@ class MainWindow(QMainWindow):
         self.jigsGridPlaneAction.setOn(0)
         self.jigsGridPlaneAction.setIconSet(QIconSet(self.image137))
         self.jigsESPWindowAction = QAction(self,"jigsESPWindowAction")
+        self.jigsESPWindowAction.setIconSet(QIconSet(self.image138))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6661,6 +6698,7 @@ class MainWindow(QMainWindow):
         self.editDeleteAction.addTo(self.editToolbar)
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
+        self.viewToolbar.setEnabled(1)
         self.viewToolbar.setGeometry(QRect(252,0,306,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
@@ -6725,7 +6763,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1034,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
