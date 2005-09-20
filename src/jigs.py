@@ -992,7 +992,10 @@ class GridPlane(RectGadget):
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
         
-        drawPlane(self.color, self.width, self.height)
+        hw = self.width/2.0; hh = self.height/2.0
+        corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
+        drawLineLoop(self.color, corners_pos)
+        #drawPlane(self.color, self.width, self.height)
         drawPlaneGrid(self.gridColor, self.width, self.height, self.gridW, self.gridH)
         
         glPopMatrix()
