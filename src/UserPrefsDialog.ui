@@ -265,7 +265,7 @@
                                             <cstring>radioButton13</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Orthogonal</string>
+                                            <string>Orthographic</string>
                                         </property>
                                     </widget>
                                 </grid>

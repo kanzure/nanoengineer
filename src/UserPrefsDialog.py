@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Sep 19 12:02:39 2005
+# Created: Mon Sep 19 19:01:34 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -693,7 +693,7 @@ class UserPrefsDialog(QDialog):
         self.lower_right_btn.setText(self.__tr("Lower Right"))
         self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
         self.radioButton12.setText(self.__tr("Perspective"))
-        self.radioButton13.setText(self.__tr("Orthogonal"))
+        self.radioButton13.setText(self.__tr("Orthographic"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
         self.textLabel3_2_3.setText(self.__tr("Atom Highlighting :"))
