@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>333</width>
-            <height>561</height>
+            <width>355</width>
+            <height>648</height>
         </rect>
     </property>
     <property name="caption">
@@ -30,36 +30,108 @@
         </property>
         <widget class="QLayoutWidget" row="0" column="0">
             <property name="name">
-                <cstring>layout21</cstring>
+                <cstring>layout46</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLabel">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>namelbl</cstring>
+                        <cstring>layout40</cstring>
                     </property>
-                    <property name="text">
-                        <string>Name :</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>namelbl</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Name :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout38</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>desclbl</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Description :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer31</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Vertical</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>16</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </vbox>
+                        </widget>
+                    </vbox>
                 </widget>
-                <widget class="QLineEdit">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>name_linedit</cstring>
+                        <cstring>layout45</cstring>
                     </property>
-                    <property name="frameShape">
-                        <enum>LineEditPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="text">
-                        <string></string>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>name_linedit</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>LineEditPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                        </widget>
+                        <widget class="QTextEdit">
+                            <property name="name">
+                                <cstring>description_textedit</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>0</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="textFormat">
+                                <enum>PlainText</enum>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
             </hbox>
         </widget>
@@ -231,27 +303,71 @@
             <property name="title">
                 <string>Physical Interaction Plugins</string>
             </property>
-            <vbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QCheckBox">
+                <widget class="QLayoutWidget" row="1" column="0">
                     <property name="name">
-                        <cstring>MPQC_ESP_checkbox</cstring>
+                        <cstring>layout43</cstring>
                     </property>
-                    <property name="text">
-                        <string>MPQC - Electrostatic Potential Plane</string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>MPQC_GD_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MPQC - Gradient Dynamics</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>MPQC_GD_options_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Options...</string>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <widget class="QCheckBox">
+                <widget class="QLayoutWidget" row="0" column="0">
                     <property name="name">
-                        <cstring>MPQC_GD_checkbox</cstring>
+                        <cstring>layout44</cstring>
                     </property>
-                    <property name="text">
-                        <string>MPQC - Gradient Dynamics</string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>MPQC_ESP_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MPQC - ESP Plane</string>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>(No ESP Window jigs)</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>ESP_window_combox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <widget class="QCheckBox">
+                <widget class="QCheckBox" row="2" column="0">
                     <property name="name">
                         <cstring>AIREBO_checkbox</cstring>
                     </property>
@@ -259,7 +375,7 @@
                         <string>AIREBO</string>
                     </property>
                 </widget>
-            </vbox>
+            </grid>
         </widget>
         <widget class="QButtonGroup" row="3" column="0">
             <property name="name">
@@ -292,10 +408,10 @@
         </widget>
         <widget class="QGroupBox" row="4" column="0">
             <property name="name">
-                <cstring>server_grpbox</cstring>
+                <cstring>nh_instance_grpbox</cstring>
             </property>
             <property name="title">
-                <string>Server</string>
+                <string>Nano-Hive Instance</string>
             </property>
             <grid>
                 <property name="name">
@@ -308,7 +424,7 @@
                         </property>
                     </item>
                     <property name="name">
-                        <cstring>server_combox</cstring>
+                        <cstring>nh_instance_combox</cstring>
                     </property>
                 </widget>
                 <spacer row="0" column="1">
@@ -383,7 +499,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="779">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000002d249444154789c8594cd6b135114c5cf7b930f11b40a7ed4d6b4b58d28d3f881ff80e03f60d1851b51aa1b570a2efcd8480b525070e7a2b69a605d2998b45dab208a3b5d69d32e9c241a5bdb0a8dd52a4ef3ee71517dc9741a7a61e0cd70ee7bf777e6cc00755590291eaac679d0c4f842c68906f59ca374091e301116642aa0d3ff175fa4c8d9e569f89f885f9f7cccfffe8a320bf4e9db069f3ecb2cf0dbaf39f845a05ad2985d9e469985f0e12971d8950781952b310aba043de6add8639e2ec1444e595d577e45179a50945913ef3ddf625e66561aa8a0a8e1d069e446adb2cc70b032c0960cd89201af947ae9124c89c3aca409003fa4c23133c29bc5cb5637581960969930b24b04905b871dbb6e1f8e3365227ccafb2bc8a3581fd99148c3e997d51f88aa36c6ab9bcf6ea81941543634d6abc6fb4518b36b2b1b33239c5b9c455fee2aa804a78f9e431669f42cf6e249e921f426e2c6913bd8d2b41513a5f7187e7e170a1ad74ff4616753337af4d9e09129e370df44b4169b9ca24bb0e375cdaf8e57a06b542836dda22db4354eb441b5417482fc0a8ad6084418858284917392e1dce22cfa73d70000178e5d42aaed302adf17d0ffee32e42770aaed1c4637a77112e7f1e8e50300405fcf6dec6c6ac6717d2688dc2d9afb273658943dd9185d8259c930651ceebabf76a4baf2e041130bc7861054f1c71e5055be7d4e258197cc55d6b00ed96ea8a811632d3651c6ff79a21191b8bdafb9572ba3d7c8689619de5bb8c5f6749c2d19b0bf74916366843fa44200c84a9a29e3b0db685e2d9e67eb03679d4f4fc0e4076dbd69cb69768ba6279304807999e1b83c0afd6d921f345d413836ffb8ebb008da3e60bbdea53c99a4235100d5408fa6036055e43ed3e31bff19f77e544c7ae0e3a5217ea617fcc18acfb214f8786988490f4c7ae01bff19cb52084f98509dca9349c63b3444196c533b90509d816cc5744c01c00b19e7c6f6180406cdba15bbd51eabfb0bbe4bc9967bd332160000000049454e44ae426082</data>
+        <data format="XPM.GZ" length="2448">789c6d94db52db481086ef790a177d476d7564f9a8dada0b30e46802842490a4f642d2cc803136f884b153fbeedbfabba5b252b65c2e7dd3fff4f469fce6a8717b79de387a73b058a6cb51dec8efd379e3c8ad2693cdaf7ffff97d7018470df9269d467cf8d7c1213f37f20645f8802f0a6e26496efc099c567c6c1c8cdf81b3248b5a05d3d2d829f395b18f701e8dc12e2df72f2a6e8267ca99c54399716cfa3ed8a7a5bf17e3a0ccdf94b3a6f17b7090f87ae01fc64e9966c6de3855cebc9df7b3e038127d027e5596f3dbe0efcaa2d7f83bca79cbf6b78ddb96cf3db829fbbb60d43f8e533b9f9fc02dd733fd0adc761dcbf7c1b86be75d1b97f19676ab2fa15f71c739d3b7c03dd9df017f06f7c57f1ffa3be3ae328fc0892be3d5f852d16b3d7aca21b77a778dcbf386c6657cdeb88c6f0ace44aff94d8ccb7aae2b56ff31380fe57c7da858fb3135f6660f6057dae9b562cd1ff3157b61e4c7e87f1c241fedc779c55a8faf05f7da22477c9457acf17d01779d373e51f64dd33b704fec7a5f16ca525ee579c1fda6e83d98c0b17080bfb7e0b68c8bfabfad58f3dd169cf443d4d77c2270e2431ffd225616bbf61bfd4852b1a7d05f8233e10c7c03f6a2473c8cfb2bd7bf93404f8f60177ce260ff681c921c3c007bb16b3ea38a359f8d71304ec0a1b2370bcea2e0539d87337033b854e725187b63cc4b160b6b3d9615eb7ca0fe99c497e93ca27f92aecf743fea9777439a69fcb8af795ffe40341efcdf38d13b9d87b971703a2fe897b8f74eeb8dfc7c4bec9a3feae1db62577f8fc6c118f7cf7782f71a1feebf97f9f7eaffb4e0d00ad211f8c37c05b95f41fb37310eca57c83fe0a35c3c4c9c72c6b992ad39f61c98944a2ddff13d8ff881c7fcc813ac4ce46d2c2b23b13cd6b4537ee2677966e2698e95b9bc2db0f6c4bea6f53bda25af64e585d7fcba57bbe12d1fcb7322da290f64e594cff82dd6b6bcd9ebf71d7edff307fe286bb3bd7e434dfb898735edb0a63de7cf3bda0bd1ed6ab39af68c2ff94a62fbc2d7fc95bff177be911c6ef907ffe4889b356dcc2df85888b736de3adcad6ab6de9bdbaeb6c77dbcb5785ad326c4457d88e4e41b4a29a39cafc961cd53a869d77457f8a07bf63492882e7632fd33b7213d403b16ed234da46a5a3bd5d6fcd294102f3dc3efb974436bb7bfc711cd24b6b954ef5478c0b1ec5fd0724f8f87b482df62625e8457b42ee74c2cc37df1a2663a932ff46ada078e6bf16e684bc7d2b3316d74d6e9840632ebd752b92d0d76b598d75826c6d5ee502eb72ad67344fbdfdf07ff03ad3259f8</data>
     </image>
 </images>
 <connections>
@@ -399,6 +515,36 @@
         <receiver>NanoHiveDialog</receiver>
         <slot>reject()</slot>
     </connection>
+    <connection>
+        <sender>MPQC_ESP_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>update_ESP_window_combox()</slot>
+    </connection>
+    <connection>
+        <sender>MPQC_GD_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>update_MPQC_GD_options_btn()</slot>
+    </connection>
+    <connection>
+        <sender>ESP_window_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>set_ESP_window()</slot>
+    </connection>
+    <connection>
+        <sender>MPQC_GD_options_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>show_MPQC_GD_options_dialog()</slot>
+    </connection>
 </connections>
+<slots>
+    <slot>update_ESP_window_combox()</slot>
+    <slot>update_MPQC_GD_options_btn()</slot>
+    <slot>set_ESP_window()</slot>
+    <slot>show_MPQC_GD_options_dialog()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -14,6 +14,8 @@ from qt import *
 from NanoHiveDialog import NanoHiveDialog
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env, os
+from constants import *
+from jigs import ESPWindow
 
 debug_sim = 0 # DO NOT COMMIT with 1
 
@@ -29,7 +31,17 @@ def get_partname(assy):
         return basename
     else:
         return "Untitled"
-            
+
+def find_all_ESP_window_jigs_under( root):
+    '''Returns a list of ESP Window jigs.
+    '''
+    # Code copied from node_indices.find_all_jigs_under().  Mark 050919.
+    res = []
+    def grab_if_ESP_Window_jig(node):
+        if isinstance(node, ESPWindow):
+            res.append(node)
+    root.apply2all( grab_if_ESP_Window_jig)
+    return res
 
 class NanoHive(NanoHiveDialog):
     '''The Nano-Hive dialog
@@ -39,7 +51,8 @@ class NanoHive(NanoHiveDialog):
         NanoHiveDialog.__init__(self)
         self.assy = assy
         self.part=assy.part
-        #print "NanoHive.__init__(): self.assy.filename=", self.assy.filename
+        self.esp_window_list = [] # List of ESP Window jigs.
+        self.esp_window = None # The currently selected ESP Window.
         
         # This is where What's This descriptions should go for the Nano-Hive dialog.
         # Mark 050831.
@@ -61,37 +74,116 @@ class NanoHive(NanoHiveDialog):
         
         env.history.message(cmd + "Enter simulation parameters and select <b>Run Simulation.</b>")
         
-        # Fill in the name_linedit widget.
-        self.name_linedit.setText(get_partname(self.assy))
+        self._init_dialog()
         
         self.exec_loop()
         return
+        
+    def _init_dialog(self):
+        
+        # Fill in the name_linedit widget.
+        self.name_linedit.setText(get_partname(self.assy))
+        
+        self.MPQC_ESP_checkbox.setChecked(False)
+        self.MPQC_GD_checkbox.setChecked(False)
+        self.AIREBO_checkbox.setChecked(False)
+        
+        self.populate_ESP_window_combox() # Update the ESP Window combo box.
+        
+        self.Measurements_to_File_checkbox.setChecked(False)
+        self.POVRayVideo_checkbox.setChecked(False)
+        
+# == Slots for Nano-Hive Dialog
                 
     def accept(self):
         '''The slot method for the 'OK' button.'''
+        if self.run_nanohive():
+            return
         QDialog.accept(self)
-        self.run_nanohive()
+        
         
     def reject(self):
         '''The slot method for the "Cancel" button.'''
         QDialog.reject(self)
+        
+    def update_ESP_window_combox(self, toggle):
+        '''Enables/disables the ESP Window combo box.
+        '''
+        if self.esp_window_list:
+            self.ESP_window_combox.setEnabled(toggle)
+        else:
+            env.history.message("No ESP Window Jigs")
+            self.MPQC_ESP_checkbox.setChecked(False)
+            self.ESP_window_combox.setEnabled(False)
+        
+    def populate_ESP_window_combox(self):
+        '''Populates the ESP Window combo box with the names of all ESP Window jigs in the current part.
+        '''
+        self.esp_window_list = find_all_ESP_window_jigs_under(self.assy.tree)
+        
+        self.ESP_window_combox.clear()
+        for jig in self.esp_window_list:
+            self.ESP_window_combox.insertItem(jig.name)
+        
+        if self.esp_window_list:
+            # Set default ESP Window to the first one in the list.
+            self.esp_window = self.esp_window_list[0]
+        else:
+            # Must have at least one ESP Window in the part to select this plugin
+            # self.MPQC_ESP_checkbox.setEnabled(False) # Disable the ESP Plane plugin. 
+            self.ESP_window_combox.setEnabled(False)
+            
+    def set_ESP_window(self, indx):
+        '''Slot for the ESP Window combo box.
+        '''
+        print "Index = ", indx
+        
+        if indx:
+            self.esp_window = self.esp_window_list[indx]
+            print "ESP Window Name =", self.esp_window.name
+        else:
+            self.esp_window = None
+            print "ESP Window Name =", self.esp_window
+        
+    def update_MPQC_GD_options_btn(self, toggle):
+        '''Enables/disables the MPQC Gradient Dynamics Options button.
+        '''
+        self.MPQC_GD_options_btn.setEnabled(toggle)
+        
+    def show_MPQC_GD_options_dialog(self):
+        '''Show the MPQC Gradient Dynamics Options dialog.
+        '''
+        print "MPQC Gradient Dynamics Options dialog is not implemented yet."
+        
+# ==
 
     def run_nanohive(self):
+        '''Run a Nano-Hive simulation.
+        '''
         
-        # Validate Nano-Hive Program
-        #r = self._validate_nanohive_program()
+        # Validate that the Nano-Hive executable exists.
+        r = self._validate_nanohive_program()
         
-        #if r: # Nano-Hive program was not found/valid.
-         #   return 1 # Job Cancelled.
+        if r: # Nano-Hive program was not found/valid.
+            return 1 # Simulation Cancelled.
+            
+        # Check that a valid ESP Window is selected if ESP Plane is checked.
+#        if self.MPQC_ESP_checkbox.isChecked():
+#            if not self.esp_window:
+#                env.history.message(redmsg(cmd + "Please select an ESP Window."))
+#                return 1
         
-        mmp_filename, simspec_filename, simflow_filename, outdir, partname = self.get_nanohive_filenames()
-        
-        
+        # Retreive the filenames, output directory and part name.
+        mmp_filename, \
+        simspec_filename, \
+        simflow_filename, \
+        outdir, \
+        partname = self.get_nanohive_filenames()
         
         # 1. Write the MMP file that Nano-Hive will use for the sim run.
         self.assy.writemmpfile(mmp_filename)
             
-        # 2. Write the sim-spec file using the parameters from the Nano-Hive dialog/widgets
+        # 2. Write the sim-spec file using the parameters from the Nano-Hive dialog widgets
         self.write_simspec_file(simspec_filename, simflow_filename, mmp_filename, outdir, partname)
         
         # 3. Write the Sim Flow file
@@ -117,6 +209,8 @@ class NanoHive(NanoHiveDialog):
                         "-------------------------------------<br>"
         
         env.history.message(infotext)
+        
+        return 0
         
 
     def get_nanohive_filenames(self):
@@ -163,11 +257,10 @@ class NanoHive(NanoHiveDialog):
         spf = self.stepsper_spinbox.value() * 1e-17 # Steps per Frame
         temp = self.temp_spinbox.value() # Temp in Kelvin
         
-        # This should be an env pref, set in the Prefs UI (like GAMESS).
-        nh_program = "C:/Program Files/Nano-Hive/bin/win32-x86/NanoHive.exe"
-        
-        # I get the Nano-Hive home directory by stripping off the last two directories.
-        head, tail = os.path.split(nh_program)
+        # Retreive the Nano-Hive home directory by stripping off the last two directories
+        # from the Nano-Hive executable path.
+        nanohive_exe = env.prefs[nanohive_path_prefs_key]
+        head, tail = os.path.split(nanohive_exe)
         nh_home, tail = os.path.split(head)
         
         # print "NanoHive.write_simspec_file(): Nano-Hive Home:", nh_home
@@ -177,8 +270,7 @@ class NanoHive(NanoHiveDialog):
         # Write SimSpec header ########################################
         
         f.write ('<simulation>\n')
-        #f.write('    <description>%s</description>\n' % self.description_textedit.text())
-        f.write('  <description>nanoENGINEER-1</description>\n') # Temp description.
+        f.write('  <description>%s</description>\n' % self.description_textedit.text())
         f.write('  <parameter name="timeQuantumLength" value="%e" />\n' % spf)
         f.write('  <parameter name="environmentTemperature" value="%d" />\n' % temp)
         f.write('  <parameter name="startIteration" value="0" />\n')
@@ -196,6 +288,21 @@ class NanoHive(NanoHiveDialog):
         # Physical Interaction Plugins ########################################
         
         if self.MPQC_ESP_checkbox.isChecked():
+            
+            cpnt = self.esp_window.center * 1e-10
+            centerPoint = (float(cpnt[0]), float(cpnt[1]), float(cpnt[2]))
+            #print "ESP Window CenterPoint =", centerPoint
+            
+            npnt = self.esp_window.getaxis() * 1e-10
+            normalPoint = (float(npnt[0]), float(npnt[1]), float(npnt[2]))
+            #print "ESP Window NormalPoint =", normalPoint
+            
+            outputLength = self.esp_window.width * 1e-10
+            #print "ESP Window outputLength =", outputLength
+            
+            resolution = self.esp_window.resolution
+            # print "ESP Window Resolution =", resolution
+
             f.write('\n')
             f.write('    <calculator name="qmCalculator" plugin="MPQC_SClib">\n')
             f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
@@ -204,10 +311,10 @@ class NanoHive(NanoHiveDialog):
             f.write('      <parameter name="method" value="HF" />\n')
             f.write('      <parameter name="gradientDynamics" value="no" />\n')
             f.write('      <parameter name="outputType" value="ESPplane" />\n')
-            f.write('      <parameter name="resolution" value="20" />\n')
-            f.write('      <parameter name="centerPoint" value="0e-10,0.3e-10, 0e-10" />\n')
-            f.write('      <parameter name="normalPoint" value="0e-10 1.3e-10 0e-10" />\n')
-            f.write('      <parameter name="outputLength" value="10.0e-10" />\n')
+            f.write('      <parameter name="resolution" value="%d" />\n' % resolution)
+            f.write('      <parameter name="centerPoint" value="%e,%e,%e" />\n' % centerPoint)
+            f.write('      <parameter name="normalPoint" value="%e,%e,%e" />\n' % normalPoint)
+            f.write('      <parameter name="outputLength" value="%e" />\n' % outputLength)
             f.write('      <parameter name="cutoffHeight" value="1.0e-10" />\n')
             f.write('      <parameter name="cutoffWidth" value="0.5e-10" />\n')
             f.write('    </calculator>\n')
@@ -292,21 +399,18 @@ class NanoHive(NanoHiveDialog):
         Returns:  0 = Valid
                         1 = Invalid
         '''
-        # Get Nano-Hive executable path from the user preferences
-        prefs = preferences.prefs_context()
-        self.server.program = prefs.get(nanohive_prefs_key)
+        # Get Nano-Hive executable path from the prefs db
+        nanohive_exe = env.prefs[nanohive_path_prefs_key]
         
-        if not self.server.program:
+        if not nanohive_exe:
             msg = "The Nano-Hive executable path is not set.\n"
-        elif os.path.exists(self.server.program):
+        elif os.path.exists(nanohive_exe):
             return 0
         else:
-            msg = self.server.program + " does not exist.\n"
+            msg = nanohive_exe + " does not exist.\n"
             
         # Nano-Hive Dialog is the parent for messagebox and file chooser.
-        parent = self.edit_cntl # THIS IS WRONG.
-            
-        ret = QMessageBox.warning( parent, "Nano-Hive Executable Path",
+        ret = QMessageBox.warning( self, "Nano-Hive Executable Path",
             msg + "Please select OK to set the location of Nano-Hive for this computer.",
             "&OK", "Cancel", None,
             0, 1 )
@@ -315,9 +419,9 @@ class NanoHive(NanoHiveDialog):
             #from UserPrefs import get_gamess_path
             #self.server.program = get_gamess_path(parent)
             from UserPrefs import get_filename_and_save_in_prefs
-            self.server.program = \
-                get_filename_and_save_in_prefs(parent, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
-            if not self.server.program:
+            nanohive_exe = \
+                get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
+            if not nanohive_exe:
                 return 1 # Cancelled from file chooser.
             
         elif ret==1: # Cancel
