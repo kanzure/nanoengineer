@@ -9,70 +9,75 @@ from qt import *
 from ESPWindowPropDialog import *
 
 class ESPWindowProp(ESPWindowPropDialog):
-    def __init__(self, gridPlane, glpane):
+    def __init__(self, esp_window, glpane):
 
         ESPWindowPropDialog.__init__(self)
-        self.plane = gridPlane
+        self.esp_window = esp_window
         self.glpane = glpane
-       
         self.setup()
     
-    
     def setup(self):
-        self.oldNormColor = self.plane.normcolor
-        self.oldGridColor = self.plane.gridColor
-                
-        self.planeColor = QColor(int(self.plane.normcolor[0]*255), 
-                         int(self.plane.normcolor[1]*255), 
-                         int(self.plane.normcolor[2]*255))
-        self.gridColor = QColor(int(self.plane.gridColor[0]*255), 
-                         int(self.plane.gridColor[1]*255), 
-                         int(self.plane.gridColor[2]*255))
+        self.oldNormColor = self.esp_window.normcolor
+        self.oldBorderColor = self.esp_window.border_color
         
-        self.wdLineEdit.setText(str(self.plane.width))
-        self.resolutionLineEdit.setText(str(self.plane.resolution))
+        self.name_linedit.setText(self.esp_window.name)
         
-        self.planeColorButton.setPaletteBackgroundColor(self.planeColor)
-        self.gridColorButton.setPaletteBackgroundColor(self.gridColor)
-
+        self.fill_color = QColor(int(self.esp_window.normcolor[0]*255), 
+                         int(self.esp_window.normcolor[1]*255), 
+                         int(self.esp_window.normcolor[2]*255))
         
-    def changePlaneColor(self):
-        '''Slot method for change plane color button.'''
-        color = QColorDialog.getColor(self.planeColor, self, "ColorDialog")
+        self.border_color = QColor(int(self.esp_window.border_color[0]*255), 
+                         int(self.esp_window.border_color[1]*255), 
+                         int(self.esp_window.border_color[2]*255))
+        
+        self.width_spinbox.setValue(self.esp_window.width)
+        self.resolution_spinbox.setValue(self.esp_window.resolution)
+        
+        self.fill_color_pixmap.setPaletteBackgroundColor(self.fill_color)
+        self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
+        
+    def change_fill_color(self):
+        '''Slot method to change fill color.'''
+        color = QColorDialog.getColor(self.fill_color, self, "ColorDialog")
 
         if color.isValid():
-            self.planeColorButton.setPaletteBackgroundColor(color)
-            self.plane.color = self.plane.normalcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
-
+            self.fill_color_pixmap.setPaletteBackgroundColor(color)
+            self.esp_window.color = self.esp_window.normalcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
             
-    def changeGridColor(self):
-        '''Slot method for change plane color button.'''
-        color = QColorDialog.getColor(self.gridColor, self, "ColorDialog")
+    def change_border_color(self):
+        '''Slot method change border color.'''
+        color = QColorDialog.getColor(self.border_color, self, "ColorDialog")
 
         if color.isValid():
-            self.gridColorButton.setPaletteBackgroundColor(color)
-            self.plane.gridColor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.border_color_pixmap.setPaletteBackgroundColor(color)
+            self.esp_window.border_color = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
             
-    
+    def change_width(self):
+        "Slot for Width spinbox"
+        self.esp_window.width = float(self.width_spinbox.value())
+        self.glpane.gl_update()
+        
     def accept(self):
-        '''Slot method for the 'Ok' button '''
-        self.plane.cancelled = False    
+        '''Slot for the 'OK' button '''
+        self.esp_window.cancelled = False   
         
-        self.plane.width = float(str(self.wdLineEdit.text()))
-        self.plane.resolution = float(str(self.resolutionLineEdit.text()))
+        text =  QString(self.name_linedit.text())        
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.esp_window.name = str(text) 
         
-        self.plane.assy.w.win_update() # Update model tree
-        self.plane.assy.changed()
+        self.esp_window.width = float(self.width_spinbox.value())
+        self.esp_window.resolution = float(self.resolution_spinbox.value())
+        
+        self.esp_window.assy.w.win_update() # Update model tree
+        self.esp_window.assy.changed()
         
         QDialog.accept(self)
-        
-        
-        
+
     def reject(self):
-        self.plane.color = self.plane.normcolor = self.oldNormColor 
-        self.plane.gridColor = self.oldGridColor  
+        '''Slot for the 'Cancel' button '''
+        self.esp_window.color = self.esp_window.normcolor = self.oldNormColor 
+        self.esp_window.border_color = self.oldBorderColor  
  
         self.glpane.gl_update()
         
         QDialog.reject(self)
-        

@@ -1005,16 +1005,16 @@ class ESPWindow(RectGadget):
     
     def __init__(self, assy, list):
         RectGadget.__init__(self, assy, list)
-        
+        self.color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
+        self.normcolor = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
+        self.border_color = black
         self.resolution = 20
 
     def set_cntl(self): 
         self.cntl = ESPWindowProp(self, self.assy.o)
         
-
     def getaxis(self):
         return self.quat.rot(norm(self.planeNorm))
-
 
     def _draw(self, win, dispdef):
         glPushMatrix()
@@ -1027,10 +1027,10 @@ class ESPWindow(RectGadget):
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
-        drawLineLoop(self.gridColor, corners_pos)        
+        drawLineLoop(self.border_color, corners_pos)        
         
         glPopMatrix()
-                
+ 
 
 # == Ground
 
@@ -1488,16 +1488,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         
     def makeESPWindow(self):
-        cmd = greenmsg("ESP Plane: ")
+        cmd = greenmsg("ESP Window: ")
         
-        if not self.assy.selatoms:
-            msg = redmsg("You must select at least 3 atoms you want to put a ESP plane.")
-            env.history.message(cmd + msg)
-            return
-        
-        # Make sure only one atom is selected.
-        if len(self.assy.selatoms)  <3: 
-            msg = redmsg("To create a ESP plane, at least 3 atoms must be selected.  Try again.")
+        if len(self.assy.selatoms) < 3:
+            msg = redmsg("You must select at least 3 atoms to create an ESP Window.")
             env.history.message(cmd + msg)
             return
         
@@ -1511,7 +1505,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickatoms()
         self.place_new_jig(m)
         
-        env.history.message(cmd + "ESP plane created")
+        env.history.message(cmd + "ESP Window created.")
         self.assy.w.win_update()
         
     pass # end of class jigmakers_Mixin
