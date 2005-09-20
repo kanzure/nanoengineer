@@ -116,9 +116,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.mt.mt_update()
 
 
-    def fileOpen(self, recentedFile=None):
+    def fileOpen(self, recentFile = None):
         '''By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
-           is openning a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist. '''
+           is opening a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist. '''
         env.history.message(greenmsg("Open File:"))
         
         if self.assy.has_changed():
@@ -145,13 +145,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
         else: odir = globalParms['WorkingDirectory']
 
-        if recentedFile:
-            if not os.path.exists(recentedFile):
+        if recentFile:
+            if not os.path.exists(recentFile):
               QMessageBox.warning( self, self.name(),
                 "This file doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
               return
             
-            fn = recentedFile
+            fn = recentFile
         else:
             fn = QFileDialog.getOpenFileName(odir,
                     "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
@@ -499,12 +499,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     
     def _updateRecentFileList(self, fileName):
         '''Add the <fileName> into the recent file list '''
-        LIST_CAPACITY = 4 #This could be set by user preference, not added yet        
-     
-        if not __debug__:
+        LIST_CAPACITY = 4 #This could be set by user preference, not added yet
+        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+        
+        if not recentfiles_use_QSettings:
             fileName = str(fileName)
         
-        if __debug__:
+        if recentfiles_use_QSettings:
             fileList = self.prefsSetting.readListEntry('recentFiles')[0]
         else:
             fileList = self.prefsSetting.get('recentFiles', [])
@@ -518,14 +519,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                        del fileList[ii]
                        break
         
-        if __debug__:
+        if recentfiles_use_QSettings:
             fileList.prepend(fileName)
         else:
             fileList.insert(0, fileName)
             
         fileList = fileList[:LIST_CAPACITY]
         
-        if __debug__:
+        if recentfiles_use_QSettings:
             self.prefsSetting.writeEntry('recentFiles', fileList)
         else:
             self.prefsSetting['recentFiles'] = fileList 
@@ -536,7 +537,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def _openRecentFile(self, idx):
         '''Slot method when user choose from the recently opened files submenu. '''
-        if __debug__:
+        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+        if recentfiles_use_QSettings:
             fileList = self.prefsSetting.readListEntry('recentFiles')[0]
         else:
             fileList = self.prefsSetting.get('recentFiles', [])
@@ -548,8 +550,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         
     def _createRecentFilesList(self):
-        '''Dynamically construct the list of rencently opened files submenus '''
-        if __debug__:
+        '''Dynamically construct the list of recently opened files submenus '''
+        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+        if recentfiles_use_QSettings:
             fileList = self.prefsSetting.readListEntry('recentFiles')[0]
         else:
             fileList = self.prefsSetting.get('recentFiles', [])
