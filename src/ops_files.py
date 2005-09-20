@@ -501,18 +501,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         '''Add the <fileName> into the recent file list '''
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
-        
+            
         if recentfiles_use_QSettings:
             prefsSetting = QSettings()
-        else:
-            prefsSetting = preferences.prefs_context()
-            
-        if not recentfiles_use_QSettings:
-            fileName = str(fileName)
-        
-        if recentfiles_use_QSettings:
             fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
         else:
+            fileName = str(fileName)
+            prefsSetting = preferences.prefs_context()
             fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         
         if len(fileList) > 0:
@@ -536,6 +531,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else:
             prefsSetting['/Nanorex/nE-1/recentFiles'] = fileList 
         
+        del prefsSetting
+        
         self._createRecentFilesList()
         
         
@@ -545,11 +542,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
         if recentfiles_use_QSettings:
             prefsSetting = QSettings()
-        else:
-            prefsSetting = preferences.prefs_context()
-        if recentfiles_use_QSettings:
             fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
         else:
+            prefsSetting = preferences.prefs_context()
             fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         
         assert idx <= len(fileList)
@@ -561,14 +556,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def _createRecentFilesList(self):
         '''Dynamically construct the list of recently opened files submenus '''
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+        
         if recentfiles_use_QSettings:
             prefsSetting = QSettings()
-        else:
-            prefsSetting = preferences.prefs_context()
-            
-        if recentfiles_use_QSettings:
             fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
         else:
+            prefsSetting = preferences.prefs_context()
             fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         
         self.recentFilePopupMenu = QPopupMenu(self)
@@ -580,8 +573,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
         
         self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
-        
-
+  
 
     pass # end of class fileSlotsMixin
 
