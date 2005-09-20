@@ -75,8 +75,14 @@ makbond(int a, int b, char ord) {
     /* Patch to insure that multiple bonds get treated as single bonds until we do the right thing. */
     //ord='1';
     /*****************************************************************************************************/
+
+    /*****************************************************************************************************/
+    // patch to pretend that carbomeric bonds are double bonds
+    if (ord=='c') {
+      ord = '2';
+    }
+    /*****************************************************************************************************/
     
-	
     DPRINT(D_READER, "making bond %d--%d\n",a,b);
     bond[Nexbon].an1=a;
     bond[Nexbon].an2=b;

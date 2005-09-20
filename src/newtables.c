@@ -158,6 +158,8 @@ setElement(int protons,
 void
 initializeBondTable()
 {
+  memset(periodicTable, 0, sizeof(periodicTable));
+  
   // groups 9-22 are lanthanides
   // groups 8-31 are transition metals
   //
