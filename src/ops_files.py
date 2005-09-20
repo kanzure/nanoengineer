@@ -502,13 +502,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
         
+        if recentfiles_use_QSettings:
+            prefsSetting = QSettings()
+        else:
+            prefsSetting = preferences.prefs_context()
+            
         if not recentfiles_use_QSettings:
             fileName = str(fileName)
         
         if recentfiles_use_QSettings:
-            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
         else:
-            fileList = self.prefsSetting.get('recentFiles', [])
+            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         
         if len(fileList) > 0:
            if fileName == fileList[0]:
@@ -527,9 +532,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         fileList = fileList[:LIST_CAPACITY]
         
         if recentfiles_use_QSettings:
-            self.prefsSetting.writeEntry('recentFiles', fileList)
+            prefsSetting.writeEntry('/Nanorex/nE-1/recentFiles', fileList)
         else:
-            self.prefsSetting['recentFiles'] = fileList 
+            prefsSetting['/Nanorex/nE-1/recentFiles'] = fileList 
         
         self._createRecentFilesList()
         
@@ -539,9 +544,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         '''Slot method when user choose from the recently opened files submenu. '''
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
         if recentfiles_use_QSettings:
-            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+            prefsSetting = QSettings()
         else:
-            fileList = self.prefsSetting.get('recentFiles', [])
+            prefsSetting = preferences.prefs_context()
+        if recentfiles_use_QSettings:
+            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
+        else:
+            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         
         assert idx <= len(fileList)
         
@@ -553,9 +562,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         '''Dynamically construct the list of recently opened files submenus '''
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
         if recentfiles_use_QSettings:
-            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+            prefsSetting = QSettings()
         else:
-            fileList = self.prefsSetting.get('recentFiles', [])
+            prefsSetting = preferences.prefs_context()
+            
+        if recentfiles_use_QSettings:
+            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
+        else:
+            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         
         self.recentFilePopupMenu = QPopupMenu(self)
         for ii in range(len(fileList)):
@@ -572,3 +586,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     pass # end of class fileSlotsMixin
 
 # end
+
+
+## Test code--By cleaning the recent files list of QSettings###
+if __name__ == '__main__':
+    prefs = QSettings()
+    from qt import QStringList
+    emptyList = QStringList()
+    prefs.writeEntry('/Nanorex/nE-1/recentFiles', emptyList)
+    
+    
+    del prefs
+    

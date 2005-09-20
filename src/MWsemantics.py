@@ -204,16 +204,16 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         from qt import QSettings
         menuIndex = self.RECENT_FILES_MENU_INDEX
         if recentfiles_use_QSettings:
-            self.prefsSetting = QSettings()
+            prefsSetting = QSettings()
         else:
-            self.prefsSetting = preferences.prefs_context()
+            prefsSetting = preferences.prefs_context()
         popupMenu = QPopupMenu(self)        
         self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), popupMenu, menuIndex, menuIndex)
         
         if recentfiles_use_QSettings:
-            fileList = self.prefsSetting.readListEntry('recentFiles')[0]
+            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
         else:
-            fileList = self.prefsSetting.get('recentFiles', [])
+            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
         if len(fileList): 
             self.fileMenu.setItemEnabled(menuIndex, True)
             self._createRecentFilesList()
