@@ -26,6 +26,8 @@ History:
 - bruce 050610 changing how atoms are highlighted during Build mode mouseover. ###@@@ might not be done
 
 - bruce 050901 used env.history in some places.
+
+- bruce 050920 removing laxity in valence checking for carbomeric bonds, now that mmp file supports them.
 '''
 __author__ = "Josh"
 
@@ -517,13 +519,14 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         # minv and maxv are the min and max reasonable interpretations of actual valence, based on bond types
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
-        if not ok:
-            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
-            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
-            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
-            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
-              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
-                ok = True
+        #bruce 050920 removing special case to sometimes treat A or G as C (Carbomeric), now that bondc is savable.
+##        if not ok:
+##            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
+##            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
+##            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
+##            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
+##              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
+##                ok = True
         return not ok
 
     def bad_valence_explanation(self): #bruce 050806 ####@@@@ use more widely
@@ -547,13 +550,14 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         # minv and maxv are the min and max reasonable interpretations of actual valence, based on bond types
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
-        if not ok:
-            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
-            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
-            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
-            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
-              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
-                ok = True
+        #bruce 050920 removing special case to sometimes treat A or G as C (Carbomeric), now that bondc is savable.
+##        if not ok:
+##            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
+##            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
+##            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
+##            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
+##              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
+##                ok = True
         if not ok:
             if maxv < want_valence:
                 return "valence too small -- need higher order for some bonds" #e improve this text

@@ -91,6 +91,8 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050502 required; 050706 preferred' -- bruce, increased precision of Linear Motor force & stiffness
 
+'050920 required' -- bruce, save carbomeric bonds as their own bond type bondc, not bonda as before
+
 ===
 
 General notes about when to change the mmp format version:
@@ -103,7 +105,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050502 required; 050706 preferred'
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -333,6 +335,9 @@ class _readmmp_state:
         
     def _read_bondg(self, card):
         return self.read_bond_record(card, V_GRAPHITE)
+        
+    def _read_bondc(self, card): #bruce 050920 added this
+        return self.read_bond_record(card, V_CARBOMERIC)
 
     def read_bond_record(self, card, valence):
         list = map(int, re.findall("\d+",card[5:])) # note: this assumes all bond mmp-record-names are the same length, 5 chars.

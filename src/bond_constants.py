@@ -11,6 +11,10 @@ History:
 050707 - Split into separate file, largely to avoid recursive import problems
 (since these constants need to be imported by many bond-related modules).
 Many of them are still imported via bonds module, by code in other modules.
+
+050920 - Full mmp support for Carbomeric bonds.
+[FYI: As of today, sim executable reportedly accepts them and uses same params as for bond2.]
+
 '''
 __author__ = 'bruce'
 
@@ -26,13 +30,13 @@ V_SINGLE = 6 * 1
 V_GRAPHITE = 6 * 4/3  # (this can't be written 6 * (1+1/3) or 6 * (1+1/3.0) - first one is wrong, second one is not an exact int)
 V_AROMATIC = 6 * 3/2
 V_DOUBLE = 6 * 2
-V_CARBOMERIC = 6 * 5/2 # for the bonds in a carbomer of order 2.5 (which alternate with aromatic bonds); saved as bonda for now [050705]
+V_CARBOMERIC = 6 * 5/2 # for the bonds in a carbomer of order 2.5 (which alternate with aromatic bonds); saved as bondc as of 050920
 V_TRIPLE = 6 * 3
 
 V_UNKNOWN = 6 * 7/6 # not in most tables here, and not yet used; someday might be used internally by bond-type inference code
 
 BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_CARBOMERIC, V_TRIPLE]
-BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bonda', 'bond3'] # duplication of bonda is intentional (for now)
+BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bondc', 'bond3']
     # (Some code might assume these all start with "bond".)
     # (These mmp record names are also hardcoded into mmp-reading code in files_mmp.py.)
 bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple',
@@ -50,7 +54,7 @@ for v6, mmprec in zip( BOND_VALENCES, BOND_MMPRECORDS ):
     # for this it's useful to also have '?' for in-between values but not for negative or too-high values,
     # so a list or string is more useful than a dict
 
-BOND_LETTERS[V_CARBOMERIC] = 'c' # not 'a', not 'b'
+assert BOND_LETTERS[V_CARBOMERIC] == 'c' # not 'a', not 'b'
 
 BOND_LETTERS[0] = '0' # see comment in bond_letter_from_v6
 
