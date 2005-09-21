@@ -638,7 +638,7 @@ class RotaryMotor(Motor):
         self.radius = radius
         self.sradius = sradius
    
-    def _getinfo(self):
+    def _getinfo(self):        
         return  "[Object: Rotary Motor] [Name: " + str(self.name) + "] " + \
                     "[Torque = " + str(self.torque) + " nN-nm] " + \
                     "[Speed = " + str(self.speed) + " GHz]"
@@ -912,9 +912,6 @@ class RectGadget(Jig):
         self.width = 16
         self.height = 16
         
-        self.color = black
-        self.normcolor = black
-        self.gridColor = white
         self.cancelled = True # We will assume the user will cancel
 
         self.atomPos = []
@@ -973,8 +970,11 @@ class GridPlane(RectGadget):
     def __init__(self, assy, list):
         RectGadget.__init__(self, assy, list)
         
-        self.gridW = 2
-        self.gridH = 2
+        self.color = black # Border color
+        self.normcolor = black
+        self.grid_color = white
+        self.x_spacing = 2
+        self.y_spacing = 2
     
 
     def set_cntl(self): 
@@ -996,7 +996,7 @@ class GridPlane(RectGadget):
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
         drawLineLoop(self.color, corners_pos)
         #drawPlane(self.color, self.width, self.height)
-        drawPlaneGrid(self.gridColor, self.width, self.height, self.gridW, self.gridH)
+        drawPlaneGrid(self.grid_color, self.width, self.height, self.x_spacing, self.y_spacing)
         
         glPopMatrix()
 
@@ -1026,7 +1026,7 @@ class ESPWindow(RectGadget):
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
         
-        drawPlane(self.color, self.width, self.width, SOLID=True)
+        drawPlane(self.color, self.width-0.05, self.width-0.05, SOLID=True)
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
