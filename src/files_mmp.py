@@ -150,6 +150,10 @@ old_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (
 # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length width spoke_radius
 new_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
+# ESP Window record format:
+# espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
+esppat = re.compile("espwindow \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
+
 # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
 
@@ -412,6 +416,25 @@ class _readmmp_state:
         motor.setProps(name, col, force, stiffness, cxyz, axyz, length, width, sradius)
         self.addmotor(motor)
 
+
+    def _read_espwindow(self, card):
+        ''' Read the MMP record for a ESP Window as:
+            espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
+        '''
+        m = esppat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+        border_color = map(lambda (x): int(x)/255.0, [m.group(2),m.group(3),m.group(4)])
+        width = float(m.group(5)); height = float(m.group(6)); resolution = int(m.group(7))
+        center = A(map(float, [m.group(8), m.group(9), m.group(10)]))
+        quat = A(map(float, [m.group(11), m.group(12), m.group(13), m.group(14)]))
+        trans = float(m.group(15))
+        fill_color = map(lambda (x): int(x)/255.0, [m.group(16),m.group(17),m.group(18)])
+        
+        espWindow = ESPWindow(self.assy, [], READ_FROM_MMP=True)
+        espWindow.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color)
+        self.addmember(espWindow)
+        
     # Read the MMP record for a Ground as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 

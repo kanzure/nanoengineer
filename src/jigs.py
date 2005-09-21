@@ -287,6 +287,38 @@ class Jig(Node):
         else:
             Node.writemmp(self, mapping) # just writes comment into file and atom_debug msg onto stdout
 
+    def _mmp_record_front_part(self, mapping):
+        # [Huaicai 9/21/05: split mmp_record into front-middle-last 3 parts, so the each part can be different for a diffent jig.
+        
+        if mapping is not None:
+            name = mapping.encode_name(self.name) #bruce 050729 help fix some Jig.__repr__ tracebacks (e.g. part of bug 792-1)
+        else:
+            name = self.name
+        
+        if self.picked:
+            c = self.normcolor
+            # [bruce 050422 comment: this code looks weird, but i guess it undoes pick effect on color]
+        else:
+            c = self.color
+        color = map(int, A(c)*255)
+        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, name,
+                                                               color[0], color[1], color[2])
+        return mmprectype_name_color
+    
+    
+    def _mmp_record_last_part(self, mapping):
+        '''Last part of the record. '''
+        # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Window, which is none.
+        if mapping is not None:
+            ndix = mapping.atnums
+        else:
+            ndix = None
+        nums = self.atnums_or_None( ndix)
+        del ndix
+        
+        return " " + " ".join(map(str,nums))
+        
+
     def mmp_record(self, mapping = None):
         #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
         #e could factor some code from here into mapping methods
@@ -312,12 +344,11 @@ class Jig(Node):
         """
         if mapping is not None:
             ndix = mapping.atnums
-            name = mapping.encode_name(self.name) #bruce 050729 help fix some Jig.__repr__ tracebacks (e.g. part of bug 792-1)
         else:
             ndix = None
-            name = self.name
         nums = self.atnums_or_None( ndix)
         del ndix
+        
         if nums is None or (self.is_disabled() and mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file()):
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
             # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,
@@ -332,25 +363,20 @@ class Jig(Node):
             assert after_these # but this alone does not assert that they weren't all already written out! The next method should do that.
             mapping.write_forwarded_node_after_nodes( self, after_these, force_disabled_for_sim = self.is_disabled() )
             return fwd_ref_to_return_now , False
-        atnums_list = " ".join(map(str,nums))
-        if self.picked:
-            c = self.normcolor
-            # [bruce 050422 comment: this code looks weird, but i guess it undoes pick effect on color]
-        else:
-            c = self.color
-        color = map(int,A(c)*255)
-        mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, name,
-                                                          color[0], color[1], color[2])
+        
+        frontpart = self._mmp_record_front_part(mapping)
         midpart = self.mmp_record_jigspecific_midpart()
-        if not midpart:
-            # because '  ' fails where ' ' is required (in the mmp file parser), we have to handle this case specially!
-            return mmprectype_name_color + " " + atnums_list + "\n" , True
-        return mmprectype_name_color + " " + midpart + " " +  atnums_list + "\n" , True
+        lastpart = self._mmp_record_last_part(mapping)
+       
+        return frontpart + midpart + lastpart + "\n" , True
+
+
 
     def mmp_record_jigspecific_midpart(self):
         """#doc
         (see rmotor's version's docstring for details)
         [some subclasses need to override this]
+        If it returns anything other than empty, make sure add one more extra 'space' at the front.
         """
         return ""
 
@@ -784,7 +810,7 @@ class RotaryMotor(Motor):
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
             self.length, self.radius, self.sradius   )
-        return dataline + "\n" + "shaft"
+        return " " + dataline + "\n" + "shaft"
     
     pass # end of class RotaryMotor
 
@@ -901,12 +927,16 @@ class LinearMotor(Motor):
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
             self.length, self.width, self.sradius    )
-        return dataline + "\n" + "shaft"
+        return " " + dataline + "\n" + "shaft"
     
     pass # end of class LinearMotor
 
+
 class RectGadget(Jig):
-    def __init__(self, assy, list):
+    mutable_attrs = ('center', 'quat')
+    copyable_attrs = Jig.copyable_attrs + ('width', 'height') + mutable_attrs
+
+    def __init__(self, assy, list, READ_FROM_MMP):
         Jig.__init__(self, assy, list)
         
         self.width = 16
@@ -915,6 +945,10 @@ class RectGadget(Jig):
         self.cancelled = True # We will assume the user will cancel
 
         self.atomPos = []
+        if not READ_FROM_MMP:
+            self.__init_quat_center(list)        
+    
+    def __init_quat_center(self, list):
         
         for a in list[:3]:
             self.atomPos += [a.posn()]
@@ -923,6 +957,7 @@ class RectGadget(Jig):
         self.quat = Q(V(0.0, 0.0, 1.0), self.planeNorm)
         self.center = add.reduce(self.atomPos)/len(self.atomPos)
 
+        
 
     def __computeBBox(self):
         '''Compute current bounding box. '''
@@ -940,6 +975,11 @@ class RectGadget(Jig):
             return self.__computeBBox()
         else:
             raise AttributeError, 'Grid Plane has no "%s"' % name
+
+
+    def getaxis(self):
+        return self.quat.rot(V(1, 0, 0))#norm(self.planeNorm))
+
 
     def move(self, offset):
         '''Move the plane by <offset>, which is a 'V' object. '''
@@ -961,14 +1001,18 @@ class RectGadget(Jig):
     def _draw(self, win, dispdef):
         pass
     
-
+    
+    def _mmp_record_last_part(self, mapping):
+        return ""
+    
+        
 class GridPlane(RectGadget):
     ''' '''
     sym = "Grid Plane"
     icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
     
-    def __init__(self, assy, list):
-        RectGadget.__init__(self, assy, list)
+    def __init__(self, assy, list, READ_FROM_MMP=False):
+        RectGadget.__init__(self, assy, list, READ_FROM_MMP)
         
         self.color = black # Border color
         self.normcolor = black
@@ -980,10 +1024,6 @@ class GridPlane(RectGadget):
     def set_cntl(self): 
         self.cntl = GridPlaneProp(self, self.assy.o)
         
-
-    def getaxis(self):
-        return self.quat.rot(norm(self.planeNorm))
-
 
     def _draw(self, win, dispdef):
         glPushMatrix()
@@ -1003,21 +1043,40 @@ class GridPlane(RectGadget):
 
 class ESPWindow(RectGadget):
     ''' '''
+    mutable_attrs = ('fill_color')
+    copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'translucency') + mutable_attrs
+    
     sym = "ESP Window"
     icon_names = ["espwindow.png", "espwindow-hide.png"] # Added espwindow icons.  Mark 050919.
     
-    def __init__(self, assy, list):
-        RectGadget.__init__(self, assy, list)
-        self.color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
-        self.normcolor = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
-        self.border_color = black
+    def __init__(self, assy, list, READ_FROM_MMP=False):
+        RectGadget.__init__(self, assy, list, READ_FROM_MMP)
+        self.color = black
+        self.normcolor = black
+        self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
+        
+        ##self.color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
+        ##self.normcolor = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
+        ##self.border_color = black
         self.resolution = 20
+        
+        self.translucency = 0.0
 
+    
+    def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color):
+        '''Set the properties for a ESP Window read from a (MMP) file. '''
+        self.name = name; self.color = self.normcolor = border_color;
+        self.width = width; self.height = height; self.resolution = resolution; 
+        self.center = center;  
+
+        self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
+        
+        self.translucency = trans;  self.fill_color = fill_color
+      
+      
     def set_cntl(self): 
         self.cntl = ESPWindowProp(self, self.assy.o)
         
-    def getaxis(self):
-        return self.quat.rot(norm(self.planeNorm))
 
     def _draw(self, win, dispdef):
         glPushMatrix()
@@ -1030,10 +1089,21 @@ class ESPWindow(RectGadget):
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
-        drawLineLoop(self.border_color, corners_pos)        
+        drawLineLoop(self.color, corners_pos)        
         
         glPopMatrix()
  
+    mmp_record_name = "espwindow"
+    def mmp_record_jigspecific_midpart(self):
+        color = map(int,A(self.fill_color)*255)
+        
+        dataline = "%.2f %.2f %d (%f, %f, %f) (%f, %f, %f, %f) %.2f (%d, %d, %d)" % \
+           (self.width, self.height, self.resolution, 
+            self.center[0], self.center[1], self.center[2], 
+            self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
+            self.translucency, color[0], color[1], color[2])
+        return " " + dataline + "\n"
+    
 
 # == Ground
 
@@ -1216,7 +1286,7 @@ class Stat( Jig_onChunk_by1atom ):
 
     mmp_record_name = "stat"
     def mmp_record_jigspecific_midpart(self):
-        return "(%d)" % int(self.temp)
+        return " " + "(%d)" % int(self.temp)
 
     pass # end of class Stat
 

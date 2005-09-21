@@ -17,18 +17,18 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.setup()
     
     def setup(self):
-        self.oldNormColor = self.esp_window.normcolor
-        self.oldBorderColor = self.esp_window.border_color
+        self.oldNormColor = self.esp_window.fill_color
+        self.oldBorderColor = self.esp_window.normcolor
         
         self.name_linedit.setText(self.esp_window.name)
         
-        self.fill_color = QColor(int(self.esp_window.normcolor[0]*255), 
+        self.fill_color = QColor(int(self.esp_window.fill_color[0]*255), 
+                         int(self.esp_window.fill_color[1]*255), 
+                         int(self.esp_window.fill_color[2]*255))
+        
+        self.border_color = QColor(int(self.esp_window.normcolor[0]*255), 
                          int(self.esp_window.normcolor[1]*255), 
                          int(self.esp_window.normcolor[2]*255))
-        
-        self.border_color = QColor(int(self.esp_window.border_color[0]*255), 
-                         int(self.esp_window.border_color[1]*255), 
-                         int(self.esp_window.border_color[2]*255))
         
         self.width_spinbox.setValue(self.esp_window.width)
         self.resolution_spinbox.setValue(self.esp_window.resolution)
@@ -75,8 +75,8 @@ class ESPWindowProp(ESPWindowPropDialog):
 
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        self.esp_window.color = self.esp_window.normcolor = self.oldNormColor 
-        self.esp_window.border_color = self.oldBorderColor  
+        self.esp_window.fill_color = self.oldNormColor 
+        self.esp_window.color = self.esp_window.normcolor = self.oldBorderColor  
  
         self.glpane.gl_update()
         

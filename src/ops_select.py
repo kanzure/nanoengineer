@@ -31,9 +31,9 @@ class ops_select_Mixin:
         
         selJigs = []
         
-        from jigs import Jig
+        from jigs import RectGadget
         def addSelectedJig(obj, jigs=selJigs):
-            if isinstance(obj, Jig): jigs += [obj]
+            if isinstance(obj, RectGadget): jigs += [obj]
         
         self.topnode.apply2picked(addSelectedJig)
         
