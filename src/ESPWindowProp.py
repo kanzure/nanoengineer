@@ -42,7 +42,7 @@ class ESPWindowProp(ESPWindowPropDialog):
 
         if color.isValid():
             self.fill_color_pixmap.setPaletteBackgroundColor(color)
-            self.esp_window.color = self.esp_window.normalcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.esp_window.color = self.esp_window.normcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
             
     def change_border_color(self):
         '''Slot method change border color.'''
