@@ -1353,8 +1353,13 @@ class modeMixin:
                 modename = 'SELECTMOLS' #k
             elif modename == '$STARTUP_MODE':
                 modename = env.prefs[startupMode_prefs_key]
+                # This is a temporary workaround that Bruce should fix, or possibly a permanent fix.  
+                # Mark 050921.
+                if modename == '$DEFAULT_MODE':
+                    modename = env.prefs[defaultMode_prefs_key]
             elif modename == '$DEFAULT_MODE':
                 modename = env.prefs[defaultMode_prefs_key]
+            print "modes._find_mode(): modename =", modename
             return self.modetab[ modename]
         else:
             # assume it's a mode object; make sure it's legit

@@ -27,6 +27,10 @@ import platform
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
 
+# List of Default Modes and Startup Modes.  Mark 050921.
+default_modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT']
+startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
+
 def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     '''Present user with the Qt file chooser to select a file.
     prefs_key is the key to save the filename in the prefs db
@@ -198,9 +202,9 @@ class UserPrefs(UserPrefsDialog):
 
         self.bg_mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
         
-        # Update the "Startup Mode" and "Default Mode" combo boxes.
-        self.startup_mode_combox.setCurrentItem(modes.index(env.prefs[ startupMode_prefs_key ]))
-        self.default_mode_combox.setCurrentItem(modes.index(env.prefs[ defaultMode_prefs_key ]))
+        # Update the "Default Mode" and "Startup Mode" combo boxes.
+        self.default_mode_combox.setCurrentItem(default_modes.index(env.prefs[ defaultMode_prefs_key ]))
+        self.startup_mode_combox.setCurrentItem(startup_modes.index(env.prefs[ startupMode_prefs_key ]))
         
         if self.bg_mode.backgroundGradient:
             self.bg_gradient_setup()
@@ -494,14 +498,14 @@ class UserPrefs(UserPrefsDialog):
         else:
             self.bg_solid_setup()
 
-    def change_startup_mode(self, val):
+    def change_startup_mode(self, option):
         "Slot for the combobox that sets the Startup Mode."
-        env.prefs[ startupMode_prefs_key ] = modes[self.startup_mode_combox.currentItem()]
+        env.prefs[ startupMode_prefs_key ] = startup_modes[self.startup_mode_combox.currentItem()]
         return
         
     def change_default_mode(self, val):
         "Slot for the combobox that sets the Default Mode."
-        env.prefs[ defaultMode_prefs_key ] = modes[self.default_mode_combox.currentItem()]
+        env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentItem()]
         return
             
     def fill_type_changed(self, ftype):

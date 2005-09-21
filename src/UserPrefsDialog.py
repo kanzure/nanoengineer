@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Sep 19 19:01:34 2005
+# Created: Wed Sep 21 14:13:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -384,23 +384,23 @@ class UserPrefsDialog(QDialog):
 
         layout60 = QGridLayout(None,1,1,0,6,"layout60")
 
-        self.startup_mode_lbl = QLabel(self.TabPage_3,"startup_mode_lbl")
-        self.startup_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout60.addWidget(self.startup_mode_lbl,0,0)
-
-        self.startup_mode_combox = QComboBox(0,self.TabPage_3,"startup_mode_combox")
-
-        layout60.addWidget(self.startup_mode_combox,0,1)
-
         self.default_mode_lbl = QLabel(self.TabPage_3,"default_mode_lbl")
         self.default_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout60.addWidget(self.default_mode_lbl,1,0)
+        layout60.addWidget(self.default_mode_lbl,0,0)
 
         self.default_mode_combox = QComboBox(0,self.TabPage_3,"default_mode_combox")
 
-        layout60.addWidget(self.default_mode_combox,1,1)
+        layout60.addWidget(self.default_mode_combox,0,1)
+
+        self.startup_mode_lbl = QLabel(self.TabPage_3,"startup_mode_lbl")
+        self.startup_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout60.addWidget(self.startup_mode_lbl,1,0)
+
+        self.startup_mode_combox = QComboBox(0,self.TabPage_3,"startup_mode_combox")
+
+        layout60.addWidget(self.startup_mode_combox,1,1)
         layout66.addLayout(layout60)
         spacer8_3_2 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
         layout66.addItem(spacer8_3_2)
@@ -626,14 +626,17 @@ class UserPrefsDialog(QDialog):
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
         self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
+        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
         self.connect(self.display_pov_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_pov_axis)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
+        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
+        self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
@@ -641,10 +644,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
-        self.connect(self.startup_mode_combox,SIGNAL("activated(int)"),self.change_startup_mode)
-        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
-        self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
-        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
+        self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
 
         self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
@@ -731,18 +731,16 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
         self.textLabel1_2.setText(self.__tr("pixels"))
         self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Bonds"))
-        self.startup_mode_lbl.setText(self.__tr("Startup Mode :"))
-        self.startup_mode_combox.clear()
-        self.startup_mode_combox.insertItem(self.__tr("Select Chunks"))
-        self.startup_mode_combox.insertItem(self.__tr("Select Atoms"))
-        self.startup_mode_combox.insertItem(self.__tr("Move Chunks"))
-        self.startup_mode_combox.insertItem(self.__tr("Build"))
         self.default_mode_lbl.setText(self.__tr("Default Mode :"))
         self.default_mode_combox.clear()
         self.default_mode_combox.insertItem(self.__tr("Select Chunks"))
         self.default_mode_combox.insertItem(self.__tr("Select Atoms"))
         self.default_mode_combox.insertItem(self.__tr("Move Chunks"))
         self.default_mode_combox.insertItem(self.__tr("Build"))
+        self.startup_mode_lbl.setText(self.__tr("Startup Mode :"))
+        self.startup_mode_combox.clear()
+        self.startup_mode_combox.insertItem(self.__tr("Default Mode"))
+        self.startup_mode_combox.insertItem(self.__tr("Build"))
         self.groupBox11.setTitle(self.__tr("Background"))
         self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.mode_lbl.setText(self.__tr("Mode :"))

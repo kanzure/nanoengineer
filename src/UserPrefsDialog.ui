@@ -1147,10 +1147,10 @@
                                     </property>
                                     <widget class="QLabel" row="0" column="0">
                                         <property name="name">
-                                            <cstring>startup_mode_lbl</cstring>
+                                            <cstring>default_mode_lbl</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Startup Mode :</string>
+                                            <string>Default Mode :</string>
                                         </property>
                                         <property name="alignment">
                                             <set>AlignVCenter|AlignRight</set>
@@ -1178,15 +1178,15 @@
                                             </property>
                                         </item>
                                         <property name="name">
-                                            <cstring>startup_mode_combox</cstring>
+                                            <cstring>default_mode_combox</cstring>
                                         </property>
                                     </widget>
                                     <widget class="QLabel" row="1" column="0">
                                         <property name="name">
-                                            <cstring>default_mode_lbl</cstring>
+                                            <cstring>startup_mode_lbl</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Default Mode :</string>
+                                            <string>Startup Mode :</string>
                                         </property>
                                         <property name="alignment">
                                             <set>AlignVCenter|AlignRight</set>
@@ -1195,17 +1195,7 @@
                                     <widget class="QComboBox" row="1" column="1">
                                         <item>
                                             <property name="text">
-                                                <string>Select Chunks</string>
-                                            </property>
-                                        </item>
-                                        <item>
-                                            <property name="text">
-                                                <string>Select Atoms</string>
-                                            </property>
-                                        </item>
-                                        <item>
-                                            <property name="text">
-                                                <string>Move Chunks</string>
+                                                <string>Default Mode</string>
                                             </property>
                                         </item>
                                         <item>
@@ -1214,7 +1204,7 @@
                                             </property>
                                         </item>
                                         <property name="name">
-                                            <cstring>default_mode_combox</cstring>
+                                            <cstring>startup_mode_combox</cstring>
                                         </property>
                                     </widget>
                                 </grid>
@@ -2017,6 +2007,12 @@
         <slot>change_default_mode()</slot>
     </connection>
     <connection>
+        <sender>default_projection_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_default_projection()</slot>
+    </connection>
+    <connection>
         <sender>display_compass_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -2041,6 +2037,12 @@
         <slot>fill_type_changed()</slot>
     </connection>
     <connection>
+        <sender>gamess_choose_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_gamess_path()</slot>
+    </connection>
+    <connection>
         <sender>high_order_bond_display_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -2063,6 +2065,12 @@
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>mode_changed()</slot>
+    </connection>
+    <connection>
+        <sender>nanohive_choose_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_nanohive_path()</slot>
     </connection>
     <connection>
         <sender>ok_btn</sender>
@@ -2108,27 +2116,9 @@
     </connection>
     <connection>
         <sender>startup_mode_combox</sender>
-        <signal>activated(int)</signal>
+        <signal>activated(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_startup_mode()</slot>
-    </connection>
-    <connection>
-        <sender>gamess_choose_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_gamess_path()</slot>
-    </connection>
-    <connection>
-        <sender>nanohive_choose_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_nanohive_path()</slot>
-    </connection>
-    <connection>
-        <sender>default_projection_btngrp</sender>
-        <signal>clicked(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_default_projection()</slot>
     </connection>
 </connections>
 <tabstops>
