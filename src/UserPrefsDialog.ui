@@ -1461,7 +1461,7 @@
                     <cstring>TabPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Files</string>
+                    <string>Plug-ins</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -1489,78 +1489,12 @@
                             <cstring>file_locations_grp</cstring>
                         </property>
                         <property name="title">
-                            <string>File Locations</string>
+                            <string>Location of Executables</string>
                         </property>
                         <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="0">
-                                <property name="name">
-                                    <cstring>layout79</cstring>
-                                </property>
-                                <vbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>gamess_lbl</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>5</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minimumSize">
-                                            <size>
-                                                <width>60</width>
-                                                <height>0</height>
-                                            </size>
-                                        </property>
-                                        <property name="text">
-                                            <string>GAMESS Executable :</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>nanohive_lbl</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>5</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minimumSize">
-                                            <size>
-                                                <width>60</width>
-                                                <height>0</height>
-                                            </size>
-                                        </property>
-                                        <property name="text">
-                                            <string>Nano-Hive Executable :</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                        </property>
-                                    </widget>
-                                </vbox>
-                            </widget>
                             <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
                                     <cstring>layout80</cstring>
@@ -1572,6 +1506,9 @@
                                     <widget class="QLineEdit" row="1" column="0">
                                         <property name="name">
                                             <cstring>nanohive_path_linedit</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
                                         </property>
                                         <property name="frameShape">
                                             <enum>LineEditPanel</enum>
@@ -1590,6 +1527,9 @@
                                         <property name="name">
                                             <cstring>gamess_path_linedit</cstring>
                                         </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
+                                        </property>
                                         <property name="frameShape">
                                             <enum>LineEditPanel</enum>
                                         </property>
@@ -1607,6 +1547,9 @@
                                         <property name="name">
                                             <cstring>nanohive_choose_btn</cstring>
                                         </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
+                                        </property>
                                         <property name="text">
                                             <string>Choose...</string>
                                         </property>
@@ -1615,8 +1558,93 @@
                                         <property name="name">
                                             <cstring>gamess_choose_btn</cstring>
                                         </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
+                                        </property>
                                         <property name="text">
                                             <string>Choose...</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QLayoutWidget" row="0" column="0">
+                                <property name="name">
+                                    <cstring>layout63</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>gamess_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>GAMESS :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>nanohive_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>Nano-Hive :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>gamess_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>nanohive_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
                                         </property>
                                     </widget>
                                 </grid>
@@ -2120,6 +2148,18 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>change_startup_mode()</slot>
     </connection>
+    <connection>
+        <sender>gamess_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>enable_gamess()</slot>
+    </connection>
+    <connection>
+        <sender>nanohive_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>enable_nanohive()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>ok_btn</tabstop>
@@ -2185,6 +2225,8 @@
     <slot>change_default_mode()</slot>
     <slot>set_nanohive_path()</slot>
     <slot>set_default_projection()</slot>
+    <slot>enable_gamess()</slot>
+    <slot>enable_nanohive()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

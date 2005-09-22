@@ -92,6 +92,7 @@ class UserPrefs(UserPrefsDialog):
         UserPrefsDialog.__init__(self)
         self.glpane = assy.o
         self.w = assy.w
+        self.assy = assy
         #bruce 050811 added these:
         self._setup_caption_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
@@ -146,7 +147,7 @@ class UserPrefs(UserPrefsDialog):
             self.prefs_tab.setCurrentPage(2)
         elif pagename == 'Modes':
             self.prefs_tab.setCurrentPage(3)
-        elif pagename == 'Files':
+        elif pagename == 'Plug-ins':
             self.prefs_tab.setCurrentPage(4)
         elif pagename == 'History':
             self.prefs_tab.setCurrentPage(5)
@@ -173,8 +174,8 @@ class UserPrefs(UserPrefsDialog):
         self.default_projection_btngrp.setButton(env.prefs.get(defaultProjection_prefs_key, 0))
 
 
-    def _setup_files_page(self):
-        ''' Setup widgets to initial (default or defined) values on the Files page.
+    def _setup_plugins_page(self):
+        ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
         '''
         
         # GAMESS label.
@@ -184,9 +185,11 @@ class UserPrefs(UserPrefsDialog):
             self.gamess_lbl.setText("GAMESS :")
 
         # GAMESS executable path.
+        self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
         self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
         
         # Nano-Hive executable path.
+        self.nanohive_checkbox.setChecked(env.prefs[nanohive_enabled_prefs_key])
         self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
 
 # Changed "Background" page to "Modes" page.  Mark 050911.
@@ -579,7 +582,7 @@ class UserPrefs(UserPrefsDialog):
         
     ########## End of slot methods for "Modes" page widgets ###########
     
-    ########## Slot methods for "Files" page widgets ################
+    ########## Slot methods for "Plug-ins" page widgets ################
 
     def set_gamess_path(self):
         '''Slot for GAMESS path "Choose" button.
@@ -588,6 +591,24 @@ class UserPrefs(UserPrefsDialog):
          
         if gamess_exe:
             self.gamess_path_linedit.setText(gamess_exe)
+            
+    def enable_gamess(self, enable=True):
+        '''GAMESS is enabled when enable=True.
+        GAMESS is disabled when enable=False.
+        '''
+        if enable:
+            self.gamess_path_linedit.setEnabled(1)
+            self.gamess_choose_btn.setEnabled(1)
+            self.w.jigsGamessAction.setVisible(1)
+            env.prefs[gamess_enabled_prefs_key] = True
+            
+        else:
+            self.gamess_path_linedit.setEnabled(0)
+            self.gamess_choose_btn.setEnabled(0)
+            self.w.jigsGamessAction.setVisible(0)
+            self.gamess_path_linedit.setText("")
+            env.prefs[gmspath_prefs_key] = ''
+            env.prefs[gamess_enabled_prefs_key] = False
 
     def set_nanohive_path(self):
         '''Slot for Nano-Hive path "Choose" button.
@@ -596,8 +617,35 @@ class UserPrefs(UserPrefsDialog):
          
         if nanohive_exe:
             self.nanohive_path_linedit.setText(nanohive_exe)
+            self.enable_nanohive(1)
+            
+    def enable_nanohive(self, enable=True):
+        '''Nano-Hive is enabled when enable=True.
+        Nano-Hive is disabled when enable=False.
+        '''
+        if enable:
+            self.nanohive_path_linedit.setEnabled(1)
+            self.nanohive_choose_btn.setEnabled(1)
+            self.w.simNanoHiveAction.setVisible(1)
+            # Create the Nano-Hive dialog widget.
+            # Mark 050914.
+            from NanoHive import NanoHive
+            self.w.nanohive = NanoHive(self.assy)
+        
+            self.w.simNanoHiveAction.setVisible(1)
+            env.prefs[nanohive_enabled_prefs_key] = True
+            
+        else:
+            self.nanohive_path_linedit.setEnabled(0)
+            self.nanohive_choose_btn.setEnabled(0)
+            self.w.nanohive = None
+            self.w.simNanoHiveAction.setVisible(0)
+            self.nanohive_path_linedit.setText("")
+            env.prefs[nanohive_path_prefs_key] = ''
+            env.prefs[nanohive_enabled_prefs_key] = False
+            
                             
-    ########## End of slot methods for "Files" page widgets ###########
+    ########## End of slot methods for "Plug-ins" page widgets ###########
 
     ########## Slot methods for "Caption" page widgets ################
 
@@ -639,8 +687,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_bonds_page()
         elif pagename == 'Modes':
             self._setup_modes_page()
-        elif pagename == 'Files':
-            self._setup_files_page()
+        elif pagename == 'Plug-ins':
+            self._setup_plugins_page()
         elif pagename == 'History':
             self._setup_history_page()
         elif pagename == 'Caption':

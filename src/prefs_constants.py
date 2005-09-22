@@ -69,9 +69,11 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
 
-# Files prefs [added to this table by mark 050918]
+# Plug-ins prefs [added to this table by mark 050918]
 gmspath_prefs_key = 'A6/GAMESS Path'
+gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
+nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
 
 # Caption prefs
 captionPrefix_prefs_key = 'A6/Caption Prefix'
@@ -159,10 +161,12 @@ prefs_table = (
     ('startup_mode', 'string', startupMode_prefs_key,   'SELECTMOLS' ),
     ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
     
-    # Files preferences [added to this table by mark 050919]
+    # Plug-ins preferences [added to this table by mark 050919]
     
     ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
+    ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
     ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
+    ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
 
     # Caption preferences [added to this table by bruce 050810]
 

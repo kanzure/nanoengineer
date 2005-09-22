@@ -194,11 +194,11 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # Mark 050628
         from UserPrefs import UserPrefs
         self.uprefs = UserPrefs(self.assy)
-        
-        # Create the Nano-Hive dialog widget.
-        # Mark 050914.
-        from NanoHive import NanoHive
-        self.nanohive = NanoHive(self.assy)
+
+        # Enable/disable plugins.  These should be moved to a central method
+        # where all plug-ins get added and enabled during invocation.  Mark 050921.
+        self.uprefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
+        self.uprefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
         
         #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
         from qt import QSettings
