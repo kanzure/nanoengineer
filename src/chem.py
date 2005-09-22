@@ -89,14 +89,7 @@ def gensym(string):
     Gno += 1
     return string + str(Gno)
 
-def genKey():
-    """ produces generators that count indefinitely """
-    i=0
-    while 1:
-        i += 1
-        yield i
-
-atKey = genKey() # generator for atom.key attribute.
+atKey = genKey(start = 1) # generator for atom.key attribute.
     # As of bruce 050228, we now make use of the fact that this produces keys
     # which sort in the same order as atoms are created (e.g. the order they're
     # read from an mmp file), so we now require this in the future even if the

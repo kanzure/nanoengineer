@@ -45,8 +45,21 @@ debugButtons = cntlButton | shiftButton | altButton
 # on the mac, this really means command-shift-alt
 
 
-# do-nothing function
+# Trivial functions that might be needed early during app startup
+# (good to put here to avoid recursive import problems involving other modules)
+# or in many modules.
+# (Only a very few functions are trivial enough to be put here,
+#  and their names always need to be suitable for using up in every module.)
+
 def noop(*args,**kws): pass
+
+def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py, added start arg
+    """ produces generators that count indefinitely """
+    i = start
+    while 1:
+        yield i
+        i += 1
+    pass
 
 # display modes:
 ## These are arranged in order of increasing thickness of the bond representation

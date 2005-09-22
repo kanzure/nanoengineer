@@ -27,6 +27,7 @@ from GroupProp import *
 from debug import print_compact_stack, print_compact_traceback
 import platform
 import env #bruce 050901
+from constants import genKey
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
@@ -66,21 +67,9 @@ def imagename_to_pixmap(imagename): #bruce 050108
         return icon
     pass
 
-# unique id for all Nodes -- might generalize to other objects too.
-# unlike python builtin id(node), will never be reused when an old node dies.
-
-## this failed due to a recursive import error (chem imports * from Utility);
-## a fix would be to move genKey to constants.py; I'll do that later.
-## from chem import genKey
-# for now, just copy the definition:
-def genKey(): # copied from chem.py, bruce 050304, as temp kluge
-    """ produces generators that count indefinitely """
-    i=0
-    while 1:
-        i += 1
-        yield i
-
-nodekey = genKey()
+# Unique id for all Nodes -- might generalize to other objects too.
+# Unlike python builtin id(node), this one will never be reused when an old node dies.
+nodekey = genKey(start = 1)
     # note: atoms are not nodes, so possible overlap of
     # atom.key and node._id should be ok for now.
 
