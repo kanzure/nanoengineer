@@ -359,6 +359,8 @@ class depositMode(basicMode):
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
 
         self.dont_update_gui = False
+        
+        self.UpdateDashboard() # Displays/Hides the Done button.
 	
 	# Huaicai 7/29/05: Open the MMKit every time entering this mode.
 	self.modellingKit = self.w.modifyMMKit()

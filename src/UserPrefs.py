@@ -509,6 +509,7 @@ class UserPrefs(UserPrefsDialog):
     def change_default_mode(self, val):
         "Slot for the combobox that sets the Default Mode."
         env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentItem()]
+        self.glpane.mode.UpdateDashboard() # Update Done button on dashboard.
         return
             
     def fill_type_changed(self, ftype):

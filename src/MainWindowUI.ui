@@ -428,7 +428,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1034</width>
+                <width>1033</width>
                 <height>29</height>
             </rect>
         </property>
@@ -577,7 +577,7 @@
             <rect>
                 <x>0</x>
                 <y>48</y>
-                <width>128</width>
+                <width>156</width>
                 <height>29</height>
             </rect>
         </property>
@@ -596,6 +596,7 @@
             </property>
         </widget>
         <action name="nullAction"/>
+        <action name="toolsDoneAction"/>
     </toolbar>
     <toolbar dock="3">
         <property name="name">
@@ -606,7 +607,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>128</x>
+                <x>156</x>
                 <y>48</y>
                 <width>115</width>
                 <height>29</height>
@@ -638,7 +639,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>243</x>
+                <x>271</x>
                 <y>48</y>
                 <width>104</width>
                 <height>29</height>
@@ -667,7 +668,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>347</x>
+                <x>375</x>
                 <y>48</y>
                 <width>120</width>
                 <height>29</height>
@@ -699,7 +700,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>467</x>
+                <x>495</x>
                 <y>48</y>
                 <width>92</width>
                 <height>29</height>
@@ -729,7 +730,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>559</x>
+                <x>587</x>
                 <y>48</y>
                 <width>19</width>
                 <height>29</height>

@@ -125,6 +125,8 @@ class modifyMode(basicMode):
         # Mark 050410
         self.w.moveFreeAction.setOn(1) # toggle on the Move Free action on the dashboard
         self.moveOption = 'MOVEDEFAULT'
+        
+        self.UpdateDashboard() # Displays/Hides the Done button.
     
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):

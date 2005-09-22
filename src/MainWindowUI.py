@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Sep 21 20:52:42 2005
+# Created: Thu Sep 22 14:00:22 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6773,7 +6773,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1034,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1033,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6822,15 +6822,16 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard.addSeparator()
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.selectMolDashboard.setGeometry(QRect(0,48,128,29))
+        self.selectMolDashboard.setGeometry(QRect(0,48,156,29))
         self.selectMolDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
         self.nullAction.addTo(self.selectMolDashboard)
+        self.toolsDoneAction.addTo(self.selectMolDashboard)
         self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.zoomDashboard.setEnabled(1)
-        self.zoomDashboard.setGeometry(QRect(128,48,115,29))
+        self.zoomDashboard.setGeometry(QRect(156,48,115,29))
         self.zoomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
@@ -6839,7 +6840,7 @@ class MainWindow(QMainWindow):
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.panDashboard.setEnabled(1)
-        self.panDashboard.setGeometry(QRect(243,48,104,29))
+        self.panDashboard.setGeometry(QRect(271,48,104,29))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.panTextLabel = QLabel(self.panDashboard,"panTextLabel")
@@ -6847,7 +6848,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
-        self.rotateDashboard.setGeometry(QRect(347,48,120,29))
+        self.rotateDashboard.setGeometry(QRect(375,48,120,29))
         self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -6856,14 +6857,14 @@ class MainWindow(QMainWindow):
         self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.fuseChunksDashboard.setEnabled(1)
-        self.fuseChunksDashboard.setGeometry(QRect(467,48,92,29))
+        self.fuseChunksDashboard.setGeometry(QRect(495,48,92,29))
         self.fuseChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.depositAtomDashboard.setEnabled(1)
-        self.depositAtomDashboard.setGeometry(QRect(559,48,19,29))
+        self.depositAtomDashboard.setGeometry(QRect(587,48,19,29))
         self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 

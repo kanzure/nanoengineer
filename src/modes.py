@@ -457,6 +457,12 @@ class basicMode(anyMode):
         # we might split this into separate invalidation and update code;
         # this will then be the invalidation routine, in spite of the name.
         # We *don't* also call update_mode_status_text -- that's separate.
+        
+        if self.modename == env.prefs[ defaultMode_prefs_key ]:
+            self.w.toolsDoneAction.setVisible(0)
+        else:
+            self.w.toolsDoneAction.setVisible(1)
+        
         if self.now_using_this_mode_object(): #bruce 050122 added this condition
             self.update_gui()
         return
