@@ -2,13 +2,25 @@
 '''
 undo.py
 
-Experimental Undo code. Might turn into a real source file.
-
-Creates some debug menu commands which we'll remove before releasing A7.
+Undo-related code.
 
 $Id$
+
+At present [050922], a lot of new undo-related code is being added here
+even though some of it belongs in other modules (existing or new).
+Conversely, some new undo-related code can be found in env.py, changes.py,
+and perhaps HistoryWidget.py.
+
+A result of the mess of modules might be that too much gets imported
+at app-startup time (even before .atom-debug-rc gets to run).
+This needs to be cleaned up, but it's probably not urgent.
 '''
 __author__ = 'bruce'
+
+debug_print_undo = False # DO NOT COMMIT with True -- causes lots of debug prints regardless of atom_debug
+
+_use_hcmi_hack = True # experimental code, committed on 050922 to make sure it has no bugs that mess up other things
+
 
 ###@@@ import this module from a better place than we do now!
 
@@ -16,6 +28,13 @@ from cPickle import dump, load, HIGHEST_PROTOCOL
 import env
 from debug import register_debug_menu_command ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
     # or let them only show up if a related flag is set, or so...
+from qt import SIGNAL, QObject, QWidget #k ok to do these imports at toplevel? I hope so, since we need them in several places.
+import qt
+from constants import genKey
+
+# ==
+
+# debug/test functions (in other submenu of debug menu) which won't be kept around.
 
 def atpos_list(part):
     "Return a list of atom-position arrays, one per chunk in part. Warning: might include shared mutable arrays."
@@ -236,7 +255,8 @@ def blerg_cmd( target):
 
 register_debug_menu_command("make key->pos dict", blerg_cmd)
 
-# ==
+# ===  [real code starts here]
+
 
 def reload_undo(target=None):
     import undo
@@ -249,46 +269,19 @@ register_debug_menu_command("reload undo.py", reload_undo)
 
 def keep_under_key(thing, key, obj, attr):
     "obj.attr[key] = thing, creating obj.attr dict if necessary"
+    if debug_print_undo and 0:
+        print "keepkey:",key,"keepon_obj:",obj # also print attr to be complete
+            # This shows unique keys, but just barely (name is deleg for lots of QActions)
+            # so we'll have to worry about it, and maybe force all keys unique during init.
+            # If some keys are not unique, result might be that some user actions
+            # (or for worse bugs, internal signals) silently stop working. [bruce 050921]
     if not hasattr(obj, attr):
         setattr(obj, attr, {})
     dict1 = getattr(obj, attr)
     dict1[key] = thing
     return
 
-def wrapslot(target, signal, slotboundmethod, keepcache_object = None):
-    """Caller is about to make a connection from target's signal to slotboundmethod.
-    Based on target and signal, decide whether we want to wrap slotboundmethod with our own code.
-       If so, return the wrapped slot (a python callable taking same args as slotboundmethod),
-    but first make sure it won't be dereferenced too early by storing it in a dict
-    at keepcache_object._keep_wrapslots (keepcache_object defaults to target)
-    using a key formed from the names(??) of signal and slotboundmethod.
-       If not, just return slotboundmethod unchanged.
-    """
-    # want to wrap it?
-    if signal != SIGNAL("activated()"):
-        if platform.atom_debug:
-            print "don't know %r, not wrapping %s for %s" % (signal,slotboundmethod,target) ###@@@
-        return slotboundmethod # don't know what args the fake method needs
-    # make object which can wrap it
-    wr = wrappedslot(slotboundmethod)
-    # decide which api to call it with (#e this might be done inside the wrapper class)
-    if signal == SIGNAL("activated()"):
-        method = wr.fbmethod_0args
-    else:
-        assert 0 # use other methods
-    # keep things that PyQt might need but not hold its own refs to
-    keepkey = (signal, slotboundmethod.__name__) #k
-    if platform.atom_debug:
-            print "keepkey:",keepkey###@@@
-    # We keep wr, in case method's ref to it is not enough at some future time (eg if method dies and wr is still wanted).
-    # And we keep method, since we does not contain a ref to it, since bound methods are remade each time they're asked for.
-    # For now, the code would work even if we didn't keep wr, but keeping method is essential.
-    keepwhat = (wr, method)
-    keep_under_key(keepwhat, keepkey, keepcache_object or target, '_keep_wrapslots')
-    # return the wrapped slotboundmethod
-    return method
-
-class wrappedslot:
+class wrappedslot: ###@@@ try revising code and doc to just pass on all the args, see if this works. easier re signal choices.
     """Hold a boundmethod for a slot, and return callables (for various arglists)
     which call it with our own code wrapping the call.
        We don't just return a callable which accepts arbitrary args, and pass them on,
@@ -302,75 +295,181 @@ class wrappedslot:
     """
     def __init__(self, slotboundmethod):
         self.slotboundmethod = slotboundmethod
-    def fbmethod_0args(self):
-        "fake bound method with 0 args"
+    def fbmethod_0args(self, *args, **kws):
+        "fake bound method with 0 args" ###@@@ no, any number of args - redoc ###@@@
         slotboundmethod = self.slotboundmethod
         #e we'll replace these prints with our own begin/end code that's standard for slots;
         # or we might call methods passed to us, or of known names on an obj passed to us;
         # or we might call a func passed to us, passing it a callback to us which does the slot call.
-        print "calling wrapped version of", slotboundmethod
-        res = slotboundmethod()
-        print "it returned", res
-        return res
+        if kws:
+            print "unexpected but maybe ok: some keywords were passed to a slot method:",slotboundmethod,kws ###@@@
+        if debug_print_undo:
+            print "(#e begin) calling wrapped version (with %d args) of" % len(args), slotboundmethod
+        mc = self.begin()
+        try:
+            res = slotboundmethod(*args, **kws)
+        except:
+            self.error()
+            self.end(mc)
+            if debug_print_undo:
+                print "(#e end) it had an exception"
+            raise   #k ok? optimal??
+        else:
+            self.end(mc)
+            if debug_print_undo:
+                print "(#e end) it worked" ##  it returned", res
+                    # Note that slot retvals are probably ignored, except when they're called directly
+                    # (not via connections), but we don't intercept direct calls anyway.
+                    # So don't bother printing them for now.
+            return res
+        pass
+    def begin(self):
+        import env
+        return env.begin_op("(wr)")
+    def error(self):
+        "called when an exception occurs during our slot method call"
+        pass ### mark the op_run as having an error
+    def end(self, mc):
+        import env
+        env.end_op(mc)
     pass
 
 class hacked_connect_method_installer: #e could be refactored into hacked-method-installer and hacked-method-code to call origmethod
-    """Provide methods which can hack the connect method of some class (assumed to be QWidget)
-    by replacing it with our own version, which calls original version but perhaps with modified args.
+    """Provide methods which can hack the connect and disconnect methods of some class (assumed to be QWidget or QObject)
+    by replacing them with our own version, which calls original version but perhaps with modified args.
     Other methods or public attrs let the client control what we do
     or see stats about how many times we intercepted a connect-method call.
     """
     def __init__(self):
         self.conns = {} # place to keep stats for debug
     def hack_connect_method(self, qclass):
-        "Call this on QWidget class -- ONLY ONCE -- to hack its connect method." #e in __init__?
-        self.qclass = qclass #k not yet used in subsequent methods
-        methodname = 'connect'
-        self.old_connect_method = getattr(qclass, methodname)
-        fakemethod = self.fake_connect_method
-        setattr(qclass, methodname, fakemethod)
+        "Call this on QWidget or QObject class -- ONLY ONCE -- to hack its connect method." #e in __init__?
+        self.qclass = qclass #k not yet used in subsequent methods, only in this one
+        replace_static_method_in_class( qclass, 'connect', self.fake_connect_method )
+        replace_static_method_in_class( qclass, 'disconnect', self.fake_disconnect_method )
         return
-    def fake_connect_method(self, *args):
-        "This gets called instead of qclass.connect, with the same args, and must pretend to do the same thing."
+    def fake_connect_method(self, origmethod, *args):
+        """ This gets called on all QWidgets instead of the static method QObject.connect,
+        with the original implem of that method followed by the args from the call
+        (not including the instance it was called on, since it replaces a static method),
+        and must pretend to do the same thing, but it actually modifies some of the args
+        before calling the origmethod.
+        """
         # keep stats on len(args)
         self.conns.setdefault(len(args),0)
         self.conns[len(args)] += 1
-        # call self.old_connect_method, perhaps wrapped with our own code
+        # call origmethod, perhaps wrapped with our own code
         if len(args) != 3:
-            print "args not len 3:",args###@@@
+            # The last two args are an object and a slotname. We might *like* to wrap that slot,
+            # but we can't, unless we figure out how to turn the object and slotname into an equivalent bound method
+            # which we could use instead of those last two args.
+            # So for now, let's just print the args and hope we didn't need to wrap them.
+            if debug_print_undo:
+                print "not wrapping connect-slot since args not len 3:",args###@@@
             newargs = args
         else:
-            # figure out what connection is being made, and whether we might to wrap its slot
-            target, signal, slotboundmethod = args
-            newmethod = wrapslot(target, signal, slotboundmethod) #e should wrapslot be a method of self?
+            # figure out what connection is being made, and whether we want to wrap its slot
+            sender, signal, slotboundmethod = args
+            signal = normalize_signal(signal) # important for slotmap, below; better than not, for the other uses
+            newmethod = self.maybe_wrapslot(sender, signal, slotboundmethod)
                 # newmethod is either slotboundmethod, or wraps it and is already kept (no need for us to preserve a ref to it)
-            newargs = target, signal, newmethod
-        res = self.old_connect_method(*newargs)
+            newargs = sender, signal, newmethod
+            # record mapping from old to new slot methods (counting them in case redundant conns), for use by disconnect;
+            # keep this map on the sender object itself
+            try:
+                slotmap = sender.__slotmap
+            except AttributeError:
+                slotmap = sender.__slotmap = {}
+            key = (signal, slotboundmethod) # slotboundmethod has different id each time, but is equal when it needs to be
+            slotmap.setdefault(key, []).append( newmethod ) # ok if newmethod is slotboundmethod (in fact, better to add it than not)
+                # redundant connections result in slotmap values of len > 1, presumably with functionally identical but unequal objects
+        res = origmethod(*newargs) # pass on any exceptions
         if res is not True:
-            print "connect retval is not True:",res
+            print "likely bug: connect retval is not True:", res
+            print " connect args (perhaps modified) were:", newargs
+        return res
+    def fake_disconnect_method(self, origmethod, *args):
+        if len(args) != 3:
+            if debug_print_undo:
+                print "not wrapping DISconnect-slot since args not len 3:",args###@@@ let's hope this happens only when it did for connect
+            newargs = args
+        else:
+            sender, signal, slotboundmethod = args
+            signal = normalize_signal(signal)
+            try:
+                slotmap = sender.__slotmap
+            except AttributeError:
+                # should never happen unless there's a disconnect with no prior connect
+                slotmap = sender.__slotmap = {}
+            key = (signal, slotboundmethod)
+            lis = slotmap[key] # fails only if there's a disconnect with no prior connect
+            newmethod = lis.pop() # should never fail, due to deleting empty lists (below)
+            if not lis:
+                del slotmap[key] # not really needed but seems better for avoiding memory leaks
+            newargs = sender, signal, newmethod
+        res = origmethod(*newargs) # pass on any exceptions
+        if res is not True: ##k
+            print "likely bug: disconnect retval is not True:", res
+            print " disconnect args (perhaps modified) were:", newargs
         return res
     def debug_print_stats(self, msg = '?'):
         self.stage = msg
         #e change to debug print only, but how soon can we import platform?
-        print "hcmi %r: %r" % (self.stage, self.conns)
-    pass
+        if debug_print_undo:
+            print "hcmi %r: %r" % (self.stage, self.conns)
+    def maybe_wrapslot(self, sender, signal, slotboundmethod, keepcache_object = None):
+        """Caller is about to make a connection from sender's signal to slotboundmethod.
+        Based on sender and signal, decide whether we want to wrap slotboundmethod with our own code.
+           If so, return the wrapped slot (a python callable taking same args as slotboundmethod),
+        but first make sure it won't be dereferenced too early, by storing it in a dict
+        at keepcache_object._keep_wrapslots (keepcache_object defaults to sender)
+        using a key formed from the names(??) of signal and slotboundmethod.
+           If not, just return slotboundmethod unchanged.
+        """
+        ## nice, but not needed, for keepkey; no longer needed for decide: signal = normalize_signal(signal)
+        # want to wrap it?
+        shouldwrap = self.decide(sender, signal) # always True, for now [clean up this code ###@@@]
+        if not shouldwrap:
+            if debug_print_undo:
+                print "not wrapping %s from %s to %s" % (signal,sender,slotboundmethod) ###@@@
+            return slotboundmethod
+        # make object which can wrap it
+        wr = wrappedslot(slotboundmethod)
+        # decide which api to call it with (#e this might be done inside the wrapper class)
+        if 1: ## or signal == SIGNAL("activated()"):
+            method = wr.fbmethod_0args
+        else:
+            assert 0 # use other methods
+        # keep things that PyQt might need but not hold its own refs to
+        keepkey = (signal, slotboundmethod.__name__) #k
+        keepon = keepcache_object or sender
+        # We keep wr, in case method's ref to it is not enough at some future time (eg if method dies and wr is still wanted).
+        # And we keep method, since we does not contain a ref to it, since bound methods are remade each time they're asked for.
+        # For now, the code would work even if we didn't keep wr, but keeping method is essential.
+        keepwhat = (wr, method)
+        keep_under_key(keepwhat, keepkey, keepon, '_keep_wrapslots')
+        # return the wrapped slotboundmethod
+        return method
+    def decide(self, sender, signal):
+        "should we wrap the slot for this signal when it's sent from this sender?"
+        return True # try wrapping them all, for simplicity
+    pass # end of class hacked_connect_method_installer
 
 _hcmi = None
 
-def hack_qwidget_pre_win_init(): # call this once, or more if you can't help it
+def hack_qwidget_pre_win_init(): # call this once, or more times if you can't avoid it; you must call it before main window is inited
     global _hcmi
     if _hcmi:
         print "redundant call of hack_qwidget_pre_win_init ignored"
         return
     _hcmi = hacked_connect_method_installer()
-    from qt import QWidget
-    qclass = QWidget
+    qclass = QObject # works with QWidget; also works with QObject and probably gets more calls
     _hcmi.hack_connect_method(qclass)
     return
 
-# app startup code must call these at the right times:
+# ==
 
-_use_hcmi_hack = False # experimental code, DO NOT COMMIT with True until it works [bruce 050919]
+# app startup code must call these at the right times:
 
 def call_asap_after_QWidget_and_platform_imports_are_ok():
     import qt
@@ -397,52 +496,88 @@ def just_before_mainwindow_init_returns():
 
 # ==
 
-class xxx:
-    def open(self):
-        assert os.path.isdir(self.dirname)
-    def close(self):
-        pass
-    pass
+# Code for replacing QWidget.connect or QObject.connect
+# (in either case, the same builtin static method of QObject, not a regular instance method)
+# with our own function, which calls the original implem inside our own wrapping code.
+# Note that the origmethod is just a builtin function, and our wrapping code has no knowledge
+# of which QWidget instance it was called on, since this is not easy to get and not needed
+# (or even permitted) to pass to the origmethod.
 
-# refactoring of above messy stuff
-
-class wrapped2:
-    "private helper class for replace_method_in_class" #e make this a descriptor? by defining its __get__ ... no, let it return one
+class fake_static_method_supplier:
+    "[private helper class for replace_static_method_in_class]"
     def __init__(self, origmethod, insertedfunc):
         self.args = origmethod, insertedfunc
-        self.fbm = xxxthingy(self.fbm_inst) ### use special thingy to make this act like a whatever... so it picks up the instance when retrieved
-    def fbm_inst(self, instance, *args, **kws):
+        self.fsm = self._fake_static_method_implem
+            # memoize one copy of this self-bound method,
+            # which pretends to be another class's static method
+    def fake_static_method_and_keep_these(self):
+        """Return the pair (fake_static_method, keep_these) [see calling code for explanation].
+        fake_static_method need not be wrapped in staticmethod since it's not a user-defined function
+        or any other object which will be turned into a bound method when retrieved from the class it
+        will be installed in. (If things change and use of staticmethod becomes necessary, it should
+        be done in this method, so the caller still won't need to do it.)
+        """
+        # terminology note: fsm is a *bound* method of this instance,
+        # which is a fake *unbound, static* method of clas in replace_static_method_in_class().
+        return self.fsm, self
+            # self is enough for caller to keep a reference to,
+            # since self has its own reference to self.fsm;
+            # if we remade self.fsm on each call, we'd have to return both in keep_these.
+            # (Presumably even self.fsm would be enough for caller to keep.)
+    def _fake_static_method_implem(self, *args, **kws):
+        "this is what runs in place of origmethod(*args, **kws)"
         origmethod, insertedfunc = self.args
-        return insertedfunc(origmethod, instance, *args, **kws)
+        return insertedfunc(origmethod, *args, **kws) # or pass on any exceptions it might raise
     pass
 
-def replace_method_in_class(clas, methodname, insertedfunc):
-    """Replace a class's instance-method (clas.methodname) with a new one,
-    or with an equivalent callable or descriptor (created herein),
+def replace_static_method_in_class(clas, methodname, insertedfunc):
+    """Replace a class's static instance-method (clas.methodname) with a new one (created herein)
     which intercepts all calls meant for the original method --
-    these have the form instance.methodname(*args, **kws) for some instance of clas or a subclass --
-    and instead calls insertedfunc(origmethod, instance, *args, **kws)
+    these have the form instance.methodname(*args, **kws) for some instance of clas or a subclass,
+    and like all static methods would have been called like origmethod(*args, **kws)
+    (ignoring instance), where origmethod is the original static method we're replacing --
+    and instead calls insertedfunc(origmethod, *args, **kws)
     (and returns what it returns, or raises any exceptions it raises).
        Return the pair (origmethod, keepthese),
     where keepthese is an object or list which the caller might need to keep a reference to
     in case clas itself won't keep a reference to methods we insert into it.
     """
-    origmethod = getattr(clas, methodname) # an unbound instance-method object (#k official name of that type??)
-    wr = wrapped2(origmethod, insertedfunc) #implem
-    fbm = wr.fbm #implem
-    keepthese  = [wr, fbm]
-    setattr(clas, methodname, fbm)
+    origmethod = getattr(clas, methodname)
+        # a static method (equivalent to an ordinary function -- arglist doesn't contain the instance)
+    wr = fake_static_method_supplier( origmethod, insertedfunc)
+    fakemethod, keepthese = wr.fake_static_method_and_keep_these()
+    setattr(clas, methodname, fakemethod)
     return origmethod, keepthese
 
-def connect_insertedfunc( origmethod, instance, *args):
-    """origmethod is QWidget.connect (i.e. an unbound instance method).
-    instance is a QWidget.
-    *args were passed to its connect method.
-    Do the right thing, which includes calling origmethod with perhaps-modified args.
-    """
-    print 1
-    res = origmethod( instance, *args)
-    print 2
-    return res
+# ==
+
+def normalize_signal(signal):
+    "normalize whitespace in signal string, which should be SIGNAL(xx) or (untested) PYSIGNAL(xx)"
+    try:
+        # this fails with AttributeError: normalizeSignalSlot [bruce 050921]
+        return QObject.normalizeSignalSlot(signal)
+            # (this should call a static method on QObject)
+    except AttributeError:
+        # Use my own hacked-up kluge, until the above lost method gets found.
+        # I think it doesn't matter if this has same output as Qt version,
+        # as long as it makes some canonical form with the same equivalence classes
+        # as the Qt version, since it's only used to prepare keys for my own dicts.
+        words = signal[1:].split() # this ignores whitespace at start or end of signal[1:]
+        def need_space_between(w1, w2):
+            def wordchar(c):
+                return c in "_" or c.isalnum() #k guess
+            return wordchar(w1[-1]) and wordchar(w2[0])
+        res = signal[0] + words[0]
+        for w1, w2 in zip(words[:-1],words[1:]):
+            # for every pair of words; w1 has already been appended to res
+            if need_space_between(w1, w2):
+                res += ' '
+            res += w2
+##        if signal != res and debug_print_undo and 0:
+##            print "hack converted %r to %r" % (signal, res) # they all look ok
+        return res
+    pass
+
+# ==
 
 #end
