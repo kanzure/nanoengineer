@@ -19,7 +19,9 @@ __author__ = 'bruce'
 
 debug_print_undo = False # DO NOT COMMIT with True -- causes lots of debug prints regardless of atom_debug
 
-_use_hcmi_hack = True # experimental code, committed on 050922 to make sure it has no bugs that mess up other things
+_use_hcmi_hack = True # enable signal->slot call intercepting code, to check for bugs that mess up other things [bruce 050922]
+
+debug_print_fewer_args_retries = False # debug prints for fewer-args retries; DO NOT COMMIT with True
 
 
 ###@@@ import this module from a better place than we do now!
@@ -307,7 +309,50 @@ class wrappedslot: ###@@@ try revising code and doc to just pass on all the args
             print "(#e begin) calling wrapped version (with %d args) of" % len(args), slotboundmethod
         mc = self.begin()
         try:
-            res = slotboundmethod(*args, **kws)
+            # do our best to call this slotmethod, with given args, or if that fails, with reduced args.
+            try:
+                res = slotboundmethod(*args, **kws)
+            except TypeError: ####@@@@
+                # it might be that we're passing too many args. Try to find out and fix. First, for debugging, print more info.
+                if debug_print_fewer_args_retries:
+                    print "args for %r from typeerror: args %r, kws %r" % (slotboundmethod, args, kws)
+                success, maxargs, kws_ok = args_info(slotboundmethod)
+                if not success:
+                    # We have no official info about required args -- just see if it helps to reduce the ones we tried.
+                    # Note that there is no guarantee that the original TypeError was caused by an excessive arglist;
+                    # if it was caused by some other bug, these repeated calls could worsen that bug.
+                    # (So taking advantage of an args_info success return is preferred, once that's implemented.)
+                    arglists_to_try = [] # will hold pairs of (args, kws) to try calling it with.
+                    if kws:
+                        # first zap all the keywords (note: as far as I know, none are ever passed in the first place)
+                        kws = {}
+                        arglists_to_try.append(( args, kws ))
+                    while args:
+                        # then zap the args, one at a time, from the end
+                        args = args[:-1]
+                        arglists_to_try.append(( args, kws ))
+                else:
+                    assert 0, "nim - use maxargs, kws_ok to figure out arglists_to_try"
+                worked = False
+                for args, kws in arglists_to_try:
+                    try:
+                        res = slotboundmethod(*args, **kws)
+                        worked = True
+                        if debug_print_fewer_args_retries:
+                            print " retry with fewer args (%d) worked" % len(args)
+                        break # if no exceptions
+                    except TypeError:
+                        # guessing it's still an arg problem
+                        if debug_print_fewer_args_retries:
+                            print "args for %r from typeerror, RETRY: args %r, kws %r" % (slotboundmethod, args, kws)
+                        continue
+                    # other exceptions are treated as errors, below
+                if not worked:
+                    print "will try to reraise the last TypeError" # always print this, since we're about to print a traceback
+                    raise
+                    assert 0, "tried to reraise the last TypeError"
+                pass
+            pass
         except:
             self.error()
             self.end(mc)
@@ -579,5 +624,13 @@ def normalize_signal(signal):
     pass
 
 # ==
+
+def args_info(func1):
+    """Given a function or method object, return (success, maxargs, kws_ok),
+    where success is a boolean saying whether we succeeded in finding out other retvals (if not they are "loose guesses"),
+    maxargs is the max number of positional args it can take, according to introspection, or None if infinite or we can't tell,
+    and kws_ok says whether it can accept any keyword args whatsoever, whether of specific or arb names (or is True if we can't tell).
+    """
+    return False, None, True # what to return if we can't tell -- this is a stub to always return it
 
 #end
