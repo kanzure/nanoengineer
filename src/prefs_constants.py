@@ -35,6 +35,11 @@ LOWER_RIGHT = 3
 PERSPECTIVE = 0
 ORTHOGRAPHIC = 1
 
+NO_LINE = 0
+SOLID_LINE = 1
+DASHED_LINE = 2
+DOTTED_LINE = 3
+
 # ==
 
 # Keys for user preferences for A6 [ by Mark 050629]

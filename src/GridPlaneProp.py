@@ -7,6 +7,7 @@ $Id$
 
 from qt import *
 from GridPlanePropDialog import *
+from widgets import RGBf_to_QColor, QColor_to_RGBf
 
 class GridPlaneProp(GridPlanePropDialog):
     def __init__(self, gridPlane, glpane):
@@ -20,19 +21,15 @@ class GridPlaneProp(GridPlanePropDialog):
     
     def setup(self):
         
+        self.oldNormColor = self.grid_plane.normcolor # Border color
         self.oldGridColor = self.grid_plane.grid_color # Grid color
-        self.oldBorderColor = self.grid_plane.normcolor # The normal border color, not the highlight color.
+        
         self.x_spacing = 2
         
         self.name_linedit.setText(self.grid_plane.name)
         
-        self.grid_color = QColor(int(self.grid_plane.grid_color[0]*255), 
-                         int(self.grid_plane.grid_color[1]*255), 
-                         int(self.grid_plane.grid_color[2]*255))
-        
-        self.border_color = QColor(int(self.grid_plane.normcolor[0]*255), 
-                         int(self.grid_plane.normcolor[1]*255), 
-                         int(self.grid_plane.normcolor[2]*255))
+        self.grid_color = RGBf_to_QColor(self.grid_plane.grid_color)
+        self.border_color = RGBf_to_QColor(self.grid_plane.normcolor)
         
         self.width_spinbox.setValue(self.grid_plane.width)
         self.height_spinbox.setValue(self.grid_plane.height)
@@ -42,25 +39,31 @@ class GridPlaneProp(GridPlanePropDialog):
         self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
         self.grid_color_pixmap.setPaletteBackgroundColor(self.grid_color)
 
+    def change_grid_type(self, grid_type):
+        '''Slot method to change grid type'''
+        print "Grid Type =", grid_type,".  Not implemented yet (only square is supported)."
         
-    def change_border_color(self):
-        '''Slot for changing border color.'''
-        color = QColorDialog.getColor(self.border_color, self, "ColorDialog")
-
-        if color.isValid():
-            self.border_color_pixmap.setPaletteBackgroundColor(color)
-            self.grid_plane.color = self.grid_plane.normcolor = \
-                    (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
-
-            
+    def change_line_type(self, line_type):
+        '''Slot method to change grid line type'''
+        self.grid_plane.line_type = line_type
+        self.glpane.gl_update()
+        
     def change_grid_color(self):
-        '''Slot for changing grid color'''
+        '''Slot method to change grid color.'''
         color = QColorDialog.getColor(self.grid_color, self, "ColorDialog")
 
         if color.isValid():
             self.grid_color_pixmap.setPaletteBackgroundColor(color)
-            self.grid_plane.grid_color = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.grid_plane.grid_color = QColor_to_RGBf(color)
             
+    def change_border_color(self):
+        '''Slot method change border color.'''
+        color = QColorDialog.getColor(self.border_color, self, "ColorDialog")
+
+        if color.isValid():
+            self.border_color_pixmap.setPaletteBackgroundColor(color)
+            self.grid_plane.color = self.grid_plane.normcolor = QColor_to_RGBf(color)
+
     def change_width(self):
         "Slot for Width spinbox"
         self.grid_plane.width = float(self.width_spinbox.value())
@@ -99,40 +102,13 @@ class GridPlaneProp(GridPlanePropDialog):
         
         QDialog.accept(self)
         
-        
-            
-#    def accept(self):
-#        '''Slot method for the 'Ok' button '''
-#        self.plane.cancelled = False    
-        
-#        self.plane.width = float(str(self.wdLineEdit.text()))
-#        self.plane.height = float(str(self.htLineEdit.text()))
-#        self.plane.gridW = float(str(self.uwLineEdit.text()))
-#        self.plane.gridH = float(str(self.uhLineEdit.text()))
-        
-#        self.plane.assy.w.win_update() # Update model tree
-#        self.plane.assy.changed()
-        
-#        QDialog.accept(self)
-        
-        
     def reject(self):
         '''Slot for the 'Cancel' button '''
+        self.grid_plane.grid_color = self.oldGridColor 
+        self.grid_plane.color = self.grid_plane.normcolor = self.oldNormColor   # Border color
         
-        # Need to restore width, height, spacing, etc., too.
-        
-        self.grid_plane.grid_color = self.grid_plane.normcolor = self.oldGridColor 
-        self.grid_plane.color = self.oldBorderColor  
+        # Need to restore width, height, spacing, etc., too. Mark 050922.
  
         self.glpane.gl_update()
         
         QDialog.reject(self)
-            
-#    def reject(self):
-#        self.plane.color = self.plane.normcolor = self.oldNormColor 
-#        self.plane.gridColor = self.oldGridColor  
- 
-#        self.glpane.gl_update()
-        
-#        QDialog.reject(self)
-        

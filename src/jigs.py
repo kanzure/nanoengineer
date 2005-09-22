@@ -1018,10 +1018,12 @@ class GridPlane(RectGadget):
         
         self.color = black # Border color
         self.normcolor = black
-        self.grid_color = white
+        self.grid_color = gray
+        self.grid_type = 'Square' # Grid patterns: "Square" or "SiC"
+        # Grid line types: "NO_LINE", "SOLID_LINE", "DASHED_LINE" or "DOTTED_LINE"
+        self.line_type = SOLID_LINE 
         self.x_spacing = 2
         self.y_spacing = 2
-    
 
     def set_cntl(self): 
         self.cntl = GridPlaneProp(self, self.assy.o)
@@ -1038,7 +1040,7 @@ class GridPlane(RectGadget):
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
         drawLineLoop(self.color, corners_pos)
         #drawPlane(self.color, self.width, self.height)
-        drawPlaneGrid(self.grid_color, self.width, self.height, self.x_spacing, self.y_spacing)
+        drawGPGrid(self.grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing)
         
         glPopMatrix()
 

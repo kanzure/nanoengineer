@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>265</width>
-            <height>322</height>
+            <height>351</height>
         </rect>
     </property>
     <property name="caption">
@@ -22,9 +22,96 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
+        <spacer row="1" column="0">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>MinimumExpanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>101</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget" row="2" column="0">
+            <property name="name">
+                <cstring>layout30</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>92</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ok_btn</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
         <widget class="QLayoutWidget" row="0" column="0">
             <property name="name">
-                <cstring>layout27</cstring>
+                <cstring>layout21</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -32,7 +119,7 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout26</cstring>
+                        <cstring>layout15</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -55,6 +142,17 @@
                             </property>
                             <property name="text">
                                 <string>Grid Type :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_5_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Line Type :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -130,7 +228,7 @@
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout25</cstring>
+                        <cstring>layout20</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -155,7 +253,7 @@
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout24</cstring>
+                                <cstring>layout19</cstring>
                             </property>
                             <hbox>
                                 <property name="name">
@@ -163,7 +261,7 @@
                                 </property>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
-                                        <cstring>layout23</cstring>
+                                        <cstring>layout16</cstring>
                                     </property>
                                     <vbox>
                                         <property name="name">
@@ -195,6 +293,61 @@
                                                 <spacer>
                                                     <property name="name">
                                                         <cstring>spacer12</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>40</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout20_2</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QComboBox">
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>None</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Solid</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Dashed</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Dotted</string>
+                                                        </property>
+                                                    </item>
+                                                    <property name="name">
+                                                        <cstring>line_type_combox</cstring>
+                                                    </property>
+                                                    <property name="currentItem">
+                                                        <number>1</number>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer12_2</cstring>
                                                     </property>
                                                     <property name="orientation">
                                                         <enum>Horizontal</enum>
@@ -573,7 +726,7 @@
                                     </property>
                                     <property name="sizeHint">
                                         <size>
-                                            <width>22</width>
+                                            <width>16</width>
                                             <height>20</height>
                                         </size>
                                     </property>
@@ -581,93 +734,6 @@
                             </hbox>
                         </widget>
                     </vbox>
-                </widget>
-            </hbox>
-        </widget>
-        <spacer row="1" column="0">
-            <property name="name">
-                <cstring>spacer5</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>MinimumExpanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>101</width>
-                    <height>16</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLayoutWidget" row="2" column="0">
-            <property name="name">
-                <cstring>layout30</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer1</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>92</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>ok_btn</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>30</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>&amp;OK</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+O</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancel_btn</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>30</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Cancel</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+C</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -733,6 +799,12 @@
         <receiver>GridPlanePropDialog</receiver>
         <slot>change_grid_type()</slot>
     </connection>
+    <connection>
+        <sender>line_type_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>GridPlanePropDialog</receiver>
+        <slot>change_line_type()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>change_grid_color()</slot>
@@ -742,6 +814,7 @@
     <slot>change_x_spacing()</slot>
     <slot>change_y_spacing()</slot>
     <slot>change_grid_type()</slot>
+    <slot>change_line_type()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

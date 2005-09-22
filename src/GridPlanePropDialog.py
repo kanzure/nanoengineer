@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\GridPlanePropDialog.ui'
 #
-# Created: Tue Sep 20 23:33:44 2005
+# Created: Thu Sep 22 11:07:36 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,162 +45,6 @@ class GridPlanePropDialog(QDialog):
         self.setIcon(self.image0)
 
         GridPlanePropDialogLayout = QGridLayout(self,1,1,11,6,"GridPlanePropDialogLayout")
-
-        layout27 = QHBoxLayout(None,0,6,"layout27")
-
-        layout26 = QVBoxLayout(None,0,6,"layout26")
-
-        self.textLabel1_4 = QLabel(self,"textLabel1_4")
-        self.textLabel1_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel1_4)
-
-        self.textLabel1_5 = QLabel(self,"textLabel1_5")
-        self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel1_5)
-
-        self.colorTextLabel_3 = QLabel(self,"colorTextLabel_3")
-        self.colorTextLabel_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.colorTextLabel_3)
-
-        self.colorTextLabel_4 = QLabel(self,"colorTextLabel_4")
-        self.colorTextLabel_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.colorTextLabel_4)
-
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel1)
-
-        self.textLabel1_3 = QLabel(self,"textLabel1_3")
-        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel1_3)
-
-        self.textLabel2_3 = QLabel(self,"textLabel2_3")
-        self.textLabel2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel2_3)
-
-        self.textLabel2_3_2 = QLabel(self,"textLabel2_3_2")
-        self.textLabel2_3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout26.addWidget(self.textLabel2_3_2)
-        layout27.addLayout(layout26)
-
-        layout25 = QVBoxLayout(None,0,6,"layout25")
-
-        self.name_linedit = QLineEdit(self,"name_linedit")
-        self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
-        self.name_linedit.setFrameShadow(QLineEdit.Sunken)
-        self.name_linedit.setAlignment(QLineEdit.AlignLeft)
-        layout25.addWidget(self.name_linedit)
-
-        layout24 = QHBoxLayout(None,0,6,"layout24")
-
-        layout23 = QVBoxLayout(None,0,6,"layout23")
-
-        layout20 = QHBoxLayout(None,0,6,"layout20")
-
-        self.grid_type_combox = QComboBox(0,self,"grid_type_combox")
-        layout20.addWidget(self.grid_type_combox)
-        spacer12 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout20.addItem(spacer12)
-        layout23.addLayout(layout20)
-
-        layout48 = QHBoxLayout(None,0,6,"layout48")
-
-        self.grid_color_pixmap = QLabel(self,"grid_color_pixmap")
-        self.grid_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.grid_color_pixmap.sizePolicy().hasHeightForWidth()))
-        self.grid_color_pixmap.setMinimumSize(QSize(40,0))
-        self.grid_color_pixmap.setPaletteBackgroundColor(QColor(230,231,230))
-        self.grid_color_pixmap.setFrameShape(QLabel.Box)
-        self.grid_color_pixmap.setFrameShadow(QLabel.Plain)
-        self.grid_color_pixmap.setScaledContents(1)
-        layout48.addWidget(self.grid_color_pixmap)
-
-        self.choose_grid_color_btn = QPushButton(self,"choose_grid_color_btn")
-        self.choose_grid_color_btn.setEnabled(1)
-        layout48.addWidget(self.choose_grid_color_btn)
-        spacer14 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout48.addItem(spacer14)
-        layout23.addLayout(layout48)
-
-        layout47 = QHBoxLayout(None,0,6,"layout47")
-
-        self.border_color_pixmap = QLabel(self,"border_color_pixmap")
-        self.border_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.border_color_pixmap.sizePolicy().hasHeightForWidth()))
-        self.border_color_pixmap.setMinimumSize(QSize(40,0))
-        self.border_color_pixmap.setPaletteBackgroundColor(QColor(230,231,230))
-        self.border_color_pixmap.setFrameShape(QLabel.Box)
-        self.border_color_pixmap.setFrameShadow(QLabel.Plain)
-        self.border_color_pixmap.setScaledContents(1)
-        layout47.addWidget(self.border_color_pixmap)
-
-        self.choose_border_color_btn = QPushButton(self,"choose_border_color_btn")
-        self.choose_border_color_btn.setEnabled(1)
-        layout47.addWidget(self.choose_border_color_btn)
-        spacer17 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout47.addItem(spacer17)
-        layout23.addLayout(layout47)
-
-        layout46 = QHBoxLayout(None,0,6,"layout46")
-
-        self.width_spinbox = QSpinBox(self,"width_spinbox")
-        self.width_spinbox.setMaxValue(999)
-        self.width_spinbox.setMinValue(1)
-        self.width_spinbox.setValue(10)
-        layout46.addWidget(self.width_spinbox)
-
-        self.textLabel2 = QLabel(self,"textLabel2")
-        layout46.addWidget(self.textLabel2)
-        spacer18 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout46.addItem(spacer18)
-        layout23.addLayout(layout46)
-
-        layout46_2 = QHBoxLayout(None,0,6,"layout46_2")
-
-        self.height_spinbox = QSpinBox(self,"height_spinbox")
-        self.height_spinbox.setMaxValue(999)
-        self.height_spinbox.setMinValue(1)
-        self.height_spinbox.setValue(10)
-        layout46_2.addWidget(self.height_spinbox)
-
-        self.textLabel2_2 = QLabel(self,"textLabel2_2")
-        layout46_2.addWidget(self.textLabel2_2)
-        spacer18_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout46_2.addItem(spacer18_2)
-        layout23.addLayout(layout46_2)
-
-        layout46_2_2 = QHBoxLayout(None,0,6,"layout46_2_2")
-
-        self.x_spacing_spinbox = QSpinBox(self,"x_spacing_spinbox")
-        self.x_spacing_spinbox.setMaxValue(99)
-        self.x_spacing_spinbox.setMinValue(1)
-        self.x_spacing_spinbox.setValue(1)
-        layout46_2_2.addWidget(self.x_spacing_spinbox)
-
-        self.textLabel2_2_2 = QLabel(self,"textLabel2_2_2")
-        layout46_2_2.addWidget(self.textLabel2_2_2)
-        spacer18_2_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout46_2_2.addItem(spacer18_2_2)
-        layout23.addLayout(layout46_2_2)
-
-        layout46_2_3 = QHBoxLayout(None,0,6,"layout46_2_3")
-
-        self.y_spacing_spinbox = QSpinBox(self,"y_spacing_spinbox")
-        self.y_spacing_spinbox.setMaxValue(99)
-        self.y_spacing_spinbox.setMinValue(1)
-        self.y_spacing_spinbox.setValue(1)
-        layout46_2_3.addWidget(self.y_spacing_spinbox)
-
-        self.textLabel2_2_3 = QLabel(self,"textLabel2_2_3")
-        layout46_2_3.addWidget(self.textLabel2_2_3)
-        spacer18_2_3 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout46_2_3.addItem(spacer18_2_3)
-        layout23.addLayout(layout46_2_3)
-        layout24.addLayout(layout23)
-        spacer19 = QSpacerItem(22,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout24.addItem(spacer19)
-        layout25.addLayout(layout24)
-        layout27.addLayout(layout25)
-
-        GridPlanePropDialogLayout.addLayout(layout27,0,0)
         spacer5 = QSpacerItem(101,16,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
         GridPlanePropDialogLayout.addItem(spacer5,1,0)
 
@@ -221,9 +65,177 @@ class GridPlanePropDialog(QDialog):
 
         GridPlanePropDialogLayout.addLayout(layout30,2,0)
 
+        layout21 = QHBoxLayout(None,0,6,"layout21")
+
+        layout15 = QVBoxLayout(None,0,6,"layout15")
+
+        self.textLabel1_4 = QLabel(self,"textLabel1_4")
+        self.textLabel1_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel1_4)
+
+        self.textLabel1_5 = QLabel(self,"textLabel1_5")
+        self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel1_5)
+
+        self.textLabel1_5_2 = QLabel(self,"textLabel1_5_2")
+        self.textLabel1_5_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel1_5_2)
+
+        self.colorTextLabel_3 = QLabel(self,"colorTextLabel_3")
+        self.colorTextLabel_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.colorTextLabel_3)
+
+        self.colorTextLabel_4 = QLabel(self,"colorTextLabel_4")
+        self.colorTextLabel_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.colorTextLabel_4)
+
+        self.textLabel1 = QLabel(self,"textLabel1")
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel1)
+
+        self.textLabel1_3 = QLabel(self,"textLabel1_3")
+        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel1_3)
+
+        self.textLabel2_3 = QLabel(self,"textLabel2_3")
+        self.textLabel2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel2_3)
+
+        self.textLabel2_3_2 = QLabel(self,"textLabel2_3_2")
+        self.textLabel2_3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout15.addWidget(self.textLabel2_3_2)
+        layout21.addLayout(layout15)
+
+        layout20 = QVBoxLayout(None,0,6,"layout20")
+
+        self.name_linedit = QLineEdit(self,"name_linedit")
+        self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.name_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.name_linedit.setAlignment(QLineEdit.AlignLeft)
+        layout20.addWidget(self.name_linedit)
+
+        layout19 = QHBoxLayout(None,0,6,"layout19")
+
+        layout16 = QVBoxLayout(None,0,6,"layout16")
+
+        layout20_2 = QHBoxLayout(None,0,6,"layout20_2")
+
+        self.grid_type_combox = QComboBox(0,self,"grid_type_combox")
+        layout20_2.addWidget(self.grid_type_combox)
+        spacer12 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout20_2.addItem(spacer12)
+        layout16.addLayout(layout20_2)
+
+        layout20_2_2 = QHBoxLayout(None,0,6,"layout20_2_2")
+
+        self.line_type_combox = QComboBox(0,self,"line_type_combox")
+        layout20_2_2.addWidget(self.line_type_combox)
+        spacer12_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout20_2_2.addItem(spacer12_2)
+        layout16.addLayout(layout20_2_2)
+
+        layout48 = QHBoxLayout(None,0,6,"layout48")
+
+        self.grid_color_pixmap = QLabel(self,"grid_color_pixmap")
+        self.grid_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.grid_color_pixmap.sizePolicy().hasHeightForWidth()))
+        self.grid_color_pixmap.setMinimumSize(QSize(40,0))
+        self.grid_color_pixmap.setPaletteBackgroundColor(QColor(230,231,230))
+        self.grid_color_pixmap.setFrameShape(QLabel.Box)
+        self.grid_color_pixmap.setFrameShadow(QLabel.Plain)
+        self.grid_color_pixmap.setScaledContents(1)
+        layout48.addWidget(self.grid_color_pixmap)
+
+        self.choose_grid_color_btn = QPushButton(self,"choose_grid_color_btn")
+        self.choose_grid_color_btn.setEnabled(1)
+        layout48.addWidget(self.choose_grid_color_btn)
+        spacer14 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout48.addItem(spacer14)
+        layout16.addLayout(layout48)
+
+        layout47 = QHBoxLayout(None,0,6,"layout47")
+
+        self.border_color_pixmap = QLabel(self,"border_color_pixmap")
+        self.border_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.border_color_pixmap.sizePolicy().hasHeightForWidth()))
+        self.border_color_pixmap.setMinimumSize(QSize(40,0))
+        self.border_color_pixmap.setPaletteBackgroundColor(QColor(230,231,230))
+        self.border_color_pixmap.setFrameShape(QLabel.Box)
+        self.border_color_pixmap.setFrameShadow(QLabel.Plain)
+        self.border_color_pixmap.setScaledContents(1)
+        layout47.addWidget(self.border_color_pixmap)
+
+        self.choose_border_color_btn = QPushButton(self,"choose_border_color_btn")
+        self.choose_border_color_btn.setEnabled(1)
+        layout47.addWidget(self.choose_border_color_btn)
+        spacer17 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout47.addItem(spacer17)
+        layout16.addLayout(layout47)
+
+        layout46 = QHBoxLayout(None,0,6,"layout46")
+
+        self.width_spinbox = QSpinBox(self,"width_spinbox")
+        self.width_spinbox.setMaxValue(999)
+        self.width_spinbox.setMinValue(1)
+        self.width_spinbox.setValue(10)
+        layout46.addWidget(self.width_spinbox)
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+        layout46.addWidget(self.textLabel2)
+        spacer18 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout46.addItem(spacer18)
+        layout16.addLayout(layout46)
+
+        layout46_2 = QHBoxLayout(None,0,6,"layout46_2")
+
+        self.height_spinbox = QSpinBox(self,"height_spinbox")
+        self.height_spinbox.setMaxValue(999)
+        self.height_spinbox.setMinValue(1)
+        self.height_spinbox.setValue(10)
+        layout46_2.addWidget(self.height_spinbox)
+
+        self.textLabel2_2 = QLabel(self,"textLabel2_2")
+        layout46_2.addWidget(self.textLabel2_2)
+        spacer18_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout46_2.addItem(spacer18_2)
+        layout16.addLayout(layout46_2)
+
+        layout46_2_2 = QHBoxLayout(None,0,6,"layout46_2_2")
+
+        self.x_spacing_spinbox = QSpinBox(self,"x_spacing_spinbox")
+        self.x_spacing_spinbox.setMaxValue(99)
+        self.x_spacing_spinbox.setMinValue(1)
+        self.x_spacing_spinbox.setValue(1)
+        layout46_2_2.addWidget(self.x_spacing_spinbox)
+
+        self.textLabel2_2_2 = QLabel(self,"textLabel2_2_2")
+        layout46_2_2.addWidget(self.textLabel2_2_2)
+        spacer18_2_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout46_2_2.addItem(spacer18_2_2)
+        layout16.addLayout(layout46_2_2)
+
+        layout46_2_3 = QHBoxLayout(None,0,6,"layout46_2_3")
+
+        self.y_spacing_spinbox = QSpinBox(self,"y_spacing_spinbox")
+        self.y_spacing_spinbox.setMaxValue(99)
+        self.y_spacing_spinbox.setMinValue(1)
+        self.y_spacing_spinbox.setValue(1)
+        layout46_2_3.addWidget(self.y_spacing_spinbox)
+
+        self.textLabel2_2_3 = QLabel(self,"textLabel2_2_3")
+        layout46_2_3.addWidget(self.textLabel2_2_3)
+        spacer18_2_3 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout46_2_3.addItem(spacer18_2_3)
+        layout16.addLayout(layout46_2_3)
+        layout19.addLayout(layout16)
+        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout19.addItem(spacer19)
+        layout20.addLayout(layout19)
+        layout21.addLayout(layout20)
+
+        GridPlanePropDialogLayout.addLayout(layout21,0,0)
+
         self.languageChange()
 
-        self.resize(QSize(265,322).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(265,351).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -235,12 +247,18 @@ class GridPlanePropDialog(QDialog):
         self.connect(self.x_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_x_spacing)
         self.connect(self.y_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_y_spacing)
         self.connect(self.grid_type_combox,SIGNAL("activated(const QString&)"),self.change_grid_type)
+        self.connect(self.line_type_combox,SIGNAL("activated(int)"),self.change_line_type)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Grid Plane Properties"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
         self.textLabel1_4.setText(self.__tr("Name :"))
         self.textLabel1_5.setText(self.__tr("Grid Type :"))
+        self.textLabel1_5_2.setText(self.__tr("Line Type :"))
         self.colorTextLabel_3.setText(self.__tr("Grid Color :"))
         self.colorTextLabel_4.setText(self.__tr("Border Color :"))
         self.textLabel1.setText(self.__tr("Width :"))
@@ -251,6 +269,12 @@ class GridPlanePropDialog(QDialog):
         self.grid_type_combox.clear()
         self.grid_type_combox.insertItem(self.__tr("Square"))
         self.grid_type_combox.insertItem(self.__tr("SiC"))
+        self.line_type_combox.clear()
+        self.line_type_combox.insertItem(self.__tr("None"))
+        self.line_type_combox.insertItem(self.__tr("Solid"))
+        self.line_type_combox.insertItem(self.__tr("Dashed"))
+        self.line_type_combox.insertItem(self.__tr("Dotted"))
+        self.line_type_combox.setCurrentItem(1)
         self.choose_grid_color_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.choose_grid_color_btn,self.__tr("Change color"))
         self.choose_border_color_btn.setText(self.__tr("Choose..."))
@@ -259,10 +283,6 @@ class GridPlanePropDialog(QDialog):
         self.textLabel2_2.setText(self.__tr("Angstroms"))
         self.textLabel2_2_2.setText(self.__tr("Angstroms"))
         self.textLabel2_2_3.setText(self.__tr("Angstroms"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
     def change_grid_color(self):
@@ -285,6 +305,9 @@ class GridPlanePropDialog(QDialog):
 
     def change_grid_type(self):
         print "GridPlanePropDialog.change_grid_type(): Not implemented yet"
+
+    def change_line_type(self):
+        print "GridPlanePropDialog.change_line_type(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("GridPlanePropDialog",s,c)

@@ -995,8 +995,20 @@ def drawPlane(color, w, h, SOLID=False):
     glEnable(GL_LIGHTING)
     
             
-def drawPlaneGrid(color, w, h, uw, uh):
-    '''Draw grid lines with <color>, unit size is <uw>*<uh>'''
+def drawGPGrid(color, line_type, w, h, uw, uh):
+    '''Draw grid lines for a Grid Plane, where:
+    color = grid line color
+    line_type is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
+    w = width
+    h = height
+    uw = width spacing between grid lines
+    uh = height spacing between grid lines
+    '''
+    
+    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
+    
+    if line_type == NO_LINE:
+        return
 
     if uw > w: uw = w
     if uh > h: uh = h
@@ -1011,7 +1023,17 @@ def drawPlaneGrid(color, w, h, uw, uh):
     #glEnable(GL_LINE_SMOOTH)
     #glEnable(GL_BLEND)
     #glBlendFunc(GL_SRC_ALPHA, GL_ONE)#_MINUS_SRC_ALPHA)
-        
+    
+    if line_type > 1:
+        glEnable(GL_LINE_STIPPLE)
+        if line_type == DASHED_LINE:
+            glLineStipple (1, 0x00FF)  #  dashed
+        elif line_type == DOTTED_LINE:
+            glLineStipple (1, 0x0101)  #  dotted
+        else:
+            print "drawer.drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            glLineStipple (1, 0x00FF)  #  dashed
+    
     glBegin(GL_LINES)
     
     #Draw horizontal lines
@@ -1029,14 +1051,16 @@ def drawPlaneGrid(color, w, h, uw, uh):
         glVertex3f(x1, -hh, Z_OFF)
     
         x1 += uw
-            
+    
     glEnd()
+    
+    if line_type > 1:
+        glDisable (GL_LINE_STIPPLE)
     
     #glDisable(GL_LINE_SMOOTH)
     #glDisable(GL_BLEND)
     
     glEnable(GL_LIGHTING)
-    
 
 
 def drawFullWindow(vtColors):
