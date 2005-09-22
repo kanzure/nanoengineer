@@ -270,4 +270,8 @@ def RGBf_to_QColor(fcolor): # by Mark 050730
     b = int (fcolor[2]*255 + 0.5)
     return QColor(r, g, b)
 
+def QColor_to_RGBf(qcolor): # by Mark 050921
+    "Converts QColor to RGB float."
+    return qcolor.red()/255.0, qcolor.green()/255.0, qcolor.blue()/255.0
+
 # end
