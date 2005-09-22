@@ -17,8 +17,8 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.setup()
     
     def setup(self):
-        self.oldNormColor = self.esp_window.fill_color
-        self.oldBorderColor = self.esp_window.normcolor
+        self.oldNormColor = self.esp_window.normcolor # Border color
+        self.oldFillColor = self.esp_window.fill_color
         
         self.name_linedit.setText(self.esp_window.name)
         
@@ -42,7 +42,7 @@ class ESPWindowProp(ESPWindowPropDialog):
 
         if color.isValid():
             self.fill_color_pixmap.setPaletteBackgroundColor(color)
-            self.esp_window.color = self.esp_window.normcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.esp_window.fill_color = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
             
     def change_border_color(self):
         '''Slot method change border color.'''
@@ -50,7 +50,7 @@ class ESPWindowProp(ESPWindowPropDialog):
 
         if color.isValid():
             self.border_color_pixmap.setPaletteBackgroundColor(color)
-            self.esp_window.border_color = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.esp_window.color = self.esp_window.normcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
             
     def change_width(self):
         "Slot for Width spinbox"
@@ -75,8 +75,8 @@ class ESPWindowProp(ESPWindowPropDialog):
 
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        self.esp_window.fill_color = self.oldNormColor 
-        self.esp_window.color = self.esp_window.normcolor = self.oldBorderColor  
+        self.esp_window.fill_color = self.oldFillColor 
+        self.esp_window.color = self.esp_window.normcolor = self.oldNormColor   # Border color
  
         self.glpane.gl_update()
         

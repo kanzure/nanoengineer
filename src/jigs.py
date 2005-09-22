@@ -1043,7 +1043,7 @@ class GridPlane(RectGadget):
 
 class ESPWindow(RectGadget):
     ''' '''
-    mutable_attrs = ('fill_color')
+    mutable_attrs = ('fill_color',)
     copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'translucency') + mutable_attrs
     
     sym = "ESP Window"
@@ -1051,7 +1051,7 @@ class ESPWindow(RectGadget):
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
-        self.color = black
+        self.color = black # Border color
         self.normcolor = black
         self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
         
@@ -1085,7 +1085,7 @@ class ESPWindow(RectGadget):
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
         
-        drawPlane(self.color, self.width-0.05, self.width-0.05, SOLID=True)
+        drawPlane(self.fill_color, self.width-0.05, self.width-0.05, SOLID=True)
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
