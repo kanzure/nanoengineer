@@ -27,7 +27,8 @@ class ops_select_Mixin:
     #  history messages, etc]
 
     def getSelectedJigs(self):
-        '''Find all selected jigs in current part. [Huaicai 9/15/05]'''
+        '''Find all selected jigs in current part. Currently only 'RectGadget' is supported, but it expects
+           to extend to other types of jigs in the near future.        [Huaicai 9/15/05]'''
         
         selJigs = []
         

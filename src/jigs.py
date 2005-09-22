@@ -307,7 +307,8 @@ class Jig(Node):
     
     
     def _mmp_record_last_part(self, mapping):
-        '''Last part of the record. '''
+        '''Last part of the record. Subclass can override this method to provide specific version of this part.
+         Note: If it returns anything other than empty, make sure to put one extra space character at the front.'''
         # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Window, which is none.
         if mapping is not None:
             ndix = mapping.atnums
@@ -376,7 +377,7 @@ class Jig(Node):
         """#doc
         (see rmotor's version's docstring for details)
         [some subclasses need to override this]
-        If it returns anything other than empty, make sure add one more extra 'space' at the front.
+        Note: If it returns anything other than empty, make sure add one more extra 'space' at the front.
         """
         return ""
 
@@ -956,7 +957,6 @@ class RectGadget(Jig):
         self.planeNorm = self._getPlaneOrientation(self.atomPos)
         self.quat = Q(V(0.0, 0.0, 1.0), self.planeNorm)
         self.center = add.reduce(self.atomPos)/len(self.atomPos)
-
         
 
     def __computeBBox(self):
@@ -965,11 +965,13 @@ class RectGadget(Jig):
         
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
+        abs_pos = []
         for pos in corners_pos:
-            pos = self.quat.rot(pos) + self.center
+            abs_pos += [self.quat.rot(pos) + self.center]
         
-        return BBox(corners_pos)
-        
+        return BBox(abs_pos)
+
+    
     def __getattr__(self, name):
         if name == 'bbox':
             return self.__computeBBox()
@@ -1055,9 +1057,6 @@ class ESPWindow(RectGadget):
         self.normcolor = black
         self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
         
-        ##self.color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
-        ##self.normcolor = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
-        ##self.border_color = black
         self.resolution = 20
         
         self.translucency = 0.0
