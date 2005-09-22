@@ -7,6 +7,7 @@ $Id$
 
 from qt import *
 from ESPWindowPropDialog import *
+from widgets import RGBf_to_QColor, QColor_to_RGBf
 
 class ESPWindowProp(ESPWindowPropDialog):
     def __init__(self, esp_window, glpane):
@@ -22,13 +23,8 @@ class ESPWindowProp(ESPWindowPropDialog):
         
         self.name_linedit.setText(self.esp_window.name)
         
-        self.fill_color = QColor(int(self.esp_window.fill_color[0]*255), 
-                         int(self.esp_window.fill_color[1]*255), 
-                         int(self.esp_window.fill_color[2]*255))
-        
-        self.border_color = QColor(int(self.esp_window.normcolor[0]*255), 
-                         int(self.esp_window.normcolor[1]*255), 
-                         int(self.esp_window.normcolor[2]*255))
+        self.fill_color = RGBf_to_QColor(self.esp_window.fill_color)
+        self.border_color = RGBf_to_QColor(self.esp_window.normcolor)
         
         self.width_spinbox.setValue(self.esp_window.width)
         self.resolution_spinbox.setValue(self.esp_window.resolution)
@@ -42,7 +38,7 @@ class ESPWindowProp(ESPWindowPropDialog):
 
         if color.isValid():
             self.fill_color_pixmap.setPaletteBackgroundColor(color)
-            self.esp_window.fill_color = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.esp_window.fill_color = QColor_to_RGBf(color)
             
     def change_border_color(self):
         '''Slot method change border color.'''
@@ -50,7 +46,7 @@ class ESPWindowProp(ESPWindowPropDialog):
 
         if color.isValid():
             self.border_color_pixmap.setPaletteBackgroundColor(color)
-            self.esp_window.color = self.esp_window.normcolor = (color.red()/255.0, color.green()/255.0, color.blue()/255.0)
+            self.esp_window.color = self.esp_window.normcolor = QColor_to_RGBf(color)
             
     def change_width(self):
         "Slot for Width spinbox"
