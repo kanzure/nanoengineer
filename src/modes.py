@@ -418,6 +418,7 @@ class basicMode(anyMode):
            [by bruce 040922; see head comment of this file for how
            this relates to previous code]           
         """
+        self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
         self.picking = False
         # (this seems to be set and used in almost every mode)
         return None
@@ -458,6 +459,8 @@ class basicMode(anyMode):
         # this will then be the invalidation routine, in spite of the name.
         # We *don't* also call update_mode_status_text -- that's separate.
         
+        # This shows the Done button on the dashboard unless the current mode is the 
+        # Default mode. Resolves bug #958 and #959. Mark 050922.
         if self.modename == env.prefs[ defaultMode_prefs_key ]:
             self.w.toolsDoneAction.setVisible(0)
         else:

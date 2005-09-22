@@ -462,7 +462,6 @@ class selectMolsMode(selectMode):
             self.w.OldCursor = QCursor(self.o.cursor())
             self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Chunks" tools icon
             self.w.selectMolDashboard.show()
-            self.UpdateDashboard() # Displays/Hides the Done button.
             
         def restore_gui(self):
             self.w.selectMolDashboard.hide()
@@ -520,7 +519,6 @@ class selectAtomsMode(selectMode):
             
             self.update_hybridComboBox(self.w)
             self.w.selectAtomsDashboard.show() 
-            self.UpdateDashboard() # Displays/Hides the Done button.
 
             
         def restore_gui(self):
