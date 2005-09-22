@@ -1103,7 +1103,7 @@ class ESPWindow(RectGadget):
             self.center[0], self.center[1], self.center[2], 
             self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
             self.translucency, color[0], color[1], color[2])
-        return " " + dataline + "\n"
+        return " " + dataline
     
 
 # == Ground
