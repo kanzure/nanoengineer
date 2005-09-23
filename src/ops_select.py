@@ -94,9 +94,11 @@ class ops_select_Mixin:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
-        self.w.win_update()
         
+        # Print summary msg to history widget.  Always do this before win/gl_update.
         env.history.message(greenmsg(cmd) + "Selection Inverted")
+        
+        self.w.win_update()
         
     def selectExpand(self):
         """Select any atom that is bonded to any currently selected atom.
@@ -105,40 +107,34 @@ class ops_select_Mixin:
         
         cmd = "Expand Selection: "
         
-        if self.selwhat == SELWHAT_CHUNKS:
-            env.history.message(greenmsg(cmd) + redmsg("Doesn't work in Select Chunks mode."))
-            return
-        
-        if not self.assy.selatoms:
+        if not self.selatoms:
             env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
             return
         
         num_picked = 0 # Number of atoms picked in the expand selection.
         
-        assert self.selwhat == SELWHAT_ATOMS
         for a in self.selatoms.values():
             if a.picked: 
                 for n in a.neighbors():
-                    if n.picked: continue
-                    n.pick()
-                    num_picked += 1
+                    if not n.picked:
+                        n.pick()
+                        num_picked += 1
+        
+        # Print summary msg to history widget.  Always do this before win/gl_update.
+        msg = greenmsg(cmd) + str(num_picked) + " atom(s) selected."
+        from platform import fix_plurals
+        env.history.message(fix_plurals(msg))
         
         self.w.win_update()
         
-        env.history.message(greenmsg(cmd) + str(num_picked) + " atoms selected.")
-        
     def selectContract(self):
-        """Unselect any atom that is bonded to only one other selected atom.
+        """Unselect any atom which has a bond to an unselected atom.
         """
         # Added by Mark 050923.
         
         cmd = "Contract Selection: "
         
-        if self.selwhat == SELWHAT_CHUNKS:
-            env.history.message(greenmsg(cmd) + redmsg("Doesn't work in Select Chunks mode."))
-            return
-        
-        if not self.assy.selatoms:
+        if not self.selatoms:
             env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
             return
             
@@ -148,6 +144,9 @@ class ops_select_Mixin:
         for a in self.selatoms.values():
             if a.picked: 
                 # If a select atom has an unpicked neighbor, it gets added to the contract_list
+                # Bruce mentions: you can just scan realNeighbors if you want to only scan
+                # the non-singlet atoms. Users may desire this behavour - we can switch it on/off
+                # via a dashboard checkbox or user pref if we want.  Mark 050923.
                 for n in a.neighbors():
                     if not n.picked:
                         contract_list.append(a)
@@ -157,10 +156,13 @@ class ops_select_Mixin:
         for a in contract_list:
             a.unpick()
             
+        # Print summary msg to history widget.  Always do this before win/gl_update.
+        msg = greenmsg(cmd) + str(len(contract_list)) + " atom(s) unselected."
+        from platform import fix_plurals
+        env.history.message(fix_plurals(msg))
+        
         self.w.win_update()
         
-        env.history.message(greenmsg(cmd) + str(len(contract_list)) + " atoms unselected.")
-
     # these next methods (selectAtoms and selectParts) are not for general use:
     # they do win_update but they don't change which select mode is in use.
     
