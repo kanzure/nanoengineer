@@ -710,7 +710,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
         """
-        env.history.message(greenmsg("Invert Selection:"))
+        #env.history.message(greenmsg("Invert Selection:"))
         # assy method revised by bruce 041217 after discussion with Josh
         self.assy.selectInvert()
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
@@ -740,6 +740,11 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         ##Huaicai 1/19/05 comment out, 
         #self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
+    def selectExpand(self):
+        """Select any atom that is bonded to any currently selected atom.
+        """
+        self.assy.selectExpand()
+        
     ###################################
     # Jig Toolbar Slots
     ###################################

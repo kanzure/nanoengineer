@@ -16,6 +16,7 @@ from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from elements import Singlet
 from VQT import V, A, norm, cross, transpose, dot
 import env
+from HistoryWidget import redmsg, greenmsg, orangemsg
 
 class ops_select_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -76,6 +77,8 @@ class ops_select_Mixin:
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
         """
+        cmd = "Invert Selection: "
+        
         # revised by bruce 041217 after discussion with Josh;
         # previous version inverted selatoms only in chunks with
         # some selected atoms.
@@ -90,6 +93,32 @@ class ops_select_Mixin:
                 for a in m.atoms.itervalues():
                     if a.picked: a.unpick()
                     else: a.pick()
+        self.w.win_update()
+        
+        env.history.message(greenmsg(cmd) + "Selection Inverted")
+        
+    def selectExpand(self):
+        """Select any atom that is bonded to any currently selected atom.
+        """
+        # Eric really needed this.  Added by Mark 050923.
+        
+        cmd = "Expand Selection: "
+        
+        if self.selwhat == SELWHAT_CHUNKS:
+            env.history.message(greenmsg(cmd) + redmsg("Select Expand doesn't work in Select Chunks mode."))
+            return
+        
+        if not self.assy.selatoms:
+            env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
+            return
+            
+        assert self.selwhat == SELWHAT_ATOMS
+        for a in self.selatoms.values():
+            if a.picked: 
+                for n in a.neighbors():
+                    if n.picked: continue
+                    n.pick()
+        
         self.w.win_update()
 
     # these next methods (selectAtoms and selectParts) are not for general use:
