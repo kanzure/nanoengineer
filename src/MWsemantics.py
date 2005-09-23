@@ -747,8 +747,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.assy.selectExpand()
         
     def selectContract(self):
-        """Slot for Contract Selection, which unselect any atom that is bonded 
-        to only one other selected atom.
+        """Slot for Contract Selection, which unselects any atom which has a bond to an unselected atom.
         """
         self.assy.selectContract()
         
