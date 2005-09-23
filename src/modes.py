@@ -1094,7 +1094,7 @@ class basicMode(anyMode):
         "some modes will need to override this in the future"
         # Holding down X, Y or Z "modifier keys" in MODIFY and TRANSLATE modes generates
         # autorepeating keyPress and keyRelease events.  For now, ignore autorepeating key events.
-        # Later, we may add a flag to determine is we should ignore autorepeating key events.
+        # Later, we may add a flag to determine if we should ignore autorepeating key events.
         # If a mode needs these events, simply override keyPressEvent and keyReleaseEvent.
         # Mark 050412
         if e.isAutoRepeat(): return
@@ -1111,8 +1111,17 @@ class basicMode(anyMode):
     
     def keyPress(self,key): # several modes extend this method, some might replace it
         if key == Qt.Key_Delete:
-            ## print "mode.keyPress: calling killDo()"
             self.w.killDo()
+        # Zoom in (Ctrl/Cmd+.) & out (Ctrl/Cmd+,) for Eric.  Right now, this will work with or without
+        # the Ctrl/Cmd key pressed.  We'll fix this later, at the same time we address the issue of
+        # more than one modifier key being pressed (see Bruce's notes below). Mark 050923.
+        if key == Qt.Key_Period:
+            self.o.scale *= .95
+            self.o.gl_update()
+        if key == Qt.Key_Comma: 
+            self.o.scale *= 1.05
+            self.o.gl_update()
+         
         return
     
     def keyRelease(self,key): # mark 2004-10-11
