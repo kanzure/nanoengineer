@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>265</width>
-            <height>351</height>
+            <height>355</height>
         </rect>
     </property>
     <property name="caption">
@@ -795,7 +795,7 @@
     </connection>
     <connection>
         <sender>grid_type_combox</sender>
-        <signal>activated(const QString&amp;)</signal>
+        <signal>activated(int)</signal>
         <receiver>GridPlanePropDialog</receiver>
         <slot>change_grid_type()</slot>
     </connection>

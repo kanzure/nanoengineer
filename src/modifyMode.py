@@ -331,10 +331,14 @@ class modifyMode(basicMode):
         if self.dragdist<7:
             # didn't move much, call it a click
             # Pick a part
-            if selSense == 0: self.o.assy.unpick_at_event(event)
-            if selSense == 1: self.o.assy.pick_at_event(event)
-            if selSense == 2: self.o.assy.onlypick_at_event(event)
-            
+            has_jig_selected = False; self.jigSelectionEnabled = True
+            if self.jigSelectionEnabled and self.jigGLSelect(event, selSense):
+                has_jig_selected = True
+            if not has_jig_selected:
+                if selSense == 0: self.o.assy.unpick_at_event(event)
+                if selSense == 1: self.o.assy.pick_at_event(event)
+                if selSense == 2: self.o.assy.onlypick_at_event(event)
+                
             self.w.win_update()
      
     def leftCntlDown(self, event):

@@ -150,6 +150,10 @@ old_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (
 # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length width spoke_radius
 new_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
+#Grid Plane record format:
+#gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
+gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (\d+) (\d+) (-?\d+\.\d+) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
+
 # ESP Window record format:
 # espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
 esppat = re.compile("espwindow \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
@@ -416,9 +420,28 @@ class _readmmp_state:
         motor.setProps(name, col, force, stiffness, cxyz, axyz, length, width, sradius)
         self.addmotor(motor)
 
-
+    def _read_gridplane(self, card):
+        ''' Read the MMP record for a Grid Plane jig as:
+            gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
+        '''
+        m = gridplane_pat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+        border_color = map(lambda (x): int(x)/255.0, [m.group(2),m.group(3),m.group(4)])
+        width = float(m.group(5)); height = float(m.group(6)); 
+        center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
+        quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
+        grid_type = int(m.group(14)); line_type = int(m.group(15)); x_space = float(m.group(16)); y_space = float(m.group(17))
+        grid_color = map(lambda (x): int(x)/255.0, [m.group(18),m.group(19),m.group(20)])
+        
+        gridPlane = GridPlane(self.assy, [], READ_FROM_MMP=True)
+        gridPlane.setProps(name, border_color, width, height, center, quat, grid_type, \
+                           line_type, x_space, y_space, grid_color)
+        self.addmember(gridPlane)
+        
+        
     def _read_espwindow(self, card):
-        ''' Read the MMP record for a ESP Window as:
+        ''' Read the MMP record for a ESP Window jig as:
             espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
         '''
         m = esppat.match(card)

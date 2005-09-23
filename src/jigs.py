@@ -232,7 +232,12 @@ class Jig(Node):
     def move(self, offset):
         #bruce 050208 made this default method. Is it ever called, in any subclasses??
         pass
+    
 
+    def rot(self, quat):
+        pass
+
+    
     def moved_atom(self, atom): #bruce 050718, for bonds code
         """FYI (caller is saying to this jig),
         we have just changed atom.posn() for one of your atoms.
@@ -498,6 +503,12 @@ class Jig(Node):
 
 class Motor(Jig):
     "superclass for Motor jigs"
+    def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
+        assert atomlist == [] # whether from default arg value or from caller -- for now
+        Jig.__init__(self, assy, atomlist)
+        
+        self.quat = Q(1, 0, 0, 0)
+        
     def own_mutable_copyable_attrs(self): #bruce 050526
         """[overrides Node method]
         Suitable for Motor subclasses -- they should define mutable_attrs
@@ -532,6 +543,12 @@ class Motor(Jig):
         self.setAtoms(shaft) #bruce 041105 code cleanup
         self.recompute_center_axis(los)
         self.edit()
+        
+        ##@@@--Huaicai
+        self.atomPos = []
+        for a in shaft:
+            self.atomPos += [a.posn()]
+            
 
     def recompute_center_axis(self, los = None): #bruce 050518 split this out of findCenter, for use in a new cmenu item
         if los is None:
@@ -599,12 +616,20 @@ class Motor(Jig):
             
     def move(self, offset): #k can this ever be called?
         self.center += offset
-
+    
+    def rot(self, q):
+        self.quat += q
+        
     def posn(self):
         return self.center
 
+    def getaxis(self):
+        return self.axis
+
+
     def axen(self):
         return self.axis
+
 
     def rematom(self, *args, **opts): #bruce 050518
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
@@ -630,7 +655,7 @@ class RotaryMotor(Motor):
     # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
-        Jig.__init__(self, assy, atomlist)
+        Motor.__init__(self, assy, atomlist)
         self.torque = 0.0 # in nN * nm
         self.speed = 0.0 # in gHz
         self.center = V(0,0,0)
@@ -775,15 +800,25 @@ class RotaryMotor(Motor):
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
     def _draw(self, win, dispdef):
-        bCenter = self.center - (self.length / 2.0) * self.axis
-        tCenter = self.center + (self.length / 2.0) * self.axis
+        glPushMatrix()
+
+        glTranslatef( self.center[0], self.center[1], self.center[2])
+        q = self.quat
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+        
+        orig_center = V(0.0, 0.0, 0.0)        
+        
+        bCenter = orig_center - (self.length / 2.0) * self.axis
+        tCenter = orig_center + (self.length / 2.0) * self.axis
         drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
         for a in self.atoms:
-            drawcylinder(self.color, self.center, a.posn(), self.sradius)
+            drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
         rotby = self.getrotation() #bruce 050518
             # if exception in getrotation, just don't draw the rotation sign
             # (safest now that people might believe what it shows about amount of rotation)
         drawRotateSign((0,0,0), bCenter, tCenter, self.radius, rotation = rotby)
+        
+        glPopMatrix()
         return
     
     # Write "rmotor" and "spoke" records to POV-Ray file in the format:
@@ -847,7 +882,7 @@ class LinearMotor(Motor):
     # create a blank Linear Motor not connected to anything
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
-        Jig.__init__(self, assy, atomlist)
+        Motor.__init__(self, assy, atomlist)
         
         self.force = 0.0
         self.stiffness = 0.0
@@ -887,11 +922,19 @@ class LinearMotor(Motor):
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
     def _draw(self, win, dispdef):
-        drawbrick(self.color, self.center, self.axis, self.length, self.width, self.width)
-        drawLinearSign((0,0,0), self.center, self.axis, self.length, self.width, self.width)
-        for a in self.atoms:
-            drawcylinder(self.color, self.center, a.posn(), self.sradius)
-               
+        glPushMatrix()
+
+        glTranslatef( self.center[0], self.center[1], self.center[2])
+        q = self.quat
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+        
+        orig_center = V(0.0, 0.0, 0.0)
+        drawbrick(self.color, orig_center, self.axis, self.length, self.width, self.width)
+        drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
+        for a in self.atoms[:]:
+            drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
+        
+        glPopMatrix()
             
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
     # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)
@@ -951,7 +994,7 @@ class RectGadget(Jig):
     
     def __init_quat_center(self, list):
         
-        for a in list[:3]:
+        for a in list:#[:3]:
             self.atomPos += [a.posn()]
     
         self.planeNorm = self._getPlaneOrientation(self.atomPos)
@@ -994,8 +1037,8 @@ class RectGadget(Jig):
         
     def _getPlaneOrientation(self, atomPos):
         assert len(atomPos) >= 3
-        v1 = atomPos[1] - atomPos[0]
-        v2 = atomPos[2] - atomPos[0]
+        v1 = atomPos[-2] - atomPos[-1]
+        v2 = atomPos[-3] - atomPos[-1]
         
         return cross(v1, v2)
     
@@ -1012,6 +1055,7 @@ class GridPlane(RectGadget):
     ''' '''
     sym = "Grid Plane"
     icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
+    mmp_record_name = "gridplane"
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -1019,12 +1063,22 @@ class GridPlane(RectGadget):
         self.color = black # Border color
         self.normcolor = black
         self.grid_color = gray
-        self.grid_type = 'Square' # Grid patterns: "Square" or "SiC"
+        self.grid_type = SQUARE_GRID # Grid patterns: "SQUARE_GRID" or "SiC_GRID"
         # Grid line types: "NO_LINE", "SOLID_LINE", "DASHED_LINE" or "DOTTED_LINE"
         self.line_type = SOLID_LINE 
         self.x_spacing = 2
         self.y_spacing = 2
 
+    def setProps(self, name, border_color, width, height, center, wxyz, grid_type, \
+                           line_type, x_space, y_space, grid_color):
+        
+        self.name = name; self.color = self.normcolor = border_color;
+        self.width = width; self.height = height; 
+        self.center = center; self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
+        self.grid_type = grid_type; self.line_type = line_type; self.x_spacing = x_space;
+        self.y_spacing = y_space;  self.grid_color = grid_color
+        
+        
     def set_cntl(self): 
         self.cntl = GridPlaneProp(self, self.assy.o)
         
@@ -1039,11 +1093,24 @@ class GridPlane(RectGadget):
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
         drawLineLoop(self.color, corners_pos)
-        #drawPlane(self.color, self.width, self.height)
-        drawGPGrid(self.grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing)
+        if self.grid_type == SQUARE_GRID:
+            drawGPGrid(self.grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing)
+        else:
+            drawSiCGrid(self.grid_color, self.line_type, self.width, self.height)
         
         glPopMatrix()
-
+    
+    
+    def mmp_record_jigspecific_midpart(self):
+        '''format: width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb)  '''
+        color = map(int,A(self.grid_color)*255)
+        
+        dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) %d %d %.2f %.2f (%d, %d, %d)" % \
+           (self.width, self.height, self.center[0], self.center[1], self.center[2], 
+            self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.grid_type, self.line_type, 
+            self.x_spacing, self.y_spacing, color[0], color[1], color[2])
+        return " " + dataline
+    
 
 class ESPWindow(RectGadget):
     ''' '''
@@ -1052,6 +1119,7 @@ class ESPWindow(RectGadget):
     
     sym = "ESP Window"
     icon_names = ["espwindow.png", "espwindow-hide.png"] # Added espwindow icons.  Mark 050919.
+    mmp_record_name = "espwindow"
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -1094,7 +1162,6 @@ class ESPWindow(RectGadget):
         
         glPopMatrix()
  
-    mmp_record_name = "espwindow"
     def mmp_record_jigspecific_midpart(self):
         color = map(int,A(self.fill_color)*255)
         

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\GridPlanePropDialog.ui'
+# Form implementation generated from reading ui file 'GridPlanePropDialog.ui'
 #
-# Created: Thu Sep 22 11:07:36 2005
+# Created: Fri Sep 23 11:23:14 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -235,7 +235,7 @@ class GridPlanePropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(265,351).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(265,355).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -246,7 +246,7 @@ class GridPlanePropDialog(QDialog):
         self.connect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
         self.connect(self.x_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_x_spacing)
         self.connect(self.y_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_y_spacing)
-        self.connect(self.grid_type_combox,SIGNAL("activated(const QString&)"),self.change_grid_type)
+        self.connect(self.grid_type_combox,SIGNAL("activated(int)"),self.change_grid_type)
         self.connect(self.line_type_combox,SIGNAL("activated(int)"),self.change_line_type)
 
 

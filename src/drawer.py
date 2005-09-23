@@ -130,7 +130,7 @@ DiGridSp = sp4
 sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
-rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = None
+rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
 
 halfHeight = 0.45
 
@@ -190,13 +190,17 @@ def _makeGraphiteCell(zIndex):
     return lonsEdges 
 
 
+##Some varaible defined for SiC Grid
+sic_sqt3_2 = sqrt(3.0)/2.0; sic_uLen = 1.8; sic_yU = sic_uLen * sic_sqt3_2; sic_hLen = sic_uLen/2.0
+sic_vpdat = [[0.0, sic_yU, 0.0], [sic_uLen+sic_hLen, 0.0, 0.0], [sic_uLen, sic_yU, 0.0], [sic_uLen+sic_hLen, sic_yU*2, 0.0], [2*sic_uLen+sic_hLen, sic_yU*2.0, 0.0], [3*sic_uLen, sic_yU, 0.0], [2*sic_uLen+sic_hLen, 0.0, 0.0]]
+    
 
 def setup():
     global CylList, diamondGridList, CapList, CubeList, solidCubeList
     global sphereList, rotSignList, linearLineList, linearArrowList
-    global circleList, lonsGridList, lonsEdges, lineCubeList
+    global circleList, lonsGridList, lonsEdges, lineCubeList, SiCGridList
 
-    listbase = glGenLists(numSphereSizes + 19)
+    listbase = glGenLists(numSphereSizes + 21)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -339,6 +343,20 @@ def setup():
     for i in cvIndices:
         glVertex3fv(tuple(cubeVertices[i]))
     glEnd()    
+    glEndList()
+    
+    
+    SiCGridList = lineCubeList + 1
+    glNewList(SiCGridList, GL_COMPILE)
+    glBegin(GL_LINES)
+    glVertex3fv(sic_vpdat[0])
+    glVertex3fv(sic_vpdat[2])
+    glEnd()
+    
+    glBegin(GL_LINE_STRIP)
+    for v in sic_vpdat[1:]:
+        glVertex3fv(v)
+    glEnd()
     glEndList()
     
     
@@ -503,6 +521,7 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glEnable(GL_LIGHTING)
     glPopMatrix()
     glPolygonMode(GL_FRONT, GL_FILL)
+
 
 def drawcylinder(color, pos1, pos2, radius, capped=0):
     global CylList, CapList
@@ -1037,20 +1056,34 @@ def drawGPGrid(color, line_type, w, h, uw, uh):
     glBegin(GL_LINES)
     
     #Draw horizontal lines
-    y1 = hh - uh
+    y1 = 0
     while y1 > -hh:
         glVertex3f(-hw, y1, Z_OFF)
         glVertex3f(hw, y1, Z_OFF)
     
         y1 -= uh
-        
+    
+    y1 = 0
+    while y1 < hh:
+        glVertex3f(-hw, y1, Z_OFF)
+        glVertex3f(hw, y1, Z_OFF)
+    
+        y1 += uh
+    
     #Draw vertical lines    
-    x1 = -hw + uw
+    x1 = 0
     while x1 < hw:        
         glVertex3f(x1, hh, Z_OFF)
         glVertex3f(x1, -hh, Z_OFF)
     
         x1 += uw
+    
+    x1 = 0
+    while x1 > -hw:        
+        glVertex3f(x1, hh, Z_OFF)
+        glVertex3f(x1, -hh, Z_OFF)
+    
+        x1 -= uw
     
     glEnd()
     
@@ -1061,6 +1094,69 @@ def drawGPGrid(color, line_type, w, h, uw, uh):
     #glDisable(GL_BLEND)
     
     glEnable(GL_LIGHTING)
+
+
+def drawSiCGrid(color, line_type, w, h):
+    '''Draw SiC grid. '''
+    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
+    
+    if line_type == NO_LINE:
+        return
+    
+    XLen = sic_uLen * 3.0
+    YLen = sic_yU * 2.0
+    hw = w/2.0; hh = h/2.0
+    xx = (-hw, hw)
+    yy = (-hh, hh)
+    i1 = int(floor(xx[0]/XLen))
+    i2 = int(ceil(xx[1]/XLen))
+    j1 = int(floor(xx[0]/YLen))
+    j2 = int(ceil(xx[1]/YLen))
+    
+    
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+
+    if line_type > 1:
+        glEnable(GL_LINE_STIPPLE)
+        if line_type == DASHED_LINE:
+            glLineStipple (1, 0x00FF)  #  dashed
+        elif line_type == DOTTED_LINE:
+            glLineStipple (1, 0x0101)  #  dotted
+        else:
+            print "drawer.drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            glLineStipple (1, 0x00FF)  #  dashed
+    
+    glClipPlane(GL_CLIP_PLANE0, (1.0, 0.0, 0.0, hw))
+    glClipPlane(GL_CLIP_PLANE1, (-1.0, 0.0, 0.0, hw))
+    glClipPlane(GL_CLIP_PLANE2, (0.0, 1.0, 0.0, hh))
+    glClipPlane(GL_CLIP_PLANE3, (0.0, -1.0, 0.0, hh))
+    glEnable(GL_CLIP_PLANE0)
+    glEnable(GL_CLIP_PLANE1)
+    glEnable(GL_CLIP_PLANE2)
+    glEnable(GL_CLIP_PLANE3)
+     
+    glPushMatrix()
+    glTranslate(i1*XLen,  j1*YLen, 0.0)
+    for i in range(i1, i2):
+        glPushMatrix()
+        for j in range(j1, j2):
+            glCallList(SiCGridList)
+            glTranslate(0.0, YLen, 0.0)
+        glPopMatrix()
+        glTranslate(XLen, 0.0, 0.0)
+    glPopMatrix()
+    
+    glDisable(GL_CLIP_PLANE0)
+    glDisable(GL_CLIP_PLANE1)
+    glDisable(GL_CLIP_PLANE2)
+    glDisable(GL_CLIP_PLANE3)
+    
+    if line_type > 1:
+        glDisable (GL_LINE_STIPPLE)
+    
+    glEnable(GL_LIGHTING)
+    
 
 
 def drawFullWindow(vtColors):

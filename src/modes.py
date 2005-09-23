@@ -1150,6 +1150,92 @@ class basicMode(anyMode):
         "noop method, meant to be overridden in cookieMode for setting diamond surface orientation"
         pass
     
+
+    def jigGLSelect(self, event, selSense):
+        '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
+           matrix before return. '''
+        ## [Huaicai 9/22/05]: Moved it from selectMode class, so it can be called in move mode, which
+        ## is asked for by Mark, but it's not intended for any other mode.          
+        
+        from constants import GL_FAR_Z
+        
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        
+        aspect = float(self.o.width)/self.o.height
+        
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        gz = wZ[0][0]
+        if gz >= GL_FAR_Z:  # Empty space was clicked
+            return False  
+        
+        pxyz = A(gluUnProject(wX, wY, gz))
+        pn = self.o.out
+        pxyz -= 0.0002*pn
+        dp = - dot(pxyz, pn)
+        
+        # Save project matrix before it's changed
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        
+        current_glselect = (wX,wY,3,3) 
+        self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
+        
+        glSelectBuffer(self.o.glselectBufferSize)
+        glRenderMode(GL_SELECT)
+        glInitNames()
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()  ## Save model/view matrix before it's changed
+        try:
+            glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
+            glEnable(GL_CLIP_PLANE0)
+            self.o.assy.draw(self.o)
+            glDisable(GL_CLIP_PLANE0)
+        except:
+            # Restore Model view matrix, select mode to render mode 
+            glPopMatrix()
+            glRenderMode(GL_RENDER)
+            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+        else: 
+            # Restore Model view matrix
+            glPopMatrix() 
+    
+        #Restore project matrix and set matrix mode to Model/View
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        
+        glFlush()
+        
+        hit_records = list(glRenderMode(GL_RENDER))
+        if platform.atom_debug:
+            print "%d hits" % len(hit_records)
+        for (near,far,names) in hit_records: # see example code, renderpass.py
+            if platform.atom_debug:
+                print "hit record: near,far,names:",near,far,names
+                # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
+                # which proves that near/far are too far apart to give actual depth,
+                # in spite of the 1-pixel drawing window (presumably they're vertices
+                # taken from unclipped primitives, not clipped ones).
+            if names:
+                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
+                if isinstance(obj, Jig):
+                    if selSense == 0: #Ctrl key, unpick picked
+                        if obj.picked:  
+                            obj.unpick()
+                    elif selSense == 1: #Shift key, Add pick
+                        if not obj.picked: 
+                            obj.pick()
+                    else:               #Without key press, exclusive pick
+                        self.o.assy.unpickparts() 
+                        self.o.assy.unpickatoms()
+                        if not obj.picked:
+                            obj.pick()
+                    return True
+        return  False       
+
+    
     pass # end of class basicMode
 
 # ===

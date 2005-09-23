@@ -40,6 +40,8 @@ SOLID_LINE = 1
 DASHED_LINE = 2
 DOTTED_LINE = 3
 
+SQUARE_GRID = 0
+SiC_GRID = 1
 # ==
 
 # Keys for user preferences for A6 [ by Mark 050629]

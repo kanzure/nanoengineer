@@ -28,14 +28,15 @@ class ops_select_Mixin:
     #  history messages, etc]
 
     def getSelectedJigs(self):
-        '''Find all selected jigs in current part. Currently only 'RectGadget' is supported, but it expects
-           to extend to other types of jigs in the near future.        [Huaicai 9/15/05]'''
+        '''Find all selected jigs in current part. Currently only 'RectGadget' and 'Motor' are supported.
+        [Huaicai 9/15/05]'''
         
         selJigs = []
         
-        from jigs import RectGadget
+        from jigs import RectGadget, Motor
         def addSelectedJig(obj, jigs=selJigs):
-            if isinstance(obj, RectGadget): jigs += [obj]
+            if isinstance(obj, RectGadget): #or isinstance(obj, Motor):  ##***I'll comment out this before motor rotation is done.--Huaicai
+                jigs += [obj]
         
         self.topnode.apply2picked(addSelectedJig)
         
