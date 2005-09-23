@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Sep 23 09:54:02 2005
+# Created: Fri Sep 23 11:07:37 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6002,6 +6002,39 @@ image139_data = \
     "\xd1\xe9\x78\x02\x00\xaa\xeb\xfa\x5f\x37\x48\x6c" \
     "\x87\x2f\xc3\x1f\xaf\x5a\x0b\xd1\x19\x01\xad\xdf" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image140_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\x3e\x49\x44\x41\x54\x78\x9c\xb5\x95\x41\x6e\x83" \
+    "\x30\x10\x45\x9f\x11\x0b\x76\xe9\x8e\x5c\xc2\xe7" \
+    "\x08\x57\x20\x9b\x5c\x82\x63\xf8\x06\xe9\x86\x4d" \
+    "\x23\x6e\x00\xe7\x40\x4a\x57\x55\x97\x6d\x0e\x90" \
+    "\x6e\xa7\x0b\x62\x64\x88\x31\x90\xb4\x5f\xb2\xf0" \
+    "\xd8\x33\x7f\x86\xef\x91\x0d\xff\x04\x05\xa0\xb5" \
+    "\x16\xbb\xd0\xb6\xad\x7a\xd6\x06\x88\xed\x42\x51" \
+    "\x14\x24\x49\xc2\xe6\x65\x23\xd9\x2e\x53\x65\x59" \
+    "\x0a\x40\xba\x4d\x17\xdb\xc6\x18\xea\xa6\x96\x6c" \
+    "\x97\x29\x6c\xc5\x65\x59\x8a\x40\x9f\x79\x0d\x6c" \
+    "\x9c\xd6\x5a\xaa\xaa\xf2\x73\xb8\xe4\x53\x89\x96" \
+    "\xf8\xf4\x15\xfb\x02\xe7\x88\xc7\xfb\x2e\x4f\x64" \
+    "\x27\x56\x33\x00\x05\x6a\x4e\x16\x01\x51\xb7\xc3" \
+    "\x77\x61\x79\x62\x5f\x40\x88\xd0\xe7\xeb\x4b\x10" \
+    "\x41\xd7\x22\xe9\x36\xed\xab\x75\x07\x40\xbe\xcf" \
+    "\x05\x90\xdb\xd7\xeb\x33\xe6\x01\xee\x35\x76\x91" \
+    "\xef\x73\x11\x11\x39\x5e\xcf\x72\xbc\x9e\x7b\x72" \
+    "\x1f\x66\x35\x76\x71\x7a\x3b\xf1\xfa\xf3\x3e\xb0" \
+    "\x43\xb0\x3c\x51\xd0\xab\xab\xb8\x9f\x7f\x7d\x7c" \
+    "\x0e\xec\x45\xa8\x9b\x3a\x28\x07\x8e\xc6\x8b\x79" \
+    "\x5c\x6d\x04\xc4\x1d\xbe\xe0\x29\x9f\xa0\xc6\xe3" \
+    "\x93\x0e\xc1\xe7\x1b\xd4\x78\xaa\xf9\xc7\xa4\xa1" \
+    "\x9e\xef\xfb\x78\x0d\xe9\x14\xf9\x64\x1f\xff\xc5" \
+    "\xed\x36\xa8\x18\x3a\x6d\x96\x56\x3a\x86\x1b\x77" \
+    "\x77\x57\x18\x63\xd0\x5a\xcb\xb3\x2f\x88\x45\x6c" \
+    "\x37\xeb\xa6\x96\xcb\xf7\x05\x40\x0e\x87\xc3\x43" \
+    "\x2f\xc8\x23\x7f\xbb\x1a\xbf\xa2\x2e\xf7\xd6\x87" \
+    "\x33\x6b\x79\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
+    "\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6264,6 +6297,8 @@ class MainWindow(QMainWindow):
         self.image138.loadFromData(image138_data,"PNG")
         self.image139 = QPixmap()
         self.image139.loadFromData(image139_data,"PNG")
+        self.image140 = QPixmap()
+        self.image140.loadFromData(image140_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
@@ -6721,6 +6756,8 @@ class MainWindow(QMainWindow):
         self.jigsESPWindowAction.setIconSet(QIconSet(self.image138))
         self.selectExpandAction = QAction(self,"selectExpandAction")
         self.selectExpandAction.setIconSet(QIconSet(self.image139))
+        self.selectContractAction = QAction(self,"selectContractAction")
+        self.selectContractAction.setIconSet(QIconSet(self.image140))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6772,7 +6809,7 @@ class MainWindow(QMainWindow):
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.selectToolbar.setEnabled(1)
-        self.selectToolbar.setGeometry(QRect(740,0,182,29))
+        self.selectToolbar.setGeometry(QRect(740,0,210,29))
         self.selectToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
@@ -6780,10 +6817,11 @@ class MainWindow(QMainWindow):
         self.selectConnectedAction.addTo(self.selectToolbar)
         self.selectDoublyAction.addTo(self.selectToolbar)
         self.selectExpandAction.addTo(self.selectToolbar)
+        self.selectContractAction.addTo(self.selectToolbar)
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(922,0,42,29))
+        self.helpToolbar.setGeometry(QRect(950,0,42,29))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -6810,7 +6848,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1036,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1034,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -7040,6 +7078,7 @@ class MainWindow(QMainWindow):
         self.selectConnectedAction.addTo(self.selectMenu)
         self.selectDoublyAction.addTo(self.selectMenu)
         self.selectExpandAction.addTo(self.selectMenu)
+        self.selectContractAction.addTo(self.selectMenu)
         self.MenuBar.insertItem(QString(""),self.selectMenu,8)
 
         self.modifyMenu = QPopupMenu(self)
@@ -7240,6 +7279,7 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsGridPlaneAction,SIGNAL("activated()"),self.makeGridPlane)
         self.connect(self.jigsESPWindowAction,SIGNAL("activated()"),self.makeESPWindow)
         self.connect(self.selectExpandAction,SIGNAL("activated()"),self.selectExpand)
+        self.connect(self.selectContractAction,SIGNAL("activated()"),self.selectContract)
 
 
     def languageChange(self):
@@ -7369,7 +7409,6 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.setText(self.__tr("Doubly"))
         self.selectDoublyAction.setMenuText(self.__tr("&Doubly"))
         self.selectDoublyAction.setToolTip(self.__tr("Select Doubly"))
-        self.selectDoublyAction.setAccel(self.__tr("Ctrl+Shift+D"))
         self.editPrefsAction.setText(self.__tr("Preferences..."))
         self.editPrefsAction.setMenuText(self.__tr("P&references..."))
         self.jigsBearingAction.setText(self.__tr("Bearing"))
@@ -7692,6 +7731,9 @@ class MainWindow(QMainWindow):
         self.selectExpandAction.setText(self.__tr("Expand"))
         self.selectExpandAction.setToolTip(self.__tr("Expand Selection (Ctrl+D)"))
         self.selectExpandAction.setAccel(self.__tr("Ctrl+D"))
+        self.selectContractAction.setText(self.__tr("Contract"))
+        self.selectContractAction.setToolTip(self.__tr("Contract Selection (Ctrl+Shift+D)"))
+        self.selectContractAction.setAccel(self.__tr("Ctrl+Shift+D"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8238,6 +8280,9 @@ class MainWindow(QMainWindow):
 
     def selectExpand(self):
         print "MainWindow.selectExpand(): Not implemented yet"
+
+    def selectContract(self):
+        print "MainWindow.selectContract(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

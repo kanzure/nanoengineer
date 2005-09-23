@@ -105,21 +105,60 @@ class ops_select_Mixin:
         cmd = "Expand Selection: "
         
         if self.selwhat == SELWHAT_CHUNKS:
-            env.history.message(greenmsg(cmd) + redmsg("Select Expand doesn't work in Select Chunks mode."))
+            env.history.message(greenmsg(cmd) + redmsg("Doesn't work in Select Chunks mode."))
             return
         
         if not self.assy.selatoms:
             env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
             return
-            
+        
+        num_picked = 0 # Number of atoms picked in the expand selection.
+        
         assert self.selwhat == SELWHAT_ATOMS
         for a in self.selatoms.values():
             if a.picked: 
                 for n in a.neighbors():
                     if n.picked: continue
                     n.pick()
+                    num_picked += 1
         
         self.w.win_update()
+        
+        env.history.message(greenmsg(cmd) + str(num_picked) + " atoms selected.")
+        
+    def selectContract(self):
+        """Unselect any atom that is bonded to only one other selected atom.
+        """
+        # Added by Mark 050923.
+        
+        cmd = "Contract Selection: "
+        
+        if self.selwhat == SELWHAT_CHUNKS:
+            env.history.message(greenmsg(cmd) + redmsg("Doesn't work in Select Chunks mode."))
+            return
+        
+        if not self.assy.selatoms:
+            env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
+            return
+            
+        contract_list = [] # Contains list of atoms to be unselected.
+            
+        assert self.selwhat == SELWHAT_ATOMS
+        for a in self.selatoms.values():
+            if a.picked: 
+                # If a select atom has an unpicked neighbor, it gets added to the contract_list
+                for n in a.neighbors():
+                    if not n.picked:
+                        contract_list.append(a)
+                        break
+        
+        # Unselect the atom in the contract_list
+        for a in contract_list:
+            a.unpick()
+            
+        self.w.win_update()
+        
+        env.history.message(greenmsg(cmd) + str(len(contract_list)) + " atoms unselected.")
 
     # these next methods (selectAtoms and selectParts) are not for general use:
     # they do win_update but they don't change which select mode is in use.

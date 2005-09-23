@@ -741,9 +741,16 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         #self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectExpand(self):
-        """Select any atom that is bonded to any currently selected atom.
+        """Slot for Expand Selection, which selects any atom that is bonded 
+        to any currently selected atom.
         """
         self.assy.selectExpand()
+        
+    def selectContract(self):
+        """Slot for Contract Selection, which unselect any atom that is bonded 
+        to only one other selected atom.
+        """
+        self.assy.selectContract()
         
     ###################################
     # Jig Toolbar Slots

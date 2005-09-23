@@ -114,6 +114,7 @@
         <action name="selectConnectedAction"/>
         <action name="selectDoublyAction"/>
         <action name="selectExpandAction"/>
+        <action name="selectContractAction"/>
     </item>
     <item text="&amp;Modify" name="modifyMenu">
         <action name="modifyMinimizeSelAction"/>
@@ -289,7 +290,7 @@
             <rect>
                 <x>740</x>
                 <y>0</y>
-                <width>182</width>
+                <width>210</width>
                 <height>29</height>
             </rect>
         </property>
@@ -305,6 +306,7 @@
         <action name="selectConnectedAction"/>
         <action name="selectDoublyAction"/>
         <action name="selectExpandAction"/>
+        <action name="selectContractAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -315,7 +317,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>922</x>
+                <x>950</x>
                 <y>0</y>
                 <width>42</width>
                 <height>29</height>
@@ -430,7 +432,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1036</width>
+                <width>1034</width>
                 <height>29</height>
             </rect>
         </property>
@@ -1673,9 +1675,6 @@
         </property>
         <property name="toolTip">
             <string>Select Doubly</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+Shift+D</string>
         </property>
     </action>
     <action>
@@ -3891,6 +3890,23 @@
             <string>Ctrl+D</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>selectContractAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image140</iconset>
+        </property>
+        <property name="text">
+            <string>Contract</string>
+        </property>
+        <property name="toolTip">
+            <string>Contract Selection (Ctrl+Shift+D)</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Shift+D</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4312,6 +4328,9 @@
     </image>
     <image name="image139">
         <data format="PNG" length="372">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000013b49444154789cb555318ec230101c4714e9b82e7cc2ef205f084d3e9167f8075ce3e6507ee0bc231254a72b0f1e00ed5e011b6d12db980346b2b2bbd99dac272b1b7813140068ad89037ddfab677d005870a0691ae4798ee5c792ca75a9acb50400c5aa48f68d31709da3725d2a70c7d65a2260b4625bf5e56aada96ddb795d0ae14335ac1127a4924ff3a5d6191bac19002840a548a16e3f5f82793219948931f229a9ef0319701d916255cc08b8a0da5404806e4f2f9197476a3345b5a98888687bded3f6bc1fc87db8abb1c4ee6b87cfcb61e4c7e0d538d0f160ff7eff8cfc24b8ce45e580d0389927a4716c2a7cf1a0c6b22034a7c07c14a51dd538461a229f6298e3474843e4c1397ec5e936ea18b86aa30025d7bd6e7db9acf170d01b63a0b5a6676f10c6825fbaced1e9780200aaebfa5f37486c872fc31faf5a0bd11901addf0000000049454e44ae426082</data>
+    </image>
+    <image name="image140">
+        <data format="PNG" length="375">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000013e49444154789cb595416e833010459f110b76e98e5cc2e70857209b5c8263f806e9864d236e00e7404a5755976d0e906ea70b6264883190b45fb2f0d8337f86ef910dff0405a0b516bbd0b6ad7ad60688ed4251142449c2e66523d92e5365590a40ba4d17dbc618eaa6966c97296cc565598a409f790d6c9cd65aaaaaf273b8e4538996f8f415fb02e788c7fb2e4f6427563300056a4e160151b7c3776179625f4088d0e7eb4b1041d722e936edab750740becf0590dbd7eb33e601ee357691ef731111395ecf72bc9e7b721f663576717a3bf1faf33eb043b03c51d0ababb89f7f7d7c0eec45a89b3a28078ec68b795c6d04c41dbee0299fa0c6e3930ec1e71bd478aaf9c7a4a19eeffb780de914f9641fffc5ed36a8183a6d96563a861b7777571863d05acbb32f88456c37eba696cbf705400e87c3432fc8237fbb1abfa22ef7d687336b790000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5155,6 +5174,12 @@
         <receiver>MainWindow</receiver>
         <slot>selectExpand()</slot>
     </connection>
+    <connection>
+        <sender>selectContractAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>selectContract()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5321,6 +5346,7 @@
     <slot>createRecentFilesList()</slot>
     <slot>makeESPWindow()</slot>
     <slot>selectExpand()</slot>
+    <slot>selectContract()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
