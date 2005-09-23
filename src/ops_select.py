@@ -78,6 +78,7 @@ class ops_select_Mixin:
         parts or atoms.)
         """
         cmd = "Invert Selection: "
+        env.history.message(greenmsg(cmd))
         
         # revised by bruce 041217 after discussion with Josh;
         # previous version inverted selatoms only in chunks with
@@ -95,7 +96,7 @@ class ops_select_Mixin:
                     else: a.pick()
         
         # Print summary msg to history widget.  Always do this before win/gl_update.
-        env.history.message(greenmsg(cmd) + "Selection Inverted")
+        env.history.message("Selection Inverted")
         
         self.w.win_update()
         
@@ -105,6 +106,7 @@ class ops_select_Mixin:
         # Eric really needed this.  Added by Mark 050923.
         
         cmd = "Expand Selection: "
+        env.history.message(greenmsg(cmd))
         
         if not self.selatoms:
             env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
@@ -121,17 +123,18 @@ class ops_select_Mixin:
         
         # Print summary msg to history widget.  Always do this before win/gl_update.
         from platform import fix_plurals
-        msg = greenmsg(cmd) + fix_plurals(str(num_picked) + " atom(s) selected.")
+        msg = fix_plurals(str(num_picked) + " atom(s) selected.")
         env.history.message(msg)
         
         self.w.win_update()
         
     def selectContract(self):
-        """Unselect any atom which has a bond to an unselected atom.
+        """Unselects any atom which has a bond to an unselected atom, or which has any open bonds.
         """
         # Added by Mark 050923.
         
         cmd = "Contract Selection: "
+        env.history.message(greenmsg(cmd))
         
         if not self.selatoms:
             env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
@@ -157,7 +160,7 @@ class ops_select_Mixin:
             
         # Print summary msg to history widget.  Always do this before win/gl_update.
         from platform import fix_plurals
-        msg = greenmsg(cmd) + fix_plurals(str(len(contract_list)) + " atom(s) unselected.")
+        msg = fix_plurals(str(len(contract_list)) + " atom(s) unselected.")
         env.history.message(msg)
         
         self.w.win_update()
