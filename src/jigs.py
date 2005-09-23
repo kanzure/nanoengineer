@@ -1066,8 +1066,9 @@ class GridPlane(RectGadget):
         self.grid_type = SQUARE_GRID # Grid patterns: "SQUARE_GRID" or "SiC_GRID"
         # Grid line types: "NO_LINE", "SOLID_LINE", "DASHED_LINE" or "DOTTED_LINE"
         self.line_type = SOLID_LINE 
-        self.x_spacing = 2
-        self.y_spacing = 2
+        # Changed the spacing to 2 to 1. Mark 050923.
+        self.x_spacing = 1.0 # 1 Angstrom
+        self.y_spacing = 1.0 # 1 Angstrom
 
     def setProps(self, name, border_color, width, height, center, wxyz, grid_type, \
                            line_type, x_space, y_space, grid_color):
