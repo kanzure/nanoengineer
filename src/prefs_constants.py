@@ -165,7 +165,7 @@ prefs_table = (
     
     # Modes preferences [added to this table by mark 050910]
     
-    ('startup_mode', 'string', startupMode_prefs_key,   'SELECTMOLS' ),
+    ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
     ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
     
     # Plug-ins preferences [added to this table by mark 050919]
