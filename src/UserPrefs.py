@@ -208,12 +208,13 @@ class UserPrefs(UserPrefsDialog):
         # Update the "Default Mode" and "Startup Mode" combo boxes.
         self.default_mode_combox.setCurrentItem(default_modes.index(env.prefs[ defaultMode_prefs_key ]))
         
-        # Fix for bug 1008. Mark 050923.
-        if env.prefs[ startupMode_prefs_key ] not in startup_modes: 
-            env.prefs[ startupMode_prefs_key ] = startup_modes[0] # = Default Mode
-
-        self.startup_mode_combox.setCurrentItem(startup_modes.index(env.prefs[ startupMode_prefs_key ]))
+        # Fix for bug 1008. Mark 050924.
+        smode = env.prefs[ startupMode_prefs_key ]
+        if smode not in startup_modes:
+            smode = startup_modes[0] # = Default Mode
         
+        self.startup_mode_combox.setCurrentItem(startup_modes.index(smode))
+
         if self.bg_mode.backgroundGradient:
             self.bg_gradient_setup()
         else:
