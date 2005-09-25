@@ -312,6 +312,9 @@ class ops_select_Mixin:
         in addition to whatever already was selected.
         You are not allowed to select a singlet.
         Print a message about what you just selected (if it was an atom).
+        
+        If the selection behavior is set to "Chem3D" and no atom is selected,
+        everything in the part is unselected.
         """
         # [bruce 041227 moved the getinfo status messages here, from the atom
         # and molecule pick methods, since doing them there was too verbose
@@ -335,10 +338,8 @@ class ops_select_Mixin:
         # if no atom/chunk was selected.  Mark 050924.
         else: 
             if env.prefs[selectionBehavior_prefs_key] == CHEM3D:
-                if self.selwhat == SELWHAT_CHUNKS:
-                    self.unpickparts()
-                else:
-                    self.unpickatoms()
+                self.unpickparts()
+                self.unpickatoms()
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified
