@@ -391,11 +391,13 @@ class UserPrefs(UserPrefsDialog):
     def set_selection_behavior(self, behavior):
         '''Set selection behavior, where 0 = Native and 1 = Chem3D
         Native means:
-            Left mouse button (LMB): makes a new selection, unselecting everything that was previously selected
+            Left mouse button (LMB): Makes a new selection, unselecting everything that was previously selected. 
+               A click in empty space unselects everything.
             Shift+LMB: adds to the current selection, keeping everything that was previously selected
             Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
         Chem3D means:
-            Left mouse button (LMB): adds to the current selection, keeping everything that was previously selected
+            Left mouse button (LMB): Adds to the current selection, keeping everything that was previously selected.
+               A click in empty space unselects everything.
             Shift+LMB: adds to the current selection, keeping everything that was previously selected
             Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
         '''
