@@ -16,6 +16,7 @@ from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from elements import Singlet
 from VQT import V, A, norm, cross, transpose, dot
 import env
+from constants import *
 from HistoryWidget import redmsg, greenmsg, orangemsg
 
 class ops_select_Mixin:
@@ -329,6 +330,15 @@ class ops_select_Mixin:
                 assert self.selwhat == SELWHAT_ATOMS
                 atm.pick()
                 env.history.message(atm.getinfo())
+        
+        # Added Chem3D selection behavour.  This code unselects everything
+        # if no atom/chunk was selected.  Mark 050924.
+        else: 
+            if env.prefs[selectionBehavour_prefs_key] == CHEM3D:
+                if self.selwhat == SELWHAT_CHUNKS:
+                    self.unpickparts()
+                else:
+                    self.unpickatoms()
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified

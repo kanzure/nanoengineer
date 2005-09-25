@@ -32,16 +32,24 @@ UPPER_LEFT = 1
 LOWER_LEFT = 2
 LOWER_RIGHT = 3
 
+# View Projection Types
 PERSPECTIVE = 0
 ORTHOGRAPHIC = 1
 
+# Grid Plan Grid Line Types
 NO_LINE = 0
 SOLID_LINE = 1
 DASHED_LINE = 2
 DOTTED_LINE = 3
 
+# Grid Plane Grid Types
 SQUARE_GRID = 0
 SiC_GRID = 1
+
+# Selection Behavour Options
+NATIVE = 0
+CHEM3D = 1
+
 # ==
 
 # Keys for user preferences for A6 [ by Mark 050629]
@@ -52,6 +60,7 @@ compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
+selectionBehavour_prefs_key = 'A7/Selection Behavour'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -135,6 +144,7 @@ prefs_table = (
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, PERSPECTIVE),
+    ('selection_behavour', 'int', selectionBehavour_prefs_key, NATIVE),
 
     # Atom preferences - colors (other than element colors, handled separately)
     

@@ -170,9 +170,8 @@ class UserPrefs(UserPrefsDialog):
         self.compass_position_btngrp.setButton(self.glpane.compassPosition)
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
-        
-        self.default_projection_btngrp.setButton(env.prefs.get(defaultProjection_prefs_key, 0))
-
+        self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
+        self.selection_behavour_btngrp.setButton(env.prefs[selectionBehavour_prefs_key])
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
@@ -388,6 +387,19 @@ class UserPrefs(UserPrefsDialog):
         # set the pref
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
+        
+    def set_selection_behavour(self, behavour):
+        '''Set selection behavour, where 0 = Native and 1 = Chem3D
+        Native means:
+            Left mouse button (LMB): makes a new selection, unselecting everything that was previously selected
+            Shift+LMB: adds to the current selection, keeping everything that was previously selected
+            Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
+        Chem3D means:
+            Left mouse button (LMB): adds to the current selection, keeping everything that was previously selected
+            Shift+LMB: adds to the current selection, keeping everything that was previously selected
+            Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
+        '''
+        env.prefs[selectionBehavour_prefs_key] = behavour
         
     ########## End of slot methods for "General" page widgets ###########
     

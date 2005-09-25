@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Sep 21 20:41:41 2005
+# Created: Sat Sep 24 23:30:49 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -91,7 +91,7 @@ class UserPrefsDialog(QDialog):
 
         tabLayout.addLayout(layout31,0,0)
 
-        layout32 = QHBoxLayout(None,0,6,"layout32")
+        layout31_2 = QHBoxLayout(None,0,6,"layout31_2")
 
         self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
         self.default_projection_btngrp.setExclusive(1)
@@ -109,11 +109,28 @@ class UserPrefsDialog(QDialog):
         self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
 
         default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
-        layout32.addWidget(self.default_projection_btngrp)
-        spacer25 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout32.addItem(spacer25)
+        layout31_2.addWidget(self.default_projection_btngrp)
 
-        tabLayout.addLayout(layout32,1,0)
+        self.selection_behavour_btngrp = QButtonGroup(self.tab,"selection_behavour_btngrp")
+        self.selection_behavour_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.selection_behavour_btngrp.layout().setSpacing(6)
+        self.selection_behavour_btngrp.layout().setMargin(11)
+        selection_behavour_btngrpLayout = QGridLayout(self.selection_behavour_btngrp.layout())
+        selection_behavour_btngrpLayout.setAlignment(Qt.AlignTop)
+
+        self.native_rbtn = QRadioButton(self.selection_behavour_btngrp,"native_rbtn")
+        self.native_rbtn.setChecked(1)
+
+        selection_behavour_btngrpLayout.addWidget(self.native_rbtn,0,0)
+
+        self.chem3d_rbtn = QRadioButton(self.selection_behavour_btngrp,"chem3d_rbtn")
+
+        selection_behavour_btngrpLayout.addWidget(self.chem3d_rbtn,1,0)
+        layout31_2.addWidget(self.selection_behavour_btngrp)
+        spacer25 = QSpacerItem(50,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout31_2.addItem(spacer25)
+
+        tabLayout.addLayout(layout31_2,1,0)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -661,6 +678,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
+        self.connect(self.selection_behavour_btngrp,SIGNAL("clicked(int)"),self.set_selection_behavour)
 
         self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
@@ -710,6 +728,9 @@ class UserPrefsDialog(QDialog):
         self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
+        self.selection_behavour_btngrp.setTitle(self.__tr("Selection Behavour"))
+        self.native_rbtn.setText(self.__tr("Native"))
+        self.chem3d_rbtn.setText(self.__tr("Chem3D"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
         self.textLabel3_2_3.setText(self.__tr("Atom Highlighting :"))
@@ -896,6 +917,9 @@ class UserPrefsDialog(QDialog):
 
     def enable_nanohive(self):
         print "UserPrefsDialog.enable_nanohive(): Not implemented yet"
+
+    def set_selection_behavour(self):
+        print "UserPrefsDialog.set_selection_behavour(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

@@ -206,7 +206,10 @@ class selectMode(basicMode):
         self.o.gl_update()
 
     def leftUp(self, event):
-        self.EndPick(event, 2)
+        if env.prefs[selectionBehavour_prefs_key] == NATIVE:
+            self.EndPick(event, 2)
+        else:
+            self.EndPick(event, 1) # Chem3D behavour (maps LMB > Shift+LMB).  Mark 050924.
     
     def leftCntlUp(self, event):
         self.EndPick(event, 0)
@@ -231,6 +234,7 @@ class selectMode(basicMode):
                 if selSense == 0: self.o.assy.unpick_at_event(event)
                 if selSense == 1: self.o.assy.pick_at_event(event)
                 if selSense == 2: self.o.assy.onlypick_at_event(event)
+
             ###Huaicai 1/29/05: to fix zoom messing up selection bug
             ###In window zoom mode, even for a big selection window, the 
             ###pickLineLength/scale could still be < 0.03, so we need clean 
@@ -245,7 +249,7 @@ class selectMode(basicMode):
         # This seems better and may be necessary for fixing bug 86 (see more comments below).
         # Mark 050710
         else:
-
+            
             self.sellist += [p1]
             self.sellist += [self.sellist[0]]
             self.o.backlist += [p2]

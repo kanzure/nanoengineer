@@ -229,7 +229,7 @@
                     </widget>
                     <widget class="QLayoutWidget" row="1" column="0">
                         <property name="name">
-                            <cstring>layout32</cstring>
+                            <cstring>layout31</cstring>
                         </property>
                         <hbox>
                             <property name="name">
@@ -270,6 +270,38 @@
                                     </widget>
                                 </grid>
                             </widget>
+                            <widget class="QButtonGroup">
+                                <property name="name">
+                                    <cstring>selection_behavour_btngrp</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Selection Behavour</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QRadioButton" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>native_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Native</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>chem3d_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Chem3D</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
                             <spacer>
                                 <property name="name">
                                     <cstring>spacer25</cstring>
@@ -282,7 +314,7 @@
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>40</width>
+                                        <width>50</width>
                                         <height>20</height>
                                     </size>
                                 </property>
@@ -2160,6 +2192,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>enable_nanohive()</slot>
     </connection>
+    <connection>
+        <sender>selection_behavour_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_selection_behavour()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>ok_btn</tabstop>
@@ -2227,6 +2265,7 @@
     <slot>set_default_projection()</slot>
     <slot>enable_gamess()</slot>
     <slot>enable_nanohive()</slot>
+    <slot>set_selection_behavour()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
