@@ -272,10 +272,10 @@
                             </widget>
                             <widget class="QButtonGroup">
                                 <property name="name">
-                                    <cstring>selection_behavour_btngrp</cstring>
+                                    <cstring>selection_behavior_btngrp</cstring>
                                 </property>
                                 <property name="title">
-                                    <string>Selection Behavour</string>
+                                    <string>Selection Behavior</string>
                                 </property>
                                 <grid>
                                     <property name="name">
@@ -2193,10 +2193,10 @@
         <slot>enable_nanohive()</slot>
     </connection>
     <connection>
-        <sender>selection_behavour_btngrp</sender>
+        <sender>selection_behavior_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>set_selection_behavour()</slot>
+        <slot>set_selection_behavior()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -2265,7 +2265,7 @@
     <slot>set_default_projection()</slot>
     <slot>enable_gamess()</slot>
     <slot>enable_nanohive()</slot>
-    <slot>set_selection_behavour()</slot>
+    <slot>set_selection_behavior()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -206,10 +206,10 @@ class selectMode(basicMode):
         self.o.gl_update()
 
     def leftUp(self, event):
-        if env.prefs[selectionBehavour_prefs_key] == NATIVE:
+        if env.prefs[selectionBehavior_prefs_key] == NATIVE:
             self.EndPick(event, 2)
         else:
-            self.EndPick(event, 1) # Chem3D behavour (maps LMB > Shift+LMB).  Mark 050924.
+            self.EndPick(event, 1) # Chem3D behavior (maps LMB > Shift+LMB).  Mark 050924.
     
     def leftCntlUp(self, event):
         self.EndPick(event, 0)

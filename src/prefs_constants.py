@@ -46,7 +46,7 @@ DOTTED_LINE = 3
 SQUARE_GRID = 0
 SiC_GRID = 1
 
-# Selection Behavour Options
+# Selection Behavior Options
 NATIVE = 0
 CHEM3D = 1
 
@@ -60,7 +60,7 @@ compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
-selectionBehavour_prefs_key = 'A7/Selection Behavour'
+selectionBehavior_prefs_key = 'A7/Selection Behavior'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -144,7 +144,7 @@ prefs_table = (
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, PERSPECTIVE),
-    ('selection_behavour', 'int', selectionBehavour_prefs_key, NATIVE),
+    ('selection_behavior', 'int', selectionBehavior_prefs_key, NATIVE),
 
     # Atom preferences - colors (other than element colors, handled separately)
     

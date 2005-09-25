@@ -148,7 +148,7 @@ class ops_select_Mixin:
             if a.picked: 
                 # If a select atom has an unpicked neighbor, it gets added to the contract_list
                 # Bruce mentions: you can just scan realNeighbors if you want to only scan
-                # the non-singlet atoms. Users may desire this behavour - we can switch it on/off
+                # the non-singlet atoms. Users may desire this behavior - we can switch it on/off
                 # via a dashboard checkbox or user pref if we want.  Mark 050923.
                 for n in a.neighbors():
                     if not n.picked:
@@ -331,10 +331,10 @@ class ops_select_Mixin:
                 atm.pick()
                 env.history.message(atm.getinfo())
         
-        # Added Chem3D selection behavour.  This code unselects everything
+        # Added Chem3D selection behavior.  This code unselects everything
         # if no atom/chunk was selected.  Mark 050924.
         else: 
-            if env.prefs[selectionBehavour_prefs_key] == CHEM3D:
+            if env.prefs[selectionBehavior_prefs_key] == CHEM3D:
                 if self.selwhat == SELWHAT_CHUNKS:
                     self.unpickparts()
                 else:
