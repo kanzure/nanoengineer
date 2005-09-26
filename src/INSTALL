@@ -1,0 +1,22 @@
+Installation on Fedora Core 4
+===============================
+
+When installing FC4 on your computer, be sure to select KDE as your
+graphical environment. Also select the "kde devel" package. This will
+install several prerequisite packages directly from the CDROMs. In
+addition, you will need three more packages:
+
+freeglut-devel-2.2.0-16.i386.rpm
+	Install this using "rpm -i". This must be done as root.
+
+Numeric-24.0b2.tar.gz
+	Unpack this tarball and install with "python setup.py install".
+	This must also be done as root.
+
+PyOpenGL-2.0.2.01.tar.gz
+	Unpack this tarball and install with "python setup.py install".
+	This must also be done as root. You will need to install
+	freeglut-devel before you install this package.
+
+============================
+Add installation notes for other platforms....
