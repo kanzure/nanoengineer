@@ -779,6 +779,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     def makeESPWindow(self):
         self.assy.makeESPWindow()
+        
+    def makeAtomSet(self):
+        self.assy.makeAtomSet()
 
     ###################################
     # Modify Toolbar Slots

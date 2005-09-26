@@ -638,7 +638,8 @@ class Motor(Jig):
 
     pass # end of class Motor
 
-# ==
+
+# == RotaryMotor
 
 class RotaryMotor(Motor):
     '''A Rotary Motor has an axis, represented as a point and
@@ -865,7 +866,7 @@ def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which mig
         return res + 360 # should never happen
     return res
 
-# ==
+# == LinearMotor
 
 class LinearMotor(Motor):
     '''A Linear Motor has an axis, represented as a point and
@@ -976,6 +977,8 @@ class LinearMotor(Motor):
     pass # end of class LinearMotor
 
 
+# == RectGadget
+
 class RectGadget(Jig):
     mutable_attrs = ('center', 'quat')
     copyable_attrs = Jig.copyable_attrs + ('width', 'height') + mutable_attrs
@@ -1049,7 +1052,10 @@ class RectGadget(Jig):
     
     def _mmp_record_last_part(self, mapping):
         return ""
-    
+
+    pass # end of class RectGadget        
+
+# == GridPlane
         
 class GridPlane(RectGadget):
     ''' '''
@@ -1112,6 +1118,10 @@ class GridPlane(RectGadget):
             self.x_spacing, self.y_spacing, color[0], color[1], color[2])
         return " " + dataline
     
+    pass # end of class GridPlane   
+    
+    
+# == ESPWindow
 
 class ESPWindow(RectGadget):
     ''' '''
@@ -1128,10 +1138,18 @@ class ESPWindow(RectGadget):
         self.normcolor = black
         self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
         
-        self.resolution = 20
-        
+        # This specifies the resolution of the ESP Window. 
+        # The total number of ESP data points in the window will number resolution^2. 
+        self.resolution = 20 
+        # the edge margin, called cutoffWidth in N-H
+        self.edge_offset = 1.0 
+        # the offset margin (perpendicular to the window), called cutoffHeight in N-H
+        self.window_offset = 1.0
+        # Show/Hide ESP Window Volume (Bbox).  All atoms inside this volume are used by 
+        # the MPQC ESP Plane plug-in to calculate the ESP points.
+        self.show_esp_bbox = True 
+        # translucency, a range between 0-1 where: 0=fully opaque, 1= fully translucent
         self.translucency = 0.0
-
     
     def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color):
         '''Set the properties for a ESP Window read from a (MMP) file. '''
@@ -1159,8 +1177,14 @@ class ESPWindow(RectGadget):
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
-        drawLineLoop(self.color, corners_pos)        
+        drawLineLoop(self.color, corners_pos)  
         
+        # Draw the ESP Window bbox.
+        if self.show_esp_bbox:
+            wo = self.window_offset
+            eo = self.edge_offset
+            drawwirebox(self.color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo))
+
         glPopMatrix()
  
     def mmp_record_jigspecific_midpart(self):
@@ -1172,7 +1196,8 @@ class ESPWindow(RectGadget):
             self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
             self.translucency, color[0], color[1], color[2])
         return " " + dataline
-    
+
+    pass # end of class ESPWindow       
 
 # == Ground
 
@@ -1360,6 +1385,8 @@ class Stat( Jig_onChunk_by1atom ):
     pass # end of class Stat
 
 
+# == Thermo
+
 class Thermo(Jig_onChunk_by1atom):
     '''A Thermo is a thermometer which measures the temperature of a chunk
     during a simulation. A Thermo is defined and drawn on a single
@@ -1413,6 +1440,60 @@ class Thermo(Jig_onChunk_by1atom):
     
     pass # end of class Thermo
 
+
+# == AtomSet
+
+class AtomSet(Jig):
+    '''an Atom Set just has a list of atoms that can be easily selected by the user'''
+
+    sym = "Atom Set"
+    icon_names = ["atomset.png", "atomset-hide.png"]
+
+    # create a blank AtomSet with the given list of atoms
+    def __init__(self, assy, list):
+        Jig.__init__(self, assy, list)
+        # set default color of new set atom to black
+        self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = black # This is the normal (unselected) color.
+
+    def set_cntl(self):
+        self.cntl = GroundProp(self, self.assy.o)
+
+    # it's drawn as a wire cube around each atom (default color = black)
+    def _draw(self, win, dispdef):
+        '''Draws a red wire frame cube around each atom, only if the jig is select.
+        '''
+        if not self.picked:
+            return
+            
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            drawwirecube(self.color, a.posn(), rad)
+        
+    def _getinfo(self):
+        return "[Object: Atom Set] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
+
+    def getstatistics(self, stats):
+        stats.natoms += 1 # Count only the atom set itself, not the number of atoms in the set.
+
+    mmp_record_name = "atomset"
+    def mmp_record_jigspecific_midpart(self):
+        return ""
+
+    def anchors_atom(self, atm):
+        "does this jig hold this atom fixed in space? [overrides Jig method]"
+        return False # Not sure this method is needed.  Ask Bruce.  Mark 050925.
+
+    def confers_properties_on(self, atom): # Atom Set method
+        """[overrides Node method]
+        Should this jig be partly copied (even if not selected)
+        when this atom is individually selected and copied?
+        (It's ok to assume without checking that atom is one of this jig's atoms.)
+        """
+        return False # Need to ask Bruce about this, too.  Mark 050925.
+    
+    pass # end of class AtomSet
+
 # ===
 
 class jigmakers_Mixin: #bruce 050507 moved these here from part.py
@@ -1430,7 +1511,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         cmd = greenmsg("Rotary Motor: ")
         
         if not self.assy.selatoms:
-            env.history.message(cmd + redmsg("You must first select an atom(s) to create a motor."))
+            env.history.message(cmd + redmsg("You must first select an atom(s) to create a Rotary Motor."))
             return
         
         # Make sure that no more than 30 atoms are selected.
@@ -1463,7 +1544,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         cmd = greenmsg("Linear Motor: ")
         
         if not self.assy.selatoms:
-            env.history.message(cmd + redmsg("You must first select an atom(s) to create a motor."))
+            env.history.message(cmd + redmsg("You must first select an atom(s) to create a Linear Motor."))
             return
         
         # Make sure that no more than 30 atoms are selected.
@@ -1537,7 +1618,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         cmd = greenmsg("Ground: ")
         
         if not self.assy.selatoms:
-            env.history.message(cmd + redmsg("You must first select an atom(s) to create a ground."))
+            env.history.message(cmd + redmsg("You must select at least one atom to create a Ground."))
             return
         
         # Make sure that no more than 30 atoms are selected.
@@ -1560,13 +1641,13 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         cmd = greenmsg("Thermostat: ")
         
         if not self.assy.selatoms:
-            msg = redmsg("You must select an atom on the molecule you want to associate with a thermostat.")
+            msg = redmsg("You must select an atom on the molecule you want to associate with a Thermostat.")
             env.history.message(cmd + msg)
             return
         
         # Make sure only one atom is selected.
         if len(self.assy.selatoms) != 1: 
-            msg = redmsg("To create a thermostat, only one atom may be selected.  Try again.")
+            msg = redmsg("To create a Thermostat, only one atom may be selected.  Try again.")
             env.history.message(cmd + msg)
             return
         m = Stat(self.assy, self.selatoms.values())
@@ -1583,13 +1664,13 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         cmd = greenmsg("Thermometer: ")
         
         if not self.assy.selatoms:
-            msg = redmsg("You must select an atom on the molecule you want to associate with a thermometer.")
+            msg = redmsg("You must select an atom on the molecule you want to associate with a Thermometer.")
             env.history.message(cmd + msg)
             return
         
         # Make sure only one atom is selected.
         if len(self.assy.selatoms) != 1: 
-            msg = redmsg("To create a thermometer, only one atom may be selected.  Try again.")
+            msg = redmsg("To create a Thermometer, only one atom may be selected.  Try again.")
             env.history.message(cmd + msg)
             return
         
@@ -1605,13 +1686,13 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         cmd = greenmsg("Grid Plane: ")
         
         if not self.assy.selatoms:
-            msg = redmsg("You must select at least 3 atoms you want to put a grid plane.")
+            msg = redmsg("You must select 3 or more atoms to create a Grid Plane.")
             env.history.message(cmd + msg)
             return
         
         # Make sure only one atom is selected.
         if len(self.assy.selatoms)  <3: 
-            msg = redmsg("To create a grid plane, at least 3 atoms must be selected.  Try again.")
+            msg = redmsg("To create a Grid Plane, at least 3 atoms must be selected.  Try again.")
             env.history.message(cmd + msg)
             return
         
@@ -1625,7 +1706,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickatoms()
         self.place_new_jig(m)
         
-        env.history.message(cmd + "grid plane created")
+        env.history.message(cmd + "Grid Plane created")
         self.assy.w.win_update()
         
         
@@ -1640,7 +1721,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m = ESPWindow(self.assy, self.selatoms.values())
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
-            #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
             env.history.message(cmd + "Cancelled")
             return 
         
@@ -1648,6 +1728,21 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.place_new_jig(m)
         
         env.history.message(cmd + "ESP Window created.")
+        self.assy.w.win_update()
+        
+    def makeAtomSet(self):
+        cmd = greenmsg("Atom Set: ")
+        
+        if not self.assy.selatoms:
+            env.history.message(cmd + redmsg("You must select at least one atom to create an Atom Set."))
+            return
+        
+        m = AtomSet(self.assy, self.selatoms.values())
+        
+        self.place_new_jig(m)
+        m.pick() # This is required to display the Atom Set wireframe boxes.
+        
+        env.history.message(cmd + "Atom Set created.")
         self.assy.w.win_update()
         
     pass # end of class jigmakers_Mixin
