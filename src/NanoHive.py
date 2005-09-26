@@ -176,27 +176,31 @@ class NanoHive(NanoHiveDialog):
         # Retreive the filenames, output directory and part name.
         mmp_filename, \
         simspec_filename, \
-        simflow_filename, \
+        workflow_filename, \
         outdir, \
         partname = self.get_nanohive_filenames()
         
+        # 0. Make sure we can connect to Nano-Hive.
+        r = self.connect_to_nanohive()
+        
+        if r: # Error connecting to Nano-Hive instance
+            return 1
+            
         # 1. Write the MMP file that Nano-Hive will use for the sim run.
         self.assy.writemmpfile(mmp_filename)
             
         # 2. Write the sim-spec file using the parameters from the Nano-Hive dialog widgets
-        self.write_simspec_file(simspec_filename, simflow_filename, mmp_filename, outdir, partname)
+        self.write_simspec_file(simspec_filename, workflow_filename, mmp_filename, outdir, partname)
         
-        # 3. Write the Sim Flow file
-        self.write_simflow_file(simflow_filename)
-        
-        # 3. Execute Nano-Hive, to be written by Brian H.
+        # 3. Write the Sim Workflow file
+        self.write_workflow_file(workflow_filename)
         
         # Informative messages (temporary).
         print "\n-------------------------------------"
         print "Here are the locations of the files that Nano-Hive needs:"
         print "MMP File: ", mmp_filename
         print "SimSpec File: ", simspec_filename
-        print "SimFlow File: ", simflow_filename
+        print "SimFlow File: ", workflow_filename
         print "Brian H. will write the code for generating the SimFlow file."
         print "-------------------------------------\n"
         
@@ -204,11 +208,28 @@ class NanoHive(NanoHiveDialog):
                         "Here are the locations of the files that Nano-Hive needs:<br>"\
                         "MMP File: " + mmp_filename + "<br>"\
                         "SimSpec File: " + simspec_filename + "<br>"\
-                        "SimFlow File: " + simflow_filename + "<br>"\
+                        "SimFlow File: " + workflow_filename + "<br>"\
                         "Brian H. will write the code for generating the SimFlow file." + "<br>"\
                         "-------------------------------------<br>"
         
         env.history.message(infotext)
+        
+        # 4. Send commands to Nano-Hive.  There can be no spaces in partname.  Need to fix this.
+        cmd = 'load simulation -f "' + simspec_filename + '" -n ' + partname
+        print "N-H load command: ", cmd
+        
+        success, result = self.nh_conn.sendCommand(cmd) # Send "load" command.
+        if not success:
+            print success, result
+            return 1
+        
+        cmd = "run " + partname
+        print "N-H run command: ", cmd
+        
+        success, result = self.nh_conn.sendCommand(cmd) # Send "run" command.
+        if not success:
+            print success, result
+            return 1
         
         return 0
         
@@ -241,8 +262,8 @@ class NanoHive(NanoHiveDialog):
         
         return mmp_fn, simspec_fn, simflow_fn, nhdir, name
         
-    def write_simspec_file(self, filename, simflow_filename, mmp_filename, outdir, partname):
-        '''Writes the Nano-Hive Sim Spec file, which is an XML file that describes the
+    def write_simspec_file(self, filename, workflow_filename, mmp_filename, outdir, partname):
+        '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the
         simulation environment, plugin selection and plugin parameters.
         '''
         
@@ -261,9 +282,10 @@ class NanoHive(NanoHiveDialog):
         # from the Nano-Hive executable path.
         nanohive_exe = env.prefs[nanohive_path_prefs_key]
         head, tail = os.path.split(nanohive_exe)
+        head, tail = os.path.split(head)
         nh_home, tail = os.path.split(head)
         
-        # print "NanoHive.write_simspec_file(): Nano-Hive Home:", nh_home
+        print "NanoHive.write_simspec_file(): Nano-Hive Home:", nh_home
         
         f = open(filename,'w') # Open Nano-Hive Sim Spec file.
         
@@ -271,19 +293,20 @@ class NanoHive(NanoHiveDialog):
         
         f.write ('<simulation>\n')
         f.write('  <description>%s</description>\n' % self.description_textedit.text())
+        f.write('\n')
         f.write('  <parameter name="timeQuantumLength" value="%e" />\n' % spf)
         f.write('  <parameter name="environmentTemperature" value="%d" />\n' % temp)
         f.write('  <parameter name="startIteration" value="0" />\n')
         f.write('  <parameter name="iterations" value="%d" />\n' % iterations)
         f.write('\n')
-        f.write('  <simulationFlow file="%s">\n' % simflow_filename)
-        f.write('    <input type="nanorexMMP" file="%s" />\n' % mmp_filename)
+        f.write('  <simulationFlow file="%s">\n' % workflow_filename)
+        f.write('    <input name="inFile" type="nanorexMMP" file="%s" />\n' % mmp_filename)
         
         # This traverser is for the local machine.
         f.write('    <traverser name="traverser" plugin="RC_Traverser" />\n')
         
-        # The bond calculator
-        f.write('    <calculator name="bondCalculator" plugin="BondCalculator" />\n')
+        # The bond calculator.  Not needed for ESP Plane plugin.
+        #f.write('    <calculator name="bondCalculator" plugin="BondCalculator" />\n')
         
         # Physical Interaction Plugins ########################################
         
@@ -294,36 +317,55 @@ class NanoHive(NanoHiveDialog):
             #print "ESP Window CenterPoint =", centerPoint
             
             npnt = self.esp_window.getaxis() * 1e-10
-            normalPoint = (float(npnt[0]), float(npnt[1]), float(npnt[2]))
+            normalPoint = (float(npnt[0]), float(abs(npnt[1])), float(npnt[2]))
             #print "ESP Window NormalPoint =", normalPoint
-            
-            outputLength = self.esp_window.width * 1e-10
-            #print "ESP Window outputLength =", outputLength
             
             resolution = self.esp_window.resolution
             # print "ESP Window Resolution =", resolution
+            
+            cutoffHeight = self.esp_window.window_offset * 1e-10
+            #print "ESP Window cutoffHeight =", cutoffHeight
+            cutoffWidth = self.esp_window.edge_offset * 1e-10
+            #print "ESP Window cutoffWidth =", cutoffWidth
+            outputLength = self.esp_window.width * 1e-10
+            #print "ESP Window outputLength =", outputLength
 
             f.write('\n')
-            f.write('    <calculator name="qmCalculator" plugin="MPQC_SClib">\n')
+            f.write('    <calculator name="espWindow" plugin="MPQC_SClib">\n')
             f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
-            f.write('      <parameter name="dataDirectory" value="%s/data/MQPC_SClib" />\n' % nh_home)
+            f.write('      <parameter name="dataDirectory" value="%s/data/MPQC_SClib" />\n' % nh_home)
             f.write('      <parameter name="basis" value="STO-3G" />\n')
             f.write('      <parameter name="method" value="HF" />\n')
-            f.write('      <parameter name="gradientDynamics" value="no" />\n')
+            f.write('      <parameter name="desiredEnergyAccuracy" value="1.0e-3" />\n')
+            f.write('      <parameter name="multiplicity" value="1" />\n')
+            f.write('\n')
             f.write('      <parameter name="outputType" value="ESPplane" />\n')
             f.write('      <parameter name="resolution" value="%d" />\n' % resolution)
-            f.write('      <parameter name="centerPoint" value="%e,%e,%e" />\n' % centerPoint)
-            f.write('      <parameter name="normalPoint" value="%e,%e,%e" />\n' % normalPoint)
-            f.write('      <parameter name="outputLength" value="%e" />\n' % outputLength)
-            f.write('      <parameter name="cutoffHeight" value="1.0e-10" />\n')
-            f.write('      <parameter name="cutoffWidth" value="0.5e-10" />\n')
+            f.write('\n')
+            if 0:
+                f.write('      <parameter name="centerPoint" value="%.1e %.1e %.1e" />\n' % centerPoint)
+                f.write('      <parameter name="normalPoint" value="%1.1e %1.1e %1.1e" />\n' % normalPoint)
+                f.write('      <parameter name="cutoffHeight" value="%1.1e" />\n' % cutoffHeight)
+                f.write('      <parameter name="cutoffWidth" value="%1.1e" />\n' % cutoffWidth)
+                f.write('      <parameter name="outputLength" value="%1.1e" />\n' % outputLength)
+            else:
+                f.write('      <parameter name="centerPoint" value="0 0 0" />\n')
+                f.write('      <parameter name="normalPoint" value="0 1.0e-10 0" />\n')
+                f.write('      <parameter name="cutoffHeight" value="2e-10" />\n')
+                f.write('      <parameter name="cutoffWidth" value="2e-10" />\n')
+                f.write('      <parameter name="outputLength" value="10.0e-10" />\n')
             f.write('    </calculator>\n')
+            
+            f.write('\n')
+            f.write('    <result name="simResult" plugin="_ESP_Image">\n')
+            f.write('      <parameter name="outputFilename" value="%s\\result.png" />\n' % outdir)
+            f.write('    </result>\n')
             
         if self.MPQC_GD_checkbox.isChecked():
             f.write('\n')
             f.write('    <calculator name="qmDynamicsInteraction" plugin="MPQC_SClib">\n')
             f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
-            f.write('      <parameter name="dataDirectory" value="%s/data/MQPC_SClib" />\n' % nh_home)
+            f.write('      <parameter name="dataDirectory" value="%s/data/MPQC_SClib" />\n' % nh_home)
             f.write('      <parameter name="basis" value="STO-3G" />\n')
             f.write('      <parameter name="method" value="HF" />\n')
             f.write('      <parameter name="gradientDynamics" value="yes" />\n')
@@ -365,14 +407,15 @@ class NanoHive(NanoHiveDialog):
             f.write('        value="%s/data/mpeg_encode.param.tmplt" />\n' % nh_home)
             f.write('    </result>\n')
 
-        # NetCDF Plugin
-        f.write('\n')
-        f.write('    <result name="simResult" plugin="NetCDF_DataSet">\n')
-        f.write('      <parameter name="outputInterval" value="1" />\n')
-        f.write('      <parameter name="outputDirectory"\n')
-        f.write('        value="%s" />\n' % outdir)
-        f.write('      <parameter name="maxDataSets" value="-1" />\n')
-        f.write('    </result>\n')
+        # NetCDF Plugin.  COMMENTED OUT FOR TESTING.
+        if 0:
+            f.write('\n')
+            f.write('    <result name="simResult" plugin="NetCDF_DataSet">\n')
+            f.write('      <parameter name="outputInterval" value="1" />\n')
+            f.write('      <parameter name="outputDirectory"\n')
+            f.write('        value="%s" />\n' % outdir)
+            f.write('      <parameter name="maxDataSets" value="-1" />\n')
+            f.write('    </result>\n')
         
         # Footer
         f.write('\n')
@@ -381,12 +424,28 @@ class NanoHive(NanoHiveDialog):
         
         f.close()
         
-    def write_simflow_file(self, filename):
-        '''Writes the Nano-Hive Sim Flow file, which is a TCL script used by Nano-Hive to
+    def write_workflow_file(self, filename):
+        '''Writes the Nano-Hive Workflow file, which is a TCL script used by Nano-Hive to
         run the simulation.  It describes the workflow of the simulation.
         '''
-        # Brian H. to code this method.
-        pass
+        
+        # This is a sample workflow file for creating an ESP Plane:
+            
+        #NH_Import $inFile
+        #NH_Calculate 0 $traverser
+        #NH_Calculate 0 $espWindow $traverser
+        #NH_Intermediate 0 $simResult
+        #NH_Final $simResult
+        
+        f = open(filename,'w') # Open Nano-Hive Workflow file.
+        
+        f.write ('NH_Import $inFile\n\n')
+        f.write ('NH_Calculate 0 $traverser\n')
+        f.write ('NH_Calculate 0 $espWindow $traverser\n')
+        f.write ('NH_Intermediate 0 $simResult\n\n')
+        f.write ('NH_Final $simResult\n')
+
+        f.close()
         
 
 # This is not implemented yet.         
@@ -429,4 +488,37 @@ class NanoHive(NanoHiveDialog):
 
         return 0
 
+    def connect_to_nanohive(self):
+        '''Connects to a Nano-Hive instance.  Returns 0 if success, 1 if failure.
+        '''
+
+        import NanoHiveUtils
+
+        hostIP = "127.0.0.1"
+        port = 3002 # SpiderMonkey
+        serverTimeout = 5.0
+        clientTimeout = 30.0
+        
+        self.nh_conn = NanoHiveUtils.NH_Connection() # Obtain connection object
+        
+        # Try connecting the Nano-Hive instance.
+        success, msg = self.nh_conn.connect(hostIP, port, serverTimeout, clientTimeout)
+        
+        if success:
+            success, result = self.nh_conn.sendCommand("status 1") # Send status command.
+            if success:
+                msg = "Success: " + str(success)  + "\nMessage: " + str(result)
+                env.history.message(msg)
+                return 0
+                
+            else:
+                msg = "Command Error:\nSuccess=" + str(success)  + "\nMessage: " + str(result)
+                env.history.message(msg)
+                return 1
+            
+        else:
+            msg = " Connection Failed:\nSuccess=" + str(success)  + "\nMessage: " + str(msg)
+            env.history.message(msg)
+            return 1
+        
 # end
