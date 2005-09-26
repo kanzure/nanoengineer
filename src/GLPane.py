@@ -257,6 +257,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.displayOriginAxis = env.prefs[displayOriginAxis_prefs_key]
         self.displayPOVAxis = env.prefs[displayPOVAxis_prefs_key]
         self.ortho = env.prefs[defaultProjection_prefs_key]
+        # This updates the checkmark in the View menu. Fixes bug #996 Mark 050925.
+        self.setViewProjection(self.ortho) 
 
         # default display form for objects in the window
         # even tho there is only one assembly to a window,
@@ -448,9 +450,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         prefs db value itself, since we don't want all user changes to projection to be stored
         in the prefs db, only the ones done from the Preferences dialog.
         '''
+
+        # Set the checkmark for the Ortho/Perspective menu item in the View menu.  
+        # This needs to be done before comparing the value of self.ortho to projection
+        # because self.ortho and the toggle state of the corresponding action may 
+        # not be in sync at startup time. This fixes bug #996.
+        # Mark 050924.
+        if projection:
+            self.win.setViewOrthoAction.setOn(1)
+        else:
+            self.win.setViewPerspecAction.setOn(1)
+        
         if self.ortho == projection:
             return
-        # Still need to toggle the Ortho/Perspective action item in the View menu.  Mark 050918.
+            
         self.ortho = projection
         self.gl_update()
     
