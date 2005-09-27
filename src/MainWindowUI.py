@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Sep 25 15:43:19 2005
+# Created: Tue Sep 27 18:40:19 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6749,6 +6749,7 @@ class MainWindow(QMainWindow):
         self.selectContractAction.setIconSet(QIconSet(self.image138))
         self.jigAtomSetAction = QAction(self,"jigAtomSetAction")
         self.jigAtomSetAction.setIconSet(QIconSet(self.image139))
+        self.fileSaveSelectionAction = QAction(self,"fileSaveSelectionAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7007,6 +7008,7 @@ class MainWindow(QMainWindow):
         self.fileMenu.insertSeparator()
         self.fileSaveAction.addTo(self.fileMenu)
         self.fileSaveAsAction.addTo(self.fileMenu)
+        self.fileSaveSelectionAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.MenuBar.insertItem(QString(""),self.fileMenu,4)
@@ -7273,6 +7275,7 @@ class MainWindow(QMainWindow):
         self.connect(self.selectExpandAction,SIGNAL("activated()"),self.selectExpand)
         self.connect(self.selectContractAction,SIGNAL("activated()"),self.selectContract)
         self.connect(self.jigAtomSetAction,SIGNAL("activated()"),self.makeAtomSet)
+        self.connect(self.fileSaveSelectionAction,SIGNAL("activated()"),self.fileSaveSelection)
 
 
     def languageChange(self):
@@ -7728,6 +7731,7 @@ class MainWindow(QMainWindow):
         self.selectContractAction.setToolTip(self.__tr("Contract Selection (Ctrl+Shift+D)"))
         self.selectContractAction.setAccel(self.__tr("Ctrl+Shift+D"))
         self.jigAtomSetAction.setText(self.__tr("Atom Set"))
+        self.fileSaveSelectionAction.setText(self.__tr("Save Selection..."))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8280,6 +8284,9 @@ class MainWindow(QMainWindow):
 
     def makeAtomSet(self):
         print "MainWindow.makeAtomSet(): Not implemented yet"
+
+    def fileSaveSelection(self):
+        print "MainWindow.fileSaveSelection(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

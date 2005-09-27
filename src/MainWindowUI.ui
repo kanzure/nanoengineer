@@ -56,6 +56,7 @@
         <separator/>
         <action name="fileSaveAction"/>
         <action name="fileSaveAsAction"/>
+        <action name="fileSaveSelectionAction"/>
         <separator/>
         <action name="fileExitAction"/>
     </item>
@@ -3913,6 +3914,14 @@
             <string>Atom Set</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveSelectionAction</cstring>
+        </property>
+        <property name="text">
+            <string>Save Selection...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -5189,6 +5198,12 @@
         <receiver>MainWindow</receiver>
         <slot>makeAtomSet()</slot>
     </connection>
+    <connection>
+        <sender>fileSaveSelectionAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileSaveSelection()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5357,6 +5372,7 @@
     <slot>selectExpand()</slot>
     <slot>selectContract()</slot>
     <slot>makeAtomSet()</slot>
+    <slot>fileSaveSelection()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -301,6 +301,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else:
             self.saveSeparateFile( safile)
         return
+        
+    def fileSaveSelection(self):
+        print "ops_files.fileSaveSelection(): Not Implemented Yet."
 
     def saveSeparateFile( self, safile): #bruce 050908 split this out, reorganized code, revised bug-only history messages
         "Save some aspect of the current part in a separate file, without resetting the current part's changed flag or filename."
