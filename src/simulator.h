@@ -241,6 +241,7 @@ extern struct xyz Omega;
 /* command line options */
 
 extern int ToMinimize;
+extern int PrintStructureEnergy;
 extern int IterPerFrame;
 extern int NumFrames;
 extern int DumpAsText;

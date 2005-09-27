@@ -7,9 +7,9 @@ struct bondStretch
   //int typ, ord, a1, a2;
 
   double ks;   // stiffness in N/m
-  double r0;   // base radius in pm
-  double de;   // Morse/Lippincott
-  double beta; // Morse/Lippincott
+  double r0;   // base radius in pm, or 1e-12 m
+  double de;   // aJ, or 1e-18 J, for Morse
+  double beta; // 1e12 m^-1, for Morse
 
   int isGeneric; // set to non-zero if the above are based on a heuristic
   
@@ -38,11 +38,11 @@ struct atomType
   int period;
   char symbol[4];
   char *name;
-  double mass;
-  double vanDerWaalsRadius;
-  double e_vanDerWaals;
+  double mass;                // yg, or yoctograms, or 1e-24 g
+  double vanDerWaalsRadius;   // Angstroms, or 1e-10 m
+  double e_vanDerWaals;       // zJ, or zeptoJoules, or 1e-21 J
   int n_bonds;
-  double covalentRadius;
+  double covalentRadius;      // Angstroms, or 1e-10 m
 };
 
 extern struct atomType periodicTable[MAX_ELEMENT+1];

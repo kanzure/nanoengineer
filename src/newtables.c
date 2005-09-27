@@ -6,6 +6,10 @@ getBondStretchEntry(int element1, int element2, char bondOrder);
 
 struct atomType periodicTable[MAX_ELEMENT+1];
 
+// ks in N/m
+// r0 in pm, or 1e-12 m
+// de in aJ, or 1e-18 J
+// beta in 1e12 m^-1
 static struct bondStretch *
 newBondStretch(char *bondName, double ks, double r0, double de, double beta, int generic)
 {
@@ -22,6 +26,8 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, int
   return stretch;
 }
 
+// kb in yJ / rad^2 (yoctoJoules per radian squared, or 1e-24 J/rad^2)
+// theta0 in radians
 static struct bendData *
 newBendData(char *bendName, double kb, double theta0)
 {
@@ -76,6 +82,10 @@ static struct hashtable *bendDataHashtable;
 static struct hashtable *deHashtable;
 static struct hashtable *vanDerWaalsHashtable;
 
+// ks in N/m
+// r0 in pm, or 1e-12 m
+// de in aJ, or 1e-18 J
+// beta in 1e12 m^-1
 static struct bondStretch *
 addBondStretch(char *bondName, double ks, double r0, double de, double beta, int generic)
 {
@@ -96,6 +106,10 @@ addBendData(char *bendName, double kb, double theta0)
   return bend;
 }
 
+// ks in N/m
+// r0 in pm, or 1e-12 m
+// de in aJ, or 1e-18 J
+// beta in 1e10 m^-1
 static void
 addInitialBondStretch(int element1, int element2, char order, double ks, double r0, double de, double beta)
 {
@@ -107,12 +121,14 @@ addInitialBondStretch(int element1, int element2, char order, double ks, double 
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
 
+// kb in aJ / rad^2
+// theta0 in radians
 static void
 addInitialBendData(char *bendName, double kb, double theta0)
 {
   struct bendData *bend;
 
-  bend = newBendData(bendName, kb*1000000.0, theta0);
+  bend = newBendData(bendName, kb*1e6, theta0);
   hashtable_put(bendDataHashtable, bendName, bend);
 }
 
@@ -165,10 +181,17 @@ initializeBondTable()
   //
   // an e_vanDerWaals value < .1 will be calculated in setElement()
   //
+  // mass in yg (yoctograms, or 1e-24 g)
+  /////////////////////////////////////////////////////////////////////////
+  // rvdW does not match numbers in Nanosystems p.44. which are 1e-10 m
+  /////////////////////////////////////////////////////////////////////////
+  // evdW in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
+  // rCovalent in Angstroms (1e-10 m)
+  //
   // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
   //    e_vanDerWaals, n_bonds, covalentRadius
   //
-  //          Z grp per sym   name           mass    rvdw  evdw bnds rcov
+  //          Z grp per sym   name           mass    rvdW  evdW bnds rcov
   //
  
   setElement( 0,  1, 1, "X",  "Singlet",    17.000,  1.1,  0.000, 1, 0);

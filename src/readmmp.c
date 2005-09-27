@@ -444,13 +444,13 @@ readMMP(char *filename)
 
     // atom atomNumber (element) (posx, posy, posz)
     // Identifies a new atom with the given element type and position.
-    // Position vectors are integers with units of 0.1pm.
+    // Position vectors are integers with units of 0.1pm, or 1e-13 m
     if (!strcmp(tok, "atom")) {
       expectInt(f, &atomNumber, 0);
       expectToken(f, "(");
       expectInt(f, &element, 0);
       expectToken(f, ")");
-      expectXYZInts(f, &vec1);
+      expectXYZInts(f, &vec1); // vec1 has positions in pm here
       consumeRestOfLine(f);
           
       // hack: change singlets to hydrogen

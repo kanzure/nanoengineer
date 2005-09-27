@@ -76,40 +76,83 @@ double hooke(double rSquared) {
 /* numerically differentiate the resulting potential for force */
 /* uses global De, Beta, Ks and R0 */
 
-// the result is in attoJoules per picometer * 1e6 = picoNewtons
-double lippmor(double rSquared) {
-    double r,y1,y2;
 	
-    r=sqrt(rSquared);
-    r=r+0.5;
-	
-    if (r>=R0)
-	y2=De *(1-exp(- 1e-6 * Ks * R0 * (r - R0)* (r - R0) / (2 *De* r)));
-    else
-	y2=De *(1-exp(- Beta * (r - R0))) *(1-exp(- Beta * (r - R0)));
-	
-    r=r-1.0;
-	
-    if (r>=R0)
-	y1=De *(1-exp(- 1e-6 * Ks * R0 * (r - R0)* (r - R0) / (2 *De* r)));
-    else
-	y1=De *(1-exp(- Beta * (r - R0))) *(1-exp(- Beta * (r - R0)));
-	
-    r=r+0.5;
-	
-    return 1e6*(y1-y2)/r;
+// ks in N/m
+// r0 in pm, or 1e-12 m
+// de in aJ, or 1e-18 J
+// beta in 1e12 m^-1
+
+static double
+lippincott(double r)
+{
+  return De * (1 - exp(-1e-6 * Ks * R0 * (r - R0) * (r - R0) / (2 * De * r)));
 }
 
-/* the Buckingham potential for van der Waals / London force */
-/* uses global EvdW, RvdW */
-double bucking(double rSquared) {
-    double r, y;
-    r=sqrt(rSquared);
+static double
+morse(double r)
+{
+  // the exponent is unitless
+  // returns potential in aJ, given r in pm
+  return De * (1 - exp(-Beta * (r - R0))) * (1 - exp(-Beta * (r - R0)));
+}
+
+
+// use the Morse potential inside R0, Lippincott outside
+// result in aJ
+static double
+potentialLippincottMorse(double rSquared)
+{
+  double r = sqrt(rSquared);
+  return (r >= R0) ? lippincott(r) : morse(r);
+}
+
+// numerically differentiate the potential for force
+// the result is in attoJoules per picometer * 1e6 = picoNewtons
+//
+// NOTE: gradient is divided by r since we end up multiplying it by
+// the radius vector to get the force.
+static double
+gradientLippincottMorse(double rSquared)
+{
+  double r = sqrt(rSquared);
+  double r1 = r - 0.5;
+  double r2 = r + 0.5;
+  double y1 = (r1 >= R0) ? lippincott(r1) : morse(r1);
+  double y2 = (r2 >= R0) ? lippincott(r2) : morse(r2);
+  // y1, y2 are in attoJoules (1e-18 J)
+  // delta r is 1 pm (1e-12 m), so:
+  // y1-y2 is attoJoules / pm (1e-6 J / m)
+  // 1e6*(y1-y2) is in 1e-12 J/m, or pN
+
+  return 1e6 * (y1 - y2) / r;
+}
+
+// Buckingham potential for van der Waals / London force
+// in attoJoules (1e-18 J)
+// given pm squared
+static double
+potentialBuckingham(double rSquared)
+{
+  double r = sqrt(rSquared);
 	
-    y= -1e3 * EvdW*(2.48e5 * exp(-12.5*(r/RvdW)) *(-12.5/RvdW)
-		    -1.924*pow(1.0/RvdW, -6.0)*(-6.0)*pow(r,-7.0));
-	
-    return y/r;
+  // EvdW in zJ (1e-21 J)
+  // RvdW in pm (1e-12 m)
+  return -1e3 * EvdW * (2.48e5 * exp(-12.5*(r/RvdW)) -1.924*pow(r/RvdW, -6.0));
+}
+
+// NOTE: gradient is divided by r since we end up multiplying it by
+// the radius vector to get the force.
+static double
+gradientBuckingham(double rSquared)
+{
+  double r = sqrt(rSquared);
+  double y;
+
+  // EvdW in zJ (1e-21 J)
+  // RvdW in pm (1e-12 m)
+  y= -1e3 * EvdW * (2.48e5 * exp(-12.5 * (r / RvdW)) * (-12.5 /RvdW)
+                    - 1.924 * pow (1.0 /RvdW, -6.0) * (-6.0) * pow(r, -7.0));
+  return y / r;
 }
 
 double square(double x) {return x*x;}
@@ -121,6 +164,11 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
 {
   double end;
 	
+  // ks in N/m
+  // r0 in pm, or 1e-12 m
+  // de in aJ, or 1e-18 J
+  // beta in 1e12 m^-1
+
   R0 = stretch->r0;
   stretch->table.start = square(R0*0.5);
   end = square(R0*1.5);
@@ -128,15 +176,20 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   Ks = stretch->ks;
   De = stretch->de;
   Beta = stretch->beta;
-  maktab(stretch->table.t1, stretch->table.t2, lippmor, stretch->table.start,
-         TABLEN, stretch->table.scale);
+  maktab(stretch->table.t1,
+         stretch->table.t2,
+         PrintStructureEnergy ? potentialLippincottMorse : gradientLippincottMorse,
+         stretch->table.start,
+         TABLEN,
+         stretch->table.scale);
 }
 
 void
 initializeVanDerWaalsInterpolator(struct interpolationTable *table, int element1, int element2)
 {
   int end;
-  
+
+  // vanDerWaalsRadius in Angstroms, so RvdW in pm
   RvdW = 100.0 * (periodicTable[element1].vanDerWaalsRadius +
                   periodicTable[element2].vanDerWaalsRadius);
   EvdW = (periodicTable[element1].e_vanDerWaals + periodicTable[element2].e_vanDerWaals)/2.0;
@@ -145,7 +198,12 @@ initializeVanDerWaalsInterpolator(struct interpolationTable *table, int element1
   end=square(RvdW*1.5);
   table->scale = (int)(end - table->start) / TABLEN;
 				
-  maktab(table->t1, table->t2, bucking, table->start, TABLEN, table->scale);
+  maktab(table->t1,
+         table->t2,
+         PrintStructureEnergy ? potentialBuckingham : gradientBuckingham,
+         table->start,
+         TABLEN,
+         table->scale);
 				
 }
 

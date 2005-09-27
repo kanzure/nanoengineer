@@ -102,7 +102,8 @@ struct MOT Motor[100];
 
 
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
-double Dt= 1e-16, Dx=1e-12;
+double Dt = 1e-16; // seconds
+double Dx = 1e-12; // meters
 double Dmass = 1e-27;           // units of mass vs. kg
 double Temperature = 300.0;	/* Kelvins */
 double Boltz = 1.38e-23;	/* k, in J/K */
@@ -117,7 +118,8 @@ double Pi = 3.1415926;
 /** stiffnesses are in N/m, so forces come out in pN (i.e. Dx N) */
 double Kb=28.63;		/* N/m */
 double Ks=440.0;		/* N/m */
-double De=0.556, Beta = 1.989e-2; /* Morse params */
+double De=0.556;                // attoJoules 1e-18J
+double Beta = 1.989e-2;         // sqrt(Ks/2De) 1e12 m^-1
 
 //NB depends on Dx
 double Tq = 1e-3;            // since torques are given in pN*nm,
@@ -142,6 +144,7 @@ double G1=(1.01-0.27*0.01)*1.4*0.1;
 // definitions for command line args
 
 int ToMinimize=0;
+int PrintStructureEnergy=0;
 int IterPerFrame=10;
 int NumFrames=100;
 int DumpAsText=0;
@@ -417,7 +420,11 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
         foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
         q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
         q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
-		
+
+        // dTheta in radians
+        // kb in yJ/rad^2
+        // invlen in pm^-1 (or rad/pm)
+        // ff in yJ/pm (1e-24 J / 1e-12 m, or 1e-12 J/m, or pN)
         ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b1->invlen;
         vmulc(q1,ff);
         ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b2->invlen;
@@ -483,6 +490,160 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
             vsub(force[nvb->item[j].a2],f);
         }
     }
+}
+
+static double
+calculateEnergy(struct xyz *position)
+{
+    int j, k;
+    struct xyz f;
+    double rSquared;
+    double ff;
+    double fac;
+    struct xyz v1;
+    struct xyz v2;
+    double z;
+    double m;
+    double theta;
+    struct xyz q1;
+    struct xyz q2;
+    struct xyz foo;
+    struct vdWbuf *nvb;
+    double potential = 0.0;
+
+    /* interpolation */
+    double *t1;
+    double *t2;
+    double start;
+    int scale;
+
+    /* find the non-bonded interactions */
+    orion(position);
+		
+    Nexvanbuf=Dynobuf;
+    Nexvanbuf->fill = Dynoix;
+    Count = 0;
+		
+    for (j=0; j<Nexatom; j++) {
+        findnobo(position, j);
+    }
+			
+    /* compute stretch for each bond, accumulating in potential */
+    for (j=0; j<Nexbon; j++) {
+        vsub2(bond[j].r, position[bond[j].an1], position[bond[j].an2]);
+        vset(f,bond[j].r);
+        rSquared = vdot(f,f);
+				
+        /* while we're at it, set unit bond vector and clear bend force */
+        ff = 1.0/sqrt(rSquared); /* XXX if atoms are on top of each other, 1/0 !! */
+        bond[j].invlen = ff;
+        vmul2c(bond[j].ru,f,ff); /* unit vector along r */
+        //vsetc(bond[j].bff,0.0);
+				
+        /* table setup for stretch, to be moved out of loop */
+        start=bond[j].type->table.start;
+        scale=bond[j].type->table.scale;
+        t1=bond[j].type->table.t1;
+        t2=bond[j].type->table.t2;
+				
+        k=(int)(rSquared-start)/scale;
+        if (k<0) {
+					
+            if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+                fprintf(stderr, "stretch: low --");
+                pb(stderr, j);
+            }
+            fac=t1[0]+rSquared*t2[0];
+        }
+        else if (k>=TABLEN) {
+					
+            // fprintf(stderr, "stretch: high --");
+            // pb(stderr, j);
+            if (ToMinimize)  //flat
+                fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
+            else fac=0.0;
+        }
+        else fac=t1[k]+rSquared*t2[k];
+        // table lookup equivalent to: fac=lippmor(rSquared)
+            
+        potential += fac;
+    }
+			
+    /* now the forces for each bend */
+			
+    for (j=0; j<Nextorq; j++) {
+
+        // v1, v2 are the unit vectors FROM the central atom TO the neighbors
+        if (torq[j].dir1) {vsetn(v1,torq[j].b1->ru);}
+        else {vset(v1,torq[j].b1->ru);}
+        if (torq[j].dir2) {vsetn(v2,torq[j].b2->ru);}
+        else {vset(v2,torq[j].b2->ru);}
+
+#define ACOS_POLY_A -0.0820599
+#define ACOS_POLY_B  0.142376
+#define ACOS_POLY_C -0.137239
+#define ACOS_POLY_D -0.969476
+        z = vlen(vsum(v1, v2));
+        theta = Pi + z * (ACOS_POLY_D +
+                     z * (ACOS_POLY_C +
+                     z * (ACOS_POLY_B +
+                     z *  ACOS_POLY_A   )));
+
+        // dTheta in radians
+        // kb in yJ/rad^2
+        // potential in rad^2 * yJ/rad^2 * 1e-6, or aJ
+        ff = (theta - torq[j].type->theta0);
+        potential += ff * ff  * torq[j].type->kb * 1e-6 / 2.0 ;
+    }
+
+    // fprintf(stderr, "about to do vdw loop\n");
+    /* do the van der Waals/London forces */
+    for (nvb=&vanderRoot; nvb; nvb=nvb->next) {
+        for (j=0; j<nvb->fill; j++) {
+            // fprintf(stderr, "in vdw loop\n");
+            vsub2(f, position[nvb->item[j].a1], position[nvb->item[j].a2]);
+            rSquared = vdot(f,f);
+					
+            if (rSquared>50.0*700.0*700.0 && DEBUG(D_TABLE_BOUNDS)) {
+                fprintf(stderr, "hi vdw: %f\n", sqrt(rSquared));
+                pvdw(stderr, nvb,j);
+                pa(stderr, nvb->item[j].a1);
+                pa(stderr, nvb->item[j].a2);
+            }
+					
+            /*
+              fprintf(stderr, "Processing vdW %d/%d: atoms %d-%d, r=%f\n",
+              nvb-&vanderRoot, j,nvb->item[j].a1, nvb->item[j].a2,
+              sqrt(rSquared));
+            */
+            /* table setup  */
+            start=nvb->item[j].table->start;
+            scale=nvb->item[j].table->scale;
+            t1=nvb->item[j].table->t1;
+            t2=nvb->item[j].table->t2;
+					
+            k=(int)(rSquared-start)/scale;
+            if (k<0) {
+                if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+                    fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rSquared));
+                    pvdw(stderr, nvb,j);
+                }
+                k=0;
+                fac=t1[k]+rSquared*t2[k];
+            }
+            else if (k>=TABLEN) {
+                /*
+                  fprintf(stderr, "vdW: off table high -- %d/%d: start=%.2f, scale=%d\n",
+                  k,TABLEN, start, scale);
+                */
+                fac = 0.0;
+            }
+            else fac=t1[k]+rSquared*t2[k];
+
+            potential += fac;
+        }
+    }
+    return potential;
 }
 
 static void
@@ -1330,6 +1491,7 @@ usage()
    -d<char>      -- dump, <char>= a: atoms; b: bonds; c: constraints\n\
    -n<int>       -- expect this many atoms\n\
    -m            -- minimize the structure\n\
+   -E            -- print energy of structure\n\
    -i<int>       -- number of iterations per frame\n\
    -f<int>       -- number of frames\n\
    -s<float>     -- timestep\n\
@@ -1396,6 +1558,9 @@ main(int argc,char **argv)
 		break;
 	    case 'm':
 		ToMinimize=1;
+		break;
+	    case 'E':
+		PrintStructureEnergy=1;
 		break;
 	    case 'i':
 		IterPerFrame = atoi(argv[i]+2);
@@ -1524,10 +1689,12 @@ main(int argc,char **argv)
     if (! strchr(TraceFileName, '.')) {
         strcat(TraceFileName,".trc");
     }
-    tracef = fopen(TraceFileName, "w");
-    if (!tracef) {
-        perror(TraceFileName);
-        exit(1);
+    if (!PrintStructureEnergy) {
+        tracef = fopen(TraceFileName, "w");
+        if (!tracef) {
+            perror(TraceFileName);
+            exit(1);
+        }
     }
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
@@ -1566,6 +1733,10 @@ main(int argc,char **argv)
     fprintf(stderr, " center of mass: %f -- %f\n", vlen(CoM(Positions)), vlen(Cog));
     fprintf(stderr, " total momentum: %f\n",P);
     */
+    if (PrintStructureEnergy) {
+        printf("%f Potential energy of input structure in attoJoules.\n", calculateEnergy(Positions));
+        exit(0);
+    }
     printheader(tracef, filename, OutFileName, TraceFileName, 
                 Nexatom, NumFrames, IterPerFrame, Temperature);
 

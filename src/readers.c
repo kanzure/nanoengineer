@@ -6,6 +6,7 @@
 
 /** uses global Nexatom, atom, element, positions, old_positions, Dt, Dx, Boltz, and
     Temperature */
+// posn in pm or 1e-12 m
 void
 makatom(int elem, struct xyz posn) {
     struct xyz foo, v, p;
