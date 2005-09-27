@@ -348,13 +348,15 @@ class Jig(Node):
         but they shouldn't, because we've pulled all the common code for Jigs into here,
         so all they need to override is mmp_record_jigspecific_midpart.]
         """
-        if mapping is not None:
-            ndix = mapping.atnums
-        else:
-            ndix = None
+	if mapping is not None:
+            ndix = mapping.atnums				           
+            name = mapping.encode_name(self.name) #bruce 050729 help fix some
+	else:
+            ndix = None	
+            name = self.name
         nums = self.atnums_or_None( ndix)
         del ndix
-        
+	
         if nums is None or (self.is_disabled() and mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file()):
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
             # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,
@@ -386,6 +388,7 @@ class Jig(Node):
         """
         return ""
 
+
     def atnums_or_None(self, ndix):
         """Return list of atnums to write, as ints(??) (using ndix to encode them),
         or None if some atoms were not yet written to the file.
@@ -402,6 +405,7 @@ class Jig(Node):
             nums = map((lambda a: a.key), self.atoms)
         return nums
 
+
     def __repr__(self): #bruce 050322 compatibility method, probably not needed, but affects debugging
         try:
             line, wroteleaf = self.mmp_record()
@@ -415,9 +419,11 @@ class Jig(Node):
             return "<%s at %#x>" % (self.__class__.__name__, id(self)) # untested
         pass
 
+
     def is_disabled(self): #bruce 050421 experiment related to bug 451-9
         "[overrides Node method]"
         return self.disabled_by_user_choice or self.disabled_by_atoms()
+
 
     def disabled_by_atoms(self): #e rename?
         "is this jig necessarily disabled (due to some atoms being in a different part)?"
@@ -428,6 +434,7 @@ class Jig(Node):
                 #e We might want to loosen this for a Ground (and only disable the atoms in a different Part),
                 # but for initial bugfixing, let's treat all atoms the same for all jigs and see how that works.
         return False
+
 
     def getinfo(self): #bruce 050421 added this wrapper method and renamed the subclass methods it calls.
         sub = self._getinfo()
@@ -989,22 +996,24 @@ class RectGadget(Jig):
         self.width = 16
         self.height = 16
         
+        self.assy = assy
         self.cancelled = True # We will assume the user will cancel
 
         self.atomPos = []
         if not READ_FROM_MMP:
             self.__init_quat_center(list)        
-    
+
+	    
     def __init_quat_center(self, list):
         
         for a in list:#[:3]:
             self.atomPos += [a.posn()]
     
-        self.planeNorm = self._getPlaneOrientation(self.atomPos)
-        self.quat = Q(V(0.0, 0.0, 1.0), self.planeNorm)
+        planeNorm = self._getPlaneOrientation(self.atomPos)
+        self.quat = Q(V(0.0, 0.0, 1.0), planeNorm)
         self.center = add.reduce(self.atomPos)/len(self.atomPos)
-        
 
+	
     def __computeBBox(self):
         '''Compute current bounding box. '''
         from shape import BBox
@@ -1021,6 +1030,12 @@ class RectGadget(Jig):
     def __getattr__(self, name):
         if name == 'bbox':
             return self.__computeBBox()
+	elif name == 'planeNorm':
+	    return self.quat.rot(V(0.0, 0.0, 1.0))
+	elif name == 'right':
+	    return self.quat.rot(V(1.0, 0.0, 0.0))
+	elif name == 'up':
+	    return self.quat.rot(V(0.0, 1.0, 0.0))
         else:
             raise AttributeError, 'Grid Plane has no "%s"' % name
 
@@ -1141,7 +1156,7 @@ class ESPWindow(RectGadget):
         
         # This specifies the resolution of the ESP Window. 
         # The total number of ESP data points in the window will number resolution^2. 
-        self.resolution = 20
+        self.resolution = 128
         # Show/Hide ESP Window Volume (Bbox).  All atoms inside this volume are used by 
         # the MPQC ESP Plane plug-in to calculate the ESP points.
         self.show_esp_bbox = True
@@ -1149,10 +1164,39 @@ class ESPWindow(RectGadget):
         self.window_offset = 1.0
         # the edge offset used to create the edge boundary of the bbox
         self.edge_offset = 1.0 
-        # translucency, a range between 0-1 where: 0=fully opaque, 1= fully translucent
-        self.translucency = 0.0
+        # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
+        self.opacity = 0.6
+	self.textureReady = False # Flag if texture image is ready or not
+	
+	#self._initTextureEnv()
+	
     
-    def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color):
+    def _initTextureEnv(self):
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+
+
+    def _loadTexture(self, fileName):
+        '''Load the texture image '''
+	ix, iy, image  = getTextureData(fileName) 
+	
+        # Create Texture
+	glBindTexture(GL_TEXTURE_2D, glGenTextures(1))   # 2d texture (x and y size)
+	
+	glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+	
+	self._initTextureEnv()
+	
+	self.textureReady = True
+	
+    
+    def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color,show_bbox, win_offset, edge_offset):
         '''Set the properties for a ESP Window read from a (MMP) file. '''
         self.name = name; self.color = self.normcolor = border_color;
         self.width = width; self.height = height; self.resolution = resolution; 
@@ -1160,12 +1204,27 @@ class ESPWindow(RectGadget):
 
         self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
         
-        self.translucency = trans;  self.fill_color = fill_color
-      
+        self.opacity = trans;  self.fill_color = fill_color
+	self.show_esp_bbox = show_bbox; self.window_offset = win_offset; self.edge_offset = edge_offset
+	
       
     def set_cntl(self): 
         self.cntl = ESPWindowProp(self, self.assy.o)
+
+    
+    def selectAtoms(self):
+	'''Select atoms inside the ESP Window bounding box. Actually this works for chunk too.'''
+	selSense = 2 ##Exclusive selection
+	hw = self.width/2.0; wo = self.window_offset; eo = self.edge_offset
         
+        shape = SelectionShape(self.right, self.up, self.planeNorm)
+	slab = Slab(self.center-self.planeNorm*wo, self.planeNorm, 2*wo)
+	pos = [V(-hw-eo, hw+eo, 0.0), V(hw+eo, -hw-eo, 0.0)];  p3d = []		    
+        for p in pos:	
+	    p3d += [self.quat.rot(p) + self.center]
+	shape.pickrect(p3d[0], p3d[1], self.center, selSense, slab=slab)
+	shape.select(self.assy)
+
 
     def _draw(self, win, dispdef):
         glPushMatrix()
@@ -1174,7 +1233,7 @@ class ESPWindow(RectGadget):
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
         
-        drawPlane(self.fill_color, self.width-0.05, self.width-0.05, SOLID=True)
+        drawPlane(self.fill_color, self.width, self.width, self.textureReady, self.opacity, SOLID=True)
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
@@ -1184,18 +1243,19 @@ class ESPWindow(RectGadget):
         if self.show_esp_bbox:
             wo = self.window_offset
             eo = self.edge_offset
-            drawwirebox(self.color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo))
+	    drawwirecube(self.color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo), 1.0) #drawwirebox
 
         glPopMatrix()
+ 
  
     def mmp_record_jigspecific_midpart(self):
         color = map(int,A(self.fill_color)*255)
         
-        dataline = "%.2f %.2f %d (%f, %f, %f) (%f, %f, %f, %f) %.2f (%d, %d, %d)" % \
+        dataline = "%.2f %.2f %d (%f, %f, %f) (%f, %f, %f, %f) %.2f (%d, %d, %d) %d %.2f %.2f" % \
            (self.width, self.height, self.resolution, 
             self.center[0], self.center[1], self.center[2], 
             self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
-            self.translucency, color[0], color[1], color[2])
+            self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.window_offset, self.edge_offset)
         return " " + dataline
 
     def get_sim_parms(self):
@@ -1232,7 +1292,32 @@ class ESPWindow(RectGadget):
         
     def __CM_Calculate_ESP(self):
         self.calculate_esp()
-
+	
+    def __CM_Load_ESP_Image(self):
+	from platform import find_or_make_Nanorex_subdir
+	nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
+        png_name = os.path.join(nhdir,self.name+".png")
+	print png_name
+	
+	if not self.textureReady:
+	    if not os.path.exists(png_name):
+		QMessageBox.warning( self.assy.w, "Warnings:",
+		    "The image file doesn't exist, please choose another one.", QMessageBox.Ok, QMessageBox.NoButton)
+              
+		odir = globalParms['WorkingDirectory']
+    
+		fn = QFileDialog.getOpenFileName(odir,
+			"All Files (*.png *.jpg *.gif *.bmp);;", self.assy.w )
+		png_name = str(fn)        
+		if not fn:
+		    env.history.message("Cancelled.")
+		    return
+		
+	    self._loadTexture(png_name)
+	else: 
+	    self.textureReady = False
+	self.assy.o.gl_update()
+	
     pass # end of class ESPWindow       
 
 # == Ground

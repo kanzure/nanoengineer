@@ -8,6 +8,7 @@ $Id$
 from qt import *
 from ESPWindowPropDialog import *
 from widgets import RGBf_to_QColor, QColor_to_RGBf
+from constants import SELWHAT_ATOMS
 
 class ESPWindowProp(ESPWindowPropDialog):
     def __init__(self, esp_window, glpane):
@@ -16,6 +17,11 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.esp_window = esp_window
         self.glpane = glpane
         self.setup()
+        
+        ##Store the original selection state:
+        #self.sel_what = glpane.assy.selwhat
+        #glpane.assy.selwhat = SELWHAT_ATOMS #
+    
     
     def setup(self):
         self.oldNormColor = self.esp_window.normcolor # Border color
@@ -33,6 +39,10 @@ class ESPWindowProp(ESPWindowPropDialog):
         
         self.fill_color_pixmap.setPaletteBackgroundColor(self.fill_color)
         self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
+        
+        self.show_esp_bbox_checkbox.setChecked(self.esp_window.show_esp_bbox)
+        self.opacity_spinbox.setValue(int(self.esp_window.opacity*255))
+        
         
     def change_fill_color(self):
         '''Slot method to change fill color.'''
@@ -71,14 +81,22 @@ class ESPWindowProp(ESPWindowPropDialog):
         "Slot for Show ESP Window Volume checkbox"
         self.esp_window.show_esp_bbox = val
         self.glpane.gl_update()
+    
+    def opacityChanged(self, val):
+        '''Slot for opacity spin box '''
+        self.esp_window.opacity = val/255.0
+        self.glpane.gl_update()
         
     def highlight_atoms_in_bbox(self, val):
         "Slot for Highlight Atoms Inside Volume checkbox"
         print "ESPWindowProp.highlight_atoms_in_bbox(): Not implemented yet."
+    
         
     def select_atoms_inside_esp_bbox(self):
         "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"
-        print "ESPWindowProp.select_atoms_inside_esp_bbox(): Not implemented yet."
+        self.esp_window.selectAtoms()
+        self.glpane.gl_update()
+        
         
     def accept(self):
         '''Slot for the 'OK' button '''
@@ -91,16 +109,20 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.esp_window.width = float(self.width_spinbox.value())
         self.esp_window.resolution = float(self.resolution_spinbox.value())
         
+        #self.glpane.assy.selwhat = self.sel_what
+        
         self.esp_window.assy.w.win_update() # Update model tree
         self.esp_window.assy.changed()
         
         QDialog.accept(self)
+        
 
     def reject(self):
         '''Slot for the 'Cancel' button '''
         self.esp_window.fill_color = self.oldFillColor 
         self.esp_window.color = self.esp_window.normcolor = self.oldNormColor   # Border color
  
+        #self.glpane.assy.selwhat = self.sel_what
         self.glpane.gl_update()
         
         QDialog.reject(self)

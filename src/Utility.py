@@ -29,6 +29,7 @@ import platform
 import env #bruce 050901
 from constants import genKey
 
+
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
 _pixmap_image_path = None
@@ -1656,14 +1657,18 @@ class Group(Node):
             if x.dad is not self: print "bad thread:", x, self, x.dad
             x.dumptree(depth+1)
 
+        
     def draw(self, glpane, dispdef): #bruce 050615 revised this
         if self.hidden:
             #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
             return
         self.draw_begin(glpane, dispdef)
+        from jigs import ESPWindow
+    
         try:
             for ob in self.members[:]:
-                ob.draw(glpane, dispdef)
+                if not isinstance(ob, ESPWindow):
+                    ob.draw(glpane, dispdef)
             #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
             #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
             # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
@@ -1680,6 +1685,7 @@ class Group(Node):
         "Subclasses can override this to change how their child nodes are drawn."
         pass
 
+
     def draw_end(self, glpane, dispdef): #bruce 050615
         """Subclasses which override draw_begin should also override draw_end
         to undo whatever changes were made by draw_begin
@@ -1687,7 +1693,23 @@ class Group(Node):
          which only work if nothing was messed up by child nodes or exceptions from them,
          and which might be subject to numerical errors).
         """
+        from jigs import ESPWindow
+    
+        try:
+            for ob in self.members[:]:
+                if isinstance(ob, ESPWindow) or isinstance(ob, Group):
+                    ob.draw(glpane, dispdef)
+            #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
+            #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
+            # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
+            # we have to worry about things which are drawn before or after main drawing loop --
+            # they might need to figure out their dispdef (and coords) specially, or store them during first pass
+            # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
+            # [bruce 050615 comments]
+        except:
+            print_compact_traceback("exception in drawing some Group member; skipping to end: ")
         pass
+    
     
     def getstatistics(self, stats):
         """add group to part stats

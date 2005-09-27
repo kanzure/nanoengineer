@@ -257,10 +257,10 @@ class selectMode(basicMode):
             self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
             eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov        
             if self.selLassRect:
-                self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,  (not self.o.ortho) and eyeball)
+                self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,  eye=(not self.o.ortho) and eyeball)
             else:
                 self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
-                             (not self.o.ortho) and eyeball)
+                             eye=(not self.o.ortho) and eyeball)
         
             self.o.shape.select(self.o.assy)
             self.o.shape = None

@@ -95,8 +95,8 @@ def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
     # 1. Connect to Nano-Hive, get socket.
     nh_socket = connect_to_nanohive()
     
-    if not nh_socket: # Error connecting to Nano-Hive instance
-        return 1
+#    if not nh_socket: # Error connecting to Nano-Hive instance
+#        return 1
         
     # 2. Write the MMP file that Nano-Hive will use for the sim run.
     assy.writemmpfile(get_nh_mmp_filename(sim_name))
@@ -108,6 +108,9 @@ def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
     # 4. Write the Sim Workflow file
     from files_nh import write_nh_workflow_file
     write_nh_workflow_file(sim_name)
+    
+    if not nh_socket: # Error connecting to Nano-Hive instance
+        return 1
     
     # 5. Send commands to Nano-Hive.  There can be no spaces in partname.  Need to fix this.
     cmd = 'load simulation -f "' + get_nh_simspec_filename(sim_name) + '" -n ' + sim_name

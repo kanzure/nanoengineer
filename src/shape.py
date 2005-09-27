@@ -451,11 +451,11 @@ class shape:
     
 class SelectionShape(shape):
         """This is used to construct shape for atoms/chunks selection. A curve or rectangle will be created, which is used as an area selection of all the atoms/chunks """
-        def pickline(self, ptlist, origin, logic, eyeBall):
-            self.curve = shape.pickline(self, ptlist, origin, logic, eye=eyeBall)
+        def pickline(self, ptlist, origin, logic, **xx):
+            self.curve = shape.pickline(self, ptlist, origin, logic, **xx)
    
-        def pickrect(self, pt1, pt2, org, logic, eyeBall):
-            self.curve = shape.pickrect(self, pt1, pt2, org, logic, eye=eyeBall)
+        def pickrect(self, pt1, pt2, org, logic, **xx):
+            self.curve = shape.pickrect(self, pt1, pt2, org, logic, **xx)
             
         def select(self, assy):
             """Loop thru all the atoms that are visible and select any

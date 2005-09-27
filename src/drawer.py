@@ -358,6 +358,8 @@ def setup():
         glVertex3fv(v)
     glEnd()
     glEndList()
+        
+    #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     
     
 def drawCircle(color, center, radius, normal):
@@ -590,7 +592,7 @@ def drawLineCube(color, pos, radius):
     glDisableClientState(GL_VERTEX_ARRAY)
     
 
-def drawwirecube(color, pos, radius):
+def drawwirecube(color, pos, radius, lineWidth=3.0):
     global CubeList, lineCubeList
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
@@ -599,9 +601,11 @@ def drawwirecube(color, pos, radius):
     glColor3fv(color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
-    glScale(radius,radius,radius)
-    #glCallList(CubeList)
-    glLineWidth(3.0)
+    if type(radius) == type(1.0):
+	glScale(radius,radius,radius)
+    else: 
+	glScale(radius[0], radius[1], radius[2])
+    glLineWidth(lineWidth)
     glCallList(lineCubeList)
     glLineWidth(1.0) ## restore its state
     glPopMatrix()
@@ -985,12 +989,13 @@ def drawCubeCell(color):
     glEnable(GL_LIGHTING) 
 
 
-def drawPlane(color, w, h, SOLID=False):
+def drawPlane(color, w, h, textureReady, opacity, SOLID=False):
     '''Draw polygon with size of <w>*<h> and with color <color>. '''
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
+    vt = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]    
     
     glDisable(GL_LIGHTING)
-    glColor3fv(color)
+    glColor4fv(list(color) + [opacity])
     
     glPushMatrix()
     glScalef(w, h, 1.0)
@@ -1000,11 +1005,25 @@ def drawPlane(color, w, h, SOLID=False):
     else:
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
     glDisable(GL_CULL_FACE) 
-    
+
+    glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        
+    if textureReady:
+	glEnable(GL_TEXTURE_2D)  
     glBegin(GL_QUADS)
-    for v in vs:
+    for ii in range(len(vs)):
+	t = vt[ii]; v = vs[ii]
+	if textureReady:
+	    glTexCoord2fv(t)
         glVertex3fv(v)
     glEnd()
+    if textureReady:
+	glDisable(GL_TEXTURE_2D)
+    
+    glDisable(GL_BLEND)
+    glDepthMask(GL_TRUE) 
     
     glEnable(GL_CULL_FACE)
     if not SOLID:
@@ -1113,7 +1132,6 @@ def drawSiCGrid(color, line_type, w, h):
     j1 = int(floor(xx[0]/YLen))
     j2 = int(ceil(xx[1]/YLen))
     
-    
     glDisable(GL_LIGHTING)
     glColor3fv(color)
 
@@ -1180,4 +1198,72 @@ def drawFullWindow(vtColors):
     glEnd()
     
     glEnable(GL_LIGHTING)
+
+
+def getPowerOfTwo(num):
+    '''<int> num: find the nearest number for <num> that's power of 2.'''
+    assert(type(num) == type(1))
+    a = 0
     
+    oNum = num
+    while num>1:
+       num = num>>1
+       a += 1
+    
+    s = 1<<a; b = 1<<(a+1)
+    
+    if (oNum-s) > (b-oNum):
+	return b
+    else: return s
+	
+	
+    
+
+def getTextureData(fileName):
+    '''Load image files '''
+    from qt import QImage, QColor
+    ###print getPowerOfTwo(17), getPowerOfTwo(4)
+    if 0:
+	import Image ##This is from the PIL library
+    
+	img = Image.open(fileName)
+	
+	width = img.size[0]
+	height = img.size[1]
+	
+	ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
+	
+	#img.draft("RGBX", (64, 64))
+	rst = img.tostring("raw", "RGBX", 0, -1)
+	
+    	return rst
+
+    else:
+	img = QImage(fileName)
+	
+	width = img.width()
+	height = img.height()
+	
+	ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
+	print "image size: ", width, height
+	print "ideal size: ", ideal_wd, ideal_ht
+	
+	if width != ideal_wd or height != ideal_ht:
+	    img = img.smoothScale(ideal_wd, ideal_ht)
+	    width = img.width()
+	    height = img.height()
+	
+	    print "new image size: ", width, height
+	
+	from array import array
+	tData = array('B')
+	#for ii in range(ideal_ht):
+	    #for jj in range(ideal_wd):
+	for ii in range(ideal_wd-1, 0, -1): #This rotates 90 degree anti-clockwise compared to the above.
+	    for jj in range(ideal_ht):
+		c = img.pixel(jj, ii)
+		color = QColor(c)
+		tData.extend(array('B', [color.red(), color.green(), color.blue(), 255]))
+	
+	return height, width, tData.tostring()    
+	

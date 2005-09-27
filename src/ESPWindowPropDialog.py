@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ESPWindowPropDialog.ui'
+# Form implementation generated from reading ui file 'ESPWindowPropDialog.ui'
 #
-# Created: Tue Sep 27 11:59:58 2005
+# Created: Tue Sep 27 16:31:37 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,52 +55,56 @@ class ESPWindowPropDialog(QDialog):
 
         self.setIcon(self.image0)
 
-        ESPWindowPropDialogLayout = QGridLayout(self,1,1,11,6,"ESPWindowPropDialogLayout")
+        ESPWindowPropDialogLayout = QVBoxLayout(self,11,6,"ESPWindowPropDialogLayout")
 
-        layout30 = QHBoxLayout(None,0,6,"layout30")
+        layout18 = QHBoxLayout(None,0,6,"layout18")
 
-        layout29 = QVBoxLayout(None,0,6,"layout29")
+        layout17 = QVBoxLayout(None,0,6,"layout17")
 
         self.textLabel1_4 = QLabel(self,"textLabel1_4")
         self.textLabel1_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_4)
+        layout17.addWidget(self.textLabel1_4)
 
         self.colorTextLabel_3 = QLabel(self,"colorTextLabel_3")
         self.colorTextLabel_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.colorTextLabel_3)
+        layout17.addWidget(self.colorTextLabel_3)
 
         self.colorTextLabel_4 = QLabel(self,"colorTextLabel_4")
         self.colorTextLabel_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.colorTextLabel_4)
+        layout17.addWidget(self.colorTextLabel_4)
 
         self.textLabel1 = QLabel(self,"textLabel1")
         self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1)
+        layout17.addWidget(self.textLabel1)
 
         self.textLabel1_3 = QLabel(self,"textLabel1_3")
         self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_3)
+        layout17.addWidget(self.textLabel1_3)
 
         self.textLabel1_5 = QLabel(self,"textLabel1_5")
         self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_5)
+        layout17.addWidget(self.textLabel1_5)
 
         self.textLabel1_2 = QLabel(self,"textLabel1_2")
         self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_2)
-        layout30.addLayout(layout29)
+        layout17.addWidget(self.textLabel1_2)
 
-        layout28 = QVBoxLayout(None,0,6,"layout28")
+        self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
+        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout17.addWidget(self.textLabel1_2_2)
+        layout18.addLayout(layout17)
+
+        layout16 = QVBoxLayout(None,0,6,"layout16")
 
         self.name_linedit = QLineEdit(self,"name_linedit")
         self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.name_linedit.setFrameShadow(QLineEdit.Sunken)
         self.name_linedit.setAlignment(QLineEdit.AlignLeft)
-        layout28.addWidget(self.name_linedit)
+        layout16.addWidget(self.name_linedit)
 
-        layout27 = QHBoxLayout(None,0,6,"layout27")
+        layout15 = QHBoxLayout(None,0,6,"layout15")
 
-        layout26 = QVBoxLayout(None,0,6,"layout26")
+        layout14 = QVBoxLayout(None,0,6,"layout14")
 
         layout48 = QHBoxLayout(None,0,6,"layout48")
 
@@ -118,7 +122,7 @@ class ESPWindowPropDialog(QDialog):
         layout48.addWidget(self.choose_fill_color_btn)
         spacer14 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout48.addItem(spacer14)
-        layout26.addLayout(layout48)
+        layout14.addLayout(layout48)
 
         layout47 = QHBoxLayout(None,0,6,"layout47")
 
@@ -136,7 +140,7 @@ class ESPWindowPropDialog(QDialog):
         layout47.addWidget(self.choose_border_color_btn)
         spacer17 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout47.addItem(spacer17)
-        layout26.addLayout(layout47)
+        layout14.addLayout(layout47)
 
         layout46 = QHBoxLayout(None,0,6,"layout46")
 
@@ -150,7 +154,7 @@ class ESPWindowPropDialog(QDialog):
         layout46.addWidget(self.textLabel2)
         spacer18 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout46.addItem(spacer18)
-        layout26.addLayout(layout46)
+        layout14.addLayout(layout46)
 
         layout46_2 = QHBoxLayout(None,0,6,"layout46_2")
 
@@ -164,7 +168,7 @@ class ESPWindowPropDialog(QDialog):
         layout46_2.addWidget(self.textLabel2_2)
         spacer18_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout46_2.addItem(spacer18_2)
-        layout26.addLayout(layout46_2)
+        layout14.addLayout(layout46_2)
 
         layout46_3 = QHBoxLayout(None,0,6,"layout46_3")
 
@@ -178,7 +182,7 @@ class ESPWindowPropDialog(QDialog):
         layout46_3.addWidget(self.textLabel2_3)
         spacer18_3 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout46_3.addItem(spacer18_3)
-        layout26.addLayout(layout46_3)
+        layout14.addLayout(layout46_3)
 
         layout13 = QHBoxLayout(None,0,6,"layout13")
 
@@ -189,33 +193,24 @@ class ESPWindowPropDialog(QDialog):
         layout13.addWidget(self.resolution_spinbox)
         spacer16 = QSpacerItem(95,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout13.addItem(spacer16)
-        layout26.addLayout(layout13)
-        layout27.addLayout(layout26)
-        spacer19 = QSpacerItem(18,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout27.addItem(spacer19)
-        layout28.addLayout(layout27)
-        layout30.addLayout(layout28)
+        layout14.addLayout(layout13)
 
-        ESPWindowPropDialogLayout.addLayout(layout30,0,0)
+        layout13_2 = QHBoxLayout(None,0,6,"layout13_2")
 
-        layout30_2 = QHBoxLayout(None,0,6,"layout30_2")
-        spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout30_2.addItem(spacer1)
-
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setMinimumSize(QSize(0,30))
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
-        layout30_2.addWidget(self.ok_btn)
-
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setMinimumSize(QSize(0,30))
-        self.cancel_btn.setAutoDefault(1)
-        layout30_2.addWidget(self.cancel_btn)
-
-        ESPWindowPropDialogLayout.addLayout(layout30_2,3,0)
-        spacer5 = QSpacerItem(101,30,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
-        ESPWindowPropDialogLayout.addItem(spacer5,2,0)
+        self.opacity_spinbox = QSpinBox(self,"opacity_spinbox")
+        self.opacity_spinbox.setMaxValue(255)
+        self.opacity_spinbox.setMinValue(0)
+        self.opacity_spinbox.setValue(20)
+        layout13_2.addWidget(self.opacity_spinbox)
+        spacer16_2 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout13_2.addItem(spacer16_2)
+        layout14.addLayout(layout13_2)
+        layout15.addLayout(layout14)
+        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout15.addItem(spacer19)
+        layout16.addLayout(layout15)
+        layout18.addLayout(layout16)
+        ESPWindowPropDialogLayout.addLayout(layout18)
 
         self.groupBox1 = QGroupBox(self,"groupBox1")
         self.groupBox1.setColumnLayout(0,Qt.Vertical)
@@ -234,12 +229,29 @@ class ESPWindowPropDialog(QDialog):
 
         self.select_atoms_btn = QPushButton(self.groupBox1,"select_atoms_btn")
         groupBox1Layout.addWidget(self.select_atoms_btn)
+        ESPWindowPropDialogLayout.addWidget(self.groupBox1)
+        spacer5 = QSpacerItem(101,30,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
+        ESPWindowPropDialogLayout.addItem(spacer5)
 
-        ESPWindowPropDialogLayout.addWidget(self.groupBox1,1,0)
+        layout30 = QHBoxLayout(None,0,6,"layout30")
+        spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout30.addItem(spacer1)
+
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setMinimumSize(QSize(0,30))
+        self.ok_btn.setAutoDefault(1)
+        self.ok_btn.setDefault(1)
+        layout30.addWidget(self.ok_btn)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setMinimumSize(QSize(0,30))
+        self.cancel_btn.setAutoDefault(1)
+        layout30.addWidget(self.cancel_btn)
+        ESPWindowPropDialogLayout.addLayout(layout30)
 
         self.languageChange()
 
-        self.resize(QSize(301,430).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(294,461).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -252,6 +264,7 @@ class ESPWindowPropDialog(QDialog):
         self.connect(self.show_esp_bbox_checkbox,SIGNAL("toggled(bool)"),self.show_esp_bbox)
         self.connect(self.select_atoms_btn,SIGNAL("clicked()"),self.select_atoms_inside_esp_bbox)
         self.connect(self.highlight_atoms_in_bbox_checkbox,SIGNAL("toggled(bool)"),self.highlight_atoms_in_bbox)
+        self.connect(self.opacity_spinbox,SIGNAL("valueChanged(int)"),self.opacityChanged)
 
         self.setTabOrder(self.name_linedit,self.choose_fill_color_btn)
         self.setTabOrder(self.choose_fill_color_btn,self.choose_border_color_btn)
@@ -259,7 +272,8 @@ class ESPWindowPropDialog(QDialog):
         self.setTabOrder(self.width_spinbox,self.window_offset_spinbox)
         self.setTabOrder(self.window_offset_spinbox,self.edge_offset_spinbox)
         self.setTabOrder(self.edge_offset_spinbox,self.resolution_spinbox)
-        self.setTabOrder(self.resolution_spinbox,self.show_esp_bbox_checkbox)
+        self.setTabOrder(self.resolution_spinbox,self.opacity_spinbox)
+        self.setTabOrder(self.opacity_spinbox,self.show_esp_bbox_checkbox)
         self.setTabOrder(self.show_esp_bbox_checkbox,self.highlight_atoms_in_bbox_checkbox)
         self.setTabOrder(self.highlight_atoms_in_bbox_checkbox,self.select_atoms_btn)
         self.setTabOrder(self.select_atoms_btn,self.ok_btn)
@@ -275,6 +289,7 @@ class ESPWindowPropDialog(QDialog):
         self.textLabel1_3.setText(self.__tr("Window Offset :"))
         self.textLabel1_5.setText(self.__tr("Edge Offset :"))
         self.textLabel1_2.setText(self.__tr("Resolution :"))
+        self.textLabel1_2_2.setText(self.__tr("Opacity:"))
         self.name_linedit.setText(QString.null)
         self.choose_fill_color_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.choose_fill_color_btn,self.__tr("Change color"))
@@ -283,14 +298,14 @@ class ESPWindowPropDialog(QDialog):
         self.textLabel2.setText(self.__tr("Angstroms"))
         self.textLabel2_2.setText(self.__tr("Angstroms"))
         self.textLabel2_3.setText(self.__tr("Angstroms"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
         self.groupBox1.setTitle(self.__tr("ESP Window Volume"))
         self.show_esp_bbox_checkbox.setText(self.__tr("Show Bounding Box of Volume"))
         self.highlight_atoms_in_bbox_checkbox.setText(self.__tr("Highlight Atoms Inside Volume"))
         self.select_atoms_btn.setText(self.__tr("Select Atoms Inside Volume"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
     def change_fill_color(self):
@@ -316,6 +331,9 @@ class ESPWindowPropDialog(QDialog):
 
     def highlight_atoms_in_bbox(self):
         print "ESPWindowPropDialog.highlight_atoms_in_bbox(): Not implemented yet"
+
+    def opacityChanged(self):
+        print "ESPWindowPropDialog.opacityChanged(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ESPWindowPropDialog",s,c)

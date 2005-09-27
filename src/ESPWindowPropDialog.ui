@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>301</width>
-            <height>430</height>
+            <width>294</width>
+            <height>461</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,13 +18,13 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <grid>
+    <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget" row="0" column="0">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout30</cstring>
+                <cstring>layout18</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -32,7 +32,7 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout29</cstring>
+                        <cstring>layout17</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -115,11 +115,22 @@
                                 <set>AlignVCenter|AlignRight</set>
                             </property>
                         </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Opacity:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
                     </vbox>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout28</cstring>
+                        <cstring>layout16</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -144,7 +155,7 @@
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout27</cstring>
+                                <cstring>layout15</cstring>
                             </property>
                             <hbox>
                                 <property name="name">
@@ -152,7 +163,7 @@
                                 </property>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
-                                        <cstring>layout26</cstring>
+                                        <cstring>layout14</cstring>
                                     </property>
                                     <vbox>
                                         <property name="name">
@@ -498,6 +509,47 @@
                                                 </spacer>
                                             </hbox>
                                         </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout13</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QSpinBox">
+                                                    <property name="name">
+                                                        <cstring>opacity_spinbox</cstring>
+                                                    </property>
+                                                    <property name="maxValue">
+                                                        <number>255</number>
+                                                    </property>
+                                                    <property name="minValue">
+                                                        <number>0</number>
+                                                    </property>
+                                                    <property name="value">
+                                                        <number>20</number>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer16_2</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>92</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
                                     </vbox>
                                 </widget>
                                 <spacer>
@@ -512,7 +564,7 @@
                                     </property>
                                     <property name="sizeHint">
                                         <size>
-                                            <width>18</width>
+                                            <width>16</width>
                                             <height>20</height>
                                         </size>
                                     </property>
@@ -523,7 +575,67 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QLayoutWidget" row="3" column="0">
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>ESP Window Volume</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>show_esp_bbox_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Show Bounding Box of Volume</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>highlight_atoms_in_bbox_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Highlight Atoms Inside Volume</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>select_atoms_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Select Atoms Inside Volume</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>MinimumExpanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>101</width>
+                    <height>30</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget">
             <property name="name">
                 <cstring>layout30</cstring>
             </property>
@@ -593,67 +705,7 @@
                 </widget>
             </hbox>
         </widget>
-        <spacer row="2" column="0">
-            <property name="name">
-                <cstring>spacer5</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>MinimumExpanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>101</width>
-                    <height>30</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QGroupBox" row="1" column="0">
-            <property name="name">
-                <cstring>groupBox1</cstring>
-            </property>
-            <property name="title">
-                <string>ESP Window Volume</string>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>show_esp_bbox_checkbox</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Show Bounding Box of Volume</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>highlight_atoms_in_bbox_checkbox</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Highlight Atoms Inside Volume</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>select_atoms_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Select Atoms Inside Volume</string>
-                    </property>
-                </widget>
-            </vbox>
-        </widget>
-    </grid>
+    </vbox>
 </widget>
 <images>
     <image name="image0">
@@ -721,6 +773,12 @@
         <receiver>ESPWindowPropDialog</receiver>
         <slot>highlight_atoms_in_bbox()</slot>
     </connection>
+    <connection>
+        <sender>opacity_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ESPWindowPropDialog</receiver>
+        <slot>opacityChanged()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>name_linedit</tabstop>
@@ -730,6 +788,7 @@
     <tabstop>window_offset_spinbox</tabstop>
     <tabstop>edge_offset_spinbox</tabstop>
     <tabstop>resolution_spinbox</tabstop>
+    <tabstop>opacity_spinbox</tabstop>
     <tabstop>show_esp_bbox_checkbox</tabstop>
     <tabstop>highlight_atoms_in_bbox_checkbox</tabstop>
     <tabstop>select_atoms_btn</tabstop>
@@ -745,6 +804,7 @@
     <slot>show_esp_bbox()</slot>
     <slot>select_atoms_inside_esp_bbox()</slot>
     <slot>highlight_atoms_in_bbox()</slot>
+    <slot>opacityChanged()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

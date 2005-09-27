@@ -155,8 +155,8 @@ new_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (
 gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (\d+) (\d+) (-?\d+\.\d+) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
 
 # ESP Window record format:
-# espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
-esppat = re.compile("espwindow \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
+# espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
+esppat = re.compile("espwindow \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
 # atomset (name) atom1 atom2 ... atom25 {up to 25}
 atmsetpat = re.compile("atomset \((.+)\)")
@@ -462,7 +462,7 @@ class _readmmp_state:
         
     def _read_espwindow(self, card):
         ''' Read the MMP record for a ESP Window jig as:
-            espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
+            espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
         '''
         m = esppat.match(card)
         name = m.group(1)
@@ -473,9 +473,11 @@ class _readmmp_state:
         quat = A(map(float, [m.group(11), m.group(12), m.group(13), m.group(14)]))
         trans = float(m.group(15))
         fill_color = map(lambda (x): int(x)/255.0, [m.group(16),m.group(17),m.group(18)])
+        show_bbox = int(m.group(19))
+        win_offset = float(m.group(20)); edge_offset = float(m.group(21))
         
         espWindow = ESPWindow(self.assy, [], READ_FROM_MMP=True)
-        espWindow.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color)
+        espWindow.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espWindow)
         
     # Read the MMP record for a Ground as:
