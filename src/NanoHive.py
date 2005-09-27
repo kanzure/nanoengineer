@@ -16,12 +16,16 @@ from HistoryWidget import redmsg, greenmsg, orangemsg
 import env, os
 from constants import *
 from jigs import ESPWindow
+from files_nh import *
+from NanoHiveUtils import *
 
 debug_sim = 0 # DO NOT COMMIT with 1
 
 cmd = greenmsg("Nano-Hive: ")
 
-
+class NH_Sim_Parameters:
+    pass
+    
 # get_partname() should be a global function.  Mark 050915.
 def get_partname(assy):
     'Returns the base name of the part.  If the filename is None, returns'
@@ -157,368 +161,78 @@ class NanoHive(NanoHiveDialog):
         
 # ==
 
-    def run_nanohive(self):
-        '''Run a Nano-Hive simulation.
+    def get_sim_name(self):
+        '''Return the simulation name from the dialog's Name widget.
+        If it is empty, return "Untitled" as the sim_name.
         '''
-        
-        # Validate that the Nano-Hive executable exists.
-        r = self._validate_nanohive_program()
-        
-        if r: # Nano-Hive program was not found/valid.
-            return 1 # Simulation Cancelled.
-            
-        # Check that a valid ESP Window is selected if ESP Plane is checked.
-#        if self.MPQC_ESP_checkbox.isChecked():
-#            if not self.esp_window:
-#                env.history.message(redmsg(cmd + "Please select an ESP Window."))
-#                return 1
-        
-        # Retreive the filenames, output directory and part name.
-        mmp_filename, \
-        simspec_filename, \
-        workflow_filename, \
-        outdir, \
-        partname = self.get_nanohive_filenames()
-        
-        # 0. Make sure we can connect to Nano-Hive.
-        r = self.connect_to_nanohive()
-        
-        if r: # Error connecting to Nano-Hive instance
-            return 1
-            
-        # 1. Write the MMP file that Nano-Hive will use for the sim run.
-        self.assy.writemmpfile(mmp_filename)
-            
-        # 2. Write the sim-spec file using the parameters from the Nano-Hive dialog widgets
-        self.write_simspec_file(simspec_filename, workflow_filename, mmp_filename, outdir, partname)
-        
-        # 3. Write the Sim Workflow file
-        self.write_workflow_file(workflow_filename)
-        
-        # Informative messages (temporary).
-        print "\n-------------------------------------"
-        print "Here are the locations of the files that Nano-Hive needs:"
-        print "MMP File: ", mmp_filename
-        print "SimSpec File: ", simspec_filename
-        print "SimFlow File: ", workflow_filename
-        print "Brian H. will write the code for generating the SimFlow file."
-        print "-------------------------------------\n"
-        
-        infotext = "-------------------------------------<br>"\
-                        "Here are the locations of the files that Nano-Hive needs:<br>"\
-                        "MMP File: " + mmp_filename + "<br>"\
-                        "SimSpec File: " + simspec_filename + "<br>"\
-                        "SimFlow File: " + workflow_filename + "<br>"\
-                        "Brian H. will write the code for generating the SimFlow file." + "<br>"\
-                        "-------------------------------------<br>"
-        
-        env.history.message(infotext)
-        
-        # 4. Send commands to Nano-Hive.  There can be no spaces in partname.  Need to fix this.
-        cmd = 'load simulation -f "' + simspec_filename + '" -n ' + partname
-        print "N-H load command: ", cmd
-        
-        success, result = self.nh_conn.sendCommand(cmd) # Send "load" command.
-        if not success:
-            print success, result
-            return 1
-        
-        cmd = "run " + partname
-        print "N-H run command: ", cmd
-        
-        success, result = self.nh_conn.sendCommand(cmd) # Send "run" command.
-        if not success:
-            print success, result
-            return 1
-        
-        return 0
-        
+        name = QString(self.name_linedit.text())
+        bname = name.stripWhiteSpace() # make sure suffix is not just whitespaces
 
-    def get_nanohive_filenames(self):
-        '''Returns the file names for Nano-Hive in this order:
-            1. MMP filename (full path)
-            2. Simspec filename (full path)
-            3. Simflow filename (full path)
-            4. Nano-Hive directory where all the files are placed
-            5. Partname, which is the base name of the current part (assy).
-        '''
-        from platform import find_or_make_Nanorex_subdir
-        nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
-        n = QString(self.name_linedit.text())
-        fn = n.stripWhiteSpace() # make sure suffix is not just whitespaces
-
-        if fn:
-            name = str(fn)
+        if bname:
+            sim_name = str(bname)
             # Brian H. says that "name" cannot have any whitespace characters. 
             # He suggests that we replace whitespace chars with underscores.
             # It is late and I don't have time to look up the Python function for this.
             # DON'T FORGET.  Mark 050915 at 11:45PM.  ZZZ.
         else:
-            name = "Untitled"
+            sim_name = "Untitled"
             
-        mmp_fn = os.path.join(nhdir,str(name)+".mmp")
-        simspec_fn = os.path.join(nhdir,str(name)+"_simspec.xml")
-        simflow_fn = os.path.join(nhdir,str(name)+"_simflow.tcl")
+        return sim_name
         
-        return mmp_fn, simspec_fn, simflow_fn, nhdir, name
-        
-    def write_simspec_file(self, filename, workflow_filename, mmp_filename, outdir, partname):
-        '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the
-        simulation environment, plugin selection and plugin parameters.
+    def get_sims_to_run(self):
+        '''Returns a list of the simulations to run.
         '''
-        
-        # The Nano-Hive Sim Spec file has 4 different sections that must be written in the following order:
-        # 1. Header Section
-        # 2. Physical Interaction Plugin(s) Section
-        # 3. Results Plugin(s) Section
-        # 4. Footer Section.
-        # Mark 050915.
-        
-        iterations = self.nframes_spinbox.value() # Iterations = Frames
-        spf = self.stepsper_spinbox.value() * 1e-17 # Steps per Frame
-        temp = self.temp_spinbox.value() # Temp in Kelvin
-        
-        # Retreive the Nano-Hive home directory by stripping off the last two directories
-        # from the Nano-Hive executable path.
-        nanohive_exe = env.prefs[nanohive_path_prefs_key]
-        head, tail = os.path.split(nanohive_exe)
-        head, tail = os.path.split(head)
-        nh_home, tail = os.path.split(head)
-        
-        print "NanoHive.write_simspec_file(): Nano-Hive Home:", nh_home
-        
-        f = open(filename,'w') # Open Nano-Hive Sim Spec file.
-        
-        # Write SimSpec header ########################################
-        
-        f.write ('<simulation>\n')
-        f.write('  <description>%s</description>\n' % self.description_textedit.text())
-        f.write('\n')
-        f.write('  <parameter name="timeQuantumLength" value="%e" />\n' % spf)
-        f.write('  <parameter name="environmentTemperature" value="%d" />\n' % temp)
-        f.write('  <parameter name="startIteration" value="0" />\n')
-        f.write('  <parameter name="iterations" value="%d" />\n' % iterations)
-        f.write('\n')
-        f.write('  <simulationFlow file="%s">\n' % workflow_filename)
-        f.write('    <input name="inFile" type="nanorexMMP" file="%s" />\n' % mmp_filename)
-        
-        # This traverser is for the local machine.
-        f.write('    <traverser name="traverser" plugin="RC_Traverser" />\n')
-        
-        # The bond calculator.  Not needed for ESP Plane plugin.
-        #f.write('    <calculator name="bondCalculator" plugin="BondCalculator" />\n')
-        
-        # Physical Interaction Plugins ########################################
+        sims_to_run = []
         
         if self.MPQC_ESP_checkbox.isChecked():
-            
-            cpnt = self.esp_window.center * 1e-10
-            centerPoint = (float(cpnt[0]), float(cpnt[1]), float(cpnt[2]))
-            #print "ESP Window CenterPoint =", centerPoint
-            
-            npnt = self.esp_window.getaxis() * 1e-10
-            normalPoint = (float(npnt[0]), float(abs(npnt[1])), float(npnt[2]))
-            #print "ESP Window NormalPoint =", normalPoint
-            
-            resolution = self.esp_window.resolution
-            # print "ESP Window Resolution =", resolution
-            
-            cutoffHeight = self.esp_window.window_offset * 1e-10
-            #print "ESP Window cutoffHeight =", cutoffHeight
-            cutoffWidth = self.esp_window.edge_offset * 1e-10
-            #print "ESP Window cutoffWidth =", cutoffWidth
-            outputLength = self.esp_window.width * 1e-10
-            #print "ESP Window outputLength =", outputLength
-
-            f.write('\n')
-            f.write('    <calculator name="espWindow" plugin="MPQC_SClib">\n')
-            f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
-            f.write('      <parameter name="dataDirectory" value="%s/data/MPQC_SClib" />\n' % nh_home)
-            f.write('      <parameter name="basis" value="STO-3G" />\n')
-            f.write('      <parameter name="method" value="HF" />\n')
-            f.write('      <parameter name="desiredEnergyAccuracy" value="1.0e-3" />\n')
-            f.write('      <parameter name="multiplicity" value="1" />\n')
-            f.write('\n')
-            f.write('      <parameter name="outputType" value="ESPplane" />\n')
-            f.write('      <parameter name="resolution" value="%d" />\n' % resolution)
-            f.write('\n')
-            if 0:
-                f.write('      <parameter name="centerPoint" value="%.1e %.1e %.1e" />\n' % centerPoint)
-                f.write('      <parameter name="normalPoint" value="%1.1e %1.1e %1.1e" />\n' % normalPoint)
-                f.write('      <parameter name="cutoffHeight" value="%1.1e" />\n' % cutoffHeight)
-                f.write('      <parameter name="cutoffWidth" value="%1.1e" />\n' % cutoffWidth)
-                f.write('      <parameter name="outputLength" value="%1.1e" />\n' % outputLength)
-            else:
-                f.write('      <parameter name="centerPoint" value="0 0 0" />\n')
-                f.write('      <parameter name="normalPoint" value="0 1.0e-10 0" />\n')
-                f.write('      <parameter name="cutoffHeight" value="2e-10" />\n')
-                f.write('      <parameter name="cutoffWidth" value="2e-10" />\n')
-                f.write('      <parameter name="outputLength" value="10.0e-10" />\n')
-            f.write('    </calculator>\n')
-            
-            f.write('\n')
-            f.write('    <result name="simResult" plugin="_ESP_Image">\n')
-            f.write('      <parameter name="outputFilename" value="%s\\result.png" />\n' % outdir)
-            f.write('    </result>\n')
+            sims_to_run.append("MPQC_ESP")
             
         if self.MPQC_GD_checkbox.isChecked():
-            f.write('\n')
-            f.write('    <calculator name="qmDynamicsInteraction" plugin="MPQC_SClib">\n')
-            f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
-            f.write('      <parameter name="dataDirectory" value="%s/data/MPQC_SClib" />\n' % nh_home)
-            f.write('      <parameter name="basis" value="STO-3G" />\n')
-            f.write('      <parameter name="method" value="HF" />\n')
-            f.write('      <parameter name="gradientDynamics" value="yes" />\n')
-            f.write('      <parameter name="deltaTbyTau" value="1.0" />\n')
-            f.write('    </calculator>\n')
+            sims_to_run.append("MPQC_GD")
                 
         if self.AIREBO_checkbox.isChecked():
-            f.write('\n')
-            f.write('    <calculator name="physicalInteraction" plugin="REBO_MBM">\n')
-            f.write('      <parameter name="dataDirectory" value="%s/data/REBO_MBM" />\n' % nh_home)
-            f.write('    </calculator>\n')
-
-        # Results Plugins ########################################
+            sims_to_run.append("AIREBO")
+            
+        return sims_to_run
+        
+    def get_results_to_save(self):
+        '''Returns a list of the simulations to run.
+        '''
+        results_to_save = []
         
         if self.Measurements_to_File_checkbox.isChecked():
-            f.write('\n')
-            f.write('    <result name="MeasurementSetToFile" plugin="MeasurementSetToFile">\n')
-            f.write('      <parameter name="outputInterval" value="1" />\n')
-            f.write('      <parameter name="outputFile"\n')
-            f.write('        value="%s/data.txt" />\n' % outdir)
-            f.write('      <parameter name="datumSeparator" value="\t" />\n')
-            f.write('    </result>\n')
+            results_to_save.append("MEASUREMENTS_TO_FILE")
 
         if self.POVRayVideo_checkbox.isChecked():
-            # Need subdirectory for all the POV-Ray pov files.
-            # Also need to add lighting, scene setup, background color, etc.
-            f.write('\n')
-            f.write('    <result name="POVRayVideo" plugin="POVRayVideo">\n')
-            f.write('      <parameter name="outputInterval" value="1" />\n')
-            f.write('      <parameter name="lengthMultiplier" value="1e10" />\n')
-            f.write('      <parameter name="outputDirectory"\n')
-            f.write('        value="%s/povray" />\n' % outdir)
-            f.write('      <parameter name="outputIdentifier" value="%s" />\n' % partname)
-            # POV-Ray template.  Mark needs to write the include file for lighting and camera angle(s)
-            # and put that file in the appropriate place (outdir/povray).
-            f.write('      <parameter name="povTemplateFilename"\n')
-            f.write('        value="%s/data/pov.tmplt" />')
-            f.write('      <parameter name="mpegTemplateFilename"\n')
-            f.write('        value="%s/data/mpeg_encode.param.tmplt" />\n' % nh_home)
-            f.write('    </result>\n')
+            results_to_save.append("POVRAYVIDEO")
 
         # NetCDF Plugin.  COMMENTED OUT FOR TESTING.
         if 0:
-            f.write('\n')
-            f.write('    <result name="simResult" plugin="NetCDF_DataSet">\n')
-            f.write('      <parameter name="outputInterval" value="1" />\n')
-            f.write('      <parameter name="outputDirectory"\n')
-            f.write('        value="%s" />\n' % outdir)
-            f.write('      <parameter name="maxDataSets" value="-1" />\n')
-            f.write('    </result>\n')
+            results_to_save.append("NETCDF")
+            
+        return results_to_save
         
-        # Footer
-        f.write('\n')
-        f.write('  </simulationFlow>\n')
-        f.write('</simulation>\n')
-        
-        f.close()
-        
-    def write_workflow_file(self, filename):
-        '''Writes the Nano-Hive Workflow file, which is a TCL script used by Nano-Hive to
-        run the simulation.  It describes the workflow of the simulation.
+    def get_sim_data(self):
+        '''Return the set of parameters and data needed to run the Nano-Hive simulation.
         '''
+        sp = NH_Sim_Parameters()
         
-        # This is a sample workflow file for creating an ESP Plane:
-            
-        #NH_Import $inFile
-        #NH_Calculate 0 $traverser
-        #NH_Calculate 0 $espWindow $traverser
-        #NH_Intermediate 0 $simResult
-        #NH_Final $simResult
+        sp.desc = self.description_textedit.text()
+        sp.iterations = self.nframes_spinbox.value() # Iterations = Frames
+        sp.spf = self.stepsper_spinbox.value() * 1e-17 # Steps per Frame
+        sp.temp = self.temp_spinbox.value() # Temp in Kelvin
+        sp.esp_window = self.esp_window
         
-        f = open(filename,'w') # Open Nano-Hive Workflow file.
-        
-        f.write ('NH_Import $inFile\n\n')
-        f.write ('NH_Calculate 0 $traverser\n')
-        f.write ('NH_Calculate 0 $espWindow $traverser\n')
-        f.write ('NH_Intermediate 0 $simResult\n\n')
-        f.write ('NH_Final $simResult\n')
-
-        f.close()
-        
-
-# This is not implemented yet.         
-    def _validate_nanohive_program(self):
-        '''Private method:
-        Checks that the Nano-Hive program path exists in the user pref database
-        and that the file it points to exists.  If the Nano-Hive path does not exist, the
-        user will be prompted with the file chooser to select the Nano-Hive executable.
-        This function does not check whether the Nano-Hive path is actually Nano-Hive.
-        Returns:  0 = Valid
-                        1 = Invalid
+        return sp
+         
+    def run_nanohive(self):
+        '''Slot for "Run Simulation" button.
         '''
-        # Get Nano-Hive executable path from the prefs db
-        nanohive_exe = env.prefs[nanohive_path_prefs_key]
+        sim_name = self.get_sim_name()
+        sim_parms = self.get_sim_data()
+        sims_to_run = self.get_sims_to_run()
+        results_to_save = self.get_results_to_save()
         
-        if not nanohive_exe:
-            msg = "The Nano-Hive executable path is not set.\n"
-        elif os.path.exists(nanohive_exe):
-            return 0
-        else:
-            msg = nanohive_exe + " does not exist.\n"
+        run_nh_simulation(self.assy, sim_name, sim_parms, sims_to_run, results_to_save)
             
-        # Nano-Hive Dialog is the parent for messagebox and file chooser.
-        ret = QMessageBox.warning( self, "Nano-Hive Executable Path",
-            msg + "Please select OK to set the location of Nano-Hive for this computer.",
-            "&OK", "Cancel", None,
-            0, 1 )
-                
-        if ret==0: # OK
-            #from UserPrefs import get_gamess_path
-            #self.server.program = get_gamess_path(parent)
-            from UserPrefs import get_filename_and_save_in_prefs
-            nanohive_exe = \
-                get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
-            if not nanohive_exe:
-                return 1 # Cancelled from file chooser.
-            
-        elif ret==1: # Cancel
-            return 1
-
-        return 0
-
-    def connect_to_nanohive(self):
-        '''Connects to a Nano-Hive instance.  Returns 0 if success, 1 if failure.
-        '''
-
-        import NanoHiveUtils
-
-        hostIP = "127.0.0.1"
-        port = 3002 # SpiderMonkey
-        serverTimeout = 5.0
-        clientTimeout = 30.0
-        
-        self.nh_conn = NanoHiveUtils.NH_Connection() # Obtain connection object
-        
-        # Try connecting the Nano-Hive instance.
-        success, msg = self.nh_conn.connect(hostIP, port, serverTimeout, clientTimeout)
-        
-        if success:
-            success, result = self.nh_conn.sendCommand("status 1") # Send status command.
-            if success:
-                msg = "Success: " + str(success)  + "\nMessage: " + str(result)
-                env.history.message(msg)
-                return 0
-                
-            else:
-                msg = "Command Error:\nSuccess=" + str(success)  + "\nMessage: " + str(result)
-                env.history.message(msg)
-                return 1
-            
-        else:
-            msg = " Connection Failed:\nSuccess=" + str(success)  + "\nMessage: " + str(msg)
-            env.history.message(msg)
-            return 1
-        
 # end

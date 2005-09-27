@@ -5,9 +5,277 @@ NanoHiveUtils.py
 $Id$
 
 History:
+    
+    Brian wrote the NH_Connection class
+    Mark wrote everything else
 
 '''
 __author__ = "Brian"
+
+import env, os
+from platform import find_or_make_Nanorex_subdir
+from constants import nanohive_path_prefs_key
+
+def get_nh_simspec_filename(basename):
+    '''Return the full path of the Nano-Hive simulation specification file.
+    '''
+    if basename:
+        nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
+        return os.path.join(nhdir,str(basename)+"-sim.xml")
+    else:
+        return None
+
+def get_nh_workflow_filename(basename):
+    '''Return the full path of the Nano-Hive workflow file.
+    '''
+    if basename:
+        nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
+        return os.path.join(nhdir,str(basename)+"-flow.tcl")
+    else:
+        return None
+
+def get_nh_mmp_filename(basename):
+    '''Return the full path of the Nano-Hive MMP input file.
+    '''
+    if basename:
+        nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
+        return os.path.join(nhdir,str(basename)+".mmp")
+    else:
+        return None
+
+def get_nh_home():    
+    '''Return the Nano-Hive home directory'''
+    
+    # Retreive the Nano-Hive home directory by stripping off the last two directories
+    # from the Nano-Hive executable path.
+    nanohive_exe = env.prefs[nanohive_path_prefs_key]
+    head, tail = os.path.split(nanohive_exe)
+    head, tail = os.path.split(head)
+    nh_home, tail = os.path.split(head)
+    return nh_home
+
+def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
+    '''Run a Nano-Hive simulation on the part (assy).
+    
+    sim_name is the name of the simulation.  It is used to construct the basename of all
+    the simulation files and is the name of the Nano-Hive simulation run.
+    
+    sims_to_run is a list of simulations to run, where:
+        MPQC_ESP = MPQC ESP Plane
+        MPQC_GD = MPQC Gradient Dynamics
+        AIREBO = AIREBO
+        
+    results_to_save is a list of results to save, where:
+        MEASUREMENTS = Measurements to file
+        POVRAYVIDEO = POVRay Video
+        NETCDF = NetCDF
+
+    Return values:
+        0 = successful
+        1 = couldn't connect to Nano-Hive instance
+        2 = load command failed
+        3 = run command failed
+    '''
+    
+    if not sims_to_run:
+        return # No simulations to run in the list.
+        
+    # Validate that the Nano-Hive executable exists.
+    r = validate_nh_program(None)
+    
+    if r: # Nano-Hive program was not found/valid.
+        return 1 # Simulation Cancelled.
+    
+    if not sim_name:
+        sim_name = get_sim_name()   
+        
+    from platform import find_or_make_Nanorex_subdir
+    output_dir = find_or_make_Nanorex_subdir("Nano-Hive") # ~/Nanorex/Nano-Hive
+    
+    # 1. Connect to Nano-Hive, get socket.
+    nh_socket = connect_to_nanohive()
+    
+    if not nh_socket: # Error connecting to Nano-Hive instance
+        return 1
+        
+    # 2. Write the MMP file that Nano-Hive will use for the sim run.
+    assy.writemmpfile(get_nh_mmp_filename(sim_name))
+        
+    # 3. Write the sim-spec file using the parameters from the Nano-Hive dialog widgets
+    from files_nh import write_nh_simspec_file
+    write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, output_dir)
+    
+    # 4. Write the Sim Workflow file
+    from files_nh import write_nh_workflow_file
+    write_nh_workflow_file(sim_name)
+    
+    # 5. Send commands to Nano-Hive.  There can be no spaces in partname.  Need to fix this.
+    cmd = 'load simulation -f "' + get_nh_simspec_filename(sim_name) + '" -n ' + sim_name
+    print "NanoHiveUtils.run_nh_simulation(): N-H load command: ", cmd
+    
+    success, result = nh_socket.sendCommand(cmd) # Send "load" command.
+    if not success:
+        print success, result
+        return 2
+    
+    cmd = "run " + sim_name
+    print "NanoHiveUtils.run_nh_simulation(): N-H run command: ", cmd
+    
+    success, result = nh_socket.sendCommand(cmd) # Send "run" command.
+    if not success:
+        print success, result
+        return 3
+    
+    # All done.  Close the socket. 
+    nh_socket.close()
+    
+    return 0
+
+def write_nh_simspec_file_moved(sim_name, sim_parms, sims_to_run, results_to_save, output_dir):
+    '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the
+    simulation environment, plugin selection and plugin parameters.
+    '''
+    
+    # The Nano-Hive Sim Spec file has 4 different sections that must be written in the following order:
+    # 1. Header Section
+    # 2. Physical Interaction Plugin(s) Section
+    # 3. Results Plugin(s) Section
+    # 4. Footer Section.
+    # Mark 050915.
+    
+    simspec_fname = get_nh_simspec_filename(sim_name)
+    workflow_fname = get_nh_workflow_filename(sim_name)
+    mmp_fname = get_nh_mmp_filename(sim_name)
+    
+    f = open(simspec_fname,'w') # Open Nano-Hive Sim Spec file.
+    
+    sp = sim_parms
+    
+    write_nh_header(f, sp.desc, sp.iterations, sp.spf, sp.temp, workflow_fname, mmp_fname)
+    
+    # Need to ask Brian about conditions for Bond record to be written.
+    if 0: 
+        write_nh_bond_calc_rec(f)
+    
+    # Physical Interaction Plugins ########################################
+    
+    if "MPQC_ESP" in sims_to_run:
+        write_nh_mpqc_esp_plane_rec(f, sp.esp_window, output_dir)
+        
+    if "MPQC_GD" in sims_to_run:
+        write_nh_mpqc_gd_rec(f)
+            
+    if "AIREBO" in sims_to_run:
+        write_nh_airebo_rec(f)
+
+    # Results Plugins ########################################
+    
+    if "MEASUREMENTS_TO_FILE" in results_to_save:
+        write_nh_measurements_to_file_results_rec(f, output_dir)
+
+    if "POVRAYVIDEO" in results_to_save:
+        write_nh_povrayvideo_results_rec(f, sim_name, output_dir)
+
+    if "NETCDF" in results_to_save:
+        write_nh_netcdf_results_rec(f, output_dir)
+    
+    # Footer ########################################
+    write_nh_footer(f)
+    
+    f.close()
+            
+def write_nh_workflow_file_moved(sim_name):
+    '''Writes the Nano-Hive Workflow file, which is a TCL script used by Nano-Hive to
+    run the simulation.  It describes the workflow of the simulation.
+    '''
+    
+    workflow_fname = get_nh_workflow_filename(sim_name)
+    
+    f = open(workflow_fname,'w')
+
+    f.write ('NH_Import $inFile\n\n')
+    f.write ('NH_Calculate 0 $traverser\n')
+    f.write ('NH_Calculate 0 $espWindow $traverser\n')
+    f.write ('NH_Intermediate 0 $simResult\n\n')
+    f.write ('NH_Final $simResult\n')
+    
+    f.close()
+
+def validate_nh_program(parent):
+    '''Checks that the Nano-Hive program path exists in the user pref database
+    and that the file it points to exists.  If the Nano-Hive path does not exist, the
+    user will be prompted with the file chooser to select the Nano-Hive executable.
+    This function does not check whether the Nano-Hive path is actually Nano-Hive.
+    
+    parent is the parent Qt Window or Dialog.
+    
+    Returns:  0 = Valid
+                    1 = Invalid
+    '''
+    # Get Nano-Hive executable path from the prefs db
+    nanohive_exe = env.prefs[nanohive_path_prefs_key]
+    
+    if not nanohive_exe:
+        msg = "The Nano-Hive executable path is not set.\n"
+    elif os.path.exists(nanohive_exe):
+        return 0
+    else:
+        msg = nanohive_exe + " does not exist.\n"
+        
+    # Nano-Hive Dialog is the parent for messagebox and file chooser.
+    ret = QMessageBox.warning( parent, "Nano-Hive Executable Path",
+        msg + "Please select OK to set the location of Nano-Hive for this computer.",
+        "&OK", "Cancel", None,
+        0, 1 )
+            
+    if ret==0: # OK
+        #from UserPrefs import get_gamess_path
+        #self.server.program = get_gamess_path(parent)
+        from UserPrefs import get_filename_and_save_in_prefs
+        nanohive_exe = \
+            get_filename_and_save_in_prefs(parent, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
+        if not nanohive_exe:
+            return 1 # Cancelled from file chooser.
+        
+    elif ret==1: # Cancel
+        return 1
+
+    return 0
+
+def connect_to_nanohive():
+    '''Connects to a Nano-Hive instance.  
+    Returns NH_Connection socket if successful, None if failure.
+    '''
+
+    import NanoHiveUtils
+
+    hostIP = "127.0.0.1"
+    port = 3002 # SpiderMonkey
+    serverTimeout = 5.0
+    clientTimeout = 30.0
+    
+    nh_conn = NanoHiveUtils.NH_Connection() # Obtain connection object
+    
+    # Try connecting the Nano-Hive instance.
+    success, msg = nh_conn.connect(hostIP, port, serverTimeout, clientTimeout)
+    
+    if success:
+        success, result = nh_conn.sendCommand("status 1") # Send status command.
+        if success:
+            msg = "Success: " + str(success)  + "\nMessage: " + str(result)
+            env.history.message(msg)
+            return nh_conn
+            
+        else:
+            msg = "Command Error:\nSuccess=" + str(success)  + "\nMessage: " + str(result)
+            env.history.message(msg)
+            return None
+        
+    else:
+        msg = " Connection Failed:\nSuccess=" + str(success)  + "\nMessage: " + str(msg)
+        env.history.message(msg)
+        return None
+
 
 # Version 2
 
