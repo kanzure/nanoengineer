@@ -68,9 +68,13 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.glpane.gl_update()
         
     def show_esp_bbox(self, val):
-        "Slot for Show ESP Window Volume"
+        "Slot for Show ESP Window Volume checkbox"
         self.esp_window.show_esp_bbox = val
         self.glpane.gl_update()
+        
+    def highlight_atoms_in_bbox(self, val):
+        "Slot for Highlight Atoms Inside Volume checkbox"
+        print "ESPWindowProp.highlight_atoms_in_bbox(): Not implemented yet."
         
     def select_atoms_inside_esp_bbox(self):
         "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"

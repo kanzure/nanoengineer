@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ESPWindowPropDialog.ui'
 #
-# Created: Mon Sep 26 09:27:29 2005
+# Created: Tue Sep 27 11:59:58 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,7 +55,7 @@ class ESPWindowPropDialog(QDialog):
 
         self.setIcon(self.image0)
 
-        ESPWindowPropDialogLayout = QVBoxLayout(self,11,6,"ESPWindowPropDialogLayout")
+        ESPWindowPropDialogLayout = QGridLayout(self,1,1,11,6,"ESPWindowPropDialogLayout")
 
         layout30 = QHBoxLayout(None,0,6,"layout30")
 
@@ -195,24 +195,8 @@ class ESPWindowPropDialog(QDialog):
         layout27.addItem(spacer19)
         layout28.addLayout(layout27)
         layout30.addLayout(layout28)
-        ESPWindowPropDialogLayout.addLayout(layout30)
 
-        self.groupBox1 = QGroupBox(self,"groupBox1")
-        self.groupBox1.setColumnLayout(0,Qt.Vertical)
-        self.groupBox1.layout().setSpacing(6)
-        self.groupBox1.layout().setMargin(11)
-        groupBox1Layout = QVBoxLayout(self.groupBox1.layout())
-        groupBox1Layout.setAlignment(Qt.AlignTop)
-
-        self.show_esp_bbox_checkbox = QCheckBox(self.groupBox1,"show_esp_bbox_checkbox")
-        self.show_esp_bbox_checkbox.setChecked(1)
-        groupBox1Layout.addWidget(self.show_esp_bbox_checkbox)
-
-        self.select_atoms_btn = QPushButton(self.groupBox1,"select_atoms_btn")
-        groupBox1Layout.addWidget(self.select_atoms_btn)
-        ESPWindowPropDialogLayout.addWidget(self.groupBox1)
-        spacer5 = QSpacerItem(101,20,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
-        ESPWindowPropDialogLayout.addItem(spacer5)
+        ESPWindowPropDialogLayout.addLayout(layout30,0,0)
 
         layout30_2 = QHBoxLayout(None,0,6,"layout30_2")
         spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -228,11 +212,34 @@ class ESPWindowPropDialog(QDialog):
         self.cancel_btn.setMinimumSize(QSize(0,30))
         self.cancel_btn.setAutoDefault(1)
         layout30_2.addWidget(self.cancel_btn)
-        ESPWindowPropDialogLayout.addLayout(layout30_2)
+
+        ESPWindowPropDialogLayout.addLayout(layout30_2,3,0)
+        spacer5 = QSpacerItem(101,30,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
+        ESPWindowPropDialogLayout.addItem(spacer5,2,0)
+
+        self.groupBox1 = QGroupBox(self,"groupBox1")
+        self.groupBox1.setColumnLayout(0,Qt.Vertical)
+        self.groupBox1.layout().setSpacing(6)
+        self.groupBox1.layout().setMargin(11)
+        groupBox1Layout = QVBoxLayout(self.groupBox1.layout())
+        groupBox1Layout.setAlignment(Qt.AlignTop)
+
+        self.show_esp_bbox_checkbox = QCheckBox(self.groupBox1,"show_esp_bbox_checkbox")
+        self.show_esp_bbox_checkbox.setChecked(1)
+        groupBox1Layout.addWidget(self.show_esp_bbox_checkbox)
+
+        self.highlight_atoms_in_bbox_checkbox = QCheckBox(self.groupBox1,"highlight_atoms_in_bbox_checkbox")
+        self.highlight_atoms_in_bbox_checkbox.setChecked(1)
+        groupBox1Layout.addWidget(self.highlight_atoms_in_bbox_checkbox)
+
+        self.select_atoms_btn = QPushButton(self.groupBox1,"select_atoms_btn")
+        groupBox1Layout.addWidget(self.select_atoms_btn)
+
+        ESPWindowPropDialogLayout.addWidget(self.groupBox1,1,0)
 
         self.languageChange()
 
-        self.resize(QSize(301,392).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(301,430).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -243,7 +250,8 @@ class ESPWindowPropDialog(QDialog):
         self.connect(self.window_offset_spinbox,SIGNAL("valueChanged(int)"),self.change_window_offset)
         self.connect(self.edge_offset_spinbox,SIGNAL("valueChanged(int)"),self.change_edge_offset)
         self.connect(self.show_esp_bbox_checkbox,SIGNAL("toggled(bool)"),self.show_esp_bbox)
-        self.connect(self.select_atoms_btn,SIGNAL("clicked()"),self.select_atoms_in_bbox)
+        self.connect(self.select_atoms_btn,SIGNAL("clicked()"),self.select_atoms_inside_esp_bbox)
+        self.connect(self.highlight_atoms_in_bbox_checkbox,SIGNAL("toggled(bool)"),self.highlight_atoms_in_bbox)
 
         self.setTabOrder(self.name_linedit,self.choose_fill_color_btn)
         self.setTabOrder(self.choose_fill_color_btn,self.choose_border_color_btn)
@@ -252,7 +260,9 @@ class ESPWindowPropDialog(QDialog):
         self.setTabOrder(self.window_offset_spinbox,self.edge_offset_spinbox)
         self.setTabOrder(self.edge_offset_spinbox,self.resolution_spinbox)
         self.setTabOrder(self.resolution_spinbox,self.show_esp_bbox_checkbox)
-        self.setTabOrder(self.show_esp_bbox_checkbox,self.ok_btn)
+        self.setTabOrder(self.show_esp_bbox_checkbox,self.highlight_atoms_in_bbox_checkbox)
+        self.setTabOrder(self.highlight_atoms_in_bbox_checkbox,self.select_atoms_btn)
+        self.setTabOrder(self.select_atoms_btn,self.ok_btn)
         self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 
@@ -273,13 +283,14 @@ class ESPWindowPropDialog(QDialog):
         self.textLabel2.setText(self.__tr("Angstroms"))
         self.textLabel2_2.setText(self.__tr("Angstroms"))
         self.textLabel2_3.setText(self.__tr("Angstroms"))
-        self.groupBox1.setTitle(self.__tr("ESP Window Volume"))
-        self.show_esp_bbox_checkbox.setText(self.__tr("Show Bounding Box of Volume"))
-        self.select_atoms_btn.setText(self.__tr("Select Atoms Inside Volume"))
         self.ok_btn.setText(self.__tr("&OK"))
         self.ok_btn.setAccel(self.__tr("Alt+O"))
         self.cancel_btn.setText(self.__tr("&Cancel"))
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
+        self.groupBox1.setTitle(self.__tr("ESP Window Volume"))
+        self.show_esp_bbox_checkbox.setText(self.__tr("Show Bounding Box of Volume"))
+        self.highlight_atoms_in_bbox_checkbox.setText(self.__tr("Highlight Atoms Inside Volume"))
+        self.select_atoms_btn.setText(self.__tr("Select Atoms Inside Volume"))
 
 
     def change_fill_color(self):
@@ -300,8 +311,11 @@ class ESPWindowPropDialog(QDialog):
     def show_esp_bbox(self):
         print "ESPWindowPropDialog.show_esp_bbox(): Not implemented yet"
 
-    def select_atoms_in_bbox(self):
-        print "ESPWindowPropDialog.select_atoms_in_bbox(): Not implemented yet"
+    def select_atoms_inside_esp_bbox(self):
+        print "ESPWindowPropDialog.select_atoms_inside_esp_bbox(): Not implemented yet"
+
+    def highlight_atoms_in_bbox(self):
+        print "ESPWindowPropDialog.highlight_atoms_in_bbox(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ESPWindowPropDialog",s,c)

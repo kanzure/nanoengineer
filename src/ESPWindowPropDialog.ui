@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>301</width>
-            <height>392</height>
+            <height>430</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,11 +18,11 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="0" column="0">
             <property name="name">
                 <cstring>layout30</cstring>
             </property>
@@ -523,56 +523,7 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>groupBox1</cstring>
-            </property>
-            <property name="title">
-                <string>ESP Window Volume</string>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>show_esp_bbox_checkbox</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Show Bounding Box of Volume</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>select_atoms_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Select Atoms Inside Volume</string>
-                    </property>
-                </widget>
-            </vbox>
-        </widget>
-        <spacer>
-            <property name="name">
-                <cstring>spacer5</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>MinimumExpanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>101</width>
-                    <height>20</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="3" column="0">
             <property name="name">
                 <cstring>layout30</cstring>
             </property>
@@ -642,7 +593,67 @@
                 </widget>
             </hbox>
         </widget>
-    </vbox>
+        <spacer row="2" column="0">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>MinimumExpanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>101</width>
+                    <height>30</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QGroupBox" row="1" column="0">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>ESP Window Volume</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>show_esp_bbox_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Show Bounding Box of Volume</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>highlight_atoms_in_bbox_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Highlight Atoms Inside Volume</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>select_atoms_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Select Atoms Inside Volume</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+    </grid>
 </widget>
 <images>
     <image name="image0">
@@ -704,6 +715,12 @@
         <receiver>ESPWindowPropDialog</receiver>
         <slot>select_atoms_inside_esp_bbox()</slot>
     </connection>
+    <connection>
+        <sender>highlight_atoms_in_bbox_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>ESPWindowPropDialog</receiver>
+        <slot>highlight_atoms_in_bbox()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>name_linedit</tabstop>
@@ -714,6 +731,8 @@
     <tabstop>edge_offset_spinbox</tabstop>
     <tabstop>resolution_spinbox</tabstop>
     <tabstop>show_esp_bbox_checkbox</tabstop>
+    <tabstop>highlight_atoms_in_bbox_checkbox</tabstop>
+    <tabstop>select_atoms_btn</tabstop>
     <tabstop>ok_btn</tabstop>
     <tabstop>cancel_btn</tabstop>
 </tabstops>
@@ -725,6 +744,7 @@
     <slot>change_edge_offset()</slot>
     <slot>show_esp_bbox()</slot>
     <slot>select_atoms_inside_esp_bbox()</slot>
+    <slot>highlight_atoms_in_bbox()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
