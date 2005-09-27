@@ -1134,20 +1134,21 @@ class ESPWindow(RectGadget):
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
+        self.assy = assy
         self.color = black # Border color
         self.normcolor = black
         self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
         
         # This specifies the resolution of the ESP Window. 
         # The total number of ESP data points in the window will number resolution^2. 
-        self.resolution = 20 
-        # the edge margin, called cutoffWidth in N-H
-        self.edge_offset = 1.0 
-        # the offset margin (perpendicular to the window), called cutoffHeight in N-H
-        self.window_offset = 1.0
+        self.resolution = 20
         # Show/Hide ESP Window Volume (Bbox).  All atoms inside this volume are used by 
         # the MPQC ESP Plane plug-in to calculate the ESP points.
-        self.show_esp_bbox = True 
+        self.show_esp_bbox = True
+        # the perpendicular (front and back) window offset used to create the depth of the bbox
+        self.window_offset = 1.0
+        # the edge offset used to create the edge boundary of the bbox
+        self.edge_offset = 1.0 
         # translucency, a range between 0-1 where: 0=fully opaque, 1= fully translucent
         self.translucency = 0.0
     
@@ -1196,6 +1197,38 @@ class ESPWindow(RectGadget):
             self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
             self.translucency, color[0], color[1], color[2])
         return " " + dataline
+
+    def get_sim_parms(self):
+        from NanoHive import NH_Sim_Parameters
+        sim_parms = NH_Sim_Parameters()
+        
+        sim_parms.desc = 'ESP Calculation from MT Context Menu for ' + self.name
+        sim_parms.iterations = 1
+        sim_parms.spf = 1e-17 # Steps per Frame
+        sim_parms.temp = 300 # Room temp
+        sim_parms.esp_window = self
+        
+        return sim_parms
+        
+    def calculate_esp(self):
+        
+        cmd = greenmsg("Calculate ESP: ")
+        
+        sim_parms = self.get_sim_parms()
+        sims_to_run = ["MPQC_ESP"]
+        results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
+        
+        from NanoHiveUtils import run_nh_simulation
+        run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
+        
+        info = "Running ESP calculation on [%s]" % (self.name) 
+        env.history.message( cmd + info ) 
+        self.assy.w.win_update()
+        
+        return
+        
+    def __CM_Calculate_ESP(self):
+        self.calculate_esp()
 
     pass # end of class ESPWindow       
 
