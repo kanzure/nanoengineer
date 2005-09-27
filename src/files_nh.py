@@ -143,7 +143,12 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     #print "ESP Window CenterPoint =", centerPoint
         
     npnt = esp_window.getaxis() * 1e-10
-    normalPoint = (float(npnt[0]), float(abs(npnt[1])), float(npnt[2]))
+    
+    # This is a temporary workaround until Brian fixes the normalPoint Y value issue (must be positive).
+    # This forces ESP Windows to be oriented in the X-Z plane until it is fixed.
+    # Mark 050927.
+    normalPoint = (float(npnt[0]), 0.5, float(npnt[2])) 
+    # normalPoint = (float(npnt[0]), float(abs(npnt[1])), float(npnt[2])) # KEEP THIS!!!
     #print "ESP Window NormalPoint =", normalPoint
         
     resolution = esp_window.resolution
@@ -168,23 +173,15 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     f.write('      <parameter name="outputType" value="ESPplane" />\n')
     f.write('      <parameter name="resolution" value="%d" />\n' % resolution)
     f.write('\n')
-    if 0:
-        f.write('      <parameter name="centerPoint" value="%.1e %.1e %.1e" />\n' % centerPoint)
-        f.write('      <parameter name="normalPoint" value="%1.1e %1.1e %1.1e" />\n' % normalPoint)
-        f.write('      <parameter name="cutoffHeight" value="%1.1e" />\n' % cutoffHeight)
-        f.write('      <parameter name="cutoffWidth" value="%1.1e" />\n' % cutoffWidth)
-        f.write('      <parameter name="outputLength" value="%1.1e" />\n' % outputLength)
-    else:
-        f.write('      <parameter name="centerPoint" value="0 0 0" />\n')
-        f.write('      <parameter name="normalPoint" value="0 1.0e-10 0" />\n')
-        f.write('      <parameter name="cutoffHeight" value="2e-10" />\n')
-        f.write('      <parameter name="cutoffWidth" value="2e-10" />\n')
-        f.write('      <parameter name="outputLength" value="10.0e-10" />\n')
+    f.write('      <parameter name="centerPoint" value="%.1e %.1e %.1e" />\n' % centerPoint)
+    f.write('      <parameter name="normalPoint" value="%1.1e %1.1e %1.1e" />\n' % normalPoint)
+    f.write('      <parameter name="cutoffHeight" value="%1.1e" />\n' % cutoffHeight)
+    f.write('      <parameter name="cutoffWidth" value="%1.1e" />\n' % cutoffWidth)
+    f.write('      <parameter name="outputLength" value="%1.1e" />\n' % outputLength)
     f.write('    </calculator>\n')
-        
     f.write('\n')
     f.write('    <result name="simResult" plugin="_ESP_Image">\n')
-    f.write('      <parameter name="outputFilename" value="%s\\result.png" />\n' % output_dir)
+    f.write('      <parameter name="outputFilename" value="%s\\%s.png" />\n' % (output_dir, esp_window.name))
     f.write('    </result>\n')
 
 def write_nh_mpqc_gd_rec(f):
@@ -213,7 +210,7 @@ def write_nh_mpqc_gd_rec(f):
 
 #== Results Plug-ins ==========================
 
-def write_nh_measurements_to_file_rec(f, output_dir):
+def write_nh_measurements_to_file_results_rec(f, output_dir):
     
     f.write('\n')
     f.write('    <result name="MeasurementSetToFile" plugin="MeasurementSetToFile">\n')
