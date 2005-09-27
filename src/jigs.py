@@ -1218,10 +1218,13 @@ class ESPWindow(RectGadget):
         sims_to_run = ["MPQC_ESP"]
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
         
+        from platform import find_or_make_Nanorex_subdir
+        results_file = os.path.join(find_or_make_Nanorex_subdir("Nano-Hive"), self.name + ".png")
+        
         from NanoHiveUtils import run_nh_simulation
         run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
         
-        info = "Running ESP calculation on [%s]" % (self.name) 
+        info = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, results_file) 
         env.history.message( cmd + info ) 
         self.assy.w.win_update()
         
@@ -1512,6 +1515,20 @@ class AtomSet(Jig):
     mmp_record_name = "atomset"
     def mmp_record_jigspecific_midpart(self):
         return ""
+        
+    def _mmp_record_front_part(self, mapping):
+        
+        if mapping is not None:
+            name = mapping.encode_name(self.name)
+        else:
+            name = self.name
+        
+        if self.picked:
+            c = self.normcolor
+        else:
+            c = self.color
+        mmprectype_name_color = "%s (%s) " % (self.mmp_record_name, name)
+        return mmprectype_name_color
 
     def anchors_atom(self, atm):
         "does this jig hold this atom fixed in space? [overrides Jig method]"

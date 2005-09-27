@@ -158,6 +158,9 @@ gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\
 # espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb)
 esppat = re.compile("espwindow \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
 
+# atomset (name) atom1 atom2 ... atom25 {up to 25}
+atmsetpat = re.compile("atomset \((.+)\)")
+
 # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
 
@@ -438,7 +441,24 @@ class _readmmp_state:
         gridPlane.setProps(name, border_color, width, height, center, quat, grid_type, \
                            line_type, x_space, y_space, grid_color)
         self.addmember(gridPlane)
+
+    # Read the MMP record for a Atom Set as:
+    # atomset (name) atom1 atom2 ... atom_n {no limit}
+
+    def _read_atomset(self, card):
+        m = atmsetpat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+
+        # Read in the list of atoms
+        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list = map((lambda n: self.ndix[n]), list)
         
+        as = AtomSet(self.assy, list) # create atom set and set props
+        as.name = name
+        
+        self.addmember(as)
+                
         
     def _read_espwindow(self, card):
         ''' Read the MMP record for a ESP Window jig as:
@@ -1331,5 +1351,4 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     return # from writemmpfile_part
 
 # end of module files_mmp.py
-
 
