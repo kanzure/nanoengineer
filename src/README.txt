@@ -89,9 +89,9 @@ its executable.
 INSTALLATION ON Fedora Core 4
 
 When installing FC4 on your computer, be sure to select KDE as your
-graphical environment. Also select the "kde devel" package. This will
-install several prerequisite packages directly from the CDROMs. In
-addition, you will need three more packages:
+graphical environment. Also install the "KDE Software Development"
+bundle of packages. This will install several prerequisite packages
+directly from the CDROMs. In addition, you will need three more packages:
 
 freeglut-devel-2.2.0-16.i386.rpm
 	Install this using "rpm -i". This must be done as root.
