@@ -1667,7 +1667,7 @@ class Group(Node):
     
         try:
             for ob in self.members[:]:
-                if not isinstance(ob, ESPWindow):
+                if not isinstance(ob, ESPWindow): #Exclude any ESP window drawing here because of its translucency. [Huaicai 9/28/05]
                     ob.draw(glpane, dispdef)
             #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
             #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
@@ -1693,21 +1693,6 @@ class Group(Node):
          which only work if nothing was messed up by child nodes or exceptions from them,
          and which might be subject to numerical errors).
         """
-        from jigs_planes import ESPWindow
-    
-        try:
-            for ob in self.members[:]:
-                if isinstance(ob, ESPWindow) or isinstance(ob, Group):
-                    ob.draw(glpane, dispdef)
-            #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
-            #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
-            # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
-            # we have to worry about things which are drawn before or after main drawing loop --
-            # they might need to figure out their dispdef (and coords) specially, or store them during first pass
-            # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
-            # [bruce 050615 comments]
-        except:
-            print_compact_traceback("exception in drawing some Group member; skipping to end: ")
         pass
     
     

@@ -602,9 +602,9 @@ def drawwirecube(color, pos, radius, lineWidth=3.0):
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     if type(radius) == type(1.0):
-	glScale(radius,radius,radius)
+        glScale(radius,radius,radius)
     else: 
-	glScale(radius[0], radius[1], radius[2])
+        glScale(radius[0], radius[1], radius[2])
     glLineWidth(lineWidth)
     glCallList(lineCubeList)
     glLineWidth(1.0) ## restore its state
@@ -1011,16 +1011,16 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False):
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
     if textureReady:
-	glEnable(GL_TEXTURE_2D)  
+        glEnable(GL_TEXTURE_2D)  
     glBegin(GL_QUADS)
     for ii in range(len(vs)):
-	t = vt[ii]; v = vs[ii]
-	if textureReady:
-	    glTexCoord2fv(t)
+        t = vt[ii]; v = vs[ii]
+        if textureReady:
+            glTexCoord2fv(t)
         glVertex3fv(v)
     glEnd()
     if textureReady:
-	glDisable(GL_TEXTURE_2D)
+        glDisable(GL_TEXTURE_2D)
     
     glDisable(GL_BLEND)
     glDepthMask(GL_TRUE) 
@@ -1204,19 +1204,18 @@ def getPowerOfTwo(num):
     '''<int> num: find the nearest number for <num> that's power of 2.'''
     assert(type(num) == type(1))
     a = 0
+    maxValue = 512 ## It proves that a big picture may crash the program. This value works on my machine.   
     
     oNum = num
     while num>1:
        num = num>>1
        a += 1
     
-    s = 1<<a; b = 1<<(a+1)
+    s = min(1<<a, maxValue) ; b = min(1<<(a+1), maxValue)
     
     if (oNum-s) > (b-oNum):
-	return b
+        return b
     else: return s
-	
-	
     
 
 def getTextureData(fileName):
@@ -1224,46 +1223,46 @@ def getTextureData(fileName):
     from qt import QImage, QColor
     ###print getPowerOfTwo(17), getPowerOfTwo(4)
     if 0:
-	import Image ##This is from the PIL library
+        import Image ##This is from the PIL library
     
-	img = Image.open(fileName)
-	
-	width = img.size[0]
-	height = img.size[1]
-	
-	ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
-	
-	#img.draft("RGBX", (64, 64))
-	rst = img.tostring("raw", "RGBX", 0, -1)
-	
-    	return rst
+        img = Image.open(fileName)
+        
+        width = img.size[0]
+        height = img.size[1]
+        
+        ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
+        
+        #img.draft("RGBX", (64, 64))
+        rst = img.tostring("raw", "RGBX", 0, -1)
+        
+        return rst
 
     else:
-	img = QImage(fileName)
-	
-	width = img.width()
-	height = img.height()
-	
-	ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
-	print "image size: ", width, height
-	print "ideal size: ", ideal_wd, ideal_ht
-	
-	if width != ideal_wd or height != ideal_ht:
-	    img = img.smoothScale(ideal_wd, ideal_ht)
-	    width = img.width()
-	    height = img.height()
-	
-	    print "new image size: ", width, height
-	
-	from array import array
-	tData = array('B')
-	#for ii in range(ideal_ht):
-	    #for jj in range(ideal_wd):
-	for ii in range(ideal_wd-1, 0, -1): #This rotates 90 degree anti-clockwise compared to the above.
-	    for jj in range(ideal_ht):
-		c = img.pixel(jj, ii)
-		color = QColor(c)
-		tData.extend(array('B', [color.red(), color.green(), color.blue(), 255]))
-	
-	return height, width, tData.tostring()    
-	
+        img = QImage(fileName)
+        
+        width = img.width()
+        height = img.height()
+        
+        ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
+        print "image size: ", width, height
+        print "ideal size: ", ideal_wd, ideal_ht
+        
+        if width != ideal_wd or height != ideal_ht:
+            img = img.smoothScale(ideal_wd, ideal_ht)
+            width = img.width()
+            height = img.height()
+        
+            print "new image size: ", width, height
+        
+        from array import array
+        tData = array('B')
+        #for ii in range(ideal_ht):
+            #for jj in range(ideal_wd):
+        for ii in range(ideal_wd-1, 0, -1): #This rotates 90 degree anti-clockwise compared to the above.
+            for jj in range(ideal_ht):
+                c = img.pixel(jj, ii)
+                color = QColor(c)
+                tData.extend(array('B', [color.red(), color.green(), color.blue(), 255]))
+        
+        return height, width, tData.tostring()    
+        

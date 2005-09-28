@@ -359,9 +359,9 @@ class depositMode(basicMode):
         self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
 
         self.dont_update_gui = False
-	
-	# Huaicai 7/29/05: Open the MMKit every time entering this mode.
-	self.modellingKit = self.w.modifyMMKit()
+        
+        # Huaicai 7/29/05: Open the MMKit every time entering this mode.
+        self.modellingKit = self.w.modifyMMKit()
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
 
@@ -593,13 +593,13 @@ class depositMode(basicMode):
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
         self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
-	
-	# Huaicai 7/29/05: Close the MMKit every time leaving this mode.
-	self.w.closeMMKit()
+        
+        # Huaicai 7/29/05: Close the MMKit every time leaving this mode.
+        self.w.closeMMKit()
 
 
     def restore_patches(self):
-    	self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
+        self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
         self.o.selatom = None
 
     def clear(self):
@@ -616,16 +616,16 @@ class depositMode(basicMode):
         for sym, code, num in elemKeyTab:
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
-	
-	## Huaicai 8/5/05 Add accelerate key for bond hybrid comboBox
-	if self.w.hybridComboBox.isVisible():
-	    acKeys = [Qt.Key_3, Qt.Key_2, Qt.Key_1, Qt.Key_4]
-	    num = self.w.hybridComboBox.count()
-	    if key in acKeys[:num]:
-		hybridId = acKeys.index(key)
-		self.w.hybridComboBox.setCurrentItem(hybridId)
-		self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
-	
+        
+        ## Huaicai 8/5/05 Add accelerate key for bond hybrid comboBox
+        if self.w.hybridComboBox.isVisible():
+            acKeys = [Qt.Key_3, Qt.Key_2, Qt.Key_1, Qt.Key_4]
+            num = self.w.hybridComboBox.count()
+            if key in acKeys[:num]:
+                hybridId = acKeys.index(key)
+                self.w.hybridComboBox.setCurrentItem(hybridId)
+                self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
+        
         basicMode.keyPress(self,key) # bruce 050128
         return
 
@@ -640,8 +640,8 @@ class depositMode(basicMode):
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
-	with window coordinates(int x, int y) 
-	"""
+        with window coordinates(int x, int y) 
+        """
         # bruce 041207 comment: only called for depositMode leftDown in empty
         # space, to decide where to place a newly deposited chunk.
         # So it's a bit weird that it calls findpick at all!
@@ -1021,10 +1021,10 @@ class depositMode(basicMode):
         return status
     
     def __createBond(self, s1, a1, s2, a2):
-	'''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets. No rotation/movement involved. Based on
+        '''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets. No rotation/movement involved. Based on
            a method 'actually_bond()' in bonds.py--[Huaicai 8/25/05] '''
-	
-	try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
+        
+        try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
             v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
             assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
         except:
@@ -1032,75 +1032,75 @@ class depositMode(basicMode):
             s1.kill()
             s2.kill()
             bond_atoms(a1,a2)
-	    return
-	
-	vnew = min(v1,v2)
+            return
+        
+        vnew = min(v1,v2)
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
            
     
     def _pastePart(self, newAssy, hotspotAtom, atom_or_pos): 
-	'''Huaicai 8/25/05: This method serves as an overloaded method, <atom_or_pos> is 
+        '''Huaicai 8/25/05: This method serves as an overloaded method, <atom_or_pos> is 
            the Singlet atom or the empty position that the new part <newAssy> will be attached to or placed at.
-	   Currently, it doesn't consider group or jigs in the <newAssy>. Not so sure if my attempt to copy a part into
-	   another assembly is all right. 
+           Currently, it doesn't consider group or jigs in the <newAssy>. Not so sure if my attempt to copy a part into
+           another assembly is all right. 
            Copies all molecules in the <newAssy>, change their assy attribute to current assembly, move them into <pos>. '''
         attach2Bond = False	
-	
-	if isinstance(atom_or_pos, Atom):
-	    attch2Singlet = atom_or_pos
-	    if hotspotAtom and hotspotAtom.is_singlet() and attch2Singlet .is_singlet():
-		newMol = hotspotAtom.molecule.copy(None)
-		newMol.assy = self.o.assy
-		hs = newMol.hotspot
+        
+        if isinstance(atom_or_pos, Atom):
+            attch2Singlet = atom_or_pos
+            if hotspotAtom and hotspotAtom.is_singlet() and attch2Singlet .is_singlet():
+                newMol = hotspotAtom.molecule.copy(None)
+                newMol.assy = self.o.assy
+                hs = newMol.hotspot
                 ha = hs.singlet_neighbor() # hotspot neighbor atom
-		attch2Atom = attch2Singlet.singlet_neighbor() # atttch to atom
+                attch2Atom = attch2Singlet.singlet_neighbor() # atttch to atom
 
-		rotCenter = newMol.center
-		rotOffset = Q(ha.posn()-hs.posn(), attch2Singlet.posn()-attch2Atom.posn())
-		newMol.rot(rotOffset)
-		
-		moveOffset = attch2Singlet.posn() - hs.posn()
-		newMol.move(moveOffset)
+                rotCenter = newMol.center
+                rotOffset = Q(ha.posn()-hs.posn(), attch2Singlet.posn()-attch2Atom.posn())
+                newMol.rot(rotOffset)
                 
-   		self.__createBond(hs, ha, attch2Singlet, attch2Atom)
-		
-		self.o.assy.addmol(newMol)
-		
-	    else: ## something is wrong, do nothing
-		return
-	    attach2Bond = True
-	else:
-	    placedPos = atom_or_pos
-	    if hotspotAtom:
-		hotspotAtomPos = hotspotAtom.posn()
-		moveOffset = placedPos - hotspotAtomPos
-	    else:
-		if newAssy.molecules:
-		    moveOffset = placedPos - newAssy.molecules[0].center
-	
-	if attach2Bond: # Connect part to an open bond of an existing chunk
-	    for m in newAssy.molecules:
+                moveOffset = attch2Singlet.posn() - hs.posn()
+                newMol.move(moveOffset)
+                
+                self.__createBond(hs, ha, attch2Singlet, attch2Atom)
+                
+                self.o.assy.addmol(newMol)
+                
+            else: ## something is wrong, do nothing
+                return
+            attach2Bond = True
+        else:
+            placedPos = atom_or_pos
+            if hotspotAtom:
+                hotspotAtomPos = hotspotAtom.posn()
+                moveOffset = placedPos - hotspotAtomPos
+            else:
+                if newAssy.molecules:
+                    moveOffset = placedPos - newAssy.molecules[0].center
+        
+        if attach2Bond: # Connect part to an open bond of an existing chunk
+            for m in newAssy.molecules:
               if not m is hotspotAtom.molecule: 
-		newMol = m.copy(None)
-		newMol.assy = self.o.assy
-		
-		## Get each of all other chunks' center movement for the rotation around 'rotCenter'
-		coff = rotOffset.rot(newMol.center - rotCenter)
-		coff = rotCenter - newMol.center + coff 
-		
-		# The order of the following 2 statements doesn't matter
-		newMol.rot(rotOffset)
-		newMol.move(moveOffset + coff)
-		
-		self.o.assy.addmol(newMol)
-	else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
-	    for m in newAssy.molecules:
-		newMol = m.copy(None)
-		newMol.assy = self.o.assy
-		
-		newMol.move(moveOffset)
-		
-		self.o.assy.addmol(newMol)
+                newMol = m.copy(None)
+                newMol.assy = self.o.assy
+                
+                ## Get each of all other chunks' center movement for the rotation around 'rotCenter'
+                coff = rotOffset.rot(newMol.center - rotCenter)
+                coff = rotCenter - newMol.center + coff 
+                
+                # The order of the following 2 statements doesn't matter
+                newMol.rot(rotOffset)
+                newMol.move(moveOffset + coff)
+                
+                self.o.assy.addmol(newMol)
+        else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
+            for m in newAssy.molecules:
+                newMol = m.copy(None)
+                newMol.assy = self.o.assy
+                
+                newMol.move(moveOffset)
+                
+                self.o.assy.addmol(newMol)
  
     
     def leftDown(self, event):
@@ -1123,18 +1123,18 @@ class depositMode(basicMode):
         atype = self.pastable_atomtype()
         self.modified = 1
         self.o.assy.changed()
-	
-	# Possible pastable part and its anchor point [Huaicai 8/26/05]
-	newAssy, anchorAtom = self.modellingKit.getPastablePart()
-	    
+        
+        # Possible pastable part and its anchor point [Huaicai 8/26/05]
+        newAssy, anchorAtom = self.modellingKit.getPastablePart()
+            
         if a: # if some atom (not bond) was "lit up"
             ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element is Singlet:
                 a0 = a.singlet_neighbor() # do this before a is killed!
-		
-		if newAssy and anchorAtom : # Try to paste part if it's possible[Huaicai]
-		    self._pastePart(newAssy, anchorAtom, a)
-		elif newAssy and not anchorAtom:
+                
+                if newAssy and anchorAtom : # Try to paste part if it's possible[Huaicai]
+                    self._pastePart(newAssy, anchorAtom, a)
+                elif newAssy and not anchorAtom:
                     env.history.message("The part you want to paste has either no open bonds " \
                                         "or has open bonds but none of them is set as a hotspot.")
                 elif self.w.pasteP:
@@ -1176,10 +1176,10 @@ class depositMode(basicMode):
                     del a1, desc
                 self.o.selatom = None
                 self.dragmol = None
-		
-		if not newAssy :  ##Added the condition [Huaicai 8/26/05]
-		    status = self.ensure_visible(chunk, status) #bruce 041207
-		    env.history.message(status)
+                
+                if not newAssy :  ##Added the condition [Huaicai 8/26/05]
+                    status = self.ensure_visible(chunk, status) #bruce 041207
+                    env.history.message(status)
                 self.w.win_update()
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
@@ -1229,10 +1229,10 @@ class depositMode(basicMode):
             # nothing was "lit up" -- we're in empty space;
             # create something and (if an atom) drag it rigidly
             atomPos = self.getCoords(event)
-	    
-	    if newAssy:
-		self._pastePart(newAssy, anchorAtom, atomPos)
-		
+            
+            if newAssy:
+                self._pastePart(newAssy, anchorAtom, atomPos)
+                
             elif self.w.pasteP:
                 if self.pastable:
                     chunk, desc = self.pasteFree(atomPos)
@@ -1249,10 +1249,10 @@ class depositMode(basicMode):
                 chunk = self.o.selatom.molecule #bruce 041207
             # now fix bug 229 part B (as called in comment #2),
             # by making this new chunk visible if it otherwise would not be
-	    if not newAssy:  ##Added the condition [Huaicai 8/26/05]
-		status = self.ensure_visible(chunk, status) #bruce 041207
-		env.history.message(status)
-		# fall thru
+            if not newAssy:  ##Added the condition [Huaicai 8/26/05]
+                status = self.ensure_visible(chunk, status) #bruce 041207
+                env.history.message(status)
+                # fall thru
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
         self.pivax = None
@@ -1290,7 +1290,7 @@ class depositMode(basicMode):
         
     def leftDrag(self, event):
         """ drag a new atom or an old atom's molecule
-	"""
+        """
         #bruce 041130 revised docstring
         if not (self.dragmol and self.o.selatom): return
         m = self.dragmol
@@ -1328,7 +1328,7 @@ class depositMode(basicMode):
         # current location (to set selatom again, if appropriate), but it's
         # not clear this would be good, so *this* is what I won't do for now.
         self.o.gl_update()
-	
+        
     def leftShiftDown(self, event):
         """If there's nothing nearby, do nothing. If cursor is on a
         singlet, drag it around, rotating the atom it's bonded to if
@@ -1384,7 +1384,7 @@ class depositMode(basicMode):
 
     def leftShiftDrag(self, event):
         """ drag the atom around
-	"""
+        """
         if not self.dragatom: return
         a = self.dragatom
         apos0 = a.posn()
@@ -1709,8 +1709,8 @@ class depositMode(basicMode):
     
     def Draw(self):
         """ Draw 
-	"""
-	basicMode.Draw(self)
+        """
+        basicMode.Draw(self)
         if self.line:
             drawline(white, self.line[0], self.line[1])
             ####@@@@ if this is for a higher-order bond, draw differently
@@ -1725,6 +1725,8 @@ class depositMode(basicMode):
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
+        basicMode.Draw_after_highlighting(self) #Draw possible other translucent objects. [huaicai 9/28/05]
+        
         glDepthMask(GL_FALSE)
             # disable writing the depth buffer, so bareMotion selobj check measures depths behind it,
             # so it can more reliably compare them to water's constant depth. (This way, roundoff errors
@@ -1739,9 +1741,9 @@ class depositMode(basicMode):
     def surface(self): #bruce 050610 revised docstring
         """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
-	"""
-	glDisable(GL_LIGHTING)
-	glColor4fv(self.gridColor + (0.6,))
+        """
+        glDisable(GL_LIGHTING)
+        glColor4fv(self.gridColor + (0.6,))
             ##e bruce 050615 comment: if this equalled bgcolor, some bugs would go away;
             # we'd still want to correct the surface-size to properly fit the window (bug 264, just now fixed below),
             # but the flicker to bgcolor bug (bug number?) would be gone (defined and effective bgcolor would be same).
@@ -1750,11 +1752,11 @@ class depositMode(basicMode):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
-	# the grid is in eyespace
-	glPushMatrix()
-	q = self.o.quat
-	glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
-	glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
+        # the grid is in eyespace
+        glPushMatrix()
+        q = self.o.quat
+        glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
+        glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
 
 ##        # The following is wrong for wide windows (bug 264).
 ##	# To fix it requires looking at how scale is set (differently
@@ -1767,9 +1769,9 @@ class depositMode(basicMode):
 ##	# [bruce 050120]
 ##	
 ##        ## x = y = 4.0 * self.o.scale # was 1.5 before bruce 050120; still a kluge
-	
+        
         #bruce 050615 to fix bug 264 (finally! but it will only last until someone changes what self.o.scale means...):
-	# here are presumably correct values for the screen boundaries in this "plane of center of view":
+        # here are presumably correct values for the screen boundaries in this "plane of center of view":
         y = self.o.scale # always fits height, regardless of aspect ratio (as of 050615 anyway)
         x = y * (self.o.width + 0.0) / self.o.height
         # (#e Ideally these would be glpane attrs so we wouldn't have to know how to compute them here.)
@@ -1780,15 +1782,15 @@ class depositMode(basicMode):
         y *= 1.1
         x += 5
         y += 5
-	glBegin(GL_QUADS)
+        glBegin(GL_QUADS)
         glVertex(-x,-y,0)
         glVertex(x,-y,0)
         glVertex(x,y,0)
         glVertex(-x,y,0)
-	glEnd()
-	glPopMatrix()
+        glEnd()
+        glPopMatrix()
         glDisable(GL_BLEND)
-	glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHTING)
         return
 
     def viewing_main_part(self): #bruce 050416 ###e should refile into assy

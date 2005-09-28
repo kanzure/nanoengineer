@@ -345,15 +345,15 @@ class Jig(Node):
         but they shouldn't, because we've pulled all the common code for Jigs into here,
         so all they need to override is mmp_record_jigspecific_midpart.]
         """
-	if mapping is not None:
+        if mapping is not None:
             ndix = mapping.atnums				           
             name = mapping.encode_name(self.name) #bruce 050729 help fix some
-	else:
+        else:
             ndix = None	
             name = self.name
         nums = self.atnums_or_None( ndix)
         del ndix
-	
+        
         if nums is None or (self.is_disabled() and mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file()):
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
             # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,

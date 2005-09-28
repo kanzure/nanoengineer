@@ -812,7 +812,31 @@ class basicMode(anyMode):
         if platform.atom_debug:
             self.o.assy.checkpicked(always_print = 0)
         return
+    
 
+    def _drawESPWindow(self, grp):
+        '''Draw any member in the Group <grp> if it is an ESP Window. Not consider the order
+           of ESP Window objects'''
+        from jigs_planes import ESPWindow
+    
+        try:
+            for ob in grp.members[:]:
+                if isinstance(ob, ESPWindow):
+                    ob.draw(self.o, self.o.display)
+                elif isinstance(ob, Group):
+                    self._drawESPWindow(ob)
+            #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
+            #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
+            # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
+            # we have to worry about things which are drawn before or after main drawing loop --
+            # they might need to figure out their dispdef (and coords) specially, or store them during first pass
+            # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
+            # [bruce 050615 comments]
+        except:
+            print_compact_traceback("exception in drawing some Group member; skipping to end: ")
+        
+        
+    
     def Draw_after_highlighting(self): #bruce 050610
         """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write
@@ -822,7 +846,9 @@ class basicMode(anyMode):
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
+        self._drawESPWindow(self.o.assy.part.topnode)
         return
+
 
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API
         """Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
