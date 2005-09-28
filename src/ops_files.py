@@ -29,7 +29,7 @@ from files_gms import readgms, insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from debug import print_compact_traceback
 
-from HistoryWidget import greenmsg, redmsg
+from HistoryWidget import greenmsg, redmsg, orangemsg
 
 import preferences
 import env
@@ -208,6 +208,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             self.glpane.gl_update() #bruce 050418
             self.mt.mt_update()
+        return
 
     def fileSave(self):
         
@@ -221,9 +222,31 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return True
             else: 
                 return self.fileSaveAs()
+        return False #bruce 050927 added this line (should be equivalent to prior implicit return None)
 
+    def fileSaveAs(self): #bruce 050927 revised this
+        safile = self.fileSaveAs_filename()
+        # fn will be None or a Python string
+        if safile:
+            self.saveFile(safile)
+            return True
+        else:
+            # user cancelled, or some other error; message already emitted.
+            return False
+        pass
 
-    def fileSaveAs(self):
+    def fileSaveAs_filename(self, images_ok = True):
+        #bruce 050927 split this out of fileSaveAs, added some comments, added images_ok option
+        """Ask user to choose a save-as filename (and file type) based on the current main filename.
+        If file exists, ask them if they want to overwrite that file.
+        If user cancels either dialog, or if some error occurs,
+        emit a history message and return None.
+        Otherwise return the file name to save to, as a Python string.
+           If images_ok is false, don't offer the image formats as possible choices for filetype.
+        This is needed due to limits in how callers save these image formats
+        (and that also determines the set of image formats excluded by this option).
+        """
+        # figure out sdir, sfilter from existing filename
         if self.assy:
             if self.assy.filename:
                 dir, fil, ext = fileparse(self.assy.filename)
@@ -234,28 +257,36 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 sdir = globalParms['WorkingDirectory']
         else:
             env.history.message( "Save Ignored: Part is currently empty." )
-            return False
+            return None
 
         if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
         else: sfilter = QString("Molecular machine parts (*.mmp)")
-        
-        fn = QFileDialog.getSaveFileName(sdir,
+
+        # ask user for new filename (and file type); they might cancel; fn will be a QString
+        formats = \
                     "Molecular Machine Part (*.mmp);;"\
                     "Protein Data Bank (*.pdb);;"\
                     "POV-Ray (*.pov);;"\
-                    "Model MDL (*.mdl);;"\
+                    "Model MDL (*.mdl);;"
+        if images_ok:
+            formats += \
                     "JPEG (*.jpg);;"\
-                    "Portable Network Graphics (*.png)",
+                    "Portable Network Graphics (*.png)"
+
+        fn = QFileDialog.getSaveFileName(sdir, formats,
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
                     sfilter)
-        
+
         if fn:
             fn = str(fn)
+            # figure out name of new file, safile [bruce question: when and why can this differ from fn?]
             dir, fil, ext2 = fileparse(fn)
+            del fn #bruce 050927
             ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
             safile = dir + fil + ext # full path of "Save As" filename
-            
+
+            # ask user before overwriting an existing file (other than this part's main file)
             if self.assy.filename != safile: # If the current part name and "Save As" filename are not the same...
                 if os.path.exists(safile): # ...and if the "Save As" file exists...
 
@@ -269,13 +300,45 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
                     if ret==1: # The user cancelled
                         env.history.message( "Cancelled.  Part not saved." )
-                        return False # Cancel clicked or Alt+C pressed or Escape pressed
+                        return None # Cancel clicked or Alt+C pressed or Escape pressed
+
+            ###e bruce comment 050927: this might be a good place to test whether we can write to that filename,
+            # so if we can't, we can let the user try choosing one again, within this method.
+            # But we shouldn't do this if it's the main filename, to avoid erasing that file now.
+            # (If we only do this test with each function
+            # that writes into the file, then if that fails it'll more likely require user to redo the entire op.)
             
-            self.saveFile(safile)
-            return True
+            return safile
             
-        else: return False ## User canceled.
-            
+        else: return None ## User canceled.
+
+    def fileSaveSelection(self): #bruce 050927
+        "slot method for Save Selection"
+        env.history.message(greenmsg("Save Selection:"))
+            # print this before counting up what selection contains, in case that's slow or has bugs
+        (part, killfunc, desc) = self.assy.part_for_save_selection()
+            # part is existing part (if entire current part was selected)
+            # or new homeless part with a copy of the selection (if selection is not entire part)
+            # or None (if the current selection can't be saved [e.g. if nothing selected ##k]).
+            # If part is not None, its contents are described in desc;
+            # otherwise desc is an error message intended for the history.
+        if part is None:
+            env.history.message(redmsg(desc))
+            return
+        # now we're sure the current selection is savable
+        safile = self.fileSaveAs_filename( images_ok = False)
+            ##e if entire part is selected, could pass images_ok = True,
+            # if we also told part_for_save_selection above never to copy it,
+            # which is probably appropriate for all image-like file formats
+        saved = self.savePartInSeparateFile(part, safile)
+        if saved:
+            desc = desc or "selection"
+            env.history.message( "Saved %s in %s" % (desc, safile) )
+                #e in all histmsgs like this, we should encode html chars in safile and desc!
+        else:
+            pass # assume savePartInSeparateFile emitted error message
+        killfunc()
+        return
 
     def saveFile(self, safile):
         
@@ -287,49 +350,68 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         elif ext == ".pdb": # Write PDB file.
             try:
-                writepdb(self.assy, safile)
+                writepdb(self.assy.part, safile) #bruce 050927 revised arglist
             except:
                 print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
                 env.history.message(redmsg( "Problem saving PDB file: " + safile ))
             else:
-                self._updateRecentFileList(safile)
-                
                 self.saved_main_file(safile, fil)
                     #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
                 env.history.message( "PDB file saved: " + self.assy.filename )
                     #bruce 050907 moved this after mt_update (which is now in saved_main_file)
         else:
-            self.saveSeparateFile( safile)
+            self.savePartInSeparateFile( self.assy.part, safile)
         return
-        
-    def fileSaveSelection(self):
-        print "ops_files.fileSaveSelection(): Not Implemented Yet."
 
-    def saveSeparateFile( self, safile): #bruce 050908 split this out, reorganized code, revised bug-only history messages
-        "Save some aspect of the current part in a separate file, without resetting the current part's changed flag or filename."
-        #e later we might add ability to specify *what* part to save (main part, some clipboard part, selection),
-        # and/or ability for format to be mmp or pdb.
-        # Or (better), this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
+    def savePartInSeparateFile( self, part, safile): #bruce 050927 added part arg, renamed method
+        """Save some aspect of part (which might or might not be self.assy.part) in a separate file, named safile,
+        without resetting self.assy's changed flag or filename. For some filetypes, use display attributes from self.glpane.
+        For JPG and PNG, assert part is the glpane's current part, since current implem only works then.
+        """
+        #e someday this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
         dir, fil, ext = fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050908 comment]
         type = "this" # never used (even if caller passes in unsupported filetype) unless there are bugs in this routine
         saved = True # be optimistic (not bugsafe; fix later by having save methods which return a success code)
+        glpane = self.glpane
         try:
-            # all these cases modify type variable, for use only in subsequent messages
-            if ext == ".pov":
+            # all these cases modify type variable, for use only in subsequent messages.
+            # kluges: glpane is used for various display options;
+            # and for grabbing frame buffer for JPG and PNG formats
+            # (only correct when the part being saved is the one it shows, which we try to check here).
+            if ext == ".mmp": #bruce 050927; for now, only used by Save Selection
+                type = "MMP"
+                part.writemmpfile( safile) ###@@@ WRONG, stub... this writes a smaller file, unreadable before A5, with no saved view.
+                #e also, that func needs to report errors; it probably doesn't now.
+                ###e we need variant of writemmpfile_assy, but the viewdata will differ... pass it a map from partindex to part?
+                # or, another way, better if it's practical: ###@@@ DOIT
+                #   make a new assy (no shelf, same pov, etc) and save that. kill it at end.
+                #   might need some code cleanups. what's done to it? worry about saver code reset_changed on it...
+                msg = "Save Selection: not yet fully implemented; saved MMP file lacks viewpoint and gives warnings when read."
+                # in fact, it lacks chunk/group structure and display modes too, and gets hydrogenated as if for sim!
+                print msg
+                env.history.message( orangemsg(msg) )
+            elif ext == ".pdb": #bruce 050927; for now, only used by Save Selection
+                type = "PDB"
+                writepdb(part, safile)
+            elif ext == ".pov":
                 type = "POV-Ray"
-                writepovfile(self.assy, safile)
+                writepovfile(part, glpane, safile) #bruce 050927 revised arglist
             elif ext == ".mdl":
                 type = "MDL"
-                writemdlfile(self.assy, safile)
+                writemdlfile(part, glpane, safile) #bruce 050927 revised arglist
             elif ext == ".jpg":
                 type = "JPEG"
-                image = self.glpane.grabFrameBuffer()
+                image = glpane.grabFrameBuffer()
                 image.save(safile, "JPEG", 85)
+                assert part is self.assy.part, "wrong image was saved" #bruce 050927
+                assert self.assy.part is glpane.part, "wrong image saved since glpane not up to date" #bruce 050927
             elif ext == ".png":
                 type = "PNG"
-                image = self.glpane.grabFrameBuffer()
+                image = glpane.grabFrameBuffer()
                 image.save(safile, "PNG")
+                assert part is self.assy.part, "wrong image was saved" #bruce 050927
+                assert self.assy.part is glpane.part, "wrong image saved since glpane not up to date" #bruce 050927
             else: # caller passed in unsupported filetype (should never happen)
                 saved = False
                 env.history.message(redmsg( "File Not Saved. Unknown extension: " + ext))
@@ -357,8 +439,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if os.path.exists(tmpname):
                 os.remove (tmpname) # Delete tmp MMP file
         else:
-            self._updateRecentFileList(safile)
-            
             if os.path.exists(safile):
                 os.remove (safile) # Delete original MMP file
                 #bruce 050907 suspects this is never necessary, but not sure;
@@ -385,6 +465,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.assy.name = fil
         self.assy.reset_changed() # The file and the part are now the same.
 #                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
+        self._updateRecentFileList(safile)
+            #bruce 050927 code cleanup: moved _updateRecentFileList here (before, it preceded each call of this method)        
         self.update_mainwindow_caption()
         self.mt.mt_update() # since it displays self.assy.name [bruce comment 050907; a guess]
             # [note, before this routine was split out, the mt_update happened after the history message printed by our callers]

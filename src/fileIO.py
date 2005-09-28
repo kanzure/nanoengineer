@@ -37,7 +37,8 @@ from elements import PeriodicTable
 # ==
 
 # Create a POV-Ray file
-def writepovfile(assy, filename):
+def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
+    "write the given part into a new POV-Ray file with the given name, using glpane and glpane.mode for lightig, color, etc"
     f = open(filename,"w")
     ## bruce 050325 removed this (no effect except on assy.alist which is bad now)
     ## atnums = {}
@@ -45,23 +46,23 @@ def writepovfile(assy, filename):
     ## assy.alist = [] 
 
     cdist = 6.0 ###5.0 # Camera distance
-    aspect = (assy.o.width + 0.0)/(assy.o.height + 0.0)
+    aspect = (glpane.width + 0.0)/(glpane.height + 0.0)
     zfactor =  0.4 # zoom factor 
     up = V(0.0, zfactor, 0.0)
     right = V( aspect * zfactor, 0.0, 0.0) ##1.33  
     import math
     angle = 2.0*atan2(aspect, cdist)*180.0/math.pi
     
-    f.write("// Recommended window size: width=%d, height=%d \n\n"%(assy.o.width, assy.o.height))
+    f.write("// Recommended window size: width=%d, height=%d \n\n"%(glpane.width, glpane.height))
 
     f.write(povheader)
 
     # Background color
-    f.write("background {\n  color rgb " + povpoint(assy.o.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
+    f.write("background {\n  color rgb " + povpoint(glpane.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
 
-    light1 = (assy.o.out + assy.o.left + assy.o.up) * 10.0
-    light2 = (assy.o.right + assy.o.up) * 10.0
-    light3 = assy.o.right + assy.o.down + assy.o.out/2.0
+    light1 = (glpane.out + glpane.left + glpane.up) * 10.0
+    light2 = (glpane.right + glpane.up) * 10.0
+    light3 = glpane.right + glpane.down + glpane.out/2.0
     
     # Light sources
     f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color Gray10 parallel\n}\n")
@@ -71,14 +72,14 @@ def writepovfile(assy, filename):
     vdist = cdist
     if aspect < 1.0:
             vdist = cdist / aspect
-    eyePos = vdist * assy.o.scale*assy.o.out-assy.o.pov
+    eyePos = vdist * glpane.scale*glpane.out-glpane.pov
     # Camera info
     f.write("\ncamera {\n  location " + povpoint(eyePos)  +
             "\n  up " + povpoint(up) +
             "\n  right " + povpoint(right) +
-            "\n  sky " + povpoint(assy.o.up) +
+            "\n  sky " + povpoint(glpane.up) +
             "\n angle " + str(angle) +
-            "\n  look_at " + povpoint(-assy.o.pov) + "\n}\n\n")
+            "\n  look_at " + povpoint(-glpane.pov) + "\n}\n\n")
  
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
@@ -86,21 +87,22 @@ def writepovfile(assy, filename):
     f.write("\nunion {\t\n") ##Head of the union object
  
     # Write atoms and bonds in the part
-    assy.part.topnode.writepov(f, assy.o.display)
+    part.topnode.writepov(f, glpane.display)
         #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
+        #bruce 050927 changed assy.part -> new part arg
     
-    farPos = -cdist*assy.o.scale*assy.o.out*assy.o.far + eyePos
-    nearPos = -cdist*assy.o.scale*assy.o.out*assy.o.near + eyePos
+    farPos = -cdist*glpane.scale*glpane.out*glpane.far + eyePos
+    nearPos = -cdist*glpane.scale*glpane.out*glpane.near + eyePos
     
-    pov_out = (assy.o.out[0], assy.o.out[1], -assy.o.out[2])
+    pov_out = (glpane.out[0], glpane.out[1], -glpane.out[2])
     pov_far =  (farPos[0], farPos[1], -farPos[2])
     pov_near =  (nearPos[0], nearPos[1], -nearPos[2])
-    pov_in = (-assy.o.out[0], -assy.o.out[1], assy.o.out[2])
+    pov_in = (-glpane.out[0], -glpane.out[1], glpane.out[2])
     
     ### sets the near and far clipping plane
     ## removed 050817 josh -- caused crud to appear in the output (and slowed rendering 5x!!)
-    ## f.write("clipped_by { plane { " + povpoint(-assy.o.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
-    ## f.write("             plane { " + povpoint(assy.o.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
+    ## f.write("clipped_by { plane { " + povpoint(-glpane.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
+    ## f.write("             plane { " + povpoint(glpane.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
     f.write("}\n\n")  
 
     f.close()
@@ -108,7 +110,8 @@ def writepovfile(assy, filename):
 # ==
 
 # Create an MDL file - by Chris Phoenix and Mark for John Burch [04-12-03]
-def writemdlfile(assy, filename):
+def writemdlfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
+    "write the given part into a new MDL file with the given name, using glpane.display"
     alist = [] #bruce 050325 changed assy.alist to localvar alist
     natoms = 0
     # Specular values keyed by atom color 
@@ -124,7 +127,7 @@ def writemdlfile(assy, filename):
     # Mark [04-12-05]     
     # To test this, we need to get a copy of Animation Master.
     # Mark [05-01-14]
-    for mol in assy.molecules: 
+    for mol in part.molecules: 
         if (not mol.hidden) and (mol.display != diINVISIBLE): natoms += len(mol.atoms) #bruce 050421 disp->display (bugfix?)
 #    print "fileIO: natoms =", natoms
 
@@ -135,8 +138,9 @@ def writemdlfile(assy, filename):
     
     # Write atoms with spline coordinates
     f.write("Splines=%d\n"%(13*natoms))
-    assy.part.topnode.writemdl(alist, f, assy.o.display)
+    part.topnode.writemdl(alist, f, glpane.display)
         #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
+        #bruce 050927 changed assy.part -> new part arg
     
     # Write the GROUP information
     # Currently, each atom is 
@@ -144,7 +148,7 @@ def writemdlfile(assy, filename):
     
     atomindex = 0 
     
-    for mol in assy.molecules:
+    for mol in part.molecules:
         col = mol.color # Color of molecule
         for a in mol.atoms.values():
             

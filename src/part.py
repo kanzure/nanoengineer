@@ -258,7 +258,14 @@ class Part( jigmakers_Mixin, InvalMixin,
             assert not self.topnode
             self.destroy()
         return
-
+    
+    def destroy_with_topnode(self): #bruce 050927; consider renaming this to destroy, and destroy to something else
+        "destroy self.topnode and then self; assertionerror if self still has nodes after topnode is destroyed"
+        if self.topnode is not None:
+            self.topnode.kill() # use kill, since Node.destroy is NIM [#e this should be fixed, might cause memory leaks]
+        self.destroy()
+        return
+    
     def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573 
         "forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!"
         #bruce 050527 added requirement (already true in current implem) that this not forget views,

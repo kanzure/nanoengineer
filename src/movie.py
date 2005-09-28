@@ -621,7 +621,7 @@ class Movie:
             self.alist_and_moviefile.play_frame(i)
             filename = "%s.%06d.pov" % (name,i)
             env.history.message( "Writing file: " + filename )
-            writepovfile(self.assy, filename)
+            writepovfile(self.assy.part, self.assy.o, filename) #bruce 050927 revised arglist
             nfiles += 1
         
         msg = platform.fix_plurals("%d file(s) written. Done." % nfiles)

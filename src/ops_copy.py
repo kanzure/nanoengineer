@@ -22,6 +22,7 @@ from debug import print_compact_stack
 from jigs import gensym # [I think this code, when in part.py, was using jigs.gensym rather than chem.gensym [bruce 050507]]
 from ops_select import selection_from_part
 import env #bruce 050901
+from constants import noop
 
 class ops_copy_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -35,6 +36,7 @@ class ops_copy_Mixin:
     # See also assy.delete_sel (Delete operation).
 
     def cut(self):
+        print "bug (worked around): assy.cut called, should use its new name cut_sel" #bruce 050927
         if platform.atom_debug:
             print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
         return self.cut_sel()
@@ -119,6 +121,7 @@ class ops_copy_Mixin:
         return
 
     def copy(self):
+        print "bug (worked around): assy.copy called, should use its new name copy_sel" #bruce 050927
         if platform.atom_debug:
             print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
         return self.copy_sel()
@@ -181,10 +184,62 @@ class ops_copy_Mixin:
         self.w.win_update()
         return
 
+    def part_for_save_selection(self):
+        #bruce 050925; this helper method is defined here since it's very related to copy_sel ###k does it need self?
+        """[private helper method for Save Selection]
+        Return the tuple (part, killfunc, desc),
+        where part is an existing or new Part which can be saved (in any format the caller supports)
+        in order to save the current selection, or is None if it can't be saved (with desc being the reason why not),
+        killfunc should be called when the caller is done using part,
+        and desc is "" or a text string describing the selection contents
+        (or an error message when part is None, as mentioned above), for use in history messages.
+        """
+        self.assy.o.saveLastView() # make sure glpane's cached info gets updated in its current Part, before we might use it
+        entire_part = self
+        sel = selection_from_part(entire_part, use_selatoms = True) #k use_selatoms is a guess
+        if platform.atom_debug:
+            print "atom_debug: fyi: importing or reloading ops_copy from itself"
+            import ops_copy as hmm
+            reload(hmm)
+        from ops_copy import Copier # use latest code for that class, even if not for this mixin method!
+        copier = Copier(sel) #e sel.copier()?
+        copier.prep_for_copy_to_shelf() ###k guess: same prep method should be ok
+        if copier.ok():
+            desc = copier.describe_objects_for_history() # e.g. "5 items"
+            desc = desc or "" #k might be a noop
+            # desc is returned below
+        else:
+            whynot = copier.whynot()
+            desc = whynot
+            if not sel.nonempty():
+                # override message, which refers to "copy" [##e do in that subr??]
+                desc = "Nothing to save" # I'm not sure this always means nothing is selected!
+            return None, noop, desc
+        # copy the selection (unless it's an entire part)
+        ####@@@@ logic bug: if it's entire part, copy might still be needed if jigs ref atoms outside it! Hmm... ####@@@@
+        copiedQ, node = copier.copy_as_node_for_saving()
+        if node is None:
+            desc = "Can't save this selection." #e can this happen? needs better explanation. Does it happen for no sel?
+            return None, noop, desc
+        # now we know we can save it; find or create part to save        
+        if not copiedQ:
+            # node is top of an existing Part, which we should save in its entirety. Its existing pov is fine.
+            savepart = node.part
+            assert savepart is not None
+            killfunc = noop
+        else:
+            # make a new part, copy pov from original one (##k I think that happens automatically in Part.__init__)
+            from part import Part
+            savepart = Part(self.assy, node)
+            killfunc = savepart.destroy_with_topnode
+        self.w.win_update() # precaution in case of bugs (like side effects on selection) -- if no bugs, should not be needed
+        return (savepart, killfunc, desc)
+
     def paste(self, node):
         pass # to be implemented
 
     def kill(self):
+        print "bug (worked around): assy.kill called, should use its new name delete_sel" #bruce 050927
         if platform.atom_debug:
             print_compact_stack( "atom_debug: assy.kill called, should use its new name delete_sel: ")
         self.delete_sel()
@@ -337,7 +392,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     def whynot(self):
         return self._whynot or "can't copy those items"
 
-    # this makes the actual copy (into a known destination) using the info computed above; there are two variants.
+    # this makes the actual copy (into a known destination) using the info computed above; there are three variants.
 
     def copy_as_list_for_DND(self): #bruce 050527 added this variant and split out the other one
         "Return a list of nodes, or None"
@@ -353,6 +408,29 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         if newstuff is None:
             return None
         return self.wrap_or_rename( newstuff)
+
+    def copy_as_node_for_saving(self): #bruce 050925 for "save selection"
+        """Copy the selection into a single new node, suitable for saving into a new file;
+        in some cases, return the original selection if a copy would not be needed;
+        return value is a pair (copiedQ, node) where copiedq says whether node is a copy or not.
+        If nothing was selected or none of the selection could be copied, return value is (False, None).
+           Specifically:
+        If the selection consists of one entire Part, return it unmodified (with no wrapping group).
+        (This is the only use of the optimization of not actually copying; other uses of that
+         would require an ability to copy or create a Group but let its children be shared with an
+         existing different Group, which the Node class doesn't yet support.)
+        Otherwise, return a new Group (suitable for transformation into a PartGroup by the caller)
+        containing copies of the top selected nodes (perhaps partially grouped if they were in the original),
+        even if there is only one top selected node.
+        """
+        if [self.sel.part.topnode] == self.sel.topnodes:
+            return (False, self.sel.part.topnode)
+        newstuff = self.copy_as_list( make_partial_groups = True) # might be None
+        if newstuff is None:
+            return (False, None)
+        name = "Copied Selection" #k ?? add unique int?
+        res = Group(name, self.assy, None, newstuff)
+        return (True, res)
 
     def copy_as_list(self, make_partial_groups = True):
         """[private helper method]

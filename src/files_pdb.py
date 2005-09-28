@@ -17,7 +17,7 @@ from chem import atom, bond_atoms
 from string import capitalize
 from elements import PeriodicTable, Singlet
 from platform import fix_plurals
-from HistoryWidget import redmsg
+from HistoryWidget import redmsg, orangemsg
 from VQT import A
 import env #bruce 050901
 
@@ -109,8 +109,11 @@ def insertpdb(assy,filename):
 # [bruce 050318 revised comments, and made it not write singlets or their bonds,
 #  and made it not write useless 1-atom CONECT records, and include each bond
 #  in just one CONECT record instead of two.]
-def writepdb(assy, filename):
-    f = open(filename, "w")
+
+def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added docstring
+    "write the given part into a new PDB file with the given name"
+    f = open(filename, "w") # doesn't yet detect errors in opening file [bruce 050927 comment]
+    
     # Atom object's key is the key, the atomIndex is the value  
     atomsTable = {}
     # Each element of connectList is a list of atoms to be connected with the
@@ -124,7 +127,7 @@ def writepdb(assy, filename):
         return atm.element == Singlet
 
     excluded = 0
-    for mol in assy.molecules:
+    for mol in part.molecules:
         for a in mol.atoms.itervalues():
             if exclude(a):
                 excluded += 1
@@ -172,7 +175,7 @@ def writepdb(assy, filename):
     if excluded:
         msg = "Warning: excluded %d open bond(s) from saved PDB file; consider Hydrogenating and resaving." % excluded
         msg = fix_plurals(msg)
-        env.history.message( redmsg( msg))
+        env.history.message( orangemsg( msg))
     return # from writepdb
 
 # end
