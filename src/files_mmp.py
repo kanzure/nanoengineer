@@ -114,6 +114,8 @@ from string import * # this might no longer be needed [bruce 050414 comment]
 import re
 from chem import * # needed for atom, bond_atoms, maybe not anything else [bruce 050414 guess]
 from jigs import *
+from jigs_planes import *
+from jigs_motors import *
 from Utility import *
 from povheader import povheader, povpoint # this might no longer be needed [bruce 050414 comment]
 from mdldata import * # this might no longer be needed [bruce 050414 comment]
@@ -158,8 +160,8 @@ gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\
 # espwindow (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
 esppat = re.compile("espwindow \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
-# atomset (name) atom1 atom2 ... atom25 {up to 25}
-atmsetpat = re.compile("atomset \((.+)\)")
+# atomset (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
+atmsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
 
 # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
@@ -449,16 +451,18 @@ class _readmmp_state:
         m = atmsetpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
+        col = map(lambda (x): int(x)/255.0,
+                [m.group(2),m.group(3),m.group(4)])
 
         # Read in the list of atoms
+        card = card[card.index(")")+1:] # skip past the color field
         list = map(int, re.findall("\d+",card[card.index(")")+1:]))
         list = map((lambda n: self.ndix[n]), list)
         
         as = AtomSet(self.assy, list) # create atom set and set props
         as.name = name
-        
+        as.color = col
         self.addmember(as)
-                
         
     def _read_espwindow(self, card):
         ''' Read the MMP record for a ESP Window jig as:
@@ -1353,4 +1357,3 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     return # from writemmpfile_part
 
 # end of module files_mmp.py
-

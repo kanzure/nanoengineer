@@ -34,7 +34,7 @@ class ops_select_Mixin:
         
         selJigs = []
         
-        from jigs import RectGadget
+        from jigs_planes import RectGadget
         def addSelectedJig(obj, jigs=selJigs):
             if isinstance(obj, RectGadget): jigs += [obj]
         

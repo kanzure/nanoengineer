@@ -1663,7 +1663,7 @@ class Group(Node):
             #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
             return
         self.draw_begin(glpane, dispdef)
-        from jigs import ESPWindow
+        from jigs_planes import ESPWindow
     
         try:
             for ob in self.members[:]:
@@ -1693,7 +1693,7 @@ class Group(Node):
          which only work if nothing was messed up by child nodes or exceptions from them,
          and which might be subject to numerical errors).
         """
-        from jigs import ESPWindow
+        from jigs_planes import ESPWindow
     
         try:
             for ob in self.members[:]:

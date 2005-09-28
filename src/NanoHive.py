@@ -15,7 +15,7 @@ from NanoHiveDialog import NanoHiveDialog
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env, os
 from constants import *
-from jigs import ESPWindow
+from jigs_planes import ESPWindow
 from files_nh import *
 from NanoHiveUtils import *
 
