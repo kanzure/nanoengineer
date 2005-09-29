@@ -21,29 +21,29 @@ class GridPlaneProp(GridPlanePropDialog):
     
     def setup(self):
         
-        self.oldNormColor = self.grid_plane.normcolor # Border color
-        self.oldGridColor = self.grid_plane.grid_color # Grid color
+        # Border color
+        self.oldNormColor = self.grid_plane.normcolor 
+        self.border_color = RGBf_to_QColor(self.grid_plane.normcolor) # Used as default color by Color Chooser
+        self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
+        
+        # Grid color
+        self.oldGridColor = self.grid_plane.grid_color 
+        self.grid_color = RGBf_to_QColor(self.grid_plane.grid_color) # Used as default color by Color Chooser
+        self.grid_color_pixmap.setPaletteBackgroundColor(self.grid_color)
         
         self.x_spacing = 2
         
         self.name_linedit.setText(self.grid_plane.name)
         
-        self.grid_color = RGBf_to_QColor(self.grid_plane.grid_color)
-        self.border_color = RGBf_to_QColor(self.grid_plane.normcolor)
-        
         self.width_spinbox.setValue(self.grid_plane.width)
         self.height_spinbox.setValue(self.grid_plane.height)
         self.x_spacing_spinbox.setValue(self.grid_plane.x_spacing)
         self.y_spacing_spinbox.setValue(self.grid_plane.y_spacing)
-
-        self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
-        self.grid_color_pixmap.setPaletteBackgroundColor(self.grid_color)
         
         self.grid_type_combox.setCurrentItem(self.grid_plane.grid_type)
         self.line_type_combox.setCurrentItem(self.grid_plane.line_type)
         
         self._set_xyspacing_enabled(self.grid_plane.grid_type)
-        
 
     def _set_xyspacing_enabled(self, grid_type):
         '''If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it. '''
@@ -76,7 +76,9 @@ class GridPlaneProp(GridPlanePropDialog):
 
         if color.isValid():
             self.grid_color_pixmap.setPaletteBackgroundColor(color)
+            self.grid_color = color
             self.grid_plane.grid_color = QColor_to_RGBf(color)
+            self.glpane.gl_update()
 
             
     def change_border_color(self):
@@ -85,7 +87,9 @@ class GridPlaneProp(GridPlanePropDialog):
 
         if color.isValid():
             self.border_color_pixmap.setPaletteBackgroundColor(color)
+            self.border_color = color
             self.grid_plane.color = self.grid_plane.normcolor = QColor_to_RGBf(color)
+            self.glpane.gl_update()
 
 
     def change_width(self):
@@ -114,7 +118,7 @@ class GridPlaneProp(GridPlanePropDialog):
         
     def accept(self):
         '''Slot for the 'OK' button '''
-        self.grid_plane.cancelled = False   
+        self.grid_plane.cancelled = False
         
         text =  QString(self.name_linedit.text())        
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
