@@ -81,10 +81,10 @@
                         <string>Alt+O</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                     <property name="default">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -104,7 +104,7 @@
                         <string>Alt+C</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
             </hbox>
@@ -417,6 +417,9 @@
                                                     <property name="text">
                                                         <string>Choose...</string>
                                                     </property>
+                                                    <property name="autoDefault">
+                                                        <bool>false</bool>
+                                                    </property>
                                                     <property name="toolTip" stdset="0">
                                                         <string>Change color</string>
                                                     </property>
@@ -492,6 +495,9 @@
                                                     </property>
                                                     <property name="text">
                                                         <string>Choose...</string>
+                                                    </property>
+                                                    <property name="autoDefault">
+                                                        <bool>false</bool>
                                                     </property>
                                                     <property name="toolTip" stdset="0">
                                                         <string>Change color</string>
@@ -806,6 +812,19 @@
         <slot>change_line_type()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>name_linedit</tabstop>
+    <tabstop>grid_type_combox</tabstop>
+    <tabstop>line_type_combox</tabstop>
+    <tabstop>choose_grid_color_btn</tabstop>
+    <tabstop>choose_border_color_btn</tabstop>
+    <tabstop>width_spinbox</tabstop>
+    <tabstop>height_spinbox</tabstop>
+    <tabstop>x_spacing_spinbox</tabstop>
+    <tabstop>y_spacing_spinbox</tabstop>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>cancel_btn</tabstop>
+</tabstops>
 <slots>
     <slot>change_grid_color()</slot>
     <slot>change_border_color()</slot>

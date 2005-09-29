@@ -9,7 +9,6 @@ from qt import *
 from ESPWindowPropDialog import *
 from widgets import RGBf_to_QColor, QColor_to_RGBf
 import copy
-#from constants import SELWHAT_ATOMS
 
 
 class ESPWindowProp(ESPWindowPropDialog):
@@ -18,15 +17,12 @@ class ESPWindowProp(ESPWindowPropDialog):
         ESPWindowPropDialog.__init__(self)
         self.jig = esp_window
         self.glpane = glpane
+
+        self.jig.highlightChecked = False
         self.setup()
         
-        ##Store the original selection state:
-        #self.sel_what = glpane.assy.selwhat
-        #glpane.assy.selwhat = SELWHAT_ATOMS #
-        # Note to Huaicai.  I think you put this code above in.  Please sign your name to it and
-        # be sure to remove it (and the import of SELWHAT_ATOMS) if you decide this is not needed.
-        # Mark 050929.
-    
+        self.selected = False        
+        
     
     def setup(self):
         
@@ -51,6 +47,8 @@ class ESPWindowProp(ESPWindowPropDialog):
         
         self.show_esp_bbox_checkbox.setChecked(self.jig.show_esp_bbox)
         self.opacity_spinbox.setValue(int(self.jig.opacity*255))
+        
+        self.highlight_atoms_in_bbox_checkbox.setChecked(self.jig.highlightChecked)
         
         
     def change_fill_color(self):
@@ -100,12 +98,13 @@ class ESPWindowProp(ESPWindowPropDialog):
         
     def highlight_atoms_in_bbox(self, val):
         "Slot for Highlight Atoms Inside Volume checkbox"
-        print "ESPWindowProp.highlight_atoms_in_bbox(): Not implemented yet."
-    
+        self.jig.highlightChecked = val
+        self.glpane.gl_update()
         
     def select_atoms_inside_esp_bbox(self):
         "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"
-        self.jig.selectAtoms()
+        self.selected = not self.selected
+        self.jig.pickSelected(self.selected)
         self.glpane.gl_update()
         
         

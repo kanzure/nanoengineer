@@ -203,9 +203,8 @@ class ESPWindow(RectGadget):
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
         self.opacity = 0.6
         self.textureReady = False # Flag if texture image is ready or not
-    
-        #self._initTextureEnv()
-    
+        self.highlightChecked = False
+        
     def _initTextureEnv(self):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
@@ -248,9 +247,8 @@ class ESPWindow(RectGadget):
         self.cntl = ESPWindowProp(self, self.assy.o)
 
     
-    def selectAtoms(self):
-        '''Select atoms inside the ESP Window bounding box. Actually this works for chunk too.'''
-        selSense = 2 ##Exclusive selection
+    def _createShape(self, selSense = 2):
+        ''' '''
         hw = self.width/2.0; wo = self.window_offset; eo = self.edge_offset
         
         shape = SelectionShape(self.right, self.up, self.planeNorm)
@@ -258,9 +256,39 @@ class ESPWindow(RectGadget):
         pos = [V(-hw-eo, hw+eo, 0.0), V(hw+eo, -hw-eo, 0.0)];  p3d = []         
         for p in pos:   
             p3d += [self.quat.rot(p) + self.center]
+        
         shape.pickrect(p3d[0], p3d[1], self.center, selSense, slab=slab)
+
+        return shape
+    
+        
+    def pickSelected(self, pick):
+        '''Select atoms inside the ESP Window bounding box. Actually this works for chunk too.'''
+        if not pick: sense = 0
+        else: sense = 2
+        
+        shape = self._createShape(sense)
         shape.select(self.assy)
 
+        
+    def findObjsInside(self):
+        '''Find objects inside the shape '''
+        shape = self._createShape()
+        return shape.findObjInside(self.assy)
+
+
+    def highlightAtomChunks(self):
+        '''hightlight atoms '''
+        if not self.highlightChecked: return 
+        
+        atomChunks = self.findObjsInside()
+        for m in atomChunks:
+            if isinstance(m, molecule):
+                for a in m.atoms.itervalues():
+                    a.overdraw_with_special_color(green)
+            else:
+                m.overdraw_with_special_color(green)
+        
 
     def _draw(self, win, dispdef):
         glPushMatrix()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GridPlanePropDialog.ui'
 #
-# Created: Fri Sep 23 11:23:14 2005
+# Created: Wed Sep 28 15:20:03 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,13 +54,13 @@ class GridPlanePropDialog(QDialog):
 
         self.ok_btn = QPushButton(self,"ok_btn")
         self.ok_btn.setMinimumSize(QSize(0,30))
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
         layout30.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setMinimumSize(QSize(0,30))
-        self.cancel_btn.setAutoDefault(1)
+        self.cancel_btn.setAutoDefault(0)
         layout30.addWidget(self.cancel_btn)
 
         GridPlanePropDialogLayout.addLayout(layout30,2,0)
@@ -147,6 +147,7 @@ class GridPlanePropDialog(QDialog):
 
         self.choose_grid_color_btn = QPushButton(self,"choose_grid_color_btn")
         self.choose_grid_color_btn.setEnabled(1)
+        self.choose_grid_color_btn.setAutoDefault(0)
         layout48.addWidget(self.choose_grid_color_btn)
         spacer14 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout48.addItem(spacer14)
@@ -165,6 +166,7 @@ class GridPlanePropDialog(QDialog):
 
         self.choose_border_color_btn = QPushButton(self,"choose_border_color_btn")
         self.choose_border_color_btn.setEnabled(1)
+        self.choose_border_color_btn.setAutoDefault(0)
         layout47.addWidget(self.choose_border_color_btn)
         spacer17 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout47.addItem(spacer17)
@@ -248,6 +250,17 @@ class GridPlanePropDialog(QDialog):
         self.connect(self.y_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_y_spacing)
         self.connect(self.grid_type_combox,SIGNAL("activated(int)"),self.change_grid_type)
         self.connect(self.line_type_combox,SIGNAL("activated(int)"),self.change_line_type)
+
+        self.setTabOrder(self.name_linedit,self.grid_type_combox)
+        self.setTabOrder(self.grid_type_combox,self.line_type_combox)
+        self.setTabOrder(self.line_type_combox,self.choose_grid_color_btn)
+        self.setTabOrder(self.choose_grid_color_btn,self.choose_border_color_btn)
+        self.setTabOrder(self.choose_border_color_btn,self.width_spinbox)
+        self.setTabOrder(self.width_spinbox,self.height_spinbox)
+        self.setTabOrder(self.height_spinbox,self.x_spacing_spinbox)
+        self.setTabOrder(self.x_spacing_spinbox,self.y_spacing_spinbox)
+        self.setTabOrder(self.y_spacing_spinbox,self.ok_btn)
+        self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 
     def languageChange(self):

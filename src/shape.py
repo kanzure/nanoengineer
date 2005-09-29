@@ -485,7 +485,7 @@ class SelectionShape(shape):
         
         
         def _atomsSelect(self, assy):
-            """Select all atoms inside the curve, ignoring thickness"""    
+            """Select all atoms inside the shape according to its selection logic."""    
             c=self.curve
             if c.logic == 1:
                 for mol in assy.molecules:
@@ -540,7 +540,32 @@ class SelectionShape(shape):
                             if c.isin(a.posn()) and a.visible(disp):
                                     m.unpick()
                                     break   
-
+        
+        def findObjInside(self, assy):
+            '''Find atoms/chunks that are inside the shape. '''
+            rst = []
+            
+            c=self.curve
+            
+            if assy.selwhat: ##Chunks
+               rstMol = {} 
+               for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(disp):
+                                rstMol[id(a.molecule)] = a.molecule
+                                break 
+               rst.extend(rstMol.itervalues())
+            else: ##Atoms
+               for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                       if c.isin(a.posn()) and a.visible(disp):
+                         rst += [a] 
+            return rst
+           
 class CookieShape(shape):
     """ This class is used to create cookies. It supports multiple parallel layers, each curve sits on a particular layer."""
     def __init__(self, right, up, normal, mode, latticeType):

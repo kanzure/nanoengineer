@@ -222,6 +222,9 @@
                                                     <property name="text">
                                                         <string>Choose...</string>
                                                     </property>
+                                                    <property name="autoDefault">
+                                                        <bool>false</bool>
+                                                    </property>
                                                     <property name="toolTip" stdset="0">
                                                         <string>Change color</string>
                                                     </property>
@@ -297,6 +300,9 @@
                                                     </property>
                                                     <property name="text">
                                                         <string>Choose...</string>
+                                                    </property>
+                                                    <property name="autoDefault">
+                                                        <bool>false</bool>
                                                     </property>
                                                     <property name="toolTip" stdset="0">
                                                         <string>Change color</string>
@@ -481,7 +487,7 @@
                                                         <cstring>resolution_spinbox</cstring>
                                                     </property>
                                                     <property name="maxValue">
-                                                        <number>999</number>
+                                                        <number>512</number>
                                                     </property>
                                                     <property name="minValue">
                                                         <number>1</number>
@@ -615,6 +621,9 @@
                     <property name="text">
                         <string>Select Atoms Inside Volume</string>
                     </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
                 </widget>
             </vbox>
         </widget>
@@ -677,10 +686,10 @@
                         <string>Alt+O</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                     <property name="default">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -700,7 +709,7 @@
                         <string>Alt+C</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
             </hbox>

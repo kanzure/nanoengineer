@@ -302,6 +302,18 @@ class selectMode(basicMode):
         self.Menu1.setItemChecked(id, self.jigSelectionEnabled)
         
     
+    def _highlightAtomChunks(self, grp):
+        '''High light atoms or chunks inside ESPWindow jigs. '''
+        assert isinstance(grp, Group)
+        from jigs_planes import ESPWindow
+        
+        for m in grp.members:
+            if isinstance(m, ESPWindow):
+                m.highlightAtomChunks()
+            elif isinstance(m, Group):
+                self._highlightAtomChunks(m)
+    
+                
     def Draw(self):
         # bruce comment 040922: code is almost identical with modifyMode.Draw;
         # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
@@ -309,6 +321,9 @@ class selectMode(basicMode):
         #self.griddraw()
         if self.sellist: self.pickdraw()
         self.o.assy.draw(self.o)
+
+        self._highlightAtomChunks(self.o.assy.part.topnode) #Draw possible highlight atoms & chunks
+        
 
     def makeMenus(self): # menu item names modified by bruce 041217
 
@@ -551,4 +566,5 @@ class selectAtomsMode(selectMode):
             else:
                 win.atomSelect_hybridComboBox.hide()
             return
-         
+
+        

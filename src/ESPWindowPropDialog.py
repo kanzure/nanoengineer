@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ESPWindowPropDialog.ui'
 #
-# Created: Tue Sep 27 16:31:37 2005
+# Created: Wed Sep 28 15:20:03 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -119,6 +119,7 @@ class ESPWindowPropDialog(QDialog):
 
         self.choose_fill_color_btn = QPushButton(self,"choose_fill_color_btn")
         self.choose_fill_color_btn.setEnabled(1)
+        self.choose_fill_color_btn.setAutoDefault(0)
         layout48.addWidget(self.choose_fill_color_btn)
         spacer14 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout48.addItem(spacer14)
@@ -137,6 +138,7 @@ class ESPWindowPropDialog(QDialog):
 
         self.choose_border_color_btn = QPushButton(self,"choose_border_color_btn")
         self.choose_border_color_btn.setEnabled(1)
+        self.choose_border_color_btn.setAutoDefault(0)
         layout47.addWidget(self.choose_border_color_btn)
         spacer17 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout47.addItem(spacer17)
@@ -187,7 +189,7 @@ class ESPWindowPropDialog(QDialog):
         layout13 = QHBoxLayout(None,0,6,"layout13")
 
         self.resolution_spinbox = QSpinBox(self,"resolution_spinbox")
-        self.resolution_spinbox.setMaxValue(999)
+        self.resolution_spinbox.setMaxValue(512)
         self.resolution_spinbox.setMinValue(1)
         self.resolution_spinbox.setValue(20)
         layout13.addWidget(self.resolution_spinbox)
@@ -228,6 +230,7 @@ class ESPWindowPropDialog(QDialog):
         groupBox1Layout.addWidget(self.highlight_atoms_in_bbox_checkbox)
 
         self.select_atoms_btn = QPushButton(self.groupBox1,"select_atoms_btn")
+        self.select_atoms_btn.setAutoDefault(0)
         groupBox1Layout.addWidget(self.select_atoms_btn)
         ESPWindowPropDialogLayout.addWidget(self.groupBox1)
         spacer5 = QSpacerItem(101,30,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
@@ -239,13 +242,13 @@ class ESPWindowPropDialog(QDialog):
 
         self.ok_btn = QPushButton(self,"ok_btn")
         self.ok_btn.setMinimumSize(QSize(0,30))
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
         layout30.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setMinimumSize(QSize(0,30))
-        self.cancel_btn.setAutoDefault(1)
+        self.cancel_btn.setAutoDefault(0)
         layout30.addWidget(self.cancel_btn)
         ESPWindowPropDialogLayout.addLayout(layout30)
 
