@@ -519,8 +519,11 @@ class Ground(Jig):
         self.normcolor = black # This is the normal (unselected) color.
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
-        from GroundProp import GroundProp
-        self.cntl = GroundProp(self, self.assy.o)
+        # Changed from GroundProp to more general JigProp, which can be used for any simple jig
+        # that has only a name and a color attribute changable by the user. JigProp supersedes GroundProp.
+        # Mark 050928.
+        from JigProp import JigProp
+        self.cntl = JigProp(self, self.assy.o) 
 
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, win, dispdef):
@@ -762,9 +765,9 @@ class AtomSet(Jig):
         self.normcolor = black # This is the normal (unselected) color.
 
     def set_cntl(self):
-        # This needs to be fixed.  Mark 050927.
-        from GroundProp import GroundProp
-        self.cntl = GroundProp(self, self.assy.o)
+        # Fixed bug 1011.  Mark 050927.
+        from JigProp import JigProp
+        self.cntl = JigProp(self, self.assy.o)
 
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, win, dispdef):
