@@ -18,13 +18,13 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.jig = esp_window
         self.glpane = glpane
 
-        self.jig.highlightChecked = False
         self.setup()
-        
-        self.selected = False        
-        
+       
     
     def setup(self):
+        #Default state for atoms highlighting ans selection
+        self.jig.highlightChecked = True
+        self.selected = False        
         
         # Need to ask Bruce about the pros/cons of copying the jig here.  
         # It sure would be nice to use the copy of the jig in self.reject() like this:
@@ -49,7 +49,7 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.opacity_spinbox.setValue(int(self.jig.opacity*255))
         
         self.highlight_atoms_in_bbox_checkbox.setChecked(self.jig.highlightChecked)
-        
+        self._updateSelectButtonText()
         
     def change_fill_color(self):
         '''Slot method to change fill color.'''
@@ -100,14 +100,17 @@ class ESPWindowProp(ESPWindowPropDialog):
         "Slot for Highlight Atoms Inside Volume checkbox"
         self.jig.highlightChecked = val
         self.glpane.gl_update()
-        
-    def select_atoms_inside_esp_bbox(self):
-        "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"
-        self.selected = not self.selected
+    
+    def _updateSelectButtonText(self):
         if self.selected:
             self.select_atoms_btn.setText("Deselect Atoms Inside Volume")
         else:
             self.select_atoms_btn.setText("Select Atoms Inside Volume")
+            
+    def select_atoms_inside_esp_bbox(self):
+        "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"
+        self.selected = not self.selected
+        self._updateSelectButtonText()
         self.jig.pickSelected(self.selected)
         self.glpane.gl_update()
         
@@ -123,8 +126,10 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.jig.width = float(self.width_spinbox.value())
         self.jig.resolution = float(self.resolution_spinbox.value())
         
-        #self.glpane.assy.selwhat = self.sel_what
-        
+        #Before exit the dialog, turn off the highlighting and selection
+        self.jig.highlightChecked = False
+        self.jig.pickSelected(False)
+                
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
         
@@ -145,7 +150,10 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.jig.show_esp_bbox = self.original_jig.show_esp_bbox
         self.jig.opacity = self.original_jig.opacity
 
-        #self.glpane.assy.selwhat = self.sel_what
+        #Before exit the dialog, turn off the highlighting and selection
+        self.jig.highlightChecked = False
+        self.jig.pickSelected(False)
+        
         self.glpane.gl_update()
         
         QDialog.reject(self)

@@ -556,15 +556,18 @@ class selectAtomsMode(selectMode):
 
         def _highlightAtoms(self, grp):
             '''High light atoms or chunks inside ESPWindow jigs. '''
-            assert isinstance(grp, Group)
             from jigs_planes import ESPWindow
             
-            for m in grp.members:
-                if isinstance(m, ESPWindow):
-                    m.highlightAtomChunks()
-                elif isinstance(m, Group):
-                    self._highlightAtoms(m)
+            if isinstance(grp, ESPWindow): 
+                m.highlightAtomChunks()
+            elif isinstance(grp, Group):    
+                for m in grp.members:
+                    if isinstance(m, ESPWindow):
+                        m.highlightAtomChunks()
+                    elif isinstance(m, Group):
+                        self._highlightAtoms(m)
         
+                        
         def Draw(self):
             '''Draw model for the select Atom mode'''
             selectMode.Draw(self)

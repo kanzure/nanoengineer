@@ -820,18 +820,21 @@ class basicMode(anyMode):
         from jigs_planes import ESPWindow
     
         try:
-            for ob in grp.members[:]:
-                if isinstance(ob, ESPWindow):
-                    ob.draw(self.o, self.o.display)
-                elif isinstance(ob, Group):
-                    self._drawESPWindow(ob)
-            #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
-            #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
-            # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
-            # we have to worry about things which are drawn before or after main drawing loop --
-            # they might need to figure out their dispdef (and coords) specially, or store them during first pass
-            # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
-            # [bruce 050615 comments]
+            if isinstance(grp, ESPWindow):
+                grp.draw(self.o, self.o.display)
+            elif isinstance(grp, Group):    
+                for ob in grp.members[:]:
+                    if isinstance(ob, ESPWindow):
+                        ob.draw(self.o, self.o.display)
+                    elif isinstance(ob, Group):
+                        self._drawESPWindow(ob)
+                #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
+                #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
+                # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
+                # we have to worry about things which are drawn before or after main drawing loop --
+                # they might need to figure out their dispdef (and coords) specially, or store them during first pass
+                # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
+                # [bruce 050615 comments]
         except:
             print_compact_traceback("exception in drawing some Group member; skipping to end: ")
         

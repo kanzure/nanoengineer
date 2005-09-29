@@ -1204,7 +1204,7 @@ def getPowerOfTwo(num):
     '''<int> num: find the nearest number for <num> that's power of 2.'''
     assert(type(num) == type(1))
     a = 0
-    maxValue = 512 ## It proves that a big picture may crash the program. This value works on my machine.   
+    maxValue = 256 ## It proves that a big picture may crash the program. This value works on my machine.   
     
     oNum = num
     while num>1:
@@ -1220,24 +1220,40 @@ def getPowerOfTwo(num):
 
 def getTextureData(fileName):
     '''Load image files '''
-    from qt import QImage, QColor
-    ###print getPowerOfTwo(17), getPowerOfTwo(4)
-    if 0:
-        import Image ##This is from the PIL library
-    
-        img = Image.open(fileName)
+    try:
+        import Image  ##This is from the PIL library
+        ideal_wd = 256; ideal_ht = 256
         
+        img = Image.open(fileName)
         width = img.size[0]
         height = img.size[1]
         
-        ideal_wd = getPowerOfTwo(width); ideal_ht = getPowerOfTwo(height)
-        
-        #img.draft("RGBX", (64, 64))
-        rst = img.tostring("raw", "RGBX", 0, -1)
-        
-        return rst
+        if not (width, height) == (ideal_wd, ideal_ht):
+           import os
+           from platform import find_or_make_Nanorex_subdir
+           nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
+         
+           nImg = img.resize((ideal_wd, ideal_ht), Image.BICUBIC)        
 
-    else:
+           #Without saving/openning, 'tostring()' is not working right.
+           newName = os.path.join(nhdir, 'new_'+os.path.basename(fileName))
+           nImg.save(newName)
+           nImg = Image.open(newName)
+           
+           width = nImg.size[0]
+           height = nImg.size[1]
+           rst = nImg.tostring("raw", "RGBX", 0, -1)
+           print "image size: ", width, height
+        else:
+           rst = img.tostring("raw", "RGBX", 0, -1)
+           
+        return width, height, rst
+
+    except ImportError:
+        print "The Python Image Libary doesn't exsit, we'll try to use QImage, which has more limited quality and capacity."
+        
+        from qt import QImage, QColor
+    
         img = QImage(fileName)
         
         width = img.width()

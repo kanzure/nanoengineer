@@ -103,12 +103,71 @@ class RectGadget(Jig):
     def _mmp_record_last_part(self, mapping):
         return ""
 
+    ###[Huaicai 9/29/05: The following two methods are temporarally copied here, this is try to fix jig copy related bugs
+    ### not fully analynized how the copy works yet. It fixed some problems, but not sure if it's completely right.
+    def copy_full_in_mapping(self, mapping):
+        clas = self.__class__
+        new = clas(self.assy, [], True) # don't pass any atoms yet (maybe not all of them are yet copied)
+            # [Note: as of about 050526, passing atomlist of [] is permitted for motors, but they assert it's [].
+            #  Before that, they didn't even accept the arg.]
+        # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!
+        # But I'd rather do this cleanly and have the mmp methods use these, instead...
+        # by declaring copyable attrs, or so.
+        new._orig = self
+        new._mapping = mapping
+        new.name = "[being copied]" # should never be seen
+        mapping.do_at_end( new._copy_fixup_at_end)
+        #k any need to call mapping.record_copy??
+        # [bruce comment 050704: if we could easily tell here that none of our atoms would get copied,
+        #  and if self.needs_atoms_to_survive() is true, then we should return None (to fix bug 743) here;
+        #  but since we can't easily tell that, we instead kill the copy
+        #  in _copy_fixup_at_end if it has no atoms when that func is done.]
+        return new
+    
+    def _copy_fixup_at_end(self): # warning [bruce 050704]: some of this code is copied in jig_Gamess.py's Gamess.cm_duplicate method.
+        """[Private method]
+        This runs at the end of a copy operation to copy attributes from the old jig
+        (which could have been done at the start but might as well be done now for most of them)
+        and copy atom refs (which has to be done now in case some atoms were not copied when the jig itself was).
+        Self is the copy, self._orig is the original.
+        """
+        orig = self._orig
+        del self._orig
+        mapping = self._mapping
+        del self._mapping
+        copy = self
+        orig.copy_copyable_attrs_to(copy) # replaces .name set by __init__
+        self.own_mutable_copyable_attrs() # eliminate unwanted sharing of mutable copyable_attrs
+        if orig.picked:
+            # clean up weird color attribute situation (since copy is not picked)
+            # by modifying color attrs as if we unpicked the copy
+            self.color = self.normcolor
+        nuats = []
+        for atom in orig.atoms:
+            nuat = mapping.mapper(atom)
+            if nuat is not None:
+                nuats.append(nuat)
+        if len(nuats) < len(orig.atoms) and not self.name.endswith('-frag'): # similar code is in chunk, both need improving
+            self.name += '-frag'
+        if nuats or not self.needs_atoms_to_survive():
+            self.setAtoms(nuats)
+        ###else:
+            #bruce 050704 to fix bug 743
+        ###    self.kill()
+        #e jig classes with atom-specific info would have to do more now... we could call a 2nd method here...
+        # or use list of classnames to search for more and more specific methods to call...
+        # or just let subclasses extend this method in the usual way (maybe not doing those dels above).
+        return
+    
     pass # end of class RectGadget        
 
 # == GridPlane
         
 class GridPlane(RectGadget):
     ''' '''
+    mutable_attrs = ('color', 'grid_color')
+    copyable_attrs = RectGadget.copyable_attrs + ('line_type', 'grid_type', 'x_spacing', 'y_spacing') + mutable_attrs
+    
     sym = "Grid Plane"
     icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
     mmp_record_name = "gridplane"
@@ -176,8 +235,8 @@ class GridPlane(RectGadget):
 
 class ESPWindow(RectGadget):
     ''' '''
-    mutable_attrs = ('fill_color',)
-    copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'translucency') + mutable_attrs
+    mutable_attrs = ('fill_color', 'color')
+    copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'opacity', 'show_esp_bbox', 'window_offset', 'edge_offset') + mutable_attrs
     
     sym = "ESP Window"
     icon_names = ["espwindow.png", "espwindow-hide.png"] # Added espwindow icons.  Mark 050919.
