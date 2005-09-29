@@ -278,7 +278,7 @@
                                         </property>
                                         <widget class="QLabel">
                                             <property name="name">
-                                                <cstring>colorPixmapLabel</cstring>
+                                                <cstring>jig_color_pixmap</cstring>
                                             </property>
                                             <property name="minimumSize">
                                                 <size>
@@ -306,6 +306,9 @@
                                             </property>
                                             <property name="text">
                                                 <string>Choose...</string>
+                                            </property>
+                                            <property name="autoDefault">
+                                                <bool>false</bool>
                                             </property>
                                         </widget>
                                     </hbox>
@@ -386,10 +389,10 @@
                         <string>Alt+O</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                     <property name="default">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -403,7 +406,7 @@
                         <string>Alt+C</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
             </hbox>
@@ -432,7 +435,25 @@
         <sender>choose_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>LinearMotorPropDialog</receiver>
-        <slot>choose_color()</slot>
+        <slot>change_jig_color()</slot>
+    </connection>
+    <connection>
+        <sender>lengthLineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>change_motor_size()</slot>
+    </connection>
+    <connection>
+        <sender>widthLineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>change_motor_size()</slot>
+    </connection>
+    <connection>
+        <sender>sradiusLineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>LinearMotorPropDialog</receiver>
+        <slot>change_motor_size()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -447,7 +468,8 @@
     <tabstop>cancel_btn</tabstop>
 </tabstops>
 <slots>
-    <slot>choose_color()</slot>
+    <slot>change_jig_color()</slot>
+    <slot>change_motor_size()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

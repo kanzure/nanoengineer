@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'LinearMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
+# Created: Thu Sep 29 01:06:08 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -149,14 +149,15 @@ class LinearMotorPropDialog(QDialog):
 
         layout75 = QHBoxLayout(None,0,6,"layout75")
 
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout75.addWidget(self.colorPixmapLabel)
+        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
+        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
+        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(175,175,175))
+        self.jig_color_pixmap.setScaledContents(1)
+        layout75.addWidget(self.jig_color_pixmap)
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
+        self.choose_color_btn.setAutoDefault(0)
         layout75.addWidget(self.choose_color_btn)
         layout76.addLayout(layout75)
         spacer5 = QSpacerItem(46,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -172,12 +173,12 @@ class LinearMotorPropDialog(QDialog):
         layout45.addItem(spacer7)
 
         self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
         layout45.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setAutoDefault(1)
+        self.cancel_btn.setAutoDefault(0)
         layout45.addWidget(self.cancel_btn)
         LinearMotorPropDialogLayout.addLayout(layout45)
 
@@ -188,7 +189,10 @@ class LinearMotorPropDialog(QDialog):
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.lengthLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.widthLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.sradiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
 
         self.setTabOrder(self.nameLineEdit,self.forceLineEdit)
         self.setTabOrder(self.forceLineEdit,self.stiffnessLineEdit)
@@ -222,8 +226,11 @@ class LinearMotorPropDialog(QDialog):
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
-    def choose_color(self):
-        print "LinearMotorPropDialog.choose_color(): Not implemented yet"
+    def change_jig_color(self):
+        print "LinearMotorPropDialog.change_jig_color(): Not implemented yet"
+
+    def change_motor_size(self):
+        print "LinearMotorPropDialog.change_motor_size(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("LinearMotorPropDialog",s,c)
