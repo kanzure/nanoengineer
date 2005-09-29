@@ -7,74 +7,82 @@ $Id$
 
 from qt import *
 from RotaryMotorPropDialog import *
-from VQT import V
+from widgets import RGBf_to_QColor, QColor_to_RGBf
+import copy
 
 class RotaryMotorProp(RotaryMotorPropDialog):
     def __init__(self, motor, glpane):
 
         RotaryMotorPropDialog.__init__(self)
-        self.motor = motor
+        self.jig = motor
         self.glpane = glpane
         self.setup()
 
     def setup(self):
-        motor = self.motor
         
-        self.originalColor = self.motor.normcolor
+        # Need to ask Bruce about the pros/cons of copying the jig here.  
+        # It sure would be nice to use the copy of the jig in self.reject() like this:
+        #     self.jig = self.original_jig
+        # so I didn't have to copy each attr back when the user hit the Cancel button.  Mark 050929.
+        self.original_jig = copy.copy(self.jig) 
         
-        self.nameLineEdit.setText(motor.name)
-        self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(motor.normcolor[0]*255), 
-                         int(motor.normcolor[1]*255), 
-                         int(motor.normcolor[2]*255)))
+        # Jig color
+        # self.original_normcolor = self.jig.normcolor
+        self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
+        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
 
-        self.torqueLineEdit.setText(str(motor.torque))
-        self.speedLineEdit.setText(str(motor.speed))
+        self.nameLineEdit.setText(self.jig.name)
+        self.speedLineEdit.setText(str(self.jig.speed))
+        self.torqueLineEdit.setText(str(self.jig.torque))
+        self.lengthLineEdit.setText(str(self.jig.length))
+        self.radiusLineEdit.setText(str(self.jig.radius))
+        self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
 
-        self.lengthLineEdit.setText(str(motor.length)) # motor length
-        self.radiusLineEdit.setText(str(motor.radius)) # motor radius
-        self.sradiusLineEdit.setText(str(motor.sradius)) # spoke radius
-        
-
-    def choose_color(self):
-        color = QColorDialog.getColor(
-            QColor(int(self.motor.normcolor[0]*255), 
-                         int(self.motor.normcolor[1]*255), 
-                         int(self.motor.normcolor[2]*255)),
-                         self, "ColorDialog")
+    def change_jig_color(self):
+        '''Slot method to change the jig's color.'''
+        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
 
         if color.isValid():
-            self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.motor.color = self.motor.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.jig_color_pixmap.setPaletteBackgroundColor(color)
+            self.jig_QColor = color
+            self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
-
-
-    #################
-    # Cancel Button
-    #################
-    def reject(self):
-        QDialog.reject(self)
-        self.motor.color = self.motor.normcolor = self.originalColor
-        self.glpane.gl_update()
-
-    #################
-    # OK Button
-    #################
+            
+    def change_motor_size(self, gl_update=True):
+        '''Slot method to change the jig's length, radius and/or spoke radius.'''
+        self.jig.length = float(str(self.lengthLineEdit.text())) # motor length
+        self.jig.radius = float(str(self.radiusLineEdit.text())) # motor radius
+        self.jig.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
+        if gl_update:
+            self.glpane.gl_update()
+        
     def accept(self):
+        '''Slot for the 'OK' button '''
+        
+        self.jig.cancelled = False
+        
+        text =  QString(self.nameLineEdit.text())
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.jig.name = str(text)
+        
+        self.jig.torque = float(str(self.torqueLineEdit.text()))
+        self.jig.speed = float(str(self.speedLineEdit.text()))
+        
+        self.change_motor_size(gl_update=False)
+        
+        self.jig.assy.w.win_update() # Update model tree
+        self.jig.assy.changed()
         QDialog.accept(self)
         
-        self.motor.cancelled = False
-        
-        text =  QString(self.nameLineEdit.text())        
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.motor.name = str(text)
-        
-        self.motor.torque = float(str(self.torqueLineEdit.text()))
-        self.motor.speed = float(str(self.speedLineEdit.text()))
+    def reject(self):
+        '''Slot for the 'Cancel' button '''
+        #self.jig.color = self.jig.normcolor = self.original_normcolor
+        self.jig.color = self.jig.normcolor = self.original_jig.normcolor
+        self.jig.length = self.original_jig.torque
+        self.jig.length = self.original_jig.speed
+        self.jig.length = self.original_jig.length
+        self.jig.radius = self.original_jig.radius
+        self.jig.sradius = self.original_jig.sradius
 
-        self.motor.length = float(str(self.lengthLineEdit.text())) # motor length
-        self.motor.radius = float(str(self.radiusLineEdit.text())) # motor radius
-        self.motor.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
-        
-        self.motor.assy.w.win_update() # Update model tree
-        self.motor.assy.changed()
+        self.glpane.gl_update()
+        QDialog.reject(self)

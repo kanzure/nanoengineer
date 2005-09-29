@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>309</width>
-            <height>281</height>
+            <width>306</width>
+            <height>285</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,7 +27,7 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout82</cstring>
+                <cstring>layout78</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -35,7 +35,7 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout27</cstring>
+                        <cstring>layout40</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -46,7 +46,7 @@
                                 <cstring>nameTextLabel</cstring>
                             </property>
                             <property name="text">
-                                <string>Name:</string>
+                                <string>Name :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -61,7 +61,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>Torque:</string>
+                                <string>Torque :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -75,7 +75,7 @@
                                 <cstring>textLabel1_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Speed:</string>
+                                <string>Speed :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -89,7 +89,7 @@
                                 <cstring>textLabel1_3</cstring>
                             </property>
                             <property name="text">
-                                <string>Motor Length:</string>
+                                <string>Motor Length :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -100,7 +100,7 @@
                                 <cstring>textLabel1_2_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Motor Radius:</string>
+                                <string>Motor Radius :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -111,7 +111,7 @@
                                 <cstring>textLabel1_2_2_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Spoke Radius:</string>
+                                <string>Spoke Radius :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -122,7 +122,7 @@
                                 <cstring>colorTextLabel</cstring>
                             </property>
                             <property name="text">
-                                <string>Color:</string>
+                                <string>Color :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -132,7 +132,7 @@
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout81</cstring>
+                        <cstring>layout77</cstring>
                     </property>
                     <vbox>
                         <property name="name">
@@ -160,20 +160,12 @@
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout33</cstring>
+                                <cstring>layout46</cstring>
                             </property>
                             <grid>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel" row="0" column="1">
-                                    <property name="name">
-                                        <cstring>textLabel1_4</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>nN-nm</string>
-                                    </property>
-                                </widget>
                                 <widget class="QLineEdit" row="0" column="0">
                                     <property name="name">
                                         <cstring>torqueLineEdit</cstring>
@@ -182,9 +174,9 @@
                                         <set>AlignLeft</set>
                                     </property>
                                 </widget>
-                                <widget class="QLabel" row="2" column="1">
+                                <widget class="QLabel" row="3" column="1">
                                     <property name="name">
-                                        <cstring>textLabel3</cstring>
+                                        <cstring>textLabel3_2</cstring>
                                     </property>
                                     <property name="text">
                                         <string>Angstroms</string>
@@ -196,14 +188,6 @@
                                     </property>
                                     <property name="alignment">
                                         <set>AlignLeft</set>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel" row="1" column="1">
-                                    <property name="name">
-                                        <cstring>textLabel2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>GHz</string>
                                     </property>
                                 </widget>
                                 <widget class="QLineEdit" row="2" column="0">
@@ -220,12 +204,44 @@
                                         <set>AlignLeft</set>
                                     </property>
                                 </widget>
-                                <widget class="QLabel" row="3" column="1">
+                                <widget class="QLineEdit" row="4" column="0">
                                     <property name="name">
-                                        <cstring>textLabel3_2</cstring>
+                                        <cstring>sradiusLineEdit</cstring>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignLeft</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel" row="0" column="1">
+                                    <property name="name">
+                                        <cstring>textLabel1_4</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>nN-nm</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel" row="4" column="1">
+                                    <property name="name">
+                                        <cstring>textLabel3_3</cstring>
                                     </property>
                                     <property name="text">
                                         <string>Angstroms</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel" row="2" column="1">
+                                    <property name="name">
+                                        <cstring>textLabel3</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Angstroms</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel" row="1" column="1">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>GHz</string>
                                     </property>
                                 </widget>
                                 <widget class="QLineEdit" row="1" column="0">
@@ -242,27 +258,11 @@
                                         <set>AlignLeft</set>
                                     </property>
                                 </widget>
-                                <widget class="QLabel" row="4" column="1">
-                                    <property name="name">
-                                        <cstring>textLabel3_3</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Angstroms</string>
-                                    </property>
-                                </widget>
-                                <widget class="QLineEdit" row="4" column="0">
-                                    <property name="name">
-                                        <cstring>sradiusLineEdit</cstring>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignLeft</set>
-                                    </property>
-                                </widget>
                             </grid>
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout80</cstring>
+                                <cstring>layout76</cstring>
                             </property>
                             <hbox>
                                 <property name="name">
@@ -270,7 +270,7 @@
                                 </property>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
-                                        <cstring>layout79</cstring>
+                                        <cstring>layout75</cstring>
                                     </property>
                                     <hbox>
                                         <property name="name">
@@ -278,7 +278,7 @@
                                         </property>
                                         <widget class="QLabel">
                                             <property name="name">
-                                                <cstring>colorPixmapLabel</cstring>
+                                                <cstring>jig_color_pixmap</cstring>
                                             </property>
                                             <property name="minimumSize">
                                                 <size>
@@ -307,12 +307,15 @@
                                             <property name="text">
                                                 <string>Choose...</string>
                                             </property>
+                                            <property name="autoDefault">
+                                                <bool>false</bool>
+                                            </property>
                                         </widget>
                                     </hbox>
                                 </widget>
                                 <spacer>
                                     <property name="name">
-                                        <cstring>spacer3</cstring>
+                                        <cstring>spacer5</cstring>
                                     </property>
                                     <property name="orientation">
                                         <enum>Horizontal</enum>
@@ -322,7 +325,7 @@
                                     </property>
                                     <property name="sizeHint">
                                         <size>
-                                            <width>49</width>
+                                            <width>46</width>
                                             <height>20</height>
                                         </size>
                                     </property>
@@ -335,7 +338,7 @@
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer4</cstring>
+                <cstring>spacer6</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -352,7 +355,7 @@
         </spacer>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout23</cstring>
+                <cstring>layout45</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -360,7 +363,7 @@
                 </property>
                 <spacer>
                     <property name="name">
-                        <cstring>spacer1</cstring>
+                        <cstring>spacer7</cstring>
                     </property>
                     <property name="orientation">
                         <enum>Horizontal</enum>
@@ -386,10 +389,10 @@
                         <string>Alt+O</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                     <property name="default">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -403,7 +406,7 @@
                         <string>Alt+C</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
             </hbox>
@@ -412,7 +415,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="855">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000031e49444154789cb5944f482a6d14c67f7309b248692929516e8afe4005157759b4375a448b102218689112b9992235290684122511a4361104862d4202035741d31f22c8da94a410881491b41244e65b355cf5de8b1f7cdfb33ac3fb9c679ef39e735ee1e2e282ff030df590e6e7e7d5ef786f6f4fa827e747bd0e9c4e67bd54a0cab1c7e35173b91c46a311afd72ba4d369351a8d6ae78220100e87d5d9d959f47abde072b9d46c368bc562c1e3f1545452e13897cbe176bbc9e7f3844221756b6b8bd6d656cc663306830193c944a150607979998d8d0d359bcd128944787979f9bb63a3d1c8fafa3ac160105996393c3cac200702012d76381c4422114451a4a3a3a34658a89e8a5028a4bebdbd110804787c7ce4e8e8889b9b1b1a1b1b393e3eaee03a1c0e4451c46432d534b4e22ad2e9b47a7f7fcfd2d212a9540a9fcfc7d7d7174ea7b342f4e3e343ab4092a41ab735c2d16894fefe7e743a1df1789ce6e666b6b7b7191b1bd3388aa230313181a22800180c0682c1a04a157e0088a2a88aa2a83e3f3ff3fefe8ed16824914830393959415614055996696969617171114551383838e0f3f3139bcda6da6c36ed070d00c562512be9e7cf9f0034353561369b2b846559d6e272b9cce6e626f1789ce9e9e99af306009d4e87dfefa7542ad1dede4e201040afd7f3f0f0406f6faf463e393921994cb2b6b6c6dddd1d00979797c462319e9e9e2a4c340044221101201c0eab85420180c1c14162b1185d5d5d0c0c0c6809a552098bc5a27dfb7c3e868787d9dfdf176a84bfb1b0b020cccdcda9009224b1baba8adbed667c7c9c9e9e1ececfcfb9babad24a4f24125a1e55a89963afd7ab96cb656d19cecece482693148b45743a1da3a3a34c4d4d914aa5d8dddd65686808abd5fa776197cba5e6f3796df3666666b466fe8a4422c1e9e9299224699be7f57aff7c15dfa276bb9dbebe3eadcb9d9d9d4892842ccbbcbebe0260b55a1145515beb6a5408b7b5b561b7db311a8dd8ed7601e0fafa5addd9d92193c990c964585959a1bbbb5b00b8bdbd554551ac68e66f85ab9f3e8091911101d006ff5b14a829ff57d4fdd0fbfdfe7aa9c06fa6e2bf42dd8eff2dfe01d6234d14d17e8f6b0000000049454e44ae426082</data>
+        <data format="PNG" length="782">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000002d549444154789c9593bd4bec4014c54fe41551d4268d850aca04834e102d144b21b38b4244451665c5d6ca4a4104ad4659bf30a6776dd6cab08d6ce3c26e1b3b85480af3278858d80496e5be6af30c6f7dfa2e0c4c9833bfcc9d33472122fcab46474713411886ca3fc5003abe1300c0cecece4f646960369b95a6699210420240a95492b66dcbd6baa228d8d8d890d56a5502801042eaba4ed96c56a68844042202e79c3ccf23ce39e5f379393e3e4eebebeb248420cff3480841b66d13e79ce6e7e725638ceaf53a31c6a8c520a23f40cbb224e79ceaf53a0921280cc32f87102281599625db028908f97c5eb6609ee7512e97a3a1a121320ca32dd4f3bc148c88a0b45c2e954af2ecec6cffe4e4041f1f1f383f3f87a669b06d1bb3b3b3c915bdbdbd41d33400c0c2c202a2284a399f98727b7b0bd334a1aa2a2a950abababa7071719182f9be0fcbb2e0fb3e00a0b7b7176b6b6b29533a4cd324d334298aa2fdd7d757f4f5f5e1fefe1e8b8b8b29f37cdf47a15040777737b6b6b6e0fb3e6e6e6ef0fefebeafeb3ae9ba4e00f02b8e63eceded010066666600009d9d9de8efef4f010b8542326f369b383a3a42a552412e974badff5255158ee3a0d16860707010aeeba2a7a707cfcfcf181b1b4b20777777a8d56a383838c0e3e32300e0e1e101e572192f2f2f7f5a0e8240098240999a9a3a545515003031318172b98ca7a7a7d4291b8d0686878793efd3d353689a761845919298f3d9f2919191e4592c2d2d91aeebb4b9b949aeebd2caca0a0d0c0cd0f6f6368561488ee3906118f4e5b30180b9b939d96c36f75dd7050054ab55d46a35c4710c5555313d3d8de5e565044180abab2b4c4e4e1e1e1f1f1fa4daf82a29c562b16d4a1cc7f959525a30ce39adaeae4ac61831c692cd4208320c830cc3a0ddddddefb39cc96424e73cf5c7cbcb4bc918a362b1488c31babebe969f3b628c512693f93acbedc667e077dabf4c6957baae93aaaa88e3f8afdcb6ab6f81ff5bbf01cc4b51fe2959b9970000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -432,7 +435,25 @@
         <sender>choose_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>RotaryMotorPropDialog</receiver>
-        <slot>choose_color()</slot>
+        <slot>change_jig_color()</slot>
+    </connection>
+    <connection>
+        <sender>lengthLineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>RotaryMotorPropDialog</receiver>
+        <slot>change_motor_size()</slot>
+    </connection>
+    <connection>
+        <sender>radiusLineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>RotaryMotorPropDialog</receiver>
+        <slot>change_motor_size()</slot>
+    </connection>
+    <connection>
+        <sender>sradiusLineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>RotaryMotorPropDialog</receiver>
+        <slot>change_motor_size()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -447,7 +468,8 @@
     <tabstop>cancel_btn</tabstop>
 </tabstops>
 <slots>
-    <slot>choose_color()</slot>
+    <slot>change_jig_color()</slot>
+    <slot>change_motor_size()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

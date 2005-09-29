@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'RotaryMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Tue Sep 13 16:00:27 2005
+# Created: Thu Sep 29 08:57:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,77 +12,71 @@ from qt import *
 
 image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
-    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x03" \
-    "\x1e\x49\x44\x41\x54\x78\x9c\xb5\x94\x4f\x48\x2a" \
-    "\x6d\x14\xc6\x7f\x73\x09\xb2\x48\x69\x29\x29\x51" \
-    "\x6e\x8a\xfe\x40\x05\x15\x77\x59\xb4\x37\x5a\x44" \
-    "\x8b\x10\x22\x18\x68\x91\x12\xb9\x99\x22\x35\x29" \
-    "\x06\x84\x12\x25\x11\xa4\x36\x11\x04\x86\x2d\x42" \
-    "\x02\x03\x57\x41\xd3\x1f\x22\xc8\xda\x94\xa4\x10" \
-    "\x88\x14\x91\xb4\x12\x44\xe6\x5b\x35\x5c\xf5\xde" \
-    "\x8b\x1f\x7c\xdf\xb3\x3a\xc3\xfb\x9c\x67\x9e\xf3" \
-    "\x9e\x73\x5e\xe1\xe2\xe2\x82\xff\x03\x0d\xf5\x90" \
-    "\xe6\xe7\xe7\xd5\xef\x78\x6f\x6f\x4f\xa8\x27\xe7" \
-    "\x47\xbd\x0e\x9c\x4e\x67\xbd\x54\xa0\xca\xb1\xc7" \
-    "\xe3\x51\x73\xb9\x1c\x46\xa3\x11\xaf\xd7\x2b\xa4" \
-    "\xd3\x69\x35\x1a\x8d\x6a\xe7\x82\x20\x10\x0e\x87" \
-    "\xd5\xd9\xd9\x59\xf4\x7a\xbd\xe0\x72\xb9\xd4\x6c" \
-    "\x36\x8b\xc5\x62\xc1\xe3\xf1\x54\x54\x52\xe1\x38" \
-    "\x97\xcb\xe1\x76\xbb\xc9\xe7\xf3\x84\x42\x21\x75" \
-    "\x6b\x6b\x8b\xd6\xd6\x56\xcc\x66\x33\x06\x83\x01" \
-    "\x93\xc9\x44\xa1\x50\x60\x79\x79\x99\x8d\x8d\x0d" \
-    "\x35\x9b\xcd\x12\x89\x44\x78\x79\x79\xf9\xbb\x63" \
-    "\xa3\xd1\xc8\xfa\xfa\x3a\xc1\x60\x10\x59\x96\x39" \
-    "\x3c\x3c\xac\x20\x07\x02\x01\x2d\x76\x38\x1c\x44" \
-    "\x22\x11\x44\x51\xa4\xa3\xa3\xa3\x46\x58\xa8\x9e" \
-    "\x8a\x50\x28\xa4\xbe\xbd\xbd\x11\x08\x04\x78\x7c" \
-    "\x7c\xe4\xe8\xe8\x88\x9b\x9b\x1b\x1a\x1b\x1b\x39" \
-    "\x3e\x3e\xae\xe0\x3a\x1c\x0e\x44\x51\xc4\x64\x32" \
-    "\xd5\x34\xb4\xe2\x2a\xd2\xe9\xb4\x7a\x7f\x7f\xcf" \
-    "\xd2\xd2\x12\xa9\x54\x0a\x9f\xcf\xc7\xd7\xd7\x17" \
-    "\x4e\xa7\xb3\x42\xf4\xe3\xe3\x43\xab\x40\x92\xa4" \
-    "\x1a\xb7\x35\xc2\xd1\x68\x94\xfe\xfe\x7e\x74\x3a" \
-    "\x1d\xf1\x78\x9c\xe6\xe6\x66\xb6\xb7\xb7\x19\x1b" \
-    "\x1b\xd3\x38\x8a\xa2\x30\x31\x31\x81\xa2\x28\x00" \
-    "\x18\x0c\x06\x82\xc1\xa0\x4a\x15\x7e\x00\x88\xa2" \
-    "\xa8\x8a\xa2\xa8\x3e\x3f\x3f\xf3\xfe\xfe\x8e\xd1" \
-    "\x68\x24\x91\x48\x30\x39\x39\x59\x41\x56\x14\x05" \
-    "\x59\x96\x69\x69\x69\x61\x71\x71\x11\x45\x51\x38" \
-    "\x38\x38\xe0\xf3\xf3\x13\x9b\xcd\xa6\xda\x6c\x36" \
-    "\xed\x07\x0d\x00\xc5\x62\x51\x2b\xe9\xe7\xcf\x9f" \
-    "\x00\x34\x35\x35\x61\x36\x9b\x2b\x84\x65\x59\xd6" \
-    "\xe2\x72\xb9\xcc\xe6\xe6\x26\xf1\x78\x9c\xe9\xe9" \
-    "\xe9\x9a\xf3\x06\x00\x9d\x4e\x87\xdf\xef\xa7\x54" \
-    "\x2a\xd1\xde\xde\x4e\x20\x10\x40\xaf\xd7\xf3\xf0" \
-    "\xf0\x40\x6f\x6f\xaf\x46\x3e\x39\x39\x21\x99\x4c" \
-    "\xb2\xb6\xb6\xc6\xdd\xdd\x1d\x00\x97\x97\x97\xc4" \
-    "\x62\x31\x9e\x9e\x9e\x2a\x4c\x34\x00\x44\x22\x11" \
-    "\x01\x20\x1c\x0e\xab\x85\x42\x01\x80\xc1\xc1\x41" \
-    "\x62\xb1\x18\x5d\x5d\x5d\x0c\x0c\x0c\x68\x09\xa5" \
-    "\x52\x09\x8b\xc5\xa2\x7d\xfb\x7c\x3e\x86\x87\x87" \
-    "\xd9\xdf\xdf\x17\x6a\x84\xbf\xb1\xb0\xb0\x20\xcc" \
-    "\xcd\xcd\xa9\x00\x92\x24\xb1\xba\xba\x8a\xdb\xed" \
-    "\x66\x7c\x7c\x9c\x9e\x9e\x1e\xce\xcf\xcf\xb9\xba" \
-    "\xba\xd2\x4a\x4f\x24\x12\x5a\x1e\x55\xa8\x99\x63" \
-    "\xaf\xd7\xab\x96\xcb\x65\x6d\x19\xce\xce\xce\x48" \
-    "\x26\x93\x14\x8b\x45\x74\x3a\x1d\xa3\xa3\xa3\x4c" \
-    "\x4d\x4d\x91\x4a\xa5\xd8\xdd\xdd\x65\x68\x68\x08" \
-    "\xab\xd5\xfa\x77\x61\x97\xcb\xa5\xe6\xf3\x79\x6d" \
-    "\xf3\x66\x66\x66\xb4\x66\xfe\x8a\x44\x22\xc1\xe9" \
-    "\xe9\x29\x92\x24\x69\x9b\xe7\xf5\x7a\xff\x7c\x15" \
-    "\xdf\xa2\x76\xbb\x9d\xbe\xbe\x3e\xad\xcb\x9d\x9d" \
-    "\x9d\x48\x92\x84\x2c\xcb\xbc\xbe\xbe\x02\x60\xb5" \
-    "\x5a\x11\x45\x51\x5b\xeb\x6a\x54\x08\xb7\xb5\xb5" \
-    "\x61\xb7\xdb\x31\x1a\x8d\xd8\xed\x76\x01\xe0\xfa" \
-    "\xfa\x5a\xdd\xd9\xd9\x21\x93\xc9\x90\xc9\x64\x58" \
-    "\x59\x59\xa1\xbb\xbb\x5b\x00\xb8\xbd\xbd\x55\x45" \
-    "\x51\xac\x68\xe6\x6f\x85\xab\x9f\x3e\x80\x91\x91" \
-    "\x11\x01\xd0\x06\xff\x5b\x14\xa8\x29\xff\x57\xd4" \
-    "\xfd\xd0\xfb\xfd\xfe\x7a\xa9\xc0\x6f\xa6\xe2\xbf" \
-    "\x42\xdd\x8e\xff\x2d\xfe\x01\xd6\x23\x4d\x14\xd1" \
-    "\x7e\x8f\x6b\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
-    "\x42\x60\x82"
+    "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
+    "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x02" \
+    "\xd5\x49\x44\x41\x54\x78\x9c\x95\x93\xbd\x4b\xec" \
+    "\x40\x14\xc5\x4f\xe4\x15\x51\xd4\x26\x8d\x85\x0a" \
+    "\xca\x04\x83\x4e\x10\x2d\x14\x4b\x21\xb3\x8b\x42" \
+    "\x44\x45\x16\x65\xc5\xd6\xca\x4a\x41\x04\xad\x46" \
+    "\x59\xbf\x30\xa6\x77\x6d\xd6\xca\xb0\x8d\x6c\xe3" \
+    "\xc2\x6e\x1b\x3b\x85\x48\x0a\xf3\x27\x88\x58\xd8" \
+    "\x04\x96\xe5\xbe\x6a\xf3\x0c\x6f\x7d\xfa\x2e\x0c" \
+    "\x4c\x98\x33\xbf\xcc\x9d\x33\x47\x21\x22\xfc\xab" \
+    "\x46\x47\x47\x13\x41\x18\x86\xca\x3f\xc5\x00\x3a" \
+    "\xbe\x13\x00\xc0\xce\xce\xce\x4f\x64\x69\x60\x36" \
+    "\x9b\x95\xa6\x69\x92\x10\x42\x02\x40\xa9\x54\x92" \
+    "\xb6\x6d\xcb\xd6\xba\xa2\x28\xd8\xd8\xd8\x90\xd5" \
+    "\x6a\x55\x02\x80\x10\x42\xea\xba\x4e\xd9\x6c\x56" \
+    "\xa6\x88\x44\x04\x22\x02\xe7\x9c\x3c\xcf\x23\xce" \
+    "\x39\xe5\xf3\x79\x39\x3e\x3e\x4e\xeb\xeb\xeb\x24" \
+    "\x84\x20\xcf\xf3\x48\x08\x41\xb6\x6d\x13\xe7\x9c" \
+    "\xe6\xe7\xe7\x25\x63\x8c\xea\xf5\x3a\x31\xc6\xa8" \
+    "\xc5\x20\xa2\x3f\x40\xcb\xb2\x24\xe7\x9c\xea\xf5" \
+    "\x3a\x09\x21\x28\x0c\xc3\x2f\x87\x10\x22\x81\x59" \
+    "\x96\x25\xdb\x02\x89\x08\xf9\x7c\x5e\xb6\x60\x9e" \
+    "\xe7\x51\x2e\x97\xa3\xa1\xa1\x21\x32\x0c\xa3\x2d" \
+    "\xd4\xf3\xbc\x14\x8c\x88\xa0\xb4\x5c\x2e\x95\x4a" \
+    "\xf2\xec\xec\x6c\xff\xe4\xe4\x04\x1f\x1f\x1f\x38" \
+    "\x3f\x3f\x87\xa6\x69\xb0\x6d\x1b\xb3\xb3\xb3\xc9" \
+    "\x15\xbd\xbd\xbd\x41\xd3\x34\x00\xc0\xc2\xc2\x02" \
+    "\xa2\x28\x4a\x39\x9f\x98\x72\x7b\x7b\x0b\xd3\x34" \
+    "\xa1\xaa\x2a\x2a\x95\x0a\xba\xba\xba\x70\x71\x71" \
+    "\x91\x82\xf9\xbe\x0f\xcb\xb2\xe0\xfb\x3e\x00\xa0" \
+    "\xb7\xb7\x17\x6b\x6b\x6b\x29\x53\x3a\x4c\xd3\x24" \
+    "\xd3\x34\x29\x8a\xa2\xfd\xd7\xd7\x57\xf4\xf5\xf5" \
+    "\xe1\xfe\xfe\x1e\x8b\x8b\x8b\x29\xf3\x7c\xdf\x47" \
+    "\xa1\x50\x40\x77\x77\x37\xb6\xb6\xb6\xe0\xfb\x3e" \
+    "\x6e\x6e\x6e\xf0\xfe\xfe\xbe\xaf\xeb\x3a\xe9\xba" \
+    "\x4e\x00\xf0\x2b\x8e\x63\xec\xed\xed\x01\x00\x66" \
+    "\x66\x66\x00\x00\x9d\x9d\x9d\xe8\xef\xef\x4f\x01" \
+    "\x0b\x85\x42\x32\x6f\x36\x9b\x38\x3a\x3a\x42\xa5" \
+    "\x52\x41\x2e\x97\x4b\xad\xff\x52\x55\x15\x8e\xe3" \
+    "\xa0\xd1\x68\x60\x70\x70\x10\xae\xeb\xa2\xa7\xa7" \
+    "\x07\xcf\xcf\xcf\x18\x1b\x1b\x4b\x20\x77\x77\x77" \
+    "\xa8\xd5\x6a\x38\x38\x38\xc0\xe3\xe3\x23\x00\xe0" \
+    "\xe1\xe1\x01\xe5\x72\x19\x2f\x2f\x2f\x7f\x5a\x0e" \
+    "\x82\x40\x09\x82\x40\x99\x9a\x9a\x3a\x54\x55\x15" \
+    "\x00\x30\x31\x31\x81\x72\xb9\x8c\xa7\xa7\xa7\xd4" \
+    "\x29\x1b\x8d\x06\x86\x87\x87\x93\xef\xd3\xd3\x53" \
+    "\x68\x9a\x76\x18\x45\x91\x92\x98\xf3\xd9\xf2\x91" \
+    "\x91\x91\xe4\x59\x2c\x2d\x2d\x91\xae\xeb\xb4\xb9" \
+    "\xb9\x49\xae\xeb\xd2\xca\xca\x0a\x0d\x0c\x0c\xd0" \
+    "\xf6\xf6\x36\x85\x61\x48\x8e\xe3\x90\x61\x18\xf4" \
+    "\xe5\xb3\x01\x80\xb9\xb9\x39\xd9\x6c\x36\xf7\x5d" \
+    "\xd7\x05\x00\x54\xab\x55\xd4\x6a\x35\xc4\x71\x0c" \
+    "\x55\x55\x31\x3d\x3d\x8d\xe5\xe5\x65\x04\x41\x80" \
+    "\xab\xab\x2b\x4c\x4e\x4e\x1e\x1e\x1f\x1f\x1f\xa4" \
+    "\xda\xf8\x2a\x29\xc5\x62\xb1\x6d\x4a\x1c\xc7\xf9" \
+    "\x59\x52\x5a\x30\xce\x39\xad\xae\xae\x4a\xc6\x18" \
+    "\x31\xc6\x92\xcd\x42\x08\x32\x0c\x83\x0c\xc3\xa0" \
+    "\xdd\xdd\xdd\xef\xb3\x9c\xc9\x64\x24\xe7\x3c\xf5" \
+    "\xc7\xcb\xcb\x4b\xc9\x18\xa3\x62\xb1\x48\x8c\x31" \
+    "\xba\xbe\xbe\x96\x9f\x3b\x62\x8c\x51\x26\x93\xf9" \
+    "\x3a\xcb\xed\xc6\x67\xe0\x77\xda\xbf\x4c\x69\x57" \
+    "\xba\xae\x93\xaa\xaa\x88\xe3\xf8\xaf\xdc\xb6\xab" \
+    "\x6f\x81\xff\x5b\xbf\x01\xcc\x4b\x51\xfe\x29\x59" \
+    "\xb9\x97\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\x60\x82"
 
 class RotaryMotorPropDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
@@ -98,146 +92,150 @@ class RotaryMotorPropDialog(QDialog):
 
         RotaryMotorPropDialogLayout = QVBoxLayout(self,11,6,"RotaryMotorPropDialogLayout")
 
-        layout82 = QHBoxLayout(None,0,6,"layout82")
+        layout78 = QHBoxLayout(None,0,6,"layout78")
 
-        layout27 = QVBoxLayout(None,0,6,"layout27")
+        layout40 = QVBoxLayout(None,0,6,"layout40")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.nameTextLabel)
+        layout40.addWidget(self.nameTextLabel)
 
         self.textLabel1 = QLabel(self,"textLabel1")
         textLabel1_font = QFont(self.textLabel1.font())
         self.textLabel1.setFont(textLabel1_font)
         self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.textLabel1)
+        layout40.addWidget(self.textLabel1)
 
         self.textLabel1_2 = QLabel(self,"textLabel1_2")
         self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.textLabel1_2)
+        layout40.addWidget(self.textLabel1_2)
 
         self.textLabel1_3 = QLabel(self,"textLabel1_3")
         self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.textLabel1_3)
+        layout40.addWidget(self.textLabel1_3)
 
         self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
         self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.textLabel1_2_2)
+        layout40.addWidget(self.textLabel1_2_2)
 
         self.textLabel1_2_2_2 = QLabel(self,"textLabel1_2_2_2")
         self.textLabel1_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.textLabel1_2_2_2)
+        layout40.addWidget(self.textLabel1_2_2_2)
 
         self.colorTextLabel = QLabel(self,"colorTextLabel")
         self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout27.addWidget(self.colorTextLabel)
-        layout82.addLayout(layout27)
+        layout40.addWidget(self.colorTextLabel)
+        layout78.addLayout(layout40)
 
-        layout81 = QVBoxLayout(None,0,6,"layout81")
+        layout77 = QVBoxLayout(None,0,6,"layout77")
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
         self.nameLineEdit.setReadOnly(0)
-        layout81.addWidget(self.nameLineEdit)
+        layout77.addWidget(self.nameLineEdit)
 
-        layout33 = QGridLayout(None,1,1,0,6,"layout33")
-
-        self.textLabel1_4 = QLabel(self,"textLabel1_4")
-
-        layout33.addWidget(self.textLabel1_4,0,1)
+        layout46 = QGridLayout(None,1,1,0,6,"layout46")
 
         self.torqueLineEdit = QLineEdit(self,"torqueLineEdit")
         self.torqueLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout33.addWidget(self.torqueLineEdit,0,0)
+        layout46.addWidget(self.torqueLineEdit,0,0)
 
-        self.textLabel3 = QLabel(self,"textLabel3")
+        self.textLabel3_2 = QLabel(self,"textLabel3_2")
 
-        layout33.addWidget(self.textLabel3,2,1)
+        layout46.addWidget(self.textLabel3_2,3,1)
 
         self.radiusLineEdit = QLineEdit(self,"radiusLineEdit")
         self.radiusLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout33.addWidget(self.radiusLineEdit,3,0)
-
-        self.textLabel2 = QLabel(self,"textLabel2")
-
-        layout33.addWidget(self.textLabel2,1,1)
+        layout46.addWidget(self.radiusLineEdit,3,0)
 
         self.lengthLineEdit = QLineEdit(self,"lengthLineEdit")
         self.lengthLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.lengthLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.lengthLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout33.addWidget(self.lengthLineEdit,2,0)
+        layout46.addWidget(self.lengthLineEdit,2,0)
 
-        self.textLabel3_2 = QLabel(self,"textLabel3_2")
+        self.sradiusLineEdit = QLineEdit(self,"sradiusLineEdit")
+        self.sradiusLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout33.addWidget(self.textLabel3_2,3,1)
+        layout46.addWidget(self.sradiusLineEdit,4,0)
+
+        self.textLabel1_4 = QLabel(self,"textLabel1_4")
+
+        layout46.addWidget(self.textLabel1_4,0,1)
+
+        self.textLabel3_3 = QLabel(self,"textLabel3_3")
+
+        layout46.addWidget(self.textLabel3_3,4,1)
+
+        self.textLabel3 = QLabel(self,"textLabel3")
+
+        layout46.addWidget(self.textLabel3,2,1)
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+
+        layout46.addWidget(self.textLabel2,1,1)
 
         self.speedLineEdit = QLineEdit(self,"speedLineEdit")
         self.speedLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.speedLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.speedLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout33.addWidget(self.speedLineEdit,1,0)
+        layout46.addWidget(self.speedLineEdit,1,0)
+        layout77.addLayout(layout46)
 
-        self.textLabel3_3 = QLabel(self,"textLabel3_3")
+        layout76 = QHBoxLayout(None,0,6,"layout76")
 
-        layout33.addWidget(self.textLabel3_3,4,1)
+        layout75 = QHBoxLayout(None,0,6,"layout75")
 
-        self.sradiusLineEdit = QLineEdit(self,"sradiusLineEdit")
-        self.sradiusLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout33.addWidget(self.sradiusLineEdit,4,0)
-        layout81.addLayout(layout33)
-
-        layout80 = QHBoxLayout(None,0,6,"layout80")
-
-        layout79 = QHBoxLayout(None,0,6,"layout79")
-
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(175,175,175))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout79.addWidget(self.colorPixmapLabel)
+        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
+        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
+        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(175,175,175))
+        self.jig_color_pixmap.setScaledContents(1)
+        layout75.addWidget(self.jig_color_pixmap)
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
-        layout79.addWidget(self.choose_color_btn)
-        layout80.addLayout(layout79)
-        spacer3 = QSpacerItem(49,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout80.addItem(spacer3)
-        layout81.addLayout(layout80)
-        layout82.addLayout(layout81)
-        RotaryMotorPropDialogLayout.addLayout(layout82)
-        spacer4 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        RotaryMotorPropDialogLayout.addItem(spacer4)
+        self.choose_color_btn.setAutoDefault(0)
+        layout75.addWidget(self.choose_color_btn)
+        layout76.addLayout(layout75)
+        spacer5 = QSpacerItem(46,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout76.addItem(spacer5)
+        layout77.addLayout(layout76)
+        layout78.addLayout(layout77)
+        RotaryMotorPropDialogLayout.addLayout(layout78)
+        spacer6 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        RotaryMotorPropDialogLayout.addItem(spacer6)
 
-        layout23 = QHBoxLayout(None,0,6,"layout23")
-        spacer1 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout23.addItem(spacer1)
+        layout45 = QHBoxLayout(None,0,6,"layout45")
+        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout45.addItem(spacer7)
 
         self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
-        layout23.addWidget(self.ok_btn)
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
+        layout45.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setAutoDefault(1)
-        layout23.addWidget(self.cancel_btn)
-        RotaryMotorPropDialogLayout.addLayout(layout23)
+        self.cancel_btn.setAutoDefault(0)
+        layout45.addWidget(self.cancel_btn)
+        RotaryMotorPropDialogLayout.addLayout(layout45)
 
         self.languageChange()
 
-        self.resize(QSize(309,281).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(306,285).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.lengthLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.radiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.sradiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
 
         self.setTabOrder(self.nameLineEdit,self.torqueLineEdit)
         self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
@@ -251,19 +249,19 @@ class RotaryMotorPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Rotary Motor Properties"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
-        self.textLabel1.setText(self.__tr("Torque:"))
-        self.textLabel1_2.setText(self.__tr("Speed:"))
-        self.textLabel1_3.setText(self.__tr("Motor Length:"))
-        self.textLabel1_2_2.setText(self.__tr("Motor Radius:"))
-        self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius:"))
-        self.colorTextLabel.setText(self.__tr("Color:"))
+        self.nameTextLabel.setText(self.__tr("Name :"))
+        self.textLabel1.setText(self.__tr("Torque :"))
+        self.textLabel1_2.setText(self.__tr("Speed :"))
+        self.textLabel1_3.setText(self.__tr("Motor Length :"))
+        self.textLabel1_2_2.setText(self.__tr("Motor Radius :"))
+        self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius :"))
+        self.colorTextLabel.setText(self.__tr("Color :"))
         self.nameLineEdit.setText(QString.null)
+        self.textLabel3_2.setText(self.__tr("Angstroms"))
         self.textLabel1_4.setText(self.__tr("nN-nm"))
+        self.textLabel3_3.setText(self.__tr("Angstroms"))
         self.textLabel3.setText(self.__tr("Angstroms"))
         self.textLabel2.setText(self.__tr("GHz"))
-        self.textLabel3_2.setText(self.__tr("Angstroms"))
-        self.textLabel3_3.setText(self.__tr("Angstroms"))
         self.choose_color_btn.setText(self.__tr("Choose..."))
         self.ok_btn.setText(self.__tr("&OK"))
         self.ok_btn.setAccel(self.__tr("Alt+O"))
@@ -271,8 +269,11 @@ class RotaryMotorPropDialog(QDialog):
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
-    def choose_color(self):
-        print "RotaryMotorPropDialog.choose_color(): Not implemented yet"
+    def change_jig_color(self):
+        print "RotaryMotorPropDialog.change_jig_color(): Not implemented yet"
+
+    def change_motor_size(self):
+        print "RotaryMotorPropDialog.change_motor_size(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("RotaryMotorPropDialog",s,c)
