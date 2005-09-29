@@ -15,7 +15,7 @@ int Nexbon=0, Nextorq=0, Nexatom=0;
 struct xyz Force[NATOMS];
 
 struct xyz OldForce[NATOMS], newForce[NATOMS]; /* used in minimize */
-struct xyz OldDirVec[NATOMS], DirVec[NATOMS]; /* used in minimize */
+struct xyz DirVec[NATOMS]; /* used in minimize */
 
 struct xyz AveragePositions[NATOMS];
 static struct xyz position_arrays[4*NATOMS];
@@ -1083,6 +1083,66 @@ groundAtoms(struct xyz *oldPosition, struct xyz *newPosition)
     }
 }
 
+static void
+jigMotorMinimize(int j, struct xyz *position, struct xyz *force)
+{
+    struct MOT *mot;
+    int n;
+    struct xyz rx;
+    int k;
+    double ff;
+    int a1;
+    double theta;
+    struct xyz f;
+
+    mot=Constraint[j].motor;
+
+    if (mot->speed==0.0) { // just add torque to force
+
+        // set the center of torque each time to the average position
+        // of the atoms in the motor
+        n=Constraint[j].natoms;
+        vsetc(rx, 0.0);
+        for (k=0; k<n; k++) {
+            vadd(rx,position[Constraint[j].atoms[k]]);
+        }
+        vmulc(rx,1.0/(double)n);
+        mot->center = rx;
+
+        ff = Tq*mot->stall/n;
+        for (k=0; k<n; k++) {
+            a1 = Constraint[j].atoms[k];
+            rx = vdif(position[a1],mot->center);
+            f  = vprodc(vx(mot->axis,uvec(rx)),ff/vlen(rx));
+			    
+            //fprintf(stderr, "applying torque %f to %d: other force %f\n",
+            //       vlen(f), a1, vlen(Force[a1]));
+
+            vadd(force[a1],f);
+        }
+    }
+}
+
+static int motorExists = 1;
+
+static void
+minimizeMotorJigs(struct xyz *position, struct xyz *force)
+{
+    int j, k;
+    int foundAMotor = 0;
+
+    if (motorExists) {
+	for (j=0;j<Nexcon;j++) {	/* for each constraint */
+	    if (Constraint[j].type == CODEmotor) {
+                foundAMotor = 1;
+                jigMotorMinimize(j, position, force);
+	    }
+        }
+        motorExists = foundAMotor;
+    }
+}
+
+
 // one entry for each of the four *Positions pointers
 // indicates which of the four segments of position_arrays each points to
 static int positionPointerSegment[4];
@@ -1183,6 +1243,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
 	calculateForces(1, Positions, Force);
+        minimizeMotorJigs(Positions, Force);
 	for (j=0; j<Nexatom; j++) {
 	    f = Force[j];
 	    forceSquared = vdot(f,f);
@@ -1204,6 +1265,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
 	calculateForces(0, Positions, Force);
+        minimizeMotorJigs(Positions, Force);
 	for (j=0; j<Nexatom; j++) {
 	    f= Force[j];
 	    forceSquared = vdot(f,f);
@@ -1228,6 +1290,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 		vadd2(NewPositions[j], Positions[j], f);
 	    }
 	    calculateForces(0, NewPositions, newForce);
+            minimizeMotorJigs(NewPositions, newForce);
 	    for (j=0, sum_newforceSquared=0.0; j<Nexatom; j++) {
 		f= newForce[j];
 		sum_newforceSquared += vdot(f,f);
@@ -1283,6 +1346,7 @@ double evalPos(struct xyz *pos, struct xyz *force, double *max_forceSquared) {
     int j;
 
     calculateForces(0, pos, force);
+    minimizeMotorJigs(pos, force);
     return fSquare(force, max_forceSquared);
 }
 
