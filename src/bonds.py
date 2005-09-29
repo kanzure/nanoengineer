@@ -47,7 +47,7 @@ from shape import *
 from constants import *
 from qt import *
 from Utility import *
-from MoleculeProp import *
+from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 
 from debug import print_compact_stack, print_compact_traceback

@@ -1388,7 +1388,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             r,g,b = color
             color = r,g,b
         self.color = color
-            # warning: some callers (MoleculeProp.py) first trash self.color, then call us to bless it. [bruce 050505 comment]
+            # warning: some callers (ChunkProp.py) first trash self.color, then call us to bless it. [bruce 050505 comment]
         self.havelist = 0
         self.changed() #[bruce 050505]
 
@@ -2211,7 +2211,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return count
             
     def edit(self):
-        cntl = MoleculeProp(self)    
+        cntl = ChunkProp(self) # Renamed MoleculeProp to ChunkProp.  Mark 050929
         cntl.exec_loop()
         self.assy.mt.mt_update()
         ###e bruce 041109 comment: don't we want to repaint the glpane, too?
