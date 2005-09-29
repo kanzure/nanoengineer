@@ -76,10 +76,12 @@ class LinearMotorProp(LinearMotorPropDialog):
         
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        #self.jig.color = self.jig.normcolor = self.original_normcolor
+        
+        # Restore the original attribute values from the copied jig.
         self.jig.color = self.jig.normcolor = self.original_jig.normcolor
-        self.jig.length = self.original_jig.force
-        self.jig.length = self.original_jig.stiffness
+        self.jig.name = self.original_jig.name
+        self.jig.force = self.original_jig.force
+        self.jig.stiffness = self.original_jig.stiffness
         self.jig.length = self.original_jig.length
         self.jig.width = self.original_jig.width
         self.jig.sradius = self.original_jig.sradius
