@@ -104,6 +104,10 @@ class ESPWindowProp(ESPWindowPropDialog):
     def select_atoms_inside_esp_bbox(self):
         "Slot for Select Atoms Inside Volume button, which selects all the atoms inside the bbox"
         self.selected = not self.selected
+        if self.selected:
+            self.select_atoms_btn.setText("Deselect Atoms Inside Volume")
+        else:
+            self.select_atoms_btn.setText("Select Atoms Inside Volume")
         self.jig.pickSelected(self.selected)
         self.glpane.gl_update()
         

@@ -288,8 +288,15 @@ class ESPWindow(RectGadget):
                     a.overdraw_with_special_color(green)
             else:
                 m.overdraw_with_special_color(green)
+    
+    def edit(self):
+        '''Force into 'Select Atom' mode before open the dialog '''
+        from constants import SELWHAT_ATOMS
         
-
+        self.assy.o.setMode('SELECTATOMS')        
+        Jig.edit(self)
+        
+    
     def _draw(self, win, dispdef):
         glPushMatrix()
 
