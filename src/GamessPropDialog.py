@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GamessPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\GamessPropDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
+# Created: Fri Sep 30 14:34:52 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -225,16 +225,17 @@ class GamessPropDialog(QDialog):
 
         layout71 = QHBoxLayout(None,0,6,"layout71")
 
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
-        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout71.addWidget(self.colorPixmapLabel)
+        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
+        self.jig_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.jig_color_pixmap.sizePolicy().hasHeightForWidth()))
+        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
+        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(0,0,0))
+        self.jig_color_pixmap.setScaledContents(1)
+        layout71.addWidget(self.jig_color_pixmap)
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
         self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setAutoDefault(0)
         layout71.addWidget(self.choose_color_btn)
         layout72.addLayout(layout71)
         spacer13_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -471,12 +472,16 @@ class GamessPropDialog(QDialog):
         layout22_3.addItem(spacer7)
 
         self.run_job_btn = QPushButton(self,"run_job_btn")
+        self.run_job_btn.setAutoDefault(0)
         layout22_3.addWidget(self.run_job_btn)
 
         self.save_btn = QPushButton(self,"save_btn")
+        self.save_btn.setAutoDefault(0)
         layout22_3.addWidget(self.save_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setAutoDefault(0)
+        self.cancel_btn.setDefault(0)
         layout22_3.addWidget(self.cancel_btn)
         GamessPropDialogLayout.addLayout(layout22_3)
 
@@ -491,7 +496,7 @@ class GamessPropDialog(QDialog):
         self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
         self.connect(self.save_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.runtyp_combox,SIGNAL("activated(int)"),self.calculate_changed)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
         self.connect(self.whats_this_btn,SIGNAL("clicked()"),self.whats_this)
 
 
@@ -686,8 +691,8 @@ class GamessPropDialog(QDialog):
     def set_gamess_location(self):
         print "GamessPropDialog.set_gamess_location(): Not implemented yet"
 
-    def choose_color(self):
-        print "GamessPropDialog.choose_color(): Not implemented yet"
+    def change_jig_color(self):
+        print "GamessPropDialog.change_jig_color(): Not implemented yet"
 
     def whats_this(self):
         print "GamessPropDialog.whats_this(): Not implemented yet"

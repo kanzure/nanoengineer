@@ -204,7 +204,7 @@
                                         </property>
                                         <widget class="QLabel">
                                             <property name="name">
-                                                <cstring>colorPixmapLabel</cstring>
+                                                <cstring>jig_color_pixmap</cstring>
                                             </property>
                                             <property name="sizePolicy">
                                                 <sizepolicy>
@@ -248,6 +248,9 @@
                                             </property>
                                             <property name="text">
                                                 <string>Choose...</string>
+                                            </property>
+                                            <property name="autoDefault">
+                                                <bool>false</bool>
                                             </property>
                                             <property name="toolTip" stdset="0">
                                                 <string>Change the GAMESS jig color</string>
@@ -1356,6 +1359,9 @@
                     <property name="text">
                         <string>Save and Run</string>
                     </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and launch job</string>
                     </property>
@@ -1370,6 +1376,9 @@
                     <property name="text">
                         <string>Save</string>
                     </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and generates the INP file</string>
                     </property>
@@ -1383,6 +1392,12 @@
                     </property>
                     <property name="text">
                         <string>Cancel</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Cancel</string>
@@ -1444,7 +1459,7 @@
         <sender>choose_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>GamessPropDialog</receiver>
-        <slot>choose_color()</slot>
+        <slot>change_jig_color()</slot>
     </connection>
     <connection>
         <sender>whats_this_btn</sender>
@@ -1461,7 +1476,7 @@
     <slot>openServerManager()</slot>
     <slot>calculate_changed()</slot>
     <slot>set_gamess_location()</slot>
-    <slot>choose_color()</slot>
+    <slot>change_jig_color()</slot>
     <slot>whats_this()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>

@@ -226,6 +226,7 @@ from ServerManager import ServerManager
 from HistoryWidget import redmsg
 from files_gms import insertgms
 from debug import print_compact_traceback
+from widgets import RGBf_to_QColor, QColor_to_RGBf
         
 class GamessProp(GamessPropDialog):
     '''The Gamess Jig Properties dialog used for:
@@ -257,27 +258,23 @@ class GamessProp(GamessPropDialog):
     def _setup(self):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
-        gamess = self.gamessJig #  In case we cancel later (not implemented yet)
         
-        self.originalColor = self.gamessJig.normcolor
-
         #To fix bug 684
         #if gamess.is_disabled():
         #    self.run_job_btn.setEnabled(False)
         #else:
         #    self.run_job_btn.setEnabled(True)
         
+        # Jig color
+        self.original_normcolor = self.gamessJig.normcolor 
+        self.jig_QColor = RGBf_to_QColor(self.gamessJig.normcolor) # Used as default color by Color Chooser
+        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
+        
         # Init the top widgets (name, runtyp drop box, comment)
-        self.name_linedit.setText(gamess.name)
+        self.name_linedit.setText(self.gamessJig.name)
         self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
         self.calculate_changed(self.pset.ui.runtyp)
         self.comment_linedit.setText(self.pset.ui.comment)
-        
-        # Color chooser.
-        self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(gamess.normcolor[0]*255), 
-                         int(gamess.normcolor[1]*255), 
-                         int(gamess.normcolor[2]*255)))
         
         # Electronic Structure Properties section.
         self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
@@ -580,7 +577,17 @@ class GamessProp(GamessPropDialog):
                     self.gamessJig.assy.changed() # The file and the part are not the same.
                     self.gamessJig.print_energy() # Print the final energy from the optimize OUT file, too.
                     env.history.message( "Atoms adjusted.")
-                    
+
+    def change_jig_color(self):
+        '''Slot method to change the jig's color.'''
+        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
+
+        if color.isValid():
+            self.jig_color_pixmap.setPaletteBackgroundColor(color)
+            self.jig_QColor = color
+            self.gamessJig.color = self.gamessJig.normcolor = QColor_to_RGBf(color)
+            self.glpane.gl_update()
+                                
     def accept(self):
         """The slot method for the 'Save' button."""
         QDialog.accept(self)
@@ -589,24 +596,11 @@ class GamessProp(GamessPropDialog):
         self._save_job_parms()
         if self.edit_input_file_cbox.isChecked():
             self.open_tmp_inputfile()
-
-    def choose_color(self):
-        """The slot method for the 'Choose...' (color) button."""
-        color = QColorDialog.getColor(
-            QColor(int(self.gamessJig.normcolor[0]*255), 
-                         int(self.gamessJig.normcolor[1]*255), 
-                         int(self.gamessJig.normcolor[2]*255)),
-                         self, "ColorDialog")
-                        
-        if color.isValid():
-            self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.gamessJig.color = self.gamessJig.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
-            self.glpane.gl_update()
                 
     def reject(self):
         """The slot method for the 'Cancel' button."""
         QDialog.reject(self)
-        self.gamessJig.color = self.gamessJig.normcolor = self.originalColor
+        self.gamessJig.color = self.gamessJig.normcolor = self.original_normcolor
         self.gamessJig.cancelled = True
         self.glpane.gl_update()
         
