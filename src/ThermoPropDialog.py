@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ThermoPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ThermoPropDialog.ui'
 #
-# Created: Tue Sep 13 16:00:28 2005
+# Created: Fri Sep 30 15:34:23 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -99,16 +99,17 @@ class ThermoPropDialog(QDialog):
 
         layout86 = QHBoxLayout(None,0,6,"layout86")
 
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
-        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout86.addWidget(self.colorPixmapLabel)
+        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
+        self.jig_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.jig_color_pixmap.sizePolicy().hasHeightForWidth()))
+        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
+        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(0,0,0))
+        self.jig_color_pixmap.setScaledContents(1)
+        layout86.addWidget(self.jig_color_pixmap)
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
         self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setAutoDefault(0)
         layout86.addWidget(self.choose_color_btn)
         layout87.addLayout(layout86)
         spacer19 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -125,13 +126,13 @@ class ThermoPropDialog(QDialog):
 
         self.ok_btn = QPushButton(self,"ok_btn")
         self.ok_btn.setMinimumSize(QSize(0,0))
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
         layout67.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setMinimumSize(QSize(0,0))
-        self.cancel_btn.setAutoDefault(1)
+        self.cancel_btn.setAutoDefault(0)
         self.cancel_btn.setDefault(0)
         layout67.addWidget(self.cancel_btn)
         ThermoPropDialogLayout.addLayout(layout67)
@@ -143,7 +144,7 @@ class ThermoPropDialog(QDialog):
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
 
         self.setTabOrder(self.nameLineEdit,self.molnameLineEdit)
         self.setTabOrder(self.molnameLineEdit,self.choose_color_btn)
@@ -166,8 +167,8 @@ class ThermoPropDialog(QDialog):
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
-    def choose_color(self):
-        print "ThermoPropDialog.choose_color(): Not implemented yet"
+    def change_jig_color(self):
+        print "ThermoPropDialog.change_jig_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ThermoPropDialog",s,c)

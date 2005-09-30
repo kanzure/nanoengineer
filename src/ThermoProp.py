@@ -7,59 +7,50 @@ $Id$
 
 from qt import *
 from ThermoPropDialog import *
-from VQT import V
+from widgets import RGBf_to_QColor, QColor_to_RGBf
 
 class ThermoProp(ThermoPropDialog):
     def __init__(self, thermo, glpane):
 
         ThermoPropDialog.__init__(self)
-        self.thermo = thermo
+        self.jig = thermo
         self.glpane = glpane
         self.setup()
 
     def setup(self):
-        thermo = self.thermo
         
-        self.originalColor = self.thermo.normcolor
+        # Jig color
+        self.original_normcolor = self.jig.normcolor 
+        self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
+        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
+
+        # Jig name
+        self.nameLineEdit.setText(self.jig.name)
         
-        self.nameLineEdit.setText(thermo.name)
-        self.molnameLineEdit.setText(thermo.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
+        self.molnameLineEdit.setText(self.jig.atoms[0].molecule.name)
+        
+    def change_jig_color(self):
+        '''Slot method to change the jig's color.'''
+        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
 
-        self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(thermo.normcolor[0]*255), 
-                         int(thermo.normcolor[1]*255), 
-                         int(thermo.normcolor[2]*255)))
-
-    def choose_color(self):
-
-        color = QColorDialog.getColor(
-            QColor(int(self.thermo.normcolor[0]*255), 
-                         int(self.thermo.normcolor[1]*255), 
-                         int(self.thermo.normcolor[2]*255)),
-                         self, "ColorDialog")
-                        
         if color.isValid():
-            self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.thermo.color = self.thermo.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.jig_color_pixmap.setPaletteBackgroundColor(color)
+            self.jig_QColor = color
+            self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
 
-    #################
-    # Cancel Button
-    #################
-    def reject(self):
-	    QDialog.reject(self)
-	    self.thermo.color = self.thermo.normcolor = self.originalColor
-	    self.glpane.gl_update()
-
-    #################
-    # OK Button
-    #################
     def accept(self):
-        QDialog.accept(self)
-
-        text =  QString(self.nameLineEdit.text())        
+        '''Slot for the 'OK' button '''
+        text =  QString(self.nameLineEdit.text())
         text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.thermo.name = str(text)
+        if text: self.jig.name = str(text)
         
-        self.thermo.assy.w.win_update() # Update model tree
-        self.thermo.assy.changed()
+        self.jig.assy.w.win_update() # Update model tree
+        self.jig.assy.changed()
+        QDialog.accept(self)
+        
+    def reject(self):
+        '''Slot for the 'Cancel' button '''
+        self.jig.color = self.jig.normcolor = self.original_normcolor
+        self.glpane.gl_update()
+        QDialog.reject(self)

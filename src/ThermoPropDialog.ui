@@ -169,7 +169,7 @@
                                         </property>
                                         <widget class="QLabel">
                                             <property name="name">
-                                                <cstring>colorPixmapLabel</cstring>
+                                                <cstring>jig_color_pixmap</cstring>
                                             </property>
                                             <property name="sizePolicy">
                                                 <sizepolicy>
@@ -213,6 +213,9 @@
                                             </property>
                                             <property name="text">
                                                 <string>Choose...</string>
+                                            </property>
+                                            <property name="autoDefault">
+                                                <bool>false</bool>
                                             </property>
                                             <property name="toolTip" stdset="0">
                                                 <string>Change color</string>
@@ -302,10 +305,10 @@
                         <string>Alt+O</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                     <property name="default">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -325,7 +328,7 @@
                         <string>Alt+C</string>
                     </property>
                     <property name="autoDefault">
-                        <bool>true</bool>
+                        <bool>false</bool>
                     </property>
                     <property name="default">
                         <bool>false</bool>
@@ -357,7 +360,7 @@
         <sender>choose_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>ThermoPropDialog</receiver>
-        <slot>choose_color()</slot>
+        <slot>change_jig_color()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -368,7 +371,7 @@
     <tabstop>cancel_btn</tabstop>
 </tabstops>
 <slots>
-    <slot>choose_color()</slot>
+    <slot>change_jig_color()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
