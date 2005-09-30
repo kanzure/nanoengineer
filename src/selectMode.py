@@ -559,7 +559,7 @@ class selectAtomsMode(selectMode):
             from jigs_planes import ESPWindow
             
             if isinstance(grp, ESPWindow): 
-                m.highlightAtomChunks()
+                grp.highlightAtomChunks()
             elif isinstance(grp, Group):    
                 for m in grp.members:
                     if isinstance(m, ESPWindow):
