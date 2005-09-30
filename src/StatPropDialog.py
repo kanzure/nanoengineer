@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'StatPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\StatPropDialog.ui'
 #
-# Created: Tue Sep 13 16:00:28 2005
+# Created: Fri Sep 30 15:11:25 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -135,9 +135,9 @@ class StatPropDialog(QDialog):
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout80.addWidget(self.nameTextLabel)
 
-        self.nameTextLabel_2 = QLabel(self,"nameTextLabel_2")
-        self.nameTextLabel_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout80.addWidget(self.nameTextLabel_2)
+        self.temp_lbl = QLabel(self,"temp_lbl")
+        self.temp_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout80.addWidget(self.temp_lbl)
 
         self.molnameTextLabel = QLabel(self,"molnameTextLabel")
         self.molnameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
@@ -168,12 +168,12 @@ class StatPropDialog(QDialog):
         self.tempSpinBox.setValue(300)
         layout100.addWidget(self.tempSpinBox)
 
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout100.addWidget(self.textLabel1)
+        self.K_lbl = QLabel(self,"K_lbl")
+        self.K_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
+        layout100.addWidget(self.K_lbl)
         layout101.addLayout(layout100)
-        spacer16 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout101.addItem(spacer16)
+        temp_spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout101.addItem(temp_spacer)
         layout73.addLayout(layout101)
 
         self.molnameLineEdit = QLineEdit(self,"molnameLineEdit")
@@ -188,16 +188,17 @@ class StatPropDialog(QDialog):
 
         layout71 = QHBoxLayout(None,0,6,"layout71")
 
-        self.colorPixmapLabel = QLabel(self,"colorPixmapLabel")
-        self.colorPixmapLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.colorPixmapLabel.sizePolicy().hasHeightForWidth()))
-        self.colorPixmapLabel.setMinimumSize(QSize(40,0))
-        self.colorPixmapLabel.setPaletteBackgroundColor(QColor(0,0,0))
-        self.colorPixmapLabel.setScaledContents(1)
-        layout71.addWidget(self.colorPixmapLabel)
+        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
+        self.jig_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.jig_color_pixmap.sizePolicy().hasHeightForWidth()))
+        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
+        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(0,0,0))
+        self.jig_color_pixmap.setScaledContents(1)
+        layout71.addWidget(self.jig_color_pixmap)
 
         self.choose_color_btn = QPushButton(self,"choose_color_btn")
         self.choose_color_btn.setEnabled(1)
         self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
+        self.choose_color_btn.setAutoDefault(0)
         layout71.addWidget(self.choose_color_btn)
         layout72.addLayout(layout71)
         spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -214,13 +215,13 @@ class StatPropDialog(QDialog):
 
         self.ok_btn = QPushButton(self,"ok_btn")
         self.ok_btn.setMinimumSize(QSize(0,0))
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
         layout59.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setMinimumSize(QSize(0,0))
-        self.cancel_btn.setAutoDefault(1)
+        self.cancel_btn.setAutoDefault(0)
         self.cancel_btn.setDefault(0)
         layout59.addWidget(self.cancel_btn)
         StatPropDialogLayout.addLayout(layout59)
@@ -232,7 +233,7 @@ class StatPropDialog(QDialog):
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.choose_color)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
 
         self.setTabOrder(self.nameLineEdit,self.tempSpinBox)
         self.setTabOrder(self.tempSpinBox,self.molnameLineEdit)
@@ -244,11 +245,11 @@ class StatPropDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Stat Properties"))
         self.nameTextLabel.setText(self.__tr("Name :"))
-        self.nameTextLabel_2.setText(self.__tr("Temperature :"))
+        self.temp_lbl.setText(self.__tr("Temperature :"))
         self.molnameTextLabel.setText(self.__tr("Attached to :"))
         self.colorTextLabel.setText(self.__tr("Color :"))
         self.nameLineEdit.setText(QString.null)
-        self.textLabel1.setText(self.__tr("Kelvin"))
+        self.K_lbl.setText(self.__tr("Kelvin"))
         self.molnameLineEdit.setText(QString.null)
         self.choose_color_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.choose_color_btn,self.__tr("Change color"))
@@ -258,8 +259,8 @@ class StatPropDialog(QDialog):
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
-    def choose_color(self):
-        print "StatPropDialog.choose_color(): Not implemented yet"
+    def change_jig_color(self):
+        print "StatPropDialog.change_jig_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("StatPropDialog",s,c)

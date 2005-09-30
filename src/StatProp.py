@@ -7,61 +7,52 @@ $Id$
 
 from qt import *
 from StatPropDialog import *
-from VQT import V
+from widgets import RGBf_to_QColor, QColor_to_RGBf
 
 class StatProp(StatPropDialog):
     def __init__(self, stat, glpane):
 
         StatPropDialog.__init__(self)
-        self.stat = stat
+        self.jig = stat
         self.glpane = glpane
         self.setup()
 
     def setup(self):
-        stat = self.stat
         
-        self.originalColor = self.stat.normcolor
-        
-        self.nameLineEdit.setText(stat.name)
-        self.molnameLineEdit.setText(stat.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
-        self.tempSpinBox.setValue(int(stat.temp))
+        # Jig color
+        self.original_normcolor = self.jig.normcolor 
+        self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
+        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
 
-        self.colorPixmapLabel.setPaletteBackgroundColor(
-            QColor(int(stat.normcolor[0]*255), 
-                         int(stat.normcolor[1]*255), 
-                         int(stat.normcolor[2]*255)))
+        # Jig name
+        self.nameLineEdit.setText(self.jig.name)
         
-    def choose_color(self):
+        self.molnameLineEdit.setText(self.jig.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
+        self.tempSpinBox.setValue(int(self.jig.temp))
+        
+    def change_jig_color(self):
+        '''Slot method to change the jig's color.'''
+        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
 
-        color = QColorDialog.getColor(
-            QColor(int(self.stat.normcolor[0]*255), 
-                         int(self.stat.normcolor[1]*255), 
-                         int(self.stat.normcolor[2]*255)),
-                         self, "ColorDialog")
-                        
         if color.isValid():
-            self.colorPixmapLabel.setPaletteBackgroundColor(color)
-            self.stat.color = self.stat.normcolor = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            self.jig_color_pixmap.setPaletteBackgroundColor(color)
+            self.jig_QColor = color
+            self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
 
-    #################
-    # Cancel Button
-    #################
-    def reject(self):
-	    QDialog.reject(self)
-	    self.stat.color = self.stat.normcolor = self.originalColor
-	    self.glpane.gl_update()
-
-    #################
-    # OK Button
-    #################
     def accept(self):
+        '''Slot for the 'OK' button '''
+        text =  QString(self.nameLineEdit.text())
+        text = text.stripWhiteSpace() # make sure name is not just whitespaces
+        if text: self.jig.name = str(text)
+        self.jig.temp = self.tempSpinBox.value()
+        
+        self.jig.assy.w.win_update() # Update model tree
+        self.jig.assy.changed()
         QDialog.accept(self)
         
-        self.stat.temp = self.tempSpinBox.value()
-        text =  QString(self.nameLineEdit.text())        
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.stat.name = str(text)
-        
-        self.stat.assy.w.win_update() # Update model tree
-        self.stat.assy.changed()
+    def reject(self):
+        '''Slot for the 'Cancel' button '''
+        self.jig.color = self.jig.normcolor = self.original_normcolor
+        self.glpane.gl_update()
+        QDialog.reject(self)
