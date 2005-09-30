@@ -38,6 +38,14 @@ class RectGadget(Jig):
         if not READ_FROM_MMP:
             self.__init_quat_center(list)        
 
+
+    def setAtoms(self, atomlist):
+        """Override the version from Jig. Removed adding jig to atoms"""
+        if self.atoms:
+            print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
+            #e remove them? would need to prevent recursive kill.
+        self.atoms = list(atomlist) # bruce 050316: copy the list
+        
         
     def __init_quat_center(self, list):
         
@@ -84,6 +92,12 @@ class RectGadget(Jig):
         
     def rot(self, q):
         self.quat += q
+
+        
+    def needs_atoms_to_survive(self): # [Huaicai 9/30/05]
+        '''Overrided method inherited from Jig. This is used to tell if the jig can be copied even
+           it doesn't have atoms.'''
+        return False
     
         
     def _getPlaneOrientation(self, atomPos):
@@ -140,18 +154,18 @@ class RectGadget(Jig):
             # clean up weird color attribute situation (since copy is not picked)
             # by modifying color attrs as if we unpicked the copy
             self.color = self.normcolor
-        nuats = []
-        for atom in orig.atoms:
-            nuat = mapping.mapper(atom)
-            if nuat is not None:
-                nuats.append(nuat)
-        if len(nuats) < len(orig.atoms) and not self.name.endswith('-frag'): # similar code is in chunk, both need improving
-            self.name += '-frag'
-        if nuats or not self.needs_atoms_to_survive():
-            self.setAtoms(nuats)
-        ###else:
-            #bruce 050704 to fix bug 743
-        ###    self.kill()
+        #nuats = []
+        #for atom in orig.atoms:
+            #nuat = mapping.mapper(atom)
+            #if nuat is not None:
+                #nuats.append(nuat)
+        #if len(nuats) < len(orig.atoms) and not self.name.endswith('-frag'): # similar code is in chunk, both need improving
+            #self.name += '-frag'
+        #if nuats or not self.needs_atoms_to_survive():
+            #self.setAtoms(nuats)
+        #else:
+            ##bruce 050704 to fix bug 743
+            #self.kill()
         #e jig classes with atom-specific info would have to do more now... we could call a 2nd method here...
         # or use list of classnames to search for more and more specific methods to call...
         # or just let subclasses extend this method in the usual way (maybe not doing those dels above).
@@ -163,7 +177,7 @@ class RectGadget(Jig):
         
 class GridPlane(RectGadget):
     ''' '''
-    mutable_attrs = ('color', 'grid_color')
+    mutable_attrs = ('grid_color', )
     copyable_attrs = RectGadget.copyable_attrs + ('line_type', 'grid_type', 'x_spacing', 'y_spacing') + mutable_attrs
     
     sym = "Grid Plane"
@@ -233,7 +247,7 @@ class GridPlane(RectGadget):
 
 class ESPWindow(RectGadget):
     ''' '''
-    mutable_attrs = ('fill_color', 'color')
+    mutable_attrs = ('fill_color', )
     copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'opacity', 'show_esp_bbox', 'window_offset', 'edge_offset') + mutable_attrs
     
     sym = "ESP Window"
@@ -260,7 +274,8 @@ class ESPWindow(RectGadget):
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
         self.opacity = 0.6
         self.textureReady = False # Flag if texture image is ready or not
-        self.highlightChecked = False
+        self.highlightChecked = False # Flag if highlight is turned on or off
+    
         
     def _initTextureEnv(self):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)

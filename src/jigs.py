@@ -1033,6 +1033,9 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickatoms()
         self.place_new_jig(m)
         
+        #After placing the jig, remove the atom list from the jig.
+        m.atoms = []
+      
         env.history.message(cmd + "Grid Plane created")
         self.assy.w.win_update()
         
@@ -1055,8 +1058,13 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickatoms()
         self.place_new_jig(m)
         
+        #After placing the jig, remove the atom list from the jig.
+        m.atoms = []
+        
         env.history.message(cmd + "ESP Window created.")
         self.assy.w.win_update()
+   
+        
         
     def makeAtomSet(self):
         cmd = greenmsg("Atom Set: ")
