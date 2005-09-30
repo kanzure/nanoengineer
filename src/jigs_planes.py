@@ -74,11 +74,9 @@ class RectGadget(Jig):
         else:
             raise AttributeError, 'Grid Plane has no "%s"' % name
 
-
     def getaxis(self):
-        return self.quat.rot(V(1, 0, 0))#norm(self.planeNorm))
-
-
+        return self.planeNorm # Axis is perpendicular to plane of jig.  Mark 050930
+        
     def move(self, offset):
         '''Move the plane by <offset>, which is a 'V' object. '''
         self.center += offset
@@ -299,7 +297,24 @@ class ESPWindow(RectGadget):
         
         self.opacity = trans;  self.fill_color = fill_color
         self.show_esp_bbox = show_bbox; self.window_offset = win_offset; self.edge_offset = edge_offset
-    
+
+    def _getinfo(self):
+        
+        c = self.center * 1e-10
+        ctr_pt = (float(c[0]), float(c[1]), float(c[2]))
+        centerPoint = '%1.1e %1.1e %1.1e' % ctr_pt
+        
+        n = c + (self.planeNorm * 1e-10)
+        np = (float(n[0]), float(n[1]), float(n[2]))
+        normalPoint = '%1.1e %1.1e %1.1e' % np
+        
+        return  "[Object: ESP Window] [Name: " + str(self.name) + "] " + \
+                    "[centerPoint = " + centerPoint + "] " + \
+                    "[normalPoint = " + normalPoint + "]"
+
+# Need to add stats for this jig type (and the GridPlane, too.) Mark 050930.        
+#    def getstatistics(self, stats):
+#        stats.nespwin += 1    
       
     def set_cntl(self):
         from ESPWindowProp import ESPWindowProp
@@ -374,8 +389,18 @@ class ESPWindow(RectGadget):
             wo = self.window_offset
             eo = self.edge_offset
             drawwirecube(self.color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo), 1.0) #drawwirebox
+            
+            # This is for debugging purposes.  This draws a green normal vector using
+            # local space coords.  Mark 050930
+            if 0:
+                drawline(green, V(0.0, 0.0, 0.0), V(0.0, 0.0, 1.0), 0, 3)
 
         glPopMatrix()
+        
+        # This is for debugging purposes. This draws a yellow normal vector using 
+        # model space coords.  Mark 050930
+        if 0:
+            drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
  
  
     def mmp_record_jigspecific_midpart(self):
