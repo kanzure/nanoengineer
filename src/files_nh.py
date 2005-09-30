@@ -142,13 +142,13 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     centerPoint = (float(cpnt[0]), float(cpnt[1]), float(cpnt[2]))
     #print "ESP Window CenterPoint =", centerPoint
         
-    npnt = esp_window.getaxis() * 1e-10
+    npnt = cpnt + (esp_window.planeNorm  * 1e-10)
     
     # This is a temporary workaround until Brian fixes the normalPoint Y value issue (must be positive).
     # This forces ESP Windows to be oriented in the X-Z plane until it is fixed.
     # Mark 050927.
-    normalPoint = (float(npnt[0]), 0.5, float(npnt[2])) 
-    # normalPoint = (float(npnt[0]), float(abs(npnt[1])), float(npnt[2])) # KEEP THIS!!!
+    # normalPoint = (0.0, 0.0, 1.0) + cpnt
+    normalPoint = (float(npnt[0]), float(npnt[1]), float(npnt[2])) # KEEP THIS!!!
     #print "ESP Window NormalPoint =", normalPoint
         
     resolution = esp_window.resolution
