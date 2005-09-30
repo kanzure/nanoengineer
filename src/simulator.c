@@ -1062,7 +1062,7 @@ calcloop(int iters) {
 }
 
 
-static int groundExists = 1;
+static int groundExists = 0;
 
 static void
 groundAtoms(struct xyz *oldPosition, struct xyz *newPosition) 
@@ -1073,13 +1073,11 @@ groundAtoms(struct xyz *oldPosition, struct xyz *newPosition)
     if (groundExists) {
 	for (j=0;j<Nexcon;j++) {	/* for each constraint */
 	    if (Constraint[j].type == CODEground) { /* welded to space */
-                foundAGround = 1;
 		for (k=0; k<Constraint[j].natoms; k++) {
 		    newPosition[Constraint[j].atoms[k]] = oldPosition[Constraint[j].atoms[k]];
 		}
 	    }
         }
-        groundExists = foundAGround ;
     }
 }
 
@@ -1123,7 +1121,7 @@ jigMotorMinimize(int j, struct xyz *position, struct xyz *force)
     }
 }
 
-static int motorExists = 1;
+static int motorExists = 0;
 
 static void
 minimizeMotorJigs(struct xyz *position, struct xyz *force)
@@ -1134,11 +1132,37 @@ minimizeMotorJigs(struct xyz *position, struct xyz *force)
     if (motorExists) {
 	for (j=0;j<Nexcon;j++) {	/* for each constraint */
 	    if (Constraint[j].type == CODEmotor) {
-                foundAMotor = 1;
                 jigMotorMinimize(j, position, force);
 	    }
         }
-        motorExists = foundAMotor;
+    }
+}
+
+static void
+flagJigAtoms()
+{
+    int j, k;
+    struct MOT *mot;
+
+    motorExists = 0;
+    groundExists = 0;
+
+    for (j=0;j<Nexcon;j++) {	/* for each constraint */
+        if (Constraint[j].type == CODEmotor) {
+            mot=Constraint[j].motor;
+            if (mot->speed==0.0) { // just add torque to force
+                motorExists = 1;
+                for (k=0; k<Constraint[j].natoms; k++) {
+                    atom[Constraint[j].atoms[k]].inJig = 1;
+                }
+            }
+        }
+        if (Constraint[j].type == CODEground) { /* welded to space */
+            groundExists = 1;
+            for (k=0; k<Constraint[j].natoms; k++) {
+                atom[Constraint[j].atoms[k]].inJig = 1;
+            }
+        }
     }
 }
 
@@ -1237,6 +1261,10 @@ minimizeSteepestDescent(int steepestDescentFrames,
     double movfac = 1.5;
     double xxx, yyy;
     double sum_newforceSquared;
+
+    // set atom[j].inJig for any atoms that we should ignore the force
+    // on for our rms_force calculations
+    flagJigAtoms();
     
     // 2 fixed steps to initialize
     for (i=0; i<2; i++) {
@@ -1246,9 +1274,11 @@ minimizeSteepestDescent(int steepestDescentFrames,
         minimizeMotorJigs(Positions, Force);
 	for (j=0; j<Nexatom; j++) {
 	    f = Force[j];
-	    forceSquared = vdot(f,f);
-	    sum_forceSquared += forceSquared;
-	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+            if (!atom[j].inJig) {
+                forceSquared = vdot(f,f);
+                sum_forceSquared += forceSquared;
+                if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+            }
 	    vmulc(f, movcon);
 	    vadd2(NewPositions[j], Positions[j], f);
 	}
@@ -1267,10 +1297,12 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	calculateForces(0, Positions, Force);
         minimizeMotorJigs(Positions, Force);
 	for (j=0; j<Nexatom; j++) {
-	    f= Force[j];
-	    forceSquared = vdot(f,f);
-	    if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
-	    sum_forceSquared += forceSquared;
+            if (!atom[j].inJig) {
+                f= Force[j];
+                forceSquared = vdot(f,f);
+                if (forceSquared>max_forceSquared) max_forceSquared = forceSquared;
+                sum_forceSquared += forceSquared;
+            }
 	}
 	rms_force = sqrt(sum_forceSquared/Nexatom);
 
@@ -1289,11 +1321,15 @@ minimizeSteepestDescent(int steepestDescentFrames,
 		vmulc(f, movcon);
 		vadd2(NewPositions[j], Positions[j], f);
 	    }
+            groundAtoms(Positions, NewPositions);
 	    calculateForces(0, NewPositions, newForce);
             minimizeMotorJigs(NewPositions, newForce);
-	    for (j=0, sum_newforceSquared=0.0; j<Nexatom; j++) {
-		f= newForce[j];
-		sum_newforceSquared += vdot(f,f);
+            sum_newforceSquared = 0.0;
+	    for (j=0; j<Nexatom; j++) {
+                if (!atom[j].inJig) {
+                    f= newForce[j];
+                    sum_newforceSquared += vdot(f,f);
+                }
 	    }
 	}
 
@@ -1330,12 +1366,14 @@ double fSquare(struct xyz *force, double *max_forceSquared) {
 
     *max_forceSquared = 0.0;
     for (j=0, val=0.0; j<Nexatom; j++) {
-	f= force[j];
-        forceSquared = vdot(f,f);
-        if (forceSquared > *max_forceSquared) {
-            *max_forceSquared = forceSquared;
+        if (!atom[j].inJig) {
+            f= force[j];
+            forceSquared = vdot(f,f);
+            if (forceSquared > *max_forceSquared) {
+                *max_forceSquared = forceSquared;
+            }
+            val += forceSquared;
         }
-	val += forceSquared;
     }
     return val;
 }
@@ -1519,8 +1557,9 @@ originalMinimize(int numFrames)
     fprintf(tracef,"\n# rms force, high force\n");
 
     if (minimizeSteepestDescent(steepestDescentFrames, &frameNumber)) {
-        minimizeConjugateGradients(conjugateGradientFrames, &frameNumber);
-    } else {
+        if (!groundExists &&  !motorExists) {
+            minimizeConjugateGradients(conjugateGradientFrames, &frameNumber);
+        }
     }
     doneExit(0, tracef, "Minimization final rms: %f, highForce: %f",
              best_rms, sqrt(best_max_forceSquared));

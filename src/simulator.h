@@ -65,7 +65,7 @@ struct A {
     double massacc;         /* times force to get acceleration */
     double energ, vlim;             /* thermostat factors */
     struct A *next, **bucket;       /* sep chaining for space buckets */
-    struct AXLE *constraint;        /* only one per atom */
+    int inJig;                // non-zero if this atom is attached to a jig (only updated in minimize)
 };
 
 /* a (stretch) bond.   */
