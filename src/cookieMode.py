@@ -674,7 +674,17 @@ class cookieMode(basicMode):
         if self.o.shape: self.o.shape.draw(self.o, self.layerColors)
         if self.showFullModel:
             self.o.assy.draw(self.o)
+    
+    
+    def Draw_after_highlighting(self): 
+        """This needs to cooperate with the 'showFullModel' flag.
+        """
+        # This method should be put in extrude mode too---Huaicai
+        if self.showFullModel:
+            basicMode.Draw_after_highlighting(self)
+        return
 
+    
     def griddraw(self):
         """Assigned as griddraw for a diamond lattice grid that is fixed in
         space but cut out into a slab one nanometer thick parallel to the 
