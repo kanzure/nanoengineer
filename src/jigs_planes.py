@@ -18,6 +18,7 @@ from HistoryWidget import redmsg, greenmsg
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
+from ImageUtils import getTextureData
 
 # == RectGadget
 
@@ -263,7 +264,7 @@ class ESPWindow(RectGadget):
         
         # This specifies the resolution of the ESP Window. 
         # The total number of ESP data points in the window will number resolution^2. 
-        self.resolution = 128
+        self.resolution = 32 # Keep it small so sim run doesn't take so long. Mark 050930.
         # Show/Hide ESP Window Volume (Bbox).  All atoms inside this volume are used by 
         # the MPQC ESP Plane plug-in to calculate the ESP points.
         self.show_esp_bbox = True
@@ -275,7 +276,8 @@ class ESPWindow(RectGadget):
         self.opacity = 0.6
         self.textureReady = False # Flag if texture image is ready or not
         self.highlightChecked = False # Flag if highlight is turned on or off
-    
+        self.xaxis_orient = 0 # ESP Image X Axis orientation
+        self.yaxis_orient = 0 # ESP Image Y Axis orientation
         
     def _initTextureEnv(self):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
@@ -289,7 +291,8 @@ class ESPWindow(RectGadget):
 
     def _loadTexture(self, fileName):
         '''Load the texture image '''
-        ix, iy, image  = getTextureData(fileName) 
+        
+        ix, iy, image, self.image_obj  = getTextureData(fileName) 
     
         # Create Texture
         glBindTexture(GL_TEXTURE_2D, glGenTextures(1))   # 2d texture (x and y size)
@@ -317,11 +320,11 @@ class ESPWindow(RectGadget):
         
         c = self.center * 1e-10
         ctr_pt = (float(c[0]), float(c[1]), float(c[2]))
-        centerPoint = '%1.1e %1.1e %1.1e' % ctr_pt
+        centerPoint = '%1.2e %1.2e %1.2e' % ctr_pt
         
         n = c + (self.planeNorm * 1e-10)
         np = (float(n[0]), float(n[1]), float(n[2]))
-        normalPoint = '%1.1e %1.1e %1.1e' % np
+        normalPoint = '%1.2e %1.2e %1.2e' % np
         
         return  "[Object: ESP Window] [Name: " + str(self.name) + "] " + \
                     "[centerPoint = " + centerPoint + "] " + \
@@ -374,9 +377,9 @@ class ESPWindow(RectGadget):
         for m in atomChunks:
             if isinstance(m, molecule):
                 for a in m.atoms.itervalues():
-                    a.overdraw_with_special_color(green)
+                    a.overdraw_with_special_color(ave_colors( 0.8, green, black))
             else:
-                m.overdraw_with_special_color(green)
+                m.overdraw_with_special_color(ave_colors( 0.8, green, black))
     
     def edit(self):
         '''Force into 'Select Atom' mode before open the dialog '''
@@ -444,6 +447,10 @@ class ESPWindow(RectGadget):
         
         cmd = greenmsg("Calculate ESP: ")
         
+        errmsgs = ["Error: Couldn't connect to Nano-Hive instance.",
+                            "Error: Load command failed.",
+                            "Error: Run command failed"]
+        
         sim_parms = self.get_sim_parms()
         sims_to_run = ["MPQC_ESP"]
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
@@ -452,10 +459,16 @@ class ESPWindow(RectGadget):
         results_file = os.path.join(find_or_make_Nanorex_subdir("Nano-Hive"), self.name + ".png")
         
         from NanoHiveUtils import run_nh_simulation
-        run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
+        r = run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
         
-        info = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, results_file) 
-        env.history.message( cmd + info ) 
+        if r:
+            #msg = redmsg("Error: Couldn't connect to Nano-Hive instance.")
+            msg = redmsg(errmsgs[r-1])
+            env.history.message( cmd + msg )
+            return
+            
+        msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, results_file) 
+        env.history.message( cmd + msg ) 
         self.assy.w.win_update()
         
         return
@@ -466,33 +479,67 @@ class ESPWindow(RectGadget):
     
     def __CM_Load_ESP_Image(self):
         '''Method for "Calculate ESP" context menu'''
+        self.load_esp_image()
+        
+    def load_esp_image(self, load_new_image = False):
+        '''Load the ESP (.png) image file, which will have the same name as the Jig.
+        If the jig's name is "ESP Window.1", the image will be called 
+        "ESP Window.1.png", located in the ~/Nanorex/Nano-Hive directory.
+        
+        If the file does not exist, or if load_new_image is True, the
+        user will be prompted to load an image.
+        
+        Returns the name of the image file loaded.  None is returned if
+        no image was loaded.
+        '''
+        
+        # It would be a good idea to add the image filename as a attribute of the ESP Window
+        # jig object.  This would require including the filename in the MMP record for the jig,
+        # probably as an "info" record. Before doing this, I want to discuss it with Bruce.
+        # Mark 051003
+        
+        cmd = greenmsg("Load ESP Image: ")
+        
         from platform import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         png_name = os.path.join(nhdir,self.name+".png")
         print png_name
     
-        if not self.textureReady:
-            if not os.path.exists(png_name):
-                QMessageBox.warning( self.assy.w, "Warnings:", \
-                    "The image file doesn't exist, please choose another one.", \
+        if not os.path.exists(png_name) or load_new_image:
+            
+            if not load_new_image:
+                QMessageBox.warning( self.assy.w, "ESP Image Not Found", \
+                    "The ESP image file:\n" + png_name + "\ndoes not exist.\n\nPlease choose a different one.", \
                     QMessageBox.Ok, QMessageBox.NoButton)
               
-                odir = globalParms['WorkingDirectory']
+            # odir = globalParms['WorkingDirectory']
     
-                fn = QFileDialog.getOpenFileName(odir, \
+            fn = QFileDialog.getOpenFileName(nhdir, \
                     "All Files (*.png *.jpg *.gif *.bmp);;", self.assy.w )
                 
-                png_name = str(fn)        
+            png_name = str(fn)        
             
-                if not fn:
-                    env.history.message("Cancelled.")
-                    return
+            if not fn:
+                env.history.message("Cancelled.")
+                return None
         
-            self._loadTexture(png_name)
-        
-        else: 
-            self.textureReady = False
+        self._loadTexture(png_name)
         
         self.assy.o.gl_update()
+        
+        # Bug fix 1041-1.  Mark 051003
+        msg = "ESP image loaded: [" + png_name + "]"
+        env.history.message(cmd + msg)
+        
+        return png_name
+        
+    def clear_esp_image(self):
+        '''Clears the image in the ESP Window.'''
+        self.textureReady = False
+        self.assy.o.gl_update()
+        
+    def flip_esp_image(self):
+        self.image_obj = ImageOps.flip(self.image_obj)
+        
     
     pass # end of class ESPWindow       

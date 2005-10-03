@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ESPWindowPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ESPWindowPropDialog.ui'
 #
-# Created: Wed Sep 28 15:20:03 2005
+# Created: Sun Oct 2 15:06:43 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,9 +55,47 @@ class ESPWindowPropDialog(QDialog):
 
         self.setIcon(self.image0)
 
-        ESPWindowPropDialogLayout = QVBoxLayout(self,11,6,"ESPWindowPropDialogLayout")
+        ESPWindowPropDialogLayout = QGridLayout(self,1,1,11,6,"ESPWindowPropDialogLayout")
 
-        layout18 = QHBoxLayout(None,0,6,"layout18")
+        self.groupBox1 = QGroupBox(self,"groupBox1")
+        self.groupBox1.setColumnLayout(0,Qt.Vertical)
+        self.groupBox1.layout().setSpacing(6)
+        self.groupBox1.layout().setMargin(11)
+        groupBox1Layout = QVBoxLayout(self.groupBox1.layout())
+        groupBox1Layout.setAlignment(Qt.AlignTop)
+
+        self.show_esp_bbox_checkbox = QCheckBox(self.groupBox1,"show_esp_bbox_checkbox")
+        self.show_esp_bbox_checkbox.setChecked(1)
+        groupBox1Layout.addWidget(self.show_esp_bbox_checkbox)
+
+        self.highlight_atoms_in_bbox_checkbox = QCheckBox(self.groupBox1,"highlight_atoms_in_bbox_checkbox")
+        self.highlight_atoms_in_bbox_checkbox.setChecked(0)
+        groupBox1Layout.addWidget(self.highlight_atoms_in_bbox_checkbox)
+
+        self.select_atoms_btn = QPushButton(self.groupBox1,"select_atoms_btn")
+        self.select_atoms_btn.setAutoDefault(0)
+        groupBox1Layout.addWidget(self.select_atoms_btn)
+
+        ESPWindowPropDialogLayout.addWidget(self.groupBox1,1,0)
+
+        layout30 = QHBoxLayout(None,0,6,"layout30")
+        spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout30.addItem(spacer1)
+
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setMinimumSize(QSize(0,30))
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
+        layout30.addWidget(self.ok_btn)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setMinimumSize(QSize(0,30))
+        self.cancel_btn.setAutoDefault(0)
+        layout30.addWidget(self.cancel_btn)
+
+        ESPWindowPropDialogLayout.addLayout(layout30,4,0)
+
+        layout87 = QHBoxLayout(None,0,6,"layout87")
 
         layout17 = QVBoxLayout(None,0,6,"layout17")
 
@@ -92,19 +130,19 @@ class ESPWindowPropDialog(QDialog):
         self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
         self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout17.addWidget(self.textLabel1_2_2)
-        layout18.addLayout(layout17)
+        layout87.addLayout(layout17)
 
-        layout16 = QVBoxLayout(None,0,6,"layout16")
+        layout86 = QVBoxLayout(None,0,6,"layout86")
 
         self.name_linedit = QLineEdit(self,"name_linedit")
         self.name_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.name_linedit.setFrameShadow(QLineEdit.Sunken)
         self.name_linedit.setAlignment(QLineEdit.AlignLeft)
-        layout16.addWidget(self.name_linedit)
+        layout86.addWidget(self.name_linedit)
 
-        layout15 = QHBoxLayout(None,0,6,"layout15")
+        layout85 = QHBoxLayout(None,0,6,"layout85")
 
-        layout14 = QVBoxLayout(None,0,6,"layout14")
+        layout84 = QVBoxLayout(None,0,6,"layout84")
 
         layout48 = QHBoxLayout(None,0,6,"layout48")
 
@@ -123,7 +161,7 @@ class ESPWindowPropDialog(QDialog):
         layout48.addWidget(self.choose_fill_color_btn)
         spacer14 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout48.addItem(spacer14)
-        layout14.addLayout(layout48)
+        layout84.addLayout(layout48)
 
         layout47 = QHBoxLayout(None,0,6,"layout47")
 
@@ -142,7 +180,7 @@ class ESPWindowPropDialog(QDialog):
         layout47.addWidget(self.choose_border_color_btn)
         spacer17 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout47.addItem(spacer17)
-        layout14.addLayout(layout47)
+        layout84.addLayout(layout47)
 
         layout46 = QHBoxLayout(None,0,6,"layout46")
 
@@ -156,7 +194,7 @@ class ESPWindowPropDialog(QDialog):
         layout46.addWidget(self.textLabel2)
         spacer18 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout46.addItem(spacer18)
-        layout14.addLayout(layout46)
+        layout84.addLayout(layout46)
 
         layout46_2 = QHBoxLayout(None,0,6,"layout46_2")
 
@@ -170,7 +208,7 @@ class ESPWindowPropDialog(QDialog):
         layout46_2.addWidget(self.textLabel2_2)
         spacer18_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout46_2.addItem(spacer18_2)
-        layout14.addLayout(layout46_2)
+        layout84.addLayout(layout46_2)
 
         layout46_3 = QHBoxLayout(None,0,6,"layout46_3")
 
@@ -184,7 +222,7 @@ class ESPWindowPropDialog(QDialog):
         layout46_3.addWidget(self.textLabel2_3)
         spacer18_3 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout46_3.addItem(spacer18_3)
-        layout14.addLayout(layout46_3)
+        layout84.addLayout(layout46_3)
 
         layout13 = QHBoxLayout(None,0,6,"layout13")
 
@@ -195,66 +233,104 @@ class ESPWindowPropDialog(QDialog):
         layout13.addWidget(self.resolution_spinbox)
         spacer16 = QSpacerItem(95,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout13.addItem(spacer16)
-        layout14.addLayout(layout13)
+        layout84.addLayout(layout13)
 
-        layout13_2 = QHBoxLayout(None,0,6,"layout13_2")
+        layout83 = QHBoxLayout(None,0,6,"layout83")
 
-        self.opacity_spinbox = QSpinBox(self,"opacity_spinbox")
-        self.opacity_spinbox.setMaxValue(255)
-        self.opacity_spinbox.setMinValue(0)
-        self.opacity_spinbox.setValue(20)
-        layout13_2.addWidget(self.opacity_spinbox)
-        spacer16_2 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout13_2.addItem(spacer16_2)
-        layout14.addLayout(layout13_2)
-        layout15.addLayout(layout14)
+        self.opacity_linedit = QLineEdit(self,"opacity_linedit")
+        self.opacity_linedit.setMaximumSize(QSize(40,32767))
+        self.opacity_linedit.setMaxLength(5)
+        self.opacity_linedit.setReadOnly(1)
+        layout83.addWidget(self.opacity_linedit)
+
+        self.opacity_slider = QSlider(self,"opacity_slider")
+        self.opacity_slider.setMaxValue(100)
+        self.opacity_slider.setOrientation(QSlider.Horizontal)
+        layout83.addWidget(self.opacity_slider)
+        layout84.addLayout(layout83)
+        layout85.addLayout(layout84)
         spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout15.addItem(spacer19)
-        layout16.addLayout(layout15)
-        layout18.addLayout(layout16)
-        ESPWindowPropDialogLayout.addLayout(layout18)
+        layout85.addItem(spacer19)
+        layout86.addLayout(layout85)
+        layout87.addLayout(layout86)
 
-        self.groupBox1 = QGroupBox(self,"groupBox1")
-        self.groupBox1.setColumnLayout(0,Qt.Vertical)
-        self.groupBox1.layout().setSpacing(6)
-        self.groupBox1.layout().setMargin(11)
-        groupBox1Layout = QVBoxLayout(self.groupBox1.layout())
-        groupBox1Layout.setAlignment(Qt.AlignTop)
+        ESPWindowPropDialogLayout.addLayout(layout87,0,0)
+        spacer5 = QSpacerItem(101,20,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
+        ESPWindowPropDialogLayout.addItem(spacer5,3,0)
 
-        self.show_esp_bbox_checkbox = QCheckBox(self.groupBox1,"show_esp_bbox_checkbox")
-        self.show_esp_bbox_checkbox.setChecked(1)
-        groupBox1Layout.addWidget(self.show_esp_bbox_checkbox)
+        self.groupBox5 = QGroupBox(self,"groupBox5")
+        self.groupBox5.setColumnLayout(0,Qt.Vertical)
+        self.groupBox5.layout().setSpacing(6)
+        self.groupBox5.layout().setMargin(11)
+        groupBox5Layout = QGridLayout(self.groupBox5.layout())
+        groupBox5Layout.setAlignment(Qt.AlignTop)
 
-        self.highlight_atoms_in_bbox_checkbox = QCheckBox(self.groupBox1,"highlight_atoms_in_bbox_checkbox")
-        self.highlight_atoms_in_bbox_checkbox.setChecked(1)
-        groupBox1Layout.addWidget(self.highlight_atoms_in_bbox_checkbox)
+        self.choose_file_btn = QToolButton(self.groupBox5,"choose_file_btn")
 
-        self.select_atoms_btn = QPushButton(self.groupBox1,"select_atoms_btn")
-        self.select_atoms_btn.setAutoDefault(0)
-        groupBox1Layout.addWidget(self.select_atoms_btn)
-        ESPWindowPropDialogLayout.addWidget(self.groupBox1)
-        spacer5 = QSpacerItem(101,30,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
-        ESPWindowPropDialogLayout.addItem(spacer5)
+        groupBox5Layout.addWidget(self.choose_file_btn,2,6)
 
-        layout30 = QHBoxLayout(None,0,6,"layout30")
-        spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout30.addItem(spacer1)
+        self.mirror_btn = QToolButton(self.groupBox5,"mirror_btn")
 
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setMinimumSize(QSize(0,30))
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
-        layout30.addWidget(self.ok_btn)
+        groupBox5Layout.addWidget(self.mirror_btn,3,4)
+        spacer29 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox5Layout.addMultiCell(spacer29,3,3,5,6)
 
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setMinimumSize(QSize(0,30))
-        self.cancel_btn.setAutoDefault(0)
-        layout30.addWidget(self.cancel_btn)
-        ESPWindowPropDialogLayout.addLayout(layout30)
+        self.rotate_cw_btn = QToolButton(self.groupBox5,"rotate_cw_btn")
+
+        groupBox5Layout.addWidget(self.rotate_cw_btn,3,0)
+
+        self.png_fname_linedit = QLineEdit(self.groupBox5,"png_fname_linedit")
+        self.png_fname_linedit.setReadOnly(0)
+
+        groupBox5Layout.addMultiCellWidget(self.png_fname_linedit,2,2,0,5)
+
+        self.rotate_ccw_btn = QToolButton(self.groupBox5,"rotate_ccw_btn")
+
+        groupBox5Layout.addMultiCellWidget(self.rotate_ccw_btn,3,3,1,2)
+
+        self.flip_btn = QToolButton(self.groupBox5,"flip_btn")
+
+        groupBox5Layout.addWidget(self.flip_btn,3,3)
+
+        self.calculate_esp_btn = QPushButton(self.groupBox5,"calculate_esp_btn")
+        self.calculate_esp_btn.setAutoDefault(0)
+
+        groupBox5Layout.addMultiCellWidget(self.calculate_esp_btn,0,0,0,3)
+
+        self.clear_btn = QToolButton(self.groupBox5,"clear_btn")
+
+        groupBox5Layout.addMultiCellWidget(self.clear_btn,1,1,2,3)
+
+        self.load_btn = QToolButton(self.groupBox5,"load_btn")
+
+        groupBox5Layout.addMultiCellWidget(self.load_btn,1,1,0,1)
+
+        self.textLabel1_6 = QLabel(self.groupBox5,"textLabel1_6")
+
+        groupBox5Layout.addMultiCellWidget(self.textLabel1_6,0,0,4,5)
+
+        self.textLabel1_6_2 = QLabel(self.groupBox5,"textLabel1_6_2")
+
+        groupBox5Layout.addMultiCellWidget(self.textLabel1_6_2,1,1,4,5)
+
+        self.xaxis_spinbox = QSpinBox(self.groupBox5,"xaxis_spinbox")
+        self.xaxis_spinbox.setMaxValue(1)
+        self.xaxis_spinbox.setMinValue(-1)
+
+        groupBox5Layout.addWidget(self.xaxis_spinbox,0,6)
+
+        self.yaxis_spinbox = QSpinBox(self.groupBox5,"yaxis_spinbox")
+        self.yaxis_spinbox.setMaxValue(1)
+        self.yaxis_spinbox.setMinValue(-1)
+        self.yaxis_spinbox.setValue(0)
+
+        groupBox5Layout.addWidget(self.yaxis_spinbox,1,6)
+
+        ESPWindowPropDialogLayout.addWidget(self.groupBox5,2,0)
 
         self.languageChange()
 
-        self.resize(QSize(294,461).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(281,592).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -267,7 +343,17 @@ class ESPWindowPropDialog(QDialog):
         self.connect(self.show_esp_bbox_checkbox,SIGNAL("toggled(bool)"),self.show_esp_bbox)
         self.connect(self.select_atoms_btn,SIGNAL("clicked()"),self.select_atoms_inside_esp_bbox)
         self.connect(self.highlight_atoms_in_bbox_checkbox,SIGNAL("toggled(bool)"),self.highlight_atoms_in_bbox)
-        self.connect(self.opacity_spinbox,SIGNAL("valueChanged(int)"),self.opacityChanged)
+        self.connect(self.calculate_esp_btn,SIGNAL("clicked()"),self.calculate_esp)
+        self.connect(self.rotate_cw_btn,SIGNAL("clicked()"),self.rotate_90)
+        self.connect(self.rotate_ccw_btn,SIGNAL("clicked()"),self.rotate_neg_90)
+        self.connect(self.flip_btn,SIGNAL("clicked()"),self.flip_esp_image)
+        self.connect(self.mirror_btn,SIGNAL("clicked()"),self.mirror_esp_image)
+        self.connect(self.opacity_slider,SIGNAL("valueChanged(int)"),self.change_opacity)
+        self.connect(self.choose_file_btn,SIGNAL("clicked()"),self.change_esp_image)
+        self.connect(self.load_btn,SIGNAL("clicked()"),self.load_esp_image)
+        self.connect(self.clear_btn,SIGNAL("clicked()"),self.clear_esp_image)
+        self.connect(self.xaxis_spinbox,SIGNAL("valueChanged(int)"),self.change_xaxisOrient)
+        self.connect(self.yaxis_spinbox,SIGNAL("valueChanged(int)"),self.change_yaxisOrient)
 
         self.setTabOrder(self.name_linedit,self.choose_fill_color_btn)
         self.setTabOrder(self.choose_fill_color_btn,self.choose_border_color_btn)
@@ -275,8 +361,7 @@ class ESPWindowPropDialog(QDialog):
         self.setTabOrder(self.width_spinbox,self.window_offset_spinbox)
         self.setTabOrder(self.window_offset_spinbox,self.edge_offset_spinbox)
         self.setTabOrder(self.edge_offset_spinbox,self.resolution_spinbox)
-        self.setTabOrder(self.resolution_spinbox,self.opacity_spinbox)
-        self.setTabOrder(self.opacity_spinbox,self.show_esp_bbox_checkbox)
+        self.setTabOrder(self.resolution_spinbox,self.show_esp_bbox_checkbox)
         self.setTabOrder(self.show_esp_bbox_checkbox,self.highlight_atoms_in_bbox_checkbox)
         self.setTabOrder(self.highlight_atoms_in_bbox_checkbox,self.select_atoms_btn)
         self.setTabOrder(self.select_atoms_btn,self.ok_btn)
@@ -285,6 +370,14 @@ class ESPWindowPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("ESP Window Properties"))
+        self.groupBox1.setTitle(self.__tr("ESP Window Volume"))
+        self.show_esp_bbox_checkbox.setText(self.__tr("Show Bounding Box of Volume"))
+        self.highlight_atoms_in_bbox_checkbox.setText(self.__tr("Highlight Atoms Inside Volume"))
+        self.select_atoms_btn.setText(self.__tr("Select Atoms Inside Volume"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
         self.textLabel1_4.setText(self.__tr("Name :"))
         self.colorTextLabel_3.setText(self.__tr("Fill Color :"))
         self.colorTextLabel_4.setText(self.__tr("Border Color :"))
@@ -301,14 +394,17 @@ class ESPWindowPropDialog(QDialog):
         self.textLabel2.setText(self.__tr("Angstroms"))
         self.textLabel2_2.setText(self.__tr("Angstroms"))
         self.textLabel2_3.setText(self.__tr("Angstroms"))
-        self.groupBox1.setTitle(self.__tr("ESP Window Volume"))
-        self.show_esp_bbox_checkbox.setText(self.__tr("Show Bounding Box of Volume"))
-        self.highlight_atoms_in_bbox_checkbox.setText(self.__tr("Highlight Atoms Inside Volume"))
-        self.select_atoms_btn.setText(self.__tr("Select Atoms Inside Volume"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
+        self.groupBox5.setTitle(self.__tr("ESP Results Image"))
+        self.choose_file_btn.setText(self.__tr("..."))
+        self.mirror_btn.setText(self.__tr("Mirror"))
+        self.rotate_cw_btn.setText(self.__tr("+90"))
+        self.rotate_ccw_btn.setText(self.__tr("-90"))
+        self.flip_btn.setText(self.__tr("Flip"))
+        self.calculate_esp_btn.setText(self.__tr("Calculate ESP"))
+        self.clear_btn.setText(self.__tr("Clear"))
+        self.load_btn.setText(self.__tr("Load"))
+        self.textLabel1_6.setText(self.__tr("xaxisOrient :"))
+        self.textLabel1_6_2.setText(self.__tr("yaxisOrient :"))
 
 
     def change_fill_color(self):
@@ -335,8 +431,38 @@ class ESPWindowPropDialog(QDialog):
     def highlight_atoms_in_bbox(self):
         print "ESPWindowPropDialog.highlight_atoms_in_bbox(): Not implemented yet"
 
-    def opacityChanged(self):
-        print "ESPWindowPropDialog.opacityChanged(): Not implemented yet"
+    def change_opacity(self):
+        print "ESPWindowPropDialog.change_opacity(): Not implemented yet"
+
+    def change_esp_image(self):
+        print "ESPWindowPropDialog.change_esp_image(): Not implemented yet"
+
+    def rotate_90(self):
+        print "ESPWindowPropDialog.rotate_90(): Not implemented yet"
+
+    def rotate_neg_90(self):
+        print "ESPWindowPropDialog.rotate_neg_90(): Not implemented yet"
+
+    def flip_esp_image(self):
+        print "ESPWindowPropDialog.flip_esp_image(): Not implemented yet"
+
+    def mirror_esp_image(self):
+        print "ESPWindowPropDialog.mirror_esp_image(): Not implemented yet"
+
+    def load_esp_image(self):
+        print "ESPWindowPropDialog.load_esp_image(): Not implemented yet"
+
+    def clear_esp_image(self):
+        print "ESPWindowPropDialog.clear_esp_image(): Not implemented yet"
+
+    def calculate_esp(self):
+        print "ESPWindowPropDialog.calculate_esp(): Not implemented yet"
+
+    def change_yaxisOrient(self):
+        print "ESPWindowPropDialog.change_yaxisOrient(): Not implemented yet"
+
+    def change_xaxisOrient(self):
+        print "ESPWindowPropDialog.change_xaxisOrient(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ESPWindowPropDialog",s,c)

@@ -195,18 +195,21 @@ def connect_to_nanohive():
     if success:
         success, result = nh_conn.sendCommand("status 1") # Send status command.
         if success:
-            msg = "Success: " + str(success)  + "\nMessage: " + str(result)
-            env.history.message(msg)
+            msg = "NanoHiveUtils.connect_to_nanohive(): Success: " + str(success)  + "\nMessage: " + str(result)
+            #env.history.message(msg)
+            print msg
             return nh_conn
             
         else:
-            msg = "Command Error:\nSuccess=" + str(success)  + "\nMessage: " + str(result)
-            env.history.message(msg)
+            msg = "NanoHiveUtils.connect_to_nanohive(): Command Error:\nSuccess=" + str(success)  + "\nMessage: " + str(result)
+            #env.history.message(msg)
+            print msg
             return None
         
     else:
-        msg = " Connection Failed:\nSuccess=" + str(success)  + "\nMessage: " + str(msg)
-        env.history.message(msg)
+        msg = "NanoHiveUtils.connect_to_nanohive(): Connection Failed:\nSuccess=" + str(success)  + "\nMessage: " + str(msg)
+        #env.history.message(msg)
+        print msg
         return None
 
 

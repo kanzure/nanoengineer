@@ -22,8 +22,8 @@ class ESPWindowProp(ESPWindowPropDialog):
        
     
     def setup(self):
-        #Default state for atoms highlighting ans selection
-        self.jig.highlightChecked = True
+        
+        #Default state for atoms selection
         self.selected = False        
         
         # Need to ask Bruce about the pros/cons of copying the jig here.  
@@ -46,10 +46,16 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.resolution_spinbox.setValue(self.jig.resolution)
         
         self.show_esp_bbox_checkbox.setChecked(self.jig.show_esp_bbox)
-        self.opacity_spinbox.setValue(int(self.jig.opacity*255))
+        
+        opacity = '%1.2f ' % self.jig.opacity
+        self.opacity_linedit.setText(opacity)
+        self.opacity_slider.setValue(int (self.jig.opacity * 100))
         
         self.highlight_atoms_in_bbox_checkbox.setChecked(self.jig.highlightChecked)
         self._updateSelectButtonText()
+        
+        self.xaxis_spinbox.setValue(self.jig.xaxis_orient)
+        self.yaxis_spinbox.setValue(self.jig.yaxis_orient)
         
     def change_fill_color(self):
         '''Slot method to change fill color.'''
@@ -85,17 +91,19 @@ class ESPWindowProp(ESPWindowPropDialog):
         "Slot for Width spinbox"
         self.jig.edge_offset = float(val)
         self.glpane.gl_update()
+    
+    def change_opacity(self, val):
+        '''Slot for opacity slider '''
+        self.jig.opacity = val/100.0
+        opacity = '%1.2f ' % self.jig.opacity
+        self.opacity_linedit.setText(opacity)
+        self.glpane.gl_update()
         
     def show_esp_bbox(self, val):
         "Slot for Show ESP Window Volume checkbox"
         self.jig.show_esp_bbox = val
         self.glpane.gl_update()
     
-    def opacityChanged(self, val):
-        '''Slot for opacity spin box '''
-        self.jig.opacity = val/255.0
-        self.glpane.gl_update()
-        
     def highlight_atoms_in_bbox(self, val):
         "Slot for Highlight Atoms Inside Volume checkbox"
         self.jig.highlightChecked = val
@@ -114,6 +122,25 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.jig.pickSelected(self.selected)
         self.glpane.gl_update()
         
+    def calculate_esp(self):
+        self.jig.calculate_esp()
+        
+    def load_esp_image(self):
+        png_fname = self.jig.load_esp_image()
+        self.png_fname_linedit.setText(png_fname)
+        
+    def change_esp_image(self):
+        png_fname = self.jig.load_esp_image(True)
+        self.png_fname_linedit.setText(png_fname)
+        
+    def clear_esp_image(self):
+        self.jig.clear_esp_image()
+        
+    def change_xaxisOrient(self, val):
+        self.jig.xaxis_orient = val
+        
+    def change_yaxisOrient(self, val):
+        self.jig.yaxis_orient = val
         
     def accept(self):
         '''Slot for the 'OK' button '''
@@ -127,7 +154,7 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.jig.resolution = float(self.resolution_spinbox.value())
         
         #Before exit the dialog, turn off the highlighting and selection
-        self.jig.highlightChecked = False
+        #self.jig.highlightChecked = False
         self.jig.pickSelected(False)
                 
         self.jig.assy.w.win_update() # Update model tree
