@@ -484,7 +484,7 @@ def prefs_context():
 # initialization code [bruce 050805]
 
 def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is same as prefs_table record format
-    assert typecode in ['color','boolean','string','int'] or type(typecode) == type([]) #e or others as we define them
+    assert typecode in ['color','boolean','string','int', 'float'] or type(typecode) == type([]) #e or others as we define them
     #e create type object from typecode
     #e get dflt from type object if it's None here, otherwise tell this dflt to type object
     #e record type object
