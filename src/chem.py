@@ -686,7 +686,8 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             else:
                 disp = self.display
         rad = self.element.rvdw
-        if disp != diVDW: rad=rad*CPKvdW
+        if disp != diVDW: rad = rad * CPKvdW * env.prefs[cpkAtomRadius_prefs_key] 
+            # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
         if disp == diTUBES: rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
         return (disp, rad)
 

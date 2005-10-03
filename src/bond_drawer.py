@@ -65,7 +65,9 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
             # used for multiple bond spacing (optimized here for that, by the "/ 5.0")
             # and for pi orbital vanes (for which "/ 1.0" would probably be better)
     elif disp == diCPK:
-        sigmabond_cyl_radius = CPKSigmaBondRadius # also used for central cylinder, in these other cases
+        sigmabond_cyl_radius = CPKSigmaBondRadius * env.prefs[cpkCylinderRadius_prefs_key]
+            # also used for central cylinder, in these other cases
+            # mark 051003 added " * env.prefs[cpkCylinderRadius_prefs_key]"
     elif disp == diTUBES:
         sigmabond_cyl_radius = TubeRadius
     else:

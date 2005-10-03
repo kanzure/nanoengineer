@@ -241,6 +241,9 @@ class UserPrefs(UserPrefsDialog):
             #   but for some reason the buttons are inserted in a different order than they're shown.
             # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
             #   while the dialog is shown.
+        
+        # Set CPK Atom radius (percentage).  Mark 051003.
+        self.cpk_atom_rad_spinbox.setValue(int (env.prefs[cpkAtomRadius_prefs_key] * 100.0))
 
         return
     
@@ -289,6 +292,9 @@ class UserPrefs(UserPrefsDialog):
         
         # Set Lines Dislplay Mode line thickness.  Mark 050831.
         self.bond_line_thickness_spinbox.setValue( env.prefs[linesDisplayModeThickness_prefs_key] )
+        
+        # Set CPK Cylinder radius (percentage).  Mark 051003.
+        self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[cpkCylinderRadius_prefs_key] * 100.0))
         
         return
         
@@ -433,6 +439,12 @@ class UserPrefs(UserPrefsDialog):
             ## freeValenceColor_prefs_key, #[problematic]
             atomHotspotColor_prefs_key,
         ])
+        
+    def change_cpk_atom_radius(self, val):
+        '''Change the CPK atom radius by % value <val>.
+        '''
+        env.prefs[cpkAtomRadius_prefs_key] = val * .01
+        self.glpane.gl_update()
             
     def set_default_display_mode(self, val): #bruce 050810 revised this to set the pref immediately
         '''Set default display mode of GLpane.
@@ -505,6 +517,12 @@ class UserPrefs(UserPrefsDialog):
         pixel_thickness can be 1, 2 or 3.
         '''
         env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
+        
+    def change_cpk_cylinder_radius(self, val):
+        '''Change the CPK cylinder radius by % value <val>.
+        '''
+        env.prefs[cpkCylinderRadius_prefs_key] = val *.01
+        self.glpane.gl_update()
     
     ########## End of slot methods for "Bonds" page widgets ###########
     

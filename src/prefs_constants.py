@@ -67,6 +67,8 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 freeValenceColor_prefs_key = 'A6/Free Valence Color'
 atomHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
+#CPK atom radius (percentage), mark 051003
+cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage'
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -80,6 +82,8 @@ pibondLetters_prefs_key = 'A6/Pi Bond Letters'  ## was:  bondShowLabels_prefs_ke
 showValenceErrors_prefs_key = 'A6/Show Valence Errors'
 #display lines mode line thickness, mark 050831
 linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
+#CPK cylinder radius (percentage), mark 051003
+cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
 
 # Modes prefs [added to this table by mark 050910]
 startupMode_prefs_key = 'A7/Startup Mode'
@@ -156,6 +160,7 @@ prefs_table = (
 
     # Atom preferences - other
     
+    ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diVDW),
 
     # Bond preferences - colors
@@ -172,6 +177,7 @@ prefs_table = (
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
     ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
+    ('cpk_cylinder_radius', 'float', cpkCylinderRadius_prefs_key, 1.0), #mark 051003
     
     # Modes preferences [added to this table by mark 050910]
     
