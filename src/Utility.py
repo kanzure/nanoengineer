@@ -28,6 +28,7 @@ from debug import print_compact_stack, print_compact_traceback
 import platform
 import env #bruce 050901
 from constants import genKey
+from state_utils import copy_val
 
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
@@ -835,22 +836,36 @@ class Node:
         "#doc; certain subclasses should override [e.g. chunk]; for use in copying selected atoms"
         return None
 
-    def copy_copyable_attrs_to(self, target): #bruce 050526; docstring revised 050704
-        """Copy all copyable attrs (as defined by a subclass-specific constant tuple)
+    def copy_copyable_attrs_to(self, target, own_mutable_state = True): #bruce 050526; behavior and docstring revised 051003
+        """Copy all copyable attrs (as defined by a typically-subclass-specific constant tuple, self.copyable_attrs)
         from self to target (presumably a Node of the same subclass, but this is not checked,
-        and violating it might not be an error, in principle).
+        and violating it might not be an error, in principle; in particular, as of 051003 target is explicitly permitted
+        to be a methodless attribute-holder).
         Doesn't do any invals or updates in target.
-           Warning: attribute values are not themselves copied (e.g. if any are lists or dicts
-        or Numeric arrays, target and self will be sharing the same mutable object).
+           This is not intended to be a full copy of self, since copyable_attrs (in current client code)
+        should not contain object-valued attrs like Group.members, Node.dad, or Chunk.atoms, but only
+        "parameter-like" attributes. It's meant to be used as a helper function for making full or partial copies
+        of self, and related purposes. The exact set of attributes to include can be chosen somewhat
+        arbitrarily by each subclass, but any which are left out will have to be handled separately by the copy methods;
+        in practice, new attributes in subclasses should almost always be declared in copyable_attrs.
+           As of 051003, this method (implem and spec) has been extended to "deep copy" any mutable objects
+        found in attribute values (of the standard kinds defined by state_utils.copy_val), so that no
+        mutable state is shared between copies and originals. This can be turned off by passing own_mutable_state = False,
+        which is a useful optimization if serial copies are made and intermediate copies won't be kept.
            This is intended as a private helper method for subclass-specific copy methods,
         which may need to do further work to make these attribute-copies fully correct --
-        for example, copying some of the mutable copied values so they are no longer shared,
+        for example, modifying the values of id- or (perhaps) name-like attributes,
         or doing appropriate invals or updates in target.
         """
         for attr in self.copyable_attrs:
             val = getattr(self, attr)
+            if own_mutable_state:
+                val = copy_val(val)
             setattr(target, attr, val) # turns some default class attrs into unneeded instance attrs (nevermind for now)
-        self.copy_prior_part_to( target)
+        if isinstance(target, Node):
+            # don't do this for non-Nodes, to permit target being just a methodless attribute-holder [new feature, bruce 051003]
+            self.copy_prior_part_to( target)
+        return
 
     def copy_prior_part_to(self, target): #bruce 050527
         """If target (presumed to be a Node) has no part or prior_part, set its prior_part from self,
@@ -863,8 +878,14 @@ class Node:
                 target.prior_part = self.prior_part
         return
 
-    def own_mutable_copyable_attrs(self): #bruce 050526 #e use more widely? 050704: maybe after most uses of copy_copyable_attrs_to??
-        """If any copyable_attrs of self are mutable and might be shared with another copy of self
+    def own_mutable_copyable_attrs(self):
+        #bruce 051003 revision: now that copy_copyable_attrs_to deepcopies mutable parameter values,
+        # this method will only need overriding for mutable state of types that method can't handle
+        # or which for some other reason is not declared in self.copyable_attrs.
+        ##e note: docstring and perhaps method name should be changed; most calls should remain,
+        # but all overridings of this method (and/or related decls of mutable_attrs) should be reviewed for removal.
+        """[this docstring is out of date as of 051003]
+        If any copyable_attrs of self are mutable and might be shared with another copy of self
         (by self.copy_copyable_attrs_to(target) -- where this method might then be called on self or target or both),
         replace them with copies so that they are no longer shared and can safely be independently changed.
         [some subclasses must extend this]

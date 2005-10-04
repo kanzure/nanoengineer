@@ -70,8 +70,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
 
     copyable_attrs = Node.copyable_attrs + ('display', 'color') # this extends the tuple from Node
-        # (could add _colorfunc, but better to handle it separately in case this gets used for mmp writing someday)
-        #e should add user_specified_center once that's in active use (or to another list for mutable attrs to copy)
+        # (could add _colorfunc, but better to handle it separately in case this gets used for mmp writing someday,
+        #  as of 051003 _colorfunc would anyway not be permitted since state_utils.copy_val doesn't know how to copy it.)
+        #e should add user_specified_center once that's in active use
     
     def __init__(self, assembly, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
@@ -1949,8 +1950,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
         mapping.record_copy(self, numol)
         # also copy user-specified axis, center, etc, if we ever have those
-##        if self.user_specified_center is not None:
-##            numol.user_specified_center = + self.user_specified_center # copy_copyable_attrs_to would not be enough (mutability)
         ## numol.setDisplay(self.display)
         numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
         return numol

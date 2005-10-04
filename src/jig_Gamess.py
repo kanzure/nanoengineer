@@ -549,9 +549,14 @@ class gamessParms:
         items = self.ui.get_mmp_parms()
         return items
 
-    def deepcopy(self): #bruce 050704; don't know whether this is complete [needs review by Mark; is it ok it only sets .ui? #####@@@@@]
+    def deepcopy(self, alter_name = True): #bruce 051003 added alter_name, but I don't know if passing False is ever legal. ###@@@
+        #bruce 050704; don't know whether this is complete [needs review by Mark; is it ok it only sets .ui?]
         "Make a copy of self (a gamessParms object), which shares no mutable state with self. (Used to copy a Gamess Jig containing self.)"
-        newname = self.name + " copy" # copy needs a different name #e could improve this -- see the code used to rename chunk copies
+        if self.alter_name:
+            newname = self.name + " copy"
+            # copy needs a different name #e could improve this -- see the code used to rename chunk copies
+        else:
+            newname = self.name
         new = self.__class__(newname)
         from files_mmp import mmp_interp_just_for_decode_methods
         interp = mmp_interp_just_for_decode_methods() #kluge
@@ -562,6 +567,14 @@ class gamessParms:
             # result of this is only that some bugs will show up in writemmp but not in deepcopy (used to copy this kind of jig).
             new.info_gamess_setitem( name, valstring, interp, error_if_name_not_known = True )
         return new
+
+    def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val
+        # ignores copyfunc
+        return self.deepcopy(alter_name = False) ###k I'm not sure alter_name = False can ever be legal,
+            # or (if it can be) whether it's good here. I think Mark or I should review this,
+            # and we should not change the code to rely on copy_val alone on this object
+            # (i.e. we should not remove the mutable_attr decl for pset and the related code that calls deepcopy directly)
+            # until that's reviewed. [bruce 051003]
 
     def writemmp(self, mapping, pset_index): #bruce 050701
         mapping.write("# gamess parameter set %s for preceding jig\n" % pset_index)

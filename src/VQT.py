@@ -220,6 +220,10 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #bruce 050518 comment: a copy of the quat x, or of any length-4 sequence [both forms are used]
             self.vec=V(x[0], x[1], x[2], x[3])
         return # from Q.__init__
+
+    def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val
+        # ignores copyfunc
+        return self.__class__(self)
     
     def __getattr__(self, name):
         if name == 'w':
