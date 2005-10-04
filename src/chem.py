@@ -685,10 +685,14 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
                 disp = dispdef
             else:
                 disp = self.display
-        rad = self.element.rvdw
-        if disp != diVDW: rad = rad * CPKvdW * env.prefs[cpkAtomRadius_prefs_key] 
+        
+        # Compute "rad"
+        rad = self.element.rvdw # diVDW (default)
+        if disp == diCPK:
+            rad = rad * CPKvdW * env.prefs[cpkAtomRadius_prefs_key] 
             # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
-        if disp == diTUBES: rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
+        if disp == diTUBES: 
+            rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
         return (disp, rad)
 
     def selradius_squared(self):
