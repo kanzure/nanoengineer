@@ -58,6 +58,7 @@ addInitialBendData("B-1-Si-1-S", 0.438640288602, 1.7657705405);
 addInitialBendData("B-1-Si-1-Si", 0.290537939291, 1.86797229355);
 addInitialBendData("B-1-C-3-C", 0.197215358302, 3.14159265359);
 addInitialBendData("C-3-C-1-C", 0.33235977825, 3.14158851478);
+addInitialBendData("C-1-C-3-C", 0.33235977825, 3.14158851478);
 addInitialBendData("C-3-C-1-Cl", 0.269840000064, 3.1415926537);
 addInitialBendData("C-3-C-1-F", 0.299324093628, 3.14159265364);
 addInitialBendData("H-1-C-3-C", 0.253935434642, 3.14159265322);
