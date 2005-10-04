@@ -55,7 +55,7 @@ from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
 
 from HistoryWidget import orangemsg
-from debug import print_compact_stack, print_compact_traceback, compact_stack
+from debug import print_compact_stack, print_compact_traceback, compact_stack, privateMethod
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
@@ -310,6 +310,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         if it recomputed basepos! But as of that date we'll never compute
         basepos or atpos if they're invalid.
         """
+        privateMethod(["Bond"])
         #comment from 041201:
         #e Does this mean we no longer use basepos for drawing? Does that
         # matter (for speed)? We still use it for things like mol.rot().
@@ -993,6 +994,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         [private method, only suitable for use from mol.copy(), since use of
          same .index assumes numol will be given copied curpos/basepos arrays.]
         """
+        privateMethod()
         nuat = atom(self, 'no', None) #bruce 050524: pass self so its atomtype is copied
         numol.addcopiedatom(nuat)
         ## numol.invalidate_atom_lists() -- done in caller now
@@ -1045,6 +1047,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
            As of 050727, newly created open bonds have same bond type as the
         removed bond.
         """
+        privateMethod(["Bond"])
         # [obsolete comment: Caller is responsible for shakedown
         #  or kill (after clearing externs) of affected molecules.]
         
@@ -1575,6 +1578,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
            All user events which can call this (indirectly) should also call env.post_event_updates() when they're done.
         """
+        privateMethod(["Bond"])
         ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
         from env import _changed_structure_atoms # a dict
         _changed_structure_atoms[ id(self) ] = self
@@ -1701,6 +1705,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
 
     def make_singlets_when_no_bonds(self): #bruce 050511 partly revised this for atomtypes
         "[private method; see docstring for make_singlets_when_2_bonds]"
+        privateMethod(["MMKitView", "Elem"])
         # unlike the others, this was split out of oneUnbonded [bruce 041215]
         atype = self.atomtype
         if atype.bondvectors:
@@ -1716,6 +1721,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         "[private method; see docstring for make_singlets_when_2_bonds]"
         ## print "what the heck is this global variable named a doing here? %r" % (a,)
         ## its value is 0.85065080835203999; where does it come from? it hide bugs. ###@@@
+        privateMethod()
         assert len(self.bonds) == 1
         assert not self.is_singlet()
         atype = self.atomtype
@@ -1818,6 +1824,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         in good positions relative to the existing real bonds.
         Precise result might depend on order of existing bonds in self.bonds.
         """
+        privateMethod()
         assert len(self.bonds) == 2 # usually both real bonds; doesn't matter
         atype = self.atomtype
         if atype.numbonds <= 2: return # optimization
@@ -1846,6 +1853,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
     def make_singlets_when_3_bonds(self):
         "[private method; see docstring for make_singlets_when_2_bonds]"
         assert len(self.bonds) == 3
+        privateMethod()
         atype = self.atomtype
         if atype.numbonds > 3:
             # bruce 041215 to fix a bug (just reported in email, no bug number):

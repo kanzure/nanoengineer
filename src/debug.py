@@ -43,6 +43,38 @@ from debug_prefs import debug_prefs_menuspec # bruce 050614
 debug_menu_enabled = 1 
 debug_events = 0 # set this to 1 to print info about many mouse events
 
+
+API_ENFORCEMENT = False   # for performance, commit this only as False
+
+class APIViolation(Exception):
+    pass
+
+def privateMethod(friends=[ ]):
+    if not API_ENFORCEMENT:
+        return
+    import sys
+    f2 = sys._getframe(2)
+    caller = f2.f_locals[f2.f_code.co_varnames[0]]
+    callername = caller.__class__.__name__
+    if callername in friends:
+        return
+    f1 = sys._getframe(1)
+    called = f1.f_locals[f1.f_code.co_varnames[0]]
+    calledname = called.__class__.__name__
+    if callername is not calledname:
+        import inspect
+        f1 = inspect.getframeinfo(f1)
+        f2 = inspect.getframeinfo(f2)
+        print
+        print callername, calledname
+        lineno, meth = f1[1], f1[2]
+        lineno2, meth2 = f2[1], f2[2]
+        print (calledname + "." + meth + " (line " + repr(lineno) + ")" +
+               " is a private method called by")
+        print (callername + "." + meth2 +
+               " (line " + repr(lineno2) + ") in file " + f2[0])
+        raise APIViolation
+
 # ==
 
 # the following are needed to comply with our Qt/PyQt license agreements.
