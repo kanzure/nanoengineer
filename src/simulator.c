@@ -364,7 +364,7 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
         vsub(force[bond[j].an2],f);
         //fprintf(stderr, "length %f, force %f \n", vlen(bond[j].r), sqrt(vdot(f,f)));
         //fprintf(stderr, "inverse length %f \n", bond[j].invlen);
-				
+	// pb(stderr, j);			
     }
 			
     /* now the forces for each bend */
@@ -377,69 +377,72 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
         if (torq[j].dir2) {vsetn(v2,torq[j].b2->ru);}
         else {vset(v2,torq[j].b2->ru);}
 
+	// printf ("lengths are %f, %f --> %f\n", vlen(v1), vlen(v2), vdot(v1,v2));
+	if (-0.99 < vdot(v1,v2)) {
 #define METHOD3
 
 #ifdef METHOD1
-        z = vdot(v1,v2); // = cos(theta)
-        m = torq[j].type->kb * (torq[j].type->cosTheta0 - z);
-        vmul2c(q1, v1, z);
-        vmul2c(q2, v2, z);
-        vsub(q1, v2);
-        vsub(q2, v1);
-        vmulc(q1, m * torq[j].b1->invlen);
-        vmulc(q2, m * torq[j].b2->invlen);
+	    z = vdot(v1,v2); // = cos(theta)
+	    m = torq[j].type->kb * (torq[j].type->cosTheta0 - z);
+	    vmul2c(q1, v1, z);
+	    vmul2c(q2, v2, z);
+	    vsub(q1, v2);
+	    vsub(q2, v1);
+	    vmulc(q1, m * torq[j].b1->invlen);
+	    vmulc(q2, m * torq[j].b2->invlen);
 #endif
-
+	    
 #ifdef METHOD2
-        theta = acos(vdot(v1, v2));
-
-        v2x(foo, v1, v2);     // foo = v1 cross v2
-        foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
-        q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
-        q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
-		
-        ff = (theta - torq[j].theta0) * torq[j].kb1 * torq[j].b1->invlen;
-        vmulc(q1,ff);
-        ff = (theta - torq[j].theta0) * torq[j].kb2 * torq[j].b2->invlen;
-        vmulc(q2,ff);
+	    theta = acos(vdot(v1, v2));
+	    
+	    v2x(foo, v1, v2);     // foo = v1 cross v2
+	    foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
+	    q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
+	    q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
+	    
+	    ff = (theta - torq[j].theta0) * torq[j].kb1 * torq[j].b1->invlen;
+	    vmulc(q1,ff);
+	    ff = (theta - torq[j].theta0) * torq[j].kb2 * torq[j].b2->invlen;
+	    vmulc(q2,ff);
 #endif
-
+	    
 #ifdef METHOD3
-
+	    
 #define ACOS_POLY_A -0.0820599
 #define ACOS_POLY_B  0.142376
 #define ACOS_POLY_C -0.137239
 #define ACOS_POLY_D -0.969476
-        z = vlen(vsum(v1, v2));
-        theta = Pi + z * (ACOS_POLY_D +
-                     z * (ACOS_POLY_C +
-                     z * (ACOS_POLY_B +
-                     z *  ACOS_POLY_A   )));
-
-        v2x(foo, v1, v2);     // foo = v1 cross v2
-        foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
-        q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
-        q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
-
-        // dTheta in radians
-        // kb in yJ/rad^2
-        // invlen in pm^-1 (or rad/pm)
-        // ff in yJ/pm (1e-24 J / 1e-12 m, or 1e-12 J/m, or pN)
-        ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b1->invlen;
-        vmulc(q1,ff);
-        ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b2->invlen;
-        vmulc(q2,ff);
+	    z = vlen(vsum(v1, v2));
+	    theta = Pi + z * (ACOS_POLY_D +
+			      z * (ACOS_POLY_C +
+				   z * (ACOS_POLY_B +
+					z *  ACOS_POLY_A   )));
+	    
+	    v2x(foo, v1, v2);     // foo = v1 cross v2
+	    foo=uvec(foo);        // hmmm... not sure why this has to be a unit vector.
+	    q1=uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
+	    q2=uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
+	    
+	    // dTheta in radians
+	    // kb in yJ/rad^2
+	    // invlen in pm^-1 (or rad/pm)
+	    // ff in yJ/pm (1e-24 J / 1e-12 m, or 1e-12 J/m, or pN)
+	    ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b1->invlen;
+	    vmulc(q1,ff);
+	    ff = (theta - torq[j].type->theta0) * torq[j].type->kb * torq[j].b2->invlen;
+	    vmulc(q2,ff);
 #endif
-		
-		
-        vadd(force[torq[j].ac],q1);
-        vsub(force[torq[j].a1],q1);
-        vadd(force[torq[j].ac],q2);
-        vsub(force[torq[j].a2],q2);
-        /*
-          fprintf(stderr, "dtheta %f, torq %f \n",theta - torq[j].theta0, 
-          sqrt(vdot(q1,q1)));
-        */
+	    
+	    
+	    vadd(force[torq[j].ac],q1);
+	    vsub(force[torq[j].a1],q1);
+	    vadd(force[torq[j].ac],q2);
+	    vsub(force[torq[j].a2],q2);
+	    /*
+	    fprintf(stderr, "dtheta %f, torq %f \n",theta - torq[j].type->theta0, 
+		    sqrt(vdot(q1,q1)));
+	    */
+	} // if almost straight, do nothing
     }
 
     // fprintf(stderr, "about to do vdw loop\n");
@@ -567,6 +570,7 @@ calculateEnergy(struct xyz *position)
         // table lookup equivalent to: fac=lippmor(rSquared)
             
         potential += fac;
+
     }
 			
     /* now the forces for each bend */
@@ -579,21 +583,24 @@ calculateEnergy(struct xyz *position)
         if (torq[j].dir2) {vsetn(v2,torq[j].b2->ru);}
         else {vset(v2,torq[j].b2->ru);}
 
+	if (-0.99 < vdot(v1,v2)) {
+
 #define ACOS_POLY_A -0.0820599
 #define ACOS_POLY_B  0.142376
 #define ACOS_POLY_C -0.137239
 #define ACOS_POLY_D -0.969476
-        z = vlen(vsum(v1, v2));
-        theta = Pi + z * (ACOS_POLY_D +
-                     z * (ACOS_POLY_C +
-                     z * (ACOS_POLY_B +
-                     z *  ACOS_POLY_A   )));
-
-        // dTheta in radians
-        // kb in yJ/rad^2
-        // potential in rad^2 * yJ/rad^2 * 1e-6, or aJ
-        ff = (theta - torq[j].type->theta0);
-        potential += ff * ff  * torq[j].type->kb * 1e-6 / 2.0 ;
+	    z = vlen(vsum(v1, v2));
+	    theta = Pi + z * (ACOS_POLY_D +
+			      z * (ACOS_POLY_C +
+				   z * (ACOS_POLY_B +
+					z *  ACOS_POLY_A   )));
+	    
+	    // dTheta in radians
+	    // kb in yJ/rad^2
+	    // potential in rad^2 * yJ/rad^2 * 1e-6, or aJ
+	    ff = (theta - torq[j].type->theta0);
+	    potential += ff * ff  * torq[j].type->kb * 1e-6 / 2.0 ;
+	}
     }
 
     // fprintf(stderr, "about to do vdw loop\n");

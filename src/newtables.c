@@ -195,25 +195,25 @@ initializeBondTable()
   //
  
   setElement( 0,  1, 1, "X",  "Singlet",    17.000,  1.1,  0.000, 1, 0);
-  setElement( 1,  1, 1, "H",  "Hydrogen",    1.6737, 0.77, 0.382, 1, 30);
+  setElement( 1,  1, 1, "H",  "Hydrogen",    1.6737, 1.5 , 0.382, 1, 30);
   setElement( 2,  0, 1, "He", "Helium",      6.646,  1.4,  0.000, 0, 0);
  
   setElement( 3,  1, 2, "Li", "Lithium",    11.525,  0.97, 0.000, 1, 152);
   setElement( 4,  2, 2, "Be", "Beryllium",  14.964,  1.10, 0.000, 2, 114);
-  setElement( 5,  3, 2, "B",  "Boron",      17.949,  1.46, 0.000, 3, 83);
-  setElement( 6,  4, 2, "C",  "Carbon",     19.925,  1.43, 0.357, 4, 77);
-  setElement( 7,  5, 2, "N",  "Nitrogen",   23.257,  1.39, 0.447, 3, 70);
-  setElement( 8,  6, 2, "O",  "Oxygen",     26.565,  1.35, 0.406, 2, 66);
-  setElement( 9,  7, 2, "F",  "Fluorine",   31.545,  1.29, 0.634, 1, 64);
+  setElement( 5,  3, 2, "B",  "Boron",      17.949,  1.99, 0.000, 3, 83);
+  setElement( 6,  4, 2, "C",  "Carbon",     19.925,  1.94, 0.357, 4, 77);
+  setElement( 7,  5, 2, "N",  "Nitrogen",   23.257,  1.82, 0.447, 3, 70);
+  setElement( 8,  6, 2, "O",  "Oxygen",     26.565,  1.74, 0.406, 2, 66);
+  setElement( 9,  7, 2, "F",  "Fluorine",   31.545,  1.65, 0.634, 1, 64);
   setElement(10,  0, 2, "Ne", "Neon",       33.49,   1.82, 0.000, 0, 0);
  
   setElement(11,  1, 3, "Na", "Sodium",     38.1726, 1.29, 0.000, 1, 186);
   setElement(12,  2, 3, "Mg", "Magnesium",  40.356,  1.15, 0.000, 2, 160);
   setElement(13,  3, 3, "Al", "Aluminum",   44.7997, 2.0,  0.000, 3, 125);
-  setElement(14,  4, 3, "Si", "Silicon",    46.6245, 1.82, 1.137, 4, 116);
-  setElement(15,  5, 3, "P",  "Phosphorus", 51.429,  1.78, 1.365, 3, 110);
-  setElement(16,  6, 3, "S",  "Sulfur",     53.233,  1.74, 1.641, 2, 104);
-  setElement(17,  7, 3, "Cl", "Chlorine",   58.867,  1.69, 1.950, 1, 99);
+  setElement(14,  4, 3, "Si", "Silicon",    46.6245, 2.25, 1.137, 4, 116);
+  setElement(15,  5, 3, "P",  "Phosphorus", 51.429,  2.18, 1.365, 3, 110);
+  setElement(16,  6, 3, "S",  "Sulfur",     53.233,  2.10, 1.641, 2, 104);
+  setElement(17,  7, 3, "Cl", "Chlorine",   58.867,  2.03, 1.950, 1, 99);
   setElement(18,  0, 3, "Ar", "Argon",      62.33,   1.88, 0.000, 0, 0);
 
   setElement(19,  1, 4, "K",  "Potassium",  64.9256, 1.59, 0.000, 1, 231);
