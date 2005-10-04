@@ -1954,4 +1954,34 @@ from bonds import *  # only for the sake of other files which still import bond-
 
 from chunk import *
 
+#Huaicai 10/04/05 
+def getMultiplicity(objList):
+    '''@objList A list of Atom/Chunk objects
+       @return If the total number of electron is odd, return 2, otherwise return 1. '''
+    
+    numElectrons = 0
+    for m in objList:
+        if isinstance(m, Atom):
+            numElectrons += m.element.eltnum
+        elif isinstance(m, molecule):
+                for a in m.atoms.itervalues():
+                    numElectrons += a.element.eltnum
+    
+    if numElectrons % 2: return 2
+    else: return 1
+
+# end of chem.py
+
+
+### TEST code
+if __name__=='__main__':
+    alist = [Atom('C', 'no', None), Atom('C', 'no', None), Atom('H', 'no', None), Atom('O', 'no', None), ]
+    
+    assert getMultiplicity(alist) == 2
+    
+    alist +=[Atom('N', 'no', None),]
+    assert getMultiplicity(alist) == 1
+    
+    print "Test succeed, no assertion error."
+    
 # end of chem.py

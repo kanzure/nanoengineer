@@ -161,6 +161,8 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     outputLength = esp_window.width * 1e-10
     #print "ESP Window outputLength =", outputLength
 
+    multi = esp_window.multiplicity
+    
     f.write('\n')
     f.write('    <calculator name="espWindow" plugin="MPQC_SClib">\n')
     f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
@@ -168,7 +170,7 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     f.write('      <parameter name="basis" value="STO-3G" />\n')
     f.write('      <parameter name="method" value="HF" />\n')
     f.write('      <parameter name="desiredEnergyAccuracy" value="1.0e-3" />\n')
-    f.write('      <parameter name="multiplicity" value="1" />\n')
+    f.write('      <parameter name="multiplicity" value="%d" />\n' % multi)
     f.write('\n')
     f.write('      <parameter name="outputType" value="ESPplane" />\n')
     f.write('      <parameter name="resolution" value="%d" />\n' % resolution)

@@ -278,6 +278,8 @@ class ESPWindow(RectGadget):
         self.highlightChecked = False # Flag if highlight is turned on or off
         self.xaxis_orient = 0 # ESP Image X Axis orientation
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
+        self.multiplicity = 1 # Multiplicity of atoms within this jig's bbox volume
+       
         
     def _initTextureEnv(self):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
@@ -364,7 +366,7 @@ class ESPWindow(RectGadget):
 
         
     def findObjsInside(self):
-        '''Find objects inside the shape '''
+        '''Find objects [atoms or chunks] inside the shape '''
         shape = self._createShape()
         return shape.findObjInside(self.assy)
 
@@ -439,6 +441,12 @@ class ESPWindow(RectGadget):
         sim_parms.iterations = 1
         sim_parms.spf = 1e-17 # Steps per Frame
         sim_parms.temp = 300 # Room temp
+        
+        #Get updated multiplicity from this ESP window jig bbox
+        from chem import getMultiplicity
+        atomList = self.findObjsInside()
+        self.multiplicity = getMultiplicity(atomList)        
+       
         sim_parms.esp_window = self
         
         return sim_parms
@@ -454,6 +462,7 @@ class ESPWindow(RectGadget):
         sim_parms = self.get_sim_parms()
         sims_to_run = ["MPQC_ESP"]
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
+        
         
         from platform import find_or_make_Nanorex_subdir
         results_file = os.path.join(find_or_make_Nanorex_subdir("Nano-Hive"), self.name + ".png")
