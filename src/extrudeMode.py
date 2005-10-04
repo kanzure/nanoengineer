@@ -1680,6 +1680,17 @@ class extrudeMode(basicMode):
             self.draw_model()
         return # from Draw
     
+    
+    ## Added this method to fix bug 1043 [Huaicai 10/04/05]
+    def Draw_after_highlighting(self): 
+        """Only draw those translucent parts of the whole model when we are requested to draw the whole model
+        """
+        if self.show_whole_model:
+            basicMode.Draw_after_highlighting(self)
+        return
+
+    
+    
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes bug 971]
     
     def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude or revolve cmenu

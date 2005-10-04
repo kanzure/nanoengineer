@@ -677,9 +677,8 @@ class cookieMode(basicMode):
     
     
     def Draw_after_highlighting(self): 
-        """This needs to cooperate with the 'showFullModel' flag.
+        """Only draw those translucent parts of the whole model when we are requested to draw the whole model
         """
-        # This method should be put in extrude mode too---Huaicai
         if self.showFullModel:
             basicMode.Draw_after_highlighting(self)
         return
