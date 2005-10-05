@@ -402,7 +402,12 @@ class Node:
         # so other Qt widgets can also safely try to rename Nodes. [bruce 050527 comment]
         if not self.rename_enabled():
             return (False, "renaming this node is not permitted")
-        name = name.strip() # remove whitespace from both ends
+        #mark 051005 --  now name can be a python string or a QString
+        try: 
+            n = str(name) 
+        except:
+            return (False, "illegal string")
+        name = n.strip() # remove whitespace from both ends
         if not name:
             return (False, "blank name is not permitted")
 
