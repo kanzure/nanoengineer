@@ -28,7 +28,7 @@ Created by bruce.
 bruce 050913 used env.history in some places.
 '''
 
-import sys, os, time, types
+import sys, os, time
 from constants import debugButtons, noop
 from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key
 import env
@@ -48,25 +48,28 @@ API_ENFORCEMENT = False   # for performance, commit this only as False
 class APIViolation(Exception):
     pass
 
+# We compare class names to find out whether calls to private methods
+# are originating from within the same class (or one of its friends). This
+# could give false negatives, if two classes defined in two different places
+# have the same name. A work-around would be to use classes as members of
+# the "friends" tuple instead of strings. But then we need to do extra
+# imports, and that seems to be not only inefficient, but to sometimes
+# cause exceptions to be raised.
+
 def _getClassName(frame):
-    """We compare class names to find out whether calls to private methods
-    are originating from within the same class (or one of its friends). This
-    could give false negatives, if two classes defined in two different places
-    have the same name. A work-around would be to use classes as members of
-    the "friends" tuple instead of strings. But then we need to do extra
-    imports, and that seems to be not only inefficient, but to sometimes
-    cause exceptions to be raised.
+    """Given a frame (as returned by sys._getframe(int)), dig into
+    the list of local variables' names in this stack frame. If the
+    frame represents a method call in an instance of a class, then the
+    first local variable name will be "self" or whatever was used instead
+    of "self". Use that to index the local variables for the frame and
+    get the instance that owns that method. Return the class name of
+    the instance.
+    See http://docs.python.org/ref/types.html for more details.
     """
-    # This is the list of local variables' names in this stack frame.
-    # See http://docs.python.org/ref/types.html for details.
     varnames = frame.f_code.co_varnames
-    # If this is a method call in a class, the first local varname
-    # will be "self" or whatever name was used instead of "self".
     selfname = varnames[0]
-    # Use that to index the local variables for this frame, and
-    # get the object from which this call came.
-    callerInstance = frame.f_locals[selfname]
-    return callerInstance.__class__.__name__
+    methodOwner = frame.f_locals[selfname]
+    return methodOwner.__class__.__name__
 
 def _privateMethod(friends=()):
     """Verify that the call made to this method came either from within its
@@ -81,6 +84,12 @@ def _privateMethod(friends=()):
     use the actual class object itself, apparently a complication of importing.)
     This means that some violations may not be detected, if we're ever careless
     enough to give two classes the same name.
+
+    ADDITIONAL CAVEAT: Calls to private methods will usually be flagged as API
+    violations, and should always be flagged. But this approach will not catch
+    all such cases. If the first argument to the function happens to be an
+    instance whose class name is the same as the class wherein the private
+    method is defined, it won't be caught.
     """
     f1 = sys._getframe(1)
     f2 = sys._getframe(2)
