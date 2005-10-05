@@ -72,6 +72,9 @@ teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o
 	$(CC) -o teststructcompare.o $(CFLAGS) -DTEST -c structcompare.c
 	$(CC) -o teststructcompare $(LDFLAGS) teststructcompare.o minimize.o allocate.o lin-alg.o
 
+glviewer: glviewer.c
+	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
+	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o
 
 install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
