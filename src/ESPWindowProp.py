@@ -32,9 +32,9 @@ class ESPWindowProp(ESPWindowPropDialog):
         self.border_color_pixmap.setPaletteBackgroundColor(self.border_QColor)
         
         self.name_linedit.setText(self.jig.name)
-        self.width_spinbox.setValue(self.jig.width)
-        self.window_offset_spinbox.setValue(self.jig.window_offset)
-        self.edge_offset_spinbox.setValue(self.jig.edge_offset)
+        self.width_linedit.setText(str(self.jig.width))
+        self.window_offset_linedit.setText(str(self.jig.window_offset))
+        self.edge_offset_linedit.setText(str(self.jig.edge_offset))
         self.resolution_spinbox.setValue(self.jig.resolution)
         
         self.show_esp_bbox_checkbox.setChecked(self.jig.show_esp_bbox)
@@ -68,22 +68,15 @@ class ESPWindowProp(ESPWindowPropDialog):
             self.border_QColor = color
             self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
-            
-    def change_width(self, val):
-        "Slot for Width spinbox"
-        self.jig.width = float(val)
-        self.glpane.gl_update()
-        
-    def change_window_offset(self, val):
-        "Slot for Width spinbox"
-        self.jig.window_offset = float(val)
-        self.glpane.gl_update()
-        
-    def change_edge_offset(self, val):
-        "Slot for Width spinbox"
-        self.jig.edge_offset = float(val)
-        self.glpane.gl_update()
     
+    def change_jig_size(self, gl_update=True):
+        '''Slot method to change the jig's length, radius and/or spoke radius.'''
+        self.jig.width = float(str(self.width_linedit.text()))
+        self.jig.window_offset = float(str(self.window_offset_linedit.text()))
+        self.jig.edge_offset = float(str(self.edge_offset_linedit.text()))
+        if gl_update:
+            self.glpane.gl_update()
+            
     def change_opacity(self, val):
         '''Slot for opacity slider '''
         self.jig.opacity = val/100.0
@@ -137,8 +130,8 @@ class ESPWindowProp(ESPWindowPropDialog):
     def accept(self):
         '''Slot for the 'OK' button '''
         self.jig.cancelled = False   
-        self.jig.try_rename(str(self.name_linedit.text()))
-        self.jig.width = float(self.width_spinbox.value())
+        self.jig.try_rename(self.name_linedit.text())
+        self.change_jig_size(gl_update=False)
         self.jig.resolution = float(self.resolution_spinbox.value())
         
         # Before exit the dialog, turn off the highlighting and selection
