@@ -814,20 +814,26 @@ class basicMode(anyMode):
         return
     
 
-    def _drawESPWindow(self, grp):
+    def _drawESPWindow(self, grp, pickCheckOnly):
         '''Draw any member in the Group <grp> if it is an ESP Window. Not consider the order
            of ESP Window objects'''
         from jigs_planes import ESPWindow
+       
+        anythingDrawn = False
     
         try:
             if isinstance(grp, ESPWindow):
+                anythingDrawn = True
+                grp.pickCheckOnly = pickCheckOnly
                 grp.draw(self.o, self.o.display)
             elif isinstance(grp, Group):    
                 for ob in grp.members[:]:
                     if isinstance(ob, ESPWindow):
+                        anythingDrawn = True
+                        ob.pickCheckOnly = pickCheckOnly
                         ob.draw(self.o, self.o.display)
                     elif isinstance(ob, Group):
-                        self._drawESPWindow(ob)
+                        self._drawESPWindow(ob, pickCheckOnly)
                 #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
                 #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
                 # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
@@ -835,12 +841,13 @@ class basicMode(anyMode):
                 # they might need to figure out their dispdef (and coords) specially, or store them during first pass
                 # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
                 # [bruce 050615 comments]
+            return anythingDrawn
         except:
             print_compact_traceback("exception in drawing some Group member; skipping to end: ")
         
         
     
-    def Draw_after_highlighting(self): #bruce 050610
+    def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
         """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write
         (but must restore standard glstate when done, as for mode.Draw() method).
@@ -849,10 +856,9 @@ class basicMode(anyMode):
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
-        self._drawESPWindow(self.o.assy.part.topnode)
-        return
-
-
+        return self._drawESPWindow(self.o.assy.part.topnode, pickCheckOnly)
+            
+    
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API
         """Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
         Default implem says yes unless it's been killed
@@ -1187,7 +1193,23 @@ class basicMode(anyMode):
     def surfset(self, num):
         "noop method, meant to be overridden in cookieMode for setting diamond surface orientation"
         pass
-    
+
+
+    def _calibrateZ(self, wX, wY):
+        '''Because translucent plane drawing or other special drawing, the depth value may not be accurate. We need to
+           redraw them so we'll have correct Z values. 
+        '''
+        glMatrixMode(GL_MODELVIEW)
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) 
+        
+        if self.Draw_after_highlighting(pickCheckOnly=True): # Only when we have translucent planes drawn
+            self.o.assy.draw(self.o)
+        
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+        
+        return wZ[0][0]
+
 
     def jigGLSelect(self, event, selSense):
         '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
@@ -1201,10 +1223,9 @@ class basicMode(anyMode):
         wY = self.o.height - event.pos().y()
         
         aspect = float(self.o.width)/self.o.height
-        
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        gz = wZ[0][0]
-        if gz >= GL_FAR_Z:  # Empty space was clicked
+                
+        gz = self._calibrateZ(wX, wY) 
+        if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return False  
         
         pxyz = A(gluUnProject(wX, wY, gz))
@@ -1228,6 +1249,7 @@ class basicMode(anyMode):
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
             self.o.assy.draw(self.o)
+            self.Draw_after_highlighting(pickCheckOnly=True)
             glDisable(GL_CLIP_PLANE0)
         except:
             # Restore Model view matrix, select mode to render mode 

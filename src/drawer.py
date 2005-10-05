@@ -989,8 +989,9 @@ def drawCubeCell(color):
     glEnable(GL_LIGHTING) 
 
 
-def drawPlane(color, w, h, textureReady, opacity, SOLID=False):
-    '''Draw polygon with size of <w>*<h> and with color <color>. '''
+def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False):
+    '''Draw polygon with size of <w>*<h> and with color <color>. Optionally, it could be texuture mapped, translucent.
+       @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
     vt = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]    
     
@@ -1006,12 +1007,14 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False):
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
     glDisable(GL_CULL_FACE) 
 
-    glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        
-    if textureReady:
-        glEnable(GL_TEXTURE_2D)  
+    if not pickCheckOnly:
+        glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            
+        if textureReady:
+            glEnable(GL_TEXTURE_2D)  
+            
     glBegin(GL_QUADS)
     for ii in range(len(vs)):
         t = vt[ii]; v = vs[ii]
@@ -1019,11 +1022,13 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False):
             glTexCoord2fv(t)
         glVertex3fv(v)
     glEnd()
-    if textureReady:
-        glDisable(GL_TEXTURE_2D)
     
-    glDisable(GL_BLEND)
-    glDepthMask(GL_TRUE) 
+    if not pickCheckOnly:
+        if textureReady:
+            glDisable(GL_TEXTURE_2D)
+        
+        glDisable(GL_BLEND)
+        glDepthMask(GL_TRUE) 
     
     glEnable(GL_CULL_FACE)
     if not SOLID:

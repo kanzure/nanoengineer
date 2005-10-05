@@ -35,8 +35,10 @@ class ops_select_Mixin:
         selJigs = []
         
         from jigs_planes import RectGadget
+        from jigs_motors import Motor
         def addSelectedJig(obj, jigs=selJigs):
-            if obj.picked and isinstance(obj, RectGadget): jigs += [obj]
+            if obj.picked and (isinstance(obj, RectGadget) or False):#isinstance(obj, Motor)): 
+                jigs += [obj]
         
         self.topnode.apply2all(addSelectedJig)
         

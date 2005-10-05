@@ -474,7 +474,7 @@ class Jig(Node):
             glDisable(GL_CULL_FACE) # this makes motors look too busy, but without it, they look too weird (which seems worse)
 
         try:
-            glPushName(self.glname)           
+            glPushName(self.glname)
             self._draw(win, dispdef)
         except:
             glPopName()

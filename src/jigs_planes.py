@@ -280,6 +280,8 @@ class ESPWindow(RectGadget):
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
         self.multiplicity = 1 # Multiplicity of atoms within this jig's bbox volume
        
+        self.pickCheckOnly=False #This is used to notify drawing code if it's just for picking purpose
+        
         
     def _initTextureEnv(self):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
@@ -398,7 +400,7 @@ class ESPWindow(RectGadget):
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
         
-        drawPlane(self.fill_color, self.width, self.width, self.textureReady, self.opacity, SOLID=True)
+        drawPlane(self.fill_color, self.width, self.width, self.textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
