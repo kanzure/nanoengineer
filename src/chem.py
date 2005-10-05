@@ -310,7 +310,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         if it recomputed basepos! But as of that date we'll never compute
         basepos or atpos if they're invalid.
         """
-        privateMethod(["Bond"])
+        privateMethod(("Bond",))
         #comment from 041201:
         #e Does this mean we no longer use basepos for drawing? Does that
         # matter (for speed)? We still use it for things like mol.rot().
@@ -1047,7 +1047,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
            As of 050727, newly created open bonds have same bond type as the
         removed bond.
         """
-        privateMethod(["Bond"])
+        privateMethod(("Bond",))
         # [obsolete comment: Caller is responsible for shakedown
         #  or kill (after clearing externs) of affected molecules.]
         
@@ -1578,7 +1578,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
            All user events which can call this (indirectly) should also call env.post_event_updates() when they're done.
         """
-        privateMethod(["Bond"])
+        privateMethod(("Bond",))
         ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
         from env import _changed_structure_atoms # a dict
         _changed_structure_atoms[ id(self) ] = self
@@ -1705,7 +1705,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
 
     def make_singlets_when_no_bonds(self): #bruce 050511 partly revised this for atomtypes
         "[private method; see docstring for make_singlets_when_2_bonds]"
-        privateMethod(["MMKitView", "Elem"])
+        privateMethod(("MMKitView", "Elem"))
         # unlike the others, this was split out of oneUnbonded [bruce 041215]
         atype = self.atomtype
         if atype.bondvectors:

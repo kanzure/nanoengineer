@@ -23,7 +23,7 @@ History:
 
 - 050727 bruce moved bond drawing code into a separate module, bond_drawer.py
   (also removed some imports not needed here, even though chem.py still does "from bonds import *"
-   and some other modules import * from chem, so there's no guarantee these were not needed indirectly)
+   and some other modules import * from chem, so there is no guarantee these were not needed indirectly)
 
 '''
 __author__ = "Josh"
@@ -50,7 +50,7 @@ from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 
-from debug import print_compact_stack, print_compact_traceback
+from debug import print_compact_stack, print_compact_traceback, privateMethod
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
@@ -391,6 +391,7 @@ class Bond:
         (whether to a legal or (presumably temporary) illegal value).
         It does whatever invalidations that requires, but does no "updates".
         """
+        privateMethod()
         ###e update geometric things, using setup_invalidate?? ###@@@
         self.setup_invalidate() # not sure this is needed, but let's do it to make sure it's safe if/when it's needed [bruce 050502]
         # tell the atoms we're doing this
@@ -427,6 +428,7 @@ class Bond:
         WARNING: does not call setup_invalidate(), though that would often also
         be needed, as would invalidate_bonded_mols() both before and after the change.
         """
+        privateMethod()
         at1 = self.atom1
         at2 = self.atom2
         at1._changed_structure() #bruce 050725
@@ -461,6 +463,7 @@ class Bond:
         (internal bonds) or put into into mol.externs (external bonds),
         though this knowledge should ideally be private to class molecule.
         """
+        privateMethod(("Atom",))
         # assume mols are not None (they might be _nullMol, that's ok);
         # if they are, we'll detect the error with exceptions in either case below
         mol1 = self.atom1.molecule
@@ -495,6 +498,7 @@ class Bond:
         only does the invalidation which makes sure that recomputation will happen
         when it's needed.
         """
+        privateMethod(("Atom",))
         self._valid_data = None
         # For internal bonds, or bonds that used to be internal,
         # callers need to have reset havelist of affected mols,
@@ -528,6 +532,7 @@ class Bond:
         otherwise, use them only for external bonds, and for internal bonds
         (i.e. between atoms in the same mol) use mol-relative coords.
         """
+        privateMethod()
         atom1 = self.atom1
         atom2 = self.atom2
         if abs_coords or (atom1.molecule is not atom2.molecule):

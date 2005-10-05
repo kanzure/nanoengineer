@@ -28,7 +28,7 @@ Created by bruce.
 bruce 050913 used env.history in some places.
 '''
 
-import sys, os, time
+import sys, os, time, types
 from constants import debugButtons, noop
 from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key
 import env
@@ -43,37 +43,75 @@ from debug_prefs import debug_prefs_menuspec # bruce 050614
 debug_menu_enabled = 1 
 debug_events = 0 # set this to 1 to print info about many mouse events
 
-
 API_ENFORCEMENT = False   # for performance, commit this only as False
 
 class APIViolation(Exception):
     pass
 
-def privateMethod(friends=[ ]):
-    if not API_ENFORCEMENT:
-        return
-    import sys
-    f2 = sys._getframe(2)
-    caller = f2.f_locals[f2.f_code.co_varnames[0]]
-    callername = caller.__class__.__name__
-    if callername in friends:
-        return
+def _getClassName(frame):
+    """We compare class names to find out whether calls to private methods
+    are originating from within the same class (or one of its friends). This
+    could give false negatives, if two classes defined in two different places
+    have the same name. A work-around would be to use classes as members of
+    the "friends" tuple instead of strings. But then we need to do extra
+    imports, and that seems to be not only inefficient, but to sometimes
+    cause exceptions to be raised.
+    """
+    # This is the list of local variables' names in this stack frame.
+    # See http://docs.python.org/ref/types.html for details.
+    varnames = frame.f_code.co_varnames
+    # If this is a method call in a class, the first local varname
+    # will be "self" or whatever name was used instead of "self".
+    selfname = varnames[0]
+    # Use that to index the local variables for this frame, and
+    # get the object from which this call came.
+    callerInstance = frame.f_locals[selfname]
+    return callerInstance.__class__.__name__
+
+def _privateMethod(friends=()):
+    """Verify that the call made to this method came either from within its
+    own class, or from a friendly class which has been granted access. This
+    is done by digging around in the Python call stack. The "friends" argument
+    should be a tuple of strings, the names of the classes that are considered
+    friendly. If no list of friends is given, then any calls from any other
+    classes will be flagged as API violations.
+
+    CAVEAT: Detection of API violations is done by comparing only the name of
+    the class. (This is due to some messiness I encountered while trying to
+    use the actual class object itself, apparently a complication of importing.)
+    This means that some violations may not be detected, if we're ever careless
+    enough to give two classes the same name.
+    """
     f1 = sys._getframe(1)
-    called = f1.f_locals[f1.f_code.co_varnames[0]]
-    calledname = called.__class__.__name__
-    if callername is not calledname:
-        import inspect
-        f1 = inspect.getframeinfo(f1)
-        f2 = inspect.getframeinfo(f2)
-        print
-        print callername, calledname
-        lineno, meth = f1[1], f1[2]
-        lineno2, meth2 = f2[1], f2[2]
-        print (calledname + "." + meth + " (line " + repr(lineno) + ")" +
-               " is a private method called by")
-        print (callername + "." + meth2 +
-               " (line " + repr(lineno2) + ") in file " + f2[0])
-        raise APIViolation
+    f2 = sys._getframe(2)
+    called = _getClassName(f1)
+    caller = _getClassName(f2)
+    if caller == called or caller in friends:
+        # These kinds of calls are okay.
+        return
+    # Uh oh, an API violation. Print information that will
+    # make it easy to track it down.
+    import inspect
+    f1 = inspect.getframeinfo(f1)
+    f2 = inspect.getframeinfo(f2)
+    lineno, meth = f1[1], f1[2]
+    lineno2, meth2 = f2[1], f2[2]
+    print
+    print (called + "." + meth +
+           " (line " + repr(lineno) + ")" +
+           " is a private method called by")
+    print (caller + "." + meth2 +
+           " (line " + repr(lineno2) + ")" +
+           " in file " + f2[0])
+    raise APIViolation
+
+if API_ENFORCEMENT:
+    privateMethod = _privateMethod
+else:
+    # If we're not checking API violations, be as low-impact as possible.
+    # In this case 'friends' is ignored.
+    def privateMethod(friends=None):
+        return
 
 # ==
 
