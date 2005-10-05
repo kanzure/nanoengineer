@@ -1,0 +1,16 @@
+Unit tests
+
+Python supports unit testing with the PyUnit module. Information about
+PyUnit is available at these websites:
+
+http://pyunit.sourceforge.net/pyunit.html
+http://www.onlamp.com/pub/a/python/2004/12/02/tdd_pyunit.html
+http://www.onlamp.com/pub/a/python/2005/02/03/tdd_pyunit2.html
+
+To run the tests from the cad/src directory, do this:
+
+(cd ../tests; PYTHONPATH=../src python chemtest.py)
+
+We should grow these tests as time permits. They are a quick handy way
+to do some regression testing while developing. Also, these tests could
+be helpful in keeping the modularization effort on track.
