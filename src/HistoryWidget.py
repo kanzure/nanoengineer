@@ -25,7 +25,7 @@ __author__ = "bruce"
 from qt import *
 import sys, os, time
 import platform # for atom_debug, and more
-from debug import DebugMenuMixin
+from debug import DebugMenuMixin, privateMethod
 from constants import *
 import preferences
 import env #bruce 050810
@@ -277,6 +277,7 @@ class HistoryWidget:
         The text is not processed except to add newlines as needed.
         We assume the given text does not normally start or end with a newline.
         """
+        privateMethod()
         ## something = str(something) # usually something should already be a string
         if self.file:
             self.file.write(something)

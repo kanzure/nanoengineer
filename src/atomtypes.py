@@ -32,6 +32,7 @@ import platform
 import env
 
 from bond_constants import *
+from debug import privateMethod
 
 class AtomType:
     """An atom type includes an element and its bonding pattern (and maybe more) --
@@ -115,6 +116,7 @@ class AtomType:
 
     def _init_electronic_structure(self): #bruce 050707
         "[private method] Figure out situation with valence electrons, etc, and store it in attributes. Only works for low elements."
+        privateMethod()
         # Figure out situation with valence electrons (available for pi orbitals), lone pairs, etc.
         # This might be only supported for non-sp3 atomtypes (which presently go no higher than sulfur) so far.
         # And for now it might be mostly hardcoded rather than principled. [bruce 050706]
