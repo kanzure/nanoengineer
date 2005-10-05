@@ -1,3 +1,7 @@
+$Id$
+
+__author__ = "Will Ware"
+
 Unit tests
 
 Python supports unit testing with the PyUnit module. Information about
@@ -10,6 +14,18 @@ http://www.onlamp.com/pub/a/python/2005/02/03/tdd_pyunit2.html
 To run the tests from the cad/src directory, do this:
 
 (cd ../tests; PYTHONPATH=../src python chemtest.py)
+
+[Note: the above syntax only works in some shells. Another shell command to
+try is:
+
+  (cd ../tests; env PYTHONPATH=../src python chemtest.py)
+]
+
+[WARNING: if this uses a different python executable than you normally run
+on atom.py to start nE-1, you might need to remove *.pyc before and after
+running these tests, to avoid any chance of incompatible .pyc files messing
+up nE-1. This is not supposed to happen, but for certain Mac Pythons I have
+had this problem. -- comment added by bruce 051005]
 
 We should grow these tests as time permits. They are a quick handy way
 to do some regression testing while developing. Also, these tests could
