@@ -265,6 +265,8 @@ class GamessProp(GamessPropDialog):
         #else:
         #    self.run_job_btn.setEnabled(True)
         
+        self.jig_attrs = self.gamessJig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
+        
         # Jig color
         self.original_normcolor = self.gamessJig.normcolor 
         self.jig_QColor = RGBf_to_QColor(self.gamessJig.normcolor) # Used as default color by Color Chooser
@@ -322,7 +324,6 @@ class GamessProp(GamessPropDialog):
         # If there is an error, return 1. NIY.
         return 0
  
- 
     def _reloadServerList(self):
         """ Load the server combo box"""
         self.server_combox.clear()
@@ -332,13 +333,6 @@ class GamessProp(GamessPropDialog):
             self.server = self.servers[0]
         indx = self.servers.index(self.server)
         self.server_combox.setCurrentItem(indx)    
-               
-        
-    def _rename(self):
-        '''Rename the jig.
-        '''
-        self.gamessJig.name = str(self.name_linedit.text())
-
 
     def _load_dfttyp_combox(self):
         '''Load list of DFT function in a combobox widget'''
@@ -354,7 +348,6 @@ class GamessProp(GamessPropDialog):
             for f in gms_dfttyp_items:
                 self.dfttyp_combox.insertItem(f)
 
-
     def _update_gbasis_list(self, val):
         '''Add/remove AM1 and PM3 to/from the gbasis list. '''
         citem = self.gbasis_combox.currentItem()
@@ -369,11 +362,9 @@ class GamessProp(GamessPropDialog):
                 self.gbasis_combox.insertItem("AM1",0)
                 self.gbasis_combox.setCurrentItem(citem+2)
 
-    
     def _save_ui_settings(self):
         '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
         '''
-        self._rename()
         self.pset.ui.comment = str(self.comment_linedit.text()) # Description
         self.pset.ui.runtyp = self.runtyp_combox.currentItem() # RUNTYP = Energy or Optimize
         
@@ -406,7 +397,6 @@ class GamessProp(GamessPropDialog):
 #        self.pset.ui.shift = self.shift_checkbox.isChecked() # SHIFT
 #        self.pset.ui.soscf = self.soscf_checkbox.isChecked() # SOSCF
 #        self.pset.ui.rstrct = self.rstrct_checkbox.isChecked() # RSTRCT
-
 
     def _save_job_parms(self):
         calculate = ['Energy', 'Optimization']
@@ -591,6 +581,7 @@ class GamessProp(GamessPropDialog):
     def accept(self):
         """The slot method for the 'Save' button."""
         QDialog.accept(self)
+        self.gamessJig.try_rename(str(self.name_linedit.text()))
         self._save_ui_settings()
         self.gamessJig.update_gamess_parms() # Update all the GAMESS parameters.
         self._save_job_parms()
@@ -600,7 +591,8 @@ class GamessProp(GamessPropDialog):
     def reject(self):
         """The slot method for the 'Cancel' button."""
         QDialog.reject(self)
-        self.gamessJig.color = self.gamessJig.normcolor = self.original_normcolor
+        self.gamessJig.attr_update(self.jig_attrs) # Restore attributes of the jig.
+        # self.gamessJig.color = self.gamessJig.normcolor = self.original_normcolor
         self.gamessJig.cancelled = True
         self.glpane.gl_update()
         

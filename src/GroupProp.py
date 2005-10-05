@@ -77,10 +77,5 @@ class GroupProp(GroupPropDialog):
     # OK Button
     #################
     def accept(self):
+        self.group.try_rename(str(self.nameLineEdit.text()))
         QDialog.accept(self)
-
-        text =  QString(self.nameLineEdit.text())        
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text:
-            self.group.name = str(text)
-            self.group.assy.changed()

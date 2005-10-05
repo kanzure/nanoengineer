@@ -16,18 +16,12 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         RotaryMotorPropDialog.__init__(self)
         self.jig = motor
         self.glpane = glpane
-        self.setup()
 
     def setup(self):
         
-        # Need to ask Bruce about the pros/cons of copying the jig here.  
-        # It sure would be nice to use the copy of the jig in self.reject() like this:
-        #     self.jig = self.original_jig
-        # so I didn't have to copy each attr back when the user hit the Cancel button.  Mark 050929.
-        self.original_jig = copy.copy(self.jig) 
+        self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
         
         # Jig color
-        # self.original_normcolor = self.jig.normcolor
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
         self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
 
@@ -58,13 +52,8 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         
     def accept(self):
         '''Slot for the 'OK' button '''
-        
         self.jig.cancelled = False
-        
-        text =  QString(self.nameLineEdit.text())
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.jig.name = str(text)
-        
+        self.jig.try_rename(str(self.nameLineEdit.text()))
         self.jig.torque = float(str(self.torqueLineEdit.text()))
         self.jig.speed = float(str(self.speedLineEdit.text()))
         
@@ -76,13 +65,6 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        #self.jig.color = self.jig.normcolor = self.original_normcolor
-        self.jig.color = self.jig.normcolor = self.original_jig.normcolor
-        self.jig.length = self.original_jig.torque
-        self.jig.length = self.original_jig.speed
-        self.jig.length = self.original_jig.length
-        self.jig.radius = self.original_jig.radius
-        self.jig.sradius = self.original_jig.sradius
-
+        self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()
         QDialog.reject(self)

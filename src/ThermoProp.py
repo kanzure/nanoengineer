@@ -15,12 +15,12 @@ class ThermoProp(ThermoPropDialog):
         ThermoPropDialog.__init__(self)
         self.jig = thermo
         self.glpane = glpane
-        self.setup()
 
     def setup(self):
         
+        self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
+        
         # Jig color
-        self.original_normcolor = self.jig.normcolor 
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
         self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
 
@@ -41,16 +41,13 @@ class ThermoProp(ThermoPropDialog):
 
     def accept(self):
         '''Slot for the 'OK' button '''
-        text =  QString(self.nameLineEdit.text())
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.jig.name = str(text)
-        
+        self.jig.try_rename(str(self.nameLineEdit.text()))
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
         QDialog.accept(self)
         
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        self.jig.color = self.jig.normcolor = self.original_normcolor
+        self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()
         QDialog.reject(self)

@@ -15,23 +15,18 @@ class GridPlaneProp(GridPlanePropDialog):
         GridPlanePropDialog.__init__(self)
         self.grid_plane = gridPlane
         self.glpane = glpane
-       
-        self.setup()
-    
-    
+
     def setup(self):
         
+        self.jig_attrs = self.grid_plane.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
+        
         # Border color
-        self.oldNormColor = self.grid_plane.normcolor 
         self.border_color = RGBf_to_QColor(self.grid_plane.normcolor) # Used as default color by Color Chooser
         self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
         
         # Grid color
-        self.oldGridColor = self.grid_plane.grid_color 
         self.grid_color = RGBf_to_QColor(self.grid_plane.grid_color) # Used as default color by Color Chooser
         self.grid_color_pixmap.setPaletteBackgroundColor(self.grid_color)
-        
-        self.x_spacing = 2
         
         self.name_linedit.setText(self.grid_plane.name)
         
@@ -119,11 +114,7 @@ class GridPlaneProp(GridPlanePropDialog):
     def accept(self):
         '''Slot for the 'OK' button '''
         self.grid_plane.cancelled = False
-        
-        text =  QString(self.name_linedit.text())        
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.grid_plane.name = str(text) 
-        
+        self.grid_plane.try_rename(str(self.name_linedit.text()))
         self.grid_plane.width = float(self.width_spinbox.value())
         self.grid_plane.height = float(self.height_spinbox.value())
         self.grid_plane.x_spacing = float(self.x_spacing_spinbox.value())
@@ -137,11 +128,6 @@ class GridPlaneProp(GridPlanePropDialog):
         
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        self.grid_plane.grid_color = self.oldGridColor 
-        self.grid_plane.color = self.grid_plane.normcolor = self.oldNormColor   # Border color
-        
-        # Need to restore width, height, spacing, etc., too. Mark 050922.
- 
+        self.grid_plane.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()
-        
         QDialog.reject(self)

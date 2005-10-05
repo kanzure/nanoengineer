@@ -96,11 +96,7 @@ class ChunkProp(ChunkPropDialog):
         
     def accept(self):
         '''Slot for the 'OK' button '''
-        
-        text =  QString(self.nameLineEdit.text())        
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.chunk.name = str(text)
-        
+        self.chunk.try_rename(str(self.nameLineEdit.text()))
         self.chunk.assy.w.win_update() # Update model tree
         self.chunk.assy.changed()
         

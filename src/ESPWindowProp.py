@@ -17,23 +17,15 @@ class ESPWindowProp(ESPWindowPropDialog):
         ESPWindowPropDialog.__init__(self)
         self.jig = esp_window
         self.glpane = glpane
-
-        self.setup()
-       
     
     def setup(self):
         
         #Default state for atoms selection
         self.selected = False        
         
-        # Need to ask Bruce about the pros/cons of copying the jig here.  
-        # It sure would be nice to use the copy of the jig in self.reject() like this:
-        #     self.jig = self.original_jig
-        # so I didn't have to copy each attr back when the user hit the Cancel button.  Mark 050929.
-        self.original_jig = copy.copy(self.jig) 
+        self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
         
         # Jig color
-        # self.original_normcolor = self.jig.normcolor
         self.fill_QColor = RGBf_to_QColor(self.jig.fill_color) # Used as default color by Color Chooser
         self.border_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
         self.fill_color_pixmap.setPaletteBackgroundColor(self.fill_QColor)
@@ -145,16 +137,12 @@ class ESPWindowProp(ESPWindowPropDialog):
     def accept(self):
         '''Slot for the 'OK' button '''
         self.jig.cancelled = False   
-        
-        text =  QString(self.name_linedit.text())        
-        text = text.stripWhiteSpace() # make sure name is not just whitespaces
-        if text: self.jig.name = str(text) 
-        
+        self.jig.try_rename(str(self.name_linedit.text()))
         self.jig.width = float(self.width_spinbox.value())
         self.jig.resolution = float(self.resolution_spinbox.value())
         
-        #Before exit the dialog, turn off the highlighting and selection
-        #self.jig.highlightChecked = False
+        # Before exit the dialog, turn off the highlighting and selection
+        #self.jig.highlightChecked = False # Let's try leaving highlighted atoms on.  It's useful.  Mark 051004.
         self.jig.pickSelected(False)
                 
         self.jig.assy.w.win_update() # Update model tree
@@ -165,19 +153,8 @@ class ESPWindowProp(ESPWindowPropDialog):
 
     def reject(self):
         '''Slot for the 'Cancel' button '''
-        
-        # Restore the original attribute values from the copied jig.
-        self.jig.color = self.jig.normcolor = self.original_jig.normcolor # Border color
-        self.jig.fill_color = self.original_jig.fill_color
-        self.jig.name = self.original_jig.name
-        self.jig.width = self.original_jig.width
-        self.jig.window_offset = self.original_jig.window_offset
-        self.jig.edge_offset = self.original_jig.edge_offset
-        self.jig.resolution = self.original_jig.resolution
-        self.jig.show_esp_bbox = self.original_jig.show_esp_bbox
-        self.jig.opacity = self.original_jig.opacity
-
-        #Before exit the dialog, turn off the highlighting and selection
+        self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
+        # Before exit the dialog, turn off the highlighting and selection
         self.jig.highlightChecked = False
         self.jig.pickSelected(False)
         
