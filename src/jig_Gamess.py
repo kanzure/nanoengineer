@@ -552,7 +552,7 @@ class gamessParms:
     def deepcopy(self, alter_name = True): #bruce 051003 added alter_name, but I don't know if passing False is ever legal. ###@@@
         #bruce 050704; don't know whether this is complete [needs review by Mark; is it ok it only sets .ui?]
         "Make a copy of self (a gamessParms object), which shares no mutable state with self. (Used to copy a Gamess Jig containing self.)"
-        if self.alter_name:
+        if alter_name:
             newname = self.name + " copy"
             # copy needs a different name #e could improve this -- see the code used to rename chunk copies
         else:
