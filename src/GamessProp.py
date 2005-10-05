@@ -581,7 +581,7 @@ class GamessProp(GamessPropDialog):
     def accept(self):
         """The slot method for the 'Save' button."""
         QDialog.accept(self)
-        self.gamessJig.try_rename(str(self.name_linedit.text()))
+        self.gamessJig.try_rename(self.name_linedit.text())
         self._save_ui_settings()
         self.gamessJig.update_gamess_parms() # Update all the GAMESS parameters.
         self._save_job_parms()

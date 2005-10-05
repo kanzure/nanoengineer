@@ -77,5 +77,5 @@ class GroupProp(GroupPropDialog):
     # OK Button
     #################
     def accept(self):
-        self.group.try_rename(str(self.nameLineEdit.text()))
+        self.group.try_rename(self.nameLineEdit.text())
         QDialog.accept(self)

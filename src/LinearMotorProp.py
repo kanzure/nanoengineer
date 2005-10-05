@@ -53,7 +53,7 @@ class LinearMotorProp(LinearMotorPropDialog):
     def accept(self):
         '''Slot for the 'OK' button '''
         self.jig.cancelled = False
-        self.jig.try_rename(str(self.nameLineEdit.text()))
+        self.jig.try_rename(self.nameLineEdit.text())
         self.jig.force = float(str(self.forceLineEdit.text()))
         self.jig.stiffness = float(str(self.stiffnessLineEdit.text()))
 

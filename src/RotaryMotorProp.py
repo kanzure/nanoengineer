@@ -53,7 +53,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
     def accept(self):
         '''Slot for the 'OK' button '''
         self.jig.cancelled = False
-        self.jig.try_rename(str(self.nameLineEdit.text()))
+        self.jig.try_rename(self.nameLineEdit.text())
         self.jig.torque = float(str(self.torqueLineEdit.text()))
         self.jig.speed = float(str(self.speedLineEdit.text()))
         

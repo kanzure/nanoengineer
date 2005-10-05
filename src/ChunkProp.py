@@ -96,7 +96,7 @@ class ChunkProp(ChunkPropDialog):
         
     def accept(self):
         '''Slot for the 'OK' button '''
-        self.chunk.try_rename(str(self.nameLineEdit.text()))
+        self.chunk.try_rename(self.nameLineEdit.text())
         self.chunk.assy.w.win_update() # Update model tree
         self.chunk.assy.changed()
         

@@ -53,7 +53,7 @@ class JigProp(JigPropDialog):
 
     def accept(self):
         '''Slot for the 'OK' button '''
-        self.jig.try_rename(str(self.nameLineEdit.text()))
+        self.jig.try_rename(self.nameLineEdit.text())
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
         QDialog.accept(self)

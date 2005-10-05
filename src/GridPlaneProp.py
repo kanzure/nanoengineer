@@ -114,7 +114,7 @@ class GridPlaneProp(GridPlanePropDialog):
     def accept(self):
         '''Slot for the 'OK' button '''
         self.grid_plane.cancelled = False
-        self.grid_plane.try_rename(str(self.name_linedit.text()))
+        self.grid_plane.try_rename(self.name_linedit.text())
         self.grid_plane.width = float(self.width_spinbox.value())
         self.grid_plane.height = float(self.height_spinbox.value())
         self.grid_plane.x_spacing = float(self.x_spacing_spinbox.value())
