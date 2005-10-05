@@ -867,6 +867,24 @@ class Node:
             self.copy_prior_part_to( target)
         return
 
+    def copyable_attrs_dict(self):
+        """Returns a new dictionary containing copied values of attributes
+        listed in self.copyable_attrs.
+        """
+        from state_utils import copy_val
+        res = {}
+        for attr in self.copyable_attrs:
+            val = getattr(self, attr)
+            val = copy_val(val)
+            res[attr] = val
+        return res
+        
+    def attr_update(self, dict1):
+        """Updates the attribute values from dict1 to self
+        """
+        for attr, val in dict1.iteritems():
+            setattr(self, attr, val)
+
     def copy_prior_part_to(self, target): #bruce 050527
         """If target (presumed to be a Node) has no part or prior_part, set its prior_part from self,
         for sake of initial views of new Parts containing target, if any such new Parts are yet to be made.
