@@ -28,6 +28,11 @@ struct ObjectSphere
   float r, g, b; // color
 };
 
+struct ObjectFrame
+{
+  char *s;
+};
+
 struct Object
 {
 
@@ -39,6 +44,7 @@ struct Object
   union {
     struct ObjectLine line;
     struct ObjectSphere sphere;
+    struct ObjectFrame frame;
   };
 };
 
@@ -75,7 +81,7 @@ static Display *xDisplay;
 static void
 resetEye()
 {
-  eyeR = 100.0;
+  eyeR = 1000.0;
   eyeTheta = 0.0;
   eyePhi = 0.0;
 }
@@ -152,6 +158,7 @@ renderFrame()
       renderObject(o);
       o++;
     }
+    printf("%d: %s\n", currentFrame, o->frame.s);
   }
 }
 
@@ -180,12 +187,12 @@ repaint()
 
   glEnable(GL_DEPTH_TEST);
         
-  gluPerspective(45.0, (float)windowWidth / (float)windowHeight, 10.0, 1000.0);
+  gluPerspective(45.0, (float)windowWidth / (float)windowHeight, eyeR/10.0, eyeR*20.0);
   gluLookAt(eyeX, eyeY, eyeZ,
             0.0, 0.0, 0.0,
             0.0, 0.0, 1.0);
 
-#define AXISLEN 10.0
+#define AXISLEN 100.0
   line(0.0, 0.0, 0.0, AXISLEN, 0.0, 0.0, 1.0, 0.0, 0.0); // x axis in red
   line(0.0, 0.0, 0.0, 0.0, AXISLEN, 0.0, 0.0, 1.0, 0.0); // y axis in green
   line(0.0, 0.0, 0.0, 0.0, 0.0, AXISLEN, 0.0, 0.0, 1.0); // z axis in blue
@@ -223,14 +230,14 @@ keypress(XEvent *event)
     break;
   case XK_Up:
     if (modifiers & 0x01) {
-      eyeR--;
+      eyeR *= 0.8;
     } else {
       eyePhi -= dAngle;
     }
     break;
   case XK_Down:
     if (modifiers & 0x01) {
-      eyeR++;
+      eyeR *= 1.2;
     } else {
       eyePhi += dAngle;
     }
@@ -246,18 +253,22 @@ keypress(XEvent *event)
 
   case XK_comma:
     currentFrame--;
+    followLastFrame = 0;
     break;
     
   case XK_period:
     currentFrame++;
+    followLastFrame = 0;
     break;
     
   case XK_less:
     currentFrame = 0;
+    followLastFrame = 0;
     break;
     
   case XK_greater:
     currentFrame = numFrames - 1;
+    followLastFrame = 1;
     break;
     
   default:
@@ -281,7 +292,6 @@ processLine(char *s)
   
   movie = (struct Object *)accumulator(movie, sizeof(struct Object) * (numObjects + 1), 0);
   o = &movie[numObjects];
-  fprintf(stderr, "line: <<%s>>\n", s);
   if (*s == 's') { // s x y z radius r g b
     if (7 == sscanf(s+1,
                     "%f%f%f%f%f%f%f",
@@ -318,6 +328,7 @@ processLine(char *s)
     }
   } else if (*s == 'f') {
     o->type = OBJ_FRAME;
+    o->frame.s = copy_string(s+1);
     numObjects++;
     numFrames++;
     frames = (int *)accumulator(frames, sizeof(int) * numFrames, 0);
@@ -366,11 +377,14 @@ processStdin()
   }
 }
 
-static void
+static int
 processX()
 {
   XEvent event;
 
+  if (XEventsQueued(xDisplay, QueuedAfterFlush) == 0) {
+    return 0;
+  }
   XNextEvent(xDisplay, &event);
   switch (event.type) {
 
@@ -412,6 +426,7 @@ processX()
     fprintf(stderr, "got event type %d\n", event.type);
     break;
   }
+  return 1;
 }
 
 int main(int argc, char **argv)
@@ -482,6 +497,8 @@ int main(int argc, char **argv)
   XFlush(xDisplay);
   
   while (1) {
+    while (processX()) {
+    }
     FD_ZERO(&readfds);
     FD_SET(0, &readfds);
     FD_SET(xServerFD, &readfds);
@@ -495,9 +512,6 @@ int main(int argc, char **argv)
     }
     if (FD_ISSET(0, &readfds)) {
       processStdin();
-    }
-    if (FD_ISSET(xServerFD, &readfds)) {
-      processX();
     }
   }
 }
