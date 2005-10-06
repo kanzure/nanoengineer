@@ -12,6 +12,8 @@
 #define XK_LATIN1
 #include <X11/keysymdef.h>
 
+#include "allocate.h"
+
 struct ObjectLine
 {
   float x1, y1, z1; // endpoint1
@@ -43,11 +45,15 @@ struct Object
 // A movie is a sequence of frames.  Each frame is a sequence of
 // Objects, the last of which is of type OBJ_FRAME.  The movie array
 // contains all of the Objects in all of the frames.  The frame array
-// contains pointers to the first object in each frame.
-struct Object *movie;
-struct Object **frames;
-int numFrames;
+// contains indexes of the first object in each frame.
+struct Object *movie = NULL;
+int *frames = NULL;
+int numFrames = 0;
+int numObjects = 0; // total in all frames
+int startOfLastFrame = 0;
 int currentFrame = 0;
+
+int followLastFrame = 1; // if true, render a new frame whenever we get one.
 
 static int attributeList[] = { GLX_RGBA, None };
 
@@ -141,7 +147,7 @@ renderFrame()
   if (currentFrame < 0) currentFrame = 0;
   if (currentFrame >= numFrames) currentFrame = numFrames - 1;
   if (currentFrame >= 0) {
-    o = frames[currentFrame];
+    o = &movie[frames[currentFrame]];
     while (o->type != OBJ_FRAME) {
       renderObject(o);
       o++;
@@ -237,6 +243,22 @@ keypress(XEvent *event)
   case XK_r:
     resetEye();
     break;
+
+  case XK_comma:
+    currentFrame--;
+    break;
+    
+  case XK_period:
+    currentFrame++;
+    break;
+    
+  case XK_less:
+    currentFrame = 0;
+    break;
+    
+  case XK_greater:
+    currentFrame = numFrames - 1;
+    break;
     
   default:
     fprintf(stderr, "keypress: 0x%x, 0x%x\n", key, modifiers);
@@ -251,8 +273,63 @@ static int stdinPosition = 0;
 static void
 processLine(char *s)
 {
+  float x1, y1, z1;
+  float x2, y2, z2;
+  float r, g, b;
+  float radius;
+  struct Object *o;
+  
+  movie = (struct Object *)accumulator(movie, sizeof(struct Object) * (numObjects + 1), 0);
+  o = &movie[numObjects];
   fprintf(stderr, "line: <<%s>>\n", s);
+  if (*s == 's') { // s x y z radius r g b
+    if (7 == sscanf(s+1,
+                    "%f%f%f%f%f%f%f",
+                    &o->sphere.x,
+                    &o->sphere.y,
+                    &o->sphere.z,
+                    &o->sphere.radius,
+                    &o->sphere.r,
+                    &o->sphere.g,
+                    &o->sphere.b))
+    {
+      o->type = OBJ_SPHERE;
+      numObjects++;
+    } else {
+      fprintf(stderr, "couldn't parse sphere line: <<%s>>\n", s);
+    }
+  } else if (*s == 'l') {
+    if (9 == sscanf(s+1,
+                    "%f%f%f%f%f%f%f%f%f",
+                    &o->line.x1,
+                    &o->line.y1,
+                    &o->line.z1,
+                    &o->line.x2,
+                    &o->line.y2,
+                    &o->line.z2,
+                    &o->line.r,
+                    &o->line.g,
+                    &o->line.b))
+    {
+      o->type = OBJ_LINE;
+      numObjects++;
+    } else {
+      fprintf(stderr, "couldn't parse line line: <<%s>>\n", s);
+    }
+  } else if (*s == 'f') {
+    o->type = OBJ_FRAME;
+    numObjects++;
+    numFrames++;
+    frames = (int *)accumulator(frames, sizeof(int) * numFrames, 0);
+    frames[numFrames-1] = startOfLastFrame;
+    startOfLastFrame = numObjects;
+    if (followLastFrame) {
+      currentFrame = numFrames - 1;
+      repaint(); // could be smarter about skipping frames if we get a bunch
+    }
+  }
 }
+
 
 static void
 processStdin()
