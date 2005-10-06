@@ -1173,7 +1173,8 @@ class sim_aspect:
             mapping.write_header() ###e header should differ in this case
             ## node.writemmp(mapping)
             self.write_atoms(mapping)
-            self.write_jigs(mapping)
+            self.write_grounds(mapping)
+            self.write_minimize_enabled_jigs(mapping)
             mapping.write("end mmp file for Minimize Selection (" + assy.name + ")\n") # sim & cad both ignore text after 'end'
         except:
             mapping.close(error = True)
@@ -1186,7 +1187,7 @@ class sim_aspect:
         for atm in self._atoms_list: # includes both real atoms and singlets, both moving and anchored, all sorted by key
             atm.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
                 # note: this method knows whether & how to write a Singlet as an H (repositioned)!
-    def write_jigs(self, mapping):
+    def write_grounds(self, mapping):
         from jigs import fake_Ground_mmp_record
         atoms = self.anchored_atoms_list
         nfixed = len(atoms)
@@ -1202,6 +1203,23 @@ class sim_aspect:
             if debug_sim:
                 print "debug_sim: wrote %r" % (line,)           
         return
+        
+# write_minimize_enabled_jigs added.  Mark 051006.
+    def write_minimize_enabled_jigs(self, mapping):
+        '''Writes any jig to the mmp file which has the attr "enable_minimize"=True
+        '''
+        print "runSim.write_minimize_enabled_jigs(): CALLED"
+        
+        from jigs import Jig
+        def func_write_jigs(nn):
+            if isinstance(nn, Jig) and nn.enable_minimize:
+                print nn.name, " written to minimize MMP file"
+                nn.writemmp(mapping)
+            return # from func_write_jigs only
+            
+        self.part.topnode.apply2all( func_write_jigs)
+        return
+        
     pass # end of class sim_aspect
 
 # end
