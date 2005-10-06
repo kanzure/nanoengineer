@@ -85,7 +85,7 @@ def _privateMethod(friends=()):
     This means that some violations may not be detected, if we're ever careless
     enough to give two classes the same name.
 
-    ADDITIONAL CAVEAT: Calls to private methods will usually be flagged as API
+    ADDITIONAL CAVEAT: Calls from global functions will usually be flagged as API
     violations, and should always be flagged. But this approach will not catch
     all such cases. If the first argument to the function happens to be an
     instance whose class name is the same as the class wherein the private
