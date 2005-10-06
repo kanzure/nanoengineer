@@ -66,7 +66,7 @@ class Jig(Node):
     color = normcolor = (0.5, 0.5, 0.5)
     
     # "Enable Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
-    enable_minimize = True
+    enable_minimize = False
     
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
@@ -388,7 +388,10 @@ class Jig(Node):
         """
         return ""
 
-
+    # Added "return_partial_list" after a discussion with Bruce about enable minimize jigs.
+    # This would allow a partial atom list to be returned.
+    # Mark 051006.
+    # def atnums_or_None(self, ndix, return_partial_list=False): 
     def atnums_or_None(self, ndix):
         """Return list of atnums to write, as ints(??) (using ndix to encode them),
         or None if some atoms were not yet written to the file.
