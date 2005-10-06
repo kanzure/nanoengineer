@@ -58,34 +58,57 @@ def before_most_imports( main_globals ):
     # or by an end-user from an installer-created program (_end_user = True).
     # Use two methods, warn if they disagree, and if either one think's we're an end user,
     # assume we are (so as to turn off certain code it might not be safe for end-users to run).
-    # [bruce 050902 new feature]
+    # [bruce 050902 new feature; revised 051006 to work in Windows built packages]
 
     # Method 1. As of 050902, package builders on all platforms reportedly move atom.py
     # (the __main__ script) into a higher directory than the compiled python files.
     # But developers running from cvs leave them all in cad/src.
     # So we compare the directories.
-    import __main__ # this is still being imported, but we only need its __file__ attribute, which should be already defined
-    maindir, filejunk = os.path.split( __main__.__file__ )
-    ourdir,  filejunk = os.path.split( __file__ )
-    def canon(path):
-        #bruce 050908 bugfix in case developer runs python with relative (or other non-canonical) path as argument
-        return os.path.normcase( os.path.abspath(path) )
-    maindir = canon(maindir)
-    ourdir = canon(ourdir)
-    guess1 = (maindir != ourdir)
+    import __main__
+    ourdir = None # hack for print statement test in except clause
+        # this is still being imported, but we only need its __file__ attribute, which should be already defined [but see below]
+    try:
+        # It turns out that for Windows (at least) package builds, __main__.__file__ is either never defined or not yet
+        # defined at this point, so we have no choice but to silently guess _end_user = True in that case. I don't know whether
+        # this module's __file__ is defined, whether this problem is Windows-specific, etc. What's worse, this problem disables
+        # *both* guessing methods, so on an exception we just have to skip the whole thing. Further study might show that there is
+        # no problem with ourdir, only with maindir, but I won't force us to test that right now. [bruce 051006]
+        ourdir,  filejunk = os.path.split( __file__ )
+        maindir, filejunk = os.path.split( __main__.__file__ )
+    except:
+        __main__._end_user = _end_user = True
+        # unfortunately it's not ok to print the exception or any error message, in case this guess is correct...
+        # but maybe I can get away with printing something cryptic (since our code is known to print things sometimes anyway)?
+        # And I can make it depend on whether ourdir was set, so we have a chance of finding out whether this module defined __file__.
+        # [bruce 051006]
+        if ourdir is not None:
+            print "end-user build"
+        else:
+            print "end user build" # different text -- no '-'
+    else:
+        # we set maindir and ourdir; try both guess-methods, etc
+        def canon(path):
+            #bruce 050908 bugfix in case developer runs python with relative (or other non-canonical) path as argument
+            return os.path.normcase( os.path.abspath(path) )
+        maindir = canon(maindir)
+        ourdir = canon(ourdir)
+        guess1 = (maindir != ourdir)
 
-    # Method 2. As of 050902, package builders on all platforms remove the .py files, leaving only .pyc files.
-    guess2 = not os.path.exists( os.path.join( ourdir, __name__ + ".py" ))
+        # Method 2. As of 050902, package builders on all platforms remove the .py files, leaving only .pyc files.
+        guess2 = not os.path.exists( os.path.join( ourdir, __name__ + ".py" ))
 
-    __main__._end_user = _end_user = guess1 or guess2
-    if guess1 != guess2:
-        print "Warning: two methods of guessing whether we're being run by an end-user disagreed (%r and %r)." % (guess1, guess2)
-        print "To be safe, assuming we are (disabling some developer-only features)."
-        print "If this ever happens, it's a bug, and the methods need to be updated."
-        if guess1:
-            print "(debug info: guess1 is true because %r != %r)" % (maindir, ourdir)
-                #bruce 050908 to debug Linux bug in guess1 reported by Ninad (it's True (i.e. wrong) when he runs nE-1 from source)
-        print
+        __main__._end_user = _end_user = guess1 or guess2
+        if guess1 != guess2:
+            print "Warning: two methods of guessing whether we're being run by an end-user disagreed (%r and %r)." % (guess1, guess2)
+            print "To be safe, assuming we are (disabling some developer-only features)."
+            print "If this ever happens, it's a bug, and the methods need to be updated."
+            if guess1:
+                print "(debug info: guess1 is true because %r != %r)" % (maindir, ourdir)
+                    #bruce 050908 to debug Linux bug in guess1 reported by Ninad (it's True (i.e. wrong) when he runs nE-1 from source)
+            print
+        pass
+
+    assert __main__._end_user == _end_user # must be obeyed by except and else clauses of try statement above
     if _end_user:
         pass # normally no message in this case
     else:
