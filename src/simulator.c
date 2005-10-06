@@ -162,6 +162,29 @@ char *baseFilename;
 // for writing the differential position and trace files
 FILE *outf, *tracef;
 
+void
+writeDumbMovieFrame(struct xyz *positions, struct xyz *forces, const char *format, ...)
+{
+    int i;
+    va_list args;
+    
+    for (i=0; i<Nexatom; i++) {
+        fprintf(outf, "s %f %f %f 40 1 0 0\n", positions[i].x, positions[i].y, positions[i].z);
+        fprintf(outf, "l %f %f %f %f %f %f 1 1 1\n",
+                positions[i].x, positions[i].y, positions[i].z,
+                positions[i].x + forces[i].x,
+                positions[i].y + forces[i].y,
+                positions[i].z + forces[i].z);
+    }
+    fprintf(outf, "f ");
+    va_start(args, format);
+    vfprintf(outf, format, args);
+    va_end(args);
+    fprintf(outf, "\n");
+    fflush(outf);
+}
+
+
 /** kT @ 300K is 4.14 zJ -- RMS V of carbon is 1117 m/s
     or 645 m/s each dimension, or 0.645 pm/fs  */
 
@@ -1338,6 +1361,12 @@ minimizeSteepestDescent(int steepestDescentFrames,
                     sum_newforceSquared += vdot(f,f);
                 }
 	    }
+            //writeDumbMovieFrame(NewPositions, newForce, "frame: %d newsum: %e oldsum: %e movcon: %e", *frameNumber, sum_newforceSquared, sum_forceSquared, movcon);
+            if (movcon < 1e-16) {
+                WARNING("minimization terminated due to low movcon");
+                return 0;
+            }
+            
 	}
 
         groundAtoms(Positions, NewPositions);
