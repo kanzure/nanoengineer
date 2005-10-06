@@ -30,23 +30,6 @@ class Motor(Jig):
         
         self.quat = Q(1, 0, 0, 0)
         
-    def own_mutable_copyable_attrs(self): #bruce 050526
-        """[overrides Node method]
-        Suitable for Motor subclasses -- they should define mutable_attrs
-        [#e this scheme could use some cleanup]
-        """
-        super = Jig
-        super.own_mutable_copyable_attrs( self)
-        for attr in self.mutable_attrs:
-            val = getattr(self, attr)
-            try:
-                val = + val # this happens to be enough for the attr types in the motors...
-            except:
-                print "bug: attrval that didn't like unary + is this: %r" % (val,)
-                raise
-            setattr(self, attr, val)
-        return
-
     # == The following methods were moved from RotaryMotor to this class by bruce 050705,
     # since some were almost identical in LinearMotor (and those were removed from it, as well)
     # and others are wanted in it in order to implement "Recenter on atoms" in LinearMotor.
@@ -171,8 +154,7 @@ class RotaryMotor(Motor):
     sym = "Rotary Motor"
     icon_names = ["rmotor.png", "rmotor-hide.png"]
 
-    mutable_attrs = ('center', 'axis')
-    copyable_attrs = Motor.copyable_attrs + ('torque', 'speed', 'length', 'radius', 'sradius') + mutable_attrs
+    copyable_attrs = Motor.copyable_attrs + ('torque', 'speed', 'length', 'radius', 'sradius', 'center', 'axis', 'enable_minimize')
 
     # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
@@ -399,8 +381,7 @@ class LinearMotor(Motor):
     sym = "Linear Motor"
     icon_names = ["lmotor.png", "lmotor-hide.png"]
 
-    mutable_attrs = ('center', 'axis')
-    copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius') + mutable_attrs
+    copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', 'enable_minimize')
 
     # create a blank Linear Motor not connected to anything
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
