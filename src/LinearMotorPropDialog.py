@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Thu Sep 29 09:55:23 2005
+# Created: Thu Oct 6 14:20:46 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,51 +45,71 @@ class LinearMotorPropDialog(QDialog):
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
-        LinearMotorPropDialogLayout = QVBoxLayout(self,11,6,"LinearMotorPropDialogLayout")
+        LinearMotorPropDialogLayout = QGridLayout(self,1,1,11,6,"LinearMotorPropDialogLayout")
+        spacer6 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        LinearMotorPropDialogLayout.addItem(spacer6,1,1)
 
-        layout78 = QHBoxLayout(None,0,6,"layout78")
+        layout45 = QHBoxLayout(None,0,6,"layout45")
+        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout45.addItem(spacer7)
 
-        layout40 = QVBoxLayout(None,0,6,"layout40")
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
+        layout45.addWidget(self.ok_btn)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setAutoDefault(0)
+        layout45.addWidget(self.cancel_btn)
+
+        LinearMotorPropDialogLayout.addMultiCellLayout(layout45,2,2,0,1)
+
+        layout43 = QVBoxLayout(None,0,6,"layout43")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.nameTextLabel)
+        layout43.addWidget(self.nameTextLabel)
 
         self.textLabel1 = QLabel(self,"textLabel1")
         textLabel1_font = QFont(self.textLabel1.font())
         self.textLabel1.setFont(textLabel1_font)
         self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.textLabel1)
+        layout43.addWidget(self.textLabel1)
 
         self.textLabel1_2 = QLabel(self,"textLabel1_2")
         self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.textLabel1_2)
+        layout43.addWidget(self.textLabel1_2)
 
         self.textLabel1_3 = QLabel(self,"textLabel1_3")
         self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.textLabel1_3)
+        layout43.addWidget(self.textLabel1_3)
 
         self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
         self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.textLabel1_2_2)
+        layout43.addWidget(self.textLabel1_2_2)
 
         self.textLabel1_2_2_2 = QLabel(self,"textLabel1_2_2_2")
         self.textLabel1_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.textLabel1_2_2_2)
+        layout43.addWidget(self.textLabel1_2_2_2)
 
         self.colorTextLabel = QLabel(self,"colorTextLabel")
         self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout40.addWidget(self.colorTextLabel)
-        layout78.addLayout(layout40)
+        layout43.addWidget(self.colorTextLabel)
 
-        layout77 = QVBoxLayout(None,0,6,"layout77")
+        self.textLabel1_5 = QLabel(self,"textLabel1_5")
+        self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout43.addWidget(self.textLabel1_5)
+
+        LinearMotorPropDialogLayout.addLayout(layout43,0,0)
+
+        layout44 = QVBoxLayout(None,0,6,"layout44")
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
         self.nameLineEdit.setReadOnly(0)
-        layout77.addWidget(self.nameLineEdit)
+        layout44.addWidget(self.nameLineEdit)
 
         layout46 = QGridLayout(None,1,1,0,6,"layout46")
 
@@ -141,7 +161,7 @@ class LinearMotorPropDialog(QDialog):
         self.stiffnessLineEdit.setAlignment(QLineEdit.AlignLeft)
 
         layout46.addWidget(self.stiffnessLineEdit,1,0)
-        layout77.addLayout(layout46)
+        layout44.addLayout(layout46)
 
         layout76 = QHBoxLayout(None,0,6,"layout76")
 
@@ -160,29 +180,21 @@ class LinearMotorPropDialog(QDialog):
         layout76.addLayout(layout75)
         spacer5 = QSpacerItem(46,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout76.addItem(spacer5)
-        layout77.addLayout(layout76)
-        layout78.addLayout(layout77)
-        LinearMotorPropDialogLayout.addLayout(layout78)
-        spacer6 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        LinearMotorPropDialogLayout.addItem(spacer6)
+        layout44.addLayout(layout76)
 
-        layout45 = QHBoxLayout(None,0,6,"layout45")
-        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout45.addItem(spacer7)
+        layout29 = QHBoxLayout(None,0,6,"layout29")
 
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
-        layout45.addWidget(self.ok_btn)
+        self.enable_minimize_checkbox = QCheckBox(self,"enable_minimize_checkbox")
+        layout29.addWidget(self.enable_minimize_checkbox)
+        spacer16 = QSpacerItem(80,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout29.addItem(spacer16)
+        layout44.addLayout(layout29)
 
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setAutoDefault(0)
-        layout45.addWidget(self.cancel_btn)
-        LinearMotorPropDialogLayout.addLayout(layout45)
+        LinearMotorPropDialogLayout.addLayout(layout44,0,1)
 
         self.languageChange()
 
-        self.resize(QSize(306,285).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(274,298).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -204,6 +216,10 @@ class LinearMotorPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Linear Motor Properties"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
         self.nameTextLabel.setText(self.__tr("Name:"))
         self.textLabel1.setText(self.__tr("Force:"))
         self.textLabel1_2.setText(self.__tr("Stiffness"))
@@ -211,6 +227,7 @@ class LinearMotorPropDialog(QDialog):
         self.textLabel1_2_2.setText(self.__tr("Motor Width:"))
         self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius:"))
         self.colorTextLabel.setText(self.__tr("Color:"))
+        self.textLabel1_5.setText(self.__tr("Enable Minimize :"))
         self.nameLineEdit.setText(QString.null)
         self.textLabel3_2.setText(self.__tr("Angstroms"))
         self.textLabel1_4.setText(self.__tr("pN"))
@@ -218,10 +235,7 @@ class LinearMotorPropDialog(QDialog):
         self.textLabel3.setText(self.__tr("Angstroms"))
         self.textLabel2.setText(self.__tr("N/m"))
         self.choose_color_btn.setText(self.__tr("Choose..."))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
+        self.enable_minimize_checkbox.setText(QString.null)
 
 
     def change_jig_color(self):

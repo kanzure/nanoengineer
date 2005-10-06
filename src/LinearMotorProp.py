@@ -31,6 +31,7 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.lengthLineEdit.setText(str(self.jig.length))
         self.widthLineEdit.setText(str(self.jig.width))
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
+        self.enable_minimize_checkbox.setChecked(self.jig.enable_minimize)
 
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
@@ -58,6 +59,8 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.jig.stiffness = float(str(self.stiffnessLineEdit.text()))
 
         self.change_motor_size(gl_update=False)
+        
+        self.jig.enable_minimize = self.enable_minimize_checkbox.isChecked()
 
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
