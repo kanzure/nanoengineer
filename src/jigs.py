@@ -65,6 +65,9 @@ class Jig(Node):
     # But at least we'll give them default values for the sake of new jig subclasses. [bruce 050425]
     color = normcolor = (0.5, 0.5, 0.5)
     
+    # "Enable Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
+    enable_minimize = True
+    
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
     
