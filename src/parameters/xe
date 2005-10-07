@@ -1,0 +1,51 @@
+#! /usr/bin/python
+
+import os
+import sys
+import re
+
+hevpat = re.compile(" HAS ENERGY VALUE +([\d\.-]+)")
+betapat = re.compile(" COORD 1= *([\d\.-]+)")
+potpat = re.compile("     POTENTIAL SURFACE MAP INPUT")
+orgpat = re.compile(" HAS ORIGIN= *([\d\.-]+)")
+
+
+Hartree = 4.3597482 # attoJoules
+Bohr = 0.5291772083 # Angstroms
+
+def findnext(f,pat):
+    while 1:
+        card = f.readline()
+        if not card: return None
+        m = pat.match(card)
+        if m: return m        
+
+def ending(nam,suf):
+    if suf==nam[-len(suf):]: return nam
+    else: return nam+suf
+
+def xeread(name):
+    f=open(ending(name,'.log'),"r")
+    x = []
+    e= []
+
+    findnext(f, potpat)
+    #org=float(findnext(f,orgpat).group(1))
+    
+    while 1:
+        m = findnext(f, betapat)
+        m1 = findnext(f,hevpat)
+        if not (m and m1): break
+        x += [float(m.group(1))]
+        e += [float(m1.group(1))*Hartree]
+
+    f.close()
+    return x,e
+ 
+
+name = sys.argv[1]
+x,e = xeread(name)
+
+for i in range(len(x)):
+    print x[i],e[i]
+

@@ -1,0 +1,40 @@
+#! /usr/bin/python
+
+from Numeric import *
+from VQT import *
+from LinearAlgebra import *
+from string import *
+import re
+import os
+import sys
+from string import capitalize
+
+# read a Protein DataBank-format file
+def pdbread(filename):
+    atoms = zeros((0,3),Float)
+    elem = []
+
+    f=open(filename+".pdb","rU").readlines()
+    
+    for card in f:
+        key=card[:6].lower().replace(" ", "")
+        if key in ["atom", "hetatm"]:
+            sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
+            if sym == "X": continue
+            elem += [sym]
+            xyz = A([map(float, [card[30:38],card[38:46],card[46:54]])])
+            atoms = concatenate((atoms,xyz),axis=0)
+    return elem, atoms
+
+def xyzwrite(fn, elem, pos):
+    f=open(fn+".xyz","w")
+    f.write(str(len(elem))+"\n--comment line--\n")
+    for i in range(len(elem)):
+        f.write(elem[i] + " %12.7f %12.7f %12.7f" % tuple(pos[i]) + "\n")
+
+
+fn = sys.argv[1]
+print fn+'.pdb --> '+fn+'.xyz'
+
+el, pos = pdbread(fn)
+xyzwrite(fn, el, pos)

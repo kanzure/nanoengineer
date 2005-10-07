@@ -1,0 +1,28 @@
+
+
+r0=1
+De=1
+ks=100
+beta = sqrt(ks/(2*De))
+
+morse(r)=De*(1-exp(-sqrt(ks/(2*De))*(r-r0)))**2
+lipp(r)=De*(1-exp(-ks*r0*(r-r0)**2/(2*De*r)))
+lm(r)= (r<r0?morse(r):lipp(r)) - De
+
+pt = 2.0
+spr = 0.4
+
+hartree = 4.356
+
+q(x) = 0.5 + erf((x-pt)/spr)/2.0
+j(x) = q(x)*lipp(x) + (1.0-q(x))*morse(x) - De
+
+#plot [.9:2][-1.1:.1] j(x), (0)
+
+lj(x)=4*(1/x**24-1/x**12)
+lj(x)=4*(1/x**32-1/x**16)
+lj(x)=175*(1/x**65-1/x**64)
+lj2(x,n)=lj((x-1)/n+1)
+lj2(x,n)=lj(n*(x-1)+1.0625)
+plot [.8:2][-1.1:.2] morse(x)-1,(0),lj2(x,.7),j(x)
+plot [.8:2][-1.1:.2] morse(x-.098)-1,(0),lj2(x,6.2),j(x-.098)

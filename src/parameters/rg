@@ -1,0 +1,24 @@
+#! /usr/bin/python
+
+import os
+import sys
+
+def fexist(fname):
+    try: os.stat(fname)
+    except OSError: return False
+    return True
+
+start=1
+newonly=False
+if sys.argv[1]=='-n':
+    start=2
+    newonly=True
+    
+for name in sys.argv[start:]:
+    if name[-4:] == '.inp': name = name[:-4]
+    if newonly and fexist(name+'.log'):
+        print 'skipping',name
+        continue
+    print '\nProcessing',name
+    os.system("rcp "+name+".inp cluster:/home/josh/working.inp")
+    os.system("rsh cluster /home/gamess32/rungms working Nov222004R1 4 >"+name+".log")
