@@ -28,11 +28,12 @@ debug_print_fewer_args_retries = False # debug prints for fewer-args retries; DO
 
 from cPickle import dump, load, HIGHEST_PROTOCOL
 import env
-from debug import register_debug_menu_command ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
+from debug import register_debug_menu_command, register_debug_menu_command_maker
+    ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
     # or let them only show up if a related flag is set, or so...
 from qt import SIGNAL, QObject, QWidget #k ok to do these imports at toplevel? I hope so, since we need them in several places.
 import qt
-from constants import genKey
+from constants import genKey, noop
 
 # ==
 
@@ -632,5 +633,7 @@ def args_info(func1):
     and kws_ok says whether it can accept any keyword args whatsoever, whether of specific or arb names (or is True if we can't tell).
     """
     return False, None, True # what to return if we can't tell -- this is a stub to always return it
+
+# ==
 
 #end

@@ -296,26 +296,80 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
 # ==
 
 #bruce 050823 preliminary system for letting other modules register commands for debug menu (used by Undo experimental code)
+# revised/generalized 050923 [committed 051006]
 
 _commands = {}
 
-def register_debug_menu_command( name, func):
+class menu_cmd: #bruce 050923 [committed 051006]. #e maybe the maker option should be turned into a subclass-choice... we'll see.
+    "public attrs: name, order"
+    def __init__(self, name, func, order = None, maker = False, text = None):
+        "for doc of args see register_debug_menu_command"
+        # public attrs: 
+        self.name = name # self.name is used for replacement of previous same-named commands in client-maintained sets
+            # (but the name arg is also used as default value for some other attrs, below)
+        self.func = func
+        self.maker = not not maker # if true, some of the rest don't matter, but never mind
+        if order is not None:
+            self.order = (0, order)
+        else:
+            self.order = (1, name) # unordered ones come after ordered ones, and are sorted by name
+        self.text = text or name # text of None or "" is replaced by name
+            # self.text won't be used if maker is true
+        return
+    def menu_spec(self, widget):
+        if self.maker:
+            try:
+                res = self.func(widget) # doesn't need the other attrs, I think... tho passing self might someday be useful #e
+            except:
+                print_compact_traceback("exception in menu_spec: ")
+                try:
+                    errmsg = 'exception in menu_spec for %r' % (self.name,)
+                except:
+                    errmsg = 'exception in menu_spec'
+                return [(errmsg, noop, 'disabled')]
+            #e should also protect caller from badly formatted value... or maybe menu spec processor should do that?
+            return res
+        text, func = self.text, self.func
+        return [ (text, lambda func=func, widget=widget: func(widget)) ]    
+            # (the func=func was apparently necessary, otherwise the wrong func got called,
+            #  always the last one processed here)
+            # [that comment is from before revision of 050923 but probably still applies]
+    pass
+
+def register_debug_menu_command( *args, **kws ):
     """Let other modules register commands which appear in the debug menu.
     When called, they get one arg, the widget in which the debug menu appeared.
-    ###e No provision yet for commands to filter themselves by widget or env, or have varying text or state...
-    would be better to register a command_spec or menu_spec maker function, rerun it each time.
+       If order is supplied and not None, it's used to sort the commands in the menu
+    (the other ones come at the end in order of their names).
+       Duplicate names cause prior-registered commands to be silently replaced
+    (even if other options here cause names to be ignored otherwise).
+       If text is supplied, it rather than name is the menu-text. (Name is still used for replacement and maybe sorting.)
+       If maker is true [experimental feature], then func is not the command but the sub-menu-spec maker,
+    which runs (with widget as arg) when menu is put up, and returns a menu-spec list;
+    in this case name is ignored except perhaps for sorting purposes.
     """
-    _commands[name] = func
+    cmd = menu_cmd( *args, **kws )
+    _commands[cmd.name] = ( cmd.order, cmd )
+        # store by .name so duplicate names cause replacement;
+        # let values be sortable by .order
+    return
+
+def register_debug_menu_command_maker( *args, **kws): # guess: maker interface is better as a separate function.
+    assert not kws.has_key('maker')
+    kws['maker'] = True
+    assert not kws.has_key('text') # since not useful for maker = True
+    register_debug_menu_command( *args, **kws)
+    return
 
 def registered_commands_menuspec( widget):
-    items = _commands.items()
-    items.sort()
-    # it's already a menu spec except for what args the things take, so fix that
-    # (the func=func was apparently necessary, otherwise the wrong func got called, always the last one processed here)
-    newitems = [ (name, lambda func=func, widget=widget: func(widget)) for name, func in items ]
-    if not newitems:
-        return newitems # i.e. []
-    return [ ('other', newitems) ]
+    order_cmd_pairs = _commands.values()
+    order_cmd_pairs.sort()
+    spec = []
+    for orderjunk, cmd in order_cmd_pairs:
+        spec.extend( cmd.menu_spec(widget) )
+    if not spec:
+        return spec # i.e. []
+    return [ ('other', spec) ]
 
 # ==
 

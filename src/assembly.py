@@ -119,6 +119,16 @@ class assembly:
         assy_number += 1
         self._debug_name = self.name + "-%d" % assy_number
 
+        #bruce 051005: create object for tracking changes in our model, before creating any
+        # model objects (ie nodes for tree and shelf). Since this is not initially used except
+        # to record changes as these objects are created, the fact that self is still incomplete 
+        # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
+        import undo_manager
+        self.undo_manager = undo_manager.AssyUndoManager(self)
+            # fyi: this sets self._u_archive for use by our model objects when they report changes
+            # (but its name and value are private to AssyUndoManager's API for our model objects,
+            #  which is why we don't set it here)
+        
         # the Clipboard... this is replaced by another one later (of a different class),
         # once or twice each time a file is opened. ####@@@@ should clean up
         self.shelf = Group("Clipboard", self, None, [])

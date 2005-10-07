@@ -412,6 +412,10 @@ class ops_select_Mixin:
         part = self
         return selection_from_MT( part)
 
+    def selection_from_part(self, *args, **kws): #bruce 051005
+        part = self
+        return selection_from_part(part, *args, **kws)
+
     pass # end of class ops_select_Mixin (used in class Part)
 
 # ==

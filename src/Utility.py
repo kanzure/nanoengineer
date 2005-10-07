@@ -29,7 +29,7 @@ import platform
 import env #bruce 050901
 from constants import genKey
 from state_utils import copy_val
-
+from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051005
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
@@ -96,7 +96,7 @@ def node_name(node): # use in error or debug messages for safety, rather than no
         return "<node has no .name>"
     pass
 
-class Node:
+class Node( GenericDiffTracker_API_Mixin):
     """
     This is the basic object, inherited by groups, molecules, jigs,
     and some more specialized subclasses. The methods of Node are designed
@@ -105,7 +105,7 @@ class Node:
     """
         
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
-
+    
     # default values of instance variables
     picked = False # whether it's selected
         # (for highlighting in all views, and being affected by operations)
@@ -139,24 +139,26 @@ class Node:
         but Group's arg order was and still is inconsistent with all other Node classes' arg order.
         """
         #bruce 050205 added docstring; bruce 050216 revised it
+
+        if assy == '<not an assembly>':
+            # i.e. if we are _nullMol
+            pass # our changes get tracked into a garbage dict, from where they periodically get discarded
+        else:
+            self._um_init( assy._u_archive )
+            # this is needed before any _um_xxx calls on self (used for recording or summarizing changes)
+
+        #######@@@@@@@ remove this:
+##        if 1:
+##            #bruce 051005 hacks, will be done differently
+##            assert self.name == ""
+##            self._um_will_change_attr('name')
+
         self.name = name or "" # assumed to be a string by some code
         
         # assy -- as temporary kluge, permitted to be a Part as well [bruce 050223]
         from assembly import assembly # the class
         if assy is not None and not isinstance(assy, assembly) and assy != '<not an assembly>':
-            assert 0, "Node assy must be an assembly, not a Part" # bruce 050527 stop permitting this [remove all this code, in a week]
-            try:
-                #bruce 050223 probably a temporary debug kluge, though it might turn out we prefer to store a Part anyway, not sure...
-                # permit this to be a Part and use its assy, but warn about this
-                from part import Part
-                assert isinstance(assy, Part)
-                part = assy
-                assy = part.assy
-                if platform.atom_debug:
-                    print_compact_stack("atom_debug: Node or Group constructed with Part %r instead of assy %r; fix sometime!" % (part,assy))
-            except:
-                print_compact_traceback("bug in Node.__init__ assy check, hopefully ignored: ")
-                print "assy is %r" % (assy,)
+            assert 0, "Node assy must be an assembly, not a Part" # bruce 050527 stop permitting this
         # verify assy is not None (not sure if that's allowed in principle, but I think it never happens) [050223]
         if assy is None:
             if platform.atom_debug: # might not yet be safe to print self, esp if it's a subclass
@@ -169,6 +171,15 @@ class Node:
             assert self.dad is dad
         return
 
+    def _um_existence_permitted(self): #bruce 051005
+        """[overrides GenericDiffTracker_API_Mixin method]
+        Return True iff it looks like we should be considered to exist in self.assy's model of undoable state.
+        Returning False does not imply anything's wrong, or that we should be or should have been killed/destroyed/deleted/etc --
+        just that changes in us should be invisible to Undo.
+        """
+        return self.assy is not None and self.part is not None and self.dad is not None
+            ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
+    
     def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
         self.changed()
@@ -404,7 +415,7 @@ class Node:
             return (False, "renaming this node is not permitted")
         #mark 051005 --  now name can be a python string or a QString
         try: 
-            n = str(name) 
+            n = str(name)
         except:
             return (False, "illegal string")
         name = n.strip() # remove whitespace from both ends
@@ -417,6 +428,7 @@ class Node:
 ##            return (False, "names containing ')' are not yet supported")
         
         # accept the new name.
+        self._um_will_change_attr('name') #bruce 051005; this might need to be called from a property-setter method for completeness
         self.name = name
         if self.assy:
             self.assy.changed()
@@ -932,6 +944,7 @@ class Node:
         # added unpick (*after* dad.delmember)
         # added self.assy = None
         # also modified the Group.kill method, which extends this method
+        self._um_deinit() #bruce 051005 #k this is not good enough unless this is always called when a node is lost from the MT!
         if self.part: #bruce 050303
             self.part.remove(self)
         if self.dad:
