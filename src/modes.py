@@ -164,6 +164,9 @@ class basicMode(anyMode):
     modename = "(bug: missing modename)"
     msg_modename = "(bug: unknown mode)"
     default_mode_status_text = "(bug: missing mode status text)"
+
+    # How to find mode-related help pages in the Nanorex wiki
+    __WikiHelpPrefix = "http://www.nanoengineer-1.net/mediawiki/index.php?title=UserHelp:"
     
     def __init__(self, glpane):
         
@@ -1156,8 +1159,9 @@ class basicMode(anyMode):
         if key == Qt.Key_Comma: 
             self.o.scale *= 1.05
             self.o.gl_update()
-         
-        return
+        if key == Qt.Key_F1:
+            import webbrowser
+            webbrowser.open(self.__WikiHelpPrefix + self.__class__.__name__)
     
     def keyRelease(self,key): # mark 2004-10-11
         #e bruce comment 041220: lots of modes change cursors on this, but they
@@ -1585,3 +1589,4 @@ class modeMixin:
     pass # end of class modeMixin
 
 # end
+
