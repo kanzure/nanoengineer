@@ -1162,6 +1162,7 @@ class basicMode(anyMode):
             self.o.gl_update()
         if key == Qt.Key_F1:
             import webbrowser
+            # [will 051010 added wiki help feature]
             webbrowser.open(self.__WikiHelpPrefix + self.__class__.__name__)
     
     def keyRelease(self,key): # mark 2004-10-11
