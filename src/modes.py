@@ -166,6 +166,7 @@ class basicMode(anyMode):
     default_mode_status_text = "(bug: missing mode status text)"
 
     # How to find mode-related help pages in the Nanorex wiki
+    # [will 051010 added wiki help feature]
     __WikiHelpPrefix = "http://www.nanoengineer-1.net/mediawiki/index.php?title=UserHelp:"
     
     def __init__(self, glpane):
