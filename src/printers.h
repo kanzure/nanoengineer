@@ -12,7 +12,7 @@ extern int debug_flags;
 #define D_TABLE_BOUNDS    (1<<0)
 #define D_READER          (1<<1)
 #define D_MINIMIZE        (1<<2)
-
+#define D_TABLES          (1<<3)
 
 extern FILE *tracef;
 #define ERROR(s...) (printError(tracef, "Error", 0, ## s))

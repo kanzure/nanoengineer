@@ -591,7 +591,8 @@ calculateEnergy(struct xyz *position)
         }
         else fac=t1[k]+rSquared*t2[k];
         // table lookup equivalent to: fac=lippmor(rSquared)
-            
+
+        //printf("bond %d potential %f\n", j, fac);
         potential += fac;
 
     }
@@ -622,10 +623,12 @@ calculateEnergy(struct xyz *position)
 	    // kb in yJ/rad^2
 	    // potential in rad^2 * yJ/rad^2 * 1e-6, or aJ
 	    ff = (theta - torq[j].type->theta0);
-	    potential += ff * ff  * torq[j].type->kb * 1e-6 / 2.0 ;
+            fac = ff * ff  * torq[j].type->kb * 1e-6 / 2.0 ;
+            //printf("bend %d potential %f\n", j, fac);
+	    potential += fac;
 	}
     }
-
+    
     // fprintf(stderr, "about to do vdw loop\n");
     /* do the van der Waals/London forces */
     for (nvb=&vanderRoot; nvb; nvb=nvb->next) {
@@ -670,9 +673,11 @@ calculateEnergy(struct xyz *position)
             }
             else fac=t1[k]+rSquared*t2[k];
 
+            //fprintf(stderr, "vdw %d potential %f, r: %f, rsquared: %f\n", j, fac, sqrt(rSquared), rSquared);
             potential += fac;
         }
     }
+    //printf("total vdw potential %f\n", potential);
     return potential;
 }
 

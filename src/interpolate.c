@@ -26,6 +26,7 @@ static void maktab(double *t1, double *t2, double func(double),
 	v1=v2;
 	r2=start+(double)((i+1)*scale);
 	v2=func(r2);
+        DPRINT(D_TABLES, "%f %f\n", sqrt(r2), v2);
 	/* shift points to minimize excursions above/below func */
 	if (i<length-1) {
 	    r5=(r1+r2)/2.0;
@@ -137,7 +138,8 @@ potentialBuckingham(double rSquared)
 	
   // EvdW in zJ (1e-21 J)
   // RvdW in pm (1e-12 m)
-  return -1e3 * EvdW * (2.48e5 * exp(-12.5*(r/RvdW)) -1.924*pow(r/RvdW, -6.0));
+  return 1e-3 * EvdW * (2.48e5 * exp(-12.5 * (r / RvdW))
+                       - 1.924 * pow(r / RvdW, -6.0));
 }
 
 // NOTE: gradient is divided by r since we end up multiplying it by
@@ -176,6 +178,7 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   Ks = stretch->ks;
   De = stretch->de;
   Beta = stretch->beta;
+  DPRINT(D_TABLES, "table: R0: %f Ks: %f De: %f Beta: %f\n", R0, Ks, De, Beta);
   maktab(stretch->table.t1,
          stretch->table.t2,
          PrintStructureEnergy ? potentialLippincottMorse : gradientLippincottMorse,
@@ -197,7 +200,8 @@ initializeVanDerWaalsInterpolator(struct interpolationTable *table, int element1
   table->start= square(RvdW*0.4);
   end=square(RvdW*1.5);
   table->scale = (int)(end - table->start) / TABLEN;
-				
+
+  DPRINT(D_TABLES, "table: RvdW: %f EvdW: %f\n", RvdW, EvdW);
   maktab(table->t1,
          table->t2,
          PrintStructureEnergy ? potentialBuckingham : gradientBuckingham,
