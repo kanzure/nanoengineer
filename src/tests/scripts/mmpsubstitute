@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+# usage:
+#
+# mmpsubstitute value < template.mmp > result.mmp
+
+# Reads a template file from stdin, and adds value wherever $$ appears
+# in the template, writing the result to stdout.  If value is 10, for
+# example, and a fragment of the template read: (123 $$45 678) the
+# resulting output would be: (123 55 678) where 10 was added to the
+# number 45 which followed the $$ substitution marker.  If $$ is not
+# followed immediately by a string of digits, value just replaces the
+# $$.
+
+$value = $ARGV[0];
+
+while (<STDIN>) {
+    while (/\$\$/) {
+	$pre = $`;
+	printf STDOUT "%s", $pre;
+	$post = $'; #' <-- to make emacs happy
+	if ($post =~ /^-?\d+/) {
+	    $num = $&;
+	    $post = $'; #' <-- to make emacs happy
+	    printf STDOUT "%d", $num + $value;
+	} else {
+	    printf STDOUT "%d", $value;
+	}
+	$_ = $post;
+    }
+    printf STDOUT "%s", $_;
+}

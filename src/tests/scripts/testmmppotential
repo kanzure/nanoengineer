@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+# usage:
+#
+# testmmppotential initial increment limit input.mmp > output
+
+# Loops with a parameter value starting at initial, adding increment
+# each time, until limit is reached.  For each parameter value, the
+# file input.mmp has the parameter substituted in with mmpsubstitute,
+# and the result is fed to the command "simulator -E result.mmp".  The
+# parameter and resulting potential from the simulator output are
+# printed to stdout.
+
+$initial = $ARGV[0];
+$increment = $ARGV[1];
+$limit = $ARGV[2];
+$input = $ARGV[3];
+
+$tmp = "/tmp/testmmppotential$$.mmp" ;
+
+for ($i = $initial; $i < $limit; $i += $increment) {
+    system "mmpsubstitute $i < $input > $tmp";
+    $result = `simulator -E $tmp`;
+    $result =~ s/ Potential.*//;
+    unlink $tmp;
+    print "$i $result";
+}
