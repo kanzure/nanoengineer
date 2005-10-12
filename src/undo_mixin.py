@@ -171,13 +171,15 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
                 dflt = getattr(self.__class__, attr)
             except AttributeError:
                 #e print warning, but only once per class?
-                try:
-                    dflt = getattr(self, attr) ### WRONG, but we need to figure out what to do then - decl, always define on class, ...
-                except:
-                    print "bug, fatal: exception (traceback follows) looking for default value for attr %r of class %r" % \
-                          (attr, self.__class__.__name__)
-                    raise
-            self._um_default_values_dict[attr] = dflt
+                dflt = None ### WRONG, but should be safe for commit [to fix breakage of morning of 051012]
+##                try:
+##                    dflt = getattr(self, attr) ### WRONG, but we need to figure out what to do then - decl, always define on class, ...
+##                except:
+##                    print "bug, fatal: exception (traceback follows) looking for default value for attr %r of class %r" % \
+##                          (attr, self.__class__.__name__)
+##                    raise
+            ### zap this too, for commit, 051012
+##            self._um_default_values_dict[attr] = dflt
         self._um_default_values_dict['_um_exists'] = False        
     def _um_deinit(self):
         """call this when self is deleted wrt the undoable-state model;
