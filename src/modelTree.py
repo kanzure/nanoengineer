@@ -328,20 +328,24 @@ class modelTree(TreeWidget):
                 # warning: depends on details of Jig.is_disabled() implem. Ideally we should ask Jig to contribute
                 # this part of the menu-spec itself #e. [bruce 050421]
                 jig = nodeset[0]
-                disabled_must = jig.disabled_by_atoms() # (by its atoms being in the wrong part)
-                disabled_choice = jig.disabled_by_user_choice
-                disabled_menu_item = disabled_must # menu item is disabled iff jig disabled state can't be changed, ie is "stuck on"
-                checked = disabled_must or disabled_choice # menu item is checked if it's disabled for whatever reason (also affects text)
-                if checked:
-                    command = self.cm_enable
-                    if disabled_must:
-                        text = "Disabled (atoms in other Part)"
+                
+                from jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
+                if not isinstance(jig, RectGadget): #raise  
+                
+                    disabled_must = jig.disabled_by_atoms() # (by its atoms being in the wrong part)
+                    disabled_choice = jig.disabled_by_user_choice
+                    disabled_menu_item = disabled_must # menu item is disabled iff jig disabled state can't be changed, ie is "stuck on"
+                    checked = disabled_must or disabled_choice # menu item is checked if it's disabled for whatever reason (also affects text)
+                    if checked:
+                        command = self.cm_enable
+                        if disabled_must:
+                            text = "Disabled (atoms in other Part)"
+                        else:
+                            text = "Disabled"
                     else:
-                        text = "Disabled"
-                else:
-                    command = self.cm_disable
-                    text = "Disable"
-                res.append(( text, command, checked and 'checked' or None, disabled_menu_item and 'disabled' or None ))
+                        command = self.cm_disable
+                        text = "Disable"
+                    res.append(( text, command, checked and 'checked' or None, disabled_menu_item and 'disabled' or None ))
         except:
             print "bug in MT njigs == 1, ignored"
             ## raise # just during devel
@@ -528,6 +532,11 @@ class modelTree(TreeWidget):
                 # only jigs are selected -- offer to select their atoms [bruce 050504]
                 # (text searches for this code might like to find "Select this jig's" or "Select these jigs'")
                 if allstats.njigs == 1:
+                    jig = nodeset[0]
+                
+                    from jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
+                    if isinstance(jig, RectGadget): return res  
+                    
                     natoms = len(nodeset[0].atoms)
                     myatoms = fix_plurals( "this jig's %d atom(s)" % natoms )
                 else:

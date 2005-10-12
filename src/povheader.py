@@ -218,4 +218,48 @@ finish {
   wirebox( pos, rad, col )
 #end
 
+#macro esp_plane(p1, p2, p3, p4, imgName)
+    mesh2 {
+      vertex_vectors 
+      {
+        4,
+        p1, p2, p3, p4
+      }
+      uv_vectors {
+        4,
+        <0.0, 1.0>, <0.0, 0.0>,
+        <1.0, 0.0>, <1.0, 1.0>
+      }
+      face_indices 
+      {
+        2,
+        <0, 1, 2>,
+        <0, 2, 3>
+      } 
+      uv_mapping
+      pigment { image_map {png imgName
+                          } 
+      }
+      finish {Atomic}    
+    }
+#end
+
+#macro grid_plane(p1, p2, p3, p4, col)
+    cylinder { p1,  p2, 0.05
+          pigment { rgb col }
+          finish {Atomic}    
+    }
+    cylinder { p2,  p3, 0.05
+          pigment { rgb col }
+          finish {Atomic}    
+    }
+    cylinder { p3,  p4, 0.05
+          pigment { rgb col }
+          finish {Atomic}    
+    }
+    cylinder { p4,  p1, 0.05
+          pigment { rgb col }
+          finish {Atomic}    
+    }
+#end
 """

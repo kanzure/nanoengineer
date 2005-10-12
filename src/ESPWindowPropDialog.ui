@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>273</width>
+            <width>281</width>
             <height>592</height>
         </rect>
     </property>
@@ -181,6 +181,9 @@
                     <property name="text">
                         <string>Mirror</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Flip image horizontally (left to right).</string>
+                    </property>
                 </widget>
                 <spacer row="3" column="5" rowspan="1" colspan="2">
                     <property name="name">
@@ -201,10 +204,13 @@
                 </spacer>
                 <widget class="QToolButton" row="3" column="0">
                     <property name="name">
-                        <cstring>rotate_cw_btn</cstring>
+                        <cstring>rotate_ccw_btn</cstring>
                     </property>
                     <property name="text">
                         <string>+90</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Rotate  90 degrees counter clock-wisely.</string>
                     </property>
                 </widget>
                 <widget class="QLineEdit" row="2" column="0" rowspan="1" colspan="6">
@@ -217,10 +223,13 @@
                 </widget>
                 <widget class="QToolButton" row="3" column="1" rowspan="1" colspan="2">
                     <property name="name">
-                        <cstring>rotate_ccw_btn</cstring>
+                        <cstring>rotate_cw_btn</cstring>
                     </property>
                     <property name="text">
                         <string>-90</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Rotate  90 degrees clock-wisely.</string>
                     </property>
                 </widget>
                 <widget class="QToolButton" row="3" column="3">
@@ -229,6 +238,9 @@
                     </property>
                     <property name="text">
                         <string>Flip</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Flip the image vertically (top to bottom).</string>
                     </property>
                 </widget>
                 <widget class="QPushButton" row="0" column="0" rowspan="1" colspan="4">
@@ -905,13 +917,13 @@
         <slot>calculate_esp()</slot>
     </connection>
     <connection>
-        <sender>rotate_cw_btn</sender>
+        <sender>rotate_ccw_btn</sender>
         <signal>clicked()</signal>
         <receiver>ESPWindowPropDialog</receiver>
         <slot>rotate_90()</slot>
     </connection>
     <connection>
-        <sender>rotate_ccw_btn</sender>
+        <sender>rotate_cw_btn</sender>
         <signal>clicked()</signal>
         <receiver>ESPWindowPropDialog</receiver>
         <slot>rotate_neg_90()</slot>

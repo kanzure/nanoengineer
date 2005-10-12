@@ -126,6 +126,26 @@ class ESPWindowProp(ESPWindowPropDialog):
         
     def change_yaxisOrient(self, val):
         self.jig.yaxis_orient = val
+    
+    def rotate_90(self):
+        '''CCW rotate 90 degrees. '''
+        self.jig.rotate_esp_image(90)
+        
+        
+    def rotate_neg_90(self):
+        '''CW rotate 90 degrees. '''
+        self.jig.rotate_esp_image(-90)
+        
+        
+    def flip_esp_image(self):
+        '''Flip esp image. '''
+        self.jig.flip_esp_image()
+      
+        
+    def mirror_esp_image(self):
+        '''Mirror esp image. '''
+        self.jig.mirror_esp_image()
+    
         
     def accept(self):
         '''Slot for the 'OK' button '''

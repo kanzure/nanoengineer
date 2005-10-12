@@ -18,7 +18,7 @@ from HistoryWidget import redmsg, greenmsg
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
-from ImageUtils import getTextureData
+from ImageUtils import nEImageOps
 
 # == RectGadget
 
@@ -115,6 +115,10 @@ class RectGadget(Jig):
     
     def _mmp_record_last_part(self, mapping):
         return ""
+    
+    #def is_disabled(self):
+        #''' '''
+        #return False
 
     ###[Huaicai 9/29/05: The following two methods are temporarally copied here, this is try to fix jig copy related bugs
     ### not fully analynized how the copy works yet. It fixed some problems, but not sure if it's completely right.
@@ -241,9 +245,33 @@ class GridPlane(RectGadget):
             self.x_spacing, self.y_spacing, color[0], color[1], color[2])
         return " " + dataline
     
+    
+    def writepov(self, file, dispdef):
+        if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
+        
+        hw = self.width/2.0; hh = self.height/2.0
+        corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
+        povPlaneCorners = []
+        for v in corners_pos:
+            povPlaneCorners += [self.quat.rot(v) + self.center]
+        strPts = ' %s, %s, %s, %s ' % tuple(map(povpoint, povPlaneCorners))
+        color = '%s>' % (povStrVec(self.color),)
+        file.write('grid_plane(' + strPts + color + ') \n')
+        
     pass # end of class GridPlane   
     
-    
+
+def povStrVec(va):
+    #from Numeric import array
+    #if type(va) == type(array):
+        rstr = '<'
+        for ii in range(size(va)):
+            rstr += str(va[ii]) + ', '
+        #rstr += str(va[size(va)-1]) + '>'
+        
+        return rstr
+
 # == ESPWindow
 
 class ESPWindow(RectGadget):
@@ -274,7 +302,7 @@ class ESPWindow(RectGadget):
         self.edge_offset = 1.0 
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
         self.opacity = 0.6
-        self.textureReady = False # Flag if texture image is ready or not
+        self.image_obj = None # Flag if texture image is ready or not
         self.highlightChecked = False # Flag if highlight is turned on or off
         self.xaxis_orient = 0 # ESP Image X Axis orientation
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
@@ -293,10 +321,14 @@ class ESPWindow(RectGadget):
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
 
 
-    def _loadTexture(self, fileName):
-        '''Load the texture image '''
+    def _createImageFile(self, fileName):
+        '''Create image file. '''
+        self.image_obj = nEImageOps(fileName)
         
-        ix, iy, image, self.image_obj  = getTextureData(fileName) 
+        
+    def _loadTexture(self):
+        '''Load texture data from current image object '''
+        ix, iy, image = self.image_obj.getTextureData() 
     
         # Create Texture
         glBindTexture(GL_TEXTURE_2D, glGenTextures(1))   # 2d texture (x and y size)
@@ -305,9 +337,8 @@ class ESPWindow(RectGadget):
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
     
         self._initTextureEnv()
-    
-        self.textureReady = True
-    
+        self.assy.o.gl_update()
+        
     
     def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color,show_bbox, win_offset, edge_offset):
         '''Set the properties for a ESP Window read from a (MMP) file. '''
@@ -385,14 +416,32 @@ class ESPWindow(RectGadget):
             else:
                 m.overdraw_with_special_color(ave_colors( 0.8, green, black))
     
+    
     def edit(self):
         '''Force into 'Select Atom' mode before open the dialog '''
         from constants import SELWHAT_ATOMS
         
         self.assy.o.setMode('SELECTATOMS')        
         Jig.edit(self)
+
         
-    
+    def writepov(self, file, dispdef):
+        if self.hidden: return
+        if self.is_disabled(): return #bruce 050421
+        
+        hw = self.width/2.0; wo = self.window_offset; eo = self.edge_offset
+        corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
+        povPlaneCorners = []
+        for v in corners_pos:
+            povPlaneCorners += [self.quat.rot(v) + self.center]
+        strPts = ' %s, %s, %s, %s ' % tuple(map(povpoint, povPlaneCorners))
+        #color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
+        imgName = os.path.basename(self.png_name)
+        imgPath = os.path.dirname(self.png_name)
+        file.write('\n // Before you render, please set this command option: Library_Path="%s"\n\n' % (imgPath,))
+        file.write('esp_plane(' + strPts + ', "'+ imgName + '") \n')
+        
+        
     def _draw(self, win, dispdef):
         glPushMatrix()
 
@@ -400,7 +449,9 @@ class ESPWindow(RectGadget):
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
         
-        drawPlane(self.fill_color, self.width, self.width, self.textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
+        if self.image_obj: textureReady = True
+        else: textureReady = False
+        drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
@@ -435,6 +486,7 @@ class ESPWindow(RectGadget):
             self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.window_offset, self.edge_offset)
         return " " + dataline
 
+
     def get_sim_parms(self):
         from NanoHive import NH_Sim_Parameters
         sim_parms = NH_Sim_Parameters()
@@ -452,7 +504,8 @@ class ESPWindow(RectGadget):
         sim_parms.esp_window = self
         
         return sim_parms
-        
+
+    
     def calculate_esp(self):
         
         cmd = greenmsg("Calculate ESP: ")
@@ -483,14 +536,17 @@ class ESPWindow(RectGadget):
         self.assy.w.win_update()
         
         return
-        
+      
+    
     def __CM_Calculate_ESP(self):
         '''Method for "Calculate ESP" context menu'''
         self.calculate_esp()
-    
+
+        
     def __CM_Load_ESP_Image(self):
         '''Method for "Calculate ESP" context menu'''
         self.load_esp_image()
+   
         
     def load_esp_image(self, load_new_image = False):
         '''Load the ESP (.png) image file, which will have the same name as the Jig.
@@ -514,6 +570,7 @@ class ESPWindow(RectGadget):
         from platform import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         png_name = os.path.join(nhdir,self.name+".png")
+        self.png_name = png_name
         print png_name
     
         if not os.path.exists(png_name) or load_new_image:
@@ -528,29 +585,44 @@ class ESPWindow(RectGadget):
             fn = QFileDialog.getOpenFileName(nhdir, \
                     "All Files (*.png *.jpg *.gif *.bmp);;", self.assy.w )
                 
-            png_name = str(fn)        
+            png_name = str(fn)
+            self.png_name = png_name
             
             if not fn:
                 env.history.message("Cancelled.")
                 return None
         
-        self._loadTexture(png_name)
-        
-        self.assy.o.gl_update()
+        self._createImageFile(png_name)
+        self._loadTexture()
         
         # Bug fix 1041-1.  Mark 051003
         msg = "ESP image loaded: [" + png_name + "]"
         env.history.message(cmd + msg)
         
         return png_name
-        
+    
+    
     def clear_esp_image(self):
         '''Clears the image in the ESP Window.'''
-        self.textureReady = False
+        self.image_obj = None
         self.assy.o.gl_update()
+
         
     def flip_esp_image(self):
-        self.image_obj = ImageOps.flip(self.image_obj)
-        
+        if self.image_obj:
+            self.image_obj.flip()
+            self._loadTexture()
+    
+    
+    def mirror_esp_image(self):
+        if self.image_obj:
+            self.image_obj.mirror()
+            self._loadTexture()
+
+            
+    def rotate_esp_image(self, deg):
+        if self.image_obj:
+            self.image_obj.rotate(deg)
+            self._loadTexture()
     
     pass # end of class ESPWindow       

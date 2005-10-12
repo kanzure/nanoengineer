@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ESPWindowPropDialog.ui'
+# Form implementation generated from reading ui file 'ESPWindowPropDialog.ui'
 #
-# Created: Wed Oct 5 16:42:00 2005
+# Created: Tue Oct 11 17:46:51 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -114,18 +114,18 @@ class ESPWindowPropDialog(QDialog):
         spacer29 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         groupBox5Layout.addMultiCell(spacer29,3,3,5,6)
 
-        self.rotate_cw_btn = QToolButton(self.groupBox5,"rotate_cw_btn")
+        self.rotate_ccw_btn = QToolButton(self.groupBox5,"rotate_ccw_btn")
 
-        groupBox5Layout.addWidget(self.rotate_cw_btn,3,0)
+        groupBox5Layout.addWidget(self.rotate_ccw_btn,3,0)
 
         self.png_fname_linedit = QLineEdit(self.groupBox5,"png_fname_linedit")
         self.png_fname_linedit.setReadOnly(0)
 
         groupBox5Layout.addMultiCellWidget(self.png_fname_linedit,2,2,0,5)
 
-        self.rotate_ccw_btn = QToolButton(self.groupBox5,"rotate_ccw_btn")
+        self.rotate_cw_btn = QToolButton(self.groupBox5,"rotate_cw_btn")
 
-        groupBox5Layout.addMultiCellWidget(self.rotate_ccw_btn,3,3,1,2)
+        groupBox5Layout.addMultiCellWidget(self.rotate_cw_btn,3,3,1,2)
 
         self.flip_btn = QToolButton(self.groupBox5,"flip_btn")
 
@@ -324,7 +324,7 @@ class ESPWindowPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(273,592).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(281,592).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -335,8 +335,8 @@ class ESPWindowPropDialog(QDialog):
         self.connect(self.select_atoms_btn,SIGNAL("clicked()"),self.select_atoms_inside_esp_bbox)
         self.connect(self.highlight_atoms_in_bbox_checkbox,SIGNAL("toggled(bool)"),self.highlight_atoms_in_bbox)
         self.connect(self.calculate_esp_btn,SIGNAL("clicked()"),self.calculate_esp)
-        self.connect(self.rotate_cw_btn,SIGNAL("clicked()"),self.rotate_90)
-        self.connect(self.rotate_ccw_btn,SIGNAL("clicked()"),self.rotate_neg_90)
+        self.connect(self.rotate_ccw_btn,SIGNAL("clicked()"),self.rotate_90)
+        self.connect(self.rotate_cw_btn,SIGNAL("clicked()"),self.rotate_neg_90)
         self.connect(self.flip_btn,SIGNAL("clicked()"),self.flip_esp_image)
         self.connect(self.mirror_btn,SIGNAL("clicked()"),self.mirror_esp_image)
         self.connect(self.opacity_slider,SIGNAL("valueChanged(int)"),self.change_opacity)
@@ -372,9 +372,13 @@ class ESPWindowPropDialog(QDialog):
         self.groupBox5.setTitle(self.__tr("ESP Results Image"))
         self.choose_file_btn.setText(self.__tr("..."))
         self.mirror_btn.setText(self.__tr("Mirror"))
-        self.rotate_cw_btn.setText(self.__tr("+90"))
-        self.rotate_ccw_btn.setText(self.__tr("-90"))
+        QToolTip.add(self.mirror_btn,self.__tr("Flip image horizontally (left to right)."))
+        self.rotate_ccw_btn.setText(self.__tr("+90"))
+        QToolTip.add(self.rotate_ccw_btn,self.__tr("Rotate  90 degrees counter clock-wisely."))
+        self.rotate_cw_btn.setText(self.__tr("-90"))
+        QToolTip.add(self.rotate_cw_btn,self.__tr("Rotate  90 degrees clock-wisely."))
         self.flip_btn.setText(self.__tr("Flip"))
+        QToolTip.add(self.flip_btn,self.__tr("Flip the image vertically (top to bottom)."))
         self.calculate_esp_btn.setText(self.__tr("Calculate ESP"))
         self.clear_btn.setText(self.__tr("Clear"))
         self.load_btn.setText(self.__tr("Load"))

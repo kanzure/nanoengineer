@@ -844,11 +844,11 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Rotary Motor."))
             return
         
-        # Make sure that no more than 30 atoms are selected.
-        nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            return
+        ## Make sure that no more than 30 atoms are selected.
+        #nsa = len(self.assy.selatoms)
+        #if nsa > 30: 
+            #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            #return
         
         from jigs_motors import RotaryMotor
         m = RotaryMotor(self.assy)
@@ -878,11 +878,11 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Linear Motor."))
             return
         
-        # Make sure that no more than 30 atoms are selected.
-        nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            return
+        ## Make sure that no more than 30 atoms are selected.
+        #nsa = len(self.assy.selatoms)
+        #if nsa > 30: 
+            #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            #return
         
         from jigs_motors import LinearMotor
         m = LinearMotor(self.assy)
@@ -953,11 +953,11 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + redmsg("You must select at least one atom to create a Ground."))
             return
         
-        # Make sure that no more than 30 atoms are selected.
-        nsa = len(self.assy.selatoms)
-        if nsa > 30: 
-            env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            return
+        ## Make sure that no more than 30 atoms are selected.
+        #nsa = len(self.assy.selatoms)
+        #if nsa > 30: 
+            #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
+            #return
         
         
         m = Ground(self.assy, self.selatoms.values())
@@ -1069,8 +1069,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         env.history.message(cmd + "ESP Window created.")
         self.assy.w.win_update()
-   
-        
+           
         
     def makeAtomSet(self):
         cmd = greenmsg("Atom Set: ")
