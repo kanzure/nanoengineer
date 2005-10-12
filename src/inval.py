@@ -305,6 +305,7 @@ def getattr_helper(self, attr):
     ubmeth = getattr(self.__class__, "_recompute_" + attr, None)
     if not ubmeth:
         # rare enough to raise a nicer exception than our own __getattr__ does
+        ###e this should use a safe_repr function for self [bruce 051011 comment]
         raise AttributeError, "%s has no %r: %r" % (self.__class__.__name__, attr, self)
     try:
         val = ubmeth(self)

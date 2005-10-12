@@ -123,12 +123,14 @@ class Node( GenericDiffTracker_API_Mixin):
     disabled_by_user_choice = False
         # [bruce 050505 made this default on all Nodes, tho only Jigs use the attr so far; see also is_disabled]
 
-    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526
+    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526; see also _um_undoable_attrs
         # subclasses need to extend this
         #e could someday use these to help make mmp writing and reading more uniform,
         # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
 
-    def __init__(self, assy, name, dad = None): #bruce 050216 fixed inconsistent arg order, made name required
+    def __init__(self, assy, name, dad = None, _um_key = None):
+        #bruce 050216 fixed inconsistent arg order, made name required
+        #bruce 051010 added _um_key named arg for use by Undo system #####@@@@@ need to pass it down from all Node subclasses!
         """Make a new node (Node or any subclass), in the given assembly (assy)
         (I think assy must always be supplied, but I'm not sure),
         with the given name (or "" if the supplied name is None),
@@ -144,14 +146,8 @@ class Node( GenericDiffTracker_API_Mixin):
             # i.e. if we are _nullMol
             pass # our changes get tracked into a garbage dict, from where they periodically get discarded
         else:
-            self._um_init( assy._u_archive )
+            self._um_init( assy._u_archive, _um_key )
             # this is needed before any _um_xxx calls on self (used for recording or summarizing changes)
-
-        #######@@@@@@@ remove this:
-##        if 1:
-##            #bruce 051005 hacks, will be done differently
-##            assert self.name == ""
-##            self._um_will_change_attr('name')
 
         self.name = name or "" # assumed to be a string by some code
         
@@ -179,7 +175,12 @@ class Node( GenericDiffTracker_API_Mixin):
         """
         return self.assy is not None and self.part is not None and self.dad is not None
             ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
-    
+
+    def _um_undoable_attrs(self): #bruce 051011
+        """[overrides GenericDiffTracker_API_Mixin method; see its docstring]
+        """
+        return self.copyable_attrs # this should be enough for most Nodes, but will need overriding by Chunk and Group
+
     def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
         self.changed()
@@ -499,27 +500,20 @@ class Node( GenericDiffTracker_API_Mixin):
             for node in nodes[:]:
                 node.moveto(self) ###k guess/stub; works
         else:
-##            if 1:
-                #bruce 050527 new code to "copy anything". Preliminary (probably not enough history messages, or maybe sometimes
-                # too many). Would be better to create the Copier object (done in a subr here) earlier, when the drag is started,
-                # for various reasons mentioned elsewhere.
-                from ops_copy import copied_nodes_for_DND
-                autogroup_at_top = isinstance(self, ClipboardShelfGroup)
-                    #####@@@@@ kluge! replace with per-group variable or func.
-                    #e or perhaps better, a per-group method to process the nodes list, eg to do the grouping
-                    # as the comment in copied_nodes_for_DND or its subr suggests.
-                nodes = copied_nodes_for_DND(nodes, autogroup_at_top = autogroup_at_top)
-                if not nodes: # might be None
-                    return [] # return copied nodes
-                for nc in nodes[:]:
-                    res.append(nc)
-                    self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
-##            else:#old code
-##              for node in nodes[:]:
-##                nc = node.copy(None) # note: before 050215 we passed dad=self -- weird, but due to other weirdness in copy, didn't matter
-##                if nc: # can be None if the copy is refused (since nim for that Node subclass, as for Group as of 050203)
-##                    res.append(nc)
-##                    self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
+            #bruce 050527 new code to "copy anything". Preliminary (probably not enough history messages, or maybe sometimes
+            # too many). Would be better to create the Copier object (done in a subr here) earlier, when the drag is started,
+            # for various reasons mentioned elsewhere.
+            from ops_copy import copied_nodes_for_DND
+            autogroup_at_top = isinstance(self, ClipboardShelfGroup)
+                #####@@@@@ kluge! replace with per-group variable or func.
+                #e or perhaps better, a per-group method to process the nodes list, eg to do the grouping
+                # as the comment in copied_nodes_for_DND or its subr suggests.
+            nodes = copied_nodes_for_DND(nodes, autogroup_at_top = autogroup_at_top)
+            if not nodes: # might be None
+                return [] # return copied nodes
+            for nc in nodes[:]:
+                res.append(nc)
+                self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
         self.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of this)
         return res
 
@@ -1995,27 +1989,9 @@ class ClipboardShelfGroup(Group):
         if len(nodes) > 1 and drag_type == 'move': #####@@@@@ desired for copy too, but below implem would be wrong for that...
             name = self.assy.name_autogrouped_nodes_for_clipboard( nodes, howmade = drag_type )
             new = Group(name, self.assy, None)
-#bruce 050527 removing part-related code, since it is redundant with more general code added elsewhere, today [tested!]
-##            parts = {} # maps id(part) to part for all nonnull parts in nodes
-##                #bruce 050420: fix an unreported bug related to bug 556, but for dragged nodes which get auto-grouped.
-##                # If the nodes all have same .part (of those which have a .part) (I believe they will always all have
-##                # the same nonnull part, but I'm testing this to be robust), add new group to that part too;
-##                # this part will be replaced later by update_parts, but serves to pass on these node's view in glpane
-##                # to the new part. (The replacement might be "needless" if we were dragging *all* nodes from
-##                # that part, but we're not bothering here to make its topnode correct -- and we surely couldn't
-##                # if we're only dragging *some* nodes from it.)
             for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
-##                part = node.part
-##                if part is not None:
-##                    parts[id(part)] = part
-##                del part
                 node.unpick() #bruce 050216; don't know if needed or matters; 050307 moved from after to before moveto
                 node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
-##            if len(parts) == 1:
-##                part = parts.values()[0]
-##                part.add(new) #bruce 050420, explained in comment above
-##                if 0 and platform.atom_debug:
-##                    print "atom_debug: added autogroup to shared part of its nodes"
             nodes = [new] # a new length-1 list of nodes
             env.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
         return Group.drop_on(self, drag_type, nodes)
@@ -2111,9 +2087,6 @@ def kluge_patch_assy_toplevel_groups(assy, assert_this_was_not_needed = False): 
             fixroot = 1
         if assy.root.__class__ is Group or fixroot:
             fixroot = 1 # needed for the "assert_this_was_not_needed" check
-            ## sanitize_for_clipboard has been replaced by update_parts done by callers [050309]:
-##            for m in assy.shelf.members:
-##                assy.sanitize_for_clipboard( m) # needed for when Groups in clipboard are read from mmp files
             #e make new Root Group in there too -- and btw, use it in model tree widgets for the entire tree...
             # would it work better to use kluge_change_class for this?
             # academic Q, since it would not be correct, members are not revised ones we made above.

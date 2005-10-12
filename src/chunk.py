@@ -67,6 +67,13 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # class constants to serve as default values of attributes
     _hotspot = None
     _colorfunc = None
+    # this overrides global display (GLPane.display)
+    # but is overriden by atom value if not default
+    # [bruce 051011 moved it here from __init__, desirable for all undoable attrs]
+    display = diDEFAULT
+    # this overrides atom colors if set
+    color = None
+        
     # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
 
     copyable_attrs = Node.copyable_attrs + ('display', 'color') # this extends the tuple from Node
@@ -120,16 +127,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # - self.average_position (average posn of atoms or singlets; default
         #   value for self.center).
         
-        # this overrides global display (GLPane.display)
-        # but is overriden by atom value if not default
-        self.display = diDEFAULT
-        
         # this set and the molecule in assembly.selmols
         # must remain consistent
         ## self.picked=0 # bruce 050308 removed this, redundant with Node.__init__
         
-        # this overrides atom colors if set
-        self.color = None
         # for caching the display as a GL call list
         self.displist = glGenLists(1)
         self.havelist = 0 # note: havelist is not handled by InvalMixin
@@ -150,6 +151,67 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         return # from molecule.__init__
 
+    def _um_replace_atkeypos(self, val, model): #bruce 051011 for Undo ####@@@@ call it
+        ###e change name of atkeypos to make it obvious it's virtual?
+        "[overrides usual setattr called by GenericDiffTracker_API_Mixin for self.atkeypos]"
+        # does private things to Atom attributes; see also similar code in self.merge()
+        keys, posns = val # a pair of Numeric arrays, containing the keys and posns of the atoms we should have
+        atoms_want_and_have = {}
+        atoms_missing = {}
+        atoms_had = self.atoms
+        self.atoms = 333 # not a sequence or dict (force exception if self.atoms used before it's replaced below)
+        for key in keys: # atoms we want
+            atom = atoms_had.pop(key, None) # have it already?
+            if atom is not None:
+                atoms_want_and_have[key] = atom
+            else:
+                # The atom is not in self, but our intended caller (Undo) guarantees it exists,
+                # since it knows to create objs before needing them, so find it. It might be in
+                # some other chunk, or in no chunk (if just created by Undo).
+                from chem import live_atom_for_key
+                atoms_missing[key] = live_atom_for_key(key)
+        for key, atom in atoms_had.itervalues():
+            # We no longer want this atom; set its chunk/posn-related fields to illegal values (to detect bugs);
+            # don't use an ordinary atom-removing method (delatom), since that would try to modify self.atoms.
+            atom.index = -1
+            atom.molecule = None
+            atom.xyz = None
+            # We don't know yet if some other chunk will want it, so tell model in case no one wants it and it needs deleting.
+            model.maybe_discard_atom(atom)
+            nim #####@@@@@ worry about effect on atom.picked, or side effects if atom is picked...
+        del atoms_had
+        # now bring atoms_missing into atoms_want_and_have
+        oldmols = {}
+        for key, atom in atoms_missing.itervalues():
+            # steal this atom for use in self
+            oldmol = atom.molecule
+            oldmols[id(oldmol)] = oldmol
+                # we must call invalidate_atom_lists (below) before anything but this loop could act on oldmol
+            atom.molecule = self
+            atom.index = -1 # fixed below (this assignment is just to detect bugs)
+            atom.xyz = 'no' # this is necessary
+            atoms_want_and_have[key] = atom
+            #####@@@@@ do something to invalidate its bonds? no need, they store the molecule they're valid for, I think... ###k
+        for mol in oldmols.itervalues():
+            if isinstance(mol, molecule): # mol might be None if the atom is new
+                mol.invalidate_atom_lists()
+                # (This should not be needed by anticipated calls from Undo, if no bugs,
+                #  since atoms stolen from one mol are added to another, but it's safer to do it.)
+        self.atoms = atoms_want_and_have
+        self.invalidate_atom_lists()
+        self.invalidate_attrs(['atpos'])
+        assert len(self.atoms) == len(keys)
+        ###e we could optim by just plopping in the posns array as self.atpos and self.curpos
+        # and writing new code to do the remainder of _recompute_atpos, but this is simpler for now:
+        self.curpos = + posns
+        for i in range(len(keys)):
+            key = keys[i]
+            atom = atoms_want_and_have[key]
+            atom.index = i
+            assert atom.xyz == 'no'
+        # now _recompute_atpos should do the right thing when next used. #k
+        return
+        
     def break_interpart_bonds(self): #bruce 050308-16 to help fix bug 371; revised 050513
         "[overrides Node method]"
         assert self.part is not None
@@ -514,23 +576,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     _inputs_for_poly_eval_evec_axis = ['basepos']
     def _recompute_poly_eval_evec_axis(self):
         return shakedown_poly_eval_evec_axis( self.basepos)
-
-    def shakedown(self): # replaced with this legacy debug routine, 041112
-        """Called by pre-041110 code after it modified the molecule in certain ways.
-        No longer needed, but during a transition period, it will see if it can figure out
-        why it was called, and report stats on that, and warn us if it finds no reason
-        to have been called (which might mean we're forgetting to invalidate something
-        in some low-level method that modifies the molecule).
-        """
-        if not platform.atom_debug:
-            return
-        invs = self.invalid_attrs()
-        if invs:
-            pass ## print "fyi: shakedown(%r); invalid attrs are %r" % (self, invs)
-        else:
-            if platform.atom_debug:
-                print_compact_stack( "fyi: shakedown(%r); NO INVALID ATTRS: " % self )
-        return
 
     def full_inval_and_update(self): # bruce 041112-17
         """Public method (but should not usually be needed):
@@ -2218,7 +2263,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def __str__(self):
         return "<Chunk %r>" % self.name # bruce 041124 revised this
 
-    def __repr__(self): #bruce 041117
+    def __repr__(self): #bruce 041117, revised 051011
         # Note: if you extend this, make sure it doesn't recompute anything
         # (like len(self.singlets) would do) or that will confuse debugging
         # by making debug-prints trigger recomputes.
@@ -2228,7 +2273,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             name = "%r" % self.name
         except:
             name = "(exception in self.name repr)"
-        if self.assy:
+        try:
+            self.assy
+        except:
+            return "<Chunk %s at %#x with self.assy not set>" % (name, id(self)) #bruce 051011
+        if self.assy is not None:
             return "<Chunk %s (%d atoms) at %#x>" % (name, len(self.atoms), id(self))
         else:
             return "<Chunk %s, KILLED (no assy), at %#x of %d atoms>" % (name, id(self), len(self.atoms)) # note other order

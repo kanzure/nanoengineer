@@ -1922,6 +1922,10 @@ class depositMode(basicMode):
                     self.Menu_spec.extend(menu_spec)
                 pass
             pass
+
+##        # local minimize - experimental, nim [bruce 051011]
+##        if selatom is not None and not selatom.is_singlet() and platform.atom_debug:
+##            self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) ###@@@ IMPLEM
         
         # offer to clean up singlet positions (not sure if this item should be so prominent)
         if selatom is not None and not selatom.is_singlet():

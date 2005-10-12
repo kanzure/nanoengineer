@@ -76,6 +76,14 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
     _um_exists = False
     _um_deinited = False
     # methods to be overridden in subclasses
+    def _um_undoable_attrs(self):
+        """Return a sequence of attribute names in self whose changes should be undone by GenericDiffTracker_API_Mixin
+        (not including names used internally by the mixin class, such as _um_exists).
+        The returned value should not change over the lifetime of this object, but it can depend on args passed to __init__
+        provided those args are fully processed before __init__ calls _um_init (since _um_init calls this method).
+        The treatment of specific attrs can be modified by per-attr declarations (see the mixin class for details).
+        """
+        return ()
     def _um_existence_permitted(self):
         """[subclasses should override this as needed]
         Return True iff it looks like we should be considered to exist in self._um_archive's model of undoable state.
@@ -92,14 +100,39 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
         """
         # noop method in case class doesn't need this
         pass
+    def _um_cons_args_kws_defaults(self): # only _um_fixed_cons_args_kws_defaults should call this directly 
+        """#doc - explain this better, put it in context:
+        [Most subclasses must override this method.]
+        Return a tuple of:
+        constructor function (which must be a class in some module, which inherits this mixin -- usually self.__class__),
+        initargs and kws for constructor (optionally tuned to current attrvals) (needn't be copied, caller does that),
+        and the "default" attrvals (for undoable attrs) that will result from using that constructor on those initargs.
+        The initargs should do enough that ordinary attrval-diffs from defaults to current attrvals will be sufficient
+        to finish reconstructing an object like self in its current state, but neither initargs nor defaults are allowed
+        to contain refs to other objects (so any current attrvals which do, will end up being set separately, as changes).
+        """
+        #####@@@@@ related Q: init allocs wrong key, how do we fix that when reconstructing? with an initarg _um_key?
+        consfunc = self.__class__
+        initargs = []
+        initkws = {} # these don't include _um_key; by the time this gets recreated, it might be different (tho prob not for now)
+        defaults = self._um_default_values_dict
+        return consfunc, initargs, initkws, defaults
+    def _um_fixed_cons_args_kws_defaults(self):
+        "properly encoded/copied/verified version of _um_cons_args_kws_defaults [not usually overridden]"
+        # we copy initargs, initkws, defaults, to unshare and ensure no objs
+        consfunc, args, kws, dflts = self._um_cons_args_kws_defaults() # typically overridden by client code
+        archive = self._um_archive
+        copy = archive.copy_val
+        return archive.consname(consfunc), copy(args), copy(kws), copy(dflts)
     # init and deinit methods
-    def _um_init(self, archive): # this implies we know archive when we create object. is that reasonable? yes, it seems to be.
+    def _um_init(self, archive, key): # this implies we know archive when we create object. is that reasonable? yes, it seems to be.
         "This should be called sometime during the caller's __init__ method. [#doc when, if it matters]"
         assert not self._um_deinited, "reinit of deinited undoable object is not allowed: %r" % self
         self._um_archive = archive
-        self._um_key = archive.allocate_key(self)
+        self._um_key = archive.allocate_key(self, key)
             # allocate a unique key from the undo-archive we'll be using to store old state and diffs;
-            # and (since we pass self) store in the archive a weak ref to self from that key
+            # and (since we pass self) store in the archive a weak ref to self from that key;
+            # or if provided key is not None, use that (after asserting it's not already in use).
         self._s_init() #e should use super syntax if we decide this can inherit from object
         self._um_flagdict = archive.difftrackers['generic'].flagdict
         self._um_preinit_flagdict.clear() # discard anything tracked before _um_init was called
@@ -108,10 +141,10 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
         self._um_preinit_oldval_cache.clear()
         # compile some helper lists based on attr decls, of attrs to handle specially
         self._um_mutable_attrs = self._s_mutable_attrs ### stub, should reduce this to only include the ones meant for undo...
-        ### begin testing stub: we need a class-specific (*not* allowed to vary on self) dict of all default values of undoable attrs
-        self._um_default_values_dict = dict(name = "", _um_exists = False) ######@@@@@@
-        ### end testing stub
+        self._um_init_default_values_dict()
         self._um_oldval_cache.update(self._um_default_values_dict) # at next checkpoint, always compare all attrs to defaults
+            ###k that might still be good to prevent redundant change-flagging, but values might not matter since stored again later,
+            # perhaps differently if they can be coded as init_args
 ##        self._um_prepare_for_changes()
 ##            # This is only correct if we're called early enough in __init__
 ##            # that the current values of *all* attributes (those we store in oldval cache, or others)
@@ -127,6 +160,25 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
         self._um_set_exists(True) # record our creation as a change [kluge??]
         # note: we don't call _um_check_existence until the next checkpoint, since it might return False before __init__ is done.
         return
+    def _um_init_default_values_dict(self):
+        ###obs comments:
+        ### we need a class-specific (*not* allowed to vary on self) dict of all default values of undoable attrs
+        ### actually it can vary depending on initargs, under some conditions (doc'd eleswhere)
+        ### but it would be more efficient to prohibit that, so not every instance had to recompute this!
+        self._um_default_values_dict = {}
+        for attr in self._um_undoable_attrs():
+            try:
+                dflt = getattr(self.__class__, attr)
+            except AttributeError:
+                #e print warning, but only once per class?
+                try:
+                    dflt = getattr(self, attr) ### WRONG, but we need to figure out what to do then - decl, always define on class, ...
+                except:
+                    print "bug, fatal: exception (traceback follows) looking for default value for attr %r of class %r" % \
+                          (attr, self.__class__.__name__)
+                    raise
+            self._um_default_values_dict[attr] = dflt
+        self._um_default_values_dict['_um_exists'] = False        
     def _um_deinit(self):
         """call this when self is deleted wrt the undoable-state model;
         not calling it might cause errors;
@@ -164,7 +216,7 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
         "example code, typically inlined"
         self._um_flagdict[ self._um_key] = self # some objs might store a proxy or helper-obj in here...
         return
-    def _undo_checkpoint(self, backwards, forwards = None): ##, snap = None
+    def _undo_checkpoint(self, diffargs): ##, snap = None
         """[undo protocol:] ###doc...
         we reached a checkpoint and you (self) flagged yourself as maybe having changed;
         please return XXX or store in the args YYY...
@@ -177,25 +229,55 @@ and then to flush your internal diff-cache until we ask again."
         store this stuff into the args using your key. (if it's null, store nothing.) (for args not supplied, store nothing.)
         """
         # don't do self._um_check_existence() -- caller has just done that
-        key = self._um_key # index of whatever we store into the arg dicts
-        assert key != _ILLEGAL_UM_KEY #k not sure if this is guaranteed! if not, then just silently return if it fails.
         oldval_cache = self._um_oldval_cache
         exists = self._um_exists
         existed = oldval_cache.get('_um_exists', exists) # (but leave it in oldval_cache if it changed)
-        defaults = self._um_default_values_dict
+        if not (existed or exists):
+            # This happens if we got created and deleted in one cycle, or got change-tracked while not officially existing.
+            # Either way, no diffs need to be recorded for us or our attrs.
+            # Returning this early is just an optimization, but it might simplify the remaining code.
+            return
+        oldver, create_f, change_f, change_b, delete_b, newver = diffargs # oldver, newver might not be used for now -- not sure###@@@
+        forwards = change_f # synonyms deemed more readable
+        backwards = change_b
+        key = self._um_key # index of whatever we store into the diff dicts
+        assert key != _ILLEGAL_UM_KEY #k not sure if this is guaranteed! if not, then just silently return if it fails.
+        defaults_for_create = self._um_default_values_dict #e in principle, this might differ for create and destroy, and for each use
+        # deletion diffs, including deletion-kluge for change diffs
         if existed and not exists:
-            # make sure all attrs will be checked, since we'll pretend they all changed to their default values,
-            # but some of them didn't really change (nor do we dare to really change them here),
-            # and therefore some of them might not have been change-tracked.
-            for attr in defaults.keys():
-                # set oldval to true current value, if attr didn't change (compared later to default val == pretend current val)
+            # We got deleted! For forward diffs, it's enough to store that fact,
+            # but backwards diffs need to know how to recreate us (in case this delete is undone).
+            #  We split that re-creation into constructor and args, plus additional changes if necessary.
+            # Whether to store each current attrval in constructor args or as a "pre-delete change of this attr to its default value"
+            # is somewhat arbitrary, but in case attrvals point to objects which would be recreated in parallel,
+            # we can't assume those attrvals can be set during the creation stage, only (via a mapping) during the change stage.
+            # On the other hand, some objects might have properties unsettable after init;
+            # this is up to the constructor-and-args chooser for the client class.
+            cons, args, kws, defaults_for_delete = self._um_fixed_cons_args_kws_defaults()
+                # get constructor and args for approximating current state, which set attrs to defaults_for_delete,
+                # which we'll correct using further changes.
+            delete_b[key] = (cons, args, kws) ####@@@@ format?
+            # we'll pretend in our diffs that all our attrs changed to those default values, before the delete.
+            # But we don't dare to really change them, and the ones that didn't really change weren't change-tracked,
+            # so we have to fake that here.
+            for attr in defaults_for_delete.keys():
+                # if attr didn't change yet, set oldval to true current value
+                # (to be compared later to default val == pretend current val)
                 if not oldval_cache.has_key(attr):
                     oldval_cache[attr] = getattr(self,attr)
-                # (don't do it with setdefault alone, in case getattr at this late stage
-                #  has bad effects for some attrs, which above code might always avoid
-                #  if they're declared to always be in oldval_cache:
-                #  oldval_cache.setdefault(attr, getattr(self,attr))
-                # )
+                # (don't do oldval_cache.setdefault(attr, getattr(self,attr)), 
+                #  so as to avoid getattr at this late stage unless its really needed;
+                #  reason is that dying objects might do unwanted recomputes by getattr;
+                #  reason it might help is that some attrs are declared to always be in oldval_cache.)
+        # creation diffs
+        if exists and not existed:
+            # This is similar to the deletion case...
+            ###@@@ change to code: _um_init need only flag us... or did it need to set oldvals? maybe to prevent recording only...
+            cons, args, kws, defaults_for_create = self._um_fixed_cons_args_kws_defaults()
+            create_f[key] = (cons, args, kws)
+            oldval_cache.clear()
+            oldval_cache.update( defaults_for_create) ###@@@
+        # change-diffs (for whichever attrs are recorded in oldval_cache, and actually changed)
         items = oldval_cache.items()
         oldval_cache.clear()
         for attr, oldval in items: # note: this includes attrs we want to diff every time, since their oldval was stored.
@@ -207,24 +289,24 @@ and then to flush your internal diff-cache until we ask again."
             # Not all mutable attrs need to be stored here, if client is sure it'll warn us (via _um_will_change_attr)
             # before the attr value is either modified or reassigned. (If it only warns us afterwards, that's pretty useless --
             # they'd need to be pre-stored here even if they're not mutable. So we have no provisions for beig warned afterwards.)
-            # What we do: see if value is now different (whether that is due to it being modified or reassigned or both; we can't tell).
+            #
+            # See if value is now different (whether that is due to it being modified or reassigned or both; we can't tell).
             equals = self._s_equalfunc(attr) # from StateMixin
-            if not existed:
-                assert equals( oldval, defaults[attr])
             if not exists:
-                newval = defaults[attr]
+                newval = defaults_for_delete[attr] # on deletion, pretend attr gets reset to default (as explained above)
             else:
                 newval = getattr(self, attr)
             if not equals(oldval, newval):
+                assert not (not existed and not exists) # no diffs are possible here for objects created and destroyed in one cycle
                 # Record this diff (perhaps in both directions).
                 # For objects just created, no need to record backwards diffs (except for attr _um_exists itself).
                 # For objects just destroyed, no need to record forwards diffs (except for _um_exists).
                 # For objects created and destroyed in the same cycle, this implies no diffs will be recorded (see assert below).
-                if backwards is not None: # always true for now
+                if backwards is not None: # caller wants backwards diffs (always true for now)
                     if existed or attr == '_um_exists':
                         diffs = backwards.setdefault(key, {})
                         diffs[attr] = oldval
-                if forwards is not None: # warning, forwards might be {}, so don't use a boolean test!
+                if forwards is not None: # caller wants forwards diffs (warning: value might be {}, so don't use a boolean test!)
                     if exists or attr == '_um_exists':
                         diffs = forwards.setdefault(key, {})
                         diffs[attr] = newval
@@ -240,7 +322,13 @@ and then to flush your internal diff-cache until we ask again."
 ##            assert 0, "snap nim"
         # now clear our state and prepare to capture future changes 
         assert not oldval_cache, "bug: summarizing diffs caused new oldvals to be tracked in %r: %r" % (self, oldval_cache)
-        self._um_prepare_for_changes()
+        if exists:
+            self._um_prepare_for_changes()
+        # deletion diffs -- know how to recreate self (with default attrvals) if deletion is undone
+        
+            
+        nim ####@@@@
+        return # from _undo_checkpoint
     def _um_prepare_for_changes(self): #######@@@@@@@ set up for attrs which won't be change-tracked, mutable or not
         """Prepare to capture more changes, when self is first created[WRONG###] or just after it's checkpointed.
            This requires storing current values (in oldval_cache) of attributes that won't be change-tracked,
@@ -281,12 +369,6 @@ and then to flush your internal diff-cache until we ask again."
         self._um_changed()
     _undo_apply_forward_diff = _undo_apply_backward_diff ## dangerous if subclass intends to override _undo_apply_backward_diff alone!
     _undo_apply_diff = _undo_apply_backward_diff #k maybe it doesn't need the direction, or prefers to get it inside an arg...
-    pass
-
-# == test code, i guess
-
-class _fdhfsdhajkfkass(GenericDiffTracker_API_Mixin):
-    _um_undoable_attrs = ['name', 'color', 'disp'] # or extend super's list. or remove from it
     pass
 
 # end

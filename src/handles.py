@@ -40,7 +40,7 @@ class HandleSet:
         self.origin = V(0,0,0) # changed from this only by certain subclasses, in practice
         self.handles = [] # list of (pos,radius,info) tuples
         # handlpos and maxradius are not used now, but might be used later to optimize this.
-        self.handlpos = [] # list of their pos's (compare to singlpos in molecule.shakedown)
+        self.handlpos = [] # list of their pos's (compare to singlpos in class molecule (_recompute_singlpos))
         self.maxradius = 0.01 # not true, but best if it's always positive, I think
     #e to optimize, we might want a "compile" method which caches Array versions of these lists
     def addHandle(self, pos, radius, info):

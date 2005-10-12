@@ -157,15 +157,18 @@ def alloc_my_glselect_name(obj):
 
 # ==
 
-# dict for atoms or singets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
+# dict for atoms or singlets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
 #e (doesn't yet include all killed atoms or singlets, but maybe it ought to)
-_changed_structure_atoms = {} # maps id(atom) to atom, for atoms or singlets
+# (changing an atom's bond type does *not* itself update this dict -- see _changed_bond_types for that)
+
+_changed_structure_atoms = {} # maps atom.key to atom, for atoms or singlets
 
 _changed_bond_types = {} # dict for bonds whose bond-type gets changed (need not include newly created bonds) ###k might not be used
 
+
 # the beginnings of a general change-handling scheme [bruce 050627]
 
-def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots of places, not just update_parts like now
+def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots of places, not just update_parts like now; #doc is obs
     """[public function]
        This should be called at the end of every user event which might have changed
     anything in any loaded model which defers some updates to this function.
@@ -177,6 +180,16 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
     a debug-only warning to be emitted if the call was necessary. (This function is designed
     to be very fast when called more times than necessary.)
     """
+    #bruce 051011: some older experimental undo code I probably won't use:
+##    for class1, classmethodname in _change_recording_classes:
+##        try:
+##            method = getattr(class1, classmethodname)
+##            method() # this can update the global dicts here...
+##                #e how that works will be revised later... e.g. we might pass an object to revise
+##        except:
+##            print "can't yet handle an exception in %r.%r, just reraising it" % (class1, classmethodname)
+##            raise
+##        pass
     if not (_changed_structure_atoms or _changed_bond_types):
         #e this will be generalized to: if no changes of any kind, since the last call
         return
@@ -202,7 +215,7 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
             #e not sure if that routine will need to use or change other similar globals in this module;
             # if it does, passing just that one might be a bit silly (so we could pass none, or all affected ones)
         _changed_structure_atoms.clear()
-    if _changed_bond_types:
+    if _changed_bond_types: #e not sure if this will ever be modified by above loop which processes _changed_structure_atoms...
         from bond_updater import process_changed_bond_types
         process_changed_bond_types( _changed_bond_types)
             ###k our interface to that function needs review if it can recursively add bonds to this dict -- if so, it should .clear

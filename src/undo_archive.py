@@ -9,8 +9,12 @@ $Id$
 '''
 __author__ = 'bruce'
 
+from state_utils import copy_val
 
 class UndoArchive:
+    
+    copy_val = copy_val
+    
     def __init__(self):
         self.stored_ops = {} # from varid,vers to dict of ops which apply on that varid,vers (for details of which ops to store, see code)
         self.lastkey = 0
@@ -21,16 +25,25 @@ class UndoArchive:
         #e set up the diff tree itself; do we also store current state or checkpoint name, or not??
         self.weakval_objs = {} ##### SHOULD BE WEAK-VALUED [i think] [when an obj deinits, should we zap its entry in here?? I THINK YES ####@@@@
         pass
-    def allocate_key(self, obj = None):
+    
+    def allocate_key(self, obj = None, key = None):
         """Allocate and return a unique key for labelling the state stored by one participating object.
-        Also, if obj (presumably that object) is passed, store a weak ref to it from that key,
+        [Also used (with args None) to allocate keys for other purposes! Not sure if this is a kluge.]
+        If obj (presumably that object) is passed, store a weak ref to it from that key,
         accessible via self.obj(key) as long as obj remains alive.
+        If key is passed and not None, use that key rather than allocating one (asserting it's not already in use).
+        Args are passed positionally.
         """
-        self.lastkey += 1
-        key = self.lastkey
-        if obj is not None:
-            self.weakval_objs[key] = obj
+        if key is None:
+            self.lastkey += 1
+            key = self.lastkey
+            assert not self.weakval_objs.has_key(key), "allocated key %r already in use!" % (key,)
+        else:
+            assert not self.weakval_objs.has_key(key), "demanded key %r already in use!" % (key,)
+        self.weakval_objs[key] = obj # whether or not obj is None!
+            # (wisdom of doing this for None is unreviewed. motive: make the above asserts matter then.)
         return key
+    
     def obj(self, key):
         "we represent the model, who can return an obj given its key, or make a new one [not in this method??] if it's not alive now... ####???"
         try:
@@ -42,6 +55,47 @@ class UndoArchive:
             return None #e if this stays like this, rewrite to use .get... but it might not, if we the model know how to find the class...
                 # but in general that might depend on info in diffs which was not yet processed, if we just make up this obj as asked for...###
         pass
+    
+    def consfunc(self, cons):
+        "get constructor function from its name (as used internally)"
+        modname, cname = cons
+        import sys
+        module = sys.modules[modname]
+        cfunc = getattr(module, cname)
+        assert callable(cfunc) # and that it's a class? with right name?
+        assert cfunc.__name__ == cname # for now; might not always be true
+        return cfunc
+    
+    def consname(self, cfunc):
+        """get constructor name (in private internal format, valid only per-session)
+        from constructor func (assuming it's a class, typically defined)
+        """
+        # the format is a pair, modname, cname
+        cname = cfunc.__name__
+        modname = cfunc.__module__ ###k probably WRONG (want module name)
+        return modname, cname
+    
+    def recreate_obj_at_key( self, cons, args, kws, key):
+        "recreate an object when we're undoing its delete (or redoing its create)"
+        consfunc = self.consfunc(cons)
+        # assume caller deepcopied args and kws if needed
+        kws = dict(kws)
+        kws['_um_key'] = key # tell __init__ to pass this key into _um_init
+        obj = consfunc(*args, **kws)
+        assert obj._um_key == key
+        assert obj is self.obj(key)
+        return
+    
+    def delete_obj_at_key(key):
+        "delete an object when we're undoing its create (or redoing its delete)"
+        obj = self.obj(key)
+        assert obj is not None
+        assert obj._um_key == key
+        self.obj(key)._um_deinit() ####k
+        assert obj._um_key == ILLEGAL
+        assert self.obj(key) is None ##k not traceback?
+        return
+    
     def checkpoint(self):
         "... grab diffs from all objects that changed since the last checkpoint ... #doc" # and in the right order re difftype-layer-network...
         
@@ -147,8 +201,32 @@ class UndoArchive:
         self.weakval_objs = {}
         #e more?
         return
-    
+
     pass # end of class UndoArchive
+
+class AssyUndoArchive(UndoArchive): #####@@@@@ rename? use this class; have it define the list of difftrackers, layer actions, etc
+    "###doc"
+    def __init__(self, *args, **kws):
+        UndoArchive.__init__(self, *args, **kws)
+        self.__discarded_atoms = {}
+        return
+    def destroy(self):
+        #e safe/good/needed to call discard_unused_atoms???
+        self.__discarded_atoms = {}
+        UndoArchive.destroy(self)
+    def maybe_discard_atom(self, atom):
+        "#doc... We don't know yet if some other chunk will want it, so tell model in case no one wants it and it needs deleting."
+        self.__discarded_atoms[atom.key] = atom # assume w/o checking that it was not yet in there #k correct?
+    def discard_unused_atoms(self):
+        #####@@@@@ call this, and make it a non-noop
+        "discard any atoms moved out of one chunk and not yet moved into some other one"
+        atoms = self.__discarded_atoms
+        self.__discarded_atoms = {}
+        for atom in atoms.itervalues():
+            if atom.molecule is None: #e or _nullMol??
+                pass ####e atom.destroy(), zap it from our own dicts, etc; maybe also need to _um_deinit???
+        return
+    pass # end of class AssyUndoArchive
 
 # ==
 
@@ -169,7 +247,7 @@ class DiffTracker:
     def destroy(self): pass #e override
     pass
 
-class GenericDiffTracker(DiffTracker):
+class GenericDiffTracker(DiffTracker): # see also GenericDiffTracker_API_Mixin
     """One instance of this class can track all diffs in all generic attrs of all objects
     participating in one UndoArchive, where "generic attrs" are those which need no special
     optimizations for tracking or summarizing their diffs
@@ -195,25 +273,55 @@ class GenericDiffTracker(DiffTracker):
                 assert len(self.flagdict) == len(items)
                 break # we reached a fixed point in the set of changed objs (should usually or always happen w/o any repeats of loop)
             pass
+        if not items:
+            return None # optim
         self.flagdict.clear()
             # don't do flagdict = {} -- we want to permit participants to store a direct ref to self.flagdict.
-        # make places for objects to store their diff-summaries, per-object and then per-attribute
-        backwards = {}
-        forwards = {} #k assuming we need forward diffs
+        
+        # Make places for objects to store their diff-summaries. In each place, they store them per-object-key
+        # (maybe this means per-object or per-varid?)
+        # and then (however they wish, but typically) per-attribute.
+        #
+        # We have one place for each combination of stage (create, change, delete -- or more, if we had more layers)
+        # and direction (forwards, backwards), plus places for old and new version-values of varids.
+        #
+        # We don't formally correlate the things stored in these places (indexed by keys in diff places vs varids in version places),
+        # which means that if this isn't an atomic change and we later want to undo/redo part of it but keep track of how
+        # that relates to the whole (so we can offer to "redo the rest", etc), which requires varids per atomic change,
+        # then at that time, we'll need to re-analyze the changes so we can split this into smaller diff-holder objects
+        # which correspond to atomic attr changes with their own varid-version changes. (This might be NIM in initial implem.)
+        #
+        # [#e Note that in the future, either backwards or forwards diffs, or both, might be optional,
+        #  since pure undo could be done with backwards diffs only (generating redo diffs when undo diffs were traversed),
+        #  and pure change-archiving could be done with forwards diffs only. So the API we call lets any of these dicts be None.]
+        #
+        # We make the objects create their own entries (even though they should only do this at their keys)
+        # in case some object owns more than one key.
+        oldver = {}
+        create_f = {} #k assuming we need forwards diffs
+        ## create_b = {}
+        change_f = {}
+        change_b = {}
+        ## delete_f = {}
+        delete_b = {}
+        newver = {}
+        diffargs = (oldver, create_f, change_f, change_b, delete_b, newver) # sequence of refs to mutable objects
         for key, obj in items:
             # this obj thinks it might have changed -- ask it to store actual diffs and prep for next checkpoint
             # (it stores them, if any, at its _um_key(??) in the dicts we pass as args)
             #####@@@@@ does it also store the most recent checkpoint before these diffs? if so, it had to ask us when they started...
             # but can this vary per-obj?? i'd guess it can't. hmm. so, it can ignore this, since we ought to know it. ###@@@
-            obj._undo_checkpoint(backwards, forwards)
+            obj._undo_checkpoint( diffargs ) # (this api is specific to this kind of difftracker)
         if self.flagdict:
             from debug import print_compact_stack
             print_compact_stack( "bug? something changed while being asked for its diffs: flagdict = %r: " % (self.flagdict,) )
-        if not (backwards or forwards):
-            # all diffs are null, no need to do much [also happens if flagdict is empty when this method is called]
+        if not (create_f or change_f or change_b or delete_b):
+            # all diffs are null, no need to do much [if not for an optim, this would also happen if flagdict was empty]
+            assert not oldver and not newver ##k ??
             return None # any boolean false value should be ok here, AFAIK
         
         #e refile? or does even generic one do some of this:
+        #obs?
         #e compress the diffs, if some of them are about attrs to be stored as arrays... or should objs themselves do that??
         # (objs already did per-obj compression, eg using diffs for attrvals themselves, but probably not inter-obj compression.
         #  alg: visualize as optimizing a bitmap into rects of solid black which cover it. goals: human summary, storage space.
@@ -224,11 +332,18 @@ class GenericDiffTracker(DiffTracker):
         #e package up the diffs with the before and after checkpoint names, and tell every involved node about this oprun...
         #e also merge them into one undoable-op (several sequential diffs) and/or store flags to permit later merge
 
-        return GenericDiffHolder( backwards, forwards)
+        return GenericDiffHolder( diffargs)
 
     def destroy(self):
         pass # repeated calls ok; no bugs > no mem leaks; can be and should be called from __del__
     pass
+
+class AtomChunkPos_DiffTracker(DiffTracker): ##e needs own mixin? or just hardcode its methods in atom and chunk, using a prefix?
+    "Track changes in atom existence and chunk membership, atom position (relative to chunk??), chunk position."
+    def __init__(self, *args, **kws):
+        DiffTracker.__init__(self, *args, **kws)
+        self.flagdict = {} # maps keys to objects which changed in the current cycle #doc better... ###e replace with several dicts
+    pass ###e
 
 # ==
 
@@ -236,38 +351,80 @@ class DiffHolder:
     pass
 
 class GenericDiffHolder(DiffHolder):
-    def __init__(self, backwards, forwards):
-        "args are dicts from obj._um_key to dicts from attrname to attrval, for before and after vals respectively"
-        self.backwards = backwards
-        self.forwards = forwards
+    def __init__(self, diffargs):
+        """diffargs contains:
+        ###obs: 6 dicts from obj._um_key to descriptions of forwards/backwards create/change/destroy instructions,
+        in the order create_f, create_b, change_f, change_b, delete_f, delete_b.
+        Change descriptions are dicts from attrname to attrval, for before and after vals respectively for _b and _f.
+        Create_f and delete_b contain object creation instructions (basically classes and initargs?? ###@@@).
+        Delete_f and create_b values are just True, to say that the object (of the given key) should be deleted.
+        [So they are redundant since the set of keys in the creation info could be used. ###@@@]
+        """
+        oldver, create_f, change_f, change_b, delete_b, newver = self.diffargs = diffargs
+        self.backwards = change_b # synonyms #e clean that up
+        self.forwards = change_f
+        diffargs_rev = list(diffargs)
+        diffargs_rev.reverse()
+        self.diffargs_rev = tuple(diffargs_rev) # diffargs as seen from the other direction
         return
+    def facet_diffargs(facet):
+        if facet == FORWARDS:####implem, rename
+            return self.diffargs
+        else:
+            return self.diffargs_rev
     def __repr__(self):
-        return "GenericDiffHolder( backwards = %r, forwards = %r )" % (self.backwards, self.forwards)
-    def make_undoredo_ops(self):
+        return "GenericDiffHolder( backwards = %r, forwards = %r, etc )" % (self.backwards, self.forwards)
+    def make_undoredo_ops(self): ####@@@@ revise to use facets;
+            #####@@@@@ not sure why this occurs at this level instead of a higher one
+            # that covers all layers/difftypes... also, i recall a need for the difftype variation to be in the changes... hmm
+            # to resolve that we might need to understand how we do atomposns for chunks, with its own difftypes; also bonds, need atoms.
+            # (btw if atomposnslots in chunks are their own type, then do atoms need those like bonds need atoms? or vice versa???)
         "return a sequence of ops (to be offered/stored/merged separately; need not be atomic) made from self"
         #e ignore the issue of whether some of them are co-atomic with ones coming out of other difftypes that co-occurred with this
         return DiffOp( 'Undo', self.backwards, self ), DiffOp( 'Redo', self.forwards, self )
-    def apply_diff(self, diff, model): # helper for our ops
-        "apply one of our diffs, or a partial version of it, to a model (which can map keys to objects)" ###k i guess it can map keys
-        for key, objdiff in self.diff.items():
+    def _f_apply_diff(self, facet, model): # helper for our ops
+        "apply one of our diffs to a model (which can map keys to objects)" ###k i guess it can map keys
+        oldver, create_f, change_f, change_b, delete_b, newver = self.facet_diffargs(facet)
+        # check oldver
+        nim
+        # create objects if needed
+        for key, (cons, args, kws) in create_f.items():
+##            cons = model.cons(cons) ###IMPLEM
+            # args should not need mapping, should be pure data;
+            # copy them to avoid sharing, which also verifies they're pure data
+            args = copy_val(args)
+            kws = copy_val(kws)
+##            kws['_um_key'] = key # use this key to create the object... what if it's taken? it can't be, they're session-unique.
+##                # hmm, maybe that should already be in kws? prob not.
+            model.recreate_obj_at_key( cons, args, kws, key ) ###IMPLEM
+        # apply changes
+        for key, objdiff in change_f.items():
             obj = model.obj(key)
-                ####@@@@ what if no such obj? create one now??? need diff to do that, or create an empty one? vary the next call if created?
-                # can this also destroy obj? 
+            assert obj is not None
+            ####@@@@ can this also destroy obj? 
             assert not objdiff.has_key('_um_exists'), "object create/destroy is nim in apply_diff" #####@@@@@ IMPLEM
             obj._undo_apply_diff(objdiff) #e will it need to know the direction, the related version numbers (maybe in the diff itself), etc?
-        #e also does obj want a pass2 to happen later? or do we scan and call their uodate methods later? ##e
+        #e also does obj want a pass2 to happen later? or do we scan and call their update methods later? ##e
+        # delete objects if needed
+        for key in delete_b.keys():
+            model.delete_obj_at_key( key) ###IMPLEM
+        # set newver
+        nim
         return # retval useful? like how much we actually did?
         ###e what do we do about the diffs generated by that op, vers to store...
-    def all_varid_vers(self, diff):
-        """Given one of our diffs, or a partial version of it, return all the verid_ver pairs it affects,
-        including in them the "before" state of vers.
+    def _f_all_varid_vers(self, facet, diff):
+        """Given one of our diffs, return all the varid_ver pairs it affects,
+        including in them the "before" state of vers. ###e fix doc
         """
-        nim
-        ### LOGICBUG: to properly apply a diff you need the after vers, but to decide whether you can apply it you need the before vers,
+        oldver, create_f, change_f, change_b, delete_b, newver = self.facet_diffargs(facet)
+        return oldver.items()
+        ###obs: LOGICBUG: to properly apply a diff you need the after vers, but to decide whether you can apply it you need the before vers,
         # so in storing a diffpair, you ought to store a SQUARE of before forward after backward, ie 4 objects, used in various sqside combos...
         # rather than storing the vers inside the diffs... and maybe the diffs that we pass around need to all ref the entire square
         # (ie us) from different sides? or just get permuted by various ops? how best to package it is unclear. #####@@@@@
     pass
+
+# ==
 
 class DiffOp:
     _all_varid_vers = None
@@ -299,8 +456,11 @@ class DiffOp:
         ## should we let dh do it? like this? return self.diffholder.xxx( self.diff_to_apply)
         # or should we just do it ourselves like this: (yes, for now, until i find a case where dh can and wants to optim it)
         for varid, ver in self.all_varid_vers():
+            #e possible optim: know min and max and rare vers that appear in self and in state_version, use to rule out most matches
             if state_version.get(varid) != ver:
-                return False # state_version has different ver or no ver
+                return False # state_version has different ver or no ver.
+                    #e some callers might like to find out a varid that didn't match...
+                    #e since they could use it to optimize "apply all these diffs in some order that works".
         return True
     def doit(self, model):
         return self.diffholder.apply_diff( self.diff_to_apply, model )

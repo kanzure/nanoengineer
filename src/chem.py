@@ -111,6 +111,20 @@ def stringVec(v):
 
 from inval import InvalMixin #bruce 050510
 
+_atom_for_key = {} #bruce 051011 for Undo ###e should make weakvalued, i think; or have a destroy method for atoms ####@@@@
+
+def atom_for_key(key): #bruce 051011 for Undo
+    """Return the atom for the given key, if it exists; otherwise return None.
+    Atom might be killed; but whether killed atoms are returned as such, or None is returned, is undefined.
+    """
+    return _atom_for_key.get(key) # might be None, might be killed
+
+def live_atom_for_key(key): #bruce 051011 for Undo
+    atom = atom_for_key(key)
+    assert atom is not None
+    assert not atom.killed() ###k I'm not sure this intent is a valid assertion for the intended caller!
+    return atom
+
 class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     """An atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
@@ -141,8 +155,10 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         belonging to molecule mol (can be None).
         Atom initially has no real or open bonds, and default hybridization type.
         """
-        # unique key for hashing
         self.key = atKey.next()
+            # unique key for hashing and/or use as a dict key;
+            # also used in str(self)
+        _atom_for_key[self.key] = self
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,
@@ -178,7 +194,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         # this atomtype (or the default one, if atype is None) will be stored at the end of this init method.
         
         # 'where' is atom's absolute location in model space,
-        # until replaced with 'no' by shakedown, indicating
+        # until replaced with 'no' by various private methods in Atom or Chunk, indicating
         # the location should be found using the formula in self.posn();
         # or it can be passed as 'no' by caller of __init__
         self.xyz = where
@@ -1569,7 +1585,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
     
     # ==
 
-    def _changed_structure(self): #bruce 050627; docstring revised and some required calls added, 050725
+    def _changed_structure(self): #bruce 050627; docstring revised and some required calls added, 050725; revised 051011
         """[private method]
            This must be called by all low-level methods which change this atom's or singlet's element, atomtype,
         or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
@@ -1580,8 +1596,9 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
         """
         privateMethod(("Bond",))
         ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
-        from env import _changed_structure_atoms # a dict
-        _changed_structure_atoms[ id(self) ] = self
+        ## before 051011 this used id(self) for key
+        #e could probably optim by importing this dict at toplevel, or perhaps even assigning a lambda in place of this method
+        env._changed_structure_atoms[ self.key ] = self
     
     # debugging methods (not yet fully tested; use at your own risk)
     
@@ -1884,7 +1901,7 @@ class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most cod
             bond_atoms(self,x)
         return
 
-    pass # end of class atom
+    pass # end of class Atom
 
 atom = Atom # old name of that class -- must remain here until all code has been revised [bruce 050610]
 

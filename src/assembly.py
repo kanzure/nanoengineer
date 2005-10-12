@@ -75,11 +75,6 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from struct import unpack
 
-##bruce 050222 thinks the following are not needed here anymore:
-##from drawer import drawsphere, drawcylinder, drawline, drawaxes
-##from drawer import segstart, drawsegment, segend, drawwirecube
-##from shape import *
-
 from chem import *
 from movie import *
 from jigs import *
@@ -178,8 +173,6 @@ class assembly:
 
         #bruce 050429 as part of fixing bug 413, no longer resetting self._modified here --
         # client code should call reset_changed instead, when appropriate.
-##        # 1 if there is a structural difference between assy and file
-##        self._modified = 0 # note: this was set to 1 at start of __init__
         
         # the current version of the MMP file format
         # this is set in files_mmp.writemmpfile_assy. Mark 050130
@@ -342,12 +335,6 @@ class assembly:
         #bruce 050602 revised the following:
         for (node, part_constructor) in self.topnode_partmaker_pairs():
             self.ensure_one_part( node, part_constructor)
-        
-##        from part import MainPart, ClipboardItemPart
-##        for node in [self.tree]:
-##            self.ensure_one_part(node, MainPart)
-##        for node in list(self.shelf.members): #bruce 050420: copy list as a precaution (probably not needed)
-##            self.ensure_one_part(node, ClipboardItemPart)
         
         # now all nodes have correct parts, so it's safe to break inter-part bonds.
         # in the future we're likely to do this separately for efficiency (only on nodes that might need it).
