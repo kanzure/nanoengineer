@@ -2110,7 +2110,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     def _preserve_implicit_hotspot( self, hotspot): #bruce 050524 #e could also take base-atom arg to use as last resort
         if len(self.singlets) > 1 and self.hotspot is None:
-            numol.set_hotspot( hotspot, permit_invalid = True) # this checks everything before setting it; if invalid, silent noop
+            #numol.set_hotspot( hotspot, permit_invalid = True) #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
+            self.set_hotspot( hotspot, permit_invalid = True) # this checks everything before setting it; if invalid, silent noop
 
     # == old copy method -- should remove ASAP but might still be needed for awhile (as of 050526)
     
