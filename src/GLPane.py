@@ -1222,7 +1222,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         #Huaicai 7/15/05 added this for Mark
         #The following are used to set the glpane background colors
         if self.mode.backgroundGradient:
-            vtColors = ((0.8, 0.8, 0.8), (0.8, 0.8, 0.8), (0.1, 0.2, 0.8), (0.1, 0.2, 0.8)) # "Sky Blue" gradient
+            # vtColors = ((0.8, 0.8, 0.8), (0.8, 0.8, 0.8), (0.1, 0.2, 0.8), (0.1, 0.2, 0.8)) # "Blue Sky" gradient
+            # New "Blue Sky" gradient.  Mark 051012.
+            vtColors = ((0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0)) 
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
