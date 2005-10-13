@@ -164,37 +164,59 @@ class ElementPeriodicTable(Singleton):
 # Symbol, Element Name, atomic mass in 10-27 kg, 
 # [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
 
+# covalent radii from Gamess FF
+# Biassed to make bonds involving carbon come out right
+## Cl - 1.02
+## H -- 0.31
+## F -- 0.7
+## C -- 0.77
+## B -- 0.8
+## S -- 1.07
+## P -- 1.08
+## Si - 1.11
+## O -- 0.69
+## N -- 0.73
+
+## C= - 0.66
+## O= - 0.6
+## N= - 0.61
+
+## C+ - 0.6
+## N+ - 0.56
+
+# numbers changed below to match -- Josh 13Oct05
+
     _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
-                  ("H",  "Hydrogen",    1.6737, [[1, 30, onebond]]),
+                  ("H",  "Hydrogen",    1.6737, [[1, 31, onebond]]),
                   ("He", "Helium",      6.646,  None),
                   ("Li", "Lithium",    11.525,  [[1, 152, None]]),
                   ("Be", "Beryllium",  14.964,  [[2, 114, None]]),
-                  ("B",  "Boron",      17.949,  [[3, 90, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
+                  ("B",  "Boron",      17.949,  [[3, 80, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
                   ("C",  "Carbon",     19.925,  [[4, 77, tetra4, 'sp3'],
                                                  [3, 71, flat, 'sp2'],
                                                  [2, 66, straight, 'sp'],
-                                                 ## [1, 59, None]
+                                                 ## [1, 60, None]
                                                  #e name? what is this anyway?
                                                  # I don't know how it could bond... let's leave it out for now. [bruce 050510]
                                                  ]),
-                  ("N",  "Nitrogen",   23.257,  [[3, 70, tetra3, 'sp3'],
-                                                 [2, 62, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
+                  ("N",  "Nitrogen",   23.257,  [[3, 73, tetra3, 'sp3'],
+                                                 [2, 61, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
                                                      #e note there is also an sp2 with 3 single bonds (graphitic)... how to rep it here?
-                                                 [1, 54.5, onebond, 'sp'],
+                                                 [1, 56, onebond, 'sp'],
                                                  [3, 62, flat, 'sp2(graphitic)'], # this is just a guess! (for graphitic N) (and the 62 is made up)
                                                  ]),
-                  ("O",  "Oxygen",     26.565,  [[2, 66, oxy2, 'sp3'],
-                                                 [1, 55, onebond, 'sp2']]), # sp2?
-                  ("F",  "Fluorine",   31.545,  [[1, 64, onebond]]),
+                  ("O",  "Oxygen",     26.565,  [[2, 69, oxy2, 'sp3'],
+                                                 [1, 60, onebond, 'sp2']]), # sp2?
+                  ("F",  "Fluorine",   31.545,  [[1, 70, onebond]]),
                   ("Ne", "Neon",       33.49,   None),
                   ("Na", "Sodium",     38.1726, [[1, 186, None]]),
                   ("Mg", "Magnesium",  40.356,  [[2, 160, None]]),
                   ("Al", "Aluminum",   44.7997, [[3, 143, flat]]),
-                  ("Si", "Silicon",    46.6245, [[4, 117, tetra4]]),
-                  ("P",  "Phosphorus", 51.429,  [[3, 110, tetra3]]),
-                  ("S",  "Sulfur",     53.233,  [[2, 104, tetra2, 'sp3'],
-                                                 [1, 104, onebond, 'sp2']]), #bruce 050706 added this, and both names; length is wrong
-                  ("Cl", "Chlorine",   58.867,  [[1, 99, onebond]]),
+                  ("Si", "Silicon",    46.6245, [[4, 111, tetra4]]),
+                  ("P",  "Phosphorus", 51.429,  [[3, 108, tetra3]]),
+                  ("S",  "Sulfur",     53.233,  [[2, 107, tetra2, 'sp3'],
+                                                 [1, 88, onebond, 'sp2']]), #bruce 050706 added this, and both names; length chgd by Josh
+                  ("Cl", "Chlorine",   58.867,  [[1, 102, onebond]]),
                   ("Ar", "Argon",      66.33,   None),
                   ("K",  "Potassium",  64.9256, [[1, 231, None]]),
                   ("Ca", "Calcium",    66.5495, [[2, 197, tetra2]]),
