@@ -522,6 +522,22 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         env.history.message(cmd + info)
         self.glpane.quat += Q(V(0,1,0), pi)
         self.glpane.gl_update()
+  
+    def setViewPlus90(self): # Added by Mark. 051013.
+        '''Increment the current view by 90 degrees around the vertical axis. '''
+        cmd = greenmsg("Rotate View +90 : ")
+        info = 'View incremented by 90 degrees'
+        env.history.message(cmd + info)
+        self.glpane.quat += Q(V(0,1,0), pi/2)
+        self.glpane.gl_update()
+        
+    def setViewMinus90(self): # Added by Mark. 051013.
+        '''Decrement the current view by 90 degrees around the vertical axis. '''
+        cmd = greenmsg("Rotate View -90 : ")
+        info = 'View decremented by 90 degrees'
+        env.history.message(cmd + info)
+        self.glpane.quat += Q(V(0,1,0), -pi/2)
+        self.glpane.gl_update()
 
     def setViewBack(self):
         cmd = greenmsg("Back View: ")
@@ -1437,6 +1453,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
                 self.cookieSelectDashboard]:
                     self.setAppropriate(obj, False)
+
+# == Caption methods
 
     def update_mainwindow_caption_properly(self, junk = None): #bruce 050810 added this
         self.update_mainwindow_caption(self.assy.has_changed())
