@@ -39,6 +39,11 @@ class RectGadget(Jig):
         if not READ_FROM_MMP:
             self.__init_quat_center(list)        
 
+    def _um_initargs(self): #bruce 051013
+        """Return args and kws suitable for __init__.
+        [Overrides Jig._um_initargs; see its docstring.]
+        """
+        return (self.assy, self.atoms, True), {}
 
     def setAtoms(self, atomlist):
         """Override the version from Jig. Removed adding jig to atoms"""

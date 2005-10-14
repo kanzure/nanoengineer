@@ -63,6 +63,7 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 from elements import *
 
 import env
+from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051013
 
 ## from chunk import *
 # -- done at end of file,
@@ -125,7 +126,8 @@ def live_atom_for_key(key): #bruce 051011 for Undo
     assert not atom.killed() ###k I'm not sure this intent is a valid assertion for the intended caller!
     return atom
 
-class Atom(InvalMixin): #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
+class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
+    #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     """An atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
        At any time, each atom has an element, a position in space,

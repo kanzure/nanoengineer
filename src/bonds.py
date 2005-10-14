@@ -64,6 +64,7 @@ from bond_constants import *
 
 from elements import Singlet
 import env
+from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051013
 
 # ==
 
@@ -237,7 +238,7 @@ def bond_v6(bond):
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond:
+class Bond(GenericDiffTracker_API_Mixin):
     """A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
     representing a bond between them if it also occurs in atom.bonds

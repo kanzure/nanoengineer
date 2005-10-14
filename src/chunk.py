@@ -80,6 +80,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # (could add _colorfunc, but better to handle it separately in case this gets used for mmp writing someday,
         #  as of 051003 _colorfunc would anyway not be permitted since state_utils.copy_val doesn't know how to copy it.)
         #e should add user_specified_center once that's in active use
+
+    extra_undoable_attrs = Node.extra_undoable_attrs + ('atomkeypos',) #bruce 051013
+
+    _um_changetracked_attrs = Node._um_changetracked_attrs + ('atomkeypos',) #bruce 051013
+        # for these attrs, we promise to track changes by hand, so copying/diffing values is not always needed
+        ###@@@ do that tracking
     
     def __init__(self, assembly, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
@@ -151,9 +157,17 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         return # from molecule.__init__
 
-    def _um_replace_atkeypos(self, val, model): #bruce 051011 for Undo ####@@@@ call it
-        ###e change name of atkeypos to make it obvious it's virtual?
-        "[overrides usual setattr called by GenericDiffTracker_API_Mixin for self.atkeypos]"
+    # atomkeypos is a "virtual attribute" for Undo ###@@@ still needs decls for change-tracking, maybe more
+    
+    def _get_atomkeypos(self): #bruce 051013
+        "return a pair of Numeric arrays, containing the keys and posns of the atoms we should have"
+        keys = map( lambda a: a.key, self.atlist )
+        posns = self.atpos
+        return keys, posns
+    
+    def _um_setattr_atomkeypos(self, val, model): #bruce 051013 ####@@@@ call it
+        ###e should we change name of atomkeypos to make it obvious it's a virtual attribute?
+        "[overrides usual setattr called by GenericDiffTracker_API_Mixin for self.atomkeypos]"
         # does private things to Atom attributes; see also similar code in self.merge()
         keys, posns = val # a pair of Numeric arrays, containing the keys and posns of the atoms we should have
         atoms_want_and_have = {}

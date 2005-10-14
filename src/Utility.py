@@ -128,9 +128,11 @@ class Node( GenericDiffTracker_API_Mixin):
         #e could someday use these to help make mmp writing and reading more uniform,
         # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
 
-    def __init__(self, assy, name, dad = None, _um_key = None):
+    extra_undoable_attrs = ('dad',) #bruce 051013; subclasses extend this
+        ###@@@ #e need to add any more?? picked? guess: no. part: probably not, since set by posn in tree. assy? no.
+
+    def __init__(self, assy, name, dad = None):
         #bruce 050216 fixed inconsistent arg order, made name required
-        #bruce 051010 added _um_key named arg for use by Undo system #####@@@@@ need to pass it down from all Node subclasses!
         """Make a new node (Node or any subclass), in the given assembly (assy)
         (I think assy must always be supplied, but I'm not sure),
         with the given name (or "" if the supplied name is None),
@@ -142,12 +144,13 @@ class Node( GenericDiffTracker_API_Mixin):
         """
         #bruce 050205 added docstring; bruce 050216 revised it
 
-        if assy == '<not an assembly>':
-            # i.e. if we are _nullMol
-            pass # our changes get tracked into a garbage dict, from where they periodically get discarded
-        else:
-            self._um_init( assy._u_archive, _um_key )
-            # this is needed before any _um_xxx calls on self (used for recording or summarizing changes)
+##bruce 051013: this is no longer needed (and neither is the _um_key argument I recently added to __init__):
+##        if assy == '<not an assembly>':
+##            # i.e. if we are _nullMol
+##            pass # our changes get tracked into a garbage dict, from where they periodically get discarded
+##        else:
+##            self._um_init( assy._u_archive, _um_key )
+##            # this is needed before any _um_xxx calls on self (used for recording or summarizing changes)
 
         self.name = name or "" # assumed to be a string by some code
         
@@ -167,6 +170,44 @@ class Node( GenericDiffTracker_API_Mixin):
             assert self.dad is dad
         return
 
+    def _um_initargs(self): #bruce 051013  ###@@@ this will be changed into an undo mixin method, overridden here
+        """Return args and kws needed by __init__, as a pair (args, kws) where args is a sequence and kws is a dict,
+        in case self is deleted and might need to be recreated by Undo, or in case self's creation is undone but might need redoing.
+        This does not return enough info to recreate self (for example, the attrs named in copyable_attrs);
+        see the calling code for more info.
+           No mapping is passed, since we don't have to translate or copy the returned args (caller does that if needed).
+        [###obs: This method's existence and API is Node-specific rather than part of the general state- or undo- APIs,
+         though its purpose is to let Node satisfy those APIs by implementing this method's caller.]
+        [Node subclasses with different __init__ args must override this method.]
+        [Note: this method's API is not compatible with, nor even very analogous to,
+         the Pickle/cPickle API method of a similar name. The differences include:
+         not all pickleable attrs are undoable; this method rarely returns all the
+         undoable state, since not all of that can generally be passed to __init__.]
+        """
+        return (self.assy, self.name), {}
+            # self.dad (like most inter-object links) is best handled separately   ####@@@@ nim
+
+    def _s_describe(self, mapping): #bruce 051013  ###@@@ this implem will probably be moved into the undo mixin, and renamed
+        #e also it needs to take optional oldval_cache arg
+        ###@@@ clarify: I think this is called by the undo mixin, rather than being "directly" part of an undo protocol for newly seen objs
+        """Describe self's current state, as initargs and other diffs (whose format might be attr-specific).
+        Use mapping to make return value "pure data".
+        (Note: the API requires us, not caller, to use mapping, in case it has to be used differently
+         for different parts of our returned state.)
+        [implements a method needed by the "state API" [#doc - the official term for that might be different]]
+        """
+        clas = self.__class__ # constructor ###@@@ use mapping.consname?
+        args, kws = self._um_initargs() # constructor args
+        desc = [ ('constructor', clas, args, kws) ] # build this in raw form, then use mapping below
+        for attr in self._um_undoable_attrs():
+## not needed?: val = self._um_describe_attr(attr)  # no mapping passed, so it might be described in raw form(??)
+            val = getattr(self, attr)
+            desc.append( ('setattr', attr, val) )
+                # Note: when this "setattr expr" is applied (to self or to its replacement),
+                # self's class can override how that works, for all attrs or specific attrs;
+                # they don't have to use setattr directly, though that's the default implementation.
+        return mapping.copy( desc)
+
     def _um_existence_permitted(self): #bruce 051005
         """[overrides GenericDiffTracker_API_Mixin method]
         Return True iff it looks like we should be considered to exist in self.assy's model of undoable state.
@@ -176,16 +217,16 @@ class Node( GenericDiffTracker_API_Mixin):
         return self.assy is not None and self.part is not None and self.dad is not None
             ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
 
-    def _um_undoable_attrs(self): #bruce 051011
+    def _um_undoable_attrs(self): #bruce 051011, revised 051013
         """[overrides GenericDiffTracker_API_Mixin method; see its docstring]
         """
-        return self.copyable_attrs # this should be enough for most Nodes, but will need overriding by Chunk and Group
+        return self.copyable_attrs + self.extra_undoable_attrs
 
     def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
         self.changed()
 
-    def changed(self): #bruce 050505
+    def changed(self): #bruce 050505; not yet uniformly used (most code calls part.changed or assy.changed directly)
         """Call this whenever something in the node changes
         which would affect what gets written to an mmp file
         when the node gets written.
@@ -429,7 +470,7 @@ class Node( GenericDiffTracker_API_Mixin):
 ##            return (False, "names containing ')' are not yet supported")
         
         # accept the new name.
-        self._um_will_change_attr('name') #bruce 051005; this might need to be called from a property-setter method for completeness
+##        self._um_will_change_attr('name') #bruce 051005; this might need to be called from a property-setter method for completeness
         self.name = name
         if self.assy:
             self.assy.changed()
@@ -938,7 +979,7 @@ class Node( GenericDiffTracker_API_Mixin):
         # added unpick (*after* dad.delmember)
         # added self.assy = None
         # also modified the Group.kill method, which extends this method
-        self._um_deinit() #bruce 051005 #k this is not good enough unless this is always called when a node is lost from the MT!
+##        self._um_deinit() #bruce 051005 #k this is not good enough unless this is always called when a node is lost from the MT!
         if self.part: #bruce 050303
             self.part.remove(self)
         if self.dad:
@@ -1131,6 +1172,8 @@ class Group(Node):
     Its members can be Groups, jigs, or molecules.
     """
     
+    extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013
+
     def __init__(self, name, assy, dad, list = []): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
@@ -1138,6 +1181,11 @@ class Group(Node):
         self.open = True
         for ob in list:
             self.addchild(ob)
+
+    def _um_initargs(self): #bruce 051013
+        "[Overrides Node._um_initargs; see its docstring.]"
+        return (self.name, self.assy), {} # note reversed arg order from Node version
+            # dad and members (like most inter-object links) are best handled separately   ####@@@@ nim
 
     def is_group(self):
         """[overrides Node method; see its docstring]"""

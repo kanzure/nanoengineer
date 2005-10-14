@@ -92,6 +92,12 @@ class Jig(Node):
         
         return
 
+    def _um_initargs(self): #bruce 051013
+        """Return args and kws suitable for __init__.
+        [Overrides an undo-related superclass method; see its docstring for details.]
+        """
+        return (self.assy, self.atoms), {} # This should be good enough for most Jig subclasses.
+
     def node_icon(self, display_prefs): #bruce 050425 simplified this
         "a subclass should override this if it needs to choose its icons differently"
         return imagename_to_pixmap( self.icon_names[self.hidden] )

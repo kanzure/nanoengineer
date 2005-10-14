@@ -84,6 +84,8 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 import platform
 import env
+from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051013
+
 
 debug_assy_changes = 0 #bruce 050429
 
@@ -91,7 +93,7 @@ from part import Part # (this must come after the SELWHAT constants, in constant
 
 assy_number = 0 # count assembly objects [bruce 050429]
 
-class assembly:
+class assembly(GenericDiffTracker_API_Mixin):
     """#doc
     """
     def __init__(self, win, name = None):
