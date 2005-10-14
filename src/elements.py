@@ -161,10 +161,12 @@ class ElementPeriodicTable(Singleton):
                      }
                      
 # Format of _mendeleev:
-# Symbol, Element Name, atomic mass in 10-27 kg, 
+# Symbol, Element Name, atomic mass in 10-27 kg,
+# then a list of atomtypes, each of which is described by
 # [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
+# (bruce adds: not sure about cov rad units; table values are 100 times this comment's values)
 
-# covalent radii from Gamess FF
+# covalent radii from Gamess FF [= means double bond, + means triple bond]
 # Biassed to make bonds involving carbon come out right
 ## Cl - 1.02
 ## H -- 0.31
@@ -185,6 +187,42 @@ class ElementPeriodicTable(Singleton):
 ## N+ - 0.56
 
 # numbers changed below to match -- Josh 13Oct05
+# [but this is problematic; see the following string-comment -- bruce 051014]
+    '''
+[bruce 051014 revised the comments above, and adds:]
+
+Note that the covalent radii below are mainly used for two things: drawing bond
+stretch indicators, and depositing atoms. There is a basic logic bug for both
+uses: covalent radii ought to depend on bond type, but the table below is in
+terms of atom type, and the atomtype only tells you which combinations of bond
+types would be correct on an atom, not which bond is which. (And at the time an
+atom is deposited, which bond is which is often not known, especially by the
+current code which always makes single bonds.)
+
+This means that no value in the table below is really correct (except for
+atomtypes which imply all bonds should have the same type, i.e. for each
+element's first atomtype), and even if we just want to pick the best compromise
+value, it's not clear how best to do that.
+
+For example, a good choice for C(sp2) covalent radius (given that it's required
+to be the same for all bonds) might be one that would position the C between
+its neighbors (and position the neighbors themselves, if they are subsequently
+deposited) so that when its bond types are later changed to one of the legal
+combos (112, 1aa, or ggg), and assuming its position is then adjusted, that the
+neighbor atom positions need the least adjustment. This might be something like
+an average of the bond lengths... so it's good that 71 (in the table below) is
+between the single and double bond values of 77 and 66 (listed as 0.77 and 0.66
+in the comment above), though I'm not aware of any specific formula having been
+used to get 71. Perhaps we should adjust this value to match graphite (or
+buckytubes if those are different), but this has probably not been done.
+
+The hardest case to accomodate is the triple bond radius (C+ in the table
+above), since this exists on C(sp) when one bond is single and one is triple
+(i.e. -C+), so the table entry for C(sp) could be a compromise between those
+values, but might as well instead just be the double bond value, since =C= is
+also a legal form for C(sp). The result is that there is no place in this table
+to put the C+ value.
+'''
 
     _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
                   ("H",  "Hydrogen",    1.6737, [[1, 31, onebond]]),
@@ -194,16 +232,18 @@ class ElementPeriodicTable(Singleton):
                   ("B",  "Boron",      17.949,  [[3, 80, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
                   ("C",  "Carbon",     19.925,  [[4, 77, tetra4, 'sp3'],
                                                  [3, 71, flat, 'sp2'],
-                                                 [2, 66, straight, 'sp'],
-                                                 ## [1, 60, None]
-                                                 #e name? what is this anyway?
-                                                 # I don't know how it could bond... let's leave it out for now. [bruce 050510]
+                                                 [2, 66, straight, 'sp'], # (this is correct for =C=, ie two double bonds)
+                                                 ## [1, 60, None] # what's this? I don't know how it could bond... removing it. [bruce 050510]
                                                  ]),
                   ("N",  "Nitrogen",   23.257,  [[3, 73, tetra3, 'sp3'],
                                                  [2, 61, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
-                                                     #e note there is also an sp2 with 3 single bonds (graphitic)... how to rep it here?
+                                                     # josh 0512013 made this radius 61, but this is only correct for a double bond,
+                                                     # whereas this will have one single and one double bond (or two aromatic bonds),
+                                                     # so 61 is probably not the best value here... 67 would be the average of single and double.
+                                                     # [bruce 051014]
                                                  [1, 56, onebond, 'sp'],
-                                                 [3, 62, flat, 'sp2(graphitic)'], # this is just a guess! (for graphitic N) (and the 62 is made up)
+                                                 [3, 62, flat, 'sp2(graphitic)'],
+                                                     # this is just a guess! (for graphitic N, sp2(??) with 3 single bonds) (and the 62 is made up)
                                                  ]),
                   ("O",  "Oxygen",     26.565,  [[2, 69, oxy2, 'sp3'],
                                                  [1, 60, onebond, 'sp2']]), # sp2?
