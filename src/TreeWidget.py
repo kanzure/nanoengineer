@@ -309,7 +309,31 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         self.dragsource = self.client = None
         #e clean statusbar; dragobj if stored here
     pass # end of class drag_and_drop_handler
-        
+
+# wware 051014 fixing bug 1063
+class MyToolTip(QToolTip):
+    """Extend QToolTip to work on QListViewItems in the viewport of a QListView.
+    This requires keeping track of the QRects they occupy, so that maybeTip
+    can respond to QPoints falling in those QRects."""
+    def __init__(self, owner):
+        QToolTip.__init__(self, owner)
+        self.__things = { }
+    def add(self, name, qrect):
+        d = self.__things
+        # Only add this rectangle-name-pair if the name
+        # is novel, or the rectangle has moved.
+        if not d.has_key(name) or d[name] != qrect:
+            # Blow away any old name with the same rectangle.
+            for oldname in d.keys():
+                if d[oldname] == qrect:
+                    del d[oldname]
+            d[name] = qrect
+    def maybeTip(self, qpoint):
+        d = self.__things
+        for text in d.keys():
+            rect = d[text]
+            if rect.contains(qpoint):
+                self.tip(rect, text)
 
 # main widget class
 
@@ -342,14 +366,21 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # I don't think this has any effect, now that we're depriving
             # QListView of mouse events, but I'm setting it anyway just in case.
             # The "real version of this" is in our own contentsMousePress... method.
+
+        # wware 051014 fixing bug 1063
+        self.__tooltip = MyToolTip(self.viewport())
+        self.__itemNames = { }
         
         # bruce 050112 zapping most signals, we'll handle the events ourself.
-        
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"), self.slot_itemRenamed)
-
         self.connect(self, SIGNAL("contentsMoving(int, int)"), self.slot_contentsMoving)
 
         return # from TreeWidget.__init__
+
+    # wware 051014 fixing bug 1063
+    def set_nodeItem(self, node, item):
+        self.__itemNames[node.name] = item
+        TreeView.set_nodeItem(self, node, item)
 
     # helper functions
     
@@ -468,6 +499,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     drag_handler = None # this can be set by selection_click()
     def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
+        self.fillInToolTip()   # wware 051014 fixing bug 1063
         self.last_event_type = "move"
         # This method might be needed, to prevent QListView's version of it from messing us up,
         # even if it had no body. Anyway, now it does have one.
@@ -1130,6 +1162,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
             print_compact_traceback("error making drag-pixmap: ")
             return None
         pass
+
+    # wware 051014 fixing bug 1063
+    def fillInToolTip(self):
+        """Step through the nodes for this tree, and fill in the QToolTip for
+        the QListViewItems in the viewport of the QlistView for the tree."""
+        for node in self._node_items.keys():
+            item = self.nodeItem(node)
+            for name in self.__itemNames.keys():
+                if name == node.name:
+                    qrect = self.itemRect(item)
+                    self.__tooltip.add(name, qrect)
 
     def paint_node(self, p, drag_type, node):
         "paint one node's item into QPainter p, and translate it down by the item's height"
