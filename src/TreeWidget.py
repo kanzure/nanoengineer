@@ -310,31 +310,6 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         #e clean statusbar; dragobj if stored here
     pass # end of class drag_and_drop_handler
 
-# wware 051014 fixing bug 1063
-class MyToolTip(QToolTip):
-    """Extend QToolTip to work on QListViewItems in the viewport of a QListView.
-    This requires keeping track of the QRects they occupy, so that maybeTip
-    can respond to QPoints falling in those QRects."""
-    def __init__(self, owner):
-        QToolTip.__init__(self, owner)
-        self.__things = { }
-    def add(self, name, qrect):
-        d = self.__things
-        # Only add this rectangle-name-pair if the name
-        # is novel, or the rectangle has moved.
-        if not d.has_key(name) or d[name] != qrect:
-            # Blow away any old name with the same rectangle.
-            for oldname in d.keys():
-                if d[oldname] == qrect:
-                    del d[oldname]
-            d[name] = qrect
-    def maybeTip(self, qpoint):
-        d = self.__things
-        for text in d.keys():
-            rect = d[text]
-            if rect.contains(qpoint):
-                self.tip(rect, text)
-
 # main widget class
 
 class TreeWidget(TreeView, DebugMenuMixin):
@@ -367,20 +342,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # QListView of mouse events, but I'm setting it anyway just in case.
             # The "real version of this" is in our own contentsMousePress... method.
 
-        # wware 051014 fixing bug 1063
-        self.__tooltip = MyToolTip(self.viewport())
-        self.__itemNames = { }
-        
         # bruce 050112 zapping most signals, we'll handle the events ourself.
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"), self.slot_itemRenamed)
         self.connect(self, SIGNAL("contentsMoving(int, int)"), self.slot_contentsMoving)
 
         return # from TreeWidget.__init__
-
-    # wware 051014 fixing bug 1063
-    def set_nodeItem(self, node, item):
-        self.__itemNames[node.name] = item
-        TreeView.set_nodeItem(self, node, item)
 
     # helper functions
     
@@ -499,7 +465,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
     drag_handler = None # this can be set by selection_click()
     def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
-        self.fillInToolTip()   # wware 051014 fixing bug 1063
         self.last_event_type = "move"
         # This method might be needed, to prevent QListView's version of it from messing us up,
         # even if it had no body. Anyway, now it does have one.
@@ -513,6 +478,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # let's check this ourselves!
             if event.state() & allButtons: # if any mouse button is pressed
                 self.drag_handler.mouseMoveEvent( event) #k worry about coords?
+        self.fillInToolTip()   # wware 051014 fixing bug 1063
         pass
     
     def contentsMouseReleaseEvent(self, event): # note: does not yet use or need fix_buttons
@@ -1167,12 +1133,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def fillInToolTip(self):
         """Step through the nodes for this tree, and fill in the QToolTip for
         the QListViewItems in the viewport of the QlistView for the tree."""
-        for node in self._node_items.keys():
-            item = self.nodeItem(node)
-            for name in self.__itemNames.keys():
-                if name == node.name:
+        if self.treeChanged():
+            vp = self.viewport()
+            try:
+                self.__tooltip.remove(vp)
+                del self.__tooltip
+            except AttributeError:
+                pass
+            self.__tooltip = QToolTip(vp)
+            for node in self._node_items:
+                name = node.name
+                if len(name) > 12:
+                    item = self.nodeItem(node)
                     qrect = self.itemRect(item)
-                    self.__tooltip.add(name, qrect)
+                    self.__tooltip.add(vp, qrect, node.name)
 
     def paint_node(self, p, drag_type, node):
         "paint one node's item into QPainter p, and translate it down by the item's height"

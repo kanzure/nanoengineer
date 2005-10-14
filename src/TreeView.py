@@ -712,7 +712,17 @@ class TreeView(QListView):
             del kiditem
             ###@@@ what about dnd here?? was it grabbed from each node or passed from toplevel upMT call?
             ## kid.upMT(item, dnd)
+        # wware 051014 fixing bug 1063
+        self.__tree_changed = True
         return item
+
+    # wware 051014 fixing bug 1063
+    __tree_changed = True
+
+    # wware 051014 fixing bug 1063
+    def treeChanged(self):
+        x, self.__tree_changed = self.__tree_changed, False
+        return x
 
     ###@@@ I think existing code would not rebuild tree except when expand/collapse;
     # eg would not do it just when sel changed. notsure. at least that must be why it has separate setProp.
