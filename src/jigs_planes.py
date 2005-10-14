@@ -268,14 +268,11 @@ class GridPlane(RectGadget):
     
 
 def povStrVec(va):
-    #from Numeric import array
-    #if type(va) == type(array):
-        rstr = '<'
-        for ii in range(size(va)):
-            rstr += str(va[ii]) + ', '
-        #rstr += str(va[size(va)-1]) + '>'
-        
-        return rstr
+    rstr = '<'
+    for ii in range(size(va)):
+        rstr += str(va[ii]) + ', '
+    
+    return rstr
 
 # == ESPWindow
 
@@ -440,12 +437,15 @@ class ESPWindow(RectGadget):
         for v in corners_pos:
             povPlaneCorners += [self.quat.rot(v) + self.center]
         strPts = ' %s, %s, %s, %s ' % tuple(map(povpoint, povPlaneCorners))
-        #color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
-        imgName = os.path.basename(self.png_name)
-        imgPath = os.path.dirname(self.png_name)
-        file.write('\n // Before you render, please set this command option: Library_Path="%s"\n\n' % (imgPath,))
-        file.write('esp_plane(' + strPts + ', "'+ imgName + '") \n')
-        
+        if self.image_obj:
+            imgName = os.path.basename(self.png_name)
+            imgPath = os.path.dirname(self.png_name)
+            file.write('\n // Before you render, please set this command option: Library_Path="%s"\n\n' % (imgPath,))
+            file.write('esp_plane_texture(' + strPts + ', "'+ imgName + '") \n')
+        else:
+            color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
+            file.write('esp_plane_color(' + strPts + ', ' + color + ') \n')
+            
         
     def _draw(self, win, dispdef):
         glPushMatrix()

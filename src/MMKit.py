@@ -212,9 +212,11 @@ class MMKit(MMKitDialog):
         self.w.hybridComboBox.setCurrentItem( type_id )
 
         b_name = self.bond_id2name[type_id]
-        #print "Hybrid name: ", b_name
-        self.elemGLPane.changeHybridType(b_name)
-        self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
+        
+        #This condition fixs bug 866, also saves time since no need to draw without MMKIt shown
+        if self.isShown():
+            self.elemGLPane.changeHybridType(b_name)
+            self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         
     
     def tabpageChanged(self, wg):

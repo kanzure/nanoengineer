@@ -218,7 +218,7 @@ finish {
   wirebox( pos, rad, col )
 #end
 
-#macro esp_plane(p1, p2, p3, p4, imgName)
+#macro esp_plane_texture(p1, p2, p3, p4, imgName)
     mesh2 {
       vertex_vectors 
       {
@@ -240,6 +240,24 @@ finish {
       pigment { image_map {png imgName
                           } 
       }
+      finish {Atomic}    
+    }
+#end
+
+#macro esp_plane_color(p1, p2, p3, p4, col4)
+    mesh2 {
+      vertex_vectors 
+      {
+        4,
+        p1, p2, p3, p4
+      }
+      face_indices 
+      {
+        2,
+        <0, 1, 2>,
+        <0, 2, 3>
+      } 
+      pigment {rgbf col4} 
       finish {Atomic}    
     }
 #end
