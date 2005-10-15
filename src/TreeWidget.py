@@ -346,7 +346,15 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.connect(self, SIGNAL("itemRenamed(QListViewItem*, int, const QString&)"), self.slot_itemRenamed)
         self.connect(self, SIGNAL("contentsMoving(int, int)"), self.slot_contentsMoving)
 
+        # wware 051015 fix bug 1064
+        self.connect(self, PYSIGNAL("treeChanged"), self.slot_invalidateTooltip)
+
         return # from TreeWidget.__init__
+
+    # wware 051015 fix bug 1064
+    __tooltipInvalid = True
+    def slot_invalidateTooltip(self):
+        self.__tooltipInvalid = True
 
     # helper functions
     
@@ -1129,11 +1137,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
             return None
         pass
 
-    # wware 051014 fixing bug 1063
+    # wware 051014 fixing bug 1063, 051015 fix bug 1064
     def fillInToolTip(self):
         """Step through the nodes for this tree, and fill in the QToolTip for
         the QListViewItems in the viewport of the QlistView for the tree."""
-        if self.treeChanged():
+        if self.__tooltipInvalid:
+            self.__tooltipInvalid = False
             vp = self.viewport()
             try:
                 self.__tooltip.remove(vp)
