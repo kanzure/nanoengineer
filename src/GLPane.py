@@ -1686,6 +1686,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         to do glPushMatrix on it (though the guaranteed depth for that stack is only 2).
         """
         #bruce 050608 improved behavior re GL state requirements and side effects; 050707 revised docstring accordingly.
+        #mark 0510230 switched Y and Z colors.  Now X = red, Y = green, Z = blue, standard in all CAD programs.
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
@@ -1709,15 +1710,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
         glDisable(GL_CULL_FACE)
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+        
+        # X Arrow (Red)      
         glePolyCone([[-1,0,0], [0,0,0], [4,0,0], [3,0,0], [5,0,0], [6,0,0]],
-                    [[0,0,0], [1,1,1], [0,1,0], [1,0,0], [1,0,0], [0,0,0]],
-                    [.3,.3,.3,1,0,0])
+                    [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
+                    [.3,.3,.3,.75,0,0])
+        
+        # Y Arrow (Green) 
         glePolyCone([[0,-1,0], [0,0,0], [0,4,0], [0,3,0], [0,5,0], [0,6,0]],
-                    [[0,0,0], [1,1,1], [1,0,0], [0,0,1], [0,0,1], [0,0,0]],
-                    [.3,.3,.3,1,0,0])
+                    [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
+                    [.3,.3,.3,.75,0,0])
+        
+        # Z Arrow (Blue)
         glePolyCone([[0,0,-1], [0,0,0], [0,0,4], [0,0,3], [0,0,5], [0,0,6]],
-                    [[0,0,0], [1,1,1], [0,0,1], [0,1,0], [0,1,0], [0,0,0]],
-                    [.3,.3,.3,1,0,0])
+                    [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
+                    [.3,.3,.3,.75,0,0])
+                    
         glEnable(GL_CULL_FACE)
         glDisable(GL_COLOR_MATERIAL)
            
@@ -1729,10 +1737,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
                 ## glPushMatrix()
-                font = QFont( QString("Times"), 10)#QFont(QString("Helvetica"), 12, QFont.Normal)
-                self.qglColor(QColor(75, 75, 75))
+                font = QFont( QString("Helvetica"), 12)
+                self.qglColor(QColor(200, 75, 75)) # Dark Red
                 self.renderText(5.3, 0.0, 0.0, QString("x"), font)
+                self.qglColor(QColor(25, 100, 25)) # Dark Green
                 self.renderText(0.0, 4.8, 0.0, QString("y"), font)
+                self.qglColor(QColor(50, 50, 200)) # Dark Blue
                 self.renderText(0.0, 0.0, 5.0, QString("z"), font)
                 ## glPopMatrix()
                 glEnable(GL_DEPTH_TEST)
