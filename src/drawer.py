@@ -645,20 +645,20 @@ def segend():
     glEnable(GL_LIGHTING)
 
 def drawaxes(n,point,coloraxes=False):
-    from constants import blue, red, green
+    from constants import blue, red, darkgreen
     glPushMatrix()
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
     if coloraxes: glColor3f(red[0], red[1], red[2])
-    else: glColor3f(blue[0], blue[1], blue[2])
+    else: glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
     glBegin(GL_LINES)
     glVertex(n,0,0)
     glVertex(-n,0,0)
-    glColor3f(blue[0], blue[1], blue[2])
+    glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
     glVertex(0,n,0)
     glVertex(0,-n,0)
-    if coloraxes: glColor3f(green[0], green[1], green[2])
-    else: glColor3f(blue[0], blue[1], blue[2])
+    if coloraxes: glColor3f(blue[0], blue[1], blue[2])
+    else: glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
     glVertex(0,0,n)
     glVertex(0,0,-n)
     glEnd()
@@ -1202,4 +1202,20 @@ def drawFullWindow(vtColors):
     glVertex3f(-1, 1, GL_FAR_Z)
     glEnd()
     
+    glEnable(GL_LIGHTING)
+    
+    
+def drawtext(text, color, pt, size, glpane):
+
+    glDisable(GL_LIGHTING)
+    glDisable(GL_DEPTH_TEST)
+    
+    from qt import QFont, QString, QColor
+    font = QFont( QString("Helvetica"), size)
+    #glpane.qglColor(QColor(75, 75, 75))
+    from widgets import RGBf_to_QColor
+    glpane.qglColor(RGBf_to_QColor(color))
+    glpane.renderText(pt[0], pt[1], pt[2], QString(text), font)
+    
+    glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
