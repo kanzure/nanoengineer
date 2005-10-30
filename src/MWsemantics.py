@@ -799,6 +799,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
     def makeAtomSet(self):
         self.assy.makeAtomSet()
+        
+    def makeMeasureDistance(self):
+        self.assy.makeMeasureDistance()
+        
+    def makeMeasureAngle(self):
+        self.assy.makeMeasureAngle()
 
     ###################################
     # Modify Toolbar Slots
@@ -998,7 +1004,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         dialog = JobManager(self)
         if dialog:
             self.jobmgrcntl = dialog #probably useless, but done since old code did it;
-                # conceivably, keeping it matters due to its refcount. [bruce 050327]
+                # conceivably, keeping it matters due to its refcount.  See Bruce's note in simPlot().
         return
     
     def serverManager(self):
@@ -1389,10 +1395,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp").xForm(QWMatrix(1,0,0,-1, 0,0)),
             0, 0)
         
-        # Create "KillCursor" cursor
-        self.KillCursor = QCursor(
-            QBitmap(filePath + "/../images/KillCursor.bmp"),
-            QBitmap(filePath + "/../images/KillCursor-bm.bmp"),
+        # Create "DeleteCursor" cursor
+        self.DeleteCursor = QCursor(
+            QBitmap(filePath + "/../images/DeleteCursor.bmp"),
+            QBitmap(filePath + "/../images/DeleteCursor-bm.bmp"),
             0, 0)
             
         # Create "ZoomCursor" cursor
