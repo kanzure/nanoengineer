@@ -28,7 +28,7 @@ import platform
 import os, sys
 from math import sqrt
 from SimSetup import SimSetup
-from qt import QApplication, QCursor, Qt, QStringList, QProcess
+from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env #bruce 050901
@@ -417,6 +417,13 @@ class SimRunner:
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
+            if False:
+                def blabout():
+                    print simProcess.readStdout()
+                def blaberr():
+                    print simProcess.readStderr()
+                QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
+                QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
             simProcess.setArguments(arguments)
             simProcess.start()
             
