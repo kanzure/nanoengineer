@@ -830,6 +830,50 @@ class AtomSet(Jig):
     
     pass # end of class AtomSet
 
+# == MeasureDistance
+
+class MeasureDistance(Jig):
+    '''A MeasureDistance jig tracks the distance between a pair of atoms'''
+
+    sym = "Measure Distance"
+    icon_names = ["measureDistance.png", "measureDistance-hide.png"]
+
+    # create a blank AtomSet with the given list of atoms
+    def __init__(self, assy, list):
+        Jig.__init__(self, assy, list)
+        self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = black # This is the normal (unselected) color.
+
+    def set_cntl(self):
+        from JigProp import JigProp
+        self.cntl = JigProp(self, self.assy.o)
+
+    def _draw(self, win, dispdef):
+        '''Draws a line connecting the two atoms.
+        '''
+        a, b = self.atoms
+        drawline(self.color, a.posn(), b.posn())
+        
+    def _getinfo(self):
+        return "[Object: MeasureDistance] [Name: " + str(self.name) + "]"
+
+    def getstatistics(self, stats):
+        stats.natoms += 1 # Count only the measure-distance jig itself??
+
+    mmp_record_name = "distance"
+    def mmp_record_jigspecific_midpart(self):
+        return ""
+        
+    def confers_properties_on(self, atom): # Atom Set method
+        """[overrides Node method]
+        Should this jig be partly copied (even if not selected)
+        when this atom is individually selected and copied?
+        (It's ok to assume without checking that atom is one of this jig's atoms.)
+        """
+        return False
+    
+    # end of class MeasureDistance
+
 # ===
 
 class jigmakers_Mixin: #bruce 050507 moved these here from part.py
@@ -900,6 +944,18 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.place_new_jig(m)
         
         env.history.message(cmd + "Motor created")
+        self.assy.w.win_update()
+
+    def makeMeasureDistance(self):
+        cmd = greenmsg("Measure Distance: ")
+        if not self.assy.selatoms or len(self.assy.selatoms) != 2:
+            env.history.message(cmd + redmsg("You must first select two atoms to create a Measure-Distance jig."))
+            return
+        print "Make a measure-distance jig"
+        m = MeasureDistance(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(m)
+        env.history.message(cmd + "Measure Distance jig created")
         self.assy.w.win_update()
 
     def makegamess(self):
