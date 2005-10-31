@@ -1098,15 +1098,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     def makeMeasureAngle(self): # Not implemented yet.  Mark 051030.
         """Creates a Measure Angle jig connected to three selected atoms.
         """
+	# not disabled any more.  wware 051031
         
         cmd = greenmsg("Measure Angle Jig: ")
 
-        # Not implemented yet.  Mark 051030.
-        if True:
-            msg = redmsg("Not implemented yet.")
-            env.history.message(cmd + msg)
-            return
-            
         if len(self.assy.selatoms) != 3:
             msg = redmsg("You must select 3 atoms to create an Angle jig.")
             env.history.message(cmd + msg)

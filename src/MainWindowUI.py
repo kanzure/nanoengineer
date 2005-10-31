@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Oct 31 14:00:25 2005
+# Created: Mon Oct 31 14:34:24 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5910,6 +5910,24 @@ image142_data = [
 "......................",
 "......................"
 ]
+image143_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
+    "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
+    "\x93\x49\x44\x41\x54\x18\x95\xcd\x94\xcb\x0e\xc3" \
+    "\x20\x10\x03\x3d\x51\xff\xff\x97\xdd\x13\x29\xa5" \
+    "\x06\x04\xa5\x52\x7d\x41\x0a\xda\xc9\x2c\x2f\x6c" \
+    "\xeb\x64\xae\xa3\xb4\x02\x04\x0c\x6c\xab\xd6\xf5" \
+    "\x48\xb2\x4a\xdb\x20\xdb\xac\xc2\xea\xfa\xe3\x2d" \
+    "\x63\x5b\x45\x77\xd5\xee\x86\x54\xf5\xd7\x08\x04" \
+    "\x72\x1a\x53\x0a\x23\xb6\x3c\x2a\x6c\xe7\x01\xd7" \
+    "\x42\x37\xd0\x36\xed\x4e\xdb\x22\x8d\xa3\x44\xc3" \
+    "\x59\x61\x99\x6f\xed\x3e\x80\xc9\xb2\x97\x04\xeb" \
+    "\x1a\xee\xc2\x22\x70\xc5\x32\xe5\x31\x33\x49\x3f" \
+    "\x1b\x9d\x57\x7a\xaf\xcd\xdb\x95\x7a\x7d\x9c\x1e" \
+    "\xfe\xdf\xbc\x36\x7f\x0d\xec\xae\xa1\x94\x37\xe5" \
+    "\x2b\xe0\x4e\x9e\x05\x02\x67\x19\xe0\xba\x0b\x9d" \
+    "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6178,6 +6196,8 @@ class MainWindow(QMainWindow):
         self.image140.loadFromData(image140_data,"PNG")
         self.image141 = QPixmap()
         self.image141.loadFromData(image141_data,"PNG")
+        self.image143 = QPixmap()
+        self.image143.loadFromData(image143_data,"PNG")
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
         self.image21 = QPixmap(image21_data)
@@ -6644,6 +6664,8 @@ class MainWindow(QMainWindow):
         self.setViewMinus90Action.setIconSet(QIconSet(self.image141))
         self.jigsDistanceAction = QAction(self,"jigsDistanceAction")
         self.jigsDistanceAction.setIconSet(QIconSet(self.image142))
+        self.jigsAngleAction = QAction(self,"jigsAngleAction")
+        self.jigsAngleAction.setIconSet(QIconSet(self.image143))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7014,6 +7036,7 @@ class MainWindow(QMainWindow):
         self.jigsESPWindowAction.addTo(self.jigsMenu)
         self.jigAtomSetAction.addTo(self.jigsMenu)
         self.jigsDistanceAction.addTo(self.jigsMenu)
+        self.jigsAngleAction.addTo(self.jigsMenu)
         self.MenuBar.insertItem(QString(""),self.jigsMenu,11)
 
         self.simulatorMenu = QPopupMenu(self)
@@ -7182,6 +7205,7 @@ class MainWindow(QMainWindow):
         self.connect(self.setViewPlus90Action,SIGNAL("activated()"),self.setViewPlus90)
         self.connect(self.setViewMinus90Action,SIGNAL("activated()"),self.setViewMinus90)
         self.connect(self.jigsDistanceAction,SIGNAL("activated()"),self.makeMeasureDistance)
+        self.connect(self.jigsAngleAction,SIGNAL("activated()"),self.makeMeasureAngle)
 
 
     def languageChange(self):
@@ -7642,6 +7666,8 @@ class MainWindow(QMainWindow):
         self.setViewMinus90Action.setText(self.__tr("Rotate -90"))
         self.jigsDistanceAction.setText(self.__tr("Measure Distance"))
         self.jigsDistanceAction.setMenuText(self.__tr("Measure Distance"))
+        self.jigsAngleAction.setText(self.__tr("Measure Angle"))
+        self.jigsAngleAction.setMenuText(self.__tr("Measure Angle"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8209,6 +8235,9 @@ class MainWindow(QMainWindow):
 
     def makeMeasureDistance(self):
         print "MainWindow.makeMeasureDistance(): Not implemented yet"
+
+    def makeMeasureAngle(self):
+        print "MainWindow.makeMeasureAngle(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

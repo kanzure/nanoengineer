@@ -92,6 +92,26 @@ class Measurement(Jig):
         super = Jig
         return super.rematom(self, *args, **opts)
 
+    # NOT SURE IF THIS IS NEEDED.  TALK TO BRUCE. MARK
+    # This looks like something all measuring jigs would probably share, move it to the base class. wware 051031
+    def norm_project_posns(self, posns):
+        """[Private helper for getrotation]
+        Given a Numeric array of position vectors relative to self.center,
+        project them along self.axis and normalize them (and return that --
+        but we take ownership of posns passed to us, so we might or might not
+        modify it and might or might not return the same (modified) object.
+        """
+        axis = self.axis
+        dots = dot(posns, axis)
+        ## axis_times_dots = axis * dots #  guess from this line: exceptions.ValueError: frames are not aligned
+        axis_times_dots = A(len(dots) * [axis]) * reshape(dots,(len(dots),1)) #k would it be ok to just use axis * ... instead?
+        posns -= axis_times_dots
+        ##posns = norm(posns) # some exception from this
+        posns = A(map(norm, posns))
+            # assumes no posns are right on the axis! now we think they are on a unit circle perp to the axis...
+        # posns are now projected to a plane perp to axis and centered on self.center, and turned into unit-length vectors.
+        return posns # (note: in this implem, we did modify the mutable argument posns, but are returning a different object anyway.)
+        
     pass # end of class Measurement
 
 
@@ -102,7 +122,6 @@ class MeasureDistance(Measurement):
     '''
     
     sym = "Distance"
-    #icon_names = ["measuredistance.png", "measuredistance-hide.png"]
     icon_names = ["measuredistance.png", "measuredistance-hide.png"]
 
     copyable_attrs = Jig.copyable_attrs + ('font_type', 'font_size', 'center', 'axis')
@@ -115,10 +134,10 @@ class MeasureDistance(Measurement):
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
         self._initial_posns = None #bruce 050518
-            # We need to reset _initial_posns to None whenever we recompute
-            # self.axis from scratch or change the atom list in any way (even reordering it).
-            # For now, we do this everywhere it's needed "by hand",
-            # rather than in some (not yet existing) systematic and general way.
+        # We need to reset _initial_posns to None whenever we recompute
+        # self.axis from scratch or change the atom list in any way (even reordering it).
+        # For now, we do this everywhere it's needed "by hand",
+        # rather than in some (not yet existing) systematic and general way.
         # set default color to black.  probably should be a different color (grounds are black).
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
@@ -155,25 +174,6 @@ class MeasureDistance(Measurement):
         '''Returns the VdW distance between two atoms'''
         return self.get_nuclei_distance() - self.atoms[0].element.rvdw - self.atoms[1].element.rvdw
         
-    # NOT SURE IF THIS IS NEEDED.  TALK TO BRUCE. MARK
-    def norm_project_posns(self, posns):
-        """[Private helper for getrotation]
-        Given a Numeric array of position vectors relative to self.center,
-        project them along self.axis and normalize them (and return that --
-        but we take ownership of posns passed to us, so we might or might not
-        modify it and might or might not return the same (modified) object.
-        """
-        axis = self.axis
-        dots = dot(posns, axis)
-        ## axis_times_dots = axis * dots #  guess from this line: exceptions.ValueError: frames are not aligned
-        axis_times_dots = A(len(dots) * [axis]) * reshape(dots,(len(dots),1)) #k would it be ok to just use axis * ... instead?
-        posns -= axis_times_dots
-        ##posns = norm(posns) # some exception from this
-        posns = A(map(norm, posns))
-            # assumes no posns are right on the axis! now we think they are on a unit circle perp to the axis...
-        # posns are now projected to a plane perp to axis and centered on self.center, and turned into unit-length vectors.
-        return posns # (note: in this implem, we did modify the mutable argument posns, but are returning a different object anyway.)
-        
     def rematom(self, atm):
         "Delete the jig if either of it's two atoms are deleted"
         Node.kill(self)
@@ -200,24 +200,12 @@ class MeasureDistance(Measurement):
         return
     
     # Returns the jig-specific mmp data for the current Measure Distance jig as:
-    # mdistance font_size atom1 atom2
+    # mdistance font_size atom1 atom2 (???)
     # MMP RECORD NOT COMPLETELY DEFINED YET.  MARK 051030.
+    # cleanup parts that don't work, til we get smarter.  wware 051031
     mmp_record_name = "mdistance"
     def mmp_record_jigspecific_midpart(self):
         xyz = self.posn() * 1000
-#        txyz = self.textposn() * 1000
-
-#        dataline = "%d %d (%d, %d, %d) (%d, %d, %d) %d %d" % \
-#           (self.font_type, self.font_size,
-#            int(xyz[0]), int(xyz[1]), int(xyz[2]),
-#            #int(txyz[0]), int(txyz[1]), int(txyz[2]),
-#            self.arrows, self.arrows_in   )
-
-#        dataline = "%d %d (%d, %d, %d) (%d, %d, %d)" % \
-#           (self.font_type, self.font_size,
-#            int(xyz[0]), int(xyz[1]), int(xyz[2]),
-#            int(txyz[0]), int(txyz[1]), int(txyz[2]))
-#
         dataline = "\"%s\" %d (%d, %d, %d)" % \
            (self.font_type, self.font_size,
             int(xyz[0]), int(xyz[1]), int(xyz[2]))
@@ -225,5 +213,97 @@ class MeasureDistance(Measurement):
         return " " + dataline + "\n" + "shaft"
     
     pass # end of class MeasureDistance
+        
+# == Measure Angle
+
+class MeasureAngle(Measurement):
+    # new class.  wware 051031
+    '''A Measure Angle jig has two atoms and draws a line with a angle label between them.
+    '''
+    
+    sym = "Angle"
+    icon_names = ["measureangle.png", "measureangle-hide.png"]
+
+    copyable_attrs = Jig.copyable_attrs + ('font_type', 'font_size', 'center', 'axis')
+
+    # create a blank Measure Angle jig not connected to anything    
+    def __init__(self, assy, atomlist): 
+        Measurement.__init__(self, assy, atomlist)
+        self.font_type = "Helvetica"
+        self.font_size = 10.0 # pt size
+        self.center = V(0,0,0)
+        self.axis = V(0,0,0)
+        self._initial_posns = None #bruce 050518
+        # We need to reset _initial_posns to None whenever we recompute
+        # self.axis from scratch or change the atom list in any way (even reordering it).
+        # For now, we do this everywhere it's needed "by hand",
+        # rather than in some (not yet existing) systematic and general way.
+        # set default color to black.  probably should be a different color (grounds are black).
+        self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = black # This is the normal (unselected) color.
+        self.cancelled = True # We will assume the user will cancel
+
+    def set_cntl(self):
+        from JigProp import JigProp
+        self.cntl = JigProp(self, self.assy.o)
+
+    # Set the properties for a Measure Angle jig read from a (MMP) file
+    def setProps(self, name, color, font_type, font_size, center, axis):
+        self.name = name
+        self.color = color
+        self.font_type = font_type
+        self.font_size = font_size
+        self.center = center
+        self.axis = norm(axis)
+        self._initial_posns = None # Not sure if this is needed.  Mark
+   
+    def _getinfo(self): 
+        return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
+                    "[Angle = " + str(self.get_angle()) + " ]"
+        
+    def getstatistics(self, stats): # Should be _getstatistics().  Mark
+        stats.num_mangle += 1
+        
+    # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
+    def get_angle(self):
+        '''Returns the angle between two atoms (nuclei)'''
+        v01 = self.atoms[0].posn()-self.atoms[1].posn()
+        v12 = self.atoms[1].posn()-self.atoms[2].posn()
+        from math import acos
+        return acos(dot(v01, v12) / (vlen(v01) * vlen(12)))
+        
+    def rematom(self, atm):
+        "Delete the jig if either of it's two atoms are deleted"
+        Node.kill(self)
+        return
+        
+    # Measure Angle jig is drawn as a line between two atoms with a text label between them.
+    # A wire cube is also drawn around each atom.
+    def _draw(self, win, dispdef):
+        '''Draws a wire frame cube around two atoms and a line between them.
+        A label displaying the angle is included.
+        '''
+        
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            drawwirecube(self.color, a.posn(), rad)
+            
+        drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
+        drawline(self.color, self.atoms[1].posn(), self.atoms[2].posn())
+        self.recompute_center_axis()
+        text = "%.2f" % self.get_angle()
+        drawtext(text, self.color, self.center, self.font_size, self.assy.o)
+    
+    # Not implemented yet
+    def writepov(self, file, dispdef):
+        return
+    
+    # Returns the jig-specific mmp data for the current Measure Angle jig as:
+    # mangle font_size atom1 atom2 atom3 (???)
+    mmp_record_name = "mangle"
+    def mmp_record_jigspecific_midpart(self):
+        return ""
+    
+    pass # end of class MeasureAngle
         
 # end of module jigs_measurements.py

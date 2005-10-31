@@ -156,6 +156,7 @@
         <action name="jigsESPWindowAction"/>
         <action name="jigAtomSetAction"/>
         <action name="jigsDistanceAction"/>
+        <action name="jigsAngleAction"/>
     </item>
     <item text="Simulator" name="simulatorMenu">
         <action name="simSetupAction"/>
@@ -3980,6 +3981,20 @@
             <string>Measure Distance</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>jigsAngleAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image143</iconset>
+        </property>
+        <property name="text">
+            <string>Measure Angle</string>
+        </property>
+        <property name="menuText">
+            <string>Measure Angle</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4410,6 +4425,9 @@
     </image>
     <image name="image142">
         <data format="XPM.GZ" length="694">789cb58fc10ac2300c86ef7d8ab0dc866c5aa838c447103c0ae221e9187ad8c5cd8388efae49453bd129a83f39f4eb47f8db3c85e5620e696e9a96daad07bfa11da4e5beae0fabf5ec68126be1320e46c9c024081e70a811244157387285a0179cd8d2b21364c1822b578e0533c14aa3f8347f31a813723ddf0cde0d76cc433edae9e9e9e44bf3f2a784145f2aaaa18c395201d52033474d01c30eb38f7714dff4f4bced67e634356732758290</data>
+    </image>
+    <image name="image143">
+        <data format="PNG" length="204">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d00000093494441541895cd94cb0ec32010033d51ffff97dd1329a50604a5527d410adac92c2f6ceb64aea3b402040c6cabd6f548b24adb20dbacc2eafae32d635b4577d5ee8654f5d70804721a530a23b63c2a6ce701d74237d036ed4edb228da344c35961996fed3e80c9b29704eb1aeec22270c532e53133493f1b9d577aafcddb957a7d9c1efedfbc367f0decaea19437e52be04e9e05026719e0ba0b9d0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5289,10 +5307,13 @@
         <receiver>MainWindow</receiver>
         <slot>makeMeasureDistance()</slot>
     </connection>
+    <connection>
+        <sender>jigsAngleAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeMeasureAngle()</slot>
+    </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">MainWindowUI.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -5465,6 +5486,7 @@
     <slot>setViewMinus90()</slot>
     <slot>makeDistanceJig()</slot>
     <slot>makeMeasureDistance()</slot>
+    <slot>makeMeasureAngle()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
