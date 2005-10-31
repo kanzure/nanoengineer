@@ -53,7 +53,7 @@ class SimRunner:
     def __init__(self, part, mflag, simaspect = None):
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
-        self.tmpFilePath = assy.w.tmpFilePath
+        #self.tmpFilePath = assy.w.tmpFilePath
         self.win = assy.w  # might be used only for self.win.progressbar.launch
         self.part = part # needed?
         self.mflag = mflag # see docstring
@@ -153,17 +153,27 @@ class SimRunner:
             for atm in movie.alist: # redundant with set_alist so remove when works
                 assert atm.molecule.part == part
 
-        # set up filenames
-        # We use the PID (process id) to create unique filenames for this instance of the program,
+        # Set up filenames.
+        # We use the process id to create unique filenames for this instance of the program
         # so that if the user runs more than one program at the same time, they don't use
         # the same temporary file names.
-        # [We don't yet make this include a Part-specific suffix [bruce 050325]]
+        # We now include a part-specific suffix [mark 051030]]
         # [This will need revision when we can run more than one sim process
         #  at once, with all or all but one in the "background" [bruce 050401]]
-        pid = os.getpid()
-        self.tmp_file_prefix = os.path.join(self.tmpFilePath, "sim-%d" % pid)
-            # we'll append various suffix.extensions to this, to make temp file names
-            # for sim input and output files as needed
+        
+        # simFilesPath = "~/Nanorex/SimFiles". Mark 051028.
+        from platform import find_or_make_Nanorex_subdir
+        simFilesPath = find_or_make_Nanorex_subdir('SimFiles')
+        
+        # Create temporary part-specific filename.  Example: "partname-minimize-pid1000"
+        # We'll be appending various extensions to tmp_file_prefix to make temp file names
+        # for sim input and output files as needed (e.g. mmp, xyz, etc.)
+        from movieMode import filesplit
+        junk, basename, ext = filesplit(self.assy.filename)
+        if not basename: # The user hasn't named the part yet.
+            basename = "Untitled"
+        self.tmp_file_prefix = os.path.join(simFilesPath, "%s-minimize-pid%d" % (basename, os.getpid()))
+            
         r = self.old_set_sim_output_filenames_errQ( movie, self.mflag)
         if r: return r
         # don't call sim_input_filename here, that's done later for some reason
