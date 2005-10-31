@@ -95,7 +95,8 @@ class anyMode:
     # them in subclasses and/or instances, and modify them directly.
     
     backgroundColor = 0.0, 0.0, 0.0
-    backgroundGradient = False #bruce 050913 bugfix of Mark 050808 code (all mode objects must now have this attribute)
+    # backgroundGradient changed to True.  Mark 051029.
+    backgroundGradient = True #bruce 050913 bugfix of Mark 050808 code (all mode objects must now have this attribute)
     # internal name of mode, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
     modename = "(bug: missing modename 1)" 
@@ -238,7 +239,7 @@ class basicMode(anyMode):
         
         # New feature.  See docstring for set_backgroundGradient. Mark 050808
         self.bggradient_prefs_key = key = "A6/mode %s backgroundGradient" % self.modename
-        self.backgroundGradient = prefs.get( key, False )
+        self.backgroundGradient = prefs.get( key, self.backgroundGradient )
 
         return
 
@@ -1591,4 +1592,3 @@ class modeMixin:
     pass # end of class modeMixin
 
 # end
-

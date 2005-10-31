@@ -562,16 +562,14 @@ class UserPrefs(UserPrefsDialog):
         # [bruce comment 050911: this and related code needs review when dialog becomes non-modal,
         #  since mode objects might be replaced with new instances,
         #  so it ought to store modenames, not mode objects, in self. ###@@@]
+        # Same thing goes for change_bg1_color().  Mark 051029.
         if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()
         
     def bg_solid_setup(self):
         '''Setup the BG color page for a solid fill type.
         '''
-        #self.bg1_color_lbl.show()
-        #self.bg1_color_frame.show()
-        #self.choose_bg1_color_btn.show()
-        
+
         self.bg1_color_lbl.setEnabled(True)
         self.bg1_color_frame.setEnabled(True)
         self.choose_bg1_color_btn.setEnabled(True)
@@ -586,15 +584,15 @@ class UserPrefs(UserPrefsDialog):
     def bg_gradient_setup(self):
         '''Setup the Modes page for the background gradient fill type.
         '''
-        #self.bg1_color_lbl.hide()
-        #self.bg1_color_frame.hide()
-        #self.choose_bg1_color_btn.hide()
-        
+
         self.bg1_color_lbl.setEnabled(False)
         self.bg1_color_frame.setEnabled(False)
         self.choose_bg1_color_btn.setEnabled(False)
         
         self.fill_type_combox.setCurrentItem(1) # Gradient
+        
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.bg_mode.backgroundColor))
         
         self.bg_mode.set_backgroundGradient(True) # This also stores the pref in the db.
 
@@ -607,14 +605,23 @@ class UserPrefs(UserPrefsDialog):
             bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
             self.bg_mode.set_backgroundColor( bgcolor )
             self.bg1_color_frame.setPaletteBackgroundColor(c)
+            
+        # Update the GLPane if the selected mode is the current mode.
+        # See Bruce's note about this in fill_type_changed().  Mark 051029.
+        if self.bg_mode == self.glpane.mode:
+            self.glpane.gl_update()
                 
     def restore_default_bgcolor(self):
         '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
         '''
-        # Set the background color to the default.
+        # Set the background color and gradient to the default.
         self.bg_mode.set_backgroundColor(self.bg_mode.__class__.backgroundColor)
+        self.bg_mode.set_backgroundGradient(self.bg_mode.__class__.backgroundGradient)
         # Now update the UI.
-        self.bg_solid_setup()
+        if self.bg_mode.__class__.backgroundGradient:
+            self.bg_gradient_setup()
+        else:
+            self.bg_solid_setup()
         # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
         if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()

@@ -86,6 +86,8 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
 
 # Modes prefs [added to this table by mark 050910]
+# The background style and color for each mode is initialized in init_prefs()
+# of the superclass basicMode (modes.py).
 startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
 
@@ -147,8 +149,8 @@ prefs_table = (
     ('display_position', 'int', compassPosition_prefs_key, UPPER_RIGHT),
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
-    ('default_projection', 'int', defaultProjection_prefs_key, PERSPECTIVE),
-    ('selection_behavior', 'int', selectionBehavior_prefs_key, NATIVE),
+    ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
+    ('selection_behavior', 'int', selectionBehavior_prefs_key, CHEM3D), # better than native.  Mark 051029.
 
     # Atom preferences - colors (other than element colors, handled separately)
     
@@ -182,7 +184,7 @@ prefs_table = (
     # Modes preferences [added to this table by mark 050910]
     
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
-    ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
+    ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
     
     # Plug-ins preferences [added to this table by mark 050919]
     
