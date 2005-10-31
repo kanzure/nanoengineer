@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Oct 31 14:34:24 2005
+# Created: Mon Oct 31 17:53:27 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5928,6 +5928,32 @@ image143_data = \
     "\xfe\xdf\xbc\x36\x7f\x0d\xec\xae\xa1\x94\x37\xe5" \
     "\x2b\xe0\x4e\x9e\x05\x02\x67\x19\xe0\xba\x0b\x9d" \
     "\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image144_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\xef\x49\x44\x41\x54\x18\x95\xd5\x55\x39\x0e\xc2" \
+    "\x30\x10\x9c\x45\xbc\x2c\xbf\xf0\xe6\x2d\x69\xa8" \
+    "\xf8\x83\x5b\xe0\x07\x7c\x84\x22\x54\x51\xca\xbc" \
+    "\x20\xf5\x50\x80\x9d\x80\x1d\xcb\xb9\x0a\x56\x5a" \
+    "\x59\x1b\xcb\xe3\xd9\xd1\x8e\x23\x24\xb1\x47\x1c" \
+    "\x76\x41\x75\xc0\x5a\x2a\x45\x84\x5a\xea\x76\xf4" \
+    "\x8d\x1a\x92\xa4\xed\x6b\xda\xbe\xe6\xa7\xc6\xda" \
+    "\x04\x00\x0f\x6a\xfb\x9a\x00\x16\x01\x1b\x35\x04" \
+    "\xe0\x89\x1d\x8d\x1a\xcf\xbe\x6b\x5a\x8c\xeb\xdc" \
+    "\xd0\x52\x79\xbb\xde\x50\xd8\xca\xd7\xd1\xdb\x16" \
+    "\xb4\x1d\x74\x2d\xe3\x71\x13\x11\x92\x94\xa1\x06" \
+    "\x49\x88\x5b\x53\x8c\x1d\xdb\xae\x69\xf1\x3c\x5f" \
+    "\x10\xdc\xfc\x5e\x19\x65\xee\xbe\xc7\xf6\x7f\xbb" \
+    "\xfe\x62\x1c\x63\x9d\x8a\xa1\xa3\xf0\xcc\x2a\x83" \
+    "\x4c\x81\x06\xc0\xce\x20\x9b\x18\x65\xac\xd1\x5c" \
+    "\xa3\x20\x31\xf3\xc9\x91\xc9\x31\xc2\x54\x7a\x29" \
+    "\x62\x46\x11\x11\x8a\x88\x97\xc5\x19\xc1\xf6\x35" \
+    "\x0a\x5b\xa5\x25\xcb\x61\x03\x80\x2e\x73\xed\x3f" \
+    "\xfb\x3d\x70\xa0\xa7\xc7\x3d\x29\xc7\xea\xc7\x66" \
+    "\x2a\x03\x83\x6c\x15\xfb\xfe\x41\xfe\x0a\xf8\x05" \
+    "\x93\x48\x76\x4a\x14\x02\xbd\x3d\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6198,6 +6224,8 @@ class MainWindow(QMainWindow):
         self.image141.loadFromData(image141_data,"PNG")
         self.image143 = QPixmap()
         self.image143.loadFromData(image143_data,"PNG")
+        self.image144 = QPixmap()
+        self.image144.loadFromData(image144_data,"PNG")
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
         self.image21 = QPixmap(image21_data)
@@ -6666,6 +6694,8 @@ class MainWindow(QMainWindow):
         self.jigsDistanceAction.setIconSet(QIconSet(self.image142))
         self.jigsAngleAction = QAction(self,"jigsAngleAction")
         self.jigsAngleAction.setIconSet(QIconSet(self.image143))
+        self.jigsDihedralAction = QAction(self,"jigsDihedralAction")
+        self.jigsDihedralAction.setIconSet(QIconSet(self.image144))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7037,6 +7067,7 @@ class MainWindow(QMainWindow):
         self.jigAtomSetAction.addTo(self.jigsMenu)
         self.jigsDistanceAction.addTo(self.jigsMenu)
         self.jigsAngleAction.addTo(self.jigsMenu)
+        self.jigsDihedralAction.addTo(self.jigsMenu)
         self.MenuBar.insertItem(QString(""),self.jigsMenu,11)
 
         self.simulatorMenu = QPopupMenu(self)
@@ -7206,6 +7237,7 @@ class MainWindow(QMainWindow):
         self.connect(self.setViewMinus90Action,SIGNAL("activated()"),self.setViewMinus90)
         self.connect(self.jigsDistanceAction,SIGNAL("activated()"),self.makeMeasureDistance)
         self.connect(self.jigsAngleAction,SIGNAL("activated()"),self.makeMeasureAngle)
+        self.connect(self.jigsDihedralAction,SIGNAL("activated()"),self.makeMeasureDihedral)
 
 
     def languageChange(self):
@@ -7668,6 +7700,8 @@ class MainWindow(QMainWindow):
         self.jigsDistanceAction.setMenuText(self.__tr("Measure Distance"))
         self.jigsAngleAction.setText(self.__tr("Measure Angle"))
         self.jigsAngleAction.setMenuText(self.__tr("Measure Angle"))
+        self.jigsDihedralAction.setText(self.__tr("Measure Dihedral"))
+        self.jigsDihedralAction.setMenuText(self.__tr("Measure Dihedral"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8238,6 +8272,9 @@ class MainWindow(QMainWindow):
 
     def makeMeasureAngle(self):
         print "MainWindow.makeMeasureAngle(): Not implemented yet"
+
+    def makeMeasureDihedral(self):
+        print "MainWindow.makeMeasureDihedral(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

@@ -805,6 +805,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
     def makeMeasureAngle(self):
         self.assy.makeMeasureAngle()
+        
+    def makeMeasureDihedral(self):
+        self.assy.makeMeasureDihedral()
 
     ###################################
     # Modify Toolbar Slots
