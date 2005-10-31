@@ -13,7 +13,8 @@ import env
 class cookieMode(basicMode):
 
     # class constants
-    backgroundColor = 103/255.0, 124/255.0, 53/255.0
+    backgroundColor = 0/255.0, 0/255.0, 0/255.0
+    backgroundGradient = False # Mark 051029.
     gridColor = 222/255.0, 148/255.0, 0/255.0
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
