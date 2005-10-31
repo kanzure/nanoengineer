@@ -1137,6 +1137,25 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         env.history.message(cmd + "Measure Angle jig created")
         self.assy.w.win_update()
 
+    def makeMeasureDihedral(self): # Not implemented yet.  Mark 051030.
+        """Creates a Measure Dihedral jig connected to three selected atoms.
+        """
+        cmd = greenmsg("Measure Dihedral Jig: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+
+        if len(atoms) != 4:
+            msg = redmsg("You must select 4 atoms to create a Dihedral jig.")
+            env.history.message(cmd + msg)
+            return
+        
+        from jigs_measurements import MeasureDihedral
+        d = MeasureDihedral(self.assy, atoms)
+        self.unpickatoms()
+        self.place_new_jig(d)
+        
+        env.history.message(cmd + "Measure Dihedral jig created")
+        self.assy.w.win_update()
         
     pass # end of class jigmakers_Mixin
     

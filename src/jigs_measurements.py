@@ -273,7 +273,7 @@ class MeasureAngle(Measurement):
         return acos(dot(v01, v12) / (vlen(v01) * vlen(12)))
         
     def rematom(self, atm):
-        "Delete the jig if either of it's two atoms are deleted"
+        "Delete the jig if any of its atoms are deleted"
         Node.kill(self)
         return
         
@@ -305,5 +305,102 @@ class MeasureAngle(Measurement):
         return ""
     
     pass # end of class MeasureAngle
+        
+# == Measure Dihedral
+
+class MeasureDihedral(Measurement):
+    # new class.  wware 051031
+    '''A Measure Dihedral jig has two atoms and draws a line with a dihedral label between them.
+    '''
+    
+    sym = "Dihedral"
+    icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
+
+    copyable_attrs = Jig.copyable_attrs + ('font_type', 'font_size', 'center', 'axis')
+
+    # create a blank Measure Dihedral jig not connected to anything    
+    def __init__(self, assy, atomlist): 
+        Measurement.__init__(self, assy, atomlist)
+        self.font_type = "Helvetica"
+        self.font_size = 10.0 # pt size
+        self.center = V(0,0,0)
+        self.axis = V(0,0,0)
+        self._initial_posns = None #bruce 050518
+        # We need to reset _initial_posns to None whenever we recompute
+        # self.axis from scratch or change the atom list in any way (even reordering it).
+        # For now, we do this everywhere it's needed "by hand",
+        # rather than in some (not yet existing) systematic and general way.
+        # set default color to black.  probably should be a different color (grounds are black).
+        self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
+        self.normcolor = black # This is the normal (unselected) color.
+        self.cancelled = True # We will assume the user will cancel
+
+    def set_cntl(self):
+        from JigProp import JigProp
+        self.cntl = JigProp(self, self.assy.o)
+
+    # Set the properties for a Measure Dihedral jig read from a (MMP) file
+    def setProps(self, name, color, font_type, font_size, center, axis):
+        self.name = name
+        self.color = color
+        self.font_type = font_type
+        self.font_size = font_size
+        self.center = center
+        self.axis = norm(axis)
+        self._initial_posns = None # Not sure if this is needed.  Mark
+   
+    def _getinfo(self): 
+        return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
+                    "[Dihedral = " + str(self.get_dihedral()) + " ]"
+        
+    def getstatistics(self, stats): # Should be _getstatistics().  Mark
+        stats.num_mdihedral += 1
+        
+    # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
+    def get_dihedral(self):
+        '''Returns the dihedral between two atoms (nuclei)'''
+        wx = self.atoms[0].posn()-self.atoms[1].posn()
+        yx = self.atoms[2].posn()-self.atoms[1].posn()
+        xy = -yx
+        zy = self.atoms[3].posn()-self.atoms[2].posn()
+        u = cross(wx, yx)
+        v = cross(xy, zy)
+        from math import acos
+        return acos(dot(u, v) / (vlen(u) * vlen(v)))
+        
+    def rematom(self, atm):
+        "Delete the jig if any of its atoms are deleted"
+        Node.kill(self)
+        return
+        
+    # Measure Dihedral jig is drawn as a line between two atoms with a text label between them.
+    # A wire cube is also drawn around each atom.
+    def _draw(self, win, dispdef):
+        '''Draws a wire frame cube around two atoms and a line between them.
+        A label displaying the dihedral is included.
+        '''
+        
+        for a in self.atoms:
+            disp, rad = a.howdraw(dispdef)
+            drawwirecube(self.color, a.posn(), rad)
+            
+        drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
+        drawline(self.color, self.atoms[1].posn(), self.atoms[2].posn())
+        drawline(self.color, self.atoms[2].posn(), self.atoms[3].posn())
+        self.recompute_center_axis()
+        text = "%.2f" % self.get_dihedral()
+        drawtext(text, self.color, self.center, self.font_size, self.assy.o)
+    
+    # Not implemented yet
+    def writepov(self, file, dispdef):
+        return
+    
+    # Returns the jig-specific mmp data for the current Measure Dihedral jig as:
+    # mdihedral font_size atom1 atom2 atom3 (???)
+    mmp_record_name = "mdihedral"
+    def mmp_record_jigspecific_midpart(self):
+        return ""
+    
+    pass # end of class MeasureDihedral
         
 # end of module jigs_measurements.py
