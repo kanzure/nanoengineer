@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Oct 31 10:01:42 2005
+# Created: Mon Oct 31 10:15:54 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5880,35 +5880,26 @@ image141_data = \
     "\x5b\x30\x22\x2d\x85\x62\x4a\x40\xb6\x93\x67\x25" \
     "\x28\x16\x5f\x47\x0c\x28\x27\xff\xce\xb4\x2e\x00" \
     "\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
-image142_data = [
-"20 20 6 1",
-"d c #000000",
-"c c #008000",
-"a c #00ff00",
-"b c #800000",
-"# c #ff0000",
-". c #ffffff",
-"....................",
-"....................",
-"....................",
-".............####...",
-"..aaa......########.",
-".aaaaa.....##.####b.",
-"aa.aacc...########bb",
-"aaaaacc...########bb",
-"aaaaacc...#######bbb",
-"aaaaacc...#######bbb",
-".aaacc.....######bb.",
-"..acc......#####bbb.",
-".............##bb...",
-"...d...........d....",
-"...d...........d....",
-"...d..d..d..d..d....",
-"...ddddddddddddd....",
-"...d..d..d..d..d....",
-"...d...........d....",
-"...................."
-]
+image142_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
+    "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
+    "\xa4\x49\x44\x41\x54\x18\x95\xbd\x54\xdb\x16\x83" \
+    "\x20\x0c\x6b\x3c\xfb\x6f\x0e\x5f\x1e\x1f\x66\x2b" \
+    "\xd4\x16\x1d\x63\xcb\x53\x81\x24\xa7\x37\x05\x49" \
+    "\x59\x89\x6d\xa9\xdb\x2f\x0c\x5f\x53\x2a\xa0\xef" \
+    "\x13\x09\x7b\xd2\x1e\x42\x4e\x12\xe5\x24\x0c\x8d" \
+    "\x3c\x48\x6c\xde\x2c\x3a\x07\xc2\xcb\x55\x35\x2d" \
+    "\x85\x47\x56\x02\x41\xf7\xca\xd2\x64\x7a\x93\x9d" \
+    "\x1a\xda\x50\xcc\xec\x4b\x2c\x99\x72\x6d\xe2\xf5" \
+    "\x7b\x78\x99\x68\xd4\x3f\x91\x6e\x35\x32\x14\x9d" \
+    "\xb2\x99\x66\x66\x03\x54\x77\xc6\xd4\xb7\x7c\x4c" \
+    "\x5c\xcd\x4a\xb4\xd8\x6f\x1e\xc8\x07\xa5\x8d\xf8" \
+    "\xff\xfb\x39\xa0\x59\xe4\x2c\x0e\x75\xbe\xe4\x4f" \
+    "\x33\xba\x2d\x99\x24\x94\xf4\x24\xf6\x48\x4b\x6e" \
+    "\x05\x59\x1c\x61\x6e\x6d\x06\xd8\x01\xe0\xdd\x6b" \
+    "\x7f\x68\xa0\x21\xa0\x00\x00\x00\x00\x49\x45\x4e" \
+    "\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6177,6 +6168,8 @@ class MainWindow(QMainWindow):
         self.image140.loadFromData(image140_data,"PNG")
         self.image141 = QPixmap()
         self.image141.loadFromData(image141_data,"PNG")
+        self.image142 = QPixmap()
+        self.image142.loadFromData(image142_data,"PNG")
         self.image12 = QPixmap(image12_data)
         self.image20 = QPixmap(image20_data)
         self.image21 = QPixmap(image21_data)
@@ -6188,7 +6181,6 @@ class MainWindow(QMainWindow):
         self.image34 = QPixmap(image34_data)
         self.image54 = QPixmap(image54_data)
         self.image55 = QPixmap(image55_data)
-        self.image142 = QPixmap(image142_data)
 
         if not name:
             self.setName("MainWindow")
@@ -8202,6 +8194,9 @@ class MainWindow(QMainWindow):
 
     def setViewMinus90(self):
         print "MainWindow.setViewMinus90(): Not implemented yet"
+
+    def makeDistanceJig(self):
+        print "MainWindow.makeDistanceJig(): Not implemented yet"
 
     def makeMeasureDistance(self):
         print "MainWindow.makeMeasureDistance(): Not implemented yet"
