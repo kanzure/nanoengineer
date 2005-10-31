@@ -830,58 +830,6 @@ class AtomSet(Jig):
     
     pass # end of class AtomSet
 
-# == MeasureDistance
-
-from jigs_measurements import MeasureDistance
-
-class __MeasureDistance(Jig):
-    '''A MeasureDistance jig tracks the distance between a pair of atoms'''
-
-    sym = "Measure Distance"
-    icon_names = ["measureDistance.png", "measureDistance-hide.png"]
-
-    # create a blank AtomSet with the given list of atoms
-    def __init__(self, assy, list):
-        Jig.__init__(self, assy, list)
-        self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
-        self.normcolor = black # This is the normal (unselected) color.
-
-    def set_cntl(self):
-        from JigProp import JigProp
-        self.cntl = JigProp(self, self.assy.o)
-
-    def _draw(self, win, dispdef):
-        '''Draws a line connecting the two atoms.
-        '''
-        a, b = self.atoms
-        drawline(self.color, a.posn(), b.posn())
-        
-    def _getinfo(self):
-        return "[Object: MeasureDistance] [Name: " + str(self.name) + "]"
-
-    def getstatistics(self, stats):
-        stats.natoms += 1 # Count only the measure-distance jig itself??
-
-    mmp_record_name = "radius"
-    def _mmp_record_front_part(self, mapping):
-        if mapping is not None:
-            name = mapping.encode_name(self.name)
-        else:
-            name = self.name
-        return "%s (%s)" % (self.mmp_record_name, name)
-
-    def confers_properties_on(self, atom): # Atom Set method
-        """[overrides Node method]
-        Should this jig be partly copied (even if not selected)
-        when this atom is individually selected and copied?
-        (It's ok to assume without checking that atom is one of this jig's atoms.)
-        """
-        return False
-    
-    # end of class MeasureDistance
-
-# ===
-
 class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     """Provide Jig-making methods to class Part.
     These should be refactored into some common code

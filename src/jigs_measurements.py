@@ -103,7 +103,7 @@ class MeasureDistance(Measurement):
     
     sym = "Distance"
     #icon_names = ["measuredistance.png", "measuredistance-hide.png"]
-    icon_names = ["measureDistance.png", "measureDistance-hide.png"]
+    icon_names = ["measuredistance.png", "measuredistance-hide.png"]
 
     copyable_attrs = Jig.copyable_attrs + ('font_type', 'font_size', 'center', 'axis')
 
