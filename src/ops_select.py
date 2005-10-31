@@ -58,6 +58,7 @@ class ops_select_Mixin:
         in which some atoms are selected.
         [bruce 050201 observes that this docstring is wrong.]
         """ ###@@@
+        self.begin_select_cmd() #bruce 051031
         if self.selwhat == SELWHAT_CHUNKS:
             for m in self.molecules:
                 m.pick()
@@ -69,6 +70,7 @@ class ops_select_Mixin:
         self.w.win_update()
 
     def selectNone(self):
+        self.begin_select_cmd() #bruce 051031
         self.unpickatoms()
         self.unpickparts()
         self.w.win_update()
@@ -80,6 +82,7 @@ class ops_select_Mixin:
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
         """
+        self.begin_select_cmd() #bruce 051031
         cmd = "Invert Selection: "
         env.history.message(greenmsg(cmd))
         
@@ -108,6 +111,7 @@ class ops_select_Mixin:
         """
         # Eric really needed this.  Added by Mark 050923.
         
+        self.begin_select_cmd() #bruce 051031
         cmd = "Expand Selection: "
         env.history.message(greenmsg(cmd))
         
@@ -136,6 +140,7 @@ class ops_select_Mixin:
         """
         # Added by Mark 050923.
         
+        self.begin_select_cmd() #bruce 051031
         cmd = "Contract Selection: "
         env.history.message(greenmsg(cmd))
         
@@ -322,6 +327,7 @@ class ops_select_Mixin:
         # and molecule pick methods, since doing them there was too verbose
         # when many items were selected at the same time. Original message
         # code was by [mark 2004-10-14].]
+        self.begin_select_cmd() #bruce 051031
         atm = self.findAtomUnderMouse(event)
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
@@ -349,6 +355,7 @@ class ops_select_Mixin:
         or chunk (depending on self.selwhat) is under the mouse at event.
         If no atom or chunk is under the mouse, nothing in glpane is selected.
         """
+        self.begin_select_cmd() #bruce 051031
         if self.selwhat == SELWHAT_CHUNKS:
             self.unpickparts()
         else:
@@ -362,6 +369,7 @@ class ops_select_Mixin:
         is under the mouse at event get un-selected,
         but don't change whatever else is selected.
         """
+        self.begin_select_cmd() #bruce 051031
         atm = self.findAtomUnderMouse(event)
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
@@ -389,6 +397,12 @@ class ops_select_Mixin:
         self.topnode.unpick()
         # before assy/part split, this was done on assy.root, i.e. on assy.tree and assy.shelf
 
+    def begin_select_cmd(self):
+        # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
+        # More info in comments in assembly version. [bruce 051031]
+        self.assy.begin_select_cmd()
+        return
+    
     # ==
     
     def selection_from_glpane(self): #bruce 050404 experimental feature for initial use in Minimize Selection; renamed 050523

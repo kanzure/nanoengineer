@@ -820,6 +820,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def fix_event(self, but, when, target): #bruce 050913 revised this from fix_buttons
         return fix_event_helper(self, but, when, target)
 
+    def begin_select_cmd(self):
+        # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
+        # More info in comments in assembly version. [bruce 051031]
+        if self.assy:
+            self.assy.begin_select_cmd()
+        return
+
     def mouseDoubleClickEvent(self, event):
         self.debug_event(event, 'mouseDoubleClickEvent')
         ## but = event.stateAfter()
@@ -843,6 +850,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         ## as current, otherwise, the first event will get wrong coordinates
         self.makeCurrent()
         
+        self.begin_select_cmd() #bruce 051031
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
         ## but = event.stateAfter()

@@ -214,6 +214,19 @@ class assembly(GenericDiffTracker_API_Mixin):
         
         return # from assembly.__init__
 
+    #bruce 051031: keep counter of selection commands in assy (the model object), not Part,
+    # to avoid any chance of confusion when atoms (which will record this as their selection time)
+    # move between Parts (though in theory, they should be deselected then, so this might not matter).
+    _select_cmd_counter = 0
+    def begin_select_cmd(self):
+        # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
+        # The best place to save this state is not clear, but probably it's a place that won't explicitly exist
+        # until we restructure the code, since it's part of the "current selection" state, which in principle
+        # should be maintained as its own object, either per-window or per-widget or per-model.
+        # [bruce 051031]
+        self._select_cmd_counter += 1
+        return
+    
     def set_selwhat(self, selwhat): #bruce 050517
         ## print_compact_stack( "set_selwhat to %r: " % (selwhat,))
         assert selwhat in (0,2) # i.e. (SELWHAT_ATOMS, SELWHAT_CHUNKS)

@@ -965,9 +965,11 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         # If select atoms filter is on, only pick element type in the filter combobox
         if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
             self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return
-        
+
+        self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
             self.picked = 1
+            self._picked_time_2 = self.molecule.assy._select_cmd_counter #bruce 051031
             self.molecule.assy.selatoms[self.key] = self
                 #bruce comment 050308: should be ok even if selatoms recomputed for assy.part
             self.molecule.changeapp(1)
@@ -982,6 +984,13 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             # connects to them), this will need review.
         return
 
+    _picked_time = _picked_time_2 = -1
+    def pick_order(self): #bruce 051031
+        """Return something which can be sorted to determine the order in which atoms were selected; include tiebreakers.
+        Legal to call even if self has never been selected or is not currently selected,
+        though results will not be very useful then.
+        """
+        return (self._picked_time, self._picked_time_2, self.key)
     
     def unpick(self):
         """make the atom unselected
@@ -1001,6 +1010,9 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
                 if platform.atom_debug:
                     print_compact_traceback("atom_debug: atom.unpick finds atom not in selatoms: ")
             self.picked = 0
+            # note: no need to change self._picked_time -- that would have no effect unless
+            # we later forget to set it when atom is picked, and if that can happen,
+            # it's probably better to use a prior valid value than -1. [bruce 051031]
             self.molecule.changeapp(1)
 
     def copy_for_mol_copy(self, numol):

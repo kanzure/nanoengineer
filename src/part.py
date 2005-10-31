@@ -527,6 +527,16 @@ class Part( jigmakers_Mixin, InvalMixin, GenericDiffTracker_API_Mixin,
         self.topnode.apply2all( func_selatoms)
         self.selatoms = res
         return
+
+    def selatoms_list(self): #bruce 051031
+        """Return the current list of selected atoms, in order of selection (whenever that makes sense), earliest first.
+        This list is recomputed whenever requested, since order can change even when set of selected atoms
+        doesn't change; therefore its API looks like a method rather than like an attribute.
+           Intended usage: use .selatoms_list() instead of .selatoms.values() for anything which might care about atom order.
+        """
+        items = [(atm.pick_order(), atm) for atm in self.selatoms.itervalues()]
+        items.sort()
+        return [pair[1] for pair in items]
         
     # ==
     

@@ -841,14 +841,16 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
                 
         cmd = greenmsg("Rotary Motor: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not self.assy.selatoms:
+        if not atoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Rotary Motor."))
             return
         
         from jigs_motors import RotaryMotor
         m = RotaryMotor(self.assy)
-        m.findCenter(self.selatoms.values(), sightline)
+        m.findCenter(atoms, sightline)
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
             #bruce 050415/050701: old code had del(m), perhaps hoping to destroy the jig here,
             # but in fact that statement would do nothing, so I removed it. But it might be good
@@ -868,13 +870,15 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         cmd = greenmsg("Linear Motor: ")
         
-        if not self.assy.selatoms:
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+
+        if not atoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Linear Motor."))
             return
         
         from jigs_motors import LinearMotor
         m = LinearMotor(self.assy)
-        m.findCenter(self.selatoms.values(), sightline)
+        m.findCenter(atoms, sightline)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             env.history.message(cmd + "Cancelled")
             return
@@ -890,13 +894,15 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         # [bruce 050210 modified docstring]
         
         cmd = greenmsg("Gamess: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not self.assy.selatoms:
+        if not atoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Gamess Jig."))
             return
         
         # Make sure that no more than 200 atoms are selected.
-        nsa = len(self.assy.selatoms)
+        nsa = len(atoms)
         if nsa > 200: 
             env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 200.  Try again."))
             return
@@ -914,7 +920,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
                 return
                 
         from jig_Gamess import Gamess
-        m = Gamess(self.assy, self.selatoms.values())
+        m = Gamess(self.assy, atoms)
         m.edit() #bruce 050701 split edit method out of the constructor,
             # so the dialog doesn't show up when the jig is read from an mmp file
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
@@ -936,19 +942,21 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         # [bruce 050210 modified docstring]
         
         cmd = greenmsg("Ground: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not self.assy.selatoms:
+        if not atoms:
             env.history.message(cmd + redmsg("You must select at least one atom to create a Ground."))
             return
         
         ## Make sure that no more than 30 atoms are selected.
-        #nsa = len(self.assy.selatoms)
+        #nsa = len(atoms)
         #if nsa > 30: 
             #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
             #return
         
         
-        m = Ground(self.assy, self.selatoms.values())
+        m = Ground(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(m)
         
@@ -959,18 +967,20 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """Attaches a Langevin thermostat to the single atom selected.
         """
         cmd = greenmsg("Thermostat: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not self.assy.selatoms:
+        if not atoms:
             msg = redmsg("You must select an atom on the molecule you want to associate with a Thermostat.")
             env.history.message(cmd + msg)
             return
         
         # Make sure only one atom is selected.
-        if len(self.assy.selatoms) != 1: 
+        if len(atoms) != 1: 
             msg = redmsg("To create a Thermostat, only one atom may be selected.  Try again.")
             env.history.message(cmd + msg)
             return
-        m = Stat(self.assy, self.selatoms.values())
+        m = Stat(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(m)
         
@@ -982,19 +992,21 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
         
         cmd = greenmsg("Thermometer: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not self.assy.selatoms:
+        if not atoms:
             msg = redmsg("You must select an atom on the molecule you want to associate with a Thermometer.")
             env.history.message(cmd + msg)
             return
         
         # Make sure only one atom is selected.
-        if len(self.assy.selatoms) != 1: 
+        if len(atoms) != 1: 
             msg = redmsg("To create a Thermometer, only one atom may be selected.  Try again.")
             env.history.message(cmd + msg)
             return
         
-        m = Thermo(self.assy, self.selatoms.values())
+        m = Thermo(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(m)
         
@@ -1004,20 +1016,22 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
     def makeGridPlane(self):
         cmd = greenmsg("Grid Plane: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not self.assy.selatoms:
+        if not atoms:
             msg = redmsg("You must select 3 or more atoms to create a Grid Plane.")
             env.history.message(cmd + msg)
             return
         
         # Make sure only one atom is selected.
-        if len(self.assy.selatoms)  <3: 
+        if len(atoms) < 3: 
             msg = redmsg("To create a Grid Plane, at least 3 atoms must be selected.  Try again.")
             env.history.message(cmd + msg)
             return
         
         from jigs_planes import GridPlane
-        m = GridPlane(self.assy, self.selatoms.values())
+        m = GridPlane(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
             #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
@@ -1036,14 +1050,16 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
     def makeESPWindow(self):
         cmd = greenmsg("ESP Window: ")
-        
-        if len(self.assy.selatoms) < 3:
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+
+        if len(atoms) < 3:
             msg = redmsg("You must select at least 3 atoms to create an ESP Window.")
             env.history.message(cmd + msg)
             return
         
         from jigs_planes import ESPWindow
-        m = ESPWindow(self.assy, self.selatoms.values())
+        m = ESPWindow(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
             env.history.message(cmd + "Cancelled")
@@ -1061,12 +1077,14 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
     def makeAtomSet(self):
         cmd = greenmsg("Atom Set: ")
-        
-        if not self.assy.selatoms:
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+
+        if not atoms:
             env.history.message(cmd + redmsg("You must select at least one atom to create an Atom Set."))
             return
         
-        m = AtomSet(self.assy, self.selatoms.values())
+        m = AtomSet(self.assy, atoms)
         
         self.place_new_jig(m)
         m.pick() # This is required to display the Atom Set wireframe boxes.
@@ -1080,14 +1098,16 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
         
         cmd = greenmsg("Measure Distance Jig: ")
-        
-        if len(self.assy.selatoms) != 2:
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+
+        if len(atoms) != 2:
             msg = redmsg("You must select 2 atoms to create a Distance jig.")
             env.history.message(cmd + msg)
             return
         
         from jigs_measurements import MeasureDistance
-        d = MeasureDistance(self.assy, self.selatoms.values())
+        d = MeasureDistance(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(d)
         
@@ -1102,13 +1122,15 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         cmd = greenmsg("Measure Angle Jig: ")
 
-        if len(self.assy.selatoms) != 3:
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+
+        if len(atoms) != 3:
             msg = redmsg("You must select 3 atoms to create an Angle jig.")
             env.history.message(cmd + msg)
             return
         
         from jigs_measurements import MeasureAngle
-        d = MeasureAngle(self.assy, self.selatoms.values())
+        d = MeasureAngle(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(d)
         
