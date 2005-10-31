@@ -292,6 +292,8 @@ class fusechunksMode(modifyMode):
         # Color the overlapping atoms green
         if self.overlapping_atoms:
             for a1,a2 in self.overlapping_atoms:
+                # a1 atoms are the selected chunk atoms
+                a1.overdraw_with_special_color(blue) # NFR/bug 945. Mark 051029.
                 # a2 atoms are the unselected chunk(s) atoms
                 a2.overdraw_with_special_color(green) 
                 # This is experimental code to try different highlighting colors. 
