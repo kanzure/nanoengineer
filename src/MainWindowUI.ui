@@ -5287,7 +5287,7 @@
         <sender>jigsDistanceAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>makeDistanceJig()</slot>
+        <slot>makeMeasureDistance()</slot>
     </connection>
 </connections>
 <includes>
@@ -5463,7 +5463,7 @@
     <slot>fileSaveSelection()</slot>
     <slot>setViewPlus90()</slot>
     <slot>setViewMinus90()</slot>
-    <slot>makeDistanceJig()</slot>
+    <slot>makeMeasureDistance()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

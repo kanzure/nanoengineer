@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Oct 31 09:54:02 2005
+# Created: Mon Oct 31 10:01:42 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -7180,7 +7180,7 @@ class MainWindow(QMainWindow):
         self.connect(self.fileSaveSelectionAction,SIGNAL("activated()"),self.fileSaveSelection)
         self.connect(self.setViewPlus90Action,SIGNAL("activated()"),self.setViewPlus90)
         self.connect(self.setViewMinus90Action,SIGNAL("activated()"),self.setViewMinus90)
-        self.connect(self.jigsDistanceAction,SIGNAL("activated()"),self.makeDistanceJig)
+        self.connect(self.jigsDistanceAction,SIGNAL("activated()"),self.makeMeasureDistance)
 
 
     def languageChange(self):
@@ -8203,8 +8203,8 @@ class MainWindow(QMainWindow):
     def setViewMinus90(self):
         print "MainWindow.setViewMinus90(): Not implemented yet"
 
-    def makeDistanceJig(self):
-        print "MainWindow.makeDistanceJig(): Not implemented yet"
+    def makeMeasureDistance(self):
+        print "MainWindow.makeMeasureDistance(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
