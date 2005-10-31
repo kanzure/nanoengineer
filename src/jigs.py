@@ -832,7 +832,9 @@ class AtomSet(Jig):
 
 # == MeasureDistance
 
-class MeasureDistance(Jig):
+from jigs_measurements import MeasureDistance
+
+class __MeasureDistance(Jig):
     '''A MeasureDistance jig tracks the distance between a pair of atoms'''
 
     sym = "Measure Distance"
@@ -860,10 +862,14 @@ class MeasureDistance(Jig):
     def getstatistics(self, stats):
         stats.natoms += 1 # Count only the measure-distance jig itself??
 
-    mmp_record_name = "distance"
-    def mmp_record_jigspecific_midpart(self):
-        return ""
-        
+    mmp_record_name = "radius"
+    def _mmp_record_front_part(self, mapping):
+        if mapping is not None:
+            name = mapping.encode_name(self.name)
+        else:
+            name = self.name
+        return "%s (%s)" % (self.mmp_record_name, name)
+
     def confers_properties_on(self, atom): # Atom Set method
         """[overrides Node method]
         Should this jig be partly copied (even if not selected)
@@ -884,8 +890,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
 
     def makeRotaryMotor(self, sightline):
         """Creates a Rotary Motor connected to the selected atoms.
-        There is a limit of 30 atoms.  Any more will choke the file parser
-        in the simulator.
         """
                 
         cmd = greenmsg("Rotary Motor: ")
@@ -893,12 +897,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if not self.assy.selatoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Rotary Motor."))
             return
-        
-        ## Make sure that no more than 30 atoms are selected.
-        #nsa = len(self.assy.selatoms)
-        #if nsa > 30: 
-            #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            #return
         
         from jigs_motors import RotaryMotor
         m = RotaryMotor(self.assy)
@@ -918,8 +916,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.
-        There is a limit of 30 atoms.  Any more will choke the file parser
-        in the simulator.
         """
         
         cmd = greenmsg("Linear Motor: ")
@@ -927,12 +923,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if not self.assy.selatoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Linear Motor."))
             return
-        
-        ## Make sure that no more than 30 atoms are selected.
-        #nsa = len(self.assy.selatoms)
-        #if nsa > 30: 
-            #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            #return
         
         from jigs_motors import LinearMotor
         m = LinearMotor(self.assy)
@@ -944,18 +934,6 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.place_new_jig(m)
         
         env.history.message(cmd + "Motor created")
-        self.assy.w.win_update()
-
-    def makeMeasureDistance(self):
-        cmd = greenmsg("Measure Distance: ")
-        if not self.assy.selatoms or len(self.assy.selatoms) != 2:
-            env.history.message(cmd + redmsg("You must first select two atoms to create a Measure-Distance jig."))
-            return
-        print "Make a measure-distance jig"
-        m = MeasureDistance(self.assy, self.selatoms.values())
-        self.unpickatoms()
-        self.place_new_jig(m)
-        env.history.message(cmd + "Measure Distance jig created")
         self.assy.w.win_update()
 
     def makegamess(self):
@@ -1147,6 +1125,53 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         env.history.message(cmd + "Atom Set created.")
         self.assy.w.win_update()
+        
+
+    def makeMeasureDistance(self):
+        """Creates a Measure Distance jig between two selected atoms.
+        """
+        
+        cmd = greenmsg("Measure Distance Jig: ")
+        
+        if len(self.assy.selatoms) != 2:
+            msg = redmsg("You must select 2 atoms to create a Distance jig.")
+            env.history.message(cmd + msg)
+            return
+        
+        from jigs_measurements import MeasureDistance
+        d = MeasureDistance(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(d)
+        
+        env.history.message(cmd + "Measure Distance jig created")
+        self.assy.w.win_update()
+
+
+    def makeMeasureAngle(self): # Not implemented yet.  Mark 051030.
+        """Creates a Measure Angle jig connected to three selected atoms.
+        """
+        
+        cmd = greenmsg("Measure Angle Jig: ")
+
+        # Not implemented yet.  Mark 051030.
+        if True:
+            msg = redmsg("Not implemented yet.")
+            env.history.message(cmd + msg)
+            return
+            
+        if len(self.assy.selatoms) != 3:
+            msg = redmsg("You must select 3 atoms to create an Angle jig.")
+            env.history.message(cmd + msg)
+            return
+        
+        from jigs_measurements import MeasureAngle
+        d = MeasureAngle(self.assy, self.selatoms.values())
+        self.unpickatoms()
+        self.place_new_jig(d)
+        
+        env.history.message(cmd + "Measure Angle jig created")
+        self.assy.w.win_update()
+
         
     pass # end of class jigmakers_Mixin
     
