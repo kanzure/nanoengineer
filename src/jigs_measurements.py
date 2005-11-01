@@ -257,8 +257,9 @@ class MeasureAngle(Measurement):
         self.axis = norm(axis)
         self._initial_posns = None # Not sure if this is needed.  Mark
    
-    def _getinfo(self): 
+    def _getinfo(self):   # add atom list, wware 051101
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
+                    ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
         
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
@@ -268,9 +269,9 @@ class MeasureAngle(Measurement):
     def get_angle(self):
         '''Returns the angle between two atoms (nuclei)'''
         v01 = self.atoms[0].posn()-self.atoms[1].posn()
-        v12 = self.atoms[1].posn()-self.atoms[2].posn()
-        from math import acos
-        return acos(dot(v01, v12) / (vlen(v01) * vlen(12)))
+        v21 = self.atoms[2].posn()-self.atoms[1].posn()
+        from math import acos   # fix error in angle formula, and degrees not radians, wware 051101
+        return (180/pi) * acos(dot(v01, v21) / (vlen(v01) * vlen(v21)))
         
     def rematom(self, atm):
         "Delete the jig if any of its atoms are deleted"
@@ -349,8 +350,9 @@ class MeasureDihedral(Measurement):
         self.axis = norm(axis)
         self._initial_posns = None # Not sure if this is needed.  Mark
    
-    def _getinfo(self): 
+    def _getinfo(self):    # add atom list, wware 051101
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
+                    ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
         
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
@@ -365,8 +367,10 @@ class MeasureDihedral(Measurement):
         zy = self.atoms[3].posn()-self.atoms[2].posn()
         u = cross(wx, yx)
         v = cross(xy, zy)
-        from math import acos
-        return acos(dot(u, v) / (vlen(u) * vlen(v)))
+        sign = 1.0   # angles go from -180 to 180, wware 051101
+        if dot(zy, u) < 0: sign = -1.0
+        from math import acos   # degrees not radians, wware 051101
+        return (180/pi) * sign * acos(dot(u, v) / (vlen(u) * vlen(v)))
         
     def rematom(self, atm):
         "Delete the jig if any of its atoms are deleted"
