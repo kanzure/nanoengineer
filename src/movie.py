@@ -644,8 +644,27 @@ class Movie:
         self.showEachFrame = True #bruce 050428 comment: this is the only set of this var to True.
 
         # Continue playing movie.
-        if self.playDirection == FWD: self._playToFrame(self.totalFramesActual)
-        else: self._playToFrame(0)
+        if self.playDirection == FWD:
+            self._playToFrame(self.totalFramesActual)
+        else:
+            self._playToFrame(0)
+        
+        # If "Loop" is checked, continue playing until user hits pause.  Mark 051101.
+        while self.win.movieLoop_checkbox.isChecked():
+            if self.playDirection == FWD:
+                self._reset() # Resets currentFrame to 0
+                self.showEachFrame = True # _pause(), called by _playToFrame(), reset this to False.
+                self._playToFrame(self.totalFramesActual)
+                # If the pause button was pressed by the user, then this condition is True.
+                if self.currentFrame != self.totalFramesActual:
+                    break
+            else: # playDirection == REV
+                self._moveToEnd() # Resets currentFrame to totalFramesActual
+                self.showEachFrame = True # _pause(), called by _playToFrame(), reset this to False.
+                self._playToFrame(0)
+                # If the pause button was pressed by the user, then this condition is True.
+                if self.currentFrame != 0:
+                    break
 
     def _pause(self, hflag = True):
         """Pause movie.
@@ -810,7 +829,6 @@ class Movie:
                 self.currentFrame += inc
                 if self.currentFrame == fnum:
                     break
-
             # now self.currentFrame needs to be shown
             if 1: ## self.showEachFrame: ####@@@@ old code said if 1 for this... what's best? maybe update them every 0.1 sec?
                 self.update_dashboard_currentFrame()
@@ -857,7 +875,7 @@ class Movie:
             if DEBUG0: print "movie._playToFrame(): Calling _pause"
             self._pause(0) # Force pause. Takes care of variable and dashboard maintenance.
             if DEBUG0: print "movie._playToFrame(): BYE!"
-
+            
         return # from _playToFrame
 
     def _playSlider(self, fnum):
