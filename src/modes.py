@@ -1161,10 +1161,11 @@ class basicMode(anyMode):
         if key == Qt.Key_Comma: 
             self.o.scale *= 1.05
             self.o.gl_update()
-        if key == Qt.Key_F1:
-            import webbrowser
-            # [will 051010 added wiki help feature]
-            webbrowser.open(self.__WikiHelpPrefix + self.__class__.__name__)
+	# comment out wiki help feature until further notice, wware 051101
+        #if key == Qt.Key_F1:
+        #    import webbrowser
+        #    # [will 051010 added wiki help feature]
+        #    webbrowser.open(self.__WikiHelpPrefix + self.__class__.__name__)
     
     def keyRelease(self,key): # mark 2004-10-11
         #e bruce comment 041220: lots of modes change cursors on this, but they
