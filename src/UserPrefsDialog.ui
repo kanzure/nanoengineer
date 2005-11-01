@@ -1720,6 +1720,9 @@
                                         <property name="name">
                                             <cstring>nanohive_lbl</cstring>
                                         </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
+                                        </property>
                                         <property name="sizePolicy">
                                             <sizepolicy>
                                                 <hsizetype>1</hsizetype>
@@ -1755,6 +1758,9 @@
                                     <widget class="QCheckBox" row="1" column="0">
                                         <property name="name">
                                             <cstring>nanohive_checkbox</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
                                         </property>
                                         <property name="text">
                                             <string></string>

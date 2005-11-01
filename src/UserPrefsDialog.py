@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Oct 3 16:23:52 2005
+# Created: Tue Nov 1 13:30:41 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -564,6 +564,7 @@ class UserPrefsDialog(QDialog):
         layout63_2.addWidget(self.gamess_lbl,0,1)
 
         self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
+        self.nanohive_lbl.setEnabled(0)
         self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
         self.nanohive_lbl.setMinimumSize(QSize(60,0))
         self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
@@ -575,6 +576,7 @@ class UserPrefsDialog(QDialog):
         layout63_2.addWidget(self.gamess_checkbox,0,0)
 
         self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
+        self.nanohive_checkbox.setEnabled(0)
 
         layout63_2.addWidget(self.nanohive_checkbox,1,0)
 
