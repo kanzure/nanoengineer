@@ -70,7 +70,7 @@ class Measurement(Jig):
             self.axis=norm(sum(guess))
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
         return
-            
+
     def move(self, offset):
         self.center += offset
     
@@ -86,6 +86,15 @@ class Measurement(Jig):
     def axen(self):
         return self.axis
 
+    # Set the properties for a Measure Distance jig read from a (MMP) file
+    def setProps(self, name, color, font_type, font_size, center):
+        self.name = name
+        self.color = color
+        self.font_type = font_type
+        self.font_size = font_size
+        self.center = center  # oops, one prop too many, wware 051101
+        self._initial_posns = None # Not sure if this is needed.  Mark
+   
 # Not sure if this is needed.  Ask Bruce.  Mark 051017
     def rematom(self, *args, **opts):
         self._initial_posns = None 
@@ -111,6 +120,14 @@ class Measurement(Jig):
             # assumes no posns are right on the axis! now we think they are on a unit circle perp to the axis...
         # posns are now projected to a plane perp to axis and centered on self.center, and turned into unit-length vectors.
         return posns # (note: in this implem, we did modify the mutable argument posns, but are returning a different object anyway.)
+
+    def mmp_record_jigspecific_midpart(self):
+        xyz = self.posn() * 1000
+        dataline = "\"%s\" %d (%d, %d, %d)" % \
+           (self.font_type, self.font_size,
+            int(xyz[0]), int(xyz[1]), int(xyz[2]))
+
+        return " " + dataline + "\n" + "shaft"
         
     pass # end of class Measurement
 
@@ -147,16 +164,6 @@ class MeasureDistance(Measurement):
         from JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
 
-    # Set the properties for a Measure Distance jig read from a (MMP) file
-    def setProps(self, name, color, font_type, font_size, center, axis):
-        self.name = name
-        self.color = color
-        self.font_type = font_type
-        self.font_size = font_size
-        self.center = center
-        self.axis = norm(axis)
-        self._initial_posns = None # Not sure if this is needed.  Mark
-   
     def _getinfo(self): 
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
                     "[Nuclei Distance = " + str(self.get_nuclei_distance()) + " ]" + \
@@ -204,13 +211,6 @@ class MeasureDistance(Measurement):
     # MMP RECORD NOT COMPLETELY DEFINED YET.  MARK 051030.
     # cleanup parts that don't work, til we get smarter.  wware 051031
     mmp_record_name = "mdistance"
-    def mmp_record_jigspecific_midpart(self):
-        xyz = self.posn() * 1000
-        dataline = "\"%s\" %d (%d, %d, %d)" % \
-           (self.font_type, self.font_size,
-            int(xyz[0]), int(xyz[1]), int(xyz[2]))
-
-        return " " + dataline + "\n" + "shaft"
     
     pass # end of class MeasureDistance
         
@@ -247,16 +247,6 @@ class MeasureAngle(Measurement):
         from JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
 
-    # Set the properties for a Measure Angle jig read from a (MMP) file
-    def setProps(self, name, color, font_type, font_size, center, axis):
-        self.name = name
-        self.color = color
-        self.font_type = font_type
-        self.font_size = font_size
-        self.center = center
-        self.axis = norm(axis)
-        self._initial_posns = None # Not sure if this is needed.  Mark
-   
     def _getinfo(self):   # add atom list, wware 051101
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
@@ -302,8 +292,6 @@ class MeasureAngle(Measurement):
     # Returns the jig-specific mmp data for the current Measure Angle jig as:
     # mangle font_size atom1 atom2 atom3 (???)
     mmp_record_name = "mangle"
-    def mmp_record_jigspecific_midpart(self):
-        return ""
     
     pass # end of class MeasureAngle
         
@@ -340,16 +328,6 @@ class MeasureDihedral(Measurement):
         from JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
 
-    # Set the properties for a Measure Dihedral jig read from a (MMP) file
-    def setProps(self, name, color, font_type, font_size, center, axis):
-        self.name = name
-        self.color = color
-        self.font_type = font_type
-        self.font_size = font_size
-        self.center = center
-        self.axis = norm(axis)
-        self._initial_posns = None # Not sure if this is needed.  Mark
-   
     def _getinfo(self):    # add atom list, wware 051101
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
@@ -402,8 +380,6 @@ class MeasureDihedral(Measurement):
     # Returns the jig-specific mmp data for the current Measure Dihedral jig as:
     # mdihedral font_size atom1 atom2 atom3 (???)
     mmp_record_name = "mdihedral"
-    def mmp_record_jigspecific_midpart(self):
-        return ""
     
     pass # end of class MeasureDihedral
         
