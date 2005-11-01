@@ -228,17 +228,20 @@ class MMKit(MMKitDialog):
             self.w.depositAtomDashboard.pasteRB.setOn(True)
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
+            self.browseButton.hide()
+            
         elif self.pageId == 0:  ## Element page
             self.w.pasteP = False
             self.w.depositAtomDashboard.atomRB.setOn(True)
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
+            self.browseButton.hide()
         
         elif self.pageId == 2:
             if self.rootDir:
                 self.elemGLPane.setDisplay(self.displayMode)
                 self._libPageView()
- 
+            self.browseButton.show()    
         self.elemGLPane.setFocus()
         
         
@@ -352,10 +355,11 @@ class MMKit(MMKitDialog):
         self.flayout.addWidget(self.elemGLPane,1)
         
         self.dirView = DirView(self.libraryPage)
+        libraryPageLayout = QVBoxLayout(self.libraryPage,11,6,"libraryPageLayout")
+        libraryPageLayout.addWidget(self.dirView)
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         libDir = os.path.normpath(filePath + '/../partlib')
-        #print "The root libray directory is: ", libDir
         
         if os.path.isdir(libDir):
             self.rootDir = Directory(self.dirView, libDir)
@@ -366,6 +370,20 @@ class MMKit(MMKitDialog):
             env.history.message(redmsg("No partlib exists."))
         
             
+    def browseDirectories(self):
+       fileDialog = QFileDialog(self, "Choose library directory", True)
+       fileDialog.setMode(QFileDialog.Directory)
+       if fileDialog.exec_loop() == QDialog.Accepted:
+           libDir = str(fileDialog.selectedFile())
+           if os.path.isdir(libDir):
+               #Clear any previous tree items before creating the new one
+               self.dirView.clear()
         
-        
+               self.rootDir = Directory(self.dirView, libDir)
+               self.rootDir.setOpen(True)
+            
+               #Refresh GL-thumbView display
+               self.newModel = None
+               self.elemGLPane.updateModel(self.newModel)
+            
         

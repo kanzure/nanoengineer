@@ -106,7 +106,8 @@ if __name__ == '__main__':
         meth()
 
     startup_funcs.pre_main_show(foo) # this sets foo's geometry, among other things
-
+    foo.startRun()
+    
     foo.show() # show the main window
 
     try:

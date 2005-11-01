@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>212</width>
-            <height>482</height>
+            <width>220</width>
+            <height>500</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -276,7 +276,7 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <grid>
+    <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -286,7 +286,7 @@
         <property name="spacing">
             <number>2</number>
         </property>
-        <widget class="QFrame" row="0" column="0">
+        <widget class="QFrame">
             <property name="name">
                 <cstring>elementFrame</cstring>
             </property>
@@ -317,7 +317,24 @@
                 <string>3D thumbnail view</string>
             </property>
         </widget>
-        <widget class="QTabWidget" row="1" column="0">
+        <spacer>
+            <property name="name">
+                <cstring>spacer4_2_3_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>16</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QTabWidget">
             <property name="name">
                 <cstring>tabWidget2</cstring>
             </property>
@@ -1134,7 +1151,7 @@
                 </attribute>
             </widget>
         </widget>
-        <spacer row="2" column="0">
+        <spacer>
             <property name="name">
                 <cstring>spacer4_2</cstring>
             </property>
@@ -1151,26 +1168,9 @@
                 </size>
             </property>
         </spacer>
-        <spacer row="4" column="0">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>spacer4_2_2</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Fixed</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>16</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLayoutWidget" row="3" column="0">
-            <property name="name">
-                <cstring>layout3</cstring>
+                <cstring>layout4</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -1178,21 +1178,43 @@
                 </property>
                 <spacer>
                     <property name="name">
-                        <cstring>spacer8</cstring>
+                        <cstring>spacer4_2_3_3</cstring>
                     </property>
                     <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
                     <property name="sizeType">
-                        <enum>Expanding</enum>
+                        <enum>Fixed</enum>
                     </property>
                     <property name="sizeHint">
                         <size>
-                            <width>20</width>
+                            <width>16</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>browseButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>Browse...</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Open file chooser dialog to select a new directory.</string>
+                    </property>
+                </widget>
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>closePTableButton</cstring>
@@ -1231,7 +1253,24 @@
                 </spacer>
             </hbox>
         </widget>
-    </grid>
+        <spacer>
+            <property name="name">
+                <cstring>spacer4_2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+    </vbox>
 </widget>
 <images>
     <image name="image0">
@@ -1275,6 +1314,12 @@
         <receiver>MMKitDialog</receiver>
         <slot>updatePastableItems()</slot>
     </connection>
+    <connection>
+        <sender>browseButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MMKitDialog</receiver>
+        <slot>browseDirectories()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>closePTableButton</tabstop>
@@ -1285,6 +1330,7 @@
     <slot>tabpageChanged(QWidget *)</slot>
     <slot>chunkChanged(QListBoxItem *)</slot>
     <slot>updatePastableItems()</slot>
+    <slot>browseDirectories()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

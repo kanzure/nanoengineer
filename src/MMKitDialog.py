@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Tue Sep 13 16:00:27 2005
+# Created: Mon Oct 31 11:36:28 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -101,15 +101,16 @@ class MMKitDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-        MMKitDialogLayout = QGridLayout(self,1,1,2,2,"MMKitDialogLayout")
+        MMKitDialogLayout = QVBoxLayout(self,2,2,"MMKitDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
         self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(200,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
-
-        MMKitDialogLayout.addWidget(self.elementFrame,0,0)
+        MMKitDialogLayout.addWidget(self.elementFrame)
+        spacer4_2_3_2 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        MMKitDialogLayout.addItem(spacer4_2_3_2)
 
         self.tabWidget2 = QTabWidget(self,"tabWidget2")
 
@@ -331,29 +332,32 @@ class MMKitDialog(QDialog):
 
         self.libraryPage = QWidget(self.tabWidget2,"libraryPage")
         self.tabWidget2.insertTab(self.libraryPage,QString.fromLatin1(""))
-
-        MMKitDialogLayout.addWidget(self.tabWidget2,1,0)
+        MMKitDialogLayout.addWidget(self.tabWidget2)
         spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
-        MMKitDialogLayout.addItem(spacer4_2,2,0)
-        spacer4_2_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
-        MMKitDialogLayout.addItem(spacer4_2_2,4,0)
+        MMKitDialogLayout.addItem(spacer4_2)
 
-        layout3 = QHBoxLayout(None,0,6,"layout3")
-        spacer8 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout3.addItem(spacer8)
+        layout4 = QHBoxLayout(None,0,6,"layout4")
+        spacer4_2_3_3 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        layout4.addItem(spacer4_2_3_3)
+
+        self.browseButton = QPushButton(self,"browseButton")
+        self.browseButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.browseButton.sizePolicy().hasHeightForWidth()))
+        self.browseButton.setDefault(1)
+        layout4.addWidget(self.browseButton)
 
         self.closePTableButton = QPushButton(self,"closePTableButton")
         self.closePTableButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
         self.closePTableButton.setDefault(1)
-        layout3.addWidget(self.closePTableButton)
+        layout4.addWidget(self.closePTableButton)
         spacer4_2_3 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
-        layout3.addItem(spacer4_2_3)
-
-        MMKitDialogLayout.addLayout(layout3,3,0)
+        layout4.addItem(spacer4_2_3)
+        MMKitDialogLayout.addLayout(layout4)
+        spacer4_2_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        MMKitDialogLayout.addItem(spacer4_2_2)
 
         self.languageChange()
 
-        self.resize(QSize(212,482).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(220,500).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
@@ -362,6 +366,7 @@ class MMKitDialog(QDialog):
         self.connect(self.tabWidget2,SIGNAL("currentChanged(QWidget*)"),self.tabpageChanged)
         self.connect(self.chunkListBox,SIGNAL("selectionChanged(QListBoxItem*)"),self.chunkChanged)
         self.connect(self.updateButton,SIGNAL("clicked()"),self.updatePastableItems)
+        self.connect(self.browseButton,SIGNAL("clicked()"),self.browseDirectories)
 
 
 
@@ -439,6 +444,8 @@ class MMKitDialog(QDialog):
         QToolTip.add(self.updateButton,self.__tr("Synchronize list with the Model Tree clipboard."))
         self.tabWidget2.changeTab(self.tab_2,self.__tr("Clipboard"))
         self.tabWidget2.changeTab(self.libraryPage,self.__tr("Library"))
+        self.browseButton.setText(self.__tr("Browse..."))
+        QToolTip.add(self.browseButton,self.__tr("Open file chooser dialog to select a new directory."))
         self.closePTableButton.setText(self.__tr("Close"))
 
 
@@ -456,6 +463,9 @@ class MMKitDialog(QDialog):
 
     def updatePastableItems(self):
         print "MMKitDialog.updatePastableItems(): Not implemented yet"
+
+    def browseDirectories(self):
+        print "MMKitDialog.browseDirectories(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MMKitDialog",s,c)

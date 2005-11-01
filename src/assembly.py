@@ -880,7 +880,7 @@ class assembly(GenericDiffTracker_API_Mixin):
     def writemmpfile(self, filename):
         from files_mmp import writemmpfile_assy
         writemmpfile_assy( self, filename, addshelf = True)
-
+    
     pass # end of class assembly
 
 # end

@@ -275,14 +275,20 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # be told to add new Jigs menu items, now or as they become available [bruce 050504]
         register_postinit_object( "Jigs menu items", self )
 
+        return # from MWsemantics.__init__
+
+
+    def startRun(self):
+        '''After the main window(its size and location) has been setup, begin to run the program from this method. 
+        [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method'''
+        
         self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
             # (no longer done in GLPane.__init__, which used a hardcoded default mode)
         
         self.win_update() # bruce 041222
 
         undo.just_before_mainwindow_init_returns()
-
-        return # from MWsemantics.__init__
+    
     
     def __getattr__(self, attr): #bruce 050913 report deprecated uses of win.history
         if attr == 'history':
@@ -419,8 +425,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def editPaste(self):
         if self.assy.shelf.members:
             env.history.message(greenmsg("Paste:"))
-            self.pasteP = True
             self.glpane.setMode('DEPOSIT')
+            global MMKitWin
+            if MMKitWin: MMKitWin.change2PastePage()
             
     # editDelete
     def killDo(self):
@@ -1071,26 +1078,34 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         elementSelectorWin.update_dialog(self.Element)
         elementSelectorWin.show()
 
-    def _findGoodLocation(self):
+    def _findGoodLocation(self, firstShow):
         '''Find ideal location for the MMKit. Should only be called after history, and MMKit
            has been created.'''
         global MMKitWin
         
-        hist_geometry = self.history_widget.frameGeometry()
-        hist_height = hist_geometry.height()
-        
-        ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()
-        #mmk_geometry = MMKitWin.frameGeometry()
-        mmk_height = 470#mmk_geometry.height()
-        
-        ## 26 is an estimate of the bottom toolbar height
-        toolbar_height = self.depositAtomDashboard.frameGeometry().height()
-        
-        status_bar_height = self.statusBar().frameGeometry().height()
-        
-        y = self.y() + self.geometry().height() - hist_height - mmk_height - toolbar_height - status_bar_height
+        if sys.platform == 'linux2': 
+            hist_height = 70
+            mmk_height = 559
+            toolbar_height = 25
+            status_bar_height = 29
+        else:
+            hist_geometry = self.history_widget.frameGeometry()
+            hist_height = hist_geometry.height()
+            
+            ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()
+            
+            mmk_geometry = MMKitWin.frameGeometry()
+            mmk_height = mmk_geometry.height()
+                        
+            ## 26 is an estimate of the bottom toolbar height
+            toolbar_height = self.depositAtomDashboard.frameGeometry().height()
+            
+            status_bar_height = self.statusBar().frameGeometry().height()
+            
+        y = self.geometry().y()-2 + self.geometry().height() - hist_height - mmk_height - toolbar_height - status_bar_height
+        if firstShow: y -= 10
         if y < 0: y = 0
-        x = self.x()
+        x = self.geometry().x()
         
         return x, y
         
@@ -1106,16 +1121,18 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # It's very important to add the following condition, so only a single instance
         # of the MMKit has been created and used. This is to fix bug 934, which is kind
         # of hard to find. [Huaicai 9/2/05]
-        if not MMKitWin: 
+        firstShow = False
+        if not MMKitWin:
+            firstShow = True
             MMKitWin = MMKit(self)
        
-        pos = self._findGoodLocation()
+        pos = self._findGoodLocation(firstShow)
         
-        ## On Linux, X11 has some problem for window location before it's shown. So a comprise way to do it, 
+        ## On Linux, X11 has some problem for window location before it's shown. So a compromised way to do it, 
         ## which will have the flash problem.
         MMKitWin.update_dialog(self.Element)
         
-        if sys.platform == 'linux2': 
+        if 0:#sys.platform == 'linux2': 
             MMKitWin.show()
             MMKitWin.move(pos[0], pos[1])
         else:

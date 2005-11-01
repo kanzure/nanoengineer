@@ -149,7 +149,9 @@ class Directory(QListViewItem):
     
     def __init__(self, parent, name=None):
         apply(QListViewItem.__init__,(self,parent, name))
-
+        
+        self.filterList = ('mmp', 'MMP')
+        
         if isinstance(parent, QListView):
             self.p = None
             if name:
@@ -200,6 +202,7 @@ class Directory(QListViewItem):
                             s = 'File'
                         else:
                             s = 'Special'
+                        if not fileName[-3:] in self.filterList: continue
                         d = FileItem(self, f.absFilePath(), fileName)
                         d.setPixmap(0, fileIcon)
     
@@ -229,20 +232,26 @@ class Directory(QListViewItem):
         ##    return 'Directory'
         ##else:
         ##    return 'Unreadable Directory'
-        
+    
+    def setFilter(self, filterList):
+        '''This is used to filter out file display in the QListView.
+           @param filterList is a list of file tyes like '.mmp' or '.MMP' etc. '''
+        self.filterList = filterList
 
 class DirView(QListView):
     def __init__(self, parent=None, name=None):
         QListView.__init__(self, parent, name) 
         global folderClosedIcon, folderLockedIcon, folderOpenIcon, fileIcon
-        
+
         folderClosedIcon = QPixmap(folder_closed_image)
         folderLockedIcon = QPixmap(folder_locked_image)
         folderOpenIcon = QPixmap(folder_open_image)
         fileIcon = QPixmap(pix_file_image)
 
         self.addColumn("Name")
-        self.setGeometry(QRect(7,-1,191,231))
+        #self.setGeometry(QRect(7,-1,191,231))
+        self.setMinimumSize(QSize(191,231))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setTreeStepSize(20)
         
         #self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
