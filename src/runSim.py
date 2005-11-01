@@ -1225,12 +1225,11 @@ class sim_aspect:
     def write_minimize_enabled_jigs(self, mapping):
         '''Writes any jig to the mmp file which has the attr "enable_minimize"=True
         '''
-        print "runSim.write_minimize_enabled_jigs(): CALLED"
-        
         from jigs import Jig
         def func_write_jigs(nn):
             if isinstance(nn, Jig) and nn.enable_minimize:
-                print nn.name, " written to minimize MMP file"
+                if debug_sim:
+                    print "The jig [", nn.name, "] was written to minimize MMP file.  It is enabled for minimize."
                 nn.writemmp(mapping)
             return # from func_write_jigs only
             
