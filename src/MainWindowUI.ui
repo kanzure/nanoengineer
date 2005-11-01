@@ -56,7 +56,6 @@
         <separator/>
         <action name="fileSaveAction"/>
         <action name="fileSaveAsAction"/>
-        <action name="fileSaveSelectionAction"/>
         <separator/>
         <action name="fileExitAction"/>
     </item>
@@ -153,7 +152,6 @@
         <action name="jigsThermoAction"/>
         <action name="jigsGamessAction"/>
         <action name="jigsGridPlaneAction"/>
-        <action name="jigsESPWindowAction"/>
         <action name="jigAtomSetAction"/>
         <action name="jigsDistanceAction"/>
         <action name="jigsAngleAction"/>

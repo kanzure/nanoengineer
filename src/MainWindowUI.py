@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Tue Nov 1 09:07:38 2005
+# Created: Tue Nov 1 13:24:28 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7065,7 +7065,6 @@ class MainWindow(QMainWindow):
         self.fileMenu.insertSeparator()
         self.fileSaveAction.addTo(self.fileMenu)
         self.fileSaveAsAction.addTo(self.fileMenu)
-        self.fileSaveSelectionAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.MenuBar.insertItem(QString(""),self.fileMenu,4)
@@ -7169,7 +7168,6 @@ class MainWindow(QMainWindow):
         self.jigsThermoAction.addTo(self.jigsMenu)
         self.jigsGamessAction.addTo(self.jigsMenu)
         self.jigsGridPlaneAction.addTo(self.jigsMenu)
-        self.jigsESPWindowAction.addTo(self.jigsMenu)
         self.jigAtomSetAction.addTo(self.jigsMenu)
         self.jigsDistanceAction.addTo(self.jigsMenu)
         self.jigsAngleAction.addTo(self.jigsMenu)
