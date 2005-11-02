@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Wed Nov 2 12:23:02 2005
+# Created: Wed Nov 2 14:23:43 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,14 +44,18 @@ class NanotubeGeneratorDialog(QDialog):
         self.textEdit3 = QTextEdit(self,"textEdit3")
         self.textEdit3.setGeometry(QRect(130,70,100,20))
 
+        self.pushButton1 = QPushButton(self,"pushButton1")
+        self.pushButton1.setGeometry(QRect(60,100,130,30))
+
         self.languageChange()
 
-        self.resize(QSize(299,110).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(299,136).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.textEdit1,SIGNAL("textChanged()"),self.setN)
         self.connect(self.textEdit2,SIGNAL("textChanged()"),self.setM)
         self.connect(self.textEdit3,SIGNAL("textChanged()"),self.setLength)
+        self.connect(self.pushButton1,SIGNAL("pressed()"),self.generateTube)
 
 
     def languageChange(self):
@@ -60,6 +64,7 @@ class NanotubeGeneratorDialog(QDialog):
         self.textLabel2.setText(self.__tr("Chirality     N"))
         self.textLabel3.setText(self.__tr("M"))
         self.textLabel4.setText(self.__tr("Length (nanometers)"))
+        self.pushButton1.setText(self.__tr("Generate nanotube"))
 
 
     def setN(self):
@@ -70,6 +75,9 @@ class NanotubeGeneratorDialog(QDialog):
 
     def setLength(self):
         print "NanotubeGeneratorDialog.setLength(): Not implemented yet"
+
+    def generateTube(self):
+        print "NanotubeGeneratorDialog.generateTube(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("NanotubeGeneratorDialog",s,c)

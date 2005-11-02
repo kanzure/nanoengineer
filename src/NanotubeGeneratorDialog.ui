@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>299</width>
-            <height>110</height>
+            <height>136</height>
         </rect>
     </property>
     <property name="caption">
@@ -123,6 +123,22 @@
             </rect>
         </property>
     </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>pushButton1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>60</x>
+                <y>100</y>
+                <width>130</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Generate nanotube</string>
+        </property>
+    </widget>
 </widget>
 <connections>
     <connection>
@@ -143,11 +159,18 @@
         <receiver>NanotubeGeneratorDialog</receiver>
         <slot>setLength()</slot>
     </connection>
+    <connection>
+        <sender>pushButton1</sender>
+        <signal>pressed()</signal>
+        <receiver>NanotubeGeneratorDialog</receiver>
+        <slot>generateTube()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>setN()</slot>
     <slot>setM()</slot>
     <slot>setLength()</slot>
+    <slot>generateTube()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
