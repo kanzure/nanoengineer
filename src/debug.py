@@ -122,6 +122,20 @@ else:
     def privateMethod(friends=None):
         return
 
+def raiseExceptionAndBrowseStack():
+    "IDLE has a cool stack browser that can be used to examine globals."
+    # wware 051102
+    from idlelib.StackViewer import StackBrowser
+    try:
+        raise Exception
+    except:
+        sys.last_type, sys.last_value, sys.last_traceback = sys.exc_info()
+    from Tkinter import Tk
+    root = Tk()
+    StackBrowser(None, top=root)
+    root.mainloop()
+
+
 # ==
 
 # the following are needed to comply with our Qt/PyQt license agreements.
@@ -173,6 +187,7 @@ def exec_allowed():
 # traceback
 
 def print_compact_traceback(msg = "exception ignored: "):
+    raise
     print >> sys.__stderr__, msg + compact_traceback()
 
 def compact_traceback():
