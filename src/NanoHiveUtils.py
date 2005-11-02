@@ -156,6 +156,7 @@ def validate_nh_program(parent):
         msg = nanohive_exe + " does not exist.\n"
         
     # Nano-Hive Dialog is the parent for messagebox and file chooser.
+    from qt import QMessageBox
     ret = QMessageBox.warning( parent, "Nano-Hive Executable Path",
         msg + "Please select OK to set the location of Nano-Hive for this computer.",
         "&OK", "Cancel", None,
