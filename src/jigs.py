@@ -323,18 +323,20 @@ class Jig(Node):
         # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Window, which is none.
         if mapping is not None:
             ndix = mapping.atnums
+            minflag = mapping.min # writing this record for Minimize? [bruce 051031]
         else:
             ndix = None
-        nums = self.atnums_or_None( ndix)
-        del ndix
+            minflag = False
+        nums = self.atnums_or_None( ndix, return_partial_list = minflag )
         
         return " " + " ".join(map(str,nums))
         
 
-    def mmp_record(self, mapping = None):
+    def mmp_record(self, mapping = None): 
         #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
         #e could factor some code from here into mapping methods
         #bruce 050718 made this check for mapping is not None (2 places), as a bugfix in __repr__
+        #bruce 051031 revised forward ref code, used mapping.min
         """Returns a pair (line, wroteleaf)
         where line is the standard MMP record for any jig
         (one string containing one or more lines including their \ns):
@@ -356,14 +358,37 @@ class Jig(Node):
         """
         if mapping is not None:
             ndix = mapping.atnums				           
-            name = mapping.encode_name(self.name) #bruce 050729 help fix some
+            name = mapping.encode_name(self.name)
+            # flags related to what we can do about atoms on this jig which have no encoding in mapping
+            permit_fwd_ref = not mapping.min #bruce 051031 (kluge, mapping should say this more directly)
+            permit_missing_jig_atoms = mapping.min #bruce 051031 (ditto on kluge)
+            assert not (permit_fwd_ref and permit_missing_jig_atoms) # otherwise wouldn't know which one to do with missing atoms!
         else:
             ndix = None	
             name = self.name
-        nums = self.atnums_or_None( ndix)
+            permit_fwd_ref = False #bruce 051031
+            permit_missing_jig_atoms = False # guess [bruce 051031]
+
+        want_fwd_ref = False # might be modified below
+        if mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file() and self.is_disabled():
+            # forward ref needed due to self being disabled
+            if permit_fwd_ref:
+                want_fwd_ref = True
+            else:
+                return "# disabled jig skipped for minimize\n", False
+        else:
+            # see if forward ref needed due to not all atoms being written yet
+            if permit_fwd_ref: # assume this means that missing atoms should result in a forward ref
+                nums = self.atnums_or_None( ndix)
+                    # nums is used only to see if all atoms have yet been written, so we never pass return_partial_list flag to it
+                want_fwd_ref = (nums is None)
+                del nums
+            else:
+                pass # just let missing atoms not get written
         del ndix
         
-        if nums is None or (self.is_disabled() and mapping is not None and mapping.not_yet_past_where_sim_stops_reading_the_file()):
+        if want_fwd_ref:
+            assert mapping # implied by above code
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
             # This means figuring out when to write us... and rather than ask atnums_or_None for more help on that,
             # we use a variant of the code that used to actually move us before writing the file (since that's easiest for now).
@@ -380,8 +405,12 @@ class Jig(Node):
         
         frontpart = self._mmp_record_front_part(mapping)
         midpart = self.mmp_record_jigspecific_midpart()
-        lastpart = self._mmp_record_last_part(mapping)
-       
+        lastpart = self._mmp_record_last_part(mapping) # note: this also calls atnums_or_None
+
+        if lastpart == " ": # kluge! should return a flag instead [bruce 051102 for "enable minimize"]
+            # this happens during "minimize selection" if a jig is enabled for minimize but none of its atoms are being minimized.
+            return "# jig with no selected atoms skipped for minimize\n", False
+        
         return frontpart + midpart + lastpart + "\n" , True
 
 
@@ -396,24 +425,31 @@ class Jig(Node):
 
     # Added "return_partial_list" after a discussion with Bruce about enable minimize jigs.
     # This would allow a partial atom list to be returned.
-    # Mark 051006.
-    # def atnums_or_None(self, ndix, return_partial_list=False): 
-    def atnums_or_None(self, ndix):
+    # [Mark 051006 defined return_partial_list API; bruce 051031 revised docstring and added implem,
+    #  here and in one subclass.]
+    def atnums_or_None(self, ndix, return_partial_list = False):
         """Return list of atnums to write, as ints(??) (using ndix to encode them),
-        or None if some atoms were not yet written to the file.
-        (If ndix not supplied, as when we're called by __repr__, use atom keys for atnums.)
+        or None if some atoms were not yet written to the file and return_partial_list is False.
+        (If return_partial_list is True, then missing atoms are just left out of the returned list.
+        Callers should check whether the resulting list is [] if that matters.)
+        (If ndix not supplied, as when we're called by __repr__, use atom keys for atnums;
+        return_partial_list doesn't matter in this case since all atoms have keys.)
         [Jig method; overridden by some subclasses]
         """
-        if ndix:
-            try:
-                nums = map((lambda a: ndix[a.key]), self.atoms)
-            except KeyError: # assume this is from ndix not containing a.key
-                # too soon to write this jig -- would require forward ref to an atom, which mmp format doesn't support
-                return None
-        else:
-            nums = map((lambda a: a.key), self.atoms)
-        return nums
-
+        res = []
+        for atm in self.atoms:
+            key = atm.key
+            if ndix:
+                code = ndix.get(key, None) # None means don't add it, and sometimes also means return early
+                if code is None and not return_partial_list:
+                    # typical situation (as we're called as of 051031):
+                    # too soon to write this jig -- would require forward ref to an atom, which mmp format doesn't support
+                    return None
+                if code is not None:
+                    res.append(code)
+            else:
+                res.append(key)
+        return res
 
     def __repr__(self): #bruce 050322 compatibility method, probably not needed, but affects debugging
         try:
@@ -615,7 +651,7 @@ class Jig_onChunk_by1atom( Jig ):
         super = Jig
         super.setAtoms(self, atomlist)
         
-    def atnums_or_None(self, ndix):
+    def atnums_or_None(self, ndix, return_partial_list = False): #bruce 051031 added return_partial_list implem
         """return list of atnums to write, or None if some atoms not yet written
         [overrides Jig method]
         """
@@ -630,8 +666,10 @@ class Jig_onChunk_by1atom( Jig ):
                 nums = map((lambda ak: ndix[ak]), atomkeys)
             except KeyError:
                 # too soon to write this jig -- would require forward ref to an atom, which mmp format doesn't support
+                if return_partial_list:
+                    return [] # kluge; should be safe since chunk atoms are written all at once [bruce 051031]
                 return None
-            nums = [min(nums), max(nums), nums[0]]
+            nums = [min(nums), max(nums), nums[0]] # assumes ndix contains numbers, not number-strings [bruce 051031 comment]
         else:
             # for __repr__ -- in this case include only our defining atom, and return key rather than atnum
             nums = map((lambda a: a.key), self.atoms)

@@ -1184,6 +1184,7 @@ class sim_aspect:
         mapping = writemmp_mapping(assy, min = True)
             #e rename min option? (for minimize; implies sim as well;
             #   affects mapping attrnames in chem.py atom.writemmp)
+            #bruce 051031 comment: it seems wrong that this class assumes min = True (rather than being told this in __init__). #####@@@@@
         mapping.set_fp(fp)    
         # note that this mmp file doesn't need any grouping or chunking info at all.
         try:
@@ -1193,6 +1194,8 @@ class sim_aspect:
             self.write_grounds(mapping)
             self.write_minimize_enabled_jigs(mapping)
             mapping.write("end mmp file for Minimize Selection (" + assy.name + ")\n") # sim & cad both ignore text after 'end'
+            #bruce 051031 comment: if this code is now also used for Minimize All, then the above comment is wrong;
+            # if not, then the implem of enable_minimize herein won't be sufficient. #####@@@@@ 
         except:
             mapping.close(error = True)
             raise
@@ -1221,13 +1224,15 @@ class sim_aspect:
                 print "debug_sim: wrote %r" % (line,)           
         return
         
-# write_minimize_enabled_jigs added.  Mark 051006.
-    def write_minimize_enabled_jigs(self, mapping):
+    def write_minimize_enabled_jigs(self, mapping): # Mark 051006
         '''Writes any jig to the mmp file which has the attr "enable_minimize"=True
         '''
+        assert mapping.min #bruce 051031; detected by writemmp call, below; this scheme is a slight kluge
+        
         from jigs import Jig
         def func_write_jigs(nn):
             if isinstance(nn, Jig) and nn.enable_minimize:
+                #bruce 051031 comment: should we exclude the ones written by write_grounds?? doesn't matter for now. ####@@@@
                 if debug_sim:
                     print "The jig [", nn.name, "] was written to minimize MMP file.  It is enabled for minimize."
                 nn.writemmp(mapping)
