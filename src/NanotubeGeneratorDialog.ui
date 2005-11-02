@@ -1,0 +1,153 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>NanotubeGeneratorDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>NanotubeGeneratorDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>299</width>
+            <height>110</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>170</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <pointsize>16</pointsize>
+            </font>
+        </property>
+        <property name="text">
+            <string>Nanotube Generator</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>40</y>
+                <width>70</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Chirality     N</string>
+        </property>
+    </widget>
+    <widget class="QTextEdit">
+        <property name="name">
+            <cstring>textEdit1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>90</x>
+                <y>40</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>170</x>
+                <y>40</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>M</string>
+        </property>
+    </widget>
+    <widget class="QTextEdit">
+        <property name="name">
+            <cstring>textEdit2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>200</x>
+                <y>40</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>70</y>
+                <width>120</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Length (nanometers)</string>
+        </property>
+    </widget>
+    <widget class="QTextEdit">
+        <property name="name">
+            <cstring>textEdit3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>130</x>
+                <y>70</y>
+                <width>100</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>textEdit1</sender>
+        <signal>textChanged()</signal>
+        <receiver>NanotubeGeneratorDialog</receiver>
+        <slot>setN()</slot>
+    </connection>
+    <connection>
+        <sender>textEdit2</sender>
+        <signal>textChanged()</signal>
+        <receiver>NanotubeGeneratorDialog</receiver>
+        <slot>setM()</slot>
+    </connection>
+    <connection>
+        <sender>textEdit3</sender>
+        <signal>textChanged()</signal>
+        <receiver>NanotubeGeneratorDialog</receiver>
+        <slot>setLength()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>setN()</slot>
+    <slot>setM()</slot>
+    <slot>setLength()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
