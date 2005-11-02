@@ -1136,7 +1136,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         ## which will have the flash problem.
         MMKitWin.update_dialog(self.Element)
         
-        if 0:#sys.platform == 'linux2': 
+        if sys.platform == 'linux2': 
             MMKitWin.show()
             MMKitWin.move(pos[0], pos[1])
         else:
