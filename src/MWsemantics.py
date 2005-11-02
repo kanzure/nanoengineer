@@ -961,7 +961,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def toolsBuildAtoms(self):
         self.pasteP = False
         self.glpane.setMode('DEPOSIT')
-        
+
     # get into cookiecutter mode
     def toolsCookieCut(self):
         self.glpane.setMode('COOKIE')
@@ -1022,6 +1022,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         from ServerManager import ServerManager
         ServerManager().showDialog()
         
+    def startNanotubeGenerator(self):
+        from NanotubeGenerator import NanotubeGenerator
+	NanotubeGenerator().show()
+
     #### Movie Player Dashboard Slots ############
 
     #bruce 050413 moved code for movie player dashboard slots into movieMode.py

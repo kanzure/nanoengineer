@@ -12,6 +12,7 @@ __author__ = "Will"
 
 from qt import *
 from NanotubeGeneratorDialog import *
+from math import *
 
 sqrt3 = 3 ** 0.5
 
@@ -79,12 +80,12 @@ class Chirality:
 
     def populate(self, mol, length):
         for n in range(self.n):
-            mmin, mmax = chirality.mlimits(-.5 * length, .5 * length, n)
+            mmin, mmax = self.mlimits(-.5 * length, .5 * length, n)
             for m in range(mmin-1, mmax+1):
-                x, y, z = chirality.xyz(n, m)
+                x, y, z = self.xyz(n, m)
                 if -.5 * length <= y <= .5 * length:
                     mol.add("C", x, y, z)
-                x, y, z = chirality.xyz(n+1./3, m+1./3)
+                x, y, z = self.xyz(n+1./3, m+1./3)
                 if -.5 * length <= y <= .5 * length:
                     mol.add("C", x, y, z)
         mol.makeBonds(self.BONDLENGTH * 1.2)
@@ -165,7 +166,7 @@ mol (Nanotube.1) def
                         int(1000*a.x), int(1000*a.y), int(1000*a.z)))
             outf.write("info atom atomtype = %s\n" % a.hybridization)
             if a.element == "C":
-                r = "bonda"
+                r = "bondg"
             elif a.element in ("O", "H"):
                 r = "bond1"
             else:
@@ -189,28 +190,29 @@ end molecular machine part Untitled
 
 
 class NanotubeGenerator(NanotubeGeneratorDialog):
-    def __init__(self, chunk):
-        NanotubeGeneratorDialog.__init__(self)
 
     def generateTube(self):
         if hasattr(self, "n") and hasattr(self, "m") and hasattr(self, "length"):
             chirality = Chirality(self.n, self.m)
             M = Molecule()
             chirality.populate(M, self.length)
-            M.passivate()
+            #M.passivate()
             # BIG KLUDGE, JUST FOR TESTING! I don't yet know how to create
             # this as a chunk, so for now, just write an MMP file somewhere
             # harmless.
             M.mmp("/tmp/foo.mmp")
 
     def setN(self):
-        self.n = string.atoi(self.textEdit1.getText())
+        import string
+        self.n = string.atoi(str(self.textEdit1.text()))
 
     def setM(self):
-        self.m = string.atoi(self.textEdit2.getText())
+        import string
+        self.m = string.atoi(str(self.textEdit1.text()))
 
     def setLength(self):
-        self.length = string.atof(self.textEdit3.getText())
+        import string
+        self.length = string.atof(str(self.textEdit1.text()))
 
 
 """
@@ -228,4 +230,30 @@ with).  There'll be no complaints from the nanotube community who,
 like I said, don't typically think about any other atom types but C
 and H (and H only when necessary).
 
+-----------------------------
+Bruce's notes:
+
+All the C atoms should be sp2, I think, whether or not connected to H.
+
+You also have to independently set the bond types of the bonds.
+You can use set_v6 and the named constants like V_GRAPHITIC.
+Or there's a method whose name I forget which would take the string
+"graphitic" as an arg. BTW the constants might be called "graphite"
+rather than "graphitic". Maybe we should rename them.
+
+Most bonds in the nanotube should be set to "graphitic".
+
+For the bonds at the ends, it's up to you whether/how to make them
+1, 2, or g to fix valence errors.
+
+There is no guarantee this is possible -- if you terminate with H,
+it won't always be possible. The best compromise is bond type 1
+for C-H, g for C-C, and ignore the valence errors.
+
+But for using the nanotube for further construction it's more useful
+to terminate with open bonds (element X or 0) than with H.
+Then the bond types can all be g -- no valence errors.
+(And all C atoms should be sp2.)
+
+Maybe a checkbox for this is called for.
 """
