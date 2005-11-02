@@ -646,8 +646,14 @@ class Movie:
         # Continue playing movie.
         if self.playDirection == FWD:
             self._playToFrame(self.totalFramesActual)
+            # If the pause button was pressed by the user, then this condition is True.
+            if self.currentFrame != self.totalFramesActual:
+                return
         else:
             self._playToFrame(0)
+            # If the pause button was pressed by the user, then this condition is True.
+            if self.currentFrame != 0:
+                return
         
         # If "Loop" is checked, continue playing until user hits pause.  Mark 051101.
         while self.win.movieLoop_checkbox.isChecked():
