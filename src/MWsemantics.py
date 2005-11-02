@@ -80,7 +80,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     initialised = 0 #bruce 041222
 
     # This is the location of the separator that gets inserted in the File menu above "Recent Files".
-    RECENT_FILES_MENU_INDEX = 11  
+    RECENT_FILES_MENU_INDEX = 10 
 
     def __init__(self, parent = None, name = None):
     

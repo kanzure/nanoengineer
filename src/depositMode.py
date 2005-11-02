@@ -1126,7 +1126,11 @@ class depositMode(basicMode):
         
         # Possible pastable part and its anchor point [Huaicai 8/26/05]
         newAssy, anchorAtom = self.modellingKit.getPastablePart()
-            
+        if not newAssy:
+            if not self.w.depositAtomDashboard.pasteRB.isOn() and not self.w.depositAtomDashboard.atomRB.isOn(): #Not in library page
+                env.history.message("There is nothing selected to paste.")
+                return
+        
         if a: # if some atom (not bond) was "lit up"
             ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
             if a.element is Singlet:
@@ -1137,6 +1141,9 @@ class depositMode(basicMode):
                 elif newAssy and not anchorAtom:
                     env.history.message("The part you want to paste has either no open bonds " \
                                         "or has open bonds but none of them is set as a hotspot.")
+                elif not self.w.depositAtomDashboard.pasteRB.isOn() and not self.w.depositAtomDashboard.atomRB.isOn(): #Not in library page
+                    env.history.message("There is nothing selected to paste.")
+                    
                 elif self.w.pasteP:
                     # user wants to paste something
                     if self.pastable:

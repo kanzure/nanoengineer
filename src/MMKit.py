@@ -241,7 +241,13 @@ class MMKit(MMKitDialog):
             if self.rootDir:
                 self.elemGLPane.setDisplay(self.displayMode)
                 self._libPageView()
-            self.browseButton.show()    
+            self.browseButton.show()
+            
+            #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
+            #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
+            self.w.depositAtomDashboard.pasteRB.setOn(False)
+            self.w.depositAtomDashboard.atomRB.setOn(False)
+            
         self.elemGLPane.setFocus()
         
         
@@ -361,21 +367,35 @@ class MMKit(MMKitDialog):
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         libDir = os.path.normpath(filePath + '/../partlib')
         
+        self.libPathKey = '/nanorex/nE-1/libraryPath'
+        libDir = env.prefs.get(self.libPathKey, libDir)
+        
         if os.path.isdir(libDir):
             self.rootDir = Directory(self.dirView, libDir)
             self.rootDir.setOpen(True)
         else:
             self.rootDir = None
             from HistoryWidget import redmsg
-            env.history.message(redmsg("No partlib exists."))
+            env.history.message(redmsg("The part library directory: %s doesn't exists." %libDir))
         
             
     def browseDirectories(self):
-       fileDialog = QFileDialog(self, "Choose library directory", True)
-       fileDialog.setMode(QFileDialog.Directory)
-       if fileDialog.exec_loop() == QDialog.Accepted:
-           libDir = str(fileDialog.selectedFile())
+       '''Slot method for the browse button of library page. '''
+       from constants import globalParms
+       # Determine what directory to open.
+       if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
+       else: odir = globalParms['WorkingDirectory']
+        
+       fdir = QFileDialog.getExistingDirectory(odir, self, "Choose directory", "Choose library directory", True)
+       libDir = str(fdir)
+       #fileDialog = QFileDialog(self, "Choose library directory", True)
+       #fileDialog.setCaption("Choose library directory")
+       #fileDialog.setMode(QFileDialog.Directory)
+       if libDir:#fileDialog.exec_loop() == QDialog.Accepted:
+           #libDir = str(fileDialog.selectedFile())
            if os.path.isdir(libDir):
+               env.prefs[self.libPathKey] = libDir
+               
                #Clear any previous tree items before creating the new one
                self.dirView.clear()
         
