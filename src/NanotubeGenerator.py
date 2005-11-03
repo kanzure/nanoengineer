@@ -10,9 +10,11 @@ for notes about what's going on here.
 
 __author__ = "Will"
 
-from qt import *
-from NanotubeGeneratorDialog import *
-from math import *
+from NanotubeGeneratorDialog import NanotubeGeneratorDialog
+from math import atan2, sin, cos, pi
+import assembly, chem, bonds, Utility
+from MWsemantics import windowList  # Rearchitecture: fix this mess
+from chem import molecule, Atom
 
 sqrt3 = 3 ** 0.5
 
@@ -78,129 +80,41 @@ class Chirality:
         z3 = R * cos(x2/R)
         return (x3, y2, z3)
 
-    def populate(self, mol, length):
+    def populate(self, mol, length, posns):
+        def add(element, x, y, z, mol=mol):
+            atm = Atom(element, chem.V(x, y, z), mol)
+            atm.set_atomtype("sp2")
+            posns.append((x, y, z))
         for n in range(self.n):
             mmin, mmax = self.mlimits(-.5 * length, .5 * length, n)
             for m in range(mmin-1, mmax+1):
                 x, y, z = self.xyz(n, m)
                 if -.5 * length <= y <= .5 * length:
-                    mol.add("C", x, y, z)
+                    add("C", x, y, z)
                 x, y, z = self.xyz(n+1./3, m+1./3)
                 if -.5 * length <= y <= .5 * length:
-                    mol.add("C", x, y, z)
-        mol.makeBonds(self.BONDLENGTH * 1.2)
-
-class Molecule:
-    def __init__(self):
-        self.atoms = [ ]
-    def add(self, elt, x, y, z):
-        class Atom:
-            pass
-        a = Atom()
-        a.element = elt
-        a.hybridization = "sp2"
-        a.x, a.y, a.z = x, y, z
-        self.atoms.append(a)
-    def bondsForAtom(self, atomIndex):
-        # atomIndex goes from 1..N, not 0..N-1
-        lst = [ ]
-        for k in range(len(self.bonds)):
-            i, j = self.bonds[k]
-            if i == atomIndex or j == atomIndex:
-                lst.append(k)
-        return lst
-    def passivate(self):
-        for k in range(len(self.atoms)):
-            lst = self.bondsForAtom(k + 1)
-            if len(lst) == 2:
-                self.atoms[k].element = "O"
-                self.atoms[k].hybridization = "sp3"
-            elif len(lst) == 1:
-                self.atoms[k].element = "H"
-                self.atoms[k].hybridization = "sp3"
-        # If a carbon is bonded to two oxygens, make it sp3.
-        for k in range(len(self.atoms)):
-            a = self.atoms[k]
-            if a.element == "C":
-                numox = 0
-                for j in self.bondsForAtom(k + 1):
-                    b = self.bonds[j]
-                    if b[0] == k+1 and self.atoms[b[1]-1].element == "O":
-                        numox += 1
-                    elif b[1] == k+1 and self.atoms[b[0]-1].element == "O":
-                        numox += 1
-                if numox == 2:
-                    a.hybridization = "sp3"
-    def makeBonds(self, maxlen):
-        self.bonds = [ ]
-        n = len(self.atoms)
-        for i in range(n):
-            a = self.atoms[i]
-            ax, ay, az = a.x, a.y, a.z
-            for j in range(i+1,n):
-                b = self.atoms[j]
-                dist = ((ax - b.x) ** 2 +
-                        (ay - b.y) ** 2 +
-                        (az - b.z) ** 2) ** .5
-                if dist <= maxlen:
-                    self.bonds.append((i+1, j+1))
-    def mmp(self, filename=None):
-        if filename != None:
-            outf = open(filename, "w")
-        else:
-            outf = sys.stdout
-        outf.write("""mmpformat 050920 required
-kelvin 300
-group (View Data)
-info opengroup open = False
-egroup (View Data)
-group (Untitled)
-info opengroup open = True
-mol (Nanotube.1) def
-""")
-        for i in range(len(self.atoms)):
-            a = self.atoms[i]
-            enum = {"C": 6, "O": 8, "H": 1}[a.element]
-            outf.write("atom %d (%d) (%d, %d, %d) vdw\n" %
-                       (i+1, enum,
-                        int(1000*a.x), int(1000*a.y), int(1000*a.z)))
-            outf.write("info atom atomtype = %s\n" % a.hybridization)
-            if a.element == "C":
-                r = "bondg"
-            elif a.element in ("O", "H"):
-                r = "bond1"
-            else:
-                raise Exception, "unknown element"
-            bondlist = self.bondsForAtom(i+1)
-            for k in bondlist:
-                a1, a2 = self.bonds[k]
-                if a2 < i+1:
-                    r += " " + repr(a2)
-                elif a1 < i+1:
-                    r += " " + repr(a1)
-            outf.write(r + "\n")
-        outf.write("""egroup (Untitled)
-end1
-group (Clipboard)
-info opengroup open = False
-egroup (Clipboard)
-end molecular machine part Untitled
-""")
-        outf.close()
-
+                    add("C", x, y, z)
 
 class NanotubeGenerator(NanotubeGeneratorDialog):
 
+    def __init__(self):
+        NanotubeGeneratorDialog.__init__(self)
+        self.win = win = windowList[0]  # Rearchitecture: fix this mess
+        self.mol = molecule(win.assy, chem.gensym("Nanotube."))
+
+    # These four methods are needed to implement the GUI semantics.
+
     def generateTube(self):
-        if hasattr(self, "n") and hasattr(self, "m") and hasattr(self, "length"):
-            chirality = Chirality(self.n, self.m)
-            M = Molecule()
-            chirality.populate(M, self.length)
-            #M.passivate()
-            # BIG KLUDGE, JUST FOR TESTING! I don't yet know how to create
-            # this as a chunk, so for now, just write an MMP file somewhere
-            # harmless.
-            M.mmp("/tmp/foo.mmp")
+        try:
+            self.n
+            self.m
+            self.length
+        except AttributeError:
+            self.textLabel1.setText("Please specify n, m, length")
+            return
+        self.chirality = Chirality(self.n, self.m)
+        self.buildChunk()
+        self.close()
 
     def setN(self):
         import string
@@ -208,11 +122,57 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
 
     def setM(self):
         import string
-        self.m = string.atoi(str(self.textEdit1.text()))
+        self.m = string.atoi(str(self.textEdit2.text()))
 
     def setLength(self):
         import string
-        self.length = string.atof(str(self.textEdit1.text()))
+        self.length = string.atof(str(self.textEdit3.text()))
+
+    def buildChunk(self):
+        length = self.length
+        maxLen = 1.2 * Chirality.BONDLENGTH
+        maxLenSq = maxLen ** 2
+        positions = [ ]
+        # populate the tube with some extra carbons on the ends
+        # so that we can trim them later
+        self.chirality.populate(self.mol, length + 3 * maxLen, positions)
+
+        # kill all the singlets
+        for a in self.mol.atoms.keys():
+            if self.mol.atoms[a].is_singlet():
+                self.mol.atoms[a].kill()
+
+        # make a list of positions close enough to be bonded
+        bondList = [ ]
+        N = len(positions)
+        atoms = self.mol.atoms
+        akeys = atoms.keys()
+        for i in range(N):
+            x1, y1, z1 = positions[i]
+            for j in range(i+1, N):
+                x2, y2, z2 = positions[j]
+                # try to keep this test as quick as possible by
+                # disqualifying candidates as early as possible
+                dx2 = (x1 - x2) ** 2
+                if dx2 < maxLenSq:
+                    dy2 = (y1 - y2) ** 2
+                    if dy2 < maxLenSq:
+                        dz2 = (z1 - z2) ** 2
+                        if dz2 < maxLenSq:
+                            if (dx2 + dy2 + dz2) < maxLenSq:
+                                a = atoms[akeys[i]]
+                                b = atoms[akeys[j]]
+                                bonds.bond_atoms(a, b, bonds.V_GRAPHITE)
+
+        # trim all the carbons that fall outside our desired length
+        for a in self.mol.atoms.keys():
+            y = self.mol.atoms[a].posn()[1]
+            if y > .5 * length or y < -.5 * length:
+                self.mol.atoms[a].kill()
+        part = self.win.assy.part
+        part.ensure_toplevel_group()
+        part.topnode.addchild(self.mol)
+        self.win.mt.mt_update()
 
 
 """
