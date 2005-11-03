@@ -107,8 +107,8 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 051102 preferred'
-    #bruce modified this to indicate required & ideal reader versions... see general notes above.
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 051103 preferred'
+#bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
 from VQT import *
