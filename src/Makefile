@@ -84,7 +84,7 @@ install: simulator
 	mv simulator $(EXE_DIRECTORY) 
 
 clean:
-	rm -f simulator moldisp molsim physeng
+	rm -f simulator moldisp molsim physeng glviewer
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
 	rm -f tests/minimize/*.altout
