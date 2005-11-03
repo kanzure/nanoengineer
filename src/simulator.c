@@ -166,6 +166,53 @@ char *baseFilename;
 // for writing the differential position and trace files
 FILE *outf, *tracef;
 
+#define TESTATOM 1
+//#define SHOWFORCE
+int testFrameNumber;
+void
+writeDumbAtomPosition(struct xyz *positions, int i)
+{
+    fprintf(outf, "s %f %f %f 40 1 0 0\n",
+            positions[i].x - positions[TESTATOM].x,
+            positions[i].y - positions[TESTATOM].y,
+            positions[i].z - positions[TESTATOM].z);
+}
+
+static float forceColors[7][3] = {
+    { 1.0, 1.0, 1.0 }, // white
+    { 1.0, 0.0, 0.0 }, // red
+    { 0.0, 1.0, 0.0 }, // green
+    { 0.0, 0.0, 1.0 }, // blue
+    { 0.0, 1.0, 1.0 }, // cyan
+    { 1.0, 0.0, 1.0 }, // magenta
+    { 1.0, 1.0, 0.0 }  // yellow
+};
+
+void
+writeDumbForceVector(struct xyz *positions, int i, struct xyz *force, int color)
+{
+    double fSquared;
+    struct xyz f;
+    
+    if (!atom[i].inJig) {
+        fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+                positions[i].x - positions[TESTATOM].x,
+                positions[i].y - positions[TESTATOM].y,
+                positions[i].z - positions[TESTATOM].z,
+                positions[i].x - positions[TESTATOM].x + force->x,
+                positions[i].y - positions[TESTATOM].y + force->y,
+                positions[i].z - positions[TESTATOM].z + force->z,
+                forceColors[color][0],
+                forceColors[color][1],
+                forceColors[color][2]);
+        if (color != 0) {
+            f = *force;
+            fSquared = vdot(f, f);
+            fprintf(stderr, "force: %f type: %d\n", sqrt(fSquared), color);
+        }
+    }
+}
+
 void
 writeDumbMovieFrame(struct xyz *positions, struct xyz *forces, const char *format, ...)
 {
@@ -173,12 +220,8 @@ writeDumbMovieFrame(struct xyz *positions, struct xyz *forces, const char *forma
     va_list args;
     
     for (i=0; i<Nexatom; i++) {
-        fprintf(outf, "s %f %f %f 40 1 0 0\n", positions[i].x, positions[i].y, positions[i].z);
-        fprintf(outf, "l %f %f %f %f %f %f 1 1 1\n",
-                positions[i].x, positions[i].y, positions[i].z,
-                positions[i].x + forces[i].x,
-                positions[i].y + forces[i].y,
-                positions[i].z + forces[i].z);
+        writeDumbAtomPosition(positions, i);
+        writeDumbForceVector(positions, i, &forces[i], 0);
     }
     fprintf(outf, "f ");
     va_start(args, format);
@@ -344,6 +387,9 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
 			
     /* clear force vectors */
     for (j=0; j<Nexatom; j++) {
+#ifdef SHOWFORCE
+        writeDumbAtomPosition(position, j);
+#endif
         vsetc(force[j],0.0);
     }
 			
@@ -378,9 +424,54 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
 					
             // fprintf(stderr, "stretch: high --");
             // pb(stderr, j);
-            if (ToMinimize)  //flat
+            if (ToMinimize) { //flat
+                //double rSquaredMax;
+                // this line implements linear interpolation off the
+                // end of the table.
+                //rSquaredMax = (TABLEN - 1) * scale + start;
+                //fac = t1[TABLEN-1]+rSquaredMax*t2[TABLEN-1] + (rSquared - rSquaredMax) * -MaxStretchSlope;
+
+                //fac = t1[TABLEN-1] + sqrt(rSquared) * t2[TABLEN-1];
+                
                 fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*t2[TABLEN-1];
-            else fac=0.0;
+                //fac = t1[TABLEN-1]+rSquared*t2[TABLEN-1];
+                //fac = t1[TABLEN-1]+((TABLEN-1)*scale+start)*0.0;
+                // ferd
+                //fac=0.0;
+                
+                // When we're minimizing, the interpolation table ends
+                // at the inflection point.  We increase the force
+                // linearly from there.  We want to make sure that an
+                // atom held between two others by stretched bonds has
+                // a monotoniclly decreasing force as it's position
+                // changes from one end to the other of the region
+                // between the outer atoms.  Otherwise, the minimizer
+                // could find itself with a gradient that points
+                // uphill (results in an endless loop as we reduce the
+                // step size looking for a minimum).
+
+                // The force is at a maximum at the inflection point,
+                // so the force between r0 and the inflection point is
+                // always less than the force at the inflection point.
+                // MaxStretchSlope is the maximum value of the force
+                // at the inflection point across all bond types, so
+                // the force can never be above MaxStretchSlope.  If
+                // we combine a force from a bond between r0 and the
+                // inflection point with a force from a bond past the
+                // inflection point, we want the stretched one to
+                // dominate.  Multiplying MaxStretchSlope by a fudge
+                // factor insures that this is the case, and the
+                // gradient will change monotonically.
+                //fac = t1[TABLEN-1]+((TABLEN-1)*scale+start) * MaxStretchSlope * 1.5;
+            } else {
+                // this line is might be the cause of the "hydrogen
+                // flyaway bug".  If hydrogens with reasonable thermal
+                // energies can reach this extent but fall back if the
+                // Lippincott potential is evaluated here, then any
+                // such hydrogen will improperly fly away because of
+                // this zero.
+                fac=0.0;
+            }
         }
         else fac=t1[k]+rSquared*t2[k];
         // table lookup equivalent to: fac=lippmor(rSquared)
@@ -391,8 +482,22 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
         vsub(force[bond[j].an2],f);
         //fprintf(stderr, "length %f, force %f \n", vlen(bond[j].r), sqrt(vdot(f,f)));
         //fprintf(stderr, "inverse length %f \n", bond[j].invlen);
-	// pb(stderr, j);			
+	// pb(stderr, j);
+#ifdef SHOWFORCE
+        if (bond[j].an1 == TESTATOM) {
+            writeDumbForceVector(position, TESTATOM, &f, 1);
+        }
+        if (bond[j].an2 == TESTATOM) {
+            vmulc(f, -1.0);
+            writeDumbForceVector(position, TESTATOM, &f, 1);
+        }
+#endif
     }
+#ifdef SHOWFORCE
+    writeDumbForceVector(position, TESTATOM, &force[TESTATOM], 5);
+    fprintf(outf, "f force frame %d\n", testFrameNumber);
+    fflush(outf);
+#endif
 			
     /* now the forces for each bend */
 			
@@ -469,6 +574,20 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
 	    fprintf(stderr, "dtheta %f, torq %f \n",theta - torq[j].type->theta0, 
 		    sqrt(vdot(q1,q1)));
 	    */
+#ifdef SHOWFORCE
+            if (torq[j].ac == TESTATOM) {
+                writeDumbForceVector(position, TESTATOM, &q1, 2);
+                writeDumbForceVector(position, TESTATOM, &q2, 2);
+            }
+            if (torq[j].a1 == TESTATOM) {
+                vmulc(q1, -1.0);
+                writeDumbForceVector(position, TESTATOM, &q1, 3);
+            }
+            if (torq[j].a2 == TESTATOM) {
+                vmulc(q2, -1.0);
+                writeDumbForceVector(position, TESTATOM, &q2, 3);
+            }
+#endif
 	} // if almost straight, do nothing
     }
 
@@ -518,6 +637,15 @@ static void calculateForces(int doOrion, struct xyz *position, struct xyz *force
             vmulc(f,fac);
             vadd(force[nvb->item[j].a1],f);
             vsub(force[nvb->item[j].a2],f);
+#ifdef SHOWFORCE
+            if (nvb->item[j].a1 == TESTATOM) {
+                writeDumbForceVector(position, TESTATOM, &f, 4);
+            }
+            if (nvb->item[j].a2 == TESTATOM) {
+                vmulc(f, -1.0);
+                writeDumbForceVector(position, TESTATOM, &f, 4);
+            }
+#endif
         }
     }
 }
@@ -1333,6 +1461,7 @@ minimizeSteepestDescent(int steepestDescentFrames,
 	last_sum_forceSquared = sum_forceSquared;
 	max_forceSquared = 0.0;
 	sum_forceSquared = 0.0;
+        //fprintf(stderr, "calling calculateForces(1) for frame %d\n", *frameNumber);
 	calculateForces(0, Positions, Force);
         minimizeMotorJigs(Positions, Force);
 	for (j=0; j<Nexatom; j++) {
@@ -1361,15 +1490,20 @@ minimizeSteepestDescent(int steepestDescentFrames,
 		vadd2(NewPositions[j], Positions[j], f);
 	    }
             groundAtoms(Positions, NewPositions);
+            //fprintf(stderr, "calling calculateForces(2) for frame %d\n", *frameNumber);
 	    calculateForces(0, NewPositions, newForce);
             minimizeMotorJigs(NewPositions, newForce);
             sum_newforceSquared = 0.0;
 	    for (j=0; j<Nexatom; j++) {
                 if (!atom[j].inJig) {
                     f= newForce[j];
-                    sum_newforceSquared += vdot(f,f);
+                    forceSquared = vdot(f,f) ;
+                    sum_newforceSquared += forceSquared;
+                    //fprintf(stderr, "frame: %d atom: %d force: %f\n", *frameNumber, j, sqrt(forceSquared));
                 }
 	    }
+            //fprintf(stderr, "frame: %d rms_force: %f\n", *frameNumber, sqrt(sum_newforceSquared));
+            testFrameNumber = *frameNumber;
             //writeDumbMovieFrame(NewPositions, newForce, "frame: %d newsum: %e oldsum: %e movcon: %e", *frameNumber, sum_newforceSquared, sum_forceSquared, movcon);
             if (movcon < 1e-16) {
                 WARNING("minimization terminated due to low movcon");
@@ -1609,6 +1743,21 @@ originalMinimize(int numFrames)
     doneExit(0, tracef, "Minimization final rms: %f, highForce: %f",
              best_rms, sqrt(best_max_forceSquared));
 }
+
+static void
+testMinimize()
+{
+    double x;
+    // ferd
+    for (x=150.0; x<250.0; x+=0.1) {
+    //for (x=10.0; x<500.0; x+=1.0) {
+        Positions[1].x = x;
+        calculateForces(0, Positions, Force);
+        printf("%f %f %f\n", x, Force[1].x, Force[1].x * Force[1].x);
+    }
+    exit(0);
+}
+
 
 static void
 SIGTERMhandler(int sig) 
@@ -1913,6 +2062,7 @@ main(int argc,char **argv)
     writeOutputHeader(outf);
 
     if  (ToMinimize) {
+        //testMinimize();
 	originalMinimize(NumFrames);
     }
     else {
