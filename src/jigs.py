@@ -66,7 +66,9 @@ class Jig(Node):
     color = normcolor = (0.5, 0.5, 0.5)
     
     # "Enable Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
-    enable_minimize = False
+    # [I suspect the cad code supports it for all jigs, but only provides a UI to set it for motors. -- bruce 051102]
+    enable_minimize = False # whether a jig should apply forces to atoms during Minimize
+        # [should be renamed 'enable_in_minimize', but I'm putting this off since it affects lots of files -- bruce 051102]
     
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
@@ -297,7 +299,25 @@ class Jig(Node):
                 # only in this case, since other case means no node was actually written [bruce 050421]
         else:
             Node.writemmp(self, mapping) # just writes comment into file and atom_debug msg onto stdout
+        return
+    
+    def writemmp_info_leaf(self, mapping): #bruce 051102
+        "[extends superclass method]"
+        Node.writemmp_info_leaf(self, mapping)
+        if self.enable_minimize:
+            mapping.write("info leaf enable_in_minimize = True\n") #bruce 051102
+        return
 
+    def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 051102
+        "[extends superclass method]"
+        if key == ['enable_in_minimize']:
+            # val should be "True" or "False" (unrecognized vals are treated as False)
+            val = (val == 'True')
+            self.enable_minimize = val
+        else:
+            Node.readmmp_info_leaf_setitem( self, key, val, interp)
+        return
+    
     def _mmp_record_front_part(self, mapping):
         # [Huaicai 9/21/05: split mmp_record into front-middle-last 3 parts, so the each part can be different for a diffent jig.
         

@@ -93,6 +93,8 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required' -- bruce, save carbomeric bonds as their own bond type bondc, not bonda as before
 
+'050920 required; 051102 preferred' -- bruce, adding "info leaf enable_in_minimize"
+
 ===
 
 General notes about when to change the mmp format version:
@@ -105,7 +107,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required'
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 051102 preferred'
     #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
