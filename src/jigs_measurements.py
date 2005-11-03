@@ -20,6 +20,28 @@ from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
 
+# paranoid acos(dotproduct) function, wware 051103
+def angleBetween(vec1, vec2):
+    TEENY = 1.0e-10
+    lensq1 = dot(vec1, vec1)
+    if lensq1 < TEENY:
+        return 0.0
+    lensq2 = dot(vec2, vec2)
+    if lensq2 < TEENY:
+        return 0.0
+    vec1 /= lensq1 ** .5
+    vec2 /= lensq2 ** .5
+    diff = vec1 - vec2
+    if dot(diff, diff) < TEENY:
+        return 0.0
+    dprod = dot(vec1, vec2)
+    if dprod >= 1.0:
+        return 0.0
+    if dprod <= -1.0:
+        return 180.0
+    import math
+    return (180/math.pi) * math.acos(dprod)
+
 # == Measurement Jigs
 
 class Measurement(Jig):
@@ -128,7 +150,6 @@ class MeasureDistance(Measurement):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
         '''
-        
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -150,8 +171,7 @@ class MeasureDistance(Measurement):
 
 class MeasureAngle(Measurement):
     # new class.  wware 051031
-    '''A Measure Angle jig has two atoms and draws a line with a angle label between them.
-    '''
+    '''A Measure Angle jig has three atoms.'''
     
     sym = "Angle"
     icon_names = ["measureangle.png", "measureangle-hide.png"]
@@ -173,8 +193,7 @@ class MeasureAngle(Measurement):
         '''Returns the angle between two atoms (nuclei)'''
         v01 = self.atoms[0].posn()-self.atoms[1].posn()
         v21 = self.atoms[2].posn()-self.atoms[1].posn()
-        from math import acos   # fix error in angle formula, and degrees not radians, wware 051101
-        return (180/pi) * acos(dot(v01, v21) / (vlen(v01) * vlen(v21)))
+        return angleBetween(v01, v21)
         
     # Measure Angle jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
@@ -182,7 +201,6 @@ class MeasureAngle(Measurement):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the angle is included.
         '''
-        
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -197,8 +215,6 @@ class MeasureAngle(Measurement):
     def writepov(self, file, dispdef):
         return
     
-    # Returns the jig-specific mmp data for the current Measure Angle jig as:
-    # mangle font_size atom1 atom2 atom3
     mmp_record_name = "mangle"
     
     pass # end of class MeasureAngle
@@ -207,8 +223,7 @@ class MeasureAngle(Measurement):
 
 class MeasureDihedral(Measurement):
     # new class.  wware 051031
-    '''A Measure Dihedral jig has two atoms and draws a line with a dihedral label between them.
-    '''
+    '''A Measure Dihedral jig has four atoms.'''
     
     sym = "Dihedral"
     icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
@@ -234,10 +249,10 @@ class MeasureDihedral(Measurement):
         zy = self.atoms[3].posn()-self.atoms[2].posn()
         u = cross(wx, yx)
         v = cross(xy, zy)
-        sign = 1.0   # angles go from -180 to 180, wware 051101
-        if dot(zy, u) < 0: sign = -1.0
-        from math import acos   # degrees not radians, wware 051101
-        return (180/pi) * sign * acos(dot(u, v) / (vlen(u) * vlen(v)))
+        if dot(zy, u) < 0:   # angles go from -180 to 180, wware 051101
+            return -angleBetween(u, v)  # use new acos(dot) func, wware 051103
+        else:
+            return angleBetween(u, v)
         
     # Measure Dihedral jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
@@ -245,7 +260,6 @@ class MeasureDihedral(Measurement):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the dihedral is included.
         '''
-        
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
@@ -261,8 +275,6 @@ class MeasureDihedral(Measurement):
     def writepov(self, file, dispdef):
         return
     
-    # Returns the jig-specific mmp data for the current Measure Dihedral jig as:
-    # mdihedral font_size atom1 atom2 atom3 (???)
     mmp_record_name = "mdihedral"
     
     pass # end of class MeasureDihedral
