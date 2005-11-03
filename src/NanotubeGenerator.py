@@ -103,6 +103,7 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
         self.mol = molecule(win.assy, chem.gensym("Nanotube."))
 
     # These four methods are needed to implement the GUI semantics.
+    # Handle ValueErrors in atoi, atof methods, wware 051103
 
     def generateTube(self):
         try:
@@ -118,15 +119,27 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
 
     def setN(self):
         import string
-        self.n = string.atoi(str(self.textEdit1.text()))
+        try:
+            self.n = string.atoi(str(self.textEdit1.text()))
+        except ValueError:
+            if hasattr(self, "n"):
+                del self.n
 
     def setM(self):
         import string
-        self.m = string.atoi(str(self.textEdit2.text()))
+        try:
+            self.m = string.atoi(str(self.textEdit2.text()))
+        except ValueError:
+            if hasattr(self, "m"):
+                del self.m
 
     def setLength(self):
         import string
-        self.length = string.atof(str(self.textEdit3.text()))
+        try:
+            self.length = string.atof(str(self.textEdit3.text()))
+        except ValueError:
+            if hasattr(self, "length"):
+                del self.length
 
     def buildChunk(self):
         length = self.length
