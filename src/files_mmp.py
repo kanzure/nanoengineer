@@ -178,21 +178,26 @@ thermopat = re.compile("thermo \((.+)\) \((\d+), (\d+), (\d+)\)" )
 # general jig pattern #bruce 050701
 jigpat = re.compile("\((.+)\) \((\d+), (\d+), (\d+)\)")
 
+# more readable regexps, wware 051103
+# will we ever use rgb or font_name or font_size?
+nameRgbFontnameFontsizeCenter = ("\((.+)\) " +                    # (name)
+                                 "\((\d+), (\d+), (\d+)\) " +     # (r, g, b)
+                                 "\"(.+)\" " +                    # "font_name"
+                                 "(\d+) " +                       # font_size
+                                 "\((-?\d+), (-?\d+), (-?\d+)\)") # (cx, cy, cz)
+oneAtom = " (\d+)"
 
-# mdistance (name) (r, g, b) "font_name" font_size (cx, cy, cz)
-mdistancepat = re.compile("mdistance \((.+)\) \((\d+), (\d+), (\d+)\) " +  # mdistance (name) (r, g, b)
-                          "\"(.+)\" (\d+) " +   # "font_name" font_size
-                          "\((-?\d+), (-?\d+), (-?\d+)\)") # (cx, cy, cz)
+# mdistance (name) (r, g, b) "font_name" font_size (cx, cy, cz) a1 a2
+mdistancepat = re.compile("mdistance " + nameRgbFontnameFontsizeCenter +
+                          oneAtom + oneAtom)
 
-# mangle (name) (r, g, b) "font_name" font_size (cx, cy, cz)
-manglepat = re.compile("mangle \((.+)\) \((\d+), (\d+), (\d+)\) " +  # mangle (name) (r, g, b)
-                       "\"(.+)\" (\d+) " +   # "font_name" font_size
-                       "\((-?\d+), (-?\d+), (-?\d+)\)") # (cx, cy, cz)
+# mangle (name) (r, g, b) "font_name" font_size (cx, cy, cz) a1 a2 a3
+manglepat = re.compile("mangle " + nameRgbFontnameFontsizeCenter +
+                       oneAtom + oneAtom + oneAtom)
 
-# mdihedral (name) (r, g, b) "font_name" font_size (cx, cy, cz)
-mdihedralpat = re.compile("mdihedral \((.+)\) \((\d+), (\d+), (\d+)\) " +  # mdihedral (name) (r, g, b)
-                          "\"(.+)\" (\d+) " +   # "font_name" font_size
-                          "\((-?\d+), (-?\d+), (-?\d+)\)") # (cx, cy, cz)
+# mdihedral (name) (r, g, b) "font_name" font_size (cx, cy, cz) a1 a2 a3 a4
+mdihedralpat = re.compile("mdihedral " + nameRgbFontnameFontsizeCenter +
+                          oneAtom + oneAtom + oneAtom + oneAtom)
 
 
 def getname(str, default):
@@ -532,11 +537,12 @@ class _readmmp_state:
         self.prevgamess = jig # this is needed for interpreting "info gamess" records
         return
 
-    # Read the MMP record for a MeasureDistance, wware 051101
-    # mdistance (name) (r, g, b) "font_name" font_size (cx, cy, cz)
+    # Read the MMP record for a MeasureDistance, wware 051103
+    # mdistance (name) (r, g, b) "font_name" font_size (cx, cy, cz) a1 a2
+    # no longer modeled on motor, wware 051103
     def _read_mdistance(self, card):
         m = mdistancepat.match(card) # Try to read card
-        assert len(m.groups()) == 9
+        assert len(m.groups()) == 11
         name = m.group(1)
         name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
@@ -544,15 +550,18 @@ class _readmmp_state:
         font_name = m.group(5)
         font_size = int(m.group(6))
         cxyz = A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
+        atomlist = map(int, [m.group(10), m.group(11)])
+        lst = map(lambda n: self.ndix[n], atomlist)
         mdist = MeasureDistance(self.assy, [ ])
-        mdist.setProps(name, col, font_name, font_size, cxyz)
-        self.addmotor(mdist)
+        mdist.setProps(name, col, font_name, font_size, cxyz, lst)
+        self.addmember(mdist)
 
-    # Read the MMP record for a MeasureAngle, wware 051101
-    # mangle (name) (r, g, b) "font_name" font_size (cx, cy, cz)
+    # Read the MMP record for a MeasureAngle, wware 051103
+    # mangle (name) (r, g, b) "font_name" font_size (cx, cy, cz) a1 a2 a3
+    # no longer modeled on motor, wware 051103
     def _read_mangle(self, card):
         m = manglepat.match(card) # Try to read card
-        assert len(m.groups()) == 9
+        assert len(m.groups()) == 12
         name = m.group(1)
         name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
@@ -560,15 +569,18 @@ class _readmmp_state:
         font_name = m.group(5)
         font_size = int(m.group(6))
         cxyz = A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
+        atomlist = map(int, [m.group(10), m.group(11), m.group(12)])
+        lst = map(lambda n: self.ndix[n], atomlist)
         mang = MeasureAngle(self.assy, [ ])
-        mang.setProps(name, col, font_name, font_size, cxyz)
-        self.addmotor(mang)
+        mang.setProps(name, col, font_name, font_size, cxyz, lst)
+        self.addmember(mang)
 
-    # Read the MMP record for a MeasureDistance, wware 051101
-    # mdihedral (name) (r, g, b) "font_name" font_size (cx, cy, cz)
+    # Read the MMP record for a MeasureDistance, wware 051103
+    # mdihedral (name) (r, g, b) "font_name" font_size (cx, cy, cz) a1 a2 a3 a4
+    # no longer modeled on motor, wware 051103
     def _read_mdihedral(self, card):
         m = mdihedralpat.match(card) # Try to read card
-        assert len(m.groups()) == 9
+        assert len(m.groups()) == 13
         name = m.group(1)
         name = self.decode_name(name) #bruce 050618
         col = map(lambda (x): int(x)/255.0,
@@ -576,9 +588,11 @@ class _readmmp_state:
         font_name = m.group(5)
         font_size = int(m.group(6))
         cxyz = A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
+        atomlist = map(int, [m.group(10), m.group(11), m.group(12), m.group(13)])
+        lst = map(lambda n: self.ndix[n], atomlist)
         mdih = MeasureDihedral(self.assy, [ ])
-        mdih.setProps(name, col, font_name, font_size, cxyz)
-        self.addmotor(mdih)
+        mdih.setProps(name, col, font_name, font_size, cxyz, lst)
+        self.addmember(mdih)
 
     def read_new_jig(self, card, constructor): #bruce 050701
         """Read any sort of sufficiently new jig from an mmp file.
