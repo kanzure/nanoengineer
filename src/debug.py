@@ -187,7 +187,6 @@ def exec_allowed():
 # traceback
 
 def print_compact_traceback(msg = "exception ignored: "):
-    raise
     print >> sys.__stderr__, msg + compact_traceback()
 
 def compact_traceback():
