@@ -1,70 +1,140 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\NanotubeGeneratorDialog.ui'
 #
-# Created: Wed Nov 2 23:18:30 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Thu Nov 3 15:25:04 2005
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
 
 from qt import *
 
+image0_data = [
+"20 20 3 1",
+"# c #1c0a08",
+"a c #8d8483",
+". c #ffffff",
+"....................",
+"....................",
+"....................",
+"....................",
+"####################",
+".a.a##a.a##a.a##a.a.",
+".#a#..#a#..#a#..#a#.",
+"#...##...##...##...#",
+".#.#..#.#..#.#..#.#.",
+"..#....#....#....#..",
+"..#....#....#....#..",
+".#.#..#.#..#.#..#.#.",
+"#...##...##...##...#",
+".#a#..#a#..#a#..#a#.",
+".a.a##a.a##a.a##a.a.",
+"####################",
+"....................",
+"....................",
+"....................",
+"...................."
+]
 
 class NanotubeGeneratorDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
+        self.image0 = QPixmap(image0_data)
+
         if not name:
             self.setName("NanotubeGeneratorDialog")
 
+        self.setIcon(self.image0)
 
+        NanotubeGeneratorDialogLayout = QGridLayout(self,1,1,11,6,"NanotubeGeneratorDialogLayout")
+
+        layout30 = QHBoxLayout(None,0,6,"layout30")
+        spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout30.addItem(spacer1)
+
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setMinimumSize(QSize(0,30))
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
+        layout30.addWidget(self.ok_btn)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setMinimumSize(QSize(0,30))
+        self.cancel_btn.setAutoDefault(0)
+        layout30.addWidget(self.cancel_btn)
+
+        NanotubeGeneratorDialogLayout.addLayout(layout30,2,0)
+        spacer5 = QSpacerItem(101,20,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
+        NanotubeGeneratorDialogLayout.addItem(spacer5,1,0)
+
+        layout30_2 = QHBoxLayout(None,0,6,"layout30_2")
+
+        layout29 = QHBoxLayout(None,0,6,"layout29")
+
+        layout14 = QVBoxLayout(None,0,6,"layout14")
 
         self.textLabel2 = QLabel(self,"textLabel2")
-        self.textLabel2.setGeometry(QRect(10,40,70,20))
-
-        self.textEdit1 = QTextEdit(self,"textEdit1")
-        self.textEdit1.setGeometry(QRect(90,40,50,20))
-
-        self.textLabel3 = QLabel(self,"textLabel3")
-        self.textLabel3.setGeometry(QRect(170,40,20,20))
-
-        self.textEdit2 = QTextEdit(self,"textEdit2")
-        self.textEdit2.setGeometry(QRect(200,40,50,20))
+        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout14.addWidget(self.textLabel2)
 
         self.textLabel4 = QLabel(self,"textLabel4")
-        self.textLabel4.setGeometry(QRect(10,70,120,20))
+        self.textLabel4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout14.addWidget(self.textLabel4)
+        layout29.addLayout(layout14)
 
-        self.textEdit3 = QTextEdit(self,"textEdit3")
-        self.textEdit3.setGeometry(QRect(130,70,100,20))
+        layout28 = QVBoxLayout(None,0,6,"layout28")
 
-        self.pushButton1 = QPushButton(self,"pushButton1")
-        self.pushButton1.setGeometry(QRect(60,100,130,30))
+        layout15 = QHBoxLayout(None,0,6,"layout15")
+
+        self.n_spinbox = QSpinBox(self,"n_spinbox")
+        self.n_spinbox.setMinValue(1)
+        self.n_spinbox.setValue(5)
+        layout15.addWidget(self.n_spinbox)
+
+        self.m_spinbox = QSpinBox(self,"m_spinbox")
+        self.m_spinbox.setValue(5)
+        layout15.addWidget(self.m_spinbox)
+        layout28.addLayout(layout15)
+
+        layout27 = QHBoxLayout(None,0,6,"layout27")
+
+        self.length_linedit = QLineEdit(self,"length_linedit")
+        self.length_linedit.setMaxLength(8)
+        layout27.addWidget(self.length_linedit)
 
         self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setGeometry(QRect(10,10,270,20))
-        textLabel1_font = QFont(self.textLabel1.font())
-        textLabel1_font.setPointSize(16)
-        self.textLabel1.setFont(textLabel1_font)
+        layout27.addWidget(self.textLabel1)
+        layout28.addLayout(layout27)
+        layout29.addLayout(layout28)
+        layout30_2.addLayout(layout29)
+        spacer26 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout30_2.addItem(spacer26)
+
+        NanotubeGeneratorDialogLayout.addLayout(layout30_2,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(299,136).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(286,144).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.textEdit1,SIGNAL("textChanged()"),self.setN)
-        self.connect(self.textEdit2,SIGNAL("textChanged()"),self.setM)
-        self.connect(self.textEdit3,SIGNAL("textChanged()"),self.setLength)
-        self.connect(self.pushButton1,SIGNAL("pressed()"),self.generateTube)
+        self.connect(self.n_spinbox,SIGNAL("valueChanged(int)"),self.setN)
+        self.connect(self.m_spinbox,SIGNAL("valueChanged(int)"),self.setM)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("Nanotube Generator"))
-        self.textLabel2.setText(self.__tr("Chirality     N"))
-        self.textLabel3.setText(self.__tr("M"))
-        self.textLabel4.setText(self.__tr("Length (nanometers)"))
-        self.pushButton1.setText(self.__tr("Generate nanotube"))
-        self.textLabel1.setText(self.__tr("Nanotube Generator"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
+        self.textLabel2.setText(self.__tr("Chirality (N, M) :"))
+        self.textLabel4.setText(self.__tr("Length :"))
+        self.textLabel1.setText(self.__tr("Angstroms"))
 
 
     def setN(self):
@@ -73,11 +143,8 @@ class NanotubeGeneratorDialog(QDialog):
     def setM(self):
         print "NanotubeGeneratorDialog.setM(): Not implemented yet"
 
-    def setLength(self):
-        print "NanotubeGeneratorDialog.setLength(): Not implemented yet"
-
-    def generateTube(self):
-        print "NanotubeGeneratorDialog.generateTube(): Not implemented yet"
+    def length_fixup(self):
+        print "NanotubeGeneratorDialog.length_fixup(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("NanotubeGeneratorDialog",s,c)

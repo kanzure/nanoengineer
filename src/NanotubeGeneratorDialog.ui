@@ -8,169 +8,284 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>299</width>
-            <height>136</height>
+            <width>286</width>
+            <height>144</height>
         </rect>
     </property>
     <property name="caption">
         <string>Nanotube Generator</string>
     </property>
-    <widget class="QLabel">
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <grid>
         <property name="name">
-            <cstring>textLabel2</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>40</y>
-                <width>70</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Chirality     N</string>
-        </property>
-    </widget>
-    <widget class="QTextEdit">
-        <property name="name">
-            <cstring>textEdit1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>90</x>
-                <y>40</y>
-                <width>50</width>
-                <height>20</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel3</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>170</x>
-                <y>40</y>
-                <width>20</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>M</string>
-        </property>
-    </widget>
-    <widget class="QTextEdit">
-        <property name="name">
-            <cstring>textEdit2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>200</x>
-                <y>40</y>
-                <width>50</width>
-                <height>20</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel4</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>70</y>
-                <width>120</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Length (nanometers)</string>
-        </property>
-    </widget>
-    <widget class="QTextEdit">
-        <property name="name">
-            <cstring>textEdit3</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>130</x>
-                <y>70</y>
-                <width>100</width>
-                <height>20</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>pushButton1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>60</x>
-                <y>100</y>
-                <width>130</width>
-                <height>30</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Generate nanotube</string>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>270</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="font">
-            <font>
-                <pointsize>16</pointsize>
-            </font>
-        </property>
-        <property name="text">
-            <string>Nanotube Generator</string>
-        </property>
-    </widget>
+        <widget class="QLayoutWidget" row="2" column="0">
+            <property name="name">
+                <cstring>layout30</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>92</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ok_btn</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <spacer row="1" column="0">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>MinimumExpanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>101</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout30</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout29</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout14</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Chirality (N, M) :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel4</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Length :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout28</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout15</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>n_spinbox</cstring>
+                                            </property>
+                                            <property name="minValue">
+                                                <number>1</number>
+                                            </property>
+                                            <property name="value">
+                                                <number>5</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>m_spinbox</cstring>
+                                            </property>
+                                            <property name="value">
+                                                <number>5</number>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout27</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLineEdit">
+                                            <property name="name">
+                                                <cstring>length_linedit</cstring>
+                                            </property>
+                                            <property name="maxLength">
+                                                <number>8</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel1</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Angstroms</string>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer26</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>16</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
+        </widget>
+    </grid>
 </widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="572">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232500022630543251d2e256585640565c3648344030b103711c4b548b130b1300671f540dc34300073b1006a8a2b630160f5897a89caca2804c41ce544653d34026c0ed03c653402a25e0fa40a8580b807a40495c02b8ec31cdcf66277272e7fe10c075a867fad35170098d86818</data>
+    </image>
+</images>
 <connections>
     <connection>
-        <sender>textEdit1</sender>
-        <signal>textChanged()</signal>
+        <sender>n_spinbox</sender>
+        <signal>valueChanged(int)</signal>
         <receiver>NanotubeGeneratorDialog</receiver>
         <slot>setN()</slot>
     </connection>
     <connection>
-        <sender>textEdit2</sender>
-        <signal>textChanged()</signal>
+        <sender>m_spinbox</sender>
+        <signal>valueChanged(int)</signal>
         <receiver>NanotubeGeneratorDialog</receiver>
         <slot>setM()</slot>
     </connection>
     <connection>
-        <sender>textEdit3</sender>
-        <signal>textChanged()</signal>
+        <sender>ok_btn</sender>
+        <signal>clicked()</signal>
         <receiver>NanotubeGeneratorDialog</receiver>
-        <slot>setLength()</slot>
+        <slot>accept()</slot>
     </connection>
     <connection>
-        <sender>pushButton1</sender>
-        <signal>pressed()</signal>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
         <receiver>NanotubeGeneratorDialog</receiver>
-        <slot>generateTube()</slot>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>length_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>NanotubeGeneratorDialog</receiver>
+        <slot>length_fixup()</slot>
     </connection>
 </connections>
 <slots>
     <slot>setN()</slot>
     <slot>setM()</slot>
-    <slot>setLength()</slot>
-    <slot>generateTube()</slot>
+    <slot>length_fixup()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

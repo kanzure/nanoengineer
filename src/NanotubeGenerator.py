@@ -15,6 +15,9 @@ from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
 from MWsemantics import windowList  # Rearchitecture: fix this mess
 from chem import molecule, Atom
+import env
+from HistoryWidget import redmsg, greenmsg
+from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
 
 sqrt3 = 3 ** 0.5
 
@@ -95,15 +98,63 @@ class Chirality:
                 if -.5 * length <= y <= .5 * length:
                     add("C", x, y, z)
 
+cmd = greenmsg("Insert Nanotube: ")
+
 class NanotubeGenerator(NanotubeGeneratorDialog):
 
     def __init__(self):
         NanotubeGeneratorDialog.__init__(self)
         self.win = win = windowList[0]  # Rearchitecture: fix this mess
         self.mol = molecule(win.assy, chem.gensym("Nanotube."))
+        
+        # Validator for the length linedit widget.
+        self.validator = QDoubleValidator(self)
+        self.validator.setRange(0.0, 1000.0, 2) # Range of nanotube length (0-100, 2 decimal places)
+        self.length_linedit.setValidator(self.validator)
+        self.cursor_pos = 0
+        
+        # Default nanotube parameters.
+        self.n = 5
+        self.m = 5
+        self.length = 5.0 # Angstoms
+        self.lenstr = '%1.2f' % self.length # Also used for validation
+        
+        self.setup()
 
     # These four methods are needed to implement the GUI semantics.
-    # Handle ValueErrors in atoi, atof methods, wware 051103
+    
+    def setup(self):
+        self.n_spinbox.setValue(self.n)
+        self.m_spinbox.setValue(self.m)
+        self.length_linedit.setText(self.lenstr)
+
+    def accept(self):
+        'Slot for the OK button'
+        
+        # Get length from length_linedit and make sure it is not zero.
+        # length_linedit's validator makes sure this has a valid number (float).  
+        # The only exception is when there is no text.  Mark 051103.
+        import string
+        if self.length_linedit.text():
+            self.length = string.atof(str(self.length_linedit.text()))
+        else:
+            self.length = 0.0
+            env.history.message(cmd + redmsg("Please specify length."))
+            return
+        
+        # This can take a few seconds.  Inform the user.  100 is a guess on my part.  Mark 051103.
+        if self.length > 100.0:
+            env.history.message(cmd + "Creating nanotube. This may take a moment...")
+            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+            self.generateTube()
+            env.history.message(cmd + "Done.")
+            QApplication.restoreOverrideCursor() # Restore the cursor
+            QDialog.accept(self)
+        
+        else: # Shouldn't take long.
+            QDialog.accept(self)
+            env.history.message(cmd + "Nanotube created.")
+            self.generateTube()
 
     def generateTube(self):
         try:
@@ -111,35 +162,26 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
             self.m
             self.length
         except AttributeError:
-            self.textLabel1.setText("Please specify n, m, length")
+            env.history.message(cmd + redmsg("Please specify chirality (n, m) and length."))
             return
         self.chirality = Chirality(self.n, self.m)
         self.buildChunk()
-        self.close()
 
-    def setN(self):
-        import string
-        try:
-            self.n = string.atoi(str(self.textEdit1.text()))
-        except ValueError:
-            if hasattr(self, "n"):
-                del self.n
+    def setN(self, n):
+        'Slot for chiral (N) spinbox'
+        self.n = n
 
-    def setM(self):
-        import string
-        try:
-            self.m = string.atoi(str(self.textEdit2.text()))
-        except ValueError:
-            if hasattr(self, "m"):
-                del self.m
+    def setM(self, m):
+        'Slot for chiral (M) spinbox'
+        self.m = m
 
-    def setLength(self):
-        import string
-        try:
-            self.length = string.atof(str(self.textEdit3.text()))
-        except ValueError:
-            if hasattr(self, "length"):
-                del self.length
+    def length_fixup(self):
+        '''Slot for the Length linedit widget.
+        This gets called each time a user types anything into the widget.
+        '''
+        from widgets import double_fixup
+        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
+        self.length_linedit.setText(self.lenstr)
 
     def buildChunk(self):
         length = self.length

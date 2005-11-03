@@ -1022,9 +1022,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         from ServerManager import ServerManager
         ServerManager().showDialog()
         
-    def startNanotubeGenerator(self):
+    def insertNanotube(self):
         from NanotubeGenerator import NanotubeGenerator
-	NanotubeGenerator().show()
+        NanotubeGenerator().show()
 
     #### Movie Player Dashboard Slots ############
 

@@ -10,7 +10,7 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL, QPixmap, QIconSet, QColor
+from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL, QPixmap, QIconSet, QColor, QString, QValidator
 
 def is_qt_widget(obj):
     return isinstance(obj, QWidget)
@@ -244,6 +244,23 @@ def makemenu_helper( widget, menu_spec):
             pass #e could add a fake menu item here as an error message
     return menu
 
+# ==
+
+def double_fixup(validator, text, prevtext):
+    '''Returns a string that represents a float which meets the requirements of validator.
+    text is the input string to be checked, prevtext is returned if text is not valid.
+    '''
+    r, c = validator.validate(QString(text), 0)
+
+    if r == QValidator.Invalid:
+        return prevtext
+    elif r == QValidator.Intermediate:
+        if len(text) == 0:
+            return ""
+        return prevtext
+    else:
+        return text
+        
 # ==
 
 # bruce 050614 [comment revised 050805] found colorchoose as a method in MWsemantics.py, nowhere used,
