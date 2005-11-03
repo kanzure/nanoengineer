@@ -83,11 +83,10 @@ class Chirality:
         z3 = R * cos(x2/R)
         return (x3, y2, z3)
 
-    def populate(self, mol, length, posns):
+    def populate(self, mol, length):
         def add(element, x, y, z, mol=mol):
             atm = Atom(element, chem.V(x, y, z), mol)
             atm.set_atomtype("sp2")
-            posns.append((x, y, z))
         for n in range(self.n):
             mmin, mmax = self.mlimits(-.5 * length, .5 * length, n)
             for m in range(mmin-1, mmax+1):
@@ -184,13 +183,13 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
         self.length_linedit.setText(self.lenstr)
 
     def buildChunk(self):
+        from Numeric import dot
         length = self.length
         maxLen = 1.2 * Chirality.BONDLENGTH
         maxLenSq = maxLen ** 2
-        positions = [ ]
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(self.mol, length + 3 * maxLen, positions)
+        self.chirality.populate(self.mol, length + 3 * maxLen)
 
         # kill all the singlets
         for a in self.mol.atoms.keys():
@@ -199,24 +198,22 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
 
         # make a list of positions close enough to be bonded
         bondList = [ ]
-        N = len(positions)
         atoms = self.mol.atoms
         akeys = atoms.keys()
-        for i in range(N):
-            x1, y1, z1 = positions[i]
-            for j in range(i+1, N):
-                x2, y2, z2 = positions[j]
+        for i in range(len(akeys)):
+            a = atoms[akeys[i]]
+            x1, y1, z1 = map(float, a.posn())
+            for j in range(i+1, len(akeys)):
+                b = atoms[akeys[j]]
+                x2, y2, z2 = map(float, b.posn())
                 # try to keep this test as quick as possible by
                 # disqualifying candidates as early as possible
-                dx2 = (x1 - x2) ** 2
-                if dx2 < maxLenSq:
-                    dy2 = (y1 - y2) ** 2
-                    if dy2 < maxLenSq:
-                        dz2 = (z1 - z2) ** 2
-                        if dz2 < maxLenSq:
-                            if (dx2 + dy2 + dz2) < maxLenSq:
-                                a = atoms[akeys[i]]
-                                b = atoms[akeys[j]]
+                if x1 - maxLen <= x2 <= x1 + maxLen:
+                    if y1 - maxLen <= y2 <= y1 + maxLen:
+                        if z1 - maxLen <= z2 <= z1 + maxLen:
+                            if ((x1 - x2) ** 2 +
+                                (y1 - y2) ** 2 +
+                                (z1 - z2) ** 2) < maxLenSq:
                                 bonds.bond_atoms(a, b, bonds.V_GRAPHITE)
 
         # trim all the carbons that fall outside our desired length
