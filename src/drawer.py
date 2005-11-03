@@ -12,6 +12,7 @@ from OpenGL.GLU import *
 import OpenGL.GLUT as glut
 import math
 from VQT import *
+from constants import DIAMOND_BOND_LENGTH
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -104,10 +105,10 @@ linearArrowVertices = [(0.0, -halfEdge, 0.0), (0.0, halfEdge, 0.0), (0.0, 0.0,2*
 # a chunk of diamond grid, to be tiled out in 3d
 
 sp0 = 0.0
-sp1=1.52/sqrt(3.0)
-sp2=2.0*sp1
-sp3=3.0*sp1
-sp4=4.0*sp1
+sp1 = DIAMOND_BOND_LENGTH / sqrt(3.0) #bruce 051102 replaced 1.52 with this constant (1.544), re bug 900 (partial fix)
+sp2 = 2.0*sp1
+sp3 = 3.0*sp1
+sp4 = 4.0*sp1
 
 digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
         [[sp2, sp2, sp0], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp4, sp0]],

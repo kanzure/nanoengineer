@@ -25,6 +25,7 @@ __author__ = "Josh"
 from VQT import *
 from preferences import prefs_context
 from atomtypes import AtomType
+from constants import DIAMOND_BOND_LENGTH
 
 # == Elements, and periodic table
 
@@ -171,7 +172,7 @@ class ElementPeriodicTable(Singleton):
 ## Cl - 1.02
 ## H -- 0.31
 ## F -- 0.7
-## C -- 0.77
+## C -- 0.77 [compare to DIAMOND_BOND_LENGTH (1.544) in constants.py [bruce 051102 comment]]
 ## B -- 0.8
 ## S -- 1.07
 ## P -- 1.08
@@ -230,7 +231,8 @@ to put the C+ value.
                   ("Li", "Lithium",    11.525,  [[1, 152, None]]),
                   ("Be", "Beryllium",  14.964,  [[2, 114, None]]),
                   ("B",  "Boron",      17.949,  [[3, 80, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
-                  ("C",  "Carbon",     19.925,  [[4, 77, tetra4, 'sp3'],
+                  ("C",  "Carbon",     19.925,  [[4, DIAMOND_BOND_LENGTH / 2 * 100, tetra4, 'sp3'],
+                                                     #bruce 051102 replaced 77 with constant expr, which evals to 77.2
                                                  [3, 71, flat, 'sp2'],
                                                  [2, 66, straight, 'sp'], # (this is correct for =C=, ie two double bonds)
                                                  ## [1, 60, None] # what's this? I don't know how it could bond... removing it. [bruce 050510]

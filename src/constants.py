@@ -12,6 +12,11 @@ $Id$
 
 from qt import Qt
 
+DIAMOND_BOND_LENGTH = 1.544
+    #bruce 051102 added this based on email from Damian Allis:
+    # > The accepted bond length for diamond is 1.544 ("Interatomic  
+    # > Distances,' The Chemical Society, London, 1958, p.M102)....
+
 leftButton = 1
 rightButton = 2
 # in Qt/Mac, control key with left mouse button simulates right mouse button.
