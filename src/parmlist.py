@@ -69,11 +69,19 @@ if __name__ == "__main__":
 
         bt=sqrt(ks/(2.0*de))/10.0
         r0=r0*100.0
+
+        r=r0;
+        b = -1;
+        while b < 0:
+            a = (r * r - r0 * r0)
+            b = a * a / r - 4000000 * de * r0 / ks
+#            print '%f %f' %(r, b) 
+            r = r + 0.1
         
         print '  addInitialBondStretch(',
         print '%2d,'%sym2num[which[0]],
         print '%2d,'%sym2num[which[2]],
         print "'%s',"%bontyp[which[1]],
         
-        print '%6.1f,%6.1f,%7.4f,%7.4f); //'%(ks,r0,de,bt),
+        print '%6.1f,%6.1f,%7.4f,%7.4f, %7.4f); //'%(ks,r0,de,bt,r),
         print which[0]+which[1]+which[2]

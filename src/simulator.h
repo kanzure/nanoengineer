@@ -233,6 +233,7 @@ extern double R0;
 extern double R1;
 extern double Theta0;
 extern double totMass;
+extern double MaxStretchSlope;
 extern struct xyz Cog;
 extern struct xyz P;
 extern struct xyz Omega;

@@ -165,7 +165,8 @@ void
 initializeBondStretchInterpolater(struct bondStretch *stretch)
 {
   double end;
-	
+  double slopeAtInflection;
+  
   // ks in N/m
   // r0 in pm, or 1e-12 m
   // de in aJ, or 1e-18 J
@@ -173,7 +174,11 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
 
   R0 = stretch->r0;
   stretch->table.start = square(R0*0.5);
-  end = square(R0*1.5);
+  if (ToMinimize && 0) {
+    end = square(stretch->inflectionR);
+  } else {
+    end = square(R0*1.5);
+  }
   stretch->table.scale = (end - stretch->table.start) / TABLEN;
   Ks = stretch->ks;
   De = stretch->de;
@@ -185,6 +190,12 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
          stretch->table.start,
          TABLEN,
          stretch->table.scale);
+
+  slopeAtInflection = stretch->table.t2[TABLEN-1];
+  //fprintf(stderr, "slope %f max %f\n", slopeAtInflection, MaxStretchSlope);
+  if (MaxStretchSlope < slopeAtInflection) {
+    MaxStretchSlope = slopeAtInflection;
+  }
 }
 
 void

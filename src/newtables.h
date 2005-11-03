@@ -11,6 +11,8 @@ struct bondStretch
   double de;   // aJ, or 1e-18 J, for Morse
   double beta; // 1e12 m^-1, for Morse
 
+  double inflectionR; // r value in pm where d^2(Lippincott(r)) / dr^2 == 0
+  
   int isGeneric; // set to non-zero if the above are based on a heuristic
   
   struct interpolationTable table;

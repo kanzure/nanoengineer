@@ -11,7 +11,7 @@ struct atomType periodicTable[MAX_ELEMENT+1];
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
 static struct bondStretch *
-newBondStretch(char *bondName, double ks, double r0, double de, double beta, int generic)
+newBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int generic)
 {
   struct bondStretch *stretch;
 
@@ -21,6 +21,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, int
   stretch->r0 = r0;
   stretch->de = de;
   stretch->beta = beta;
+  stretch->inflectionR = inflectionR;
   stretch->isGeneric = generic;
   initializeBondStretchInterpolater(stretch);
   return stretch;
@@ -87,11 +88,11 @@ static struct hashtable *vanDerWaalsHashtable;
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
 static struct bondStretch *
-addBondStretch(char *bondName, double ks, double r0, double de, double beta, int generic)
+addBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int generic)
 {
   struct bondStretch *stretch;
 
-  stretch = newBondStretch(bondName, ks, r0, de, beta, generic);
+  stretch = newBondStretch(bondName, ks, r0, de, beta, inflectionR, generic);
   hashtable_put(bondStretchHashtable, bondName, stretch);
   return stretch;
 }
@@ -111,13 +112,20 @@ addBendData(char *bendName, double kb, double theta0)
 // de in aJ, or 1e-18 J
 // beta in 1e10 m^-1
 static void
-addInitialBondStretch(int element1, int element2, char order, double ks, double r0, double de, double beta)
+addInitialBondStretch(int element1,
+                      int element2,
+                      char order,
+                      double ks,
+                      double r0,
+                      double de,
+                      double beta,
+                      double inflectionR)
 {
   struct bondStretch *stretch;
   char bondName[10]; // expand if atom types become longer than 2 chars
   
   generateBondName(bondName, element1, element2, order);
-  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, 0);
+  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, 0);
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
 
@@ -352,6 +360,48 @@ getDe(char *bondName)
   return 0.58;
 }
 
+// This finds the r value of the inflection point in the Lippincott
+// potential function.  We're looking for the spot outside of r0 where
+// the second derivitive of Lippincott(r) is zero.  The second
+// derivitive has two identical exponential terms in it, which will be
+// positive throughout the region of interest, and never zero.  Since
+// we're just looking for the zero, and the exponentials multiply
+// other terms, we just set them to 1.  The resulting function must
+// also have a zero at the same point.  That function can then be
+// simplified to:
+//
+// (r^2 - r0^2)^2     4000000 de r0
+// --------------  -  -------------  =  0
+//       r                  ks
+//
+// which can be solved analytically for r, but is really messy.  It
+// starts out negative at r = r0, and we just wait until it's
+// positive, at which point there has to be a zero.  We could be a LOT
+// more elegant about the search, if it matters!
+static double findInflectionR(double r0, double ks, double de)
+{
+  double r = r0;
+  double a;
+  double b;
+
+  // We stop the interpolation table at the inflection point if we're
+  // minimizing, otherwise continue to 1.5 * r0.  See Lippincott in
+  // interpolate.c.
+  if (1 || !ToMinimize) { // disabled by: (1 ||
+    // this value is actually ignored
+    return 1.5 * r0;
+  }
+  
+  b = -1;
+  while (b < 0) {
+    a = (r * r - r0 * r0);
+    b = a * a / r - 4000000 * de * r0 / ks;
+    r = r + 0.1;
+  }
+  return r;
+}
+
+
 static struct bondStretch *
 interpolateGenericBondStretch(char *bondName, int element1, int element2, float order)
 {
@@ -375,7 +425,7 @@ interpolateGenericBondStretch(char *bondName, int element1, int element2, float 
   de = (order - 1.0) * singleStretch->de + (2.0 - order) * doubleStretch->de ;
 
   beta = sqrt(ks / (2.0 * de));
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2, 1);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), 1);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters
@@ -442,7 +492,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     }
   }
   
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2, 1);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), 1);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters

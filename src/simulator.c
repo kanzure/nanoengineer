@@ -129,6 +129,10 @@ double Tq = 1e-3;            // since torques are given in pN*nm,
 
 double R0 = 152.3, R1 = 152.3, Theta0 = 1.911;
 
+// largest value for the slope at the inflection point of
+// Lippincott(r) across all bond types.
+double MaxStretchSlope = 0.0;
+
 /** global properties: center of mass, momentum, moment of rotation */
 double totMass=0.0;
 struct xyz Cog, P, Omega;
