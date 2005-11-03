@@ -88,8 +88,10 @@ clean:
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
 	rm -f tests/minimize/*.altout
+	rm -f tests/minimize/*.out.new
 	rm -f tests/minimize/*.diff
 	rm -f tests/dynamics/*.diff
+	rm -f tests/dynamics/*.out.new
 
 dist_clean: clean
 	rm -f TAGS
