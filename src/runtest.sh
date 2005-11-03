@@ -43,8 +43,8 @@
 #
 # PROGRAM command...
 #  This is the complete command line to run (excluding io redirection).
-#  Defaults to "simulator -m -x $base.mmp" for test types "min" and
-#  "struct".  Defaults to "simulator -f100 -t300 -i10 -x $base.mmp"
+#  Defaults to "/tmp/testsimulator -m -x $base.mmp" for test types "min" and
+#  "struct".  Defaults to "/tmp/testsimulator -f100 -t300 -i10 -x $base.mmp"
 #  for test type "dyn".
 #
 # STRUCT file
@@ -79,8 +79,8 @@ altout=$here/$dir/$base.altout
 DEFAULT_INPUT="$base.mmp"
 DEFAULT_OUTPUT_MIN="exitvalue stderr stdout $base.trc $base.xyz"
 DEFAULT_OUTPUT_STRUCT="exitvalue structurematch stderr"
-DEFAULT_PROGRAM_MIN="simulator -m -x $base.mmp"
-DEFAULT_PROGRAM_DYN="simulator -f100 -t300 -i10 -x $base.mmp"
+DEFAULT_PROGRAM_MIN="/tmp/testsimulator -m -x $base.mmp"
+DEFAULT_PROGRAM_DYN="/tmp/testsimulator -f100 -t300 -i10 -x $base.mmp"
 DEFAULT_STRUCT_MIN=""
 DEFAULT_STRUCT_STRUCT="$base.xyzcmp"
 
@@ -199,7 +199,7 @@ if $DO_STRUCT_COMPARE; then
     if $DO_GENERATE; then
 	echo 0 > structurematch
     else
-	simulator -B$base.xyzcmp $base.xyz >> stdout 2>> stderr
+	/tmp/testsimulator -B$base.xyzcmp $base.xyz >> stdout 2>> stderr
 	echo $? >> structurematch
     fi
     cp results altoutput

@@ -41,6 +41,9 @@ if [ "x$1" = "x--generate" ]; then
     GEN=1
 fi
 
+rm -f /tmp/testsimulator
+ln -s $PWD/simulator /tmp/testsimulator
+
 for dir in $TESTDIRS; do
     for i in $dir/*.test; do
 	echo Running $i
@@ -60,5 +63,7 @@ for dir in $TESTDIRS; do
 	fi
     done
 done
+
+rm -f /tmp/testsimulator
 
 exit $RET
