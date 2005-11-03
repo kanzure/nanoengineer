@@ -744,6 +744,10 @@ printError(FILE *f, const char *err_or_warn, int doPerror, const char *format, .
       fprintf(stderr, "\n");
   }
 
+  if (f == NULL) {
+      return;
+  }
+  
   fprintf(f, "# %s: ", err_or_warn);
   va_start(args, format);
   vfprintf(f, format, args);
@@ -760,11 +764,13 @@ doneExit(int exitvalue, FILE *f, const char *format, ...)
 {
   va_list args;
 
-  fprintf(f, "# Done: ");
-  va_start(args, format);
-  vfprintf(f, format, args);
-  va_end(args);
-  fprintf(f, "\n");
+  if (f != NULL) {
+      fprintf(f, "# Done: ");
+      va_start(args, format);
+      vfprintf(f, format, args);
+      va_end(args);
+      fprintf(f, "\n");
+  }
 
   exit(exitvalue);
 }
