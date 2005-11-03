@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Wed Nov 2 14:23:43 2005
+# Created: Wed Nov 2 23:18:30 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,12 +19,6 @@ class NanotubeGeneratorDialog(QDialog):
             self.setName("NanotubeGeneratorDialog")
 
 
-
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setGeometry(QRect(10,10,170,20))
-        textLabel1_font = QFont(self.textLabel1.font())
-        textLabel1_font.setPointSize(16)
-        self.textLabel1.setFont(textLabel1_font)
 
         self.textLabel2 = QLabel(self,"textLabel2")
         self.textLabel2.setGeometry(QRect(10,40,70,20))
@@ -47,6 +41,12 @@ class NanotubeGeneratorDialog(QDialog):
         self.pushButton1 = QPushButton(self,"pushButton1")
         self.pushButton1.setGeometry(QRect(60,100,130,30))
 
+        self.textLabel1 = QLabel(self,"textLabel1")
+        self.textLabel1.setGeometry(QRect(10,10,270,20))
+        textLabel1_font = QFont(self.textLabel1.font())
+        textLabel1_font.setPointSize(16)
+        self.textLabel1.setFont(textLabel1_font)
+
         self.languageChange()
 
         self.resize(QSize(299,136).expandedTo(self.minimumSizeHint()))
@@ -59,12 +59,12 @@ class NanotubeGeneratorDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("Form1"))
-        self.textLabel1.setText(self.__tr("Nanotube Generator"))
+        self.setCaption(self.__tr("Nanotube Generator"))
         self.textLabel2.setText(self.__tr("Chirality     N"))
         self.textLabel3.setText(self.__tr("M"))
         self.textLabel4.setText(self.__tr("Length (nanometers)"))
         self.pushButton1.setText(self.__tr("Generate nanotube"))
+        self.textLabel1.setText(self.__tr("Nanotube Generator"))
 
 
     def setN(self):

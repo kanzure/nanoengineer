@@ -13,29 +13,8 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Form1</string>
+        <string>Nanotube Generator</string>
     </property>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>textLabel1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>170</width>
-                <height>20</height>
-            </rect>
-        </property>
-        <property name="font">
-            <font>
-                <pointsize>16</pointsize>
-            </font>
-        </property>
-        <property name="text">
-            <string>Nanotube Generator</string>
-        </property>
-    </widget>
     <widget class="QLabel">
         <property name="name">
             <cstring>textLabel2</cstring>
@@ -137,6 +116,27 @@
         </property>
         <property name="text">
             <string>Generate nanotube</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>270</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <pointsize>16</pointsize>
+            </font>
+        </property>
+        <property name="text">
+            <string>Nanotube Generator</string>
         </property>
     </widget>
 </widget>
