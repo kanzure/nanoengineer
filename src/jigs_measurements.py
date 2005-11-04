@@ -6,7 +6,10 @@ $Id$
 
 History: 
 
-051017. Copied from jigs_motors. Mark
+051104 wware - three measurement jigs (distance, angle, dihedral)
+written over the last few days. No simulator support yet, but they
+work fine in the CAD system, and the MMP file records should be
+acceptable when the time comes for sim support.
 
 """
 
@@ -73,7 +76,7 @@ class MeasurementJig(Jig):
     def writepov(self, file, dispdef):
         sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
     
-    pass # end of class Measurement
+    pass # end of class MeasurementJig
 
 
 # == Measure Distance
