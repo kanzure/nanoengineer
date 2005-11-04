@@ -17,6 +17,7 @@ from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
+from VQT import dot
 
 sqrt3 = 3 ** 0.5
 
@@ -26,6 +27,10 @@ class Chirality:
     # Dresselhaus, G., Eklund, P. C. "Science of Fullerenes and Carbon
     # Nanotubes" Academic Press: San Diego, CA, 1995; pp. 760.
     BONDLENGTH = 1.421  # angstroms
+
+    # It's handy to have slightly a bigger version, and its square.
+    MAXLEN = 1.2 * BONDLENGTH
+    MAXLENSQ = MAXLEN ** 2
 
     def __init__(self, n, m):
         self.n, self.m = n, m
@@ -76,18 +81,73 @@ class Chirality:
         return (x3, y2, z3)
 
     def populate(self, mol, length):
-        def add(element, x, y, z, mol=mol):
+
+        def add(element, x, y, z):
             atm = Atom(element, chem.V(x, y, z), mol)
             atm.set_atomtype("sp2")
+            return atm
+
+        evenAtomDict = { }
+        oddAtomDict = { }
+        bondDict = { }
+        mfirst = [ ]
+        mlast = [ ]
+
         for n in range(self.n):
             mmin, mmax = self.mlimits(-.5 * length, .5 * length, n)
-            for m in range(mmin-1, mmax+1):
+            mfirst.append(mmin)
+            mlast.append(mmax)
+            for m in range(mmin, mmax+1):
                 x, y, z = self.xyz(n, m)
-                if -.5 * length <= y <= .5 * length:
-                    add("C", x, y, z)
+                atm = add("C", x, y, z)
+                evenAtomDict[(n,m)] = atm
+                bondDict[atm] = [(n,m)]
                 x, y, z = self.xyz(n+1./3, m+1./3)
-                if -.5 * length <= y <= .5 * length:
-                    add("C", x, y, z)
+                atm = add("C", x, y, z)
+                oddAtomDict[(n,m)] = atm
+                bondDict[atm] = [(n+1, m), (n, m+1)]
+
+        # m goes axially along the nanotube, n spirals around the tube
+        # like a barber pole, with slope depending on chirality. If we
+        # stopped making bonds now, there'd be a spiral strip of
+        # missing bonds between the n=self.n-1 row and the n=0 row.
+        # So we need to connect those. We don't know how the m values
+        # will line up, so the first time, we need to just hunt for the
+        # m offset. But then we can apply that constant m offset to the
+        # remaining atoms along the strip.
+        n = self.n - 1
+        mmid = (mfirst[n] + mlast[n]) / 2
+        atm = oddAtomDict[(n, mmid)]
+        class FoundMOffset(Exception): pass
+        try:
+            for m2 in range(mfirst[0], mlast[0] + 1):
+                atm2 = evenAtomDict[(0, m2)]
+                diff = atm.posn() - atm2.posn()
+                if dot(diff, diff) < self.MAXLENSQ:
+                    moffset = m2 - mmid
+                    # Given the offset, zipping up the rows is easy.
+                    for m in range(mfirst[n], mlast[n]+1):
+                        atm = oddAtomDict[(n, m)]
+                        bondDict[atm].append((0, m + moffset))
+                    raise FoundMOffset()
+            # If we get to this point, we never found m offset.
+            # If this ever happens, it indicates a bug.
+            raise Exception, "can't find m offset"
+        except FoundMOffset:
+            pass
+
+        # Use the bond information to bond the atoms
+        for (dict1, dict2) in [(evenAtomDict, oddAtomDict),
+                               (oddAtomDict, evenAtomDict)]:
+            for n, m in dict1.keys():
+                atm = dict1[(n, m)]
+                for n2, m2 in bondDict[atm]:
+                    try:
+                        atm2 = dict2[(n2, m2)]
+                        bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
+                    except KeyError:
+                        pass
+
 
 cmd = greenmsg("Insert Nanotube: ")
 
@@ -176,87 +236,50 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
         self.length_linedit.setText(self.lenstr)
 
     def buildChunk(self):
-        from Numeric import dot
+        PROFILE = False
+	if PROFILE:
+            from debug import Stopwatch
+            sw = Stopwatch()
+            sw.start()
         length = self.length
         xyz = self.chirality.xyz
         atoms = self.mol.atoms
         mlimits = self.chirality.mlimits
-        maxLen = 1.2 * Chirality.BONDLENGTH
-        maxLenSq = maxLen ** 2
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(self.mol, length + 4 * maxLen)
+        self.chirality.populate(self.mol, length + 4 * Chirality.MAXLEN)
 
         # kill all the singlets
         for atm in atoms.values():
             if atm.is_singlet():
                 atm.kill()
 
-        # faster bond-finding algorithm, wware 051104
-        # A 100-angstrom-long (60,7) nanotube is currently taking 18
-        # seconds from when I hit "Ok" to when it appears on the screen.
-        # It has 6052 atoms.
-        # A 300-A-long (80,0) nanotube takes 1 minute, 8 seconds, and
-        # has 22560 atoms, so this is a linear-time algorithm, taking
-        # about 3 milliseconds per atom.
-
-        # By partitioning the atoms into 3D voxels, we can search just
-        # the atoms in the 3x3x3 nearest voxels to find out who bonds
-        # to an atom. First, sort the atoms into voxels.
-        voxels = { }
-        for atm in atoms.values():
-            x, y, z = map(float, atm.posn())
-            idx = (int(x / maxLen),
-                   int(y / maxLen),
-                   int(z / maxLen))
-            try: voxels[idx].append(atm)
-            except KeyError: voxels[idx] = [ atm ]
-
-        # Do the bonding
-        for atm in atoms.values():
-            x, y, z = map(float, atm.posn())
-            # get the voxel index
-            x1 = int(x / maxLen)
-            y1 = int(y / maxLen)
-            z1 = int(z / maxLen)
-            # get a bounding box around the atom, use it to create
-            # a screening function for our short list of neighbors
-            xmin, xmax = x - maxLen, x + maxLen
-            ymin, ymax = y - maxLen, y + maxLen
-            zmin, zmax = z - maxLen, z + maxLen
-            def closeEnough(atm2):
-                if atm2 == atm or bonds.bonded(atm, atm2): return False
-                x, y, z = map(float, atm2.posn())
-                if x < xmin or x > xmax: return False
-                if y < ymin or y > ymax: return False
-                if z < zmin or z > zmax: return False
-                diff = atm.posn() - atm2.posn()
-                return dot(diff, diff) < maxLenSq
-
-            # Compile the short list of neighbors
-            lst = [ ]
-            for x2 in range(x1-1, x1+2):
-                for y2 in range(y1-1, y1+2):
-                    for z2 in range(z1-1, z1+2):
-                        idx = (x2, y2, z2)
-                        try: lst += voxels[idx]
-                        except KeyError: pass
-
-            # Step through the short list and bond as needed
-            for atm2 in filter(closeEnough, lst):
-                bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
+        # Judgement call: because we're discarding carbons with funky
+        # valences, we will necessarily get slightly more ragged edges
+        # on nanotubes. This is a parameter we can fiddle with to
+        # adjust the length. My thought is that users would prefer a
+        # little extra length, because it's fairly easy to trim the
+        # ends, but much harder to add new atoms on the end.
+        #LENGTH_TWEAK = 0.5 * Chirality.BONDLENGTH
+        LENGTH_TWEAK = Chirality.BONDLENGTH
 
         # trim all the carbons that fall outside our desired length
         # by doing this, we are introducing new singlets
         for atm in atoms.values():
             y = atm.posn()[1]
-            if y > .5 * (length + maxLen) or y < -.5 * (length + maxLen):
+            if (y > .5 * (length + LENGTH_TWEAK) or
+                y < -.5 * (length + LENGTH_TWEAK)):
                 atm.kill()
 
         # trim all the carbons that only have one carbon neighbor
         for atm in atoms.values():
             if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
                 atm.kill()
+
+        if PROFILE:
+            t = sw.now()
+            env.history.message(greenmsg("%g seconds to build %d atoms" %
+                                         (t, len(atoms.values()))))
 
         part = self.win.assy.part
         part.ensure_toplevel_group()
