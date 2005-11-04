@@ -20,6 +20,7 @@ povheader = """
 #declare Yellow  = rgb <1,1,0>;
 #declare Cyan    = rgb <0, 1, 1>;
 #declare Magenta = rgb <1, 0, 1>;
+#declare SkyBlue = rgb <0, .5, 1>;
 #declare Clear   = rgbf 1;
 #declare White   = rgb 1;
 #declare Black   = rgb 0;
