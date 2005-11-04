@@ -57,6 +57,30 @@ def norm(v1):
         # recomputing vlen(v1) -- code was v1 / vlen(v1)
     else: return v1+0
 
+# paranoid acos(dotproduct) function, wware 051103
+# measure the angle between two vectors, but try to cover all the wierd
+# cases where numerical anomalies could pop up
+def angleBetween(vec1, vec2):
+    TEENY = 1.0e-10
+    lensq1 = dot(vec1, vec1)
+    if lensq1 < TEENY:
+        return 0.0
+    lensq2 = dot(vec2, vec2)
+    if lensq2 < TEENY:
+        return 0.0
+    vec1 /= lensq1 ** .5
+    vec2 /= lensq2 ** .5
+    # The case of nearly-equal vectors will be covered by the >= 1.0 clause.
+    #diff = vec1 - vec2
+    #if dot(diff, diff) < TEENY:
+    #    return 0.0
+    dprod = dot(vec1, vec2)
+    if dprod >= 1.0:
+        return 0.0
+    if dprod <= -1.0:
+        return 180.0
+    import math
+    return (180/math.pi) * math.acos(dprod)
 
 # p1 and p2 are points, v1 is a direction vector from p1.
 # return (dist, wid) where dist is the distance from p1 to p2

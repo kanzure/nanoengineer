@@ -20,74 +20,22 @@ from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
 
-# paranoid acos(dotproduct) function, wware 051103
-def angleBetween(vec1, vec2):
-    TEENY = 1.0e-10
-    lensq1 = dot(vec1, vec1)
-    if lensq1 < TEENY:
-        return 0.0
-    lensq2 = dot(vec2, vec2)
-    if lensq2 < TEENY:
-        return 0.0
-    vec1 /= lensq1 ** .5
-    vec2 /= lensq2 ** .5
-    diff = vec1 - vec2
-    if dot(diff, diff) < TEENY:
-        return 0.0
-    dprod = dot(vec1, vec2)
-    if dprod >= 1.0:
-        return 0.0
-    if dprod <= -1.0:
-        return 180.0
-    import math
-    return (180/math.pi) * math.acos(dprod)
-
 # == Measurement Jigs
 
-class Measurement(Jig):
+# rename class for clarity, remove spurious methods, wware 051103
+class MeasurementJig(Jig):
     "superclass for Measurement jigs"
     # constructor moved to base class, wware 051103
     def __init__(self, assy, atomlist):
         Jig.__init__(self, assy, atomlist)        
-        self.quat = Q(1, 0, 0, 0)
-        self.font_type = "Helvetica"
+        self.font_name = "Helvetica"
         self.font_size = 10.0 # pt size
-        self.center = V(0,0,0)
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
         self.cancelled = True # We will assume the user will cancel
 
     # move some things to base class, wware 051103
-    copyable_attrs = Jig.copyable_attrs + ('font_type', 'font_size', 'center')
-
-    def move(self, offset):
-        self.center += offset
-    
-    def rot(self, q):
-        self.quat += q
-        
-    def posn(self):
-        return self.center
-
-    def recompute_center_axis(self, los = None):
-        if los is None:
-            los = self.assy.o.lineOfSight
-        shaft = self.atoms
-        # remaining code is a kluge, according to the comment above findcenter;
-        # note that it depends on order of atoms, presumably initially derived
-        # from the selatoms dict and thus arbitrary (not even related to order
-        # in which user selected them or created them). [bruce 050518 comment]
-        pos=A(map((lambda a: a.posn()), shaft))
-        self.center=sum(pos)/len(pos)
-        relpos=pos-self.center
-        if len(shaft) == 1:
-            self.axis = norm(los)
-        elif len(shaft) == 2:
-            self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
-        else:
-            guess = map(cross, relpos[:-1], relpos[1:])
-            guess = map(lambda x: sign(dot(los,x))*x, guess)
-            self.axis=norm(sum(guess))
+    copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
 
     # move to base class, wware 051103
     def rematom(self, atm):
@@ -96,36 +44,46 @@ class Measurement(Jig):
         
     # Set the properties for a Measure Distance jig read from a (MMP) file
     # include atomlist, wware 051103
-    def setProps(self, name, color, font_type, font_size, center, atomlist):
+    def setProps(self, name, color, font_name, font_size, atomlist):
         self.name = name
         self.color = color
-        self.font_type = font_type
+        self.font_name = font_name
         self.font_size = font_size
-        self.center = center
         self.setAtoms(atomlist)
 
     # simplified, wware 051103
+    # Following Postscript: font names NEVER have parentheses in them.
+    # So we can use parentheses to delimit them.
     def mmp_record_jigspecific_midpart(self):
-        xyz = self.posn() * 1000
-        return " \"%s\" %d (%d, %d, %d)" % \
-               (self.font_type, self.font_size,
-                int(xyz[0]), int(xyz[1]), int(xyz[2]))
+        return " (%s) %d" % (self.font_name, self.font_size)
         
+    # unify text-drawing to base class, wware 051103
+    def _drawtext(self, text):
+        # use atom positions to compute center, where text should go
+        pos1 = self.atoms[0].posn()
+        pos2 = self.atoms[-1].posn()
+        drawtext(text, self.color, (pos1 + pos2) / 2, self.font_size, self.assy.o)
+    
+    # move into base class, wware 051103
+    def set_cntl(self):
+        from JigProp import JigProp
+        self.cntl = JigProp(self, self.assy.o)
+
+    # move into base class, wware 051103
+    def writepov(self, file, dispdef):
+        sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
+    
     pass # end of class Measurement
 
 
 # == Measure Distance
 
-class MeasureDistance(Measurement):
+class MeasureDistance(MeasurementJig):
     '''A Measure Distance jig has two atoms and draws a line with a distance label between them.
     '''
     
     sym = "Distance"
     icon_names = ["measuredistance.png", "measuredistance-hide.png"]
-
-    def set_cntl(self):
-        from JigProp import JigProp
-        self.cntl = JigProp(self, self.assy.o)
 
     def _getinfo(self): 
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
@@ -155,30 +113,20 @@ class MeasureDistance(Measurement):
             drawwirecube(self.color, a.posn(), rad)
             
         drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
-        self.recompute_center_axis()
-        text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
-        drawtext(text, self.color, self.center, self.font_size, self.assy.o)
-    
-    # Not implemented yet
-    def writepov(self, file, dispdef):
-        return
-    
+        self._drawtext("%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance()))
+
     mmp_record_name = "mdistance"
     
     pass # end of class MeasureDistance
         
 # == Measure Angle
 
-class MeasureAngle(Measurement):
+class MeasureAngle(MeasurementJig):
     # new class.  wware 051031
     '''A Measure Angle jig has three atoms.'''
     
     sym = "Angle"
     icon_names = ["measureangle.png", "measureangle-hide.png"]
-
-    def set_cntl(self):
-        from JigProp import JigProp
-        self.cntl = JigProp(self, self.assy.o)
 
     def _getinfo(self):   # add atom list, wware 051101
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
@@ -207,13 +155,7 @@ class MeasureAngle(Measurement):
             
         drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
         drawline(self.color, self.atoms[1].posn(), self.atoms[2].posn())
-        self.recompute_center_axis()
-        text = "%.2f" % self.get_angle()
-        drawtext(text, self.color, self.center, self.font_size, self.assy.o)
-    
-    # Not implemented yet
-    def writepov(self, file, dispdef):
-        return
+        self._drawtext("%.2f" % self.get_angle())
     
     mmp_record_name = "mangle"
     
@@ -221,16 +163,12 @@ class MeasureAngle(Measurement):
         
 # == Measure Dihedral
 
-class MeasureDihedral(Measurement):
+class MeasureDihedral(MeasurementJig):
     # new class.  wware 051031
     '''A Measure Dihedral jig has four atoms.'''
     
     sym = "Dihedral"
     icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
-
-    def set_cntl(self):
-        from JigProp import JigProp
-        self.cntl = JigProp(self, self.assy.o)
 
     def _getinfo(self):    # add atom list, wware 051101
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
@@ -267,13 +205,7 @@ class MeasureDihedral(Measurement):
         drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
         drawline(self.color, self.atoms[1].posn(), self.atoms[2].posn())
         drawline(self.color, self.atoms[2].posn(), self.atoms[3].posn())
-        self.recompute_center_axis()
-        text = "%.2f" % self.get_dihedral()
-        drawtext(text, self.color, self.center, self.font_size, self.assy.o)
-    
-    # Not implemented yet
-    def writepov(self, file, dispdef):
-        return
+        self._drawtext("%.2f" % self.get_dihedral())
     
     mmp_record_name = "mdihedral"
     
