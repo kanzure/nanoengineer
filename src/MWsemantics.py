@@ -1024,7 +1024,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
     def insertNanotube(self):
         from NanotubeGenerator import NanotubeGenerator
-        NanotubeGenerator().show()
+        NanotubeGenerator(self).show()
 
     #### Movie Player Dashboard Slots ############
 
