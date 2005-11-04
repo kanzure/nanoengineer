@@ -124,6 +124,20 @@ else:
 
 # ==
 
+class Stopwatch:
+    def __init__(self):
+        self.__marks = [ ]
+    def start(self):
+        self.__start = time.time()
+    def mark(self):
+        self.__marks.append(time.time() - self.__start)
+    def getMarks(self):
+        return self.__marks
+    def now(self):
+        return time.time() - self.__start
+
+# ==
+
 # the following are needed to comply with our Qt/PyQt license agreements.
 
 def legally_execfile_in_globals(filename, globals, error_exception = True):
