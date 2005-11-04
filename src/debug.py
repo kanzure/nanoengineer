@@ -124,6 +124,8 @@ else:
 
 # ==
 
+# Stopwatch for measuring run time of algorithms or code snippets.
+# wware 051104
 class Stopwatch:
     def __init__(self):
         self.__marks = [ ]
