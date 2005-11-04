@@ -192,28 +192,48 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
             if atm.is_singlet():
                 atm.kill()
 
-        # much faster bond-finding algorithm, wware 051103
+        # faster bond-finding algorithm, wware 051104
+        # A 100-angstrom-long (60,7) nanotube is currently taking 18
+        # seconds from when I hit "Ok" to when it appears on the screen.
+        # It has 6052 atoms.
+        # A 300-A-long (80,0) nanotube takes 1 minute, 8 seconds, and
+        # has 22560 atoms, so this is a linear-time algorithm, taking
+        # about 3 milliseconds per atom.
 
         # By partitioning the atoms into 3D voxels, we can search just
         # the atoms in the 3x3x3 nearest voxels to find out who bonds
-        # to an atom.
-        def voxelIndex(atm):
-            x, y, z = map(float, atm.posn())
-            return (int(x / maxLen),
-                    int(y / maxLen),
-                    int(z / maxLen))
-
-        # Sort the atoms into voxels
+        # to an atom. First, sort the atoms into voxels.
         voxels = { }
         for atm in atoms.values():
-            idx = voxelIndex(atm)
+            x, y, z = map(float, atm.posn())
+            idx = (int(x / maxLen),
+                   int(y / maxLen),
+                   int(z / maxLen))
             try: voxels[idx].append(atm)
             except KeyError: voxels[idx] = [ atm ]
 
         # Do the bonding
         for atm in atoms.values():
-            x1, y1, z1 = voxelIndex(atm)
-            # Compile a short list of candidates
+            x, y, z = map(float, atm.posn())
+            # get the voxel index
+            x1 = int(x / maxLen)
+            y1 = int(y / maxLen)
+            z1 = int(z / maxLen)
+            # get a bounding box around the atom, use it to create
+            # a screening function for our short list of neighbors
+            xmin, xmax = x - maxLen, x + maxLen
+            ymin, ymax = y - maxLen, y + maxLen
+            zmin, zmax = z - maxLen, z + maxLen
+            def closeEnough(atm2):
+                if atm2 == atm or bonds.bonded(atm, atm2): return False
+                x, y, z = map(float, atm2.posn())
+                if x < xmin or x > xmax: return False
+                if y < ymin or y > ymax: return False
+                if z < zmin or z > zmax: return False
+                diff = atm.posn() - atm2.posn()
+                return dot(diff, diff) < maxLenSq
+
+            # Compile the short list of neighbors
             lst = [ ]
             for x2 in range(x1-1, x1+2):
                 for y2 in range(y1-1, y1+2):
@@ -221,12 +241,10 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
                         idx = (x2, y2, z2)
                         try: lst += voxels[idx]
                         except KeyError: pass
+
             # Step through the short list and bond as needed
-            for atm2 in lst:
-                if atm != atm2 and not bonds.bonded(atm, atm2):
-                    diff = atm.posn() - atm2.posn()
-                    if dot(diff, diff) < maxLenSq:
-                        bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
+            for atm2 in filter(closeEnough, lst):
+                bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
 
         # trim all the carbons that fall outside our desired length
         # by doing this, we are introducing new singlets
