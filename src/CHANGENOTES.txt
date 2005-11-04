@@ -587,3 +587,50 @@ Summary: implemented "Recenter on atoms" for Linear Motor
 
 ----------------------------
 
+Name: Will Ware
+Date: 11/3/2005
+Files: NanotubeGenerator.py
+Summary: Some nanotube chiralities can produce funky valences.
+
+	 I ended up leaving open bonds on the ends, graphitic bonds
+	 elsewhere, and all the carbons are sp2. When you hydrogenate
+	 the result, you sometimes get the funky valence messages, and
+	 I don't know a good fix for that. We should at least
+	 release-note the funny valences. Maybe our users will be good
+	 enough chemists to understand them and patch them manually.
+	 We can't protect users from ever learning any chemistry at
+	 all.
+
+This happens when a carbon has a single graphitic bond to one other
+carbon, so when you hydrogenate, it picks up two hydrogens, then it
+whines about not having enough bonds for its hybridization.
+
+On this topic, Damian wrote:
+
+	If you're looking for an easy fix, just delete all carbon
+	atoms with two single bonds on them (the sp2 carbons with the
+	two H's on'em). The nanotube is defined by the pi-connectivity
+	between carbons and the graphitic (in-tube) or aromatic (edge
+	of tube) bonding of all the carbon atoms, not the absolute
+	length and the need for all atoms to fill that space to be
+	there. Unless your intention is to sew pairs of carbons into
+	the tubes to connect each "single" carbon to the nearest
+	neighbor aromatic carbon, which would be fine, too.
+
+Here is what I think Damian is talking about with the "sewing" thing.
+Make a (5,2) nanotube, 5 angstroms long. Hydrogenate it. There will be
+two of the under-valenced carbons. Each one has a hydrogen that's
+unrealistically close to another hydrogen. If you popped out those two
+hydrogens and replaced them with another carbon, maybe that would work
+better? I tried it, using sp2 carbons to replace the four hydrogens,
+and it didn't seem to help.
+
+I think the real solution is for the user to make the nanotube a bit
+longer than he wants, and then hand-trim the ends of the tube. Either
+that or come up with some brilliant algorithmic method to generate
+clean tube ends. Then we might be able to implement Bruce's idea of
+growing the end of the tube by one carbon layer at a time, though for
+many chiralities it's more like growing spirally around the tube.
+
+----------------------------
+
