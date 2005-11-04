@@ -13,7 +13,6 @@ __author__ = "Will"
 from NanotubeGeneratorDialog import NanotubeGeneratorDialog
 from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
-from MWsemantics import windowList  # Rearchitecture: fix this mess
 from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, greenmsg
@@ -50,13 +49,6 @@ class Chirality:
         self.R = (L**2 * (F - H) / denom) ** .5
         self.B = (L**2 * (J - G) / denom) ** .5
         self.A = self.R * AoverR
-
-    class ConstError(TypeError): pass
-    def __setattr__(self,name,value):
-        # Don't touch my precious constants
-        if self.__dict__.has_key(name):
-            raise self.ConstError, "Can't reassign " + name
-        self.__dict__[name] = value
 
     def x1y1(self, n, m):
         c, s = self.__cos, self.__sin
@@ -101,9 +93,10 @@ cmd = greenmsg("Insert Nanotube: ")
 
 class NanotubeGenerator(NanotubeGeneratorDialog):
 
-    def __init__(self):
+    # pass window arg to constructor rather than use a global, wware 051103
+    def __init__(self, win):
         NanotubeGeneratorDialog.__init__(self)
-        self.win = win = windowList[0]  # Rearchitecture: fix this mess
+        self.win = win
         self.mol = molecule(win.assy, chem.gensym("Nanotube."))
         
         # Validator for the length linedit widget.
@@ -185,87 +178,69 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
     def buildChunk(self):
         from Numeric import dot
         length = self.length
+        xyz = self.chirality.xyz
+        atoms = self.mol.atoms
+        mlimits = self.chirality.mlimits
         maxLen = 1.2 * Chirality.BONDLENGTH
         maxLenSq = maxLen ** 2
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(self.mol, length + 3 * maxLen)
+        self.chirality.populate(self.mol, length + 4 * maxLen)
 
         # kill all the singlets
-        for a in self.mol.atoms.keys():
-            if self.mol.atoms[a].is_singlet():
-                self.mol.atoms[a].kill()
+        for atm in atoms.values():
+            if atm.is_singlet():
+                atm.kill()
 
-        # make a list of positions close enough to be bonded
-        bondList = [ ]
-        atoms = self.mol.atoms
-        akeys = atoms.keys()
-        for i in range(len(akeys)):
-            a = atoms[akeys[i]]
-            x1, y1, z1 = map(float, a.posn())
-            for j in range(i+1, len(akeys)):
-                b = atoms[akeys[j]]
-                x2, y2, z2 = map(float, b.posn())
-                # try to keep this test as quick as possible by
-                # disqualifying candidates as early as possible
-                if x1 - maxLen <= x2 <= x1 + maxLen:
-                    if y1 - maxLen <= y2 <= y1 + maxLen:
-                        if z1 - maxLen <= z2 <= z1 + maxLen:
-                            if ((x1 - x2) ** 2 +
-                                (y1 - y2) ** 2 +
-                                (z1 - z2) ** 2) < maxLenSq:
-                                bonds.bond_atoms(a, b, bonds.V_GRAPHITE)
+        # much faster bond-finding algorithm, wware 051103
+
+        # By partitioning the atoms into 3D voxels, we can search just
+        # the atoms in the 3x3x3 nearest voxels to find out who bonds
+        # to an atom.
+        def voxelIndex(atm):
+            x, y, z = map(float, atm.posn())
+            return (int(x / maxLen),
+                    int(y / maxLen),
+                    int(z / maxLen))
+
+        # Sort the atoms into voxels
+        voxels = { }
+        for atm in atoms.values():
+            idx = voxelIndex(atm)
+            try: voxels[idx].append(atm)
+            except KeyError: voxels[idx] = [ atm ]
+
+        # Do the bonding
+        for atm in atoms.values():
+            x1, y1, z1 = voxelIndex(atm)
+            # Compile a short list of candidates
+            lst = [ ]
+            for x2 in range(x1-1, x1+2):
+                for y2 in range(y1-1, y1+2):
+                    for z2 in range(z1-1, z1+2):
+                        idx = (x2, y2, z2)
+                        try: lst += voxels[idx]
+                        except KeyError: pass
+            # Step through the short list and bond as needed
+            for atm2 in lst:
+                if atm != atm2 and not bonds.bonded(atm, atm2):
+                    diff = atm.posn() - atm2.posn()
+                    if dot(diff, diff) < maxLenSq:
+                        bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
 
         # trim all the carbons that fall outside our desired length
-        for a in self.mol.atoms.keys():
-            y = self.mol.atoms[a].posn()[1]
-            if y > .5 * length or y < -.5 * length:
-                self.mol.atoms[a].kill()
+        # by doing this, we are introducing new singlets
+        for atm in atoms.values():
+            y = atm.posn()[1]
+            if y > .5 * (length + maxLen) or y < -.5 * (length + maxLen):
+                atm.kill()
+
+        # trim all the carbons that only have one carbon neighbor
+        for atm in atoms.values():
+            if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
+                atm.kill()
+
         part = self.win.assy.part
         part.ensure_toplevel_group()
         part.topnode.addchild(self.mol)
         self.win.mt.mt_update()
-
-
-"""
-Damian's notes on cleaning up passivation:
-
-Where there's one C, make it C-H, which will make its carbon atom
-type (for now) aromatic. The rules for aromaticity (Huckel's 4n+2,
-that is) break down in large pi-systems, so we don't need to worry
-about counting rings to make the pi-electrons work out right.
-
-Where there are two carbons (where you've got -O-O- now), make each
-of those C-H, which will also make their atom types aromatic (those
-same C-C units are the dimers the DC10c tip is designed to build
-with).  There'll be no complaints from the nanotube community who,
-like I said, don't typically think about any other atom types but C
-and H (and H only when necessary).
-
------------------------------
-Bruce's notes:
-
-All the C atoms should be sp2, I think, whether or not connected to H.
-
-You also have to independently set the bond types of the bonds.
-You can use set_v6 and the named constants like V_GRAPHITIC.
-Or there's a method whose name I forget which would take the string
-"graphitic" as an arg. BTW the constants might be called "graphite"
-rather than "graphitic". Maybe we should rename them.
-
-Most bonds in the nanotube should be set to "graphitic".
-
-For the bonds at the ends, it's up to you whether/how to make them
-1, 2, or g to fix valence errors.
-
-There is no guarantee this is possible -- if you terminate with H,
-it won't always be possible. The best compromise is bond type 1
-for C-H, g for C-C, and ignore the valence errors.
-
-But for using the nanotube for further construction it's more useful
-to terminate with open bonds (element X or 0) than with H.
-Then the bond types can all be g -- no valence errors.
-(And all C atoms should be sp2.)
-
-Maybe a checkbox for this is called for.
-"""

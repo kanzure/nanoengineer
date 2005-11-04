@@ -1023,8 +1023,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         ServerManager().showDialog()
         
     def insertNanotube(self):
+        # pass window arg to NanotubeGenerator rather than use a global, wware 051103
         from NanotubeGenerator import NanotubeGenerator
-        NanotubeGenerator().show()
+        NanotubeGenerator(self).show()
 
     #### Movie Player Dashboard Slots ############
 
