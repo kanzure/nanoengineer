@@ -150,7 +150,7 @@
     <item text="&amp;Jigs" name="jigsMenu">
         <action name="jigsMotorAction"/>
         <action name="jigsLinearMotorAction"/>
-        <action name="jigsGroundAction"/>
+        <action name="jigsAnchorAction"/>
         <action name="jigsStatAction"/>
         <action name="jigsThermoAction"/>
         <action name="jigsESPWindowAction"/>
@@ -708,6 +708,9 @@
     <toolbar dock="3">
         <property name="name">
             <cstring>rotateDashboard</cstring>
+        </property>
+        <property name="enabled">
+            <bool>true</bool>
         </property>
         <property name="geometry">
             <rect>
@@ -1799,16 +1802,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>jigsGroundAction</cstring>
+            <cstring>jigsAnchorAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image37</iconset>
         </property>
         <property name="text">
-            <string>Ground</string>
+            <string>Anchor</string>
         </property>
         <property name="menuText">
-            <string>&amp;Ground</string>
+            <string>&amp;Anchor</string>
         </property>
     </action>
     <action>
@@ -4842,10 +4845,10 @@
         <slot>makeGridPlane()</slot>
     </connection>
     <connection>
-        <sender>jigsGroundAction</sender>
+        <sender>jigsAnchorAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>makeGround()</slot>
+        <slot>makeAnchor()</slot>
     </connection>
     <connection>
         <sender>jigsHandleAction</sender>
@@ -5423,7 +5426,7 @@
     <slot>killDo()</slot>
     <slot>makeBearing()</slot>
     <slot>makeDyno()</slot>
-    <slot>makeGround()</slot>
+    <slot>makeAnchor()</slot>
     <slot>makeHandle()</slot>
     <slot>makeHeatsink()</slot>
     <slot>makeLinearMotor()</slot>

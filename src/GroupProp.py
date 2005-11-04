@@ -44,8 +44,8 @@ class GroupProp(GroupPropDialog):
         item.setText(1, str(self.nstats))
 
         item = QListViewItem(self.statsView,None)
-        item.setText(0,"Grounds:")
-        item.setText(1, str(self.ngrounds))
+        item.setText(0,"Anchors:")
+        item.setText(1, str(self.nanchors))
 
         item = QListViewItem(self.statsView,None)
         item.setText(0,"Linear Motors:")

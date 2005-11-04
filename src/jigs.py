@@ -19,11 +19,11 @@ bruce circa 050518 made rmotor arrow rotate along with the atoms.
 050901 bruce used env.history in some places. 
 
 050927 moved motor classes to jigs_motors.py and plane classes to jigs_planes.py
+
+mark 051104 Changed named of Ground jig to Anchor.
 """
 
 from VQT import *
-#from drawer import drawsphere, drawcylinder, drawline, drawaxes
-#from drawer import segstart, drawsegment, segend, drawwirecube
 from shape import *
 from chem import *
 import OpenGL.GLUT as glut
@@ -496,7 +496,7 @@ class Jig(Node):
         for atm in self.atoms:
             if part is not atm.molecule.part:
                 return True # disabled (or partly disabled??) due to some atoms not being in the same Part
-                #e We might want to loosen this for a Ground (and only disable the atoms in a different Part),
+                #e We might want to loosen this for an Anchor/Ground (and only disable the atoms in a different Part),
                 # but for initial bugfixing, let's treat all atoms the same for all jigs and see how that works.
         return False
 
@@ -571,18 +571,18 @@ class Jig(Node):
 
     pass # end of class Jig
 
-# == Ground
+# == Anchor (was Ground)
 
-class Ground(Jig):
-    '''a Ground just has a list of atoms that are anchored in space'''
+class Anchor(Jig):
+    '''an Anchor (Ground) just has a list of atoms that are anchored in space'''
 
-    sym = "Ground"
-    icon_names = ["ground.png", "ground-hide.png"]
+    sym = "Anchor"
+    icon_names = ["anchor.png", "anchor-hide.png"]
 
-    # create a blank Ground with the given list of atoms
+    # create a blank Anchor with the given list of atoms
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
-        # set default color of new ground to black
+        # set default color of new anchor to black
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
 
@@ -599,8 +599,8 @@ class Ground(Jig):
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
-    # Write "ground" record to POV-Ray file in the format:
-    # ground(<box-center>,box-radius,<r, g, b>)
+    # Write "anchor" record to POV-Ray file in the format:
+    # anchor(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
         if self.is_disabled(): return #bruce 050421
@@ -608,24 +608,24 @@ class Ground(Jig):
         else: c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
-            grec = "ground(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
+            grec = "anchor(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
             file.write(grec)
 
     def _getinfo(self):
-        return "[Object: Ground] [Name: " + str(self.name) + "] [Total Grounds: " + str(len(self.atoms)) + "]"
+        return "[Object: Anchor] [Name: " + str(self.name) + "] [Total Anchors: " + str(len(self.atoms)) + "]"
 
     def getstatistics(self, stats):
-        stats.ngrounds += len(self.atoms)
+        stats.nanchors += len(self.atoms)
 
-    mmp_record_name = "ground"
-    def mmp_record_jigspecific_midpart(self): # see also fake_Ground_mmp_record [bruce 050404]
+    mmp_record_name = "ground" # Will change to "anchor" for A7.  Mark 051104.
+    def mmp_record_jigspecific_midpart(self): # see also fake_Anchor_mmp_record [bruce 050404]
         return ""
 
-    def anchors_atom(self, atm): #bruce 050321; revised 050423 (warning: quadratic time for large ground jigs in Minimize)
+    def anchors_atom(self, atm): #bruce 050321; revised 050423 (warning: quadratic time for large anchor jigs in Minimize)
         "does this jig hold this atom fixed in space? [overrides Jig method]"
         return (atm in self.atoms) and not self.is_disabled()
 
-    def confers_properties_on(self, atom): # Ground method
+    def confers_properties_on(self, atom): # Anchor method
         """[overrides Node method]
         Should this jig be partly copied (even if not selected)
         when this atom is individually selected and copied?
@@ -633,12 +633,12 @@ class Ground(Jig):
         """
         return True
     
-    pass # end of class Ground
+    pass # end of class Anchor
 
-def fake_Ground_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize Selection
+def fake_Anchor_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize Selection
     """Return an mmp record (one or more lines with \n at end)
-    for a fake Ground jig for use in an mmp file meant only for simulator input.
-       Note: unlike creating and writing out a new real Ground object,
+    for a fake Anchor (Ground) jig for use in an mmp file meant only for simulator input.
+       Note: unlike creating and writing out a new real Anchor (Ground) object,
     which adds itself to each involved atom's .jigs list (perhaps just temporarily),
     perhaps causing unwanted side effects (like calling some .changed() method),
     this function has no side effects.
@@ -646,6 +646,7 @@ def fake_Ground_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize S
     ndix = mapping.atnums
     c = black
     color = map(int,A(c)*255)
+    # Change to "anchor" for A7.  Mark 051104.
     s = "ground (%s) (%d, %d, %d) " % ("name", color[0], color[1], color[2])
     nums = map((lambda a: ndix[a.key]), atoms)
     return s + " ".join(map(str,nums)) + "\n"
@@ -991,20 +992,18 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         env.history.message(cmd + "Gamess Jig created")
         self.assy.w.win_update()
         
-    def makeground(self):
-        """Grounds (anchors) all the selected atoms so that 
-        they will not move during a simulation run.
-        There is a limit of 30 atoms per Ground.  Any more will choke the file parser
-        in the simulator. To work around this, just make more Grounds.
+    def makeAnchor(self):
+        """Anchors the selected atoms so that they will not move during a minimization or simulation run.
         """
         # [bruce 050210 modified docstring]
+        # [mark 051104 modified docstring]
         
-        cmd = greenmsg("Ground: ")
+        cmd = greenmsg("Anchor: ")
 
         atoms = self.assy.selatoms_list() #bruce 051031 change
         
         if not atoms:
-            env.history.message(cmd + redmsg("You must select at least one atom to create a Ground."))
+            env.history.message(cmd + redmsg("You must select at least one atom to create an Anchor."))
             return
         
         ## Make sure that no more than 30 atoms are selected.
@@ -1014,11 +1013,11 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             #return
         
         
-        m = Ground(self.assy, atoms)
+        m = Anchor(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(m)
         
-        env.history.message(cmd + "Ground created")
+        env.history.message(cmd + "Anchor created")
         self.assy.w.win_update()
 
     def makestat(self):

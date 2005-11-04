@@ -783,8 +783,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def makeGamess(self):
         self.assy.makegamess()
         
-    def makeGround(self):
-        self.assy.makeground()
+    def makeAnchor(self): # Changed name from makeGround. Mark 051104.
+        self.assy.makeAnchor()
         
     def makeStat(self):
         self.assy.makestat()
@@ -1023,9 +1023,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         ServerManager().showDialog()
         
     def insertNanotube(self):
-        # pass window arg to NanotubeGenerator rather than use a global, wware 051103
         from NanotubeGenerator import NanotubeGenerator
-        NanotubeGenerator(self).show()
+        NanotubeGenerator().show()
 
     #### Movie Player Dashboard Slots ############
 

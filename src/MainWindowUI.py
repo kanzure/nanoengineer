@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Nov 3 17:54:31 2005
+# Created: Fri Nov 4 14:35:12 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6451,8 +6451,8 @@ class MainWindow(QMainWindow):
         self.jigsDynoAction.setIconSet(QIconSet(self.image35))
         self.jigsHeatsinkAction = QAction(self,"jigsHeatsinkAction")
         self.jigsHeatsinkAction.setIconSet(QIconSet(self.image36))
-        self.jigsGroundAction = QAction(self,"jigsGroundAction")
-        self.jigsGroundAction.setIconSet(QIconSet(self.image37))
+        self.jigsAnchorAction = QAction(self,"jigsAnchorAction")
+        self.jigsAnchorAction.setIconSet(QIconSet(self.image37))
         self.jigsHandleAction = QAction(self,"jigsHandleAction")
         self.jigsHandleAction.setIconSet(QIconSet(self.image38))
         self.modifySeparateAction = QAction(self,"modifySeparateAction")
@@ -6954,6 +6954,7 @@ class MainWindow(QMainWindow):
         self.toolsDoneAction.addTo(self.panDashboard)
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
+        self.rotateDashboard.setEnabled(1)
         self.rotateDashboard.setGeometry(QRect(375,48,120,29))
         self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
@@ -7152,7 +7153,7 @@ class MainWindow(QMainWindow):
         self.jigsMenu = QPopupMenu(self)
         self.jigsMotorAction.addTo(self.jigsMenu)
         self.jigsLinearMotorAction.addTo(self.jigsMenu)
-        self.jigsGroundAction.addTo(self.jigsMenu)
+        self.jigsAnchorAction.addTo(self.jigsMenu)
         self.jigsStatAction.addTo(self.jigsMenu)
         self.jigsThermoAction.addTo(self.jigsMenu)
         self.jigsESPWindowAction.addTo(self.jigsMenu)
@@ -7242,7 +7243,7 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsESPWindowAction,SIGNAL("activated()"),self.makeESPWindow)
         self.connect(self.jigsGamessAction,SIGNAL("activated()"),self.makeGamess)
         self.connect(self.jigsGridPlaneAction,SIGNAL("activated()"),self.makeGridPlane)
-        self.connect(self.jigsGroundAction,SIGNAL("activated()"),self.makeGround)
+        self.connect(self.jigsAnchorAction,SIGNAL("activated()"),self.makeAnchor)
         self.connect(self.jigsHandleAction,SIGNAL("activated()"),self.makeHandle)
         self.connect(self.jigsHeatsinkAction,SIGNAL("activated()"),self.makeHeatsink)
         self.connect(self.jigsLinearMotorAction,SIGNAL("activated()"),self.makeLinearMotor)
@@ -7472,8 +7473,8 @@ class MainWindow(QMainWindow):
         self.jigsDynoAction.setMenuText(self.__tr("&Dyno"))
         self.jigsHeatsinkAction.setText(self.__tr("Heatsin&k"))
         self.jigsHeatsinkAction.setMenuText(self.__tr("Heatsin&k"))
-        self.jigsGroundAction.setText(self.__tr("Ground"))
-        self.jigsGroundAction.setMenuText(self.__tr("&Ground"))
+        self.jigsAnchorAction.setText(self.__tr("Anchor"))
+        self.jigsAnchorAction.setMenuText(self.__tr("&Anchor"))
         self.jigsHandleAction.setText(self.__tr("Handle"))
         self.jigsHandleAction.setMenuText(self.__tr("&Handle"))
         self.modifySeparateAction.setText(self.__tr("Separate"))
@@ -7959,8 +7960,8 @@ class MainWindow(QMainWindow):
     def makeDyno(self):
         print "MainWindow.makeDyno(): Not implemented yet"
 
-    def makeGround(self):
-        print "MainWindow.makeGround(): Not implemented yet"
+    def makeAnchor(self):
+        print "MainWindow.makeAnchor(): Not implemented yet"
 
     def makeHandle(self):
         print "MainWindow.makeHandle(): Not implemented yet"

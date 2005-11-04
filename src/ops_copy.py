@@ -591,7 +591,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         elif idorig in self.atom_jigs:
             # orig is something which confers properties on some selected atoms (but does not contain them);
             # copy it partially, arrange to fix refs later (since not all those atoms might be copied yet).
-            # Since this only happens for Ground jigs, and the semantics are same as copying them fully,
+            # Since this only happens for Anchor jigs, and the semantics are same as copying them fully,
             # for now I'll just use the same method... later we can introduce a distinct 'copy_partial_in_mapping'
             # if there's some reason to do so.
             res = orig.copy_full_in_mapping(self)

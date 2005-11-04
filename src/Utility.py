@@ -1131,7 +1131,7 @@ class Node( GenericDiffTracker_API_Mixin):
         stats.nsinglets = 0
         stats.nrmotors = 0
         stats.nlmotors = 0
-        stats.ngrounds = 0
+        stats.nanchors = 0
         stats.nstats = 0
         stats.nthermos = 0
         stats.ngamess = 0

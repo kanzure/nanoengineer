@@ -507,7 +507,7 @@ class _readmmp_state:
         espWindow.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espWindow)
         
-    # Read the MMP record for a Ground as:
+    # Read the MMP record for a Ground (Anchor) as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 
     def _read_ground(self, card):
@@ -522,7 +522,7 @@ class _readmmp_state:
         list = map(int, re.findall("\d+",card[card.index(")")+1:]))
         list = map((lambda n: self.ndix[n]), list)
         
-        gr = Ground(self.assy, list) # create ground and set props
+        gr = Anchor(self.assy, list) # create ground and set props
         gr.name = name
         gr.color = col
         self.addmember(gr)

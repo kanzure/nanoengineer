@@ -830,7 +830,7 @@ def createWhatsThis(self):
                        "The following list of jigs write data to the trace file:<br>"\
                        "<b>Rotary Motors:</b> speed (GHz) and torque (nn-nm)<br>"\
                        "<b>Linear Motors:</b> displacement (pm)<br>"\
-                       "<b>Grounds:</b> torque (nn-nm)<br>"\
+                       "<b>Anchors:</b> torque (nn-nm)<br>"\
                        "<b>Thermostats:</b> energy added (zJ)<br>"\
                        "<b>Thermometer:</b> temperature (K)<br>"\
                        "</p>"
@@ -907,20 +907,20 @@ def createWhatsThis(self):
         # Jigs
         ##############################################
         
-        #### Ground ####
+        #### Anchor ####
 
-        jigsGroundActionText = "<u><b>Ground</b></u><br>"\
-                       "<p><img source=\"jigsGroundAction\"><br> "\
-                       "Attaches a <b>Ground</b> (anchor) to the selected atom(s), which "\
-                       "constrains its motion during a simulation.</p>"\
-                       "<p>To create a Ground, enter <b>Select Atoms</b> mode, "\
+        jigsAnchorActionText = "<u><b>Anchor</b></u><br>"\
+                       "<p><img source=\"jigsAnchorAction\"><br> "\
+                       "Attaches a <b>Anchor</b> to the selected atom(s), which "\
+                       "constrains its motion during a minimization or simulation.</p>"\
+                       "<p>To create an Anchor, enter <b>Select Atoms</b> mode, "\
                        "select the atom(s) you want to anchor and then select this action. "\
-                       "Grounds are drawn as a black wireframe box around each selected atom.</p>"
+                       "Anchors are drawn as a black wireframe box around each selected atom.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsGroundAction",
-                                                       self.jigsGroundAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsAnchorAction",
+                                                       self.jigsAnchorAction.iconSet().pixmap() )
        
-        self.jigsGroundAction.setWhatsThis(jigsGroundActionText )  
+        self.jigsAnchorAction.setWhatsThis(jigsAnchorActionText )  
         
         #### Rotary Motor ####
 

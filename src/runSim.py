@@ -907,7 +907,7 @@ class Minimize_CommandRun(CommandRun):
             want_simaspect = 1
         self.cmdname = cmdname #e in principle this should come from farther outside... maybe from a Command object
 
-        # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Grounds), for now...)
+        # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Anchors), for now...)
         if not self.part.molecules: # Nothing in the part to minimize.
             env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to minimize."))
 #            env.history.message(redmsg("%s: Nothing to minimize." % cmdname))
@@ -1066,7 +1066,7 @@ def atom_is_anchored(atm):
     #e really a Part method??
     res = False
     for jig in atm.jigs:
-        if jig.anchors_atom(atm): # as of 050321, true only for Ground jigs
+        if jig.anchors_atom(atm): # as of 050321, true only for Anchor jigs
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
     
@@ -1091,16 +1091,16 @@ class sim_aspect:
          be grounded, and the 2nd layer of atoms will constrain bond angles on the
          first layer, so leaving it out would be too different from what we're
          approximating.]
-        (If any given atoms have Ground jigs, those atoms are also treated as
+        (If any given atoms have Anchor jigs, those atoms are also treated as
         boundary atoms and their own bonds are only explored to an additional depth
         of 1 (in terms of bonds) to extend the boundary.
-        So if the user explicitly selects a complete boundary of Grounded atoms,
+        So if the user explicitly selects a complete boundary of Anchored atoms,
         only their own directly bonded real atoms will be additionally grounded.)
            All atoms not in our list or its 2-thick boundary are ignored --
         so much that our atoms might move and overlap them in space.
            We look at jigs which attach to our atoms,
         but only if we know how to sim them -- we might not, if they also
-        touch other atoms. For now, we only look at Ground jigs (as mentioned
+        touch other atoms. For now, we only look at Anchor jigs (as mentioned
         above) since this initial implem is only for Minimize. When we have
         Simulate Selection, this will need revisiting.
            If we ever need to emit history messages
@@ -1208,17 +1208,17 @@ class sim_aspect:
             atm.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
                 # note: this method knows whether & how to write a Singlet as an H (repositioned)!
     def write_grounds(self, mapping):
-        from jigs import fake_Ground_mmp_record
+        from jigs import fake_Anchor_mmp_record
         atoms = self.anchored_atoms_list
         nfixed = len(atoms)
         max_per_jig = 20
         for i in range(0, nfixed, max_per_jig): # starting indices of jigs for fixed atoms
             indices = range( i, min( i + max_per_jig, nfixed ) )
             if debug_sim:
-                print "debug_sim: writing Ground for these %d indices: %r" % (len(indices), indices)
-            # now write a fake Ground which has just the specified atoms
+                print "debug_sim: writing Anchor for these %d indices: %r" % (len(indices), indices)
+            # now write a fake Anchor which has just the specified atoms
             these_atoms = [atoms[i] for i in indices]
-            line = fake_Ground_mmp_record( these_atoms, mapping) # includes \n at end
+            line = fake_Anchor_mmp_record( these_atoms, mapping) # includes \n at end
             mapping.write(line)
             if debug_sim:
                 print "debug_sim: wrote %r" % (line,)           

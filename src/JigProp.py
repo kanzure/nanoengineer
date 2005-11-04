@@ -16,7 +16,7 @@ from widgets import RGBf_to_QColor, QColor_to_RGBf
 
 # This Jig Property dialog and its slot methods can be used for any simple jig
 # that has only a name and a color attribute changable by the user.  It is currently
-# used by both the Ground and AtomSet jig.  Mark 050928.
+# used by both the Anchor and AtomSet jig.  Mark 050928.
         
 class JigProp(JigPropDialog):
     def __init__(self, jig, glpane):
