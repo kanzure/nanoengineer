@@ -20,7 +20,7 @@ povheader = """
 #declare Yellow  = rgb <1,1,0>;
 #declare Cyan    = rgb <0, 1, 1>;
 #declare Magenta = rgb <1, 0, 1>;
-#declare SkyBlue = rgb <0, .5, 1>;
+#declare SkyBlue = rgb <.2, .6, 1>;
 #declare Clear   = rgbf 1;
 #declare White   = rgb 1;
 #declare Black   = rgb 0;
@@ -203,7 +203,7 @@ finish {
     }
 #end
 
-#macro ground(pos, rad, col)
+#macro anchor(pos, rad, col)
   wirebox( pos, rad, col )
 #end
 

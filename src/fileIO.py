@@ -45,7 +45,12 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     ## atnums['NUM'] = 0
     ## assy.alist = [] 
 
-    cdist = 6.0 ###5.0 # Camera distance
+    # POV-Ray images now look correct when Projection = ORTHOGRAPHIC.  Mark 051104.
+    if glpane.ortho == PERSPECTIVE:
+        cdist = 6.0 # Camera distance
+    else: # ORTHOGRAPHIC
+        cdist = 1600.0
+    
     aspect = (glpane.width + 0.0)/(glpane.height + 0.0)
     zfactor =  0.4 # zoom factor 
     up = V(0.0, zfactor, 0.0)
@@ -56,30 +61,47 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     f.write("// Recommended window size: width=%d, height=%d \n\n"%(glpane.width, glpane.height))
 
     f.write(povheader)
-
-    # Background color
-    f.write("background {\n  color rgb " + povpoint(glpane.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
-
+    
+    # Light sources.
+    # These are currently hardcoded here and independent of the 3 light sources in the CAD
+    # code.  This needs to be fixed (see bug 447).  Mark 051104.
     light1 = (glpane.out + glpane.left + glpane.up) * 10.0
     light2 = (glpane.right + glpane.up) * 10.0
     light3 = glpane.right + glpane.down + glpane.out/2.0
-    
-    # Light sources
     f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color Gray10 parallel\n}\n")
     f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
     f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
     
+    # Camera info
     vdist = cdist
     if aspect < 1.0:
             vdist = cdist / aspect
     eyePos = vdist * glpane.scale*glpane.out-glpane.pov
-    # Camera info
+    
     f.write("\ncamera {\n  location " + povpoint(eyePos)  +
             "\n  up " + povpoint(up) +
             "\n  right " + povpoint(right) +
             "\n  sky " + povpoint(glpane.up) +
             "\n angle " + str(angle) +
             "\n  look_at " + povpoint(-glpane.pov) + "\n}\n\n")
+
+    # Background color. The SkyBlue gradient is supported, but only works correctly when in "Front View".
+    # This is a work in progress (and this implementation is better than nothing).  See bug 888 for more info.
+    # Mark 051104.
+    if glpane.mode.backgroundGradient: # SkyBlue.  
+        f.write("sky_sphere {\n" +
+        "    pigment {\n" +
+        "      gradient y\n" +
+        "      color_map {\n" +
+        "        [(1-cos(radians(" + str(90-angle/2) + ")))/2 color Gray10]\n" +
+        "        [(1-cos(radians(" + str(90+angle/2) + ")))/2 color SkyBlue]\n" +
+        "      }\n" +
+        "      scale 2\n" +
+        "      translate -1\n" +
+        "    }\n" +
+        "  }\n")
+    else: # Solid
+        f.write("background {\n  color rgb " + povpoint(glpane.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
  
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
@@ -194,4 +216,3 @@ def writemdlfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     f.close()
 
 # end
-
