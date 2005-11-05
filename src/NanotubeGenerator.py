@@ -84,7 +84,7 @@ class Chirality:
 
         def add(element, x, y, z):
             atm = Atom(element, chem.V(x, y, z), mol)
-            atm.set_atomtype("sp2")
+            atm.set_atomtype_but_dont_revise_singlets("sp2")
             return atm
 
         evenAtomDict = { }
@@ -248,11 +248,6 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
         self.chirality.populate(self.mol, length + 4 * Chirality.MAXLEN)
-
-        # kill all the singlets
-        for atm in atoms.values():
-            if atm.is_singlet():
-                atm.kill()
 
         # Judgement call: because we're discarding carbons with funky
         # valences, we will necessarily get slightly more ragged edges
