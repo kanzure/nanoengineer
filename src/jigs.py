@@ -125,11 +125,11 @@ class Jig(Node):
         # Whether it's disabled (here and/or in the copy, and why) doesn't matter.
         if not self.needs_atoms_to_survive():
             return True
+        # fix logic error, wware 051107
         for atom in self.atoms:
-            if sel.picks_atom(atom):
-                return True
-        ##print "wont copy if sel", self
-        return False #e need to give a reason why not??
+            if not sel.picks_atom(atom):
+                return False #e need to give a reason why not??
+        return True
 
     def will_partly_copy_due_to_selatoms(self, sel):
         "[overrides Node method]"
