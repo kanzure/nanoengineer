@@ -354,7 +354,6 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     def __isub__(self, q1):
         return __iadd__(self, -q1)
 
-
     def __mul__(self, n):
         """multiplication by a scalar, i.e. Q1 * 1.3, defined so that
         e.g. Q1 * 2 == Q1 + Q1, or Q1 = Q1*0.5 + Q1*0.5
@@ -367,7 +366,8 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         else:
             raise MulQuat
 
-    def __imul__(self, q2):
+    def __imul__(self, n):
+        #bruce 051107 bugfix (untested): replace arg q2 with n, since body used n (old code must have never been tested either)
         if type(n) in numTypes:
             self.setangle(n*self.angle)
             self.__reset()
@@ -375,11 +375,17 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         else:
             raise MulQuat
 
-
-
     def __div__(self, q2):
+        "Return this quat divided by a number, or (untested, might not work) another quat."
+        #bruce 051107: revised docstring. permit q2 to be a number (new feature).
+        # Warning: the old code (for q2 a quat) is suspicious, since it appears to multiply two quats,
+        # but that multiplication is not presently implemented, if I understand the __mul__ implem above!
+        # This should be analyzed and cleaned up.
+        if type(q2) in numTypes:
+            #bruce 051107 new feature
+            return self * (1.0 / q2)
+        # old code (looks like it never could have worked, but this is not verified [bruce 051107]):
         return self*q2.conj()*(1.0/(q2*q2.conj()).w)
-
 
     def __repr__(self):
         return 'Q(%g, %g, %g, %g)' % (self.w, self.x, self.y, self.z)
