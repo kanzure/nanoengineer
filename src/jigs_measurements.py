@@ -77,10 +77,10 @@ class MeasurementJig(Jig):
         sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
     
     def will_copy_if_selected(self, sel):
-        "copy only if ALL my atoms are selected"
+        "copy only if all my atoms are selected [overrides Jig.will_copy_if_selected]"
         if not self.needs_atoms_to_survive():
             return True
-        # fix logic error, wware 051107
+        # for measurement jigs, copy only if all atoms selected, wware 051107
         for atom in self.atoms:
             if not sel.picks_atom(atom):
                 msg = "Can't copy a measurement jig unless all its atoms are selected"
