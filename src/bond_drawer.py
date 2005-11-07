@@ -377,8 +377,14 @@ def writepov_bond(self, file, dispdef, col):
     
     if disp < 0: disp = dispdef
     if disp == diLINES:
-        file.write("line(" + povpoint(a1pos) +
-                   "," + povpoint(a2pos) + ")\n")
+        if not toolong:
+            file.write("line(" + povpoint(a1pos) +
+                   "," + povpoint(a2pos) + ", <" + str(color1[0]) +"," + str(color1[1]) + ", " + str(color1[2]) + ">)\n")
+        else:
+            file.write("line(" + povpoint(a1pos) +
+                   "," + povpoint(center) + ", <" + str(color1[0]) +"," + str(color1[1]) + ", " + str(color1[2]) + ">)\n")
+            file.write("line(" + povpoint(center) +
+                   "," + povpoint(a2pos) + ", <" + str(color2[0]) +"," + str(color2[1]) + ", " + str(color2[2]) + ">)\n")
     if disp == diCPK:
         file.write("bond(" + povpoint(a1pos) +
                    "," + povpoint(a2pos) + ")\n")

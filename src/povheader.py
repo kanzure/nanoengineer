@@ -31,6 +31,9 @@ povheader = """
 #declare Gray50 = White * 0.50;
 #declare Gray75 = White * 0.25;
 
+#declare skyBlue = rgb <0.33, 0.73, 1.0>;
+#declare skyWhite = rgb <0.9, 0.9, 0.9>;
+
 // LIGHTBULB: for debugging light sources for POV-Ray images - Mark
 #declare Lightbulb = union {
     merge {
@@ -138,9 +141,9 @@ finish {
     }
 #end
 
-#macro line(pos1, pos2) 
+#macro line(pos1, pos2, col) 
   cylinder {pos1, pos2, 0.05
-    pigment { Black }
+    pigment { rgb col }
     }
 #end
 
@@ -281,4 +284,14 @@ finish {
           finish {Atomic}    
     }
 #end
+
+#macro Rotate_X(Axis, Angle)
+   #local vX = vaxis_rotate(x,Axis,Angle);
+   #local vY = vaxis_rotate(y,Axis,0);
+   #local vZ = vaxis_rotate(z,Axis,0);
+   transform {
+      matrix < vX.x,vX.y,vX.z, vY.x,vY.y,vY.z, vZ.x,vZ.y,vZ.z, 0,0,0 >
+   }
+#end
+
 """

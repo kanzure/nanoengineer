@@ -61,6 +61,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     f.write("// Recommended window size: width=%d, height=%d \n\n"%(glpane.width, glpane.height))
 
     f.write(povheader)
+
     
     # Light sources.
     # These are currently hardcoded here and independent of the 3 light sources in the CAD
@@ -88,7 +89,9 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     # Background color. The SkyBlue gradient is supported, but only works correctly when in "Front View".
     # This is a work in progress (and this implementation is better than nothing).  See bug 888 for more info.
     # Mark 051104.
-    if glpane.mode.backgroundGradient: # SkyBlue.  
+    if glpane.mode.backgroundGradient: # SkyBlue.
+        dt = glpane.quat
+        degY = dt.angle*180.0/pi
         f.write("sky_sphere {\n" +
         "    pigment {\n" +
         "      gradient y\n" +
@@ -99,6 +102,8 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
         "      scale 2\n" +
         "      translate -1\n" +
         "    }\n" +
+        '    #include "transforms.inc"\n' +
+        "    Axis_Rotate_Trans(" + povpoint(V(dt.x, dt.y, dt.z)) + ", " + str(degY) + ")\n" +
         "  }\n")
     else: # Solid
         f.write("background {\n  color rgb " + povpoint(glpane.mode.backgroundColor*V(1,1,-1)) + "\n}\n")

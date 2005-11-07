@@ -913,6 +913,22 @@ def makePolyList(v):
     assert type(segs) == type([]) #bruce 041119
     return segs
 
+
+def trialMakePolyList(v):
+    pMat = []
+    for i in range(size(v)):
+        pMat += [polyMat[i] * v[i]]
+    
+    segs = []
+    for corner, edges, planes in polyTab:
+      pts = size(planes)
+      for i in range(pts):
+          segs += [pMat[corner], pMat[planes[i]]]
+          segs += [pMat[planes[i]], pMat[planes[(i+1)%pts]]]
+    
+    return segs
+    
+
 def drawLonsdaleiteGrid(scale, center):
     """This function is obsolete. Call dragGrid() and pass approriate parameter to draw the Lonsdaleite Lattice """
     glDisable(GL_LIGHTING)
