@@ -83,6 +83,8 @@ class MeasurementJig(Jig):
         # fix logic error, wware 051107
         for atom in self.atoms:
             if not sel.picks_atom(atom):
+                msg = "Can't copy a measurement jig unless all its atoms are selected"
+                env.history.message(orangemsg(msg))
                 return False #e need to give a reason why not??
         return True
 
