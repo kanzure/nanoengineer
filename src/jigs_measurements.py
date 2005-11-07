@@ -76,6 +76,16 @@ class MeasurementJig(Jig):
     def writepov(self, file, dispdef):
         sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
     
+    def will_copy_if_selected(self, sel):
+        "copy only if ALL my atoms are selected"
+        if not self.needs_atoms_to_survive():
+            return True
+        # fix logic error, wware 051107
+        for atom in self.atoms:
+            if not sel.picks_atom(atom):
+                return False #e need to give a reason why not??
+        return True
+
     pass # end of class MeasurementJig
 
 
