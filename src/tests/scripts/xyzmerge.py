@@ -28,7 +28,7 @@ xyz = XyzFile()
 xyz.read(xyzInputFile)
 
 mmpLines = open(mmpInputFile).read().split("\n")
-atompat = re.compile("^atom (\d+) \((\d+)\) \((\d+), (\d+), (\d+)\)")
+atompat = re.compile("^atom (\d+) \((\d+)\) \((\-?\d+), (\-?\d+), (\-?\d+)\)")
 
 xyzIndex = 0
 for i in range(len(mmpLines)):
@@ -38,10 +38,10 @@ for i in range(len(mmpLines)):
         atm = xyz[xyzIndex]
         xyzIndex += 1
         groups = m.groups()
-        newline = "atom (%s)" % groups[0]
+        newline = "atom %s" % groups[0]
         elem = string.atoi(groups[1])
-        if elmentNames[elem] != atm.element:
-            print elmentNames[elem], atm.element
+        if elementNames[elem] != atm.element:
+            print elementNames[elem], atm.element
             assert False
         newline += " (%s)" % groups[1]
         newline += " (%d, %d, %d)" % (int(atm.x * 1000),
