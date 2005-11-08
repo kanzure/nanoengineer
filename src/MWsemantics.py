@@ -527,67 +527,91 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
         env.history.message(cmd + info)
-        self.glpane.quat += Q(V(0,1,0), pi)
-        self.glpane.gl_update()
+        self.rotateView(self.glpane.quat + Q(V(0,1,0), pi))
   
     def setViewPlus90(self): # Added by Mark. 051013.
         '''Increment the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View +90 : ")
         info = 'View incremented by 90 degrees'
         env.history.message(cmd + info)
-        self.glpane.quat += Q(V(0,1,0), pi/2)
-        self.glpane.gl_update()
+        self.rotateView(self.glpane.quat + Q(V(0,1,0), pi/2))
         
     def setViewMinus90(self): # Added by Mark. 051013.
         '''Decrement the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View -90 : ")
         info = 'View decremented by 90 degrees'
         env.history.message(cmd + info)
-        self.glpane.quat += Q(V(0,1,0), -pi/2)
-        self.glpane.gl_update()
+        self.rotateView(self.glpane.quat + Q(V(0,1,0), -pi/2))
 
     def setViewBack(self):
         cmd = greenmsg("Back View: ")
         info = 'Current view is Back View'
         env.history.message(cmd + info)
-        self.glpane.quat = Q(V(0,1,0),pi)
-        self.glpane.gl_update()
+        self.rotateView(Q(V(0,1,0),pi))
 
     def setViewBottom(self):
         cmd = greenmsg("Bottom View: ")
         info = 'Current view is Bottom View'
         env.history.message(cmd + info)
-        self.glpane.quat = Q(V(1,0,0),-pi/2)
-        self.glpane.gl_update()
+        self.rotateView(Q(V(1,0,0),-pi/2))
 
     def setViewFront(self):
         cmd = greenmsg("Front View: ")
         info = 'Current view is Front View'
         env.history.message(cmd + info)
-        self.glpane.quat = Q(1,0,0,0)
-        self.glpane.gl_update()
+        self.rotateView(Q(1,0,0,0))
 
     def setViewLeft(self):
         cmd = greenmsg("Left View: ")
         info = 'Current view is Left View'
         env.history.message(cmd + info)
-        self.glpane.quat = Q(V(0,1,0),pi/2)
-        self.glpane.gl_update()
+        self.rotateView(Q(V(0,1,0),pi/2))
 
     def setViewRight(self):
         cmd = greenmsg("Right View: ")
         info = 'Current view is Right View'
         env.history.message(cmd + info)
-        self.glpane.quat = Q(V(0,1,0),-pi/2)
-        self.glpane.gl_update()
+        self.rotateView(Q(V(0,1,0),-pi/2))
 
     def setViewTop(self):
         cmd = greenmsg("Top View: ")
         info = 'Current view is Top View'
         env.history.message(cmd + info)
-        self.glpane.quat = Q(V(1,0,0),pi/2)
-        self.glpane.gl_update()
+        self.rotateView(Q(V(1,0,0),pi/2))
 
+    # I intend to move rotateView() to GLPane.py
+    # I'll ask Bruce to be sure.  Mark 051107.
+    def rotateView(self, q2): 
+        "Rotate current view to quat (viewpoint) q2"
+        
+        deltaq = q2 - self.glpane.quat
+        
+        angle = int(deltaq.angle * 180/pi) # in degrees
+
+        if angle <= 1:
+            self.glpane.quat = q2 
+            self.glpane.gl_update()
+            return
+
+        if angle <= 180:
+            rot = (q2 - self.glpane.quat) / angle
+        else: # Go the short way (less than 180).
+            rot =  ((q2 - self.glpane.quat) / angle) * -1
+            angle = 360 - angle
+        
+        print "rotateView: angle = ", angle
+        print "rotateView: rot = ", rot
+        
+        for i in range(1, angle-1): # angle-1, since we "snap" to the final viewpoint below.
+            self.glpane.quat += rot
+            self.glpane.gl_update()
+            env.call_qApp_processEvents() # This allows the screen to update.
+        
+        # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
+        # Mark. 051107
+        self.glpane.quat = q2 
+        self.glpane.gl_update()
+        
     ###################################
     # Display Toolbar Slots
     ###################################
