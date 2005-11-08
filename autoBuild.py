@@ -125,8 +125,8 @@ o an executable and affiliated files.
                         os.chdir(os.path.join(self.atomPath,'cad'))
                         copytree('doc', os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/doc'))
                         copytree('images', os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/images'))
-
-                        copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
+                        copytree('partlib', os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents/partlib'))
+                        
                         os.chdir(self.currentPath)
                         os.mkdir(os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/bin'))
                         copytree('assistant.app',  os.path.join(self.buildSourcePath, self.appName + '.app',  'Contents/bin/assistant.app'))
@@ -355,6 +355,8 @@ fi
         <false/>
         <key>IFPkgFlagUpdateInstalledLanguages</key>
         <false/>
+	<key>IFPkgFormatVersion</key>
+        <real>0.10000000149011612</real>
 </dict>
 </plist>"""
             plf.write(tailDoc)
