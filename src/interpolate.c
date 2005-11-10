@@ -44,7 +44,7 @@ fillInterpolationTable(struct interpolationTable *t, double func(double), double
 }
 
 static double
-square(r)
+square(double r)
 {
   return r * r;
 }
@@ -116,7 +116,7 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   Beta = stretch->beta;
 
   start = square(R0 * 0.5);
-  end = square(R0 * 1.5);
+  end = (int)square(R0 * 1.5);
   scale = (end - start) / TABLEN;
 
   fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, start, scale);
@@ -172,7 +172,7 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   EvdW = (periodicTable[element1].e_vanDerWaals + periodicTable[element2].e_vanDerWaals) / 2.0;
 
   start = square(RvdW * 0.4);
-  end = square(RvdW * 1.5);
+  end = (int)square(RvdW * 1.5);
   scale = (int)(end - start) / TABLEN;
 
   fillInterpolationTable(&vdw->potentialBuckingham, potentialBuckingham, start, scale);
