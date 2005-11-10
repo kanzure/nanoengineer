@@ -208,6 +208,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             self.glpane.gl_update() #bruce 050418
             self.mt.mt_update()
+            
+            self.fps = 10.0 # To be moved to GLPane.  Mark 051109.
+            
         return
 
     def fileSave(self):

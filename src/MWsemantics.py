@@ -26,7 +26,7 @@ from qt import QWidget, QFrame, SIGNAL, QFileDialog
 from qt import QCursor, QBitmap, QWMatrix, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
 from GLPane import GLPane ## bruce 050408 removed: import *
 from assembly import assembly ## bruce 050408 added this, was coming from GLPane
-import os, sys
+import os, sys, time
 import help
 from math import ceil
 from modelTree import modelTree ## bruce 050408 removed: import *
@@ -78,6 +78,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     #bruce 050906: same for fileSlotsMixin.
     
     initialised = 0 #bruce 041222
+    
+    fps = 10.0 # frames/second, to be moved to GLPane. Mark 051109
 
     # This is the location of the separator that gets inserted in the File menu above "Recent Files".
     RECENT_FILES_MENU_INDEX = 10 
@@ -581,36 +583,64 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     # I intend to move rotateView() to GLPane.py
     # I'll ask Bruce to be sure.  Mark 051107.
+    
+    # rotateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
+    # which traces the same path as slerp but works much faster.
+    # The advantages to this approach are explained in detail here:
+    # http://number-none.com/product/Hacking%20Quaternions/
     def rotateView(self, q2): 
         "Rotate current view to quat (viewpoint) q2"
         
-        deltaq = q2 - self.glpane.quat
+        wxyz1 = V(self.glpane.quat.w, self.glpane.quat.x, self.glpane.quat.y, self.glpane.quat.z)
+        wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
         
-        angle = int(deltaq.angle * 180/pi) # in degrees
+        # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
+        # Long paths can be prevented by negating one end (if the dot product is negative).
+        if dot(wxyz1, wxyz2) < 0: 
+            wxyz2 = V(-q2.w, -q2.x, -q2.y, -q2.z)
+        
+        off = wxyz2 -wxyz1
 
-        if angle <= 1:
-            self.glpane.quat = q2 
+        deltaq = q2 - self.glpane.quat
+        angle = int(deltaq.angle * 180/pi) # in degrees
+        nsteps = int (min (self.fps, angle)) # Number of steps in the animation (rotation)
+        
+        # If nsteps is 0 or 1, don't animate.
+        if nsteps <= 1:
+            self.glpane.quat = Q(q2)
             self.glpane.gl_update()
             return
+        
+        # nsteps will always be > 1 here, so division by zero is never a problem.
+        angle_inc = angle / nsteps # angle increment between steps (frames)
+        
+        # print "angle = ", angle,", fps = ", str(self.fps), ", nsteps =", nsteps, ", angle_inc = ", angle_inc
+        
+        # If the angle increment between steps is too big (> 25 degrees), don't animate.
+        if angle_inc > 25:
+            self.glpane.quat = Q(q2)
+            self.glpane.gl_update()
+            return
+        
+        off *= (1.0/nsteps)
+        wxyz = wxyz1
 
-        if angle <= 180:
-            rot = (q2 - self.glpane.quat) / angle
-        else: # Go the short way (less than 180).
-            rot =  ((q2 - self.glpane.quat) / angle) * -1
-            angle = 360 - angle
+        start_time = time.time() # Start stopwatch
         
-        print "rotateView: angle = ", angle
-        print "rotateView: rot = ", rot
-        
-        for i in range(1, angle-1): # angle-1, since we "snap" to the final viewpoint below.
-            self.glpane.quat += rot
+        # Main animation loop.
+        for i in range(1, nsteps):
+            wxyz += off
+            self.glpane.quat = Q(norm(wxyz))
             self.glpane.gl_update()
             env.call_qApp_processEvents() # This allows the screen to update.
         
         # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
-        # Mark. 051107
-        self.glpane.quat = q2 
+        self.glpane.quat = Q(q2) 
         self.glpane.gl_update()
+        
+        end_time = time.time() # Stop stopwatch
+        
+        self.fps = nsteps / (end_time - start_time)
         
     ###################################
     # Display Toolbar Slots
