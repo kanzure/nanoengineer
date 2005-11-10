@@ -1,7 +1,11 @@
+
 #include "simulator.h"
 
 static int atomCount;
 static int allowScaling; // non-zero if a scale difference will be allowed
+
+static struct xyz *BasePositions;
+static struct xyz *InitialPositions;
 
 // The "extra" field in this case is the array of coordinates of the
 // atom positions.  The position and orientation of the structure as a
@@ -123,7 +127,7 @@ structCompareResult(struct configuration *p,
 }
 
 // This is the potential function which is being minimized.  We're
-// basically doing a least-squares fit for the coordinates fo the
+// basically doing a least-squares fit for the coordinates of the
 // structure as a whole.
 static void
 structComparePotential(struct configuration *p)
@@ -186,6 +190,8 @@ static struct functionDefinition structCompareFunctions;
 // these limits.
 int
 doStructureCompare(int numberOfAtoms,
+                   struct xyz *basePositions,
+                   struct xyz *initialPositions,
                    int iterLimit,
                    double deviationLimit,
                    double maxDeltaLimit,
@@ -197,6 +203,8 @@ doStructureCompare(int numberOfAtoms,
   struct configuration *final = NULL;
 
   atomCount = numberOfAtoms;
+  BasePositions = basePositions;
+  InitialPositions = initialPositions;
   allowScaling = maxScale > 1.0;
 
   translateToCenterOfMass(BasePositions, atomCount);
@@ -235,39 +243,38 @@ doStructureCompare(int numberOfAtoms,
 
 #ifdef TEST
 
-struct xyz *BasePositions;
-struct xyz *InitialPositions;
-
 static void
 testStructureCompare()
 {
   int numberOfAtoms;
+  struct xyz *basePositions;
+  struct xyz *InitialPositions;
   
   numberOfAtoms = 3;
-  BasePositions = (struct xyz *)allocate(sizeof(struct xyz) * numberOfAtoms);
+  basePositions = (struct xyz *)allocate(sizeof(struct xyz) * numberOfAtoms);
   InitialPositions = (struct xyz *)allocate(sizeof(struct xyz) * numberOfAtoms);
 
-  BasePositions[0].x =   30.0;
-  BasePositions[0].y =    0.0;
-  BasePositions[0].z =    0.0;
-  BasePositions[1].x = - 30.0;
-  BasePositions[1].y =    0.0;
-  BasePositions[1].z =   10.0;
-  BasePositions[2].x = - 30.0;
-  BasePositions[2].y =    0.0;
-  BasePositions[2].z =  -10.0;
+  basePositions[0].x =   30.0;
+  basePositions[0].y =    0.0;
+  basePositions[0].z =    0.0;
+  basePositions[1].x = - 30.0;
+  basePositions[1].y =    0.0;
+  basePositions[1].z =   10.0;
+  basePositions[2].x = - 30.0;
+  basePositions[2].y =    0.0;
+  basePositions[2].z =  -10.0;
 
-  InitialPositions[0].x =    0.0;
-  InitialPositions[0].y =   30.0;
-  InitialPositions[0].z =    0.0;
-  InitialPositions[1].x =   10.0;
-  InitialPositions[1].y = - 30.0;
-  InitialPositions[1].z =    0.0;
-  InitialPositions[2].x =  -10.0;
-  InitialPositions[2].y = - 30.0;
-  InitialPositions[2].z =    0.0;
+  initialPositions[0].x =    0.0;
+  initialPositions[0].y =   30.0;
+  initialPositions[0].z =    0.0;
+  initialPositions[1].x =   10.0;
+  initialPositions[1].y = - 30.0;
+  initialPositions[1].z =    0.0;
+  initialPositions[2].x =  -10.0;
+  initialPositions[2].y = - 30.0;
+  initialPositions[2].z =    0.0;
 
-  doStructureCompare(numberOfAtoms, 400, 1e-2, 1e-1, 0.0);
+  doStructureCompare(numberOfAtoms, basePositions, initialPositions, 400, 1e-2, 1e-1, 0.0);
 }
 
 int

@@ -71,7 +71,7 @@ struct functionDefinition
   double gradient_delta;
 
   // How big are the coordinate and gradient arrays?  This is the "N"
-  // in N-dimensional below.
+  // in N-dimensional above.
   int dimension;
 
   // When searching for a minimum while bracketing, what should the

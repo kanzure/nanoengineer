@@ -14,6 +14,7 @@ This method is called "Linear Probing" in Knuth Vol 3 p. 518.
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "allocate.h"
 #include "hashtable.h"
   
@@ -27,7 +28,7 @@ hash_string(char *s)
   int shift = 0;
   int c;
   
-  while (c=*s++) {
+  while ((c=*s++) != '\0') {
     c <<= shift;
     hash ^= c;
     shift += 8;
@@ -205,10 +206,12 @@ hashtable_print(FILE *f, struct hashtable *table)
     b = &table->buckets[i];
     if (b->key == NULL) {
       if (b->hash != 0 || b->value != NULL) {
-        fprintf(f, "!%5d %5d %20s 0x%08x 0x%08x\n", i, b->hash % table->size, "NULL", b->hash, b->value);
+        fprintf(f, "!%5d %5d %20s 0x%08x 0x%08x\n",
+                i, b->hash % table->size, "NULL", b->hash, (unsigned int)b->value);
       }
     } else {
-      fprintf(f, " %5d %5d %20s 0x%08x 0x%08x\n", i, b->hash % table->size, b->key, b->hash, b->value);
+      fprintf(f, " %5d %5d %20s 0x%08x 0x%08x\n",
+              i, b->hash % table->size, b->key, b->hash, (unsigned int)b->value);
     }
   }
   fprintf(f, "  end hashtable--------------------\n");

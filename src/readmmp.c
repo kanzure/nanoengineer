@@ -2,24 +2,28 @@
 #include <limits.h>
 #include "simulator.h"
 
-static int lineNumber;
-static int charPosition;
-static char *mmpFileName;
-static char tokenBuffer[256];
-
-static void
-die()
+struct mmpStream 
 {
+  FILE *f;
+  char *fileName;
+  int lineNumber;
+  int charPosition;
+};
+
+// should be preceded by a call to ERROR() giving details
+static void
+mmpParseError(void *stream)
+{
+  // We cast from void * here so that the part routines can take a
+  // generic error handler and user data pointer.
+  struct mmpStream *mmp = (struct mmpStream *)stream;
+  
+  ERROR("In mmp file %s, line %d, col %d", mmp->fileName, mmp->lineNumber, mmp->charPosition);
   doneExit(1, tracef, "Failed to parse mmp file");
 }
 
-// should be followed by a call to ERROR() giving details
-static void
-mmpParseError()
-{
-  ERROR("Parsing mmp file %s, line %d, col %d", mmpFileName, lineNumber, charPosition);
-}
 
+static char tokenBuffer[256];
 
 // Read the next token from the given stream.  Possible return values
 // are:
@@ -34,15 +38,15 @@ mmpParseError()
 // Any sequence of more than 255 non-delimiter characters is broken
 // into tokens every 255 characters.
 static char *
-readToken(FILE *f)
+readToken(struct mmpStream *mmp)
 {
   char *s = tokenBuffer;
 
-  if (feof(f) || ferror(f)) {
+  if (feof(mmp->f) || ferror(mmp->f)) {
     return NULL;
   }
-  while ((*s = fgetc(f)) != EOF) {
-    charPosition++;
+  while ((*s = fgetc(mmp->f)) != EOF) {
+    mmp->charPosition++;
     switch (*s) {
     case ' ':
     case '(':
@@ -54,13 +58,13 @@ readToken(FILE *f)
     case '\0':
       if (s == tokenBuffer) {
         if (*s == '\n') {
-          lineNumber++;
-          charPosition = 1;
+          mmp->lineNumber++;
+          mmp->charPosition = 1;
         }
         s++;
       } else {
-        ungetc(*s, f);
-        charPosition--;
+        ungetc(*s, mmp->f);
+        mmp->charPosition--;
       }
       *s = '\0';
       return tokenBuffer;
@@ -83,22 +87,22 @@ readToken(FILE *f)
 // not considered whitespace.  The next token will start with the
 // first non-whitespace character found.
 static void
-consumeWhitespace(FILE *f)
+consumeWhitespace(struct mmpStream *mmp)
 {
   int c;
   
-  if (feof(f) || ferror(f)) {
+  if (feof(mmp->f) || ferror(mmp->f)) {
     return;
   }
-  while ((c = fgetc(f)) != EOF) {
-    charPosition++;
+  while ((c = fgetc(mmp->f)) != EOF) {
+    mmp->charPosition++;
     switch (c) {
     case ' ':
     case '\t':
       break;
     default:
-      ungetc(c, f);
-      charPosition--;
+      ungetc(c, mmp->f);
+      mmp->charPosition--;
       return;
     }
   }
@@ -106,12 +110,12 @@ consumeWhitespace(FILE *f)
 
 // Ignores the remainder of this line.
 static void
-consumeRestOfLine(FILE *f)
+consumeRestOfLine(struct mmpStream *mmp)
 {
   char *tok;
 
   while (1) {
-    tok = readToken(f);
+    tok = readToken(mmp);
     if (tok == NULL || *tok == '\n') {
       return;
     }
@@ -121,12 +125,12 @@ consumeRestOfLine(FILE *f)
 // Complains and dies if the next token is not the expected token.
 // Pass in NULL to expect EOF.
 static int
-expectToken(FILE *f, char *expected)
+expectToken(struct mmpStream *mmp, char *expected)
 {
   char *tok;
   int ret;
   
-  tok = readToken(f);
+  tok = readToken(mmp);
   if (tok == NULL) {
     ret = expected == NULL;
   } else if (expected == NULL) {
@@ -135,9 +139,8 @@ expectToken(FILE *f, char *expected)
     ret = !strcmp(tok, expected);
   }
   if (!ret) {
-    mmpParseError();
     ERROR("expected %s, got %s", expected ? expected : "EOF", tok ? tok : "EOF");
-    die();
+    mmpParseError(mmp);
   }
   return ret;
 }
@@ -149,51 +152,47 @@ expectToken(FILE *f, char *expected)
 //
 // Any whitespace before and after the integer is consumed.
 static int
-expectInt(FILE *f, int *value, int checkForNewline)
+expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
 {
   char *tok;
   char *end;
   long int val;
 
-  consumeWhitespace(f);
-  tok = readToken(f);
+  consumeWhitespace(mmp);
+  tok = readToken(mmp);
   if (value == NULL) {
     ERROR("internal error, value==NULL");
-    die();
+    mmpParseError(mmp);
   }
   if (tok != NULL) {
     if (*tok == '\n' && checkForNewline) {
       return 0;
     }
     if (*tok == '\0') {
-      mmpParseError();
       ERROR("expected int, got \\0");
-      die();
+      mmpParseError(mmp);
     }
     errno = 0;
     val = strtol(tok, &end, 0);
     if (errno != 0) {
-      mmpParseError();
       ERROR("integer value out of range: %s", tok);
-      die();
+      mmpParseError(mmp);
     }
     if (*end != '\0') {
-      mmpParseError();
       ERROR("expected int, got %s", tok);
-      die();
+      mmpParseError(mmp);
     }
     if (val > INT_MAX || val < INT_MIN) {
-      mmpParseError();
       ERROR("integer value out of range: %s", tok);
-      die();
+      mmpParseError(mmp);
     }
     *value = val;
-    consumeWhitespace(f);
+    consumeWhitespace(mmp);
     return 1;
   }
-  mmpParseError();
   ERROR("expected int, got EOF");
-  die();
+  mmpParseError(mmp);
+  return 0; // not reached
 }
 
 // Parse a double.  Returns 1 if value was successfully filled in
@@ -203,46 +202,43 @@ expectInt(FILE *f, int *value, int checkForNewline)
 //
 // Any whitespace before and after the double is consumed.
 static int
-expectDouble(FILE *f, double *value, int checkForNewline)
+expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
 {
   char *tok;
   char *end;
   double val;
 
-  consumeWhitespace(f);
-  tok = readToken(f);
+  consumeWhitespace(mmp);
+  tok = readToken(mmp);
   if (value == NULL) {
     ERROR("internal error, value==NULL");
-    die();
+    mmpParseError(mmp);
   }
   if (tok != NULL) {
     if (*tok == '\n' && checkForNewline) {
       return 0;
     }
     if (*tok == '\0') {
-      mmpParseError();
       ERROR("expected double, got \\0");
-      die();
+      mmpParseError(mmp);
     }
     errno = 0;
     val = strtod(tok, &end);
     if (errno != 0) {
-      mmpParseError();
       ERROR("double value out of range: %s", tok);
-      die();
+      mmpParseError(mmp);
     }
     if (*end != '\0') {
-      mmpParseError();
       ERROR("expected double, got %s", tok);
-      die();
+      mmpParseError(mmp);
     }
     *value = val;
-    consumeWhitespace(f);
+    consumeWhitespace(mmp);
     return 1;
   }
-  mmpParseError();
   ERROR("expected double, got EOF");
-  die();
+  mmpParseError(mmp);
+  return 0; // not reached
 }
 
 // Parses:
@@ -255,21 +251,21 @@ expectDouble(FILE *f, double *value, int checkForNewline)
 //
 // Any whitespace before and after the triple is consumed.
 static void
-expectXYZInts(FILE *f, struct xyz *p)
+expectXYZInts(struct mmpStream *mmp, struct xyz *p)
 {
   int x;
   int y;
   int z;
 
-  consumeWhitespace(f);
-  expectToken(f, "(");
-  expectInt(f, &x, 0);
-  expectToken(f, ",");
-  expectInt(f, &y, 0);
-  expectToken(f, ",");
-  expectInt(f, &z, 0);
-  expectToken(f, ")");
-  consumeWhitespace(f);
+  consumeWhitespace(mmp);
+  expectToken(mmp, "(");
+  expectInt(mmp, &x, 0);
+  expectToken(mmp, ",");
+  expectInt(mmp, &y, 0);
+  expectToken(mmp, ",");
+  expectInt(mmp, &z, 0);
+  expectToken(mmp, ")");
+  consumeWhitespace(mmp);
 
   if (p != NULL) {
     p->x = x * 0.1;
@@ -291,49 +287,48 @@ static void *tempBuffer = NULL;
 //
 // Any whitespace before and after the name is consumed.
 static char *
-expectName(FILE *f)
+expectName(struct mmpStream *mmp)
 {
   char *tok;
   char *buf;
   int len;
   
-  consumeWhitespace(f);
-  expectToken(f, "(");
+  consumeWhitespace(mmp);
+  expectToken(mmp, "(");
   len = 0;
   tempBuffer = accumulator(tempBuffer, len + 1, 0);
   buf = (char *)tempBuffer;
   buf[len] = '\0';
-  while ((tok = readToken(f)) != NULL) {
+  while ((tok = readToken(mmp)) != NULL) {
     if (!strcmp(tok, ")")) {
-      consumeWhitespace(f);
+      consumeWhitespace(mmp);
       return copy_string(buf);
     }
     if (*tok == '\0') {
       tok = "%00";
     }
     if (*tok == '\n') {
-      mmpParseError();
       ERROR("reading name, expected ), got newline");
-      die();
+      mmpParseError(mmp);
     }
     len += strlen(tok);
     tempBuffer = accumulator(tempBuffer, len + 1, 0);
     buf = (char *)tempBuffer;
     strcat(buf, tok);
   }
-  mmpParseError();
   ERROR("reading name, expected ), got EOF");
-  die();
+  mmpParseError(mmp);
+  return ""; // not reached
 }
 
 // Parses a list of integers terminated by a newline.  An arbitrary
-// number of integers can be parsed, and the freshly allocated result
-// is stored in listPtr, with the length stored in length.  If
+// number of integers can be parsed, and the accumulator they are
+// stored in is placed in listPtr, with the length stored in length.  If
 // expectedLength is non-zero, complains and dies if the actual length
 // is not expectedLength.  Also complains and dies for zero length
 // lists.
 static void
-expectIntList(FILE *f, int **listPtr, int *length, int expectedLength)
+expectIntList(struct mmpStream *mmp, int **listPtr, int *length, int expectedLength)
 {
   int *buf;
   int index;
@@ -344,127 +339,79 @@ expectIntList(FILE *f, int **listPtr, int *length, int expectedLength)
   tempBuffer = accumulator(tempBuffer, len, 0);
   buf = (int *)tempBuffer;
   index = 0;
-  while (expectInt(f, &listElement, 1)) {
+  while (expectInt(mmp, &listElement, 1)) {
     len += sizeof(int);
     tempBuffer = accumulator(tempBuffer, len, 0);
     buf = (int *)tempBuffer;
     buf[index++] = listElement;
   }
   if (index == 0) {
-    mmpParseError();
     ERROR("zero length list of atoms");
-    die();
+    mmpParseError(mmp);
   }
   if (expectedLength != 0 && expectedLength != index) {
-    mmpParseError();
     ERROR("expected exactly %d atoms, got %d", expectedLength, index);
-    die();
+    mmpParseError(mmp);
   }
   *length = index;
-  *listPtr = (int *)copy_memory(buf, len);
-}
-
-// Translates atom numbers (as stored and referenced in mmp files)
-// into atom indexes, which are sequential numbers allocated as the
-// atoms appear in an mmp file.
-static void
-translateAtomNumbers(int atomListLength, int *atomList,
-                     int *atomNumberList, int maxAtomNumber)
-{
-  int i;
-  int atomIndex;
-  
-  for (i=0; i<atomListLength; i++) {
-    if (atomList[i] < 0 || atomList[i] > maxAtomNumber) {
-      mmpParseError();
-      ERROR("atom number %d out of range [0, %d]", atomList[i], maxAtomNumber);
-      die();
-    }
-    atomIndex = atomNumberList[atomList[i]] - 1;
-    if (atomIndex < 0) {
-      mmpParseError();
-      ERROR("atom number %d not yet encountered", atomList[i]);
-      die();
-    }
-    atomList[i] = atomIndex;
-  }
-}
-
-static int
-translateAtomNumber(int atomNumber, int *atomNumberList, int maxAtomNumber)
-{
-  int atomIndex;
-  
-  if (atomNumber < 0 || atomNumber > maxAtomNumber) {
-    mmpParseError();
-    ERROR("atom number %d out of range [0, %d]", atomNumber, maxAtomNumber);
-    die();
-  }
-  atomIndex = atomNumberList[atomNumber] - 1;
-  if (atomIndex < 0) {
-    mmpParseError();
-    ERROR("atom number %d not yet encountered", atomNumber);
-    die();
-  }
-  return atomIndex;
+  *listPtr = buf;
 }
 
 
-void
+struct part *
 readMMP(char *filename)
 {
-  FILE *f;
+  struct part *p;
+  struct mmpStream thisMMPStream, *mmp;
   char *tok;
   char bondOrder;
-  int i;
-  int m;
-  int n;
   char *name;
-  int element;
-  int lastatom; // index of atom just defined, so we can back-reference to it in later lines
-  double stall, speed, force, stiff;
+  int elementType;
+  int previousAtomID; // ID of atom just defined, so we can back-reference to it in later lines
+  double stall;
+  double speed;
+  double force;
+  double stiffness;
   double temperature;
-  struct xyz vec1, vec2;
+  struct xyz position;
+  struct xyz center;
+  struct xyz axis;
   int atomListLength;
   int *atomList;
-  int atomNumber; // identifier in mmp file
-  int *atomNumberList = NULL; // translates atom numbers (read from mmp file) into indexes into atom array
-  int maxAtomNumber = -1;
-    
-  f = fopen(filename, "r");
-  if (f == NULL) {
-    perror(filename);
-    exit(1);
-  }
-  mmpFileName = filename;
-  lineNumber = 1;
-  charPosition = 1;
+  int atomID; // atom number in mmp file
 
-  while ((tok = readToken(f)) != NULL) {
+  mmp = &thisMMPStream;
+  mmp->fileName = filename;
+  mmp->lineNumber = 1;
+  mmp->charPosition = 1;
+  mmp->f = fopen(filename, "r");
+  if (mmp->f == NULL) {
+    ERROR_ERRNO("Could not open %s", mmp->fileName);
+    mmp->lineNumber = 0;
+    mmp->charPosition = 0;
+    mmpParseError(mmp);
+  }
+
+  p = makePart(filename, &mmpParseError, mmp);
+
+  while ((tok = readToken(mmp)) != NULL) {
 
     // atom atomNumber (element) (posx, posy, posz)
     // Identifies a new atom with the given element type and position.
-    // Position vectors are integers with units of 0.1pm, or 1e-13 m
+    // Position vectors are integers with units of 0.1pm.
     if (!strcmp(tok, "atom")) {
-      expectInt(f, &atomNumber, 0);
-      expectToken(f, "(");
-      expectInt(f, &element, 0);
-      expectToken(f, ")");
-      expectXYZInts(f, &vec1); // vec1 has positions in pm here
-      consumeRestOfLine(f);
+      expectInt(mmp, &atomID, 0);
+      expectToken(mmp, "(");
+      expectInt(mmp, &elementType, 0);
+      expectToken(mmp, ")");
+      expectXYZInts(mmp, &position);
+      consumeRestOfLine(mmp);
           
       // hack: change singlets to hydrogen
-      // if (element == 0) element=1;
-
-      if (atomNumber > maxAtomNumber) {
-        maxAtomNumber = atomNumber;
-        atomNumberList = (int *)accumulator(atomNumberList, (maxAtomNumber+1)*sizeof(int), 1);
-      }
-      // add one so that the automatic zeroing of the accumulator produces invalid entries
-      atomNumberList[atomNumber]=Nexatom+1;
-      lastatom = Nexatom;
+      // if (elementType == 0) elementType=1;
+      previousAtomID = atomID;
 			
-      makatom(element, vec1);
+      makeAtom(p, atomID, elementType, position);
     }
 
     // bondO atno atno atno ...
@@ -474,85 +421,64 @@ readMMP(char *filename)
       bondOrder = tok[4];
       // XXX should we accept zero length bond list?
       // XXX should we reject unknown bond orders?
-      while (expectInt(f, &atomNumber, 1)) {
-        makbond(lastatom, translateAtomNumber(atomNumber, atomNumberList, maxAtomNumber), bondOrder);
+      while (expectInt(mmp, &atomID, 1)) {
+        makeBond(p, previousAtomID, atomID, bondOrder);
       }
     }
 		
     // waals atno atno atno ...
-    // Asks for van Der Waals interactions between previous atom and
+    // Asks for van der Waals interactions between previous atom and
     // listed atoms.  Only needed if the given atoms are bonded.
     else if (!strcmp(tok, "waals")) {
       // XXX should we accept zero length vdw list?
-      while (expectInt(f, &atomNumber, 1)) {
-        makvdw(lastatom, translateAtomNumber(atomNumber, atomNumberList, maxAtomNumber));
+      while (expectInt(mmp, &atomID, 1)) {
+        makeVanDerWaals(p, previousAtomID, atomID);
       }
     }
 		
     // ground (<name>) (r, g, b) <atoms>
     else if (!strcmp(tok, "ground")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectIntList(f, &atomList, &atomListLength, 0);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEground, NULL, atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeGround(p, name, atomListLength, atomList);
     }
 	
     // thermo (name) (r, g, b) <atom1> <atom2>
     // thermometer for atoms in range [atom1..atom2]
     else if (!strcmp(tok, "thermo")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectIntList(f, &atomList, &atomListLength, 3); // only interested in first two
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEtemp, NULL, atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectIntList(mmp, &atomList, &atomListLength, 3); // only interested in first two
+      makeThermometer(p, name, atomList[0], atomList[1]);
     }
 
     // angle (name) <atom1> <atom2> <atom3>
     // angle meter
     else if (!strcmp(tok, "angle")) {
-      name = expectName(f);
-      expectIntList(f, &atomList, &atomListLength, 3);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEangle, NULL, atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectIntList(mmp, &atomList, &atomListLength, 3);
+      makeAngleMeter(p, name, atomList[0], atomList[1], atomList[2]);
     }
 
     // radius (name) <atom1> <atom2>
     // radius meter
     else if (!strcmp(tok, "radius")) {
-      name = expectName(f);
-      expectIntList(f, &atomList, &atomListLength, 2);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEradius, NULL, atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectIntList(mmp, &atomList, &atomListLength, 2);
+      makeRadiusMeter(p, name, atomList[0], atomList[1]);
     }
 
     // stat (name) (r, g, b) (temp) <atom1> <atom2>
     // Langevin thermostat for atoms in range [atom1..atom2]
     else if (!strcmp(tok, "stat")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectToken(f, "(");
-      expectDouble(f, &temperature, 0);
-      expectToken(f, ")");
-      expectIntList(f, &atomList, &atomListLength, 3); // only interested in first two
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEstat, NULL, atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      Constraint[i].temp = temperature;
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectToken(mmp, "(");
+      expectDouble(mmp, &temperature, 0);
+      expectToken(mmp, ")");
+      expectIntList(mmp, &atomList, &atomListLength, 3); // only interested in first two
+      makeThermostat(p, name, temperature, atomList[0], atomList[1]);
     }
 
     // rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>)
@@ -560,46 +486,36 @@ readMMP(char *filename)
     // rotary motor
     // torque in nN*nm  speed in gigahertz */
     else if (!strcmp(tok, "rmotor")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectDouble(f, &stall, 0);
-      expectDouble(f, &speed, 0);
-      expectXYZInts(f, &vec1);
-      expectXYZInts(f, &vec2);
-      consumeRestOfLine(f);
-      expectToken(f, "shaft");
-      expectIntList(f, &atomList, &atomListLength, 0);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEmotor, makmot(stall, speed, vec1, vec2), atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      makmot2(i);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectDouble(mmp, &stall, 0);
+      expectDouble(mmp, &speed, 0);
+      expectXYZInts(mmp, &center);
+      expectXYZInts(mmp, &axis);
+      consumeRestOfLine(mmp);
+      expectToken(mmp, "shaft");
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeRotaryMotor(p, name, stall, speed, &center, &axis, atomListLength, atomList);
     }
 
     /* lmotor (name) (r,g,b) <force> <stiff> (<center>) (<axis>) */
     // shaft atom...
     // linear motor
     else if (0==strcasecmp(tok, "lmotor")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectDouble(f, &force, 0);
-      expectDouble(f, &stiff, 0);
-      expectXYZInts(f, &vec1);
-      expectXYZInts(f, &vec2);
-      consumeRestOfLine(f);
-      expectToken(f, "shaft");
-      expectIntList(f, &atomList, &atomListLength, 0);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODElmotor, maklmot(force, stiff, vec1, vec2), atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      maklmot2(i);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectDouble(mmp, &force, 0);
+      expectDouble(mmp, &stiffness, 0);
+      expectXYZInts(mmp, &center);
+      expectXYZInts(mmp, &axis);
+      consumeRestOfLine(mmp);
+      expectToken(mmp, "shaft");
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeLinearMotor(p, name, force, stiffness, &center, &axis, atomListLength, atomList);
     }
 		
     else if (!strcmp(tok, "end")) {
-      consumeRestOfLine(f);
+      consumeRestOfLine(mmp);
       break;
     }
 
@@ -608,65 +524,47 @@ readMMP(char *filename)
     // bearing 
     /* bearing (name) (r,g,b) (<center>) (<axis>) */
     else if (0==strcasecmp(tok, "bearing")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectXYZInts(f, &vec1);
-      expectXYZInts(f, &vec2);
-      consumeRestOfLine(f);
-      expectToken(f, "shaft");
-      expectIntList(f, &atomList, &atomListLength, 0);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEbearing, makmot(0.0, 0.0, vec1, vec2), atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      makmot2(i);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectXYZInts(mmp, &center);
+      expectXYZInts(mmp, &axis);
+      consumeRestOfLine(mmp);
+      expectToken(mmp, "shaft");
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeBearing(p, name, &center, &axis, atomListLength, atomList);
     }
 		
     // spring
     /* spring <stiffness>, (<center1>) (<center2>) */
     else if (0==strcasecmp(tok, "spring")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectInt(f, &stall, 0);
-      expectInt(f, &speed, 0);
-      expectXYZInts(f, &vec1);
-      expectXYZInts(f, &vec2);
-      consumeRestOfLine(f);
-      expectToken(f, "shaft");
-      expectIntList(f, &atomList, &atomListLength, 0);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEspring, makmot(stall, speed, vec1, vec2), atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      makmot2(i);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectInt(mmp, &stiffness, 0);
+      expectXYZInts(mmp, &position);
+      expectXYZInts(mmp, &position2);
+      consumeRestOfLine(mmp);
+      expectToken(mmp, "shaft");
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeSpring(p, name, stiffness, &position, &position2, atomListLength, atomList);
     }
 		
     // slider
     /* slider (<center>) (<axis>) */
     /* torque in nN*nm  speed in gigahertz */
     else if (0==strcasecmp(tok, "slider")) {
-      name = expectName(f);
-      expectXYZInts(f, NULL); // ignore (rgb) triplet
-      expectInt(f, &stall, 0);
-      expectInt(f, &speed, 0);
-      expectXYZInts(f, &vec1);
-      expectXYZInts(f, &vec2);
-      consumeRestOfLine(f);
-      expectToken(f, "shaft");
-      expectIntList(f, &atomList, &atomListLength, 0);
-      translateAtomNumbers(atomListLength, atomList, atomNumberList, maxAtomNumber);
-      i=makcon(CODEslider, makmot(stall, speed, vec1, vec2), atomListLength, atomList);
-      // note, current makcon allocates and copies, so we free
-      free(atomList);
-      makmot2(i);
-      Constraint[i].name = name;
+      name = expectName(mmp);
+      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
+      expectXYZInts(mmp, &center);
+      expectXYZInts(mmp, &axis);
+      consumeRestOfLine(mmp);
+      expectToken(mmp, "shaft");
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeSlider(p, name, &center, &axis, atomListLength, atomList);
     }
     
     // kelvin <temperature>
     else if (0==strcasecmp(tok, "kelvin")) {
-      consumeRestOfLine(f);
+      consumeRestOfLine(mmp);
       // Temperature = (double)ix;
       // printf("Temperature set to %f\n",Temperature);
     }
@@ -674,28 +572,10 @@ readMMP(char *filename)
 
     else {
       DPRINT(D_READER, "??? %s\n", tok);
-      consumeRestOfLine(f);
+      consumeRestOfLine(mmp);
     }
   }
-  fclose(f);
+  fclose(mmp->f);
 
-  /* got all the static vdW bonds we'll see */
-  Dynobuf = Nexvanbuf;
-  Dynoix = Nexvanbuf->fill;
-	
-  /* create bending bonds */
-  for (i=0; i<Nexatom; i++) {
-    for (m=0; m<atom[i].nbonds-1; m++) {
-      for (n=m+1; n<atom[i].nbonds; n++) {
-        checkatom(stderr, i); // move outside of m loop?
-        maktorq(i, atom[i].bonds[m], atom[i].bonds[n]);
-      }
-    }
-  }
-
-  // total velocity
-  vmul2c(vec1,P,1.0/totMass);
-  for (i=1; i<Nexatom; i++) {
-    vadd(OldPositions[i],vec1);
-  }
+  return endPart(p);
 }

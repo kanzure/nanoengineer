@@ -3,7 +3,7 @@
 CC=gcc
 
 #CFLAGS=-O2 -g
-CFLAGS=-g
+CFLAGS=-g -Wmissing-prototypes -Wall
 
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
@@ -23,18 +23,44 @@ SUFFIXES: .c .h .o ;
 .c.o:
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
 
+SIMINCLUDES=\
+	allocate.h \
+	dynamics.h \
+	globals.h \
+	hashtable.h \
+	interpolate.h \
+	jigs.h \
+	lin-alg.h \
+	minimize.h \
+	minstructure.h \
+	newtables.h \
+	part.h \
+	potential.h \
+	printers.h \
+	readmmp.h \
+	readxyz.h \
+	structcompare.h \
+	writemovie.h
 
-simulator.o: simulator.h
-lin-alg.o: lin-alg.h
-readers.o: simulator.h
-printers.o: simulator.h
-hashtable.o: allocate.h hashtable.h
+simulator.h: $(SIMINCLUDES)
+
 allocate.o: allocate.h
-newtables.o: simulator.h bonds.h
-structcompare.o: simulator.h
+globals.o: simulator.h
+hashtable.o: allocate.h hashtable.h
 interpolate.o: simulator.h
+jigs.o: simulator.h
+lin-alg.o: lin-alg.h
 minimize.o: allocate.h minimize.h
+minstructure.o: simulator.h
+newtables.o: simulator.h bonds.h
+part.o: simulator.h
+potential.o: simulator.h
+printers.o: simulator.h
 readmmp.o: simulator.h
+readxyz.o: simulator.h
+simulator.o: simulator.h
+structcompare.o: simulator.h
+writemovie.o: simulator.h
 
 tables.c: gentab.py
 	python gentab.py > tables.c
@@ -46,17 +72,24 @@ bends.h: bend.perl bending.parms
 	./bend.perl < bending.parms > bends.h
 
 SIMOBJS=\
-	simulator.o \
-	lin-alg.o \
-	readers.o \
-	printers.o \
 	allocate.o \
+	dynamics.o \
+	globals.o \
 	hashtable.o \
+	interpolate.o \
+	jigs.o \
+	lin-alg.o \
 	minimize.o \
+	minstructure.o \
 	newtables.o \
-	structcompare.o \
+	part.o \
+	potential.o \
+	printers.o \
 	readmmp.o \
-	interpolate.o
+	readxyz.o \
+	simulator.o \
+	structcompare.o \
+	writemovie.o
 
 noopt:
 	make CFLAGS=-g simulator
@@ -72,9 +105,6 @@ teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o
 	$(CC) -o teststructcompare.o $(CFLAGS) -DTEST -c structcompare.c
 	$(CC) -o teststructcompare $(LDFLAGS) teststructcompare.o minimize.o allocate.o lin-alg.o
 
-glviewer: glviewer.c allocate.o
-	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
-	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
 install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
@@ -84,14 +114,12 @@ install: simulator
 	mv simulator $(EXE_DIRECTORY) 
 
 clean:
-	rm -f simulator moldisp molsim physeng glviewer
+	rm -f simulator moldisp molsim physeng
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
 	rm -f tests/minimize/*.altout
-	rm -f tests/minimize/*.out.new
 	rm -f tests/minimize/*.diff
 	rm -f tests/dynamics/*.diff
-	rm -f tests/dynamics/*.out.new
 
 dist_clean: clean
 	rm -f TAGS

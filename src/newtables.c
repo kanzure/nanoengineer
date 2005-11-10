@@ -97,6 +97,7 @@ addBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
   return stretch;
 }
 
+// kb in yoctoJoules / radian^2
 static struct bendData *
 addBendData(char *bendName, double kb, double theta0)
 {
@@ -180,20 +181,17 @@ setElement(int protons,
 
 
 void
-initializeBondTable()
+initializeBondTable(void)
 {
   memset(periodicTable, 0, sizeof(periodicTable));
   
   // groups 9-22 are lanthanides
   // groups 8-31 are transition metals
   //
-  // an e_vanDerWaals value < .1 will be calculated in setElement()
-  //
   // mass in yg (yoctograms, or 1e-24 g)
-  /////////////////////////////////////////////////////////////////////////
-  // rvdW does not match numbers in Nanosystems p.44. which are 1e-10 m
-  /////////////////////////////////////////////////////////////////////////
+  // rvdW is in 1e-10 m or angstroms or 0.1 nm
   // evdW in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
+  //   an e_vanDerWaals value < .1 will be calculated in setElement()
   // rCovalent in Angstroms (1e-10 m)
   //
   // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
@@ -383,7 +381,7 @@ static double findInflectionR(double r0, double ks, double de)
   double r = r0;
   double a;
   double b;
-
+ 
   // We stop the interpolation table at the inflection point if we're
   // minimizing, otherwise continue to 1.5 * r0.  See Lippincott in
   // interpolate.c.
@@ -391,7 +389,7 @@ static double findInflectionR(double r0, double ks, double de)
     // this value is actually ignored
     return 1.5 * r0;
   }
-  
+   
   b = -1;
   while (b < 0) {
     a = (r * r - r0 * r0);
@@ -400,7 +398,6 @@ static double findInflectionR(double r0, double ks, double de)
   }
   return r;
 }
-
 
 static struct bondStretch *
 interpolateGenericBondStretch(char *bondName, int element1, int element2, float order)
@@ -519,16 +516,17 @@ generateGenericBendData(char *bendName,
     kb = 2000.0;
   }
   theta0 = 1.9106;
+  // kb in zeptoJoules / radian^2
 
   return addBendData(bendName, kb*1000.0, theta0);
 }
 
-static struct interpolationTable *
+static struct vanDerWaalsParameters *
 generateVanDerWaals(char *bondName, int element1, int element2)
 {
-  struct interpolationTable *vdw;
+  struct vanDerWaalsParameters *vdw;
 
-  vdw = (struct interpolationTable *)allocate(sizeof(struct interpolationTable));
+  vdw = (struct vanDerWaalsParameters *)allocate(sizeof(struct vanDerWaalsParameters));
   initializeVanDerWaalsInterpolator(vdw, element1, element2);
   hashtable_put(vanDerWaalsHashtable, bondName, vdw);
   return vdw;
@@ -576,21 +574,21 @@ getBendData(int element_center,
   return bend;
 }
 
-struct interpolationTable *
+struct vanDerWaalsParameters *
 getVanDerWaalsTable(int element1, int element2)
 {
-  struct interpolationTable *vdw;
+  struct vanDerWaalsParameters *vdw;
   char bondName[10]; // expand if atom types become longer than 2 chars
 
   generateBondName(bondName, element1, element2, 'v');
-  vdw = (struct interpolationTable *)hashtable_get(vanDerWaalsHashtable, bondName);
+  vdw = (struct vanDerWaalsParameters *)hashtable_get(vanDerWaalsHashtable, bondName);
   if (vdw == NULL) {
     vdw = generateVanDerWaals(bondName, element1, element2);
   }
   return vdw;
 }
 
-
+#if 0
 static void
 compare(char *bondName, char *parameter, double old, double new)
 {
@@ -599,7 +597,6 @@ compare(char *bondName, char *parameter, double old, double new)
   }
 }
 
-#if 0
 void
 testNewBondStretchTable()
 {

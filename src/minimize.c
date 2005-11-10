@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 #include "allocate.h"
 #include "minimize.h"
 
@@ -120,18 +121,20 @@ SetConfiguration(struct configuration **dst, struct configuration *src)
   }
 }
 
+#if 0
 #define CheckRef(p, rc) CheckReferenceCount(p, rc, __LINE__, # p)
-void
+static void
 CheckReferenceCount(struct configuration *p, int rc, int line, char *name)
 {
   if (p->referenceCount != rc) {
     fprintf(stderr, "refcount of %s (%d) != %d at line %d\n", name, p->referenceCount, rc, line);
   }
 }
+#endif
 
 #define Enter() int _used = allocationCount - freeCount
 #define Leave(name, count) LeaveRoutine(# name, count, _used)
-void
+static void
 LeaveRoutine(char *name, int count, int used) 
 {
   int usedNow = allocationCount - freeCount;
