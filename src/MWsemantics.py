@@ -26,7 +26,7 @@ from qt import QWidget, QFrame, SIGNAL, QFileDialog
 from qt import QCursor, QBitmap, QWMatrix, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
 from GLPane import GLPane ## bruce 050408 removed: import *
 from assembly import assembly ## bruce 050408 added this, was coming from GLPane
-import os, sys, time
+import os, sys
 import help
 from math import ceil
 from modelTree import modelTree ## bruce 050408 removed: import *
@@ -78,8 +78,6 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     #bruce 050906: same for fileSlotsMixin.
     
     initialised = 0 #bruce 041222
-    
-    fps = 10.0 # frames/second, to be moved to GLPane. Mark 051109
 
     # This is the location of the separator that gets inserted in the File menu above "Recent Files".
     RECENT_FILES_MENU_INDEX = 10 
@@ -529,118 +527,57 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
         env.history.message(cmd + info)
-        self.rotateView(self.glpane.quat + Q(V(0,1,0), pi))
+        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), pi))
   
     def setViewPlus90(self): # Added by Mark. 051013.
         '''Increment the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View +90 : ")
         info = 'View incremented by 90 degrees'
         env.history.message(cmd + info)
-        self.rotateView(self.glpane.quat + Q(V(0,1,0), pi/2))
+        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), pi/2))
         
     def setViewMinus90(self): # Added by Mark. 051013.
         '''Decrement the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View -90 : ")
         info = 'View decremented by 90 degrees'
         env.history.message(cmd + info)
-        self.rotateView(self.glpane.quat + Q(V(0,1,0), -pi/2))
+        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), -pi/2))
 
     def setViewBack(self):
         cmd = greenmsg("Back View: ")
         info = 'Current view is Back View'
         env.history.message(cmd + info)
-        self.rotateView(Q(V(0,1,0),pi))
+        self.glpane.rotateView(Q(V(0,1,0),pi))
 
     def setViewBottom(self):
         cmd = greenmsg("Bottom View: ")
         info = 'Current view is Bottom View'
         env.history.message(cmd + info)
-        self.rotateView(Q(V(1,0,0),-pi/2))
+        self.glpane.rotateView(Q(V(1,0,0),-pi/2))
 
     def setViewFront(self):
         cmd = greenmsg("Front View: ")
         info = 'Current view is Front View'
         env.history.message(cmd + info)
-        self.rotateView(Q(1,0,0,0))
+        self.glpane.rotateView(Q(1,0,0,0))
 
     def setViewLeft(self):
         cmd = greenmsg("Left View: ")
         info = 'Current view is Left View'
         env.history.message(cmd + info)
-        self.rotateView(Q(V(0,1,0),pi/2))
+        self.glpane.rotateView(Q(V(0,1,0),pi/2))
 
     def setViewRight(self):
         cmd = greenmsg("Right View: ")
         info = 'Current view is Right View'
         env.history.message(cmd + info)
-        self.rotateView(Q(V(0,1,0),-pi/2))
+        self.glpane.rotateView(Q(V(0,1,0),-pi/2))
 
     def setViewTop(self):
         cmd = greenmsg("Top View: ")
         info = 'Current view is Top View'
         env.history.message(cmd + info)
-        self.rotateView(Q(V(1,0,0),pi/2))
-
-    # I intend to move rotateView() to GLPane.py
-    # I'll ask Bruce to be sure.  Mark 051107.
-    
-    # rotateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
-    # which traces the same path as slerp but works much faster.
-    # The advantages to this approach are explained in detail here:
-    # http://number-none.com/product/Hacking%20Quaternions/
-    def rotateView(self, q2): 
-        "Rotate current view to quat (viewpoint) q2"
-        
-        wxyz1 = V(self.glpane.quat.w, self.glpane.quat.x, self.glpane.quat.y, self.glpane.quat.z)
-        wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
-        
-        # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
-        # Long paths can be prevented by negating one end (if the dot product is negative).
-        if dot(wxyz1, wxyz2) < 0: 
-            wxyz2 = V(-q2.w, -q2.x, -q2.y, -q2.z)
-        
-        off = wxyz2 -wxyz1
-
-        deltaq = q2 - self.glpane.quat
-        angle = int(deltaq.angle * 180/pi) # in degrees
-        nsteps = int (min (self.fps, angle)) # Number of steps in the animation (rotation)
-        
-        # If nsteps is 0 or 1, don't animate.
-        if nsteps <= 1:
-            self.glpane.quat = Q(q2)
-            self.glpane.gl_update()
-            return
-        
-        # nsteps will always be > 1 here, so division by zero is never a problem.
-        angle_inc = angle / nsteps # angle increment between steps (frames)
-        
-        # print "angle = ", angle,", fps = ", str(self.fps), ", nsteps =", nsteps, ", angle_inc = ", angle_inc
-        
-        # If the angle increment between steps is too big (> 25 degrees), don't animate.
-        if angle_inc > 25:
-            self.glpane.quat = Q(q2)
-            self.glpane.gl_update()
-            return
-        
-        off *= (1.0/nsteps)
-        wxyz = wxyz1
-
-        start_time = time.time() # Start stopwatch
-        
-        # Main animation loop.
-        for i in range(1, nsteps):
-            wxyz += off
-            self.glpane.quat = Q(norm(wxyz))
-            self.glpane.gl_update()
-            env.call_qApp_processEvents() # This allows the screen to update.
-        
-        # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
-        self.glpane.quat = Q(q2) 
-        self.glpane.gl_update()
-        
-        end_time = time.time() # Stop stopwatch
-        
-        self.fps = nsteps / (end_time - start_time)
+        self.glpane.rotateView(Q(V(1,0,0),pi/2))
         
     ###################################
     # Display Toolbar Slots

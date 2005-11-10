@@ -245,6 +245,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs
             # see also env.obj_with_glselect_name
+            
+        self.fps = 10.0 # frames/second
 
         ###### User Preference initialization ##############################
         
@@ -466,6 +468,64 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             
         self.ortho = projection
         self.gl_update()
+    
+    # rotateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
+    # which traces the same path as slerp but works much faster.
+    # The advantages to this approach are explained in detail here:
+    # http://number-none.com/product/Hacking%20Quaternions/
+    def rotateView(self, q2): 
+        "Rotate current view to quat (viewpoint) q2"
+        
+        wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
+        wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
+        
+        # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
+        # Long paths can be prevented by negating one end (if the dot product is negative).
+        if dot(wxyz1, wxyz2) < 0: 
+            wxyz2 = V(-q2.w, -q2.x, -q2.y, -q2.z)
+        
+        off = wxyz2 -wxyz1
+
+        deltaq = q2 - self.quat
+        angle = int(deltaq.angle * 180/pi) # in degrees
+        nsteps = int (min (self.fps, angle)) # Number of steps in the animation (rotation)
+        
+        # If nsteps is 0 or 1, don't animate.
+        if nsteps <= 1:
+            self.quat = Q(q2)
+            self.gl_update()
+            return
+        
+        # nsteps will always be > 1 here, so division by zero is never a problem.
+        angle_inc = angle / nsteps # angle increment between steps (frames)
+        
+        # print "angle = ", angle,", fps = ", str(self.fps), ", nsteps =", nsteps, ", angle_inc = ", angle_inc
+        
+        # If the angle increment between steps is too big (> 25 degrees), don't animate.
+        if angle_inc > 25:
+            self.quat = Q(q2)
+            self.gl_update()
+            return
+        
+        off *= (1.0/nsteps)
+        wxyz = wxyz1
+
+        start_time = time.time() # Start stopwatch
+        
+        # Main animation loop.
+        for i in range(1, nsteps):
+            wxyz += off
+            self.quat = Q(norm(wxyz))
+            self.gl_update()
+            env.call_qApp_processEvents() # This allows the screen to update.
+        
+        # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
+        self.quat = Q(q2) 
+        self.gl_update()
+        
+        end_time = time.time() # Stop stopwatch
+        
+        self.fps = nsteps / (end_time - start_time)
     
     # == "callback methods" from modeMixin:
 
