@@ -314,6 +314,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
       // and add it to the new one
       a->vdwBucket = bucket;
       a->vdwNext = *bucket;
+      a->vdwPrev = NULL;
       *bucket = a;
       if (a->vdwNext) {
         a->vdwNext->vdwPrev = a;
