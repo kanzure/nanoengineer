@@ -274,7 +274,7 @@ main(int argc,char **argv)
 
     //filred(buf);
     part = readMMP(buf);
-    updateVanDerWaals(part, part, part->positions);
+    updateVanDerWaals(part, NULL, part->positions);
     generateStretches(part);
     generateBends(part);
 

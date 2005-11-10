@@ -7,6 +7,7 @@ static struct part *Part;
 static void
 minimizeStructurePotential(struct configuration *p)
 {
+  updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
 }
 
@@ -14,6 +15,7 @@ minimizeStructurePotential(struct configuration *p)
 static void
 minimizeStructureGradient(struct configuration *p)
 {
+  updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
 }
 
