@@ -201,53 +201,36 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from draw_bond_vanes import draw_bond_vanes
             draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
-        if draw_bond_letters: ####@@@@ not tested recently enough, as of 050727; see bugs 1112, 1113
-                # It would be good to disable the bond letter feature completely in the thumbview for Library,
-                # but not for single atoms (same thumbview)... could we do this by ratio of atomcount to glpane size?
+        if draw_bond_letters:
+                # It would be good to disable the bond letter feature completely in the MMKit thumbview for Library,
+                # but not for single atoms (same glpane)... could we do this by ratio of atomcount to glpane size?
                 # or by the controlling code setting a flag? (For now, just ignore the issue.) [bruce 051110]
-            
-            ## glpane.qglColor(QColor(75, 75, 75)) # gray
-            ## glpane.qglColor(QColor(200, 40, 140)) # majenta
-
-            # textpos
             try:
                 glpane_out = glpane.out
             except AttributeError:
                 glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
             textpos = self.center + glpane_out * 0.6
-                ###WRONG -- depends on rotation when display list is made! But quite useful for now.
-                # Could fix this by having a separate display list, or no display list, for these kinds of things --
-                # would need a separate display list per chunk and per offset.
-
-            # text
-            v6 = self.v6
-            text = bond_letter_from_v6(v6).upper()
-
-            font_size = 12 # was 10, but (with Helvetica) that draws no text on Mac, at least for bruce 051110 on iMac G5 Panther
-            
-##            if 0: # works
-##                textcolor = red
-##                text = "Y"
-##                # font determined by drawtext
-##                drawtext(text, textcolor, textpos, font_size, glpane)
-            if 1: # works with Helv 12 and depth test disabled (which looks bad)... also works with depth test enabled
-                text_qcolor = QColor(255, 255, 255) # white
-    ##            font = QFont( QString("Times"), 10)
-    ##                # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works for Helvetica
-
-                font = QFont( QString("Helvetica"), font_size)
-                    ###@@@ using Helvetica size 12 to fix bug 1113; maybe it will also fix bug 1112? [bruce 051110]
-                    ###e should adjust fontsize based on scale, depth...
-                    #e could optimize this, keep in glpane
-
-                # replaces drawtext; unlike that routine, leaves depth test enabled
-                glDisable(GL_LIGHTING)
-##                glDisable(GL_DEPTH_TEST)
-                glpane.qglColor(text_qcolor)
-                p = textpos
-                glpane.renderText(p[0], p[1], p[2], QString(text), font) #k need explicit QString??
-##                glEnable(GL_DEPTH_TEST)
-                glEnable(GL_LIGHTING)
+                # Note -- this depends on the current rotation when the display list is made! But it's ok for now.
+                # We could fix this by having a separate display list, or no display list, for these kinds of things --
+                # would need a separate display list per chunk and per offset. Not worth it for now.
+            text = bond_letter_from_v6(self.v6).upper()
+            text_qcolor = QColor(255, 255, 255) # white
+            # fontname and fontsize: only some combos work, e.g. Times 10 (maybe) but not 12,
+            # and Helvetica 12 but not 10, and this might be platform-dependent; when it fails,
+            # for Mac it just draws nothing (bug 1113) but for Windows & Linux it tracebacks (bug 1112).
+            # So to fix those bugs, I'm just using the same fontname/fontsize as in all our other renderText calls.
+            # (Some of those have pushMatrix but that is not needed.
+            #  Most of those disable depth test, but that looks bad here and is also not needed.
+            #  We don't call drawer.drawtext since it always disables depth test.)
+            # [bruce 051111]
+            font = QFont( QString("Helvetica"), 12)
+                ###e should adjust fontsize based on scale, depth... (if not for the bugs mentioned above)
+                #e should construct font only once, keep in glpane
+            glDisable(GL_LIGHTING)
+            glpane.qglColor(text_qcolor)
+            p = textpos
+            glpane.renderText(p[0], p[1], p[2], QString(text), font) #k need explicit QString??
+            glEnable(GL_LIGHTING) # bug 969 traceback (not on Mac) claims "illegal OpenGL op" in this line! [as of 051110 night]
     
     return # from draw_bond_main
 
