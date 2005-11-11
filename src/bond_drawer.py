@@ -201,31 +201,53 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from draw_bond_vanes import draw_bond_vanes
             draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
-        if draw_bond_letters: ####@@@@ not tested recently enough, as of 050727
-            glDisable(GL_LIGHTING)
-            ## glDisable(GL_DEPTH_TEST)
-            glPushMatrix()
-            font = QFont( QString("Times"), 10)
-                # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works in other code for Helvetica
-                ###e should adjust fontsize based on scale, depth...
-                #e could optimize this, keep in glpane
+        if draw_bond_letters: ####@@@@ not tested recently enough, as of 050727; see bugs 1112, 1113
+                # It would be good to disable the bond letter feature completely in the thumbview for Library,
+                # but not for single atoms (same thumbview)... could we do this by ratio of atomcount to glpane size?
+                # or by the controlling code setting a flag? (For now, just ignore the issue.) [bruce 051110]
+            
             ## glpane.qglColor(QColor(75, 75, 75)) # gray
             ## glpane.qglColor(QColor(200, 40, 140)) # majenta
-            glpane.qglColor(QColor(255, 255, 255)) # white
+
+            # textpos
             try:
                 glpane_out = glpane.out
             except AttributeError:
                 glpane_out = V(0.0, 0.0, 1.0) # kluge for Element Selector [bruce 050507 bugfix]
-            p = self.center + glpane_out * 0.6
+            textpos = self.center + glpane_out * 0.6
                 ###WRONG -- depends on rotation when display list is made! But quite useful for now.
                 # Could fix this by having a separate display list, or no display list, for these kinds of things --
                 # would need a separate display list per chunk and per offset.
+
+            # text
             v6 = self.v6
-            ltr = bond_letter_from_v6(v6).upper()
-            glpane.renderText(p[0], p[1], p[2], QString(ltr), font) #k need explicit QString??
-            glPopMatrix()
-            ## glEnable(GL_DEPTH_TEST)
-            glEnable(GL_LIGHTING)
+            text = bond_letter_from_v6(v6).upper()
+
+            font_size = 12 # was 10, but (with Helvetica) that draws no text on Mac, at least for bruce 051110 on iMac G5 Panther
+            
+##            if 0: # works
+##                textcolor = red
+##                text = "Y"
+##                # font determined by drawtext
+##                drawtext(text, textcolor, textpos, font_size, glpane)
+            if 1: # works with Helv 12 and depth test disabled (which looks bad)... also works with depth test enabled
+                text_qcolor = QColor(255, 255, 255) # white
+    ##            font = QFont( QString("Times"), 10)
+    ##                # fontsize 12 doesn't work, don't know why, maybe specific to "Times", since it works for Helvetica
+
+                font = QFont( QString("Helvetica"), font_size)
+                    ###@@@ using Helvetica size 12 to fix bug 1113; maybe it will also fix bug 1112? [bruce 051110]
+                    ###e should adjust fontsize based on scale, depth...
+                    #e could optimize this, keep in glpane
+
+                # replaces drawtext; unlike that routine, leaves depth test enabled
+                glDisable(GL_LIGHTING)
+##                glDisable(GL_DEPTH_TEST)
+                glpane.qglColor(text_qcolor)
+                p = textpos
+                glpane.renderText(p[0], p[1], p[2], QString(text), font) #k need explicit QString??
+##                glEnable(GL_DEPTH_TEST)
+                glEnable(GL_LIGHTING)
     
     return # from draw_bond_main
 
