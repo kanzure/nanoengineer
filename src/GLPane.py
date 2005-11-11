@@ -493,7 +493,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             angle = 360-angle
 
         # Can't let nsteps < 2, or self.fps will become very large next time due to the way it is computed below.
-        nsteps = int(min(max(self.fps, 2), angle)) # Number of steps in the animation (rotation)
+        nsteps = int(min(max(self.fps, 2), max(angle, 2))) # Number of steps in the animation (rotation)
         
         # print "angle = ", angle,", fps = ", str(self.fps), ", nsteps =", nsteps
         
