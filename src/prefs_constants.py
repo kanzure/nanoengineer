@@ -61,6 +61,7 @@ displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
 selectionBehavior_prefs_key = 'A7/Selection Behavior'
+animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -151,6 +152,7 @@ prefs_table = (
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
     ('selection_behavior', 'int', selectionBehavior_prefs_key, CHEM3D), # better than native.  Mark 051029.
+    ('animate_std_views', 'int', animateStandardViews_prefs_key, True), # Mark 051110.
 
     # Atom preferences - colors (other than element colors, handled separately)
     

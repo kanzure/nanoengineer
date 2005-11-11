@@ -409,6 +409,13 @@ class UserPrefs(UserPrefsDialog):
         '''
         env.prefs[selectionBehavior_prefs_key] = behavior
         
+        
+    def change_animate_standard_views(self, val):
+        '''Enable/disable animation of standard views.
+        '''
+        # set the pref
+        env.prefs[animateStandardViews_prefs_key] = val
+        
     ########## End of slot methods for "General" page widgets ###########
     
     ########## Slot methods for "Atoms" page widgets ################

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Nov 1 13:30:41 2005
+# Created: Thu Nov 10 20:00:59 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -82,7 +82,7 @@ class UserPrefsDialog(QDialog):
 
         tabLayout.addLayout(layout31,0,0)
 
-        layout31_2 = QHBoxLayout(None,0,6,"layout31_2")
+        layout32 = QHBoxLayout(None,0,6,"layout32")
 
         self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
         self.default_projection_btngrp.setExclusive(1)
@@ -100,7 +100,7 @@ class UserPrefsDialog(QDialog):
         self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
 
         default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
-        layout31_2.addWidget(self.default_projection_btngrp)
+        layout32.addWidget(self.default_projection_btngrp)
 
         self.selection_behavior_btngrp = QButtonGroup(self.tab,"selection_behavior_btngrp")
         self.selection_behavior_btngrp.setColumnLayout(0,Qt.Vertical)
@@ -117,11 +117,24 @@ class UserPrefsDialog(QDialog):
         self.chem3d_rbtn = QRadioButton(self.selection_behavior_btngrp,"chem3d_rbtn")
 
         selection_behavior_btngrpLayout.addWidget(self.chem3d_rbtn,1,0)
-        layout31_2.addWidget(self.selection_behavior_btngrp)
-        spacer25 = QSpacerItem(50,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout31_2.addItem(spacer25)
+        layout32.addWidget(self.selection_behavior_btngrp)
 
-        tabLayout.addLayout(layout31_2,1,0)
+        self.groupBox8 = QGroupBox(self.tab,"groupBox8")
+        self.groupBox8.setColumnLayout(0,Qt.Vertical)
+        self.groupBox8.layout().setSpacing(6)
+        self.groupBox8.layout().setMargin(11)
+        groupBox8Layout = QGridLayout(self.groupBox8.layout())
+        groupBox8Layout.setAlignment(Qt.AlignTop)
+
+        self.animate_views_checkbox = QCheckBox(self.groupBox8,"animate_views_checkbox")
+        self.animate_views_checkbox.setChecked(1)
+
+        groupBox8Layout.addWidget(self.animate_views_checkbox,0,0)
+        layout32.addWidget(self.groupBox8)
+        spacer25 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout32.addItem(spacer25)
+
+        tabLayout.addLayout(layout32,1,0)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -718,6 +731,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.selection_behavior_btngrp,SIGNAL("clicked(int)"),self.set_selection_behavior)
         self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_atom_radius)
         self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_cylinder_radius)
+        self.connect(self.animate_views_checkbox,SIGNAL("stateChanged(int)"),self.change_animate_standard_views)
 
         self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
@@ -769,6 +783,8 @@ class UserPrefsDialog(QDialog):
         self.selection_behavior_btngrp.setTitle(self.__tr("Selection Behavior"))
         self.native_rbtn.setText(self.__tr("Native"))
         self.chem3d_rbtn.setText(self.__tr("Chem3D"))
+        self.groupBox8.setTitle(self.__tr("Standard Views"))
+        self.animate_views_checkbox.setText(self.__tr("Animate"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.default_display_btngrp.setTitle(self.__tr("Default Display"))
         self.vwd_rbtn.setText(self.__tr("VdW"))
@@ -973,6 +989,9 @@ class UserPrefsDialog(QDialog):
 
     def change_cpk_cylinder_radius(self):
         print "UserPrefsDialog.change_cpk_cylinder_radius(): Not implemented yet"
+
+    def change_animate_standard_views(self):
+        print "UserPrefsDialog.change_animate_standard_views(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

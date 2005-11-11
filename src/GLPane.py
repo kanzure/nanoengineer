@@ -476,6 +476,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def rotateView(self, q2): 
         "Rotate current view to quat (viewpoint) q2"
         
+        # Check User Preference "General | Standard Views: Animate"
+        if not env.prefs[animateStandardViews_prefs_key]:
+            self.quat = Q(q2)
+            self.gl_update()
+            return
+        
         wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
         
