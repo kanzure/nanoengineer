@@ -20,6 +20,7 @@ Minimum System Requirements:
     512 MB RAM
     35 MB available disk space
     3D graphics accelerator card
+    32 MB VRAM
 
   Macintosh:
     1 GHz PowerPC G4 processor
@@ -27,6 +28,7 @@ Minimum System Requirements:
     512 MB RAM
     35 MB available disk space
     3D graphics accelerator card
+    32 MB VRAM
 
   Windows:
     1 GHz Intel Pentium M processor or equivalent
@@ -34,6 +36,7 @@ Minimum System Requirements:
     512 MB RAM
     35 MB available disk space
     3D graphics accelerator card
+    32 MB VRAM
 
 Recommended for all platforms: 
     Screen resolution:  1024 X 768 or higher. 
