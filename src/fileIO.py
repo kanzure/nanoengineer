@@ -90,7 +90,10 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     # This is a work in progress (and this implementation is better than nothing).  See bug 888 for more info.
     # Mark 051104.
     if glpane.mode.backgroundGradient: # SkyBlue.
-        dt = glpane.quat
+        dt = Q(glpane.quat)
+        if not vlen(V(dt.x, dt.y, dt.z)):
+            # This addresses a problem in POV-Ray when dt=0,0,0 for Axis_Rotate_Trans. mark 051111.
+            dt.x = .00001  
         degY = dt.angle*180.0/pi
         f.write("sky_sphere {\n" +
         "    pigment {\n" +
