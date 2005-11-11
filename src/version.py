@@ -1,50 +1,76 @@
 """Version information for nanoENGINEER,
-and other stuff like author list, license, etc."""
+and other stuff like author list, program name, release info, etc.
 
-progname = "nanoENGINEER"
-version_info=(0, 6, 7)  # "0-6.7"
-# Anticipated date for the next release
-releaseDate = "August 17, 2005"
+Example usage:
+from version import Version
+v = Version()
+print v
+print v.product
+print v.authors
+"""
 
-__author__ = """Mark Sims
-Josh Hall
-Bruce Smith
+# Use Alex Martelli's singleton recipe
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66531
+
+class Version:
+    # Every instance of Version will share the same state
+    __shared_state = {}
+    def __init__(self, major=None, minor=None,
+                 tiny=None, teensy=None):
+        self.__dict__ = self.__shared_state
+        if major != None:
+            self.__shared_state["major"] = major
+            self.__shared_state["minor"] = minor
+            self.__shared_state["tiny"] = tiny
+            if teensy != None:
+                self.__shared_state["teensy"] = teensy
+    def __setattr__(self, attr, value):
+        # attributes can be write-protected
+        if self.__shared_state.has_key("write_protect"):
+            raise AttributeError, attr
+        self.__shared_state[attr] = value
+    def writeProtect(self):
+        self.__shared_state["write_protect"] = True
+    def __repr__(self):
+        major = self.__shared_state["major"]
+        minor = self.__shared_state["minor"]
+        tiny = self.__shared_state["tiny"]
+        str = "v%d.%d.%d" % (major, minor, tiny)
+        if self.__shared_state.has_key("teensy"):
+            teensy = self.__shared_state["teensy"]
+            str += ".%d" % teensy
+        return str
+
+v = Version(0, 0, 6, 7)
+v.releaseType = "Alpha"
+v.releaseDate = "January 1, 2025"
+
+v.product = "nanoENGINEER-1"
+v.copyright = "Copyright (C) 2004-2005, Nanorex, Inc."
+
+# Last names in alphabetical order
+v.authors = """Josh Hall
+Eric Messick
 Huaicai Mo
 Ninad Sathaye
-Eric Messick
+Mark Sims
+Bruce Smith
 Will Ware"""
 
-__copyright__ = "Copyright (C) 2005, Nanorex, Inc."
+#v.writeProtect()
+v.write_protect = True
+del v   # leave the namespace uncluttered
 
-__license__ = """nanoENGINEER, a molecular CAD program for nanotechnology
-""" + __copyright__ + """
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."""
-
-############################
-
-_major, _minor, _tiny = version_info
-version = "%s-%d-%d.%d" % (progname, _major, _minor, _tiny)
-status = {0: "alpha",
-          1: "beta",
-          2: "stable",
-          3: "release"}[_major]
-
-__version__ = version
+###############################
 
 if __name__ == "__main__":
-    for x in dir():
-        print x + ":", eval(x)
+    v = Version()
+    for x in dir(v):
+        print x + ":", getattr(v, x)
         print
+    # test write protection
+    try:
+        v.foo = "bar"
+        print "WRITE PROTECTION IS BROKEN"
+    except AttributeError:
+        pass
