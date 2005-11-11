@@ -152,7 +152,7 @@ prefs_table = (
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
     ('selection_behavior', 'int', selectionBehavior_prefs_key, CHEM3D), # better than native.  Mark 051029.
-    ('animate_std_views', 'int', animateStandardViews_prefs_key, True), # Mark 051110.
+    ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
 
     # Atom preferences - colors (other than element colors, handled separately)
     
