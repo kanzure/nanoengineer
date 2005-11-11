@@ -504,13 +504,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # take into account time usage by other processes and is more likely to include time 
         # spent rendering OpenGL. 
         start_time = time.time() # Start stopwatch
-        
+
         # Main animation loop.
         for i in range(1, nsteps):
             wxyz += off
             self.quat = Q(norm(wxyz))
+            
+            # This test acts as a safety valve if the animation is taking too long.
+            # This is a partial solution to bug 1109.  Mark 051111.
+            duration = time.time() - start_time
+            if duration > 1.5: # 1.5 seconds
+                break
+            
             self.gl_update()
             env.call_qApp_processEvents() # This allows the screen to update.
+            
             
         # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
         self.quat = Q(q2) 
@@ -578,6 +586,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.pov += pov_inc
             self.zoomFactor += zoom_inc
             self.scale += scale_inc
+            
+            # This test acts as a safety valve if the animation is taking too long.
+            # This is a partial solution to bug 1109.  Mark 051111.
+            duration = time.time() - start_time
+            if duration > 1.5: # 1.5 seconds
+                break
+                
             self.gl_update()
             env.call_qApp_processEvents() # This allows the screen to update.
             
