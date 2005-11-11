@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>276</width>
+            <width>289</width>
             <height>294</height>
         </rect>
     </property>
@@ -208,7 +208,7 @@
                                 <cstring>textLabel1_5</cstring>
                             </property>
                             <property name="text">
-                                <string>Enable Minimize :</string>
+                                <string>Enable in Minimize :</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>

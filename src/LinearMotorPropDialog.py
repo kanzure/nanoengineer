@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Thu Oct 6 14:20:46 2005
+# Created: Fri Nov 11 02:17:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -194,7 +194,7 @@ class LinearMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(274,298).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(287,298).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -227,7 +227,7 @@ class LinearMotorPropDialog(QDialog):
         self.textLabel1_2_2.setText(self.__tr("Motor Width:"))
         self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius:"))
         self.colorTextLabel.setText(self.__tr("Color:"))
-        self.textLabel1_5.setText(self.__tr("Enable Minimize :"))
+        self.textLabel1_5.setText(self.__tr("Enable in Minimize :"))
         self.nameLineEdit.setText(QString.null)
         self.textLabel3_2.setText(self.__tr("Angstroms"))
         self.textLabel1_4.setText(self.__tr("pN"))

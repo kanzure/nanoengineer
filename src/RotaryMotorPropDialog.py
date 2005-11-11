@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Thu Oct 6 14:15:55 2005
+# Created: Fri Nov 11 02:16:41 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -241,7 +241,7 @@ class RotaryMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(306,294).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(289,294).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -274,7 +274,7 @@ class RotaryMotorPropDialog(QDialog):
         self.textLabel1_2_2.setText(self.__tr("Motor Radius :"))
         self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius :"))
         self.colorTextLabel.setText(self.__tr("Color :"))
-        self.textLabel1_5.setText(self.__tr("Enable Minimize :"))
+        self.textLabel1_5.setText(self.__tr("Enable in Minimize :"))
         self.nameLineEdit.setText(QString.null)
         self.textLabel1_4.setText(self.__tr("nN-nm"))
         self.textLabel3.setText(self.__tr("Angstroms"))
