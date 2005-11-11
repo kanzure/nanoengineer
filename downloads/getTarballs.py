@@ -10,11 +10,22 @@ tarballURLs = {
     }
 
 DEST_DIR = "/tmp/tarballs"
+ISOFILE = "/tmp/backupTarballs.iso"
 MYSELF = "Will Ware <wware@alum.mit.edu>"
 LISTENERS = [
     MYSELF
     # whoever else might want to know
     ]
+
+HAPPY_MESSAGE = {
+    "Subject": "Your tarballs are ready   :)",
+    "Text": "cdrecord -v -speed=4 dev=ATAPI:0,0,0 %s/%s" % (DEST_DIR, ISOFILE)
+    }
+
+SAD_MESSAGE = {
+    "Subject": "Your tarballs are NOT ready  :(",
+    "Text": "Please run getTarballs.py by hand and investigate"
+    }
 
 class BadDownload(Exception):
     pass
@@ -31,16 +42,8 @@ def getTarballs():
         tarballPath = DEST_DIR + "/" + tarball
         cmd = "wget -O %s %s" % (tarballPath, url)
         system(cmd)
-
-HAPPY_MESSAGE = {
-    "Subject": "Your tarballs are ready!",
-    "Text": "Tarballs available at " + DEST_DIR
-    }
-
-SAD_MESSAGE = {
-    "Subject": "Your tarballs were NOT downloaded!",
-    "Text": "Please run getTarballs.py by hand and investigate"
-    }
+    system("mkisofs -J -l -r -o %s %s" % (ISOFILE, DEST_DIR))
+    system("mv %s %s" % (ISOFILE, DEST_DIR))
 
 def sendEmail(message, debug=False):
     smtpserver = "smtp.rcn.com"
