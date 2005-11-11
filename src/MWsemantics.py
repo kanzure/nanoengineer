@@ -905,21 +905,21 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def helpAbout(self):
         """Displays information about this version of nanoENGINEER-1
         """
-        product = "nanoENGINEER-1 "
-        version = "v0.0.6 (Alpha)" # This should come from __version__
-        date = "Release Date: August 17, 2005" # This should come from __vdate__ or something similar
+        import version
+        product = version.progname + "-1 "
+        versionString = ("ver. %d-%d.%d" % version.version_info) + (" (%s)" % version.status)
+        date = "Release Date: " + version.releaseDate
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         installdir = "Running from: " + filePath
-        copyright = "Copyright (C) 2005, Nanorex, Inc."
         techsupport = "For technical support, send email to support@nanorex.com"
         website = "Website: www.nanoengineer-1.com"
-        aboutstr = product + version \
+        aboutstr = product + versionString \
                        + "\n\n" \
                        + date \
                        + "\n\n" \
                        + installdir \
                        + "\n\n" \
-                       + copyright \
+                       + version.__copyright__ \
                        + "\n\n" \
                        + techsupport \
                        + "\n" \

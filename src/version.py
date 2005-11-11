@@ -3,6 +3,8 @@ and other stuff like author list, license, etc."""
 
 progname = "nanoENGINEER"
 version_info=(0, 6, 7)  # "0-6.7"
+# Anticipated date for the next release
+releaseDate = "August 17, 2005"
 
 __author__ = """Mark Sims
 Josh Hall
@@ -12,8 +14,10 @@ Ninad Sathaye
 Eric Messick
 Will Ware"""
 
+__copyright__ = "Copyright (C) 2005, Nanorex, Inc."
+
 __license__ = """nanoENGINEER, a molecular CAD program for nanotechnology
-Copyright (C) 2004-2005, Mark Sims et. al.
+""" + __copyright__ + """
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
