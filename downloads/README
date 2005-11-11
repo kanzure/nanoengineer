@@ -1,0 +1,13 @@
+getTarballs.py is a script which downloads the backup tarballs from
+cvsdude.org. The idea is to run this script on a weekly basis, throw
+the tarballs on a couple of CDROMs, and ship one to Michigan. The same
+CDROMs might also include the release packages for the same week. If
+we could get the wiki tarball on there too, we'd have everything.
+
+When setting up a cron job (see "man 5 crontab"), be sure to put the
+getTarballs.py script somewhere it's easy to find. Cron jobs run with
+minimal environment variables, so spell out full pathnames. Here is an
+example that would run at 4:30 AM every Sunday.
+
+30 4 * * 7   /usr/bin/python /home/wware/polosims/Distribution/downloads/getTarball.py
+
