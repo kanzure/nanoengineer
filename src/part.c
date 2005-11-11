@@ -544,7 +544,7 @@ jigAtomList(struct part *p, struct jig *j, int atomListLength, int *atomList)
 static void
 jigAtomRange(struct part *p, struct jig *j, int firstID, int lastID)
 {
-  int len = lastID - firstID;
+  int len = lastID < firstID ? 0 : 1 + lastID - firstID;
   int id;
   int i;
   

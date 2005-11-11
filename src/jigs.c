@@ -229,7 +229,7 @@ jigThermometer(struct jig *jig, double deltaTframe, struct xyz *position, struct
     int k;
     struct xyz f;
 
-    z=deltaTframe/(3*(1+jig->num_atoms));
+    z = deltaTframe / (3 * jig->num_atoms);
     ff=0.0;
     for (k=0; k<jig->num_atoms; k++) {
       a1 = jig->atoms[k]->index;
@@ -254,7 +254,7 @@ jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct 
     double ff;
     double mass;
 
-    z=deltaTframe/(3*(1+jig->num_atoms));
+    z = deltaTframe / (3 * jig->num_atoms);
     ke=0.0;
 
     for (k=0; k<jig->num_atoms; k++) {
