@@ -9,7 +9,7 @@ from debug import *
 class NanoBuild:
     """Auto build process on Linux:
    (1). Prepare the sources, which means to checkout a refresh
-opy of cad and sim.
+copy of cad and sim.
    (2). Build simulator, by running 'make' and 'make install' i
  sim/src directory.
    (3). Build packge executable
@@ -598,37 +598,43 @@ ing assembly.
 
 
 def usage():
-    print """usage: autoBuild.py  -a<appname> -o<ta
-getdir> -s<state> <1.0> <3>
-    <1.0> is version number in the format of <major version.min
-r version>---both major
-    version and minor version should be non-negative integers)
-    <3> is release status and number, in this case, it's alpha
-3
-    (valid release status is either a(alpha), b(beta), g(gama)
-r none, release number >= 1)
-    <appname> is the product name, by default, it's 'nanoENGINE
-R'
-    <targetdir> is the target destination. If it's an existing
-irectory, its contents will be erased. By default, it's <appnam
->-<version #>-<release status and number>
-
+    print """usage: python autoBuild.py  -a<appname> -o<targetdir> -s<state> <1.0> <3>
+    
+    <1.0> is version number in the format of <major version.minor version>
+          ---both major version and minor version should be non-negative integers)
+    
+    <3> is release status and number, in this case, it's alpha3 (valid release status
+        is either a(alpha), b(beta), g(gama) or none, release number >= 1)
+    
+    <appname> is the product name, by default, it's 'nanoENGINEER-1'
+    
+    <targetdir> is the target destination. If it's an existing directory, its contents 
+                will be deleted. 
+                By default, it's <appname>-<version #>-<release status and number>
+                
+    Options:
     -a application name
     -o target location
     -i  icon file
-   -s release state 
-   -t cvs tag
+    -s release state 
+    -t cvs tag
     -h help
 
 
-    long options also work:
+    Long options also work:
     --appname =<appname>
     --outdir=<targetdir>
-    --iconfile=<Icon file for the app/exe, currently ignored on
-Linux>
+    --iconfile=<Icon file for the app/exe, currently ignored on Linux>
     --state=<release status: Alpha, beta, gamma...>
     --cvstag=<the cvs tag used to check out files>
     --help
+    
+    Windows example: 
+    C:> python autoBuild.py -sa -treleas051114 0.0 7
+    
+    Linux example:
+    $ python autoBuild.py -sa -treleas051114 0.0 7
+    
     """
 
 def main():
