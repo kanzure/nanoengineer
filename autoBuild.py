@@ -7,32 +7,19 @@ from shutil import *
 from debug import *
 
 class NanoBuild:
-    """Auto build process on Linux:
-   (1). Prepare the sources, which means to checkout a refresh
-copy of cad and sim.
-   (2). Build simulator, by running 'make' and 'make install' i
- sim/src directory.
-   (3). Build packge executable
-        (3.1). Use FreezePython to freeze all python modules in
-o an executable and affiliated files.
-        (3.1). Add OpenGL directory into the freezed package
-
-   (4). Prepare for installation package building
-          (4.1). Copy cad/bin into package directory <app>, cop
- assistant.exe into app/bin
-          (4.2). Copy cad/doc, cad/images, cad/partlib into <ap/>
-          (4.3). Copy cad/src/KnownBugs.html, README, LICENSE ito <app/doc>
-   (5).
+    """
+    This is the main class for creating a installation package.
+    It works for Linux, Mac OS X, and WinXP.
 """
     def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
-        self.currentPath = os.getcwd()
-        self.rootPath = rootDir
-        self.appName = appname
-        self.iconFile = iconfile
-        self.version = version
-        self.releaseNo = relNo
-        self.status = stat
-        self.cvsTag = tag
+        self.currentPath = os.getcwd() # Current working directory
+        self.rootPath = rootDir # this is the sub-directory where the executable and temporary files store.
+	self.appName = appname # Application name, e.g., 'nanoENGINEER-1'
+        self.iconFile = iconfile # The icon file name
+        self.version = version # version number, e.g. '0.0'
+        self.releaseNo = relNo # release number, e.g. '7'
+        self.status = stat # release status, e.g. 'a', 'b', which mean 'Alpha', 'Beta' respectly.
+        self.cvsTag = tag # cvs tag name that you want to use to build the package, without it, it will just use the current version in cvs repository.
 
         self.atomPath = os.path.join(self.rootPath, 'atom')
         if sys.platform == 'darwin':
@@ -67,10 +54,10 @@ o an executable and affiliated files.
 
 
     def _prepareSources(self):
-        """Checkout updated copy to release """
+        """Checkout source code from cvs for the release """
         try:
             if sys.platform == 'win32':
-                ret = os.spawnv(os.P_NOWAIT, 'C:\HUAICAI\PuTTY\pageant.exe', ['C:\HUAICAI\PuTTY\pageant.exe', 'C:\HUAICAI\Documents\dsa_private.ppk'])
+                ret = os.spawnv(os.P_NOWAIT, 'C:\Program Files\PuTTY\pageant.exe', ['C:\Program Files\PuTTY\pageant.exe', 'C:\atom\Distribution\polosims-cvsdude.ppk'])
                 if ret <= 0: raise Exception, "start pageant.exe with key file dsa_privaate.ppk failed."
 
             os.chdir(self.atomPath)
@@ -97,18 +84,18 @@ o an executable and affiliated files.
                     os.chdir(self.atomPath)
                     tarName = self.appName + '-' + self.version + '.' + self.releaseNo + '.tar.gz'
                     if os.system('tar -czvf %s *' % tarName): raise Exception, "Tar making failed."
-                    print "The tar file: %s has been successfully created." % tarName
+                    print "\nThe tar file: %s has been successfully created.\n" % tarName
            
             os.chdir('sim/src')
             if os.system('make'): raise Exception, "Simulator building failed."
         except:
             print_compact_traceback("In _prepareSources(): ")
             return False
-        print "----------Sources have been checked out and made."
+        print "----------Sources have been checked out and made.\n"
         return True
 
     def _buildSource4Distribution(self):
-        """Build the source for distribution"""
+        """Pack source together for distribution (all platforms)."""
         try:
             if sys.platform == 'darwin':
                         os.chdir(self.currentPath)
@@ -212,7 +199,7 @@ o an executable and affiliated files.
 
 
     def _removeGPLFiles(self):
-        """Remove non gpl files for Windows"""
+        """Remove non gpl files (Windows only)"""
         srcPath = os.path.join(self.atomPath,'cad/src/')
         entries = os.listdir(srcPath)
         for entry in entries[:]:
@@ -224,7 +211,7 @@ o an executable and affiliated files.
 
     def _addModule2Zip(self, archFile, module):
         """First, rename *.zip file, and then create a directory
-          , unzip *.zip into that directory, copy module into that directory """
+          , unzip *.zip into that directory, copy module into that directory (Windows only) """
         import zipfile, unzip
         os.chdir(self.currentPath)
 
@@ -251,7 +238,7 @@ o an executable and affiliated files.
 
 
     def _addDLLs(self):
-        """Add some dlls into <program> """
+        """Add all the required dlls into <program> (Windows only) """
         try:
             copy('glut32.dll', os.path.join(self.buildSourcePath, 'program'))
             copy('msvcr71.dll', os.path.join(self.buildSourcePath, 'program'))
@@ -313,7 +300,7 @@ fi
             return False
 
     def _createPlistFile(self, plistFile,  appName, majorVer, minorVer,  releaseNo):
-        """ Write InfoPlist file to build package of PackageMaker."""
+        """ Write InfoPlist file to build package of PackageMaker (Mac OS X)."""
         try:
             plf = open(plistFile, 'w')
             titleDoc = """<?xml version="1.0" encoding="UTF-8"?>
@@ -425,7 +412,9 @@ ing assembly.
 
 
     def _createIssFile(self, issFile, appName, version, releaseNo, sourceDir, status):
-        """Create the iss file to build package on Windows """
+        """Create the iss file (script) to build package on Windows.  The iss script
+	contains all the instructions for the installation package.
+	"""
         try:
             isf = open(issFile, 'w')
 
@@ -439,7 +428,7 @@ ing assembly.
                     isf.write("DefaultDirName={pf}\\" + appName + " v" + version + "." + releaseNo + "\n")
                     isf.write("DefaultGroupName="+ appName + " v" + version + "." + releaseNo + "\n")
             else:
-                    isf.write("AppVerName=%s v%s.%s %s\n" % (appName, version, releaseNo, status))
+                    isf.write("AppVerName=%s v%s.%s %s\n" % (appNamhttps://secure.cvsdude.org/~polosims/vcvs/cgi/viewcvs.cgi/e, version, releaseNo, status))
                     isf.write("DefaultDirName={pf}\\" + appName + " v" + version + "." + releaseNo + " " + status + "\n")
                     isf.write("DefaultGroupName="+ appName + " v" + version + "." + releaseNo + " " + status + "\n")
                     
@@ -473,6 +462,7 @@ ing assembly.
 
 
     def _buildInstaller(self, issFile, outDir, outName):
+	'''Runs Inno Setup command to build the install package for Windows (only).'''
         try:
              commLine = 'iscc  /Q  /O"' + outDir + '" /F"' + outName + '"  ' + issFile
              ret = os.system(commLine)
@@ -490,6 +480,7 @@ ing assembly.
 
 
     def _buildPkg(self, destDir, rootDir, resourceDir, infoPlist, descrip):
+	'''Run PackageMaker to build the final installation package'''
         try:
              print 'PackageMaker -build -p ' + destDir + ' -f ' + rootDir + ' -r ' + resourceDir + ' -i ' + infoPlist + ' -d ' + descrip
              ret = os.system('PackageMaker -build -p ' + destDir + ' -f ' + rootDir + ' -r ' + resourceDir + ' -i ' + infoPlist + ' -d ' + descrip)
@@ -564,6 +555,7 @@ ing assembly.
 
 
     def build(self):
+	'''Main build method.'''
         if not self._createDirectories(): return
         if not self._prepareSources():  return
         if not self._buildSource4Distribution(): return
@@ -615,7 +607,7 @@ def usage():
     Options:
     -a application name
     -o target location
-    -i  icon file
+    -i icon file
     -s release state 
     -t cvs tag
     -h help
@@ -624,8 +616,8 @@ def usage():
     Long options also work:
     --appname =<appname>
     --outdir=<targetdir>
-    --iconfile=<Icon file for the app/exe, currently ignored on Linux>
-    --state=<release status: Alpha, beta, gamma...>
+    --iconfile=<icon file for the app/exe, currently ignored on Linux>
+    --state=<release status: a, b or g (for Alpha, Beta, or Gamma)>
     --cvstag=<the cvs tag used to check out files>
     --help
     
