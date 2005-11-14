@@ -11,7 +11,7 @@ tarballURLs = {
 
 WEBSERVER_DIR = "webserver2:/var/www/html/nanorex-tarballs"
 DEST_DIR = "/tmp/tarballs"
-ISOFILE = "/tmp/backupTarballs.iso"
+ISOFILE = "/backupTarballs.iso"
 MYSELF = "Will Ware <wware@alum.mit.edu>"
 LISTENERS = [
     MYSELF
@@ -43,8 +43,8 @@ def getTarballs():
         tarballPath = DEST_DIR + "/" + tarball
         cmd = "wget -O %s %s" % (tarballPath, url)
         system(cmd)
-    system("mkisofs -J -l -r -o %s %s" % (ISOFILE, DEST_DIR))
-    system("mv %s %s" % (ISOFILE, DEST_DIR))
+    system("mkisofs -J -l -r -o /tmp/%s %s" % (ISOFILE, DEST_DIR))
+    system("mv /tmp/%s %s" % (ISOFILE, DEST_DIR))
     system("scp %s/* %s" % (DEST_DIR, WEBSERVER_DIR))
 
 def sendEmail(message, debug=False):
