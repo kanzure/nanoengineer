@@ -9,6 +9,7 @@ tarballURLs = {
     "Bugzilla.tar.gz": "http://mirror1.cvsdude.com/download.pl?id=p3kowosctuqqfud82rzttmtfbey7ogb5"
     }
 
+WEBSERVER_DIR = "webserver2:/var/www/html/nanorex-tarballs"
 DEST_DIR = "/tmp/tarballs"
 ISOFILE = "/tmp/backupTarballs.iso"
 MYSELF = "Will Ware <wware@alum.mit.edu>"
@@ -44,6 +45,7 @@ def getTarballs():
         system(cmd)
     system("mkisofs -J -l -r -o %s %s" % (ISOFILE, DEST_DIR))
     system("mv %s %s" % (ISOFILE, DEST_DIR))
+    system("scp %s/* %s" % (DEST_DIR, WEBSERVER_DIR))
 
 def sendEmail(message, debug=False):
     smtpserver = "smtp.rcn.com"
