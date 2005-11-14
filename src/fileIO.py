@@ -36,6 +36,29 @@ from elements import PeriodicTable
 
 # ==
 
+def get_povray_color(lights):
+    def getColor(amb, dif):
+        rst = min(amb + dif * 0.125, 1.0)
+        return "<%f, %f, %f>"%(rst, rst, rst)
+    
+    ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = lights
+    if e0:
+        c1 = getColor(a0, d0)
+    else:
+        c1 =  None
+    
+    if e1:
+        c2 = getColor(a1, d1)
+    else:
+        c2 = None
+    
+    if e2:
+        c3 = getColor(a2, d2)
+    else:
+        c3 = None
+    
+    return c1, c2, c3
+
 # Create a POV-Ray file
 def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
     "write the given part into a new POV-Ray file with the given name, using glpane and glpane.mode for lightig, color, etc"
@@ -69,9 +92,18 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     light1 = (glpane.out + glpane.left + glpane.up) * 10.0
     light2 = (glpane.right + glpane.up) * 10.0
     light3 = glpane.right + glpane.down + glpane.out/2.0
-    f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color Gray10 parallel\n}\n")
-    f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
-    f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
+    #light1 = V(-5, 7, 3); light2 = V(-1, 1, 1); light3 = (0, 0, 1) 
+    color1, color2, color3 = get_povray_color(glpane._lights)
+    #f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color Gray10 parallel\n}\n")
+    #f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
+    #f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
+    if color1:
+        f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color " + color1 + " parallel\n}\n")
+    if color2:    
+        f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color " + color2 + " parallel\n}\n")
+    if color3:
+        f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color " + color3 + " parallel\n}\n")
+    
     
     # Camera info
     vdist = cdist
@@ -133,6 +165,16 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     ## removed 050817 josh -- caused crud to appear in the output (and slowed rendering 5x!!)
     ## f.write("clipped_by { plane { " + povpoint(-glpane.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
     ## f.write("             plane { " + povpoint(glpane.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
+    
+    #if glpane.mode.modename == 'DEPOSIT':
+        #dt = -glpane.quat
+        #degY = dt.angle*180.0/pi
+        #f.write("plane { \n" +
+                #"      z 0\n" +
+                #"      pigment { color rgbf <0.29, 0.7294, 0.8863, 0.6>}\n" +
+                #'    #include "transforms.inc"\n' +
+                #"    Axis_Rotate_Trans(" + povpoint(V(dt.x, dt.y, dt.z)) + ", " + str(degY) + ")}\n")
+       
     f.write("}\n\n")  
 
     f.close()

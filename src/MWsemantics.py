@@ -577,6 +577,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         cmd = greenmsg("Top View: ")
         info = 'Current view is Top View'
         env.history.message(cmd + info)
+
         self.glpane.rotateView(Q(V(1,0,0),pi/2))
         
     ###################################

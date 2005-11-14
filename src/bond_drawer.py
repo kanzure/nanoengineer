@@ -37,6 +37,7 @@ from bond_constants import *
 from elements import Singlet
 
 from qt import QFont, QString, QColor ###k
+from ThumbView import MMKitView
 
 import env
 
@@ -201,7 +202,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from draw_bond_vanes import draw_bond_vanes
             draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
-        if draw_bond_letters:
+        if draw_bond_letters and not isinstance(glpane, MMKitView): # [Huaicai 11/14/05: added the MMKitView test to fix bug 969,884]
                 # It would be good to disable the bond letter feature completely in the MMKit thumbview for Library,
                 # but not for single atoms (same glpane)... could we do this by ratio of atomcount to glpane size?
                 # or by the controlling code setting a flag? (For now, just ignore the issue.) [bruce 051110]
