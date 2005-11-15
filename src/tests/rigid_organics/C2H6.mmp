@@ -1,0 +1,31 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.187532) (-0.000000, -0.000000, -0.000000) (1.000000)
+egroup (View Data)
+group (C2H6)
+info opengroup open = True
+mol (C2H6.pdb) cpk
+atom 1 (6) (449, -619, -6) def
+atom 2 (6) (-449, 619, 6) def
+bond1 1
+atom 3 (1) (-140, -1543, -5) def
+bond1 1
+atom 4 (1) (1106, -651, 862) def
+bond1 1
+atom 5 (1) (1086, -636, -900) def
+bond1 1
+atom 6 (1) (140, 1543, 5) def
+bond1 2
+atom 7 (1) (-1086, 636, 900) def
+bond1 2
+atom 8 (1) (-1106, 651, -862) def
+bond1 2
+egroup (C2H6)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C2H6

@@ -1,0 +1,12 @@
+COMPND  from CH4.pdb                                                            
+HETATM    1  C                   0.010  -0.021  -0.002                
+HETATM    2  H                  -0.589   0.891   0.010                
+HETATM    3  H                  -0.649  -0.891  -0.002                
+HETATM    4  H                   0.649  -0.047   0.888                
+HETATM    5  H                   0.631  -0.035  -0.888                
+CONECT    1    2    3    4    5                              
+CONECT    2    1                                             
+CONECT    3    1                                             
+CONECT    4    1                                             
+CONECT    5    1                                             
+END   

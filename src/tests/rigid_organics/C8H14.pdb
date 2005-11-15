@@ -1,0 +1,46 @@
+COMPND  from C8H14.pdb                                                          
+HETATM    1  C                   0.568  -0.227  -1.458                
+HETATM    2  C                   1.463  -0.691  -0.290                
+HETATM    3  C                  -0.743   0.321  -0.907                
+HETATM    4  C                   0.741  -0.451   1.031                
+HETATM    5  C                  -0.451   1.502   0.021                
+HETATM    6  C                  -1.463  -0.765  -0.122                
+HETATM    7  C                  -0.567  -1.236   1.040                
+HETATM    8  C                   0.441   1.036   1.178                
+HETATM    9  H                   1.070   0.528  -2.048                
+HETATM   10  H                   0.357  -1.056  -2.133                
+HETATM   11  H                   2.411  -0.165  -0.288                
+HETATM   12  H                   1.705  -1.747  -0.380                
+HETATM   13  H                  -1.373   0.653  -1.732                
+HETATM   14  H                   1.373  -0.781   1.850                
+HETATM   15  H                  -1.386   1.913   0.381                
+HETATM   16  H                   0.028   2.300  -0.539                
+HETATM   17  H                  -2.411  -0.385   0.239                
+HETATM   18  H                  -1.700  -1.597  -0.775                
+HETATM   19  H                  -0.348  -2.300   0.951                
+HETATM   20  H                  -1.070  -1.100   1.990                
+HETATM   21  H                  -0.043   1.222   2.133                
+HETATM   22  H                   1.373   1.597   1.186                
+CONECT    1    2    3    9   10                              
+CONECT    2    1    4   11   12                              
+CONECT    3    1    5    6   13                              
+CONECT    4    2    7    8   14                              
+CONECT    5    3    8   15   16                              
+CONECT    6    3    7   17   18                              
+CONECT    7    4    6   19   20                              
+CONECT    8    4    5   21   22                              
+CONECT    9    1                                             
+CONECT   10    1                                             
+CONECT   11    2                                             
+CONECT   12    2                                             
+CONECT   13    3                                             
+CONECT   14    4                                             
+CONECT   15    5                                             
+CONECT   16    5                                             
+CONECT   17    6                                             
+CONECT   18    6                                             
+CONECT   19    7                                             
+CONECT   20    7                                             
+CONECT   21    8                                             
+CONECT   22    8                                             
+END   
