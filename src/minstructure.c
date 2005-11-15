@@ -44,7 +44,7 @@ minimizeStructure(struct part *part)
   minimizeStructureFunctions.fine_tolerance = 1e-8;
   minimizeStructureFunctions.gradient_delta = 0.0; // unused
   minimizeStructureFunctions.dimension = part->num_atoms * 3;
-  minimizeStructureFunctions.initial_parameter_guess = 1.0;
+  minimizeStructureFunctions.initial_parameter_guess = 0.0001;
   minimizeStructureFunctions.functionEvaluationCount = 0;
   minimizeStructureFunctions.gradientEvaluationCount = 0;
 
