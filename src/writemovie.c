@@ -369,9 +369,73 @@ void writeOutputTrailer(FILE *f, struct part *part, int frameNumber)
     }
 }
 
+void
+writeSimpleAtomPosition(struct xyz *positions, int i)
+{
+    fprintf(outf, "s %f %f %f 40 1 0 0\n",
+            positions[i].x,
+            positions[i].y,
+            positions[i].z);
+}
+
+static float forceColors[7][3] = {
+    { 1.0, 1.0, 1.0 }, // white
+    { 1.0, 0.0, 0.0 }, // red
+    { 0.0, 1.0, 0.0 }, // green
+    { 0.0, 0.0, 1.0 }, // blue
+    { 0.0, 1.0, 1.0 }, // cyan
+    { 1.0, 0.0, 1.0 }, // magenta
+    { 1.0, 1.0, 0.0 }  // yellow
+};
+
+void
+writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color)
+{
+    double fSquared;
+    struct xyz f;
+    
+    if (1 /*!atom[i].inJig*/) {
+        fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+                positions[i].x,
+                positions[i].y,
+                positions[i].z,
+                positions[i].x + force->x,
+                positions[i].y + force->y,
+                positions[i].z + force->z,
+                forceColors[color][0],
+                forceColors[color][1],
+                forceColors[color][2]);
+        if (color != 0) {
+            f = *force;
+            fSquared = vdot(f, f);
+            fprintf(stderr, "force: %f type: %d\n", sqrt(fSquared), color);
+        }
+    }
+}
+
+void
+writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forces, const char *format, ...)
+{
+    int i;
+    va_list args;
+    
+    for (i=0; i<part->num_atoms; i++) {
+        writeSimpleAtomPosition(positions, i);
+        if (forces != NULL) {
+          writeSimpleForceVector(positions, i, &forces[i], 0);
+        }
+    }
+    fprintf(outf, "f ");
+    va_start(args, format);
+    vfprintf(outf, format, args);
+    va_end(args);
+    fprintf(outf, "\n");
+    fflush(outf);
+}
+
 /**
  */
-void snapshot(FILE *outf, int n, struct part *part, struct xyz *pos)
+void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos)
 {
     switch (OutputFormat) {
     case 0:
@@ -395,14 +459,14 @@ static int interruptionWarning = 0;
 
 /**
  */
-int minshot(FILE *outf,
-            struct part *part,
-            int final,
-            struct xyz *pos,
-            double rms,
-            double hifsq,
-            int frameNumber,
-            char *callLocation)
+int writeMinimizeMovieFrame(FILE *outf,
+                            struct part *part,
+                            int final,
+                            struct xyz *pos,
+                            double rms,
+                            double hifsq,
+                            int frameNumber,
+                            char *callLocation)
 {
     /*
     if (DEBUG(D_MINIMIZE)) {
@@ -417,7 +481,9 @@ int minshot(FILE *outf,
         }
         break;
     case 1:
-        writeOldFrame(outf, part, pos);
+        if (frameNumber < NumFrames) {
+          writeOldFrame(outf, part, pos);
+        }
         break;
     case 2:
         writeNewFrame(outf, part, pos);

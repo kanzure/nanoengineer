@@ -9,6 +9,8 @@ minimizeStructurePotential(struct configuration *p)
 {
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
+  //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, 0, 0, Iteration++, "potential");
+  //writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential");
 }
 
 // This is the gradient of the potential function which is being minimized.
@@ -17,6 +19,9 @@ minimizeStructureGradient(struct configuration *p)
 {
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
+  //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, 0, 0, Iteration++, "gradient");
+  //writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient");
+  
 }
 
 static struct functionDefinition minimizeStructureFunctions;
@@ -52,7 +57,8 @@ minimizeStructure(struct part *part)
 
   final = minimize(initial, &iter, NumFrames);
 
-  minshot(outf, part, 1, (struct xyz *)final->coordinate, 0.0, 0.0, iter, "final structure");
+  writeMinimizeMovieFrame(outf, part, 1,
+                          (struct xyz *)final->coordinate, 0.0, 0.0, iter, "final structure");
   
   SetConfiguration(&initial, NULL);
   SetConfiguration(&final, NULL);
