@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <string.h>
+#include <sys/select.h>
 
 #include <GL/glx.h>
 #include <GL/gl.h>
@@ -45,7 +46,7 @@ struct Object
     struct ObjectLine line;
     struct ObjectSphere sphere;
     struct ObjectFrame frame;
-  };
+  } u;
 };
 
 // A movie is a sequence of frames.  Each frame is a sequence of
@@ -129,14 +130,14 @@ renderObject(struct Object *o)
   }
   switch (o->type) {
   case OBJ_LINE:
-    line(o->line.x1, o->line.y1, o->line.z1,
-         o->line.x2, o->line.y2, o->line.z2,
-         o->line.r,  o->line.g,  o->line.b);
+    line(o->u.line.x1, o->u.line.y1, o->u.line.z1,
+         o->u.line.x2, o->u.line.y2, o->u.line.z2,
+         o->u.line.r,  o->u.line.g,  o->u.line.b);
     break;
   case OBJ_SPHERE:
-    sphere(o->sphere.x, o->sphere.y, o->sphere.z,
-           o->sphere.radius,
-           o->sphere.r, o->sphere.g, o->sphere.b);
+    sphere(o->u.sphere.x, o->u.sphere.y, o->u.sphere.z,
+           o->u.sphere.radius,
+           o->u.sphere.r, o->u.sphere.g, o->u.sphere.b);
     break;
   case OBJ_FRAME:
     break;
@@ -158,7 +159,7 @@ renderFrame()
       renderObject(o);
       o++;
     }
-    printf("%d: %s\n", currentFrame, o->frame.s);
+    printf("%d: %s\n", currentFrame, o->u.frame.s);
   }
 }
 
@@ -291,13 +292,13 @@ processLine(char *s)
   if (*s == 's') { // s x y z radius r g b
     if (7 == sscanf(s+1,
                     "%f%f%f%f%f%f%f",
-                    &o->sphere.x,
-                    &o->sphere.y,
-                    &o->sphere.z,
-                    &o->sphere.radius,
-                    &o->sphere.r,
-                    &o->sphere.g,
-                    &o->sphere.b))
+                    &o->u.sphere.x,
+                    &o->u.sphere.y,
+                    &o->u.sphere.z,
+                    &o->u.sphere.radius,
+                    &o->u.sphere.r,
+                    &o->u.sphere.g,
+                    &o->u.sphere.b))
     {
       o->type = OBJ_SPHERE;
       numObjects++;
@@ -307,15 +308,15 @@ processLine(char *s)
   } else if (*s == 'l') {
     if (9 == sscanf(s+1,
                     "%f%f%f%f%f%f%f%f%f",
-                    &o->line.x1,
-                    &o->line.y1,
-                    &o->line.z1,
-                    &o->line.x2,
-                    &o->line.y2,
-                    &o->line.z2,
-                    &o->line.r,
-                    &o->line.g,
-                    &o->line.b))
+                    &o->u.line.x1,
+                    &o->u.line.y1,
+                    &o->u.line.z1,
+                    &o->u.line.x2,
+                    &o->u.line.y2,
+                    &o->u.line.z2,
+                    &o->u.line.r,
+                    &o->u.line.g,
+                    &o->u.line.b))
     {
       o->type = OBJ_LINE;
       numObjects++;
@@ -324,7 +325,7 @@ processLine(char *s)
     }
   } else if (*s == 'f') {
     o->type = OBJ_FRAME;
-    o->frame.s = copy_string(s+1);
+    o->u.frame.s = copy_string(s+1);
     numObjects++;
     numFrames++;
     frames = (int *)accumulator(frames, sizeof(int) * numFrames, 0);

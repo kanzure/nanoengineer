@@ -111,12 +111,24 @@ structCompareResult(struct configuration *p,
          allowScaling ? scale : 1.0,
          standardDeviation, maxDeltaLen);
 
+  if (standardDeviation != 0.0 && !isnormal(standardDeviation)) {
+    printf("standard deviation not defined\n");
+    ret = 1;
+  }
   if (standardDeviation > deviationLimit) {
     printf("standard deviation exeeded deviationLimit of %e\n", deviationLimit);
     ret = 1;
   }
+  if (maxDeltaLen != 0.0 && !isnormal(maxDeltaLen)) {
+    printf("maximum delta not defined\n");
+    ret = 1;
+  }
   if (maxDeltaLen > maxDeltaLimit) {
     printf("maximum delta exceeded max delta limit of %e\n", maxDeltaLimit);
+    ret = 1;
+  }
+  if (scale != 0.0 && !isnormal(scale)) {
+    printf("scale not defined\n");
     ret = 1;
   }
   if (scale > maxScale) {

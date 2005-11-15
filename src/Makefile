@@ -2,8 +2,9 @@
 
 CC=gcc
 
+#-std-c99 gets us isnormal() in structcompare.c
 #CFLAGS=-O2 -g
-CFLAGS=-g -Wmissing-prototypes -Wall
+CFLAGS=-g -std=c99 -Wmissing-prototypes -Wall
 
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
