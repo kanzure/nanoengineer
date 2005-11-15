@@ -73,7 +73,7 @@ For now, manually type in:"nanoENGINEER-1 v0.0.7 (Alpha7)"
 INSTALLATION ON Mandrake Linux 10.1
 
 The RPM can be installed through the Mandrake Linux Control Center. 
-It will be installed into /usr/local/nanoENGINEER-1/  on your 
+It will be installed into /usr/local/nanoENGINEER-1-0.0.6/  on your 
 local machine.There is a package dependency for GLUT, so it will ask 
 you for the appropriate CD.
 
@@ -81,12 +81,11 @@ Note that the RPM does not add a menu item to the Start menu, nor does
 it add a desktop icon for ne-1.  This is easy to do yourself by creating 
 a desktop icon that points directly to the ne-1 executable, located at: 
 
-/usr/local/nanoENGINEER-1/program/nanoENGINEER-1
+/usr/local/nanoENGINEER-1-0.0.6/program/nanoENGINEER-1
 
-If you create a symlink to the executable in /usr/local/bin, 
-as an experience Linux user might, it will not work.  
-This is because nanoENGINEER-1 looks for its files relative to 
-its executable.
+If you create a symlink to the executable in /usr/local/bin, as an
+experienced Linux user might, it will not work. This is because
+nanoENGINEER-1 looks for its files relative to its executable.
 
 --------------------------------------------------------------------
 INSTALLATION ON Fedora Core 4
