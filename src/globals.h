@@ -43,3 +43,5 @@ extern double totClipped;  // internal thermostat for numerical stability
 extern double Gamma; // for Langevin thermostats
 
 extern double G1;
+
+extern double PotentialExtensionMinimumSlope; // aJ/pm

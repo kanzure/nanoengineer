@@ -47,3 +47,13 @@ double Gamma = 0.01; // for Langevin thermostats
 
 double G1=(1.01-0.27*0.01)*1.4*0.1;
 //double G1=(1.01-0.27*0.1)*1.4*0.31623;
+
+// When we are minimizing, this is the minimum slope that the bond
+// stretch potential function (in terms of r, not r^2) must have at
+// the point just past the end of the interpolation table.  This slope
+// must be greater than the slope of any bond stretch at its
+// inflection point (maximum slope outside of R0).  This will result
+// in an attractive force between bonded atoms at large distances.
+// The actual potential function is flat at large distances.  Units
+// are aJ/pm
+double PotentialExtensionMinimumSlope = 1e-2;

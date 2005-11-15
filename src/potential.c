@@ -17,7 +17,7 @@ static int validSerial = 0;
 
 // presumes that updateVanDerWaals() has been called already.
 static void
-setRUnit(struct xyz *position, struct bond *b, double *prSquared, struct xyz *pr)
+setRUnit(struct xyz *position, struct bond *b, double *prSquared)
 {
   struct xyz r;
   double rSquared;
@@ -28,9 +28,6 @@ setRUnit(struct xyz *position, struct bond *b, double *prSquared, struct xyz *pr
   vmul2c(b->rUnit, r, b->inverseLength); /* unit vector along r */
   if (prSquared) {
     *prSquared = rSquared;
-  }
-  if (pr) {
-    *pr = r;
   }
   b->valid = validSerial;
 }
@@ -74,7 +71,7 @@ calculatePotential(struct part *p, struct xyz *position)
 
     // we presume here that rUnit is invalid, and we need rSquared
     // anyway.
-    setRUnit(position, bond, &rSquared, NULL);
+    setRUnit(position, bond, &rSquared);
 
     // table lookup equivalent to: fac = potentialLippincottMorse(rSquared);
     iTable = &stretch->stretchType->potentialLippincottMorse;
@@ -90,8 +87,10 @@ calculatePotential(struct part *p, struct xyz *position)
       }
       fac = t1[0] + rSquared * t2[0];
     } else if (k >= TABLEN) {
-      if (ToMinimize) { //flat
-        fac = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
+      if (ToMinimize) { // extend linearly past end of table
+        fac = stretch->stretchType->potentialExtensionStiffness * rSquared
+          + stretch->stretchType->potentialExtensionIntercept;
+        //fac = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
       } else {
         fac=0.0;
         if (DEBUG(D_TABLE_BOUNDS)) {
@@ -117,10 +116,10 @@ calculatePotential(struct part *p, struct xyz *position)
     // Update rUnit for both bonds, if necessary.  Note that we
     // don't need r or rSquared here.
     if (bond1->valid != validSerial) {
-      setRUnit(position, bond1, NULL, NULL);
+      setRUnit(position, bond1, NULL);
     }
     if (bond2->valid != validSerial) {
-      setRUnit(position, bond2, NULL, NULL);
+      setRUnit(position, bond2, NULL);
     }
       
     // v1, v2 are the unit vectors FROM the central atom TO the
@@ -252,7 +251,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
 
     // we presume here that rUnit is invalid, and we need r and
     // rSquared anyway.
-    setRUnit(position, bond, &rSquared, &r);
+    setRUnit(position, bond, &rSquared);
 
     // table lookup equivalent to: fac = gradientLippincottMorse(rSquared);
     iTable = &stretch->stretchType->gradientLippincottMorse;
@@ -268,8 +267,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       }
       fac = t1[0] + rSquared * t2[0];
     } else if (k >= TABLEN) {
-      if (ToMinimize) { //flat
-        fac = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
+      if (ToMinimize) { // quadratic potential past table gives linear gradient (in r, not r^2)
+        fac = 2.0 * stretch->stretchType->potentialExtensionStiffness * sqrt(rSquared);
+        //fac = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
       } else {
         fac=0.0;
         if (DEBUG(D_TABLE_BOUNDS)) {
@@ -281,7 +281,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       fac = t1[k] + rSquared * t2[k];
     }
             
-    vmul2c(f, bond->rUnit, fac);  // f = r * gradientLippincottMorse(rSquared)
+    vmul2c(f, bond->rUnit, fac);  // f = gradientLippincottMorse(rSquared)
     vadd(force[bond->a1->index], f);
     vsub(force[bond->a2->index], f);
   }
@@ -297,10 +297,10 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
     // Update rUnit for both bonds, if necessary.  Note that we
     // don't need r or rSquared here.
     if (bond1->valid != validSerial) {
-      setRUnit(position, bond1, NULL, NULL);
+      setRUnit(position, bond1, NULL);
     }
     if (bond2->valid != validSerial) {
-      setRUnit(position, bond2, NULL, NULL);
+      setRUnit(position, bond2, NULL);
     }
       
     // v1, v2 are the unit vectors FROM the central atom TO the

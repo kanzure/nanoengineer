@@ -83,9 +83,6 @@ potentialLippincottMorse(double rSquared)
 //
 // the result is in yoctoJoules per picometer = picoNewtons
 // yJ / pm = 1e-24 J / 1e-12 m = 1e-12 J / m = pN
-//
-// NOTE: gradient is divided by r since we end up multiplying it by
-// the radius vector to get the force.
 static double
 gradientLippincottMorse(double rSquared)
 {
@@ -99,7 +96,7 @@ gradientLippincottMorse(double rSquared)
   // y1-y2 is attoJoules / pm (1e-6 J / m)
   // 1e6*(y1-y2) is in 1e-12 J/m, or pN
 
-  return 1e6 * (y1 - y2) / r;
+  return 1e6 * (y1 - y2);
 }
 
 // Initialize the function interpolation tables for each stretch
@@ -109,15 +106,24 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   double start;
   double end;
   int scale;
+  double rmin;
+  double rmax;
 	
   R0 = stretch->r0;
   Ks = stretch->ks;
   De = stretch->de;
   Beta = stretch->beta;
 
-  start = square(R0 * 0.5);
-  end = (int)square(R0 * 1.5);
+  rmin = R0 * 0.5;
+  rmax = R0 * 1.5;
+  start = rmin * rmin;
+  end = (int)(rmax * rmax);
   scale = (end - start) / TABLEN;
+
+  stretch->potentialExtensionStiffness = PotentialExtensionMinimumSlope / (2.0 * rmax);
+  
+  stretch->potentialExtensionIntercept = potentialLippincottMorse(rmax * rmax)
+    - stretch->potentialExtensionStiffness * rmax * rmax;
 
   fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, start, scale);
   fillInterpolationTable(&stretch->gradientLippincottMorse, gradientLippincottMorse, start, scale);

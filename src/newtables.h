@@ -23,6 +23,12 @@ struct bondStretch
   double beta; // 1e12 m^-1, for Morse
   
   double inflectionR; // r value in pm where d^2(Lippincott(r)) / dr^2 == 0
+
+  // For minimize, the potential function extends quadratically beyond the
+  // end of the interpolation table:
+  // potential = potentialExtensionStiffness * r^2 + potentialExtensionIntercept
+  double potentialExtensionStiffness;
+  double potentialExtensionIntercept;
   
   int isGeneric; // set to non-zero if the above are based on a heuristic
   
