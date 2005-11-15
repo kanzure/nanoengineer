@@ -69,6 +69,7 @@ usage()
    -d<char>      -- dump, <char>= a: atoms; b: bonds; c: constraints\n\
    -n<int>       -- expect this many atoms (ignored)\n\
    -m            -- minimize the structure\n\
+   -E            -- print structure potential energy\n\
    -i<int>       -- number of iterations per frame\n\
    -f<int>       -- number of frames\n\
    -s<float>     -- timestep\n\
@@ -93,6 +94,8 @@ main(int argc,char **argv)
 {
     struct part *part;
     int i, n;
+    int printPotentialEnergy = 0;
+    double potentialEnergy;
     int da=0, db=0, dc=0, dw=0;
 	
     char buf[1024], *filename, *ofilename, *tfilename, *c;
@@ -128,6 +131,9 @@ main(int argc,char **argv)
 		break;
 	    case 'm':
 		ToMinimize=1;
+		break;
+	    case 'E':
+		printPotentialEnergy=1;
 		break;
 	    case 'i':
 		IterPerFrame = atoi(argv[i]+2);
@@ -259,10 +265,12 @@ main(int argc,char **argv)
     if (! strchr(TraceFileName, '.')) {
         strcat(TraceFileName,".trc");
     }
-    tracef = fopen(TraceFileName, "w");
-    if (!tracef) {
-        perror(TraceFileName);
-        exit(1);
+    if (!printPotentialEnergy) {
+        tracef = fopen(TraceFileName, "w");
+        if (!tracef) {
+            perror(TraceFileName);
+            exit(1);
+        }
     }
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
@@ -277,6 +285,12 @@ main(int argc,char **argv)
     updateVanDerWaals(part, NULL, part->positions);
     generateStretches(part);
     generateBends(part);
+
+    if (printPotentialEnergy) {
+        potentialEnergy = calculatePotential(part, part->positions);
+        printf("%f Potential energy in aJ\n", potentialEnergy);
+        exit(0);
+    }
 
     //printPart(stdout, part);
     //exit(0);
