@@ -272,7 +272,7 @@ keypress(XEvent *event)
     break;
     
   default:
-    fprintf(stderr, "keypress: 0x%x, 0x%x\n", key, modifiers);
+    fprintf(stderr, "keypress: 0x%x, 0x%x\n", (unsigned int)key, modifiers);
     break;
   }
   repaint();
@@ -284,10 +284,6 @@ static int stdinPosition = 0;
 static void
 processLine(char *s)
 {
-  float x1, y1, z1;
-  float x2, y2, z2;
-  float r, g, b;
-  float radius;
   struct Object *o;
   
   movie = (struct Object *)accumulator(movie, sizeof(struct Object) * (numObjects + 1), 0);
