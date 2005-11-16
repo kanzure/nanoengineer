@@ -399,10 +399,10 @@ class ThumbView(QGLWidget):
         glFlush()
         
         hit_records = list(glRenderMode(GL_RENDER))
-        if platform.atom_debug:
+        if platform.atom_debug and 0:
             print "%d hits" % len(hit_records)
         for (near,far,names) in hit_records: # see example code, renderpass.py
-            if platform.atom_debug:
+            if platform.atom_debug and 0:
                 print "hit record: near,far,names:",near,far,names
                 # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
                 # which proves that near/far are too far apart to give actual depth,

@@ -1192,7 +1192,7 @@ class basicMode(anyMode):
             drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
                                  self.o.up, self.o.right, color)
 
-        if 0 and platform.atom_debug: # (keep awhile, might be useful)
+        if platform.atom_debug and 0: # (keep awhile, might be useful)
             # debug code bruce 041214: also draw back of selection curve
             pl = zip(self.o.backlist[:-1],self.o.backlist[1:])
             for pp in pl:
@@ -1276,10 +1276,10 @@ class basicMode(anyMode):
         glFlush()
         
         hit_records = list(glRenderMode(GL_RENDER))
-        if platform.atom_debug:
+        if platform.atom_debug and 0:
             print "%d hits" % len(hit_records)
         for (near,far,names) in hit_records: # see example code, renderpass.py
-            if platform.atom_debug:
+            if platform.atom_debug and 0:
                 print "hit record: near,far,names:",near,far,names
                 # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
                 # which proves that near/far are too far apart to give actual depth,
