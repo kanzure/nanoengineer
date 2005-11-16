@@ -7,5 +7,4 @@ TYPE struct
 ======= stderr =======
 cutover to fine tolerance at 3
 == structure comparison ==
-error reading atom 0 from test_C14H24.xyzcmp
-could not read base positions file from -B<filename>
+cutover to fine tolerance at 1

@@ -9,5 +9,4 @@ cutover to fine tolerance at 3
 linearMinimize allocated 0 instead of 1
 minimize allocated 0 instead of 1
 == structure comparison ==
-error reading atom 0 from test_C2H6.xyzcmp
-could not read base positions file from -B<filename>
+cutover to fine tolerance at 1

@@ -9,8 +9,7 @@ cutover to fine tolerance at 3
 linearMinimize allocated 0 instead of 1
 minimize allocated 0 instead of 1
 == structure comparison ==
-error reading atom 0 from test_C2H6.xyzcmp
-could not read base positions file from -B<filename>
+cutover to fine tolerance at 1
 ======= stdout =======
 iters per frame = 10
 number of frames = 100
@@ -20,6 +19,13 @@ dump as text
 < test_C2H6.mmp  > test_C2H6.xyz
 final RMS gradient=2273.259142 after 5 iterations
 == structure comparison ==
+at: translate (-0.000000 -0.000000 -0.000000)
+       rotate (-0.000000 0.000000 0.000000)
+        scale 1.011651,
+standard deviation = 2.387123e-04, max delta = 1.641121e-02
+standard deviation exeeded deviationLimit of 1.000000e-08
+maximum delta exceeded max delta limit of 1.000000e-04
+scale exceeded limit of 1.000100e+00
 ======= test_C2H6.trc =======
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #

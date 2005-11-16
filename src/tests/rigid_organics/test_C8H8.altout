@@ -7,8 +7,7 @@ TYPE struct
 ======= stderr =======
 cutover to fine tolerance at 7
 == structure comparison ==
-error reading atom 0 from test_C8H8.xyzcmp
-could not read base positions file from -B<filename>
+cutover to fine tolerance at 1
 ======= stdout =======
 iters per frame = 10
 number of frames = 100
@@ -18,6 +17,13 @@ dump as text
 < test_C8H8.mmp  > test_C8H8.xyz
 final RMS gradient=15407.984824 after 10 iterations
 == structure comparison ==
+at: translate (-0.000000 -0.000000 -0.000000)
+       rotate (0.000010 0.000024 -0.000003)
+        scale 1.102335,
+standard deviation = 9.810569e-03, max delta = 1.243641e-01
+standard deviation exeeded deviationLimit of 1.000000e-08
+maximum delta exceeded max delta limit of 1.000000e-04
+scale exceeded limit of 1.000100e+00
 ======= test_C8H8.trc =======
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #

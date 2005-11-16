@@ -18,7 +18,7 @@ for df in damianFiles:
     xyzcmpFilename = testPrefix + ".xyzcmp"
     outf = open(xyzcmpFilename, "w")
     xyzcmp = damianMmp.convertToXyz()
-    xyzcmp.write("Converted from " + df, outf)
+    xyzcmp.write(df, outf)
     outf.close()
 
     # Make a perturbed copy of the MMP, use it for test_{foo}.mmp
