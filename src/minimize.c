@@ -519,7 +519,8 @@ static struct configuration *
 minimize_one_tolerance(struct configuration *initial_p,
                        int *iteration,
                        int iterationLimit,
-                       double tolerance)
+                       double tolerance,
+                       enum minimizationAlgorithm minimization_algorithm)
 {
   struct functionDefinition *fd = initial_p->functionDefinition;
   double fp;
@@ -545,25 +546,34 @@ minimize_one_tolerance(struct configuration *initial_p,
     }
     evaluateGradient(p); // should have been evaluated by linearMinimize already
     evaluateGradient(q);
-    dgg = gg = 0.0;
-    for (i=fd->dimension-1; i>=0; i--) {
-      gg += p->gradient[i] * p->gradient[i];
-      // following line implements Polak-Ribiere
-      dgg += (q->gradient[i] + p->gradient[i]) * q->gradient[i] ;
-      // following line implements Fletcher-Reeves
-      //dgg += q->gradient[i] * q->gradient[i] ;
-    }
-    if (gg == 0.0) {
-      // rather than divide by zero below, note that the gradient
-      // is zero, so we must be done.
-      SetConfiguration(&p, NULL);
-      Leave(minimize, 1);
-      return q;
-    }
-    // to do steepest descent, we could skip much of the above and set gamma=0 here
-    gamma = dgg / gg;
-    for (i=fd->dimension-1; i>=0; i--) {
-      q->gradient[i] += gamma * p->gradient[i];
+    if (minimization_algorithm != SteepestDescent) {
+      dgg = gg = 0.0;
+      if (minimization_algorithm == PolakRibiereConjugateGradient) {
+        for (i=fd->dimension-1; i>=0; i--) {
+          gg += p->gradient[i] * p->gradient[i];
+          // following line implements Polak-Ribiere
+          dgg += (q->gradient[i] + p->gradient[i]) * q->gradient[i] ;
+        }
+      } else { // minimization_algorithm == FletcherReevesConjugateGradient
+        // NOTE: Polak-Ribiere may handle non-quadratic minima better
+        // than Fletcher-Reeves
+        for (i=fd->dimension-1; i>=0; i--) {
+          gg += p->gradient[i] * p->gradient[i];
+          // following line implements Fletcher-Reeves
+          dgg += q->gradient[i] * q->gradient[i] ;
+        }
+      }
+      if (gg == 0.0) {
+        // rather than divide by zero below, note that the gradient
+        // is zero, so we must be done.
+        SetConfiguration(&p, NULL);
+        Leave(minimize, 1);
+        return q;
+      }
+      gamma = dgg / gg;
+      for (i=fd->dimension-1; i>=0; i--) {
+        q->gradient[i] += gamma * p->gradient[i];
+      }
     }
     fp = fq;
     SetConfiguration(&p, q);
@@ -582,6 +592,7 @@ minimize(struct configuration *initial_p,
          int *iteration,
          int iterationLimit)
 {
+  struct functionDefinition *fd = initial_p->functionDefinition;
   struct configuration *intermediate;
   struct configuration *final;
   int coarse_iter;
@@ -591,12 +602,14 @@ minimize(struct configuration *initial_p,
   intermediate = minimize_one_tolerance(initial_p,
                                         &coarse_iter,
                                         iterationLimit * 0.8,
-                                        initial_p->functionDefinition->coarse_tolerance);
-  //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
+                                        fd->coarse_tolerance,
+                                        SteepestDescent);
+  fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
   final = minimize_one_tolerance(intermediate,
                                  &fine_iter,
                                  iterationLimit - coarse_iter,
-                                 initial_p->functionDefinition->fine_tolerance);
+                                 fd->fine_tolerance,
+                                 PolakRibiereConjugateGradient);
   SetConfiguration(&intermediate, NULL);
   *iteration = coarse_iter + fine_iter;
   Leave(minimize, 1);

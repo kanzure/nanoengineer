@@ -59,7 +59,7 @@ struct functionDefinition
   // Called whenever a configuration is freed, if the extra field is
   // non-null.  Set freeExtra to NULL if extra is never used.
   void (*freeExtra)(struct configuration *p);
-
+  
   // How close do we need to get to the minimum?  Should be no smaller
   // than the square root of the machine precision.  First we minimize
   // to coarse_tolerance, then to fine_tolerance.
@@ -85,6 +85,11 @@ struct functionDefinition
   int gradientEvaluationCount;
 };
 
+enum minimizationAlgorithm {
+  SteepestDescent,
+  PolakRibiereConjugateGradient,
+  FletcherReevesConjugateGradient
+};
 
 extern struct configuration *makeConfiguration(struct functionDefinition *fd);
 
