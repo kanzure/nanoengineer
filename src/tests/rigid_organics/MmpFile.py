@@ -13,42 +13,7 @@ import re
 import os
 import sys
 import string
-import random
-
-class NotAtomException(Exception):
-    pass
-
-class Line:
-    def __init__(self, line):
-        self._str = line
-    def str(self):
-        return self._str
-
-class AtomLine(Line):
-    pattern = re.compile("^atom (\d+) \((\d+)\) " +
-                         "\((\-?\d+), (\-?\d+), (\-?\d+)\)")
-    def __init__(self, line):
-        m = self.pattern.match(line)
-        if m == None:
-            raise NotAtomException
-        groups = m.groups()
-        newline = "atom %s" % groups[0]
-        self.elem = elem = string.atoi(groups[1])
-        newline += " (%s)" % groups[1]
-        newline += " (%d, %d, %d)"
-        newline += line[m.span()[1]:]  # anything after position
-        self._str = newline
-        self.x = 0.001 * string.atoi(groups[2])
-        self.y = 0.001 * string.atoi(groups[3])
-        self.z = 0.001 * string.atoi(groups[4])
-    def __iadd__(self, incr):
-        self.x += incr[0]
-        self.y += incr[1]
-        self.z += incr[2]
-    def str(self):
-        return self._str % (int(self.x * 1000),
-                            int(self.y * 1000),
-                            int(self.z * 1000))
+import Atom
 
 class MmpFile:
     """This is meant to be a Python class representing a MMP file. It
@@ -57,13 +22,44 @@ class MmpFile:
     now, its biggest strength is that it allows us to easily modify
     the positions of the atoms in an MMP file, and write out the
     resulting modified MMP file."""
+    class _Line:
+        def fromMmp(self, line):
+            self._str = line
+        def str(self):
+            return self._str
+    class _AtomHolder:
+        """Atom holders are indices into the MmpFile.atoms list,
+        and that's done so that MmpFiles are easier to clone.
+        """
+        def __init__(self, owner):
+            self._owner = owner
+        def fromMmp(self, line):
+            atoms = self._owner.atoms
+            self._index = len(atoms)
+            a = Atom.Atom()
+            a.fromMmp(line)
+            atoms.append(a)
+        def str(self):
+            a = self._owner.atoms[self._index]
+            return a.toMmpString()
     def __init__(self):
         self.atoms = [ ]
         self.lines = [ ]
-    def __setitem__(self, i, value):
-        self.atoms[i] = value
-    def __getitem__(self, i):
+    def clone(self):
+        other = MmpFile()
+        other.lines = self.lines[:]
+        other.atoms = [ ]
+        for a in self.atoms:
+            other.atoms.append(a.clone())
+        return other
+    def getAtom(self, i):
         return self.atoms[i]
+    def __getitem__(self, i):
+        a = self.atoms[i]
+        return (a.x, a.y, a.z)
+    def __setitem__(self, i, xyz):
+        a = self.atoms[i]
+        a.x, a.y, a.z = xyz
     def __len__(self):
         return len(self.atoms)
     def read(self, filename):
@@ -73,21 +69,33 @@ class MmpFile:
     def readstring(self, lines):
         for line in lines.split("\n"):
             try:
-                atm = AtomLine(line)
-                self.atoms.append(atm)
-                self.lines.append(atm)
-            except NotAtomException:
-                ln = Line(line)
-                self.lines.append(ln)
+                atm = MmpFile._AtomHolder(self)
+                atm.fromMmp(line)
+            except Atom.NotAtomException:
+                atm = MmpFile._Line()
+                atm.fromMmp(line)
+            self.lines.append(atm)
     def write(self, outf=None):
-        needToClose = True
         if outf == None:
             outf = sys.stdout
-            needToClose = False
         for ln in self.lines:
             outf.write(ln.str() + "\n")
-        if needToClose:
-            outf.close()
+    def convertToXyz(self):
+        import XyzFile
+        xyz = XyzFile.XyzFile()
+        for a in self.atoms:
+            xyz.atoms.append(a)
+        return xyz
+    def perturb(self):
+        import random
+        A = 0.5   # some small number of angstroms
+        A = A / (3 ** .5)   # amount in one dimension
+        for i in range(len(self)):
+            x, y, z = self[i]
+            x += random.normalvariate(0.0, A)
+            y += random.normalvariate(0.0, A)
+            z += random.normalvariate(0.0, A)
+            self[i] = (x, y, z)
 
 if __name__ == "__main__":
     """What follows is a specific usage of the MmpFile class. It's not
@@ -98,12 +106,8 @@ if __name__ == "__main__":
     #input = "C14H20.mmp"
     input = "C3H8.mmp"
     m.read(input)
-    for i in range(len(m)):
-        A = 0.5   # some small number of angstroms
-        A = A / (3 ** .5)   # amount in one dimension
-        xdiff = random.normalvariate(0.0, A)
-        ydiff = random.normalvariate(0.0, A)
-        zdiff = random.normalvariate(0.0, A)
-        m[i] += (xdiff, ydiff, zdiff)
-    outf = os.popen("diff -u - %s | less" % input, "w")
+    m.perturb()
+    #outf = os.popen("diff -u - %s | less" % input, "w")
+    outf = os.popen("diff -u - %s" % input, "w")
     m.write(outf)
+    outf.close()
