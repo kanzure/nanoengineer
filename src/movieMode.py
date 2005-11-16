@@ -543,7 +543,12 @@ class movieDashboardSlotsMixin:
             elif ext == '.pov':
                 self.assy.current_movie._write_povray_series( os.path.normpath(dir+"/"+fil))
                 
-            else: #.xyz
+            else: #.xyz (or something unexpected)
+                #bruce 051115 added warning and immediate return, to verify that this code is never called
+                QMessageBox.warning(self, "ERROR", "internal error: unsupported file extension %r" % (ext,) ) # args are title, content
+                return
+                ## assert 0, "unsupported extension %r" % (ext,)
+                
                 # XYZ option removed above from call to QFileDialog.getSaveFileName().  
                 # This section of code should not be called now (for A6).  Bruce was correct
                 # in his comments below; this section of code never worked anyway.
