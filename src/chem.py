@@ -772,7 +772,7 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             # [bruce 050404 to help fix bug 254]
             eltnum = Hydrogen.eltnum
             posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen )
-            disp = "singlet" # kluge, meant as a comment in the file
+            disp = "openbond" # kluge, meant as a comment in the file #bruce 051115 changed this from "singlet" to "openbond"
         xyz = posn * 1000
             # note, xyz has floats, rounded below (watch out for this
             # if it's used to make a hash) [bruce 050404 comment]

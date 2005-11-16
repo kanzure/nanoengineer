@@ -21,6 +21,8 @@ Bruce 050331 is splitting writemovie into several methods in more than
 one subclass (eventually) of a new SimRunner class.
 
 bruce 050901 and 050913 used env.history in some places.
+
+bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator executable command-line flag is hardcoded.
 '''
 
 from debug import print_compact_traceback
@@ -62,11 +64,14 @@ class SimRunner:
         self.said_we_are_done = False #bruce 050415
         return
     
-    def run_using_old_movie_obj_to_hold_sim_params(self, movie, options):
+    def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
         self._movie = movie # general kluge for old-code compat (lots of our methods still use this and modify it)
         # note, this movie object (really should be a simsetup object?) does not yet know a proper alist (or any alist, I hope) [bruce 050404]
-        self.errcode = self.set_options_errQ( options) # options include everything that affects the run except the set of atoms and the part
+        self.errcode = self.set_options_errQ( ) # set movie alist, output filenames, sim executable pathname (verify it exists)
+            #obs comment [about the options arg i removed?? or smth else?]
+            # options include everything that affects the run except the set of atoms and the part
         if self.errcode: # used to be a local var 'r'
+            # bruce 051115 comment: more than one reason this can happen, one is sim executable missing
             return
 ##        self.run_in_foreground = True # all we have for now [050401]
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
@@ -113,8 +118,14 @@ class SimRunner:
         # (since if so we already have it... in future we'll even start playing movies as their data comes in...)
         # so not much to do here! let caller care about res, not us.
     
-    def set_options_errQ(self, options): #e maybe split further into several setup methods?
-        """Caller should specify the options for this simulator run
+    def set_options_errQ(self): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
+        """Set movie alist (from simaspect or entire part); debug-msg if it was already set (and always ignore old value).
+        Figure out and set filenames, including sim executable path.
+        All inputs and outputs are self attrs or globals or other obj attrs... except, return error code if sim executable missing
+        or on other errors detected by subrs.
+        
+        old docstring:
+        Caller should specify the options for this simulator run
         (including the output file name);
         these might affect the input file we write for it
         and/or the arguments given to the simulator executable.
@@ -258,12 +269,12 @@ class SimRunner:
                 # (I guess this needn't know self.tmp_file_prefix except perhaps via movie.filename [bruce 050401])
 
         if self.traceFileName:
-            self.traceFileArg = "-q" + self.traceFileName
+            self.traceFileArg = "-q" + self.traceFileName #SIMOPT
         else:
             self.traceFileArg = ""
                 
         # This was the old tracefile - obsolete as of 2005-03-08 - Mark
-        ## traceFileArg = "-q"+ os.path.join(self.tmpFilePath, "sim-%d-trace.txt" % pid)
+        ## traceFileArg = "-q"+ os.path.join(self.tmpFilePath, "sim-%d-trace.txt" % pid) #SIMOPT
 
         return None # no error
 
@@ -297,10 +308,17 @@ class SimRunner:
     #    env.history.message(msg)
 
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
-            part.writemmpfile( mmpfile) # as of 050412 this doesn't yet turn singlets into H
+            if debug_sim: #bruce 051115 added this
+                print "part.writemmpfile(%r)" % (mmpfile,)
+            part.writemmpfile( mmpfile)
+                # As of 051115 this is still called for Run Sim.
+                # As of 050412 this didn't yet turn singlets into H;
+                # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!).
         else:
+            if debug_sim: #bruce 051115 added this
+                print "simaspect.writemmpfile(%r)" % (mmpfile,)
             # note: simaspect has already been used to set up movie.alist; simaspect's own alist copy is used in following:
-            self.simaspect.writemmpfile( mmpfile) # this does turn singlets into H
+            self.simaspect.writemmpfile( mmpfile) # this also turns singlets into H
             # obs comments:
             # can't yet happen (until minimize selection) and won't yet work 
             # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
@@ -335,12 +353,14 @@ class SimRunner:
         ###retval? or record some info?
         ### do we wait? no, we want to watch the files grow -- caller does that separately.
         """
+        if debug_sim: #bruce 051115 added this; confirmed this is always called for any use of sim (Minimize or Run Sim)
+            print "calling spawn_process" 
         # figure out process arguments
         # [bruce 050401 doing this later than before, used to come before writing sim-input file]
         
         movie = self._movie # old-code compat kluge
         moviefile = movie.filename
-        outfileArg = "-o%s" % moviefile
+        outfileArg = "-o%s" % moviefile #SIMOPT
         infile = self.sim_input_file
         program = self.program
         traceFileArg = self.traceFileArg
@@ -350,28 +370,28 @@ class SimRunner:
         
         # "formarg" = File format argument
         if ext == ".dpb": formarg = ''
-        elif ext == ".xyz": formarg = "-x"
+        elif ext == ".xyz": formarg = "-x" #SIMOPT -- WARNING, this value is also used as an internal flag via self._formarg
         else: assert 0
         
-        # "args" = arguments for the simulator.
+        # "args" = arguments for the simulator. #SIMOPT -- this appears to be the only place the entire simulator command line is created.
         if mflag:
             # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
             # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
-            args = [program, '-m', str(formarg), traceFileArg, outfileArg, infile]
+            args = [program, '-m', str(formarg), traceFileArg, outfileArg, infile] #SIMOPT
         else: 
             # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
-            # The timestep argument "-s + (movie.timestep)" is not supported for Alpha.
+            # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
             args = [program, 
-                        '-f' + str(movie.totalFramesRequested),
-                        '-t' + str(movie.temp), 
-                        '-i' + str(movie.stepsper), 
-                        '-r',
+                        '-f' + str(movie.totalFramesRequested), #SIMOPT
+                        '-t' + str(movie.temp),  #SIMOPT
+                        '-i' + str(movie.stepsper),  #SIMOPT
+                        '-r', #SIMOPT
                         str(formarg),
                         traceFileArg,
                         outfileArg,
                         infile]
         self._args = args # needed??
-        self._formarg = formarg # old-code kluge
+        self._formarg = formarg # old-code kluge -- WARNING, this value is also used as an internal flag via self._formarg
 
         # delete old moviefile we're about to write on, and warn anything that might have it open
         # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
@@ -422,16 +442,17 @@ class SimRunner:
                     pass
                 #bruce 050407 moving this into the try, since it can fail if we lack write permission
                 # (and it's a good idea to give up then, so we're not fooled by an old file)
-                if debug_sim: print "deleting moviefile: [",moviefile,"]"
+                if debug_sim:
+                    print "deleting moviefile: [",moviefile,"]"
                 os.remove (moviefile) # Delete before spawning simulator.
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
-            if False:
+            if debug_sim: #bruce 051115 revised this debug code
                 def blabout():
-                    print simProcess.readStdout()
+                    print "stdout:", simProcess.readStdout()
                 def blaberr():
-                    print simProcess.readStderr()
+                    print "stderr:", simProcess.readStderr()
                 QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
                 QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
             simProcess.setArguments(arguments)
@@ -488,7 +509,7 @@ class SimRunner:
         # - Mark 050105
         #bruce 050407: apparently this works backwards from output file file format and minimizeQ (mflag)
         # to figure out how to guess the filesize, and the right captions and text for the progressbar.
-        if formarg == "-x":
+        if formarg == "-x": #SIMOPT (used as internal flag, review if we change how this is passed to sim executable!)
             # Single shot minimize.
             if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
                 filesize = natoms * 16 # single-frame xyz filesize (estimate)
@@ -670,9 +691,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
 
     simrun = SimRunner( part, mflag, simaspect = simaspect) #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
-    options = "not used i think"
-    simrun.run_using_old_movie_obj_to_hold_sim_params(movie, options)
-        # messes needing cleanup: options useless now
+    simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
     if print_sim_warnings:
         try:
             simrun.print_sim_warnings()
@@ -858,7 +877,7 @@ class simSetup_CommandRun(CommandRun):
             # user hit Cancel button in SimSetup Dialog. No history msg went out; caller will do that.
             movie.destroy()
             return -1 
-        r = writemovie(self.part, movie, print_sim_warnings = True)
+        r = writemovie(self.part, movie, print_sim_warnings = True) # not passing mtype means "run dynamic sim (not minimize), make movie"
             ###@@@ bruce 050324 comment: maybe should do following in that function too
         if not r: 
             # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
@@ -900,11 +919,10 @@ class Minimize_CommandRun(CommandRun):
         if entire_part:
             cmdname = "Minimize All"
             startmsg = "Minimize All: ..."
-            want_simaspect = 1 #bruce 050419 changed this to 1 as part of making Min All use same code as Min Sel
+            ##want_simaspect = 1 #bruce 050419 changed to 1 as part of making Min All use same code as Min Sel; 051115 removed variable
         else:
             cmdname = "Minimize Selection"
             startmsg = "Minimize Selection: ..."
-            want_simaspect = 1
         self.cmdname = cmdname #e in principle this should come from farther outside... maybe from a Command object
 
         # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Anchors), for now...)
@@ -936,31 +954,31 @@ class Minimize_CommandRun(CommandRun):
         self.win.simSetupAction.setEnabled(0) # Disable "Simulator" 
         self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
-            simaspect = None
-            if want_simaspect:
-                simaspect = sim_aspect( self.part, selection.atomslist() )
-                    # note: atomslist gets atoms from selected chunks, not only selected atoms
-                    # (i.e. it gets atoms whether you're in Select Atoms or Select Chunks mode)
-                # history message about singlets written as H (if any);
-                # note that this is not yet implemented for Minimize All (behavior or message) as of 050412
-                from platform import fix_plurals
-                nsinglets_H = simaspect.nsinglets_H()
-                if nsinglets_H:
-                    info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during minimization)" % nsinglets_H )
-                    env.history.message( info)
-                nsinglets_leftout = simaspect.nsinglets_leftout()
-                assert nsinglets_leftout == 0 # for now
-                # history message about how much we're working on; these atomcounts include singlets since they're written as H
-                nmoving = simaspect.natoms_moving()
-                nfixed  = simaspect.natoms_fixed()
-                info = fix_plurals( "(Minimizing %d atom(s)" % nmoving)
-                if nfixed:
-                    them_or_it = (nmoving == 1) and "it" or "them"
-                    info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )
-                info += ")"
-                env.history.message( info) 
-            self.makeMinMovie(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
-            #self.makeMinMovie(mtype = 2) # 2 = multi-frame DPB file.
+            simaspect = sim_aspect( self.part, selection.atomslist() )
+                # note: atomslist gets atoms from selected chunks, not only selected atoms
+                # (i.e. it gets atoms whether you're in Select Atoms or Select Chunks mode)
+            # history message about singlets written as H (if any);
+            #bruce 051115 updated comment: this is used for both Minimize All and Minimize Selection as of long before 051115;
+            # for Run Sim this code is not used (so this history message doesn't go out for it, though it ought to)
+            # but the bug254 X->H fix is done (though different code sets the mapping flag that makes it happen).
+            from platform import fix_plurals
+            nsinglets_H = simaspect.nsinglets_H()
+            if nsinglets_H:
+                info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during minimization)" % nsinglets_H )
+                env.history.message( info)
+            nsinglets_leftout = simaspect.nsinglets_leftout()
+            assert nsinglets_leftout == 0 # for now
+            # history message about how much we're working on; these atomcounts include singlets since they're written as H
+            nmoving = simaspect.natoms_moving()
+            nfixed  = simaspect.natoms_fixed()
+            info = fix_plurals( "(Minimizing %d atom(s)" % nmoving)
+            if nfixed:
+                them_or_it = (nmoving == 1) and "it" or "them"
+                info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )
+            info += ")"
+            env.history.message( info) 
+            self.doMinimize(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
+            #self.doMinimize(mtype = 2) # 2 = multi-frame DPB file.
         finally:
             self.win.modifyMinimizeSelAction.setEnabled(1) # Enable "Minimize Selection"
             self.win.modifyMinimizeAllAction.setEnabled(1) # Enable "Minimize All"
@@ -970,14 +988,18 @@ class Minimize_CommandRun(CommandRun):
         if not simrun.said_we_are_done:
             env.history.message("Done.")
         return
-    def makeMinMovie(self, mtype = 1, simaspect = None):
-        """Minimize self.part (for Minimize All),
-        or its given simulatable aspect if supplied (for Minimize Selection),
-        and display the results.
-        The mtype flag means:
+    def doMinimize(self, mtype = 1, simaspect = None):
+        #bruce 051115 renamed method from makeMinMovie
+        #bruce 051115 revised docstring to fit current code #e should clean it up more
+        """Minimize self.part (if simaspect is None -- no longer used)
+        or its given simaspect (simulatable aspect) (used for both Minimize Selection and Minimize All),
+        generating and showing a movie (no longer asked for) or generating and applying to part an xyz file.
+           The mtype flag means:
             1 = tell writemovie() to create a single-frame XYZ file.
             2 = tell writemovie() to create a multi-frame DPB moviefile. [###@@@ not presently used, might not work anymore]
         """
+        assert mtype == 1 #bruce 051115
+        assert simaspect is not None #bruce 051115
         #bruce 050324 made this from the Part method makeMinMovie.
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
@@ -989,6 +1011,9 @@ class Minimize_CommandRun(CommandRun):
         # since we're not making a movie and don't want to prevent replaying
         # the one already stored from some sim run.
         # [this is for mtype == 1 (always true now) and might affect writemovie ###@@@ #k.]
+
+        # NOTE: the movie object is used to hold params and results from minimize, even if it makes an xyz file rather than a movie file.
+        # And at the moment it never makes a movie file when called from this code. [bruce 051115 comment about months-old situation]
         
         movie = Movie(self.assy) # do this in writemovie? no, the other call of it needs it passed in from the dialog... #k
             # note that Movie class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
@@ -1047,7 +1072,7 @@ class Minimize_CommandRun(CommandRun):
         return
     pass # end of class Minimize_CommandRun
 
-# == helper code for Minimize Selection [by bruce, circa 050406]
+# == helper code for Minimize Selection [by bruce, circa 050406] [also used for Minimize All, probably as of 050419, as guessed 051115]
 
 from elements import Singlet
 
@@ -1070,7 +1095,8 @@ def atom_is_anchored(atm):
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
     
-class sim_aspect:
+class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Run Sim; verified by debug_sim output.
+    # warning: it also assumes this internally -- see comment below about "min = True".
     """Class for a "simulatable aspect" of a Part.
     For now, there's only one kind (a subset of atoms, some fixed in position),
     so we won't split out an abstract class for now.
@@ -1107,6 +1133,8 @@ class sim_aspect:
         (e.g. warnings) we'll do it using a global history variable (NIM)
         or via part.assy. For now [050406] none are emitted.
         """
+        if debug_sim: #bruce 051115 added this
+            print "making sim_aspect for %d atoms (maybe this only counts real atoms??)" % len(atoms) ###@@@ only counts real atoms??
         self.part = part
         self.moving_atoms = {}
         self.boundary1_atoms = {}
@@ -1184,7 +1212,7 @@ class sim_aspect:
         mapping = writemmp_mapping(assy, min = True)
             #e rename min option? (for minimize; implies sim as well;
             #   affects mapping attrnames in chem.py atom.writemmp)
-            #bruce 051031 comment: it seems wrong that this class assumes min = True (rather than being told this in __init__). #####@@@@@
+            #bruce 051031 comment: it seems wrong that this class assumes min = True (rather than being told this in __init__). ###@@@
         mapping.set_fp(fp)    
         # note that this mmp file doesn't need any grouping or chunking info at all.
         try:
@@ -1193,9 +1221,9 @@ class sim_aspect:
             self.write_atoms(mapping)
             self.write_grounds(mapping)
             self.write_minimize_enabled_jigs(mapping)
-            mapping.write("end mmp file for Minimize Selection (" + assy.name + ")\n") # sim & cad both ignore text after 'end'
-            #bruce 051031 comment: if this code is now also used for Minimize All, then the above comment is wrong;
-            # if not, then the implem of enable_minimize herein won't be sufficient. #####@@@@@ 
+            mapping.write("end mmp file for Minimize Selection or Minimize All (" + assy.name + ")\n")
+                # sim & cad both ignore text after 'end'
+                #bruce 051115: fixed this file comment, since this code is also used for Minimize All.
         except:
             mapping.close(error = True)
             raise
