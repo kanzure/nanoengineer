@@ -64,7 +64,14 @@ class ServerManager(ServerManagerDialog):
         
     def _applyChange(self):
         """Apply server property changes"""
-        s = {'hostname':str(self.name_linedit.text()), 'ipaddress':str(self.ipaddress_linedit.text()), 'platform':str(self.platform_combox.currentText()), 'method':str(self.method_combox.currentText()), 'engine':str(self.engine_combox.currentText()), 'program': str(self.program_linedit.text()), 'username':str(self.username_linedit.text()), 'password':str(self.password_linedit.text())}
+        s = {'hostname':str(self.name_linedit.text()),
+             'ipaddress':str(self.ipaddress_linedit.text()),
+             'platform':str(self.platform_combox.currentText()),
+             'method':str(self.method_combox.currentText()),
+             'engine':str(self.engine_combox.currentText()),
+             'program': str(self.program_linedit.text()),
+             'username':str(self.username_linedit.text()),
+             'password':str(self.password_linedit.text())}
         
         item = self.server_listview.currentItem()
         item.setText(1, s['engine'])
@@ -89,7 +96,9 @@ class ServerManager(ServerManagerDialog):
     def deleteServer(self):
         """Delete a server. """
         if len(self.servers) == 1:
-            QMessageBox.information(self, "Deleting a server", "At least 1 server is needed to exist, after deleting the last one, a default new server will be created.", QMessageBox.Ok) 
+            QMessageBox.information(self, "Deleting a server",
+                "At least 1 server is needed to exist, after deleting the last one, a default new server will be created.",
+                                    QMessageBox.Ok) 
         
         item = self.server_listview.currentItem()
         self.server_listview.takeItem(item)
@@ -108,7 +117,8 @@ class ServerManager(ServerManagerDialog):
     
      
     def closeEvent(self, event):
-        """This is the closeEvent handler, it's called when press 'X' button on the title bar or 'Esc' key or 'Exit' button in the dialog """ 
+        """This is the closeEvent handler, it's called when press 'X' button
+        on the title bar or 'Esc' key or 'Exit' button in the dialog """ 
         try:
             self._applyChange()
             self._saveServerList()
