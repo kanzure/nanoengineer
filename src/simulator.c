@@ -287,8 +287,10 @@ main(int argc,char **argv)
     generateBends(part);
 
     if (printPotentialEnergy) {
+        struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
         potentialEnergy = calculatePotential(part, part->positions);
-        printf("%f Potential energy in aJ\n", potentialEnergy);
+        calculateGradient(part, part->positions, force);
+        printf("%e %e %e %e (Potential energy in aJ, gradient of atom 1)\n", potentialEnergy, force[1].x, force[1].y, force[1].z);
         exit(0);
     }
 

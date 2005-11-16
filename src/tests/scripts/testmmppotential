@@ -21,7 +21,7 @@ $tmp = "/tmp/testmmppotential$$.mmp" ;
 for ($i = $initial; $i < $limit; $i += $increment) {
     system "mmpsubstitute $i < $input > $tmp";
     $result = `simulator -m -E $tmp`;
-    $result =~ s/ Potential.*//;
+    $result =~ s/.Potential.*//;
     unlink $tmp;
     print "$i $result";
 }
