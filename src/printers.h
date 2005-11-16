@@ -15,10 +15,10 @@ extern int debug_flags;
 
 
 extern FILE *tracef;
-#define ERROR(s...) (printError(tracef, "Error", 0, ## s))
-#define WARNING(s...) (printError(tracef, "Warning", 0, ## s))
-#define ERROR_ERRNO(s...) (printError(tracef, "Error", 1, ## s))
-#define WARNING_ERRNO(s...) (printError(tracef, "Warning", 1, ## s))
+#define ERROR(s...) (printError(tracef, __FILE__, __LINE__, "Error", 0, ## s))
+#define WARNING(s...) (printError(tracef, __FILE__, __LINE__, "Warning", 0, ## s))
+#define ERROR_ERRNO(s...) (printError(tracef, __FILE__, __LINE__, "Error", 1, ## s))
+#define WARNING_ERRNO(s...) (printError(tracef, __FILE__, __LINE__, "Warning", 1, ## s))
 
 extern void pv(FILE *f, struct xyz foo);
 
@@ -43,6 +43,7 @@ extern void traceJigHeader(FILE *f, struct part *part);
 
 extern void traceJigData(FILE *f, struct part *part);
 
-extern void printError(FILE *f, const char *err_or_warn, int doPerror, const char *format, ...);
+extern void printError(FILE *f, const char *file, int line, const char *err_or_warn,
+		       int doPerror, const char *format, ...);
 
 extern void doneExit(int exitvalue, FILE *f, const char *format, ...);

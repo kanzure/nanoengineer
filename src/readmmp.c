@@ -180,9 +180,7 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
       mmpParseError(mmp);
     }
     if (*end != '\0') {
-      printf("tok=\"%s\"\n", tok);
-      printf("end=\"%s\"\n", end);
-      ERROR("B: expected int, got %s", tok);
+      ERROR("expected int, got %s", tok);
       mmpParseError(mmp);
     }
     if (val > INT_MAX || val < INT_MIN) {

@@ -388,7 +388,8 @@ void traceJigData(FILE *f, struct part *part) {
 }
 
 void
-printError(FILE *f, const char *err_or_warn, int doPerror, const char *format, ...)
+printError(FILE *f, const char *file, int line, const char *err_or_warn,
+	   int doPerror, const char *format, ...)
 {
   va_list args;
   char *err;
@@ -397,7 +398,7 @@ printError(FILE *f, const char *err_or_warn, int doPerror, const char *format, .
       err = strerror(errno);
   }
 
-  fprintf(stderr, "%s: ", err_or_warn);
+  fprintf(stderr, "%s at %s:%d: ", err_or_warn, file, line);
   va_start(args, format);
   vfprintf(stderr, format, args);
   va_end(args);
