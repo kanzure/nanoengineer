@@ -1,0 +1,53 @@
+======= test_C2H6.test =======
+TYPE struct
+======= exitvalue =======
+0
+======= structurematch =======
+1
+======= stderr =======
+cutover to fine tolerance at 3
+linearMinimize allocated 0 instead of 1
+minimize allocated 0 instead of 1
+== structure comparison ==
+error reading atom 0 from test_C2H6.xyzcmp
+could not read base positions file from -B<filename>
+======= stdout =======
+iters per frame = 10
+number of frames = 100
+timestep = 1.000000e-16
+temp = 0.000000
+dump as text
+< test_C2H6.mmp  > test_C2H6.xyz
+final RMS gradient=2273.259142 after 5 iterations
+== structure comparison ==
+======= test_C2H6.trc =======
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# Input File:test_C2H6.mmp
+# Output File: test_C2H6.xyz
+# Trace File: test_C2H6.trc
+# Number of Atoms: 8
+# Number of Frames: 100
+# Steps per Frame: 10
+# Temperature: 300.0
+# 
+# 0 columns:
+#
+0 3926.12 4771.41
+1 2431.78 2682.52
+2 2276.20 2516.09
+3 2273.28 2512.92
+4 2273.26 2512.90
+5 2273.26 2512.90
+# Done: Minimization final rms: 2273.259142, highForce: 2512.904071
+======= test_C2H6.xyz =======
+8
+RMS=2273.259142
+C 0.463470 -0.639692 -0.008999
+C -0.463470 0.639692 0.008999
+H -0.154608 -1.556437 -0.005077
+H 1.116681 -0.646958 0.880713
+H 1.094817 -0.632354 -0.916671
+H 0.154608 1.556437 0.005077
+H -1.094817 0.632354 0.916671
+H -1.116681 0.646958 -0.880713

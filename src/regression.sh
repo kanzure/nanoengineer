@@ -33,7 +33,7 @@
 # Check this file to make sure the output looks reasonable, then
 # rerun regression.sh before checking in the test_000X.* files.
 
-TESTDIRS="tests/minimize tests/dynamics"
+TESTDIRS="tests/minimize tests/dynamics tests/rigid_organics"
 
 RET=0
 GEN=0

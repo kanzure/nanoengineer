@@ -1,0 +1,61 @@
+======= test_CH4.test =======
+TYPE struct
+======= exitvalue =======
+0
+======= structurematch =======
+1
+======= stderr =======
+cutover to fine tolerance at 15
+== structure comparison ==
+error reading atom 0 from test_CH4.xyzcmp
+could not read base positions file from -B<filename>
+======= stdout =======
+iters per frame = 10
+number of frames = 100
+timestep = 1.000000e-16
+temp = 0.000000
+dump as text
+< test_CH4.mmp  > test_CH4.xyz
+final RMS gradient=1652.265177 after 18 iterations
+== structure comparison ==
+======= test_CH4.trc =======
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# Input File:test_CH4.mmp
+# Output File: test_CH4.xyz
+# Trace File: test_CH4.trc
+# Number of Atoms: 5
+# Number of Frames: 100
+# Steps per Frame: 10
+# Temperature: 300.0
+# 
+# 0 columns:
+#
+0 3827.62 4765.96
+1 2906.11 3538.91
+2 2614.03 3170.75
+3 2430.86 2941.40
+4 2248.30 2716.12
+5 2023.83 2435.77
+6 1476.52 1759.27
+7 1989.08 2362.01
+8 1257.14 1450.66
+9 1743.96 2021.20
+10 1608.40 1860.85
+11 1669.12 1931.73
+12 1644.33 1902.99
+13 1655.57 1915.98
+14 1650.60 1910.24
+15 1652.81 1912.80
+16 1651.83 1911.66
+17 1652.27 1912.17
+18 1652.27 1912.17
+# Done: Minimization final rms: 1652.265177, highForce: 1912.166976
+======= test_CH4.xyz =======
+5
+RMS=1652.265177
+C 0.010404 -0.020544 0.001969
+H -0.637345 0.962558 0.012305
+H -0.700899 -0.958762 -0.000378
+H 0.695695 -0.049626 0.957622
+H 0.684146 -0.036627 -0.965518

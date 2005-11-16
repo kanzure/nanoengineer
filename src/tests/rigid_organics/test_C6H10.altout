@@ -1,0 +1,67 @@
+======= test_C6H10.test =======
+TYPE struct
+======= exitvalue =======
+0
+======= structurematch =======
+1
+======= stderr =======
+cutover to fine tolerance at 10
+== structure comparison ==
+error reading atom 0 from test_C6H10.xyzcmp
+could not read base positions file from -B<filename>
+======= stdout =======
+iters per frame = 10
+number of frames = 100
+timestep = 1.000000e-16
+temp = 0.000000
+dump as text
+< test_C6H10.mmp  > test_C6H10.xyz
+final RMS gradient=3096.606554 after 13 iterations
+== structure comparison ==
+======= test_C6H10.trc =======
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# Input File:test_C6H10.mmp
+# Output File: test_C6H10.xyz
+# Trace File: test_C6H10.trc
+# Number of Atoms: 16
+# Number of Frames: 100
+# Steps per Frame: 10
+# Temperature: 300.0
+# 
+# 0 columns:
+#
+0 4881.92 6801.79
+1 3312.93 4477.54
+2 1595.88 2152.97
+3 1618.38 2912.30
+4 2499.22 3973.91
+5 991.28 1395.72
+6 551.89 832.85
+7 500.29 776.05
+8 5384.76 8859.51
+9 3063.49 5423.83
+10 3097.60 5479.61
+11 3096.58 5477.95
+12 3096.61 5478.00
+13 3096.61 5478.00
+# Done: Minimization final rms: 3096.606554, highForce: 5477.996918
+======= test_C6H10.xyz =======
+16
+RMS=3096.606554
+C 1.328309 -0.875021 0.432848
+C -0.009916 -0.018070 0.914940
+C 0.008053 0.831436 -0.491090
+C -1.324907 0.010779 -1.018395
+C 1.452925 0.135308 -0.926818
+C -1.446579 -0.718221 0.497645
+H 2.174406 -0.756028 1.117465
+H 1.084117 -1.903846 0.133949
+H 0.046947 0.550905 1.825159
+H -0.038266 1.901479 -0.410507
+H -1.086108 -0.733918 -1.798463
+H -2.171539 0.675606 -1.239037
+H 2.284377 0.847425 -0.825593
+H 1.391458 -0.414829 -1.867407
+H -2.283421 -0.295432 1.088000
+H -1.396856 -1.811570 0.453303

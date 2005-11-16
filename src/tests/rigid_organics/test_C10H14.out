@@ -1,0 +1,11 @@
+======= test_C10H14.test =======
+TYPE struct
+======= exitvalue =======
+0
+======= structurematch =======
+1
+======= stderr =======
+cutover to fine tolerance at 2
+== structure comparison ==
+error reading atom 0 from test_C10H14.xyzcmp
+could not read base positions file from -B<filename>

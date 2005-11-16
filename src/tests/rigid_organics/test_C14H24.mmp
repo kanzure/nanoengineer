@@ -1,0 +1,92 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.645131) (-0.000000, -0.000000, -0.000000) (1.000000)
+egroup (View Data)
+group (C14H24)
+info opengroup open = True
+mol (C14H24.pdb) def
+atom 1 (6) (-400, 274, 1261) def
+atom 2 (6) (-388, -1251, 1110) def
+bond1 1
+atom 3 (6) (-172, 979, -76) def
+bond1 1
+atom 4 (6) (963, -1667, 519) def
+bond1 2
+atom 5 (6) (-617, -1923, 2456) def
+bond1 2
+atom 6 (6) (-1500, -1643, 124) def
+bond1 2
+atom 7 (6) (-187, 2493, 94) def
+bond1 3
+atom 8 (6) (-1285, 542, -1043) def
+bond1 3
+atom 9 (6) (1174, 518, -648) def
+bond1 3
+atom 10 (6) (1215, -1002, -835) def
+bond1 4 9
+atom 11 (6) (2565, -1433, -1400) def
+bond1 10
+atom 12 (6) (74, -1408, -1786) def
+bond1 10
+atom 13 (6) (-1294, -979, -1237) def
+bond1 6 8 12
+atom 14 (6) (-2405, -1389, -2204) def
+bond1 13
+atom 15 (1) (-1362, 593, 1678) def
+bond1 1
+atom 16 (1) (364, 585, 1980) def
+bond1 1
+atom 17 (1) (1000, -2757, 406) def
+bond1 4
+atom 18 (1) (1767, -1400, 1211) def
+bond1 4
+atom 19 (1) (-597, -3011, 2366) def
+bond1 5
+atom 20 (1) (-1582, -1641, 2877) def
+bond1 5
+atom 21 (1) (148, -1635, 3177) def
+bond1 5
+atom 22 (1) (-1525, -2732, 0) def
+bond1 6
+atom 23 (1) (-2467, -1350, 532) def
+bond1 6
+atom 24 (1) (-34, 3011, -844) def
+bond1 7
+atom 25 (1) (598, 2817, 774) def
+bond1 7
+atom 26 (1) (-1141, 2833, 505) def
+bond1 7
+atom 27 (1) (-1150, 1035, -2012) def
+bond1 8
+atom 28 (1) (-2256, 867, -659) def
+bond1 8
+atom 29 (1) (1361, 1016, -1600) def
+bond1 9
+atom 30 (1) (1981, 822, 13) def
+bond1 9
+atom 31 (1) (2754, -957, -2367) def
+bond1 11
+atom 32 (1) (2612, -2511, -1544) def
+bond1 11
+atom 33 (1) (3379, -1151, -735) def
+bond1 11
+atom 34 (1) (237, -948, -2765) def
+bond1 12
+atom 35 (1) (91, -2488, -1939) def
+bond1 12
+atom 36 (1) (-2270, -931, -3177) def
+bond1 14
+atom 37 (1) (-3379, -1071, -1824) def
+bond1 14
+atom 38 (1) (-2435, -2468, -2335) def
+bond1 14
+egroup (C14H24)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C14H24
+
