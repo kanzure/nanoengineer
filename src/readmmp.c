@@ -54,10 +54,11 @@ readToken(struct mmpStream *mmp)
     case ',':
     case ';':
     case '=':
+    case '\r':
     case '\n':
     case '\0':
       if (s == tokenBuffer) {
-        if (*s == '\n') {
+        if (*s == '\n' || *s == '\r') {
           mmp->lineNumber++;
           mmp->charPosition = 1;
         }
@@ -116,7 +117,7 @@ consumeRestOfLine(struct mmpStream *mmp)
 
   while (1) {
     tok = readToken(mmp);
-    if (tok == NULL || *tok == '\n') {
+    if (tok == NULL || *tok == '\n' || *tok == '\r') {
       return;
     }
   }
@@ -165,7 +166,7 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
     mmpParseError(mmp);
   }
   if (tok != NULL) {
-    if (*tok == '\n' && checkForNewline) {
+    if ((*tok == '\n' || *tok == '\r') && checkForNewline) {
       return 0;
     }
     if (*tok == '\0') {
@@ -179,7 +180,9 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
       mmpParseError(mmp);
     }
     if (*end != '\0') {
-      ERROR("expected int, got %s", tok);
+      printf("tok=\"%s\"\n", tok);
+      printf("end=\"%s\"\n", end);
+      ERROR("B: expected int, got %s", tok);
       mmpParseError(mmp);
     }
     if (val > INT_MAX || val < INT_MIN) {
@@ -215,7 +218,7 @@ expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
     mmpParseError(mmp);
   }
   if (tok != NULL) {
-    if (*tok == '\n' && checkForNewline) {
+    if ((*tok == '\n' || *tok == '\r') && checkForNewline) {
       return 0;
     }
     if (*tok == '\0') {
@@ -307,7 +310,7 @@ expectName(struct mmpStream *mmp)
     if (*tok == '\0') {
       tok = "%00";
     }
-    if (*tok == '\n') {
+    if (*tok == '\n' || *tok == '\r') {
       ERROR("reading name, expected ), got newline");
       mmpParseError(mmp);
     }
