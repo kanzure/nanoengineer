@@ -19,7 +19,10 @@ from jigs_planes import ESPWindow
 from files_nh import *
 from NanoHiveUtils import *
 
-debug_sim = 0 # DO NOT COMMIT with 1
+debug_nanohive = 0 # DO NOT COMMIT with 1
+    #bruce 051115: renamed debug_sim -> debug_nanohive, to avoid confusion between this variable (apparently never used)
+    # and the debug_sim global in runSim.py.
+    # (If nanohive code can call code in runSim.py, this renaming might be wrong, but as far as I know that never happens.)
 
 cmd = greenmsg("Nano-Hive: ")
 
