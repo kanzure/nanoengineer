@@ -11,4 +11,4 @@ extern void writeSimpleMovieFrame(struct part *part, struct xyz *positions, stru
 
 extern void writeDynamicsMovieFrame(FILE *f, int n, struct part *part, struct xyz *pos);
 
-extern int writeMinimizeMovieFrame(FILE *f, struct part *part, int final, struct xyz *pos, double rms, double hifsq, int frameNumber, char *callLocation);
+extern int writeMinimizeMovieFrame(FILE *f, struct part *part, int final, struct xyz *pos, double rms, double max_force, int frameNumber, char *callLocation);

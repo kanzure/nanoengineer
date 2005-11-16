@@ -372,6 +372,7 @@ void writeOutputTrailer(FILE *f, struct part *part, int frameNumber)
 void
 writeSimpleAtomPosition(struct xyz *positions, int i)
 {
+    // sphere x y z radius r g b
     fprintf(outf, "s %f %f %f 40 1 0 0\n",
             positions[i].x,
             positions[i].y,
@@ -464,7 +465,7 @@ int writeMinimizeMovieFrame(FILE *outf,
                             int final,
                             struct xyz *pos,
                             double rms,
-                            double hifsq,
+                            double max_force,
                             int frameNumber,
                             char *callLocation)
 {
@@ -491,8 +492,9 @@ int writeMinimizeMovieFrame(FILE *outf,
     }
     flushOutputFile(outf);
 
-    fprintf(tracef,"%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
-    DPRINT(D_MINIMIZE, "%d %.2f %.2f\n", frameNumber, rms, sqrt(hifsq));
+    //fprintf(tracef,"%s ", callLocation);
+    fprintf(tracef,"%d %.2f %.2f\n", frameNumber, rms, max_force);
+    DPRINT(D_MINIMIZE, "%d %.2f %.2f\n", frameNumber, rms, max_force);
     if (final) {
         printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
         writeOutputTrailer(outf, part, frameNumber);
