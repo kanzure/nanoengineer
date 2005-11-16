@@ -2,7 +2,12 @@
 
 """Grab one of Damian's minimized MMP files, perturb each atom's
 position by some fraction of an angstrom, write out the result as
-another MMP file, which becomes an input file for the test."""
+another MMP file, which becomes an input file for the test.
+
+$Id$
+"""
+
+__author__ = "Will"
 
 import re
 import os
@@ -12,11 +17,13 @@ import random
 
 class NotAtomException(Exception):
     pass
+
 class Line:
     def __init__(self, line):
         self._str = line
     def str(self):
         return self._str
+
 class AtomLine(Line):
     pattern = re.compile("^atom (\d+) \((\d+)\) " +
                          "\((\-?\d+), (\-?\d+), (\-?\d+)\)")
@@ -44,6 +51,12 @@ class AtomLine(Line):
                             int(self.z * 1000))
 
 class MmpFile:
+    """This is meant to be a Python class representing a MMP file. It
+    is not intended to represent ALL the information in a MMP file,
+    although it might do that in some distant-future version. Right
+    now, its biggest strength is that it allows us to easily modify
+    the positions of the atoms in an MMP file, and write out the
+    resulting modified MMP file."""
     def __init__(self):
         self.atoms = [ ]
         self.lines = [ ]
@@ -77,6 +90,10 @@ class MmpFile:
             outf.close()
 
 if __name__ == "__main__":
+    """What follows is a specific usage of the MmpFile class. It's not
+    the only way it could be used, but it demonstrates something we're
+    going to want to do very soon as we generate test cases from
+    Damian's MMP files."""
     m = MmpFile()
     #input = "C14H20.mmp"
     input = "C3H8.mmp"
