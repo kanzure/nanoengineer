@@ -3,8 +3,7 @@ TYPE struct
 ======= exitvalue =======
 0
 ======= structurematch =======
-1
+0
 ======= stderr =======
-cutover to fine tolerance at 2
+cutover to fine tolerance at 0
 == structure comparison ==
-cutover to fine tolerance at 1
