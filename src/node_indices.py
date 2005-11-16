@@ -220,26 +220,27 @@ def fix_one_or_complain(node, root, msgfunc): #bruce 050415: fyi: this is now ca
         return 0
     pass
 
-def move_jigs_if_needed(root, msgfunc): # (this is the entry point for workaround_for_bug_296)
-    """move all necessary jigs under root later in the tree under root;
-    emit error messages for ones needing to go out of tree
-    (by calling msgfunc on error msg strings),
-    and delete them entirely;
-    return count of how many were moved (without error).
-    """
-    count = 0
-    for jig in find_all_jigs_under( root):
-        count += fix_one_or_complain(jig, root, msgfunc)
-    return count
-
-def find_all_jigs_under( root):
-    res = []
-    def grab_if_jig(node):
-        if isinstance(node, Jig):
-            #e logically we'd test node_must_follow_what_nodes here instead,
-            # but that's slower and not yet needed
-            res.append(node)
-    root.apply2all( grab_if_jig)
-    return res
+#bruce 051115 removed the following since it's no longer ever called (since workaround_for_bug_296 became a noop)
+##def move_jigs_if_needed(root, msgfunc): # (this was the entry point for workaround_for_bug_296)
+##    """move all necessary jigs under root later in the tree under root;
+##    emit error messages for ones needing to go out of tree
+##    (by calling msgfunc on error msg strings),
+##    and delete them entirely;
+##    return count of how many were moved (without error).
+##    """
+##    count = 0
+##    for jig in find_all_jigs_under( root):
+##        count += fix_one_or_complain(jig, root, msgfunc)
+##    return count
+##
+##def find_all_jigs_under( root):
+##    res = []
+##    def grab_if_jig(node):
+##        if isinstance(node, Jig):
+##            #e logically we'd test node_must_follow_what_nodes here instead,
+##            # but that's slower and not yet needed
+##            res.append(node)
+##    root.apply2all( grab_if_jig)
+##    return res
 
 # end

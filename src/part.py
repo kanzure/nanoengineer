@@ -400,7 +400,8 @@ class Part( jigmakers_Mixin, InvalMixin, GenericDiffTracker_API_Mixin,
         in the same order as they appear in its nodetree (depth first),
         which should be the same order they'd be written into an mmp file,
         unless something reorders them first (as happens for certain jigs
-        in workaround_for_bug_296, as of 050325).
+        in workaround_for_bug_296, as of 050325,
+        but maybe not as of 051115 since workaround_for_bug_296 was removed some time ago).
         See also _recompute_alist.
         """
         res = []
@@ -682,9 +683,9 @@ class Part( jigmakers_Mixin, InvalMixin, GenericDiffTracker_API_Mixin,
         mol.dad.addchild(jig)
         assert jig.part is self, "bug in place_new_jig's way of setting correct .part for jig %r" % jig
         # Now put it in the right place in the tree, if it didn't happen to end up there in addchild.
-        # BTW, this might still be a good thing to do, even once it won't need to be done
-        # when we save the file (by workaround_for_bug_296), i.e. even once the mmp format
-        # is improved to permit forward refs to jigs.
+        # BTW, this is probably still good to do, even though it's no longer necessary to do
+        # whenever we save the file (by workaround_for_bug_296, now removed),
+        # i.e. even though the mmp format now permits forward refs to jigs. [bruce 051115 revised comment]
         from node_indices import fix_one_or_complain
         def errfunc(msg):
             "local function for error message output"
@@ -720,6 +721,8 @@ class Part( jigmakers_Mixin, InvalMixin, GenericDiffTracker_API_Mixin,
     ###e refile these new methods:
 
     def writemmpfile(self, filename):
+        # as of 050412 this didn't yet turn singlets into H;
+        # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
         from files_mmp import writemmpfile_part
         writemmpfile_part( self, filename)
         

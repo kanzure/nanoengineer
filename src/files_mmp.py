@@ -1178,10 +1178,6 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
 
 # == writing mmp files
 
-def workaround_for_bug_296(assy, onepart = None):
-##    print "not doing workaround_for_bug_296!"
-    return #####@@@@@ 050422 -- SHOULD REMOVE THIS FUNCTION AND ALL CALLS TO IT
-
 class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
     """Provides an object for accumulating data while writing an mmp file.
     Specifically, the object stores options which affect what's written,
@@ -1375,11 +1371,6 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
 
     assy.update_parts() #bruce 050325 precaution
     
-    if addshelf:
-        workaround_for_bug_296( assy)
-    else:
-        workaround_for_bug_296( assy, onepart == assy.tree.part) #bruce 050513: '==' should be '='! Bug but doesn't matter anymore.
-    
     fp = open(filename, "w")
 
     mapping = writemmp_mapping(assy) ###e should pass sim or min options when used that way...
@@ -1406,6 +1397,8 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
 
 def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     "write an mmp file for a single Part"
+    # as of 050412 this didn't yet turn singlets into H;
+    # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
     part.assy.o.saveLastView() ###e should change to part.glpane? not sure... [bruce 050419 comment]
         # this updates assy.part csys records, but we don't currently write them out below
     node = part.topnode
@@ -1416,10 +1409,9 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     part = node.part
     assy = part.assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
-    workaround_for_bug_296( assy, onepart = part)
     fp = open(filename, "w")
     mapping = writemmp_mapping(assy, leave_out_sim_disabled_nodes = True, sim = True)
-        #bruce 050811 added sim = True to fix bug 254 for sim runs... needs review and testing to see if safe for A6. ###@@@
+        #bruce 050811 added sim = True to fix bug 254 for sim runs, for A6.
     mapping.set_fp(fp)
     try:
         mapping.write_header() ###e header should differ in this case
