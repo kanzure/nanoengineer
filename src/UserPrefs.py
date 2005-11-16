@@ -172,6 +172,7 @@ class UserPrefs(UserPrefsDialog):
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
         self.selection_behavior_btngrp.setButton(env.prefs[selectionBehavior_prefs_key])
+        self.animate_views_checkbox.setChecked(env.prefs[animateStandardViews_prefs_key])
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
