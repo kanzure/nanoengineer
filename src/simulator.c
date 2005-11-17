@@ -13,14 +13,8 @@ usage()
 {
                 
     fprintf(stderr, "command line parameters:\n\
-   --dump-atoms\n\
-                    dump atoms\n\
-   --dump-bonds\n\
-                    dump bonds\n\
-   --dump-constraints\n\
-                    dump constraints\n\
-   --dump-van-der-walls\n\
-                    dump van der Waals\n\
+   --dump-part\n\
+                    write out internal representation of .mmp file, then exit\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
    -m, --minimize\n\
@@ -62,18 +56,12 @@ usage()
 }
 
 #define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
-#define OPT_HELP     LONG_OPT (0)
-#define OPT_DA       LONG_OPT (1)
-#define OPT_DB       LONG_OPT (2)
-#define OPT_DC       LONG_OPT (3)
-#define OPT_DW       LONG_OPT (4)
+#define OPT_HELP      LONG_OPT (0)
+#define OPT_DUMP_PART LONG_OPT (1)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
-    { "dump-atoms", no_argument, NULL, OPT_DA },
-    { "dump-bonds", no_argument, NULL, OPT_DB },
-    { "dump-constraints", no_argument, NULL, OPT_DC },
-    { "dump-van-der-waals", no_argument, NULL, OPT_DW },
+    { "dump-part", no_argument, NULL, OPT_DUMP_PART },
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -102,7 +90,7 @@ main(int argc,char **argv)
     int opt, i, n;
     int printPotentialEnergy = 0;
     double potentialEnergy;
-    int da=0, db=0, dc=0, dw=0;
+    int dump_part = 0;
 	
     char buf[1024], *filename, *ofilename, *tfilename, *c;
 	
@@ -127,17 +115,8 @@ main(int argc,char **argv)
 	switch(opt) {
 	case 'h':
 	    usage();
-	case OPT_DA:
-	    da = 1;
-	    break;
-	case OPT_DB:
-	    db = 1;
-	    break;
-	case OPT_DC:
-	    dc = 1;
-	    break;
-	case OPT_DW:
-	    dw = 1;
+	case OPT_DUMP_PART:
+	    dump_part = 1;
 	    break;
 	case 'n':
 	    // ignored
@@ -237,8 +216,6 @@ main(int argc,char **argv)
                                 NumFrames, 1e-8, 1e-4, 1.0+1e-4));
     }
 
-    //if (ToMinimize) printf("Minimize\n");
-
     if (strchr(filename, '.')) {
         sprintf(buf, "%s", filename);
     } else if (baseFilename != NULL) {
@@ -289,11 +266,6 @@ main(int argc,char **argv)
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
     initializeBondTable();
-    //vdWsetup(); used to initialize orion space grid, now done in part
-    //testInterpolateBondStretch(1, 6, 6);
-    //testNewBondStretchTable();
-
-    //filred(buf);
     part = readMMP(buf);
     updateVanDerWaals(part, NULL, part->positions);
     generateStretches(part);
@@ -307,31 +279,10 @@ main(int argc,char **argv)
         exit(0);
     }
 
-    //printPart(stdout, part);
-    //exit(0);
-    
-    // this doesn't seem to make any difference... -emm
-    //orion();
-#if 0
-    if (da) {
-	fprintf(stderr, "%d atoms:\n",Nexatom);
-	for (i=0; i<Nexatom; i++) pa(stderr, i);
+    if (dump_part) {
+        printPart(stdout, part);
+        exit(0);
     }
-    if (db) {
-	fprintf(stderr, "%d bonds:\n",Nexbon);
-	for (i=0; i<Nexbon; i++) pb(stderr, i);
-	fprintf(stderr, "%d torques:\n",Nextorq);
-	for (i=0; i<Nextorq; i++) pq(stderr, i);
-    }
-    if (dw) {
-	fprintf(stderr, "%d Waals:\n",vanderRoot);
-	for (i=0; i<vanderRoot.fill; i++) pvdw(stderr, &vanderRoot,i);
-    }
-    if (dc) {
-	fprintf(stderr, "%d constraints:\n",Nexcon);
-	for (i=0; i<Nexcon; i++) pcon(stderr, i);
-    }
-#endif
 
     /*
     fprintf(stderr, " center of mass velocity: %f\n", vlen(vdif(CoM(Positions),CoM(OldPositions))));
