@@ -1,4 +1,5 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
+#include <getopt.h>
 #include "simulator.h"
 
 #if 0
@@ -66,34 +67,93 @@ usage()
 {
                 
     fprintf(stderr, "command line parameters:\n\
-   -d<char>      -- dump, <char>= a: atoms; b: bonds; c: constraints\n\
-   -n<int>       -- expect this many atoms (ignored)\n\
-   -m            -- minimize the structure\n\
-   -E            -- print structure potential energy\n\
-   -i<int>       -- number of iterations per frame\n\
-   -f<int>       -- number of frames\n\
-   -s<float>     -- timestep\n\
-   -t<float>     -- temperature\n\
-   -x            -- write positions as (text) .xyz file(s)\n\
-   -X            -- write intermediate minimize positions to .xyz (need -x)\n\
-   -O            -- write old format .dpb files (default)\n\
-   -N            -- write new format .dpb files\n\
-   -I<string>    -- specify IDKey\n\
-   -K<int>       -- number of delta frames between key frames\n\
-   -r            -- repress frame numbers\n\
-   -o<string>    -- output file name (otherwise same as input)\n\
-   -q<string>    -- trace file name (otherwise trace)\n\
-   -D<int>       -- turn on a debugging flag (see simulator.h)\n\
-   -B<filename>  -- base XYZ file for position comparison (compared to following file)\n\
-   filename      -- if no ., add .mmp to read, .dpb to write\n");
+   -da, --dump-atoms\n\
+                    dump atoms\n\
+   -db, --dump-bonds\n\
+                    dump bonds\n\
+   -dc, --dump-constraints\n\
+                    dump constraints\n\
+   -dw, --dump-van-der-walls\n\
+                    dump van der Waals\n\
+   -n<int>, --num-atoms=<int>\n\
+                    expect this many atoms (ignored)\n\
+   -m, --minimize\n\
+                    minimize the structure\n\
+   -E, --print-energy\n\
+                    print structure potential energy\n\
+   -i<int>, --iters-per-frame=<num>\n\
+                    number of iterations per frame\n\
+   -f<int>, --num-frames=<int>\n\
+                    number of frames\n\
+   -s<float>, --time-step=<float>\n\
+                    time step\n\
+   -t<float>, --temperature=<float>\n\
+                    temperature\n\
+   -x, --dump-as-text\n\
+                    write positions as (text) .xyz file(s)\n\
+   -X, --dump-intermediate-text\n\
+                    write intermediate minimize positions to .xyz (need -x)\n\
+   -O, --output-format-1\n\
+                    write old format .dpb files (default)\n\
+   -N, --output-format-2\n\
+                    write new format .dpb files\n\
+   -I<string>, --id-key=<string>\n\
+                    specify IDKey\n\
+   -K<int>, --key-record-interval=<int>\n\
+                    number of delta frames between key frames\n\
+   -r, --repress-frame-numbers\n\
+                    repress the printing of frame numbers\n\
+   -o<string>, --output-file=<string>\n\
+                    output file name (otherwise same as input)\n\
+   -q<string>, --trace-file=<string>\n\
+                    trace file name (otherwise trace)\n\
+   -D<int>, --debug-flag=<int>\n\
+                    turn on a debugging flag (see simulator.h)\n\
+   -B<filename>, --base-file=<filename>\n\
+                    base XYZ file for position comparison (compared to following file)\n\
+   filename         if no file extension, add .mmp to read, .dpb to write\n");
     exit(1);
 }
+
+#define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
+#define OPT_HELP     LONG_OPT (0)
+#define OPT_DA       LONG_OPT (1)
+#define OPT_DB       LONG_OPT (2)
+#define OPT_DC       LONG_OPT (3)
+#define OPT_DW       LONG_OPT (4)
+
+static const struct option option_vec[] = {
+    { "help", no_argument, NULL, 'h' },
+    { "dump-atoms", no_argument, NULL, OPT_DA },
+    { "dump-bonds", no_argument, NULL, OPT_DB },
+    { "dump-constraints", no_argument, NULL, OPT_DC },
+    { "dump-van-der-waals", no_argument, NULL, OPT_DW },
+    { "num-atoms", required_argument, NULL, 'n' },
+    { "minimize", no_argument, NULL, 'm' },
+    { "print-energy", no_argument, NULL, 'E' },
+    { "iters-per-frame", required_argument, NULL, 'i' },
+    { "num-frames", required_argument, NULL, 'f' },
+    { "time-step", required_argument, NULL, 's' },
+    { "temperature", required_argument, NULL, 't' },
+    { "dump-as-text", no_argument, NULL, 'x' },
+    { "dump-intermediate-text", no_argument, NULL, 'X' },
+    { "output-format-1", no_argument, NULL, 'O' },
+    { "output-format-2", no_argument, NULL, 'N' },
+    { "id-key", required_argument, NULL, 'I' },
+    { "key-record-interval", required_argument, NULL, 'K' },
+    { "repress-frame-numbers", no_argument, NULL, 'r' },
+    { "debug-flag", required_argument, NULL, 'D' },
+    { "output-file", required_argument, NULL, 'o' },
+    { "trace-file", required_argument, NULL, 'q' },
+    { "base-file", required_argument, NULL, 'B' },
+    { NULL, no_argument, NULL, 0 }
+};
 
 int
 main(int argc,char **argv)
 {
     struct part *part;
-    int i, n;
+    int opt, i, n;
     int printPotentialEnergy = 0;
     double potentialEnergy;
     int da=0, db=0, dc=0, dw=0;
@@ -115,82 +175,89 @@ main(int argc,char **argv)
     ofilename = (char *)0;
     tfilename = (char *)0;
 
-    for (i=1; i<argc; i++) {
-
-	if (argv[i][0] == '-') {
-	    switch (argv[i][1]) {
-	    case 'h':
-                usage();
-	    case 'd':
-		if (argv[i][2]=='a') da = 1;
-		if (argv[i][2]=='b') db = 1;
-		if (argv[i][2]=='c') dc = 1;
-		if (argv[i][2]=='w') dw = 1;
-	    case 'n':
-                // ignored
-		break;
-	    case 'm':
-		ToMinimize=1;
-		break;
-	    case 'E':
-		printPotentialEnergy=1;
-		break;
-	    case 'i':
-		IterPerFrame = atoi(argv[i]+2);
-		break;
-	    case 'f':
-		NumFrames = atoi(argv[i]+2);
-		break;
-	    case 's':
-	        Dt = atof(argv[i]+2);
-		break;
-	    case 't':
-		Temperature = atof(argv[i]+2);
-		break;
-	    case 'x':
-		DumpAsText=1;
-		break;
-	    case 'X':
-		DumpIntermediateText=1;
-		break;
-	    case 'O':
-		OutputFormat=1;
-		break;
-	    case 'N':
-		OutputFormat=2;
-		break;
-	    case 'I':
-                IDKey=argv[i]+2;
-		break;
-	    case 'K':
-                KeyRecordInterval=atoi(argv[i]+2);
-		break;
-	    case 'r':
-		PrintFrameNums=0;
-		break;
-	    case 'D':
-		n = atoi(argv[i]+2);
-                if (n < 32 && n >= 0) {
-                    debug_flags |= 1 << n;
-                }
-		break;
-            case 'o':
-		ofilename=argv[i]+2;
-		break;
-	    case 'q':
-		tfilename=argv[i]+2;
-		break;
-            case 'B':
-                baseFilename=argv[i]+2;
-                break;
-	    default:
-		fprintf(stderr, "unknown switch %s\n",argv[i]+1);
+    while ((opt = getopt_long(argc, argv,
+			    "hnmEi:f:s:t:xXONI:K:rd:o:q:B:",
+			    option_vec, NULL)) != -1) {
+	switch(opt) {
+	case 'h':
+	    usage();
+	case OPT_DA:
+	    da = 1;
+	    break;
+	case OPT_DB:
+	    db = 1;
+	    break;
+	case OPT_DC:
+	    dc = 1;
+	    break;
+	case OPT_DW:
+	    dw = 1;
+	    break;
+	case 'n':
+	    // ignored
+	    break;
+	case 'm':
+	    ToMinimize=1;
+	    break;
+	case 'E':
+	    printPotentialEnergy=1;
+	    break;
+	case 'i':
+	    IterPerFrame = atoi(optarg);
+	    break;
+	case 'f':
+	    NumFrames = atoi(optarg);
+	    break;
+	case 's':
+	    Dt = atof(optarg);
+	    break;
+	case 't':
+	    Temperature = atof(optarg);
+	    break;
+	case 'x':
+	    DumpAsText = 1;
+	    break;
+	case 'X':
+	    DumpIntermediateText = 1;
+	    break;
+	case 'O':
+	    OutputFormat = 1;
+	    break;
+	case 'N':
+	    OutputFormat = 2;
+	    break;
+	case 'I':
+	    IDKey = optarg;
+	    break;
+	case 'K':
+	    KeyRecordInterval = atoi(optarg);
+	    break;
+	case 'r':
+	    PrintFrameNums = 0;
+	    break;
+	case 'D':
+	    n = atoi(optarg);
+	    if (n < 32 && n >= 0) {
+		debug_flags |= 1 << n;
 	    }
-	}	
-	else {
-	    filename = argv[i];
+	    break;
+	case 'o':
+	    ofilename = optarg;
+	    break;
+	case 'q':
+	    tfilename = optarg;
+	    break;
+	case 'B':
+	    baseFilename = optarg;
+	    break;
+	default:
+	    fprintf(stderr, "unknown switch %s\n",argv[i]+1);
+	    usage();
+	    exit(1);
 	}
     }
+    if (optind + 1 == argc)    // (optind < argc) if not paranoid
+	filename = argv[optind];
 
     if (DumpAsText) {
         OutputFormat = 0;
