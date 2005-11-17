@@ -63,7 +63,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd,
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All of the above (*.pdb *.mmp *.out)",
-                self )
+                self,
+                "Insert File dialog",
+                "Select file to insert" ) # This is the caption for the dialog.  Fixes bug 1125. Mark 051116.
                 
         if not fn:
              env.history.message("Cancelled")
