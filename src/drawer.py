@@ -66,7 +66,7 @@ def getSphereTriangles(level):
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
-# these are used as cylender ends
+# these are used as cylinder ends
 slices=13
 circ1=map((lambda n: n*2.0*pi/slices), range(slices+1))
 circ2=map((lambda a: a+pi/slices), circ1)
@@ -119,9 +119,15 @@ digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
         [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
         [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
         
-cubeVertices = [[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0], [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
+cubeVertices = [[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
+                [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0],
+                [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
 sq3 = sqrt(3.0)/3.0
-cubeNormals = [[-sq3, sq3, -sq3], [-sq3, sq3, sq3], [sq3, sq3, sq3], [sq3, sq3, -sq3], [-sq3, -sq3, -sq3], [-sq3, -sq3, sq3], [sq3, -sq3, sq3], [sq3, -sq3, -sq3]]
+cubeNormals = [[-sq3, sq3, -sq3], [-sq3, sq3, sq3],
+               [sq3, sq3, sq3], [sq3, sq3, -sq3],
+               [-sq3, -sq3, -sq3], [-sq3, -sq3, sq3],
+               [sq3, -sq3, sq3], [sq3, -sq3, -sq3]]
 cubeIndices = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [0, 3, 7, 4], [4, 7, 6, 5]]        
 
 digrid = A(digrid)
@@ -193,7 +199,9 @@ def _makeGraphiteCell(zIndex):
 
 ##Some varaible defined for SiC Grid
 sic_sqt3_2 = sqrt(3.0)/2.0; sic_uLen = 1.8; sic_yU = sic_uLen * sic_sqt3_2; sic_hLen = sic_uLen/2.0
-sic_vpdat = [[0.0, sic_yU, 0.0], [sic_uLen+sic_hLen, 0.0, 0.0], [sic_uLen, sic_yU, 0.0], [sic_uLen+sic_hLen, sic_yU*2, 0.0], [2*sic_uLen+sic_hLen, sic_yU*2.0, 0.0], [3*sic_uLen, sic_yU, 0.0], [2*sic_uLen+sic_hLen, 0.0, 0.0]]
+sic_vpdat = [[0.0, sic_yU, 0.0], [sic_uLen+sic_hLen, 0.0, 0.0], [sic_uLen, sic_yU, 0.0],
+             [sic_uLen+sic_hLen, sic_yU*2, 0.0], [2*sic_uLen+sic_hLen, sic_yU*2.0, 0.0],
+             [3*sic_uLen, sic_yU, 0.0], [2*sic_uLen+sic_hLen, 0.0, 0.0]]
     
 
 def setup():
@@ -361,7 +369,7 @@ def setup():
     glEndList()
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
-    
+    return
     
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
@@ -384,7 +392,7 @@ def drawCircle(color, center, radius, normal):
     glCallList(circleList)
     glEnable(GL_LIGHTING)
     glPopMatrix()
-            
+    return
 
 def drawLinearArrows(longScale):   
     glCallList(linearArrowList)
@@ -397,111 +405,110 @@ def drawLinearArrows(longScale):
     glTranslate(0.0, 0.0, newPos -2.0*halfEdge)
     glCallList(linearArrowList)
     glPopMatrix()
-
+    return
 
 def drawLinearSign(color, center, axis, l, h, w):
-        """Linear motion sign on the side of squa-linder """
-        depthOffset = 0.005
-        glPushMatrix()
-        glColor3fv(color)
-        glDisable(GL_LIGHTING)
-        glTranslatef(center[0], center[1], center[2])
+    """Linear motion sign on the side of squa-linder """
+    depthOffset = 0.005
+    glPushMatrix()
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glTranslatef(center[0], center[1], center[2])
+
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+
+    glPushMatrix()
+    glTranslate(h/2.0 + depthOffset, 0.0, 0.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        sl = l/2.7
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(-h/2.0 - depthOffset, 0.0, 0.0)
+    glRotate(180.0, 0.0, 0.0, 1.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(0.0, w/2.0 + depthOffset, 0.0)
+    glRotate(90.0, 0.0, 0.0, 1.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(0.0, -w/2.0 - depthOffset, 0.0 )
+    glRotate(-90.0, 0.0, 0.0, 1.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
     
-        ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
-        ## display problem on some platforms
-        angle = -acos(axis[2])*180.0/pi
-        if (axis[2]*axis[2] >= 1.0):
-                glRotate(angle, 0.0, 1.0, 0.0)
-        else:
-                glRotate(angle, axis[1], -axis[0], 0.0)
-
-        glPushMatrix()
-        glTranslate(h/2.0 + depthOffset, 0.0, 0.0)
-        glPushMatrix()
-        glScale(1.0, 1.0, l)
-        glCallList(linearLineList)
-        glPopMatrix()
-        if l < 2.6:
-            sl = l/2.7
-            glScale(1.0, sl, sl)
-        if w < 1.0:
-            glScale(1.0, w, w)
-        drawLinearArrows(l)
-        glPopMatrix()
-        
-        glPushMatrix()
-        glTranslate(-h/2.0 - depthOffset, 0.0, 0.0)
-        glRotate(180.0, 0.0, 0.0, 1.0)
-        glPushMatrix()
-        glScale(1.0, 1.0, l)
-        glCallList(linearLineList)
-        glPopMatrix()
-        if l < 2.6:
-            glScale(1.0, sl, sl)
-        if w < 1.0:
-            glScale(1.0, w, w)
-        drawLinearArrows(l)
-        glPopMatrix()
-        
-        glPushMatrix()
-        glTranslate(0.0, w/2.0 + depthOffset, 0.0)
-        glRotate(90.0, 0.0, 0.0, 1.0)
-        glPushMatrix()
-        glScale(1.0, 1.0, l)
-        glCallList(linearLineList)
-        glPopMatrix()
-        if l < 2.6:
-            glScale(1.0, sl, sl)
-        if w < 1.0:
-            glScale(1.0, w, w)
-        drawLinearArrows(l)
-        glPopMatrix()
-        
-        glPushMatrix()
-        glTranslate(0.0, -w/2.0 - depthOffset, 0.0 )
-        glRotate(-90.0, 0.0, 0.0, 1.0)
-        glPushMatrix()
-        glScale(1.0, 1.0, l)
-        glCallList(linearLineList)
-        glPopMatrix()
-        if l < 2.6:
-            glScale(1.0, sl, sl)
-        if w < 1.0:
-            glScale(1.0, w, w)
-        drawLinearArrows(l)
-        glPopMatrix()
-        
-        glEnable(GL_LIGHTING)
-        glPopMatrix()
-        
-
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    return
         
 def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
-        """Rotate sign on top of the caps of the cylinder """
-        glPushMatrix()
-        glColor3fv(color)
-        vec = pos2-pos1
-        axis = norm(vec)
-        glTranslatef(pos1[0], pos1[1], pos1[2])
-    
-        ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
-        ## display problem on some platforms
-        angle = -acos(axis[2])*180.0/pi
-        if (axis[2]*axis[2] >= 1.0):
-                glRotate(angle, 0.0, 1.0, 0.0)
-        else:
-                glRotate(angle, axis[1], -axis[0], 0.0)
-        glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
-        glScale(radius,radius,vlen(vec))
-        
-        glLineWidth(2.0)
-        glDisable(GL_LIGHTING)
-        glCallList(rotSignList)
-        glEnable(GL_LIGHTING)
-        glLineWidth(1.0)
-        
-        glPopMatrix()
-        
+    """Rotate sign on top of the caps of the cylinder """
+    glPushMatrix()
+    glColor3fv(color)
+    vec = pos2-pos1
+    axis = norm(vec)
+    glTranslatef(pos1[0], pos1[1], pos1[2])
+
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+    glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
+    glScale(radius,radius,vlen(vec))
+
+    glLineWidth(2.0)
+    glDisable(GL_LIGHTING)
+    glCallList(rotSignList)
+    glEnable(GL_LIGHTING)
+    glLineWidth(1.0)
+
+    glPopMatrix()
+    return
 
 def drawsphere(color, pos, radius, detailLevel):
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
@@ -511,7 +518,7 @@ def drawsphere(color, pos, radius, detailLevel):
     glCallList(sphereList[detailLevel])
 
     glPopMatrix()
-
+    return
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
     glColor3fv(color)
@@ -524,7 +531,7 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glEnable(GL_LIGHTING)
     glPopMatrix()
     glPolygonMode(GL_FRONT, GL_FILL)
-
+    return
 
 def drawcylinder(color, pos1, pos2, radius, capped=0):
     global CylList, CapList
@@ -546,6 +553,7 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
     glCallList(CylList)
     if capped: glCallList(CapList)
     glPopMatrix()
+    return
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     """Draw a line from pos1 to pos2 of the given color.
@@ -573,9 +581,17 @@ def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     if dashEnabled: 
         glDisable(GL_LINE_STIPPLE)
     glEnable(GL_LIGHTING)
+    return
 
 def drawLineCube(color, pos, radius):
-    cubeVertices = [-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0]
+    cubeVertices = [-1.0, 1.0, -1.0,
+                    -1.0, 1.0, 1.0,
+                    1.0, 1.0, 1.0,
+                    1.0, 1.0, -1.0,
+                    -1.0, -1.0, -1.0,
+                    -1.0, -1.0, 1.0,
+                    1.0, -1.0, 1.0,
+                    1.0, -1.0, -1.0]
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
     glEnableClientState(GL_VERTEX_ARRAY)
     glVertexPointer(3, GL_FLOAT, 0, cubeVertices)
@@ -591,7 +607,7 @@ def drawLineCube(color, pos, radius):
     glPopMatrix()
     glEnable(GL_LIGHTING)
     glDisableClientState(GL_VERTEX_ARRAY)
-    
+    return    
 
 def drawwirecube(color, pos, radius, lineWidth=3.0):
     global CubeList, lineCubeList
@@ -614,6 +630,7 @@ def drawwirecube(color, pos, radius, lineWidth=3.0):
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
     glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 to help fix bug 835 or related bugs
+    return
 
 def drawwirebox(color, pos, len):
     global CubeList
@@ -631,19 +648,23 @@ def drawwirebox(color, pos, len):
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
     glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 to help fix bug 835 or related bugs
+    return
 
 def segstart(color):
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glBegin(GL_LINES)
+    return
 
 def drawsegment(pos1,pos2):
     glVertex3fv(pos1)
     glVertex3fv(pos2)
+    return
 
 def segend():
     glEnd()
     glEnable(GL_LIGHTING)
+    return
 
 def drawaxes(n,point,coloraxes=False):
     from constants import blue, red, darkgreen
@@ -665,6 +686,7 @@ def drawaxes(n,point,coloraxes=False):
     glEnd()
     glEnable(GL_LIGHTING)
     glPopMatrix()
+    return
 
 def findCell(pt, latticeType):
     """Return the cell which contains the point <pt> """
@@ -724,9 +746,10 @@ def genDiam(bblo, bbhi, latticeType):
 
 
 def drawGrid(scale, center, latticeType):
-    """Construct the grid model and show as position references for cookies. The model is build around "pov" and has size of 2*"scale" on each of the (x, y, z) directions. This should be optimized latter. For "scale = 200", it takes about 1479623 loops. ---Huaicai """
-    
-    
+    """Construct the grid model and show as position references for cookies.
+    The model is build around "pov" and has size of 2*"scale" on each of the (x, y, z) directions.
+    This should be optimized latter. For "scale = 200", it takes about 1479623 loops. ---Huaicai
+    """
     glDisable(GL_LIGHTING)
 
     # bruce 041201:
@@ -778,7 +801,7 @@ def drawGrid(scale, center, latticeType):
     glEnable(GL_LIGHTING)
     
     #drawCubeCell(V(1, 0, 0))
-
+    return
 
 def drawrectangle(pt1, pt2, rt, up, color):
     glColor3f(color[0], color[1], color[2])
@@ -794,13 +817,14 @@ def drawrectangle(pt1, pt2, rt, up, color):
     glEnable(GL_LIGHTING)
 
 def drawRubberBand(pt1, pt2, c2, c3, color):
-       """Huaicai: depth test should be disabled to make the xor work """
-       glBegin(GL_LINE_LOOP)
-       glVertex(pt1[0],pt1[1],pt1[2])
-       glVertex(c2[0],c2[1],c2[2])
-       glVertex(pt2[0],pt2[1],pt2[2])
-       glVertex(c3[0],c3[1],c3[2])
-       glEnd()
+    """Huaicai: depth test should be disabled to make the xor work """
+    glBegin(GL_LINE_LOOP)
+    glVertex(pt1[0],pt1[1],pt1[2])
+    glVertex(c2[0],c2[1],c2[2])
+    glVertex(pt2[0],pt2[1],pt2[2])
+    glVertex(c3[0],c3[1],c3[2])
+    glEnd()
+    return
        
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
@@ -821,6 +845,7 @@ def drawbrick(color, center, axis, l, h, w):
     glut.glutSolidCube(1.0)
     #glCallList(solidCubeList)
     glPopMatrix()
+    return
 
 def drawLineLoop(color,lines):
     glDisable(GL_LIGHTING)
@@ -830,6 +855,7 @@ def drawLineLoop(color,lines):
         glVertex3fv(v)
     glEnd()
     glEnable(GL_LIGHTING)    
+    return
     
 def drawlinelist(color,lines):
     glDisable(GL_LIGHTING)
@@ -839,6 +865,7 @@ def drawlinelist(color,lines):
         glVertex3fv(v)
     glEnd()
     glEnable(GL_LIGHTING)
+    return
 
 cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1, 1,-1], [-1, 1, 1],
@@ -927,7 +954,7 @@ def makePolyList(v):
     return segs
 
 
-def trialMakePolyList(v):
+def trialMakePolyList(v): # [i think this is experimental code by Huaicai, never called, perhaps never tested. -- bruce 051117]
     pMat = []
     for i in range(size(v)):
         pMat += [polyMat[i] * v[i]]
@@ -969,7 +996,7 @@ def drawLonsdaleiteGrid(scale, center):
         glTranslate(XLen, 0.0, 0.0)
     glPopMatrix()
     glEnable(GL_LIGHTING)        
-
+    return
     
 ###Huaicai: test function    
 def drawDiamondCubic(color):
@@ -992,7 +1019,8 @@ def drawDiamondCubic(color):
               glVertex3f(sp1*ii, sp4, sp1*kk)
               
     glEnd()
-    glEnable(GL_LIGHTING)    
+    glEnable(GL_LIGHTING)
+    return
 
 def drawCubeCell(color):
     vs = [[sp0, sp0, sp0], [sp4, sp0, sp0], [sp4, sp4, sp0], [sp0, sp4, sp0],
@@ -1017,7 +1045,7 @@ def drawCubeCell(color):
     glEnd()
     
     glEnable(GL_LIGHTING) 
-
+    return
 
 def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False):
     '''Draw polygon with size of <w>*<h> and with color <color>. Optionally, it could be texuture mapped, translucent.
@@ -1066,7 +1094,7 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     
     glPopMatrix()
     glEnable(GL_LIGHTING)
-    
+    return
             
 def drawGPGrid(color, line_type, w, h, uw, uh):
     '''Draw grid lines for a Grid Plane, where:
@@ -1148,7 +1176,7 @@ def drawGPGrid(color, line_type, w, h, uw, uh):
     #glDisable(GL_BLEND)
     
     glEnable(GL_LIGHTING)
-
+    return
 
 def drawSiCGrid(color, line_type, w, h):
     '''Draw SiC grid. '''
@@ -1209,8 +1237,7 @@ def drawSiCGrid(color, line_type, w, h):
         glDisable (GL_LINE_STIPPLE)
     
     glEnable(GL_LIGHTING)
-    
-
+    return
 
 def drawFullWindow(vtColors):
     """Draw gradient background color.
@@ -1233,7 +1260,7 @@ def drawFullWindow(vtColors):
     glEnd()
     
     glEnable(GL_LIGHTING)
-    
+    return
     
 def drawtext(text, color, pt, size, glpane):
 
@@ -1249,3 +1276,6 @@ def drawtext(text, color, pt, size, glpane):
     
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
+    return
+
+#end
