@@ -12,9 +12,19 @@ static void
 usage()
 {
                 
-    fprintf(stderr, "command line parameters:\n\
+    fprintf(stderr, "\ncommand line parameters:\n\
    --dump-part\n\
                     write out internal representation of .mmp file, then exit\n\
+   --print-potential-function=<bond>\n\
+                    print the values of the potential and gradient for the given bond.\n\
+                    <bond> should be one of:\n\
+                       bond:C-1-H\n\
+                       bend:C-1-C-1-H\n\
+                       vdw:C-v-H\n\
+                    you may also want to change the defaults for --initial, --increment, and --limit\n\
+   --initial=<r>    lowest r value in the potential function table printed above (in pm)\n\
+   --increment=<dr> spacing of r values for above table (in pm)\n\
+   --limit=<r>      highest r value in table above (in pm)\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
    -m, --minimize\n\
@@ -56,12 +66,20 @@ usage()
 }
 
 #define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
-#define OPT_HELP      LONG_OPT (0)
-#define OPT_DUMP_PART LONG_OPT (1)
+#define OPT_HELP              LONG_OPT (0)
+#define OPT_DUMP_PART         LONG_OPT (1)
+#define OPT_PRINT_POTENTIAL   LONG_OPT (2)
+#define OPT_INITIAL           LONG_OPT (3)
+#define OPT_INCREMENT         LONG_OPT (4)
+#define OPT_LIMIT             LONG_OPT (5)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
     { "dump-part", no_argument, NULL, OPT_DUMP_PART },
+    { "print-potential-function", required_argument, NULL, OPT_PRINT_POTENTIAL},
+    { "initial", required_argument, NULL, OPT_INITIAL},
+    { "increment", required_argument, NULL, OPT_INCREMENT},
+    { "limit", required_argument, NULL, OPT_LIMIT},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -87,11 +105,14 @@ int
 main(int argc,char **argv)
 {
     struct part *part;
-    int opt, i, n;
+    int opt, n;
     int printPotentialEnergy = 0;
     double potentialEnergy;
     int dump_part = 0;
-	
+    char *printPotential;
+    double printPotentialInitial = 1; // pm
+    double printPotentialIncrement = 1; // pm
+    double printPotentialLimit = 200; // pm
     char buf[1024], *filename, *ofilename, *tfilename, *c;
 	
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
@@ -117,6 +138,18 @@ main(int argc,char **argv)
 	    usage();
 	case OPT_DUMP_PART:
 	    dump_part = 1;
+	    break;
+        case OPT_PRINT_POTENTIAL:
+            printPotential = optarg;
+	    break;
+        case OPT_INITIAL:
+	    printPotentialInitial = atof(optarg);
+	    break;
+        case OPT_INCREMENT:
+	    printPotentialIncrement = atof(optarg);
+	    break;
+        case OPT_LIMIT:
+	    printPotentialLimit = atof(optarg);
 	    break;
 	case 'n':
 	    // ignored
@@ -175,8 +208,9 @@ main(int argc,char **argv)
 	case 'B':
 	    baseFilename = optarg;
 	    break;
+        case ':':
+        case '?':
 	default:
-	    fprintf(stderr, "unknown switch %s\n",argv[i]+1);
 	    usage();
 	    exit(1);
 	}
@@ -266,6 +300,15 @@ main(int argc,char **argv)
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
     initializeBondTable();
+
+    if (printPotential) {
+        printPotentialAndGradientFunctions(printPotential,
+                                           printPotentialInitial,
+                                           printPotentialIncrement,
+                                           printPotentialLimit);
+        exit(0);
+    }
+    
     part = readMMP(buf);
     updateVanDerWaals(part, NULL, part->positions);
     generateStretches(part);

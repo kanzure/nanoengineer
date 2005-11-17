@@ -588,6 +588,20 @@ getVanDerWaalsTable(int element1, int element2)
   return vdw;
 }
 
+struct atomType *
+getAtomTypeByName(char *symbol)
+{
+  int i;
+  
+  for (i=0; i<MAX_ELEMENT+1; i++) {
+    if (!strcmp(symbol, periodicTable[i].symbol)) {
+      return &periodicTable[i];
+    }
+  }
+  return NULL;
+}
+
+
 #if 0
 static void
 compare(char *bondName, char *parameter, double old, double new)

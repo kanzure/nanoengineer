@@ -176,3 +176,93 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   fillInterpolationTable(&vdw->potentialBuckingham, potentialBuckingham, start, scale, vdw);
   fillInterpolationTable(&vdw->gradientBuckingham, gradientBuckingham, start, scale, vdw);
 }
+
+static void
+convertDashToSpace(char *s)
+{
+  while (*s) {
+    if (*s == '-') {
+      *s = ' ';
+    }
+    s++;
+  }
+}
+
+static void
+printBondPAndG(char *bondName, double initial, double increment, double limit)
+{
+  char elt1[4];
+  char elt2[4];
+  char order;
+  struct atomType *e1;
+  struct atomType *e2;
+  struct bondStretch *stretch;
+  double r;
+  double rSquared;
+  double interpolated_potential;
+  double interpolated_gradient;
+  double direct_potential;
+  double direct_gradient;
+
+  convertDashToSpace(bondName);
+  if (3 != sscanf(bondName, "%2s %c %2s", elt1, &order, elt2)) {
+    fprintf(stderr, "bond format must be: bond:C-1-H\n");
+    exit(1);
+  }
+  e1 = getAtomTypeByName(elt1);
+  if (e1 == NULL) {
+    fprintf(stderr, "Element %s not defined\n", elt1);
+    exit(1);
+  }
+  e2 = getAtomTypeByName(elt2);
+  if (e2 == NULL) {
+    fprintf(stderr, "Element %s not defined\n", elt2);
+    exit(1);
+  }
+  
+  // XXX this may return completly bizarre result for unknown bond orders.
+  stretch = getBondStretch(e1->protons, e2->protons, order);
+
+  for (r=initial; r<limit; r+=increment) {
+    rSquared = r * r;
+    interpolated_potential = stretchPotential(NULL, NULL, stretch, rSquared);
+    interpolated_gradient = stretchGradient(NULL, NULL, stretch, rSquared);
+    direct_potential = potentialLippincottMorse(rSquared, stretch);
+    direct_gradient = gradientLippincottMorse(rSquared, stretch);
+    printf("%e %e %e %e %e\n", r, interpolated_potential, interpolated_gradient, direct_potential, direct_gradient);
+  }
+}
+
+static void
+printBendPAndG(char *bendName, double initial, double increment, double limit)
+{
+  fprintf(stderr, "printBendPAndG not implemented yet\n");
+  exit(1);
+}
+
+static void
+printVdWPAndG(char *vdwName, double initial, double increment, double limit)
+{
+  fprintf(stderr, "printVdWPAndG not implemented yet\n");
+  exit(1);
+}
+
+void
+printPotentialAndGradientFunctions(char *name, double initial, double increment, double limit)
+{
+
+  if (!strncmp(name, "bond:", 5)) {
+    printBondPAndG(name+5, initial, increment, limit);
+  } else if (!strncmp(name, "bend:", 5)) {
+    printBendPAndG(name+5, initial, increment, limit);
+  } else if (!strncmp(name, "vdw:", 4)) {
+    printVdWPAndG(name+4, initial, increment, limit);
+  } else {
+    fprintf(stderr, "You must specify the type of entry you want printed.\n");
+    fprintf(stderr, "For example:\n");
+    fprintf(stderr, " bond:C-1-H\n");
+    fprintf(stderr, " bend:C-1-C-1-H\n");
+    fprintf(stderr, " vdw:C-v-H\n");
+    exit(1);
+  }
+}

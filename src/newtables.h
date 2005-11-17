@@ -89,3 +89,4 @@ extern struct bendData *getBendData(int element_center,
 
 extern struct vanDerWaalsParameters *getVanDerWaalsTable(int element1, int element2);
 
+extern struct atomType *getAtomTypeByName(char *symbol);

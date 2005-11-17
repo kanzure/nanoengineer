@@ -32,6 +32,96 @@ setRUnit(struct xyz *position, struct bond *b, double *prSquared)
   b->valid = validSerial;
 }
 
+// note: the first two parameters are only used for error processing...
+double
+stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared)
+{
+  int k;
+  double potential;
+
+  /* interpolation */
+  double *t1;
+  double *t2;
+  double start;
+  int scale;
+
+  struct interpolationTable *iTable;
+
+  // table lookup equivalent to: potential = potentialLippincottMorse(rSquared);
+  iTable = &stretchType->potentialLippincottMorse;
+  start = iTable->start;
+  scale = iTable->scale;
+  t1 = iTable->t1;
+  t2 = iTable->t2;
+  k = (int)(rSquared - start) / scale;
+  if (k < 0) {
+    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
+      fprintf(stderr, "stretch: low --");
+      printStretch(stderr, p, stretch);
+    }
+    potential = t1[0] + rSquared * t2[0];
+  } else if (k >= TABLEN) {
+    if (ToMinimize) { // extend linearly past end of table
+      potential = stretchType->potentialExtensionStiffness * rSquared
+        + stretchType->potentialExtensionIntercept;
+      //potential = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
+    } else {
+      potential=0.0;
+      if (DEBUG(D_TABLE_BOUNDS) && stretch) {
+        fprintf(stderr, "stretch: high --");
+        printStretch(stderr, p, stretch);
+      }
+    }
+  } else {
+    potential = t1[k] + rSquared * t2[k];
+  }
+  return potential;
+}
+
+double
+stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared)
+{
+  int k;
+  double gradient;
+
+  /* interpolation */
+  double *t1;
+  double *t2;
+  double start;
+  int scale;
+
+  struct interpolationTable *iTable;
+
+    // table lookup equivalent to: gradient = gradientLippincottMorse(rSquared);
+    iTable = &stretchType->gradientLippincottMorse;
+    start = iTable->start;
+    scale = iTable->scale;
+    t1 = iTable->t1;
+    t2 = iTable->t2;
+    k = (int)(rSquared - start) / scale;
+    if (k < 0) {
+      if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
+        fprintf(stderr, "stretch: low --");
+        printStretch(stderr, p, stretch);
+      }
+      gradient = t1[0] + rSquared * t2[0];
+    } else if (k >= TABLEN) {
+      if (ToMinimize) { // quadratic potential past table gives linear gradient (in r, not r^2)
+        gradient = 2.0 * stretchType->potentialExtensionStiffness * sqrt(rSquared);
+        //gradient = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
+      } else {
+        gradient=0.0;
+        if (DEBUG(D_TABLE_BOUNDS) && stretch) {
+          fprintf(stderr, "stretch: high --");
+          printStretch(stderr, p, stretch);
+        }
+      }
+    } else {
+      gradient = t1[k] + rSquared * t2[k];
+    }
+    return gradient;
+}
+
 double
 calculatePotential(struct part *p, struct xyz *position)
 {
@@ -72,37 +162,8 @@ calculatePotential(struct part *p, struct xyz *position)
     // we presume here that rUnit is invalid, and we need rSquared
     // anyway.
     setRUnit(position, bond, &rSquared);
-
-    // table lookup equivalent to: fac = potentialLippincottMorse(rSquared);
-    iTable = &stretch->stretchType->potentialLippincottMorse;
-    start = iTable->start;
-    scale = iTable->scale;
-    t1 = iTable->t1;
-    t2 = iTable->t2;
-    k = (int)(rSquared - start) / scale;
-    if (k < 0) {
-      if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
-        fprintf(stderr, "stretch: low --");
-        printStretch(stderr, p, stretch);
-      }
-      fac = t1[0] + rSquared * t2[0];
-    } else if (k >= TABLEN) {
-      if (ToMinimize) { // extend linearly past end of table
-        fac = stretch->stretchType->potentialExtensionStiffness * rSquared
-          + stretch->stretchType->potentialExtensionIntercept;
-        //fac = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
-      } else {
-        fac=0.0;
-        if (DEBUG(D_TABLE_BOUNDS)) {
-          fprintf(stderr, "stretch: high --");
-          printStretch(stderr, p, stretch);
-        }
-      }
-    } else {
-      fac = t1[k] + rSquared * t2[k];
-    }
             
-    potential += fac;
+    potential += stretchPotential(p, stretch, stretch->stretchType, rSquared);
   }
 			
   /* now the potential for each bend */
@@ -211,6 +272,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
   int k;
   double rSquared;
   double fac;
+  double gradient;
   struct xyz v1;
   struct xyz v2;
   double z;
@@ -253,35 +315,8 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
     // rSquared anyway.
     setRUnit(position, bond, &rSquared);
 
-    // table lookup equivalent to: fac = gradientLippincottMorse(rSquared);
-    iTable = &stretch->stretchType->gradientLippincottMorse;
-    start = iTable->start;
-    scale = iTable->scale;
-    t1 = iTable->t1;
-    t2 = iTable->t2;
-    k = (int)(rSquared - start) / scale;
-    if (k < 0) {
-      if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
-        fprintf(stderr, "stretch: low --");
-        printStretch(stderr, p, stretch);
-      }
-      fac = t1[0] + rSquared * t2[0];
-    } else if (k >= TABLEN) {
-      if (ToMinimize) { // quadratic potential past table gives linear gradient (in r, not r^2)
-        fac = 2.0 * stretch->stretchType->potentialExtensionStiffness * sqrt(rSquared);
-        //fac = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
-      } else {
-        fac=0.0;
-        if (DEBUG(D_TABLE_BOUNDS)) {
-          fprintf(stderr, "stretch: high --");
-          printStretch(stderr, p, stretch);
-        }
-      }
-    } else {
-      fac = t1[k] + rSquared * t2[k];
-    }
-            
-    vmul2c(f, bond->rUnit, fac);  // f = gradientLippincottMorse(rSquared)
+    gradient = stretchGradient(p, stretch, stretch->stretchType, rSquared);
+    vmul2c(f, bond->rUnit, gradient);
     vadd(force[bond->a1->index], f);
     vsub(force[bond->a2->index], f);
   }
