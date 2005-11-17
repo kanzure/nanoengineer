@@ -19,8 +19,8 @@ struct bondStretch
 
   double ks;   // stiffness in N/m
   double r0;   // base radius in pm, or 1e-12 m
-  double de;   // aJ, or 1e-18 J, for Morse
-  double beta; // 1e12 m^-1, for Morse
+  double de;   // aJ, or 1e-18 J
+  double beta; // sqrt(ks/2 de), 1e12 m^-1, for Morse
   
   double inflectionR; // r value in pm where d^2(Lippincott(r)) / dr^2 == 0
 
@@ -38,6 +38,9 @@ struct bondStretch
 
 struct vanDerWaalsParameters
 {
+  double rvdW; // in pm (1e-12 m)
+  double evdW; // in zJ (1e-21 J)
+
   struct interpolationTable potentialBuckingham;
   struct interpolationTable gradientBuckingham;
 };
