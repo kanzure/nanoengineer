@@ -123,6 +123,23 @@ cubeVertices = [[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
                 [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
                 [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0],
                 [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
+
+flatCubeVertices = []  #bruce 051117: compute this rather than letting a subroutine hardcode it as a redundant constant
+for threemore in cubeVertices:
+    flatCubeVertices.extend(threemore)
+flatCubeVertices = list(flatCubeVertices) #k probably not needed
+
+if 1: # remove this when it works
+    flatCubeVertices_hardcoded = [-1.0, 1.0, -1.0,
+                    -1.0, 1.0, 1.0,
+                    1.0, 1.0, 1.0,
+                    1.0, 1.0, -1.0,
+                    -1.0, -1.0, -1.0,
+                    -1.0, -1.0, 1.0,
+                    1.0, -1.0, 1.0,
+                    1.0, -1.0, -1.0]
+    assert flatCubeVertices == flatCubeVertices_hardcoded
+
 sq3 = sqrt(3.0)/3.0
 cubeNormals = [[-sq3, sq3, -sq3], [-sq3, sq3, sq3],
                [sq3, sq3, sq3], [sq3, sq3, -sq3],
@@ -584,17 +601,9 @@ def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     return
 
 def drawLineCube(color, pos, radius):
-    cubeVertices = [-1.0, 1.0, -1.0,
-                    -1.0, 1.0, 1.0,
-                    1.0, 1.0, 1.0,
-                    1.0, 1.0, -1.0,
-                    -1.0, -1.0, -1.0,
-                    -1.0, -1.0, 1.0,
-                    1.0, -1.0, 1.0,
-                    1.0, -1.0, -1.0]
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
     glEnableClientState(GL_VERTEX_ARRAY)
-    glVertexPointer(3, GL_FLOAT, 0, cubeVertices)
+    glVertexPointer(3, GL_FLOAT, 0, flatCubeVertices) #bruce 051117 revised this
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glPushMatrix()
