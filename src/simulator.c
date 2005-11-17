@@ -2,65 +2,11 @@
 #include <getopt.h>
 #include "simulator.h"
 
-#if 0
-
-// steepest descent terminates when rms_force is below this value (in picoNewtons)
-#define RMS_CUTOVER (50.0)
-/* additionally, sqrt(max_forceSquared) must be less than this: */
-#define MAX_CUTOVER (RMS_CUTOVER * 3.0)
-#define MAX_CUTOVER_SQUARED (MAX_CUTOVER * MAX_CUTOVER)
-
-// conjugate gradient terminates when rms_force is below this value (in picoNewtons)
-#define RMS_FINAL (1.0)
-
-/* we save the rms value from the initialization iterations in originalMinimize() here: */
-static float initial_rms;
-/* and terminate minimization if rms ever gets above this: */
-#define MAX_RMS (1000.0 * initial_rms)
-
-
-static int groundExists = 1;
-
-static void
-groundAtoms(struct xyz *oldPosition, struct xyz *newPosition) 
-{
-    int j, k;
-    int foundAGround = 0;
-
-    if (groundExists) {
-	for (j=0;j<Nexcon;j++) {	/* for each constraint */
-	    if (Constraint[j].type == CODEground) { /* welded to space */
-                foundAGround = 1;
-		for (k=0; k<Constraint[j].natoms; k++) {
-		    newPosition[Constraint[j].atoms[k]] = oldPosition[Constraint[j].atoms[k]];
-		}
-	    }
-        }
-        groundExists = foundAGround ;
-    }
-}
-#endif // if 0 at top
-
 static void
 SIGTERMhandler(int sig) 
 {
     Interrupted = 1;
 }
-
-#if 0
-static void installSIGTERMhandler() 
-{
-    struct sigaction act;
-
-    act.sa_handler = &SIGTERMhandler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    if (sigaction(SIGTERM, &act, NULL) < 0) {
-        perror("sigaction()");
-        exit(1);
-    }
-}
-#endif
 
 static void
 usage()
