@@ -92,7 +92,7 @@
         <action name="setViewPlus90Action"/>
         <action name="setViewMinus90Action"/>
     </item>
-    <item text="Insert" name="Insert">
+    <item text="&amp;Insert" name="Insert">
         <action name="insertNanotubeAction"/>
     </item>
     <item text="&amp;Display" name="displayMenu">
@@ -113,7 +113,7 @@
         <action name="dispElementColorSettingsAction"/>
         <action name="dispLightingAction"/>
     </item>
-    <item text="Select" name="selectMenu">
+    <item text="&amp;Select" name="Select">
         <action name="selectAllAction"/>
         <action name="selectNoneAction"/>
         <action name="selectInvertAction"/>
@@ -1738,10 +1738,13 @@
             <cstring>editPrefsAction</cstring>
         </property>
         <property name="text">
-            <string>Preferences...</string>
+            <string>Preferences</string>
         </property>
         <property name="menuText">
-            <string>P&amp;references...</string>
+            <string>Pre&amp;ferences...</string>
+        </property>
+        <property name="toolTip">
+            <string>Preferences</string>
         </property>
     </action>
     <action>

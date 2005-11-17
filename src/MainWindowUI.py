@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Nov 10 21:52:45 2005
+# Created: Wed Nov 16 22:17:56 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7112,15 +7112,15 @@ class MainWindow(QMainWindow):
         self.dispLightingAction.addTo(self.displayMenu)
         self.MenuBar.insertItem(QString(""),self.displayMenu,8)
 
-        self.selectMenu = QPopupMenu(self)
-        self.selectAllAction.addTo(self.selectMenu)
-        self.selectNoneAction.addTo(self.selectMenu)
-        self.selectInvertAction.addTo(self.selectMenu)
-        self.selectConnectedAction.addTo(self.selectMenu)
-        self.selectDoublyAction.addTo(self.selectMenu)
-        self.selectExpandAction.addTo(self.selectMenu)
-        self.selectContractAction.addTo(self.selectMenu)
-        self.MenuBar.insertItem(QString(""),self.selectMenu,9)
+        self.Select = QPopupMenu(self)
+        self.selectAllAction.addTo(self.Select)
+        self.selectNoneAction.addTo(self.Select)
+        self.selectInvertAction.addTo(self.Select)
+        self.selectConnectedAction.addTo(self.Select)
+        self.selectDoublyAction.addTo(self.Select)
+        self.selectExpandAction.addTo(self.Select)
+        self.selectContractAction.addTo(self.Select)
+        self.MenuBar.insertItem(QString(""),self.Select,9)
 
         self.modifyMenu = QPopupMenu(self)
         self.modifyMinimizeSelAction.addTo(self.modifyMenu)
@@ -7462,8 +7462,9 @@ class MainWindow(QMainWindow):
         self.selectDoublyAction.setText(self.__tr("Doubly"))
         self.selectDoublyAction.setMenuText(self.__tr("&Doubly"))
         self.selectDoublyAction.setToolTip(self.__tr("Select Doubly"))
-        self.editPrefsAction.setText(self.__tr("Preferences..."))
-        self.editPrefsAction.setMenuText(self.__tr("P&references..."))
+        self.editPrefsAction.setText(self.__tr("Preferences"))
+        self.editPrefsAction.setMenuText(self.__tr("Pre&ferences..."))
+        self.editPrefsAction.setToolTip(self.__tr("Preferences"))
         self.jigsBearingAction.setText(self.__tr("Bearing"))
         self.jigsBearingAction.setMenuText(self.__tr("&Bearing"))
         self.jigsSpringAction.setText(self.__tr("Spring"))
@@ -7840,11 +7841,11 @@ class MainWindow(QMainWindow):
         if self.MenuBar.findItem(6):
             self.MenuBar.findItem(6).setText(self.__tr("&View"))
         if self.MenuBar.findItem(7):
-            self.MenuBar.findItem(7).setText(self.__tr("Insert"))
+            self.MenuBar.findItem(7).setText(self.__tr("&Insert"))
         if self.MenuBar.findItem(8):
             self.MenuBar.findItem(8).setText(self.__tr("&Display"))
         if self.MenuBar.findItem(9):
-            self.MenuBar.findItem(9).setText(self.__tr("Select"))
+            self.MenuBar.findItem(9).setText(self.__tr("&Select"))
         if self.MenuBar.findItem(10):
             self.MenuBar.findItem(10).setText(self.__tr("&Modify"))
         if self.MenuBar.findItem(11):
