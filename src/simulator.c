@@ -67,13 +67,13 @@ usage()
 {
                 
     fprintf(stderr, "command line parameters:\n\
-   -da, --dump-atoms\n\
+   --dump-atoms\n\
                     dump atoms\n\
-   -db, --dump-bonds\n\
+   --dump-bonds\n\
                     dump bonds\n\
-   -dc, --dump-constraints\n\
+   --dump-constraints\n\
                     dump constraints\n\
-   -dw, --dump-van-der-walls\n\
+   --dump-van-der-walls\n\
                     dump van der Waals\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
@@ -106,7 +106,7 @@ usage()
    -o<string>, --output-file=<string>\n\
                     output file name (otherwise same as input)\n\
    -q<string>, --trace-file=<string>\n\
-                    trace file name (otherwise trace)\n\
+                    trace file name (default=\"trace\")\n\
    -D<int>, --debug-flag=<int>\n\
                     turn on a debugging flag (see simulator.h)\n\
    -B<filename>, --base-file=<filename>\n\
