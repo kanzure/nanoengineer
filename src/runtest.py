@@ -126,7 +126,6 @@ import os
 import re
 from os.path import join, split, dirname, basename
 from shutil import copy
-from subprocess import Popen
 
 DEBUG = False
 
@@ -147,6 +146,10 @@ try:
 except IndexError:
     pass
 
+if not os.path.exists("/tmp/testsimulator"):
+    print >> sys.__stderr__, "Can't find /tmp/testsimulator"
+    sys.exit(1)
+
 tmpDir = "/tmp/runtest%d" % os.getpid()
 say("tmpDir = " + tmpDir)
 base = basename(testSpecFile[:-5])
@@ -156,27 +159,24 @@ hereDir = join(here, dir)
 
 altoutFile = join(hereDir, base + ".altout")
 
-DEFAULT_INPUT = ("%s.mmp" % base,)
-DEFAULT_OUTPUT_MIN = ("exitvalue", "stderr", "stdout",
-                      base+".trc", base + ".xyz")
-DEFAULT_OUTPUT_STRUCT = ("exitvalue", "structurematch", "stderr")
-DEFAULT_PROGRAM_MIN = ("/tmp/testsimulator", "--minimize",
-                       "--dump-as-text", base + ".mmp")
-DEFAULT_PROGRAM_DYN = ("/tmp/testsimulator", "--num-frames=100",
-                       "--temperature=300", "--iters-per-frame=10",
-                       "--dump-as-text", base + ".mmp")
+DEFAULT_INPUT = ["%s.mmp" % base]
+DEFAULT_OUTPUT_MIN = ["exitvalue", "stderr", "stdout",
+                      base+".trc", base + ".xyz"]
+DEFAULT_OUTPUT_STRUCT = ["exitvalue", "structurematch", "stderr"]
+DEFAULT_PROGRAM_MIN = "/tmp/testsimulator --minimize " + \
+                      "--dump-as-text " + base + ".mmp"
+DEFAULT_PROGRAM_DYN = "/tmp/testsimulator --num-frames=100" + \
+                      "--temperature=300 --iters-per-frame=10 " + \
+                      "--dump-as-text " + base + ".mmp"
 DEFAULT_STRUCT_MIN = None
 DEFAULT_STRUCT_STRUCT = base + ".xyzcmp"
 
-ALT_OUTPUT_FOR_STRUCT = ("exitvalue", "structurematch", "stderr",
-                         "stdout", base + ".trc", base + ".xyz")
-
-# if there is ever a problem, we should rm -rf tmpDir
-# Bash: trap 'rm -rf $tmpDir' 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+ALT_OUTPUT_FOR_STRUCT = ["exitvalue", "structurematch", "stderr",
+                         "stdout", base + ".trc", base + ".xyz"]
 
 userType = "min"
-userInput = ( )
-userOutput = ( )
+userInput = [ ]
+userOutput = [ ]
 userProgram = None
 userStruct = None
 
@@ -191,10 +191,7 @@ for line in inf.read().split(os.linesep):
         # This is a tuple, not a string
         userOutput = tuple(line[6:].split())
     elif line[:7] == "PROGRAM":
-        # This is a tuple, not a string
-        userProgram = line[7:].split()
-        userProgram[0] = join(here, userProgram[0])
-        userProgram = tuple(userProgram)
+        userProgram = here + os.sep + line[7:].strip()
     elif line[:6] == "STRUCT":
         userStruct = line[6:].strip()
     elif line[:1] == '#':
@@ -222,6 +219,7 @@ elif userType == "dyn":
 elif userType == "fail":
     input = userInput  # might be None
     output = userOutput
+    # will this work in Windows?
     program = userProgram or "echo fail"
     struct = userStruct
 else:
@@ -264,20 +262,12 @@ def run(prog):
     # Redirect standard ouput to "stdout" file
     # Redirect standard error to "stderr" file
     # Will this work on Windows?
-    try:
-        say(repr(prog))
-        stdout = open("stdout", "a")
-        stderr = open("stderr", "a")
-        p = Popen(prog, stdout=stdout, stderr=stderr)
-	#p = Popen(prog, stderr=stderr)
-        stdout.close()
-        stderr.close()
-        rc = p.wait()
-        say("return code = %d" % rc)
-        return rc
-    except OSError:
-        sys.stderr.write(repr(prog) + os.linesep)
-        raise
+    prog += " >> stdout 2>> stderr"
+    rc = os.system(prog)
+    # http://www.python.org/search/hypermail/python-1994q2/0407.html
+    rc >>= 8
+    say(prog + " " + repr(rc))
+    return rc
 
 rc = run(program)
 
@@ -287,30 +277,29 @@ outf.close()
 
 dateTimeRegexp = re.compile("Date and Time: ")
 
-if DEBUG:
-    say("STDOUT")
-    say(open("stdout").read())
-
 if DO_STRUCT_COMPARE:
+
     stdout = open("stdout", "a")
     stderr = open("stderr", "a")
     str = "== structure comparison ==" + os.linesep
     stdout.write(str)
     stderr.write(str)
+    stdout.close()
+    stderr.close()
+
     structurematch = open("structurematch", "w")
     if DO_GENERATE:
         structurematch.write("0" + os.linesep)
     else:
-        rc = run(("/tmp/testsimulator",
-                  "--base-file=" + base + ".xyzcmp",
-                  base + ".xyz"))
+        rc = run("/tmp/testsimulator --base-file=" + base + ".xyzcmp " + \
+                 base + ".xyz")
         structurematch.write(repr(rc) + os.linesep)
     structurematch.close()
-    stdout.close()
-    stderr.close()
+
     copy("results", altoutFile)
     altoutf = open(altoutFile, "a")
     for f in ALT_OUTPUT_FOR_STRUCT:
+        say("altout: " + f)
         altoutf.write("======= " + f + " =======" + os.linesep)
         for line in open(f).readlines():
             if dateTimeRegexp.match(line) == None:
@@ -320,12 +309,10 @@ if DO_STRUCT_COMPARE:
 
 results = open("results", "a")
 for f in output:
-    say("Copying output from " + f)
     results.write("======= " + f + " =======" + os.linesep)
     for line in open(f).readlines():
         if dateTimeRegexp.match(line) == None:
             line = line.rstrip()
-            say(f + '->' + line)
             results.write(line + os.linesep)
         else:
             say("Reject: " + line)
@@ -335,10 +322,10 @@ if DO_GENERATE:
     copy("results", outstd)
     if DO_STRUCT_COMPARE:
         copy(base + ".xyz", outxyz)
-    else:
-        sys.stdout.write(open("results").read())
+else:
+    sys.stdout.write(open("results").read())
 
-if DEBUG:
+if False and DEBUG:
     say("\n\n=== results ===")
     say(open(tmpDir + "/results").read())
     say("\n\n=== stderr ===")
