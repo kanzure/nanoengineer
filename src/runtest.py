@@ -124,213 +124,187 @@ test types can often be performed with just a TYPE directive.
 import sys
 import os
 import re
-from os.path import join, split, dirname, basename
-from shutil import copy
+from os.path import join, dirname, basename, exists
+from shutil import copy, rmtree
 
-DEBUG = False
+# I've used os.linesep several places, assuming it would be the
+# right way to get cross-platform compatibility. When the time
+# comes, we'll need to check that I got that right.
 
-if DEBUG:
-    def say(str):
-        sys.stderr.write(str + os.linesep)
-else:
-    def say(str):
-        pass
+def appendFiles(flist, outfile,
+                dtregexp = re.compile("Date and Time: ")):
+    """for f in $flist; do
+        echo ======= $f =======
+        cat $f
+    done | sed '/Date and Time: /d' >> outfile"""
+    outf = open(outfile, "a")
+    for f in flist:
+        outf.write("======= " + f + " =======" + os.linesep)
+        for line in open(f).readlines():
+            if dtregexp.match(line) == None:
+                line = line.rstrip()
+                outf.write(line + os.linesep)
+    outf.close()
 
-testSpecFile = sys.argv[1]
-assert testSpecFile[-5:] == ".test"
-
-DO_GENERATE = False
-try:
-    if sys.argv[2] == "--generate":
-        DO_GENERATE = True
-except IndexError:
-    pass
-
-if not os.path.exists("/tmp/testsimulator"):
-    print >> sys.__stderr__, "Can't find /tmp/testsimulator"
-    sys.exit(1)
-
-tmpDir = "/tmp/runtest%d" % os.getpid()
-say("tmpDir = " + tmpDir)
-base = basename(testSpecFile[:-5])
-here = os.getcwd()
-dir = dirname(testSpecFile)
-hereDir = join(here, dir)
-
-altoutFile = join(hereDir, base + ".altout")
-
-DEFAULT_INPUT = ["%s.mmp" % base]
-DEFAULT_OUTPUT_MIN = ["exitvalue", "stderr", "stdout",
-                      base+".trc", base + ".xyz"]
-DEFAULT_OUTPUT_STRUCT = ["exitvalue", "structurematch", "stderr"]
-DEFAULT_PROGRAM_MIN = "/tmp/testsimulator --minimize " + \
-                      "--dump-as-text " + base + ".mmp"
-DEFAULT_PROGRAM_DYN = "/tmp/testsimulator --num-frames=100" + \
-                      "--temperature=300 --iters-per-frame=10 " + \
-                      "--dump-as-text " + base + ".mmp"
-DEFAULT_STRUCT_MIN = None
-DEFAULT_STRUCT_STRUCT = base + ".xyzcmp"
-
-ALT_OUTPUT_FOR_STRUCT = ["exitvalue", "structurematch", "stderr",
-                         "stdout", base + ".trc", base + ".xyz"]
-
-userType = "min"
-userInput = [ ]
-userOutput = [ ]
-userProgram = None
-userStruct = None
-
-inf = open(testSpecFile)
-for line in inf.read().split(os.linesep):
-    if line[:4] == "TYPE":
-        userType = line[4:].strip()
-    elif line[:5] == "INPUT":
-        # This is a tuple, not a string
-        userInput = tuple(line[5:].split())
-    elif line[:6] == "OUTPUT":
-        # This is a tuple, not a string
-        userOutput = tuple(line[6:].split())
-    elif line[:7] == "PROGRAM":
-        userProgram = here + os.sep + line[7:].strip()
-    elif line[:6] == "STRUCT":
-        userStruct = line[6:].strip()
-    elif line[:1] == '#':
-        pass
-    elif len(line) > 0:
-        print "%s has unrecognied line:\n%s" % (testSpecFile, line)
-        sys.exit(1)
-inf.close()
-
-if userType == "min":
-    input = userInput or DEFAULT_INPUT
-    output = userOutput or DEFAULT_OUTPUT_MIN
-    program = userProgram or DEFAULT_PROGRAM_MIN
-    struct = userStruct or DEFAULT_STRUCT_MIN
-elif userType == "struct":
-    input = userInput or DEFAULT_INPUT
-    output = userOutput or DEFAULT_OUTPUT_STRUCT
-    program = userProgram or DEFAULT_PROGRAM_MIN
-    struct = userStruct or DEFAULT_STRUCT_STRUCT
-elif userType == "dyn":
-    input = userInput or DEFAULT_INPUT
-    output = userOutput or DEFAULT_OUTPUT_MIN
-    program = userProgram or DEFAULT_PROGRAM_DYN
-    struct = userStruct or DEFAULT_STRUCT_MIN
-elif userType == "fail":
-    input = userInput  # might be None
-    output = userOutput
-    # will this work in Windows?
-    program = userProgram or "echo fail"
-    struct = userStruct
-else:
-    print "%s has unrecognied type:\n%s" % (testSpecFile, userType)
-    sys.exit(1)
-
-if DO_GENERATE:
-    outxyz = join(hereDir, struct)
-    outstd = join(hereDir, base + ".out")
-
-DO_STRUCT_COMPARE = (struct != None)
-
-def rmRF(rootPath):
-    """Clean everything created temporarily"""
-    for root, dirs, files in os.walk(rootPath, topdown=False):
-        for name in files:
-            os.remove(join(root, name))
-        for name in dirs:
-            os.rmdir(join(root, name))
-
-rmRF(tmpDir)
-os.mkdir(tmpDir)
-
-for inputFile in input:
-    copy(join(dir, inputFile), tmpDir)
-    # if it fails, get a message from Python
-
-if DO_STRUCT_COMPARE:
-    if not DO_GENERATE:
-        copy(join(dir, struct), tmpDir)
-
-results = open(join(tmpDir, "results"), "w")
-results.write("======= " + base + ".test =======" + os.linesep)
-results.write(open(testSpecFile).read())
-results.close()
-
-os.chdir(tmpDir)
-
-def run(prog):
-    # Redirect standard ouput to "stdout" file
-    # Redirect standard error to "stderr" file
+def run(prog, resultFile=None):
+    # Redirect standard ouput to "stdout", appending
+    # Redirect standard error to "stderr", appending
     # Will this work on Windows?
     prog += " >> stdout 2>> stderr"
     rc = os.system(prog)
-    # http://www.python.org/search/hypermail/python-1994q2/0407.html
-    rc >>= 8
-    say(prog + " " + repr(rc))
-    return rc
+    if resultFile != None:
+        outf = open(resultFile, "w")
+        # Exit status is shifted 8 bits left
+        # http://www.python.org/search/hypermail/python-1994q2/0407.html
+        # Does this apply to Windows?
+        outf.write(repr(rc >> 8))
+        outf.close()
 
-rc = run(program)
+def main(argv, myStdout=sys.stdout, generate=False):
+    home = os.getcwd()
+    testSpecFile = argv[0]
+    assert testSpecFile[-5:] == ".test"
 
-outf = open("exitvalue", "w")
-outf.write(repr(rc))
-outf.close()
+    if not exists("/tmp/testsimulator"):
+        raise Exception, "Can't find /tmp/testsimulator"
 
-dateTimeRegexp = re.compile("Date and Time: ")
+    tmpDir = "/tmp/runtest%d" % os.getpid()
+    rmtree(tmpDir, ignore_errors=True)
+    os.mkdir(tmpDir)
 
-if DO_STRUCT_COMPARE:
+    base = basename(testSpecFile[:-5])
+    here = os.getcwd()
+    dir = dirname(testSpecFile)
+    hereDir = join(here, dir)
 
-    stdout = open("stdout", "a")
-    stderr = open("stderr", "a")
-    str = "== structure comparison ==" + os.linesep
-    stdout.write(str)
-    stderr.write(str)
-    stdout.close()
-    stderr.close()
+    altoutFile = join(hereDir, base + ".altout")
 
-    structurematch = open("structurematch", "w")
-    if DO_GENERATE:
-        structurematch.write("0" + os.linesep)
+    DEFAULT_INPUT = ["%s.mmp" % base]
+    DEFAULT_OUTPUT_MIN = ["exitvalue", "stderr", "stdout",
+                          base+".trc", base + ".xyz"]
+    DEFAULT_OUTPUT_STRUCT = ["exitvalue", "structurematch", "stderr"]
+    DEFAULT_PROGRAM_MIN = "/tmp/testsimulator --minimize " + \
+                          "--dump-as-text " + base + ".mmp"
+    DEFAULT_PROGRAM_DYN = "/tmp/testsimulator --num-frames=100" + \
+                          "--temperature=300 --iters-per-frame=10 " + \
+                          "--dump-as-text " + base + ".mmp"
+    DEFAULT_STRUCT_MIN = ""
+    DEFAULT_STRUCT_STRUCT = base + ".xyzcmp"
+
+    ALT_OUTPUT_FOR_STRUCT = ["exitvalue", "structurematch", "stderr",
+                             "stdout", base + ".trc", base + ".xyz"]
+
+    userType = "min"
+    userInput = [ ]
+    userOutput = [ ]
+    userProgram = ""
+    userStruct = ""
+
+    inf = open(testSpecFile)
+    for line in inf.read().split(os.linesep):
+        if line[:4] == "TYPE":
+            userType = line[4:].strip()
+        elif line[:5] == "INPUT":
+            # This is a list, not a string
+            userInput = line[5:].split()
+        elif line[:6] == "OUTPUT":
+            # This is a list, not a string
+            userOutput = line[6:].split()
+        elif line[:7] == "PROGRAM":
+            userProgram = line[7:].strip()
+        elif line[:6] == "STRUCT":
+            userStruct = line[6:].strip()
+        elif line[:1] == '#':
+            pass
+        elif len(line) > 0:
+            raise Exception, \
+                  "%s has unrecognied line:\n%s" % (testSpecFile, line)
+    inf.close()
+
+    if userType == "min":
+        input = userInput or DEFAULT_INPUT
+        output = userOutput or DEFAULT_OUTPUT_MIN
+        program = userProgram or DEFAULT_PROGRAM_MIN
+        struct = userStruct or DEFAULT_STRUCT_MIN
+    elif userType == "struct":
+        input = userInput or DEFAULT_INPUT
+        output = userOutput or DEFAULT_OUTPUT_STRUCT
+        program = userProgram or DEFAULT_PROGRAM_MIN
+        struct = userStruct or DEFAULT_STRUCT_STRUCT
+    elif userType == "dyn":
+        input = userInput or DEFAULT_INPUT
+        output = userOutput or DEFAULT_OUTPUT_MIN
+        program = userProgram or DEFAULT_PROGRAM_DYN
+        struct = userStruct or DEFAULT_STRUCT_MIN
+    elif userType == "fail":
+        input = userInput  # might be None
+        output = userOutput
+        # will this work in Windows?
+        program = userProgram or "echo fail"
+        struct = userStruct
     else:
-        rc = run("/tmp/testsimulator --base-file=" + base + ".xyzcmp " + \
-                 base + ".xyz")
-        structurematch.write(repr(rc) + os.linesep)
-    structurematch.close()
+        raise Exception, \
+              "%s has unrecognied type:\n%s" % (testSpecFile, userType)
 
-    copy("results", altoutFile)
-    altoutf = open(altoutFile, "a")
-    for f in ALT_OUTPUT_FOR_STRUCT:
-        say("altout: " + f)
-        altoutf.write("======= " + f + " =======" + os.linesep)
-        for line in open(f).readlines():
-            if dateTimeRegexp.match(line) == None:
-                line = line.rstrip()
-                altoutf.write(line + os.linesep)
-    altoutf.close()
+    if generate:
+        outxyz = join(hereDir, struct)
+        outstd = join(hereDir, base + ".out")
 
-results = open("results", "a")
-for f in output:
-    results.write("======= " + f + " =======" + os.linesep)
-    for line in open(f).readlines():
-        if dateTimeRegexp.match(line) == None:
-            line = line.rstrip()
-            results.write(line + os.linesep)
+    structCompare = (struct != "")
+
+    for inputFile in input:
+        copy(join(dir, inputFile), tmpDir)
+
+    if structCompare and not generate:
+        copy(join(dir, struct), tmpDir)
+
+    results = open(join(tmpDir, "results"), "w")
+    results.write("======= " + base + ".test =======" + os.linesep)
+    results.write(open(testSpecFile).read())
+    results.close()
+
+    os.chdir(tmpDir)
+
+    run(program, "exitvalue")
+
+    if structCompare:
+
+        stdout = open("stdout", "a")
+        stderr = open("stderr", "a")
+        str = "== structure comparison ==" + os.linesep
+        stdout.write(str)
+        stderr.write(str)
+        stdout.close()
+        stderr.close()
+
+        if generate:
+            # when generating a test case, assume the structure
+            # comparison will succeed, therefore zero exit status
+            sm = open("structurematch", "w")
+            sm.write("0")
+            sm.close()
         else:
-            say("Reject: " + line)
-results.close()
+            run("/tmp/testsimulator " + \
+                "--base-file=" + base + ".xyzcmp " + \
+                base + ".xyz", "structurematch")
 
-if DO_GENERATE:
-    copy("results", outstd)
-    if DO_STRUCT_COMPARE:
-        copy(base + ".xyz", outxyz)
-else:
-    sys.stdout.write(open("results").read())
+        copy("results", altoutFile)
+        appendFiles(ALT_OUTPUT_FOR_STRUCT, altoutFile)
 
-if False and DEBUG:
-    say("\n\n=== results ===")
-    say(open(tmpDir + "/results").read())
-    say("\n\n=== stderr ===")
-    say(open(tmpDir + "/stderr").read())
-    say("\n\n=== stdout ===")
-    say(open(tmpDir + "/stdout").read())
+    appendFiles(output, "results")
 
-sys.exit(0)
+    if generate:
+        copy("results", outstd)
+        if structCompare:
+            copy(base + ".xyz", outxyz)
+    else:
+        myStdout.write(open("results").read())
+
+    os.chdir(home)
+    return 0
+
+if __name__ == "__main__":
+    generate = False
+    if len(sys.argv) > 2 and argv[2] == "--generate":
+        generate = True
+    main(sys.argv[1:], generate=generate)
