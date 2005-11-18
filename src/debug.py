@@ -311,6 +311,76 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
 
 # ==
 
+def debug_timing_test_pycode_from_a_dialog( ): #bruce 051117
+    title = "debug: time python code"
+    label = "one line of python to compile and exec REPEATEDLY in debug.py's globals()\n(or use @@@ to fake \\n for more lines)"
+    from qt import QInputDialog
+    text, ok = QInputDialog.getText(title, label)
+    if not ok:
+        print "time python code code: cancelled"
+        return
+    # fyi: type(text) == <class '__main__.qt.QString'>
+    command = str(text)
+    command = command.replace("@@@",'\n')
+    print "trying to time the exec or eval of command:",command
+    from code import compile_command
+    try:
+        try:
+            mycode = compile( command + '\n', '<string>', 'exec') #k might need '\n\n' or '' or to be adaptive in length?
+            # 'single' means print value if it's an expression and value is not None; for timing we don't want that so use 'eval'
+            # or 'exec' -- but we don't know which one is correct! So try exec, if that fails try eval.
+            print "exec" # this happens even for an expr like 2+2 -- why?
+        except SyntaxError:
+            print "try eval" # i didn't yet see this happen
+            mycode = compile_command( command + '\n', '<string>', 'eval')
+    except:
+        print_compact_traceback("exception in compile_command: ")
+        return
+    if mycode is None:
+        print "incomplete command:",command
+        return
+    # mycode is now a code object
+    print_exec_timing_explored(mycode)
+
+def print_exec_timing_explored(mycode, ntimes = 1, trymore = True): #bruce 051117
+    """After making sure exec of user code is legally permitted, and exec of mycode works,
+    execute mycode ntimes and print how long that takes in realtime (in all, and per command).
+    If it took <1 sec and trymore is True, repeat with ntimes *= 4, repeatedly until it took >= 1 sec.
+    """
+    glob = globals()
+    legally_exec_command_in_globals( mycode, glob )
+    # if we get to here, exec of user code is legally permitted, and mycode threw no exception,
+    # so from now on we can say "exec mycode in glob" directly.
+    toomany = 10**8
+    while 1:
+        timetook = print_exec_timing(mycode, ntimes, glob) # print results, return time it took in seconds
+        if trymore and timetook < 1.0:
+            if ntimes > toomany:
+                print "%d is too many to do more than, even though it's still fast. (bug?)" % ntimes
+                break
+            ntimes *= 4
+            continue
+        else:
+            break
+    print "done"
+    return
+
+def print_exec_timing(mycode, ntimes, glob): #bruce 051117
+    """Execute mycode in glob ntimes and print how long that takes in realtime (in all, and per command).
+    Return total time taken in seconds (as a float). DON'T CALL THIS ON USER CODE UNTIL ENSURING OUR LICENSE
+    PERMITS EXECUTING USER CODE in the caller; see print_exec_timing_explored for one way to do that.
+    """
+    start = time.time()
+    for i in xrange(ntimes):
+        exec mycode in glob
+    end = time.time()
+    took = float(end - start)
+    tookper = took / ntimes
+    print "%d times: total time %f, time per call %f" % (ntimes, took, tookper)
+    return took
+
+# ==
+
 #bruce 050823 preliminary system for letting other modules register commands for debug menu (used by Undo experimental code)
 # revised/generalized 050923 [committed 051006]
 
@@ -457,6 +527,7 @@ class DebugMenuMixin:
             #bruce 041217 made this item conditional on whether it will work
             res.extend( [
                 ('run py code', self._debug_runpycode),
+                ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not platform.atom_debug
             ] )
         #bruce 050416: use a "checkmark item" now that we're remaking this menu dynamically:
         import platform
@@ -627,6 +698,11 @@ class DebugMenuMixin:
         from debug import debug_runpycode_from_a_dialog
         debug_runpycode_from_a_dialog( source = self.debug_menu_source_name() )
             # e.g. "GLPane debug menu"
+        return
+
+    def _debug_timepycode(self): #bruce 051117
+        ## from debug import debug_timing_test_pycode_from_a_dialog
+        debug_timing_test_pycode_from_a_dialog( )
         return
 
     def _debug_toggle_QToolButton_workaround(self): #bruce 050806, revised 050810
