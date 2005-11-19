@@ -77,7 +77,7 @@ class ProgressBar( ProgressBarDialog ):
                 elapsedtime = self.duration
                 self.duration = time.time() - self.stime
                 if elapsedtime == self.duration: continue
-                elapmsg = "Elasped Time: " + self.hhmmss_str(int(self.duration))
+                elapmsg = "Elasped Time: " + hhmmss_str(int(self.duration))
                 self.msgLabel2.setText(elapmsg) 
             
             if self.abort: # User hit abort button
@@ -124,22 +124,25 @@ class ProgressBar( ProgressBarDialog ):
         '''
         self.abort_run()
         
-    def hhmmss_str(self, secs):
-        """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
-        # [bruce 050415 comment: this is sometimes called from external code
-        #  after the progressbar is hidden and our launch method has returned.]
-        # bruce 050415 revising this to use pure int computations (so bugs from
-        #  numeric roundoff can't occur) and to fix a bug when hours > 0 (commented below).
-        secs = int(secs)
-        hours = int(secs/3600) # use int divisor, not float
-            # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
-        minutes = int(secs/60 - hours*60)
-        seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
-        if hours:
-            return '%02d:%02d:%02d' % (hours, minutes, seconds)
-        else:
-            return '%02d:%02d' % (minutes, seconds)
-        pass
     pass # end of class ProgressBar
+
+# This was originally a function of ProgressBar.  Made it standalone so that other
+# modules can import and use it (like runSim.py and GamessJob.py).
+# This should be moved to another file.  Ask Bruce.  Mark 051119.
+def hhmmss_str(secs):
+    """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
+    # [bruce 050415 comment: this is sometimes called from external code
+    #  after the progressbar is hidden and our launch method has returned.]
+    # bruce 050415 revising this to use pure int computations (so bugs from
+    #  numeric roundoff can't occur) and to fix a bug when hours > 0 (commented below).
+    secs = int(secs)
+    hours = int(secs/3600) # use int divisor, not float
+    # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
+    minutes = int(secs/60 - hours*60)
+    seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
+    if hours:
+        return '%02d:%02d:%02d' % (hours, minutes, seconds)
+    else:
+        return '%02d:%02d' % (minutes, seconds)
 
 # end

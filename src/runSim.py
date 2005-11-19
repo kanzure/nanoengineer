@@ -837,7 +837,8 @@ class simSetup_CommandRun(CommandRun):
             if self.progressbar.duration >= 10.0: 
                 spf = "%.2f" % (self.progressbar.duration / movie.totalFramesRequested)
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
-                estr = self.progressbar.hhmmss_str(self.progressbar.duration)
+                from ProgressBar import hhmmss_str
+                estr = hhmmss_str(self.progressbar.duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 env.history.message(cmd + msg) 
             msg = "Movie written to [" + movie.filename + "]."\

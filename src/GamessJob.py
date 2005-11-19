@@ -176,7 +176,8 @@ class GamessJob(SimJob):
                 
             msgLabel = self.progressDialog.getMsgLabel()
             duration = time.time() - self.stime
-            elapmsg = "Elasped Time: " + self.progressDialog.hhmmss_str(int(duration))
+            from ProgressBar import hhmmss_str
+            elapmsg = "Elasped Time: " + hhmmss_str(int(duration))
             msgLabel.setText(elapmsg)
             
             ####bytes = self.process.readStdout()
@@ -436,29 +437,11 @@ class JobProgressDialog(QDialog):
                     break
                 
                 duration = time.time() - stime
-                elapmsg = "Elasped Time: " + self.hhmmss_str(int(duration))
+                from ProgressBar import hhmmss_str
+                elapmsg = "Elasped Time: " + hhmmss_str(int(duration))
                 self.msgLabel2.setText(elapmsg) 
         
                 time.sleep(0.01)
-        
-
-    def hhmmss_str(self, secs):
-        """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
-        # [bruce 050415 comment: this is sometimes called from external code
-        #  after the progressbar is hidden and our launch method has returned.]
-        # bruce 050415 revising this to use pure int computations (so bugs from
-        #  numeric roundoff can't occur) and to fix a bug when hours > 0 (commented below).
-        secs = int(secs)
-        hours = int(secs/3600) # use int divisor, not float
-            # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
-        minutes = int(secs/60 - hours*60)
-        seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
-        if hours:
-            return '%02d:%02d:%02d' % (hours, minutes, seconds)
-        else:
-            return '%02d:%02d' % (minutes, seconds)
-        pass
-
 
 try:
   # bruce 050701 (committed 050910) put this inside a try/except clause,
