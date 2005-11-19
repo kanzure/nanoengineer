@@ -223,6 +223,17 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
   // XXX this may return completly bizarre result for unknown bond orders.
   stretch = getBondStretch(e1->protons, e2->protons, order);
 
+  printf("# ks=%e r0=%e de=%e beta=%e inflectionR=%e\n",
+         stretch->ks,
+         stretch->r0,
+         stretch->de,
+         stretch->beta,
+         stretch->inflectionR);
+
+  printf("# table start = %e table end = %e\n",
+         stretch->r0 * 0.5,
+         stretch->r0 * 1.5);
+
   for (r=initial; r<limit; r+=increment) {
     rSquared = r * r;
     interpolated_potential = stretchPotential(NULL, NULL, stretch, rSquared);
