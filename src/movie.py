@@ -620,13 +620,21 @@ class Movie:
         for i in range(self.currentFrame, self.totalFramesActual+1, self.win.skipSB.value()+1):
             self.alist_and_moviefile.play_frame(i)
             filename = "%s.%06d.pov" % (name,i)
-            env.history.message( "Writing file: " + filename )
+            # For 100s of files, printing a history message for each file is undesired. 
+            # Instead, I include a summary message below. Fixes bug 953.  Mark 051119.
+            # env.history.message( "Writing file: " + filename ) 
             writepovfile(self.assy.part, self.assy.o, filename) #bruce 050927 revised arglist
             nfiles += 1
         
-        msg = platform.fix_plurals("%d file(s) written. Done." % nfiles)
-        env.history.message( greenmsg( msg))
-             
+        # Return to currentFrame. Fixes bug 1025.  Mark 051119
+        self.alist_and_moviefile.play_frame(self.currentFrame) 
+        
+        # Summary msgs tell user number of files saved and where they are located.
+        msg = platform.fix_plurals("%d file(s) written." % nfiles)
+        env.history.message(msg)
+        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.totalFramesActual+1)
+        msg = "Files are named %s." % filenames
+        env.history.message(msg)
         
     def _continue(self, hflag = True): # [bruce 050427 comment: only called from self._play]
         """Continue playing movie from current position.
