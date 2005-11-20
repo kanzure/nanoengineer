@@ -126,7 +126,7 @@ class ProgressBar( ProgressBarDialog ):
         
     pass # end of class ProgressBar
 
-# This was originally a function of ProgressBar.  Made it standalone so that other
+# This was originally a method of ProgressBar.  Made it standalone so that other
 # modules can import and use it (like runSim.py and GamessJob.py).
 # This should be moved to another file.  Ask Bruce.  Mark 051119.
 def hhmmss_str(secs):
