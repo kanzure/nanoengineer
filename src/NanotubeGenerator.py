@@ -155,7 +155,7 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        NanotubeGeneratorDialog.__init__(self)
+        NanotubeGeneratorDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
         self.mol = molecule(win.assy, chem.gensym("Nanotube."))
         
