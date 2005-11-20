@@ -304,6 +304,8 @@ class CookieCtrlPanel:
             self.w.setViewRightAction.setEnabled(enableFlag)
             self.w.setViewTopAction.setEnabled(enableFlag)
             self.w.setViewOppositeAction.setEnabled(enableFlag)
+            self.w.setViewMinus90Action.setEnabled(enableFlag)
+            self.w.setViewPlus90Action.setEnabled(enableFlag)
             
         
        def changeSelectionShape(self, action):
