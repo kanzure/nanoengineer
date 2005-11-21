@@ -127,12 +127,13 @@ import re
 from os.path import join, dirname, basename, exists
 from shutil import copy, rmtree
 
+# I need this because I don't see a better way to get to findterms.py.
 sys.path.append("tests/scripts")
 import findterms
 
-# I've used os.linesep several places, assuming it would be the
-# right way to get cross-platform compatibility. When the time
-# comes, we'll need to check that I got that right.
+# I've used os.linesep several places, assuming it would be the right
+# way to get cross-platform compatibility. When the time comes, we'll
+# need to check that I got that right.
 
 def appendFiles(flist, outfile,
                 dtregexp = re.compile("Date and Time: ")):
@@ -292,19 +293,19 @@ def main(argv, myStdout=sys.stdout, generate=False):
             sm = open("structurematch", "w")
             sm.write("0")
             sm.close()
-            sm = open("lengthsangles", "w")
-            sm.write("OK")
-            sm.close()
-            findterms.main(["-m", mmpFile,
-                            "-g",
-                            "-o", bondAngleFile])
+            la = open("lengthsangles", "w")
+            la.write("OK")
+            la.close()
+            findterms.main(mmpFile,
+                           outf=bondAngleFile,
+                           generateFlag=True)
         else:
             run("/tmp/testsimulator " + \
                 "--base-file=" + base + ".xyzcmp " + \
                 base + ".xyz", "structurematch")
-            findterms.main(["-m", mmpFile,
-                            "-r", bondAngleFile,
-                            "-o", "lengthsangles"])
+            findterms.main(mmpFile,
+                           outf=open("lengthsangles", "w"),
+                           referenceInputFile=bondAngleFile)
 
         copy("results", altoutFile)
         appendFiles(ALT_OUTPUT_FOR_STRUCT, altoutFile)

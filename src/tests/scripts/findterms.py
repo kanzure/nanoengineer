@@ -18,6 +18,27 @@ ANGLE 0 1 2 112.961986081
 ANGLE 0 1 6 109.491950915
 ....
 
+-------------------------------------------------
+
+To generate the bond-angle information from the sim/src directory
+type:
+
+for x in tests/*/*.test; do ./runtest.py $x --generate; done
+
+This will generate a bunch of *.ba files (ba='bond,angle'). Those
+are actually already checked into CVS so that's unnecessary.
+
+To really use this stuff, we need to clear out the *.out files
+and replace them, like this:
+
+rm -f tests/*/*altout tests/*/*.diff tests/*/*.new
+rm -f tests/rigid_organics/test_*.out   # other directories?
+./regression.py --generate
+
+I don't dare do that on the head (the main CVS tree with the duple rev
+numbers) because Eric M needs the *.out files for his regression
+testing. So I'll plan to attempt this on a branch at some point.
+
 $Id$
 """
 
@@ -26,103 +47,101 @@ __author__ = "Will"
 import os
 import sys
 import string
+import getopt
 from MmpFile import MmpFile
 from XyzFile import XyzFile
+import math
+import Numeric
 
-sys.path.append(os.environ["HOME"] + "/polosims/cad/src")
-import VQT
+# How much variation do we permit in bond lengths and bond
+# angles before we think it's a problem? For now these are
+# wild guesses, to be later scrutinized by smart people.
 
-bondLengthTerms = { }
-bondAngleTerms = { }
+LENGTH_TOLERANCE = 0.2   # angstroms
+ANGLE_TOLERANCE = 10     # degrees
 
-def addBondLength(atm1, atm2):
-    assert atm1 != atm2
-    if atm2 < atm1:
-        atm1, atm2 = atm2, atm1
-    if bondLengthTerms.has_key(atm1):
-        if atm2 not in bondLengthTerms[atm1]:
-            bondLengthTerms[atm1].append(atm2)
-    else:
-        bondLengthTerms[atm1] = [ atm2 ]
+########################################
+# Borrow stuff from VQT.py
 
-def getBonds(atm1):
-    lst = [ ]
-    if bondLengthTerms.has_key(atm1):
-        for x in bondLengthTerms[atm1]:
-            lst.append(x)
-    for key in bondLengthTerms.keys():
-        if atm1 in bondLengthTerms[key]:
-            if key not in lst:
-                lst.append(key)
-    lst.sort()
-    return lst
+def V(*v):
+    return Numeric.array(v, Numeric.Float)
 
-def addBondAngle(atm1, atm2, atm3):
-    if atm3 < atm1:
-        atm1, atm3 = atm3, atm1
-    value = (atm2, atm3)
-    if bondAngleTerms.has_key(atm1):
-        if value not in bondAngleTerms[atm1]:
-            bondAngleTerms[atm1].append(value)
-    else:
-        bondAngleTerms[atm1] = [ value ]
+def vlen(v1):
+    return math.sqrt(Numeric.dot(v1, v1))
+
+def angleBetween(vec1, vec2):
+    TEENY = 1.0e-10
+    lensq1 = Numeric.dot(vec1, vec1)
+    if lensq1 < TEENY:
+        return 0.0
+    lensq2 = Numeric.dot(vec2, vec2)
+    if lensq2 < TEENY:
+        return 0.0
+    dprod = Numeric.dot(vec1 / lensq1**.5, vec2 / lensq2**.5)
+    if dprod >= 1.0:
+        return 0.0
+    if dprod <= -1.0:
+        return 180.0
+    return (180/math.pi) * math.acos(dprod)
 
 def measureLength(xyz, first, second):
     '''Returns the angle between two atoms (nuclei)'''
-    p0 = apply(VQT.V, xyz[first])
-    p1 = apply(VQT.V, xyz[second])
-    return VQT.vlen(p0 - p1)
+    p0 = apply(V, xyz[first])
+    p1 = apply(V, xyz[second])
+    return vlen(p0 - p1)
 
 def measureAngle(xyz, first, second, third):
     '''Returns the angle between two atoms (nuclei)'''
-    p0 = apply(VQT.V, xyz[first])
-    p1 = apply(VQT.V, xyz[second])
-    p2 = apply(VQT.V, xyz[third])
+    p0 = apply(V, xyz[first])
+    p1 = apply(V, xyz[second])
+    p2 = apply(V, xyz[third])
     v01, v21 = p0 - p1, p2 - p1
-    return VQT.angleBetween(v01, v21)
+    return angleBetween(v01, v21)
 
-LENGTH_TOLERANCE = 0.2
-ANGLE_TOLERANCE = 10
+#################################
 
-def main(argv):
-    import getopt
+def main(mmpInputFile, xyzInputFile=None, outf=None,
+         referenceInputFile=None, generateFlag=False):
+    bondLengthTerms = { }
+    bondAngleTerms = { }
 
-    mmpInputFile = None
-    xyzInputFile = None
-    outputFile = None
-    referenceInputFile = None
-    generateFlag = False
-
-    try:
-        opts, args = getopt.getopt(argv, "m:x:o:r:g",
-                                   ["mmp=", "xyz=", "output=",
-                                    "reference=", "generate"])
-    except getopt.error, msg:
-        errprint(msg)
-        return
-    for o, a in opts:
-        if o in ('-m', '--mmp'):
-            mmpInputFile = a
-        elif o in ('-x', '--xyz'):
-            xyzInputFile = a
-        elif o in ('-o', '--output'):
-            outputFile = a
-        elif o in ('-r', '--reference'):
-            referenceInputFile = a
-        elif o in ('-g', '--generate'):
-            generateFlag = True
+    def addBondLength(atm1, atm2):
+        assert atm1 != atm2
+        if atm2 < atm1:
+            atm1, atm2 = atm2, atm1
+        if bondLengthTerms.has_key(atm1):
+            if atm2 not in bondLengthTerms[atm1]:
+                bondLengthTerms[atm1].append(atm2)
         else:
-            print "Bad command line option:", o
+            bondLengthTerms[atm1] = [ atm2 ]
 
-    if mmpInputFile == None:
-        mmpInputFile = args.pop(0)
+    def getBonds(atm1):
+        lst = [ ]
+        if bondLengthTerms.has_key(atm1):
+            for x in bondLengthTerms[atm1]:
+                lst.append(x)
+        for key in bondLengthTerms.keys():
+            if atm1 in bondLengthTerms[key]:
+                if key not in lst:
+                    lst.append(key)
+        lst.sort()
+        return lst
+
+    def addBondAngle(atm1, atm2, atm3):
+        if atm3 < atm1:
+            atm1, atm3 = atm3, atm1
+        value = (atm2, atm3)
+        if bondAngleTerms.has_key(atm1):
+            if value not in bondAngleTerms[atm1]:
+                bondAngleTerms[atm1].append(value)
+        else:
+            bondAngleTerms[atm1] = [ value ]
+
+    if outf != None:
+        ss, sys.stdout = sys.stdout, outf
     mmp = MmpFile()
     mmp.read(mmpInputFile)
-
     xyz = XyzFile()
-    if xyzInputFile == None and len(args) > 1:
-        xyzInputFile = args.pop(0)
-
     if xyzInputFile != None:
         xyz.read(xyzInputFile)
     else:
@@ -162,10 +181,6 @@ def main(argv):
         for second, third in bondAngleTerms[first]:
             angleList.append((first, second, third,
                               measureAngle(xyz, first, second, third)))
-
-    ######### Ready to output stuff, redirect if needed
-    if outputFile != None:
-        ss, sys.stdout = sys.stdout, open(outputFile, "w")
 
     if generateFlag:
         for a1, a2, L in lengthList:
@@ -220,15 +235,55 @@ def main(argv):
                 break
         if not badness:
             print "OK"
-
-    ############ undo redirection if needed ############
-    if outputFile != None:
-        sys.stdout.close()
+    if outf != None:
+        outf.close()
         sys.stdout = ss
+
+############################################################
 
 if __name__ == "__main__":
     try:
-        main(sys.argv[1:])
+        mmpInputFile = None
+        xyzInputFile = None
+        outputFile = None
+        referenceInputFile = None
+        generateFlag = False
+
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "m:x:o:r:g",
+                                       ["mmp=", "xyz=", "output=",
+                                        "reference=", "generate"])
+        except getopt.error, msg:
+            errprint(msg)
+            sys.exit(1)
+        for o, a in opts:
+            if o in ('-m', '--mmp'):
+                mmpInputFile = a
+            elif o in ('-x', '--xyz'):
+                xyzInputFile = a
+            elif o in ('-o', '--output'):
+                outputFile = a
+            elif o in ('-r', '--reference'):
+                referenceInputFile = a
+            elif o in ('-g', '--generate'):
+                generateFlag = True
+            else:
+                print "Bad command line option:", o
+
+        if mmpInputFile == None:
+            mmpInputFile = args.pop(0)
+        if xyzInputFile == None and len(args) > 1:
+            xyzInputFile = args.pop(0)
+
+        outf = None
+        if outputFile != None:
+            outf = open(outputFile, "w")
+        main(mmpInputFile,
+             xyzInputFile=xyzInputFile,
+             outf=outf,
+             referenceInputFile=referenceInputFile,
+             generateFlag=generateFlag)
+
     except Exception, e:
         if e:
             sys.stderr.write(sys.argv[0] + ": " + repr(e.args[0]) + "\n")
