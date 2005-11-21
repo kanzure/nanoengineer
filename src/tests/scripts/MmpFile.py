@@ -35,10 +35,18 @@ class MmpFile:
             self._owner = owner
         def fromMmp(self, line):
             atoms = self._owner.atoms
-            self._index = len(atoms)
+            n = len(atoms)
             a = Atom.Atom()
-            a.fromMmp(line)
+            try:
+                a.fromMmp(line)
+            except Atom.NotAtomException:
+                del a
+                return False
+            self._index = n
             atoms.append(a)
+            return True
+        def mmpBonds(self, line):
+            return self._owner.atoms[self._index].mmpBonds(line)
         def str(self):
             a = self._owner.atoms[self._index]
             return a.toMmpString()
@@ -67,14 +75,26 @@ class MmpFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
-        for line in lines.split("\n"):
-            try:
+        lines = Atom.FileLineIterator(lines.split(os.linesep))
+        try:
+            while True:
+                line = lines.next()
                 atm = MmpFile._AtomHolder(self)
-                atm.fromMmp(line)
-            except Atom.NotAtomException:
-                atm = MmpFile._Line()
-                atm.fromMmp(line)
-            self.lines.append(atm)
+                if atm.fromMmp(line):
+                    self.lines.append(atm)
+                    line = lines.next()
+                    if atm.mmpBonds(line):
+                        x = MmpFile._Line()
+                        x.fromMmp(line)
+                        self.lines.append(x)
+                    else:
+                        lines.backup()
+                else:
+                    x = MmpFile._Line()
+                    x.fromMmp(line)
+                    self.lines.append(x)
+        except StopIteration:
+            pass
     def write(self, outf=None):
         if outf == None:
             outf = sys.stdout
@@ -107,7 +127,13 @@ if __name__ == "__main__":
     input = "C3H8.mmp"
     m.read(input)
     m.perturb()
-    #outf = os.popen("diff -u - %s | less" % input, "w")
+    if False:
+        outf = open("results", "w")
+        m.write(outf)
+        outf.close()
+    if False:
+        for a in m.atoms:
+            print a.bonds
     outf = os.popen("diff -u - %s" % input, "w")
     m.write(outf)
     outf.close()
