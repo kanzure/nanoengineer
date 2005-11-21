@@ -127,6 +127,9 @@ import re
 from os.path import join, dirname, basename, exists
 from shutil import copy, rmtree
 
+sys.path.append("tests/scripts")
+import findterms
+
 # I've used os.linesep several places, assuming it would be the
 # right way to get cross-platform compatibility. When the time
 # comes, we'll need to check that I got that right.
@@ -182,7 +185,8 @@ def main(argv, myStdout=sys.stdout, generate=False):
     DEFAULT_INPUT = ["%s.mmp" % base]
     DEFAULT_OUTPUT_MIN = ["exitvalue", "stderr", "stdout",
                           base+".trc", base + ".xyz"]
-    DEFAULT_OUTPUT_STRUCT = ["exitvalue", "structurematch", "stderr"]
+    DEFAULT_OUTPUT_STRUCT = ["exitvalue", "structurematch",
+                             "lengthsangles", "stderr"]
     DEFAULT_PROGRAM_MIN = "/tmp/testsimulator --minimize " + \
                           "--dump-as-text " + base + ".mmp"
     DEFAULT_PROGRAM_DYN = "/tmp/testsimulator --num-frames=100" + \
@@ -191,8 +195,8 @@ def main(argv, myStdout=sys.stdout, generate=False):
     DEFAULT_STRUCT_MIN = ""
     DEFAULT_STRUCT_STRUCT = base + ".xyzcmp"
 
-    ALT_OUTPUT_FOR_STRUCT = ["exitvalue", "structurematch", "stderr",
-                             "stdout", base + ".trc", base + ".xyz"]
+    ALT_OUTPUT_FOR_STRUCT = ["exitvalue", "structurematch", "stderr", "stdout",
+                             base + ".trc", base + ".xyz"]
 
     userType = "min"
     userInput = [ ]
@@ -246,9 +250,11 @@ def main(argv, myStdout=sys.stdout, generate=False):
         raise Exception, \
               "%s has unrecognied type:\n%s" % (testSpecFile, userType)
 
+
     if generate:
         outxyz = join(hereDir, struct)
         outstd = join(hereDir, base + ".out")
+        outba = join(hereDir, base + ".ba")
 
     structCompare = (struct != "")
 
@@ -257,6 +263,7 @@ def main(argv, myStdout=sys.stdout, generate=False):
 
     if structCompare and not generate:
         copy(join(dir, struct), tmpDir)
+        copy(join(dir, base + ".ba"), tmpDir)
 
     results = open(join(tmpDir, "results"), "w")
     results.write("======= " + base + ".test =======" + os.linesep)
@@ -277,16 +284,27 @@ def main(argv, myStdout=sys.stdout, generate=False):
         stdout.close()
         stderr.close()
 
+        mmpFile = base + ".mmp"
+        bondAngleFile = base + ".ba"
         if generate:
             # when generating a test case, assume the structure
             # comparison will succeed, therefore zero exit status
             sm = open("structurematch", "w")
             sm.write("0")
             sm.close()
+            sm = open("lengthsangles", "w")
+            sm.write("OK")
+            sm.close()
+            findterms.main(["-m", mmpFile,
+                            "-g",
+                            "-o", bondAngleFile])
         else:
             run("/tmp/testsimulator " + \
                 "--base-file=" + base + ".xyzcmp " + \
                 base + ".xyz", "structurematch")
+            findterms.main(["-m", mmpFile,
+                            "-r", bondAngleFile,
+                            "-o", "lengthsangles"])
 
         copy("results", altoutFile)
         appendFiles(ALT_OUTPUT_FOR_STRUCT, altoutFile)
@@ -297,6 +315,7 @@ def main(argv, myStdout=sys.stdout, generate=False):
         copy("results", outstd)
         if structCompare:
             copy(base + ".xyz", outxyz)
+            copy(base + ".ba", outba) 
     else:
         myStdout.write(open("results").read())
 
@@ -305,6 +324,6 @@ def main(argv, myStdout=sys.stdout, generate=False):
 
 if __name__ == "__main__":
     generate = False
-    if len(sys.argv) > 2 and argv[2] == "--generate":
+    if len(sys.argv) > 2 and sys.argv[2] == "--generate":
         generate = True
     main(sys.argv[1:], generate=generate)

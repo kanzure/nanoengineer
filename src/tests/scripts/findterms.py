@@ -23,12 +23,13 @@ $Id$
 
 __author__ = "Will"
 
+import os
 import sys
 import string
 from MmpFile import MmpFile
 from XyzFile import XyzFile
 
-sys.path.append("../../../../cad/src")
+sys.path.append(os.environ["HOME"] + "/polosims/cad/src")
 import VQT
 
 bondLengthTerms = { }
