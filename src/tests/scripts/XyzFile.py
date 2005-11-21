@@ -1,25 +1,37 @@
 #!/usr/bin/python
 
-import string
+"""MMP and XYZ files share a common Atom definition. This will
+make it easy to move information back and forth between the two
+formats.
 
-class Atom:
-    def __init__(self, element, x, y, z):
-        self.element = element
-        self.x = x
-        self.y = y
-        self.z = z
-    def toString(self):
-        return ("%s %f %f %f" %
-                (self.element, self.x, self.y, self.z))
-    def __repr__(self):
-        return "<" + self.toString() + ">"
+$Id$
+"""
+
+__author__ = "Will"
+
+import sys
+import string
+import Atom
 
 class XyzFile:
+    """Python class to contain information from an XYZ file"""
     def __init__(self):
         self.atoms = [ ]
-    def __getitem__(self, i):
+    def clone(self):
+        other = XyzFile()
+        other.atoms = [ ]
+        for a in self.atoms:
+            other.atoms.append(a.clone())
+        return other
+    def getAtom(self, i):
         return self.atoms[i]
-    def numAtoms(self):
+    def __getitem__(self, i):
+        a = self.atoms[i]
+        return (a.x, a.y, a.z)
+    def __setitem__(self, i, xyz):
+        a = self.atoms[i]
+        a.x, a.y, a.z = xyz
+    def __len__(self):
         return len(self.atoms)
     def read(self, filename):
         inf = open(filename)
@@ -32,17 +44,15 @@ class XyzFile:
         for i in range(numAtoms):
             element, x, y, z = lines[i].split()
             x, y, z = map(string.atof, (x, y, z))
-            self.atoms.append(Atom(element, x, y, z))
-    def write(self, title, filename=None):
-        if filename != None:
-            outf = open(filename, "w")
-        else:
+            a = Atom.Atom()
+            a.fromXyz(element, x, y, z)
+            self.atoms.append(a)
+    def write(self, title, outf=None):
+        if outf == None:
             outf = sys.stdout
         outf.write("%d\n%s\n" % (len(self.atoms), title))
         for atm in self.atoms:
-            outf.write(atm.toString() + "\n")
-        if filename != None:
-            outf.close()
+            outf.write(atm.toXyzString() + "\n")
 
 if __name__ == "__main__":
     # do a little test
@@ -72,13 +82,17 @@ X 0.762053 0.079748 -0.528147
 """
     xyz = XyzFile()
     xyz.readstring(example_xyz_file)
-    if False:
-        sc = StringCollector()
-        ss, sys.stdout = sys.stdout, sc
-        xyz.write("RMS=0.994508")
-        #xyz.write("Icky sticky goo")
-        sys.stdout = ss
-        assert sc.contents == example_xyz_file
-    else:
-        for i in range(xyz.numAtoms()):
-            print xyz[i]
+    # test 1
+    sc = StringCollector()
+    ss, sys.stdout = sys.stdout, sc
+    xyz.write("RMS=0.994508")
+    sys.stdout = ss
+    assert sc.contents == example_xyz_file
+    # test 2
+    for i in range(len(xyz)):
+        print xyz.getAtom(i)
+    print
+    for i in range(8):
+        xyz[i] = (1.0, 2.0, 3.0)
+    for i in range(len(xyz)):
+        print xyz.getAtom(i)
