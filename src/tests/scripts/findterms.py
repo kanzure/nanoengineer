@@ -24,6 +24,7 @@ $Id$
 __author__ = "Will"
 
 import sys
+import string
 from MmpFile import MmpFile
 from XyzFile import XyzFile
 
@@ -79,15 +80,45 @@ def measureAngle(xyz, first, second, third):
     v01, v21 = p0 - p1, p2 - p1
     return VQT.angleBetween(v01, v21)
 
+LENGTH_TOLERANCE = 0.2
+ANGLE_TOLERANCE = 10
 
 def main(argv):
-    mmpInputFile = argv[0]
+    import getopt
+
+    mmpInputFile = None
+    xyzInputFile = None
+    outputFile = None
+    referenceInputFile = None
+    generateFlag = False
+
+    try:
+        opts, args = getopt.getopt(argv, "m:x:o:r:g")
+    except getopt.error, msg:
+        errprint(msg)
+        return
+    for o, a in opts:
+        if o == '-m':
+            mmpInputFile = a
+        elif o == '-x':
+            xyzInputFile = a
+        elif o == '-o':
+            outputFile = a
+        elif o == '-r':
+            referenceInputFile = a
+        elif o == '-g':
+            generateFlag = True
+
+    if mmpInputFile == None:
+        mmpInputFile = args.pop(0)
     mmp = MmpFile()
     mmp.read(mmpInputFile)
 
     xyz = XyzFile()
-    if len(argv) > 1:
-        xyzInputFile = argv[1]
+    if xyzInputFile == None and len(args) > 1:
+        xyzInputFile = args.pop(0)
+
+    if xyzInputFile != None:
         xyz.read(xyzInputFile)
     else:
         # copy xyz file from mmp file
@@ -116,19 +147,79 @@ def main(argv):
                 if first != third:
                     addBondAngle(first, second, third)
 
+    lengthList = [ ]
     for first in bondLengthTerms.keys():
         for second in bondLengthTerms[first]:
-            print "LENGTH", first, second,
-            print measureLength(xyz, first, second)
-
+            lengthList.append((first, second,
+                               measureLength(xyz, first, second)))
+    angleList = [ ]
     for first in bondAngleTerms.keys():
         for second, third in bondAngleTerms[first]:
-            print "ANGLE", first, second, third,
-            print measureAngle(xyz, first, second, third)
+            angleList.append((first, second, third,
+                              measureAngle(xyz, first, second, third)))
 
+    ######### Ready to output stuff, redirect if needed
+    if outputFile != None:
+        ss, sys.stdout = sys.stdout, open(outputFile, "w")
 
+    if generateFlag:
+        for a1, a2, L in lengthList:
+            print "LENGTH", a1, a2, L
+        for a1, a2, a3, A in angleList:
+            print "ANGLE", a1, a2, a3, A
 
+    if referenceInputFile != None:
+        badness = False
+        # read in LENGTH lines, compare them to this guy
+        inf = open(referenceInputFile)
+        lp = ap = 0
+        for line in inf.readlines():
+            if line.startswith("LENGTH "):
+                fields = line[7:].split()
+                a1, a2, L = (string.atoi(fields[0]),
+                             string.atoi(fields[1]),
+                             string.atof(fields[2]))
+                a11, a22, LL = lengthList[lp]
+                lp += 1
+                if a1 != a11 or a2 != a22:
+                    print ("Wrong length term (%d, %d), should be (%d, %d)"
+                           % (a11, a22, a1, a2))
+                    badness = True
+                    break
+                if abs(L - LL) > LENGTH_TOLERANCE:
+                    print ("Wrong bond length at (%d, %d), it's %f, should be %f"
+                           % (a1, a2, LL, L))
+                    badness = True
+                    break
+            elif line.startswith("ANGLE "):
+                fields = line[6:].split()
+                a1, a2, a3, A = (string.atoi(fields[0]),
+                                 string.atoi(fields[1]),
+                                 string.atoi(fields[2]),
+                                 string.atof(fields[3]))
+                a11, a22, a33, AA = angleList[ap]
+                ap += 1
+                if a1 != a11 or a2 != a22 or a3 != a33:
+                    print ("Wrong angle term (%d, %d, %d), should be (%d, %d, %d)"
+                           % (a11, a22, a33, a1, a2, a3))
+                    badness = True
+                    break
+                if abs(L - LL) > ANGLE_TOLERANCE:
+                    print ("Wrong bond angle at (%d, %d, %d), it's %f, should be %f"
+                           % (a1, a2, a3, AA, A))
+                    badness = True
+                    break
+            else:
+                print "Unknown line in reference file:", line
+                badness = True
+                break
+        if not badness:
+            print "OK"
 
+    ############ undo redirection if needed ############
+    if outputFile != None:
+        sys.stdout.close()
+        sys.stdout = ss
 
 if __name__ == "__main__":
     try:
