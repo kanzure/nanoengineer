@@ -9,6 +9,7 @@ $Id$
 
 __author__ = "Will"
 
+import os
 import sys
 import string
 import Atom
@@ -38,7 +39,7 @@ class XyzFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
-        lines = lines.split("\n")
+        lines = lines.split(os.linesep)
         numAtoms = string.atoi(lines[0])
         lines = lines[2:]
         for i in range(numAtoms):
