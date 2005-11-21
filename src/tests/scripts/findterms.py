@@ -93,21 +93,25 @@ def main(argv):
     generateFlag = False
 
     try:
-        opts, args = getopt.getopt(argv, "m:x:o:r:g")
+        opts, args = getopt.getopt(argv, "m:x:o:r:g",
+                                   ["mmp=", "xyz=", "output=",
+                                    "reference=", "generate"])
     except getopt.error, msg:
         errprint(msg)
         return
     for o, a in opts:
-        if o == '-m':
+        if o in ('-m', '--mmp'):
             mmpInputFile = a
-        elif o == '-x':
+        elif o in ('-x', '--xyz'):
             xyzInputFile = a
-        elif o == '-o':
+        elif o in ('-o', '--output'):
             outputFile = a
-        elif o == '-r':
+        elif o in ('-r', '--reference'):
             referenceInputFile = a
-        elif o == '-g':
+        elif o in ('-g', '--generate'):
             generateFlag = True
+        else:
+            print "Bad command line option:", o
 
     if mmpInputFile == None:
         mmpInputFile = args.pop(0)
