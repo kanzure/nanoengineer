@@ -4,9 +4,6 @@
 """
 __author__ = "Josh"
 
-import sys
-sys.path.append("../../cad/src")
-
 from VQT import *
 from LinearAlgebra import *
 
