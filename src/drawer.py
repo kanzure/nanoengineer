@@ -156,6 +156,41 @@ numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
 
+# grantham 20051118
+class glprefs:
+    def __init__(self):
+	self.override_material_specular = None
+	    # set to 4-element sequence to override material specular component
+	self.override_shininess = None
+	    # if exists, overrides shininess
+	self.override_light_specular = None
+	    # set to 4-element sequence to override light specular component
+
+_glprefs = glprefs()
+
+def materialapply(color, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0,
+    prefs = _glprefs):
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
+
+    if prefs.override_material_specular is not None:
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,
+	    prefs.override_material_specular)
+    else:
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
+
+    if prefs.override_shininess is not None:
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS,
+	    prefs.override_shininess)
+    else:
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess)
+
+# grantham 20051121
+# This next lambda almost completely returns materialapply() to the old
+# glMaterial behavior.
+if True:
+    materialapply = lambda c,sp,sh : glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, c)
+
 halfHeight = 0.45
 
 ##Some variable used by the Lonsdaleite lattice construction
@@ -527,8 +562,8 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     glPopMatrix()
     return
 
-def drawsphere(color, pos, radius, detailLevel):
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
+def drawsphere(color, pos, radius, detailLevel, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0):
+    materialapply(color, specular, shininess)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
@@ -550,9 +585,9 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glPolygonMode(GL_FRONT, GL_FILL)
     return
 
-def drawcylinder(color, pos1, pos2, radius, capped=0):
+def drawcylinder(color, pos1, pos2, radius, capped=0, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0):
     global CylList, CapList
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
+    materialapply(color, specular, shininess)
     glPushMatrix()
     vec = pos2-pos1
     axis = norm(vec)
@@ -837,8 +872,8 @@ def drawRubberBand(pt1, pt2, c2, c3, color):
        
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
-def drawbrick(color, center, axis, l, h, w):
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
+def drawbrick(color, center, axis, l, h, w, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0):
+    materialapply(color, specular, shininess)
     glPushMatrix()
     glTranslatef(center[0], center[1], center[2])
     

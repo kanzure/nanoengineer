@@ -63,21 +63,42 @@ class ThumbView(QGLWidget):
         pass
     
             
-    def initializeGL(self):
+    def initializeGL(self, prefs = drawer._glprefs):
         """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading affect.
         """
         glEnable(GL_NORMALIZE)
         glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
+	if prefs.override_light_specular is not None:
+	    print "override light specular"
+	    glLightfv(GL_LIGHT0, GL_SPECULAR, prefs.override_light_specular)
+	else:
+	    # grantham 20051121 - this should be a component on its own
+	    # not replicating the diffuse color.
+	    glLightfv(GL_LIGHT0, GL_SPECULAR, (0.8, 0.8, 0.8, 1.0))
         glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
         glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
         glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
         glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
+	if prefs.override_light_specular is not None:
+	    print "override light specular"
+	    glLightfv(GL_LIGHT1, GL_SPECULAR, prefs.override_light_specular)
+	else:
+	    # grantham 20051121 - this should be a component on its own
+	    # not replicating the diffuse color.
+	    glLightfv(GL_LIGHT1, GL_SPECULAR, (0.4, 0.4, 0.4, 1.0))
         glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
         glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
         glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
         glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
+	if prefs.override_light_specular is not None:
+	    print "override light specular"
+	    glLightfv(GL_LIGHT2, GL_SPECULAR, prefs.override_light_specular)
+	else:
+	    # grantham 20051121 - this should be a component on its own
+	    # not replicating the diffuse color.
+	    glLightfv(GL_LIGHT2, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
         glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)

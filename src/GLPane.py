@@ -794,15 +794,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return list(self._lights)
 
     # default value of instance variable:
+    # grantham 20051121 - Light should probably be a class.  Right now,
+    # changing the behavior of lights requires changing a bunch of
+    # ambigious tuples and tuple packing/unpacking.
     _lights = [(0.3, 0.8, True), (0.4, 0.4, True), (1.0, 1.0, False)] #e might revise format
-        # for each of 3 lights (at hardcoded positions for now), this stores (a,d,e)
-        # giving gray levels for GL_AMBIENT and GL_DIFFUSE and an enabled boolean
+        # for each of 3 lights (at hardcoded positions for now), this stores (a,d,e,s)
+        # giving gray levels for GL_AMBIENT and GL_DIFFUSE and an
+        # enabled boolean
 
     _default_lights = list( _lights) # this copy will never be changed
 
     need_setup_lighting = True # whether the next paintGL needs to call it
     
-    def _setup_lighting(self):
+    def _setup_lighting(self, prefs = drawer._glprefs):
         """[private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
@@ -818,20 +822,34 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         try:
             # new code
             ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = self._lights #e might revise format
-            
+
             glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
             glLightfv(GL_LIGHT0, GL_AMBIENT, (a0, a0, a0, 1.0))
             glLightfv(GL_LIGHT0, GL_DIFFUSE, (d0, d0, d0, 1.0))
+    	    if prefs.override_light_specular is not None:
+		glLightfv(GL_LIGHT0, GL_SPECULAR, prefs.override_light_specular)
+	    else:
+	        # grantham 20051121 - this should be a component on its own
+	        # not replicating the diffuse color.
+		glLightfv(GL_LIGHT0, GL_SPECULAR, (d0, d0, d0, 1.0))
             glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
             
             glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
             glLightfv(GL_LIGHT1, GL_AMBIENT, (a1, a1, a1, 1.0))
             glLightfv(GL_LIGHT1, GL_DIFFUSE, (d1, d1, d1, 1.0))
+    	    if prefs.override_light_specular is not None:
+		glLightfv(GL_LIGHT1, GL_SPECULAR, prefs.override_light_specular)
+	    else:
+		glLightfv(GL_LIGHT1, GL_SPECULAR, (d1, d1, d1, 1.0))
             glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
             
             glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
             glLightfv(GL_LIGHT2, GL_AMBIENT, (a2, a2, a2, 1.0))
             glLightfv(GL_LIGHT2, GL_DIFFUSE, (d2, d2, d2, 1.0))
+    	    if prefs.override_light_specular is not None:
+		glLightfv(GL_LIGHT2, GL_SPECULAR, prefs.override_light_specular)
+	    else:
+		glLightfv(GL_LIGHT2, GL_SPECULAR, (d2, d2, d2, 1.0))
             glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
             
             glEnable(GL_LIGHTING)
