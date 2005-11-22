@@ -73,20 +73,21 @@ potentialLippincottMorse(double r, void *p)
 //
 // the result is in yoctoJoules per picometer = picoNewtons
 // yJ / pm = 1e-24 J / 1e-12 m = 1e-12 J / m = pN
+#define DELTA_R 0.01
 double
 gradientLippincottMorse(double r, void *p)
 {
   struct bondStretch *stretch = (struct bondStretch *)p;
-  double r1 = r - 0.5;
-  double r2 = r + 0.5;
+  double r1 = r - DELTA_R / 2.0;
+  double r2 = r + DELTA_R / 2.0;
   double y1 = (r1 >= stretch->r0) ? lippincott(r1, stretch) : morse(r1, stretch);
   double y2 = (r2 >= stretch->r0) ? lippincott(r2, stretch) : morse(r2, stretch);
   // y1, y2 are in attoJoules (1e-18 J)
-  // delta r is 1 pm (1e-12 m), so:
-  // y1-y2 is attoJoules / pm (1e-6 J / m)
+  // DELTA_R is in pm (1e-12 m), so:
+  // (y1-y2)/DELTA_R is attoJoules / pm (1e-6 J / m)
   // 1e6*(y1-y2) is in 1e-12 J/m, or pN
 
-  return 1e6 * (y1 - y2);
+  return 1e6 * (y1 - y2) / DELTA_R;
 }
 
 // Initialize the function interpolation tables for each stretch
