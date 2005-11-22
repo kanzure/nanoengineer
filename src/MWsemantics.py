@@ -1476,6 +1476,24 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
                 self.cookieSelectDashboard]:
                     self.setAppropriate(obj, False)
+                    
+    def enableViews(self, enableFlag=True):
+        '''Disables/enables view actions on toolbar and menu.
+        '''
+        self.setViewFrontAction.setEnabled(enableFlag)
+        self.setViewBackAction.setEnabled(enableFlag)
+        self.setViewTopAction.setEnabled(enableFlag)
+        self.setViewBottomAction.setEnabled(enableFlag)
+        self.setViewLeftAction.setEnabled(enableFlag)
+        self.setViewRightAction.setEnabled(enableFlag)
+        
+        self.setViewHomeAction.setEnabled(enableFlag)
+        self.setViewFitToWindowAction.setEnabled(enableFlag)
+        self.setViewRecenterAction.setEnabled(enableFlag)
+        
+        self.setViewOppositeAction.setEnabled(enableFlag)
+        self.setViewPlus90Action.setEnabled(enableFlag)
+        self.setViewMinus90Action.setEnabled(enableFlag)
 
 # == Caption methods
 

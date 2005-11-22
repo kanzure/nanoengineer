@@ -294,18 +294,7 @@ class CookieCtrlPanel:
             self.antiRotateButton.setEnabled(enableFlag)
             self.rotateButton.setEnabled(enableFlag)
             
-            self.w.setViewBackAction.setEnabled(enableFlag) 
-            self.w.setViewBottomAction.setEnabled(enableFlag)
-            self.w.setViewFitToWindowAction.setEnabled(enableFlag)
-            self.w.setViewFrontAction.setEnabled(enableFlag)
-            self.w.setViewHomeAction.setEnabled(enableFlag)
-            self.w.setViewLeftAction.setEnabled(enableFlag)
-            self.w.setViewRecenterAction.setEnabled(enableFlag)
-            self.w.setViewRightAction.setEnabled(enableFlag)
-            self.w.setViewTopAction.setEnabled(enableFlag)
-            self.w.setViewOppositeAction.setEnabled(enableFlag)
-            self.w.setViewMinus90Action.setEnabled(enableFlag)
-            self.w.setViewPlus90Action.setEnabled(enableFlag)
+            self.w.enableViews(enableFlag) # Mark 051122.
             
         
        def changeSelectionShape(self, action):

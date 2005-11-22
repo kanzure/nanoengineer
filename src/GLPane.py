@@ -475,7 +475,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.quat = Q(q2)
             self.gl_update()
             return
-        
+            
         wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
         
@@ -488,6 +488,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         deltaq = q2 - self.quat
         angle = deltaq.angle * 180/pi # in degrees
+        
+        if angle == 0: # Current view and new view are the same. No rotation.
+            return
+            
+        # Disable standard view actions on toolbars/menus.
+        self.win.enableViews(False)
         
         if angle > 180:
             angle = 360-angle
@@ -529,6 +535,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         self.fps = nsteps / (end_time - start_time + .001 ) # +.001 eliminates div by zero.
         
+        # Enable standard view actions on toolbars/menus.
+        self.win.enableViews(True)
+        
     # animateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
     # which traces the same path as slerp but works much faster.
     # The advantages to this approach are explained in detail here:
@@ -544,6 +553,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.scale = s2
             self.gl_update()
             return
+            
+        # Disable standard view actions on toolbars/menus.
+        self.win.enableViews(False)
         
         wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         s1 = self.scale
@@ -607,6 +619,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         end_time = time.time() # Stop stopwatch.
         
         self.fps = nsteps / (end_time - start_time + .001 ) # +.001 eliminates div by zero.
+        
+        # Enable standard view actions on toolbars/menus.
+        self.win.enableViews(True)
     
     # == "callback methods" from modeMixin:
 
