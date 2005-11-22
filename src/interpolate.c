@@ -7,7 +7,7 @@
 //   value=t1[i]+x*t2[i];
 //
 static void
-fillInterpolationTable(struct interpolationTable *t, double func(double, void *), double start, int scale, void *parameters)
+fillInterpolationTable(struct interpolationTable *t, double func(double, void *), double start, double scale, void *parameters)
 {
     int i;
     double v1, v2, r1, r2, q;
@@ -43,12 +43,6 @@ fillInterpolationTable(struct interpolationTable *t, double func(double, void *)
     }
 }
 
-static double
-square(double r)
-{
-  return r * r;
-}
-
 /** stiffnesses are in N/m, so forces come out in pN (i.e. Dx N) */
 
 static double
@@ -69,10 +63,9 @@ morse(double r, struct bondStretch *s)
 // use the Morse potential inside R0, Lippincott outside
 // result in aJ
 double
-potentialLippincottMorse(double rSquared, void *p)
+potentialLippincottMorse(double r, void *p)
 {
   struct bondStretch *stretch = (struct bondStretch *)p;
-  double r = sqrt(rSquared);
   return (r >= stretch->r0) ? lippincott(r, stretch) : morse(r, stretch);
 }
 
@@ -81,10 +74,9 @@ potentialLippincottMorse(double rSquared, void *p)
 // the result is in yoctoJoules per picometer = picoNewtons
 // yJ / pm = 1e-24 J / 1e-12 m = 1e-12 J / m = pN
 double
-gradientLippincottMorse(double rSquared, void *p)
+gradientLippincottMorse(double r, void *p)
 {
   struct bondStretch *stretch = (struct bondStretch *)p;
-  double r = sqrt(rSquared);
   double r1 = r - 0.5;
   double r2 = r + 0.5;
   double y1 = (r1 >= stretch->r0) ? lippincott(r1, stretch) : morse(r1, stretch);
@@ -101,35 +93,30 @@ gradientLippincottMorse(double rSquared, void *p)
 void
 initializeBondStretchInterpolater(struct bondStretch *stretch)
 {
-  double start;
-  double end;
-  int scale;
+  double scale;
   double rmin;
   double rmax;
-	
+
   rmin = stretch->r0 * 0.5;
   rmax = stretch->r0 * 1.5;
-  start = rmin * rmin;
-  end = (int)(rmax * rmax);
-  scale = (end - start) / TABLEN;
+  scale = (rmax - rmin) / TABLEN;
 
   stretch->potentialExtensionStiffness = PotentialExtensionMinimumSlope / (2.0 * rmax);
   
   stretch->potentialExtensionIntercept = potentialLippincottMorse(rmax * rmax, stretch)
     - stretch->potentialExtensionStiffness * rmax * rmax;
 
-  fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, start, scale, stretch);
-  fillInterpolationTable(&stretch->gradientLippincottMorse, gradientLippincottMorse, start, scale, stretch);
+  fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, rmin, scale, stretch);
+  fillInterpolationTable(&stretch->gradientLippincottMorse, gradientLippincottMorse, rmin, scale, stretch);
 }
 
 
 /* the Buckingham potential for van der Waals / London force */
 // result in aJ
 double
-potentialBuckingham(double rSquared, void *p)
+potentialBuckingham(double r, void *p)
 {
   struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
-  double r = sqrt(rSquared);
 	
   // rvdW in pm (1e-12 m)
   // evdW in zJ (1e-21 J)
@@ -142,10 +129,9 @@ potentialBuckingham(double rSquared, void *p)
 // NOTE: gradient is divided by r since we end up multiplying it by
 // the radius vector to get the force.
 double
-gradientBuckingham(double rSquared, void *p)
+gradientBuckingham(double r, void *p)
 {
   struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
-  double r = sqrt(rSquared);
   double y;
 
   // rvdW in pm (1e-12 m)
@@ -160,7 +146,7 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
 {
   double start;
   double scale;
-  int end;
+  double end;
 
   // periodicTable[].vanDerWaalsRadius is in 1e-10 m
   // so rvdW is in 1e-12 m or pm
@@ -169,9 +155,9 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   // evdW in 1e-21 J or zJ
   vdw->evdW = (periodicTable[element1].e_vanDerWaals + periodicTable[element2].e_vanDerWaals) / 2.0;
 
-  start = square(vdw->rvdW * 0.4);
-  end = (int)square(vdw->rvdW * 1.5);
-  scale = (int)(end - start) / TABLEN;
+  start = vdw->rvdW * 0.4;
+  end = vdw->rvdW * 1.5;
+  scale = (end - start) / TABLEN;
 
   fillInterpolationTable(&vdw->potentialBuckingham, potentialBuckingham, start, scale, vdw);
   fillInterpolationTable(&vdw->gradientBuckingham, gradientBuckingham, start, scale, vdw);
@@ -198,7 +184,6 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
   struct atomType *e2;
   struct bondStretch *stretch;
   double r;
-  double rSquared;
   double interpolated_potential;
   double interpolated_gradient;
   double direct_potential;
@@ -235,11 +220,10 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
          stretch->r0 * 1.5);
 
   for (r=initial; r<limit; r+=increment) {
-    rSquared = r * r;
-    interpolated_potential = stretchPotential(NULL, NULL, stretch, rSquared);
-    interpolated_gradient = stretchGradient(NULL, NULL, stretch, rSquared);
-    direct_potential = potentialLippincottMorse(rSquared, stretch);
-    direct_gradient = gradientLippincottMorse(rSquared, stretch);
+    interpolated_potential = stretchPotential(NULL, NULL, stretch, r);
+    interpolated_gradient = stretchGradient(NULL, NULL, stretch, r);
+    direct_potential = potentialLippincottMorse(r, stretch);
+    direct_gradient = gradientLippincottMorse(r, stretch);
     printf("%e %e %e %e %e\n", r, interpolated_potential, interpolated_gradient, direct_potential, direct_gradient);
   }
 }

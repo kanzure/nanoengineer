@@ -5,7 +5,7 @@
 
 struct interpolationTable {
     double start;
-    int scale;
+    double scale;
     double t1[TABLEN];
     double t2[TABLEN];
 };
