@@ -18,7 +18,7 @@ int DumpIntermediateText=0;
 int PrintFrameNums=1;
 int OutputFormat=1;
 int KeyRecordInterval=32;
-int DirectEvaluate=0;
+int DirectEvaluate=1; // XXX should default to 0 eventually
 char *IDKey="";
 
 char OutFileName[1024];

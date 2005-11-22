@@ -157,7 +157,7 @@ main(int argc,char **argv)
 	    printPotentialLimit = atof(optarg);
 	    break;
         case OPT_DIRECT_EVALUATE:
-            DirectEvaluate = 1;
+            DirectEvaluate = !DirectEvaluate;
 	    break;
 	case 'n':
 	    // ignored
