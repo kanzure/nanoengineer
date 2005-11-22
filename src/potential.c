@@ -72,6 +72,8 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
         printStretch(stderr, p, stretch);
       }
     }
+  } else if (DirectEvaluate) {
+    potential = potentialLippincottMorse(rSquared, stretchType);
   } else {
     potential = t1[k] + rSquared * t2[k];
   }
@@ -116,6 +118,8 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
           printStretch(stderr, p, stretch);
         }
       }
+    } else if (DirectEvaluate) {
+      gradient = gradientLippincottMorse(rSquared, stretchType);
     } else {
       gradient = t1[k] + rSquared * t2[k];
     }
@@ -123,12 +127,82 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
 }
 
 double
+vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared)
+{
+  double potential;
+  int k;
+  double *t1;
+  double *t2;
+  double start;
+  int scale;
+  struct interpolationTable *iTable;
+  
+  /* table setup  */
+  iTable = &parameters->potentialBuckingham;
+  start = iTable->start;
+  scale = iTable->scale;
+  t1 = iTable->t1;
+  t2 = iTable->t2;
+
+  k=(int)(rSquared - start) / scale;
+  if (k < 0) {
+    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+      fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rSquared));
+      printVanDerWaals(stderr, p, vdw);
+    }
+    k=0;
+    potential = t1[k] + rSquared * t2[k];
+  } else if (DirectEvaluate) {
+    potential = potentialBuckingham(rSquared, parameters);
+  } else if (k>=TABLEN) {
+    potential = 0.0;
+  } else {
+    potential = t1[k] + rSquared * t2[k];
+  }
+  return potential;
+}
+
+double
+vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared)
+{
+  double gradient;
+  int k;
+  double *t1;
+  double *t2;
+  double start;
+  int scale;
+  struct interpolationTable *iTable;
+      
+  /* table setup  */
+  iTable = &parameters->gradientBuckingham;
+  start = iTable->start;
+  scale = iTable->scale;
+  t1 = iTable->t1;
+  t2 = iTable->t2;
+					
+  k=(int)(rSquared - start) / scale;
+  if (k < 0) {
+    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+      fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rSquared));
+      printVanDerWaals(stderr, p, vdw);
+    }
+    k=0;
+    gradient = t1[k] + rSquared * t2[k];
+  } else if (DirectEvaluate) {
+    gradient = gradientBuckingham(rSquared, parameters);
+  } else if (k>=TABLEN) {
+    gradient = 0.0;
+  } else {
+    gradient = t1[k] + rSquared * t2[k];
+  }
+  return gradient;
+}
+
+double
 calculatePotential(struct part *p, struct xyz *position)
 {
   int j;
-  int k;
   double rSquared;
-  double fac;
   struct xyz v1;
   struct xyz v2;
   double z;
@@ -136,13 +210,6 @@ calculatePotential(struct part *p, struct xyz *position)
   double ff;
   double potential = 0.0;
 
-  /* interpolation */
-  double *t1;
-  double *t2;
-  double start;
-  int scale;
-
-  struct interpolationTable *iTable;
   struct stretch *stretch;
   struct bond *bond;
   struct bond *bond1;
@@ -237,29 +304,8 @@ calculatePotential(struct part *p, struct xyz *position)
       
     vsub2(r, position[vdw->a1->index], position[vdw->a2->index]);
     rSquared = vdot(r, r);
-      
-    /* table setup  */
-    iTable = &vdw->parameters->potentialBuckingham;
-    start = iTable->start;
-    scale = iTable->scale;
-    t1 = iTable->t1;
-    t2 = iTable->t2;
 
-    k=(int)(rSquared - start) / scale;
-    if (k < 0) {
-      if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
-        fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rSquared));
-        printVanDerWaals(stderr, p, vdw);
-      }
-      k=0;
-      fac = t1[k] + rSquared * t2[k];
-    } else if (k>=TABLEN) {
-      fac = 0.0;
-    } else {
-      fac = t1[k] + rSquared * t2[k];
-    }
-
-    potential += fac;
+    potential += vanDerWaalsPotential(p, vdw, vdw->parameters, rSquared);
   }
     
   return potential;
@@ -269,9 +315,7 @@ void
 calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
 {
   int j;
-  int k;
   double rSquared;
-  double fac;
   double gradient;
   struct xyz v1;
   struct xyz v2;
@@ -279,13 +323,6 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
   double theta;
   double ff;
 
-  /* interpolation */
-  double *t1;
-  double *t2;
-  double start;
-  int scale;
-
-  struct interpolationTable *iTable;
   struct stretch *stretch;
   struct bond *bond;
   struct bond *bond1;
@@ -393,29 +430,10 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       
     vsub2(r, position[vdw->a1->index], position[vdw->a2->index]);
     rSquared = vdot(r, r);
-      
-    /* table setup  */
-    iTable = &vdw->parameters->gradientBuckingham;
-    start = iTable->start;
-    scale = iTable->scale;
-    t1 = iTable->t1;
-    t2 = iTable->t2;
-					
-    k=(int)(rSquared - start) / scale;
-    if (k < 0) {
-      if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
-        fprintf(stderr, "vdW: off table low -- r=%.2f \n",  sqrt(rSquared));
-        printVanDerWaals(stderr, p, vdw);
-      }
-      k=0;
-      fac = t1[k] + rSquared * t2[k];
-    } else if (k>=TABLEN) {
-      fac = 0.0;
-    } else {
-      fac = t1[k] + rSquared * t2[k];
-    }
-      
-    vmul2c(f, r, fac);
+
+    gradient = vanDerWaalsGradient(p, vdw, vdw->parameters, rSquared);
+    
+    vmul2c(f, r, gradient);
     vadd(force[vdw->a1->index], f);
     vsub(force[vdw->a2->index], f);
   }

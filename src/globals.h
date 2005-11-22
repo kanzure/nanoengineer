@@ -18,6 +18,7 @@ extern int DumpIntermediateText;
 extern int PrintFrameNums;
 extern int OutputFormat;
 extern int KeyRecordInterval;
+extern int DirectEvaluate;
 extern char *IDKey;
 
 extern char OutFileName[1024];

@@ -68,7 +68,7 @@ morse(double r, struct bondStretch *s)
 
 // use the Morse potential inside R0, Lippincott outside
 // result in aJ
-static double
+double
 potentialLippincottMorse(double rSquared, void *p)
 {
   struct bondStretch *stretch = (struct bondStretch *)p;
@@ -80,7 +80,7 @@ potentialLippincottMorse(double rSquared, void *p)
 //
 // the result is in yoctoJoules per picometer = picoNewtons
 // yJ / pm = 1e-24 J / 1e-12 m = 1e-12 J / m = pN
-static double
+double
 gradientLippincottMorse(double rSquared, void *p)
 {
   struct bondStretch *stretch = (struct bondStretch *)p;
@@ -125,7 +125,7 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
 
 /* the Buckingham potential for van der Waals / London force */
 // result in aJ
-static double
+double
 potentialBuckingham(double rSquared, void *p)
 {
   struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
@@ -141,7 +141,7 @@ potentialBuckingham(double rSquared, void *p)
 //
 // NOTE: gradient is divided by r since we end up multiplying it by
 // the radius vector to get the force.
-static double
+double
 gradientBuckingham(double rSquared, void *p)
 {
   struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;

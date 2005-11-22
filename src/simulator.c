@@ -25,6 +25,9 @@ usage()
    --initial=<r>    lowest r value in the potential function table printed above (in pm)\n\
    --increment=<dr> spacing of r values for above table (in pm)\n\
    --limit=<r>      highest r value in table above (in pm)\n\
+   --direct-evaluate\n\
+                    call potential and gradient functions directly instead of using\n\
+                    any form of interpolation of approximation.  (VERY SLOW!)\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
    -m, --minimize\n\
@@ -72,6 +75,7 @@ usage()
 #define OPT_INITIAL           LONG_OPT (3)
 #define OPT_INCREMENT         LONG_OPT (4)
 #define OPT_LIMIT             LONG_OPT (5)
+#define OPT_DIRECT_EVALUATE   LONG_OPT (6)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -80,6 +84,7 @@ static const struct option option_vec[] = {
     { "initial", required_argument, NULL, OPT_INITIAL},
     { "increment", required_argument, NULL, OPT_INCREMENT},
     { "limit", required_argument, NULL, OPT_LIMIT},
+    { "direct-evaluate", no_argument, NULL, OPT_DIRECT_EVALUATE},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -109,7 +114,7 @@ main(int argc,char **argv)
     int printPotentialEnergy = 0;
     double potentialEnergy;
     int dump_part = 0;
-    char *printPotential;
+    char *printPotential = NULL;
     double printPotentialInitial = 1; // pm
     double printPotentialIncrement = 1; // pm
     double printPotentialLimit = 200; // pm
@@ -150,6 +155,9 @@ main(int argc,char **argv)
 	    break;
         case OPT_LIMIT:
 	    printPotentialLimit = atof(optarg);
+	    break;
+        case OPT_DIRECT_EVALUATE:
+            DirectEvaluate = 1;
 	    break;
 	case 'n':
 	    // ignored

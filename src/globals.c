@@ -18,6 +18,7 @@ int DumpIntermediateText=0;
 int PrintFrameNums=1;
 int OutputFormat=1;
 int KeyRecordInterval=32;
+int DirectEvaluate=0;
 char *IDKey="";
 
 char OutFileName[1024];
