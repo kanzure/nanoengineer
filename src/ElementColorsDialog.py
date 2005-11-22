@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ElementColorsDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementColorsDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
+# Created: Tue Nov 22 17:57:49 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -342,33 +342,27 @@ class ElementColorsDialog(QDialog):
         layout12_2 = QGridLayout(None,1,1,0,6,"layout12_2")
 
         self.saveColorsPB = QPushButton(self,"saveColorsPB")
-        self.saveColorsPB.setAutoDefault(0)
 
         layout12_2.addWidget(self.saveColorsPB,0,1)
 
         self.defaultButton = QPushButton(self,"defaultButton")
-        self.defaultButton.setAutoDefault(0)
 
         layout12_2.addWidget(self.defaultButton,1,0)
 
         self.loadColorsPB = QPushButton(self,"loadColorsPB")
-        self.loadColorsPB.setAutoDefault(0)
 
         layout12_2.addWidget(self.loadColorsPB,0,0)
 
         self.cancelButton = QPushButton(self,"cancelButton")
-        self.cancelButton.setAutoDefault(0)
 
         layout12_2.addWidget(self.cancelButton,2,1)
 
         self.alterButton = QPushButton(self,"alterButton")
-        self.alterButton.setAutoDefault(0)
 
         layout12_2.addWidget(self.alterButton,1,1)
 
         self.okButton = QPushButton(self,"okButton")
-        self.okButton.setAutoDefault(0)
-        self.okButton.setDefault(0)
+        self.okButton.setDefault(1)
 
         layout12_2.addWidget(self.okButton,2,0)
         ElementColorsDialogLayout.addLayout(layout12_2)
@@ -377,7 +371,7 @@ class ElementColorsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(226,517).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(230,517).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)

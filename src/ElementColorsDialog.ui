@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>226</width>
+            <width>230</width>
             <height>517</height>
         </rect>
     </property>
@@ -1055,9 +1055,6 @@
                     <property name="text">
                         <string>Save Colors ...</string>
                     </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
                     <property name="toolTip" stdset="0">
                         <string>Save the current element color settings to a file</string>
                     </property>
@@ -1071,9 +1068,6 @@
                     </property>
                     <property name="text">
                         <string>Restore Defaults</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Restore current element colors to the default colors.</string>
@@ -1089,9 +1083,6 @@
                     <property name="text">
                         <string>Load Colors ...</string>
                     </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
                     <property name="toolTip" stdset="0">
                         <string>Load element colors from file</string>
                     </property>
@@ -1106,9 +1097,6 @@
                     <property name="text">
                         <string>Cancel</string>
                     </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
                 </widget>
                 <widget class="QPushButton" row="1" column="1">
                     <property name="name">
@@ -1116,9 +1104,6 @@
                     </property>
                     <property name="text">
                         <string>Set To Alternate</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Set element colors to the alternate color set</string>
@@ -1134,11 +1119,8 @@
                     <property name="text">
                         <string>Ok</string>
                     </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
                     <property name="default">
-                        <bool>false</bool>
+                        <bool>true</bool>
                     </property>
                 </widget>
             </grid>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ChunkPropDialog.ui'
 #
-# Created: Thu Sep 29 11:39:17 2005
+# Created: Tue Nov 22 17:56:19 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -124,13 +124,11 @@ class ChunkPropDialog(QDialog):
 
         self.ok_btn = QPushButton(self,"ok_btn")
         self.ok_btn.setMinimumSize(QSize(0,0))
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
+        self.ok_btn.setDefault(1)
         layout13.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setMinimumSize(QSize(0,0))
-        self.cancel_btn.setAutoDefault(0)
         self.cancel_btn.setDefault(0)
         layout13.addWidget(self.cancel_btn)
         ChunkPropDialogLayout.addLayout(layout13)
