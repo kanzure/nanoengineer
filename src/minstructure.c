@@ -49,7 +49,7 @@ minimizeStructureGradient(struct configuration *p)
     p->gradient[i] = -p->gradient[i];
   }
   findRMSandMaxForce(p, &rms_force, &max_force);
-  writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient");
+  //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient");
   //writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
   
 }

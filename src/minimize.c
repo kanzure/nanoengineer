@@ -508,7 +508,7 @@ linearMinimize(struct configuration *p, double tolerance)
   SetConfiguration(&a, NULL);
   SetConfiguration(&b, NULL);
   SetConfiguration(&c, NULL);
-  Leave(linearMinimize, 1);
+  Leave(linearMinimize, (min == p) ? 0 : 1);
   return min;
 }
 
@@ -541,7 +541,7 @@ minimize_one_tolerance(struct configuration *initial_p,
     fq = evaluate(q);
     if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
       SetConfiguration(&p, NULL);
-      Leave(minimize, 1);
+      Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
       return q;
     }
     evaluateGradient(p); // should have been evaluated by linearMinimize already
@@ -604,7 +604,7 @@ minimize(struct configuration *initial_p,
                                         iterationLimit * 0.8,
                                         fd->coarse_tolerance,
                                         SteepestDescent);
-  fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
+  //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
   final = minimize_one_tolerance(intermediate,
                                  &fine_iter,
                                  iterationLimit - coarse_iter,
@@ -612,7 +612,7 @@ minimize(struct configuration *initial_p,
                                  PolakRibiereConjugateGradient);
   SetConfiguration(&intermediate, NULL);
   *iteration = coarse_iter + fine_iter;
-  Leave(minimize, 1);
+  Leave(minimize, (final == initial_p) ? 0 :1);
   return final;
 }
 
