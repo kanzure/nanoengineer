@@ -63,11 +63,8 @@
                     <property name="accel">
                         <string>Alt+O</string>
                     </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
                     <property name="default">
-                        <bool>false</bool>
+                        <bool>true</bool>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -85,9 +82,6 @@
                     </property>
                     <property name="accel">
                         <string>Alt+C</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
                     </property>
                 </widget>
             </hbox>
@@ -282,6 +276,13 @@
         <slot>length_fixup()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>n_spinbox</tabstop>
+    <tabstop>m_spinbox</tabstop>
+    <tabstop>length_linedit</tabstop>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>cancel_btn</tabstop>
+</tabstops>
 <slots>
     <slot>setN()</slot>
     <slot>setM()</slot>

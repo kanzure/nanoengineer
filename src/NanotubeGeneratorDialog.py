@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\NanotubeGeneratorDialog.ui'
 #
-# Created: Thu Nov 3 15:25:04 2005
+# Created: Tue Nov 22 17:51:09 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,13 +56,11 @@ class NanotubeGeneratorDialog(QDialog):
 
         self.ok_btn = QPushButton(self,"ok_btn")
         self.ok_btn.setMinimumSize(QSize(0,30))
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
+        self.ok_btn.setDefault(1)
         layout30.addWidget(self.ok_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         self.cancel_btn.setMinimumSize(QSize(0,30))
-        self.cancel_btn.setAutoDefault(0)
         layout30.addWidget(self.cancel_btn)
 
         NanotubeGeneratorDialogLayout.addLayout(layout30,2,0)
@@ -124,6 +122,11 @@ class NanotubeGeneratorDialog(QDialog):
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+
+        self.setTabOrder(self.n_spinbox,self.m_spinbox)
+        self.setTabOrder(self.m_spinbox,self.length_linedit)
+        self.setTabOrder(self.length_linedit,self.ok_btn)
+        self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 
     def languageChange(self):
