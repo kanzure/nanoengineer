@@ -2,6 +2,9 @@
 ======= exitvalue =======
 0
 ======= stderr =======
+cutover to fine tolerance at 3
+linearMinimize allocated 0 instead of 1
+minimize allocated 0 instead of 1
 ======= stdout =======
 iters per frame = 10
 number of frames = 100
@@ -9,12 +12,11 @@ timestep = 1.000000e-16
 temp = 0.000000
 dump as text
 < test_0010.mmp  > test_0010.xyz
-
-Total Ke = 4.968000e-20
-final RMS gradient=0.747977 after 31 iterations
+final RMS gradient=7582.712038 after 5 iterations
 ======= test_0010.trc =======
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #
+# Date and Time: Mon Nov 21 18:46:01 2005
 # Input File:test_0010.mmp
 # Output File: test_0010.xyz
 # Trace File: test_0010.trc
@@ -22,53 +24,25 @@ final RMS gradient=0.747977 after 31 iterations
 # Number of Frames: 100
 # Steps per Frame: 10
 # Temperature: 300.0
-# 
+#
 # 1 columns:
 # name: torque (nn-nm)
 #
-
-# rms force, high force
-1 1094.38 2167.98
-2 782.98 1714.10
-3 416.30 1019.17
-4 320.37 837.32
-5 249.84 654.75
-6 231.89 609.40
-7 210.19 551.71
-8 187.82 492.25
-9 164.81 431.19
-10 153.05 400.03
-11 140.10 365.72
-12 125.82 327.87
-13 110.66 287.75
-14 102.79 266.98
-15 94.12 244.08
-16 84.69 219.23
-17 74.64 192.79
-18 69.41 179.05
-19 63.62 163.86
-20 57.30 147.33
-21 53.92 138.51
-22 50.13 128.62
-23 45.93 117.67
-# Switching to Conjugate-Gradient
-24 2.09 3.79
-25 1.79 3.87
-26 1.73 4.25
-27 1.71 4.33
-28 1.68 4.29
-29 1.17 2.26
-30 0.75 0.98
-31 0.75 0.98
-# Done: Minimization final rms: 0.747977, highForce: 0.976145
+0 4414.89 5119.84
+1 7057.31 9108.03
+2 7576.21 10302.71
+3 7582.72 10317.78
+4 7582.71 10317.76
+5 7582.71 10317.76
+# Done: Minimization final rms: 7582.712038, highForce: 10317.761244
 ======= test_0010.xyz =======
 8
-RMS=0.747977
-C -0.446000 -4.024000 0.000000
-H -1.078195 -3.406027 -0.632226
-H -1.078109 -4.656186 0.618103
-H 0.172202 -4.656122 -0.632076
-C 0.448124 -3.129551 0.894263
-H 1.080228 -3.747621 1.526399
-H -0.170164 -2.497515 1.526255
-H 1.080145 -2.497454 0.276068
+RMS=7582.712038
+C -0.431041 -4.006431 0.018021
+H -1.179033 -3.273533 -0.732820
+H -1.179467 -4.757219 0.750197
+H 0.304842 -4.757578 -0.733611
+C 0.453592 -3.126018 0.896000
+H 1.201107 -3.859214 1.647622
+H -0.282590 -2.375349 1.648413
+H 1.200589 -2.376658 0.165177

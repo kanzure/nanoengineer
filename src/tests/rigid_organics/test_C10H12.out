@@ -3,7 +3,10 @@ TYPE struct
 ======= exitvalue =======
 0
 ======= structurematch =======
-0
+1
+======= lengthsangles =======
+OK
 ======= stderr =======
 cutover to fine tolerance at 7
 == structure comparison ==
+cutover to fine tolerance at 1

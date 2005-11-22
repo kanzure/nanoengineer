@@ -3,7 +3,11 @@ TYPE struct
 ======= exitvalue =======
 0
 ======= structurematch =======
-0
+1
+======= lengthsangles =======
+OK
 ======= stderr =======
 cutover to fine tolerance at 0
 == structure comparison ==
+error reading atom count from xyz file: test_C3H6.xyz
+could not read comparison positions file

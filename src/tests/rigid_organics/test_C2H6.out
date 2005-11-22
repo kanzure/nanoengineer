@@ -3,9 +3,12 @@ TYPE struct
 ======= exitvalue =======
 0
 ======= structurematch =======
-0
+1
+======= lengthsangles =======
+OK
 ======= stderr =======
 cutover to fine tolerance at 3
 linearMinimize allocated 0 instead of 1
 minimize allocated 0 instead of 1
 == structure comparison ==
+cutover to fine tolerance at 1
