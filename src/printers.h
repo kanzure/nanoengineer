@@ -12,6 +12,8 @@ extern int debug_flags;
 #define D_TABLE_BOUNDS    (1<<0)
 #define D_READER          (1<<1)
 #define D_MINIMIZE        (1<<2)
+#define D_MINIMIZE_POTENTIAL_MOVIE (1<<3)
+#define D_MINIMIZE_GRADIENT_MOVIE  (1<<4)
 
 
 extern FILE *tracef;

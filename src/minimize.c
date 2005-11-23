@@ -381,11 +381,7 @@ brent(struct configuration *parent,
       SetConfiguration(&u, NULL);
       SetConfiguration(&v, NULL);
       SetConfiguration(&w, NULL);
-      if (x == initial_b) {
-        Leave(brent, 0); // we didn't allocate return value, it was handed to us
-      } else {
-        Leave(brent, 1);
-      }
+      Leave(brent, (x == initial_b) ? 0 : 1);
       return x;
     }
     if (fabs(e) > tol) {

@@ -31,7 +31,17 @@ minimizeStructurePotential(struct configuration *p)
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
   //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter, Iteration++, "potential");
-  //writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential %e %e", p->functionValue, p->parameter);
+  if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D3
+    writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential %e %e", p->functionValue, p->parameter);
+  }
+}
+
+static double
+clamp(double min, double max, double value)
+{
+  if (value > max) return max;
+  if (value < min) return min;
+  return value;
 }
 
 // This is the gradient of the potential function which is being minimized.
@@ -49,9 +59,11 @@ minimizeStructureGradient(struct configuration *p)
     p->gradient[i] = -p->gradient[i];
   }
   findRMSandMaxForce(p, &rms_force, &max_force);
-  //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient");
-  //writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
-  
+  p->functionDefinition->initial_parameter_guess = clamp(1e-3, 1e3, 10.0 / max_force);
+  writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient");
+  if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
+    writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
+  }
 }
 
 
@@ -73,11 +85,11 @@ minimizeStructure(struct part *part)
   minimizeStructureFunctions.func = minimizeStructurePotential;
   minimizeStructureFunctions.dfunc = minimizeStructureGradient;
   minimizeStructureFunctions.freeExtra = NULL;
-  minimizeStructureFunctions.coarse_tolerance = 1e-7;
-  minimizeStructureFunctions.fine_tolerance = 1e-8;
+  minimizeStructureFunctions.coarse_tolerance = 1e-5;
+  minimizeStructureFunctions.fine_tolerance = 1e-6;
   minimizeStructureFunctions.gradient_delta = 0.0; // unused
   minimizeStructureFunctions.dimension = part->num_atoms * 3;
-  minimizeStructureFunctions.initial_parameter_guess = 0.00001;
+  minimizeStructureFunctions.initial_parameter_guess = 1.0; // recalculated in gradient
   minimizeStructureFunctions.functionEvaluationCount = 0;
   minimizeStructureFunctions.gradientEvaluationCount = 0;
 
@@ -98,7 +110,10 @@ minimizeStructure(struct part *part)
   
   SetConfiguration(&initial, NULL);
   SetConfiguration(&final, NULL);
-  doneExit(0, tracef, "Minimization final rms: %f, highForce: %f",
-             rms_force, max_force);
+  doneExit(0, tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
+           minimizeStructureFunctions.gradientEvaluationCount,
+           minimizeStructureFunctions.functionEvaluationCount,
+           rms_force,
+           max_force);
 
 }

@@ -61,7 +61,7 @@ usage()
    -q<string>, --trace-file=<string>\n\
                     trace file name (default=\"trace\")\n\
    -D<int>, --debug-flag=<int>\n\
-                    turn on a debugging flag (see simulator.h)\n\
+                    turn on a debugging flag (see printers.h)\n\
    -B<filename>, --base-file=<filename>\n\
                     base XYZ file for position comparison (compared to following file)\n\
    filename         if no file extension, add .mmp to read, .dpb to write\n");

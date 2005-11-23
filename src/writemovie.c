@@ -492,11 +492,9 @@ int writeMinimizeMovieFrame(FILE *outf,
     }
     flushOutputFile(outf);
 
-    //fprintf(tracef,"%s ", callLocation);
-    fprintf(tracef,"%d %.2f %.2f\n", frameNumber, rms, max_force);
-    DPRINT(D_MINIMIZE, "%d %.2f %.2f\n", frameNumber, rms, max_force);
+    fprintf(tracef,"%d %e %e\n", frameNumber, rms, max_force);
+    DPRINT(D_MINIMIZE, "%d %e %e %s\n", frameNumber, rms, max_force, callLocation); // -D2
     if (final) {
-        printf("final RMS gradient=%f after %d iterations\n", rms, frameNumber);
         writeOutputTrailer(outf, part, frameNumber);
     }
     if (Interrupted && !interruptionWarning) {
