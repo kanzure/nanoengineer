@@ -1135,6 +1135,11 @@ class Node( GenericDiffTracker_API_Mixin):
         stats.nstats = 0
         stats.nthermos = 0
         stats.ngamess = 0
+        stats.num_espwindow = 0
+        stats.num_gridplane = 0
+        stats.num_mdistance = 0
+        stats.num_mangle = 0
+        stats.num_mdihedral = 0
         stats.ngroups = -1 # Must subtract self.
         
     def getstatistics(self, stats):
