@@ -24,7 +24,7 @@ class BaseTest(unittest.TestCase):
                             dirname, testname])
     def runInSandbox(self, cmdline):
         # This will not run in /tmp/... under Linux. Instead it
-        # will create a tmp subdirectory in cad/src.
+        # will create a tmp subdirectory in sim/src.
         self.tmpdir = tmpdir = "tmp"
         try:
             shutil.rmtree(tmpdir)
