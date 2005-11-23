@@ -1251,16 +1251,11 @@ def atom_limit_exceeded(parent, cmd, natoms, limit=200):
 
     ret = dialog.exec_loop()
 
-    if ret == QMessageBox.No:
+    if ret != QMessageBox.Yes:
         return True
-    elif ret==QMessageBox.Yes:
-        return False
     
-    # Once the checkbox is added, this warning will still be printed in the 
-    # history widget whenever the user adds new jigs with more than 'limit' atoms.
-    
+    # Print warning msg in history widget whenever the user adds new jigs with more than 'limit' atoms.
     wmsg = "Warning: Jig created with " + str(natoms) + " atoms selected.  This may impact performance."
-
     env.history.message(cmd + orangemsg(wmsg))
         
     return False
