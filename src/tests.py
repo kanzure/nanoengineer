@@ -58,7 +58,7 @@ class BaseTest(unittest.TestCase):
         self.assertEqual(self.exitvalue, 0)
     def structureTest(self):
         mmpfile = self.basename() + ".mmp"
-        print mmpfile
+        #print mmpfile
         if FAIL_UNIMPLEMENTED_TESTS:
             self.fail("structureTest unimplemented")
     def minimizeTest(self):
@@ -79,11 +79,6 @@ class BaseTest(unittest.TestCase):
 # go here, and become more legible.
 
 class FastTests(BaseTest):
-    def test_pwd(self):
-        self.runInSandbox("pwd")
-        self.assertEquals(self.stdout, "/home/wware/polosims/sim/src/tmp\n")
-        self.assertEquals(self.stderr, "")
-        self.assertEquals(self.exitvalue, 0)
     def test_minimize_0001(self):
         self.structureTest()
     def test_minimize_0002(self):
