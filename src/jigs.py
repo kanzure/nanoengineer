@@ -905,6 +905,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if not atoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Rotary Motor."))
             return
+            
+        # Print warning if over 200 atoms are selected.
+        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+            return
         
         from jigs_motors import RotaryMotor
         m = RotaryMotor(self.assy)
@@ -932,6 +936,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
 
         if not atoms:
             env.history.message(cmd + redmsg("You must first select an atom(s) to create a Linear Motor."))
+            return
+            
+        # Print warning if over 200 atoms are selected.
+        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
             return
         
         from jigs_motors import LinearMotor
@@ -1005,13 +1013,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + redmsg("You must select at least one atom to create an Anchor."))
             return
         
-        ## Make sure that no more than 30 atoms are selected.
-        #nsa = len(atoms)
-        #if nsa > 30: 
-            #env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 30.  Try again."))
-            #return
-        
-        
+        # Print warning if over 200 atoms are selected.
+        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+            return
+
         m = Anchor(self.assy, atoms)
         self.unpickatoms()
         self.place_new_jig(m)
@@ -1139,6 +1144,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if not atoms:
             env.history.message(cmd + redmsg("You must select at least one atom to create an Atom Set."))
             return
+            
+        # Print warning if over 200 atoms are selected.
+        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+            return
         
         m = AtomSet(self.assy, atoms)
         
@@ -1214,5 +1223,46 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.assy.w.win_update()
         
     pass # end of class jigmakers_Mixin
+
+def atom_limit_exceeded(parent, cmd, natoms, limit=200):
+    '''Displays a warning message if 'natoms' exceeds 'limit'.
+    Returns False if the number of atoms does not exceed the limit, or if the 
+    user confirms that the jigs should still be added even though the limit was 
+    exceeded.
+    '''
     
+    if natoms < limit:
+        return False # Atom limit not exceeded.
+
+    # Is this warning message OK? Ask Bruce and Ninad what they think.  Mark 051122.
+    wmsg = "Warning: Creating a jig with " + str(natoms) + " atoms may degrade performance.\nDo you still want to add the jig?"
+    
+    dialog = QMessageBox("Warning", wmsg, 
+                    QMessageBox.Warning, 
+                    QMessageBox.Yes, 
+                    QMessageBox.No, 
+                    QMessageBox.NoButton, 
+                    parent)
+
+    # We want to add a "Do not show this message again." checkbox to the dialog like this:
+    #     checkbox = QCheckBox("Do not show this message again.", dialog)
+    # The line of code above works, but places the checkbox in the upperleft corner of the dialog, 
+    # obscuring important text.  I'll fix this later. Mark 051122.
+
+    ret = dialog.exec_loop()
+
+    if ret == QMessageBox.No:
+        return True
+    elif ret==QMessageBox.Yes:
+        return False
+    
+    # Once the checkbox is added, this warning will still be printed in the 
+    # history widget whenever the user adds new jigs with more than 'limit' atoms.
+    
+    wmsg = "Warning: Jig created with " + str(natoms) + " atoms selected.  This may impact performance."
+
+    env.history.message(cmd + orangemsg(wmsg))
+        
+    return False
+            
 # end of module jigs.py
