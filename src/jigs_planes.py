@@ -216,7 +216,12 @@ class GridPlane(RectGadget):
         self.grid_type = grid_type; self.line_type = line_type; self.x_spacing = x_space;
         self.y_spacing = y_space;  self.grid_color = grid_color
         
-        
+    def _getinfo(self):
+        return  "[Object: Grid Plane] [Name: " + str(self.name) + "] "
+
+    def getstatistics(self, stats):
+        stats.num_gridplane += 1  
+
     def set_cntl(self):
         from GridPlaneProp import GridPlaneProp
         self.cntl = GridPlaneProp(self, self.assy.o)
@@ -367,9 +372,8 @@ class ESPWindow(RectGadget):
                     "[centerPoint = " + centerPoint + "] " + \
                     "[normalPoint = " + normalPoint + "]"
 
-# Need to add stats for this jig type (and the GridPlane, too.) Mark 050930.        
-#    def getstatistics(self, stats):
-#        stats.nespwin += 1    
+    def getstatistics(self, stats):
+        stats.num_espwindow += 1  
       
     def set_cntl(self):
         from ESPWindowProp import ESPWindowProp
