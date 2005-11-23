@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>493</width>
+            <width>563</width>
             <height>378</height>
         </rect>
     </property>
@@ -242,30 +242,39 @@
                                 <property name="title">
                                     <string>Selection Behavior</string>
                                 </property>
-                                <grid>
+                                <property name="selectedId" stdset="0">
+                                    <number>0</number>
+                                </property>
+                                <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QRadioButton" row="0" column="0">
+                                    <widget class="QRadioButton">
                                         <property name="name">
-                                            <cstring>native_rbtn</cstring>
+                                            <cstring>alpha7_behavior_rbtn</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Native</string>
+                                            <string>Alpha 7</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>0</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton">
+                                        <property name="name">
+                                            <cstring>alpha6_behavior_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Alpha 6</string>
                                         </property>
                                         <property name="checked">
-                                            <bool>true</bool>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>1</number>
                                         </property>
                                     </widget>
-                                    <widget class="QRadioButton" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>chem3d_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Chem3D</string>
-                                        </property>
-                                    </widget>
-                                </grid>
+                                </vbox>
                             </widget>
                             <widget class="QGroupBox">
                                 <property name="name">
@@ -1592,6 +1601,14 @@
                         </vbox>
                     </widget>
                 </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Lighting</string>
+                </attribute>
             </widget>
             <widget class="QWidget">
                 <property name="name">

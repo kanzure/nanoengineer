@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Nov 10 20:00:59 2005
+# Created: Tue Nov 22 21:24:39 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -103,20 +103,21 @@ class UserPrefsDialog(QDialog):
         layout32.addWidget(self.default_projection_btngrp)
 
         self.selection_behavior_btngrp = QButtonGroup(self.tab,"selection_behavior_btngrp")
+        self.selection_behavior_btngrp.setProperty("selectedId",QVariant(0))
         self.selection_behavior_btngrp.setColumnLayout(0,Qt.Vertical)
         self.selection_behavior_btngrp.layout().setSpacing(6)
         self.selection_behavior_btngrp.layout().setMargin(11)
-        selection_behavior_btngrpLayout = QGridLayout(self.selection_behavior_btngrp.layout())
+        selection_behavior_btngrpLayout = QVBoxLayout(self.selection_behavior_btngrp.layout())
         selection_behavior_btngrpLayout.setAlignment(Qt.AlignTop)
 
-        self.native_rbtn = QRadioButton(self.selection_behavior_btngrp,"native_rbtn")
-        self.native_rbtn.setChecked(1)
+        self.alpha7_behavior_rbtn = QRadioButton(self.selection_behavior_btngrp,"alpha7_behavior_rbtn")
+        self.selection_behavior_btngrp.insert( self.alpha7_behavior_rbtn,0)
+        selection_behavior_btngrpLayout.addWidget(self.alpha7_behavior_rbtn)
 
-        selection_behavior_btngrpLayout.addWidget(self.native_rbtn,0,0)
-
-        self.chem3d_rbtn = QRadioButton(self.selection_behavior_btngrp,"chem3d_rbtn")
-
-        selection_behavior_btngrpLayout.addWidget(self.chem3d_rbtn,1,0)
+        self.alpha6_behavior_rbtn = QRadioButton(self.selection_behavior_btngrp,"alpha6_behavior_rbtn")
+        self.alpha6_behavior_rbtn.setChecked(0)
+        self.selection_behavior_btngrp.insert( self.alpha6_behavior_rbtn,1)
+        selection_behavior_btngrpLayout.addWidget(self.alpha6_behavior_rbtn)
         layout32.addWidget(self.selection_behavior_btngrp)
 
         self.groupBox8 = QGroupBox(self.tab,"groupBox8")
@@ -526,11 +527,14 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
-        TabPageLayout_4 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_4")
+        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
+
+        self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
+        TabPageLayout_4 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_4")
         spacer24 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_4.addItem(spacer24,1,0)
 
-        self.file_locations_grp = QGroupBox(self.TabPage_4,"file_locations_grp")
+        self.file_locations_grp = QGroupBox(self.TabPage_5,"file_locations_grp")
         self.file_locations_grp.setColumnLayout(0,Qt.Vertical)
         self.file_locations_grp.layout().setSpacing(6)
         self.file_locations_grp.layout().setMargin(11)
@@ -596,23 +600,23 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout.addLayout(layout63_2,0,0)
 
         TabPageLayout_4.addWidget(self.file_locations_grp,0,0)
-        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
-        self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
-        TabPageLayout_5 = QVBoxLayout(self.TabPage_5,11,6,"TabPageLayout_5")
+        self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
+        TabPageLayout_5 = QVBoxLayout(self.TabPage_6,11,6,"TabPageLayout_5")
 
         layout9 = QHBoxLayout(None,0,6,"layout9")
 
-        self.history_height_lbl = QLabel(self.TabPage_5,"history_height_lbl")
+        self.history_height_lbl = QLabel(self.TabPage_6,"history_height_lbl")
         self.history_height_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout9.addWidget(self.history_height_lbl)
 
-        self.history_height_spinbox = QSpinBox(self.TabPage_5,"history_height_spinbox")
+        self.history_height_spinbox = QSpinBox(self.TabPage_6,"history_height_spinbox")
         self.history_height_spinbox.setMaxValue(20)
         self.history_height_spinbox.setValue(4)
         layout9.addWidget(self.history_height_spinbox)
 
-        self.history_lines_lbl = QLabel(self.TabPage_5,"history_lines_lbl")
+        self.history_lines_lbl = QLabel(self.TabPage_6,"history_lines_lbl")
         layout9.addWidget(self.history_lines_lbl)
         spacer11_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout9.addItem(spacer11_2)
@@ -620,7 +624,7 @@ class UserPrefsDialog(QDialog):
 
         layout11 = QHBoxLayout(None,0,6,"layout11")
 
-        self.msg_serial_number_checkbox = QCheckBox(self.TabPage_5,"msg_serial_number_checkbox")
+        self.msg_serial_number_checkbox = QCheckBox(self.TabPage_6,"msg_serial_number_checkbox")
         layout11.addWidget(self.msg_serial_number_checkbox)
         spacer12 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout11.addItem(spacer12)
@@ -628,21 +632,21 @@ class UserPrefsDialog(QDialog):
 
         layout10 = QHBoxLayout(None,0,6,"layout10")
 
-        self.msg_timestamp_checkbox = QCheckBox(self.TabPage_5,"msg_timestamp_checkbox")
+        self.msg_timestamp_checkbox = QCheckBox(self.TabPage_6,"msg_timestamp_checkbox")
         layout10.addWidget(self.msg_timestamp_checkbox)
         spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout10.addItem(spacer13)
         TabPageLayout_5.addLayout(layout10)
         spacer10 = QSpacerItem(20,80,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_5.addItem(spacer10)
-        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
 
-        self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
-        TabPageLayout_6 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_6")
+        self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
+        TabPageLayout_6 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_6")
 
         layout15 = QHBoxLayout(None,0,6,"layout15")
 
-        self.groupBox3 = QGroupBox(self.TabPage_6,"groupBox3")
+        self.groupBox3 = QGroupBox(self.TabPage_7,"groupBox3")
         self.groupBox3.setColumnLayout(0,Qt.Vertical)
         self.groupBox3.layout().setSpacing(6)
         self.groupBox3.layout().setMargin(11)
@@ -678,7 +682,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout_6.addLayout(layout15,0,0)
         spacer11_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_6.addItem(spacer11_3,1,0)
-        self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_7,QString.fromLatin1(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
@@ -693,7 +697,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(493,378).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(563,378).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
@@ -781,8 +785,8 @@ class UserPrefsDialog(QDialog):
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.selection_behavior_btngrp.setTitle(self.__tr("Selection Behavior"))
-        self.native_rbtn.setText(self.__tr("Native"))
-        self.chem3d_rbtn.setText(self.__tr("Chem3D"))
+        self.alpha7_behavior_rbtn.setText(self.__tr("Alpha 7"))
+        self.alpha6_behavior_rbtn.setText(self.__tr("Alpha 6"))
         self.groupBox8.setTitle(self.__tr("Standard Views"))
         self.animate_views_checkbox.setText(self.__tr("Animate"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
@@ -859,6 +863,7 @@ class UserPrefsDialog(QDialog):
         self.fill_type_combox.insertItem(self.__tr("Blue Sky"))
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
+        self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Lighting"))
         self.file_locations_grp.setTitle(self.__tr("Location of Executables"))
         self.nanohive_path_linedit.setText(QString.null)
         self.gamess_path_linedit.setText(QString.null)
@@ -870,13 +875,13 @@ class UserPrefsDialog(QDialog):
         QToolTip.add(self.nanohive_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.gamess_checkbox.setText(QString.null)
         self.nanohive_checkbox.setText(QString.null)
-        self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Plug-ins"))
+        self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.history_height_lbl.setText(self.__tr("Height :"))
         QToolTip.add(self.history_height_spinbox,self.__tr("Number of lines displayed in the history area."))
         self.history_lines_lbl.setText(self.__tr("lines"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
         self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
-        self.prefs_tab.changeTab(self.TabPage_5,self.__tr("History"))
+        self.prefs_tab.changeTab(self.TabPage_6,self.__tr("History"))
         self.groupBox3.setTitle(self.__tr("Window Caption Format"))
         QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
         QWhatsThis.add(self.groupBox3,self.__tr("Format Prefix and Suffix text the delimits the part name in the caption in window border."))
@@ -884,7 +889,7 @@ class UserPrefsDialog(QDialog):
         self.textLabel2_2.setText(self.__tr("Caption Suffix for Modified File :"))
         self.caption_suffix_linedit.setText(QString.null)
         self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
-        self.prefs_tab.changeTab(self.TabPage_6,self.__tr("Caption"))
+        self.prefs_tab.changeTab(self.TabPage_7,self.__tr("Caption"))
         self.ok_btn.setText(self.__tr("OK"))
 
 

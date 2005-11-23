@@ -47,8 +47,8 @@ SQUARE_GRID = 0
 SiC_GRID = 1
 
 # Selection Behavior Options
-NATIVE = 0
-CHEM3D = 1
+A7_SELECTION_BEHAVIOR = 0
+A6_SELECTION_BEHAVIOR = 1
 
 # ==
 
@@ -151,7 +151,7 @@ prefs_table = (
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
-    ('selection_behavior', 'int', selectionBehavior_prefs_key, CHEM3D), # better than native.  Mark 051029.
+    ('selection_behavior', 'int', selectionBehavior_prefs_key, A7_SELECTION_BEHAVIOR), # Mark 051122.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
 
     # Atom preferences - colors (other than element colors, handled separately)

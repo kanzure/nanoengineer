@@ -320,7 +320,7 @@ class ops_select_Mixin:
         You are not allowed to select a singlet.
         Print a message about what you just selected (if it was an atom).
         
-        If the selection behavior is set to "Chem3D" and no atom is selected,
+        If the selection behavior is set to "Alpha 7 behavour" and no atom is selected,
         everything in the part is unselected.
         """
         # [bruce 041227 moved the getinfo status messages here, from the atom
@@ -342,10 +342,10 @@ class ops_select_Mixin:
                 atm.pick()
                 env.history.message(atm.getinfo())
         
-        # Added Chem3D selection behavior.  This code unselects everything
+        # Added 'Alpha 7' selection behavior.  This code unselects everything
         # if no atom/chunk was selected.  Mark 050924.
         else: 
-            if env.prefs[selectionBehavior_prefs_key] == CHEM3D:
+            if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
                 self.unpickparts()
                 self.unpickatoms()
         return
