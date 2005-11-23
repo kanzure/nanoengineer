@@ -21,7 +21,7 @@ class Statistics:
         '''
         
         # Subtract singlets from total number of atoms            
-        self.natoms = self.natoms - self.nsinglets 
+        self.num_atoms = self.natoms - self.nsinglets 
             
         # Display stats in listview
         statsView.setSorting( -1) # Turn off sorting
@@ -80,7 +80,7 @@ class Statistics:
 
         item = QListViewItem(statsView,None)
         item.setText(0,"Atoms:")
-        item.setText(1, str(self.natoms))
+        item.setText(1, str(self.num_atoms))
                         
         item = QListViewItem(statsView,None)
         item.setText(0,"Chunks:")
