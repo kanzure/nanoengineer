@@ -1,0 +1,42 @@
+COMPND  C6H14a.pdb                                                              
+HETATM    1  C                   0.829  -1.793  -0.134                
+HETATM    2  C                   0.735  -0.264  -0.037                
+HETATM    3  C                   2.268  -2.315  -0.076                
+HETATM    4  C                  -0.704   0.262   0.016                
+HETATM    5  C                  -0.802   1.793  -0.024                
+HETATM    6  C                  -2.237   2.312   0.109                
+HETATM    7  H                   0.357  -2.123  -1.070                
+HETATM    8  H                   0.243  -2.246   0.677                
+HETATM    9  H                   1.275   0.077   0.858                
+HETATM   10  H                   1.259   0.183  -0.894                
+HETATM   11  H                   2.306  -3.405  -0.173                
+HETATM   12  H                   2.744  -2.049   0.876                
+HETATM   13  H                   2.879  -1.888  -0.879                
+HETATM   14  H                  -1.280  -0.158  -0.822                
+HETATM   15  H                  -1.189  -0.109   0.931                
+HETATM   16  H                  -0.367   2.155  -0.965                
+HETATM   17  H                  -0.184   2.219   0.778                
+HETATM   18  H                  -2.879   1.909  -0.683                
+HETATM   19  H                  -2.277   3.405   0.043                
+HETATM   20  H                  -2.677   2.021   1.070                
+CONECT    1    2    3    7    8                              
+CONECT    2    1    4    9   10                              
+CONECT    3    1   11   12   13                              
+CONECT    4    2    5   14   15                              
+CONECT    5    4    6   16   17                              
+CONECT    6    5   18   19   20                              
+CONECT    7    1                                             
+CONECT    8    1                                             
+CONECT    9    2                                             
+CONECT   10    2                                             
+CONECT   11    3                                             
+CONECT   12    3                                             
+CONECT   13    3                                             
+CONECT   14    4                                             
+CONECT   15    4                                             
+CONECT   16    5                                             
+CONECT   17    5                                             
+CONECT   18    6                                             
+CONECT   19    6                                             
+CONECT   20    6                                             
+END   
