@@ -11,61 +11,15 @@ from PartPropDialog import *
 class PartProp(PartPropDialog):
     def __init__(self, assy):
         PartPropDialog.__init__(self)
-        self.assy = assy
+
+        self.nameLineEdit.setText(assy.name)
         
-        self.nameLineEdit.setText(self.assy.name)
+        self.mmpformatLabel.setText("MMP File Format: " + assy.mmpformat)
         
-        self.mmpformatLabel.setText("MMP File Format: " + self.assy.mmpformat)
-
-        # Get statistics of part from tree members.
-        self.assy.tree.init_statistics(self)
-        self.assy.tree.getstatistics(self)
-
-        # Subtract singlets from total number of atoms            
-        self.natoms = self.natoms - self.nsinglets 
-            
-        # Display stats in listview
-        self.statsView.setSorting( -1) # Turn off sorting
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Groups:")
-        item.setText(1, str(self.ngroups))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Gamess:")
-        item.setText(1, str(self.ngamess))
-                
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Thermometers:")
-        item.setText(1, str(self.nthermos))
-        
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Thermostats:")
-        item.setText(1, str(self.nstats))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Anchors:")
-        item.setText(1, str(self.nanchors))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Linear Motors:")
-        item.setText(1, str(self.nlmotors))
-        
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Rotary Motors:")
-        item.setText(1, str(self.nrmotors))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Open Bonds:")
-        item.setText(1, str(self.nsinglets))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Atoms:")
-        item.setText(1, str(self.natoms))
-                        
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Chunks:")
-        item.setText(1, str(self.nchunks))
+        # Get statistics of part and display them in the statView widget.
+        from GroupProp import Statistics
+        stats = Statistics(assy.tree)
+        stats.display(self.statsView)
 
     def accept(self):
         QDialog.accept(self)

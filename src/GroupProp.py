@@ -9,6 +9,83 @@ from qt import *
 from GroupPropDialog import *
 from VQT import V
 
+class Statistics:
+    def __init__(self, group):
+        
+        # Get statistics of group.
+        group.init_statistics(self)
+        group.getstatistics(self)
+        
+    def display(self, statsView):
+        '''Display the statistics in the listview widget 'statsView'
+        '''
+        
+        # Subtract singlets from total number of atoms            
+        self.natoms = self.natoms - self.nsinglets 
+            
+        # Display stats in listview
+        statsView.setSorting( -1) # Turn off sorting
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Measure Dihedral:")
+        item.setText(1, str(self.num_mdihedral))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Measure Angle:")
+        item.setText(1, str(self.num_mangle))
+
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Measure Distance:")
+        item.setText(1, str(self.num_mdistance))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Grid Plane:")
+        item.setText(1, str(self.num_gridplane))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"ESP Window:")
+        item.setText(1, str(self.num_espwindow))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Gamess:")
+        item.setText(1, str(self.ngamess))
+                
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Thermometers:")
+        item.setText(1, str(self.nthermos))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Thermostats:")
+        item.setText(1, str(self.nstats))
+
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Anchors:")
+        item.setText(1, str(self.nanchors))
+
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Linear Motors:")
+        item.setText(1, str(self.nlmotors))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Rotary Motors:")
+        item.setText(1, str(self.nrmotors))
+        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Groups:")
+        item.setText(1, str(self.ngroups))
+
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Open Bonds:")
+        item.setText(1, str(self.nsinglets))
+
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Atoms:")
+        item.setText(1, str(self.natoms))
+                        
+        item = QListViewItem(statsView,None)
+        item.setText(0,"Chunks:")
+        item.setText(1, str(self.nchunks))
+
 class GroupProp(GroupPropDialog):
     def __init__(self, group):
 
@@ -17,55 +94,9 @@ class GroupProp(GroupPropDialog):
         
         self.nameLineEdit.setText(group.name)
         
-        # Get statistics of group.
-        self.group.init_statistics(self)
-        self.group.getstatistics(self)
-
-        # Subtract singlets from total number of atoms            
-        self.natoms = self.natoms - self.nsinglets 
-            
-        # Display stats in listview
-        self.statsView.setSorting( -1) # Turn off sorting
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Groups:")
-        item.setText(1, str(self.ngroups))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Gamess:")
-        item.setText(1, str(self.ngamess))
-                
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Thermometers:")
-        item.setText(1, str(self.nthermos))
-        
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Thermostats:")
-        item.setText(1, str(self.nstats))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Anchors:")
-        item.setText(1, str(self.nanchors))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Linear Motors:")
-        item.setText(1, str(self.nlmotors))
-        
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Rotary Motors:")
-        item.setText(1, str(self.nrmotors))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Open Bonds:")
-        item.setText(1, str(self.nsinglets))
-
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Atoms:")
-        item.setText(1, str(self.natoms))
-                        
-        item = QListViewItem(self.statsView,None)
-        item.setText(0,"Chunks:")
-        item.setText(1, str(self.nchunks))
+        # Get statistics of group and display them in the statView widget.
+        stats = Statistics(group)
+        stats.display(self.statsView)
 
     #################
     # Cancel Button
