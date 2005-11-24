@@ -47,7 +47,6 @@ from files_mmp import readmmp, insertmmp
 from debug import print_compact_traceback
 
 from MainWindowUI import MainWindow
-from assistant import AssistantWindow
 from HistoryWidget import greenmsg, redmsg
 
 from movieMode import movieDashboardSlotsMixin
@@ -126,14 +125,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         # (see also env.history.message())
         self.createStatusBars()
-        
-        # Create Assistant - Mark 11-23-2004
-        self.assistant = AssistantWindow(self, "Assistant")
 
         windowList += [self]
         if name == None:
             self.setName("nanoENGINEER-1") # Mark 11-05-2004
-#            self.setName("Atom") 
 
         # start with empty window 
         self.assy = assembly(self, "Untitled")
@@ -891,11 +886,6 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     ###################################
     # Help Toolbar Slots
     ###################################
-
-    def helpAssistant(self):
-        # bruce 041118 moved this into assistant.py so I could merge
-        # common code about where to find the docfiles
-        self.assistant.openNE1Assistant()
     
     def helpMouseControls(self):
         self.help.showDialog(0)
