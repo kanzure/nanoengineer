@@ -902,6 +902,18 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
     def helpKeyboardShortcuts(self):
         self.help.showDialog(1)
+    
+    def helpGraphicsCard(self):
+        '''Displays details about the system's graphics card.
+        '''
+        # This is for Brad to complete.  Mark 051123.
+        ginfo = "Put graphics card information here."
+        
+        from widgets import TextMessageBox
+        msgbox = TextMessageBox(self)
+        msgbox.setCaption("Graphics Card Info")
+        msgbox.setText(ginfo)
+        msgbox.show()
       
     def helpAbout(self):
         """Displays information about this version of nanoENGINEER-1

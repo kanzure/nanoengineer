@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Nov 16 22:17:56 2005
+# Created: Wed Nov 23 10:41:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6781,6 +6781,7 @@ class MainWindow(QMainWindow):
         self.jigsDihedralAction.setIconSet(QIconSet(self.image144))
         self.insertNanotubeAction = QAction(self,"insertNanotubeAction")
         self.insertNanotubeAction.setIconSet(QIconSet(self.image145))
+        self.helpGraphicsCardAction = QAction(self,"helpGraphicsCardAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -7174,6 +7175,7 @@ class MainWindow(QMainWindow):
         self.helpMenu = QPopupMenu(self)
         self.helpMouseControlsAction.addTo(self.helpMenu)
         self.helpKeyboardShortcutsAction.addTo(self.helpMenu)
+        self.helpGraphicsCardAction.addTo(self.helpMenu)
         self.helpMenu.insertSeparator()
         self.helpAboutAction.addTo(self.helpMenu)
         self.MenuBar.insertItem(QString(""),self.helpMenu,14)
@@ -7333,6 +7335,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
+        self.connect(self.helpGraphicsCardAction,SIGNAL("activated()"),self.helpGraphicsCard)
 
 
     def languageChange(self):
@@ -7800,6 +7803,8 @@ class MainWindow(QMainWindow):
         self.jigsDihedralAction.setMenuText(self.__tr("Measure Dihedral"))
         self.insertNanotubeAction.setText(self.__tr("Nanotube"))
         self.insertNanotubeAction.setToolTip(self.__tr("Nanotube Generator"))
+        self.helpGraphicsCardAction.setText(self.__tr("Graphics Card Info"))
+        self.helpGraphicsCardAction.setMenuText(self.__tr("Graphics Card Info..."))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8379,6 +8384,9 @@ class MainWindow(QMainWindow):
 
     def insertNanotube(self):
         print "MainWindow.insertNanotube(): Not implemented yet"
+
+    def helpGraphicsCard(self):
+        print "MainWindow.helpGraphicsCard(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

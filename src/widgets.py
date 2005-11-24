@@ -10,7 +10,7 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import QSpinBox, QDoubleValidator, QLabel, QCheckBox, QWidget, QPopupMenu, QAction, SIGNAL, QPixmap, QIconSet, QColor, QString, QValidator
+from qt import *
 
 def is_qt_widget(obj):
     return isinstance(obj, QWidget)
@@ -291,4 +291,42 @@ def QColor_to_RGBf(qcolor): # by Mark 050921
     "Converts QColor to RGB float."
     return qcolor.red()/255.0, qcolor.green()/255.0, qcolor.blue()/255.0
 
+# ==
+
+class TextMessageBox(QDialog):
+    """The TextMessageBox class provides a modal dialog with a textedit widget 
+    and a close button.  It is used as an option to QMessageBox when displaying 
+    a large amount of text.  It also has the benefit of allowing the user to copy and 
+    paste the text from the textedit widget.
+    
+    Call the setText() method to insert text into the textedit widget.
+    """
+    def __init__(self,parent = None,name = None,modal = 1,fl = 0):
+        QDialog.__init__(self,parent,name,modal,fl)
+
+        if not name:
+            self.setName("TextMessageBox")
+
+        TextMessageLayout = QGridLayout(self,1,1,11,6,"TextMessageLayout")
+        
+        self.text_edit = QTextEdit(self,"text_edit")
+
+        TextMessageLayout.addMultiCellWidget(self.text_edit,0,0,0,1)
+
+        self.close_button = QPushButton(self,"close_button")
+        self.close_button.setText("Close")
+        TextMessageLayout.addWidget(self.close_button,1,1)
+        
+        spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TextMessageLayout.addItem(spacer,1,0)
+
+        self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
+        self.clearWState(Qt.WState_Polished)
+
+        self.connect(self.close_button,SIGNAL("clicked()"),self.close)
+        
+    def setText(self, txt):
+        "Sets the textedit's text to txt"
+        self.text_edit.setText(txt)
+        
 # end

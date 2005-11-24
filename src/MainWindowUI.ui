@@ -170,6 +170,7 @@
     <item text="&amp;Help" name="helpMenu">
         <action name="helpMouseControlsAction"/>
         <action name="helpKeyboardShortcutsAction"/>
+        <action name="helpGraphicsCardAction"/>
         <separator/>
         <action name="helpAboutAction"/>
     </item>
@@ -4057,6 +4058,17 @@
             <string>Nanotube Generator</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>helpGraphicsCardAction</cstring>
+        </property>
+        <property name="text">
+            <string>Graphics Card Info</string>
+        </property>
+        <property name="menuText">
+            <string>Graphics Card Info...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -5393,6 +5405,12 @@
         <receiver>MainWindow</receiver>
         <slot>zoomTool()</slot>
     </connection>
+    <connection>
+        <sender>helpGraphicsCardAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpGraphicsCard()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5569,6 +5587,7 @@
     <slot>makeMeasureAngle()</slot>
     <slot>makeMeasureDihedral()</slot>
     <slot>insertNanotube()</slot>
+    <slot>helpGraphicsCard()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
