@@ -315,7 +315,10 @@ class modifyMode(basicMode):
     # end of leftDrag
 
     def leftUp(self, event):
-        self.EndPick(event, 2)
+        if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
+            self.EndPick(event, 1) # Fixes bug 1015. Mark 051124.
+        else:
+            self.EndPick(event, 2)
         
     def EndPick(self, event, selSense):
         """Pick if click
