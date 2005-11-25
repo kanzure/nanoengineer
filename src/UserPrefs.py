@@ -147,12 +147,14 @@ class UserPrefs(UserPrefsDialog):
             self.prefs_tab.setCurrentPage(2)
         elif pagename == 'Modes':
             self.prefs_tab.setCurrentPage(3)
-        elif pagename == 'Plug-ins':
+        elif pagename == 'Lighting':
             self.prefs_tab.setCurrentPage(4)
-        elif pagename == 'History':
+        elif pagename == 'Plug-ins':
             self.prefs_tab.setCurrentPage(5)
-        elif pagename == 'Caption':
+        elif pagename == 'History':
             self.prefs_tab.setCurrentPage(6)
+        elif pagename == 'Caption':
+            self.prefs_tab.setCurrentPage(7)
         else:
             print 'Error: Preferences page unknown: ', pagename
 
@@ -219,6 +221,24 @@ class UserPrefs(UserPrefsDialog):
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
+
+# Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
+    def _setup_lighting_page(self, lights=None): #mark 051124
+        ''' Setup widgets to initial (default or defined) values on the Lighting page.
+        '''
+        if not lights:
+            self.lights = self.original_lights = self.glpane.getLighting()
+        else:
+            self.lights = lights
+        
+        self.light1_checkbox.setChecked(self.lights[0][2])
+        self.light1_slider.setValue(int (self.lights[0][1] * 100))
+        
+        self.light2_checkbox.setChecked(self.lights[1][2])
+        self.light2_slider.setValue(int (self.lights[1][1] * 100))
+        
+        self.light3_checkbox.setChecked(self.lights[2][2])
+        self.light3_slider.setValue(int (self.lights[2][1] * 100))
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the atoms page.
@@ -636,6 +656,42 @@ class UserPrefs(UserPrefsDialog):
         
     ########## End of slot methods for "Modes" page widgets ###########
     
+    ########## Slot methods for "Lighting" page widgets ################
+
+    def change_lights(self):
+        '''Slot for light checkboxes and sliders.
+        '''
+        light1 = [ self.glpane.__class__._lights[0][0], \
+                self.light1_slider.value() * .01, \
+                self.light1_checkbox.isChecked()]
+        light2 = [ self.glpane.__class__._lights[1][0], \
+                self.light2_slider.value() * .01, \
+                self.light2_checkbox.isChecked()]
+        light3 = [ self.glpane.__class__._lights[2][0], \
+                self.light3_slider.value() * .01,
+                self.light3_checkbox.isChecked()]
+                
+        self.glpane.setLighting([light1, light2, light3])
+        
+    def change_specular_highlights(self):
+        '''Slot for specular highlight checkbox and sliders.
+        '''
+        print "------------------\nSpecular Highlights Settings:"
+        print "Enabled = ", self.specular_highlights_checkbox.isChecked()
+        print "Shininess = ", self.shininess_slider.value()
+        print "Whiteness = ", self.whiteness_slider.value()
+
+    def lights_reset(self):
+        "Slot for Reset button"
+        self._setup_lighting_page(self.original_lights)
+        
+    def lights_restore_defaults(self):
+        "Slot for Restore Defaults button"
+        self.glpane.restoreDefaultLighting()
+        self._setup_lighting_page()
+
+    ########## End of slot methods for "Lighting" page widgets ###########
+    
     ########## Slot methods for "Plug-ins" page widgets ################
 
     def set_gamess_path(self):
@@ -741,6 +797,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_bonds_page()
         elif pagename == 'Modes':
             self._setup_modes_page()
+        elif pagename == 'Lighting':
+            self._setup_lighting_page()
         elif pagename == 'Plug-ins':
             self._setup_plugins_page()
         elif pagename == 'History':

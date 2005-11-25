@@ -690,10 +690,14 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def dispLighting(self):
         """Allows user to change lighting brightness.
         """
-        env.history.message(greenmsg("Lighting:"))
+        self.uprefs.showDialog('Lighting') # Show Prefences | Lighting.
 
-        from LightingTool import LightingTool
-        self.lightcntl = LightingTool(self.glpane) # Open Lighting Tool dialog
+        # env.history.message(greenmsg("Lighting:")) # Not needed IMHO. Mark 051124.
+        
+        # Original Lighting Tool.  Keeping this here in case we want
+        # to play with/test ambient and diffuse parameters.  Mark 051124.
+        #from LightingTool import LightingTool
+        #self.lightcntl = LightingTool(self.glpane) # Open Lighting Tool dialog
         
     ###############################################################
     # Select Toolbar Slots
