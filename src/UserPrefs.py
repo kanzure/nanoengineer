@@ -239,6 +239,16 @@ class UserPrefs(UserPrefsDialog):
         
         self.light3_checkbox.setChecked(self.lights[2][2])
         self.light3_slider.setValue(int (self.lights[2][1] * 100))
+        
+        # Fixes a bug since QSlider.setValue() generates a signal which
+        # calls the slot change_specular_highlights(), which sets the env prefs
+        # for shininess *and* whiteness at the same time.  Mark 051124.
+        shininess = int (env.prefs[shininess_prefs_key])
+        whiteness = int(env.prefs[whiteness_prefs_key] * 100)
+        
+        self.specular_highlights_checkbox.setChecked(env.prefs[specular_highlights_prefs_key])
+        self.shininess_slider.setValue(shininess) # generates signal!
+        self.whiteness_slider.setValue(whiteness) # generates signal!
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the atoms page.
@@ -678,8 +688,12 @@ class UserPrefs(UserPrefsDialog):
         '''
         print "------------------\nSpecular Highlights Settings:"
         print "Enabled = ", self.specular_highlights_checkbox.isChecked()
-        print "Shininess = ", self.shininess_slider.value()
-        print "Whiteness = ", self.whiteness_slider.value()
+        print "Shininess = ", float(self.shininess_slider.value())
+        print "Whiteness = ", float(self.whiteness_slider.value() * 0.01)
+        
+        env.prefs[specular_highlights_prefs_key] = self.specular_highlights_checkbox.isChecked()
+        env.prefs[shininess_prefs_key] = float(self.shininess_slider.value())
+        env.prefs[whiteness_prefs_key] = float(self.whiteness_slider.value() * 0.01)
 
     def lights_reset(self):
         "Slot for Reset button"

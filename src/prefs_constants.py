@@ -92,6 +92,11 @@ cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
 startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
 
+# Lighting prefs [added by mark 051124]
+specular_highlights_prefs_key = 'A7/Specular Highlights'
+shininess_prefs_key = 'A7/Shininess'
+whiteness_prefs_key = 'A7/Whiteness'
+
 # Plug-ins prefs [added to this table by mark 050918]
 gmspath_prefs_key = 'A6/GAMESS Path'
 gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
@@ -188,6 +193,12 @@ prefs_table = (
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
     ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
     
+    # Lighting preferences [added to this table by mark 051124]
+    
+    ('specular_highlights', 'boolean', specular_highlights_prefs_key, False),
+    ('shininess', 'float', shininess_prefs_key, 20.0),
+    ('whiteness', 'float', whiteness_prefs_key, 0.5), 
+
     # Plug-ins preferences [added to this table by mark 050919]
     
     ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
