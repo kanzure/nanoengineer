@@ -102,6 +102,14 @@ class BaseTest:
     def checkOutputFiles(self):
         if DEBUG > 0:
             print os.listdir(".")
+        if DEBUG > 1:
+            print ("******** " + self.basename + " ******** " +
+                   repr(self.exitvalue) + " ********")
+            for f in os.listdir("."):
+                if f != "simulator":
+                    # assume everything else is a text file
+                    print "---- " + f + " ----"
+                    sys.stdout.write(open(f).read())
         if GENERATE:
             # generate MD5 checksums for all output files, store in
             # .../sim/src/tests/rigid_organics/test_C4H8.md5sums
@@ -114,6 +122,12 @@ class BaseTest:
                 fname = self.testname + "." + ext
                 outf.write("%s %s\n" % (fname, md5sum(fname)))
             outf.close()
+            if "xyzcmp" in self.inputs:
+                if DEBUG > 0:
+                    print ("copy " + self.testname + ".xyz to " +
+                           self.basename + ".xyzcmp")
+                shutil.copy(self.testname + ".xyz",
+                            self.basename + ".xyzcmp")
             return
         if MD5_CHECKS_ONLY:
             inf = open(self.basename + ".md5sums")
@@ -146,18 +160,9 @@ class BaseTest:
                     elem2, x2, y2, z2 = xyz.readline().split()
                     x2, y2, z2 = map(string.atof, (x2, y2, z2))
                     dist = ((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2) ** .5
-                    assert dist < 0.8
-                # TODO should we check other things in this case?
-                return
-            raise Unimplemented
+                    assert dist < 0.5
+            # TODO should we check other things in this case?
 
-        if DEBUG > 1:
-            print ("******** " + self.basename + " ******** " +
-                   repr(self.exitvalue) + " ********")
-            for f in os.listdir("."):
-                if f != "simulator":
-                    print "---- " + f + " ----"
-                    sys.stdout.write(open(f).read())
 
 #########################################
 
@@ -171,6 +176,7 @@ class MinimizeTest(PassFailTest):
 
 class StructureTest(MinimizeTest):
     DEFAULT_INPUTS = ("xyzcmp",)
+    DEFAULT_OUTPUTS = ("trc", "xyz")
 
 class DynamicsTest(StructureTest):
     DEFAULT_INPUTS = ( )
