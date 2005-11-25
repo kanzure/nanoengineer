@@ -2,137 +2,180 @@
 
 import os
 import sys
+import string
 import shutil
 import unittest
-from subprocess import Popen
+import md5
+import subprocess
 
 os.system("make simulator")
 
-FAIL_UNIMPLEMENTED_TESTS = False
-DEBUG = False
-SLOW_TESTS = False
+class Unimplemented(AssertionError):
+    pass
 
-class FailTest:
+def rmtreeSafe(dir):
+    # platform-independent 'rm -rf'
+    try: shutil.rmtree(dir)
+    except OSError, e: assert e.args[0] == 2
 
-    def __init__(self, basename, simopts,
-                 inputs=("mmp",), outputs=()):
-        self.basename = basename
+def md5sum(filename):
+    hash = md5.new()
+    inf = open(filename)
+    for line in open(filename).readlines():
+        try:
+            line.index("Date and Time")
+            pass
+        except ValueError:
+            hash.update(line)
+    inf.close()
+    def hex2(ch):
+        return "%02X" % ord(ch)
+    return "".join(map(hex2, hash.digest()))
+
+DEBUG = 0
+MD5_CHECKS_ONLY = True
+GENERATE = False
+KEEPRESULTS = False
+
+class BaseTest:
+    DEFAULT_INPUTS = ( )  # in addition to xxx.mmp
+    DEFAULT_SIMOPTS = ( )
+    DEFAULT_OUTPUTS = ( )  # in addition to stdout, stderr
+
+    def __init__(self, simopts=None, inputs=None, outputs=None):
+        self.getBasename()
+        if inputs == None:
+            inputs = self.DEFAULT_INPUTS
+        if simopts == None:
+            simopts = self.DEFAULT_SIMOPTS
+        if outputs == None:
+            outputs = self.DEFAULT_OUTPUTS
         self.inputs = inputs
         self.outputs = outputs  # not using this yet
         self.runInSandbox(simopts)
         assert self.exitvalue == 0
 
+    def getBasename(self):
+        # get the calling method name e.g. "test_rigid_organics_C2H4"
+        name = sys._getframe(2).f_code.co_name
+        name = name[5:]  # get rid of "test_"
+        n = name.rindex("_")
+        self.dirname = dirname = name[:n]  # rigid_organicw
+        self.shortname = shortname = name[n+1:]  # C2H4
+        self.testname = testname = "test_" + shortname # test_C2H4
+        self.basename = os.sep.join([os.getcwd(), "tests",
+                                     dirname, testname])
+
     def runInSandbox(self, opts):
         # Run the simulator in sim/src/tmp.
-        tmpdir = "tmp"
-        try:
-            shutil.rmtree(tmpdir)
-        except OSError, e:
-            assert e.args[0] == 2
-        os.mkdir(tmpdir)
-        # Copy the input files into the tmp directory.
-        shutil.copy("simulator", tmpdir)
-        for ext in self.inputs:
-            shutil.copy(self.basename + "." + ext, tmpdir)
-        # Go into the tmp directory and run the simulator.
         here = os.getcwd()
-        os.chdir(tmpdir)
-        cmdline = ("./simulator",) + opts
-        stdout = open("stdout", "w")
-        stderr = open("stderr", "w")
-        if DEBUG: print cmdline
-        p = Popen(cmdline, stdout=stdout, stderr=stderr)
-        self.exitvalue = p.wait()
-        stdout.close()
-        stderr.close()
-        self.stdout = open("stdout").read()
-        self.stderr = open("stderr").read()
-        if DEBUG:
+        tmpdir = "tmp_" + self.dirname + "_" + self.shortname
+        try:
+            rmtreeSafe(tmpdir)
+            os.mkdir(tmpdir)
+            # Copy the input files into the tmp directory.
+            shutil.copy("simulator", tmpdir)
+            # We always have a .mmp file
+            shutil.copy(self.basename + ".mmp", tmpdir)
+            for ext in self.inputs:
+                shutil.copy(self.basename + "." + ext, tmpdir)
+            # Go into the tmp directory and run the simulator.
+            os.chdir(tmpdir)
+            cmdline = (("./simulator",) + opts +
+                       (self.testname + ".mmp",))
+            stdout = open("stdout", "w")
+            stderr = open("stderr", "w")
+            if DEBUG > 0:
+                print self.basename
+                print cmdline
+            p = subprocess.Popen(cmdline,
+                                 stdout=stdout, stderr=stderr)
+            self.exitvalue = p.wait()
+            stdout.close()
+            stderr.close()
+            self.checkOutputFiles()
+            return
+        finally:
+            os.chdir(here)
+            if not KEEPRESULTS: rmtreeSafe(tmpdir)
+
+    def checkOutputFiles(self):
+        if DEBUG > 0:
+            print os.listdir(".")
+        if GENERATE:
+            # generate MD5 checksums for all output files, store in
+            # .../sim/src/tests/rigid_organics/test_C4H8.md5sums
+            outf = open(self.basename + ".md5sums", "w")
+            stdout = md5sum("stdout")
+            stderr = md5sum("stderr")
+            outf.write("stdout %s\n" % md5sum("stdout"))
+            outf.write("stderr %s\n" % md5sum("stderr"))
+            for ext in self.outputs:
+                fname = self.testname + "." + ext
+                outf.write("%s %s\n" % (fname, md5sum(fname)))
+            outf.close()
+            return
+        if MD5_CHECKS_ONLY:
+            inf = open(self.basename + ".md5sums")
+            for line in inf.readlines():
+                fname, sum = line.split()
+                realsum = md5sum(fname)
+                if realsum != sum:
+                    print "Problem with " + self.basename + " " + fname
+                assert realsum == sum
+            inf.close()
+        else:
+            """This will be used for cases where we want to permit
+            approximate matches, basically either XYZ positions, or
+            sets of bonds and angles, or whole trajectories. We'll
+            probably only update this when we get new data from
+            Damian, or change approximation methods.
+            """
+            if "xyzcmp" in self.inputs:
+                xyzcmp = open(self.testname + ".xyzcmp")
+                xyz = open(self.testname + ".xyz")
+                # number of atoms should be the same
+                natoms = string.atoi(xyzcmp.readline().strip())
+                natoms2 = string.atoi(xyz.readline().strip())
+                assert natoms == natoms2
+                # ignore RMS for now
+                xyzcmp.readline(), xyz.readline()
+                for i in range(natoms):
+                    elem1, x1, y1, z1 = xyzcmp.readline().split()
+                    x1, y1, z1 = map(string.atof, (x1, y1, z1))
+                    elem2, x2, y2, z2 = xyz.readline().split()
+                    x2, y2, z2 = map(string.atof, (x2, y2, z2))
+                    dist = ((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2) ** .5
+                    assert dist < 0.8
+                # TODO should we check other things in this case?
+                return
+            raise Unimplemented
+
+        if DEBUG > 1:
             print ("******** " + self.basename + " ******** " +
                    repr(self.exitvalue) + " ********")
             for f in os.listdir("."):
                 if f != "simulator":
                     print "---- " + f + " ----"
                     sys.stdout.write(open(f).read())
-        os.chdir(here)
-        shutil.rmtree(tmpdir)
 
-class MinimizeTest(FailTest):
+#########################################
 
-    def __init__(self, basename, simopts=None,
-                 inputs=("mmp",), outputs=("trc", "xyz")):
-        if simopts == None:
-            testname = basename.split(os.sep)[-1]
-            simopts = ("--minimize",
-                       "--dump-as-text",
-                       testname + ".mmp")
-        self.basename = basename
-        self.inputs = inputs
-        self.outputs = outputs  # not using this yet
-        self.runInSandbox(simopts)
-        assert self.exitvalue == 0
-        if SLOW_TESTS:
-            if FAIL_UNIMPLEMENTED_TESTS:
-                assert "slow MinimizeTest unimplemented" == None
-        else:
-            # check MD5 checksums only
-            if FAIL_UNIMPLEMENTED_TESTS:
-                assert "fast MinimizeTest unimplemented" == None
+class PassFailTest(BaseTest):
+    pass
 
-class StructureTest(FailTest):
+class MinimizeTest(PassFailTest):
+    DEFAULT_SIMOPTS = ("--minimize",
+                       "--dump-as-text")
+    DEFAULT_OUTPUTS = ("xyz",)
 
-    def __init__(self, basename, simopts=None,
-                 inputs=("mmp",), outputs=("trc", "xyz")):
-        if simopts == None:
-            testname = basename.split(os.sep)[-1]
-            simopts = ("--minimize",
-                       "--dump-as-text",
-                       testname + ".mmp")
-        self.basename = basename
-        self.inputs = inputs
-        self.outputs = outputs  # not using this yet
-        self.runInSandbox(simopts)
-        assert self.exitvalue == 0
-        if SLOW_TESTS:
-            if FAIL_UNIMPLEMENTED_TESTS:
-                assert "slow StructureTest unimplemented" == None
-        else:
-            # check MD5 checksums only
-            if FAIL_UNIMPLEMENTED_TESTS:
-                assert "fast StructureTest unimplemented" == None
+class StructureTest(MinimizeTest):
+    DEFAULT_INPUTS = ("xyzcmp",)
 
-class DynamicsTest(FailTest):
-
-    def __init__(self, basename, simopts=None,
-                 inputs=("mmp", "xyz"), outputs=("trc", "xyz")):
-        if simopts == None:
-            testname = basename.split(os.sep)[-1]
-            simopts = ("--dump-as-text",
-                       testname + ".mmp")
-        self.basename = basename
-        self.inputs = inputs
-        self.outputs = outputs  # not using this yet
-        self.runInSandbox(simopts)
-        assert self.exitvalue == 0
-        if SLOW_TESTS:
-            if FAIL_UNIMPLEMENTED_TESTS:
-                assert "slow DynamicsTest unimplemented" == None
-        else:
-            # check MD5 checksums only
-            if FAIL_UNIMPLEMENTED_TESTS:
-                assert "fast DynamicsTest unimplemented" == None
-
-
-    def dynamicsTest(self, simopts, inputs=("mmp", "xyz"), outputs=()):
-        self.runInSandbox(simopts, inputs=inputs, outputs=outputs)
-        self.assertEqual(self.exitvalue, 0)
-        if SLOW_TESTS:
-            if FAIL_UNIMPLEMENTED_TESTS:
-                self.fail("slow dynamicsTest unimplemented")
-        else:
-            # check MD5 checksums only
-            if FAIL_UNIMPLEMENTED_TESTS:
-                self.fail("fast dynamicsTest unimplemented")
+class DynamicsTest(StructureTest):
+    DEFAULT_INPUTS = ( )
+    DEFAULT_SIMOPTS = ("--dump-as-text",)
+    DEFAULT_OUTPUTS = ("trc", "xyz")
 
 ####################################################
 # Everything currently living in a "*.test" file can
@@ -142,108 +185,99 @@ class Tests(unittest.TestCase):
     """Put the fast tests here.
     """
     def test_minimize_0001(self):
-        StructureTest("tests/minimize/test_0001")
+        StructureTest()
     def test_minimize_0002(self):
-        FailTest("tests/minimize/test_0002",
-                 ("--num-frames=500",
-                  "--minimize",
-                  "--dump-as-text",
-                  "test_0002.mmp"))
+        PassFailTest(("--num-frames=500",
+                      "--minimize",
+                      "--dump-as-text"))
     def test_minimize_0003(self):
-        FailTest("tests/minimize/test_0003",
-                 ("--num-frames=300",
-                  "--minimize",
-                  "--dump-intermediate-text",
-                  "--dump-as-text",
-                  "test_0003.mmp"))
+        PassFailTest(("--num-frames=300",
+                      "--minimize",
+                      "--dump-intermediate-text",
+                      "--dump-as-text"))
     def test_minimize_0004(self):
-        FailTest("tests/minimize/test_0004",
-                 ("--num-frames=600",
-                  "--minimize",
-                  "--dump-as-text",
-                  "test_0004.mmp"))
+        PassFailTest(("--num-frames=600",
+                      "--minimize",
+                      "--dump-as-text"))
     def test_minimize_0005(self):
-        StructureTest("tests/minimize/test_0005")
+        StructureTest()
     def test_minimize_0006(self):
-        FailTest("tests/minimize/test_0006",
-                 ("--num-frames=300",
-                  "--minimize",
-                  "--dump-intermediate-text",
-                  "--dump-as-text",
-                  "test_0006.mmp"))
+        PassFailTest(("--num-frames=300",
+                      "--minimize",
+                      "--dump-intermediate-text",
+                      "--dump-as-text"))
     def test_minimize_0007(self):
-        FailTest("tests/minimize/test_0007",
-                 ("--num-frames=300",
-                  "--minimize",
-                  "--dump-intermediate-text",
-                  "--dump-as-text",
-                  "test_0007.mmp"))
+        PassFailTest(("--num-frames=300",
+                      "--minimize",
+                      "--dump-intermediate-text",
+                      "--dump-as-text"))
     def test_minimize_0008(self):
         # test ground in minimize
-        MinimizeTest("tests/minimize/test_0008")
+        MinimizeTest()
     def test_minimize_0009(self):
-        StructureTest("tests/minimize/test_0009")
+        StructureTest()
     def test_minimize_0010(self):
-        MinimizeTest("tests/minimize/test_0010")
+        MinimizeTest()
     def test_minimize_0011(self):
-        MinimizeTest("tests/minimize/test_0011")
+        MinimizeTest()
     def test_minimize_0012(self):
-        MinimizeTest("tests/minimize/test_0012")
+        MinimizeTest()
     def test_minimize_0013(self):
-        StructureTest("tests/minimize/test_0013")
+        StructureTest()
     def test_rigid_organics_C10H12(self):
-        StructureTest("tests/rigid_organics/test_C10H12")
+        StructureTest()
     def test_rigid_organics_C10H14(self):
-        StructureTest("tests/rigid_organics/test_C10H14")
+        StructureTest()
     def test_rigid_organics_C14H20(self):
-        StructureTest("tests/rigid_organics/test_C14H20")
+        StructureTest()
     def test_rigid_organics_C14H24(self):
-        StructureTest("tests/rigid_organics/test_C14H24")
+        StructureTest()
     def test_rigid_organics_C2H6(self):
-        StructureTest("tests/rigid_organics/test_C2H6")
+        StructureTest()
     def test_rigid_organics_C3H6(self):
-        StructureTest("tests/rigid_organics/test_C3H6")
+        StructureTest()
     def test_rigid_organics_C3H8(self):
-        StructureTest("tests/rigid_organics/test_C3H8")
+        StructureTest()
     def test_rigid_organics_C4H8(self):
-        StructureTest("tests/rigid_organics/test_C4H8")
+        StructureTest()
     def test_rigid_organics_C6H10(self):
-        StructureTest("tests/rigid_organics/test_C6H10")
+        StructureTest()
     def test_rigid_organics_C8H14(self):
-        StructureTest("tests/rigid_organics/test_C8H14")
+        StructureTest()
     def test_rigid_organics_C8H8(self):
-        StructureTest("tests/rigid_organics/test_C8H8")
+        StructureTest()
     def test_rigid_organics_CH4(self):
-        StructureTest("tests/rigid_organics/test_CH4")
-    def test_dynamics_0001(self):
-        # rotary motor test
-        FailTest("tests/dynamics/test_0001",
-                 ("--num-frames=30",
-                  "--temperature=0",
-                  "--iters-per-frame=10000",
-                  "--dump-as-text",
-                  "test_0001.xyz"),
-                 inputs=("mmp", "xyz"))
+        StructureTest()
     def test_dynamics_0002(self):
         # ground, thermostat, and thermometer test
-        DynamicsTest("tests/dynamics/test_0002",
-                     ("--num-frames=100",
+        DynamicsTest(("--num-frames=100",
                       "--temperature=300",
                       "--iters-per-frame=10",
-                      "--dump-as-text",
-                      "test_0002.xyz"))
+                      "--dump-as-text"))
+
+class SlowTests(Tests):
+    """Put the slow tests here.
+    """
+    def test_dynamics_0001(self):
+        # rotary motor test
+        PassFailTest(("--num-frames=30",
+                      "--temperature=0",
+                      "--iters-per-frame=10000",
+                      "--dump-as-text"))
 
 ###########################################
 
 if __name__ == "__main__":
+    if "generate" in sys.argv[1:]:
+        GENERATE = True
     if "debug" in sys.argv[1:]:
-        DEBUG = True
-    if "unimp" in sys.argv[1:]:
-        FAIL_UNIMPLEMENTED_TESTS = True
+        DEBUG = 1
+    if "keep" in sys.argv[1:]:
+        KEEPRESULTS = True
+    if "thorough" in sys.argv[1:]:
+        MD5_CHECKS_ONLY = False
     if "slow" in sys.argv[1:]:
-        SLOW_TESTS = True
-    #if SLOW_TESTS:
-    #    Tests = SlowTests
+        Tests = SlowTests
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
     runner.run(suite)
