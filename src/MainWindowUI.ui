@@ -2059,7 +2059,7 @@
             <iconset>image51</iconset>
         </property>
         <property name="text">
-            <string>&amp;Linear Motor</string>
+            <string>Linear Motor</string>
         </property>
         <property name="menuText">
             <string>&amp;Linear Motor</string>

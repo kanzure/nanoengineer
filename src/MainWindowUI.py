@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Nov 23 10:41:15 2005
+# Created: Thu Nov 24 23:20:05 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7515,7 +7515,7 @@ class MainWindow(QMainWindow):
         self.setViewRecenterAction.setMenuText(self.__tr("&Recenter"))
         self.setViewRecenterAction.setToolTip(self.__tr("Recenter (Ctrl+R)"))
         self.setViewRecenterAction.setAccel(self.__tr("Ctrl+R"))
-        self.jigsLinearMotorAction.setText(self.__tr("&Linear Motor"))
+        self.jigsLinearMotorAction.setText(self.__tr("Linear Motor"))
         self.jigsLinearMotorAction.setMenuText(self.__tr("&Linear Motor"))
         self.toggleModifyTbarAction.setText(self.__tr("Modify"))
         self.toggleModifyTbarAction.setMenuText(self.__tr("Modify"))
