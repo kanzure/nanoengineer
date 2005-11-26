@@ -3091,49 +3091,31 @@
         <sender>lights_reset_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>lights_reset()</slot>
+        <slot>reset_lighting()</slot>
     </connection>
     <connection>
         <sender>lights_restore_defaults_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>lights_restore_defaults()</slot>
+        <slot>restore_default_lighting()</slot>
     </connection>
     <connection>
         <sender>light1_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lights()</slot>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light2_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lights()</slot>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light3_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lights()</slot>
-    </connection>
-    <connection>
-        <sender>light1_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lights()</slot>
-    </connection>
-    <connection>
-        <sender>light2_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lights()</slot>
-    </connection>
-    <connection>
-        <sender>light3_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lights()</slot>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>specular_highlights_checkbox</sender>
@@ -3152,6 +3134,42 @@
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_specular_highlights()</slot>
+    </connection>
+    <connection>
+        <sender>light1_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light2_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light3_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light1_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light2_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light3_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -3224,10 +3242,11 @@
     <slot>change_cpk_atom_radius()</slot>
     <slot>change_cpk_cylinder_radius()</slot>
     <slot>change_animate_standard_views()</slot>
-    <slot>lights_reset()</slot>
-    <slot>lights_restore_defaults()</slot>
-    <slot>change_lights()</slot>
+    <slot>reset_lighting()</slot>
+    <slot>restore_default_lighting()</slot>
+    <slot>change_lighting()</slot>
     <slot>change_specular_highlights()</slot>
+    <slot>save_lighting()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

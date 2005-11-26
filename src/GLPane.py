@@ -930,7 +930,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 val[name] = params
             # save the prefs to the database file
             prefs[key] = val
-            env.history.message( greenmsg( "Lighting preferences saved" ))
+            # This was printing many redundant messages since this method is called 
+            # many times while changing lighting parameters in the Preferences | Lighting dialog.
+            # Mark 051125.
+            #env.history.message( greenmsg( "Lighting preferences saved" ))
         except:
             print_compact_traceback("bug: exception in saveLighting (pref changes not saved): ")
             #e redmsg?

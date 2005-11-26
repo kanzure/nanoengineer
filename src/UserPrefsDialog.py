@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Nov 24 17:36:51 2005
+# Created: Fri Nov 25 18:33:47 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -959,17 +959,20 @@ class UserPrefsDialog(QDialog):
         self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_atom_radius)
         self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_cylinder_radius)
         self.connect(self.animate_views_checkbox,SIGNAL("stateChanged(int)"),self.change_animate_standard_views)
-        self.connect(self.lights_reset_btn,SIGNAL("clicked()"),self.lights_reset)
-        self.connect(self.lights_restore_defaults_btn,SIGNAL("clicked()"),self.lights_restore_defaults)
-        self.connect(self.light1_slider,SIGNAL("valueChanged(int)"),self.change_lights)
-        self.connect(self.light2_slider,SIGNAL("valueChanged(int)"),self.change_lights)
-        self.connect(self.light3_slider,SIGNAL("valueChanged(int)"),self.change_lights)
-        self.connect(self.light1_checkbox,SIGNAL("clicked()"),self.change_lights)
-        self.connect(self.light2_checkbox,SIGNAL("clicked()"),self.change_lights)
-        self.connect(self.light3_checkbox,SIGNAL("clicked()"),self.change_lights)
+        self.connect(self.lights_reset_btn,SIGNAL("clicked()"),self.reset_lighting)
+        self.connect(self.lights_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
+        self.connect(self.light1_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light2_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light3_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.specular_highlights_checkbox,SIGNAL("clicked()"),self.change_specular_highlights)
         self.connect(self.shininess_slider,SIGNAL("valueChanged(int)"),self.change_specular_highlights)
         self.connect(self.whiteness_slider,SIGNAL("valueChanged(int)"),self.change_specular_highlights)
+        self.connect(self.light1_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light2_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light3_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light1_checkbox,SIGNAL("clicked()"),self.save_lighting)
+        self.connect(self.light2_checkbox,SIGNAL("clicked()"),self.save_lighting)
+        self.connect(self.light3_checkbox,SIGNAL("clicked()"),self.save_lighting)
 
         self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
@@ -1254,17 +1257,20 @@ class UserPrefsDialog(QDialog):
     def change_animate_standard_views(self):
         print "UserPrefsDialog.change_animate_standard_views(): Not implemented yet"
 
-    def lights_reset(self):
-        print "UserPrefsDialog.lights_reset(): Not implemented yet"
+    def reset_lighting(self):
+        print "UserPrefsDialog.reset_lighting(): Not implemented yet"
 
-    def lights_restore_defaults(self):
-        print "UserPrefsDialog.lights_restore_defaults(): Not implemented yet"
+    def restore_default_lighting(self):
+        print "UserPrefsDialog.restore_default_lighting(): Not implemented yet"
 
-    def change_lights(self):
-        print "UserPrefsDialog.change_lights(): Not implemented yet"
+    def change_lighting(self):
+        print "UserPrefsDialog.change_lighting(): Not implemented yet"
 
     def change_specular_highlights(self):
         print "UserPrefsDialog.change_specular_highlights(): Not implemented yet"
+
+    def save_lighting(self):
+        print "UserPrefsDialog.save_lighting(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

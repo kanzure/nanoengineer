@@ -668,8 +668,9 @@ class UserPrefs(UserPrefsDialog):
     
     ########## Slot methods for "Lighting" page widgets ################
 
-    def change_lights(self):
-        '''Slot for light checkboxes and sliders.
+    def change_lighting(self):
+        '''Updates glpane lighting using the current lighting parameters from the
+        light checkboxes and sliders. This is also the slot for the light sliders.
         '''
         light1 = [ self.glpane.__class__._lights[0][0], \
                 self.light1_slider.value() * .01, \
@@ -684,7 +685,8 @@ class UserPrefs(UserPrefsDialog):
         self.glpane.setLighting([light1, light2, light3])
         
     def change_specular_highlights(self):
-        '''Slot for specular highlight checkbox and sliders.
+        '''Saves specular highlights parameters (but not lighting parameters) to pref db.
+        This is the slot for specular highlights checkboxes and sliders.
         '''
         print "------------------\nSpecular Highlights Settings:"
         print "Enabled = ", self.specular_highlights_checkbox.isChecked()
@@ -695,14 +697,23 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[shininess_prefs_key] = float(self.shininess_slider.value())
         env.prefs[whiteness_prefs_key] = float(self.whiteness_slider.value() * 0.01)
 
-    def lights_reset(self):
+    def reset_lighting(self):
         "Slot for Reset button"
         self._setup_lighting_page(self.original_lights)
+        self.glpane.saveLighting()
         
-    def lights_restore_defaults(self):
+    def restore_default_lighting(self):
         "Slot for Restore Defaults button"
         self.glpane.restoreDefaultLighting()
         self._setup_lighting_page()
+        self.glpane.saveLighting()
+        
+    def save_lighting(self):
+        '''Saves lighting parameters (but not specular highlight parameters) to pref db.
+        This is the slot for light checkboxes and sliders (only when released).
+        '''
+        self.change_lighting()
+        self.glpane.saveLighting()
 
     ########## End of slot methods for "Lighting" page widgets ###########
     
