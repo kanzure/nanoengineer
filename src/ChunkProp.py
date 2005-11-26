@@ -77,6 +77,8 @@ class ChunkProp(ChunkPropDialog):
             self.chunk_QColor = color
             self.chunk.color = QColor_to_RGBf(color)
             self.chunk.setcolor(self.chunk.color)
+            if self.chunk.hidden: # A hidden chunk has no glpane attr.
+                return
             self.glpane.gl_update()
 
     def reset_chunk_color(self):
@@ -86,12 +88,16 @@ class ChunkProp(ChunkPropDialog):
         self.chunk_color_frame.setPaletteBackgroundColor(self.chunk_QColor)
         self.chunk.color = None
         self.chunk.setcolor(self.chunk.color)
+        if self.chunk.hidden: # A hidden chunk has no glpane attr.
+                return
         self.glpane.gl_update()
     
     def make_atoms_visible(self):
         '''Makes any atoms in this chunk visible.
         '''
         self.chunk.show_invisible_atoms()
+        if self.chunk.hidden: # A hidden chunk has no glpane attr.
+                return
         self.glpane.gl_update()
         
     def accept(self):
@@ -107,6 +113,11 @@ class ChunkProp(ChunkPropDialog):
         
         self.chunk.color = self.original_color
         self.chunk.setcolor(self.chunk.color)
-        self.glpane.gl_update()
-        
+
         QDialog.reject(self)
+        
+        # A hidden chunk has no glpane attr.  This fixes bug 1137.  Mark 051126.
+        if self.chunk.hidden:
+            return
+            
+        self.glpane.gl_update()
