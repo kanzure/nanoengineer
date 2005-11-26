@@ -234,8 +234,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.setFocusPolicy(QWidget.StrongFocus)
         
         # Create the "What's This?" online help system.
-        from whatsthis import createWhatsThis
+        from whatsthis import createWhatsThis, fix_whatsthis_text_for_mac
         createWhatsThis(self)
+        
+        # IMPORTANT: All widget creation (i.e. dashboards, dialogs, etc.) and their 
+        # whatthis text should be created before this line.
+        fix_whatsthis_text_for_mac(self) # Fixes bug 1136.  Mark 051126.
 
         # Start with Carbon as the default element (for Deposit Mode
         # and the Element Selector)
@@ -1482,7 +1486,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
                 self.cookieSelectDashboard]:
                     self.setAppropriate(obj, False)
-                    
+            
     def enableViews(self, enableFlag=True):
         '''Disables/enables view actions on toolbar and menu.
         '''

@@ -493,9 +493,9 @@ def createWhatsThis(self):
         
         #### Select None ####
 
-        selectNoneActionText = "<u><b>Select None</b></u>     (Ctrl + D)</b></p><br>"\
+        selectNoneActionText = "<u><b>Select None</b></u></p><br>"\
                        "<p><img source=\"selectNoneAction\"><br> "\
-                       "Unselects anything currently selected.</p>"
+                       "Unselects everything currently selected.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectNoneAction",
                                                        self.selectNoneAction.iconSet().pixmap() )
@@ -1304,3 +1304,27 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
     MPQCESPTipText = "Enables/disables MPQC Electrostatics Potential Plane Plugin"
 
     QToolTip.add(w.MPQC_ESP_checkbox, MPQCESPTipText)
+    
+def fix_whatsthis_text_for_mac(parent):
+    '''If the system is a Mac, this replaces all occurances of 'Ctrl' with 'Cmd' in all the 
+    whatsthis text for all QAction widgets that are children of parent.  This should be 
+    called after all widgets (and their whatsthis text) in the UI have been created.
+    '''
+    from platform import is_not_macintosh
+    
+    if is_not_macintosh():
+        return
+        
+    objList = parent.queryList("QAction")
+    for obj in objList:
+        original_txt = obj.whatsThis()
+        new_txt = replace_ctrl_with_cmd_text(original_txt)
+        obj.setWhatsThis(new_txt)
+        
+    
+def replace_ctrl_with_cmd_text(str):
+    '''Returns a string, replacing all occurances of Ctrl with Cmd in 'str'.
+    '''
+    str = str.replace('Ctrl', 'Cmd')
+    str = str.replace('ctrl', 'cmd')
+    return str
