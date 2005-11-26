@@ -1251,7 +1251,7 @@
             <string>&amp;All</string>
         </property>
         <property name="toolTip">
-            <string>Select All (Ctrl+A)</string>
+            <string>Select All</string>
         </property>
         <property name="accel">
             <string>Ctrl+A</string>
@@ -1288,7 +1288,7 @@
             <string>&amp;Invert</string>
         </property>
         <property name="toolTip">
-            <string>Select Invert (Ctrl+Shift+I)</string>
+            <string>Select Invert</string>
         </property>
         <property name="accel">
             <string>Ctrl+Shift+I</string>
@@ -3383,17 +3383,6 @@
         </property>
         <property name="menuText">
             <string>Lighting...</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>selecttestAction</cstring>
-        </property>
-        <property name="text">
-            <string>test</string>
-        </property>
-        <property name="menuText">
-            <string>test</string>
         </property>
     </action>
     <action>

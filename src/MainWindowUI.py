@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Nov 24 23:20:05 2005
+# Created: Sat Nov 26 13:05:20 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6683,7 +6683,6 @@ class MainWindow(QMainWindow):
         self.simPlotToolAction.setEnabled(1)
         self.simPlotToolAction.setIconSet(QIconSet(self.image111))
         self.dispLightingAction = QAction(self,"dispLightingAction")
-        self.selecttestAction = QAction(self,"selecttestAction")
         self.dispResetAtomsDisplayAction = QAction(self,"dispResetAtomsDisplayAction")
         self.dispShowInvisAtomsAction = QAction(self,"dispShowInvisAtomsAction")
         self.cookieCutterViewActionGroup = QActionGroup(self,"cookieCutterViewActionGroup")
@@ -7394,14 +7393,14 @@ class MainWindow(QMainWindow):
         self.dispBGColorAction.setMenuText(self.__tr("&Background Color..."))
         self.selectAllAction.setText(self.__tr("All"))
         self.selectAllAction.setMenuText(self.__tr("&All"))
-        self.selectAllAction.setToolTip(self.__tr("Select All (Ctrl+A)"))
+        self.selectAllAction.setToolTip(self.__tr("Select All"))
         self.selectAllAction.setAccel(self.__tr("Ctrl+A"))
         self.selectNoneAction.setText(self.__tr("None"))
         self.selectNoneAction.setMenuText(self.__tr("&None"))
         self.selectNoneAction.setToolTip(self.__tr("Select None"))
         self.selectInvertAction.setText(self.__tr("Invert"))
         self.selectInvertAction.setMenuText(self.__tr("&Invert"))
-        self.selectInvertAction.setToolTip(self.__tr("Select Invert (Ctrl+Shift+I)"))
+        self.selectInvertAction.setToolTip(self.__tr("Select Invert"))
         self.selectInvertAction.setAccel(self.__tr("Ctrl+Shift+I"))
         self.ccAddLayerAction.setText(self.__tr("Add Layer"))
         self.ccAddLayerAction.setMenuText(self.__tr("Add Layer"))
@@ -7706,8 +7705,6 @@ class MainWindow(QMainWindow):
         self.simPlotToolAction.setMenuText(self.__tr("Plot Tool..."))
         self.dispLightingAction.setText(self.__tr("Lighting"))
         self.dispLightingAction.setMenuText(self.__tr("Lighting..."))
-        self.selecttestAction.setText(self.__tr("test"))
-        self.selecttestAction.setMenuText(self.__tr("test"))
         self.dispResetAtomsDisplayAction.setText(self.__tr("Reset Atoms Display"))
         self.dispResetAtomsDisplayAction.setMenuText(self.__tr("Reset Atoms Display"))
         self.dispShowInvisAtomsAction.setText(self.__tr("Show Invisible Atoms"))
