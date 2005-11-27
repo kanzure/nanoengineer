@@ -688,10 +688,10 @@ class UserPrefs(UserPrefsDialog):
         '''Saves specular highlights parameters (but not lighting parameters) to pref db.
         This is the slot for specular highlights checkboxes and sliders.
         '''
-        print "------------------\nSpecular Highlights Settings:"
-        print "Enabled = ", self.specular_highlights_checkbox.isChecked()
-        print "Shininess = ", float(self.shininess_slider.value())
-        print "Whiteness = ", float(self.whiteness_slider.value() * 0.01)
+##        print "------------------\nSpecular Highlights Settings:"
+##        print "Enabled = ", self.specular_highlights_checkbox.isChecked()
+##        print "Shininess = ", float(self.shininess_slider.value())
+##        print "Whiteness = ", float(self.whiteness_slider.value() * 0.01)
         
         env.prefs[specular_highlights_prefs_key] = self.specular_highlights_checkbox.isChecked()
         env.prefs[shininess_prefs_key] = float(self.shininess_slider.value())

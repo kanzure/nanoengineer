@@ -33,6 +33,7 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     # would draw differently due to a change in some graphics pref it used
 from prefs_constants import atomHotspotColor_prefs_key
 import env
+import drawer #bruce 051126
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -160,12 +161,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # atomkeypos is a "virtual attribute" for Undo ###@@@ still needs decls for change-tracking, maybe more
     
     def _get_atomkeypos(self): #bruce 051013
-        "return a pair of Numeric arrays, containing the keys and posns of the atoms we should have"
+        "return a pair of Numeric arrays, containing the keys and posns of this chunk's atoms (in order of keys)"###@@@ order ok?
         keys = map( lambda a: a.key, self.atlist )
-        posns = self.atpos
+        posns = self.atpos ###@@@ non-copied ok? if so, doc in docstring
         return keys, posns
     
-    def _um_setattr_atomkeypos(self, val, model): #bruce 051013 ####@@@@ call it
+    def _um_setattr_atomkeypos(self, val, model): #bruce 051013 (for undo to change a chunk's atoms or their posns) ####@@@@ call it
         ###e should we change name of atomkeypos to make it obvious it's a virtual attribute?
         "[overrides usual setattr called by GenericDiffTracker_API_Mixin for self.atomkeypos]"
         # does private things to Atom attributes; see also similar code in self.merge()
@@ -975,7 +976,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
 
             eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
-            if self.havelist == (disp, eltprefs): # value must agree with set of havelist, below
+            matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
+            if self.havelist == (disp, eltprefs, matprefs): # value must agree with set of havelist, below
                 glCallList(self.displist)
             else:
                 self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way
@@ -997,7 +999,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # This is the only place where havelist is set to anything true;
                 # the value it's set to must match the value it's compared with, above.
                 # [bruce 050415 revised what it's set to/compared with; details above]
-                self.havelist = (disp, eltprefs)
+                self.havelist = (disp, eltprefs, matprefs)
                 assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
                 # always set the self.havelist flag, even if exception happened,
                 # so it doesn't keep happening with every redraw of this molecule.

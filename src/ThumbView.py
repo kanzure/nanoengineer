@@ -64,14 +64,15 @@ class ThumbView(QGLWidget):
     
             
     def initializeGL(self, prefs = drawer._glprefs):
-        """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading affect.
+        """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading effect.
         """
+        #bruce comment 051126: this should be replaced, and made to use common lighting code with GLPane,
+        # to fix some old bugs, plus a new one I'm introducing now by not noticing changes to override_light_specular here.
         glEnable(GL_NORMALIZE)
         glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
 	if prefs.override_light_specular is not None:
-	    print "override light specular"
 	    glLightfv(GL_LIGHT0, GL_SPECULAR, prefs.override_light_specular)
 	else:
 	    # grantham 20051121 - this should be a component on its own
@@ -82,22 +83,16 @@ class ThumbView(QGLWidget):
         glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
         glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
 	if prefs.override_light_specular is not None:
-	    print "override light specular"
 	    glLightfv(GL_LIGHT1, GL_SPECULAR, prefs.override_light_specular)
 	else:
-	    # grantham 20051121 - this should be a component on its own
-	    # not replicating the diffuse color.
 	    glLightfv(GL_LIGHT1, GL_SPECULAR, (0.4, 0.4, 0.4, 1.0))
         glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
         glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
         glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
         glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
 	if prefs.override_light_specular is not None:
-	    print "override light specular"
 	    glLightfv(GL_LIGHT2, GL_SPECULAR, prefs.override_light_specular)
 	else:
-	    # grantham 20051121 - this should be a component on its own
-	    # not replicating the diffuse color.
 	    glLightfv(GL_LIGHT2, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
         glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
         glEnable(GL_LIGHTING)

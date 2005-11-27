@@ -13,6 +13,8 @@ import OpenGL.GLUT as glut
 import math
 from VQT import *
 from constants import DIAMOND_BOND_LENGTH
+import env #bruce 051126
+from prefs_constants import specular_highlights_prefs_key, shininess_prefs_key, whiteness_prefs_key #bruce 051126
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -156,40 +158,86 @@ numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
 
-# grantham 20051118
+# grantham 20051118; revised by bruce 051126
 class glprefs:
     def __init__(self):
-	self.override_material_specular = None
-	    # set to 4-element sequence to override material specular component
-	self.override_shininess = None
-	    # if exists, overrides shininess
-	self.override_light_specular = None
-	    # set to 4-element sequence to override light specular component
+##	self.override_material_specular = None
+##	    # set to 4-element sequence to override material specular component
+##	self.override_shininess = None
+##	    # if exists, overrides shininess
+##	self.override_light_specular = None
+##	    # set to 4-element sequence to override light specular component
+        import preferences #bruce 051126 KLUGE: make sure env.prefs exists (could use cleanup, but that's not trivial)
+        self.update()
+    def update(self): #bruce 051126 added this method
+        """Update attributes from current drawing-related prefs stored in prefs db cache.
+           This should be called at the start of each complete redraw, or whenever the user changes these global prefs values
+        (whichever is more convenient).
+           (Note: When this is called during redraw, its prefs db accesses (like any others)
+        record those prefs as potentially affecting what should be drawn, so that subsequent
+        changes to those prefs values cause an automatic gl_update.)
+           Using these attributes in drawing code (rather than directly accessing prefs db cache)
+        is desirable for efficiency, since direct access to prefs db cache is a bit slow.
+        (Our drawing code still does that in other places -- those might also benefit from this system,
+         though this will soon be moot when low-level drawing code gets rewritten in C.)
+        """
+        self.enable_specular_highlights = not not env.prefs[specular_highlights_prefs_key] # boolean
+        if self.enable_specular_highlights:
+            self.override_light_specular = None # used in glpane
+            self.specular_shininess = float(env.prefs[shininess_prefs_key]) # float; shininess exponent for all specular highlights
+            self.specular_whiteness = float(env.prefs[whiteness_prefs_key]) # float; whiteness for all material specular colors
+                #bruce 051126 added whiteness code, Brad has not yet reviewed it for OpenGL correctness
+                # (Brad, you can remove that comment after you review that code and my comments about it)
+        else:
+            self.override_light_specular = (0.0, 0.0, 0.0, 0.0) # used in glpane
+            # Set these to reasonable values, though these attributes are presumably never used in this case.
+            # Don't access the prefs db in this case, since that would cause UI prefs changes to do unnecessary gl_updates.
+            # (If we ever add a scenegraph node which can enable specular highlights but use outside values for these parameters,
+            #  then to make it work correctly we'll need to revise this code.)
+            self.specular_shininess = 20.0
+            self.specular_whiteness = 1.0
+        return
+    def materialprefs_summary(self): #bruce 051126
+        """Return a Python data object summarizing our prefs which affect chunk display lists,
+        so that memoized display lists should become invalid (due to changes in this object)
+        if and only if this value becomes different.
+        """
+        res = (self.enable_specular_highlights,)
+        if self.enable_specular_highlights:
+            res = res + ( self.specular_shininess, self.specular_whiteness )
+        return res
+    pass # end of class glprefs
 
 _glprefs = glprefs()
 
-def materialapply(color, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0,
-    prefs = _glprefs):
+def materialapply(color): # grantham 20051121; revised by bruce 051126
+    "Set OpenGL material parameters based on the given color and the material-related prefs values in _glprefs."
+
+    if not _glprefs.enable_specular_highlights:
+        # This almost completely returns materialapply() to the old glMaterial behavior.
+        # (Assuming bruce 051126 correctly edited grantham 20051121 code which had a similar comment.)
+        #k bruce 051126 question: why not use GL_FRONT_AND_BACK here, or, why not use GL_FRONT below?
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
+        return
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
-
-    if prefs.override_material_specular is not None:
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,
-	    prefs.override_material_specular)
+    
+    whiteness = _glprefs.specular_whiteness
+    if whiteness == 1.0:
+        specular = (1.0, 1.0, 1.0, 1.0) # optimization
     else:
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
+        if whiteness == 0.0:
+            if len(color) == 3: # usually true
+                color = tuple(color) + (1.0,) # might not be needed, depending on PyQt glMaterialfv implem
+            specular = color # optimization
+        else:
+            # assume color[3] (alpha) is not passed or is always 1.0
+            c1 = 1.0 - whiteness
+            specular = ( c1 * color[0] + whiteness, c1 * color[1] + whiteness, c1 * color[2] + whiteness, 1.0 )
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
 
-    if prefs.override_shininess is not None:
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS,
-	    prefs.override_shininess)
-    else:
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess)
-
-# grantham 20051121
-# This next lambda almost completely returns materialapply() to the old
-# glMaterial behavior.
-if True:
-    materialapply = lambda c,sp,sh : glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, c)
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, _glprefs.specular_shininess)
+    return
 
 halfHeight = 0.45
 
@@ -562,8 +610,8 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     glPopMatrix()
     return
 
-def drawsphere(color, pos, radius, detailLevel, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0):
-    materialapply(color, specular, shininess)
+def drawsphere(color, pos, radius, detailLevel):
+    materialapply(color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
@@ -585,9 +633,9 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glPolygonMode(GL_FRONT, GL_FILL)
     return
 
-def drawcylinder(color, pos1, pos2, radius, capped=0, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0):
+def drawcylinder(color, pos1, pos2, radius, capped=0):
     global CylList, CapList
-    materialapply(color, specular, shininess)
+    materialapply(color)
     glPushMatrix()
     vec = pos2-pos1
     axis = norm(vec)
@@ -872,8 +920,8 @@ def drawRubberBand(pt1, pt2, c2, c3, color):
        
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
-def drawbrick(color, center, axis, l, h, w, specular=(1.0, 1.0, 1.0, 1.0), shininess = 20.0):
-    materialapply(color, specular, shininess)
+def drawbrick(color, center, axis, l, h, w):
+    materialapply(color)
     glPushMatrix()
     glTranslatef(center[0], center[1], center[2])
     

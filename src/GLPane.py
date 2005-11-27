@@ -820,6 +820,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     _default_lights = list( _lights) # this copy will never be changed
 
     need_setup_lighting = True # whether the next paintGL needs to call it
+
+    _last_override_light_specular = None #bruce 051126
     
     def _setup_lighting(self, prefs = drawer._glprefs):
         """[private method]
@@ -837,6 +839,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         try:
             # new code
             ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = self._lights #e might revise format
+
+            self._last_override_light_specular = prefs.override_light_specular #bruce 051126
 
             glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
             glLightfv(GL_LIGHT0, GL_AMBIENT, (a0, a0, a0, 1.0))
@@ -1320,8 +1324,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         #k not sure whether next two things are also needed in the split-out standard_repaint [bruce 050617]
         
         self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
+
+        drawer._glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
         
-        if self.need_setup_lighting:
+        if self.need_setup_lighting or self._last_override_light_specular != drawer._glprefs.override_light_specular:
+            # (bruce 051126 added override_light_specular part of condition)
             # I don't know if it matters to avoid calling this every time...
             # in case it's slow, we'll only do it when it might have changed.
             self.need_setup_lighting = False # set to true again if setLighting is called
@@ -1397,6 +1404,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return
 
     def standard_repaint_0(self):
+        drawer._glprefs.update() #bruce 051126 (so prefs changes do gl_update when needed)
+            # (kluge: have to do this before lighting *and* inside standard_repaint_0)
         c = self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         
