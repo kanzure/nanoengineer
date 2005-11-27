@@ -320,7 +320,7 @@ class ops_select_Mixin:
         You are not allowed to select a singlet.
         Print a message about what you just selected (if it was an atom).
         
-        If the selection behavior is set to "Alpha 7 behavour" and no atom is selected,
+        If the selection behavior is set to "Alpha 7 behavior" and no atom is selected,
         everything in the part is unselected.
         """
         # [bruce 041227 moved the getinfo status messages here, from the atom
