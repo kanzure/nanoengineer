@@ -907,7 +907,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
             
         # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
             return
         
         from jigs_motors import RotaryMotor
@@ -939,7 +939,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
             
         # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
             return
         
         from jigs_motors import LinearMotor
@@ -1014,7 +1014,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
         
         # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
             return
 
         m = Anchor(self.assy, atoms)
@@ -1146,7 +1146,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
             
         # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded(self.assy.w, cmd, len(atoms), limit=200):
+        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
             return
         
         m = AtomSet(self.assy, atoms)
@@ -1224,18 +1224,21 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
     pass # end of class jigmakers_Mixin
 
-def atom_limit_exceeded(parent, cmd, natoms, limit=200):
+def atom_limit_exceeded_and_confirmed(parent, natoms, limit=200):
     '''Displays a warning message if 'natoms' exceeds 'limit'.
-    Returns False if the number of atoms does not exceed the limit, or if the 
-    user confirms that the jigs should still be added even though the limit was 
+    Returns False if the number of atoms does not exceed the limit or if the 
+    user confirms that the jigs should still be created even though the limit was 
     exceeded.
+    If parent is 0, the message box becomes an application-global modal dialog box. 
+    If parent is a widget, the message box becomes modal relative to parent. 
     '''
     
     if natoms < limit:
         return False # Atom limit not exceeded.
 
     # Is this warning message OK? Ask Bruce and Ninad what they think.  Mark 051122.
-    wmsg = "Warning: Creating a jig with " + str(natoms) + " atoms may degrade performance.\nDo you still want to add the jig?"
+    wmsg = "Warning: Creating a jig with " + str(natoms) \
+        + " atoms may degrade performance.\nDo you still want to add the jig?"
     
     dialog = QMessageBox("Warning", wmsg, 
                     QMessageBox.Warning, 
@@ -1255,8 +1258,9 @@ def atom_limit_exceeded(parent, cmd, natoms, limit=200):
         return True
     
     # Print warning msg in history widget whenever the user adds new jigs with more than 'limit' atoms.
-    wmsg = "Warning: Jig created with " + str(natoms) + " atoms selected.  This may impact performance."
-    env.history.message(cmd + orangemsg(wmsg))
+    wmsg = "Warning: " + str(natoms) + " atoms selected.  A jig with more than " \
+        + str(limit) + " atoms may degrade performance."
+    env.history.message(orangemsg(wmsg))
         
     return False
             
