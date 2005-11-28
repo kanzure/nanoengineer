@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 051103 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7079,7 +7079,7 @@ group (Jigs)
 info opengroup open = True
 rmotor (Carrier Motor) (0, 85, 0) 0.00 100.00 (-20443, -2725, -1463) (997, -40, 62) 10.00 2.00 0.50
 shaft 680 625 565 507 463 462 493 551 611
-ground (Ring Grounds) (0, 0, 0) 1043 954 1156 1356 1554 1493 1293
+ground (Ring Anchors) (0, 0, 0) 1043 954 1156 1356 1554 1493 1293
 rmotor (Sun Motor) (85, 0, 127) 1.00 100.00 (19816, -4070, 1367) (-997, 36, -67) 10.00 2.00 0.50
 shaft 2154 2155 2156 2157 2158 2159 2160 2161
 egroup (Jigs)
@@ -7357,7 +7357,7 @@ bond1 3675
 atom 3694 (0) (-767, 1604, 1014) def
 bond1 3674
 mol (PlanetCarrierMoiety) tub
-atom 3695 (6) (4039, 1424, 2145) def
+atom 3695 (6) (4038, 1424, 2145) def
 atom 3696 (1) (3604, 466, 2426) def
 bond1 3695
 atom 3697 (7) (3553, 2566, 2930) def

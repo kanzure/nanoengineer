@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 051103 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7203,7 +7203,7 @@ group (Jigs)
 info opengroup open = True
 rmotor (Input Shaft Rotary Motor) (85, 0, 255) 0.00 0.00 (-17, 20151, 2) (-1, -999, 0) 10.00 2.00 0.50
 shaft 992 993 994 995 996 997 998 999
-ground (Ground.2) (0, 0, 0) 2776 2752 2770 2764 2758
+ground (Casing Anchors) (0, 0, 0) 2776 2752 2770 2764 2758
 egroup (Jigs)
 egroup (MarkIII[k]_PlanetaryGearBox3)
 end1
@@ -7240,7 +7240,7 @@ atom 3874 (6) (-456, 2785, -9921) def
 atom 3875 (6) (-464, 1683, -8868) def
 bond1 3856 3874
 atom 3876 (1) (-8263, 3148, -10067) def
-atom 3877 (1) (-8181, -508, -9174) def
+atom 3877 (1) (-8180, -508, -9174) def
 atom 3878 (8) (-6003, -1200, -11271) def
 bond1 3854
 atom 3879 (6) (-384, 2420, -11421) def
@@ -7255,7 +7255,7 @@ atom 3883 (6) (-2651, 114, -9366) def
 bond1 3855 3861 3873
 atom 3884 (6) (-319, 957, -11848) def
 bond1 3865 3879 3880
-atom 3885 (1) (-8078, -1020, -11284) def
+atom 3885 (1) (-8077, -1020, -11284) def
 bond1 3854
 atom 3886 (6) (-2636, 2374, -11526) def
 bond1 3858 3862 3864 3882
