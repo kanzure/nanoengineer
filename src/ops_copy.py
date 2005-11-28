@@ -162,6 +162,8 @@ class ops_copy_Mixin:
         from ops_copy import Copier # use latest code for that class, even if not for this mixin method!
         copier = Copier(sel) #e sel.copier()?
         copier.prep_for_copy_to_shelf()
+        if copier.objectsCopied == 0:  # wware 20051128, bug 1118, no error msg if already given
+            return
         if copier.ok():
             desc = copier.describe_objects_for_history() # e.g. "5 items" ### not sure this is worth it if we have a results msg
             if desc:
@@ -307,6 +309,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     def __init__(self, sel):
         self.sel = sel # a Selection object
         self.assy = sel.part.assy
+        self.objectsCopied = 0  # wware 20051128, bug 1118, no error msg if already given
     def prep_for_copy_to_shelf(self):
         """Figure out whether to make a new toplevel Group,
         whether to copy any nonselected Groups or Chunks with selected innards, etc.
@@ -377,6 +380,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # (At this point we assume that all jigs we still know about will agree to be copied,
         # except perhaps the ones inside fullcopied groups, for which we don't need to know in advance.)
         self.verytopnode = sel.part.topnode
+        for d in (fullcopy, atom_chunks, atom_chunk_atoms, atom_jigs):  # wware 20051128, bug 1118
+            self.objectsCopied += len(d.keys())
         return # from prep_for_copy_to_shelf
     
     # the following methods should be called only after some operation has been prepped for
