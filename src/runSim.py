@@ -320,7 +320,7 @@ class SimRunner:
             # note: simaspect has already been used to set up movie.alist; simaspect's own alist copy is used in following:
             self.simaspect.writemmpfile( mmpfile) # this also turns singlets into H
             # obs comments:
-            # can't yet happen (until minimize selection) and won't yet work 
+            # can't yet happen (until Minimize Selection) and won't yet work 
             # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
             # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
         
@@ -673,7 +673,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     movie.filename (it's made up here for mflag != 0, but must be inserted by caller
     for mflag == 0 ###k). The movie is created for the atoms in the movie's alist,
     or the movie will make a new alist from part if it doesn't have one yet
-    (for minimize selection, it will probably already have one when this is called ###@@@).
+    (for Minimize Selection, it will probably already have one when this is called ###@@@).
     (This should be thought of as a Movie method even though it isn't one yet.)
     DPB = Differential Position Bytes (binary file)
     XYZ = XYZ trajectory file (text file)
@@ -892,6 +892,9 @@ class simSetup_CommandRun(CommandRun):
     pass # end of class simSetup_CommandRun
 
 
+MIN_ALL, LOCAL_MIN, MIN_SEL = range(3) # internal codes for minimize command subtypes (bruce 051129)
+    # this is a kluge compared to using command-specific subclasses, but better than testing something else like cmdname
+    
 class Minimize_CommandRun(CommandRun):
     """Class for single runs of the Minimize Selection or Minimize All commands
     (which one is determined by an __init__ arg, stored in self.args by superclass);
@@ -909,37 +912,53 @@ class Minimize_CommandRun(CommandRun):
         #bruce 050412 added 'Sel' vs 'All' now that we have two different Minimize buttons.
         # In future the following code might become subclass-specific (and cleaner):
         
-        ## incorrect since 'in' is by 'is' not '==' I guess:
+        ## fyi: this old code was incorrect, I guess since 'in' works by 'is' rather than '==' [not verified]:
         ## assert self.args in [['All'], ['Sel']], "%r" % (self.args,)
-        assert len(self.args) == 1 and self.args[0] in ['All','Sel']
-        
-        entire_part = (self.args[0] == 'All')
-        ## self.entire_part = entire_part # (self attr for this is not yet used directly)
-            #e someday, this might also be set later if selection includes everything,
-            # but only for internal use, not for messages to user distinguishing the two commands.
-        if entire_part:
-            cmdname = "Minimize All"
-            startmsg = "Minimize All: ..."
-            ##want_simaspect = 1 #bruce 050419 changed to 1 as part of making Min All use same code as Min Sel; 051115 removed variable
-        else:
-            cmdname = "Minimize Selection"
-            startmsg = "Minimize Selection: ..."
-        self.cmdname = cmdname #e in principle this should come from farther outside... maybe from a Command object
 
-        # Make sure some chunks are in the part. (Minimize only works with atoms, not jigs (except Anchors), for now...)
+        #bruce 051129 revising this to clarify it, though command-specific subclasses would be better
+        assert len(self.args) >= 1
+        cmd_subclass_code = self.args[0]
+        
+        assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
+        
+        entire_part = (cmd_subclass_code == 'All')
+            # (a self attr for entire_part is not yet needed)
+            #e someday, entire_part might also be set later if selection happens to include everything, to permit optims,
+            # but only for internal use, not for messages to user distinguishing the two commands.
+            # Probably that would be a bad idea. [bruce 051129 revised this comment]
+        if cmd_subclass_code == 'All':
+            cmdtype = MIN_ALL
+            cmdname = "Minimize All"
+        elif cmd_subclass_code == 'Atoms':
+            #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
+            cmdtype = LOCAL_MIN
+            cmdname = "Local Minimize"
+            atomlist = self.args[1]
+        else:
+            assert cmd_subclass_code == 'Sel'
+            cmdtype = MIN_SEL
+            cmdname = "Minimize Selection"
+        self.cmdname = cmdname #e in principle this should come from a subclass for the specific command [bruce 051129 comment]
+        startmsg = cmdname + ": ..."
+        del cmd_subclass_code
+
+        # Make sure some chunks are in the part.
+        # (Valid for all cmdtypes -- Minimize only moves atoms, even if affected by jigs.)
         if not self.part.molecules: # Nothing in the part to minimize.
             env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to minimize."))
-#            env.history.message(redmsg("%s: Nothing to minimize." % cmdname))
             return
 
-        if not entire_part:
+        if cmdtype == MIN_SEL:
             selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
-                msg = greenmsg("Minimize Selection: ") + redmsg("Nothing selected. (Use Minimize All to minimize entire Part.)")
-#                msg = greenmsg("Minimize Selection: nothing selected. (Use Minimize All to minimize entire Part.)"
-                env.history.message( redmsg( msg))
+                msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected. (Use Minimize All to minimize entire Part.)")
+                env.history.message( msg) #bruce 051129 changed this from redmsg( msg) to msg since msg already includes colors above
                 return
+        elif cmdtype == LOCAL_MIN:
+            #####@@@@@ need to import selection_from_atomlist from ops_select???
+            selection = selection_from_atomlist( self.part, atomlist) #e in cleaned up code, selection object might come from outside
         else:
+            assert cmdtype == MIN_ALL
             selection = self.part.selection_for_all()
                 # like .selection_from_glpane() but for all atoms presently in the part [bruce 050419]
             # no need to check emptiness, this was done above
@@ -955,7 +974,7 @@ class Minimize_CommandRun(CommandRun):
         self.win.simSetupAction.setEnabled(0) # Disable "Simulator" 
         self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
         try:
-            simaspect = sim_aspect( self.part, selection.atomslist() )
+            simaspect = sim_aspect( self.part, selection.atomslist(), cmdname_for_messages = cmdname ) #bruce 051129 passing cmdname
                 # note: atomslist gets atoms from selected chunks, not only selected atoms
                 # (i.e. it gets atoms whether you're in Select Atoms or Select Chunks mode)
             # history message about singlets written as H (if any);
@@ -1026,7 +1045,7 @@ class Minimize_CommandRun(CommandRun):
             # or at least have more links than they do now. ###@@@
 
         # semi-obs comment, might still be useful [as of 050406]:
-        # minimize selection [bruce 050330] (ought to be a distinct command subclass...)
+        # Minimize Selection [bruce 050330] (ought to be a distinct command subclass...)
         # this will use the spawning code in writemovie but has its own way of writing the mmp file.
         # to make this clean, we need to turn writemovie into more than one method of a class
         # with more than one subclass, so we can override one of them (writing mmp file)
@@ -1104,10 +1123,13 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
     Someday there would be other kinds, like when some chunks were treated
     as rigid bodies or jigs and the sim was not told about all their atoms.
     """
-    def __init__(self, part, atoms):
+    def __init__(self, part, atoms, cmdname_for_messages = "Minimize" ): #bruce 051129 passing cmdname_for_messages
         """atoms is a list of atoms within the part (e.g. the selected ones,
         for Minimize Selection); we copy it in case caller modifies it later.
-        We become a simulatable aspect for simulating motion of those atoms
+        [Note that this class has no selection object and does not look at
+        (or change) the "currently selected" state of any atoms,
+        though some of its comments are worded as if it did.]
+           We become a simulatable aspect for simulating motion of those atoms
         (and of any singlets bonded to them, since user has no way to select
         those explicitly),
         starting from their current positions, with a "boundary layer" of other
@@ -1129,7 +1151,8 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         but only if we know how to sim them -- we might not, if they also
         touch other atoms. For now, we only look at Anchor jigs (as mentioned
         above) since this initial implem is only for Minimize. When we have
-        Simulate Selection, this will need revisiting.
+        Simulate Selection, this will need revisiting. [Update: we also look at
+        other jigs, now that we have Enable In Minimize for motors.]
            If we ever need to emit history messages
         (e.g. warnings) we'll do it using a global history variable (NIM)
         or via part.assy. For now [050406] none are emitted.
@@ -1137,6 +1160,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         if debug_sim: #bruce 051115 added this
             print "making sim_aspect for %d atoms (maybe this only counts real atoms??)" % len(atoms) ###@@@ only counts real atoms??
         self.part = part
+        self.cmdname_for_messages = cmdname_for_messages
         self.moving_atoms = {}
         self.boundary1_atoms = {}
         self.boundary2_atoms = {}
@@ -1222,7 +1246,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
             self.write_atoms(mapping)
             self.write_grounds(mapping)
             self.write_minimize_enabled_jigs(mapping)
-            mapping.write("end mmp file for Minimize Selection or Minimize All (" + assy.name + ")\n")
+            mapping.write("end mmp file for %s (%s)\n" % (self.cmdname_for_messages, assy.name) ) #bruce 051129 revised this
                 # sim & cad both ignore text after 'end'
                 #bruce 051115: fixed this file comment, since this code is also used for Minimize All.
         except:

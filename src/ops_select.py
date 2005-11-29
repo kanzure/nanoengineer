@@ -460,6 +460,9 @@ def selection_from_part( part, use_selatoms = True): #bruce 050523
 def selection_for_entire_part( part): #bruce 050523 split this out, revised it
     return Selection( part, atoms = {}, chunks = part.molecules )
 
+def selection_from_atomlist( part, atomlist): #bruce 051129; UNFINISHED #####@@@@@
+    return Selection( part, atoms = atomdict_from_atomlist(atomlist) ) ###IMPLEM subr
+
 class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection; revised 050523
     """Represent a "snapshot-by-reference" of the contents of the current selection.
     Warning: this is valid if the selection-state changes
