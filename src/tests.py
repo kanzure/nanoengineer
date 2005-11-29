@@ -6,19 +6,21 @@ Usage: tests.py [options]
 
 Available options are:
     generate -- recreate reference files for tests
-    keep -- when a test is finished, don't delete its temporary
-            directory (useful for debug)
     thorough -- perform more in-depth tests beyond simply comparing
                 MD5 checksums of output files
     slow -- perform slow tests (not for regression testing)
+    keep -- when a test is finished, don't delete its temporary
+            directory (useful for debug)
     debug -- debug this script
+    no-md5 -- skip MD5 checksum comparisons; sometimes doing this
+              will elucidate other problems
 
 In day-to-day regression testing, the likely set of options will
 be none at all, so that you get the fast tests and only do MD5
 checksum comparisons. In infrequent QA testing, the likely set of
 options will be "slow thorough". When we get new files from Damian
 we'll use "generate". When this script needs updating or maintenance
-the "debug" and "keep" options will be useful.
+the "debug", "keep", and "no-md5" options will be useful.
 
 Currently all our test cases are very small molecules, so using
 "thorough" doesn't make much difference, so I recommend that as a
@@ -40,9 +42,18 @@ import shutil
 import string
 import subprocess
 import sys
+import traceback
 import unittest
 
 os.system("make simulator")
+
+##################################################################
+# For failures, don't bother with complete tracebacks, it's more
+# information than we need. With errors, we still might care.
+
+def addFailure(self, test, err):
+    self.failures.append((test, traceback.format_exception(*err)[-1]))
+unittest.TestResult.addFailure = addFailure
 
 ##################################################################
 
@@ -332,8 +343,8 @@ class LengthAngleComparison:
         xyz = XyzFile()
         xyz.read(xyzFilename)
         if len(xyz) != self.numAtoms:
-            raise WrongNumberOfAtoms, xyzFilename + \
-                  " -> %d should be %d" % (len(xyz), self.numAtoms)
+            raise WrongNumberOfAtoms, \
+                  "%d, should be %d" % (len(xyz), self.numAtoms)
 
         lengthList = [ ]
         for first in self.bondLengthTerms.keys():
@@ -396,6 +407,7 @@ def md5sum(filename):
     return "".join(map(hex2, hash.digest()))
 
 DEBUG = 0
+PERFORM_MD5_CHECKS = True
 TESTS_BEYOND_MD5_CHECKS = False
 GENERATE = False
 KEEPRESULTS = False
@@ -501,13 +513,14 @@ class BaseTest:
         # do very often), we must be verifying a test case.
         #
         # Verify md5 checksums for output files
-        inf = open(self.basename + ".md5sums")
-        for line in inf.readlines():
-            fname, sum = line.split()
-            realsum = md5sum(fname)
-            if realsum != sum:
-                raise self.MD5SumMismatch(self.midname + " " + fname)
-        inf.close()
+        if PERFORM_MD5_CHECKS:
+            inf = open(self.basename + ".md5sums")
+            for line in inf.readlines():
+                fname, sum = line.split()
+                realsum = md5sum(fname)
+                if realsum != sum:
+                    raise self.MD5SumMismatch(self.midname + " " + fname)
+            inf.close()
         if TESTS_BEYOND_MD5_CHECKS:
             if "xyzcmp" in self.inputs:
                 #self.structureComparisonAbsolute()
@@ -523,8 +536,8 @@ class BaseTest:
         natoms = string.atoi(xyzcmp.readline().strip())
         natoms2 = string.atoi(xyz.readline().strip())
         if natoms != natoms2:
-            raise WrongNumberOfAtoms, xyzname + \
-                  " -> %d should be %d" % (natoms2, natoms)
+            raise WrongNumberOfAtoms, \
+                  "%d, should be %d" % (natoms2, natoms)
         assert natoms == natoms2
         # ignore RMS for now
         xyzcmp.readline(), xyz.readline()
@@ -669,16 +682,24 @@ class SlowTests(Tests):
 ###########################################
 
 if __name__ == "__main__":
+
     if "generate" in sys.argv[1:]:
         GENERATE = True
-    if "debug" in sys.argv[1:]:
-        DEBUG = 1
-    if "keep" in sys.argv[1:]:
-        KEEPRESULTS = True
+
     if "thorough" in sys.argv[1:]:
         TESTS_BEYOND_MD5_CHECKS = True
     if "slow" in sys.argv[1:]:
         Tests = SlowTests
+
+    # These options are mostly helpful for debugging this
+    # script. Possibly useful for the tests themselves.
+    if "no-md5" in sys.argv[1:]:
+        PERFORM_MD5_CHECKS = False
+    if "debug" in sys.argv[1:]:
+        DEBUG = 1
+    if "keep" in sys.argv[1:]:
+        KEEPRESULTS = True
+
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
     runner.run(suite)
