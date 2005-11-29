@@ -1,0 +1,46 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.344298) (-0.000000, -0.000000, -0.000000) (1.000000)
+egroup (View Data)
+group (C5H10)
+info opengroup open = True
+mol (C5H10.pdb) def
+atom 1 (6) (-691, 1319, -463) def
+atom 2 (6) (1279, 664, 61) def
+bond1 1
+atom 3 (6) (-1223, 422, 436) def
+bond1 1
+atom 4 (6) (-192, -1358, -449) def
+bond1 3
+atom 5 (6) (1101, -300, 150) def
+bond1 2 4
+atom 6 (1) (-835, 1840, 38) def
+bond1 1
+atom 7 (1) (-550, 1185, -1641) def
+bond1 1
+atom 8 (1) (1303, 1814, 190) def
+bond1 2
+atom 9 (1) (2021, 1450, -1061) def
+bond1 2
+atom 10 (1) (-1773, -403, -652) def
+bond1 3
+atom 11 (1) (-1053, -630, 1647) def
+bond1 3
+atom 12 (1) (418, -2218, 576) def
+bond1 4
+atom 13 (1) (-14, -1145, -1503) def
+bond1 4
+atom 14 (1) (2298, -1118, -124) def
+bond1 5
+atom 15 (1) (1479, -806, 1325) def
+bond1 5
+egroup (C5H10)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C5H10
+
