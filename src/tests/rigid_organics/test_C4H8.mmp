@@ -8,28 +8,28 @@ egroup (View Data)
 group (C4H8)
 info opengroup open = True
 mol (C4H8.pdb) def
-atom 1 (6) (-123, 1180, 14) def
-atom 2 (6) (-70, 116, 1146) def
+atom 1 (6) (-417, 1325, -312) def
+atom 2 (6) (344, 443, 1363) def
 bond1 1
-atom 3 (6) (-285, 24, -1010) def
+atom 3 (6) (-31, -94, -404) def
 bond1 1
-atom 4 (6) (260, -953, 67) def
+atom 4 (6) (-308, -1102, -251) def
 bond1 2 3
-atom 5 (1) (837, 1694, -103) def
+atom 5 (1) (1073, 1739, -63) def
 bond1 1
-atom 6 (1) (-915, 1935, 61) def
+atom 6 (1) (-652, 1696, -121) def
 bond1 1
-atom 7 (1) (-1059, -50, 1587) def
+atom 7 (1) (-1130, 145, 2088) def
 bond1 2
-atom 8 (1) (650, 265, 1956) def
+atom 8 (1) (756, 874, 1687) def
 bond1 2
-atom 9 (1) (260, 100, -1956) def
+atom 9 (1) (-29, -303, -1721) def
 bond1 3
-atom 10 (1) (-1340, -169, -1234) def
+atom 10 (1) (-1325, -295, -1423) def
 bond1 3
-atom 11 (1) (-217, -1935, 156) def
+atom 11 (1) (-241, -1742, 107) def
 bond1 4
-atom 12 (1) (1340, -1100, -37) def
+atom 12 (1) (1792, -829, -147) def
 bond1 4
 egroup (C4H8)
 end1

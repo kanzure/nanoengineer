@@ -8,26 +8,26 @@ egroup (View Data)
 group (C3H8)
 info opengroup open = True
 mol (C3H8.pdb) cpk
-atom 1 (6) (430, -1267, 15) def
-atom 2 (6) (-432, -2, 18) def
+atom 1 (6) (588, -1606, 77) def
+atom 2 (6) (-206, 78, 45) def
 bond1 1
-atom 3 (6) (397, 1286, 20) def
+atom 3 (6) (106, 1012, 468) def
 bond1 2
-atom 4 (1) (-180, -2176, 27) def
+atom 4 (1) (-219, -2513, 442) def
 bond1 1
-atom 5 (1) (1095, -1294, 878) def
+atom 5 (1) (1114, -1376, 956) def
 bond1 1
-atom 6 (1) (1063, -1312, -882) def
+atom 6 (1) (1291, -1425, -1141) def
 bond1 1
-atom 7 (1) (-1091, -14, 883) def
+atom 7 (1) (-1072, -162, 812) def
 bond1 2
-atom 8 (1) (-1095, -6, -858) def
+atom 8 (1) (-961, 268, -634) def
 bond1 2
-atom 9 (1) (-240, 2176, 61) def
+atom 9 (1) (-318, 2261, -285) def
 bond1 3
-atom 10 (1) (1012, 1366, -883) def
+atom 10 (1) (800, 1498, -491) def
 bond1 3
-atom 11 (1) (1074, 1317, 879) def
+atom 11 (1) (1616, 1346, 858) def
 bond1 3
 egroup (C3H8)
 end1

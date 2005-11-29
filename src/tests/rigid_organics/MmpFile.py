@@ -27,9 +27,15 @@ class MmpFile:
             self._str = line
         def str(self):
             return self._str
+        def clone(self, owner):
+            ln = MmpFile._Line()
+            ln._str = self._str
+            return ln
     class _AtomHolder:
         """Atom holders are indices into the MmpFile.atoms list,
-        and that's done so that MmpFiles are easier to clone.
+        and that's done so that an entry in MmpFile.lines can be
+        a pointer into the MmpFile.atoms list. When a file is
+        cloned, we clone the atoms but keep the same lines.
         """
         def __init__(self, owner):
             self._owner = owner
@@ -42,13 +48,17 @@ class MmpFile:
         def str(self):
             a = self._owner.atoms[self._index]
             return a.toMmpString()
+        def clone(self, newowner):
+            other = MmpFile._AtomHolder(newowner)
+            other._index = self._index
+            return other
     def __init__(self):
         self.atoms = [ ]
         self.lines = [ ]
     def clone(self):
         other = MmpFile()
-        other.lines = self.lines[:]
-        other.atoms = [ ]
+        for x in self.lines:
+            other.lines.append(x.clone(other))
         for a in self.atoms:
             other.atoms.append(a.clone())
         return other

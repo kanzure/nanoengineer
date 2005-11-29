@@ -8,36 +8,36 @@ egroup (View Data)
 group (C4H10)
 info opengroup open = True
 mol (C4H10.pdb) def
-atom 1 (6) (1229, -793, 363) def
-atom 2 (6) (-6, -37, 837) def
+atom 1 (6) (1127, -782, 34) def
+atom 2 (6) (-420, 162, 1268) def
 bond1 1
-atom 3 (6) (15, 758, -476) def
+atom 3 (6) (-4, 1030, -433) def
 bond1 2
-atom 4 (6) (-1226, -9, -924) def
+atom 4 (6) (-1066, -122, -565) def
 bond1 3
-atom 5 (6) (1333, 115, -842) def
+atom 5 (6) (1522, -686, -1201) def
 bond1 1 3
-atom 6 (6) (-1335, -655, 445) def
+atom 6 (6) (-1238, -685, 962) def
 bond1 2 4
-atom 7 (1) (2068, -744, 1031) def
+atom 7 (1) (1833, -910, 1342) def
 bond1 1
-atom 8 (1) (1046, -1829, 149) def
+atom 8 (1) (1732, -2282, 77) def
 bond1 1
-atom 9 (1) (59, 422, 1807) def
+atom 9 (1) (282, -108, 1779) def
 bond1 2
-atom 10 (1) (-54, 1829, -512) def
+atom 10 (1) (-160, 1462, -375) def
 bond1 3
-atom 11 (1) (-1047, -688, -1730) def
+atom 11 (1) (-1915, -517, -1614) def
 bond1 4
-atom 12 (1) (-2063, 608, -1190) def
+atom 12 (1) (-2237, 683, -1231) def
 bond1 4
-atom 13 (1) (2155, 803, -762) def
+atom 13 (1) (2234, 1201, -1069) def
 bond1 5
-atom 14 (1) (1381, -358, -1806) def
+atom 14 (1) (1291, -356, -1928) def
 bond1 5
-atom 15 (1) (-2155, -267, 1016) def
+atom 15 (1) (-2386, -474, 1389) def
 bond1 6
-atom 16 (1) (-1387, -1729, 480) def
+atom 16 (1) (-1217, -1716, 624) def
 bond1 6
 egroup (C4H10)
 end1

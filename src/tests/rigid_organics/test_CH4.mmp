@@ -8,14 +8,14 @@ egroup (View Data)
 group (CH4)
 info opengroup open = True
 mol (CH4.pdb) def
-atom 1 (6) (10, -21, -2) def
-atom 2 (1) (-589, 891, 10) def
+atom 1 (6) (57, -38, 240) def
+atom 2 (1) (-468, 1441, -17) def
 bond1 1
-atom 3 (1) (-649, -891, -2) def
+atom 3 (1) (-457, -627, 50) def
 bond1 1
-atom 4 (1) (649, -47, 888) def
+atom 4 (1) (925, 118, 908) def
 bond1 1
-atom 5 (1) (631, -35, -888) def
+atom 5 (1) (378, 0, -460) def
 bond1 1
 egroup (CH4)
 end1

@@ -8,22 +8,22 @@ egroup (View Data)
 group (C3H6)
 info opengroup open = True
 mol (C3H6.pdb) def
-atom 1 (6) (-800, 808, 0) def
-atom 2 (6) (673, 486, 0) def
+atom 1 (6) (-813, 570, -65) def
+atom 2 (6) (247, 204, -194) def
 bond1 1
-atom 3 (6) (-343, -629, 0) def
+atom 3 (6) (-317, -1071, 63) def
 bond1 1 2
-atom 4 (1) (-1239, 1207, -910) def
+atom 4 (1) (-1339, 1130, -828) def
 bond1 1
-atom 5 (1) (-1238, 1208, 911) def
+atom 5 (1) (-1221, 1053, 597) def
 bond1 1
-atom 6 (1) (1239, 666, 910) def
+atom 6 (1) (1361, 796, 1109) def
 bond1 2
-atom 7 (1) (1237, 665, -911) def
+atom 7 (1) (1056, 1008, -767) def
 bond1 2
-atom 8 (1) (-470, -1208, -910) def
+atom 8 (1) (-464, -1560, -975) def
 bond1 3
-atom 9 (1) (-469, -1208, 911) def
+atom 9 (1) (-62, -1022, 1066) def
 bond1 3
 egroup (C3H6)
 end1
