@@ -1977,11 +1977,21 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # bruce 041207 comment: this is only used in depositMode.attach.
     def nearSinglets(self, point, radius):
         if not self.singlets: return []
-        v = self.singlpos-point
-        r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2)
-        p= r<=radius
-        i=argsort(compress(p,r))
-        return take(compress(p,self.singlets),i)
+        singlpos = self.singlpos #bruce 051129 ensure this is computed in its own line, for sake of traceback linenos
+        v = singlpos - point
+        try:
+            #bruce 051129 add try/except and printout to help debug bug 829
+            r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2) # this line had OverflowError in bug 829
+            p= r<=radius
+            i=argsort(compress(p,r))
+            return take(compress(p,self.singlets),i)
+        except:
+            print_compact_traceback("exception in nearSinglets (data printed below): ")
+            print "if that was bug 829, this data (point, singlpos, v) might be relevant:"
+            print "point =", point
+            print "singlpos =", singlpos
+            print "v =", v
+            return [] # safe value for caller
 
     def update_curpos(self):
         "private method: make sure self.curpos includes all atoms"
