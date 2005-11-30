@@ -1,0 +1,31 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Untitled)
+info opengroup open = True
+mol (Chunk-C1) def
+atom 1 (6) (-1409, 113, 0) def
+atom 2 (1) (-2026, 731, -617) def
+bond1 1
+atom 3 (1) (-2026, -504, 617) def
+bond1 1
+atom 4 (1) (-791, -504, -617) def
+bond1 1
+atom 5 (6) (-519, 1002, 889) def
+bond1 1
+atom 6 (1) (97, 1620, 271) def
+bond1 5
+atom 7 (1) (97, 384, 1506) def
+bond1 5
+atom 8 (1) (-1137, 1620, 1506) def
+bond1 5
+egroup (Untitled)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Untitled
