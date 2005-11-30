@@ -130,7 +130,9 @@ main(int argc,char **argv)
     //vsetc(Cog,0.0);
     //vsetc(P,0.0);
     //vsetc(Omega,0.0);
-	
+
+    debug_flags = D_STRETCH_ONLY;
+    
     filename = (char *)0;
     ofilename = (char *)0;
     tfilename = (char *)0;

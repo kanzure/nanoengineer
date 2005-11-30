@@ -22,6 +22,9 @@
 
 #define PICOSEC (1e-12)
 
+// scaling factor for radius in extension gradient calculations
+#define DR 1e6
+
 /* van der Waals forces */
 
 #include "newtables.h"

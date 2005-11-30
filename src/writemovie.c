@@ -389,6 +389,7 @@ static float forceColors[7][3] = {
     { 1.0, 1.0, 0.0 }  // yellow
 };
 
+#define FORCE_SCALE 0.1
 void
 writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color)
 {
@@ -400,9 +401,9 @@ writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int colo
                 positions[i].x,
                 positions[i].y,
                 positions[i].z,
-                positions[i].x + force->x,
-                positions[i].y + force->y,
-                positions[i].z + force->z,
+                positions[i].x + (force->x * FORCE_SCALE),
+                positions[i].y + (force->y * FORCE_SCALE),
+                positions[i].z + (force->z * FORCE_SCALE),
                 forceColors[color][0],
                 forceColors[color][1],
                 forceColors[color][2]);
@@ -492,8 +493,8 @@ int writeMinimizeMovieFrame(FILE *outf,
     }
     flushOutputFile(outf);
 
-    fprintf(tracef,"%d %e %e\n", frameNumber, rms, max_force);
-    DPRINT(D_MINIMIZE, "%d %e %e %s\n", frameNumber, rms, max_force, callLocation); // -D2
+    fprintf(tracef,"%4d %20f %20f %s\n", frameNumber, rms, max_force, callLocation);
+    DPRINT(D_MINIMIZE, "%4d %20e %20e %s\n", frameNumber, rms, max_force, callLocation); // -D2
     if (final) {
         writeOutputTrailer(outf, part, frameNumber);
     }

@@ -85,8 +85,8 @@ minimizeStructure(struct part *part)
   minimizeStructureFunctions.func = minimizeStructurePotential;
   minimizeStructureFunctions.dfunc = minimizeStructureGradient;
   minimizeStructureFunctions.freeExtra = NULL;
-  minimizeStructureFunctions.coarse_tolerance = 1e-5;
-  minimizeStructureFunctions.fine_tolerance = 1e-6;
+  minimizeStructureFunctions.coarse_tolerance = 1e-8;
+  minimizeStructureFunctions.fine_tolerance = 1e-10;
   minimizeStructureFunctions.gradient_delta = 0.0; // unused
   minimizeStructureFunctions.dimension = part->num_atoms * 3;
   minimizeStructureFunctions.initial_parameter_guess = 1.0; // recalculated in gradient

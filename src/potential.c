@@ -69,9 +69,14 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
     }
     potential = t1[0] + r * t2[0];
   } else if (k >= TABLEN) {
-    if (ToMinimize) { // extend linearly past end of table
-      potential = stretchType->potentialExtensionStiffness * r * r
-        + stretchType->potentialExtensionIntercept;
+    if (ToMinimize) { // extend past end of table using a polynomial
+      // XXX switch the following to use Horner's method:
+      potential = stretchType->potentialExtensionA
+        + stretchType->potentialExtensionB * r
+        + stretchType->potentialExtensionC * r * r
+        + stretchType->potentialExtensionD * r * r * r;
+      //potential = stretchType->potentialExtensionStiffness * r * r
+      //          + stretchType->potentialExtensionIntercept;
       //potential = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
     } else {
       potential=0.0;
@@ -116,8 +121,13 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
       }
       gradient = t1[0] + r * t2[0];
     } else if (k >= TABLEN) {
-      if (ToMinimize) { // quadratic potential past table gives linear gradient in r
-        gradient = 2.0 * stretchType->potentialExtensionStiffness * r;
+      if (ToMinimize) { // extend past end of table using a polynomial
+        // XXX switch the following to use Horner's method:
+        gradient = stretchType->potentialExtensionB
+          + stretchType->potentialExtensionC * r * 2.0
+          + stretchType->potentialExtensionD * r * r * 3.0;
+        gradient *= DR ;
+        //gradient = 2.0 * stretchType->potentialExtensionStiffness * r;
         //gradient = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
       } else {
         gradient=0.0;
@@ -131,7 +141,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     } else {
       gradient = t1[k] + r * t2[k];
     }
-    return gradient;
+    return -gradient;
 }
 
 double
@@ -240,6 +250,9 @@ calculatePotential(struct part *p, struct xyz *position)
     setRUnit(position, bond, &r);
             
     potential += stretchPotential(p, stretch, stretch->stretchType, r);
+  }
+  if (DEBUG(D_STRETCH_ONLY)) { // -D6
+    return potential;
   }
 			
   /* now the potential for each bend */
@@ -366,6 +379,14 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
     vmul2c(f, bond->rUnit, gradient);
     vadd(force[bond->a1->index], f);
     vsub(force[bond->a2->index], f);
+    if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
+      writeSimpleForceVector(position, bond->a1->index, &f, 1);
+      vmulc(f, -1.0);
+      writeSimpleForceVector(position, bond->a2->index, &f, 1);
+    }
+  }
+  if (DEBUG(D_STRETCH_ONLY)) { // -D6
+    return;
   }
 			
   /* now the forces for each bend */

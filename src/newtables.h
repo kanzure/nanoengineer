@@ -24,11 +24,16 @@ struct bondStretch
   
   double inflectionR; // r value in pm where d^2(Lippincott(r)) / dr^2 == 0
 
-  // For minimize, the potential function extends quadratically beyond the
-  // end of the interpolation table:
-  // potential = potentialExtensionStiffness * r^2 + potentialExtensionIntercept
-  double potentialExtensionStiffness;
-  double potentialExtensionIntercept;
+  // For minimize, the potential function extends as a cubic
+  // polynomial beyond the end of the interpolation table:
+  // potential = potentialExtensionA
+  //           + potentialExtensionB * r
+  //           + potentialExtensionC * r^2
+  //           + potentialExtensionD * r^3
+  double potentialExtensionA;
+  double potentialExtensionB;
+  double potentialExtensionC;
+  double potentialExtensionD;
   
   int isGeneric; // set to non-zero if the above are based on a heuristic
   

@@ -590,7 +590,7 @@ minimize(struct configuration *initial_p,
 {
   struct functionDefinition *fd = initial_p->functionDefinition;
   struct configuration *intermediate;
-  struct configuration *final;
+  struct configuration *final = NULL;
   int coarse_iter;
   int fine_iter;
 
@@ -600,12 +600,16 @@ minimize(struct configuration *initial_p,
                                         iterationLimit * 0.8,
                                         fd->coarse_tolerance,
                                         SteepestDescent);
-  //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
-  final = minimize_one_tolerance(intermediate,
-                                 &fine_iter,
-                                 iterationLimit - coarse_iter,
-                                 fd->fine_tolerance,
-                                 PolakRibiereConjugateGradient);
+  if (fd->fine_tolerance < fd->coarse_tolerance) {
+    //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
+    final = minimize_one_tolerance(intermediate,
+                                   &fine_iter,
+                                   iterationLimit - coarse_iter,
+                                   fd->fine_tolerance,
+                                   PolakRibiereConjugateGradient);
+  } else {
+    SetConfiguration(&final, intermediate);
+  }
   SetConfiguration(&intermediate, NULL);
   *iteration = coarse_iter + fine_iter;
   Leave(minimize, (final == initial_p) ? 0 :1);
