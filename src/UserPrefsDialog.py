@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Nov 25 18:33:47 2005
+# Created: Tue Nov 29 19:24:17 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -703,7 +703,9 @@ class UserPrefsDialog(QDialog):
         layout65_3.addLayout(layout64_3)
 
         self.shininess_slider = QSlider(self.groupBox9,"shininess_slider")
-        self.shininess_slider.setMaxValue(50)
+        self.shininess_slider.setMinValue(-50)
+        self.shininess_slider.setMaxValue(-15)
+        self.shininess_slider.setValue(-15)
         self.shininess_slider.setOrientation(QSlider.Horizontal)
         self.shininess_slider.setTickmarks(QSlider.Below)
         self.shininess_slider.setTickInterval(5)
@@ -964,9 +966,9 @@ class UserPrefsDialog(QDialog):
         self.connect(self.light1_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light2_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light3_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.specular_highlights_checkbox,SIGNAL("clicked()"),self.change_specular_highlights)
-        self.connect(self.shininess_slider,SIGNAL("valueChanged(int)"),self.change_specular_highlights)
-        self.connect(self.whiteness_slider,SIGNAL("valueChanged(int)"),self.change_specular_highlights)
+        self.connect(self.specular_highlights_checkbox,SIGNAL("toggled(bool)"),self.toggle_specular_highlights)
+        self.connect(self.shininess_slider,SIGNAL("valueChanged(int)"),self.change_shininess)
+        self.connect(self.whiteness_slider,SIGNAL("valueChanged(int)"),self.change_whiteness)
         self.connect(self.light1_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light2_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light3_slider,SIGNAL("sliderReleased()"),self.save_lighting)
@@ -1119,8 +1121,8 @@ class UserPrefsDialog(QDialog):
         self.textLabel2_3.setText(self.__tr("Low"))
         self.textLabel3_4.setText(self.__tr("High"))
         self.textLabel1_5_2.setText(self.__tr("Whiteness :"))
-        self.textLabel2_3_3.setText(self.__tr("Metal"))
-        self.textLabel3_4_3.setText(self.__tr("Plastic"))
+        self.textLabel2_3_3.setText(self.__tr("Plastic"))
+        self.textLabel3_4_3.setText(self.__tr("Metal"))
         self.lights_reset_btn.setText(self.__tr("Reset"))
         self.lights_restore_defaults_btn.setText(self.__tr("Restore Defaults"))
         self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Lighting"))
@@ -1266,11 +1268,17 @@ class UserPrefsDialog(QDialog):
     def change_lighting(self):
         print "UserPrefsDialog.change_lighting(): Not implemented yet"
 
-    def change_specular_highlights(self):
-        print "UserPrefsDialog.change_specular_highlights(): Not implemented yet"
-
     def save_lighting(self):
         print "UserPrefsDialog.save_lighting(): Not implemented yet"
+
+    def toggle_specular_highlights(self):
+        print "UserPrefsDialog.toggle_specular_highlights(): Not implemented yet"
+
+    def change_shininess(self):
+        print "UserPrefsDialog.change_shininess(): Not implemented yet"
+
+    def change_whiteness(self):
+        print "UserPrefsDialog.change_whiteness(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

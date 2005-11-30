@@ -232,23 +232,42 @@ class UserPrefs(UserPrefsDialog):
             self.lights = lights
         
         self.light1_checkbox.setChecked(self.lights[0][2])
-        self.light1_slider.setValue(int (self.lights[0][1] * 100))
+        self.light1_slider.setValue(int (self.lights[0][1] * 100)) # generates signal
         
         self.light2_checkbox.setChecked(self.lights[1][2])
-        self.light2_slider.setValue(int (self.lights[1][1] * 100))
+        self.light2_slider.setValue(int (self.lights[1][1] * 100)) # generates signal
         
         self.light3_checkbox.setChecked(self.lights[2][2])
-        self.light3_slider.setValue(int (self.lights[2][1] * 100))
+        self.light3_slider.setValue(int (self.lights[2][1] * 100)) # generates signal
         
-        # Fixes a bug since QSlider.setValue() generates a signal which
-        # calls the slot change_specular_highlights(), which sets the env prefs
-        # for shininess *and* whiteness at the same time.  Mark 051124.
-        shininess = int (env.prefs[shininess_prefs_key])
-        whiteness = int(env.prefs[whiteness_prefs_key] * 100)
+        self._setup_specular_highlights()
         
-        self.specular_highlights_checkbox.setChecked(env.prefs[specular_highlights_prefs_key])
-        self.shininess_slider.setValue(shininess) # generates signal!
-        self.whiteness_slider.setValue(whiteness) # generates signal!
+    def _setup_specular_highlights(self, reset=False):
+        ''' Setup Specular Highlights widgets to initial (default or defined) values on the Lighting page.
+        If reset = False, specular highlight parameters are reset from prefs db.
+        If reset = True, specular highlight parameters are reset from previous values.
+        '''
+        if reset:
+            self.specular_highlights = self.original_specular_highlights
+            self.shininess = self.original_shininess
+            self.whiteness = self.original_whiteness
+        else:
+            self.specular_highlights = self.original_specular_highlights = env.prefs[specular_highlights_prefs_key]
+            self.shininess = self.original_shininess = int(env.prefs[shininess_prefs_key])
+            self.whiteness = self.original_whiteness = int(env.prefs[whiteness_prefs_key] * 100)
+            
+        # Enable/disable specular highlights.
+        self.specular_highlights_checkbox.setChecked(self.specular_highlights )
+
+        # For shininess, the range is 50 (low) to 15 (high).  Since Qt slider values increase from
+        # left to right, the slider range is -50 to -15.  We store (and use) the abs value of
+        # the slider in the prefs db, but to set the value of the slider here, we use the neg value.
+        # Mark. 051129.
+        self.shininess_slider.setValue(-self.shininess) # generates signal
+        
+        # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
+        # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
+        self.whiteness_slider.setValue(self.whiteness) # generates signal
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the atoms page.
@@ -672,6 +691,7 @@ class UserPrefs(UserPrefsDialog):
         '''Updates glpane lighting using the current lighting parameters from the
         light checkboxes and sliders. This is also the slot for the light sliders.
         '''
+        
         light1 = [ self.glpane.__class__._lights[0][0], \
                 self.light1_slider.value() * .01, \
                 self.light1_checkbox.isChecked()]
@@ -684,27 +704,49 @@ class UserPrefs(UserPrefsDialog):
                 
         self.glpane.setLighting([light1, light2, light3])
         
-    def change_specular_highlights(self):
-        '''Saves specular highlights parameters (but not lighting parameters) to pref db.
-        This is the slot for specular highlights checkboxes and sliders.
+    def toggle_specular_highlights(self, val):
+        '''This is the slot for the Specular Highlight checkbox.
         '''
-##        print "------------------\nSpecular Highlights Settings:"
-##        print "Enabled = ", self.specular_highlights_checkbox.isChecked()
-##        print "Shininess = ", float(self.shininess_slider.value())
-##        print "Whiteness = ", float(self.whiteness_slider.value() * 0.01)
+        env.prefs[specular_highlights_prefs_key] = val
         
-        env.prefs[specular_highlights_prefs_key] = self.specular_highlights_checkbox.isChecked()
-        env.prefs[shininess_prefs_key] = float(self.shininess_slider.value())
-        env.prefs[whiteness_prefs_key] = float(self.whiteness_slider.value() * 0.01)
+        ## print "------------------\nSpecular Highlights Settings:"
+        ## print "Enabled = ", env.prefs[specular_highlights_prefs_key]
+        ## print "Shininess = ", env.prefs[shininess_prefs_key]
+        ## print "Whiteness = ", env.prefs[whiteness_prefs_key]
+                
+    def change_shininess(self, shininess):
+        ''' This is the slot for the Shininess slider.
+        'shininess' is between -50 (low) and -15 (high).
+        Saves the abs value of shininess to pref db.
+        '''
+        # We store (and use) the abs value. Mark. 051129.
+        env.prefs[shininess_prefs_key] = float(abs(shininess))
+        
+    def change_whiteness(self, whiteness):
+        '''This is the slot for the Whiteness slider.
+        'whiteness' is between 0 and 100. 
+        Saves whiteness parameter to pref db.
+        '''
+        # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).
+        # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
+        env.prefs[whiteness_prefs_key] = float(whiteness * 0.01)
 
     def reset_lighting(self):
         "Slot for Reset button"
+        self._setup_specular_highlights(reset=True)
         self._setup_lighting_page(self.original_lights)
         self.glpane.saveLighting()
         
     def restore_default_lighting(self):
         "Slot for Restore Defaults button"
+        # Lighting defaults
         self.glpane.restoreDefaultLighting()
+        # Specular highlight defaults
+        env.prefs.restore_defaults([
+            specular_highlights_prefs_key,
+            shininess_prefs_key,
+            whiteness_prefs_key,
+            ])
         self._setup_lighting_page()
         self.glpane.saveLighting()
         

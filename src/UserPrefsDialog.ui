@@ -2160,8 +2160,14 @@
                                                                 <property name="name">
                                                                     <cstring>shininess_slider</cstring>
                                                                 </property>
+                                                                <property name="minValue">
+                                                                    <number>-50</number>
+                                                                </property>
                                                                 <property name="maxValue">
-                                                                    <number>50</number>
+                                                                    <number>-15</number>
+                                                                </property>
+                                                                <property name="value">
+                                                                    <number>-15</number>
                                                                 </property>
                                                                 <property name="orientation">
                                                                     <enum>Horizontal</enum>
@@ -2231,7 +2237,7 @@
                                                                             <cstring>textLabel2_3_3</cstring>
                                                                         </property>
                                                                         <property name="text">
-                                                                            <string>Metal</string>
+                                                                            <string>Plastic</string>
                                                                         </property>
                                                                     </widget>
                                                                     <spacer>
@@ -2256,7 +2262,7 @@
                                                                             <cstring>textLabel3_4_3</cstring>
                                                                         </property>
                                                                         <property name="text">
-                                                                            <string>Plastic</string>
+                                                                            <string>Metal</string>
                                                                         </property>
                                                                         <property name="alignment">
                                                                             <set>AlignVCenter|AlignRight</set>
@@ -3119,21 +3125,21 @@
     </connection>
     <connection>
         <sender>specular_highlights_checkbox</sender>
-        <signal>clicked()</signal>
+        <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_specular_highlights()</slot>
+        <slot>toggle_specular_highlights()</slot>
     </connection>
     <connection>
         <sender>shininess_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_specular_highlights()</slot>
+        <slot>change_shininess()</slot>
     </connection>
     <connection>
         <sender>whiteness_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_specular_highlights()</slot>
+        <slot>change_whiteness()</slot>
     </connection>
     <connection>
         <sender>light1_slider</sender>
@@ -3245,8 +3251,10 @@
     <slot>reset_lighting()</slot>
     <slot>restore_default_lighting()</slot>
     <slot>change_lighting()</slot>
-    <slot>change_specular_highlights()</slot>
     <slot>save_lighting()</slot>
+    <slot>toggle_specular_highlights()</slot>
+    <slot>change_shininess()</slot>
+    <slot>change_whiteness()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

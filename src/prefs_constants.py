@@ -195,8 +195,8 @@ prefs_table = (
     
     # Lighting preferences [added to this table by mark 051124]
     
-    ('specular_highlights', 'boolean', specular_highlights_prefs_key, False),
-    ('shininess', 'float', shininess_prefs_key, 20.0),
+    ('specular_highlights', 'boolean', specular_highlights_prefs_key, True),
+    ('shininess', 'float', shininess_prefs_key, 35.0),
     ('whiteness', 'float', whiteness_prefs_key, 0.5), 
 
     # Plug-ins preferences [added to this table by mark 050919]
