@@ -18,6 +18,9 @@ from VQT import V, A, norm, cross, transpose, dot
 import env
 from constants import *
 from HistoryWidget import redmsg, greenmsg, orangemsg
+from debug import print_compact_traceback #bruce 051129
+import platform #bruce 051129
+from platform import fix_plurals #bruce 051129
 
 class ops_select_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -110,10 +113,13 @@ class ops_select_Mixin:
         """Select any atom that is bonded to any currently selected atom.
         """
         # Eric really needed this.  Added by Mark 050923.
+        # (See also Selection.expand_atomset method. [bruce 051129])
         
         self.begin_select_cmd() #bruce 051031
         cmd = "Expand Selection: "
         env.history.message(greenmsg(cmd))
+            #bruce 051129 comment: redundancy of greenmsg is bad, but self.selatoms can take time to compute,
+            # so I decided against fixing the redundancy by moving this below the "No atoms selected" test.
         
         if not self.selatoms:
             env.history.message(greenmsg(cmd) + redmsg("No atoms selected."))
@@ -122,14 +128,19 @@ class ops_select_Mixin:
         num_picked = 0 # Number of atoms picked in the expand selection.
         
         for a in self.selatoms.values():
-            if a.picked: 
+            if a.picked: #bruce 051129 comment: this is presumably always true
                 for n in a.neighbors():
                     if not n.picked:
                         n.pick()
-                        num_picked += 1
+                        if n.picked:
+                            #bruce 051129 added condition to fix two predicted miscount bugs (don't know if reported):
+                            # - open bonds can't be picked (.pick is always a noop for them)
+                            # - some elements can't be picked when selection filter is on (.pick is a noop for them, too)
+                            # Note that these bugs might have caused those unselected atoms to be counted more than once,
+                            # not merely once (corrected code counts them 0 times).
+                            num_picked += 1
         
         # Print summary msg to history widget.  Always do this before win/gl_update.
-        from platform import fix_plurals
         msg = fix_plurals(str(num_picked) + " atom(s) selected.")
         env.history.message(msg)
         
@@ -163,11 +174,13 @@ class ops_select_Mixin:
                         break
         
         # Unselect the atom in the contract_list
+        #bruce 051129 comment: this appears to contain only unique picked atoms (based on above code),
+        # and any atom can be unpicked (regardless of selection filter),
+        # so using its len as a count of changed atoms, below, is probably correct.
         for a in contract_list:
             a.unpick()
             
         # Print summary msg to history widget.  Always do this before win/gl_update.
-        from platform import fix_plurals
         msg = fix_plurals(str(len(contract_list)) + " atom(s) unselected.")
         env.history.message(msg)
         
@@ -400,7 +413,7 @@ class ops_select_Mixin:
     def begin_select_cmd(self):
         # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
         # More info in comments in assembly version. [bruce 051031]
-        self.assy.begin_select_cmd()
+        self.assy.begin_select_cmd() # count selection commands, for use in pick-time records
         return
     
     # ==
@@ -460,16 +473,37 @@ def selection_from_part( part, use_selatoms = True): #bruce 050523
 def selection_for_entire_part( part): #bruce 050523 split this out, revised it
     return Selection( part, atoms = {}, chunks = part.molecules )
 
-def selection_from_atomlist( part, atomlist): #bruce 051129; UNFINISHED #####@@@@@
-    return Selection( part, atoms = atomdict_from_atomlist(atomlist) ) ###IMPLEM subr
+def selection_from_atomlist( part, atomlist): #bruce 051129, for initial use in Local Minimize
+    return Selection( part, atoms = atomdict_from_atomlist(atomlist) )
+
+def atomdict_from_atomlist(atomlist): #bruce 051129 [#e should refile -- if I didn't already implement it somewhere else]
+    "Given a list of atoms, return a dict mapping atom keys to those atoms."
+    return dict( [(a.key, a) for a in atomlist] )
 
 class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection; revised 050523
-    """Represent a "snapshot-by-reference" of the contents of the current selection.
-    Warning: this is valid if the selection-state changes
+    """Represent a "snapshot-by-reference" of the contents of the current selection,
+    or any similar set of objects passed to the constructor.
+    Warning: this remains valid (and unchanged in meaning) if the selection-state changes,
     but might become invalid if the Part contents themselves change in any way!
-    """
+    (Or at least if the objects passed to the constructor (like chunks or Groups) change in contents (atoms or child nodes).)
+    """ #bruce 051129 revised docstring
     def __init__(self, part, atoms = {}, chunks = [], nodes = []):
-        "Create a snapshot-by-reference of whatever objects are passed. Objects should not be passed redundantly."
+        """Create a snapshot-by-reference of whatever sets or lists of objects are passed
+        in the args atoms, chunks, and/or nodes (see details and limitations below).
+           Objects should not be passed redundantly -- i.e. they should not contain atoms or nodes twice,
+         where we define chunks as containing their atoms and Group nodes as containing their child nodes.
+           Objects must be of the appropriate types (if passed):
+        atoms must be a dict mapping atom keys to atoms;
+        chunks must be a list of chunks;
+        nodes must be a list of nodes, thought of as disjoint node-subtrees (e.g. "topmost selected nodes").
+           The current implem also prohibits passing both chunks and nodes lists,
+        but this limitation is just for its convenience and can be removed when needed.
+           The object-containing arguments are shallow-copied immediately, but the objects they contain
+        are never copied, and in particular, the effect of changes to the set of child nodes of Group nodes
+        passed in the nodes argument is undefined. (In initial implem, the effect depends on when self.selmols
+        is first evaluated.)
+           Some methods assume only certain kinds of object arguments were passed (see their docstrings for details).
+        """ #bruce 051129 revised docstring -- need to review code to verify its accuracy. ###k
         # note: topnodes might not always be provided;
         # when provided it should be a list of nodes in the part compatible with selmols
         # but containing groups and jigs as well as chunks, and not containing members of groups it contains
@@ -488,8 +522,9 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         else:
             # chunks (or no chunks and no nodes) were passed -- store as both selmols and topnodes
             self.selmols = list(chunks) # copy the list
-            self.topnodes = self.selmols
-            assert not (self.selatoms and self.selmols) #e could this change? try not to depend on it
+            self.topnodes = self.selmols # use the same copy we just made
+            if (self.selatoms and self.selmols) and platform.atom_debug: #e could this change? try not to depend on it
+                print_compact_traceback( "atom_debug: self.selatoms and self.selmols: " ) #bruce 051129, replacing an assert
         return
     def nonempty(self): #e make this the object's boolean value too?
         # assume that each selmol has some real atoms, not just singlets! Should always be true.
@@ -541,7 +576,6 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         return atom.key in self.selatoms or id(atom.molecule) in self.selmols_dict
     def describe_objects_for_history(self):
         """Return a string like "5 items" but more explicit if possible, for use in history messages"""
-        from platform import fix_plurals
         if self.topnodes:
             res = fix_plurals( "%d item(s)" % len(self.topnodes) )
             #e could figure out their common class if any (esp. useful for Jig and below); for Groups say what they contain; etc
@@ -555,6 +589,22 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             res += fix_plurals( "%d atom(s)" % len(self.selatoms) )
             #e could say "other atoms" if the selected nodes contain any atoms
         return res
+    def expand_atomset(self, ntimes = 1): #bruce 051129 for use in Local Minimize; compare to selectExpand
+        """Expand self's set of atoms (to include all their real-atom neighbors) (repeating this ntimes),
+        much like "Expand Selection" but using no element filter, and of course
+        having no influence by or effect on "current selection state" (atom.picked attribute).
+           Ignore issue of self having selected chunks (as opposed to the atoms in them);
+        if this ever becomes possible we can decide how to generalize this method for that case
+        (ignore them, turn them to atoms, etc).
+           Warning: Current implem [051129] is not optimized for lots of atoms and ntimes > 1
+        (which doesn't matter for its initial use).
+        """
+        atoms = self.atoms # mutable dict, modified in following loop
+        for i in range(ntimes):
+            for a1 in atoms.values(): # this list remains fixed as atoms dict is modified by this loop
+                for a2 in a1.realNeighbors():
+                    atoms[a2.key] = a2 # analogous to a2.pick()
+        return
     pass # end of class Selection
 
 # end
