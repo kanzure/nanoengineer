@@ -40,6 +40,11 @@ import env #bruce 050901
 debug_sim = 0 # DO NOT COMMIT with 1
 
 cmd = greenmsg("Simulator: ")
+    #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
+    # It ought to become some object's attribute, once we figure out what uses it and whether anything changes it.
+    # (It looks like class SimRunner uses it a lot, but it's hard to tell what else does.)
+    # It's hard to clean this up safely, because in theory it might be accessed from other files, and "cmd" is too common
+    # to easily search for (187 matches in current sources). Fix this sometime. #e ####@@@@
 
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
@@ -933,7 +938,7 @@ class Minimize_CommandRun(CommandRun):
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
             cmdtype = LOCAL_MIN
             cmdname = "Local Minimize"
-            atomlist = self.args[1]
+            # self.args is parsed later
         else:
             assert cmd_subclass_code == 'Sel'
             cmdtype = MIN_SEL
@@ -955,8 +960,10 @@ class Minimize_CommandRun(CommandRun):
                 env.history.message( msg) #bruce 051129 changed this from redmsg( msg) to msg since msg already includes colors above
                 return
         elif cmdtype == LOCAL_MIN:
-            #####@@@@@ need to import selection_from_atomlist from ops_select???
+            from ops_select import selection_from_atomlist
+            junk, atomlist, ntimes_expand = self.args
             selection = selection_from_atomlist( self.part, atomlist) #e in cleaned up code, selection object might come from outside
+            selection.expand_atomset(ntimes = ntimes_expand) # ok if ntimes == 0
         else:
             assert cmdtype == MIN_ALL
             selection = self.part.selection_for_all()
