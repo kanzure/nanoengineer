@@ -165,10 +165,12 @@ class basicMode(anyMode):
     modename = "(bug: missing modename)"
     msg_modename = "(bug: unknown mode)"
     default_mode_status_text = "(bug: missing mode status text)"
-
-    # How to find mode-related help pages in the Nanorex wiki
-    # [will 051010 added wiki help feature]
-    __WikiHelpPrefix = "http://www.nanoengineer-1.net/mediawiki/index.php?title=UserHelp:"
+        
+    def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
+        "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this mode for users; or '' if unknown."
+        if self.default_mode_status_text.startswith("Mode: "):
+            return self.default_mode_status_text[len("Mode: "):] + " Mode"
+        return ''
     
     def __init__(self, glpane):
         
@@ -343,6 +345,11 @@ class basicMode(anyMode):
             # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
             # or   "Control-Command Menu" vs. "Right-Control Menu".
             # [bruce 041014]
+        if 1: #bruce 051130
+            self.Menu_spec.append( None )
+            # might this look better before the above submenus, with no separator?
+            ###e the text "web help:" should perhaps be defined next to open_wiki_help_page(), not hardcoded; btw those are in wrong file now
+            self.Menu_spec.append( ("web help: " + self.user_modename(), self.menucmd_open_wiki_help_page) )
         self.Menu1 = self.makemenu(self.Menu_spec)
         self.Menu2 = self.makemenu(self.Menu_spec_shift)
         self.Menu3 = self.makemenu(self.Menu_spec_control)
@@ -356,6 +363,18 @@ class basicMode(anyMode):
         """
         pass ###e move the default menu_spec to here in case subclasses want to use it?
 
+    def menucmd_open_wiki_help_page(self, *args): #bruce 051130 ###k args?? naming convention?
+        "If this is a valid mode whose name for this purpose can be found, open its wiki help page"
+        # How to find mode-related help pages in the Nanorex wiki
+        # [will 051010 added wiki help feature; bruce 051130 revised it]
+        # [Planned: see also a similar method for Jigs or Nodes, and later, other kinds of user-visible objects/tools/commands.]
+        user_modename = self.user_modename()
+        if user_modename:
+            featurename = user_modename
+            from platform import open_wiki_help_page
+            open_wiki_help_page( featurename )
+        return
+    
     # ==
     
     def warning(self, *args, **kws):
@@ -1161,7 +1180,7 @@ class basicMode(anyMode):
         if key == Qt.Key_Comma: 
             self.o.scale *= 1.05
             self.o.gl_update()
-	# comment out wiki help feature until further notice, wware 051101
+	# comment out wiki help feature until further notice, wware 051101 [bruce 051130 revived/revised it, elsewhere in file]
         #if key == Qt.Key_F1:
         #    import webbrowser
         #    # [will 051010 added wiki help feature]

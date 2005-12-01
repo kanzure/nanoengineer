@@ -661,7 +661,38 @@ def get_gms_name():
         gms_name =  "GAMESS"
     
     return gms_name
-       
+
+# ==
+
+# [will 051010 added wiki help feature; bruce 051130 revised it]
+
+def open_wiki_help_page( featurename ):
+    """Open the wiki help page corresponding to the named nE-1 feature, in ways influenced by user preferences.
+    Assume the featurename might contain blanks, but contains no other characters needing URL-encoding.
+    [In the future, we might also accept options about the context or specific instance of the feature,
+     which might turn into URL-anchors or the like.]
+    """
+    url = wiki_help_url( featurename)
+    if url:
+        env.history.message("Wiki help: opening " + url)
+            # print this in case user wants to open it manually or debug the url prefix preference,
+            # and to lessen their surprise if they didn't expect the help command to fire up their browser
+        import webbrowser
+        webbrowser.open( url)
+    return
+
+def wiki_help_url( featurename):
+    """Return a URL at which the wiki help page for the named feature (e.g. "Rotary Motor" or "Build Mode")
+    might be found (or should be created), or '' if this is not a valid featurename for this purpose [NIM - validity not yet checked].
+    Assume the featurename might contain blanks, but contains no other characters needing URL-encoding.
+    [Note: in future, user prefs might include a series of wiki prefixes to try,
+     so this API might need revision to return a series of URLs to try.]
+    """
+    from prefs_constants import wiki_help_prefix_prefs_key
+    prefix = env.prefs[wiki_help_prefix_prefs_key]
+    title = "Feature:" + featurename.replace(' ', '_') # e.g. Feature:Build_Mode
+    return prefix + title # assume no URL-encoding needed in title, since featurenames so far are just letters and spaces
+
 # == test code
 
 if __name__ == "__main__":

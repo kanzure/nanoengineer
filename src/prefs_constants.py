@@ -76,17 +76,15 @@ bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
 bondStretchColor_prefs_key = 'A6/Bond Stretch Color'
 bondVaneColor_prefs_key = 'A6/Bond Vane Color'
 bondCPKColor_prefs_key = 'A6/Bond CPK Color'
-# (renamed by bruce 050806 before first used:)
-pibondStyle_prefs_key = 'A6/Pi Bond Style'      ## was: bondHybridsDisplay_prefs_key = 'A6/Bond Hybrid Display'
-pibondLetters_prefs_key = 'A6/Pi Bond Letters'  ## was:  bondShowLabels_prefs_key = 'A6/Bond Show Labels'
-#bruce 050806 made this up:
+pibondStyle_prefs_key = 'A6/Pi Bond Style'
+pibondLetters_prefs_key = 'A6/Pi Bond Letters'
 showValenceErrors_prefs_key = 'A6/Show Valence Errors'
 #display lines mode line thickness, mark 050831
 linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 #CPK cylinder radius (percentage), mark 051003
 cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
 
-# Modes prefs [added to this table by mark 050910]
+# Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
 # of the superclass basicMode (modes.py).
 startupMode_prefs_key = 'A7/Startup Mode'
@@ -97,7 +95,10 @@ specular_highlights_prefs_key = 'A7/Specular Highlights'
 shininess_prefs_key = 'A7/Shininess'
 whiteness_prefs_key = 'A7/Whiteness'
 
-# Plug-ins prefs [added to this table by mark 050918]
+# File management / filename / URL preferences [tentative category, added by bruce 051130, more comments below]
+wiki_help_prefix_prefs_key = 'A7/Wiki Help Prefix'
+
+# Plug-ins prefs [added by mark 050918]
 gmspath_prefs_key = 'A6/GAMESS Path'
 gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
@@ -197,7 +198,11 @@ prefs_table = (
     
     ('specular_highlights', 'boolean', specular_highlights_prefs_key, True),
     ('shininess', 'float', shininess_prefs_key, 35.0),
-    ('whiteness', 'float', whiteness_prefs_key, 0.5), 
+    ('whiteness', 'float', whiteness_prefs_key, 0.5),
+
+    # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
+
+    ('', 'string', wiki_help_prefix_prefs_key, "http://www.nanoengineer-1.net/mediawiki/index.php?title=" ),
 
     # Plug-ins preferences [added to this table by mark 050919]
     
