@@ -1,0 +1,58 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.961109, -0.201139, -0.178493, -0.062867) (7.971757) (0.020500, 0.078000, 0.088500) (1.000000)
+egroup (View Data)
+group (met)
+info opengroup open = True
+mol (met.pdb) cpk
+atom 1 (7) (-376, 1206, 1685) def
+atom 2 (6) (240, 520, 1489) def
+bond1 1
+atom 3 (6) (1508, 535, 630) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (2779, -249, 271) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (2260, 2716, 837) def
+bond1 3
+atom 6 (6) (-30, -655, 1285) def
+bond1 2
+atom 7 (6) (-1254, -474, -496) def
+bond1 6
+atom 8 (16) (-1873, -1669, -692) def
+bond1 7
+atom 9 (6) (-2540, -1625, -2689) def
+bond1 8
+atom 10 (1) (187, 1782, 2186) def
+bond1 1
+atom 11 (1) (-1122, 1864, 2546) def
+bond1 1
+atom 12 (1) (911, 484, 2428) def
+bond1 2
+atom 13 (1) (-951, -972, 2016) def
+bond1 6
+atom 14 (1) (271, -1608, 1634) def
+bond1 6
+atom 15 (1) (129, -41, -1259) def
+bond1 7
+atom 16 (1) (-658, 312, -365) def
+bond1 7
+atom 17 (1) (-2778, -3167, -2892) def
+bond1 9
+atom 18 (1) (-1457, -1990, -2271) def
+bond1 9
+atom 19 (1) (-2897, -540, -2460) def
+bond1 9
+atom 20 (1) (2976, 2502, 1011) def
+bond1 5
+egroup (met)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part met
+

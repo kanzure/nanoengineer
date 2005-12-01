@@ -1,0 +1,46 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.802119, -0.495711, -0.045853, 0.329809) (6.476213) (0.038000, -0.104000, 0.017000) (1.000000)
+egroup (View Data)
+group (cys)
+info opengroup open = True
+mol (cys.pdb) cpk
+atom 1 (7) (2033, 1587, 724) def
+atom 2 (6) (209, 419, 644) def
+bond1 1
+atom 3 (6) (244, -909, -192) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (-1114, -1192, -942) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (1052, -956, -358) def
+bond1 3
+atom 6 (6) (-1251, 631, 733) def
+bond1 2
+atom 7 (16) (-1377, 2425, -992) def
+bond1 6
+atom 8 (1) (1546, 284, 864) def
+bond1 1
+atom 9 (1) (859, 1827, 28) def
+bond1 1
+atom 10 (1) (-313, 191, 1532) def
+bond1 2
+atom 11 (1) (-1790, 1595, -1544) def
+bond1 7
+atom 12 (1) (-1682, 96, 476) def
+bond1 6
+atom 13 (1) (-1254, 1720, 1762) def
+bond1 6
+atom 14 (1) (961, -2103, -1088) def
+bond1 5
+egroup (cys)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cys
+
