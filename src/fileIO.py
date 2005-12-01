@@ -36,29 +36,6 @@ from elements import PeriodicTable
 
 # ==
 
-def get_povray_color(lights):
-    def getColor(amb, dif):
-        rst = min(amb + dif * 0.125, 1.0)
-        return "<%f, %f, %f>"%(rst, rst, rst)
-    
-    ((a0,d0,e0),(a1,d1,e1),(a2,d2,e2)) = lights
-    if e0:
-        c1 = getColor(a0, d0)
-    else:
-        c1 =  None
-    
-    if e1:
-        c2 = getColor(a1, d1)
-    else:
-        c2 = None
-    
-    if e2:
-        c3 = getColor(a2, d2)
-    else:
-        c3 = None
-    
-    return c1, c2, c3
-
 # Create a POV-Ray file
 def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
     "write the given part into a new POV-Ray file with the given name, using glpane and glpane.mode for lightig, color, etc"
@@ -81,29 +58,10 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     import math
     angle = 2.0*atan2(aspect, cdist)*180.0/math.pi
     
-    f.write("// Recommended window size: width=%d, height=%d \n\n"%(glpane.width, glpane.height))
+    f.write("// Recommended window size: width=%d, height=%d \n"%(glpane.width, glpane.height))
+    f.write("// Suggested command line switches: +A +W%d +H%d\n\n"%(glpane.width, glpane.height))
 
     f.write(povheader)
-
-    
-    # Light sources.
-    # These are currently hardcoded here and independent of the 3 light sources in the CAD
-    # code.  This needs to be fixed (see bug 447).  Mark 051104.
-    light1 = (glpane.out + glpane.left + glpane.up) * 10.0
-    light2 = (glpane.right + glpane.up) * 10.0
-    light3 = glpane.right + glpane.down + glpane.out/2.0
-    #light1 = V(-5, 7, 3); light2 = V(-1, 1, 1); light3 = (0, 0, 1) 
-    color1, color2, color3 = get_povray_color(glpane._lights)
-    #f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color Gray10 parallel\n}\n")
-    #f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color Gray40 parallel\n}\n")
-    #f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color Gray40 parallel\n}\n")
-    if color1:
-        f.write("\nlight_source {\n  " + povpoint(light1) + "\n  color " + color1 + " parallel\n}\n")
-    if color2:    
-        f.write("\nlight_source {\n  " + povpoint(light2) + "\n  color " + color2 + " parallel\n}\n")
-    if color3:
-        f.write("\nlight_source {\n  " + povpoint(light3) + "\n  color " + color3 + " parallel\n}\n")
-    
     
     # Camera info
     vdist = cdist
@@ -142,6 +100,9 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
         "  }\n")
     else: # Solid
         f.write("background {\n  color rgb " + povpoint(glpane.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
+    
+    # Lights and Atomic finish.
+    writepovlighting(f, glpane)
  
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
@@ -178,7 +139,104 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     f.write("}\n\n")  
 
     f.close()
+
+# writepovlighting() added by Mark.  Feel free to ask him if you have questions.  051130.    
+def writepovlighting(f, glpane):
+    '''Writes a light source record for each light (if enabled) and the
+    'Atomic' finish record. These records impact the lighting affect.
+    ''' 
+    # There are 3 light sources.  Get position and lighting parameters of each.
     
+    # The light positions are hard coded in GLPane._setup_lighting():
+    #    glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
+    #    glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
+    #    glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
+    #
+    # We need a light class containing a position attribute, then we can do something like this:
+    # pos1 =  (glpane.right * light1.x) + (glpane.up * light1.y) + (glpane.out * light1.z)
+    #
+    # For now, we copy the coords of each light here.
+    pos1 = (glpane.right * -50) + (glpane.up * 70) + (glpane.out * 30)
+    pos2 = (glpane.right * -20) + (glpane.up * 20) + (glpane.out * 20)
+    pos3 = (glpane.right * 0) + (glpane.up * 0) + (glpane.out * 100)
+    
+    # Get the lighting parameters for the 3 lights.
+    ((a1,d1,on1),(a2,d2,on2),(a3,d3,on3)) = glpane.getLighting()
+
+    # The ambient values (hardcoded to .25 for each light) of only the enabled 
+    # lights are summed up. 'ambient' is used in the 'Atomic' finish record.
+    # We add an extra .25 because it matches (cad glpane) better.
+    # 'ambient' will end up having one of the following values:
+    #      .25 (0 lights enabled)
+    #      .5 (1 light enabled)
+    #      .75 (2 lights enabled) or
+    #      1.0 (3 lights enabled)
+    ambient = .25 
+    
+    # The diffuse values of only the enabled lights are summed up. 
+    # 'diffuse' is used in the 'Atomic' finish record. It can have a value
+    # over 1.0 (and makes a difference).
+    diffuse = 0.0
+    
+    # The phong value (range = 0.0 - 1.4) controls specular highlighting.
+    # When phong = 0, specular highlights are turned off.
+    # phong is computed is a function of the 'shininess' and 'whiteness' prefs. 
+    # shininess contributes 0.05 - 0.4, whiteness contributes 0.0 - 1.0.
+    # phong should not be less than 0.15, either.  All this was figured out with
+    # extensive trial and error.  I
+    # 'phong' is used in the 'Atomic' finish record.
+    if env.prefs[specular_highlights_prefs_key]:
+        # Since the shininess pref has a value of 50 (low) to 15 (high), this function will
+        # generate a value between 0.05 (low) to 0.4 (high), which works well in tests.
+        phong = (- env.prefs[shininess_prefs_key] + 55.0) * .01
+        # Now add the whiteness.
+        phong += env.prefs[whiteness_prefs_key] # Range: 0.0 - 1.0
+        # Finally, 'phong' should never be less than 0.15.
+        phong = max(0.15, phong)
+    else:
+        phong = 0.0 # No specular highlights
+    
+    if on1: # Light 1 is On
+        ambient += a1
+        diffuse += d1
+        f.write( "\n// Light #1" +
+                    "\nlight_source {" +
+                    "\n  " + povpoint(pos1) + 
+                    "\n  color <" + str(d1) + ", " + str(d1) + ", " + str(d1) + ">" +
+                    "\n  parallel" +
+                    "\n  point_at <0.0, 0.0, 0.0>" +
+                    "\n}\n")
+    
+    if on2: # Light 2 is On
+        ambient += a2
+        diffuse += d2
+        f.write( "\n// Light #2" +
+                    "\nlight_source {\n  " + povpoint(pos2) + 
+                    "\n  color <" + str(d2) + ", " + str(d2) + ", " + str(d2) + ">" +
+                    "\n  parallel" +
+                    "\n  point_at <0.0, 0.0, 0.0>" +
+                    "\n}\n")
+    
+    if on3: # Light 3 is On
+        ambient += a3
+        diffuse += d3
+        f.write("\n// Light #3" +
+                    "\nlight_source {\n  " + povpoint(pos3) + 
+                    "\n  color <" + str(d3) + ", " + str(d3) + ", " + str(d3) + ">" +
+                    "\n  parallel" +
+                    "\n  point_at <0.0, 0.0, 0.0>" +
+                    "\n}\n")
+    
+    # Atomic finish record.
+    f.write( "\n#declare Atomic =" +
+                "\nfinish {" +
+                "\n    ambient " + str(ambient) +
+                "\n    diffuse " + str(diffuse) +
+                "\n    phong " + str(phong) +
+                "\n}\n")
+    
+    return
+
 # ==
 
 # Create an MDL file - by Chris Phoenix and Mark for John Burch [04-12-03]
