@@ -1,0 +1,42 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.582234, 0.652969, 0.295359, 0.383926) (6.382334) (-0.002500, 0.002500, 0.007500) (1.000000)
+egroup (View Data)
+group (ala)
+info opengroup open = True
+mol (ala.pdb) cpk
+atom 1 (7) (-1020, 1690, 788) def
+atom 2 (6) (-314, 412, 939) def
+bond1 1
+atom 3 (8) (1971, 99, 151) def
+info atom atomtype = sp2
+atom 4 (8) (357, 582, -1345) def
+atom 5 (6) (-1204, -843, 832) def
+bond1 2
+atom 6 (1) (-1739, 1763, 1505) def
+bond1 1
+atom 7 (1) (-1494, 1710, -112) def
+bond1 1
+atom 8 (1) (189, 415, 1910) def
+bond1 2
+atom 9 (1) (-1966, -822, 1619) def
+bond1 5
+atom 10 (1) (-627, -1768, 948) def
+bond1 5
+atom 11 (1) (-1711, -872, -138) def
+bond1 5
+atom 12 (1) (1136, 532, -1925) def
+bond1 4
+atom 13 (6) (786, 354, -75) def
+info atom atomtype = sp2
+bond1 4 2
+bond2 3
+egroup (ala)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ala

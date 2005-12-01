@@ -1,0 +1,45 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.951918, 0.088643, -0.230273, -0.181571) (6.294654) (0.116000, 0.102000, 0.009000) (1.000000)
+egroup (View Data)
+group (ser)
+info opengroup open = True
+mol (ser.pdb) cpk
+atom 1 (7) (-1113, 1657, 486) def
+atom 2 (6) (-274, 508, 800) def
+bond1 1
+atom 3 (6) (887, 342, -182) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (1767, -480, -30) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (835, 1171, -1242) def
+bond1 3
+atom 6 (6) (-1010, -841, 883) def
+bond1 2
+atom 7 (8) (-1667, -1031, -366) def
+bond1 6
+atom 8 (1) (-1845, 1732, 1189) def
+bond1 1
+atom 9 (1) (-1579, 1490, -403) def
+bond1 1
+atom 10 (1) (200, 677, 1776) def
+bond1 2
+atom 11 (1) (-1733, -801, 1715) def
+bond1 6
+atom 12 (1) (-284, -1637, 1090) def
+bond1 6
+atom 13 (1) (-1999, -1936, -404) def
+bond1 7
+atom 14 (1) (1602, 942, -1794) def
+bond1 5
+egroup (ser)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ser
