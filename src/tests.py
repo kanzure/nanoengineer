@@ -5,27 +5,28 @@
 Usage: tests.py [options]
 
 Available options are:
-    generate -- recreate reference files for tests
-    thorough -- perform more in-depth tests beyond simply comparing
-                MD5 checksums of output files
+    lengths-angles -- perform structure comparisons with known-good
+                      structures, computed by QM simulations, comparing
+                      bond lengths and bond angles
+    structcompare -- perform structure comparisons with known-good
+                     structures, computed by QM simulations, using
+                     code in sim/src/structcompare.c
     slow -- perform slow tests (not for regression testing)
+    md5 -- perform MD5 checksum comparisons; useful for
+           simulator development
+    generate -- recreate reference files for tests
     keep -- when a test is finished, don't delete its temporary
             directory (useful for debug)
     debug -- debug this script
-    no-md5 -- skip MD5 checksum comparisons; sometimes doing this
-              will elucidate other problems
+    todo -- reminders of what work still needs doing
+    assertions -- print non-abbreviated assertion statements
 
-In day-to-day regression testing, the likely set of options will
-be none at all, so that you get the fast tests and only do MD5
+In day-to-day regression testing, the only likely command line option
+will be"md5", so that you get the fast tests and only do MD5
 checksum comparisons. In infrequent QA testing, the likely set of
-options will be "slow thorough". When we get new files from Damian
+options will be "slow structure". When we get new files from Damian
 we'll use "generate". When this script needs updating or maintenance
-the "debug", "keep", and "no-md5" options will be useful.
-
-Currently all our test cases are very small molecules, so using
-"thorough" doesn't make much difference, so I recommend that as a
-regression test until our test cases grow so large or numerous that
-it's preferable to 
+the "debug", "keep", "todo", and "assertions" options will be useful.
 
 $Id$
 """
@@ -36,24 +37,35 @@ import Numeric
 import math
 import md5
 import os
+import qt
 import random
 import re
 import shutil
 import string
-import subprocess
 import sys
+import time
 import traceback
 import unittest
 
-os.system("make simulator")
+if not os.path.exists("simulator"):
+    raise SystemExit("Please rebuild the simulator executable")
 
-##################################################################
-# For failures, don't bother with complete tracebacks, it's more
-# information than we need. With errors, we still might care.
+# Global flags and variables set from command lines
+DEBUG = 0
+MD5_CHECKS = False
+STRUCTURE_COMPARISON_CHECKS = False
+GENERATE = False
+KEEP_RESULTS = False
+SHOW_TODO = False
+FULL_ASSERTIONS = False
+C_STRUCT_COMPARE = False
 
-def addFailure(self, test, err):
-    self.failures.append((test, traceback.format_exception(*err)[-1]))
-unittest.TestResult.addFailure = addFailure
+class Unimplemented(AssertionError):
+    pass
+
+def todo(str):
+    if SHOW_TODO:
+        raise Unimplemented(str)
 
 ##################################################################
 
@@ -61,7 +73,6 @@ unittest.TestResult.addFailure = addFailure
 # angles before we think it's a problem? For now these are
 # wild guesses, to be later scrutinized by smart people.
 
-POSITION_TOLERANCE = 0.5   # angstroms
 LENGTH_TOLERANCE = 0.2     # angstroms
 ANGLE_TOLERANCE = 10       # degrees
 
@@ -163,6 +174,7 @@ class XyzFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
+        todo("I'm pretty sure os.linesep is not used correctly here")
         lines = lines.split(os.linesep)
         numAtoms = string.atoi(lines[0])
         lines = lines[2:]
@@ -242,6 +254,7 @@ class MmpFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
+        todo("I'm pretty sure os.linesep is not used correctly here")
         lines = lines.split(os.linesep)
         i, n = 0, len(lines)
         while i < n:
@@ -288,7 +301,8 @@ class LengthAngleComparison:
         self.bondAngleTerms = bondAngleTerms = { }
 
         def addBondLength(atm1, atm2):
-            assert atm1 != atm2
+            if atm1 == atm2:
+                raise AssertionError("bond from atom to itself?")
             if atm2 < atm1:
                 atm1, atm2 = atm2, atm1
             if bondLengthTerms.has_key(atm1):
@@ -339,7 +353,7 @@ class LengthAngleComparison:
         self.numAtoms = len(mmp)
 
     def readXyz(self, xyzFilename):
-        # TODO: handle multiple-frame xyz files from animations
+        todo("handle multiple-frame xyz files from animations")
         xyz = XyzFile()
         xyz.read(xyzFilename)
         if len(xyz) != self.numAtoms:
@@ -359,38 +373,35 @@ class LengthAngleComparison:
 
         return (lengthList, angleList)
 
-    def compare(self, xyzFilename1, xyzFilename2):
-        # TODO: handle multiple-frame xyz files from animations
-        L1, A1 = self.readXyz(xyzFilename1)
-        L2, A2 = self.readXyz(xyzFilename2)
+    def compare(self, questionableXyzFile, knownGoodXyzFile):
+        todo("handle multiple-frame xyz files from animations")
+        L1, A1 = self.readXyz(questionableXyzFile)
+        L2, A2 = self.readXyz(knownGoodXyzFile)
         for xyz1, xyz2 in map(None, L1, L2):
             a1, a2, L = xyz1
             a11, a22, LL = xyz2
             if a1 != a11 or a2 != a22:
-                raise LengthMismatch("Term (%d, %d) versus (%d, %d)"
-                                     % (a11, a22, a1, a2))
+                raise LengthMismatch("Term expected (%d, %d) versus (%d, %d)"
+                                     % (a1, a2, a11, a22))
             if abs(L - LL) > LENGTH_TOLERANCE:
-                raise LengthMismatch("(%d, %d) -> %f versus %f"
+                raise LengthMismatch("(%d, %d) expected %f, got %f"
                                      % (a1, a2, LL, L))
         for xyz1, xyz2 in map(None, A1, A2):
             a1, a2, a3, A = xyz1
             a11, a22, a33, AA = xyz2
             if a1 != a11 or a2 != a22 or a3 != a33:
-                raise AngleMismatch("Term (%d, %d, %d) versus (%d, %d, %d)"
-                                    % (a11, a22, a33, a1, a2, a3))
+                raise AngleMismatch("Term expected (%d, %d, %d) versus (%d, %d, %d)"
+                                    % (a1, a2, a3, a11, a22, a33))
             if abs(L - LL) > ANGLE_TOLERANCE:
-                raise AngleMismatch("(%d, %d, %d) -> %f versus %f"
+                raise AngleMismatch("(%d, %d, %d) expected %f, got %f"
                                     % (a1, a2, a3, AA, A))
 
 ##################################################################
 
-class Unimplemented(AssertionError):
-    pass
-
 def rmtreeSafe(dir):
     # platform-independent 'rm -rf'
     try: shutil.rmtree(dir)
-    except OSError, e: assert e.args[0] == 2
+    except OSError, e: pass
 
 def md5sum(filename):
     hash = md5.new()
@@ -406,12 +417,6 @@ def md5sum(filename):
         return "%02X" % ord(ch)
     return "".join(map(hex2, hash.digest()))
 
-DEBUG = 0
-PERFORM_MD5_CHECKS = True
-TESTS_BEYOND_MD5_CHECKS = False
-GENERATE = False
-KEEPRESULTS = False
-
 class BaseTest:
     DEFAULT_INPUTS = ( )  # in addition to xxx.mmp
     DEFAULT_SIMOPTS = ( )
@@ -420,8 +425,16 @@ class BaseTest:
     class MD5SumMismatch(AssertionError):
         pass
 
-    def __init__(self, simopts=None, inputs=None, outputs=None):
-        self.getBasename()
+    def __init__(self, dir=None, test=None,
+                 simopts=None, inputs=None, outputs=None):
+
+        self.dirname = dir
+        self.shortname = test
+        self.testname = testname = "test_" + test # test_C2H4
+        self.midname = midname = os.sep.join(["tests", dir, testname])
+        self.basename = os.sep.join([os.getcwd(), midname])
+
+        #self.getBasename()
         if inputs == None:
             inputs = self.DEFAULT_INPUTS
         if simopts == None:
@@ -429,22 +442,22 @@ class BaseTest:
         if outputs == None:
             outputs = self.DEFAULT_OUTPUTS
         self.inputs = inputs
-        self.outputs = outputs  # not using this yet
-        self.runInSandbox(simopts)
-        assert self.exitvalue == 0
+        self.simopts = simopts
+        self.outputs = outputs
+        self.runInSandbox()
 
     def getBasename(self):
         # get the calling method name e.g. "test_rigid_organics_C2H4"
         name = sys._getframe(2).f_code.co_name
         name = name[5:]  # get rid of "test_"
         n = name.rindex("_")
-        self.dirname = dirname = name[:n]  # rigid_organicw
+        self.dirname = dirname = name[:n]  # rigid_organics
         self.shortname = shortname = name[n+1:]  # C2H4
         self.testname = testname = "test_" + shortname # test_C2H4
         self.midname = midname = os.sep.join(["tests", dirname, testname])
         self.basename = os.sep.join([os.getcwd(), midname])
 
-    def runInSandbox(self, opts):
+    def runInSandbox(self):
         # Run the simulator in sim/src/tmp.
         here = os.getcwd()
         tmpdir = "tmp_" + self.dirname + "_" + self.shortname
@@ -459,47 +472,54 @@ class BaseTest:
                 shutil.copy(self.basename + "." + ext, tmpdir)
             # Go into the tmp directory and run the simulator.
             os.chdir(tmpdir)
-            cmdline = (("./simulator",) + opts +
-                       (self.testname + ".mmp",))
-            stdout = open("stdout", "w")
-            stderr = open("stderr", "w")
-            if DEBUG > 0:
-                print self.basename
-                print cmdline
-            p = subprocess.Popen(cmdline,
-                                 stdout=stdout, stderr=stderr)
-            self.exitvalue = p.wait()
-            stdout.close()
-            stderr.close()
-            self.checkOutputFiles()
+            exitvalue = self.runCommand(self.simopts)
+            if exitvalue != 0:
+                raise AssertionError("simulator exit status was " +
+                                     repr(exitvalue) + ", expected 0")
+            if GENERATE:
+                self.generateOutputFiles()
+            else:
+                self.checkOutputFiles()
             return
         finally:
             os.chdir(here)
-            if not KEEPRESULTS: rmtreeSafe(tmpdir)
+            if not KEEP_RESULTS:
+                rmtreeSafe(tmpdir)
 
-    def checkOutputFiles(self):
+    def runCommand(self, opts):
+        def substFOO(str):
+            if str.startswith("FOO"):
+                return self.testname + str[3:]
+            return str
+        cmdline = [ "./simulator" ] + map(substFOO, opts)
         if DEBUG > 0:
-            print os.listdir(".")
-        if DEBUG > 1:
-            print ("******** " + self.basename + " ******** " +
-                   repr(self.exitvalue) + " ********")
-            for f in os.listdir("."):
-                if f != "simulator":
-                    # assume everything else is a text file
-                    print "---- " + f + " ----"
-                    sys.stdout.write(open(f).read())
-        if GENERATE:
-            # generate MD5 checksums for all output files, store in
-            # .../sim/src/tests/rigid_organics/test_C4H8.md5sums
-            outf = open(self.basename + ".md5sums", "w")
-            stdout = md5sum("stdout")
-            stderr = md5sum("stderr")
-            outf.write("stdout %s\n" % md5sum("stdout"))
-            outf.write("stderr %s\n" % md5sum("stderr"))
-            for ext in self.outputs:
-                fname = self.testname + "." + ext
-                outf.write("%s %s\n" % (fname, md5sum(fname)))
-            outf.close()
+            print self.basename
+            print cmdline
+        simProcess = qt.QProcess()
+        stdout = open("stdout", "a")
+        stderr = open("stderr", "a")
+        def blabout():
+            stdout.write(str(simProcess.readStdout()))
+        def blaberr():
+            stderr.write(str(simProcess.readStderr()))
+        qt.QObject.connect(simProcess, qt.SIGNAL("readyReadStdout()"), blabout)
+        qt.QObject.connect(simProcess, qt.SIGNAL("readyReadStderr()"), blaberr)
+        args = qt.QStringList()
+        for arg in cmdline:
+            args.append(arg)
+        simProcess.setArguments(args)
+        simProcess.start()
+        while simProcess.isRunning():
+            time.sleep(0.1)
+        stdout.close()
+        stderr.close()
+        return simProcess.exitStatus()
+
+    def generateOutputFiles(self):
+        self.generateMd5Sums()
+        # Don't overwrite xyzcmp files if they are Damian's data
+        if self.dirname not in ("rigid_organics", "floppy_organics",
+                                "amino_acids"):
             # if we care about doing XYZ comparisons, generate a
             # foo.xyzcmp file
             if "xyzcmp" in self.inputs:
@@ -508,50 +528,51 @@ class BaseTest:
                            self.basename + ".xyzcmp")
                 shutil.copy(self.testname + ".xyz",
                             self.basename + ".xyzcmp")
-            return
-        # If we're not generating new output files (which we won't
-        # do very often), we must be verifying a test case.
-        #
-        # Verify md5 checksums for output files
-        if PERFORM_MD5_CHECKS:
-            inf = open(self.basename + ".md5sums")
-            for line in inf.readlines():
-                fname, sum = line.split()
-                realsum = md5sum(fname)
-                if realsum != sum:
-                    raise self.MD5SumMismatch(self.midname + " " + fname)
-            inf.close()
-        if TESTS_BEYOND_MD5_CHECKS:
-            if "xyzcmp" in self.inputs:
-                #self.structureComparisonAbsolute()
-                self.structureComparisonBondlengthsBondangles()
-            # TODO should we check other things in this case?
 
-    def structureComparisonAbsolute(self):
-        xyzcmpname = self.testname + ".xyzcmp"
-        xyzname = self.testname + ".xyz"
-        xyzcmp = open(xyzcmpname)
-        xyz = open(xyzname)
-        # number of atoms should be the same
-        natoms = string.atoi(xyzcmp.readline().strip())
-        natoms2 = string.atoi(xyz.readline().strip())
-        if natoms != natoms2:
-            raise WrongNumberOfAtoms, \
-                  "%d, should be %d" % (natoms2, natoms)
-        assert natoms == natoms2
-        # ignore RMS for now
-        xyzcmp.readline(), xyz.readline()
-        for i in range(natoms):
-            elem1, x1, y1, z1 = xyzcmp.readline().split()
-            x1, y1, z1 = map(string.atof, (x1, y1, z1))
-            elem2, x2, y2, z2 = xyz.readline().split()
-            x2, y2, z2 = map(string.atof, (x2, y2, z2))
-            dist = ((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2) ** .5
-            if dist > POSITION_TOLERANCE:
-                raise PositionMismatch, self.midname
+    def checkOutputFiles(self):
+        if DEBUG > 0:
+            print os.listdir(".")
+        if DEBUG > 1:
+            print ("******** " + self.basename + " ********")
+            for f in os.listdir("."):
+                if f != "simulator":
+                    # assume everything else is a text file
+                    print "---- " + f + " ----"
+                    sys.stdout.write(open(f).read())
+        if MD5_CHECKS:
+            self.checkMd5Sums()
+        if STRUCTURE_COMPARISON_CHECKS:
+            if "xyzcmp" in self.inputs:
+                if C_STRUCT_COMPARE:
+                    if self.runCommand(("--base-file", "FOO.xyzcmp",
+                                        "FOO.xyz")) != 0:
+                        raise AssertionError("bad structure match")
+                else:
+                    self.structureComparisonBondlengthsBondangles()
+            todo("anything else we should be checking here?")
+
+    # Generate MD5 checksums for all output files, store in
+    # tests/rigid_organics/test_C4H8.md5sums (for example)
+    def generateMd5Sums(self):
+        outf = open(self.basename + ".md5sums", "w")
+        outf.write("stdout %s\n" % md5sum("stdout"))
+        outf.write("stderr %s\n" % md5sum("stderr"))
+        for ext in self.outputs:
+            fname = self.testname + "." + ext
+            outf.write("%s %s\n" % (fname, md5sum(fname)))
+        outf.close()
+
+    def checkMd5Sums(self):
+        inf = open(self.basename + ".md5sums")
+        for line in inf.readlines():
+            fname, sum = line.split()
+            realsum = md5sum(fname)
+            if realsum != sum:
+                raise self.MD5SumMismatch(self.midname + " " + fname)
+        inf.close()
 
     def structureComparisonBondlengthsBondangles(self):
-        # TODO: handle multiple-frame xyz files from animations
+        todo("handle multiple-frame xyz files from animations")
         lac = LengthAngleComparison(self.testname + ".mmp")
         lac.compare(self.testname + ".xyz", self.testname + ".xyzcmp")
 
@@ -564,15 +585,14 @@ class PassFailTest(BaseTest):
     line is run, the MD5 checksums for stdout and stderr are compared
     to earlier runs, and the exit value should be zero.
     """
-    pass
+    DEFAULT_SIMOPTS = None  # force an explicit choice
 
 class MinimizeTest(PassFailTest):
     """Perform a minimization, starting with a MMP file. The results
     should be stdout, stderr, exit value, and an XYZ file. All these
     are checked for correctness.
     """
-    DEFAULT_SIMOPTS = ("--minimize",
-                       "--dump-as-text")
+    DEFAULT_SIMOPTS = ("--minimize", "--dump-as-text", "FOO.mmp")
     DEFAULT_OUTPUTS = ("xyz",)
 
 class StructureTest(MinimizeTest):
@@ -582,15 +602,16 @@ class StructureTest(MinimizeTest):
     compared to an XYZCMP file for closeness of fit.
     """
     DEFAULT_INPUTS = ("xyzcmp",)
-    DEFAULT_OUTPUTS = ("trc", "xyz")
+    DEFAULT_SIMOPTS = ("--minimize", "--dump-as-text", "FOO.mmp")
+    DEFAULT_OUTPUTS = ( )
 
-class DynamicsTest(StructureTest):
+class DynamicsTest(MinimizeTest):
     """Make a dynamics movie, starting with a MMP file. The results
     should be stdout, stderr, exit value, a TRC file, and an XYZ file
     with multiple frames. All these are checked for correctness.
     """
     DEFAULT_INPUTS = ( )
-    DEFAULT_SIMOPTS = ("--dump-as-text",)
+    DEFAULT_SIMOPTS = ("--dump-as-text", "FOO.mmp")
     DEFAULT_OUTPUTS = ("trc", "xyz")
 
 ####################################################
@@ -598,86 +619,186 @@ class DynamicsTest(StructureTest):
 class Tests(unittest.TestCase):
     """Put the fast tests here.
     """
-    def test_minimize_0001(self):
-        StructureTest()
-    def test_minimize_0002(self):
-        PassFailTest(("--num-frames=500",
-                      "--minimize",
-                      "--dump-as-text"))
-    def test_minimize_0003(self):
-        PassFailTest(("--num-frames=300",
-                      "--minimize",
-                      "--dump-intermediate-text",
-                      "--dump-as-text"))
-    def test_minimize_0004(self):
-        PassFailTest(("--num-frames=600",
-                      "--minimize",
-                      "--dump-as-text"))
-    def test_minimize_0005(self):
-        StructureTest()
-    def test_minimize_0006(self):
-        PassFailTest(("--num-frames=300",
-                      "--minimize",
-                      "--dump-intermediate-text",
-                      "--dump-as-text"))
-    def test_minimize_0007(self):
-        PassFailTest(("--num-frames=300",
-                      "--minimize",
-                      "--dump-intermediate-text",
-                      "--dump-as-text"))
-    def test_minimize_0008(self):
-        # test ground in minimize
-        MinimizeTest()
-    def test_minimize_0009(self):
-        StructureTest()
-    def test_minimize_0010(self):
-        MinimizeTest()
-    def test_minimize_0011(self):
-        MinimizeTest()
-    def test_minimize_0012(self):
-        MinimizeTest()
-    def test_minimize_0013(self):
-        StructureTest()
-    def test_rigid_organics_C10H12(self):
-        StructureTest()
-    def test_rigid_organics_C10H14(self):
-        StructureTest()
-    def test_rigid_organics_C14H20(self):
-        StructureTest()
-    def test_rigid_organics_C14H24(self):
-        StructureTest()
-    def test_rigid_organics_C2H6(self):
-        StructureTest()
-    def test_rigid_organics_C3H6(self):
-        StructureTest()
-    def test_rigid_organics_C3H8(self):
-        StructureTest()
-    def test_rigid_organics_C4H8(self):
-        StructureTest()
-    def test_rigid_organics_C6H10(self):
-        StructureTest()
-    def test_rigid_organics_C8H14(self):
-        StructureTest()
-    def test_rigid_organics_C8H8(self):
-        StructureTest()
-    def test_rigid_organics_CH4(self):
-        StructureTest()
     def test_dynamics_0002(self):
         # ground, thermostat, and thermometer test
-        DynamicsTest(("--num-frames=100",
-                      "--temperature=300",
-                      "--iters-per-frame=10",
-                      "--dump-as-text"))
+        DynamicsTest(dir="dynamics", test="0002",
+                     simopts=("--num-frames=100",
+                              "--temperature=300",
+                              "--iters-per-frame=10",
+                              "--dump-as-text",
+                              "FOO.mmp"))
+    def test_minimize_0001(self):
+        StructureTest(dir="minimize", test="0001")
+    def test_minimize_0002(self):
+        PassFailTest(dir="minimize", test="0002",
+                     simopts=("--num-frames=500",
+                              "--minimize",
+                              "--dump-as-text",
+                              "FOO.mmp"))
+    def test_minimize_0003(self):
+        PassFailTest(dir="minimize", test="0003",
+                     simopts=("--num-frames=300",
+                              "--minimize",
+                              "--dump-intermediate-text",
+                              "--dump-as-text",
+                              "FOO.mmp"))
+    def test_minimize_0004(self):
+        PassFailTest(dir="minimize", test="0004",
+                     simopts=("--num-frames=600",
+                              "--minimize",
+                              "--dump-as-text",
+                              "FOO.mmp"))
+    def test_minimize_0005(self):
+        StructureTest(dir="minimize", test="0005")
+    def test_minimize_0006(self):
+        PassFailTest(dir="minimize", test="0006",
+                     simopts=("--num-frames=300",
+                              "--minimize",
+                              "--dump-intermediate-text",
+                              "--dump-as-text",
+                              "FOO.mmp"))
+    def test_minimize_0007(self):
+        PassFailTest(dir="minimize", test="0007",
+                     simopts=("--num-frames=300",
+                              "--minimize",
+                              "--dump-intermediate-text",
+                              "--dump-as-text",
+                              "FOO.mmp"))
+    def test_minimize_0008(self):
+        # test ground in minimize
+        MinimizeTest(dir="minimize", test="0008")
+    def test_minimize_0009(self):
+        StructureTest(dir="minimize", test="0009")
+    def test_minimize_0010(self):
+        MinimizeTest(dir="minimize", test="0010")
+    def test_minimize_0011(self):
+        MinimizeTest(dir="minimize", test="0011")
+    def test_minimize_0012(self):
+        MinimizeTest(dir="minimize", test="0012")
+    def test_minimize_0013(self):
+        StructureTest(dir="minimize", test="0013")
+    def test_rigid_organics_C10H12(self):
+        StructureTest(dir="rigid_organics", test="C10H12")
+    def test_rigid_organics_C10H14(self):
+        StructureTest(dir="rigid_organics", test="C10H14")
+    def test_rigid_organics_C14H20(self):
+        StructureTest(dir="rigid_organics", test="C14H20")
+    def test_rigid_organics_C14H24(self):
+        StructureTest(dir="rigid_organics", test="C14H24")
+    def test_rigid_organics_C2H6(self):
+        StructureTest(dir="rigid_organics", test="C2H6")
+    def test_rigid_organics_C3H6(self):
+        StructureTest(dir="rigid_organics", test="C3H6")
+    def test_rigid_organics_C3H8(self):
+        StructureTest(dir="rigid_organics", test="C3H8")
+    def test_rigid_organics_C4H8(self):
+        StructureTest(dir="rigid_organics", test="C4H8")
+    def test_rigid_organics_C6H10(self):
+        StructureTest(dir="rigid_organics", test="C6H10")
+    def test_rigid_organics_C8H14(self):
+        StructureTest(dir="rigid_organics", test="C8H14")
+    def test_rigid_organics_C8H8(self):
+        StructureTest(dir="rigid_organics", test="C8H8")
+    def test_rigid_organics_CH4(self):
+        StructureTest(dir="rigid_organics", test="CH4")
+    def test_floppy_organics_C2H6(self):
+        StructureTest(dir="floppy_organics", test="C2H6")
+    def test_floppy_organics_C3H8(self):
+        StructureTest(dir="floppy_organics", test="C3H8")
+    def test_floppy_organics_C4H10a(self):
+        StructureTest(dir="floppy_organics", test="C4H10a")
+    def test_floppy_organics_C4H10b(self):
+        StructureTest(dir="floppy_organics", test="C4H10b")
+    def test_floppy_organics_C4H10c(self):
+        StructureTest(dir="floppy_organics", test="C4H10c")
+    def test_floppy_organics_C4H8(self):
+        StructureTest(dir="floppy_organics", test="C4H8")
+    def test_floppy_organics_C5H10(self):
+        StructureTest(dir="floppy_organics", test="C5H10")
+    def test_floppy_organics_C5H12a(self):
+        StructureTest(dir="floppy_organics", test="C5H12a")
+    def test_floppy_organics_C5H12b(self):
+        StructureTest(dir="floppy_organics", test="C5H12b")
+    def test_floppy_organics_C5H12c(self):
+        StructureTest(dir="floppy_organics", test="C5H12c")
+    def test_floppy_organics_C5H12d(self):
+        StructureTest(dir="floppy_organics", test="C5H12d")
+    def test_floppy_organics_C5H12e(self):
+        StructureTest(dir="floppy_organics", test="C5H12e")
+    def test_floppy_organics_C6H12a(self):
+        StructureTest(dir="floppy_organics", test="C6H12a")
+    def test_floppy_organics_C6H12b(self):
+        StructureTest(dir="floppy_organics", test="C6H12b")
+    def test_floppy_organics_C6H14a(self):
+        StructureTest(dir="floppy_organics", test="C6H14a")
+    def test_floppy_organics_C6H14b(self):
+        StructureTest(dir="floppy_organics", test="C6H14b")
+    def test_floppy_organics_C6H14c(self):
+        StructureTest(dir="floppy_organics", test="C6H14c")
+    def test_floppy_organics_C6H14d(self):
+        StructureTest(dir="floppy_organics", test="C6H14d")
+    def test_floppy_organics_C6H14e(self):
+        StructureTest(dir="floppy_organics", test="C6H14e")
+    def test_floppy_organics_C6H14f(self):
+        StructureTest(dir="floppy_organics", test="C6H14f")
+    def test_floppy_organics_C7H14a(self):
+        StructureTest(dir="floppy_organics", test="C7H14a")
+    def test_floppy_organics_C7H14b(self):
+        StructureTest(dir="floppy_organics", test="C7H14b")
+    def test_floppy_organics_C7H14c(self):
+        StructureTest(dir="floppy_organics", test="C7H14c")
+    def test_floppy_organics_CH4(self):
+        StructureTest(dir="floppy_organics", test="CH4")
+    def test_amino_acids_ala_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="ala_l_aminoacid")
+    def test_amino_acids_arg_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="arg_l_aminoacid")
+    def test_amino_acids_asn_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="asn_l_aminoacid")
+    def test_amino_acids_asp_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="asp_l_aminoacid")
+    def test_amino_acids_cys_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="cys_l_aminoacid")
+    def test_amino_acids_gln_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="gln_l_aminoacid")
+    def test_amino_acids_glu_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="glu_l_aminoacid")
+    def test_amino_acids_gly_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="gly_l_aminoacid")
+    def test_amino_acids_his_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="his_l_aminoacid")
+    def test_amino_acids_ile_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="ile_l_aminoacid")
+    def test_amino_acids_leu_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="leu_l_aminoacid")
+    def test_amino_acids_lys_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="lys_l_aminoacid")
+    def test_amino_acids_met_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="met_l_aminoacid")
+##     def test_amino_acids_phe_l_aminoacid(self):
+##         StructureTest(dir="amino_acids", test="phe_l_aminoacid")
+    def test_amino_acids_pro_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="pro_l_aminoacid")
+    def test_amino_acids_ser_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="ser_l_aminoacid")
+    def test_amino_acids_thr_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="thr_l_aminoacid")
+    def test_amino_acids_tyr_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="tyr_l_aminoacid")
+    def test_amino_acids_val_l_aminoacid(self):
+        StructureTest(dir="amino_acids", test="val_l_aminoacid")
 
 class SlowTests(Tests):
     """Put the slow tests here.
     """
     def test_dynamics_0001(self):
         # rotary motor test
-        PassFailTest(("--num-frames=30",
-                      "--temperature=0",
-                      "--iters-per-frame=10000",
-                      "--dump-as-text"))
+        PassFailTest(dir="dynamics", test="0001",
+                     simopts=("--num-frames=30",
+                              "--temperature=0",
+                              "--iters-per-frame=10000",
+                              "--dump-as-text",
+                              "FOO.mmp"))
 
 ###########################################
 
@@ -686,19 +807,39 @@ if __name__ == "__main__":
     if "generate" in sys.argv[1:]:
         GENERATE = True
 
-    if "thorough" in sys.argv[1:]:
-        TESTS_BEYOND_MD5_CHECKS = True
+    if "md5" in sys.argv[1:]:
+        MD5_CHECKS = True
+        if sys.platform != "linux2":
+            raise SystemExit("MD5 checks supported only on Linux")
+    if "lengths-angles" in sys.argv[1:]:
+        # Use bond lengths and bond angles
+        STRUCTURE_COMPARISON_CHECKS = True
+    if "structcompare" in sys.argv[1:]:
+        # Use structcompare.c
+        STRUCTURE_COMPARISON_CHECKS = True
+        C_STRUCT_COMPARE = True
     if "slow" in sys.argv[1:]:
         Tests = SlowTests
 
-    # These options are mostly helpful for debugging this
-    # script. Possibly useful for the tests themselves.
-    if "no-md5" in sys.argv[1:]:
-        PERFORM_MD5_CHECKS = False
+    # These options are mostly helpful for debugging this script.
     if "debug" in sys.argv[1:]:
         DEBUG = 1
     if "keep" in sys.argv[1:]:
-        KEEPRESULTS = True
+        KEEP_RESULTS = True
+    if "todo" in sys.argv[1:]:
+        SHOW_TODO = True
+        # catch all the TODOs everywhere
+        MD5_CHECKS = True
+        STRUCTURE_COMPARISON_CHECKS = True
+    if "assertions" in sys.argv[1:]:
+        FULL_ASSERTIONS = True
+
+    # For failures, don't usually bother with complete tracebacks,
+    # it's more information than we need.
+    def addFailure(self, test, err):
+        self.failures.append((test, traceback.format_exception(*err)[-1]))
+    if not FULL_ASSERTIONS:
+        unittest.TestResult.addFailure = addFailure
 
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
