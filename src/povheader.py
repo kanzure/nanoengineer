@@ -11,7 +11,7 @@ __author__ = "Josh"
 def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
-
+    
 povheader = """
 // COLORS:
 #declare Red     = rgb <1, 0, 0>;
@@ -57,13 +57,6 @@ povheader = """
     scale .5
 }
   
-#declare Atomic =
-finish {
-    ambient 0.4
-    diffuse 1.0
-    phong 0.3
-}
-
 #macro rmotor(p1, p2, rad, col)
   cylinder { p1, p2, rad
    pigment { rgb col }
