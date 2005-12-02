@@ -57,7 +57,9 @@ class Jig(Node):
     sym = "Jig" # affects name-making code in __init__
     pickcolor = (1.0, 0.0, 0.0) # color in glpane when picked (default: red)
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
-    
+    featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
+        # (Each Jig subclass should override featurename with a carefully chosen name; for a few jigs it should end in "Jig".)
+
     # class constants used as default values of instance variables:
     
     #e we should sometime clean up the normcolor and color attributes, but it's hard,
@@ -577,7 +579,8 @@ class Anchor(Jig):
 
     sym = "Anchor"
     icon_names = ["anchor.png", "anchor-hide.png"]
-
+    featurename = "Anchor" # wiki help featurename [bruce 051201; note that for a few jigs this should end in "Jig"]
+    
     # create a blank Anchor with the given list of atoms
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)

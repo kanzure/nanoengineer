@@ -550,6 +550,15 @@ class modelTree(TreeWidget):
 ##        
 ##        res.append(( fix_plurals("(%d selected item(s))" % len(nodeset)), noop, 'disabled' ))
 
+        # for single items that have a featurename, add wiki-help command [bruce 051201]
+        if len(nodeset) == 1:
+            node = nodeset[0]
+            from wiki_help import wiki_help_menuspec_for_object #e (will this func ever need to know which widget is asking?)
+            ms = wiki_help_menuspec_for_object(node) # will be [] if this node should have no wiki help menu items
+            if ms:
+                res.append(None) # separator
+                res.extend(ms)
+
         return res # from make_cmenuspec_for_set
 
     ## Context menu handler functions [bruce 050112 renamed them; "hide" hid a QWidget method!]

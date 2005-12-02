@@ -103,7 +103,9 @@ class Node( GenericDiffTracker_API_Mixin):
     to be typical of "leaf Nodes" -- many of them are overridden by Group,
     and some of them by other Node subclasses.
     """
-        
+
+    featurename = "" # default value of per-subclass attribute -- wiki help featurename for Node subclass [bruce 051201]
+    
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
     
     # default values of instance variables
@@ -170,6 +172,10 @@ class Node( GenericDiffTracker_API_Mixin):
             assert self.dad is dad
         return
 
+    def get_featurename(self): #bruce 051201
+        "Return the wiki-help featurename for this object's class, or '' if there isn't one."
+        return self.__class__.featurename # intended to be a per-subclass constant... so enforce this until we need otherwise
+    
     def _um_initargs(self): #bruce 051013 [in class Node]
         """Return args and kws suitable for __init__.
         [Overrides an undo-related superclass method; see its docstring for details.]
@@ -1145,6 +1151,13 @@ class Group(Node):
     """The tree node class for the tree.
     Its members can be Groups, jigs, or molecules.
     """
+
+    featurename = "" # (redundant with Node)
+        # It's intentional that we don't provide this for Group itself, so a selected Group in the MT
+        # doesn't bother you by offering wiki help on Group. Maybe we'll leave it off of Chunk as well...
+        # but maybe a better system would be to let user turn it off for specific classes they're familiar with,
+        # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
+        # [bruce 051201]
     
     extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013
 

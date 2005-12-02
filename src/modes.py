@@ -345,11 +345,16 @@ class basicMode(anyMode):
             # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
             # or   "Control-Command Menu" vs. "Right-Control Menu".
             # [bruce 041014]
-        if 1: #bruce 051130
-            self.Menu_spec.append( None )
-            # might this look better before the above submenus, with no separator?
-            ###e the text "web help:" should perhaps be defined next to open_wiki_help_page(), not hardcoded; btw those are in wrong file now
-            self.Menu_spec.append( ("web help: " + self.user_modename(), self.menucmd_open_wiki_help_page) )
+        if 1: #bruce 051130, revised 051201
+            featurename = self.user_modename()
+            if featurename:
+                from wiki_help import wiki_help_menuspec_for_featurename
+                ms = wiki_help_menuspec_for_featurename( featurename )
+                if ms:
+                    self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...
+                    # might this look better before the above submenus, with no separator?
+                    ## self.Menu_spec.append( ("web help: " + self.user_modename(), self.menucmd_open_wiki_help_page) )
+                    self.Menu_spec.extend( ms )
         self.Menu1 = self.makemenu(self.Menu_spec)
         self.Menu2 = self.makemenu(self.Menu_spec_shift)
         self.Menu3 = self.makemenu(self.Menu_spec_control)
@@ -363,18 +368,6 @@ class basicMode(anyMode):
         """
         pass ###e move the default menu_spec to here in case subclasses want to use it?
 
-    def menucmd_open_wiki_help_page(self, *args): #bruce 051130 ###k args?? naming convention?
-        "If this is a valid mode whose name for this purpose can be found, open its wiki help page"
-        # How to find mode-related help pages in the Nanorex wiki
-        # [will 051010 added wiki help feature; bruce 051130 revised it]
-        # [Planned: see also a similar method for Jigs or Nodes, and later, other kinds of user-visible objects/tools/commands.]
-        user_modename = self.user_modename()
-        if user_modename:
-            featurename = user_modename
-            from platform import open_wiki_help_page
-            open_wiki_help_page( featurename )
-        return
-    
     # ==
     
     def warning(self, *args, **kws):
