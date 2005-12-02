@@ -99,13 +99,14 @@ class MeasureDistance(MeasurementJig):
     
     sym = "Distance"
     icon_names = ["measuredistance.png", "measuredistance-hide.png"]
+    featurename = "Measure Distance Jig" # added, wware 20051202
 
     def _getinfo(self): 
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
                     "[Nuclei Distance = " + str(self.get_nuclei_distance()) + " ]" + \
                     "[VdW Distance = " + str(self.get_vdw_distance()) + " ]"
         
-    def getstatistics(self, stats): # Should be _getstatistics().  Mark
+    def _getstatistics(self, stats): # fix bad method name, wware 20051202
         stats.num_mdistance += 1
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
@@ -142,13 +143,14 @@ class MeasureAngle(MeasurementJig):
     
     sym = "Angle"
     icon_names = ["measureangle.png", "measureangle-hide.png"]
+    featurename = "Measure Angle Jig" # added, wware 20051202
 
     def _getinfo(self):   # add atom list, wware 051101
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
         
-    def getstatistics(self, stats): # Should be _getstatistics().  Mark
+    def _getstatistics(self, stats): # fix bad method name, wware 20051202
         stats.num_mangle += 1
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
@@ -184,13 +186,14 @@ class MeasureDihedral(MeasurementJig):
     
     sym = "Dihedral"
     icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
+    featurename = "Measure Dihedral Jig" # added, wware 20051202
 
     def _getinfo(self):    # add atom list, wware 051101
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
         
-    def getstatistics(self, stats): # Should be _getstatistics().  Mark
+    def _getstatistics(self, stats): # fix bad method name, wware 20051202
         stats.num_mdihedral += 1
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
