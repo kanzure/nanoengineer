@@ -106,7 +106,7 @@ class MeasureDistance(MeasurementJig):
                     "[Nuclei Distance = " + str(self.get_nuclei_distance()) + " ]" + \
                     "[VdW Distance = " + str(self.get_vdw_distance()) + " ]"
         
-    def _getstatistics(self, stats): # fix bad method name, wware 20051202
+    def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdistance += 1
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
@@ -150,7 +150,7 @@ class MeasureAngle(MeasurementJig):
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
         
-    def _getstatistics(self, stats): # fix bad method name, wware 20051202
+    def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mangle += 1
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
@@ -193,7 +193,7 @@ class MeasureDihedral(MeasurementJig):
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
         
-    def _getstatistics(self, stats): # fix bad method name, wware 20051202
+    def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdihedral += 1
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
