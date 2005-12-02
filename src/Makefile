@@ -65,6 +65,11 @@ simulator.o: simulator.h
 structcompare.o: simulator.h
 writemovie.o: simulator.h
 
+sim.o: sim.c simulator.h
+	gcc -c $(CFLAGS) -fPIC -I/usr/include/python2.3 sim.c
+sim.c: sim.pyx simhelp.c
+	pyrexc sim.pyx
+
 tables.c: gentab.py
 	python gentab.py > tables.c
 
@@ -94,11 +99,34 @@ SIMOBJS=\
 	structcompare.o \
 	writemovie.o
 
+PYREXOBJS=\
+	allocate.o \
+	dynamics.o \
+	globals.o \
+	hashtable.o \
+	interpolate.o \
+	jigs.o \
+	lin-alg.o \
+	minimize.o \
+	minstructure.o \
+	newtables.o \
+	part.o \
+	potential.o \
+	printers.o \
+	readmmp.o \
+	readxyz.o \
+	sim.o \
+	structcompare.o \
+	writemovie.o
+
 noopt:
 	make CFLAGS=-g simulator
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
+
+sim.so: $(PYREXOBJS)
+	$(CC) -o sim.so -shared $(PYREXOBJS)
 
 testminimize: minimize.c allocate.o
 	$(CC) -o testminimize.o $(CFLAGS) -DTEST -c minimize.c
@@ -120,7 +148,7 @@ install: simulator
 	mv simulator $(EXE_DIRECTORY) 
 
 clean:
-	rm -f simulator moldisp molsim physeng
+	rm -f simulator moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
 	rm -rf html gmon.out
 	rm -f tests/minimize/*.altout
