@@ -2,10 +2,19 @@
 
 """Regression and QA test script for the simulator
 
-Type:     python tests.py help
-for descriptions of command line arguments.
-
 $Id$
+
+Test cases will generally arrive as MMP files with QM-minimized atom
+positions (or for QM dynamics simulations, sequences of atom
+positions). These should be translated into *.xyzcmp files, which are
+the references that the minimizer should be trying to approach.
+
+The positions from the QM data can be perturbed to provide starting
+points for minimization tests. For instance, from the QM-minimized
+file tests/rigid_organics/C3H6.mmp provided by Damian, we generate
+test_C3H6.xyzcmp as described above, then generate test_C3H6.mmp by
+perturbing those positions. Then we use test_C3H6.xyzcmp and
+test_C3H6.mmp for testing.
 """
 
 __author__ = "Will"
@@ -510,17 +519,6 @@ class BaseTest:
 
     def generateOutputFiles(self):
         self.generateMd5Sums()
-        # Don't overwrite xyzcmp files if they are Damian's data
-        if self.dirname not in ("rigid_organics", "floppy_organics",
-                                "amino_acids"):
-            # if we care about doing XYZ comparisons, generate a
-            # foo.xyzcmp file
-            if "xyzcmp" in self.inputs:
-                if DEBUG > 0:
-                    print ("copy " + self.testname + ".xyz to " +
-                           self.basename + ".xyzcmp")
-                shutil.copy(self.testname + ".xyz",
-                            self.basename + ".xyzcmp")
 
     def checkOutputFiles(self):
         if DEBUG > 0:
@@ -773,8 +771,8 @@ class Tests(unittest.TestCase):
         StructureTest(dir="amino_acids", test="lys_l_aminoacid")
     def test_amino_acids_met_l_aminoacid(self):
         StructureTest(dir="amino_acids", test="met_l_aminoacid")
-##     def test_amino_acids_phe_l_aminoacid(self):
-##         StructureTest(dir="amino_acids", test="phe_l_aminoacid")
+    def test_amino_acids_phe_l_aminoacid(self):
+         StructureTest(dir="amino_acids", test="phe_l_aminoacid")
     def test_amino_acids_pro_l_aminoacid(self):
         StructureTest(dir="amino_acids", test="pro_l_aminoacid")
     def test_amino_acids_ser_l_aminoacid(self):
@@ -804,7 +802,8 @@ if __name__ == "__main__":
 
     # Process command line arguments
     def generate():
-        """recreate reference files for tests
+        """update md5sums files according to current simulator
+        behavior
         """
         global GENERATE
         GENERATE = True
@@ -817,14 +816,15 @@ if __name__ == "__main__":
             raise SystemExit("MD5 checks supported only on Linux")
         MD5_CHECKS = True
     def lengths_angles():
-        """perform structure comparisons with known-good structures,
-        computed by QM simulations, comparing bond lengths and bond angles
+        """perform structure comparisons with known-good structures
+        computed by QM minimizations, comparing bond lengths and bond
+        angles
         """
         global STRUCTURE_COMPARISON_CHECKS
         STRUCTURE_COMPARISON_CHECKS = True
     def structcompare():
-        """perform structure comparisons with known-good structures,
-        computed by QM simulations, using code in sim/src/structcompare.c
+        """perform structure comparisons with known-good structures
+        computed by QM minimizations, using code in structcompare.c
         """
         global STRUCTURE_COMPARISON_CHECKS, C_STRUCT_COMPARE
         STRUCTURE_COMPARISON_CHECKS = True
@@ -841,8 +841,8 @@ if __name__ == "__main__":
         global DEBUG
         DEBUG = 1
     def keep():
-        """when a test is finished, don't delete its temporary directory
-        (useful for debug)
+        """when a test is finished, don't delete its temporary
+        directory (useful for debug)
         """
         global KEEP_RESULTS
         KEEP_RESULTS = True
@@ -855,7 +855,8 @@ if __name__ == "__main__":
         MD5_CHECKS = True
         STRUCTURE_COMPARISON_CHECKS = True
     def assertions():
-        """print non-abbreviated assertion statements (useful for debug)
+        """print non-abbreviated assertion statements (useful for
+        debug)
         """
         global FULL_ASSERTIONS
         FULL_ASSERTIONS = True
@@ -863,9 +864,10 @@ if __name__ == "__main__":
     def help():
         """print help information
         """
+        print __doc__
         global options
         for opt in options:
-            print opt.__name__ + "\n    " + opt.__doc__
+            print opt.__name__ + "\n        " + opt.__doc__
         sys.exit(0)
 
     options = (md5check,
