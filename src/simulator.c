@@ -60,7 +60,7 @@ usage()
                     output file name (otherwise same as input)\n\
    -q<string>, --trace-file=<string>\n\
                     trace file name (default=\"trace\")\n\
-   -D<int>, --debug-flag=<int>\n\
+   -D<int>, --debug=<int>\n\
                     turn on a debugging flag (see printers.h)\n\
    -B<filename>, --base-file=<filename>\n\
                     base XYZ file for position comparison (compared to following file)\n\
@@ -99,7 +99,7 @@ static const struct option option_vec[] = {
     { "id-key", required_argument, NULL, 'I' },
     { "key-record-interval", required_argument, NULL, 'K' },
     { "repress-frame-numbers", no_argument, NULL, 'r' },
-    { "debug-flag", required_argument, NULL, 'D' },
+    { "debug", required_argument, NULL, 'D' },
     { "output-file", required_argument, NULL, 'o' },
     { "trace-file", required_argument, NULL, 'q' },
     { "base-file", required_argument, NULL, 'B' },
@@ -131,14 +131,14 @@ main(int argc,char **argv)
     //vsetc(P,0.0);
     //vsetc(Omega,0.0);
 
-    debug_flags = D_STRETCH_ONLY;
+    //debug_flags = D_BEND_ONLY;
     
     filename = (char *)0;
     ofilename = (char *)0;
     tfilename = (char *)0;
 
     while ((opt = getopt_long(argc, argv,
-			    "hnmEi:f:s:t:xXONI:K:rd:o:q:B:",
+			    "hnmEi:f:s:t:xXONI:K:rD:o:q:B:",
 			    option_vec, NULL)) != -1) {
 	switch(opt) {
 	case 'h':
