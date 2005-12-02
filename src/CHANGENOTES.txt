@@ -634,3 +634,26 @@ many chiralities it's more like growing spirally around the tube.
 
 ----------------------------
 
+Name: Bruce Smith
+Date: 12/1/05
+Files: wiki_help.py and several others
+Summary: wiki help feature
+
+Extended Will's prototype of Eric D's idea of a wiki page per program 
+feature or UI element, reachable from the program. The module docstring
+describes the idea like this:
+
+  wiki_help.py -- associate webpages (typically in a wiki) with program features,
+  and provide access to them. Pages typically contain feature-specific help info,
+  FAQ, forum, etc.
+
+and also has this Terminology note:
+
+  We use "web help" rather than "wiki help" in menu command text,
+  since more users will know what it means,
+  and since nothing in principle forces the web pages accessed this way to be wiki pages.
+
+  But we use "wiki help" in history messages, since we want people to think of the wiki
+  (rather than a rarely-changing web page) as an integral part of the idea.
+
+----------------------------
