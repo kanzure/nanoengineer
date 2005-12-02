@@ -96,6 +96,50 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
         just that changes in us should be invisible to Undo.
         """
         return True
+    def _s_describe(self, mapping): ##e refile? rename?
+        #e also it needs to take optional oldval_cache arg
+        ###@@@ clarify: I think this is called by the undo mixin, rather than being "directly" part of an undo protocol for newly seen objs
+        """Describe self's current state, as initargs and other diffs (whose format might be attr-specific),
+        well enough to permit later recreation of an equivalent object (in the same session).
+           Use mapping to make return value "pure data" (i.e. not referring to objects which might
+        need to be different in a re-created copy). (Note: the API requires us, not the caller, to use mapping,
+        in case it has to be used differently for different parts of our returned state.)
+        [default implementation of a method needed by the "state API" [#doc - the official term for that might be different]]
+        """
+        clas = self.__class__ # constructor #####@@@@@ use mapping.consname?
+        args, kws = self._um_initargs() # constructor args [many classes override _um_initargs rather than this method]
+        desc = [ ('constructor', clas, args, kws) ]
+        copy = mapping.copy # this translates all objects to suitable refs to them, and/or complaints about them if not legal [###k]
+        desc = copy(desc)#k
+        for attr in self._um_undoable_attrs():
+            val = getattr(self, attr)
+            #e future optim: we might diff val with whatever we know the initargs alone would produce;
+            # for now, using some redundant vals here is simpler & more robust & always ok
+            val = copy(val)
+            desc.append( ('setattr', attr, val) )
+                # Note: when this "setattr expr" is applied (to self or to its replacement),
+                # self's class can override how that works, for all attrs or specific attrs;
+                # they don't have to use setattr directly, though that's the default implementation.
+                # Typically, they'd add change-warning calls before it and inval calls afterwards.
+        return desc
+    def _um_initargs(self):
+        """[this docstring might be partly #obs, not reviewed since moved from class Node]
+           Return args and kws needed by __init__, as a pair (args, kws) where args is a sequence and kws is a dict,
+        in case self is deleted and might need to be recreated by Undo, or in case self's creation is undone but might need redoing.
+        This does not return enough info to recreate self (for example, the attrs named in copyable_attrs);
+        see the calling code for more info.
+           No mapping is passed, since we don't have to translate or copy the returned args (caller does that if needed).
+        [###obs: This method's existence and API is Node-specific rather than part of the general state- or undo- APIs,
+         though its purpose is to let Node satisfy those APIs by implementing this method's caller.]
+        [Node subclasses with different __init__ args must override this method.]
+        [Note: this method's API is not compatible with, nor even very analogous to,
+         the Pickle/cPickle API method of a similar name. The differences include:
+         not all pickleable attrs are undoable; this method rarely returns all the
+         undoable state, since not all of that can generally be passed to __init__.]
+        """
+        assert 0, "_um_initargs needs to be overridden in %r" % self
+        ## this might be enough for some classes, esp. if they were written with that goal:
+        ## return (), {}
     def _um_changed(self):
         """[subclasses should override this as needed]
         Do whatever updates are needed after some or all our (self's) undoable state was changed
@@ -216,13 +260,27 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
     def _um_will_change_attr(self, attr): ####@@@@ call this for more attrs!
         "example code - typical clients inline this, maybe so do our own methods"
         #k should we slow down by checking self._um_exists? (might be incorrect when that attr is set!) #k or self._um_deinited?
-        self._um_oldval_cache.setdefault(attr, getattr(self,attr))
-            ### can this happen during init, when old attr not present?
-            ### require attr always present, using class default or __getattr__??
-        self._um_flag_me_as_changing()
-        #e might optimize by having a per-attr flag for whether it changed yet
-    def _um_flag_me_as_changing(self):
-        "example code, typically inlined"
+        # 051017: I think not.
+        # note: if obj is not tracking changes (before being "registered and checkpointed" or after dying), _um_oldval_cache is a junk dict. ####k
+        oldval_cache = self._um_oldval_cache
+        if not oldval_cache.has_key(attr):
+          if 1: # temporary #####@@@@@
+            val = getattr(self, attr) #####@@@@@ LOGIC BUG: attr might be a "virtual attr"; getattr won't work! should we make it work?
+            ## val = copy_val(val)
+            ## nim
+            ######@@@@@@ COPY VAL in case it's mutable and gets modified, or contains objrefs, unless a decl prevents this as an optim!
+                # note: copy speed is not very important, since this happens at most once per attr per checkpoint.
+            oldval_cache[attr] = val
+            ###k can this happen during init, when old attr not present? (if so, we'll find out, by seeing an AttributeError above.)
+            ###e require attr always present, using class default or __getattr__??
+            # Recording this object as changing is only needed if oldval was not already there,
+            # since we require that if any oldval is stored (which is only useful if it might change w/o pre-warning),
+            # the obj will always be scanned for diffs in that attr. ###k
+            self._um_flag_me_as_changing()
+        return
+    def _um_flag_me_as_changing(self): ###@@@ this might need to be attr-specific... probably in flagdict itself, nothing else.
+        #e might be a precomputed lambda? NO! needn't be fast, shouldn't be space-consuming on numerous tiny objects.
+        "example code, typically inlined"#obs docstring, prob wrong
         self._um_flagdict[ self._um_key] = self # some objs might store a proxy or helper-obj in here...
         return
     def _undo_checkpoint(self, diffargs): ##, snap = None
@@ -389,6 +447,101 @@ and then to flush your internal diff-cache until we ask again."
         self._um_changed()
     _undo_apply_forward_diff = _undo_apply_backward_diff ## dangerous if subclass intends to override _undo_apply_backward_diff alone!
     _undo_apply_diff = _undo_apply_backward_diff #k maybe it doesn't need the direction, or prefers to get it inside an arg...
+    pass
+
+# == changetracker strategies -- different ways of knowing when to report diffs, and what old and new values to compare
+
+# Each undoable class (including superclasses) declares which one of these changetracker classes to use for each undoable attr;
+# there's one changetracker object (of one of these classes) per undoable attribute definition.
+# (Objects whose undo decls vary per-object act as if they were singleton classes wrt this system,
+#  rather than sharing these per-class. More precisely, they specify some object to hold this info,
+#  perhaps self or self.__class__ or something in between.)
+
+class undoable_attr_tracker:
+    def __init__(self):
+        pass
+##    def obj_getattr(self, key):
+##        "get our attr from the obj with the given key"
+##        #e could probably optimize, by effectively compiling this method body in __init__
+##        obj = self.model.obj(key)
+##        return getattr(obj, self.attr)
+    pass
+
+class objset_tracker:
+    """Track a set of objects of one class, whose state-diffs should be tracked and archived together... #doc
+    """
+    # add, remove methods...
+    def checkpoint(self):
+        # for each undoable attr that class declared, track it in the appropriate way; some of those attrs share flagdicts...
+        pass
+    pass
+        
+class full_diff_every_checkpoint(undoable_attr_tracker): # could use pre_change_track's scanner since it always has copy of all oldvals
+    """Don't bother tracking changes as they happen; just always have a copy of the old value, and diff the values each time.
+    One of these objects handles one attr, but the set of objects to scan can be shared among several of these objects... ###k how?
+    """
+    def __init__(self):
+        pass
+    def checkpoint(self):
+        pass
+    pass
+
+class pre_change_track(undoable_attr_tracker):
+    "object has to tell us before changing the attribute, so we can copy the oldval at that time"
+    def __init__(self):
+        self.oldvals ###@@@ set by self.prep_to_track_until_checkpoint
+        self.model
+        self.attr
+        #super init
+        pass
+    def will_change(self, key, obj): #e faster to not pass obj?
+        """obj (with key) is warning us that obj.attr might change soon;
+        it might warn repeatedly (though it doesn't have to except once per checkpoint),
+        so be fast except for the first time before each checkpoint.
+        """
+        # only do anything if oldval not stored already
+        oldvals = self.oldvals
+        if not oldvals.has_key(key):
+            val = getattr(obj, self.attr) #e could optimize; could let caller also copy_val...
+            val = self.model.copy(val) # note, this might register and/or translate any objects it finds in val
+            oldvals[key] = val # (stored value also tells us to scan obj at next checkpoint) #e could also store obj
+    def checkpoint(self):
+        # any object which might have changed in this attr has its oldval stored here.
+        # [i suspect some code can be shared -- the diff is the same, it's just how to find the objs that differs - vals or flags.]
+        model = self.model
+        copy = model.copy #e might depend on self
+        attr = self.attr
+        #e optim: also store copy, obj methods, and attr (no xxx.yyy in loop body)
+        for key, oldval in self.oldvals.items(): ###k swap out oldvals already if it might grow during loop
+            obj = model.obj(key)
+            newval = getattr(obj, attr)
+            newval = copy(newval) # this could find and register new objects; should they be recursively scanned?? ###k
+                ### that suggests we need a 2-pass checkpoint! but i'm not sure we really do...
+                # (otoh it might be worse (oresmic) if describing of their attrs has to happen in layers... don't know if it does;
+                #  it's effectively a copy/translate of all the new objs found; issue is can ref be made nonrecursively; guess yes,
+                #  just requires assigning a key; but worry about refs from initargs... worst case: have lists of things to scan
+                #  incl attrs and new objs, iterate scanning some lists and building up others until all are empty.)
+                # pass 1: scan vals and find new objs (in any layer) (and scan them too while describing their state, etc)
+                # pass 2: actually generate diffs (in layered order)
+            diff = self.diff(oldval, newval) # is this bidirectional?? is it multipart, to be added somewhere, with nonempty reported?
+                # is it primitive or a val-diff? is format attr-dependent?
+            nim # store diff
+        # now prep for next
+        return
+    pass
+
+class post_change_track(undoable_attr_tracker):
+    """object has to tell us before or after changing the attribute (anytime before next checkpoint is ok);
+    we always have our own copy of the state
+    """
+    def __init__(self):
+        pass
+    def checkpoint(self):
+        # difference from others: we have a separate oldval dict (full) and flagdict (partial).
+        for key, obj in self.flagdict.items():
+            # obj needs diff in this attr... use same code as above (share the code)
+            pass
+        pass
     pass
 
 # end

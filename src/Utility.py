@@ -170,43 +170,12 @@ class Node( GenericDiffTracker_API_Mixin):
             assert self.dad is dad
         return
 
-    def _um_initargs(self): #bruce 051013  ###@@@ this will be changed into an undo mixin method, overridden here
-        """Return args and kws needed by __init__, as a pair (args, kws) where args is a sequence and kws is a dict,
-        in case self is deleted and might need to be recreated by Undo, or in case self's creation is undone but might need redoing.
-        This does not return enough info to recreate self (for example, the attrs named in copyable_attrs);
-        see the calling code for more info.
-           No mapping is passed, since we don't have to translate or copy the returned args (caller does that if needed).
-        [###obs: This method's existence and API is Node-specific rather than part of the general state- or undo- APIs,
-         though its purpose is to let Node satisfy those APIs by implementing this method's caller.]
-        [Node subclasses with different __init__ args must override this method.]
-        [Note: this method's API is not compatible with, nor even very analogous to,
-         the Pickle/cPickle API method of a similar name. The differences include:
-         not all pickleable attrs are undoable; this method rarely returns all the
-         undoable state, since not all of that can generally be passed to __init__.]
+    def _um_initargs(self): #bruce 051013 [in class Node]
+        """Return args and kws suitable for __init__.
+        [Overrides an undo-related superclass method; see its docstring for details.]
         """
         return (self.assy, self.name), {}
-            # self.dad (like most inter-object links) is best handled separately   ####@@@@ nim
-
-    def _s_describe(self, mapping): #bruce 051013  ###@@@ this implem will probably be moved into the undo mixin, and renamed
-        #e also it needs to take optional oldval_cache arg
-        ###@@@ clarify: I think this is called by the undo mixin, rather than being "directly" part of an undo protocol for newly seen objs
-        """Describe self's current state, as initargs and other diffs (whose format might be attr-specific).
-        Use mapping to make return value "pure data".
-        (Note: the API requires us, not caller, to use mapping, in case it has to be used differently
-         for different parts of our returned state.)
-        [implements a method needed by the "state API" [#doc - the official term for that might be different]]
-        """
-        clas = self.__class__ # constructor ###@@@ use mapping.consname?
-        args, kws = self._um_initargs() # constructor args
-        desc = [ ('constructor', clas, args, kws) ] # build this in raw form, then use mapping below
-        for attr in self._um_undoable_attrs():
-## not needed?: val = self._um_describe_attr(attr)  # no mapping passed, so it might be described in raw form(??)
-            val = getattr(self, attr)
-            desc.append( ('setattr', attr, val) )
-                # Note: when this "setattr expr" is applied (to self or to its replacement),
-                # self's class can override how that works, for all attrs or specific attrs;
-                # they don't have to use setattr directly, though that's the default implementation.
-        return mapping.copy( desc)
+            # self.dad (like most inter-object links) is best handled separately
 
     def _um_existence_permitted(self): #bruce 051005
         """[overrides GenericDiffTracker_API_Mixin method]
@@ -1187,10 +1156,10 @@ class Group(Node):
         for ob in list:
             self.addchild(ob)
 
-    def _um_initargs(self): #bruce 051013
+    def _um_initargs(self): #bruce 051013 [in class Group]
         "[Overrides Node._um_initargs; see its docstring.]"
         return (self.name, self.assy), {} # note reversed arg order from Node version
-            # dad and members (like most inter-object links) are best handled separately   ####@@@@ nim
+            # dad and members (like most inter-object links) are best handled separately
 
     def is_group(self):
         """[overrides Node method; see its docstring]"""
