@@ -131,6 +131,15 @@ def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; 
         #  #e should it inval the old bond? I think so, but didn't add that.
         #  later: it happens a lot when entering Extrude; guess: mol.copy copies
         #  each internal bond twice (sounds right, but I did not verify this).]
+        #
+        # [addendum, bruce 051018: I added a message for when a new bond is equal to
+        #  an existing one, but entering Extrude does not print that, so either it's
+        #  been changed or mol.copy has or I misunderstand the above code (which
+        #  I predict would hit that message). Just to check, I'll print a debug message here (below);
+        #  that message is not happening either, so maybe this deprecated feature is no longer used at all. #k ####@@@@
+        #  (Should also try reading a pdb file with the same bond listed twice... ###k)
+        if platform.atom_debug:
+            print "atom_debug: fyi (possible bug): bond_atoms_oldversion is a noop since an equal bond exists:", b
         pass
     return
 
@@ -206,7 +215,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     if vnew is None:
         assert s1 is s2 is None
         assert no_corrections == False
-        bond_atoms_oldversion( a1, a2) # warning: mol.copy might rely on this being noop when bond already exists!
+        bond_atoms_oldversion( a1, a2) # warning [obs??#k]: mol.copy might rely on this being noop when bond already exists!
         return
     # quick hack for new version, using optimized/stricter old version
     ## assert vnew in BOND_VALENCES
@@ -435,7 +444,8 @@ class Bond(GenericDiffTracker_API_Mixin):
         at1._changed_structure() #bruce 050725
         at2._changed_structure()
         assert at1 is not at2
-        self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key)
+        self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key) # used only in __eq__ as of 051018; problematic (see comments there)
+        
 ##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
 ##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.key] = self #e dict should be stored in assy (or so) instead
 ##            ###@@@ not key, use other attr name for that, obj.glname or glselect_name or so...
@@ -461,7 +471,7 @@ class Bond(GenericDiffTracker_API_Mixin):
     def invalidate_bonded_mols(self): #bruce 041109
         """Private method to call when a bond is made or destroyed;
         knows which kinds of bonds are put into a display list by molecule.draw
-        (internal bonds) or put into into mol.externs (external bonds),
+        (internal bonds) or put into mol.externs (external bonds),
         though this knowledge should ideally be private to class molecule.
         """
         privateMethod(("Atom",))
@@ -763,10 +773,25 @@ class Bond(GenericDiffTracker_API_Mixin):
                 print "rebond bug (%r): new.bonds.count(self) == %r" % (self, new.bonds.count(self))
         return
 
-    #####@@@@@ bruce 050513 comment: should seriously consider removing these __eq__/__ne__ methods
+    ####@@@@ bruce 050513 comment: should seriously consider removing these __eq__/__ne__ methods
     # and revising bond_atoms accordingly (as an optim). One use of them is probably in a .count method in another file.
+    #
+    #bruce 051018 comment: I think this __eq__ might have bugs, once enough atoms have been defined (not nec. all at once)
+    # to overflow the constant 65536 used to compute self.key! For example, if the atkeys are (2,3) or (1,65536+3) we'll
+    # think the bonds are equal! OTOH, does this matter unless the bonds share an atom? But even if it only matters then,
+    # it might hurt us if the shared atom is min in one bond and max in the other... I didn't yet find an example, nor prove
+    # there isn't one. Surely the whole thing should be removed unless it can be made clearly correct... #####@@@@@
+    # Would it be just as good, and provably ok (given the assumption that only bonds on the same atom are compared),
+    # if the key was just the sum of the atom keys?? I think so!
     
     def __eq__(self, ob):
+        if (self is not ob) and ob.key == self.key:
+            # This seems to never happen, so let's find out if anyone ever sees it (by printing stack even when not atom_debug).
+            # It could happen in two ways: a true bug (keys same but atoms different),
+            # or an intentional use of the deprecated feature of two Bonds with same atoms comparing equal.
+            # If it indeed never happens (or if it does and we fix that), then I'll remove or reimplement __eq__
+            # to just return "self is ob". ####@@@@ [bruce 051018]
+            print_compact_stack( "possible bug: different bond objects equal: %r == %r: " % (self,ob) )
         return ob.key == self.key
 
     def __ne__(self, ob):

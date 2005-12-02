@@ -540,6 +540,8 @@ def keep_forever(thing):
 
 _op_id = 0
 
+debug_begin_ops = False #bruce 051018 changed from platform.atom_debug
+
 class op_run:
     "Track one run of one operation or suboperation, as reported to env.begin_op and env.end_op in nested pairs"
     def __init__(self, op_type = None):
@@ -549,21 +551,22 @@ class op_run:
         _op_id += 1
         self.op_id = _op_id
     def begin(self):
-        if platform.atom_debug:
+        if debug_begin_ops:
             self.printmsg( "%sbegin op_id %r, op_type %r" % (self.indent(), self.op_id, self.op_type) )
         pass # not sure it's good that begin_end_matcher requires us to define this
     def end(self):
-        if platform.atom_debug:
+        if debug_begin_ops:
             self.printmsg( "%send op_id %r, op_type %r" % (self.indent(), self.op_id, self.op_type) )
         pass
     def error(self, errmsg_text):
         "called for begin_op with no matching end_op, just before our .end() and the next outer end_op is called"
-        if platform.atom_debug: # 
+        if debug_begin_ops: # 
             self.printmsg( "%serror op_id %r, op_type %r, errmsg %r" % (self.indent(), self.op_id, self.op_type, errmsg_text) )
         pass
     def printmsg(self, text):
-        # print "atom_debug: fyi: %s" % text
-        env.history.message( "debug: " + text ) # might be recursive call of history.message; ok in theory but untested ###@@@
+        if debug_begin_ops:
+            # print "atom_debug: fyi: %s" % text
+            env.history.message( "debug: " + text ) # might be recursive call of history.message; ok in theory but untested ###@@@
     def indent(self):
         "return an indent string based on the stack length; we assume the stack does not include this object"
         #e (If the stack did include this object, we should subtract 1 from its length. But for now, it never does.)
