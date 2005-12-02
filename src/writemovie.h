@@ -3,7 +3,7 @@ extern void writeOutputHeader(FILE *f, struct part *part);
 
 extern void writeOutputTrailer(FILE *f, struct part *part, int frameNumber);
 
-extern void writeSimpleAtomPosition(struct xyz *positions, int i);
+extern void writeSimpleAtomPosition(struct part *part, struct xyz *positions, int i);
 
 extern void writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color);
 

@@ -43,7 +43,7 @@ static void writeXYZOutputHeader(FILE *f, struct part *part)
 {
 }
 
-// .xyz files are in angstroms
+// .xyz files are in angstroms (1e-10 m)
 #define XYZ (1.0e-2)
 
 static void writeXYZFrame(FILE *f, struct part *part, struct xyz *pos)
@@ -369,14 +369,41 @@ void writeOutputTrailer(FILE *f, struct part *part, int frameNumber)
     }
 }
 
+static float atomColors[10][3] = {
+    { 1.0, 0.0, 0.0 }, // X  red
+    { 0.0, 1.0, 1.0 }, // H  cyan  
+    { 1.0, 1.0, 1.0 }, // He white
+    { 1.0, 1.0, 1.0 }, // Li white
+    { 1.0, 1.0, 1.0 }, // Be white
+    { 1.0, 1.0, 1.0 }, // B  white
+    { 0.0, 1.0, 0.0 }, // C  green
+    { 1.0, 0.0, 1.0 }, // N  magenta
+    { 0.5, 0.0, 0.0 }, // O  red
+    { 1.0, 1.0, 1.0 }, // white
+};
+
+#define RADIUS_SCALE 5
 void
-writeSimpleAtomPosition(struct xyz *positions, int i)
+writeSimpleAtomPosition(struct part *part, struct xyz *positions, int i)
 {
-    // sphere x y z radius r g b
-    fprintf(outf, "s %f %f %f 40 1 0 0\n",
-            positions[i].x,
-            positions[i].y,
-            positions[i].z);
+  struct atom *a = part->atoms[i];
+  double vdwr = a->type->vanDerWaalsRadius;
+  int protons = a->type->protons;
+
+  if (protons > 9) {
+    protons = 9; // don't overrun the atomColors table above
+  }
+  
+  // sphere x y z radius r g b
+  fprintf(outf, "s %f %f %f %f %f %f %f\n",
+          positions[i].x,
+          positions[i].y,
+          positions[i].z,
+          vdwr * RADIUS_SCALE,
+          atomColors[protons][0],
+          atomColors[protons][1],
+          atomColors[protons][2]
+          );
 }
 
 static float forceColors[7][3] = {
@@ -389,7 +416,7 @@ static float forceColors[7][3] = {
     { 1.0, 1.0, 0.0 }  // yellow
 };
 
-#define FORCE_SCALE 0.1
+#define FORCE_SCALE 10
 void
 writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color)
 {
@@ -422,7 +449,7 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
     va_list args;
     
     for (i=0; i<part->num_atoms; i++) {
-        writeSimpleAtomPosition(positions, i);
+        writeSimpleAtomPosition(part, positions, i);
         if (forces != NULL) {
           writeSimpleForceVector(positions, i, &forces[i], 0);
         }

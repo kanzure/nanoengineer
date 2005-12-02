@@ -301,9 +301,9 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
     lip = interpolated_potential;
     interpolated_potential = stretchPotential(NULL, NULL, stretch, r);
     dip = interpolated_potential - lip;
-    interpolated_gradient = -stretchGradient(NULL, NULL, stretch, r);
+    interpolated_gradient = stretchGradient(NULL, NULL, stretch, r);
     direct_potential = potentialLippincottMorse(r, stretch);
-    direct_gradient = -gradientLippincottMorse(r, stretch);
+    direct_gradient = gradientLippincottMorse(r, stretch);
     extension_potential =
       + stretch->potentialExtensionA
       + stretch->potentialExtensionB * r
@@ -317,12 +317,12 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
     printf("%e %e %e %e %e %e %e %e\n",
            r,                      // 1
            interpolated_potential, // 2
-           -interpolated_gradient, // 3
+           interpolated_gradient, // 3
            direct_potential,       // 4
-           -direct_gradient,       // 5
+           direct_gradient,       // 5
            extension_potential,    // 6
-           -extension_gradient,    // 7
-           -dip                    // 8
+           extension_gradient,    // 7
+           dip                    // 8
            );
   }
 }

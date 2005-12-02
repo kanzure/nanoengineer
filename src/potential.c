@@ -22,8 +22,9 @@ setRUnit(struct xyz *position, struct bond *b, double *pr)
   struct xyz rv;
   double r;
   double rSquared;
-  
-  vsub2(rv, position[b->a1->index], position[b->a2->index]);
+
+  // rv points from a1 to a2
+  vsub2(rv, position[b->a2->index], position[b->a1->index]);
   rSquared = vdot(rv, rv);
   r = sqrt(rSquared);
   if (r < 0.001) {
@@ -32,7 +33,7 @@ setRUnit(struct xyz *position, struct bond *b, double *pr)
     vsetc(b->rUnit, 1.0);
   } else {
     b->inverseLength = 1.0 / r;
-    vmul2c(b->rUnit, rv, b->inverseLength); /* unit vector along r */
+    vmul2c(b->rUnit, rv, b->inverseLength); /* unit vector along r from a1 to a2 */
   }
   if (pr) {
     *pr = r;
@@ -108,6 +109,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
   struct interpolationTable *iTable;
 
     // table lookup equivalent to: gradient = gradientLippincottMorse(r);
+    // Note:  this points uphill, toward higher potential values.
     iTable = &stretchType->gradientLippincottMorse;
     start = iTable->start;
     scale = iTable->scale;
@@ -141,7 +143,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     } else {
       gradient = t1[k] + r * t2[k];
     }
-    return -gradient;
+    return gradient;
 }
 
 double
@@ -248,8 +250,9 @@ calculatePotential(struct part *p, struct xyz *position)
     // we presume here that rUnit is invalid, and we need rSquared
     // anyway.
     setRUnit(position, bond, &r);
-            
-    potential += stretchPotential(p, stretch, stretch->stretchType, r);
+    if (!DEBUG(D_BEND_ONLY)) { // -D7
+      potential += stretchPotential(p, stretch, stretch->stretchType, r);
+    }
   }
   if (DEBUG(D_STRETCH_ONLY)) { // -D6
     return potential;
@@ -314,6 +317,10 @@ calculatePotential(struct part *p, struct xyz *position)
     }
   }
 
+  if (!DEBUG(D_BEND_ONLY)) { // -D7
+    return potential;
+  }
+
   /* do the van der Waals/London forces */
   for (j=0; j<p->num_vanDerWaals; j++) {
     vdw = p->vanDerWaals[j];
@@ -371,18 +378,20 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
     stretch = &p->stretches[j];
     bond = stretch->b;
 
-    // we presume here that rUnit is invalid, and we need r and
-    // rSquared anyway.
+    // we presume here that rUnit is invalid, and we need r anyway
     setRUnit(position, bond, &r);
 
-    gradient = stretchGradient(p, stretch, stretch->stretchType, r);
-    vmul2c(f, bond->rUnit, gradient);
-    vadd(force[bond->a1->index], f);
-    vsub(force[bond->a2->index], f);
-    if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-      writeSimpleForceVector(position, bond->a1->index, &f, 1);
-      vmulc(f, -1.0);
-      writeSimpleForceVector(position, bond->a2->index, &f, 1);
+    if (!DEBUG(D_BEND_ONLY)) { // -D7
+      gradient = stretchGradient(p, stretch, stretch->stretchType, r);
+      // rUnit points from a1 to a2; F = -gradient
+      vmul2c(f, bond->rUnit, gradient);
+      vadd(force[bond->a1->index], f);
+      vsub(force[bond->a2->index], f);
+      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
+        writeSimpleForceVector(position, bond->a1->index, &f, 1); // red
+        vmulc(f, -1.0);
+        writeSimpleForceVector(position, bond->a2->index, &f, 1); // red
+      }
     }
   }
   if (DEBUG(D_STRETCH_ONLY)) { // -D6
@@ -446,7 +455,19 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vsub(force[bend->a1->index], q1);
       vadd(force[bend->ac->index], q2);
       vsub(force[bend->a2->index], q2);
+      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
+        writeSimpleForceVector(position, bend->ac->index, &q1, 2); // green
+        vmulc(q1, -1.0);
+        writeSimpleForceVector(position, bend->a1->index, &q1, 3); // blue
+        writeSimpleForceVector(position, bend->ac->index, &q2, 2); // green
+        vmulc(q2, -1.0);
+        writeSimpleForceVector(position, bend->a2->index, &q2, 3); // blue
+      }
     }
+  }
+
+  if (!DEBUG(D_BEND_ONLY)) { // -D7
+    return;
   }
 
   /* do the van der Waals/London forces */

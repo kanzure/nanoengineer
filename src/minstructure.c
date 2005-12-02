@@ -48,18 +48,18 @@ clamp(double min, double max, double value)
 static void
 minimizeStructureGradient(struct configuration *p)
 {
-  int i;
+  //int i;
   double rms_force;
   double max_force;
   
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
   // dynamics wants gradient pointing downhill, we want it uphill
-  for (i=0; i<3*Part->num_atoms; i++) {
-    p->gradient[i] = -p->gradient[i];
-  }
+  //for (i=0; i<3*Part->num_atoms; i++) {
+  //  p->gradient[i] = -p->gradient[i];
+  //}
   findRMSandMaxForce(p, &rms_force, &max_force);
-  p->functionDefinition->initial_parameter_guess = clamp(1e-3, 1e3, 10.0 / max_force);
+  p->functionDefinition->initial_parameter_guess = clamp(1e-9, 1e3, 10.0 / max_force);
   writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient");
   if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
     writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
