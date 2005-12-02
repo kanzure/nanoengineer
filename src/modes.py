@@ -1167,17 +1167,34 @@ class basicMode(anyMode):
         # Zoom in (Ctrl/Cmd+.) & out (Ctrl/Cmd+,) for Eric.  Right now, this will work with or without
         # the Ctrl/Cmd key pressed.  We'll fix this later, at the same time we address the issue of
         # more than one modifier key being pressed (see Bruce's notes below). Mark 050923.
-        if key == Qt.Key_Period:
+        elif key == Qt.Key_Period:
             self.o.scale *= .95
             self.o.gl_update()
-        if key == Qt.Key_Comma: 
+        elif key == Qt.Key_Comma: 
             self.o.scale *= 1.05
             self.o.gl_update()
-	# comment out wiki help feature until further notice, wware 051101 [bruce 051130 revived/revised it, elsewhere in file]
+	# comment out wiki help feature until further notice, wware 051101
+	# [bruce 051130 revived/revised it, elsewhere in file]
         #if key == Qt.Key_F1:
         #    import webbrowser
         #    # [will 051010 added wiki help feature]
         #    webbrowser.open(self.__WikiHelpPrefix + self.__class__.__name__)
+	#bruce 051201: let's see if I can bring this F1 binding back.
+        # It works for Mac (only if you hold down "fn" key as well as F1);
+        # but I don't know whether it's appropriate for Mac.
+        # F1 for help (opening separate window, not usually an external website)
+        # is conventional for Windows (I'm told).
+        # See bug 1171 for more info about different platforms -- this should be revised to match.
+        # Also the menu item should mention this accel key, but doesn't.
+        elif key == Qt.Key_F1:
+            featurename = self.user_modename()
+            if featurename:
+                from wiki_help import open_wiki_help_page
+                open_wiki_help_page( featurename)
+            pass
+        elif 0 and platform.atom_debug:#bruce 051201 -- might be wrong depending on how subclasses call this, so disabled for now
+            print "atom_debug: fyi: glpane keyPress ignored:", key
+        return
     
     def keyRelease(self,key): # mark 2004-10-11
         #e bruce comment 041220: lots of modes change cursors on this, but they
