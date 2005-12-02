@@ -259,15 +259,12 @@ class UserPrefs(UserPrefsDialog):
         # Enable/disable specular highlights.
         self.specular_highlights_checkbox.setChecked(self.specular_highlights )
 
-        # For shininess, the range is 50 (low) to 15 (high).  Since Qt slider values increase from
-        # left to right, the slider range is -50 to -15.  We store (and use) the abs value of
-        # the slider in the prefs db, but to set the value of the slider here, we use the neg value.
-        # Mark. 051129.
-        self.shininess_slider.setValue(-self.shininess) # generates signal
+        # For shininess, the range is 15 (low) to 50 (high).  Mark. 051129.
+        self.shininess_slider.setValue(self.shininess) # generates signal
         
         # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
         # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
-        self.whiteness_slider.setValue(self.whiteness) # generates signal
+        self.material_slider.setValue(self.whiteness) # generates signal
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the atoms page.
@@ -712,22 +709,22 @@ class UserPrefs(UserPrefsDialog):
         ## print "------------------\nSpecular Highlights Settings:"
         ## print "Enabled = ", env.prefs[specular_highlights_prefs_key]
         ## print "Shininess = ", env.prefs[shininess_prefs_key]
-        ## print "Whiteness = ", env.prefs[whiteness_prefs_key]
+        ## print "Material (Whiteness) = ", env.prefs[whiteness_prefs_key]
                 
     def change_shininess(self, shininess):
         ''' This is the slot for the Shininess slider.
-        'shininess' is between -50 (low) and -15 (high).
+        'shininess' is between 15 (low) and 50 (high).
         Saves the abs value of shininess to pref db.
         '''
         # We store (and use) the abs value. Mark. 051129.
-        env.prefs[shininess_prefs_key] = float(abs(shininess))
+        env.prefs[shininess_prefs_key] = float(shininess)
         
-    def change_whiteness(self, whiteness):
-        '''This is the slot for the Whiteness slider.
+    def change_material(self, whiteness):
+        '''This is the slot for the Material (whiteness)slider.
         'whiteness' is between 0 and 100. 
         Saves whiteness parameter to pref db.
         '''
-        # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).
+        # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
         # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
         env.prefs[whiteness_prefs_key] = float(whiteness * 0.01)
 

@@ -89,7 +89,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
         "    pigment {\n" +
         "      gradient y\n" +
         "      color_map {\n" +
-        "        [(1-cos(radians(" + str(90-angle/2) + ")))/2 color Gray10]\n" +
+        "        [(1-cos(radians(" + str(90-angle/2) + ")))/2 color SkyWhite]\n" +
         "        [(1-cos(radians(" + str(90+angle/2) + ")))/2 color SkyBlue]\n" +
         "      }\n" +
         "      scale 2\n" +
@@ -171,30 +171,12 @@ def writepovlighting(f, glpane):
     #      .5 (1 light enabled)
     #      .75 (2 lights enabled) or
     #      1.0 (3 lights enabled)
-    ambient = .25 
+    ambient = 0.25 
     
     # The diffuse values of only the enabled lights are summed up. 
     # 'diffuse' is used in the 'Atomic' finish record. It can have a value
     # over 1.0 (and makes a difference).
     diffuse = 0.0
-    
-    # The phong value (range = 0.0 - 1.4) controls specular highlighting.
-    # When phong = 0, specular highlights are turned off.
-    # phong is computed is a function of the 'shininess' and 'whiteness' prefs. 
-    # shininess contributes 0.05 - 0.4, whiteness contributes 0.0 - 1.0.
-    # phong should not be less than 0.15, either.  All this was figured out with
-    # extensive trial and error.  I
-    # 'phong' is used in the 'Atomic' finish record.
-    if env.prefs[specular_highlights_prefs_key]:
-        # Since the shininess pref has a value of 50 (low) to 15 (high), this function will
-        # generate a value between 0.05 (low) to 0.4 (high), which works well in tests.
-        phong = (- env.prefs[shininess_prefs_key] + 55.0) * .01
-        # Now add the whiteness.
-        phong += env.prefs[whiteness_prefs_key] # Range: 0.0 - 1.0
-        # Finally, 'phong' should never be less than 0.15.
-        phong = max(0.15, phong)
-    else:
-        phong = 0.0 # No specular highlights
     
     if on1: # Light 1 is On
         ambient += a1
@@ -228,11 +210,37 @@ def writepovlighting(f, glpane):
                     "\n}\n")
     
     # Atomic finish record.
+    #
+    # phong determines the brightness of the highlight, while phong_size determines its size.
+    #
+    # phong: 0.0 (no highlight) to 1.0 (saturated highlight)
+    # 
+    # phong_size: 1 (very dull) to 250 (highly polished) 
+    # The larger the phong size the tighter, or smaller, the highlight and 
+    # the shinier the appearance. The smaller the phong size the looser, 
+    # or larger, the highlight and the less glossy the appearance.
+    #
+    # Good values:
+    # brushed metal: phong .25, phong_size 12
+    # plastic: .7, phong_size 17
+    #
+    # so phong ranges from .25 - .7
+    # and phong_size ranges from 12-17
+    #
+    if env.prefs[specular_highlights_prefs_key]:
+        # whiteness: 0.0-1.0, where 0 = metal and 1 = plastic
+        phong = 0.25 + (env.prefs[whiteness_prefs_key] *  0.45) #  .25-.7
+        phong_size = 12.0 + (env.prefs[whiteness_prefs_key] * 5.0) # 12-17
+    else:
+        phong = 0.0 # No specular highlights
+        phong_size = 0.0
+
     f.write( "\n#declare Atomic =" +
                 "\nfinish {" +
                 "\n    ambient " + str(ambient) +
                 "\n    diffuse " + str(diffuse) +
                 "\n    phong " + str(phong) +
+                "\n    phong_size " + str(phong_size) +
                 "\n}\n")
     
     return

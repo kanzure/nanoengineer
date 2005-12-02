@@ -20,7 +20,6 @@ povheader = """
 #declare Yellow  = rgb <1,1,0>;
 #declare Cyan    = rgb <0, 1, 1>;
 #declare Magenta = rgb <1, 0, 1>;
-#declare SkyBlue = rgb <.2, .6, 1>;
 #declare Clear   = rgbf 1;
 #declare White   = rgb 1;
 #declare Black   = rgb 0;
@@ -31,8 +30,9 @@ povheader = """
 #declare Gray50 = White * 0.50;
 #declare Gray75 = White * 0.25;
 
-#declare skyBlue = rgb <0.33, 0.73, 1.0>;
-#declare skyWhite = rgb <0.9, 0.9, 0.9>;
+// SkyBlue Gradient colors.
+#declare SkyWhite = White * 0.9;
+#declare SkyBlue = rgb <.33, .73, 1>;
 
 // LIGHTBULB: for debugging light sources for POV-Ray images - Mark
 #declare Lightbulb = union {

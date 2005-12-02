@@ -2161,13 +2161,13 @@
                                                                     <cstring>shininess_slider</cstring>
                                                                 </property>
                                                                 <property name="minValue">
-                                                                    <number>-50</number>
+                                                                    <number>15</number>
                                                                 </property>
                                                                 <property name="maxValue">
-                                                                    <number>-15</number>
+                                                                    <number>60</number>
                                                                 </property>
                                                                 <property name="value">
-                                                                    <number>-15</number>
+                                                                    <number>15</number>
                                                                 </property>
                                                                 <property name="orientation">
                                                                     <enum>Horizontal</enum>
@@ -2213,7 +2213,7 @@
                                                             <cstring>textLabel1_5_2</cstring>
                                                         </property>
                                                         <property name="text">
-                                                            <string>Whiteness :</string>
+                                                            <string>Material :</string>
                                                         </property>
                                                     </widget>
                                                     <widget class="QLayoutWidget">
@@ -2237,7 +2237,7 @@
                                                                             <cstring>textLabel2_3_3</cstring>
                                                                         </property>
                                                                         <property name="text">
-                                                                            <string>Plastic</string>
+                                                                            <string>Metal</string>
                                                                         </property>
                                                                     </widget>
                                                                     <spacer>
@@ -2262,7 +2262,7 @@
                                                                             <cstring>textLabel3_4_3</cstring>
                                                                         </property>
                                                                         <property name="text">
-                                                                            <string>Metal</string>
+                                                                            <string>Plastic</string>
                                                                         </property>
                                                                         <property name="alignment">
                                                                             <set>AlignVCenter|AlignRight</set>
@@ -2272,7 +2272,7 @@
                                                             </widget>
                                                             <widget class="QSlider">
                                                                 <property name="name">
-                                                                    <cstring>whiteness_slider</cstring>
+                                                                    <cstring>material_slider</cstring>
                                                                 </property>
                                                                 <property name="maxValue">
                                                                     <number>100</number>
@@ -2878,6 +2878,12 @@
 </widget>
 <connections>
     <connection>
+        <sender>animate_views_checkbox</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_animate_standard_views()</slot>
+    </connection>
+    <connection>
         <sender>atom_hilite_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -2932,6 +2938,18 @@
         <slot>set_compass_position()</slot>
     </connection>
     <connection>
+        <sender>cpk_atom_rad_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_cpk_atom_radius()</slot>
+    </connection>
+    <connection>
+        <sender>cpk_cylinder_rad_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_cpk_cylinder_radius()</slot>
+    </connection>
+    <connection>
         <sender>default_display_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -2974,6 +2992,12 @@
         <slot>fill_type_changed()</slot>
     </connection>
     <connection>
+        <sender>gamess_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>enable_gamess()</slot>
+    </connection>
+    <connection>
         <sender>gamess_choose_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -2998,10 +3022,88 @@
         <slot>change_hotspot_color()</slot>
     </connection>
     <connection>
+        <sender>light1_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light1_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light1_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light2_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light2_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light2_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light3_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light3_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light3_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>lights_reset_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>reset_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>lights_restore_defaults_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>restore_default_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>material_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material()</slot>
+    </connection>
+    <connection>
         <sender>mode_combox</sender>
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>mode_changed()</slot>
+    </connection>
+    <connection>
+        <sender>nanohive_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>enable_nanohive()</slot>
     </connection>
     <connection>
         <sender>nanohive_choose_btn</sender>
@@ -3040,6 +3142,18 @@
         <slot>restore_default_bgcolor()</slot>
     </connection>
     <connection>
+        <sender>selection_behavior_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_selection_behavior()</slot>
+    </connection>
+    <connection>
+        <sender>shininess_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_shininess()</slot>
+    </connection>
+    <connection>
         <sender>show_bond_labels_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3052,130 +3166,16 @@
         <slot>change_show_valence_errors()</slot>
     </connection>
     <connection>
-        <sender>startup_mode_combox</sender>
-        <signal>activated(const QString&amp;)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_startup_mode()</slot>
-    </connection>
-    <connection>
-        <sender>gamess_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>enable_gamess()</slot>
-    </connection>
-    <connection>
-        <sender>nanohive_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>enable_nanohive()</slot>
-    </connection>
-    <connection>
-        <sender>selection_behavior_btngrp</sender>
-        <signal>clicked(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_selection_behavior()</slot>
-    </connection>
-    <connection>
-        <sender>cpk_atom_rad_spinbox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_cpk_atom_radius()</slot>
-    </connection>
-    <connection>
-        <sender>cpk_cylinder_rad_spinbox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_cpk_cylinder_radius()</slot>
-    </connection>
-    <connection>
-        <sender>animate_views_checkbox</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_animate_standard_views()</slot>
-    </connection>
-    <connection>
-        <sender>lights_reset_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>reset_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>lights_restore_defaults_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>restore_default_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light1_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light2_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light3_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
         <sender>specular_highlights_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>toggle_specular_highlights()</slot>
     </connection>
     <connection>
-        <sender>shininess_slider</sender>
-        <signal>valueChanged(int)</signal>
+        <sender>startup_mode_combox</sender>
+        <signal>activated(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_shininess()</slot>
-    </connection>
-    <connection>
-        <sender>whiteness_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_whiteness()</slot>
-    </connection>
-    <connection>
-        <sender>light1_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light2_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light3_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light1_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light2_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light3_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
+        <slot>change_startup_mode()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -3254,7 +3254,7 @@
     <slot>save_lighting()</slot>
     <slot>toggle_specular_highlights()</slot>
     <slot>change_shininess()</slot>
-    <slot>change_whiteness()</slot>
+    <slot>change_material()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
