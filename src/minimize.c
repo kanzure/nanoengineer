@@ -239,6 +239,7 @@ bracketMinimum(struct configuration **ap,
   nx = b->parameter + GOLDEN_RATIO * (b->parameter - a->parameter);
   c = gradientOffset(p, nx);
   while (evaluate(b) > evaluate(c)) {
+
     // u is the extreme point for a parabola passing through a, b, and c:
     r = (b->parameter - a->parameter) * (evaluate(b) - evaluate(c));
     q = (b->parameter - c->parameter) * (evaluate(b) - evaluate(a));
@@ -288,10 +289,10 @@ bracketMinimum(struct configuration **ap,
       // u is between c and ulimit
       if (evaluate(u) < evaluate(c)) {
         // we're still going down, keep going
-        nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
         SetConfiguration(&b, c);
         SetConfiguration(&c, u);
         SetConfiguration(&u, NULL);
+        nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
         u = gradientOffset(p, nx);
       }
     } else if ((u->parameter-ulimit) * (ulimit-c->parameter) >= 0.0) {
