@@ -1,0 +1,26 @@
+README-Pyrex -- list of Pyrex-related files and their roles.
+
+$Id$
+
+
+Related source files:
+
+  extensions.py 
+      calls the pyrex_test extension module, assuming that got compiled from 
+      its .pyx source file into its .so (or .dll or .dylib?) dynamic library file; 
+      reports import errors, and in future might try to verify the extension module
+      is up-to-date, and handle all our custom extension modules in a uniform way.
+      (No pure python file can be named pyrex_test.py, since "import pyrex_test" would
+      then not know whether to import the pure python module or the extension module.)
+
+  setup.py (for distutils; configures compiling of all Python extensions from their source files)
+
+  Makefile (has new "pyx" and/or "extensions" targets)
+
+Files produced by building Pyrex extensions:
+
+  pyrex_test.* (produced when Pyrex compiles this file; suffixes vary by platform, on Mac they're .c and .so)
+
+  build/   (subdirectory) ###k name correct?
+
+#end

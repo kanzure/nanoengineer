@@ -39,6 +39,8 @@ from constants import genKey, noop
 
 # debug/test functions (in other submenu of debug menu) which won't be kept around.
 
+from debug import call_func_with_timing_histmsg
+
 def atpos_list(part):
     "Return a list of atom-position arrays, one per chunk in part. Warning: might include shared mutable arrays."
     res = []
@@ -60,26 +62,11 @@ def load_obj(filename):
     file.close()
     return res
 
-def time_taken(func):
-    "call func and measure how long this takes. return a triple (real-time-taken, cpu-time-taken, result-of-func)."
-    from time import time, clock
-    t1c = clock()
-    t1t = time()
-    res = func()
-    t2c = clock()
-    t2t = time()
-    return (t2t - t1t, t2c - t1c, res)
-
 def saveposns(part, filename):
     env.history.message( "save main part atom posns to file: " + filename )
     def doit():
         save_atpos_list(part, filename)
     call_func_with_timing_histmsg( doit)
-
-def call_func_with_timing_histmsg( func):
-    realtime, cputime, res = time_taken(func)
-    env.history.message( "done; took %0.4f real secs, %0.4f cpu secs" % (realtime, cputime) )
-    return res
 
 def saveposns_cmd( target): # arg is the widget that has this debug menu
     win = target.topLevelWidget()
@@ -174,22 +161,24 @@ register_debug_menu_command("save bond type v6 ints", savebtypes_cmd)
 
 # ==
 
-# this depends on undotest.pyx having been compiled by Pyrex ####@@@@
+# moved to pyrex_test.py
 
-def count_bonds_cmd( target):
-    win = target.topLevelWidget()
-    assy = win.assy
-    part = assy.tree.part
-    mols = part.molecules
-    env.history.message( "count bonds (twice each) in %d mols:" % len(mols) )
-    from undotest import nbonds # count bonds (twice each) in a sequence of molecules
-    def doit():
-        return nbonds(mols)
-    nb = call_func_with_timing_histmsg( doit)
-    env.history.message("count was %d, half that is %d" % (nb, nb/2) )
-    return
-
-register_debug_menu_command("count bonds", count_bonds_cmd)
+### this depends on undotest.pyx having been compiled by Pyrex ####@@@@
+##
+##def count_bonds_cmd( target):
+##    win = target.topLevelWidget()
+##    assy = win.assy
+##    part = assy.tree.part
+##    mols = part.molecules
+##    env.history.message( "count bonds (twice each) in %d mols:" % len(mols) )
+##    from undotest import nbonds # count bonds (twice each) in a sequence of molecules
+##    def doit():
+##        return nbonds(mols)
+##    nb = call_func_with_timing_histmsg( doit)
+##    env.history.message("count was %d, half that is %d" % (nb, nb/2) )
+##    return
+##
+##register_debug_menu_command("count bonds", count_bonds_cmd)
 
 # ==
 

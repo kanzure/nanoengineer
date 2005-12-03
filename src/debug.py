@@ -138,6 +138,21 @@ class Stopwatch:
     def now(self):
         return time.time() - self.__start
 
+def time_taken(func): #bruce 051202 moved this here from undo.py
+    "call func and measure how long this takes. return a triple (real-time-taken, cpu-time-taken, result-of-func)."
+    from time import time, clock
+    t1c = clock()
+    t1t = time()
+    res = func()
+    t2c = clock()
+    t2t = time()
+    return (t2t - t1t, t2c - t1c, res)
+
+def call_func_with_timing_histmsg( func): #bruce 051202 moved this here from undo.py
+    realtime, cputime, res = time_taken(func)
+    env.history.message( "done; took %0.4f real secs, %0.4f cpu secs" % (realtime, cputime) )
+    return res
+
 # ==
 
 # the following are needed to comply with our Qt/PyQt license agreements.
@@ -792,9 +807,13 @@ def reload_once_per_event(module):
 
 # ==
 
-#bruce 050823 a convenient place to import some Undo experimental code --
+#bruce 050823 - this is a convenient place to import some Undo experimental code --
 # though it's not a sensible permanent place for that ####@@@@
 
 import undo
+
+#bruce 051202 - same for extensions.py (which tests Pyrex code, for now; later handles all our custom extension modules)
+
+import extensions
 
 # end
