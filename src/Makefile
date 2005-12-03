@@ -4,7 +4,18 @@ CC=gcc
 
 #-std-c99 gets us isnormal() in structcompare.c
 #CFLAGS=-O2 -g
-CFLAGS=-g -std=c99 -Wmissing-prototypes -Wall
+#CFLAGS=-g -std=c99 -Wmissing-prototypes -Wall  # limit use of -std=c99
+CFLAGS=-g -Wmissing-prototypes -Wall
+
+# This was a bunch of options that Will got from running distutils. It
+# sped up the simulator CONSIDERABLY. We should see if we can use
+# their tricks for figuring out platform-specific compiler flags.
+#
+#CFLAGS=-g -Wmissing-prototypes -Wall -pthread -fno-strict-aliasing \
+#    -O2 -fomit-frame-pointer -pipe -march=i586 -mtune=pentiumpro -fPIC
+#
+# Would this require users to rebuild the simulator on their platform,
+# so it could be optimized for their processor?
 
 #LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
@@ -62,8 +73,11 @@ printers.o: simulator.h
 readmmp.o: simulator.h
 readxyz.o: simulator.h
 simulator.o: simulator.h
-structcompare.o: simulator.h
 writemovie.o: simulator.h
+
+# -std-c99 gets us isnormal()
+structcompare.o: structcompare.c simulator.h
+	$(CC) -c -std=c99 $(CFLAGS) -o structcompare.o structcompare.c
 
 sim.o: sim.c simulator.h
 	gcc -c -g -fPIC -I/usr/include/python2.3 sim.c
@@ -139,6 +153,11 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
+extensions: structcompare.o
+	python setup.py build_ext --inplace
+
+pyx: extensions
+
 install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
@@ -149,7 +168,7 @@ install: simulator
 clean:
 	rm -f simulator moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
-	rm -rf html gmon.out
+	rm -rf html gmon.out build
 	rm -f tests/minimize/*.altout
 	rm -f tests/minimize/*.diff
 	rm -f tests/dynamics/*.diff
