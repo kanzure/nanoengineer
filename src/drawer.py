@@ -186,8 +186,6 @@ class glprefs:
             self.override_light_specular = None # used in glpane
             self.specular_shininess = float(env.prefs[shininess_prefs_key]) # float; shininess exponent for all specular highlights
             self.specular_whiteness = float(env.prefs[whiteness_prefs_key]) # float; whiteness for all material specular colors
-                #bruce 051126 added whiteness code, Brad has not yet reviewed it for OpenGL correctness
-                # (Brad, you can remove that comment after you review that code and my comments about it)
         else:
             self.override_light_specular = (0.0, 0.0, 0.0, 0.0) # used in glpane
             # Set these to reasonable values, though these attributes are presumably never used in this case.
@@ -210,14 +208,17 @@ class glprefs:
 
 _glprefs = glprefs()
 
-def materialapply(color): # grantham 20051121; revised by bruce 051126
+def apply_material(color): # grantham 20051121; revised by bruce 051126
     "Set OpenGL material parameters based on the given color and the material-related prefs values in _glprefs."
 
+    # grantham 20051201 - This was "materialapply".  I changed it to have
+    # a more consistent naming, and I decided it wouldn't be that big a
+    # problem since the function is brand new.  (comment expires 20051215)
+
     if not _glprefs.enable_specular_highlights:
-        # This almost completely returns materialapply() to the old glMaterial behavior.
-        # (Assuming bruce 051126 correctly edited grantham 20051121 code which had a similar comment.)
-        #k bruce 051126 question: why not use GL_FRONT_AND_BACK here, or, why not use GL_FRONT below?
-        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
+	color = tuple(color) + (1.0,)
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
+        # glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (0,0,0,1))
         return
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
@@ -228,7 +229,9 @@ def materialapply(color): # grantham 20051121; revised by bruce 051126
     else:
         if whiteness == 0.0:
             if len(color) == 3: # usually true
-                color = tuple(color) + (1.0,) # might not be needed, depending on PyQt glMaterialfv implem
+                # needed because glMaterial requires four-component
+                # vector and PyOpenGL doesn't check
+                color = tuple(color) + (1.0,)
             specular = color # optimization
         else:
             # assume color[3] (alpha) is not passed or is always 1.0
@@ -238,6 +241,62 @@ def materialapply(color): # grantham 20051121; revised by bruce 051126
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, _glprefs.specular_shininess)
     return
+
+def get_gl_info_string():
+
+    """Return a string containing some useful information about the
+    OpenGL implementation."""
+    # grantham 20051129
+
+    gl_info_string = ''
+
+    gl_info_string += 'GL_VENDOR : "%s"\n' % glGetString(GL_VENDOR)
+    gl_info_string += 'GL_VERSION : "%s"\n' % glGetString(GL_VERSION)
+    gl_info_string += 'GL_RENDERER : "%s"\n' % glGetString(GL_RENDERER)
+    gl_info_string += 'GL_EXTENSIONS : "%s"\n' % glGetString(GL_EXTENSIONS)
+
+    if False:
+        # Give a practical indication of how much video memory is available.
+        # Should also do this with VBOs.
+
+        # I'm pretty sure this code is right, but PyOpenGL seg faults in
+        # glAreTexturesResident, so it's disabled until I can figure that
+        # out.
+
+	all_tex_in = True
+	tex_bytes = '\0' * (512 * 512 * 4)
+	tex_names = []
+	tex_count = 0
+	tex_names = glGenTextures(1024)
+	glEnable(GL_TEXTURE_2D)
+	while all_tex_in:
+	    glBindTexture(GL_TEXTURE_2D, tex_names[tex_count])
+	    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 512, 512, GL_RGBA,
+		GL_UNSIGNED_BYTE, tex_bytes)
+	    tex_count += 1
+
+	    glTexCoord2f(0.0, 0.0)
+	    glBegin(GL_QUADS)
+	    glVertex2f(0.0, 0.0)
+	    glVertex2f(1.0, 0.0)
+	    glVertex2f(1.0, 1.0)
+	    glVertex2f(0.0, 1.0)
+	    glEnd()
+	    glFinish()
+
+	    residences = glAreTexturesResident(tex_names[:tex_count])
+	    all_tex_in = True
+	    # seems to me that Python must have an idiom for the next two lines 
+	    for r in residences:
+		all_tex_in = all_tex_in and r
+
+	glDisable(GL_TEXTURE_2D)
+	glDeleteTextures(tex_names)
+
+	gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
+    return gl_info_string
+
+
 
 halfHeight = 0.45
 
@@ -611,7 +670,7 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     return
 
 def drawsphere(color, pos, radius, detailLevel):
-    materialapply(color)
+    apply_material(color)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
@@ -635,7 +694,7 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
 
 def drawcylinder(color, pos1, pos2, radius, capped=0):
     global CylList, CapList
-    materialapply(color)
+    apply_material(color)
     glPushMatrix()
     vec = pos2-pos1
     axis = norm(vec)
@@ -921,7 +980,7 @@ def drawRubberBand(pt1, pt2, c2, c3, color):
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
 def drawbrick(color, center, axis, l, h, w):
-    materialapply(color)
+    apply_material(color)
     glPushMatrix()
     glTranslatef(center[0], center[1], center[2])
     

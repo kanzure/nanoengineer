@@ -26,6 +26,7 @@ from qt import QWidget, QFrame, SIGNAL, QFileDialog
 from qt import QCursor, QBitmap, QWMatrix, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
 from GLPane import GLPane ## bruce 050408 removed: import *
 from assembly import assembly ## bruce 050408 added this, was coming from GLPane
+from drawer import get_gl_info_string ## grantham 20051201
 import os, sys
 import help
 from math import ceil
@@ -905,7 +906,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         '''Displays details about the system's graphics card.
         '''
         # This is for Brad to complete.  Mark 051123.
-        ginfo = "Put graphics card information here."
+        ginfo = get_gl_info_string()
         
         from widgets import TextMessageBox
         msgbox = TextMessageBox(self)

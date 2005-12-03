@@ -109,7 +109,6 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
-
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.
     """
@@ -830,12 +829,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     _last_override_light_specular = None #bruce 051126
     
-    def _setup_lighting(self, prefs = drawer._glprefs):
+    def _setup_lighting(self, glprefs = None):
         """[private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
         """
-        glEnable(GL_NORMALIZE) # bruce comment 050311: I don't know if this relates to lighting or not
+        glEnable(GL_NORMALIZE)
+            # bruce comment 050311: I don't know if this relates to lighting or not
+            # grantham 20051121: Yes, if NORMALIZE is not enabled (and normals
+            # aren't unit length or the modelview matrix isn't just rotation)
+            # then the lighting equation can produce unexpected results.  
 
         #bruce 050413 try to fix bug 507 in direction of lighting:
         glMatrixMode(GL_PROJECTION)
@@ -843,19 +846,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
+        if glprefs is None:
+	    glprefs = drawer._glprefs
+
         try:
             # new code
             ((a0,d0,s0,x0,y0,z0,e0), \
              (a1,d1,s1,x1,y1,z1,e1), \
              (a2,d2,s2,x2,y2,z2,e2)) = self._lights #e might revise format
              
-            self._last_override_light_specular = prefs.override_light_specular #bruce 051126
+            self._last_override_light_specular = glprefs.override_light_specular #bruce 051126
 
             glLightfv(GL_LIGHT0, GL_POSITION, (x0, y0, z0, 0))
             glLightfv(GL_LIGHT0, GL_AMBIENT, (a0, a0, a0, 1.0))
             glLightfv(GL_LIGHT0, GL_DIFFUSE, (d0, d0, d0, 1.0))
-    	    if prefs.override_light_specular is not None:
-                glLightfv(GL_LIGHT0, GL_SPECULAR, prefs.override_light_specular)
+    	    if glprefs.override_light_specular is not None:
+                glLightfv(GL_LIGHT0, GL_SPECULAR, glprefs.override_light_specular)
             else:
                 # grantham 20051121 - this should be a component on its own
                 # not replicating the diffuse color.
@@ -866,8 +872,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             glLightfv(GL_LIGHT1, GL_POSITION, (x1, y1, z1, 0))
             glLightfv(GL_LIGHT1, GL_AMBIENT, (a1, a1, a1, 1.0))
             glLightfv(GL_LIGHT1, GL_DIFFUSE, (d1, d1, d1, 1.0))
-    	    if prefs.override_light_specular is not None:
-                glLightfv(GL_LIGHT1, GL_SPECULAR, prefs.override_light_specular)
+    	    if glprefs.override_light_specular is not None:
+                glLightfv(GL_LIGHT1, GL_SPECULAR, glprefs.override_light_specular)
             else:
                 glLightfv(GL_LIGHT1, GL_SPECULAR, (s1, s1, s1, 1.0))
                 glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
@@ -875,8 +881,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             glLightfv(GL_LIGHT2, GL_POSITION, (x2, y2, z2, 0))
             glLightfv(GL_LIGHT2, GL_AMBIENT, (a2, a2, a2, 1.0))
             glLightfv(GL_LIGHT2, GL_DIFFUSE, (d2, d2, d2, 1.0))
-    	    if prefs.override_light_specular is not None:
-                glLightfv(GL_LIGHT2, GL_SPECULAR, prefs.override_light_specular)
+    	    if glprefs.override_light_specular is not None:
+                glLightfv(GL_LIGHT2, GL_SPECULAR, glprefs.override_light_specular)
             else:
                 glLightfv(GL_LIGHT2, GL_SPECULAR, (s2, s2, s2, 1.0))
                 glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
