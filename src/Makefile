@@ -102,7 +102,6 @@ SIMOBJS=\
 PYREXOBJS=\
 	allocate.o \
 	dynamics.o \
-	globals.o \
 	hashtable.o \
 	interpolate.o \
 	jigs.o \
