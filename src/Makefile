@@ -66,7 +66,7 @@ structcompare.o: simulator.h
 writemovie.o: simulator.h
 
 sim.o: sim.c simulator.h
-	gcc -c $(CFLAGS) -fPIC -I/usr/include/python2.3 sim.c
+	gcc -c -g -fPIC -I/usr/include/python2.3 sim.c
 sim.c: sim.pyx simhelp.c
 	pyrexc sim.pyx
 
