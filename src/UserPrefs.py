@@ -230,41 +230,69 @@ class UserPrefs(UserPrefsDialog):
             self.lights = self.original_lights = self.glpane.getLighting()
         else:
             self.lights = lights
+            
+        light_num = self.light_combobox.currentItem()
         
-        self.light1_checkbox.setChecked(self.lights[0][2])
-        self.light1_slider.setValue(int (self.lights[0][1] * 100)) # generates signal
+        self.update_light_combobox_items()
         
-        self.light2_checkbox.setChecked(self.lights[1][2])
-        self.light2_slider.setValue(int (self.lights[1][1] * 100)) # generates signal
+        self.disconnect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.disconnect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.disconnect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         
-        self.light3_checkbox.setChecked(self.lights[2][2])
-        self.light3_slider.setValue(int (self.lights[2][1] * 100)) # generates signal
+        a = self.lights[light_num][0]
+        d = self.lights[light_num][1]
+        s = self.lights[light_num][2]
         
-        self._setup_specular_highlights()
+        self.light_ambient_slider.setValue(int (a * 100)) # generates signal
+        self.light_diffuse_slider.setValue(int (d * 100)) # generates signal
+        self.light_specularity_slider.setValue(int (s * 100)) # generates signal
         
-    def _setup_specular_highlights(self, reset=False):
-        ''' Setup Specular Highlights widgets to initial (default or defined) values on the Lighting page.
-        If reset = False, specular highlight parameters are reset from prefs db.
-        If reset = True, specular highlight parameters are reset from previous values.
+        self.light_ambient_linedit.setText(str(a))
+        self.light_diffuse_linedit.setText(str(d))
+        self.light_specularity_linedit.setText(str(s))
+        
+        self.light_x_linedit.setText(str (self.lights[light_num][3]))
+        self.light_y_linedit.setText(str (self.lights[light_num][4]))
+        self.light_z_linedit.setText(str (self.lights[light_num][5]))
+        self.light_checkbox.setChecked(self.lights[light_num][6])
+        
+        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        
+        self._setup_material_properties()
+        
+    def _setup_material_properties(self, reset=False):
+        ''' Setup Material Properties widgets to initial (default or defined) values on the Lighting page.
+        If reset = False, material parameters are reset from prefs db.
+        If reset = True, material highlight parameters are reset from previous values.
         '''
         if reset:
             self.specular_highlights = self.original_specular_highlights
-            self.shininess = self.original_shininess
             self.whiteness = self.original_whiteness
+            self.shininess = self.original_shininess
+            self.brightness = self.original_brightness
         else:
             self.specular_highlights = self.original_specular_highlights = env.prefs[specular_highlights_prefs_key]
-            self.shininess = self.original_shininess = int(env.prefs[shininess_prefs_key])
             self.whiteness = self.original_whiteness = int(env.prefs[whiteness_prefs_key] * 100)
+            self.shininess = self.original_shininess = int(env.prefs[shininess_prefs_key])
+            self.brightness = self.original_brightness= int(env.prefs[material_brightness_prefs_key] * 100)
             
         # Enable/disable specular highlights.
-        self.specular_highlights_checkbox.setChecked(self.specular_highlights )
+        #self.specular_highlights_checkbox.setChecked(self.specular_highlights )
 
-        # For shininess, the range is 15 (low) to 50 (high).  Mark. 051129.
-        self.shininess_slider.setValue(self.shininess) # generates signal
-        
         # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
         # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
         self.material_slider.setValue(self.whiteness) # generates signal
+        self.material_linedit.setText(str(self.whiteness * .01))
+        
+        # For shininess, the range is 15 (low) to 60 (high).  Mark. 051129.
+        self.shininess_slider.setValue(self.shininess) # generates signal
+        self.shininess_linedit.setText(str(self.shininess))
+        
+        # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
+        self.brightness_slider.setValue(self.brightness) # generates signal
+        self.brightness_linedit.setText(str(self.brightness * .01))
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the atoms page.
@@ -684,22 +712,41 @@ class UserPrefs(UserPrefsDialog):
     
     ########## Slot methods for "Lighting" page widgets ################
 
+    def change_active_light(self):
+        '''
+        '''
+        self._setup_lighting_page()
+        
     def change_lighting(self):
         '''Updates glpane lighting using the current lighting parameters from the
         light checkboxes and sliders. This is also the slot for the light sliders.
         '''
+        light_num = self.light_combobox.currentItem()
         
-        light1 = [ self.glpane.__class__._lights[0][0], \
-                self.light1_slider.value() * .01, \
-                self.light1_checkbox.isChecked()]
-        light2 = [ self.glpane.__class__._lights[1][0], \
-                self.light2_slider.value() * .01, \
-                self.light2_checkbox.isChecked()]
-        light3 = [ self.glpane.__class__._lights[2][0], \
-                self.light3_slider.value() * .01,
-                self.light3_checkbox.isChecked()]
+        light1, light2, light3 = self.glpane.getLighting()
+        
+        a = self.light_ambient_slider.value() * .01
+        d = self.light_diffuse_slider.value() * .01
+        s = self.light_specularity_slider.value()  * .01
+        
+        self.light_ambient_linedit.setText(str(a))
+        self.light_diffuse_linedit.setText(str(d))
+        self.light_specularity_linedit.setText(str(s))
+        
+        new_light = [  a, d, s, \
+                    float(str(self.light_x_linedit.text())), \
+                    float(str(self.light_y_linedit.text())), \
+                    float(str(self.light_z_linedit.text())), \
+                    self.light_checkbox.isChecked()]
                 
-        self.glpane.setLighting([light1, light2, light3])
+        if light_num == 0:
+            self.glpane.setLighting([new_light, light2, light3])
+        elif light_num == 1:
+            self.glpane.setLighting([light1, new_light, light3])
+        elif light_num == 2:
+            self.glpane.setLighting([light1, light2, new_light])
+        else:
+            print "Unsupported light # ", light_num,". No lighting change made."
         
     def toggle_specular_highlights(self, val):
         '''This is the slot for the Specular Highlight checkbox.
@@ -711,14 +758,6 @@ class UserPrefs(UserPrefsDialog):
         ## print "Shininess = ", env.prefs[shininess_prefs_key]
         ## print "Material (Whiteness) = ", env.prefs[whiteness_prefs_key]
                 
-    def change_shininess(self, shininess):
-        ''' This is the slot for the Shininess slider.
-        'shininess' is between 15 (low) and 50 (high).
-        Saves the abs value of shininess to pref db.
-        '''
-        # We store (and use) the abs value. Mark. 051129.
-        env.prefs[shininess_prefs_key] = float(shininess)
-        
     def change_material(self, whiteness):
         '''This is the slot for the Material (whiteness)slider.
         'whiteness' is between 0 and 100. 
@@ -727,10 +766,25 @@ class UserPrefs(UserPrefsDialog):
         # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
         # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
         env.prefs[whiteness_prefs_key] = float(whiteness * 0.01)
-
+        self.material_linedit.setText(str(whiteness * 0.01))
+        
+    def change_shininess(self, shininess):
+        ''' This is the slot for the Shininess slider.
+        'shininess' is between 15 (low) and 60 (high).
+        '''
+        env.prefs[shininess_prefs_key] = float(shininess)
+        self.shininess_linedit.setText(str(shininess))
+        
+    def change_brightness(self, brightness):
+        ''' This is the slot for the Brightness slider.
+        'brightness' is between 0 (low) and 100 (high).
+        '''
+        env.prefs[material_brightness_prefs_key] = float(brightness * 0.01)
+        self.brightness_linedit.setText(str(brightness * 0.01))
+        
     def reset_lighting(self):
         "Slot for Reset button"
-        self._setup_specular_highlights(reset=True)
+        self._setup_material_properties(reset=True)
         self._setup_lighting_page(self.original_lights)
         self.glpane.saveLighting()
         
@@ -746,10 +800,30 @@ class UserPrefs(UserPrefsDialog):
             ])
         self._setup_lighting_page()
         self.glpane.saveLighting()
-        
+    
+    def update_light_combobox_items(self):
+        '''Updates all light combobox items with '(On)' or '(Off)' label.
+        '''
+        for i in range(3):
+            if self.lights[i][6]:
+                txt = "%d (On)" % (i+1)
+            else:
+                txt = "%d (Off)" % (i+1)
+            self.light_combobox.changeItem(txt, i)
+    
+    def toggle_light(self, on):
+        '''Slot for light 'On' checkbox.  
+        It updates the current item in the light combobox with '(On)' or '(Off)' label.
+        '''
+        if on:
+            txt = "%d (On)" % (self.light_combobox.currentItem()+1)
+        else:
+            txt = "%d (Off)" % (self.light_combobox.currentItem()+1)
+        self.light_combobox.setCurrentText(txt)
+            
     def save_lighting(self):
         '''Saves lighting parameters (but not specular highlight parameters) to pref db.
-        This is the slot for light checkboxes and sliders (only when released).
+        This is the slot for light 'On' checkbox and sliders (only when released).
         '''
         self.change_lighting()
         self.glpane.saveLighting()

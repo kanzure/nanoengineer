@@ -145,23 +145,15 @@ def writepovlighting(f, glpane):
     '''Writes a light source record for each light (if enabled) and the
     'Atomic' finish record. These records impact the lighting affect.
     ''' 
-    # There are 3 light sources.  Get position and lighting parameters of each.
-    
-    # The light positions are hard coded in GLPane._setup_lighting():
-    #    glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
-    #    glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
-    #    glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
-    #
-    # We need a light class containing a position attribute, then we can do something like this:
-    # pos1 =  (glpane.right * light1.x) + (glpane.up * light1.y) + (glpane.out * light1.z)
-    #
-    # For now, we copy the coords of each light here.
-    pos1 = (glpane.right * -50) + (glpane.up * 70) + (glpane.out * 30)
-    pos2 = (glpane.right * -20) + (glpane.up * 20) + (glpane.out * 20)
-    pos3 = (glpane.right * 0) + (glpane.up * 0) + (glpane.out * 100)
-    
     # Get the lighting parameters for the 3 lights.
-    ((a1,d1,on1),(a2,d2,on2),(a3,d3,on3)) = glpane.getLighting()
+    ((a0,d0,s0,x0,y0,z0,e0), \
+     (a1,d1,s1,x1,y1,z1,e1), \
+     (a2,d2,s2,x2,y2,z2,e2)) = glpane.getLighting()
+     
+    # For now, we copy the coords of each light here.
+    pos0 = (glpane.right * x0) + (glpane.up *y0) + (glpane.out * z0)
+    pos1 = (glpane.right * x1) + (glpane.up * y1) + (glpane.out * z1)
+    pos2 = (glpane.right * x2) + (glpane.up * y2) + (glpane.out * z2)
 
     # The ambient values (hardcoded to .25 for each light) of only the enabled 
     # lights are summed up. 'ambient' is used in the 'Atomic' finish record.
@@ -178,33 +170,33 @@ def writepovlighting(f, glpane):
     # over 1.0 (and makes a difference).
     diffuse = 0.0
     
-    if on1: # Light 1 is On
-        ambient += a1
-        diffuse += d1
+    if e0: # Light 1 is On
+        ambient += a0
+        diffuse += d0
         f.write( "\n// Light #1" +
                     "\nlight_source {" +
-                    "\n  " + povpoint(pos1) + 
+                    "\n  " + povpoint(pos0) + 
+                    "\n  color <" + str(d0) + ", " + str(d0) + ", " + str(d0) + ">" +
+                    "\n  parallel" +
+                    "\n  point_at <0.0, 0.0, 0.0>" +
+                    "\n}\n")
+    
+    if e1: # Light 2 is On
+        ambient += a1
+        diffuse += d1
+        f.write( "\n// Light #2" +
+                    "\nlight_source {\n  " + povpoint(pos1) + 
                     "\n  color <" + str(d1) + ", " + str(d1) + ", " + str(d1) + ">" +
                     "\n  parallel" +
                     "\n  point_at <0.0, 0.0, 0.0>" +
                     "\n}\n")
     
-    if on2: # Light 2 is On
+    if e2: # Light 3 is On
         ambient += a2
         diffuse += d2
-        f.write( "\n// Light #2" +
+        f.write("\n// Light #3" +
                     "\nlight_source {\n  " + povpoint(pos2) + 
                     "\n  color <" + str(d2) + ", " + str(d2) + ", " + str(d2) + ">" +
-                    "\n  parallel" +
-                    "\n  point_at <0.0, 0.0, 0.0>" +
-                    "\n}\n")
-    
-    if on3: # Light 3 is On
-        ambient += a3
-        diffuse += d3
-        f.write("\n// Light #3" +
-                    "\nlight_source {\n  " + povpoint(pos3) + 
-                    "\n  color <" + str(d3) + ", " + str(d3) + ", " + str(d3) + ">" +
                     "\n  parallel" +
                     "\n  point_at <0.0, 0.0, 0.0>" +
                     "\n}\n")

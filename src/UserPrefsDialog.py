@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Dec 2 17:43:01 2005
+# Created: Sat Dec 3 01:39:20 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,9 +26,10 @@ class UserPrefsDialog(QDialog):
         layout28.addItem(spacer7)
 
         self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setAutoDefault(0)
         layout28.addWidget(self.ok_btn)
 
-        UserPrefsDialogLayout.addMultiCellLayout(layout28,1,1,0,1)
+        UserPrefsDialogLayout.addLayout(layout28,1,0)
 
         self.prefs_tab = QTabWidget(self,"prefs_tab")
 
@@ -320,6 +321,7 @@ class UserPrefsDialog(QDialog):
 
         self.bond_hilite_color_frame = QFrame(self.groupBox4,"bond_hilite_color_frame")
         self.bond_hilite_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_hilite_color_frame.setMaximumSize(QSize(32767,32767))
         self.bond_hilite_color_frame.setPaletteBackgroundColor(QColor(0,0,159))
         self.bond_hilite_color_frame.setFrameShape(QFrame.Box)
         self.bond_hilite_color_frame.setFrameShadow(QFrame.Plain)
@@ -348,6 +350,7 @@ class UserPrefsDialog(QDialog):
 
         self.bond_vane_color_frame = QFrame(self.groupBox4,"bond_vane_color_frame")
         self.bond_vane_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_vane_color_frame.setMaximumSize(QSize(32767,32767))
         self.bond_vane_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
         self.bond_vane_color_frame.setFrameShape(QFrame.Box)
         self.bond_vane_color_frame.setFrameShadow(QFrame.Plain)
@@ -379,6 +382,7 @@ class UserPrefsDialog(QDialog):
 
         self.bond_stretch_color_frame = QFrame(self.groupBox4,"bond_stretch_color_frame")
         self.bond_stretch_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_stretch_color_frame.setMaximumSize(QSize(32767,32767))
         self.bond_stretch_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
         self.bond_stretch_color_frame.setFrameShape(QFrame.Box)
         self.bond_stretch_color_frame.setFrameShadow(QFrame.Plain)
@@ -538,8 +542,6 @@ class UserPrefsDialog(QDialog):
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
         TabPageLayout_4 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_4")
 
-        layout81 = QHBoxLayout(None,0,6,"layout81")
-
         self.groupBox8_2 = QGroupBox(self.TabPage_4,"groupBox8_2")
         self.groupBox8_2.setEnabled(1)
         self.groupBox8_2.setColumnLayout(0,Qt.Vertical)
@@ -548,219 +550,248 @@ class UserPrefsDialog(QDialog):
         groupBox8_2Layout = QGridLayout(self.groupBox8_2.layout())
         groupBox8_2Layout.setAlignment(Qt.AlignTop)
 
-        layout70 = QHBoxLayout(None,0,6,"layout70")
+        layout494 = QVBoxLayout(None,0,6,"layout494")
 
-        self.light1_checkbox = QCheckBox(self.groupBox8_2,"light1_checkbox")
-        layout70.addWidget(self.light1_checkbox)
-        spacer46 = QSpacerItem(64,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout70.addItem(spacer46)
+        self.textLabel1_5_2_3 = QLabel(self.groupBox8_2,"textLabel1_5_2_3")
+        self.textLabel1_5_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel1_5_2_3)
 
-        groupBox8_2Layout.addLayout(layout70,0,0)
+        self.textLabel1_5_2 = QLabel(self.groupBox8_2,"textLabel1_5_2")
+        self.textLabel1_5_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel1_5_2)
 
-        layout65_2 = QVBoxLayout(None,0,6,"layout65_2")
+        self.textLabel1_5 = QLabel(self.groupBox8_2,"textLabel1_5")
+        self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel1_5)
 
-        layout64_2 = QHBoxLayout(None,0,6,"layout64_2")
+        self.textLabel2_3 = QLabel(self.groupBox8_2,"textLabel2_3")
+        self.textLabel2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel2_3)
 
         self.textLabel2_3_2 = QLabel(self.groupBox8_2,"textLabel2_3_2")
-        layout64_2.addWidget(self.textLabel2_3_2)
-        spacer44_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout64_2.addItem(spacer44_2)
+        self.textLabel2_3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel2_3_2)
 
-        self.textLabel3_4_2 = QLabel(self.groupBox8_2,"textLabel3_4_2")
-        self.textLabel3_4_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout64_2.addWidget(self.textLabel3_4_2)
-        layout65_2.addLayout(layout64_2)
+        self.textLabel2_3_2_3 = QLabel(self.groupBox8_2,"textLabel2_3_2_3")
+        self.textLabel2_3_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel2_3_2_3)
 
-        self.light1_slider = QSlider(self.groupBox8_2,"light1_slider")
-        self.light1_slider.setMaxValue(100)
-        self.light1_slider.setOrientation(QSlider.Horizontal)
-        self.light1_slider.setTickmarks(QSlider.Below)
-        self.light1_slider.setTickInterval(10)
-        layout65_2.addWidget(self.light1_slider)
+        self.textLabel2_3_2_3_2 = QLabel(self.groupBox8_2,"textLabel2_3_2_3_2")
+        self.textLabel2_3_2_3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel2_3_2_3_2)
 
-        groupBox8_2Layout.addLayout(layout65_2,1,0)
-        layout81.addWidget(self.groupBox8_2)
+        self.textLabel2_3_2_3_2_2 = QLabel(self.groupBox8_2,"textLabel2_3_2_3_2_2")
+        self.textLabel2_3_2_3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel2_3_2_3_2_2)
 
-        self.groupBox8_2_2 = QGroupBox(self.TabPage_4,"groupBox8_2_2")
-        self.groupBox8_2_2.setColumnLayout(0,Qt.Vertical)
-        self.groupBox8_2_2.layout().setSpacing(6)
-        self.groupBox8_2_2.layout().setMargin(11)
-        groupBox8_2_2Layout = QGridLayout(self.groupBox8_2_2.layout())
-        groupBox8_2_2Layout.setAlignment(Qt.AlignTop)
+        self.textLabel2_3_2_3_2_3 = QLabel(self.groupBox8_2,"textLabel2_3_2_3_2_3")
+        self.textLabel2_3_2_3_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout494.addWidget(self.textLabel2_3_2_3_2_3)
 
-        layout70_2 = QHBoxLayout(None,0,6,"layout70_2")
+        groupBox8_2Layout.addLayout(layout494,0,0)
 
-        self.light2_checkbox = QCheckBox(self.groupBox8_2_2,"light2_checkbox")
-        layout70_2.addWidget(self.light2_checkbox)
-        spacer46_2 = QSpacerItem(63,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout70_2.addItem(spacer46_2)
+        layout559 = QVBoxLayout(None,0,6,"layout559")
 
-        groupBox8_2_2Layout.addLayout(layout70_2,0,0)
+        layout558 = QHBoxLayout(None,0,6,"layout558")
 
-        layout65_2_2 = QVBoxLayout(None,0,6,"layout65_2_2")
+        self.light_combobox = QComboBox(0,self.groupBox8_2,"light_combobox")
+        layout558.addWidget(self.light_combobox)
+        spacer342 = QSpacerItem(60,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout558.addItem(spacer342)
+        layout559.addLayout(layout558)
 
-        layout64_2_2 = QHBoxLayout(None,0,6,"layout64_2_2")
+        layout69 = QHBoxLayout(None,0,6,"layout69")
 
-        self.textLabel2_3_2_2 = QLabel(self.groupBox8_2_2,"textLabel2_3_2_2")
-        layout64_2_2.addWidget(self.textLabel2_3_2_2)
-        spacer44_2_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout64_2_2.addItem(spacer44_2_2)
+        self.light_checkbox = QCheckBox(self.groupBox8_2,"light_checkbox")
+        layout69.addWidget(self.light_checkbox)
+        spacer45 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout69.addItem(spacer45)
+        layout559.addLayout(layout69)
 
-        self.textLabel3_4_2_2 = QLabel(self.groupBox8_2_2,"textLabel3_4_2_2")
-        self.textLabel3_4_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout64_2_2.addWidget(self.textLabel3_4_2_2)
-        layout65_2_2.addLayout(layout64_2_2)
+        layout82 = QHBoxLayout(None,0,6,"layout82")
 
-        self.light2_slider = QSlider(self.groupBox8_2_2,"light2_slider")
-        self.light2_slider.setMaxValue(100)
-        self.light2_slider.setOrientation(QSlider.Horizontal)
-        self.light2_slider.setTickmarks(QSlider.Below)
-        self.light2_slider.setTickInterval(10)
-        layout65_2_2.addWidget(self.light2_slider)
+        layout37_2_2_2_4 = QHBoxLayout(None,0,6,"layout37_2_2_2_4")
 
-        groupBox8_2_2Layout.addLayout(layout65_2_2,1,0)
-        layout81.addWidget(self.groupBox8_2_2)
+        self.light1_color_frame = QFrame(self.groupBox8_2,"light1_color_frame")
+        self.light1_color_frame.setMinimumSize(QSize(25,0))
+        self.light1_color_frame.setPaletteBackgroundColor(QColor(255,255,255))
+        self.light1_color_frame.setFrameShape(QFrame.Box)
+        self.light1_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_4.addWidget(self.light1_color_frame)
 
-        self.groupBox8_2_3 = QGroupBox(self.TabPage_4,"groupBox8_2_3")
-        self.groupBox8_2_3.setColumnLayout(0,Qt.Vertical)
-        self.groupBox8_2_3.layout().setSpacing(6)
-        self.groupBox8_2_3.layout().setMargin(11)
-        groupBox8_2_3Layout = QGridLayout(self.groupBox8_2_3.layout())
-        groupBox8_2_3Layout.setAlignment(Qt.AlignTop)
-
-        layout70_3 = QHBoxLayout(None,0,6,"layout70_3")
-
-        self.light3_checkbox = QCheckBox(self.groupBox8_2_3,"light3_checkbox")
-        layout70_3.addWidget(self.light3_checkbox)
-        spacer46_3 = QSpacerItem(64,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout70_3.addItem(spacer46_3)
-
-        groupBox8_2_3Layout.addLayout(layout70_3,0,0)
-
-        layout65_2_3 = QVBoxLayout(None,0,6,"layout65_2_3")
-
-        layout64_2_3 = QHBoxLayout(None,0,6,"layout64_2_3")
-
-        self.textLabel2_3_2_3 = QLabel(self.groupBox8_2_3,"textLabel2_3_2_3")
-        layout64_2_3.addWidget(self.textLabel2_3_2_3)
-        spacer44_2_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout64_2_3.addItem(spacer44_2_3)
-
-        self.textLabel3_4_2_3 = QLabel(self.groupBox8_2_3,"textLabel3_4_2_3")
-        self.textLabel3_4_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout64_2_3.addWidget(self.textLabel3_4_2_3)
-        layout65_2_3.addLayout(layout64_2_3)
-
-        self.light3_slider = QSlider(self.groupBox8_2_3,"light3_slider")
-        self.light3_slider.setMaxValue(100)
-        self.light3_slider.setOrientation(QSlider.Horizontal)
-        self.light3_slider.setTickmarks(QSlider.Below)
-        self.light3_slider.setTickInterval(10)
-        layout65_2_3.addWidget(self.light3_slider)
-
-        groupBox8_2_3Layout.addLayout(layout65_2_3,1,0)
-        layout81.addWidget(self.groupBox8_2_3)
-
-        TabPageLayout_4.addLayout(layout81,0,0)
-
-        layout96 = QHBoxLayout(None,0,6,"layout96")
-
-        self.groupBox9 = QGroupBox(self.TabPage_4,"groupBox9")
-        self.groupBox9.setColumnLayout(0,Qt.Vertical)
-        self.groupBox9.layout().setSpacing(6)
-        self.groupBox9.layout().setMargin(11)
-        groupBox9Layout = QGridLayout(self.groupBox9.layout())
-        groupBox9Layout.setAlignment(Qt.AlignTop)
-
-        layout88 = QHBoxLayout(None,0,6,"layout88")
-
-        self.specular_highlights_checkbox = QCheckBox(self.groupBox9,"specular_highlights_checkbox")
-        layout88.addWidget(self.specular_highlights_checkbox)
-        spacer55 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout88.addItem(spacer55)
-
-        groupBox9Layout.addLayout(layout88,0,0)
-
-        layout91 = QHBoxLayout(None,0,6,"layout91")
+        self.light_color_btn = QPushButton(self.groupBox8_2,"light_color_btn")
+        layout37_2_2_2_4.addWidget(self.light_color_btn)
+        layout82.addLayout(layout37_2_2_2_4)
+        spacer50 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout82.addItem(spacer50)
+        layout559.addLayout(layout82)
 
         layout66_2 = QHBoxLayout(None,0,6,"layout66_2")
 
-        self.textLabel1_5 = QLabel(self.groupBox9,"textLabel1_5")
-        layout66_2.addWidget(self.textLabel1_5)
+        self.light_ambient_linedit = QLineEdit(self.groupBox8_2,"light_ambient_linedit")
+        self.light_ambient_linedit.setMaximumSize(QSize(50,32767))
+        self.light_ambient_linedit.setReadOnly(1)
+        layout66_2.addWidget(self.light_ambient_linedit)
 
-        layout65_3 = QVBoxLayout(None,0,6,"layout65_3")
+        self.light_ambient_slider = QSlider(self.groupBox8_2,"light_ambient_slider")
+        self.light_ambient_slider.setMaxValue(100)
+        self.light_ambient_slider.setOrientation(QSlider.Horizontal)
+        self.light_ambient_slider.setTickmarks(QSlider.NoMarks)
+        self.light_ambient_slider.setTickInterval(10)
+        layout66_2.addWidget(self.light_ambient_slider)
+        layout559.addLayout(layout66_2)
 
-        layout64_3 = QHBoxLayout(None,0,6,"layout64_3")
+        layout65_2 = QHBoxLayout(None,0,6,"layout65_2")
 
-        self.textLabel2_3 = QLabel(self.groupBox9,"textLabel2_3")
-        layout64_3.addWidget(self.textLabel2_3)
+        self.light_diffuse_linedit = QLineEdit(self.groupBox8_2,"light_diffuse_linedit")
+        self.light_diffuse_linedit.setMaximumSize(QSize(50,32767))
+        self.light_diffuse_linedit.setReadOnly(1)
+        layout65_2.addWidget(self.light_diffuse_linedit)
+
+        self.light_diffuse_slider = QSlider(self.groupBox8_2,"light_diffuse_slider")
+        self.light_diffuse_slider.setMaxValue(100)
+        self.light_diffuse_slider.setOrientation(QSlider.Horizontal)
+        self.light_diffuse_slider.setTickmarks(QSlider.NoMarks)
+        self.light_diffuse_slider.setTickInterval(10)
+        layout65_2.addWidget(self.light_diffuse_slider)
+        layout559.addLayout(layout65_2)
+
+        layout64_2 = QHBoxLayout(None,0,6,"layout64_2")
+
+        self.light_specularity_linedit = QLineEdit(self.groupBox8_2,"light_specularity_linedit")
+        self.light_specularity_linedit.setMaximumSize(QSize(50,32767))
+        self.light_specularity_linedit.setReadOnly(1)
+        layout64_2.addWidget(self.light_specularity_linedit)
+
+        self.light_specularity_slider = QSlider(self.groupBox8_2,"light_specularity_slider")
+        self.light_specularity_slider.setMaxValue(100)
+        self.light_specularity_slider.setOrientation(QSlider.Horizontal)
+        self.light_specularity_slider.setTickmarks(QSlider.NoMarks)
+        self.light_specularity_slider.setTickInterval(10)
+        layout64_2.addWidget(self.light_specularity_slider)
+        layout559.addLayout(layout64_2)
+
+        layout63_2 = QHBoxLayout(None,0,6,"layout63_2")
+
+        self.light_x_linedit = QLineEdit(self.groupBox8_2,"light_x_linedit")
+        layout63_2.addWidget(self.light_x_linedit)
+        spacer42 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout63_2.addItem(spacer42)
+        layout559.addLayout(layout63_2)
+
+        layout62 = QHBoxLayout(None,0,6,"layout62")
+
+        self.light_y_linedit = QLineEdit(self.groupBox8_2,"light_y_linedit")
+        layout62.addWidget(self.light_y_linedit)
+        spacer43 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout62.addItem(spacer43)
+        layout559.addLayout(layout62)
+
+        layout61_3 = QHBoxLayout(None,0,6,"layout61_3")
+
+        self.light_z_linedit = QLineEdit(self.groupBox8_2,"light_z_linedit")
+        self.light_z_linedit.setMaximumSize(QSize(32767,32767))
+        self.light_z_linedit.setMaxLength(32767)
+        layout61_3.addWidget(self.light_z_linedit)
         spacer44 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout64_3.addItem(spacer44)
+        layout61_3.addItem(spacer44)
+        layout559.addLayout(layout61_3)
 
-        self.textLabel3_4 = QLabel(self.groupBox9,"textLabel3_4")
-        self.textLabel3_4.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout64_3.addWidget(self.textLabel3_4)
-        layout65_3.addLayout(layout64_3)
+        groupBox8_2Layout.addLayout(layout559,0,1)
 
-        self.shininess_slider = QSlider(self.groupBox9,"shininess_slider")
+        TabPageLayout_4.addMultiCellWidget(self.groupBox8_2,0,2,0,0)
+        spacer345 = QSpacerItem(20,127,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_4.addItem(spacer345,1,1)
+
+        layout505 = QHBoxLayout(None,0,6,"layout505")
+        spacer57 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout505.addItem(spacer57)
+
+        self.lights_reset_btn = QPushButton(self.TabPage_4,"lights_reset_btn")
+        layout505.addWidget(self.lights_reset_btn)
+
+        self.lights_restore_defaults_btn = QPushButton(self.TabPage_4,"lights_restore_defaults_btn")
+        layout505.addWidget(self.lights_restore_defaults_btn)
+
+        TabPageLayout_4.addLayout(layout505,2,1)
+
+        self.groupBox9_2 = QGroupBox(self.TabPage_4,"groupBox9_2")
+        self.groupBox9_2.setEnabled(1)
+        self.groupBox9_2.setColumnLayout(0,Qt.Vertical)
+        self.groupBox9_2.layout().setSpacing(6)
+        self.groupBox9_2.layout().setMargin(11)
+        groupBox9_2Layout = QGridLayout(self.groupBox9_2.layout())
+        groupBox9_2Layout.setAlignment(Qt.AlignTop)
+
+        self.material_linedit = QLineEdit(self.groupBox9_2,"material_linedit")
+        self.material_linedit.setMaximumSize(QSize(50,32767))
+        self.material_linedit.setMaxLength(5)
+        self.material_linedit.setReadOnly(1)
+
+        groupBox9_2Layout.addWidget(self.material_linedit,0,1)
+
+        self.material_slider = QSlider(self.groupBox9_2,"material_slider")
+        self.material_slider.setMinValue(0)
+        self.material_slider.setMaxValue(100)
+        self.material_slider.setValue(50)
+        self.material_slider.setOrientation(QSlider.Horizontal)
+        self.material_slider.setTickmarks(QSlider.NoMarks)
+        self.material_slider.setTickInterval(5)
+
+        groupBox9_2Layout.addWidget(self.material_slider,0,2)
+
+        self.shininess_linedit = QLineEdit(self.groupBox9_2,"shininess_linedit")
+        self.shininess_linedit.setMaximumSize(QSize(50,32767))
+        self.shininess_linedit.setMaxLength(5)
+        self.shininess_linedit.setReadOnly(1)
+
+        groupBox9_2Layout.addWidget(self.shininess_linedit,1,1)
+
+        self.shininess_slider = QSlider(self.groupBox9_2,"shininess_slider")
         self.shininess_slider.setMinValue(15)
         self.shininess_slider.setMaxValue(60)
         self.shininess_slider.setValue(15)
         self.shininess_slider.setOrientation(QSlider.Horizontal)
-        self.shininess_slider.setTickmarks(QSlider.Below)
+        self.shininess_slider.setTickmarks(QSlider.NoMarks)
         self.shininess_slider.setTickInterval(5)
-        layout65_3.addWidget(self.shininess_slider)
-        layout66_2.addLayout(layout65_3)
-        layout91.addLayout(layout66_2)
-        spacer56 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
-        layout91.addItem(spacer56)
 
-        layout66_2_2 = QHBoxLayout(None,0,6,"layout66_2_2")
+        groupBox9_2Layout.addWidget(self.shininess_slider,1,2)
 
-        self.textLabel1_5_2 = QLabel(self.groupBox9,"textLabel1_5_2")
-        layout66_2_2.addWidget(self.textLabel1_5_2)
+        self.textLabel1_5_3_2 = QLabel(self.groupBox9_2,"textLabel1_5_3_2")
+        self.textLabel1_5_3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout65_3_2 = QVBoxLayout(None,0,6,"layout65_3_2")
+        groupBox9_2Layout.addWidget(self.textLabel1_5_3_2,0,0)
 
-        layout64_3_2 = QHBoxLayout(None,0,6,"layout64_3_2")
+        self.textLabel1_5_3 = QLabel(self.groupBox9_2,"textLabel1_5_3")
+        self.textLabel1_5_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        self.textLabel2_3_3 = QLabel(self.groupBox9,"textLabel2_3_3")
-        layout64_3_2.addWidget(self.textLabel2_3_3)
-        spacer44_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout64_3_2.addItem(spacer44_3)
+        groupBox9_2Layout.addWidget(self.textLabel1_5_3,1,0)
 
-        self.textLabel3_4_3 = QLabel(self.groupBox9,"textLabel3_4_3")
-        self.textLabel3_4_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout64_3_2.addWidget(self.textLabel3_4_3)
-        layout65_3_2.addLayout(layout64_3_2)
+        self.textLabel1_5_2_2 = QLabel(self.groupBox9_2,"textLabel1_5_2_2")
+        self.textLabel1_5_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        self.material_slider = QSlider(self.groupBox9,"material_slider")
-        self.material_slider.setMaxValue(100)
-        self.material_slider.setOrientation(QSlider.Horizontal)
-        self.material_slider.setTickmarks(QSlider.Below)
-        self.material_slider.setTickInterval(10)
-        layout65_3_2.addWidget(self.material_slider)
-        layout66_2_2.addLayout(layout65_3_2)
-        layout91.addLayout(layout66_2_2)
+        groupBox9_2Layout.addWidget(self.textLabel1_5_2_2,2,0)
 
-        groupBox9Layout.addLayout(layout91,1,0)
-        layout96.addWidget(self.groupBox9)
-        spacer53 = QSpacerItem(105,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout96.addItem(spacer53)
+        self.brightness_linedit = QLineEdit(self.groupBox9_2,"brightness_linedit")
+        self.brightness_linedit.setMaximumSize(QSize(50,32767))
+        self.brightness_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.brightness_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.brightness_linedit.setMaxLength(5)
+        self.brightness_linedit.setReadOnly(1)
 
-        TabPageLayout_4.addLayout(layout96,1,0)
+        groupBox9_2Layout.addWidget(self.brightness_linedit,2,1)
 
-        layout52 = QHBoxLayout(None,0,6,"layout52")
+        self.brightness_slider = QSlider(self.groupBox9_2,"brightness_slider")
+        self.brightness_slider.setMinValue(0)
+        self.brightness_slider.setMaxValue(100)
+        self.brightness_slider.setValue(50)
+        self.brightness_slider.setOrientation(QSlider.Horizontal)
+        self.brightness_slider.setTickmarks(QSlider.NoMarks)
+        self.brightness_slider.setTickInterval(5)
 
-        self.lights_reset_btn = QPushButton(self.TabPage_4,"lights_reset_btn")
-        layout52.addWidget(self.lights_reset_btn)
+        groupBox9_2Layout.addWidget(self.brightness_slider,2,2)
 
-        self.lights_restore_defaults_btn = QPushButton(self.TabPage_4,"lights_restore_defaults_btn")
-        layout52.addWidget(self.lights_restore_defaults_btn)
-        spacer57 = QSpacerItem(290,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout52.addItem(spacer57)
-
-        TabPageLayout_4.addLayout(layout52,2,0)
+        TabPageLayout_4.addWidget(self.groupBox9_2,0,1)
         self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
@@ -787,8 +818,10 @@ class UserPrefsDialog(QDialog):
 
         self.gamess_path_linedit = QLineEdit(self.file_locations_grp,"gamess_path_linedit")
         self.gamess_path_linedit.setEnabled(0)
+        self.gamess_path_linedit.setMaximumSize(QSize(32767,32767))
         self.gamess_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.gamess_path_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.gamess_path_linedit.setMaxLength(32767)
         self.gamess_path_linedit.setReadOnly(1)
 
         layout80.addWidget(self.gamess_path_linedit,0,0)
@@ -805,14 +838,14 @@ class UserPrefsDialog(QDialog):
 
         file_locations_grpLayout.addLayout(layout80,0,1)
 
-        layout63_2 = QGridLayout(None,1,1,0,6,"layout63_2")
+        layout63_3 = QGridLayout(None,1,1,0,6,"layout63_3")
 
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
         self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
         self.gamess_lbl.setMinimumSize(QSize(60,0))
         self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout63_2.addWidget(self.gamess_lbl,0,1)
+        layout63_3.addWidget(self.gamess_lbl,0,1)
 
         self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
         self.nanohive_lbl.setEnabled(0)
@@ -820,18 +853,18 @@ class UserPrefsDialog(QDialog):
         self.nanohive_lbl.setMinimumSize(QSize(60,0))
         self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout63_2.addWidget(self.nanohive_lbl,1,1)
+        layout63_3.addWidget(self.nanohive_lbl,1,1)
 
         self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
 
-        layout63_2.addWidget(self.gamess_checkbox,0,0)
+        layout63_3.addWidget(self.gamess_checkbox,0,0)
 
         self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
         self.nanohive_checkbox.setEnabled(0)
 
-        layout63_2.addWidget(self.nanohive_checkbox,1,0)
+        layout63_3.addWidget(self.nanohive_checkbox,1,0)
 
-        file_locations_grpLayout.addLayout(layout63_2,0,0)
+        file_locations_grpLayout.addLayout(layout63_3,0,0)
 
         TabPageLayout_5.addWidget(self.file_locations_grp,0,0)
         self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
@@ -892,6 +925,7 @@ class UserPrefsDialog(QDialog):
 
         self.caption_prefix_linedit = QLineEdit(self.groupBox3,"caption_prefix_linedit")
         self.caption_prefix_linedit.setMinimumSize(QSize(0,0))
+        self.caption_prefix_linedit.setMaximumSize(QSize(32767,32767))
         self.caption_prefix_linedit.setPaletteBackgroundColor(QColor(255,255,255))
         self.caption_prefix_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.caption_prefix_linedit.setFrameShadow(QLineEdit.Sunken)
@@ -902,6 +936,7 @@ class UserPrefsDialog(QDialog):
 
         self.caption_suffix_linedit = QLineEdit(self.groupBox3,"caption_suffix_linedit")
         self.caption_suffix_linedit.setMinimumSize(QSize(0,0))
+        self.caption_suffix_linedit.setMaximumSize(QSize(32767,32767))
         self.caption_suffix_linedit.setPaletteBackgroundColor(QColor(255,255,255))
         self.caption_suffix_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.caption_suffix_linedit.setFrameShadow(QLineEdit.Sunken)
@@ -922,7 +957,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(563,393).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(556,411).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animate_views_checkbox,SIGNAL("stateChanged(int)"),self.change_animate_standard_views)
@@ -932,6 +967,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
+        self.connect(self.brightness_slider,SIGNAL("valueChanged(int)"),self.change_brightness)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
@@ -949,15 +985,17 @@ class UserPrefsDialog(QDialog):
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
-        self.connect(self.light1_checkbox,SIGNAL("clicked()"),self.save_lighting)
-        self.connect(self.light1_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light1_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light2_checkbox,SIGNAL("clicked()"),self.save_lighting)
-        self.connect(self.light2_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light2_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light3_checkbox,SIGNAL("clicked()"),self.save_lighting)
-        self.connect(self.light3_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light3_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
+        self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
+        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.change_lighting)
+        self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.change_lighting)
+        self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.change_lighting)
         self.connect(self.lights_reset_btn,SIGNAL("clicked()"),self.reset_lighting)
         self.connect(self.lights_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.material_slider,SIGNAL("valueChanged(int)"),self.change_material)
@@ -973,18 +1011,22 @@ class UserPrefsDialog(QDialog):
         self.connect(self.shininess_slider,SIGNAL("valueChanged(int)"),self.change_shininess)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
-        self.connect(self.specular_highlights_checkbox,SIGNAL("toggled(bool)"),self.toggle_specular_highlights)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
+        self.connect(self.light_checkbox,SIGNAL("clicked()"),self.save_lighting)
 
-        self.setTabOrder(self.ok_btn,self.prefs_tab)
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
         self.setTabOrder(self.display_pov_axis_checkbox,self.upper_right_btn)
-        self.setTabOrder(self.upper_right_btn,self.atom_hilite_color_btn)
+        self.setTabOrder(self.upper_right_btn,self.radioButton12)
+        self.setTabOrder(self.radioButton12,self.alpha7_behavior_rbtn)
+        self.setTabOrder(self.alpha7_behavior_rbtn,self.alpha6_behavior_rbtn)
+        self.setTabOrder(self.alpha6_behavior_rbtn,self.animate_views_checkbox)
+        self.setTabOrder(self.animate_views_checkbox,self.atom_hilite_color_btn)
         self.setTabOrder(self.atom_hilite_color_btn,self.hotspot_color_btn)
         self.setTabOrder(self.hotspot_color_btn,self.reset_atom_colors_btn)
-        self.setTabOrder(self.reset_atom_colors_btn,self.vwd_rbtn)
+        self.setTabOrder(self.reset_atom_colors_btn,self.cpk_atom_rad_spinbox)
+        self.setTabOrder(self.cpk_atom_rad_spinbox,self.vwd_rbtn)
         self.setTabOrder(self.vwd_rbtn,self.cpk_rbtn)
         self.setTabOrder(self.cpk_rbtn,self.tubes_rbtn)
         self.setTabOrder(self.tubes_rbtn,self.lines_rbtn)
@@ -994,19 +1036,42 @@ class UserPrefsDialog(QDialog):
         self.setTabOrder(self.bond_stretch_color_btn,self.bond_vane_color_btn)
         self.setTabOrder(self.bond_vane_color_btn,self.reset_bond_colors_btn)
         self.setTabOrder(self.reset_bond_colors_btn,self.bond_line_thickness_spinbox)
-        self.setTabOrder(self.bond_line_thickness_spinbox,self.radioButton11)
+        self.setTabOrder(self.bond_line_thickness_spinbox,self.cpk_cylinder_rad_spinbox)
+        self.setTabOrder(self.cpk_cylinder_rad_spinbox,self.radioButton11)
         self.setTabOrder(self.radioButton11,self.show_bond_labels_checkbox)
         self.setTabOrder(self.show_bond_labels_checkbox,self.show_valence_errors_checkbox)
-        self.setTabOrder(self.show_valence_errors_checkbox,self.mode_combox)
+        self.setTabOrder(self.show_valence_errors_checkbox,self.default_mode_combox)
+        self.setTabOrder(self.default_mode_combox,self.startup_mode_combox)
+        self.setTabOrder(self.startup_mode_combox,self.mode_combox)
         self.setTabOrder(self.mode_combox,self.fill_type_combox)
         self.setTabOrder(self.fill_type_combox,self.choose_bg1_color_btn)
         self.setTabOrder(self.choose_bg1_color_btn,self.restore_bgcolor_btn)
-        self.setTabOrder(self.restore_bgcolor_btn,self.history_height_spinbox)
+        self.setTabOrder(self.restore_bgcolor_btn,self.light_checkbox)
+        self.setTabOrder(self.light_checkbox,self.light_color_btn)
+        self.setTabOrder(self.light_color_btn,self.light_ambient_linedit)
+        self.setTabOrder(self.light_ambient_linedit,self.light_ambient_slider)
+        self.setTabOrder(self.light_ambient_slider,self.light_diffuse_linedit)
+        self.setTabOrder(self.light_diffuse_linedit,self.light_diffuse_slider)
+        self.setTabOrder(self.light_diffuse_slider,self.light_specularity_linedit)
+        self.setTabOrder(self.light_specularity_linedit,self.light_specularity_slider)
+        self.setTabOrder(self.light_specularity_slider,self.light_x_linedit)
+        self.setTabOrder(self.light_x_linedit,self.light_y_linedit)
+        self.setTabOrder(self.light_y_linedit,self.light_z_linedit)
+        self.setTabOrder(self.light_z_linedit,self.lights_reset_btn)
+        self.setTabOrder(self.lights_reset_btn,self.lights_restore_defaults_btn)
+        self.setTabOrder(self.lights_restore_defaults_btn,self.gamess_checkbox)
+        self.setTabOrder(self.gamess_checkbox,self.gamess_path_linedit)
+        self.setTabOrder(self.gamess_path_linedit,self.gamess_choose_btn)
+        self.setTabOrder(self.gamess_choose_btn,self.nanohive_checkbox)
+        self.setTabOrder(self.nanohive_checkbox,self.nanohive_path_linedit)
+        self.setTabOrder(self.nanohive_path_linedit,self.nanohive_choose_btn)
+        self.setTabOrder(self.nanohive_choose_btn,self.history_height_spinbox)
         self.setTabOrder(self.history_height_spinbox,self.msg_serial_number_checkbox)
         self.setTabOrder(self.msg_serial_number_checkbox,self.msg_timestamp_checkbox)
         self.setTabOrder(self.msg_timestamp_checkbox,self.caption_prefix_linedit)
         self.setTabOrder(self.caption_prefix_linedit,self.caption_suffix_linedit)
         self.setTabOrder(self.caption_suffix_linedit,self.caption_fullpath_checkbox)
+        self.setTabOrder(self.caption_fullpath_checkbox,self.ok_btn)
 
 
     def languageChange(self):
@@ -1103,28 +1168,28 @@ class UserPrefsDialog(QDialog):
         self.fill_type_combox.insertItem(self.__tr("Blue Sky"))
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
-        self.groupBox8_2.setTitle(self.__tr("Light 1"))
-        self.light1_checkbox.setText(self.__tr("Enable"))
-        self.textLabel2_3_2.setText(self.__tr("Dim"))
-        self.textLabel3_4_2.setText(self.__tr("Bright"))
-        self.groupBox8_2_2.setTitle(self.__tr("Light 2"))
-        self.light2_checkbox.setText(self.__tr("Enable"))
-        self.textLabel2_3_2_2.setText(self.__tr("Dim"))
-        self.textLabel3_4_2_2.setText(self.__tr("Bright"))
-        self.groupBox8_2_3.setTitle(self.__tr("Light 3"))
-        self.light3_checkbox.setText(self.__tr("Enable"))
-        self.textLabel2_3_2_3.setText(self.__tr("Dim"))
-        self.textLabel3_4_2_3.setText(self.__tr("Bright"))
-        self.groupBox9.setTitle(self.__tr("Specular Highlights"))
-        self.specular_highlights_checkbox.setText(self.__tr("Enable"))
-        self.textLabel1_5.setText(self.__tr("Shininess :"))
-        self.textLabel2_3.setText(self.__tr("Low"))
-        self.textLabel3_4.setText(self.__tr("High"))
-        self.textLabel1_5_2.setText(self.__tr("Material :"))
-        self.textLabel2_3_3.setText(self.__tr("Metal"))
-        self.textLabel3_4_3.setText(self.__tr("Plastic"))
+        self.groupBox8_2.setTitle(self.__tr("Directional Light Properties"))
+        self.textLabel1_5_2_3.setText(self.__tr("Light :"))
+        self.textLabel1_5_2.setText(self.__tr("On :"))
+        self.textLabel1_5.setText(self.__tr("Color :"))
+        self.textLabel2_3.setText(self.__tr("Ambient :"))
+        self.textLabel2_3_2.setText(self.__tr("Diffuse :"))
+        self.textLabel2_3_2_3.setText(self.__tr("Specularity :"))
+        self.textLabel2_3_2_3_2.setText(self.__tr("X :"))
+        self.textLabel2_3_2_3_2_2.setText(self.__tr("Y :"))
+        self.textLabel2_3_2_3_2_3.setText(self.__tr("Z :"))
+        self.light_combobox.clear()
+        self.light_combobox.insertItem(self.__tr("1 (On)"))
+        self.light_combobox.insertItem(self.__tr("2 (On)"))
+        self.light_combobox.insertItem(self.__tr("3 (Off)"))
+        self.light_checkbox.setText(QString.null)
+        self.light_color_btn.setText(self.__tr("Choose..."))
         self.lights_reset_btn.setText(self.__tr("Reset"))
         self.lights_restore_defaults_btn.setText(self.__tr("Restore Defaults"))
+        self.groupBox9_2.setTitle(self.__tr("Material Properties"))
+        self.textLabel1_5_3_2.setText(self.__tr("Material :"))
+        self.textLabel1_5_3.setText(self.__tr("Shininess :"))
+        self.textLabel1_5_2_2.setText(self.__tr("Brightness :"))
         self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Lighting"))
         self.file_locations_grp.setTitle(self.__tr("Location of Executables"))
         self.nanohive_path_linedit.setText(QString.null)
@@ -1279,6 +1344,15 @@ class UserPrefsDialog(QDialog):
 
     def change_material(self):
         print "UserPrefsDialog.change_material(): Not implemented yet"
+
+    def change_active_light(self):
+        print "UserPrefsDialog.change_active_light(): Not implemented yet"
+
+    def change_brightness(self):
+        print "UserPrefsDialog.change_brightness(): Not implemented yet"
+
+    def toggle_light(self):
+        print "UserPrefsDialog.toggle_light(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

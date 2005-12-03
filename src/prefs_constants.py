@@ -92,8 +92,9 @@ defaultMode_prefs_key = 'A7/Default Mode'
 
 # Lighting prefs [added by mark 051124]
 specular_highlights_prefs_key = 'A7/Specular Highlights'
-shininess_prefs_key = 'A7/Shininess'
-whiteness_prefs_key = 'A7/Whiteness'
+whiteness_prefs_key = 'A7/Whiteness' # To be changed to 'material_finish'
+shininess_prefs_key = 'A7/Shininess' # To be changed to 'material_shininess'
+material_brightness_prefs_key = 'A7/Material Brightness'
 
 # File management / filename / URL preferences [tentative category, added by bruce 051130, more comments below]
 wiki_help_prefix_prefs_key = 'A7/Wiki Help Prefix'
@@ -197,8 +198,9 @@ prefs_table = (
     # Lighting preferences [added to this table by mark 051124]
     
     ('specular_highlights', 'boolean', specular_highlights_prefs_key, True),
-    ('shininess', 'float', shininess_prefs_key, 35.0),
-    ('whiteness', 'float', whiteness_prefs_key, 0.5),
+    ('whiteness', 'float', whiteness_prefs_key, 0.5), # Change this to 'material_finish' later. Mark.
+    ('shininess', 'float', shininess_prefs_key, 35.0), # Change this to 'material_shininess' later.  Mark.
+    ('material_brightness', 'float', material_brightness_prefs_key, 0.5),
 
     # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
 
