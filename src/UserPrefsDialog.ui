@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>556</width>
-            <height>411</height>
+            <width>559</width>
+            <height>400</height>
         </rect>
     </property>
     <property name="caption">
@@ -1693,7 +1693,7 @@
                                     </property>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel1_5_2_3</cstring>
+                                            <cstring>light_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Light :</string>
@@ -1704,7 +1704,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel1_5_2</cstring>
+                                            <cstring>on_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>On :</string>
@@ -1715,7 +1715,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel1_5</cstring>
+                                            <cstring>color_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Color :</string>
@@ -1726,7 +1726,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel2_3</cstring>
+                                            <cstring>ambient_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Ambient :</string>
@@ -1737,7 +1737,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel2_3_2</cstring>
+                                            <cstring>diffuse_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Diffuse :</string>
@@ -1748,7 +1748,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel2_3_2_3</cstring>
+                                            <cstring>specularity_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Specularity :</string>
@@ -1759,7 +1759,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel2_3_2_3_2</cstring>
+                                            <cstring>x_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>X :</string>
@@ -1770,7 +1770,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel2_3_2_3_2_2</cstring>
+                                            <cstring>y_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Y :</string>
@@ -1781,7 +1781,7 @@
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel2_3_2_3_2_3</cstring>
+                                            <cstring>z_label</cstring>
                                         </property>
                                         <property name="text">
                                             <string>Z :</string>
@@ -1965,7 +1965,7 @@
                                                 </property>
                                                 <property name="maximumSize">
                                                     <size>
-                                                        <width>50</width>
+                                                        <width>40</width>
                                                         <height>32767</height>
                                                     </size>
                                                 </property>
@@ -2006,7 +2006,7 @@
                                                 </property>
                                                 <property name="maximumSize">
                                                     <size>
-                                                        <width>50</width>
+                                                        <width>40</width>
                                                         <height>32767</height>
                                                     </size>
                                                 </property>
@@ -2047,7 +2047,7 @@
                                                 </property>
                                                 <property name="maximumSize">
                                                     <size>
-                                                        <width>50</width>
+                                                        <width>40</width>
                                                         <height>32767</height>
                                                     </size>
                                                 </property>
@@ -2150,12 +2150,6 @@
                                                 <property name="name">
                                                     <cstring>light_z_linedit</cstring>
                                                 </property>
-                                                <property name="maximumSize">
-                                                    <size>
-                                                        <width>32767</width>
-                                                        <height>32767</height>
-                                                    </size>
-                                                </property>
                                                 <property name="maxLength">
                                                     <number>32767</number>
                                                 </property>
@@ -2183,23 +2177,6 @@
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="1" column="1">
-                        <property name="name">
-                            <cstring>spacer345</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>127</height>
-                            </size>
-                        </property>
-                    </spacer>
                     <widget class="QLayoutWidget" row="2" column="1">
                         <property name="name">
                             <cstring>layout505</cstring>
@@ -2227,7 +2204,7 @@
                             </spacer>
                             <widget class="QPushButton">
                                 <property name="name">
-                                    <cstring>lights_reset_btn</cstring>
+                                    <cstring>lighting_reset_btn</cstring>
                                 </property>
                                 <property name="text">
                                     <string>Reset</string>
@@ -2235,7 +2212,7 @@
                             </widget>
                             <widget class="QPushButton">
                                 <property name="name">
-                                    <cstring>lights_restore_defaults_btn</cstring>
+                                    <cstring>lighting_restore_defaults_btn</cstring>
                                 </property>
                                 <property name="text">
                                     <string>Restore Defaults</string>
@@ -2243,6 +2220,23 @@
                             </widget>
                         </hbox>
                     </widget>
+                    <spacer row="1" column="1">
+                        <property name="name">
+                            <cstring>spacer345</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>40</height>
+                            </size>
+                        </property>
+                    </spacer>
                     <widget class="QGroupBox" row="0" column="1">
                         <property name="name">
                             <cstring>groupBox9_2</cstring>
@@ -2251,170 +2245,313 @@
                             <bool>true</bool>
                         </property>
                         <property name="title">
-                            <string>Material Properties</string>
+                            <string>Material Specularity Properties</string>
                         </property>
                         <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLineEdit" row="0" column="1">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
-                                    <cstring>material_linedit</cstring>
+                                    <cstring>layout57</cstring>
                                 </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>50</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
-                                <property name="maxLength">
-                                    <number>5</number>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>ms_on_label</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>On :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer38_2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>70</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>ms_finish_label</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Finish :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>ms_shininess_label</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Shininess :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>ms_brightness__label</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Brightness :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                </vbox>
                             </widget>
-                            <widget class="QSlider" row="0" column="2">
+                            <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
-                                    <cstring>material_slider</cstring>
+                                    <cstring>layout58</cstring>
                                 </property>
-                                <property name="minValue">
-                                    <number>0</number>
-                                </property>
-                                <property name="maxValue">
-                                    <number>100</number>
-                                </property>
-                                <property name="value">
-                                    <number>50</number>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="tickmarks">
-                                    <enum>NoMarks</enum>
-                                </property>
-                                <property name="tickInterval">
-                                    <number>5</number>
-                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>ms_on_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer39</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>38</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>ms_finish_linedit</cstring>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>50</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="maxLength">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>ms_shininess_linedit</cstring>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>50</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="maxLength">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>ms_brightness_linedit</cstring>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>50</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>LineEditPanel</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>Sunken</enum>
+                                        </property>
+                                        <property name="maxLength">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </vbox>
                             </widget>
-                            <widget class="QLineEdit" row="1" column="1">
+                            <widget class="QLayoutWidget" row="0" column="2">
                                 <property name="name">
-                                    <cstring>shininess_linedit</cstring>
+                                    <cstring>layout59</cstring>
                                 </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>50</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
-                                <property name="maxLength">
-                                    <number>5</number>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
-                            <widget class="QSlider" row="1" column="2">
-                                <property name="name">
-                                    <cstring>shininess_slider</cstring>
-                                </property>
-                                <property name="minValue">
-                                    <number>15</number>
-                                </property>
-                                <property name="maxValue">
-                                    <number>60</number>
-                                </property>
-                                <property name="value">
-                                    <number>15</number>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="tickmarks">
-                                    <enum>NoMarks</enum>
-                                </property>
-                                <property name="tickInterval">
-                                    <number>5</number>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="0" column="0">
-                                <property name="name">
-                                    <cstring>textLabel1_5_3_2</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Material :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="0">
-                                <property name="name">
-                                    <cstring>textLabel1_5_3</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Shininess :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="2" column="0">
-                                <property name="name">
-                                    <cstring>textLabel1_5_2_2</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Brightness :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="2" column="1">
-                                <property name="name">
-                                    <cstring>brightness_linedit</cstring>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>50</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                                <property name="maxLength">
-                                    <number>5</number>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
-                            <widget class="QSlider" row="2" column="2">
-                                <property name="name">
-                                    <cstring>brightness_slider</cstring>
-                                </property>
-                                <property name="minValue">
-                                    <number>0</number>
-                                </property>
-                                <property name="maxValue">
-                                    <number>100</number>
-                                </property>
-                                <property name="value">
-                                    <number>50</number>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="tickmarks">
-                                    <enum>NoMarks</enum>
-                                </property>
-                                <property name="tickInterval">
-                                    <number>5</number>
-                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer36</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>30</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout46</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_6</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Metal</string>
+                                                </property>
+                                            </widget>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer37</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>16</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel2_4</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Plastic</string>
+                                                </property>
+                                            </widget>
+                                        </hbox>
+                                    </widget>
+                                    <widget class="QSlider">
+                                        <property name="name">
+                                            <cstring>ms_finish_slider</cstring>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>100</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>50</number>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="tickmarks">
+                                            <enum>NoMarks</enum>
+                                        </property>
+                                        <property name="tickInterval">
+                                            <number>5</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSlider">
+                                        <property name="name">
+                                            <cstring>ms_shininess_slider</cstring>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>15</number>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>60</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>15</number>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="tickmarks">
+                                            <enum>NoMarks</enum>
+                                        </property>
+                                        <property name="tickInterval">
+                                            <number>5</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSlider">
+                                        <property name="name">
+                                            <cstring>ms_brightness_slider</cstring>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>100</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>50</number>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="tickmarks">
+                                            <enum>NoMarks</enum>
+                                        </property>
+                                        <property name="tickInterval">
+                                            <number>5</number>
+                                        </property>
+                                    </widget>
+                                </vbox>
                             </widget>
                         </grid>
                     </widget>
@@ -3002,10 +3139,10 @@
         <slot>change_bond_vane_color()</slot>
     </connection>
     <connection>
-        <sender>brightness_slider</sender>
+        <sender>ms_brightness_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_brightness()</slot>
+        <slot>change_material_brightness()</slot>
     </connection>
     <connection>
         <sender>caption_fullpath_checkbox</sender>
@@ -3080,6 +3217,12 @@
         <slot>fill_type_changed()</slot>
     </connection>
     <connection>
+        <sender>ms_finish_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_finish()</slot>
+    </connection>
+    <connection>
         <sender>gamess_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3111,21 +3254,27 @@
     </connection>
     <connection>
         <sender>light_ambient_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_ambient_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_ambient_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>toggle_light()</slot>
+    </connection>
+    <connection>
+        <sender>light_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_combobox</sender>
@@ -3135,27 +3284,27 @@
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>sliderReleased()</signal>
+        <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>valueChanged(int)</signal>
+        <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_specularity_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -3176,22 +3325,16 @@
         <slot>change_lighting()</slot>
     </connection>
     <connection>
-        <sender>lights_reset_btn</sender>
+        <sender>lighting_reset_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>reset_lighting()</slot>
     </connection>
     <connection>
-        <sender>lights_restore_defaults_btn</sender>
+        <sender>lighting_restore_defaults_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>restore_default_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>material_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material()</slot>
     </connection>
     <connection>
         <sender>mode_combox</sender>
@@ -3248,10 +3391,10 @@
         <slot>set_selection_behavior()</slot>
     </connection>
     <connection>
-        <sender>shininess_slider</sender>
+        <sender>ms_shininess_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_shininess()</slot>
+        <slot>change_material_shininess()</slot>
     </connection>
     <connection>
         <sender>show_bond_labels_checkbox</sender>
@@ -3272,10 +3415,10 @@
         <slot>change_startup_mode()</slot>
     </connection>
     <connection>
-        <sender>light_checkbox</sender>
-        <signal>clicked()</signal>
+        <sender>ms_on_checkbox</sender>
+        <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
+        <slot>toggle_material_specularity()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -3323,8 +3466,8 @@
     <tabstop>light_x_linedit</tabstop>
     <tabstop>light_y_linedit</tabstop>
     <tabstop>light_z_linedit</tabstop>
-    <tabstop>lights_reset_btn</tabstop>
-    <tabstop>lights_restore_defaults_btn</tabstop>
+    <tabstop>lighting_reset_btn</tabstop>
+    <tabstop>lighting_restore_defaults_btn</tabstop>
     <tabstop>gamess_checkbox</tabstop>
     <tabstop>gamess_path_linedit</tabstop>
     <tabstop>gamess_choose_btn</tabstop>
@@ -3379,11 +3522,11 @@
     <slot>restore_default_lighting()</slot>
     <slot>change_lighting()</slot>
     <slot>save_lighting()</slot>
-    <slot>toggle_specular_highlights()</slot>
-    <slot>change_shininess()</slot>
-    <slot>change_material()</slot>
+    <slot>toggle_material_specularity()</slot>
+    <slot>change_material_shininess()</slot>
+    <slot>change_material_finish()</slot>
     <slot>change_active_light()</slot>
-    <slot>change_brightness()</slot>
+    <slot>change_material_brightness()</slot>
     <slot>toggle_light()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>

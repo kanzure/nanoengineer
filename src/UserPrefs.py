@@ -268,31 +268,31 @@ class UserPrefs(UserPrefsDialog):
         If reset = True, material highlight parameters are reset from previous values.
         '''
         if reset:
-            self.specular_highlights = self.original_specular_highlights
+            self.material_specularity = self.original_material_specularity
             self.whiteness = self.original_whiteness
             self.shininess = self.original_shininess
             self.brightness = self.original_brightness
         else:
-            self.specular_highlights = self.original_specular_highlights = env.prefs[specular_highlights_prefs_key]
+            self.material_specularity = self.original_material_specularity = env.prefs[specular_highlights_prefs_key]
             self.whiteness = self.original_whiteness = int(env.prefs[whiteness_prefs_key] * 100)
             self.shininess = self.original_shininess = int(env.prefs[shininess_prefs_key])
             self.brightness = self.original_brightness= int(env.prefs[material_brightness_prefs_key] * 100)
             
         # Enable/disable specular highlights.
-        #self.specular_highlights_checkbox.setChecked(self.specular_highlights )
+        self.ms_on_checkbox.setChecked(self.material_specularity )
 
         # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
         # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
-        self.material_slider.setValue(self.whiteness) # generates signal
-        self.material_linedit.setText(str(self.whiteness * .01))
+        self.ms_finish_slider.setValue(self.whiteness) # generates signal
+        self.ms_finish_linedit.setText(str(self.whiteness * .01))
         
         # For shininess, the range is 15 (low) to 60 (high).  Mark. 051129.
-        self.shininess_slider.setValue(self.shininess) # generates signal
-        self.shininess_linedit.setText(str(self.shininess))
+        self.ms_shininess_slider.setValue(self.shininess) # generates signal
+        self.ms_shininess_linedit.setText(str(self.shininess))
         
         # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
-        self.brightness_slider.setValue(self.brightness) # generates signal
-        self.brightness_linedit.setText(str(self.brightness * .01))
+        self.ms_brightness_slider.setValue(self.brightness) # generates signal
+        self.ms_brightness_linedit.setText(str(self.brightness * .01))
 
     def _setup_atoms_page(self):
         ''' Setup widgets to initial (default or defined) values on the atoms page.
@@ -748,8 +748,8 @@ class UserPrefs(UserPrefsDialog):
         else:
             print "Unsupported light # ", light_num,". No lighting change made."
         
-    def toggle_specular_highlights(self, val):
-        '''This is the slot for the Specular Highlight checkbox.
+    def toggle_material_specularity(self, val):
+        '''This is the slot for the Material Specularity Enabled checkbox.
         '''
         env.prefs[specular_highlights_prefs_key] = val
         
@@ -758,29 +758,29 @@ class UserPrefs(UserPrefsDialog):
         ## print "Shininess = ", env.prefs[shininess_prefs_key]
         ## print "Material (Whiteness) = ", env.prefs[whiteness_prefs_key]
                 
-    def change_material(self, whiteness):
-        '''This is the slot for the Material (whiteness)slider.
-        'whiteness' is between 0 and 100. 
-        Saves whiteness parameter to pref db.
+    def change_material_finish(self, finish):
+        '''This is the slot for the Material Finish slider.
+        'finish' is between 0 and 100. 
+        Saves finish parameter to pref db.
         '''
         # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
         # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
-        env.prefs[whiteness_prefs_key] = float(whiteness * 0.01)
-        self.material_linedit.setText(str(whiteness * 0.01))
+        env.prefs[whiteness_prefs_key] = float(finish * 0.01)
+        self.ms_finish_linedit.setText(str(finish * 0.01))
         
-    def change_shininess(self, shininess):
-        ''' This is the slot for the Shininess slider.
+    def change_material_shininess(self, shininess):
+        ''' This is the slot for the Material Shininess slider.
         'shininess' is between 15 (low) and 60 (high).
         '''
         env.prefs[shininess_prefs_key] = float(shininess)
-        self.shininess_linedit.setText(str(shininess))
+        self.ms_shininess_linedit.setText(str(shininess))
         
-    def change_brightness(self, brightness):
-        ''' This is the slot for the Brightness slider.
+    def change_material_brightness(self, brightness):
+        ''' This is the slot for the Material Brightness slider.
         'brightness' is between 0 (low) and 100 (high).
         '''
         env.prefs[material_brightness_prefs_key] = float(brightness * 0.01)
-        self.brightness_linedit.setText(str(brightness * 0.01))
+        self.ms_brightness_linedit.setText(str(brightness * 0.01))
         
     def reset_lighting(self):
         "Slot for Reset button"
