@@ -655,7 +655,7 @@ def fake_Anchor_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize S
 
 # == Stat and Thermo
 
-class Jig_onChunk_by1atom( Jig ):
+class Jig_onChunk_by1atom(Jig):
     """Subclass for Stat and Thermo, which are on one atom in cad code,
     but on its whole chunk in simulator,
     by means of being written into mmp file as the min and max atnums in that chunk
@@ -717,6 +717,7 @@ class Stat( Jig_onChunk_by1atom ):
     #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
     sym = "Stat"
     icon_names = ["stat.png", "stat-hide.png"]
+    featurename = "Thermostat" #bruce 051203
 
     copyable_attrs = Jig_onChunk_by1atom.copyable_attrs + ('temp',)
     
@@ -777,6 +778,7 @@ class Thermo(Jig_onChunk_by1atom):
     #bruce 050210 for Alpha-2: fixed same bug as in Stat.
     sym = "Thermo"
     icon_names = ["thermo.png", "thermo-hide.png"]
+    featurename = "Thermometer" #bruce 051203
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
     def __init__(self, assy, list):
@@ -829,6 +831,7 @@ class AtomSet(Jig):
 
     sym = "Atom Set"
     icon_names = ["atomset.png", "atomset-hide.png"]
+    featurename = "Atom Set" #bruce 051203
 
     # create a blank AtomSet with the given list of atoms
     def __init__(self, assy, list):

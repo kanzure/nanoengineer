@@ -153,6 +153,7 @@ class RotaryMotor(Motor):
     
     sym = "Rotary Motor"
     icon_names = ["rmotor.png", "rmotor-hide.png"]
+    featurename = "Rotary Motor" #bruce 051203
 
     copyable_attrs = Motor.copyable_attrs + ('torque', 'speed', 'length', 'radius', 'sradius', 'center', 'axis', 'enable_minimize')
 
@@ -380,6 +381,7 @@ class LinearMotor(Motor):
 
     sym = "Linear Motor"
     icon_names = ["lmotor.png", "lmotor-hide.png"]
+    featurename = "Linear Motor" #bruce 051203
 
     copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', 'enable_minimize')
 
@@ -480,4 +482,4 @@ class LinearMotor(Motor):
     
     pass # end of class LinearMotor
 
-# end of module jigs.py
+# end of module jigs_motors.py

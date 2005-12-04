@@ -27,6 +27,7 @@ class Gamess(Jig):
 
     sym = "Gamess"
     icon_names = ["gamess.png", "gamess-hide.png"]
+    featurename = "GAMESS Jig" #bruce 051203
 
     #bruce 050704 added these attrs and related methods, to make copying of this jig work properly
     mutable_attrs = ('pset',)

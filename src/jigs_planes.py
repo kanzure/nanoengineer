@@ -193,6 +193,7 @@ class GridPlane(RectGadget):
     sym = "Grid Plane"
     icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
     mmp_record_name = "gridplane"
+    featurename = "Grid Plane" #bruce 051203
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -289,6 +290,7 @@ class ESPWindow(RectGadget):
     sym = "ESP Window"
     icon_names = ["espwindow.png", "espwindow-hide.png"] # Added espwindow icons.  Mark 050919.
     mmp_record_name = "espwindow"
+    featurename = "ESP Window" #bruce 051203
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -635,3 +637,5 @@ class ESPWindow(RectGadget):
             self._loadTexture()
     
     pass # end of class ESPWindow       
+
+#end
