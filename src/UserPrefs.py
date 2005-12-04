@@ -797,6 +797,7 @@ class UserPrefs(UserPrefsDialog):
             specular_highlights_prefs_key,
             shininess_prefs_key,
             whiteness_prefs_key,
+            material_brightness_prefs_key, #bruce 051203 bugfix
             ])
         self._setup_lighting_page()
         self.glpane.saveLighting()

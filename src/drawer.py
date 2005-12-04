@@ -14,7 +14,8 @@ import math
 from VQT import *
 from constants import DIAMOND_BOND_LENGTH
 import env #bruce 051126
-from prefs_constants import specular_highlights_prefs_key, shininess_prefs_key, whiteness_prefs_key #bruce 051126
+from prefs_constants import specular_highlights_prefs_key, shininess_prefs_key, \
+     whiteness_prefs_key, material_brightness_prefs_key #bruce 051126, 051203; some names will be revised later
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -181,11 +182,12 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        self.enable_specular_highlights = not not env.prefs[specular_highlights_prefs_key] # boolean
+        self.enable_specular_highlights = not not env.prefs[specular_highlights_prefs_key] # boolean ###@@@ [is this still in UI??]
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
             self.specular_shininess = float(env.prefs[shininess_prefs_key]) # float; shininess exponent for all specular highlights
             self.specular_whiteness = float(env.prefs[whiteness_prefs_key]) # float; whiteness for all material specular colors
+            self.specular_brightness = float(env.prefs[material_brightness_prefs_key]) # float; for all material specular colors
         else:
             self.override_light_specular = (0.0, 0.0, 0.0, 0.0) # used in glpane
             # Set these to reasonable values, though these attributes are presumably never used in this case.
@@ -194,6 +196,7 @@ class glprefs:
             #  then to make it work correctly we'll need to revise this code.)
             self.specular_shininess = 20.0
             self.specular_whiteness = 1.0
+            self.specular_brightness = 1.0
         return
     def materialprefs_summary(self): #bruce 051126
         """Return a Python data object summarizing our prefs which affect chunk display lists,
@@ -202,13 +205,13 @@ class glprefs:
         """
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
-            res = res + ( self.specular_shininess, self.specular_whiteness )
+            res = res + ( self.specular_shininess, self.specular_whiteness, self.specular_brightness)
         return res
     pass # end of class glprefs
 
 _glprefs = glprefs()
 
-def apply_material(color): # grantham 20051121; revised by bruce 051126
+def apply_material(color): # grantham 20051121; revised by bruce 051126, 051203 (added specular_brightness)
     "Set OpenGL material parameters based on the given color and the material-related prefs values in _glprefs."
 
     # grantham 20051201 - This was "materialapply".  I changed it to have
@@ -224,6 +227,7 @@ def apply_material(color): # grantham 20051121; revised by bruce 051126
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
     
     whiteness = _glprefs.specular_whiteness
+    brightness = _glprefs.specular_brightness
     if whiteness == 1.0:
         specular = (1.0, 1.0, 1.0, 1.0) # optimization
     else:
@@ -237,6 +241,9 @@ def apply_material(color): # grantham 20051121; revised by bruce 051126
             # assume color[3] (alpha) is not passed or is always 1.0
             c1 = 1.0 - whiteness
             specular = ( c1 * color[0] + whiteness, c1 * color[1] + whiteness, c1 * color[2] + whiteness, 1.0 )
+    if brightness != 1.0:
+        specular = ( specular[0] * brightness, specular[1] * brightness, specular[2] * brightness, 1.0 )
+            #e could optimize by merging this with above 3 cases (or, of course, by doing it in C, which we'll do eventually)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, _glprefs.specular_shininess)

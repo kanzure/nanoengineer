@@ -52,7 +52,8 @@ A6_SELECTION_BEHAVIOR = 1
 
 # ==
 
-# Keys for user preferences for A6 [ by Mark 050629]
+# Keys for user preferences
+# (the string constants should start with the first released version they'll appear in)
 
 # General prefs
 displayCompass_prefs_key = 'A6/Display Compass'
@@ -200,7 +201,7 @@ prefs_table = (
     ('specular_highlights', 'boolean', specular_highlights_prefs_key, True),
     ('whiteness', 'float', whiteness_prefs_key, 0.5), # Change this to 'material_finish' later. Mark.
     ('shininess', 'float', shininess_prefs_key, 35.0), # Change this to 'material_shininess' later.  Mark.
-    ('material_brightness', 'float', material_brightness_prefs_key, 0.5),
+    ('material_brightness', 'float', material_brightness_prefs_key, 1.0), #bruce 051203 bugfix: default value should be 1.0
 
     # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
 
