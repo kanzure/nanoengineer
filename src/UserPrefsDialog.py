@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Dec 5 14:13:49 2005
+# Created: Mon Dec 5 18:13:29 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1020,7 +1020,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
-        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
@@ -1033,25 +1032,29 @@ class UserPrefsDialog(QDialog):
         self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
         self.connect(self.display_pov_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_pov_axis)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
-        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
         self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
         self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
-        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
+        self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
         self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.change_lighting)
         self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.change_lighting)
         self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.change_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
+        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
+        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
+        self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
+        self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -1060,12 +1063,15 @@ class UserPrefsDialog(QDialog):
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.selection_behavior_btngrp,SIGNAL("clicked(int)"),self.set_selection_behavior)
-        self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
-        self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
-        self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
+        self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
+        self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
+        self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
+        self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
+        self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
+        self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1415,6 +1421,24 @@ class UserPrefsDialog(QDialog):
 
     def change_light_color(self):
         print "UserPrefsDialog.change_light_color(): Not implemented yet"
+
+    def change_material_finish_start(self):
+        print "UserPrefsDialog.change_material_finish_start(): Not implemented yet"
+
+    def change_material_finish_stop(self):
+        print "UserPrefsDialog.change_material_finish_stop(): Not implemented yet"
+
+    def change_material_shininess_start(self):
+        print "UserPrefsDialog.change_material_shininess_start(): Not implemented yet"
+
+    def change_material_shininess_stop(self):
+        print "UserPrefsDialog.change_material_shininess_stop(): Not implemented yet"
+
+    def change_material_brightness_start(self):
+        print "UserPrefsDialog.change_material_brightness_start(): Not implemented yet"
+
+    def change_material_brightness_stop(self):
+        print "UserPrefsDialog.change_material_brightness_stop(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

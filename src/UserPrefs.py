@@ -832,6 +832,24 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[material_specular_brightness_prefs_key] = float(brightness * 0.01)
         self.ms_brightness_linedit.setText(str(brightness * 0.01))
         
+    def change_material_finish_start(self):
+        print "Finish slider pressed"
+        
+    def change_material_finish_stop(self):
+        print "Finish slider released"
+    
+    def change_material_shininess_start(self):
+        print "Shininess slider pressed"
+        
+    def change_material_shininess_stop(self):
+        print "Shininess slider released"
+        
+    def change_material_brightness_start(self):
+        print "Brightness slider pressed"
+        
+    def change_material_brightness_stop(self):
+        print "Brightness slider released"
+        
     def reset_lighting(self):
         "Slot for Reset button"
         # This has issues.  I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.

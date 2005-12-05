@@ -3285,12 +3285,6 @@
         <slot>change_bond_vane_color()</slot>
     </connection>
     <connection>
-        <sender>ms_brightness_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness()</slot>
-    </connection>
-    <connection>
         <sender>caption_fullpath_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3363,12 +3357,6 @@
         <slot>fill_type_changed()</slot>
     </connection>
     <connection>
-        <sender>ms_finish_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_finish()</slot>
-    </connection>
-    <connection>
         <sender>gamess_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3400,21 +3388,27 @@
     </connection>
     <connection>
         <sender>light_ambient_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_ambient_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_ambient_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>toggle_light()</slot>
+    </connection>
+    <connection>
+        <sender>light_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_light_color()</slot>
     </connection>
     <connection>
         <sender>light_combobox</sender>
@@ -3436,15 +3430,15 @@
     </connection>
     <connection>
         <sender>light_specularity_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -3475,6 +3469,30 @@
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>mode_changed()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness()</slot>
+    </connection>
+    <connection>
+        <sender>ms_finish_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_finish()</slot>
+    </connection>
+    <connection>
+        <sender>ms_on_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>toggle_material_specularity()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess()</slot>
     </connection>
     <connection>
         <sender>nanohive_checkbox</sender>
@@ -3525,12 +3543,6 @@
         <slot>set_selection_behavior()</slot>
     </connection>
     <connection>
-        <sender>ms_shininess_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_shininess()</slot>
-    </connection>
-    <connection>
         <sender>show_bond_labels_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3549,16 +3561,40 @@
         <slot>change_startup_mode()</slot>
     </connection>
     <connection>
-        <sender>ms_on_checkbox</sender>
-        <signal>toggled(bool)</signal>
+        <sender>ms_finish_slider</sender>
+        <signal>sliderPressed()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>toggle_material_specularity()</slot>
+        <slot>change_material_finish_start()</slot>
     </connection>
     <connection>
-        <sender>light_color_btn</sender>
-        <signal>clicked()</signal>
+        <sender>ms_finish_slider</sender>
+        <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_light_color()</slot>
+        <slot>change_material_finish_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>sliderPressed()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness_start()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>sliderPressed()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess_start()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess_stop()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -3668,6 +3704,12 @@
     <slot>change_material_brightness()</slot>
     <slot>toggle_light()</slot>
     <slot>change_light_color()</slot>
+    <slot>change_material_finish_start()</slot>
+    <slot>change_material_finish_stop()</slot>
+    <slot>change_material_shininess_start()</slot>
+    <slot>change_material_shininess_stop()</slot>
+    <slot>change_material_brightness_start()</slot>
+    <slot>change_material_brightness_stop()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
