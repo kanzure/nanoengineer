@@ -146,24 +146,19 @@ def writepovlighting(f, glpane):
     'Atomic' finish record. These records impact the lighting affect.
     ''' 
     # Get the lighting parameters for the 3 lights.
-    ((a0,d0,s0,x0,y0,z0,e0), \
-     (a1,d1,s1,x1,y1,z1,e1), \
-     (a2,d2,s2,x2,y2,z2,e2)) = glpane.getLighting()
-     
+    (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
+    ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
+    ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = glpane.getLighting()
+
     # For now, we copy the coords of each light here.
     pos0 = (glpane.right * x0) + (glpane.up *y0) + (glpane.out * z0)
     pos1 = (glpane.right * x1) + (glpane.up * y1) + (glpane.out * z1)
     pos2 = (glpane.right * x2) + (glpane.up * y2) + (glpane.out * z2)
 
-    # The ambient values (hardcoded to .25 for each light) of only the enabled 
-    # lights are summed up. 'ambient' is used in the 'Atomic' finish record.
-    # We add an extra .25 because it matches (cad glpane) better.
-    # 'ambient' will end up having one of the following values:
-    #      .25 (0 lights enabled)
-    #      .5 (1 light enabled)
-    #      .75 (2 lights enabled) or
-    #      1.0 (3 lights enabled)
-    ambient = 0.25 
+     # The ambient values of only the enabled lights are summed up. 
+    # 'ambient' is used in the 'Atomic' finish record. It can have a value
+    # over 1.0 (and makes a difference).
+    ambient = 0.25 # Add 0.25; matches better with nE-1 default lighting.
     
     # The diffuse values of only the enabled lights are summed up. 
     # 'diffuse' is used in the 'Atomic' finish record. It can have a value
@@ -176,7 +171,7 @@ def writepovlighting(f, glpane):
         f.write( "\n// Light #1" +
                     "\nlight_source {" +
                     "\n  " + povpoint(pos0) + 
-                    "\n  color <" + str(d0) + ", " + str(d0) + ", " + str(d0) + ">" +
+                    "\n  color <" + str(r0*d0) + ", " + str(g0*d0) + ", " + str(b0*d0) + ">" +
                     "\n  parallel" +
                     "\n  point_at <0.0, 0.0, 0.0>" +
                     "\n}\n")
@@ -186,7 +181,7 @@ def writepovlighting(f, glpane):
         diffuse += d1
         f.write( "\n// Light #2" +
                     "\nlight_source {\n  " + povpoint(pos1) + 
-                    "\n  color <" + str(d1) + ", " + str(d1) + ", " + str(d1) + ">" +
+                    "\n  color <" + str(r1*d1) + ", " + str(g1*d1) + ", " + str(b1*d1) + ">" +
                     "\n  parallel" +
                     "\n  point_at <0.0, 0.0, 0.0>" +
                     "\n}\n")
@@ -196,7 +191,7 @@ def writepovlighting(f, glpane):
         diffuse += d2
         f.write("\n// Light #3" +
                     "\nlight_source {\n  " + povpoint(pos2) + 
-                    "\n  color <" + str(d2) + ", " + str(d2) + ", " + str(d2) + ">" +
+                    "\n  color <" + str(r2*d2) + ", " + str(g2*d2) + ", " + str(b2*d2) + ">" +
                     "\n  parallel" +
                     "\n  point_at <0.0, 0.0, 0.0>" +
                     "\n}\n")
