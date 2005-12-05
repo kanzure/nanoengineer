@@ -14,8 +14,10 @@ import math
 from VQT import *
 from constants import DIAMOND_BOND_LENGTH
 import env #bruce 051126
-from prefs_constants import specular_highlights_prefs_key, shininess_prefs_key, \
-     whiteness_prefs_key, material_brightness_prefs_key #bruce 051126, 051203; some names will be revised later
+from prefs_constants import material_specular_highlights_prefs_key, \
+        material_specular_shininess_prefs_key, \
+        material_specular_finish_prefs_key, \
+        material_specular_brightness_prefs_key #mark 051205. names revised
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -182,12 +184,15 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        self.enable_specular_highlights = not not env.prefs[specular_highlights_prefs_key] # boolean ###@@@ [is this still in UI??]
+        self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
-            self.specular_shininess = float(env.prefs[shininess_prefs_key]) # float; shininess exponent for all specular highlights
-            self.specular_whiteness = float(env.prefs[whiteness_prefs_key]) # float; whiteness for all material specular colors
-            self.specular_brightness = float(env.prefs[material_brightness_prefs_key]) # float; for all material specular colors
+            # self.specular_shininess: float; shininess exponent for all specular highlights
+            self.specular_shininess = float(env.prefs[material_specular_shininess_prefs_key])
+            # self.specular_whiteness: float; whiteness for all material specular colors
+            self.specular_whiteness = float(env.prefs[material_specular_finish_prefs_key])
+            # self.specular_brightness: float; for all material specular colors
+            self.specular_brightness = float(env.prefs[material_specular_brightness_prefs_key])
         else:
             self.override_light_specular = (0.0, 0.0, 0.0, 0.0) # used in glpane
             # Set these to reasonable values, though these attributes are presumably never used in this case.

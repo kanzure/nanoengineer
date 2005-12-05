@@ -286,10 +286,14 @@ class UserPrefs(UserPrefsDialog):
             self.shininess = self.original_shininess
             self.brightness = self.original_brightness
         else:
-            self.material_specularity = self.original_material_specularity = env.prefs[specular_highlights_prefs_key]
-            self.whiteness = self.original_whiteness = int(env.prefs[whiteness_prefs_key] * 100)
-            self.shininess = self.original_shininess = int(env.prefs[shininess_prefs_key])
-            self.brightness = self.original_brightness= int(env.prefs[material_brightness_prefs_key] * 100)
+            self.material_specularity = self.original_material_specularity = \
+                env.prefs[material_specular_highlights_prefs_key]
+            self.whiteness = self.original_whiteness = \
+                int(env.prefs[material_specular_finish_prefs_key] * 100)
+            self.shininess = self.original_shininess = \
+                int(env.prefs[material_specular_shininess_prefs_key])
+            self.brightness = self.original_brightness= \
+                int(env.prefs[material_specular_brightness_prefs_key] * 100)
             
         # Enable/disable specular highlights.
         self.ms_on_checkbox.setChecked(self.material_specularity )
@@ -802,7 +806,7 @@ class UserPrefs(UserPrefsDialog):
     def toggle_material_specularity(self, val):
         '''This is the slot for the Material Specularity Enabled checkbox.
         '''
-        env.prefs[specular_highlights_prefs_key] = val
+        env.prefs[material_specular_highlights_prefs_key] = val
                         
     def change_material_finish(self, finish):
         '''This is the slot for the Material Finish slider.
@@ -811,21 +815,21 @@ class UserPrefs(UserPrefsDialog):
         '''
         # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
         # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
-        env.prefs[whiteness_prefs_key] = float(finish * 0.01)
+        env.prefs[material_specular_finish_prefs_key] = float(finish * 0.01)
         self.ms_finish_linedit.setText(str(finish * 0.01))
         
     def change_material_shininess(self, shininess):
         ''' This is the slot for the Material Shininess slider.
         'shininess' is between 15 (low) and 60 (high).
         '''
-        env.prefs[shininess_prefs_key] = float(shininess)
+        env.prefs[material_specular_shininess_prefs_key] = float(shininess)
         self.ms_shininess_linedit.setText(str(shininess))
         
     def change_material_brightness(self, brightness):
         ''' This is the slot for the Material Brightness slider.
         'brightness' is between 0 (low) and 100 (high).
         '''
-        env.prefs[material_brightness_prefs_key] = float(brightness * 0.01)
+        env.prefs[material_specular_brightness_prefs_key] = float(brightness * 0.01)
         self.ms_brightness_linedit.setText(str(brightness * 0.01))
         
     def reset_lighting(self):
@@ -842,10 +846,10 @@ class UserPrefs(UserPrefsDialog):
         
         # Restore defaults for the Material Specularity properties
         env.prefs.restore_defaults([
-            specular_highlights_prefs_key,
-            shininess_prefs_key,
-            whiteness_prefs_key,
-            material_brightness_prefs_key, #bruce 051203 bugfix
+            material_specular_highlights_prefs_key,
+            material_specular_shininess_prefs_key,
+            material_specular_finish_prefs_key,
+            material_specular_brightness_prefs_key, #bruce 051203 bugfix
             ])
         
         self._setup_lighting_page()

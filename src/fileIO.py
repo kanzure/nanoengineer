@@ -219,10 +219,10 @@ def writepovlighting(f, glpane):
     # so phong ranges from .25 - .7
     # and phong_size ranges from 12-17
     #
-    if env.prefs[specular_highlights_prefs_key]:
+    if env.prefs[material_specular_highlights_prefs_key]:
         # whiteness: 0.0-1.0, where 0 = metal and 1 = plastic
-        phong = 0.25 + (env.prefs[whiteness_prefs_key] *  0.45) #  .25-.7
-        phong_size = 12.0 + (env.prefs[whiteness_prefs_key] * 5.0) # 12-17
+        phong = 0.25 + (env.prefs[material_specular_finish_prefs_key] *  0.45) #  .25-.7
+        phong_size = 12.0 + (env.prefs[material_specular_finish_prefs_key] * 5.0) # 12-17
     else:
         phong = 0.0 # No specular highlights
         phong_size = 0.0

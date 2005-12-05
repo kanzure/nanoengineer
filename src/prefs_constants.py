@@ -95,10 +95,10 @@ defaultMode_prefs_key = 'A7/Default Mode'
 light1Color_prefs_key = 'A7/Light1 Color'
 light2Color_prefs_key = 'A7/Light2 Color'
 light3Color_prefs_key = 'A7/Light3 Color'
-specular_highlights_prefs_key = 'A7/Specular Highlights'
-whiteness_prefs_key = 'A7/Whiteness' # To be changed to 'material_finish'
-shininess_prefs_key = 'A7/Shininess' # To be changed to 'material_shininess'
-material_brightness_prefs_key = 'A7/Material Brightness'
+material_specular_highlights_prefs_key = 'A7/Material Specular Highlights'
+material_specular_finish_prefs_key = 'A7/Material Specular Finish'
+material_specular_shininess_prefs_key = 'A7/Material Specular Shininess'
+material_specular_brightness_prefs_key = 'A7/Material Specular Brightness'
 
 # File management / filename / URL preferences [tentative category, added by bruce 051130, more comments below]
 wiki_help_prefix_prefs_key = 'A7/Wiki Help Prefix'
@@ -122,6 +122,20 @@ historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
 # Bug-workaround prefs, Mac-specific
 
 QToolButton_MacOSX_Tiger_workaround_prefs_key = 'A6/QToolButton MacOSX Tiger workaround' #bruce 050810
+
+#==
+
+# List of prefs keys which got stored into developers or users prefs dbs 
+# but are no longer used now.
+
+_abandoned_prefs_keys = [
+    'A7/Specular Highlights', # never released, superceded by 'A7/Material Specular Hightlights'
+    'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish'
+    'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess'
+    'A7/Material Brightness' # never released, superceded by 'A7/Material Specular Brightness'
+    ]
+
+#==
 
 # Table of internal attribute names, default values, types, and prefs-db formats for some of these preferences.
 # (This needs to be defined in a central place, and set up by code in preferences.py
@@ -204,11 +218,12 @@ prefs_table = (
     # the light in '_lights' in GLPane to keep them synchronized.  Mark 051204.
     ('light1_color', 'color', light1Color_prefs_key, white ),
     ('light2_color', 'color', light2Color_prefs_key, white ),
-    ('light3_color', 'color', light3Color_prefs_key, white ), 
-    ('specular_highlights', 'boolean', specular_highlights_prefs_key, True),
-    ('whiteness', 'float', whiteness_prefs_key, 0.5), # Change this to 'material_finish' later. Mark.
-    ('shininess', 'float', shininess_prefs_key, 35.0), # Change this to 'material_shininess' later.  Mark.
-    ('material_brightness', 'float', material_brightness_prefs_key, 1.0), #bruce 051203 bugfix: default value should be 1.0
+    ('light3_color', 'color', light3Color_prefs_key, white ),
+    # Material specular properties.
+    ('ms_highlights', 'boolean', material_specular_highlights_prefs_key, True),
+    ('ms_finish', 'float', material_specular_finish_prefs_key, 0.5),
+    ('ms_shininess', 'float', material_specular_shininess_prefs_key, 35.0), 
+    ('ms_brightness', 'float', material_specular_brightness_prefs_key, 1.0), #bruce 051203 bugfix: default value should be 1.0
 
     # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
 
