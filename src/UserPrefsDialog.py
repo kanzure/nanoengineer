@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sun Dec 4 14:42:31 2005
+# Created: Sun Dec 4 22:40:21 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -612,12 +612,12 @@ class UserPrefsDialog(QDialog):
 
         layout37_2_2_2_4 = QHBoxLayout(None,0,6,"layout37_2_2_2_4")
 
-        self.light1_color_frame = QFrame(self.groupBox8_2,"light1_color_frame")
-        self.light1_color_frame.setMinimumSize(QSize(25,0))
-        self.light1_color_frame.setPaletteBackgroundColor(QColor(255,255,255))
-        self.light1_color_frame.setFrameShape(QFrame.Box)
-        self.light1_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_4.addWidget(self.light1_color_frame)
+        self.light_color_frame = QFrame(self.groupBox8_2,"light_color_frame")
+        self.light_color_frame.setMinimumSize(QSize(25,0))
+        self.light_color_frame.setPaletteBackgroundColor(QColor(255,255,255))
+        self.light_color_frame.setFrameShape(QFrame.Box)
+        self.light_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_4.addWidget(self.light_color_frame)
 
         self.light_color_btn = QPushButton(self.groupBox8_2,"light_color_btn")
         layout37_2_2_2_4.addWidget(self.light_color_btn)
@@ -1015,7 +1015,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
-        self.connect(self.light_checkbox,SIGNAL("clicked()"),self.save_lighting)
         self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
@@ -1040,6 +1039,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
+        self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1384,6 +1384,9 @@ class UserPrefsDialog(QDialog):
 
     def toggle_light(self):
         print "UserPrefsDialog.toggle_light(): Not implemented yet"
+
+    def change_light_color(self):
+        print "UserPrefsDialog.change_light_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

@@ -235,13 +235,23 @@ class UserPrefs(UserPrefsDialog):
         
         self.update_light_combobox_items()
         
+        # Move lc_prefs_keys upstairs.  Mark.
+        lc_prefs_keys = [light1Color_prefs_key, light2Color_prefs_key, light3Color_prefs_key]
+        self.current_light_key = lc_prefs_keys[light_num] # Get prefs key for current light color.
+        connect_colorpref_to_colorframe(self.current_light_key, self.light_color_frame)
+        self.light_color = env.prefs[self.current_light_key]
+        
+        # These sliders generate signals whenever their 'setValue()' slot is called (below).
+        # This creates problems (bugs) for us, so we disconnect them temporarily.
         self.disconnect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.disconnect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.disconnect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         
-        a = self.lights[light_num][0]
-        d = self.lights[light_num][1]
-        s = self.lights[light_num][2]
+        # self.lights[light_num][0] contains 'color' attribute.  
+        # We already have it (self.light_color) from the prefs key (above).
+        a = self.lights[light_num][1] # ambient intensity
+        d = self.lights[light_num][2] # diffuse intensity
+        s = self.lights[light_num][3] # specular intensity
         
         self.light_ambient_slider.setValue(int (a * 100)) # generates signal
         self.light_diffuse_slider.setValue(int (d * 100)) # generates signal
@@ -251,22 +261,25 @@ class UserPrefs(UserPrefsDialog):
         self.light_diffuse_linedit.setText(str(d))
         self.light_specularity_linedit.setText(str(s))
         
-        self.light_x_linedit.setText(str (self.lights[light_num][3]))
-        self.light_y_linedit.setText(str (self.lights[light_num][4]))
-        self.light_z_linedit.setText(str (self.lights[light_num][5]))
-        self.light_checkbox.setChecked(self.lights[light_num][6])
+        self.light_x_linedit.setText(str (self.lights[light_num][4]))
+        self.light_y_linedit.setText(str (self.lights[light_num][5]))
+        self.light_z_linedit.setText(str (self.lights[light_num][6]))
+        self.light_checkbox.setChecked(self.lights[light_num][7])
         
+        # Reconnect the slots to the light sliders.
         self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         
-        self._setup_material_properties()
-        
-    def _setup_material_properties(self, reset=False):
-        ''' Setup Material Properties widgets to initial (default or defined) values on the Lighting page.
-        If reset = False, material parameters are reset from prefs db.
-        If reset = True, material highlight parameters are reset from previous values.
+        self._setup_material_group()
+
+# _setup_material_group() should be folded back into _setup_lighting_page(). Mark 051204.
+    def _setup_material_group(self, reset=False):
+        ''' Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
+        If reset = False, widgets are reset from the prefs db.
+        If reset = True, widgets are reset from their previous values.
         '''
+
         if reset:
             self.material_specularity = self.original_material_specularity
             self.whiteness = self.original_whiteness
@@ -712,15 +725,11 @@ class UserPrefs(UserPrefsDialog):
     
     ########## Slot methods for "Lighting" page widgets ################
 
-    def change_active_light(self):
-        '''
-        '''
-        self._setup_lighting_page()
-        
     def change_lighting(self):
         '''Updates glpane lighting using the current lighting parameters from the
         light checkboxes and sliders. This is also the slot for the light sliders.
         '''
+        
         light_num = self.light_combobox.currentItem()
         
         light1, light2, light3 = self.glpane.getLighting()
@@ -733,12 +742,13 @@ class UserPrefs(UserPrefsDialog):
         self.light_diffuse_linedit.setText(str(d))
         self.light_specularity_linedit.setText(str(s))
         
-        new_light = [  a, d, s, \
+        new_light = [  self.light_color, a, d, s, \
                     float(str(self.light_x_linedit.text())), \
                     float(str(self.light_y_linedit.text())), \
                     float(str(self.light_z_linedit.text())), \
                     self.light_checkbox.isChecked()]
                 
+        # This is a kludge.  I'm certain there is a more elegant way.  Mark 051204.
         if light_num == 0:
             self.glpane.setLighting([new_light, light2, light3])
         elif light_num == 1:
@@ -748,16 +758,52 @@ class UserPrefs(UserPrefsDialog):
         else:
             print "Unsupported light # ", light_num,". No lighting change made."
         
+    def change_active_light(self):
+        '''Slot for the Light number combobox.  This changes the current light.
+        '''
+        self._setup_lighting_page()
+
+    def change_light_color(self):
+        '''Slot for light color "Choose" button.  Saves the new color in the prefs db.
+        Changes the current Light color in the graphics area and the light color swatch in the UI.'''
+        self.usual_change_color(self.current_light_key)
+        self.light_color = env.prefs[self.current_light_key]
+        self.save_lighting()
+        
+    def update_light_combobox_items(self):
+        '''Updates all light combobox items with '(On)' or '(Off)' label.
+        '''
+        for i in range(3):
+            if self.lights[i][7]:
+                txt = "%d (On)" % (i+1)
+            else:
+                txt = "%d (Off)" % (i+1)
+            self.light_combobox.changeItem(txt, i)
+    
+    def toggle_light(self, on):
+        '''Slot for light 'On' checkbox.  
+        It updates the current item in the light combobox with '(On)' or '(Off)' label.
+        '''
+        if on:
+            txt = "%d (On)" % (self.light_combobox.currentItem()+1)
+        else:
+            txt = "%d (Off)" % (self.light_combobox.currentItem()+1)
+        self.light_combobox.setCurrentText(txt)
+        
+        self.save_lighting()
+            
+    def save_lighting(self):
+        '''Saves lighting parameters (but not material specularity parameters) to pref db.
+        This is also the slot for light sliders (only when released).
+        '''
+        self.change_lighting()
+        self.glpane.saveLighting()
+
     def toggle_material_specularity(self, val):
         '''This is the slot for the Material Specularity Enabled checkbox.
         '''
         env.prefs[specular_highlights_prefs_key] = val
-        
-        ## print "------------------\nSpecular Highlights Settings:"
-        ## print "Enabled = ", env.prefs[specular_highlights_prefs_key]
-        ## print "Shininess = ", env.prefs[shininess_prefs_key]
-        ## print "Material (Whiteness) = ", env.prefs[whiteness_prefs_key]
-                
+                        
     def change_material_finish(self, finish):
         '''This is the slot for the Material Finish slider.
         'finish' is between 0 and 100. 
@@ -784,50 +830,26 @@ class UserPrefs(UserPrefsDialog):
         
     def reset_lighting(self):
         "Slot for Reset button"
-        self._setup_material_properties(reset=True)
+        # This has issues.  I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
+        self._setup_material_group(reset=True)
         self._setup_lighting_page(self.original_lights)
         self.glpane.saveLighting()
         
     def restore_default_lighting(self):
         "Slot for Restore Defaults button"
-        # Lighting defaults
+        
         self.glpane.restoreDefaultLighting()
-        # Specular highlight defaults
+        
+        # Restore defaults for the Material Specularity properties
         env.prefs.restore_defaults([
             specular_highlights_prefs_key,
             shininess_prefs_key,
             whiteness_prefs_key,
             material_brightness_prefs_key, #bruce 051203 bugfix
             ])
+        
         self._setup_lighting_page()
-        self.glpane.saveLighting()
-    
-    def update_light_combobox_items(self):
-        '''Updates all light combobox items with '(On)' or '(Off)' label.
-        '''
-        for i in range(3):
-            if self.lights[i][6]:
-                txt = "%d (On)" % (i+1)
-            else:
-                txt = "%d (Off)" % (i+1)
-            self.light_combobox.changeItem(txt, i)
-    
-    def toggle_light(self, on):
-        '''Slot for light 'On' checkbox.  
-        It updates the current item in the light combobox with '(On)' or '(Off)' label.
-        '''
-        if on:
-            txt = "%d (On)" % (self.light_combobox.currentItem()+1)
-        else:
-            txt = "%d (Off)" % (self.light_combobox.currentItem()+1)
-        self.light_combobox.setCurrentText(txt)
-            
-    def save_lighting(self):
-        '''Saves lighting parameters (but not specular highlight parameters) to pref db.
-        This is the slot for light 'On' checkbox and sliders (only when released).
-        '''
-        self.change_lighting()
-        self.glpane.saveLighting()
+        self.save_lighting()
 
     ########## End of slot methods for "Lighting" page widgets ###########
     

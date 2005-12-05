@@ -777,20 +777,26 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             res = []
             lights = list(lights)
             assert len(lights) == 3
-            for a,d,s,x,y,z,e in lights:
+            for c,a,d,s,x,y,z,e in lights:
                 # check values, give them standard types
+                r = float(c[0])
+                g = float(c[1])
+                b = float(c[2])
                 a = float(a)
                 d = float(d)
                 s = float(s)
                 x = float(x)
                 y = float(y)
                 z = float(z)
+                assert 0.0 <= r <= 1.0
+                assert 0.0 <= g <= 1.0
+                assert 0.0 <= b <= 1.0
                 assert 0.0 <= a <= 1.0
                 assert 0.0 <= d <= 1.0
                 assert 0.0 <= s <= 1.0
                 assert e in [0,1,True,False]
                 e = not not e
-                res.append( (a,d,s,x,y,z,e) )
+                res.append( ((r,g,b),a,d,s,x,y,z,e) )
             lights = res
         except:
             print_compact_traceback("erroneous lights %r (ignored): " % lights)
@@ -816,12 +822,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     # grantham 20051121 - Light should probably be a class.  Right now,
     # changing the behavior of lights requires changing a bunch of
     # ambigious tuples and tuple packing/unpacking.
-    _lights = [(0.25, 0.5, 0.5, -50, 70, 30, True), \
-                    (0.25, 0.25, 0.25, -20, 20, 20, True), \
-                    (0.25, 0.25, 0.25, 0, 0, 100, False)] #mark revised 051202.
-        # for each of 3 lights (at hardcoded positions for now), this stores (a,d,s,x,y,z,e)
-        # giving gray levels for GL_AMBIENT and GL_DIFFUSE and an
-        # enabled boolean
+    _lights = [(white, 0.25, 0.5, 0.5, -50, 70, 30, True), \
+                    (white, 0.25, 0.25, 0.25, -20, 20, 20, True), \
+                    (white, 0.25, 0.25, 0.25, 0, 0, 100, False)]
+                    
+        # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
+        # revised format to include s,x,y,z.  Mark 051202.
+        # revised format to include c (r,g,b). Mark 051204.
+        # Be sure to keep the lightColor prefs keys and _lights colors synchronized.  Mark 051204.
 
     _default_lights = list( _lights) # this copy will never be changed
 
@@ -851,40 +859,46 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         try:
             # new code
-            ((a0,d0,s0,x0,y0,z0,e0), \
-             (a1,d1,s1,x1,y1,z1,e1), \
-             (a2,d2,s2,x2,y2,z2,e2)) = self._lights #e might revise format
+            (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
+            ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
+            ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = self._lights
+            
+            # Great place for a print statement for debugging lights.  Keep this.  Mark 051204.
+            #print "-------------------------------------------------------------"
+            #print "GLPane._setup_lighting: _lights[0]=", self._lights[0]
+            #print "GLPane._setup_lighting: _lights[1]=", self._lights[1]
+            #print "GLPane._setup_lighting: _lights[2]=", self._lights[2]
              
             self._last_override_light_specular = glprefs.override_light_specular #bruce 051126
 
             glLightfv(GL_LIGHT0, GL_POSITION, (x0, y0, z0, 0))
-            glLightfv(GL_LIGHT0, GL_AMBIENT, (a0, a0, a0, 1.0))
-            glLightfv(GL_LIGHT0, GL_DIFFUSE, (d0, d0, d0, 1.0))
+            glLightfv(GL_LIGHT0, GL_AMBIENT, (r0*a0, g0*a0, b0*a0, 1.0))
+            glLightfv(GL_LIGHT0, GL_DIFFUSE, (r0*d0, g0*d0, b0*d0, 1.0))
     	    if glprefs.override_light_specular is not None:
                 glLightfv(GL_LIGHT0, GL_SPECULAR, glprefs.override_light_specular)
             else:
                 # grantham 20051121 - this should be a component on its own
                 # not replicating the diffuse color.
                 # Added specular (s0) as its own component.  mark 051202.
-                glLightfv(GL_LIGHT0, GL_SPECULAR, (s0, s0, s0, 1.0))
+                glLightfv(GL_LIGHT0, GL_SPECULAR, (r0*s0, g0*s0, b0*s0, 1.0))
                 glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
             
             glLightfv(GL_LIGHT1, GL_POSITION, (x1, y1, z1, 0))
-            glLightfv(GL_LIGHT1, GL_AMBIENT, (a1, a1, a1, 1.0))
-            glLightfv(GL_LIGHT1, GL_DIFFUSE, (d1, d1, d1, 1.0))
+            glLightfv(GL_LIGHT1, GL_AMBIENT, (r1*a1, g1*a1, b1*a1, 1.0))
+            glLightfv(GL_LIGHT1, GL_DIFFUSE, (r1*d1, g1*d1, b1*d1, 1.0))
     	    if glprefs.override_light_specular is not None:
                 glLightfv(GL_LIGHT1, GL_SPECULAR, glprefs.override_light_specular)
             else:
-                glLightfv(GL_LIGHT1, GL_SPECULAR, (s1, s1, s1, 1.0))
+                glLightfv(GL_LIGHT1, GL_SPECULAR, (r1*s1, g1*s1, b1*s1, 1.0))
                 glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
             
             glLightfv(GL_LIGHT2, GL_POSITION, (x2, y2, z2, 0))
-            glLightfv(GL_LIGHT2, GL_AMBIENT, (a2, a2, a2, 1.0))
-            glLightfv(GL_LIGHT2, GL_DIFFUSE, (d2, d2, d2, 1.0))
+            glLightfv(GL_LIGHT2, GL_AMBIENT, (r2*a2, g2*a2, b2*a2, 1.0))
+            glLightfv(GL_LIGHT2, GL_DIFFUSE, (r2*d2, g2*d2, b2*d2, 1.0))
     	    if glprefs.override_light_specular is not None:
                 glLightfv(GL_LIGHT2, GL_SPECULAR, glprefs.override_light_specular)
             else:
-                glLightfv(GL_LIGHT2, GL_SPECULAR, (s2, s2, s2, 1.0))
+                glLightfv(GL_LIGHT2, GL_SPECULAR, (r2*s2, g2*s2, b2*s2, 1.0))
                 glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
             
             glEnable(GL_LIGHTING)
@@ -937,20 +951,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # we'll store everything in a single value at this key,
             # making it a dict of dicts so it's easy to add more lighting attrs (or lights) later
             # in an upward-compatible way.
-            
-            ((a0,d0,s0,x0,y0,z0,e0), \
-             (a1,d1,s1,x1,y1,z1,e1), \
-             (a2,d2,s2,x2,y2,z2,e2)) = self._lights #revised format. Mark 051202.
+
+            (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
+            ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
+            ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = self._lights
+             
             # now process it in a cleaner way
             val = {}
-            for (i, (a,d,s,x,y,z,e)) in zip(range(3),self._lights):
+            for (i, (c,a,d,s,x,y,z,e)) in zip(range(3),self._lights):
                 name = "light%d" % i
-                ambient_color = (a,a,a) # someday we'll store any color; for now, reading code assumes r==g==b in this color
-                diffuse_color = (d,d,d)
-                specular_color = (s,s,s)
-                params = dict( ambient = ambient_color, \
-                                        diffuse = diffuse_color, \
-                                        specular = specular_color, \
+                params = dict( color = c, \
+                                        ambient_intensity = a, \
+                                        diffuse_intensity = d, \
+                                        specular_intensity = s, \
                                         xpos = x, ypos = y, zpos = z, \
                                         enabled = e )
                 val[name] = params
@@ -985,17 +998,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             res = [] # will become new argument to pass to self.setLighting method, if we succeed
             for name in ['light0','light1','light2']:
                 params = val[name] # a dict of ambient, diffuse, specular, x, y, z, enabled
-                ac = params['ambient'] # ambient color
-                dc = params['diffuse'] # diffuse color
-                sc = params['specular'] # specular color
+                color = params['color'] # light color (r,g,b)
+                a = params['ambient_intensity'] # ambient intensity
+                d = params['diffuse_intensity'] # diffuse intensity
+                s = params['specular_intensity'] # specular intensity
                 x = params['xpos'] # X position
                 y = params['ypos'] # Y position
                 z = params['zpos'] # Z position
                 e = params['enabled'] # boolean
-                a = ac[0] # only grays are saved for now
-                d = dc[0]
-                s = sc[0]
-                res.append( (a,d,s,x,y,z,e) )
+
+                res.append( (color,a,d,s,x,y,z,e) )
             self.setLighting( res, gl_update = gl_update)
             if debug_lighting:
                 print "debug_lighting: fyi: Lighting preferences loaded"
@@ -1008,8 +1020,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     def restoreDefaultLighting(self, gl_update = True): # not yet tested, sole caller not yet used ###@@@
         "restore the default (built-in) lighting preferences (but don't save them)."
+        
+        # Restore light color prefs keys.
+        env.prefs.restore_defaults([
+            light1Color_prefs_key, 
+            light2Color_prefs_key, 
+            light3Color_prefs_key,
+            ])
+            
         self.setLighting( self._default_lights,  gl_update = gl_update )
-        ## env.history.message( greenmsg( "Lighting preferences restored to defaults (but not saved)" )) # not desired for now
+        
         return True
     
     # ==

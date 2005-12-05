@@ -92,6 +92,9 @@ startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
 
 # Lighting prefs [added by mark 051124]
+light1Color_prefs_key = 'A7/Light1 Color'
+light2Color_prefs_key = 'A7/Light2 Color'
+light3Color_prefs_key = 'A7/Light3 Color'
 specular_highlights_prefs_key = 'A7/Specular Highlights'
 whiteness_prefs_key = 'A7/Whiteness' # To be changed to 'material_finish'
 shininess_prefs_key = 'A7/Shininess' # To be changed to 'material_shininess'
@@ -197,7 +200,11 @@ prefs_table = (
     ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
     
     # Lighting preferences [added to this table by mark 051124]
-    
+    # If any default light colors are changed here, you must also change the color of 
+    # the light in '_lights' in GLPane to keep them synchronized.  Mark 051204.
+    ('light1_color', 'color', light1Color_prefs_key, white ),
+    ('light2_color', 'color', light2Color_prefs_key, white ),
+    ('light3_color', 'color', light3Color_prefs_key, white ), 
     ('specular_highlights', 'boolean', specular_highlights_prefs_key, True),
     ('whiteness', 'float', whiteness_prefs_key, 0.5), # Change this to 'material_finish' later. Mark.
     ('shininess', 'float', shininess_prefs_key, 35.0), # Change this to 'material_shininess' later.  Mark.

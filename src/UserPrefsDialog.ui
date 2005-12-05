@@ -1900,7 +1900,7 @@
                                                     </property>
                                                     <widget class="QFrame">
                                                         <property name="name">
-                                                            <cstring>light1_color_frame</cstring>
+                                                            <cstring>light_color_frame</cstring>
                                                         </property>
                                                         <property name="minimumSize">
                                                             <size>
@@ -3271,12 +3271,6 @@
         <slot>toggle_light()</slot>
     </connection>
     <connection>
-        <sender>light_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
         <sender>light_combobox</sender>
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3420,6 +3414,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>toggle_material_specularity()</slot>
     </connection>
+    <connection>
+        <sender>light_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_light_color()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -3528,6 +3528,7 @@
     <slot>change_active_light()</slot>
     <slot>change_material_brightness()</slot>
     <slot>toggle_light()</slot>
+    <slot>change_light_color()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
