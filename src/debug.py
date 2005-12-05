@@ -123,6 +123,16 @@ else:
         return
 
 # ==
+# Generally useful line number function, wware 051205
+def linenum():
+    try:
+        raise Exception
+    except:
+        tb = sys.exc_info()[2]
+        f = tb.tb_frame.f_back
+        print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+
+# ==
 
 # Stopwatch for measuring run time of algorithms or code snippets.
 # wware 051104
