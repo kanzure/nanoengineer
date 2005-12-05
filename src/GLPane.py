@@ -822,9 +822,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     # grantham 20051121 - Light should probably be a class.  Right now,
     # changing the behavior of lights requires changing a bunch of
     # ambigious tuples and tuple packing/unpacking.
-    _lights = [(white, 0.25, 0.5, 0.5, -50, 70, 30, True), \
-                    (white, 0.25, 0.25, 0.25, -20, 20, 20, True), \
-                    (white, 0.25, 0.25, 0.25, 0, 0, 100, False)]
+    _lights = [(white, 0.1, 0.5, 0.5, -50, 70, 30, True), \
+                    (white, 0.1, 0.5, 0.5, -20, 20, 20, True), \
+                    (white, 0.1, 0.5, 0.5, 0, 0, 100, False)]
                     
         # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
         # revised format to include s,x,y,z.  Mark 051202.
