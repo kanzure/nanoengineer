@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>559</width>
+            <width>552</width>
             <height>400</height>
         </rect>
     </property>
@@ -1751,7 +1751,7 @@
                                             <cstring>specularity_label</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Specularity :</string>
+                                            <string>Specular :</string>
                                         </property>
                                         <property name="alignment">
                                             <set>AlignVCenter|AlignRight</set>
@@ -2204,14 +2204,6 @@
                             </spacer>
                             <widget class="QPushButton">
                                 <property name="name">
-                                    <cstring>lighting_reset_btn</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Reset</string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
                                     <cstring>lighting_restore_defaults_btn</cstring>
                                 </property>
                                 <property name="text">
@@ -2233,7 +2225,7 @@
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>40</height>
+                                <height>30</height>
                             </size>
                         </property>
                     </spacer>
@@ -2245,7 +2237,7 @@
                             <bool>true</bool>
                         </property>
                         <property name="title">
-                            <string>Material Specularity Properties</string>
+                            <string>Material Specular Properties</string>
                         </property>
                         <grid>
                             <property name="name">
@@ -2253,7 +2245,7 @@
                             </property>
                             <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
-                                    <cstring>layout57</cstring>
+                                    <cstring>layout49</cstring>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -2298,6 +2290,23 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer40_2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
                                     <widget class="QLabel">
                                         <property name="name">
                                             <cstring>ms_shininess_label</cstring>
@@ -2309,6 +2318,23 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer40</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
                                     <widget class="QLabel">
                                         <property name="name">
                                             <cstring>ms_brightness__label</cstring>
@@ -2324,7 +2350,7 @@
                             </widget>
                             <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
-                                    <cstring>layout58</cstring>
+                                    <cstring>layout50</cstring>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -2350,7 +2376,7 @@
                                         </property>
                                         <property name="sizeHint">
                                             <size>
-                                                <width>38</width>
+                                                <width>46</width>
                                                 <height>20</height>
                                             </size>
                                         </property>
@@ -2372,6 +2398,23 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer41_2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
                                     <widget class="QLineEdit">
                                         <property name="name">
                                             <cstring>ms_shininess_linedit</cstring>
@@ -2389,6 +2432,23 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer41</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
                                     <widget class="QLineEdit">
                                         <property name="name">
                                             <cstring>ms_brightness_linedit</cstring>
@@ -2416,7 +2476,7 @@
                             </widget>
                             <widget class="QLayoutWidget" row="0" column="2">
                                 <property name="name">
-                                    <cstring>layout59</cstring>
+                                    <cstring>layout54</cstring>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -2434,7 +2494,7 @@
                                         </property>
                                         <property name="sizeHint">
                                             <size>
-                                                <width>30</width>
+                                                <width>100</width>
                                                 <height>20</height>
                                             </size>
                                         </property>
@@ -2505,6 +2565,49 @@
                                             <number>5</number>
                                         </property>
                                     </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout46_2</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_6_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Flat</string>
+                                                </property>
+                                            </widget>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer37_2</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>16</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel2_4_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Glossy</string>
+                                                </property>
+                                            </widget>
+                                        </hbox>
+                                    </widget>
                                     <widget class="QSlider">
                                         <property name="name">
                                             <cstring>ms_shininess_slider</cstring>
@@ -2527,6 +2630,49 @@
                                         <property name="tickInterval">
                                             <number>5</number>
                                         </property>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout46_3</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_6_3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Low</string>
+                                                </property>
+                                            </widget>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer37_3</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>16</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel2_4_3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>High</string>
+                                                </property>
+                                            </widget>
+                                        </hbox>
                                     </widget>
                                     <widget class="QSlider">
                                         <property name="name">
@@ -3319,12 +3465,6 @@
         <slot>change_lighting()</slot>
     </connection>
     <connection>
-        <sender>lighting_reset_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>reset_lighting()</slot>
-    </connection>
-    <connection>
         <sender>lighting_restore_defaults_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3466,7 +3606,6 @@
     <tabstop>light_x_linedit</tabstop>
     <tabstop>light_y_linedit</tabstop>
     <tabstop>light_z_linedit</tabstop>
-    <tabstop>lighting_reset_btn</tabstop>
     <tabstop>lighting_restore_defaults_btn</tabstop>
     <tabstop>gamess_checkbox</tabstop>
     <tabstop>gamess_path_linedit</tabstop>
