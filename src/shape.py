@@ -1152,6 +1152,7 @@ class CookieShape(shape):
             glCallList(self.displist)
             return
         glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+        ColorSorter.start() # grantham 20051205
         try:
             for layer, bonds in self.bondLayers.items():
                 color = layerColor[layer]
@@ -1213,6 +1214,7 @@ class CookieShape(shape):
             print "cK: ", cK
             print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
         self.markedAtoms = {}
+        ColorSorter.finish() # grantham 20051205
         glEndList()
         self.havelist = 1 # always set this flag, even if exception happened.
     

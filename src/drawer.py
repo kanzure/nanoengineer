@@ -308,7 +308,74 @@ def get_gl_info_string():
 	gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
     return gl_info_string
 
+class ColorSorter:
 
+    """
+    State Sorter specializing in color (Really any object that can be
+    passed to apply_material, which on 20051204 is only color 4-tuples)
+
+    Invoke start() to begin sorting.
+    Call finish() to complete sorting and draw all sorted objects.
+
+    Call schedule() with any function and parameters to be sorted by color.
+    If not sorting, schedule() will invoke the function immediately.  If
+    sorting, then the function will not be called until "finish()".
+
+    In any function which will take part in sorting which previously did
+    not, create a worker function from the old function except the call to
+    apply_material.  Then create a wrapper which calls
+    ColorSorter.sorter.schedule with the worker function and its params.
+    """
+    __author__ = "grantham@plunk.org"
+
+    # For now, these are class globals.  As long as OpenGL drawing is
+    # serialized and Sorting isn't nested, this is okay.  When/if
+    # OpenGL drawing becomes multi-threaded, sorters will have to
+    # become instances.  This is probably okay because objects and
+    # materials will probably become objects of their own about that
+    # time so the whole system will get a redesign and
+    # reimplementation.
+
+    sorting = False
+
+    def _add_to_sorter(color, func, params):
+        color = tuple(color)
+        if not ColorSorter.sorted_by_color.has_key(color):
+            ColorSorter.sorted_by_color[color] = []
+        ColorSorter.sorted_by_color[color].append((func, params))
+    _add_to_sorter = staticmethod(_add_to_sorter)
+
+    immediatelies = 0
+
+    def _invoke_immediately(color, func, params):
+        ColorSorter.immediatelies += 1
+        # print "immediatelies ", ColorSorter.immediatelies
+        apply_material(color)
+        func(params)
+    _invoke_immediately = staticmethod(_invoke_immediately)
+
+    schedule = _invoke_immediately
+
+    def start():
+        assert(not ColorSorter.sorting,
+          "Called ColorSorter.start but already sorting?!")
+        ColorSorter.sorting = True
+        ColorSorter.sorted_by_color = {}
+        ColorSorter.schedule = staticmethod(ColorSorter._add_to_sorter)
+    start = staticmethod(start)
+
+    def finish():
+        color_groups = len(ColorSorter.sorted_by_color)
+        objects_drawn = 0
+        for color, funcs in ColorSorter.sorted_by_color.iteritems():
+            apply_material(color)
+            for func, params in funcs:
+                objects_drawn += 1
+                func(params)
+        ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
+        ColorSorter.sorted_by_color = None
+        ColorSorter.sorting = False
+    finish = staticmethod(finish)
 
 halfHeight = 0.45
 
@@ -681,15 +748,17 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     glPopMatrix()
     return
 
-def drawsphere(color, pos, radius, detailLevel):
-    apply_material(color)
+def drawsphere_worker(params):
+    (pos, radius, detailLevel) = params
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
     glCallList(sphereList[detailLevel])
-
     glPopMatrix()
     return
+
+def drawsphere(color, pos, radius, detailLevel):
+    ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
     glColor3fv(color)
@@ -704,9 +773,10 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glPolygonMode(GL_FRONT, GL_FILL)
     return
 
-def drawcylinder(color, pos1, pos2, radius, capped=0):
+def drawcylinder_worker(params):
     global CylList, CapList
-    apply_material(color)
+    (pos1, pos2, radius, capped) = params
+
     glPushMatrix()
     vec = pos2-pos1
     axis = norm(vec)
@@ -723,8 +793,13 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
     glScale(radius,radius,vlen(vec))
     glCallList(CylList)
     if capped: glCallList(CapList)
+
     glPopMatrix()
+
     return
+
+def drawcylinder(color, pos1, pos2, radius, capped=0):
+    ColorSorter.schedule(color, drawcylinder_worker, (pos1, pos2, radius, capped))
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     """Draw a line from pos1 to pos2 of the given color.

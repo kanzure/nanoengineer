@@ -983,6 +983,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way
                 match_checking_code = self.begin_tracking_usage()
                 glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+                ColorSorter.start() # grantham 20051205
 
                 # bruce 041028 -- protect against exceptions while making display
                 # list, or OpenGL will be left in an unusable state (due to the lack
@@ -994,6 +995,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     print_compact_traceback("exception in molecule.draw_displist ignored: ")
                     # it might have left the externs incomplete # bruce 041105 night [not anymore -- bruce 050513]
                     ## self.invalidate_attr('externs')
+
+                ColorSorter.finish() # grantham 20051205
                 glEndList()
                 self.end_tracking_usage( match_checking_code, self.inval_display_list )
                 # This is the only place where havelist is set to anything true;
@@ -1041,8 +1044,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # [bruce 050513 comment]
         drawLevel = self.assy.drawLevel
         bondcolor = self.color
+        ColorSorter.start() # grantham 20051205
         for bon in self.externs:
             bon.draw(glpane, disp, bondcolor, drawLevel)
+        ColorSorter.finish() # grantham 20051205
         return # from molecule.draw()
 
     def draw_displist(self, glpane, disp): #bruce 050513 optimizing this somewhat
