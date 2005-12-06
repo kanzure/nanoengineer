@@ -182,14 +182,12 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 del c1, center, c2, toolong
                 cylrad = scale * sigmabond_cyl_radius
                 offset *= sigmabond_cyl_radius # use this offset in the loop
-                ColorSorter.start() # grantham 20051205
                 for pvec1, pvec2 in zip( pvecs1, pvecs2 ):
                     a1posm = a1pos + offset * pvec1
                     a2posm = a2pos + offset * pvec2
                     geom = self.geom_from_posns(a1posm, a2posm)
                     draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
                                    cylrad, shorten_tubes, geom, v6_for_bands )
-                ColorSorter.finish() # grantham 20051205
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
         geom = self.geom #e could be optimized to compute less for CPK case
