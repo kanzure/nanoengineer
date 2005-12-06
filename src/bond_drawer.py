@@ -85,6 +85,12 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     else:
         glname = self.glname
 
+    ColorSorter.pushName(glname) #bruce 051206, part of fixing bug 1179 for non-open bonds;
+        # we have to do it both immediately and in ColorSorter since bonds include both
+        # sorted and non-sorted openGL drawing. Note, we don't yet protect against sorting
+        # not being active now, but that should be fixed in drawer.py rather than here,
+        # and for now it will always be active since all bond drawing in chunk.py is done
+        # inside it (even external bonds).
     glPushName( glname) #bruce 050610
         # Note: we have to do this all the time, since display lists made outside GL_SELECT mode can be used inside it.
         # And since that display list might be used arbitrarily far into the future,
@@ -95,9 +101,11 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
         draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_radius)
     except:
         glPopName()
+        ColorSorter.popName() #bruce 051206
         print_compact_traceback("ignoring exception when drawing bond %r: " % self)
     else:
         glPopName()
+        ColorSorter.popName() #bruce 051206
     
     return # from draw_bond, implem of Bond.draw
 
