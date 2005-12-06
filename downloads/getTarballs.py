@@ -8,10 +8,11 @@ tarballURLs = {
     "Distribution.tar.gz": "http://cvsdude.org/download.pl?id=exfgjuyj9e1afuck4tpdnsdebayfj30y",
     "Bugzilla.tar.gz": "http://mirror1.cvsdude.com/download.pl?id=p3kowosctuqqfud82rzttmtfbey7ogb5"
     }
+fileList = tarballURLs.keys()
 
 WEBSERVER_DIR = "webserver2:/var/www/html/nanorex-tarballs"
-DEST_DIR = "/tmp/tarballs"
-ISOFILE = "/backupTarballs.iso"
+TMP_DIR = "/tmp/tarballs"
+ISOFILE = "/tmp/backupTarballs.iso"
 MYSELF = "Will Ware <wware@alum.mit.edu>"
 LISTENERS = [
     MYSELF
@@ -20,8 +21,11 @@ LISTENERS = [
 
 HAPPY_MESSAGE = {
     "Subject": "Your tarballs are ready   :)",
-    "Text": "cdrecord -v -speed=4 dev=ATAPI:0,0,0 %s/%s" % (DEST_DIR, ISOFILE)
+    "Text": "cdrecord -v -speed=4 dev=ATAPI:0,0,0 %s\n   or\n" % ISOFILE
     }
+
+for filename in fileList:
+    HAPPY_MESSAGE["Text"] += "wget http://willware.net:8080/nanorex-tarballs/" + filename + "\n"
 
 SAD_MESSAGE = {
     "Subject": "Your tarballs are NOT ready  :(",
@@ -36,16 +40,16 @@ def system(cmd):
         raise BadDownload, cmd
 
 def getTarballs():
-    system("rm -rf " + DEST_DIR)
-    system("mkdir " + DEST_DIR)
+    system("rm -rf " + TMP_DIR)
+    system("mkdir " + TMP_DIR)
     for tarball in tarballURLs.keys():
         url = tarballURLs[tarball]
-        tarballPath = DEST_DIR + "/" + tarball
+        tarballPath = TMP_DIR + "/" + tarball
         cmd = "wget -O %s %s" % (tarballPath, url)
         system(cmd)
-    system("mkisofs -J -l -r -o /tmp/%s %s" % (ISOFILE, DEST_DIR))
-    system("mv /tmp/%s %s" % (ISOFILE, DEST_DIR))
-    system("scp %s/* %s" % (DEST_DIR, WEBSERVER_DIR))
+    system("mkisofs -J -R -o %s %s" % (ISOFILE, TMP_DIR))
+    for file in fileList:
+        system("scp %s/%s %s" % (TMP_DIR, file, WEBSERVER_DIR))
 
 def sendEmail(message, debug=False):
     smtpserver = "smtp.rcn.com"
