@@ -361,14 +361,36 @@ printPotentialAndGradientFunctions(char *name, double initial, double increment,
   }
 }
 
-#define BOUNDS 500
-#define INCR 25
+#define POLAR
+#ifdef POLAR
+// a->r
+// b->theta
+#define A_MIN 0
+#define A_MAX 200
+#define A_INCR 2
+#define B_MIN (0)
+#define B_MAX (Pi/4)
+#define B_INCR 0.05
+#define X(a, b) ((a) * sin(b))
+#define Y(a, b) ((a) * cos(b))
+#else
+// a->x
+// b->y
+#define A_MIN -500
+#define A_MAX 500
+#define A_INCR 25
+#define B_MIN -500
+#define B_MAX 500
+#define B_INCR 25
+#define X(a, b) (a)
+#define Y(a, b) (b)
+#endif
 #define ZOFFSET -500.0
 #define ZTICK -2.0
 #define POTENTIAL_SCALE 1
 #define FORCE_SCALE 0.0001
 
-#define POTENTIAL_CUTOFF (500 / POTENTIAL_SCALE)
+#define POTENTIAL_CUTOFF 500
 #define FORCE_CUTOFF (100 / FORCE_SCALE)
 
 // run with -D 8
@@ -379,13 +401,20 @@ printBendStretch()
   struct xyz pos[3];
   struct xyz force[3];
   FILE *out;
+  double a;
+  double b;
   double x;
   double y;
+  double x1;
+  double y1;
+  double x2;
+  double y2;
   double potential;
-  double prevX_potential;
-  double prevY_potential;
+  double prevA_potential;
+  double prevB_potential;
   double flen;
   float red, grn, blu;
+  int red1, red2;
 
   out = fopen("forceresult", "w");
   p = makePart("internal", NULL, NULL);
@@ -432,30 +461,56 @@ printBendStretch()
           ZOFFSET,
           10.0,
           0.5, 0.0, 0.0);
-  for (x=-BOUNDS; x<BOUNDS; x+=INCR) {
-    for (y=-BOUNDS; y<BOUNDS; y+=INCR) {
+  for (a=A_MIN; a<A_MAX; a+=A_INCR) {
+    for (b=B_MIN; b<B_MAX; b+=B_INCR) {
+      x1 = X(a, b-B_INCR);
+      y1 = Y(a, b-B_INCR);
+      if (b == B_MIN) {
+        pos[2].x = x1;
+        pos[2].y = y1;
+        prevB_potential = calculatePotential(p, pos) * POTENTIAL_SCALE;
+      }
+      x = X(a, b);
+      y = Y(a, b);
       pos[2].x = x;
       pos[2].y = y;
-      potential = calculatePotential(p, pos);
-      if (y == -BOUNDS) {
-        prevY_potential = potential;
-      }
+      potential = calculatePotential(p, pos) * POTENTIAL_SCALE;
       calculateGradient(p, pos, force);
-      pos[2].x = x - INCR;
-      prevX_potential = calculatePotential(p, pos);
+      x2 = X(a-A_INCR, b);
+      y2 = Y(a-A_INCR, b);
+      pos[2].x = x2;
+      pos[2].y = y2;
+      prevA_potential = calculatePotential(p, pos) * POTENTIAL_SCALE;
 
       if (potential < POTENTIAL_CUTOFF) {
-        if (prevY_potential < POTENTIAL_CUTOFF) {
-          fprintf(out, "l %f %f %f %f %f %f 0 0 1\n",
-                  x, y-INCR, prevY_potential * POTENTIAL_SCALE,
-                  x, y, potential * POTENTIAL_SCALE);
-        }
-        if (prevX_potential < POTENTIAL_CUTOFF) {
-          fprintf(out, "l %f %f %f %f %f %f 0 0 1\n",
-                  x-INCR, y, prevX_potential * POTENTIAL_SCALE,
-                  x, y, potential * POTENTIAL_SCALE);
-        }
+        red1 = 0;
+      } else {
+        red1 = 1;
+        potential = POTENTIAL_CUTOFF;
       }
+      
+      if (prevA_potential > POTENTIAL_CUTOFF) {
+        red2 = 1;
+        prevA_potential = POTENTIAL_CUTOFF;
+      } else {
+        red2 = red1;
+      }
+      fprintf(out, "l %f %f %f %f %f %f %s\n",
+              x2, y2, prevA_potential,
+              x, y, potential,
+              red2 ? "1 0 0" : "0 0 1");
+
+      if (prevB_potential > POTENTIAL_CUTOFF) {
+        red2 = 1;
+        prevB_potential = POTENTIAL_CUTOFF;
+      } else {
+        red2 = red1;
+      }
+      fprintf(out, "l %f %f %f %f %f %f %s\n",
+              x1, y1, prevB_potential,
+              x, y, potential,
+              red2 ? "1 0 0" : "0 0 1");
+
       flen = vlen(force[2]);
       if (flen > FORCE_CUTOFF) {
         //vmulc(force[2], FORCE_CUTOFF / flen);
@@ -478,7 +533,7 @@ printBendStretch()
               x, y, ZOFFSET,
               red, grn, blu);
       
-      prevY_potential = potential;
+      prevB_potential = potential;
     }
   }
   fprintf(out, "f force\n");
