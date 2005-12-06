@@ -701,7 +701,7 @@ class TreeView(QListView):
                 item = _node_items[node]
                 try:
                     qrect = self.itemRect(item)
-                    tooltip.add(vp, qrect, node.name)
+                    tooltip.add(self.viewport(), qrect, node.name)
                 except RuntimeError:
                     qrect = None
                     # underlying C/C++ object has been deleted
