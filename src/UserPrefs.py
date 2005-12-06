@@ -24,6 +24,9 @@ from widgets import RGBf_to_QColor #bruce 050805 moved RGBf_to_QColor from here 
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
 
+debug_sliders = False # Do not commit as True
+
+
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
 
@@ -833,22 +836,28 @@ class UserPrefs(UserPrefsDialog):
         self.ms_brightness_linedit.setText(str(brightness * 0.01))
         
     def change_material_finish_start(self):
-        print "Finish slider pressed"
+        if debug_sliders: print "Finish slider pressed"
+        env.prefs.suspend_saving_changes() #bruce 051205 new prefs feature - keep updating to glpane but not (yet) to disk
         
     def change_material_finish_stop(self):
-        print "Finish slider released"
+        if debug_sliders: print "Finish slider released"
+        env.prefs.resume_saving_changes() #bruce 051205 new prefs feature - save accumulated changes now
     
     def change_material_shininess_start(self):
-        print "Shininess slider pressed"
+        if debug_sliders: print "Shininess slider pressed"
+        env.prefs.suspend_saving_changes()
         
     def change_material_shininess_stop(self):
-        print "Shininess slider released"
+        if debug_sliders: print "Shininess slider released"
+        env.prefs.resume_saving_changes()
         
     def change_material_brightness_start(self):
-        print "Brightness slider pressed"
+        if debug_sliders: print "Brightness slider pressed"
+        env.prefs.suspend_saving_changes()
         
     def change_material_brightness_stop(self):
-        print "Brightness slider released"
+        if debug_sliders: print "Brightness slider released"
+        env.prefs.resume_saving_changes()
         
     def reset_lighting(self):
         "Slot for Reset button"

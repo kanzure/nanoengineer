@@ -449,6 +449,39 @@ class _prefs_context:
             finally:
                 _close()
         return
+    def suspend_saving_changes(self): #bruce 051205 new feature
+        """Let prefs changes after this point be saved in RAM and take full effect
+        (including notifying subscribers),
+        but not be saved to disk until the next call to resume_saving_changes
+        (which should be called within the same user command or mouse drag,
+        but not for every mouse motion during a drag).
+        Use this to prevent constant updates to disk for every mouse motion
+        during a drag (e.g. as a prefs slider is adjusted).
+           Warn if called when changes are already suspended,
+        but as a special case to mitigate bugs of failing to call resume,
+        save all accumulated changes whenever called.
+        """
+        if _shelf:
+            # already suspended -- briefly resume (so they're saved) before suspending (again)
+            print "bug: suspend_saving_changes when already suspended -- probably means resume was missing; saving them now"
+            _close()
+        _reopen()
+        return
+    def resume_saving_changes(self, redundant_is_ok = False): #bruce 051205 new feature
+        """Resume saving changes, after a call of suspend_saving_changes.
+        Optional redundant_is_ok = True prevents a warning about a redundant call;
+        this is useful for letting callers make sure changes are being saved
+        when they should be (and probably already are).
+        """
+        if _shelf:
+            if redundant_is_ok: # this case untested (no immediate use is planned as of 051205)
+                print "Warning: resume_saving_changes(redundant_is_ok = True) was in fact redundant --"
+                print " i.e. it may have been necessary to work around a bug and save prefs."
+            _close()
+        else:
+            if not redundant_is_ok:
+                print "warning: redundant resume_saving_changes ignored"
+        return
     def restore_defaults(self, keys): #bruce 050805
         """Given a key or a list of keys,
         restore the default value of each given preference
