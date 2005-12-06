@@ -1158,12 +1158,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
             except AttributeError:
                 pass
             self.__tooltip = MyToolTip(vp)
-            for node in self._node_items:
-                name = node.name
-                if len(name) > 12:
-                    item = self.nodeItem(node)
-                    qrect = self.itemRect(item)
-                    self.__tooltip.add(vp, qrect, node.name)
+            # wware 051206 fixing bug 1070
+            self.tooltip_nodeItems(self.__tooltip)
 
     def paint_node(self, p, drag_type, node):
         "paint one node's item into QPainter p, and translate it down by the item's height"

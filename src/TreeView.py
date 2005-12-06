@@ -681,6 +681,33 @@ class TreeView(QListView):
     def clear_nodeItems(self):
         self._node_items.clear() # does not destroy old items!
 
+    """Bug 1070 is one of these 'underlying C/C++ object has been
+    deleted' bugs. These come up periodically, and they make me wonder
+    if there is something we should be doing to detect when underlying
+    C objects get deleted, and remove our own references to them. For
+    the present, we should try to detect such instances and clean up as
+    best we can. Maybe the rearchitecture will resolve this problem in
+    a more satisfactory way.  - wware 051206
+    """
+
+    # wware 051206 fixing bug 1070
+    def tooltip_nodeItems(self, tooltip):
+        """Step through the nodes for this tree, and fill in the QToolTip for
+        the QListViewItems in the viewport of the QlistView for the tree."""
+        _node_items = self._node_items
+        for node in _node_items.keys():
+            name = node.name
+            if len(name) > 12:
+                item = _node_items[node]
+                try:
+                    qrect = self.itemRect(item)
+                    tooltip.add(vp, qrect, node.name)
+                except RuntimeError:
+                    qrect = None
+                    # underlying C/C++ object has been deleted
+                    # item is invalid, remove it from _node_items
+                    del _node_items[node]
+
     # update helpers; will want some revision but this is not urgent I think #e
     
     def make_new_subtree_for_node(self, node, parent, display_prefs = {}, after = None):
