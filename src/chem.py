@@ -468,6 +468,7 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             # (Note: these names won't be nested, since this method doesn't draw bonds;
             #  if it did, they would be, and using the last name would be correct,
             #  which is what's done (in GLPane.py) as of 050610.)
+        ColorSorter.pushName(glname)
         try:
             if disp in [diVDW, diCPK, diTUBES]:
                 drawsphere(color, pos, drawrad, level)
@@ -496,9 +497,11 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
                     #e we might want to not draw this when self.bad() but draw that differently,
                     # and optim this when atomtype is initial one (or its numbonds == valence).
         except:
+            ColorSorter.popName()
             glPopName()
             print_compact_traceback("ignoring exception when drawing atom %r: " % self)
         else:
+            ColorSorter.popName()
             glPopName()
         
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]

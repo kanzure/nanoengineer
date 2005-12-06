@@ -337,19 +337,38 @@ class ColorSorter:
     # reimplementation.
 
     sorting = False
+    _sorted = 0
+    _immediate = 0
+    _glnames = []
+
+    def pushName(glname):
+        ColorSorter._glnames.append(glname)
+    pushName = staticmethod(pushName)
+
+    def popName():
+        del ColorSorter._glnames[-1]
+    popName = staticmethod(popName)
+
+    def stats():
+        print "Since previous 'stats', %d sorted, %d immediate: " % (ColorSorter._sorted, ColorSorter._immediate)
+        ColorSorter._sorted = 0
+        ColorSorter._immediate = 0
+    stats = staticmethod(stats)
 
     def _add_to_sorter(color, func, params):
+        ColorSorter._sorted += 1
         color = tuple(color)
         if not ColorSorter.sorted_by_color.has_key(color):
             ColorSorter.sorted_by_color[color] = []
-        ColorSorter.sorted_by_color[color].append((func, params))
+        if len(ColorSorter._glnames) > 0:
+            name = ColorSorter._glnames[-1]
+        else:
+            name = None
+        ColorSorter.sorted_by_color[color].append((func, params, name))
     _add_to_sorter = staticmethod(_add_to_sorter)
 
-    immediatelies = 0
-
     def _invoke_immediately(color, func, params):
-        ColorSorter.immediatelies += 1
-        # print "immediatelies ", ColorSorter.immediatelies
+        ColorSorter._immediate += 1
         apply_material(color)
         func(params)
     _invoke_immediately = staticmethod(_invoke_immediately)
@@ -369,9 +388,13 @@ class ColorSorter:
         objects_drawn = 0
         for color, funcs in ColorSorter.sorted_by_color.iteritems():
             apply_material(color)
-            for func, params in funcs:
+            for func, params, name in funcs:
                 objects_drawn += 1
+                if name is not None:
+                    glPushName(name)
                 func(params)
+                if name is not None:
+                    glPopName()
         ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
         ColorSorter.sorted_by_color = None
         ColorSorter.sorting = False
