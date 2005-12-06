@@ -290,35 +290,30 @@ calculatePotential(struct part *p, struct xyz *position)
       vset(v2, bond2->rUnit);
     }
 
-    // XXX figure out how close we can get / need to get.
-    // we assume we only get this close to linear on actually linear
-    // bonds, for which the potential should be zero at this point.
-    if (-0.99 < vdot(v1,v2)) {
 
 #define ACOS_POLY_A -0.0820599
 #define ACOS_POLY_B  0.142376
 #define ACOS_POLY_C -0.137239
 #define ACOS_POLY_D -0.969476
 
-      z = vlen(vsum(v1, v2));
-      // this is the equivalent of theta=arccos(z);
-      theta = Pi + z * (ACOS_POLY_D +
-                   z * (ACOS_POLY_C +
-                   z * (ACOS_POLY_B +
-                   z *  ACOS_POLY_A   )));
+    z = vlen(vsum(v1, v2));
+    // this is the equivalent of theta=arccos(z);
+    theta = Pi + z * (ACOS_POLY_D +
+                 z * (ACOS_POLY_C +
+                 z * (ACOS_POLY_B +
+                 z *  ACOS_POLY_A   )));
 
-      // XXX check that this is all ok...
-      // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
-      bType = bend->bendType;
-      torque = (theta - bType->theta0) * bType->kb;
+    // XXX check that this is all ok...
+    // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
+    bType = bend->bendType;
+    torque = (theta - bType->theta0) * bType->kb;
 
-      torque *= 0.001; // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX rmme!!!
+    torque *= 0.001; // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX rmme!!!
       
-      ff = torque * bond1->inverseLength;
-      potential += ff * ff / 2.0;
-      ff = torque * bond2->inverseLength;
-      potential += ff * ff / 2.0;
-    }
+    ff = torque * bond1->inverseLength;
+    potential += ff * ff / 2.0;
+    ff = torque * bond2->inverseLength;
+    potential += ff * ff / 2.0;
   }
 #endif
   if (DEBUG(D_BEND_ONLY)) { // -D7
@@ -368,6 +363,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
   struct xyz q1;
   struct xyz q2;
   struct xyz foo;
+  struct xyz axis;
   struct xyz f;
   double r;
 
@@ -434,39 +430,54 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
 
     // XXX figure out how close we can get / need to get
     // apply no force if v1 and v2 are close to being linear
-    if (-0.99 < vdot(v1,v2)) {
+#define COLINEAR 1e-8
+    z = vlen(vsum(v1, v2));
+    // this is the equivalent of theta=arccos(z);
+    theta = Pi + z * (ACOS_POLY_D +
+                 z * (ACOS_POLY_C +
+                 z * (ACOS_POLY_B +
+                 z *  ACOS_POLY_A   )));
 
-      z = vlen(vsum(v1, v2));
-      // this is the equivalent of theta=arccos(z);
-      theta = Pi + z * (ACOS_POLY_D +
-                   z * (ACOS_POLY_C +
-                   z * (ACOS_POLY_B +
-                   z *  ACOS_POLY_A   )));
-
-      v2x(foo, v1, v2);       // foo = v1 cross v2
-      foo = uvec(foo);        // hmmm... not sure why this has to be a unit vector.
-      q1 = uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
-      q2 = uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
-
-      bType = bend->bendType;
-      torque = (theta - bType->theta0) * bType->kb;
-      ff = torque * bond1->inverseLength;
-      vmulc(q1, ff);
-      ff = torque * bond2->inverseLength;
-      vmulc(q2, ff);
-
-      vadd(force[bend->ac->index], q1);
-      vsub(force[bend->a1->index], q1);
-      vadd(force[bend->ac->index], q2);
-      vsub(force[bend->a2->index], q2);
-      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-        writeSimpleForceVector(position, bend->ac->index, &q1, 2); // green
-        vmulc(q1, -1.0);
-        writeSimpleForceVector(position, bend->a1->index, &q1, 3); // blue
-        writeSimpleForceVector(position, bend->ac->index, &q2, 2); // green
-        vmulc(q2, -1.0);
-        writeSimpleForceVector(position, bend->a2->index, &q2, 3); // blue
+    v2x(foo, v1, v2);       // foo = v1 cross v2
+    if (vlen(foo) < COLINEAR) {
+      // v1 and v2 are very close to colinear.  We can pick any
+      // vector orthogonal to either one.  First we try v1 x (1, 0,
+      // 0).  If v1 is colinear with the x axis, then in can't be
+      // colinear with the y axis too, so we use v1 x (0, 1, 0) in
+      // that case.
+      axis.x = 1;
+      axis.y = 0;
+      axis.z = 0;
+      v2x(foo, v1, axis);
+      if (vlen(foo) < COLINEAR) {
+        axis.x = 0;
+        axis.y = 1;
+        v2x(foo, v1, axis);
       }
+    }
+        
+    //foo = uvec(foo);        // hmmm... not sure why this has to be a unit vector.
+    q1 = uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
+    q2 = uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
+
+    bType = bend->bendType;
+    torque = (theta - bType->theta0) * bType->kb;
+    ff = torque * bond1->inverseLength;
+    vmulc(q1, ff);
+    ff = torque * bond2->inverseLength;
+    vmulc(q2, ff);
+
+    vadd(force[bend->ac->index], q1);
+    vsub(force[bend->a1->index], q1);
+    vadd(force[bend->ac->index], q2);
+    vsub(force[bend->a2->index], q2);
+    if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
+      writeSimpleForceVector(position, bend->ac->index, &q1, 2); // green
+      vmulc(q1, -1.0);
+      writeSimpleForceVector(position, bend->a1->index, &q1, 3); // blue
+      writeSimpleForceVector(position, bend->ac->index, &q2, 2); // green
+      vmulc(q2, -1.0);
+      writeSimpleForceVector(position, bend->a2->index, &q2, 3); // blue
     }
   }
 #endif
