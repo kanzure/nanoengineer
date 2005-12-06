@@ -360,3 +360,127 @@ printPotentialAndGradientFunctions(char *name, double initial, double increment,
     exit(1);
   }
 }
+
+#define BOUNDS 500
+#define INCR 25
+#define ZOFFSET -500.0
+#define ZTICK -2.0
+#define POTENTIAL_SCALE 1
+#define FORCE_SCALE 0.0001
+
+#define POTENTIAL_CUTOFF (500 / POTENTIAL_SCALE)
+#define FORCE_CUTOFF (100 / FORCE_SCALE)
+
+// run with -D 8
+void
+printBendStretch()
+{
+  struct part *p;
+  struct xyz pos[3];
+  struct xyz force[3];
+  FILE *out;
+  double x;
+  double y;
+  double potential;
+  double prevX_potential;
+  double prevY_potential;
+  double flen;
+  float red, grn, blu;
+
+  out = fopen("forceresult", "w");
+  p = makePart("internal", NULL, NULL);
+  pos[0].x = 0;
+  pos[0].y = 0;
+  pos[0].z = 0;
+  makeAtom(p, 0, 6, pos[0]);
+  pos[1].x = -154.9;
+  pos[1].y = 0;
+  pos[1].z = 0;
+  makeAtom(p, 1, 6, pos[1]);
+  pos[2].x = 154.9;
+  pos[2].y = 0;
+  pos[2].z = 0;
+  makeAtom(p, 2, 6, pos[2]);
+  makeBond(p, 0, 1, '1');
+  makeBond(p, 0, 2, '1');
+  makeVanDerWaals(p, 1, 2);
+  endPart(p);
+  generateStretches(p);
+  generateBends(p);
+  //printPart(stdout, p);
+  fprintf(out, "s %f %f %f %f %f %f %f\n",
+          pos[0].x,
+          pos[0].y,
+          pos[0].z,
+          10.0,
+          1.0, 0.0, 0.0);
+  fprintf(out, "s %f %f %f %f %f %f %f\n",
+          pos[1].x,
+          pos[1].y,
+          pos[1].z,
+          10.0,
+          0.5, 0.0, 0.0);
+  fprintf(out, "s %f %f %f %f %f %f %f\n",
+          pos[0].x,
+          pos[0].y,
+          ZOFFSET,
+          10.0,
+          1.0, 0.0, 0.0);
+  fprintf(out, "s %f %f %f %f %f %f %f\n",
+          pos[1].x,
+          pos[1].y,
+          ZOFFSET,
+          10.0,
+          0.5, 0.0, 0.0);
+  for (x=-BOUNDS; x<BOUNDS; x+=INCR) {
+    for (y=-BOUNDS; y<BOUNDS; y+=INCR) {
+      pos[2].x = x;
+      pos[2].y = y;
+      potential = calculatePotential(p, pos);
+      if (y == -BOUNDS) {
+        prevY_potential = potential;
+      }
+      calculateGradient(p, pos, force);
+      pos[2].x = x - INCR;
+      prevX_potential = calculatePotential(p, pos);
+
+      if (potential < POTENTIAL_CUTOFF) {
+        if (prevY_potential < POTENTIAL_CUTOFF) {
+          fprintf(out, "l %f %f %f %f %f %f 0 0 1\n",
+                  x, y-INCR, prevY_potential * POTENTIAL_SCALE,
+                  x, y, potential * POTENTIAL_SCALE);
+        }
+        if (prevX_potential < POTENTIAL_CUTOFF) {
+          fprintf(out, "l %f %f %f %f %f %f 0 0 1\n",
+                  x-INCR, y, prevX_potential * POTENTIAL_SCALE,
+                  x, y, potential * POTENTIAL_SCALE);
+        }
+      }
+      flen = vlen(force[2]);
+      if (flen > FORCE_CUTOFF) {
+        //vmulc(force[2], FORCE_CUTOFF / flen);
+        red = 1;
+        grn = 0;
+        blu = 0;
+      } else {
+        red = 1;
+        grn = 1;
+        blu = 1;
+        fprintf(out, "l %f %f %f %f %f %f %f %f %f\n",
+                x, y, ZOFFSET,
+                x + force[2].x * FORCE_SCALE,
+                y + force[2].y * FORCE_SCALE,
+                ZOFFSET,
+                red, grn, blu);
+      }
+      fprintf(out, "l %f %f %f %f %f %f %f %f %f\n",
+              x, y, ZOFFSET+ZTICK,
+              x, y, ZOFFSET,
+              red, grn, blu);
+      
+      prevY_potential = potential;
+    }
+  }
+  fprintf(out, "f force\n");
+  fclose(out);
+}

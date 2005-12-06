@@ -225,8 +225,15 @@ main(int argc,char **argv)
 	    exit(1);
 	}
     }
-    if (optind + 1 == argc)    // (optind < argc) if not paranoid
+    if (optind + 1 == argc) {   // (optind < argc) if not paranoid
 	filename = argv[optind];
+    }
+
+    if (DEBUG(D_PRINT_BEND_STRETCH)) {
+        initializeBondTable();
+        printBendStretch();
+        exit(0);
+    }
 
     if (DumpAsText) {
         OutputFormat = 0;

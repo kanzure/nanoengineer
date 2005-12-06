@@ -40,6 +40,7 @@ makePart(char *filename, void (*parseError)(void *), void *stream)
 
   p = (struct part *)allocate(sizeof(struct part));
   memset(p, 0, sizeof(struct part));
+  p->max_atom_id = -1;
   p->filename = filename;
   p->parseError = parseError ? parseError : &defaultParseError;
   p->stream = parseError ? stream : p;

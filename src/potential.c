@@ -259,7 +259,9 @@ calculatePotential(struct part *p, struct xyz *position)
   }
 			
   /* now the potential for each bend */
-			
+
+#define DO_BEND
+#ifdef DO_BEND
   for (j=0; j<p->num_bends; j++) {
     bend = &p->bends[j];
 
@@ -310,14 +312,16 @@ calculatePotential(struct part *p, struct xyz *position)
       bType = bend->bendType;
       torque = (theta - bType->theta0) * bType->kb;
 
+      torque *= 0.001; // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX rmme!!!
+      
       ff = torque * bond1->inverseLength;
       potential += ff * ff / 2.0;
       ff = torque * bond2->inverseLength;
       potential += ff * ff / 2.0;
     }
   }
-
-  if (!DEBUG(D_BEND_ONLY)) { // -D7
+#endif
+  if (DEBUG(D_BEND_ONLY)) { // -D7
     return potential;
   }
 
@@ -399,7 +403,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
   }
 			
   /* now the forces for each bend */
-			
+#ifdef DO_BEND			
   for (j=0; j<p->num_bends; j++) {
     bend = &p->bends[j];
 
@@ -465,8 +469,8 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       }
     }
   }
-
-  if (!DEBUG(D_BEND_ONLY)) { // -D7
+#endif
+  if (DEBUG(D_BEND_ONLY)) { // -D7
     return;
   }
 
