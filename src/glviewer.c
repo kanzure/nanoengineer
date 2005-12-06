@@ -1,3 +1,20 @@
+// usage: glviewer < inputfile
+//
+// tracks additional input as it is appended to inputfile
+//
+// keybindings:
+//
+// ,          -> back one frame
+// .          -> forward one frame
+// <          -> first frame (disable eof tracking)
+// >          -> last frame (resume eof tracking)
+// left/right -> change azimuth
+// up/down    -> change altitude (stops at either vertical)
+// shift up   -> move towards origin
+// shift down -> move away from origin
+// r          -> reset view to default
+// esc/q      -> exit
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -61,6 +78,7 @@ int startOfLastFrame = 0;
 int currentFrame = 0;
 
 int followLastFrame = 1; // if true, render a new frame whenever we get one.
+int atEOF = 0;
 
 static int attributeList[] = { GLX_RGBA, None };
 
@@ -75,6 +93,8 @@ static double eyePhi;
 
 static int windowWidth;
 static int windowHeight;
+
+static int needRepaint = 1;
 
 static GLUquadricObj *quad;
 static Display *xDisplay;
@@ -164,7 +184,7 @@ renderFrame()
 }
 
 static void
-repaint()
+doPaint()
 {
   float lightPosition[4] = { 1.0, 0.5, -0.1, 0.0 };
 
@@ -205,6 +225,13 @@ repaint()
   //sphere(0.0, 10.0, 10.0, 1.0, 0.0, 1.0, 1.0);
         
   glFlush();
+  needRepaint = 0;
+}
+
+static void
+repaint()
+{
+  needRepaint = 1;
 }
 
 // radians
@@ -333,7 +360,7 @@ processLine(char *s)
     startOfLastFrame = numObjects;
     if (followLastFrame) {
       currentFrame = numFrames - 1;
-      repaint(); // could be smarter about skipping frames if we get a bunch
+      repaint();
     }
   }
 }
@@ -352,6 +379,7 @@ processStdin()
     return;
   }
   if (nread > 0) {
+    atEOF = 0;
     stdinPosition += nread;
     startOfLine = 0;
     endOfLine = 0;
@@ -371,6 +399,8 @@ processStdin()
     } else {
       stdinPosition = 0;
     }
+  } else {
+    atEOF = 1;
   }
 }
 
@@ -435,6 +465,7 @@ int main(int argc, char **argv)
   GLXContext cx;
   XEvent event;
   fd_set readfds;
+  struct timeval timeout;
   int xServerFD;
   int nselected;
     
@@ -496,10 +527,15 @@ int main(int argc, char **argv)
   while (1) {
     while (processX()) {
     }
+    if (needRepaint) {
+      doPaint();
+    }
     FD_ZERO(&readfds);
     FD_SET(0, &readfds);
     FD_SET(xServerFD, &readfds);
-    nselected = select(xServerFD+1, &readfds, NULL, NULL, NULL);
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
+    nselected = select(xServerFD+1, &readfds, NULL, NULL, atEOF ? &timeout : NULL);
     if (nselected < 0) {
       perror("select");
       continue;
