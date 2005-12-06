@@ -623,6 +623,8 @@ class Tests(unittest.TestCase):
                               "--iters-per-frame=10",
                               "--dump-as-text",
                               "FOO.mmp"))
+    def test_minimize_h2(self):
+        StructureTest(dir="minimize", test="h2")
     def test_minimize_0001(self):
         StructureTest(dir="minimize", test="0001")
     def test_minimize_0002(self):
@@ -881,7 +883,14 @@ if __name__ == "__main__":
                assertions,
                help)
 
-    for arg in sys.argv[1:]:
+    # Default behavior is to just do the very slow tests
+    defaultArgs = ("lengths_angles", "slow")
+
+    args = sys.argv[1:]
+    if len(args) < 1:
+        args = defaultArgs
+
+    for arg in args:
         found = False
         for opt in options:
             if opt.__name__ == arg:
