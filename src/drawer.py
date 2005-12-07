@@ -324,7 +324,7 @@ class ColorSorter:
     In any function which will take part in sorting which previously did
     not, create a worker function from the old function except the call to
     apply_material.  Then create a wrapper which calls
-    ColorSorter.sorter.schedule with the worker function and its params.
+    ColorSorter.schedule with the worker function and its params.
     """
     __author__ = "grantham@plunk.org"
 
@@ -336,26 +336,44 @@ class ColorSorter:
     # time so the whole system will get a redesign and
     # reimplementation.
 
-    sorting = False
-    _sorted = 0
-    _immediate = 0
-    _glnames = []
+    sorting = False     # Guard against nested sorting
+    _sorted = 0         # Number of calls to _add_to_sorter since last
+                        # _printstats
+    _immediate = 0      # Number of calls to _invoke_immediately since last
+                        # _printstats
+    _glnames = []       # internal record of GL name stack
 
     def pushName(glname):
+        """Record the current pushed GL name.  This will probably mutate a little
+        into doing the GL name push as well, for clarity and encapsulation.
+        """
         ColorSorter._glnames.append(glname)
+
     pushName = staticmethod(pushName)
 
+
     def popName():
+        """Record a pop of the GL name.  This will probably mutate a little
+        into doing the GL pop as well, for clarity and encapsulation.
+        """
         del ColorSorter._glnames[-1]
+
     popName = staticmethod(popName)
 
-    def stats():
+
+    def _printstats():
+        """Internal function for developers to call to print stats on number of
+        sorted and immediately-called objects"""
         print "Since previous 'stats', %d sorted, %d immediate: " % (ColorSorter._sorted, ColorSorter._immediate)
         ColorSorter._sorted = 0
         ColorSorter._immediate = 0
+
     stats = staticmethod(stats)
 
+
     def _add_to_sorter(color, func, params):
+        """Internal function that stores 'scheduled' operations for a later
+        sort, between a start/finish"""
         ColorSorter._sorted += 1
         color = tuple(color)
         if not ColorSorter.sorted_by_color.has_key(color):
@@ -365,25 +383,39 @@ class ColorSorter:
         else:
             name = None
         ColorSorter.sorted_by_color[color].append((func, params, name))
+
     _add_to_sorter = staticmethod(_add_to_sorter)
 
+
     def _invoke_immediately(color, func, params):
+        """Internal function that invokes 'scheduled' operations right now,
+        outside a start/finish."""
         ColorSorter._immediate += 1
         apply_material(color)
         func(params)
+
     _invoke_immediately = staticmethod(_invoke_immediately)
 
+
+    # schedule is a code object; call it with a color, function, and
+    # param tuple
     schedule = _invoke_immediately
 
     def start():
+        """Start sorting - objects provided to "schedule" will be stored
+        for a sort at the time "finish" is called."""
         assert(not ColorSorter.sorting,
           "Called ColorSorter.start but already sorting?!")
         ColorSorter.sorting = True
         ColorSorter.sorted_by_color = {}
         ColorSorter.schedule = staticmethod(ColorSorter._add_to_sorter)
+
     start = staticmethod(start)
 
+
     def finish():
+        """Finish sorting - objects recorded since "start" will
+        be sorted and invoked now."""
         color_groups = len(ColorSorter.sorted_by_color)
         objects_drawn = 0
         for color, funcs in ColorSorter.sorted_by_color.iteritems():
@@ -398,7 +430,9 @@ class ColorSorter:
         ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
         ColorSorter.sorted_by_color = None
         ColorSorter.sorting = False
+
     finish = staticmethod(finish)
+
 
 halfHeight = 0.45
 
@@ -772,6 +806,10 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     return
 
 def drawsphere_worker(params):
+    """Draw a sphere.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see above)"""
+
     (pos, radius, detailLevel) = params
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
@@ -781,6 +819,8 @@ def drawsphere_worker(params):
     return
 
 def drawsphere(color, pos, radius, detailLevel):
+    """Schedule a sphere for rendering whenever ColorSorter thinks is
+    appropriate."""
     ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
@@ -797,6 +837,10 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     return
 
 def drawcylinder_worker(params):
+    """Draw a cylinder.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see above)"""
+
     global CylList, CapList
     (pos1, pos2, radius, capped) = params
 
@@ -822,6 +866,8 @@ def drawcylinder_worker(params):
     return
 
 def drawcylinder(color, pos1, pos2, radius, capped=0):
+    """Schedule a cylinder for rendering whenever ColorSorter thinks is
+    appropriate."""
     ColorSorter.schedule(color, drawcylinder_worker, (pos1, pos2, radius, capped))
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
