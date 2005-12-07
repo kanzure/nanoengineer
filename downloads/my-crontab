@@ -2,6 +2,4 @@ SHELL=/bin/sh
 MAILTO=wware
 LOGNAME=/home/wware/cron-log
 #
-# Pick a time when we are all reliably asleep, and cvsdude has
-# probably finished their backup, 5:45 AM East Coast time.
-45 5 * * *   /usr/bin/python /home/wware/polosims/Distribution/downloads/getTarballs.py
+45 5 * * 0,3   /usr/bin/python /home/wware/polosims/Distribution/downloads/getTarballs.py sendReminder
