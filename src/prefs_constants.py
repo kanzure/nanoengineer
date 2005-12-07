@@ -92,9 +92,10 @@ startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
 
 # Lighting prefs [most added by mark 051124 or later]
-old_glpane_lights_prefs_key = "glpane lighting" #bruce 051206 moved this here from GLPane;
+## old_glpane_lights_prefs_key = "glpane lighting" #bruce 051206 moved this here from GLPane;
     # it was hardcoded in two methods in GLPane; maybe dates from before prefs_constants module;
-    # will soon be abandoned and changed as a fix of bug 1181; see comments near its uses in GLPane.
+    # in the next commit it was abandoned and changed as a fix of bug 1181; see comments near its uses in GLPane.
+glpane_lights_prefs_key = 'A7/glpane lighting' #bruce 051206 introduced this key to fix bug 1181
 light1Color_prefs_key = 'A7/Light1 Color' #bruce 051206 comment: this looks redundant with elements in GLPane._lights; why?
 light2Color_prefs_key = 'A7/Light2 Color'
 light3Color_prefs_key = 'A7/Light3 Color'
@@ -141,7 +142,8 @@ _abandoned_prefs_keys = [
     'A7/Specular Highlights', # never released, superceded by 'A7/Material Specular Highlights' [mark 051205]
     'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish' [mark 051205]
     'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess' [mark 051205]
-    'A7/Material Brightness' # never released, superceded by 'A7/Material Specular Brightness' [mark 051205]
+    'A7/Material Brightness', # never released, superceded by 'A7/Material Specular Brightness' [mark 051205]
+    "glpane lighting", # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
     ]
 
 #==
