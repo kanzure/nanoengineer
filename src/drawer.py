@@ -368,7 +368,7 @@ class ColorSorter:
         ColorSorter._sorted = 0
         ColorSorter._immediate = 0
 
-    stats = staticmethod(stats)
+    _printstats = staticmethod(_printstats)
 
 
     def _add_to_sorter(color, func, params):
