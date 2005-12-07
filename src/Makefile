@@ -1,24 +1,16 @@
 # Makefile for the simulator
 
+ifeq ($(OS),Window_NT)
+CC = "C:/Dev-Cpp/bin/gcc.exe"
+CFLAGS=-I"C:/Dev-Cpp/include"
+LDFLAGS=-L"C:/Dev-Cpp/lib"
+STDC99=
+else
 CC=gcc
-
-#-std-c99 gets us isnormal() in structcompare.c
-#CFLAGS=-O2 -g
-#CFLAGS=-g -std=c99 -Wmissing-prototypes -Wall  # limit use of -std=c99
 CFLAGS=-g -Wmissing-prototypes -Wall
-
-# This was a bunch of options that Will got from running distutils. It
-# sped up the simulator CONSIDERABLY. We should see if we can use
-# their tricks for figuring out platform-specific compiler flags.
-#
-#CFLAGS=-g -Wmissing-prototypes -Wall -pthread -fno-strict-aliasing \
-#    -O2 -fomit-frame-pointer -pipe -march=i586 -mtune=pentiumpro -fPIC
-#
-# Would this require users to rebuild the simulator on their platform,
-# so it could be optimized for their processor?
-
-#LDFLAGS=-L/usr/X11R6/lib -lm -lX11 -lXi -lXmu
 LDFLAGS=-L/usr/lib -lm
+STDC99=-std=c99
+endif
 
 EXE_DIRECTORY=../../cad/bin
 #EXE_DIRECTORY=~/bin
@@ -77,7 +69,7 @@ writemovie.o: simulator.h
 
 # -std-c99 gets us isnormal()
 structcompare.o: structcompare.c simulator.h
-	$(CC) -c -std=c99 $(CFLAGS) -o structcompare.o structcompare.c
+	$(CC) -c $(STDC99) $(CFLAGS) -o structcompare.o structcompare.c
 
 sim.o: sim.c simulator.h
 	gcc -c -g -fPIC -I/usr/include/python2.3 sim.c
