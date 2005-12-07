@@ -55,6 +55,7 @@ import platform # for platform.atom_debug
 from widgets import makemenu_helper
 from debug import DebugMenuMixin, print_compact_traceback
 import preferences
+from prefs_constants import old_glpane_lights_prefs_key #bruce 051206
 import env
 from changes import SubUsageTrackingMixin
 
@@ -947,10 +948,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         "save the current lighting values in the standard preferences database"
         try:
             prefs = preferences.prefs_context()
-            key = "glpane lighting" # hardcoded in two methods
+            key = old_glpane_lights_prefs_key
             # we'll store everything in a single value at this key,
             # making it a dict of dicts so it's easy to add more lighting attrs (or lights) later
             # in an upward-compatible way.
+            # [update, bruce 051206: it turned out that when we added lots of info it became
+            #  not upward compatible, causing bug 1181 and making the only practical fix of that bug
+            #  a change in this prefs key; I plan to make that change within a few days.
+            #  First I should understand what's up with our two redundant storings of light color in prefs db. ###@@@]
 
             (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
             ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
@@ -985,7 +990,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         """
         try:
             prefs = preferences.prefs_context()
-            key = "glpane lighting" # hardcoded in two methods
+            key = old_glpane_lights_prefs_key
             try:
                 val = prefs[key]
             except KeyError:
@@ -1018,7 +1023,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             return False
         pass
 
-    def restoreDefaultLighting(self, gl_update = True): # not yet tested, sole caller not yet used ###@@@
+    def restoreDefaultLighting(self, gl_update = True):
         "restore the default (built-in) lighting preferences (but don't save them)."
         
         # Restore light color prefs keys.

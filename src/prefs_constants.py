@@ -91,8 +91,11 @@ cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
 startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
 
-# Lighting prefs [added by mark 051124]
-light1Color_prefs_key = 'A7/Light1 Color'
+# Lighting prefs [most added by mark 051124 or later]
+old_glpane_lights_prefs_key = "glpane lighting" #bruce 051206 moved this here from GLPane;
+    # it was hardcoded in two methods in GLPane; maybe dates from before prefs_constants module;
+    # will soon be abandoned and changed as a fix of bug 1181; see comments near its uses in GLPane.
+light1Color_prefs_key = 'A7/Light1 Color' #bruce 051206 comment: this looks redundant with elements in GLPane._lights; why?
 light2Color_prefs_key = 'A7/Light2 Color'
 light3Color_prefs_key = 'A7/Light3 Color'
 material_specular_highlights_prefs_key = 'A7/Material Specular Highlights'
@@ -125,14 +128,20 @@ QToolButton_MacOSX_Tiger_workaround_prefs_key = 'A6/QToolButton MacOSX Tiger wor
 
 #==
 
-# List of prefs keys which got stored into developers or users prefs dbs 
+# List of prefs keys (strings, not _prefs_key global variable names)
+# which got stored into developers or users prefs dbs (since they were saved in code committed to cvs),
 # but are no longer used now.
+#   This list is not yet used by the code, and when it is, its format might be revised,
+# but for now, make sure each line has a comment which gives complete info
+# about whether or not a released version ever stored prefs using the given keys
+# (and if so, exactly which released versions);
+# also, each line should be signed with a name and date of the abandonment of that key.
 
 _abandoned_prefs_keys = [
-    'A7/Specular Highlights', # never released, superceded by 'A7/Material Specular Hightlights'
-    'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish'
-    'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess'
-    'A7/Material Brightness' # never released, superceded by 'A7/Material Specular Brightness'
+    'A7/Specular Highlights', # never released, superceded by 'A7/Material Specular Highlights' [mark 051205]
+    'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish' [mark 051205]
+    'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess' [mark 051205]
+    'A7/Material Brightness' # never released, superceded by 'A7/Material Specular Brightness' [mark 051205]
     ]
 
 #==
