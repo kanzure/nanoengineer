@@ -1099,6 +1099,17 @@ class Minimize_CommandRun(CommandRun):
         return
     pass # end of class Minimize_CommandRun
 
+# ==
+
+def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
+    win = atomlist[0].molecule.part.assy.w # kluge!
+    #e should probably add in monovalent real atom neighbors -- but before finding neighbors layers, or after?
+    # (note that local min will always include singlets... we're just telling it to also treat attached H the same way.
+    #  that would suggest doing it after, as an option to Minimize. Hmm, should even Min Sel do it? Discuss.)
+    cmdrun = Minimize_CommandRun( win, 'Atoms', atomlist, nlayers)
+    cmdrun.run()
+    return
+
 # == helper code for Minimize Selection [by bruce, circa 050406] [also used for Minimize All, probably as of 050419, as guessed 051115]
 
 from elements import Singlet

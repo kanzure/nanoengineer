@@ -599,7 +599,10 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
            Warning: Current implem [051129] is not optimized for lots of atoms and ntimes > 1
         (which doesn't matter for its initial use).
         """
-        atoms = self.atoms # mutable dict, modified in following loop
+        assert not self.selmols and not self.topnodes # (since current implem would be incorrect otherwise)
+        atoms = self.selatoms # mutable dict, modified in following loop
+            # [name 'selatoms' is historical, but also warns that it doesn't include atoms in selmols --
+            #  present implem is only correct on selection objects made only from atoms.]
         for i in range(ntimes):
             for a1 in atoms.values(): # this list remains fixed as atoms dict is modified by this loop
                 for a2 in a1.realNeighbors():

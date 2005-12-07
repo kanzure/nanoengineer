@@ -1930,9 +1930,14 @@ class depositMode(basicMode):
                 pass
             pass
 
-##        # local minimize - experimental, nim [bruce 051011]
-##        if selatom is not None and not selatom.is_singlet() and platform.atom_debug:
-##            self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) ###@@@ IMPLEM
+        # local minimize - experimental, nim [bruce 051011, 051207]
+        if selatom is not None and not selatom.is_singlet():
+            ## self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode
+            # experimental. if we leave in these options, some of them might want a submenu.
+            # or maybe the layer depth is a dashboard control? or have buttons instead of menu items?
+            self.Menu_spec.append(( 'Minimize atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
+            self.Menu_spec.append(( 'Minimize 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
+            self.Menu_spec.append(( 'Minimize 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
         
         # offer to clean up singlet positions (not sure if this item should be so prominent)
         if selatom is not None and not selatom.is_singlet():
@@ -1985,6 +1990,15 @@ class depositMode(basicMode):
 
         return # from makeMenus
 
+    def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to take a list or pair of atoms, other options
+        if platform.atom_debug:
+            print "atom_debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
+            import runSim
+            reload(runSim)
+        from runSim import LocalMinimize_function
+        LocalMinimize_function( [atom], nlayers )
+        return
+        
     def setCarbon_sp3(self):
         self.w.setCarbon() # MWsemantics shouldn't really be involved in this at all... at some point this will get revised
         self.set_pastable_atomtype('sp3')
