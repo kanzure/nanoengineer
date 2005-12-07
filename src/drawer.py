@@ -404,8 +404,7 @@ class ColorSorter:
     def start():
         """Start sorting - objects provided to "schedule" will be stored
         for a sort at the time "finish" is called."""
-        assert not ColorSorter.sorting,
-          "Called ColorSorter.start but already sorting?!"
+        assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
         ColorSorter.sorted_by_color = {}
         ColorSorter.schedule = staticmethod(ColorSorter._add_to_sorter)
