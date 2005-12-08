@@ -531,17 +531,22 @@ class modelTree(TreeWidget):
             if allstats.njigs == allstats.n and allstats.njigs:
                 # only jigs are selected -- offer to select their atoms [bruce 050504]
                 # (text searches for this code might like to find "Select this jig's" or "Select these jigs'")
+                want_select_item = True #bruce 051208
                 if allstats.njigs == 1:
                     jig = nodeset[0]
                 
                     from jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
-                    if isinstance(jig, RectGadget): return res  
-                    
-                    natoms = len(nodeset[0].atoms)
-                    myatoms = fix_plurals( "this jig's %d atom(s)" % natoms )
+                    if isinstance(jig, RectGadget):
+                        ## return res  -- this 'return' was causing bug 1189 by skipping the rest of the menu, not just this item.
+                        # Try to do something less drastic. [bruce 051208]
+                        want_select_item = False
+                    else:
+                        natoms = len(nodeset[0].atoms)
+                        myatoms = fix_plurals( "this jig's %d atom(s)" % natoms )
                 else:
                     myatoms = "these jigs' atoms"
-                res.append(('Select ' + myatoms, self.cm_select_jigs_atoms ))
+                if want_select_item:
+                    res.append(('Select ' + myatoms, self.cm_select_jigs_atoms ))
 
 ##        ##e following msg is not true, since nodeset doesn't include selection under selected groups!
 ##        # need to replace it with a better breakdown of what's selected,
