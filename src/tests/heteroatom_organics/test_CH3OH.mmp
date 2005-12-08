@@ -1,0 +1,28 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.891717, 0.122415, 0.201627, 0.386267) (2.102428) (-0.130000, -0.032000, -0.000000) (1.000000)
+egroup (View Data)
+group (CH3OH)
+info opengroup open = True
+mol (CH3OH.pdb) def
+atom 1 (8) (-742, 165, -43) def
+atom 2 (6) (633, -647, 212) def
+bond1 1
+atom 3 (1) (-459, 1844, 41) def
+bond1 1
+atom 4 (1) (236, -1657, 119) def
+bond1 2
+atom 5 (1) (1079, -215, 728) def
+bond1 2
+atom 6 (1) (890, -159, -1027) def
+bond1 2
+egroup (CH3OH)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part CH3OH
+

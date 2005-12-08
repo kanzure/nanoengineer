@@ -1,0 +1,48 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.758015) (0.027000, 0.031000, -0.000000) (1.000000)
+egroup (View Data)
+group (C_CH3_3_AlH2)
+info opengroup open = True
+mol (C_CH3_3_AlH2.pdb) cpk
+atom 1 (6) (-1025, 97, -120) def
+atom 2 (6) (-1296, 984, 1153) def
+bond1 1
+atom 3 (6) (-842, 585, -1332) def
+bond1 1
+atom 4 (6) (-892, -832, -80) def
+bond1 1
+atom 5 (13) (1620, 110, -14) def
+bond1 1
+atom 6 (1) (-563, -168, 1892) def
+bond1 2
+atom 7 (1) (-843, 366, -2222) def
+bond1 3
+atom 8 (1) (-701, 1655, 1104) def
+bond1 2
+atom 9 (1) (-291, 2007, -1169) def
+bond1 3
+atom 10 (1) (-2222, 858, 1455) def
+bond1 2
+atom 11 (1) (-2242, 1173, -1591) def
+bond1 3
+atom 12 (1) (-1082, -1854, 1401) def
+bond1 4
+atom 13 (1) (-801, -1490, -790) def
+bond1 4
+atom 14 (1) (-1836, -1689, -459) def
+bond1 4
+atom 15 (1) (2032, 103, 982) def
+bond1 5
+atom 16 (1) (2485, 113, -1245) def
+bond1 5
+egroup (C_CH3_3_AlH2)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C_CH3_3_AlH2
+
