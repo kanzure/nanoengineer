@@ -1,0 +1,43 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.228079) (-0.037000, -0.063000, -0.031000) (1.000000)
+egroup (View Data)
+group (C4H8PH)
+info opengroup open = True
+mol (C4H8PH.pdb) def
+atom 1 (15) (463, 1834, 94) def
+atom 2 (6) (1287, 117, 50) def
+bond1 1
+atom 3 (6) (-1254, 1073, 278) def
+bond1 1
+atom 4 (6) (-1152, -377, -221) def
+bond1 3
+atom 5 (6) (181, -933, 303) def
+bond1 2 4
+atom 6 (1) (397, 2023, -1320) def
+bond1 1
+atom 7 (1) (2074, 63, 806) def
+bond1 2
+atom 8 (1) (1764, -27, -924) def
+bond1 2
+atom 9 (1) (-1520, 1099, 1340) def
+bond1 3
+atom 10 (1) (-2000, 1667, -259) def
+bond1 3
+atom 11 (1) (-1999, -990, 110) def
+bond1 4
+atom 12 (1) (-1157, -387, -1320) def
+bond1 4
+atom 13 (1) (428, -1897, -156) def
+bond1 5
+atom 14 (1) (89, -1109, 1382) def
+bond1 5
+egroup (C4H8PH)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C4H8PH

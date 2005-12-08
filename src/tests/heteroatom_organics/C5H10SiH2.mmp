@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.120347) (-0.031000, -0.033500, -0.004000) (1.000000)
+egroup (View Data)
+group (C5H10SiH2)
+info opengroup open = True
+mol (C5H10SiH2.pdb) def
+atom 1 (14) (835, 1012, -20) def
+atom 2 (6) (202, 195, 1569) def
+bond1 1
+atom 3 (6) (415, -225, -1396) def
+bond1 1
+atom 4 (6) (-1192, -437, 1348) def
+bond1 2
+atom 5 (6) (-1252, -1432, 173) def
+bond1 4
+atom 6 (6) (-1008, -796, -1209) def
+bond1 3 5
+atom 7 (1) (2298, 1308, 42) def
+bond1 1
+atom 8 (1) (117, 2303, -253) def
+bond1 1
+atom 9 (1) (171, 910, 2399) def
+bond1 2
+atom 10 (1) (914, -590, 1863) def
+bond1 2
+atom 11 (1) (1149, -1043, -1356) def
+bond1 3
+atom 12 (1) (518, 225, -2391) def
+bond1 3
+atom 13 (1) (-1511, -949, 2266) def
+bond1 4
+atom 14 (1) (-1934, 356, 1174) def
+bond1 4
+atom 15 (1) (-518, -2236, 337) def
+bond1 5
+atom 16 (1) (-2236, -1915, 171) def
+bond1 5
+atom 17 (1) (-1210, -1542, -1989) def
+bond1 6
+atom 18 (1) (-1749, 3, -1356) def
+bond1 6
+egroup (C5H10SiH2)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C5H10SiH2
