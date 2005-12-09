@@ -27,6 +27,7 @@ bruce 051201 made new source file for it, extended it to other kinds of objects 
 """
 __author__ = ["Will", "Bruce"]
 
+from qt import *
 import env
 from debug import print_compact_traceback
 from HistoryWidget import redmsg
@@ -120,21 +121,9 @@ def wiki_help_menuspec_for_featurename( featurename):
 
 #############################################
 
-"""Example usage for WikiHelpBrowser:
-
-    app = qt.QApplication(sys.argv)
-    w = WikiHelpBrowser("Here is a wiki page about " +
-                        wikiPage("QWhatsThis and web links") +
-                        " to click.")
-    w.show()
-    app.connect(app, qt.SIGNAL("lastWindowClosed()"),
-                app, qt.SLOT("quit()"))
-    app.exec_loop()
-"""
-
-class WikiHelpBrowser(qt.QTextBrowser):
+class WikiHelpBrowser(QTextBrowser):
     def __init__(self,text,parent=None):
-        class MimeFactory(qt.QMimeSourceFactory):
+        class MimeFactory(QMimeSourceFactory):
             def data(self,name,context=None):
                 # You'll always get a warning like this:
                 # QTextBrowser: no mimesource for http://....
@@ -142,9 +131,9 @@ class WikiHelpBrowser(qt.QTextBrowser):
                 # but I don't that's supported until PyQt 3.15. Also this falls
                 # victim to all the problems swarming around webbrowser.open().
                 import webbrowser
-                webbrowser.open(name)
+                webbrowser.open(str(name))
                 self.owner.close()
-        qt.QTextBrowser.__init__(self,parent)
+        QTextBrowser.__init__(self,parent)
         self.setMinimumSize(400, 300)
         # make it pale yellow like a post-it note
         self.setText("<qt bgcolor=\"#FFFF80\">" + text)
@@ -159,4 +148,18 @@ def wikiPage(topic):
     topic1 = topic1.replace(" ", "_")
     return " <a href=\"" + fmt + topic1 + "\">" + topic + "</a> "
 
+def __testWikiHelpBrowser():
+    import sys
+    app = QApplication(sys.argv)
+    w = WikiHelpBrowser("Here is a wiki page about " +
+                        wikiPage("QWhatsThis and web links") +
+                        " to click.")
+    w.show()
+    app.connect(app, SIGNAL("lastWindowClosed()"),
+                app, SLOT("quit()"))
+    app.exec_loop()
+
+if __name__=="__main__":
+    __testWikiHelpBrowser()
+    
 # end
