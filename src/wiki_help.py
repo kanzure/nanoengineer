@@ -118,4 +118,45 @@ def wiki_help_menuspec_for_featurename( featurename):
     command = wiki_help_lambda( featurename)
     return [( menutext, command )]
 
+#############################################
+
+"""Example usage for WikiHelpBrowser:
+
+    app = qt.QApplication(sys.argv)
+    w = WikiHelpBrowser("Here is a wiki page about " +
+                        wikiPage("QWhatsThis and web links") +
+                        " to click.")
+    w.show()
+    app.connect(app, qt.SIGNAL("lastWindowClosed()"),
+                app, qt.SLOT("quit()"))
+    app.exec_loop()
+"""
+
+class WikiHelpBrowser(qt.QTextBrowser):
+    def __init__(self,text,parent=None):
+        class MimeFactory(qt.QMimeSourceFactory):
+            def data(self,name,context=None):
+                # You'll always get a warning like this:
+                # QTextBrowser: no mimesource for http://....
+                # This could be avoided with QApplication.qInstallMsgHandler,
+                # but I don't that's supported until PyQt 3.15. Also this falls
+                # victim to all the problems swarming around webbrowser.open().
+                import webbrowser
+                webbrowser.open(name)
+                self.owner.close()
+        qt.QTextBrowser.__init__(self,parent)
+        self.setMinimumSize(400, 300)
+        # make it pale yellow like a post-it note
+        self.setText("<qt bgcolor=\"#FFFF80\">" + text)
+        self.mf = mf = MimeFactory()
+        mf.owner = self
+        self.setMimeSourceFactory(mf)
+
+# This is a provisional stub. Feel free to edit.
+def wikiPage(topic):
+    fmt = "http://www.nanoengineer-1.net/mediawiki/index.php?title="
+    topic1 = topic[:1].upper() + topic[1:]
+    topic1 = topic1.replace(" ", "_")
+    return " <a href=\"" + fmt + topic1 + "\">" + topic + "</a> "
+
 # end
