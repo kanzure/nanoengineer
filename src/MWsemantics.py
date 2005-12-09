@@ -250,6 +250,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.pasteP = False
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
+        
+        # Movie Player Flag.  Mark 051209.
+        # 'movie_is_playing' is a flag that indicates a movie is playing. It is used by other code to
+        # speed up rendering times by disabling the (re)building of display lists for each frame
+        # of the movie.
+        self.movie_is_playing = False
 
         #bruce 050810 replaced user preference initialization with this, and revised update_mainwindow_caption to match
         from changes import Formula
@@ -913,7 +919,25 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         msgbox.setCaption("Graphics Card Info")
         msgbox.setText(ginfo)
         msgbox.show()
-      
+
+# I modified a copy of cpuinfo.py from 
+# http://cvs.sourceforge.net/viewcvs.py/numpy/Numeric3/scipy/distutils/
+# thinking it might help us support users better if we had a built-in utility
+# for interrogating the CPU.  I do not plan to commit cpuinfo.py until I speak
+# to Bruce about this. Mark 051209.
+# 
+#    def helpCpuInfo(self):
+#        '''Displays this system's CPU information.
+#        '''
+#        from cpuinfo import get_cpuinfo
+#        cpuinfo = get_cpuinfo()
+#        
+#        from widgets import TextMessageBox
+#        msgbox = TextMessageBox(self)
+#        msgbox.setCaption("CPU Info")
+#        msgbox.setText(cpuinfo)
+#        msgbox.show()
+              
     def helpAbout(self):
         """Displays information about this version of nanoENGINEER-1
         """

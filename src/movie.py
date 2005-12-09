@@ -163,6 +163,10 @@ class Movie:
         self.showEachFrame = False
         # a flag that indicates the movie is paused
         self.isPaused = True
+        # 'movie_is_playing' is a flag that indicates a movie is playing. It is used by other code to
+        # speed up rendering times by disabling the (re)building of display lists for each frame
+        # of the movie. Mark 051209.
+        self.win.movie_is_playing = False
         # moveToEnd: a flag that indicates the movie is currently fast-forwarding to the end.
         # [bruce 050428 comment: in present code, self.moveToEnd might not be properly maintained
         #  (it's never set back to False except by _pause; I don't know if _pause is
@@ -691,6 +695,7 @@ class Movie:
         self.debug_dump("_pause called, not done")
         # bruce 050427 comment: no isOpen check, hope that's ok (this has several calls)
         self.isPaused = True
+        self.win.movie_is_playing = False
         self.showEachFrame = False
         self.moveToEnd = False
         self.win.moviePlayActiveAction.setVisible(0)
@@ -705,8 +710,8 @@ class Movie:
         if not DEBUG_DUMP: return # disable when not needed -- but it's useful and nicelooking output, so keep it around as an example
         if heading:
             print "\n  %s:" % heading
-        print "    isPaused = %r, showEachFrame = %r, moveToEnd = %r, totalFramesActual = %r, currentFrame = %r, playDirection = %r" \
-           % (self.isPaused, self.showEachFrame, self.moveToEnd, self.totalFramesActual, self.currentFrame, self.playDirection )
+        print "    movie_is_playing = %r, isPaused = %r, showEachFrame = %r, moveToEnd = %r, totalFramesActual = %r, currentFrame = %r, playDirection = %r" \
+           % (self.win.movie_is_playing, self.isPaused, self.showEachFrame, self.moveToEnd, self.totalFramesActual, self.currentFrame, self.playDirection )
         if kws:
             print "  other args: %r" % kws
         print_compact_stack("    stack at that time: ", skip_innermost_n = 3) # skips this lineno and 2 internal ones (#e should revise meaning to -2)
@@ -735,12 +740,14 @@ class Movie:
         
         if not from_slider: #bruce 050427 comment: I'm suspicious of this condition.
             self.isPaused = False
+            self.win.movie_is_playing = True # In case Bruce's suspicion is true.  Mark 051209.
             self.debug_dump()
         
         # Return immediately if already at desired frame.
         if fnum == self.currentFrame:
             if not from_slider: #bruce 050427 comment: I'm suspicious of this condition.
                 self.isPaused = True # May not be needed.  Doing it anyway.
+                self.win.movie_is_playing = False # May not be needed.  Doing it anyway. Mark 051209.
                 self.debug_dump("fnum == self.currentFrame so paused", fnum = fnum)
             return
            
@@ -748,6 +755,7 @@ class Movie:
         if fnum < 0 or fnum > self.totalFramesActual:
             print "Warning: Slider or other fnum out of bounds.  fnum value =",fnum,", Number of frames =", self.totalFramesActual
             self.isPaused = True # May not be needed.  Doing it anyway.
+            self.win.movie_is_playing = False # May not be needed.  Doing it anyway. Mark 051209.
             self.debug_dump("fnum out of range so paused", fnum = fnum)
             return
 
@@ -755,6 +763,7 @@ class Movie:
         #bruce 050427 comment: this might no longer be needed (it might be handled at a lower level). We'll see. ###@@@
         if not self.showEachFrame and fnum == 0 and not from_slider: 
             self._reset()
+            self.win.movie_is_playing = False # May not be needed.  Doing it anyway.  Mark 051209.
             return
 
         # "inc" is the frame increment (FWD = 1, REV = -1) .
@@ -816,12 +825,16 @@ class Movie:
             self.debug_dump("just after play_frame for slider", fnum = fnum, inc = inc)
         # else...
         
+        self.win.movie_is_playing = True # Starting the Movie...
+        
+        # Top of Main loop...
         while self.currentFrame != fnum:
 
             self.debug_dump("top of while loop body", fnum = fnum, inc = inc)
             assert not from_slider
             
             if self.isPaused:
+                self.win.movie_is_playing = False # Probably not needed.  Doing it anyway. mark 051209.
                 break
                 
             ## self.currentFrame += inc -- doing this below [bruce 050427]
@@ -832,7 +845,7 @@ class Movie:
             # Note that we needn't worry about valid range of frames, since both currentFrame and fnum should be within range.
             # (Unless the surrounding code fails to check currentFrame well enough... I'm not sure! ###k)
             # We only need to worry about whether we reach fnum or not.
-
+            
             skip_n = self.win.skipSB.value()
             if not self.showEachFrame:
                 #bruce 050428 adding this to see if it speeds up "forward to end"
@@ -882,6 +895,10 @@ class Movie:
         self.update_dashboard_currentFrame( )
             # [bruce 050428 comment: old code only updated slider here, but it did both SL and SB in loop above;
             #  now the update method decides which ones to update]
+        
+        # Set movie_is_playing to False right before it draws the last frame (fnum).    
+        self.win.movie_is_playing = False
+        # This is the last frame (fnum).
         self.glpane.gl_update() #e bruce 050427 comment: we should optimize and only do this if we didn't just do it in the loop
 
         if 1: ## if not from_slider:
