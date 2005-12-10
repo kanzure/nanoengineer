@@ -1039,7 +1039,7 @@ if __name__ == "__main__":
 
     # Default behavior is to do the very slow tests
     # with loose tolerances, so things pass
-    defaultArgs = ("lengths_angles", "slow", "loose")
+    defaultArgs = ("lengths_angles", "slow")
 
     args = sys.argv[1:]
     if len(args) < 1:
