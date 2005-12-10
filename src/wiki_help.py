@@ -121,18 +121,41 @@ def wiki_help_menuspec_for_featurename( featurename):
 
 #############################################
 
+_keep_reference = None
+
 class WikiHelpBrowser(QTextBrowser):
     def __init__(self,text,parent=None):
         class MimeFactory(QMimeSourceFactory):
             def data(self,name,context=None):
-                # You'll always get a warning like this:
+                # [obs comment:] You'll always get a warning like this:
                 # QTextBrowser: no mimesource for http://....
                 # This could be avoided with QApplication.qInstallMsgHandler,
-                # but I don't that's supported until PyQt 3.15. Also this falls
+                # but I don't think that's supported until PyQt 3.15. Also this falls
                 # victim to all the problems swarming around webbrowser.open().
                 import webbrowser
                 webbrowser.open(str(name))
                 self.owner.close()
+                    # (remove this if you want the dialog to stay open after the link is clicked,
+                    #  but its text will change to "link was clicked" due to the code below)
+                #bruce 051209 kluge:
+                # one way to avoid the warning, in trusty old PyQt 3.12:
+                ##   QMimeSourceFactory.defaultFactory().setText("arbuniqname","hi mom") 
+                ##   res = QMimeSourceFactory.defaultFactory().data("arbuniqname") 
+                # a simpler way, except that it doesn't work...
+                ##   res = QTextDrag("hi")
+                ##   print "res is",res
+                ##   return res
+                ## res is <__main__.qt.QTextDrag object at 0x1394120>
+                ## pure virtual method called
+                ## Abort
+                ## Exit 134
+                # let's try again and this time keep a reference to it -- ok, that works.
+                # I didn't dare try to let the old one get discarded by a new one,
+                # so we make at most one per apprun.
+                global _keep_reference
+                if _keep_reference is None:
+                    _keep_reference = QTextDrag("link was clicked")
+                return _keep_reference
         QTextBrowser.__init__(self,parent)
         self.setMinimumSize(400, 300)
         # make it pale yellow like a post-it note
