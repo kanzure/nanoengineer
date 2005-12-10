@@ -119,7 +119,7 @@ class MainPrefsGroup(PrefsGroup): # kind of like PartGroup; where do we say it's
         (for now -- details of where/how it saves them is private and might change)
         """
         path = prefsPath(self.assy)
-        self.part.writemmpfile( path)
+        self.part.writemmpfile( path) ####@@@@ need options? their defaults were changed on 051209 w/o reviewing this code.
         env.history.message( "saved Preferences Group" )
     # kluge: zap some useless cmenu items for this kind of node (activates special kluge in mtree cmenu maker)
     __CM_Hide = None

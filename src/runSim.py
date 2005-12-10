@@ -27,6 +27,7 @@ bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator ex
 
 from debug import print_compact_traceback
 import platform
+from platform import fix_plurals
 import os, sys
 from math import sqrt
 from SimSetup import SimSetup
@@ -315,11 +316,27 @@ class SimRunner:
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
             if debug_sim: #bruce 051115 added this
                 print "part.writemmpfile(%r)" % (mmpfile,)
-            part.writemmpfile( mmpfile)
+            stats = {}
+            part.writemmpfile( mmpfile, leave_out_sim_disabled_nodes = True, sim = True, dict_for_stats = stats)
+                #bruce 051209 added options  (used to be hardcoded in files_mpp, see below), plus a new one, dict_for_stats
                 # As of 051115 this is still called for Run Sim.
                 # As of 050412 this didn't yet turn singlets into H;
                 # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!).
+                #
+                #bruce 051209 addendum:
+                # It did this [until today] via these lines in files_mmp (copied here so text searches can find them):
+                #   mapping = writemmp_mapping(assy, leave_out_sim_disabled_nodes = True, sim = True)
+                #       #bruce 050811 added sim = True to fix bug 254 for sim runs, for A6.
+                # It would be better if it did this by passing its own (better-named) options to this writing method.
+                # So I made that change now, and I'll also pass a place to accumulate stats into,
+                # so I can complete the fix to bug 254 (by printing messages about X->H, albeit by copying similar code
+                #  and figuring out the count differently) without making the klugetower even worse.
+            nsinglets_H = stats.get('nsinglets_H', 0)
+            if nsinglets_H: #bruce 051209 this message code is approximately duplicated elsewhere in this file
+                info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during simulation)" % nsinglets_H )
+                env.history.message( info)
         else:
+            #bruce 051209 comment: I believe this case can never run (and is obs), but didn't verify this.
             if debug_sim: #bruce 051115 added this
                 print "simaspect.writemmpfile(%r)" % (mmpfile,)
             # note: simaspect has already been used to set up movie.alist; simaspect's own alist copy is used in following:
@@ -988,9 +1005,8 @@ class Minimize_CommandRun(CommandRun):
             #bruce 051115 updated comment: this is used for both Minimize All and Minimize Selection as of long before 051115;
             # for Run Sim this code is not used (so this history message doesn't go out for it, though it ought to)
             # but the bug254 X->H fix is done (though different code sets the mapping flag that makes it happen).
-            from platform import fix_plurals
             nsinglets_H = simaspect.nsinglets_H()
-            if nsinglets_H:
+            if nsinglets_H: #bruce 051209 this message code is approximately duplicated elsewhere in this file
                 info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during minimization)" % nsinglets_H )
                 env.history.message( info)
             nsinglets_leftout = simaspect.nsinglets_leftout()

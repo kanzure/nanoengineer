@@ -1180,7 +1180,8 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
 
 class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
     """Provides an object for accumulating data while writing an mmp file.
-    Specifically, the object stores options which affect what's written,
+    Specifically, the object stores options which affect what's written
+    [any option is allowed, so specific mmp writing methods can check it w/o this class needing to know about it],
     accumulates an encoding of atoms as numbers,
     has helper methods for using that encoding,
     writing some parts of the file;
@@ -1194,7 +1195,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.atnums = atnums = {}
         atnums['NUM'] = 0 # kluge from old code, kept for now
             #e soon change atnums to store strings, and keep 'NUM' as separate instvar
-        self.options = options # as of 050422, one of them is 'leave_out_sim_disabled_nodes'
+        self.options = options # as of 050422, one of them is 'leave_out_sim_disabled_nodes'; as of 051209 one is 'dict_for_stats'
         self.sim = options.get('sim', False) # simpler file just for the simulator?
         self.min = options.get('min', False) # even more simple, just for minimize?
         if self.min:
@@ -1395,7 +1396,7 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
         mapping.close()
     return # from writemmpfile_assy
 
-def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
+def writemmpfile_part(part, filename, **mapping_options): ##e should merge with writemmpfile_assy #bruce 051209 added mapping_options
     "write an mmp file for a single Part"
     # as of 050412 this didn't yet turn singlets into H;
     # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
@@ -1410,7 +1411,9 @@ def writemmpfile_part(part, filename): ##e should merge with writemmpfile_assy
     assy = part.assy
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     fp = open(filename, "w")
-    mapping = writemmp_mapping(assy, leave_out_sim_disabled_nodes = True, sim = True)
+    mapping = writemmp_mapping(assy, **mapping_options)
+        #bruce 051209 passing options from caller; they used to be: leave_out_sim_disabled_nodes = True, sim = True;
+        # but those were only appropriate for runSim's call (they're now copied there), not for "save selection" (semi-nim code).
         #bruce 050811 added sim = True to fix bug 254 for sim runs, for A6.
     mapping.set_fp(fp)
     try:

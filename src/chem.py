@@ -776,6 +776,12 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             eltnum = Hydrogen.eltnum
             posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen )
             disp = "openbond" # kluge, meant as a comment in the file #bruce 051115 changed this from "singlet" to "openbond"
+            #bruce 051209 for history message in runSim (re bug 254):
+            stats = mapping.options.get('dict_for_stats')
+            if stats is not None: # might be {}
+                nsinglets_H = stats.setdefault('nsinglets_H', 0)
+                nsinglets_H += 1
+                stats['nsinglets_H'] = nsinglets_H
         xyz = posn * 1000
             # note, xyz has floats, rounded below (watch out for this
             # if it's used to make a hash) [bruce 050404 comment]
