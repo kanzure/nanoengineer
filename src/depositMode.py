@@ -26,7 +26,7 @@ from bonds import bond_atoms
 from bond_constants import V_SINGLE
 
 from prefs_constants import HICOLOR_singlet
-    ###e should replace uses of these with prefs gets [bruce 050805] #####@@@@@
+    ##e should replace this with a prefs get or so [bruce 050805]
 
 import env
 
@@ -1191,6 +1191,7 @@ class depositMode(basicMode):
                 return # don't move a newly bonded atom
             # else we've grabbed an atom
             elif a.realNeighbors(): # probably part of larger molecule
+                    ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
                 self.dragmol = a.molecule
                 e=a.molecule.externs
                 if len(e)==1: # pivot around one bond
@@ -1336,7 +1337,7 @@ class depositMode(basicMode):
         # not clear this would be good, so *this* is what I won't do for now.
         self.o.gl_update()
         
-    def leftShiftDown(self, event):
+    def leftShiftDown(self, event): ###e should we revise this to check if cursor is on baggage, not on a singlet? [bruce 051209 Q]
         """If there's nothing nearby, do nothing. If cursor is on a
         singlet, drag it around, rotating the atom it's bonded to if
         possible.  If it is a real atom, drag it around (but not
@@ -1346,6 +1347,7 @@ class depositMode(basicMode):
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.line = None #bruce 041130 precaution
         self.baggage = [] #bruce 041130 precaution
+        self.nonbaggage = [] #bruce 051209 new feature so defn of baggage can be generalized
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
@@ -1357,28 +1359,32 @@ class depositMode(basicMode):
         self.o.assy.changed()
         if a.element is Singlet:
             pivatom = a.neighbors()[0]
-            neigh = pivatom.realNeighbors()
-            self.baggage = pivatom.singNeighbors()
-            self.baggage.remove(a)
+            self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209
+            neigh = self.nonbaggage
+##            neigh = pivatom.realNeighbors()
+##            self.baggage = pivatom.singNeighbors()
+            self.baggage.remove(a) # always works since singlets are always baggage
             if neigh:
                 if len(neigh)==2:
                     self.pivot = pivatom.posn()
                     self.pivax = norm(neigh[0].posn()-neigh[1].posn())
-                    self.baggage = []
+                    self.baggage = [] #####@@@@@ revise nonbaggage too??
+                        #bruce suspects this might be a bug, looks like it prevents other singlets from moving, eg in -CX2- drag X
                 elif len(neigh)>2:
                     self.pivot = None
                     self.pivax = None
-                    self.baggage = []
+                    self.baggage = []#####@@@@@ revise nonbaggage too??
                 else: # atom on a single stalk
                     self.pivot = pivatom.posn()
                     self.pivax = norm(self.pivot-neigh[0].posn())
-            else: # no real neighbors
+            else: # no non-baggage neighbors
                 self.pivot = pivatom.posn()
                 self.pivax = None
         else: # we've grabbed an atom
             self.pivot = None
             self.pivax = None
-            self.baggage = a.singNeighbors()
+            self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
+            ## self.baggage = a.singNeighbors()
         self.dragatom = a
         # we need to store something unique about this event;
         # we'd use serno or time if it had one... instead this _count will do.
@@ -1399,15 +1405,16 @@ class depositMode(basicMode):
         if a.element is not Singlet and not self.pivot:
             # no pivot, just dragging it around
             apo = a.posn()
-            # find the delta quat for the average real bond and apply
-            # it to the singlets
-            n = a.realNeighbors()
+            # find the delta quat for the average non-baggage bond and apply
+            # it to the baggage
+            n = self.nonbaggage
+            ## n = a.realNeighbors()
             old = V(0,0,0)
             new = V(0,0,0)
             for at in n:
                 old += at.posn()-apo
                 new += at.posn()-px
-                at.adjSinglets(a, px)
+                at.adjBaggage(a, px)
             delta = px - apo
             if n:
                 q=Q(old,new)
@@ -1421,8 +1428,8 @@ class depositMode(basicMode):
             # this doesn't work if done before the loop above
             a.setposn(px)
             # [bruce 041108 writes:]
-            # This a.setposn(px) can't be done before the at.adjSinglets(a, px)
-            # in the loop before it, or adjSinglets (which compares a.posn() to
+            # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
+            # in the loop before it, or adjBaggage (which compares a.posn() to
             # px) would think atom a was not moving.
         elif self.pivax: # pivoting around an axis
             quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
@@ -1432,10 +1439,11 @@ class depositMode(basicMode):
             quat = Q(a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
-        self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
-            #bruce 041130 asks: is it correct to do that when a is real?
-            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         if a.element is Singlet:
+            #bruce 051209 brought update_selatom inside this conditional, to fix an old bug; need to reset it in other case???###@@@
+            self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
+            #bruce 041130 asks: is it correct to do that when a is real? 051209: no. now i don't, that's the bugfix.
+            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
             self.line = [a.posn(), px]
         #bruce 041130 added status bar message with new coordinates
         apos1 = a.posn()
@@ -1457,9 +1465,10 @@ class depositMode(basicMode):
         if not self.dragatom: return
         self.baggage = []
         self.line = None
-        self.update_selatom(event, singOnly = True)
-            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         if self.dragatom.is_singlet():
+            #bruce 051209 brought update_selatom inside this conditional, to fix an old bug; need to reset it in other case???###@@@
+            self.update_selatom(event, singOnly = True)
+                # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
             if self.o.selatom and self.o.selatom is not self.dragatom:
                 dragatom = self.dragatom
                 selatom = self.o.selatom
@@ -1489,7 +1498,7 @@ class depositMode(basicMode):
         env.history.message("%s: %s" % (self.msg_modename, status))
         return
 
-    ## delete with cntl-left mouse
+    ## delete with cntl-left mouse ###e should we delete the baggage too??
     def leftCntlDown(self, event):
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
@@ -1941,17 +1950,17 @@ class depositMode(basicMode):
         
         # offer to clean up singlet positions (not sure if this item should be so prominent)
         if selatom is not None and not selatom.is_singlet():
-            sings = selatom.singNeighbors()
+            sings = selatom.singNeighbors() #e when possible, use baggageNeighbors() here and remake_baggage below. [bruce 051209]
             if sings or selatom.bad():
                 if sings:
                     text = 'Reposition open bonds'
                         # - this might be offered even if they don't need repositioning;
                         # not easy to fix, but someday we'll always reposition them whenever needed
                         # and this menu command can be removed then.
-                        # - ideally we'd reposition H's too... ###e
+                        # - ideally we'd reposition H's too (i.e. call remake_baggage below)
                 else:
                     text = 'Add open bonds' # this text is only used if it doesn't have enough
-                self.Menu_spec.append(( text, selatom.remake_singlets ))
+                self.Menu_spec.append(( text, selatom.remake_singlets )) #e should finish and use remake_baggage (and baggageNeighbors)
 
         # separator and changers to other modes
         if self.Menu_spec:

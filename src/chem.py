@@ -399,14 +399,14 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
                 #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
         self.setposn(pos)
     
-    def adjSinglets(self, atom, nupos):
+    def adjBaggage(self, atom, nupos): #bruce 051209 revised meaning and name from adjSinglets
         """We're going to move atom, a neighbor of yours, to nupos,
-        so adjust the positions of your singlets to match.
+        so adjust the positions of your singlets (and other baggage) to match.
         """
         ###k could this be called for atom being itself a singlet, when dragging a singlet? [bruce 050502 question]
         apo = self.posn()
-        # find the delta quat for the average real bond and apply
-        # it to the singlets
+        # find the delta quat for the average non-baggage bond and apply
+        # it to the baggage
         #bruce 050406 comment: this first averages the bond vectors,
         # old and new, then rotates old to match new. This is not
         # correct, especially if old or new (average) is near V(0,0,0).
@@ -416,7 +416,9 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         # within their chunks in Build mode. Better yet might be to
         # use old singlet posns purely as hints, recomputing new ones
         # from scratch (hints are useful to disambiguate this). ###@@@
-        n = self.realNeighbors()
+        baggage, other = self.baggage_and_other_neighbors()
+        n = other
+        ## n = self.realNeighbors()
         old = V(0,0,0)
         new = V(0,0,0)
         for at in n:
@@ -425,7 +427,7 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             else: new += at.posn()-apo
         if n:
             q=Q(old,new)
-            for at in self.singNeighbors():
+            for at in baggage: ## was self.singNeighbors()
                 at.setposn(q.rot(at.posn()-apo)+apo)
 
     def __repr__(self):
@@ -1153,19 +1155,41 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         return
     
     def neighbors(self):
-        """return a list of the atoms bonded to this one
-        """
+        "return a list of all atoms (including singlets) bonded to this one"
         return map((lambda b: b.other(self)), self.bonds)
     
     def realNeighbors(self):
-        """return a list of the atoms not singlets bonded to this one
-        """
+        "return a list of the real atoms (not singlets) bonded to this atom"
         return filter(lambda atm: atm.element is not Singlet, self.neighbors())
     
     def singNeighbors(self):
-        """return a list of the singlets bonded to this atom
-        """
+        "return a list of the singlets bonded to this atom"
         return filter(lambda atm: atm.element is Singlet, self.neighbors())
+    
+    def baggage_and_other_neighbors(self): #bruce 051209
+        """Return a list of the baggage bonded to this atom (monovalent neighbors which should be dragged along with it),
+        and a list of the others (independent neighbors). Special case: in H2 (for example) there is no baggage
+        (so that there is some way to stretch the H-H bond); but singlets are always baggage, even in HX.
+        """
+        nn = self.neighbors()
+        if len(nn) == 1:
+            # special case: no baggage unless neighbor is a singlet
+            if nn[0].element is Singlet:
+                return nn, []
+            else:
+                return [], nn
+        baggage = []
+        other = []
+        for atm in nn:
+            if len(atm.bonds) == 1:
+                baggage.append(atm)
+            else:
+                other.append(atm)
+        return baggage, other
+
+    def baggageNeighbors(self): #bruce 051209
+        baggage, other = self.baggage_and_other_neighbors()
+        return baggage
 
     def mvElement(self, elt, atomtype = None): #bruce 050511 added atomtype arg
         """[Public low-level method:]
@@ -1712,6 +1736,17 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         for atm in self.singNeighbors():
             atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_singlets()
+        return # from remake_singlets
+
+    def remake_baggage(self): #bruce 051209 -- pseudocode ###@@@
+        bn = self.baggageNeighbors()
+        for atm in bn:
+            if not atm.is_singlet():
+                pass ###e record element and position
+                atm.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o replacing w/ singlet; better to just tell kill that
+            atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
+        self.make_enough_singlets() ###e might pass old posns to ask this to imitate them if it can
+        pass ###e now transmute the elts back to what they were, if you can, based on nearness
         return # from remake_singlets
 
     def make_enough_singlets(self): #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
