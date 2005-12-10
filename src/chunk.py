@@ -980,10 +980,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if self.havelist == (disp, eltprefs, matprefs): # value must agree with set of havelist, below
                 glCallList(self.displist)
             else:
-                self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way
-                match_checking_code = self.begin_tracking_usage()
-                glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-                ColorSorter.start() # grantham 20051205
+                self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way #bruce 051209: now it's needed
+                try:
+                    wantlist = not env.mainwindow().movie_is_playing #bruce 051209 UNTESTED #####@@@@@
+                except:
+                    print_compact_traceback("exception (a bug) ignored: ")
+                    wantlist = True
+                if wantlist:
+                    match_checking_code = self.begin_tracking_usage()
+                    glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+                    ColorSorter.start() # grantham 20051205
 
                 # bruce 041028 -- protect against exceptions while making display
                 # list, or OpenGL will be left in an unusable state (due to the lack
@@ -996,18 +1002,20 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     # it might have left the externs incomplete # bruce 041105 night [not anymore -- bruce 050513]
                     ## self.invalidate_attr('externs')
 
-                ColorSorter.finish() # grantham 20051205
-                glEndList()
-                self.end_tracking_usage( match_checking_code, self.inval_display_list )
-                # This is the only place where havelist is set to anything true;
-                # the value it's set to must match the value it's compared with, above.
-                # [bruce 050415 revised what it's set to/compared with; details above]
-                self.havelist = (disp, eltprefs, matprefs)
-                assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
-                # always set the self.havelist flag, even if exception happened,
-                # so it doesn't keep happening with every redraw of this molecule.
-                #e (in future it might be safer to remake the display list to contain
-                # only a known-safe thing, like a bbox and an indicator of the bug.)
+                if wantlist:
+                    ColorSorter.finish() # grantham 20051205
+                    glEndList()
+                    self.end_tracking_usage( match_checking_code, self.inval_display_list )
+                    # This is the only place where havelist is set to anything true;
+                    # the value it's set to must match the value it's compared with, above.
+                    # [bruce 050415 revised what it's set to/compared with; details above]
+                    self.havelist = (disp, eltprefs, matprefs)
+                    assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
+                    # always set the self.havelist flag, even if exception happened,
+                    # so it doesn't keep happening with every redraw of this molecule.
+                    #e (in future it might be safer to remake the display list to contain
+                    # only a known-safe thing, like a bbox and an indicator of the bug.)
+                pass
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)

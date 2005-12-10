@@ -59,6 +59,16 @@ and officially deprecated win.history.
 
 __author__ = 'bruce'
 
+def mainwindow(): #bruce 051209
+    """Return the main window object (since there is exactly one, and it contains some global variables).
+    Fails if called before main window is inited (and it and assy point to each other).
+    """
+    from MWsemantics import windowList
+    assert len(windowList) == 1 # otherwise we would not know which one was correct to return
+    win = windowList[-1] # assumes only one
+    assert win.assy.w is win # sanity check, and makes sure it's not too early for these things to have been set up
+    return win
+
 # This module defines stub functions which are replaced with different implementations
 # by the changes module when it's imported.
 # So this module should not import the changes module, directly or indirectly.
