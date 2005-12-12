@@ -42,6 +42,7 @@ setRUnit(struct xyz *position, struct bond *b, double *pr)
 }
 
 // note: the first two parameters are only used for error processing...
+// result in aJ (1e-18 J)
 double
 stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double r)
 {
@@ -94,6 +95,7 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   return potential;
 }
 
+// result in pN (1e-12 J/m)
 double
 stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double r)
 {
@@ -146,6 +148,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     return gradient;
 }
 
+// result in aJ (1e-18 J)
 double
 vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
 {
@@ -182,6 +185,7 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
   return potential;
 }
 
+// result in pN (1e-12 J/m), but divided by the radius vector
 double
 vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
 {
@@ -218,6 +222,7 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
   return gradient;
 }
 
+// result in aJ (1e-18 J)
 double
 calculatePotential(struct part *p, struct xyz *position)
 {
@@ -227,6 +232,7 @@ calculatePotential(struct part *p, struct xyz *position)
   struct xyz v2;
   double z;
   double theta;
+  double dTheta;
   double ff;
   double potential = 0.0;
 
@@ -236,59 +242,54 @@ calculatePotential(struct part *p, struct xyz *position)
   struct bond *bond2;
   struct bend *bend;
   struct bendData *bType;
-  double torque;
   struct vanDerWaals *vdw;
   struct xyz rv;
   double r;
 
   validSerial++;
 
-  for (j=0; j<p->num_stretches; j++) {
-    stretch = &p->stretches[j];
-    bond = stretch->b;
+  if (!DEBUG(D_SKIP_STRETCH)) { // -D6
+    for (j=0; j<p->num_stretches; j++) {
+      stretch = &p->stretches[j];
+      bond = stretch->b;
 
-    // we presume here that rUnit is invalid, and we need rSquared
-    // anyway.
-    setRUnit(position, bond, &r);
-    if (!DEBUG(D_BEND_ONLY)) { // -D7
+      // we presume here that rUnit is invalid, and we need rSquared
+      // anyway.
+      setRUnit(position, bond, &r);
       potential += stretchPotential(p, stretch, stretch->stretchType, r);
     }
-  }
-  if (DEBUG(D_STRETCH_ONLY)) { // -D6
-    return potential;
   }
 			
   /* now the potential for each bend */
 
-#define DO_BEND
-#ifdef DO_BEND
-  for (j=0; j<p->num_bends; j++) {
-    bend = &p->bends[j];
+  if (!DEBUG(D_SKIP_BEND)) { // -D7
+    for (j=0; j<p->num_bends; j++) {
+      bend = &p->bends[j];
 
-    bond1 = bend->b1;
-    bond2 = bend->b2;
+      bond1 = bend->b1;
+      bond2 = bend->b2;
 
-    // Update rUnit for both bonds, if necessary.  Note that we
-    // don't need r or rSquared here.
-    if (bond1->valid != validSerial) {
-      setRUnit(position, bond1, NULL);
-    }
-    if (bond2->valid != validSerial) {
-      setRUnit(position, bond2, NULL);
-    }
+      // Update rUnit for both bonds, if necessary.  Note that we
+      // don't need r or rSquared here.
+      if (bond1->valid != validSerial) {
+        setRUnit(position, bond1, NULL);
+      }
+      if (bond2->valid != validSerial) {
+        setRUnit(position, bond2, NULL);
+      }
       
-    // v1, v2 are the unit vectors FROM the central atom TO the
-    // neighbors.  Reverse them if we have to.
-    if (bend->dir1) {
-      vsetn(v1, bond1->rUnit);
-    } else {
-      vset(v1, bond1->rUnit);
-    }
-    if (bend->dir2) {
-      vsetn(v2, bond2->rUnit);
-    } else {
-      vset(v2, bond2->rUnit);
-    }
+      // v1, v2 are the unit vectors FROM the central atom TO the
+      // neighbors.  Reverse them if we have to.
+      if (bend->dir1) {
+        vsetn(v1, bond1->rUnit);
+      } else {
+        vset(v1, bond1->rUnit);
+      }
+      if (bend->dir2) {
+        vsetn(v2, bond2->rUnit);
+      } else {
+        vset(v2, bond2->rUnit);
+      }
 
 
 #define ACOS_POLY_A -0.0820599
@@ -296,49 +297,44 @@ calculatePotential(struct part *p, struct xyz *position)
 #define ACOS_POLY_C -0.137239
 #define ACOS_POLY_D -0.969476
 
-    z = vlen(vsum(v1, v2));
-    // this is the equivalent of theta=arccos(z);
-    theta = Pi + z * (ACOS_POLY_D +
-                 z * (ACOS_POLY_C +
-                 z * (ACOS_POLY_B +
-                 z *  ACOS_POLY_A   )));
+      z = vlen(vsum(v1, v2));
+      // this is the equivalent of theta=arccos(z);
+      theta = Pi + z * (ACOS_POLY_D +
+                   z * (ACOS_POLY_C +
+                   z * (ACOS_POLY_B +
+                   z *  ACOS_POLY_A   )));
 
-    // XXX check that this is all ok...
-    // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
-    bType = bend->bendType;
-    torque = (theta - bType->theta0) * bType->kb;
-
-    torque *= 0.001; // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX rmme!!!
-      
-    ff = torque * bond1->inverseLength;
-    potential += ff * ff / 2.0;
-    ff = torque * bond2->inverseLength;
-    potential += ff * ff / 2.0;
-  }
-#endif
-  if (DEBUG(D_BEND_ONLY)) { // -D7
-    return potential;
-  }
-
-  /* do the van der Waals/London forces */
-  for (j=0; j<p->num_vanDerWaals; j++) {
-    vdw = p->vanDerWaals[j];
-
-    // The vanDerWaals array changes over time, and might have
-    // NULL's in it as entries are deleted.
-    if (vdw == NULL) {
-      continue;
+      // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
+      bType = bend->bendType;
+      dTheta = (theta - bType->theta0);
+      ff = 0.5 * dTheta * dTheta * bType->kb;
+      // ff is in yJ (1e-24 J), potential in aJ (1e-18 J)
+      potential += ff * 1e-6;
     }
-      
-    vsub2(rv, position[vdw->a1->index], position[vdw->a2->index]);
-    rSquared = vdot(rv, rv);
-    r = sqrt(rSquared);
-    potential += vanDerWaalsPotential(p, vdw, vdw->parameters, r);
   }
-    
+
+  if (!DEBUG(D_SKIP_VDW)) { // -D9
+    /* do the van der Waals/London forces */
+    for (j=0; j<p->num_vanDerWaals; j++) {
+      vdw = p->vanDerWaals[j];
+
+      // The vanDerWaals array changes over time, and might have
+      // NULL's in it as entries are deleted.
+      if (vdw == NULL) {
+        continue;
+      }
+      
+      vsub2(rv, position[vdw->a1->index], position[vdw->a2->index]);
+      rSquared = vdot(rv, rv);
+      r = sqrt(rSquared);
+      potential += vanDerWaalsPotential(p, vdw, vdw->parameters, r);
+    }
+  }
+  
   return potential;
 }
 
+// result placed in force is in pN (1e-12 J/m)
 void
 calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
 {
@@ -373,15 +369,15 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
   for (j=0; j<p->num_atoms; j++) {
     vsetc(force[j], 0.0);
   }
+  
+  if (!DEBUG(D_SKIP_STRETCH)) { // -D6
+    for (j=0; j<p->num_stretches; j++) {
+      stretch = &p->stretches[j];
+      bond = stretch->b;
 
-  for (j=0; j<p->num_stretches; j++) {
-    stretch = &p->stretches[j];
-    bond = stretch->b;
+      // we presume here that rUnit is invalid, and we need r anyway
+      setRUnit(position, bond, &r);
 
-    // we presume here that rUnit is invalid, and we need r anyway
-    setRUnit(position, bond, &r);
-
-    if (!DEBUG(D_BEND_ONLY)) { // -D7
       gradient = stretchGradient(p, stretch, stretch->stretchType, r);
       // rUnit points from a1 to a2; F = -gradient
       vmul2c(f, bond->rUnit, gradient);
@@ -394,115 +390,115 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       }
     }
   }
-  if (DEBUG(D_STRETCH_ONLY)) { // -D6
-    return;
-  }
-			
-  /* now the forces for each bend */
-#ifdef DO_BEND			
-  for (j=0; j<p->num_bends; j++) {
-    bend = &p->bends[j];
 
-    bond1 = bend->b1;
-    bond2 = bend->b2;
+  if (!DEBUG(D_SKIP_BEND)) { // -D7
+    /* now the forces for each bend */
+    for (j=0; j<p->num_bends; j++) {
+      bend = &p->bends[j];
 
-    // Update rUnit for both bonds, if necessary.  Note that we
-    // don't need r or rSquared here.
-    if (bond1->valid != validSerial) {
-      setRUnit(position, bond1, NULL);
-    }
-    if (bond2->valid != validSerial) {
-      setRUnit(position, bond2, NULL);
-    }
+      bond1 = bend->b1;
+      bond2 = bend->b2;
+
+      // Update rUnit for both bonds, if necessary.  Note that we
+      // don't need r or rSquared here.
+      if (bond1->valid != validSerial) {
+        setRUnit(position, bond1, NULL);
+      }
+      if (bond2->valid != validSerial) {
+        setRUnit(position, bond2, NULL);
+      }
       
-    // v1, v2 are the unit vectors FROM the central atom TO the
-    // neighbors.  Reverse them if we have to.
-    if (bend->dir1) {
-      vsetn(v1, bond1->rUnit);
-    } else {
-      vset(v1, bond1->rUnit);
-    }
-    if (bend->dir2) {
-      vsetn(v2, bond2->rUnit);
-    } else {
-      vset(v2, bond2->rUnit);
-    }
+      // v1, v2 are the unit vectors FROM the central atom TO the
+      // neighbors.  Reverse them if we have to.
+      if (bend->dir1) {
+        vsetn(v1, bond1->rUnit);
+      } else {
+        vset(v1, bond1->rUnit);
+      }
+      if (bend->dir2) {
+        vsetn(v2, bond2->rUnit);
+      } else {
+        vset(v2, bond2->rUnit);
+      }
 
-    // XXX figure out how close we can get / need to get
-    // apply no force if v1 and v2 are close to being linear
+      // XXX figure out how close we can get / need to get
+      // apply no force if v1 and v2 are close to being linear
 #define COLINEAR 1e-8
-    z = vlen(vsum(v1, v2));
-    // this is the equivalent of theta=arccos(z);
-    theta = Pi + z * (ACOS_POLY_D +
-                 z * (ACOS_POLY_C +
-                 z * (ACOS_POLY_B +
-                 z *  ACOS_POLY_A   )));
+      z = vlen(vsum(v1, v2));
+      // this is the equivalent of theta=arccos(z);
+      theta = Pi + z * (ACOS_POLY_D +
+                   z * (ACOS_POLY_C +
+                   z * (ACOS_POLY_B +
+                   z *  ACOS_POLY_A   )));
 
-    v2x(foo, v1, v2);       // foo = v1 cross v2
-    if (vlen(foo) < COLINEAR) {
-      // v1 and v2 are very close to colinear.  We can pick any
-      // vector orthogonal to either one.  First we try v1 x (1, 0,
-      // 0).  If v1 is colinear with the x axis, then in can't be
-      // colinear with the y axis too, so we use v1 x (0, 1, 0) in
-      // that case.
-      axis.x = 1;
-      axis.y = 0;
-      axis.z = 0;
-      v2x(foo, v1, axis);
+      v2x(foo, v1, v2);       // foo = v1 cross v2
       if (vlen(foo) < COLINEAR) {
-        axis.x = 0;
-        axis.y = 1;
+        // v1 and v2 are very close to colinear.  We can pick any
+        // vector orthogonal to either one.  First we try v1 x (1, 0,
+        // 0).  If v1 is colinear with the x axis, then in can't be
+        // colinear with the y axis too, so we use v1 x (0, 1, 0) in
+        // that case.
+        axis.x = 1;
+        axis.y = 0;
+        axis.z = 0;
         v2x(foo, v1, axis);
+        if (vlen(foo) < COLINEAR) {
+          axis.x = 0;
+          axis.y = 1;
+          v2x(foo, v1, axis);
+        }
+      }
+        
+      //foo = uvec(foo);        // hmmm... not sure why this has to be a unit vector.
+      q1 = uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
+      q2 = uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
+
+      // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
+      bType = bend->bendType;
+      // torque in yJ/rad
+      torque = (theta - bType->theta0) * bType->kb;
+      // inverseLength is pm/rad
+      // ff is yJ/pm (1e-24 J / 1e-12 m) or 1e-12 J/m or pN
+      ff = torque * bond1->inverseLength;
+      vmulc(q1, ff);
+      ff = torque * bond2->inverseLength;
+      vmulc(q2, ff);
+
+      vsub(force[bend->ac->index], q1);
+      vadd(force[bend->a1->index], q1);
+      vsub(force[bend->ac->index], q2);
+      vadd(force[bend->a2->index], q2);
+      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
+        writeSimpleForceVector(position, bend->a1->index, &q1, 3); // blue
+        vmulc(q1, -1.0);
+        writeSimpleForceVector(position, bend->ac->index, &q1, 2); // green
+        writeSimpleForceVector(position, bend->a2->index, &q2, 3); // blue
+        vmulc(q2, -1.0);
+        writeSimpleForceVector(position, bend->ac->index, &q2, 2); // green
       }
     }
-        
-    //foo = uvec(foo);        // hmmm... not sure why this has to be a unit vector.
-    q1 = uvec(vx(v1, foo)); // unit vector perpendicular to v1 in plane of v1 and v2
-    q2 = uvec(vx(foo, v2)); // unit vector perpendicular to v2 in plane of v1 and v2
-
-    bType = bend->bendType;
-    torque = (theta - bType->theta0) * bType->kb;
-    ff = torque * bond1->inverseLength;
-    vmulc(q1, ff);
-    ff = torque * bond2->inverseLength;
-    vmulc(q2, ff);
-
-    vadd(force[bend->ac->index], q1);
-    vsub(force[bend->a1->index], q1);
-    vadd(force[bend->ac->index], q2);
-    vsub(force[bend->a2->index], q2);
-    if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-      writeSimpleForceVector(position, bend->ac->index, &q1, 2); // green
-      vmulc(q1, -1.0);
-      writeSimpleForceVector(position, bend->a1->index, &q1, 3); // blue
-      writeSimpleForceVector(position, bend->ac->index, &q2, 2); // green
-      vmulc(q2, -1.0);
-      writeSimpleForceVector(position, bend->a2->index, &q2, 3); // blue
-    }
-  }
-#endif
-  if (DEBUG(D_BEND_ONLY)) { // -D7
-    return;
   }
 
-  /* do the van der Waals/London forces */
-  for (j=0; j<p->num_vanDerWaals; j++) {
-    vdw = p->vanDerWaals[j];
+  if (!DEBUG(D_SKIP_VDW)) { // -D9
+    /* do the van der Waals/London forces */
+    for (j=0; j<p->num_vanDerWaals; j++) {
+      vdw = p->vanDerWaals[j];
 
-    // The vanDerWaals array changes over time, and might have
-    // NULL's in it as entries are deleted.
-    if (vdw == NULL) {
-      continue;
-    }
+      // The vanDerWaals array changes over time, and might have
+      // NULL's in it as entries are deleted.
+      if (vdw == NULL) {
+        continue;
+      }
       
-    vsub2(rv, position[vdw->a1->index], position[vdw->a2->index]);
-    rSquared = vdot(rv, rv);
-    r = sqrt(rSquared);
+      vsub2(rv, position[vdw->a1->index], position[vdw->a2->index]);
+      rSquared = vdot(rv, rv);
+      r = sqrt(rSquared);
     
-    gradient = vanDerWaalsGradient(p, vdw, vdw->parameters, r);
+      gradient = vanDerWaalsGradient(p, vdw, vdw->parameters, r);
     
-    vmul2c(f, rv, gradient);
-    vadd(force[vdw->a1->index], f);
-    vsub(force[vdw->a2->index], f);
+      vmul2c(f, rv, gradient);
+      vadd(force[vdw->a1->index], f);
+      vsub(force[vdw->a2->index], f);
+    }
   }
 }

@@ -15,9 +15,10 @@ extern int debug_flags;
 #define D_MINIMIZE_POTENTIAL_MOVIE (1<<3)
 #define D_MINIMIZE_GRADIENT_MOVIE  (1<<4)
 #define D_MINIMIZE_GRADIENT_MOVIE_DETAIL  (1<<5)
-#define D_STRETCH_ONLY    (1<<6)
-#define D_BEND_ONLY       (1<<7)
+#define D_SKIP_STRETCH    (1<<6)
+#define D_SKIP_BEND       (1<<7)
 #define D_PRINT_BEND_STRETCH (1<<8)
+#define D_SKIP_VDW        (1<<9)
 
 
 extern FILE *tracef;
