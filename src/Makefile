@@ -133,7 +133,7 @@ install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
 	fi
-	cp simulator ~/bin
+	cp simulator ~/bin/simulator
 	mv simulator $(EXE_DIRECTORY) 
 
 clean:
