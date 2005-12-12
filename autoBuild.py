@@ -333,7 +333,8 @@ class NanoBuildLinux(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
     def _freezePythonExecutable(self):
-        cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
+        # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
+        cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
                os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
         ret = system(cmd)
         #Copy OpenGL package into buildSource/program
