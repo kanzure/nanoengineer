@@ -1,0 +1,28 @@
+#!/bin/sh
+
+LOCALARG=
+
+case $1 in
+    local)
+        LOCALARG="-s /home/wware/polosims"
+	;;
+esac
+
+echo If there is already an RPM installed, uninstall it
+sudo rpm -e nanoENGINEER-1 || echo "didn't find an old RPM"
+
+echo Remove any detritus from previous build attempts
+sudo find /usr/src/RPM -name nanoENGINEER* -exec rm -rf {} \;
+rm -rf /tmp/quux
+
+echo Fetch sources
+cp -r /usr/lib/python2.3/site-packages/OpenGL .
+cp /usr/bin/assistant .
+echo Build a new RPM
+CMD="python autoBuild.py ${LOCALARG} -o /tmp/quux"
+echo $CMD
+$CMD
+rm -rf assistant OpenGL
+
+echo Install the new RPM
+sudo rpm -i /usr/src/RPM/RPMS/i586/nanoENGINEER-1-0.0-6.i586.rpm
