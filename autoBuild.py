@@ -341,7 +341,11 @@ class NanoBuildLinux(NanoBuildBase):
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
                  os.path.join(self.buildSourcePath, 'program/OpenGL'))
     def _createSpecFile(self, specFile, appName, version, releaseNo, sourceDir):
-        """Create the spec file to build rpm package on Linux """
+        """Create the spec file to build rpm package on Linux. Here is some
+        information about what goes inside a RPM spec file:
+        http://www.rpm.org/max-rpm/s1-rpm-build-creating-spec-file.html
+        http://www.rpm.org/max-rpm/s1-rpm-inside-scripts.html
+        """
         try:
             spf = open(specFile, 'w')
             spf.write("AutoReqProv: 0 \n\nSummary: A CAD software package for a nanoengineer to " +
@@ -352,10 +356,10 @@ class NanoBuildLinux(NanoBuildBase):
             otherStuff = """License: GPL
 Group: Applications/CAD
 Source: project.tgz
-#URL:
-Distribution: Nanorex, Inc.
+URL: http://nanoengineer-1.net/mediawiki/index.php
+Distribution: nanoENGINEER-1
 Vendor: Nanorex, Inc.
-Packager: Will Ware <wware@alum.mit.edu>
+Packager: Nanorex, Inc.
 Requires: libMesaglut3
 
 %description
@@ -376,6 +380,26 @@ existing assembly.
 %build
 
 %install
+# This stuff DOES NOT RUN on the end user's machine!
+# If it did, we could set up a desktop icon here.
+# And we could set the BROWSER environment variable here.
+# But alas, these things must be release-noted. An RPM can't do them.
+
+%post
+#!/bin/sh
+# Set up a desktop icon.
+# I checked a nanoENGINEER-1.desktop file into cad/src, but I don't
+# see how to get it through the RPM process and into the end user's
+# $HOME directory.
+
+# Set the BROWSER environment variable.
+if [ -f /usr/bin/firefox ] || [ -f /usr/local/bin/firefox ]; then
+    echo "export BROWSER=firefox" >> /etc/bashrc
+else
+    echo "export BROWSER=konqueror" >> /etc/bashrc
+fi
+# Unfortunately this won't help the user until he starts
+# another Bash session.
 
 %files
 %defattr(755, root, root, 755)
