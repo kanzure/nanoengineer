@@ -1,6 +1,6 @@
 # Makefile for the simulator
 
-ifeq ($(OS),Window_NT)
+ifeq ($(OS),Windows_NT)
 CC = "C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-I"C:/Dev-Cpp/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
