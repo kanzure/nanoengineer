@@ -247,7 +247,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.Element = 6
         self.setElement(6)
         # and paste the atom rather than the clipboard by default
-        self.pasteP = False
+        self.pasteState = False
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
         
@@ -987,7 +987,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
    
     def toolsBuildAtoms(self):
-        self.pasteP = False
+        self.pasteState = False
         self.glpane.setMode('DEPOSIT')
 
     # get into cookiecutter mode
@@ -1204,7 +1204,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         global MMKitWin
         if MMKitWin and not MMKitWin.isHidden():
-           self.pasteP = False
+           self.pasteState = False
            MMKitWin.update_dialog(self.Element)     
            MMKitWin.show()
            
