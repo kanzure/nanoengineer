@@ -102,7 +102,7 @@ class PlotTool(PlotToolDialog):
         else: # No jigs in the part, so nothing to plot.  Revised msgs per bug 440-2.  Mark 050731.
             msg = redmsg("The part contains no jigs that write data to the trace file.  Nothing to plot.")
             env.history.message(cmd + msg)
-            msg = "The following jigs write output to the tracefile: Measure Distance jigs, Rotary Motors, Linear Motors, Anchors, Thermostats and Thermometers."
+            msg = "The following jigs write output to the tracefile: Measurement jigs, Rotary Motors, Linear Motors, Anchors, Thermostats and Thermometers."
             env.history.message(msg)
             return 1
         
