@@ -366,7 +366,8 @@ readMMP(char *filename)
   struct mmpStream thisMMPStream, *mmp;
   char *tok;
   char bondOrder;
-  char *name;
+  char *name, *fontname, *junk;
+  int fontsize;
   int elementType;
   int previousAtomID; // ID of atom just defined, so we can back-reference to it in later lines
   double stall;
@@ -454,18 +455,36 @@ readMMP(char *filename)
       makeThermometer(p, name, atomList[0], atomList[1]);
     }
 
-    // angle (name) <atom1> <atom2> <atom3>
-    // angle meter
-    else if (!strcmp(tok, "angle")) {
+    // mdihedral (name) (Fontname) <fontsize> <atom1> <atom2> <atom3> <atom4>
+    // dihedral meter
+    else if (!strcmp(tok, "mdihedral")) {
       name = expectName(mmp);
+      junk = expectName(mmp); // center of jig
+      fontname = expectName(mmp);
+      expectInt(mmp, &fontsize, 0);
+      expectIntList(mmp, &atomList, &atomListLength, 4);
+      //makeDihedralMeter(p, name, atomList[0], atomList[1],
+      //		atomList[2], atomList[2]);
+    }
+
+    // mangle (name) (Fontname) <fontsize> <atom1> <atom2> <atom3>
+    // angle meter
+    else if (!strcmp(tok, "mangle")) {
+      name = expectName(mmp);
+      junk = expectName(mmp); // center of jig
+      fontname = expectName(mmp);
+      expectInt(mmp, &fontsize, 0);
       expectIntList(mmp, &atomList, &atomListLength, 3);
       makeAngleMeter(p, name, atomList[0], atomList[1], atomList[2]);
     }
 
-    // radius (name) <atom1> <atom2>
+    // mdistance (name) (Fontname) <fontsize> <atom1> <atom2>
     // radius meter
-    else if (!strcmp(tok, "radius")) {
+    else if (!strcmp(tok, "mdistance")) {
       name = expectName(mmp);
+      junk = expectName(mmp); // center of jig
+      fontname = expectName(mmp);
+      expectInt(mmp, &fontsize, 0);
       expectIntList(mmp, &atomList, &atomListLength, 2);
       makeRadiusMeter(p, name, atomList[0], atomList[1]);
     }
