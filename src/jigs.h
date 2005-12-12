@@ -13,6 +13,10 @@ extern void jigThermometer(struct jig *jig, double deltaTframe, struct xyz *posi
 
 extern void jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position);
 
+extern double angleBetween(struct xyz xyz1, struct xyz xyz2);
+
+extern void jigDihedral(struct jig *jig, struct xyz *new_position);
+
 extern void jigAngle(struct jig *jig, struct xyz *new_position);
 
 extern void jigRadius(struct jig *jig, struct xyz *new_position);

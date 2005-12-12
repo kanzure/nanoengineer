@@ -206,6 +206,12 @@ void pcon(FILE *f, int i) {
 	fprintf(f, " Theta=%.2f, theta0=%.2f, moment factor =%e\n",
 		  mot->theta, mot->theta0, mot->moment);
 	break;
+    case CODEdihedral:   
+	fprintf(f, "Dihedral meter %s:\n atoms ",Constraint[i].name);
+	for (j=0;j<Constraint[i].natoms;j++)
+	    fprintf(f, "%d ",Constraint[i].atoms[j]);
+	fprintf(f, "\n");
+	break;
     case CODEangle:   
 	fprintf(f, "Angle meter %s:\n atoms ",Constraint[i].name);
 	for (j=0;j<Constraint[i].natoms;j++)
@@ -230,6 +236,7 @@ countOutputColumns(struct jig *j)
         return 2;
     case Ground:
     case Thermometer:
+    case DihedralMeter:
     case AngleMeter:
     case RadiusMeter:
     case Thermostat:
@@ -278,8 +285,12 @@ void traceHeader(FILE *f, char *inputFileName, char *outputFileName, char *trace
         j = part->jigs[i];
         switch (j->type) {
 
+        case DihedralMeter:
+            fprintf(f, "# %s: dihedral (degrees)\n", j->name); 
+            break;
+
         case AngleMeter:
-            fprintf(f, "# %s: angle (radians)\n", j->name); 
+            fprintf(f, "# %s: angle (degrees)\n", j->name); 
             break;
 
         case RadiusMeter:
@@ -316,7 +327,7 @@ void traceJigHeader(FILE *f, struct part *part) {
     int i;
     int ncol;
 
-    fprintf(f, "#     Time ");
+    fprintf(f, "#     Time       ");
     for (i=0; i<part->num_jigs; i++) {
         j = part->jigs[i];
         
@@ -325,22 +336,23 @@ void traceJigHeader(FILE *f, struct part *part) {
 	vsetc(j->xdata,0.0);
 
         switch (j->type) {
-        case Ground:      fprintf(f, "Anchor  "); break;
-        case Thermometer: fprintf(f, "T.meter "); break;
-        case AngleMeter:  fprintf(f, "Angle   "); break;
-        case RadiusMeter: fprintf(f, "Radius  "); break;
-        case Thermostat:  fprintf(f, "T.stat  "); break;
-        case LinearMotor: fprintf(f, "Lmotor  "); break;
-        case RotaryMotor: fprintf(f, "sped Motor torq ");
+        case Ground:        fprintf(f, "Anchor        "); break;
+        case Thermometer:   fprintf(f, "T.meter       "); break;
+        case DihedralMeter: fprintf(f, "Dihedral      "); break;
+        case AngleMeter:    fprintf(f, "Angle         "); break;
+        case RadiusMeter:   fprintf(f, "Distance      "); break;
+        case Thermostat:    fprintf(f, "T.stat        "); break;
+        case LinearMotor:   fprintf(f, "Lmotor        "); break;
+        case RotaryMotor:   fprintf(f, "sped Motor torq ");
 	}
     }
-    fprintf(f, "\n#  picosec ");
+    fprintf(f, "\n#  picosec       ");
 
     for (i=0; i<part->num_jigs; i++) {
         j = part->jigs[i];
         ncol = countOutputColumns(j);
         if (ncol > 0) {
-            fprintf(f, "%-8.8s", j->name);
+            fprintf(f, "%-14.14s", j->name);
             while (ncol-- > 1) {
                 fprintf(f, "        ");
             }
@@ -360,12 +372,13 @@ void traceJigData(FILE *f, struct part *part) {
     for (i=0; i<part->num_jigs; i++) {
         j = part->jigs[i];
         switch (j->type) {
+        case DihedralMeter:
         case AngleMeter:
-	    fprintf(f, "%8.5f", j->data);
+	    fprintf(f, "%14.5f", j->data);
 	    break;
         case Ground:
 	    x=vlen(j->xdata)/1e4;
-	    fprintf(f, "%8.2f", x / j->data);
+	    fprintf(f, "%14.2f", x / j->data);
 	    j->data=0.0;
 	    vsetc(j->xdata, 0.0);
 	    break;
@@ -373,11 +386,11 @@ void traceJigData(FILE *f, struct part *part) {
         case RadiusMeter:
         case Thermostat:
         case LinearMotor:
-	    fprintf(f, "%8.2f", j->data);
+	    fprintf(f, "%14.2f", j->data);
 	    j->data = 0.0;
 	    break;
         case RotaryMotor:
-	    fprintf(f, "%8.3f%8.3f", j->data/(Dt*2e9*Pi),
+	    fprintf(f, "%14.3f%14.3f", j->data/(Dt*2e9*Pi),
 		    j->data2/((1e-9/Dx)*(1e-9/Dx)));
 	    j->data = 0.0;
 	    j->data2 = 0.0;

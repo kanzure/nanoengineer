@@ -463,8 +463,8 @@ readMMP(char *filename)
       fontname = expectName(mmp);
       expectInt(mmp, &fontsize, 0);
       expectIntList(mmp, &atomList, &atomListLength, 4);
-      //makeDihedralMeter(p, name, atomList[0], atomList[1],
-      //		atomList[2], atomList[2]);
+      makeDihedralMeter(p, name, atomList[0], atomList[1],
+			atomList[2], atomList[3]);
     }
 
     // mangle (name) (Fontname) <fontsize> <atom1> <atom2> <atom3>

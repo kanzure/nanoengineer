@@ -123,6 +123,9 @@ oneDynamicsFrame(struct part *part,
           case Thermostat:
             jigThermostat(jig, deltaTframe, positions, newPositions);
             break;
+          case DihedralMeter:
+            jigDihedral(jig, newPositions);
+            break;
           case AngleMeter:
             jigAngle(jig, newPositions);
             break;

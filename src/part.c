@@ -586,6 +586,24 @@ makeThermometer(struct part *p, char *name, int firstAtomID, int lastAtomID)
   jigAtomRange(p, j, firstAtomID, lastAtomID);
 }
 
+// Create an dihedral meter jig in this part, given the jig name, and the
+// three atoms to measure.  The dihedral angle between the atoms will be
+// reported in the trace file.
+void
+makeDihedralMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3, int atomID4)
+{
+  struct jig *j = newJig(p);
+
+  j->type = DihedralMeter;
+  j->name = name;
+  j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 4);
+  j->num_atoms = 4;
+  j->atoms[0] = translateAtomID(p, atomID1);
+  j->atoms[1] = translateAtomID(p, atomID2);
+  j->atoms[2] = translateAtomID(p, atomID3);
+  j->atoms[3] = translateAtomID(p, atomID4);
+}
+
 // Create an angle meter jig in this part, given the jig name, and the
 // three atoms to measure.  The angle between the atoms will be
 // reported in the trace file.
@@ -843,14 +861,15 @@ char *
 printableJigType(struct jig *j)
 {
   switch (j->type) {
-  case Ground:      return "Ground";
-  case Thermometer: return "Thermometer";
-  case AngleMeter:  return "AngleMeter";
-  case RadiusMeter: return "RadiusMeter";
-  case Thermostat:  return "Thermostat";
-  case RotaryMotor: return "RotaryMotor";
-  case LinearMotor: return "LinearMotor";
-  default:          return "unknown";
+  case Ground:        return "Ground";
+  case Thermometer:   return "Thermometer";
+  case DihedralMeter: return "DihedralMeter";
+  case AngleMeter:    return "AngleMeter";
+  case RadiusMeter:   return "RadiusMeter";
+  case Thermostat:    return "Thermostat";
+  case RotaryMotor:   return "RotaryMotor";
+  case LinearMotor:   return "LinearMotor";
+  default:            return "unknown";
   }
 }
 

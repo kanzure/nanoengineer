@@ -278,10 +278,59 @@ jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct 
     jig->data += ke;
 }
 
+double
+angleBetween(struct xyz xyz1, struct xyz xyz2)
+{
+    double Lsq1, Lsq2, L1, L2, dprod;
+    Lsq1 = vdot(xyz1, xyz1);
+    if (Lsq1 < 1.0e-10)
+	return 0.0;
+    Lsq2 = vdot(xyz2, xyz2);
+    if (Lsq2 < 1.0e-10)
+	return 0.0;
+    L1 = sqrt(Lsq1);
+    L2 = sqrt(Lsq2);
+    dprod = vdot(xyz1, xyz2) / sqrt(Lsq1 * Lsq2);
+    if (dprod >= 1.0)
+	return 0.0;
+    if (dprod <= -1.0)
+	return 180.0;
+    return (180.0 / M_PI) * acos(dprod);
+}
+
+
+void
+jigDihedral(struct jig *jig, struct xyz *new_position)
+{
+    struct xyz wx;
+    struct xyz xy;
+    struct xyz yx;
+    struct xyz zy;
+    struct xyz u, v;
+
+    // better have 4 atoms exactly
+    vsub2(wx,new_position[jig->atoms[0]->index],
+          new_position[jig->atoms[1]->index]);
+    vsub2(yx,new_position[jig->atoms[2]->index],
+          new_position[jig->atoms[1]->index]);
+    vsub2(xy,new_position[jig->atoms[1]->index],
+          new_position[jig->atoms[2]->index]);
+    vsub2(zy,new_position[jig->atoms[3]->index],
+          new_position[jig->atoms[2]->index]);
+    // vx = cross product
+    u = vx(wx, yx);
+    v = vx(xy, zy);
+    if (vdot(zy, u) < 0) {
+	jig->data = -angleBetween(u, v);
+    } else {
+	jig->data = angleBetween(u, v);
+    }
+}
+
+
 void
 jigAngle(struct jig *jig, struct xyz *new_position)
 {
-    double z;
     struct xyz v1;
     struct xyz v2;
 
@@ -290,9 +339,8 @@ jigAngle(struct jig *jig, struct xyz *new_position)
           new_position[jig->atoms[1]->index]);
     vsub2(v2,new_position[jig->atoms[2]->index],
           new_position[jig->atoms[1]->index]);
-    z=acos(vdot(v1,v2)/(vlen(v1)*vlen(v2)));
-
-    jig->data = z;
+    // jig->data = acos(vdot(v1,v2)/(vlen(v1)*vlen(v2)));
+    jig->data = angleBetween(v1, v2);
 }
 
 

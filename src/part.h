@@ -40,6 +40,7 @@ struct bond
 enum jigtype {
   Ground,
   Thermometer,
+  DihedralMeter,
   AngleMeter,
   RadiusMeter,
   Thermostat,
@@ -233,6 +234,8 @@ extern void makeVanDerWaals(struct part *p, int atomID1, int atomID2);
 extern void makeGround(struct part *p, char *name, int atomListLength, int *atomList);
 
 extern void makeThermometer(struct part *p, char *name, int firstAtomID, int lastAtomID);
+
+extern void makeDihedralMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3, int atomID4);
 
 extern void makeAngleMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3);
 
