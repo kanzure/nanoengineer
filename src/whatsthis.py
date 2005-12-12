@@ -1169,7 +1169,7 @@ def create_whats_this_descriptions_for_depositMode(w):
        
     w.modifyMMKitAction.setWhatsThis(mmkitText )
         
-    # Deposit Atom button
+    # Deposit (Atom) button
     
     depositText = "<u><b>Deposit Atom</b></u><br> "\
                         "<p><img source=\"eyedroppericon\"><br> "\
@@ -1177,9 +1177,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "eyedroppericon",
-                        w.depositAtomDashboard.atomRB.iconSet().pixmap() )
+                        w.depositAtomDashboard.depositBtn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.atomRB, depositText )
+    QWhatsThis.add ( w.depositAtomDashboard.depositBtn, depositText )
     
     # Paste button
     
@@ -1189,9 +1189,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "clipboardicon",
-                        w.depositAtomDashboard.pasteRB.iconSet().pixmap() )
+                        w.depositAtomDashboard.pasteBtn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.pasteRB, pasteText )
+    QWhatsThis.add ( w.depositAtomDashboard.pasteBtn, pasteText )
     
     # Single Bond button
     
@@ -1202,9 +1202,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "singlebondicon",
-                        w.depositAtomDashboard.bond1RB.iconSet().pixmap() )
+                        w.depositAtomDashboard.bond1Btn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.bond1RB, singleBondText )
+    QWhatsThis.add ( w.depositAtomDashboard.bond1Btn, singleBondText )
     
     # Double Bond button
     
@@ -1215,9 +1215,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "doublebondicon",
-                        w.depositAtomDashboard.bond2RB.iconSet().pixmap() )
+                        w.depositAtomDashboard.bond2Btn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.bond2RB, doubleBondText )
+    QWhatsThis.add ( w.depositAtomDashboard.bond2Btn, doubleBondText )
     
     # Triple Bond button
     
@@ -1228,9 +1228,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "triplebondicon",
-                        w.depositAtomDashboard.bond3RB.iconSet().pixmap() )
+                        w.depositAtomDashboard.bond3Btn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.bond3RB, tripleBondText )
+    QWhatsThis.add ( w.depositAtomDashboard.bond3Btn, tripleBondText )
     
     # Aromatic Bond button
     
@@ -1241,9 +1241,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "aromaticbondicon",
-                        w.depositAtomDashboard.bondaRB.iconSet().pixmap() )
+                        w.depositAtomDashboard.bondaBtn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.bondaRB, aromaticBondText )
+    QWhatsThis.add ( w.depositAtomDashboard.bondaBtn, aromaticBondText )
     
     # Graphitic Bond button
     
@@ -1254,9 +1254,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "graphiticbondicon",
-                        w.depositAtomDashboard.bondgRB.iconSet().pixmap() )
+                        w.depositAtomDashboard.bondgBtn.iconSet().pixmap() )
 
-    QWhatsThis.add ( w.depositAtomDashboard.bondgRB, graphiticBondText )
+    QWhatsThis.add ( w.depositAtomDashboard.bondgBtn, graphiticBondText )
     
     # Autobond checkbox
     

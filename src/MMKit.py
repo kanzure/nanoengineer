@@ -38,6 +38,8 @@ class MMKit(MMKitDialog):
         
         self.newModel = None  ## used to save the selected lib part
         
+        # For readability, 'pageId' needs named constants like "Elements", "Clipboard", and "Library".  
+        # Mark 051211.
         self.pageId = 0 ## Display the first tab page by default
         
         self.flayout = None
@@ -54,44 +56,44 @@ class MMKit(MMKitDialog):
         self.connect(self.w.elemChangeComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
         self.connect(self.w.pasteComboBox, SIGNAL("activated(const QString&)"), self.change2PastePage)
         
-        #self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("pressed()"), self.change2PastePage) 
-        self.connect(self.w.depositAtomDashboard.pasteRB, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
-        self.connect(self.w.depositAtomDashboard.atomRB, SIGNAL("stateChanged(int)"), self.atomBtnStateChanged)
+        #self.connect(self.w.depositAtomDashboard.pasteBtn, SIGNAL("pressed()"), self.change2PastePage) 
+        self.connect(self.w.depositAtomDashboard.pasteBtn, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
+        self.connect(self.w.depositAtomDashboard.depositBtn, SIGNAL("stateChanged(int)"), self.depositBtnStateChanged)
         
         self.connect(self.dirView, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
         
     
     def pasteBtnStateChanged(self, state):
-        '''Slot method. Called when the state of the paste button of deposit dashboard has been changed. '''
+        '''Slot method. Called when the state of the Paste button of deposit dashboard has been changed. '''
         if state == QButton.On:
             self.change2PastePage()
 
 
-    def atomBtnStateChanged(self, state):
-        '''Slot method. Called when the state of the atom button of deposit dashboard has been changed. ''' 
+    def depositBtnStateChanged(self, state):
+        '''Slot method. Called when the state of the Deposit button of deposit dashboard has been changed. ''' 
         if state == QButton.On:
            self.change2ElemPage() 
 
 
     def hybridChangedOutside(self, newId):
-        '''Slot method. Called when user change element hybridization from the dashboard. 
+        '''Slot method. Called when user changes element hybridization from the dashboard. 
          This method achieves the same effect as user clicked one of the hybridization buttons.'''
         self.hybrid_btngrp.setButton(newId)
         self.set_hybrid_type(newId)
         
         ## fix bug 868
-        self.w.depositAtomDashboard.atomRB.setOn(True)
+        self.w.depositAtomDashboard.depositBtn.setOn(True)
        
 
     def change2ElemPage(self):
-        '''Slot method. Called when user changed element/hybrid or pressed deposit button from dashboard.
+        '''Slot method. Called when user changed element/hybrid or pressed Deposit button from dashboard.
         '''
         if not (self.tabWidget2.currentPageIndex() == 0):
             self.tabWidget2.setCurrentPage(0)
             
 
     def change2PastePage(self):
-        '''Slot method. Called when user changed pastable item or pressed paste button from dashboard. '''
+        '''Slot method. Called when user changed pastable item or pressed Paste button from dashboard. '''
         #if not (self.tabWidget2.currentPageIndex() == 1):
         self.tabWidget2.setCurrentPage(1)
             
@@ -123,7 +125,7 @@ class MMKit(MMKitDialog):
         # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
         # when the user selects Copy and Paste from the Edit toolbar/menu, the MMKit should show
         # the Clipboard, not the Atoms page. Mark 050808
-        if self.w.pasteP:
+        if self.w.pasteState:
             self.change2PastePage()
         else:
             self.change2ElemPage()
@@ -224,15 +226,15 @@ class MMKit(MMKitDialog):
         self.pageId = self.tabWidget2.indexOf(wg)
         
         if self.pageId == 1: ## Clipboard page
-            self.w.pasteP = True
-            self.w.depositAtomDashboard.pasteRB.setOn(True)
+            self.w.pasteState = True
+            self.w.depositAtomDashboard.pasteBtn.setOn(True)
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
             self.browseButton.hide()
             
         elif self.pageId == 0:  ## Element page
-            self.w.pasteP = False
-            self.w.depositAtomDashboard.atomRB.setOn(True)
+            self.w.pasteState = False
+            self.w.depositAtomDashboard.depositBtn.setOn(True)
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
@@ -245,8 +247,8 @@ class MMKit(MMKitDialog):
             
             #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
-            self.w.depositAtomDashboard.pasteRB.setOn(False)
-            self.w.depositAtomDashboard.atomRB.setOn(False)
+            self.w.depositAtomDashboard.pasteBtn.setOn(False)
+            self.w.depositAtomDashboard.depositBtn.setOn(False)
             
         self.elemGLPane.setFocus()
         
@@ -287,7 +289,7 @@ class MMKit(MMKitDialog):
         if self.pageId == 2:
             return self.newModel, self.elemGLPane.hotspotAtom
         return None, None
-    
+
            
     def _libPageView(self, isFile=False):
         item = self.dirView.selectedItem()

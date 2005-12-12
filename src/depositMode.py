@@ -118,7 +118,7 @@ def do_what_MainWindowUI_should_do(w):
     lay = QHBoxLayout(bg)
     lay.setAutoAdd(True)
     
-    # Changed the radio buttons to push buttons.  Should change the RB suffix to PB.
+    # Changed the radio buttons to push buttons.  Should change the RB suffix to Button.
     # Added bond1, bond2, bond3 and bonda to the button group.
     # Mark 050727.
     
@@ -136,61 +136,51 @@ def do_what_MainWindowUI_should_do(w):
     lay2 = QHBoxLayout(bg2)
     lay2.setAutoAdd(True)
 
-#    w.depositAtomDashboard.pasteRB = QRadioButton("Paste", bg)
-#    w.depositAtomDashboard.atomRB = QRadioButton("Atom", bg)
-##    w.depositAtomDashboard.pasteRB = QToolButton( bg)
-
     # QToolButton property "setAutoRaise" looks much better on Linux and Windows.
     # It also looks good on Panther.  Maybe this will solve the problem on Tiger?
     # Let's ask Bruce.  Mark 050809
     
-    w.depositAtomDashboard.pasteRB = QToolButton(bg,"")
-    w.depositAtomDashboard.pasteRB.setPixmap(imagename_to_pixmap('paste1.png'))
-    w.depositAtomDashboard.pasteRB.setToggleButton(1)
-    w.depositAtomDashboard.pasteRB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.pasteRB, qApp.translate("MainWindow","Paste", None))
+    w.depositAtomDashboard.pasteBtn = QToolButton(bg,"")
+    w.depositAtomDashboard.pasteBtn.setPixmap(imagename_to_pixmap('paste1.png'))
+    w.depositAtomDashboard.pasteBtn.setToggleButton(1)
+    w.depositAtomDashboard.pasteBtn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.pasteBtn, qApp.translate("MainWindow","Paste", None))
     
-    w.depositAtomDashboard.atomRB = QToolButton(bg,"")
-    w.depositAtomDashboard.atomRB.setPixmap(imagename_to_pixmap('atom.png'))
-    w.depositAtomDashboard.atomRB.setToggleButton(1)
-    w.depositAtomDashboard.atomRB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.atomRB, qApp.translate("MainWindow","Deposit", None))
+    w.depositAtomDashboard.depositBtn = QToolButton(bg,"")
+    w.depositAtomDashboard.depositBtn.setPixmap(imagename_to_pixmap('deposit.png'))
+    w.depositAtomDashboard.depositBtn.setToggleButton(1)
+    w.depositAtomDashboard.depositBtn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.depositBtn, qApp.translate("MainWindow","Deposit", None))
     
-    w.depositAtomDashboard.bond1RB = QToolButton(bg2, "")
-    w.depositAtomDashboard.bond1RB.setPixmap(imagename_to_pixmap('bond1.png'))
-    w.depositAtomDashboard.bond1RB.setToggleButton(1)
-    w.depositAtomDashboard.bond1RB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond1RB, qApp.translate("MainWindow","Single bond", None))
+    w.depositAtomDashboard.bond1Btn = QToolButton(bg2, "")
+    w.depositAtomDashboard.bond1Btn.setPixmap(imagename_to_pixmap('bond1.png'))
+    w.depositAtomDashboard.bond1Btn.setToggleButton(1)
+    w.depositAtomDashboard.bond1Btn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.bond1Btn, qApp.translate("MainWindow","Single bond", None))
     
-    w.depositAtomDashboard.bond2RB = QToolButton(bg2, "")
-    w.depositAtomDashboard.bond2RB.setPixmap(imagename_to_pixmap('bond2.png'))
-    w.depositAtomDashboard.bond2RB.setToggleButton(1)
-    w.depositAtomDashboard.bond2RB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond2RB, qApp.translate("MainWindow","Double bond", None))
+    w.depositAtomDashboard.bond2Btn = QToolButton(bg2, "")
+    w.depositAtomDashboard.bond2Btn.setPixmap(imagename_to_pixmap('bond2.png'))
+    w.depositAtomDashboard.bond2Btn.setToggleButton(1)
+    w.depositAtomDashboard.bond2Btn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.bond2Btn, qApp.translate("MainWindow","Double bond", None))
     
-    w.depositAtomDashboard.bond3RB = QToolButton(bg2, "")
-    w.depositAtomDashboard.bond3RB.setPixmap(imagename_to_pixmap('bond3.png'))
-    w.depositAtomDashboard.bond3RB.setToggleButton(1)
-    w.depositAtomDashboard.bond3RB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond3RB, qApp.translate("MainWindow","Triple bond", None))
+    w.depositAtomDashboard.bond3Btn = QToolButton(bg2, "")
+    w.depositAtomDashboard.bond3Btn.setPixmap(imagename_to_pixmap('bond3.png'))
+    w.depositAtomDashboard.bond3Btn.setToggleButton(1)
+    w.depositAtomDashboard.bond3Btn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.bond3Btn, qApp.translate("MainWindow","Triple bond", None))
     
-    w.depositAtomDashboard.bondaRB = QToolButton(bg2, "")
-    w.depositAtomDashboard.bondaRB.setPixmap(imagename_to_pixmap('bonda.png'))
-    w.depositAtomDashboard.bondaRB.setToggleButton(1)
-    w.depositAtomDashboard.bondaRB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondaRB, qApp.translate("MainWindow","Aromatic bond", None))
+    w.depositAtomDashboard.bondaBtn = QToolButton(bg2, "")
+    w.depositAtomDashboard.bondaBtn.setPixmap(imagename_to_pixmap('bonda.png'))
+    w.depositAtomDashboard.bondaBtn.setToggleButton(1)
+    w.depositAtomDashboard.bondaBtn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.bondaBtn, qApp.translate("MainWindow","Aromatic bond", None))
     
-    w.depositAtomDashboard.bondgRB = QToolButton(bg2, "")
-    w.depositAtomDashboard.bondgRB.setPixmap(imagename_to_pixmap('bondg.png'))
-    w.depositAtomDashboard.bondgRB.setToggleButton(1)
-    w.depositAtomDashboard.bondgRB.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondgRB, qApp.translate("MainWindow","Graphitic bond", None))
-    
-    
-    # Bruce, the following line may be needed to fix a bug on MacOS, in which
-    # a button with a pixmap will automatically shrink to a very small size and
-    # the image is not visible. Let me know if this is needed or not.  Mark 050727
-##    w.depositAtomDashboard.pasteRB.setMinimumSize(QSize(30,30))
+    w.depositAtomDashboard.bondgBtn = QToolButton(bg2, "")
+    w.depositAtomDashboard.bondgBtn.setPixmap(imagename_to_pixmap('bondg.png'))
+    w.depositAtomDashboard.bondgBtn.setToggleButton(1)
+    w.depositAtomDashboard.bondgBtn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic bond", None))
 
     w.depositAtomDashboard.addSeparator()
     
@@ -361,7 +351,7 @@ class depositMode(basicMode):
         self.dont_update_gui = False
         
         # Huaicai 7/29/05: Open the MMKit every time entering this mode.
-        self.modellingKit = self.w.modifyMMKit()
+        self.MMKit = self.w.modifyMMKit()
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
 
@@ -377,31 +367,31 @@ class depositMode(basicMode):
             # Qt doc about SIGNAL("activated(int)"): This signal is not emitted
             # if the item is changed programmatically, e.g. using setCurrentItem().
             # Good! [bruce 050121 comment]
-        change_connect(self.w.depositAtomDashboard.pasteRB,
+        change_connect(self.w.depositAtomDashboard.pasteBtn,
                        SIGNAL("pressed()"), self.setPaste)
-        change_connect(self.w.depositAtomDashboard.atomRB,
+        change_connect(self.w.depositAtomDashboard.depositBtn,
                        SIGNAL("pressed()"), self.setAtom)
         
         # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
-        change_connect(self.w.depositAtomDashboard.bond1RB,
+        change_connect(self.w.depositAtomDashboard.bond1Btn,
                        SIGNAL("toggled(bool)"), self.setBond1) #bruce 050727 changed "pressed()" to "toggled(bool)"
-        change_connect(self.w.depositAtomDashboard.bond2RB,
+        change_connect(self.w.depositAtomDashboard.bond2Btn,
                        SIGNAL("toggled(bool)"), self.setBond2)
-        change_connect(self.w.depositAtomDashboard.bond3RB,
+        change_connect(self.w.depositAtomDashboard.bond3Btn,
                        SIGNAL("toggled(bool)"), self.setBond3)
-        change_connect(self.w.depositAtomDashboard.bondaRB,
+        change_connect(self.w.depositAtomDashboard.bondaBtn,
                        SIGNAL("toggled(bool)"), self.setBonda)
-        change_connect(self.w.depositAtomDashboard.bondgRB,
+        change_connect(self.w.depositAtomDashboard.bondgBtn,
                        SIGNAL("toggled(bool)"), self.setBondg)
         return
 
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
         "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
-        self.w.depositAtomDashboard.bond1RB.setOn( self.bondclick_v6 == V_SINGLE)
-        self.w.depositAtomDashboard.bond2RB.setOn( self.bondclick_v6 == V_DOUBLE)
-        self.w.depositAtomDashboard.bond3RB.setOn( self.bondclick_v6 == V_TRIPLE)
-        self.w.depositAtomDashboard.bondaRB.setOn( self.bondclick_v6 == V_AROMATIC)
-        self.w.depositAtomDashboard.bondgRB.setOn( self.bondclick_v6 == V_GRAPHITE)
+        self.w.depositAtomDashboard.bond1Btn.setOn( self.bondclick_v6 == V_SINGLE)
+        self.w.depositAtomDashboard.bond2Btn.setOn( self.bondclick_v6 == V_DOUBLE)
+        self.w.depositAtomDashboard.bond3Btn.setOn( self.bondclick_v6 == V_TRIPLE)
+        self.w.depositAtomDashboard.bondaBtn.setOn( self.bondclick_v6 == V_AROMATIC)
+        self.w.depositAtomDashboard.bondgBtn.setOn( self.bondclick_v6 == V_GRAPHITE)
         return
     
     def update_gui(self): #bruce 050121 heavily revised this [called by basicMode.UpdateDashboard]
@@ -448,7 +438,7 @@ class depositMode(basicMode):
 
         # First, if self.pastable is None, set it to the current value from
         # the spinbox and prior list, in case some other code set it to None
-        # when it set pasteP to False (tho I don't think that other code really
+        # when it set pasteState to False (tho I don't think that other code really
         # needs to do that). This is safe even if called "too early". But if it's
         # already set, don't change it, so callers of UpdateDashboard can set it
         # to the value they want, even if that value is not yet in the spinbox
@@ -466,7 +456,7 @@ class depositMode(basicMode):
         # experiment 050122: mark the clipboard items to influence their appearance
         # in model tree... not easy to change their color, so maybe we'll let this
         # change their icon (just in chunk.py for now). Not yet done. We'd like the
-        # one equal to self.pastable (when self.pasteP and this is current mode)
+        # one equal to self.pastable (when self.pasteState and this is current mode)
         # to look the most special. But that needs to be recomputed more often
         # than this runs. Maybe we'll let the current mode have an mtree-icon-filter??
         # Or, perhaps, let it modify the displayed text in the mtree, from node.name. ###@@@
@@ -519,12 +509,12 @@ class depositMode(basicMode):
         # A: I don't think so, since user might not want atom-depositing enabled,
         #    and they must have explicitly chosen paste mode even though there are
         #    no pastable items.
-        # Update the radio buttons to match pasteP (which we did not change!).
-        # This is needed since changing the spinbox item sets pasteP.
-        if self.w.pasteP:
-            self.w.depositAtomDashboard.pasteRB.setOn(True)
+        # Update the dashboard button to match pasteState (which we did not change!).
+        # This is needed since changing the spinbox item sets pasteState.
+        if self.w.pasteState:
+            self.w.depositAtomDashboard.pasteBtn.setOn(True)
         else:
-            self.w.depositAtomDashboard.atomRB.setOn(True)
+            self.w.depositAtomDashboard.depositBtn.setOn(True)
         return
 
     def clipboard_members_changed(self, clipboard): #bruce 050121
@@ -944,7 +934,7 @@ class depositMode(basicMode):
         #e should be split into "determine what to paste" and "describe it"
         # so the code for "determine it" can be shared with leftDown
         # rather than copied from it as now
-        if self.w.pasteP:
+        if self.w.pasteState:
             p = self.pastable
             if p:
                 if onto_open_bond:
@@ -1038,12 +1028,12 @@ class depositMode(basicMode):
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
            
     
-    def _pastePart(self, newAssy, hotspotAtom, atom_or_pos): 
-        '''Huaicai 8/25/05: This method serves as an overloaded method, <atom_or_pos> is 
-           the Singlet atom or the empty position that the new part <newAssy> will be attached to or placed at.
-           Currently, it doesn't consider group or jigs in the <newAssy>. Not so sure if my attempt to copy a part into
+    def _pastePart(self, newPart, hotspotAtom, atom_or_pos): 
+        '''This method serves as an overloaded method, <atom_or_pos> is 
+           the Singlet atom or the empty position that the new part <newPart> will be attached to or placed at.
+           Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
            another assembly is all right. 
-           Copies all molecules in the <newAssy>, change their assy attribute to current assembly, move them into <pos>. '''
+           Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>. '''
         attach2Bond = False	
         
         if isinstance(atom_or_pos, Atom):
@@ -1075,11 +1065,11 @@ class depositMode(basicMode):
                 hotspotAtomPos = hotspotAtom.posn()
                 moveOffset = placedPos - hotspotAtomPos
             else:
-                if newAssy.molecules:
-                    moveOffset = placedPos - newAssy.molecules[0].center
+                if newPart.molecules:
+                    moveOffset = placedPos - newPart.molecules[0].center
         
         if attach2Bond: # Connect part to an open bond of an existing chunk
-            for m in newAssy.molecules:
+            for m in newPart.molecules:
               if not m is hotspotAtom.molecule: 
                 newMol = m.copy(None)
                 newMol.assy = self.o.assy
@@ -1094,7 +1084,7 @@ class depositMode(basicMode):
                 
                 self.o.assy.addmol(newMol)
         else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
-            for m in newAssy.molecules:
+            for m in newPart.molecules:
                 newMol = m.copy(None)
                 newMol.assy = self.o.assy
                 
@@ -1124,27 +1114,34 @@ class depositMode(basicMode):
         self.modified = 1
         self.o.assy.changed()
         
-        # Possible pastable part and its anchor point [Huaicai 8/26/05]
-        newAssy, anchorAtom = self.modellingKit.getPastablePart()
-        if not newAssy:
-            if not self.w.depositAtomDashboard.pasteRB.isOn() and not self.w.depositAtomDashboard.atomRB.isOn(): #Not in library page
+        # Possible pastable part and its hotspot from the MMKit 'Library'.
+        newPart, hotSpot = self.MMKit.getPastablePart()
+        if not newPart:
+            # Make sure we're in MMKit's 'Library' page.
+            # This seems awkward.  How about MMKit having a method like:
+            #      if MMKit.LibraryTabEnabled():
+            # One for each tab/page.  Mark 051211
+            if not self.w.depositAtomDashboard.pasteBtn.isOn() and \
+               not self.w.depositAtomDashboard.depositBtn.isOn():
                 env.history.message("There is nothing selected to paste.")
                 return
         
-        if a: # if some atom (not bond) was "lit up"
+        if a: # if some atom (not bond) was "lit up" #######################################
             ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
-            if a.element is Singlet:
-                a0 = a.singlet_neighbor() # do this before a is killed!
+            
+            if a.element is Singlet: # if 'singlet' was "lit up" ###################################
+                a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
                 
-                if newAssy and anchorAtom : # Try to paste part if it's possible[Huaicai]
-                    self._pastePart(newAssy, anchorAtom, a)
-                elif newAssy and not anchorAtom:
+                # Hmmm.  
+                if newPart and hotSpot : # Try to paste part if it's possible[Huaicai]
+                    self._pastePart(newPart, hotSpot, a)
+                elif newPart and not hotSpot:
                     env.history.message("The part you want to paste has either no open bonds " \
                                         "or has open bonds but none of them is set as a hotspot.")
-                elif not self.w.depositAtomDashboard.pasteRB.isOn() and not self.w.depositAtomDashboard.atomRB.isOn(): #Not in library page
+                elif not self.w.depositAtomDashboard.pasteBtn.isOn() and not self.w.depositAtomDashboard.depositBtn.isOn(): #Not in library page
                     env.history.message("There is nothing selected to paste.")
                     
-                elif self.w.pasteP:
+                elif self.w.pasteState:
                     # user wants to paste something
                     if self.pastable:
                         chunk, desc = self.pasteBond(a)
@@ -1184,12 +1181,15 @@ class depositMode(basicMode):
                 self.o.selatom = None
                 self.dragmol = None
                 
-                if not newAssy :  ##Added the condition [Huaicai 8/26/05]
+                if not newPart :  ##Added the condition [Huaicai 8/26/05]
                     status = self.ensure_visible(chunk, status) #bruce 041207
                     env.history.message(status)
                 self.w.win_update()
                 return # don't move a newly bonded atom
-            # else we've grabbed an atom
+            
+            #== end of 'Singlet'
+            
+            # else we've grabbed an atom #################################################
             elif a.realNeighbors(): # probably part of larger molecule
                     ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
                 self.dragmol = a.molecule
@@ -1228,20 +1228,26 @@ class depositMode(basicMode):
                 # there are 1 or 2 externs it might be better to do pivoting. #e
                 self.dragmol = a.molecule
                 # fall thru
+                
+        # a bond was "lit up" #############################################
         elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond():
             # click on a real bond
             self.clicked_on_bond(self.o.selobj)
+            
+        # we've selected something else (a jig) ###############################
         elif self.o.selobj is not None: # something *else* other than an atom was lit up
             pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
+            
+        # Nothing was "lit up" #############################################
         else:
             # nothing was "lit up" -- we're in empty space;
             # create something and (if an atom) drag it rigidly
             atomPos = self.getCoords(event)
             
-            if newAssy:
-                self._pastePart(newAssy, anchorAtom, atomPos)
-                
-            elif self.w.pasteP:
+            if newPart: # Paste from the MMKit 'Library'
+                self._pastePart(newPart, hotSpot, atomPos)
+            
+            elif self.w.pasteState: # Paste from the 'Clipboard'.
                 if self.pastable:
                     chunk, desc = self.pasteFree(atomPos)
                     self.dragmol = None
@@ -1250,17 +1256,18 @@ class depositMode(basicMode):
                     # do nothing
                     status = "nothing selected to paste" #k correct??
                     chunk = None #bruce 041207
-            else:
+            else: # Deposit a single atom
                 self.o.selatom = oneUnbonded(atype.element, self.o.assy, atomPos, atomtype = atype)
                 self.dragmol = self.o.selatom.molecule
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
                 chunk = self.o.selatom.molecule #bruce 041207
             # now fix bug 229 part B (as called in comment #2),
             # by making this new chunk visible if it otherwise would not be
-            if not newAssy:  ##Added the condition [Huaicai 8/26/05]
+            if not newPart:  ##Added the condition [Huaicai 8/26/05]
                 status = self.ensure_visible(chunk, status) #bruce 041207
                 env.history.message(status)
                 # fall thru
+        
         # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
         self.pivot = None
         self.pivax = None
@@ -1634,13 +1641,13 @@ class depositMode(basicMode):
         return
     
     def setPaste(self): #bruce 050121 heavily revised this
-        "called from radiobutton presses and spinbox changes"
+        "called from button presses and spinbox changes"
         self.update_pastable()
         if 1:
             ###@@@ always do this, since old code did this
             # and I didn't yet analyze changing cond to self.pastable
-            self.w.pasteP = True
-            self.w.depositAtomDashboard.pasteRB.setOn(True)
+            self.w.pasteState = True
+            self.w.depositAtomDashboard.pasteBtn.setOn(True)
         else:
             pass
             ###@@@ should we do the opposite of the above when not self.pastable?
@@ -1681,27 +1688,27 @@ class depositMode(basicMode):
         
     def setAtom(self):
         "called from radiobutton presses and spinbox changes" #k really from spinbox changes? I doubt it...#bruce 050121
-        self.w.pasteP = False
+        self.w.pasteState = False
         self.pastable = None # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
-        self.w.depositAtomDashboard.atomRB.setOn(True)
+        self.w.depositAtomDashboard.depositBtn.setOn(True)
         self.UpdateDashboard() #bruce 050121 added this
 
     bondclick_v6 = None
     
     def setBond1(self, state):
-        self.setBond(V_SINGLE, state, self.w.depositAtomDashboard.bond1RB )
+        self.setBond(V_SINGLE, state, self.w.depositAtomDashboard.bond1Btn )
         
     def setBond2(self, state):
-        self.setBond(V_DOUBLE, state, self.w.depositAtomDashboard.bond2RB )
+        self.setBond(V_DOUBLE, state, self.w.depositAtomDashboard.bond2Btn )
     
     def setBond3(self, state):
-        self.setBond(V_TRIPLE, state, self.w.depositAtomDashboard.bond3RB )
+        self.setBond(V_TRIPLE, state, self.w.depositAtomDashboard.bond3Btn )
         
     def setBonda(self, state):
-        self.setBond(V_AROMATIC, state, self.w.depositAtomDashboard.bondaRB )
+        self.setBond(V_AROMATIC, state, self.w.depositAtomDashboard.bondaBtn )
 
     def setBondg(self, state): #mark 050831
-        self.setBond(V_GRAPHITE, state, self.w.depositAtomDashboard.bondgRB )
+        self.setBond(V_GRAPHITE, state, self.w.depositAtomDashboard.bondgBtn )
         
     def setBond(self, v6, state, button = None):
         "#doc; v6 might be None, I guess, though this is not yet used"
@@ -2063,7 +2070,7 @@ class depositMode(basicMode):
             # there in some other way.
             ##self.o.assy.shelf.unpick() # unpicks all shelf items too
             ##new.pick()
-            self.w.pasteP = True
+            self.w.pasteState = True
             self.pastable = new # do this again, to influence the following:
             self.UpdateDashboard()
                 # (also called by shelf.addchild(), but only after my home mods
