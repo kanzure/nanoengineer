@@ -18,10 +18,12 @@ class ThumbView(QGLWidget):
     """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. 
     General rules for multiple QGLWidget uses: make sure the rendering context is current. 
     Remember makeCurrent() will be called implicitly before any ininializeGL, resizeGL, paintGL virtual functions call. Ideally, this class should coordinate with class GLPane in some ways.
-    """ 
+    """
+    shareWidget = None #bruce 051212
     def __init__(self, parent, name, shareWidget):
         """  """
         if shareWidget:
+            self.shareWidget = shareWidget #bruce 051212
             format = shareWidget.format()
             QGLWidget.__init__(self, format, parent, name, shareWidget)
             if not self.isSharing():
@@ -63,45 +65,24 @@ class ThumbView(QGLWidget):
         pass
     
             
-    def initializeGL(self, glprefs = None):
-        """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading affect.
+    def initializeGL(self):
+        """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading effect.
         """
 
-	if glprefs is None:
-	    glprefs = drawer._glprefs
-        #bruce comment 051126: this should be replaced, and made to use common lighting code with GLPane,
-        # to fix some old bugs, plus a new one I'm introducing now by not noticing changes to override_light_specular here.
         glEnable(GL_NORMALIZE)
-        glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
-	if glprefs.override_light_specular is not None:
-	    glLightfv(GL_LIGHT0, GL_SPECULAR, glprefs.override_light_specular)
-	else:
-	    # grantham 20051121 - this should be a component on its own
-	    # not replicating the diffuse color.
-	    glLightfv(GL_LIGHT0, GL_SPECULAR, (0.8, 0.8, 0.8, 1.0))
-        glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
-        glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
-        glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
-        glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
-	if glprefs.override_light_specular is not None:
-	    glLightfv(GL_LIGHT1, GL_SPECULAR, glprefs.override_light_specular)
-	else:
-	    glLightfv(GL_LIGHT1, GL_SPECULAR, (0.4, 0.4, 0.4, 1.0))
-        glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
-        glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
-        glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
-        glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
-	if glprefs.override_light_specular is not None:
-	    glLightfv(GL_LIGHT2, GL_SPECULAR, glprefs.override_light_specular)
-	else:
-	    glLightfv(GL_LIGHT2, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
-        glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glEnable(GL_LIGHT1)
-        glDisable(GL_LIGHT2)
+
+        #bruce 051212 revised lighting code to share prefs and common code with GLPane
+        # (to fix bug 1200 and mitigate bugs 475 and 1158;
+        #  fully fixing those would require updating lighting in all ThumbView widgets
+        #  whenever lighting prefs change, including making .update calls on them,
+        #  and is not planned for near future since it's easy enough to close & reopen them)
+        try:
+            lights = shareWidget._lights
+        except:
+            lights = drawer._default_lights
+        
+        drawer.setup_standard_lights( lights) #bruce 051212
+        
         glShadeModel(GL_SMOOTH)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
@@ -109,8 +90,8 @@ class ThumbView(QGLWidget):
         glLoadIdentity()
         
         if not self.isSharing():
-                drawer.setup()  
-
+            drawer.setup()  
+        return
     
     def resetView(self):
         '''Subclass can override this method with different <scale>, so call this version in the overridden

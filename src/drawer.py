@@ -12,12 +12,13 @@ from OpenGL.GLU import *
 import OpenGL.GLUT as glut
 import math
 from VQT import *
-from constants import DIAMOND_BOND_LENGTH
+from constants import DIAMOND_BOND_LENGTH, white
 import env #bruce 051126
 from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_shininess_prefs_key, \
         material_specular_finish_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
+import debug #bruce 051212, for debug.print_compact_traceback
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -215,6 +216,140 @@ class glprefs:
     pass # end of class glprefs
 
 _glprefs = glprefs()
+
+# ==
+
+# helper functions for use by GL widgets wanting to set up lighting
+
+#bruce 051212 made these from the code in GLPane which now calls them, so they can also be used in ThumbView
+
+# Default lights tuples (format is as used by setup_standard_lights; perhaps also assumed by other code).
+#grantham 20051121 comment - Light should probably be a class.  Right now,
+# changing the behavior of lights requires changing a bunch of
+# ambiguous tuples and tuple packing/unpacking.
+#bruce 051212 moved this here from GLPane; maybe it belongs in prefs_constants instead?
+# Note: I'm not sure whether this is the only place where this data is coded.
+_default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
+                (white, 0.1, 0.5, 0.5, -20, 20, 20, True),
+                (white, 0.1, 0.5, 0.5, 0, 0, 100, False))
+        # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
+        # revised format to include s,x,y,z.  Mark 051202.
+        # revised format to include c (r,g,b). Mark 051204.
+        # Be sure to keep the lightColor prefs keys and _lights colors synchronized.
+        # Mark 051204. [a comment from when this was located in GLPane]
+
+def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
+    """Return a summary of the glprefs data used by setup_standard_lights,
+    for use in later deciding whether it needs to be called again due to changes in glprefs.
+    """
+    global _glprefs
+    if glprefs is None:
+        glprefs = _glprefs
+    return (glprefs.override_light_specular,) # this must be kept in sync with what's used by setup_standard_lights()
+
+def setup_standard_lights( lights, glprefs = None):
+    """Set up lighting in the current GL context using the supplied "lights" tuple (in the format used by GLPane's prefs)
+    and the optional glprefs object (which defaults to drawer._glprefs).
+       Note: the glprefs data used can be summarized by the related function glprefs_data_used_by_setup_standard_lights (which see).
+       Warning: has side effects on GL_MODELVIEW matrix.
+       Note: If GL_NORMALIZE needs to be enabled, callers should do that themselves,
+    since this depends on what they will draw and might slow down drawing.
+    """
+    #e not sure whether projection matrix also needs to be reset here [bruce 051212]
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    global _glprefs
+    if glprefs is None:
+        glprefs = _glprefs
+        # note: whatever glprefs data is used below must also be present
+        # in the return value of glprefs_data_used_by_setup_standard_lights(). [bruce 051212]
+
+    try:
+        # new code
+        (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
+        ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
+        ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = lights
+        
+        # Great place for a print statement for debugging lights.  Keep this.  Mark 051204. [revised by bruce 051212]
+        #print "-------------------------------------------------------------"
+        #print "setup_standard_lights: lights[0]=", lights[0]
+        #print "setup_standard_lights: lights[1]=", lights[1]
+        #print "setup_standard_lights: lights[2]=", lights[2]
+        
+        glLightfv(GL_LIGHT0, GL_POSITION, (x0, y0, z0, 0))
+        glLightfv(GL_LIGHT0, GL_AMBIENT, (r0*a0, g0*a0, b0*a0, 1.0))
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, (r0*d0, g0*d0, b0*d0, 1.0))
+        if glprefs.override_light_specular is not None:
+            glLightfv(GL_LIGHT0, GL_SPECULAR, glprefs.override_light_specular)
+        else:
+            # grantham 20051121 - this should be a component on its own
+            # not replicating the diffuse color.
+            # Added specular (s0) as its own component.  mark 051202.
+            glLightfv(GL_LIGHT0, GL_SPECULAR, (r0*s0, g0*s0, b0*s0, 1.0))
+        glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
+        
+        glLightfv(GL_LIGHT1, GL_POSITION, (x1, y1, z1, 0))
+        glLightfv(GL_LIGHT1, GL_AMBIENT, (r1*a1, g1*a1, b1*a1, 1.0))
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, (r1*d1, g1*d1, b1*d1, 1.0))
+        if glprefs.override_light_specular is not None:
+            glLightfv(GL_LIGHT1, GL_SPECULAR, glprefs.override_light_specular)
+        else:
+            glLightfv(GL_LIGHT1, GL_SPECULAR, (r1*s1, g1*s1, b1*s1, 1.0))
+        glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
+        
+        glLightfv(GL_LIGHT2, GL_POSITION, (x2, y2, z2, 0))
+        glLightfv(GL_LIGHT2, GL_AMBIENT, (r2*a2, g2*a2, b2*a2, 1.0))
+        glLightfv(GL_LIGHT2, GL_DIFFUSE, (r2*d2, g2*d2, b2*d2, 1.0))
+        if glprefs.override_light_specular is not None:
+            glLightfv(GL_LIGHT2, GL_SPECULAR, glprefs.override_light_specular)
+        else:
+            glLightfv(GL_LIGHT2, GL_SPECULAR, (r2*s2, g2*s2, b2*s2, 1.0))
+        glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
+        
+        glEnable(GL_LIGHTING)
+        
+        if e0:
+            glEnable(GL_LIGHT0)
+        else:
+            glDisable(GL_LIGHT0)
+            
+        if e1:
+            glEnable(GL_LIGHT1)
+        else:
+            glDisable(GL_LIGHT1)
+            
+        if e2:
+            glEnable(GL_LIGHT2)
+        else:
+            glDisable(GL_LIGHT2)
+    except:
+        debug.print_compact_traceback("bug (worked around): setup_standard_lights reverting to old code, because: ")
+        # old code, used only to set up some sort of workable lighting in case of bugs
+        # (this is not necessarily using the same values as _default_lights; doesn't matter since never used unless there are bugs)
+        glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
+        glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
+        glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
+        
+        glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
+        glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
+        glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
+        
+        glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
+        glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
+        glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
+        glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
+        
+        glEnable(GL_LIGHTING)
+        
+        glEnable(GL_LIGHT0)
+        glEnable(GL_LIGHT1)
+        glDisable(GL_LIGHT2)
+    return # from setup_standard_lights
+
+# ==
 
 def apply_material(color): # grantham 20051121; revised by bruce 051126, 051203 (added specular_brightness)
     "Set OpenGL material parameters based on the given color and the material-related prefs values in _glprefs."

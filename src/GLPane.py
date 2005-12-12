@@ -278,6 +278,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.setAssy(assy) # leaves self.mode as nullmode, as of 050911
 
         self.loadLighting() #bruce 050311
+            #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
         
         return # from GLPane.__init__        
 
@@ -812,33 +813,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return
 
     def getLighting(self):
-        """Return the current lighting parameters
-        [for now, these are a list of 3 triples, one per light,
-        each giving 2 floats from 0 to 1 and a boolean,
-        which are ambient, diffuse, enabled for that light]
+        """Return the current lighting parameters.
+        [For now, these are a list of 3 tuples, one per light,
+        each giving several floats and booleans
+        (specific format is only documented in other methods or in their code).]
         """
         return list(self._lights)
 
     # default value of instance variable:
-    # grantham 20051121 - Light should probably be a class.  Right now,
-    # changing the behavior of lights requires changing a bunch of
-    # ambigious tuples and tuple packing/unpacking.
-    _lights = [(white, 0.1, 0.5, 0.5, -50, 70, 30, True), \
-                    (white, 0.1, 0.5, 0.5, -20, 20, 20, True), \
-                    (white, 0.1, 0.5, 0.5, 0, 0, 100, False)]
-                    
-        # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
-        # revised format to include s,x,y,z.  Mark 051202.
-        # revised format to include c (r,g,b). Mark 051204.
-        # Be sure to keep the lightColor prefs keys and _lights colors synchronized.  Mark 051204.
+    # [bruce 051212 comment: not sure if this needs to be in sync with any other values;
+    #  also not sure if this is used anymore, since __init__ sets _lights from prefs db via loadLighting.]
+    _lights = drawer._default_lights
 
-    _default_lights = list( _lights) # this copy will never be changed
+    _default_lights = _lights # this copy will never be changed
 
-    need_setup_lighting = True # whether the next paintGL needs to call it
+    need_setup_lighting = True # whether the next paintGL needs to call _setup_lighting
 
-    _last_override_light_specular = None #bruce 051126
+    _last_glprefs_data_used_by_lights = None #bruce 051212, replaces/generalizes _last_override_light_specular
     
-    def _setup_lighting(self, glprefs = None):
+    def _setup_lighting(self):
         """[private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
@@ -850,100 +843,24 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # then the lighting equation can produce unexpected results.  
 
         #bruce 050413 try to fix bug 507 in direction of lighting:
+        ##k might be partly redundant now; not sure whether projection matrix needs to be modified here [bruce 051212]
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        if glprefs is None:
-	    glprefs = drawer._glprefs
+        glprefs = None
+            #e someday this could be an argument providing a different glprefs object
+            # for local use in part of a scenegraph (if other code was also revised) [bruce 051212 comment]
+        
+        #bruce 051212 moved most code from this method into new function, setup_standard_lights
+        drawer.setup_standard_lights( self._lights, glprefs)
 
-        try:
-            # new code
-            (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
-            ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
-            ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = self._lights
-            
-            # Great place for a print statement for debugging lights.  Keep this.  Mark 051204.
-            #print "-------------------------------------------------------------"
-            #print "GLPane._setup_lighting: _lights[0]=", self._lights[0]
-            #print "GLPane._setup_lighting: _lights[1]=", self._lights[1]
-            #print "GLPane._setup_lighting: _lights[2]=", self._lights[2]
-             
-            self._last_override_light_specular = glprefs.override_light_specular #bruce 051126
-
-            glLightfv(GL_LIGHT0, GL_POSITION, (x0, y0, z0, 0))
-            glLightfv(GL_LIGHT0, GL_AMBIENT, (r0*a0, g0*a0, b0*a0, 1.0))
-            glLightfv(GL_LIGHT0, GL_DIFFUSE, (r0*d0, g0*d0, b0*d0, 1.0))
-    	    if glprefs.override_light_specular is not None:
-                glLightfv(GL_LIGHT0, GL_SPECULAR, glprefs.override_light_specular)
-            else:
-                # grantham 20051121 - this should be a component on its own
-                # not replicating the diffuse color.
-                # Added specular (s0) as its own component.  mark 051202.
-                glLightfv(GL_LIGHT0, GL_SPECULAR, (r0*s0, g0*s0, b0*s0, 1.0))
-                glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
-            
-            glLightfv(GL_LIGHT1, GL_POSITION, (x1, y1, z1, 0))
-            glLightfv(GL_LIGHT1, GL_AMBIENT, (r1*a1, g1*a1, b1*a1, 1.0))
-            glLightfv(GL_LIGHT1, GL_DIFFUSE, (r1*d1, g1*d1, b1*d1, 1.0))
-    	    if glprefs.override_light_specular is not None:
-                glLightfv(GL_LIGHT1, GL_SPECULAR, glprefs.override_light_specular)
-            else:
-                glLightfv(GL_LIGHT1, GL_SPECULAR, (r1*s1, g1*s1, b1*s1, 1.0))
-                glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
-            
-            glLightfv(GL_LIGHT2, GL_POSITION, (x2, y2, z2, 0))
-            glLightfv(GL_LIGHT2, GL_AMBIENT, (r2*a2, g2*a2, b2*a2, 1.0))
-            glLightfv(GL_LIGHT2, GL_DIFFUSE, (r2*d2, g2*d2, b2*d2, 1.0))
-    	    if glprefs.override_light_specular is not None:
-                glLightfv(GL_LIGHT2, GL_SPECULAR, glprefs.override_light_specular)
-            else:
-                glLightfv(GL_LIGHT2, GL_SPECULAR, (r2*s2, g2*s2, b2*s2, 1.0))
-                glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
-            
-            glEnable(GL_LIGHTING)
-            
-            if e0:
-                glEnable(GL_LIGHT0)
-            else:
-                glDisable(GL_LIGHT0)
-                
-            if e1:
-                glEnable(GL_LIGHT1)
-            else:
-                glDisable(GL_LIGHT1)
-                
-            if e2:
-                glEnable(GL_LIGHT2)
-            else:
-                glDisable(GL_LIGHT2)
-        except:
-            if platform.atom_debug:
-                print_compact_traceback("atom_debug: _setup_lighting reverting to old code, because: ")
-            # old code
-            glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
-            glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
-            glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
-            glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
-            
-            glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
-            glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
-            glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
-            glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
-            
-            glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
-            glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
-            glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
-            glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
-            
-            glEnable(GL_LIGHTING)
-            
-            glEnable(GL_LIGHT0)
-            glEnable(GL_LIGHT1)
-            glDisable(GL_LIGHT2)
+        # record what glprefs data was used by that, for comparison to see when we need to call it again
+        # (not needed for _lights since another system tells us when that changes)
+        self._last_glprefs_data_used_by_lights = drawer.glprefs_data_used_by_setup_standard_lights(glprefs)
         return
-
+    
     def saveLighting(self):
         "save the current lighting values in the standard preferences database"
         try:
@@ -1381,7 +1298,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         drawer._glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
         
-        if self.need_setup_lighting or self._last_override_light_specular != drawer._glprefs.override_light_specular:
+        if self.need_setup_lighting or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights():
             # (bruce 051126 added override_light_specular part of condition)
             # I don't know if it matters to avoid calling this every time...
             # in case it's slow, we'll only do it when it might have changed.
