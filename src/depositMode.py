@@ -21,6 +21,7 @@ import platform
 from debug import print_compact_traceback
 from elements import PeriodicTable
 from Utility import imagename_to_pixmap
+from HistoryWidget import orangemsg
 
 from bonds import bond_atoms
 from bond_constants import V_SINGLE
@@ -1094,9 +1095,10 @@ class depositMode(basicMode):
  
     
     def leftDown(self, event):
-        """If there's nothing nearby, deposit a new atom.
-        If cursor is on a singlet, deposit an atom bonded to it.
-        If it is a real atom, drag it around.
+        """If cursor is on empty space, deposit a new atom, pasteable chunk or library part.
+        If cursor is on a singlet, bond an atom, pasteable chunk or library part to it.
+        If cursor is on an atom, drag it (and any atoms in the chunk it belongs too) around.
+        If cursor is on a bond, change the bond to a new bond type.
         """
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
@@ -1116,15 +1118,13 @@ class depositMode(basicMode):
         
         # Possible pastable part and its hotspot from the MMKit 'Library'.
         newPart, hotSpot = self.MMKit.getPastablePart()
-        if not newPart:
-            # Make sure we're in MMKit's 'Library' page.
-            # This seems awkward.  How about MMKit having a method like:
-            #      if MMKit.LibraryTabEnabled():
-            # One for each tab/page.  Mark 051211
-            if not self.w.depositAtomDashboard.pasteBtn.isOn() and \
-               not self.w.depositAtomDashboard.depositBtn.isOn():
-                env.history.message("There is nothing selected to paste.")
-                return
+        if self.MMKit.currentPageOpen('Library') and not newPart:
+            # If the MMKit has been closed with the 'Library' page open and no part selected,
+            # then this message will be printed.  I think this is a bug and should be fixed.  
+            # To fix it, I suggest switching to the 'Atoms' page when closing the MMKit dialog
+            # whenever the 'Library' page is open and no part selected.  Mark 051212.
+            env.history.message(orangemsg("No library part has been selected to paste."))
+            return
         
         if a: # if some atom (not bond) was "lit up" #######################################
             ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
@@ -1132,17 +1132,16 @@ class depositMode(basicMode):
             if a.element is Singlet: # if 'singlet' was "lit up" ###################################
                 a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
                 
-                # Hmmm.  
-                if newPart and hotSpot : # Try to paste part if it's possible[Huaicai]
+                # If the MMKit's 'Library' page is open and a part is selected, then try to bond the part to the singlet. 
+                if newPart and hotSpot :
                     self._pastePart(newPart, hotSpot, a)
                 elif newPart and not hotSpot:
-                    env.history.message("The part you want to paste has either no open bonds " \
-                                        "or has open bonds but none of them is set as a hotspot.")
-                elif not self.w.depositAtomDashboard.pasteBtn.isOn() and not self.w.depositAtomDashboard.depositBtn.isOn(): #Not in library page
-                    env.history.message("There is nothing selected to paste.")
+                    msg = "The part you want to paste either has no open bonds " \
+                        "or has open bonds but none of them have been set as a hotspot."
+                    env.history.message(orangemsg(msg))
                     
                 elif self.w.pasteState:
-                    # user wants to paste something
+                    # User wants to paste something from the Clipboard
                     if self.pastable:
                         chunk, desc = self.pasteBond(a)
                         if chunk:
@@ -1158,7 +1157,7 @@ class depositMode(basicMode):
                         status = "nothing selected to paste" #k correct??
                         chunk = None #bruce 041207
                 else:
-                    # user wants to create an atom of type atype
+                    # User wants to bond an atom of type atype to the singlet
                     # (revised by bruce 050511)
                     # if 1: # during devel, at least
                     if platform.atom_debug: # Need this for A6 package builder to work.  Mark 050811.

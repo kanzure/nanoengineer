@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>220</width>
-            <height>500</height>
+            <height>504</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -336,7 +336,7 @@
         </spacer>
         <widget class="QTabWidget">
             <property name="name">
-                <cstring>tabWidget2</cstring>
+                <cstring>mmkit_tab</cstring>
             </property>
             <widget class="QWidget">
                 <property name="name">
@@ -1297,10 +1297,10 @@
         <slot>set_hybrid_type(int)</slot>
     </connection>
     <connection>
-        <sender>tabWidget2</sender>
-        <signal>currentChanged(QWidget*)</signal>
+        <sender>mmkit_tab</sender>
+        <signal>selected(const QString&amp;)</signal>
         <receiver>MMKitDialog</receiver>
-        <slot>tabpageChanged(QWidget*)</slot>
+        <slot>setup_current_page()</slot>
     </connection>
     <connection>
         <sender>chunkListBox</sender>
@@ -1327,7 +1327,7 @@
 <slots>
     <slot>setElementInfo(int)</slot>
     <slot>set_hybrid_type(int)</slot>
-    <slot>tabpageChanged(QWidget *)</slot>
+    <slot>setup_current_page()</slot>
     <slot>chunkChanged(QListBoxItem *)</slot>
     <slot>updatePastableItems()</slot>
     <slot>browseDirectories()</slot>

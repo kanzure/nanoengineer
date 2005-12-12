@@ -26,6 +26,11 @@ import os
 import sys
 import env
 
+# PageId constants for mmkit_tab
+AtomsPage=0
+ClipboardPage=1
+LibraryPage=2
+
 class MMKit(MMKitDialog):
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     
@@ -38,9 +43,7 @@ class MMKit(MMKitDialog):
         
         self.newModel = None  ## used to save the selected lib part
         
-        # For readability, 'pageId' needs named constants like "Elements", "Clipboard", and "Library".  
-        # Mark 051211.
-        self.pageId = 0 ## Display the first tab page by default
+        self.pageId = AtomsPage ## Display the first tab page by default
         
         self.flayout = None
         
@@ -52,11 +55,11 @@ class MMKit(MMKitDialog):
         self.connect(self, PYSIGNAL("chunkSelectionChanged"), self.w.pasteComboBox, SIGNAL("activated(int)"))
         self.connect(self.w.hybridComboBox, SIGNAL("activated(int)"), self.hybridChangedOutside)
         
-        self.connect(self.w.hybridComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
-        self.connect(self.w.elemChangeComboBox, SIGNAL("activated(const QString&)"), self.change2ElemPage)
-        self.connect(self.w.pasteComboBox, SIGNAL("activated(const QString&)"), self.change2PastePage)
+        self.connect(self.w.hybridComboBox, SIGNAL("activated(const QString&)"), self.change2AtomsPage)
+        self.connect(self.w.elemChangeComboBox, SIGNAL("activated(const QString&)"), self.change2AtomsPage)
+        self.connect(self.w.pasteComboBox, SIGNAL("activated(const QString&)"), self.change2ClipboardPage)
         
-        #self.connect(self.w.depositAtomDashboard.pasteBtn, SIGNAL("pressed()"), self.change2PastePage) 
+        #self.connect(self.w.depositAtomDashboard.pasteBtn, SIGNAL("pressed()"), self.change2ClipboardPage) 
         self.connect(self.w.depositAtomDashboard.pasteBtn, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
         self.connect(self.w.depositAtomDashboard.depositBtn, SIGNAL("stateChanged(int)"), self.depositBtnStateChanged)
         
@@ -66,13 +69,13 @@ class MMKit(MMKitDialog):
     def pasteBtnStateChanged(self, state):
         '''Slot method. Called when the state of the Paste button of deposit dashboard has been changed. '''
         if state == QButton.On:
-            self.change2PastePage()
+            self.change2ClipboardPage()
 
 
     def depositBtnStateChanged(self, state):
         '''Slot method. Called when the state of the Deposit button of deposit dashboard has been changed. ''' 
         if state == QButton.On:
-           self.change2ElemPage() 
+           self.change2AtomsPage() 
 
 
     def hybridChangedOutside(self, newId):
@@ -85,17 +88,17 @@ class MMKit(MMKitDialog):
         self.w.depositAtomDashboard.depositBtn.setOn(True)
        
 
-    def change2ElemPage(self):
+    def change2AtomsPage(self):
         '''Slot method. Called when user changed element/hybrid or pressed Deposit button from dashboard.
         '''
-        if not (self.tabWidget2.currentPageIndex() == 0):
-            self.tabWidget2.setCurrentPage(0)
+        if not (self.mmkit_tab.currentPageIndex() == AtomsPage):
+            self.mmkit_tab.setCurrentPage(AtomsPage)
             
 
-    def change2PastePage(self):
+    def change2ClipboardPage(self):
         '''Slot method. Called when user changed pastable item or pressed Paste button from dashboard. '''
-        #if not (self.tabWidget2.currentPageIndex() == 1):
-        self.tabWidget2.setCurrentPage(1)
+        #if not (self.mmkit_tab.currentPageIndex() == ClipboardPage):
+        self.mmkit_tab.setCurrentPage(ClipboardPage)
             
 
     def setElementInfo(self,value):
@@ -109,7 +112,7 @@ class MMKit(MMKitDialog):
            element: element label info and element graphics info """
 
         elm = self.elemTable.getElement(elemNum)
-        if elm == self.elm and self.tabWidget2.currentPageIndex() == 0: return
+        if elm == self.elm and self.mmkit_tab.currentPageIndex() == AtomsPage: return
         
         ## The following statements are redundant in some situations.
         self.elementButtonGroup.setButton(elemNum)
@@ -126,9 +129,9 @@ class MMKit(MMKitDialog):
         # when the user selects Copy and Paste from the Edit toolbar/menu, the MMKit should show
         # the Clipboard, not the Atoms page. Mark 050808
         if self.w.pasteState:
-            self.change2PastePage()
+            self.change2ClipboardPage()
         else:
-            self.change2ElemPage()
+            self.change2AtomsPage()
             
         
     def update_hybrid_btngrp(self):
@@ -221,25 +224,30 @@ class MMKit(MMKitDialog):
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         
     
-    def tabpageChanged(self, wg):
-        '''Slot method. Called when user clicked to change the tab page'''
-        self.pageId = self.tabWidget2.indexOf(wg)
+    def setup_current_page(self, pagename):
+        '''Slot method that is called whenever a user clicks on the 
+        'Atoms', 'Clipboard' or 'Library' tab to change to that page.'''
         
-        if self.pageId == 1: ## Clipboard page
-            self.w.pasteState = True
-            self.w.depositAtomDashboard.pasteBtn.setOn(True)
-            self.elemGLPane.setDisplay(self.displayMode)
-            self._clipboardPageView()
-            self.browseButton.hide()
-            
-        elif self.pageId == 0:  ## Element page
+        #print "setup_current_page: pagename=", pagename
+        
+        if pagename == 'Atoms':  # Atoms page
+            self.pageId = AtomsPage
             self.w.pasteState = False
             self.w.depositAtomDashboard.depositBtn.setOn(True)
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
         
-        elif self.pageId == 2:
+        elif pagename == 'Clipboard': # Clipboard page
+            self.pageId = ClipboardPage
+            self.w.pasteState = True
+            self.w.depositAtomDashboard.pasteBtn.setOn(True)
+            self.elemGLPane.setDisplay(self.displayMode)
+            self._clipboardPageView()
+            self.browseButton.hide()
+            
+        elif pagename == 'Library': # Library page
+            self.pageId = LibraryPage
             if self.rootDir:
                 self.elemGLPane.setDisplay(self.displayMode)
                 self._libPageView()
@@ -249,6 +257,9 @@ class MMKit(MMKitDialog):
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
             self.w.depositAtomDashboard.pasteBtn.setOn(False)
             self.w.depositAtomDashboard.depositBtn.setOn(False)
+            
+        else:
+            print 'Error: MMKit page unknown: ', pagename
             
         self.elemGLPane.setFocus()
         
@@ -286,10 +297,20 @@ class MMKit(MMKitDialog):
 
     def getPastablePart(self):
         '''Public method. Retrieve pastable part and hotspot if current tab page is in libary, otherwise, return None. '''
-        if self.pageId == 2:
+        if self.pageId == LibraryPage:
             return self.newModel, self.elemGLPane.hotspotAtom
         return None, None
 
+    def currentPageOpen(self, pagename):
+        '''Returns True if 'pagename' is the current page open in the tab widget.
+        '''
+        if pagename == 'Atoms' and self.pageId == AtomsPage:
+            return True
+        elif pagename == 'Clipboard' and self.pageId == ClipboardPage:
+            return True
+        elif pagename == 'Library' and self.pageId == LibraryPage:
+            return True
+        return False
            
     def _libPageView(self, isFile=False):
         item = self.dirView.selectedItem()
@@ -330,9 +351,8 @@ class MMKit(MMKitDialog):
         if len(list): 
             itIndex = self.w.pasteComboBox.currentItem()
             self.chunkListBox.setSelected(itIndex, True)
-        else: self.elemGLPane.updateModel(None)
-        
-        
+        else:
+            self.elemGLPane.updateModel(None)
             
     def _getPastableClipboardItems(self, assy):
         '''Find all current pastable chunks. '''
@@ -407,5 +427,7 @@ class MMKit(MMKitDialog):
                #Refresh GL-thumbView display
                self.newModel = None
                self.elemGLPane.updateModel(self.newModel)
-            
-        
+               
+    pass # end of class MMKit
+
+# end

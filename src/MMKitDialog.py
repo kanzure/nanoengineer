@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MMKitDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
 #
-# Created: Mon Oct 31 11:36:28 2005
+# Created: Sun Dec 11 23:55:35 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -112,9 +112,9 @@ class MMKitDialog(QDialog):
         spacer4_2_3_2 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
         MMKitDialogLayout.addItem(spacer4_2_3_2)
 
-        self.tabWidget2 = QTabWidget(self,"tabWidget2")
+        self.mmkit_tab = QTabWidget(self,"mmkit_tab")
 
-        self.tab = QWidget(self.tabWidget2,"tab")
+        self.tab = QWidget(self.mmkit_tab,"tab")
         tabLayout = QGridLayout(self.tab,1,1,0,0,"tabLayout")
 
         self.elementButtonGroup = QButtonGroup(self.tab,"elementButtonGroup")
@@ -306,9 +306,9 @@ class MMKitDialog(QDialog):
         tabLayout.addWidget(self.hybrid_btngrp,2,0)
         spacer14 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.Fixed)
         tabLayout.addItem(spacer14,1,0)
-        self.tabWidget2.insertTab(self.tab,QString.fromLatin1(""))
+        self.mmkit_tab.insertTab(self.tab,QString.fromLatin1(""))
 
-        self.tab_2 = QWidget(self.tabWidget2,"tab_2")
+        self.tab_2 = QWidget(self.mmkit_tab,"tab_2")
         tabLayout_2 = QVBoxLayout(self.tab_2,11,6,"tabLayout_2")
 
         self.textLabel1 = QLabel(self.tab_2,"textLabel1")
@@ -328,11 +328,11 @@ class MMKitDialog(QDialog):
         spacer13 = QSpacerItem(61,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout5.addItem(spacer13)
         tabLayout_2.addLayout(layout5)
-        self.tabWidget2.insertTab(self.tab_2,QString.fromLatin1(""))
+        self.mmkit_tab.insertTab(self.tab_2,QString.fromLatin1(""))
 
-        self.libraryPage = QWidget(self.tabWidget2,"libraryPage")
-        self.tabWidget2.insertTab(self.libraryPage,QString.fromLatin1(""))
-        MMKitDialogLayout.addWidget(self.tabWidget2)
+        self.libraryPage = QWidget(self.mmkit_tab,"libraryPage")
+        self.mmkit_tab.insertTab(self.libraryPage,QString.fromLatin1(""))
+        MMKitDialogLayout.addWidget(self.mmkit_tab)
         spacer4_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
         MMKitDialogLayout.addItem(spacer4_2)
 
@@ -357,13 +357,13 @@ class MMKitDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(220,500).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(220,504).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
         self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
-        self.connect(self.tabWidget2,SIGNAL("currentChanged(QWidget*)"),self.tabpageChanged)
+        self.connect(self.mmkit_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.chunkListBox,SIGNAL("selectionChanged(QListBoxItem*)"),self.chunkChanged)
         self.connect(self.updateButton,SIGNAL("clicked()"),self.updatePastableItems)
         self.connect(self.browseButton,SIGNAL("clicked()"),self.browseDirectories)
@@ -438,12 +438,12 @@ class MMKitDialog(QDialog):
         self.graphitic_btn.setText(QString.null)
         self.graphitic_btn.setAccel(self.__tr("4"))
         QToolTip.add(self.graphitic_btn,self.__tr("Graphitic"))
-        self.tabWidget2.changeTab(self.tab,self.__tr("Atoms"))
+        self.mmkit_tab.changeTab(self.tab,self.__tr("Atoms"))
         self.textLabel1.setText(self.__tr("Pastable Chunks:"))
         self.updateButton.setText(self.__tr("Update"))
         QToolTip.add(self.updateButton,self.__tr("Synchronize list with the Model Tree clipboard."))
-        self.tabWidget2.changeTab(self.tab_2,self.__tr("Clipboard"))
-        self.tabWidget2.changeTab(self.libraryPage,self.__tr("Library"))
+        self.mmkit_tab.changeTab(self.tab_2,self.__tr("Clipboard"))
+        self.mmkit_tab.changeTab(self.libraryPage,self.__tr("Library"))
         self.browseButton.setText(self.__tr("Browse..."))
         QToolTip.add(self.browseButton,self.__tr("Open file chooser dialog to select a new directory."))
         self.closePTableButton.setText(self.__tr("Close"))
@@ -455,8 +455,8 @@ class MMKitDialog(QDialog):
     def set_hybrid_type(self,a0):
         print "MMKitDialog.set_hybrid_type(int): Not implemented yet"
 
-    def tabpageChanged(self,a0):
-        print "MMKitDialog.tabpageChanged(QWidget*): Not implemented yet"
+    def setup_current_page(self):
+        print "MMKitDialog.setup_current_page(): Not implemented yet"
 
     def chunkChanged(self,a0):
         print "MMKitDialog.chunkChanged(QListBoxItem*): Not implemented yet"
