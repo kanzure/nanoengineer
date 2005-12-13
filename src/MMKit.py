@@ -43,8 +43,6 @@ class MMKit(MMKitDialog):
         
         self.newModel = None  ## used to save the selected lib part
         
-        self.pageId = AtomsPage ## Display the first tab page by default
-        
         self.flayout = None
         
         self._setNewView('MMKitView')
@@ -89,20 +87,23 @@ class MMKit(MMKitDialog):
        
 
     def change2AtomsPage(self):
-        '''Slot method. Called when user changed element/hybrid or pressed Deposit button from dashboard.
+        '''Slot method called when user changes element/hybrid combobox or 
+        presses Deposit button from Build mode dashboard.
         '''
-        if not (self.mmkit_tab.currentPageIndex() == AtomsPage):
-            self.mmkit_tab.setCurrentPage(AtomsPage)
+        if self.mmkit_tab.currentPageIndex() == AtomsPage: return
+        self.mmkit_tab.setCurrentPage(AtomsPage) # Generates signal
             
 
     def change2ClipboardPage(self):
-        '''Slot method. Called when user changed pastable item or pressed Paste button from dashboard. '''
+        '''Slot method called when user changes pastable item combobox or 
+        presses the Paste button from the Build mode dashboard. '''
         #if not (self.mmkit_tab.currentPageIndex() == ClipboardPage):
-        self.mmkit_tab.setCurrentPage(ClipboardPage)
+        self.mmkit_tab.setCurrentPage(ClipboardPage) # Generates signal
             
 
     def setElementInfo(self,value):
-        '''Called as a slot from button push of the element Button Group'''
+        '''Slot method called when an element button is pressed in the element ButtonGroup.
+        '''
         self.w.setElement(value)
 
 
@@ -112,7 +113,7 @@ class MMKit(MMKitDialog):
            element: element label info and element graphics info """
 
         elm = self.elemTable.getElement(elemNum)
-        if elm == self.elm and self.mmkit_tab.currentPageIndex() == AtomsPage: return
+        if elm == self.elm and self.currentPageOpen('Atoms'): return
         
         ## The following statements are redundant in some situations.
         self.elementButtonGroup.setButton(elemNum)
@@ -231,7 +232,6 @@ class MMKit(MMKitDialog):
         #print "setup_current_page: pagename=", pagename
         
         if pagename == 'Atoms':  # Atoms page
-            self.pageId = AtomsPage
             self.w.pasteState = False
             self.w.depositAtomDashboard.depositBtn.setOn(True)
             self.elemGLPane.resetView()
@@ -239,7 +239,6 @@ class MMKit(MMKitDialog):
             self.browseButton.hide()
         
         elif pagename == 'Clipboard': # Clipboard page
-            self.pageId = ClipboardPage
             self.w.pasteState = True
             self.w.depositAtomDashboard.pasteBtn.setOn(True)
             self.elemGLPane.setDisplay(self.displayMode)
@@ -247,7 +246,6 @@ class MMKit(MMKitDialog):
             self.browseButton.hide()
             
         elif pagename == 'Library': # Library page
-            self.pageId = LibraryPage
             if self.rootDir:
                 self.elemGLPane.setDisplay(self.displayMode)
                 self._libPageView()
@@ -255,6 +253,7 @@ class MMKit(MMKitDialog):
             
             #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
+            self.w.pasteState = False # Only True when Clipboard is the current page.
             self.w.depositAtomDashboard.pasteBtn.setOn(False)
             self.w.depositAtomDashboard.depositBtn.setOn(False)
             
@@ -297,18 +296,20 @@ class MMKit(MMKitDialog):
 
     def getPastablePart(self):
         '''Public method. Retrieve pastable part and hotspot if current tab page is in libary, otherwise, return None. '''
-        if self.pageId == LibraryPage:
+        if self.currentPageOpen('Library'):
             return self.newModel, self.elemGLPane.hotspotAtom
         return None, None
 
     def currentPageOpen(self, pagename):
         '''Returns True if 'pagename' is the current page open in the tab widget.
         '''
-        if pagename == 'Atoms' and self.pageId == AtomsPage:
+        pageIndex = self.mmkit_tab.currentPageIndex()
+        
+        if pagename == 'Atoms' and pageIndex == AtomsPage:
             return True
-        elif pagename == 'Clipboard' and self.pageId == ClipboardPage:
+        elif pagename == 'Clipboard' and pageIndex == ClipboardPage:
             return True
-        elif pagename == 'Library' and self.pageId == LibraryPage:
+        elif pagename == 'Library' and pageIndex == LibraryPage:
             return True
         return False
            
