@@ -208,6 +208,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             else: ###PDB or other file format        
                 self.setViewFitToWindow()
 
+            self.MMKitShowPage('Atoms') #mark 051212.  Fixes bug identical to 961 item #4 when opening new part.
             self.glpane.gl_update() #bruce 050418
             self.mt.mt_update()
             
@@ -543,6 +544,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.__clear() # leaves glpane.mode as nullmode, as of 050911
                 self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
                 self.assy.reset_changed() #bruce 050429, part of fixing bug 413
+                self.MMKitShowPage('Atoms') #mark 051212.  Fixes bug 961, item #4.
                 self.win_update()
         return
 

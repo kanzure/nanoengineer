@@ -1172,12 +1172,14 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             MMKitWin.show()
         return MMKitWin
     
-    
-    def closeMMKit(self):
+    def MMKitShowPage(self, pagename):
+        '''Shows page 'pagename' in the MMKit. 
+        pagename can be "Atoms", "Clipboard" or "Library".
+        '''
         global MMKitWin
-        if MMKitWin and MMKitWin.isShown():
-            MMKitWin.hide()
-    
+        if MMKitWin:
+            MMKitWin.setup_current_page(pagename)
+
     def transmuteElementChanged(self, a0):
         '''Slot method, called when user changes the items in the <Transmute to> comboBox of selectAtom Dashboard.
            I put it here instead of the more relevant selectMode.py is because selectMode is not of 
