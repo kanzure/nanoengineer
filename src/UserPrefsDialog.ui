@@ -3444,19 +3444,19 @@
         <sender>light_x_linedit</sender>
         <signal>returnPressed()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_y_linedit</sender>
         <signal>returnPressed()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_z_linedit</sender>
         <signal>returnPressed()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>lighting_restore_defaults_btn</sender>

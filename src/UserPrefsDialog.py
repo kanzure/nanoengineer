@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Dec 5 18:13:29 2005
+# Created: Tue Dec 13 10:47:15 2005
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1046,9 +1046,9 @@ class UserPrefsDialog(QDialog):
         self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.change_lighting)
-        self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.change_lighting)
-        self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.change_lighting)
+        self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
+        self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
+        self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
         self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
