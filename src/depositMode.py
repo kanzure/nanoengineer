@@ -410,6 +410,9 @@ class depositMode(basicMode):
         #  for new reasons -- i don't know if it is, but someday it might be]
         if self.dont_update_gui:
             print "update_gui returns since self.dont_update_gui" ####@@@@
+            # Getting msg after depositing an atom, then selecting an open bond and 
+            # "Select Hotspot and Copy" from the GLPane menu.
+            # Is it a bug??? Mark 051212.
             return
         # now we know self.dont_update_gui == False, so ok that we reset it to that below (I hope)
         self.dont_update_gui = True
@@ -585,8 +588,7 @@ class depositMode(basicMode):
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
         self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
         
-        # Huaicai 7/29/05: Close the MMKit every time leaving this mode.
-        self.w.closeMMKit()
+        self.MMKit.close() # Close the MMKit when leaving Build mode.
 
 
     def restore_patches(self):

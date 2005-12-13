@@ -427,7 +427,17 @@ class MMKit(MMKitDialog):
                #Refresh GL-thumbView display
                self.newModel = None
                self.elemGLPane.updateModel(self.newModel)
-               
+
+    def closeEvent(self, e):
+        """This event handler receives all MMKit close events.  In other words,
+        when this dialog's close() slot gets called, this gets called with event 'e'.
+        """
+        self.hide()
+        
+        # If the 'Library' page is open, change it to 'Atoms'.  Mark 051212.
+        if self.currentPageOpen('Library'):
+            self.setup_current_page('Atoms')
+                       
     pass # end of class MMKit
 
 # end
