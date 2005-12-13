@@ -1100,17 +1100,21 @@ class depositMode(basicMode):
         If cursor is on an atom, drag it (and any atoms in the chunk it belongs too) around.
         If cursor is on a bond, change the bond to a new bond type.
         """
+        # mark 051211 revised docstring
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.dragmol = None #bruce 041130 precautions
+        self.baggage = [] # precaution
+        self.nonbaggage = [] #bruce 051209 new feature so defn of baggage can be generalized
+        self.dragatom = None
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
-            # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
-            # Therefore, the present value might be out of date -- but it does correspond to whatever
-            # highlighting is on the screen, so whatever it is should not be a surprise to the user,
-            # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
-            # motion before pressing the mouse. [bruce 050705 comment]
+        # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
+        # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
+        # Therefore, the present value might be out of date -- but it does correspond to whatever
+        # highlighting is on the screen, so whatever it is should not be a surprise to the user,
+        # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
+        # motion before pressing the mouse. [bruce 050705 comment]
         a = self.o.selatom
         atype = self.pastable_atomtype()
         self.modified = 1
@@ -1126,13 +1130,15 @@ class depositMode(basicMode):
             env.history.message(orangemsg("No library part has been selected to paste."))
             return
         
-        if a: # if some atom (not bond) was "lit up" #######################################
+        if a: # if some atom (not bond) was "lit up" ############################
             ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
+            # Ask Bruce if I should remove this commented out history msg.  Mark 051212.
             
-            if a.element is Singlet: # if 'singlet' was "lit up" ###################################
+            if a.element is Singlet: # if a singlet was "lit up" ########################
                 a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
                 
-                # If the MMKit's 'Library' page is open and a part is selected, then try to bond the part to the singlet. 
+                # If the MMKit's 'Library' page is open and a part is selected, 
+                # then try to bond the part to the singlet. 
                 if newPart and hotSpot :
                     self._pastePart(newPart, hotSpot, a)
                 elif newPart and not hotSpot:
@@ -1141,7 +1147,7 @@ class depositMode(basicMode):
                     env.history.message(orangemsg(msg))
                     
                 elif self.w.pasteState:
-                    # User wants to paste something from the Clipboard
+                    # Paste something from the Clipboard and bond it to the singlet
                     if self.pastable:
                         chunk, desc = self.pasteBond(a)
                         if chunk:
@@ -1153,8 +1159,8 @@ class depositMode(basicMode):
                             # and added the rest of them to describe what we do
                             # (or why we do nothing)
                     else:
-                        # do nothing
-                        status = "nothing selected to paste" #k correct??
+                        # Nothing selected from the Clipboard to paste, so do nothing
+                        status = "Nothing selected to paste" #k correct??
                         chunk = None #bruce 041207
                 else:
                     # User wants to bond an atom of type atype to the singlet
@@ -1188,76 +1194,59 @@ class depositMode(basicMode):
             
             #== end of 'Singlet'
             
-            # else we've grabbed an atom #################################################
-            elif a.realNeighbors(): # probably part of larger molecule
-                    ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
-                self.dragmol = a.molecule
-                e=a.molecule.externs
-                if len(e)==1: # pivot around one bond
-                    self.pivot = e[0].center
-                        # warning: Bond.center is only in abs coords since
-                        # this is an external bond [bruce 050516 comment]
-                    self.pivax = None
-                    return
-                elif len(e)==2: # pivot around 2 bonds
-                    self.pivot = e[0].center
-                    self.pivax = norm(e[1].center-e[0].center)
-                    return
-                elif len(e)==0: # drag it around
-                    self.pivot = None
-                    self.pivax = True #k might have bugs if realNeighbors in other mols??
-                    #bruce 041130 tried using this case for 1-atom mol as well,
-                    # but it made singlet highlighting wrong (due to pivax??).
-                    # (Could that mean there's some sort of basepos-updating bug
-                    # in mol.pivot? ###@@@)
-                    return
-                # more than 2 externs -- fall thru
-            elif len(a.molecule.atoms) == 1 + len(a.bonds):
-                #bruce 041130 added this case to let plain left drag work to
-                # drag a 1-real-atom mol, not only a larger mol as before; the
-                # docstring makes me think this was the original intention, and
-                # the many "invalid bug reports" whose authors assume this will
-                # work imply this feature is desired and intuitively expected.
-                self.dragmol = a.molecule
-                # fall thru
-            else:
-                #bruce 041130 added this case too:
-                # no real neighbors, but more than just the singlets in the mol
-                # (weird but possible)... for now, just do the same, though if
-                # there are 1 or 2 externs it might be better to do pivoting. #e
-                self.dragmol = a.molecule
-                # fall thru
+            # else we've grabbed a 'real' atom #################################
+            
+            else: # We've grabbed an existing atom.  
+                # Let the user drag the atom around if they want.
+                self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
+                self.dragatom = a
+                # we need to store something unique about this event;
+                # we'd use serno or time if it had one... instead this _count will do.
+                global _count
+                _count = _count + 1
+                self.dragatom_start = _count
                 
-        # a bond was "lit up" #############################################
+        # a bond was "lit up" ##############################################
         elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond():
             # click on a real bond
             self.clicked_on_bond(self.o.selobj)
             
-        # we've selected something else (a jig) ###############################
+        # we've selected something else (a jig) ##############################
         elif self.o.selobj is not None: # something *else* other than an atom was lit up
             pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
             
-        # Nothing was "lit up" #############################################
+        # Nothing was "lit up" ##############################################
         else:
-            # nothing was "lit up" -- we're in empty space;
-            # create something and (if an atom) drag it rigidly
-            atomPos = self.getCoords(event)
+            # nothing was "lit up" -- we're in empty space.
+            # Deposit either an atom, clipboard chunk or a libary part. 
+            # If an atom is deposited, allow the user to drag it around. 
+            # Would be nice to also support dragging of a clipboard chunk or library part.
+            cursorPos = self.getCoords(event)
             
-            if newPart: # Paste from the MMKit 'Library'
-                self._pastePart(newPart, hotSpot, atomPos)
+            if newPart: # Paste from the MMKit part 'Library' into empty space
+                self._pastePart(newPart, hotSpot, cursorPos)
             
-            elif self.w.pasteState: # Paste from the 'Clipboard'.
+            elif self.w.pasteState: # Paste from the 'Clipboard' into empty space
                 if self.pastable:
-                    chunk, desc = self.pasteFree(atomPos)
+                    chunk, desc = self.pasteFree(cursorPos)
                     self.dragmol = None
-                    status = "pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(atomPos))
+                    status = "Pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(cursorPos))
                 else:
-                    # do nothing
-                    status = "nothing selected to paste" #k correct??
+                    # Nothing selected from the Clipboard to paste, so do nothing
+                    status = "Nothing selected to paste" #k correct??
                     chunk = None #bruce 041207
-            else: # Deposit a single atom
-                self.o.selatom = oneUnbonded(atype.element, self.o.assy, atomPos, atomtype = atype)
-                self.dragmol = self.o.selatom.molecule
+            
+            else: # Deposit a single atom in empty space (leftDown)
+                self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
+                self.dragmol = self.o.selatom.molecule # Probably not needed anymore.  Mark 051212.
+                # Let the user drag the atom around if they want.
+                self.baggage, self.nonbaggage = self.o.selatom.baggage_and_other_neighbors()
+                self.dragatom= self.o.selatom
+                # we need to store something unique about this event;
+                # we'd use serno or time if it had one... instead this _count will do.
+                _count = _count + 1
+                self.dragatom_start = _count
+                
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
                 chunk = self.o.selatom.molecule #bruce 041207
             # now fix bug 229 part B (as called in comment #2),
@@ -1266,10 +1255,7 @@ class depositMode(basicMode):
                 status = self.ensure_visible(chunk, status) #bruce 041207
                 env.history.message(status)
                 # fall thru
-        
-        # move the molecule rigidly (if self.dragmol and self.o.selatom were set)
-        self.pivot = None
-        self.pivax = None
+
         self.w.win_update()
 
     def clicked_on_bond(self, bond): #bruce 050727
@@ -1301,36 +1287,57 @@ class depositMode(basicMode):
             # should never happen, but use old code as a last resort:
             point2 = ptonline(point, p1, norm(p2-p1))
         return point2
+
         
     def leftDrag(self, event):
-        """ drag a new atom or an old atom's molecule
-        """
-        #bruce 041130 revised docstring
-        if not (self.dragmol and self.o.selatom): return
-        m = self.dragmol
-        a = self.o.selatom
+        '''Drag a real atom (and any monovalent atoms attached to it).
+        '''
+        if not self.dragatom: return
+        a = self.dragatom
+        if a.element is Singlet: return
+        apos0 = a.posn()
         px = self.dragto(a.posn(), event)
-        if self.pivot:
-            po = a.posn() - self.pivot
-            pxv = px - self.pivot
-        if self.pivot and self.pivax:
-            m.pivot(self.pivot, twistor(self.pivax, po, pxv))
-        elif self.pivot:
-            q1 = twistor(self.pivot-m.center, po, pxv)
-            q2 = Q(q1.rot(po), pxv)
-            m.pivot(self.pivot, q1+q2)
-        elif self.pivax:
-            m.rot(Q(a.posn()-m.center,px-m.center))
-            m.move(px-a.posn())
-        else:
-            m.move(px-a.posn())
-        #e bruce 041130 thinks this should be given a new-coordinates-message,
-        # like in leftShiftDrag but starting with the atom-creation message
-        # (but the entire mol gets dragged, so the msg should reflect that)
-        # ###@@@
+        apo = a.posn()
+        # find the delta quat for the average non-baggage bond and apply
+        # it to the baggage
+        n = self.nonbaggage
+        old = V(0,0,0)
+        new = V(0,0,0)
+        for at in n:
+            old += at.posn()-apo
+            new += at.posn()-px
+            at.adjBaggage(a, px)
+        delta = px - apo
+        if n:
+            q=Q(old,new)
+            for at in self.baggage:
+                at.setposn(q.rot(at.posn()-apo)+px)
+        else: 
+            for at in self.baggage:
+                at.setposn(at.posn()+delta)
+        # [Josh wrote, about the following "a.setposn(px)":]
+        # there's some weirdness I don't understand
+        # this doesn't work if done before the loop above
+        a.setposn(px)
+        # [bruce 041108 writes:]
+        # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
+        # in the loop before it, or adjBaggage (which compares a.posn() to
+        # px) would think atom a was not moving.
+            
+        # Update status/history message with new coordinates
+        apos1 = a.posn()
+        if apos1 - apos0:
+            msg = "dragged atom %r to %s" % (a, self.posn_str(a))
+            this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
+            env.history.message(msg, transient_id = this_drag_id)
+        
         self.o.gl_update()
 
+
     def leftUp(self, event):
+        env.history.flush_saved_transients() # flush any transient message it saved up
+        self.dragatom = None 
+        self.baggage = []
         self.dragmol = None
         self.o.selatom = None
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
@@ -1342,27 +1349,31 @@ class depositMode(basicMode):
         # current location (to set selatom again, if appropriate), but it's
         # not clear this would be good, so *this* is what I won't do for now.
         self.o.gl_update()
+
         
     def leftShiftDown(self, event): ###e should we revise this to check if cursor is on baggage, not on a singlet? [bruce 051209 Q]
-        """If there's nothing nearby, do nothing. If cursor is on a
-        singlet, drag it around, rotating the atom it's bonded to if
-        possible.  If it is a real atom, drag it around (but not
-        the real atoms it's bonded to).
+        """If cursor is on empty space, do nothing.
+        If cursor is on a singlet, drag it around, rotating the atom it's bonded to if possible.
+        If cursor is on an atom, drag it (and any atoms in the chunk it belongs to) around.
+        If cursor is on a bond, do nothing.
         """
-        #bruce 041130 revised docstring
+        # mark 051212 revised docstring
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.pivot = self.pivax = self.line = None #bruce 041130 precaution
         self.baggage = [] #bruce 041130 precaution
         self.nonbaggage = [] #bruce 051209 new feature so defn of baggage can be generalized
         self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
+        # see warnings about update_selatom's delayed effect, in its docstring or in 
+        # leftDown. [bruce 050705 comment]
         a = self.o.selatom
         if not a: return
         # now, if something was "lit up"
         ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
         self.modified = 1
         self.o.assy.changed()
+        
+        # if a singlet was "lit up", drag it around, rotating the atom it's bonded to if possible. ######
         if a.element is Singlet:
             pivatom = a.neighbors()[0]
             self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209
@@ -1386,11 +1397,12 @@ class depositMode(basicMode):
             else: # no non-baggage neighbors
                 self.pivot = pivatom.posn()
                 self.pivax = None
-        else: # we've grabbed an atom
-            self.pivot = None
-            self.pivax = None
-            self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
-            ## self.baggage = a.singNeighbors()
+            # fall thru
+        
+        # If a 'real' atom was "lit up", drag it (and any atoms in the chunk it belongs to) around. ##########
+        else: # We've grabbed an atom (leftShiftDown). 
+            self.setupDragChunk(a)
+
         self.dragatom = a
         # we need to store something unique about this event;
         # we'd use serno or time if it had one... instead this _count will do.
@@ -1402,55 +1414,34 @@ class depositMode(basicMode):
                         
 
     def leftShiftDrag(self, event):
-        """ drag the atom around
+        """ If the cursor is on a real atom, continue dragging the atom's chunk around.
+        If the cursor is on a singlet, continue dragging it around, rotating the atom it's bonded to if possible.
         """
         if not self.dragatom: return
         a = self.dragatom
         apos0 = a.posn()
         px = self.dragto(a.posn(), event)
-        if a.element is not Singlet and not self.pivot:
-            # no pivot, just dragging it around
-            apo = a.posn()
-            # find the delta quat for the average non-baggage bond and apply
-            # it to the baggage
-            n = self.nonbaggage
-            ## n = a.realNeighbors()
-            old = V(0,0,0)
-            new = V(0,0,0)
-            for at in n:
-                old += at.posn()-apo
-                new += at.posn()-px
-                at.adjBaggage(a, px)
-            delta = px - apo
-            if n:
-                q=Q(old,new)
-                for at in self.baggage:
-                    at.setposn(q.rot(at.posn()-apo)+px)
-            else: 
-                for at in self.baggage:
-                    at.setposn(at.posn()+delta)
-            # [Josh wrote, about the following "a.setposn(px)":]
-            # there's some weirdness I don't understand
-            # this doesn't work if done before the loop above
-            a.setposn(px)
-            # [bruce 041108 writes:]
-            # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
-            # in the loop before it, or adjBaggage (which compares a.posn() to
-            # px) would think atom a was not moving.
-        elif self.pivax: # pivoting around an axis
+        
+        if a.element is not Singlet: # continue dragging an atom and the atoms in its chunk
+            self.dragChunk(event)
+        
+        elif self.pivax: # continue pivoting around an axis
             quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
-        elif self.pivot: # pivoting around a point
+        
+        elif self.pivot: # continue pivoting around a point
             quat = Q(a.posn()-self.pivot, px-self.pivot)
             for at in [a]+self.baggage:
                 at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
+        
         if a.element is Singlet:
             #bruce 051209 brought update_selatom inside this conditional, to fix an old bug; need to reset it in other case???###@@@
             self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
             #bruce 041130 asks: is it correct to do that when a is real? 051209: no. now i don't, that's the bugfix.
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-            self.line = [a.posn(), px]
+            self.line = [a.posn(), px] # This updates the endpoints of the white rubberband line.
+        
         #bruce 041130 added status bar message with new coordinates
         apos1 = a.posn()
         if apos1 - apos0:
@@ -1462,8 +1453,79 @@ class depositMode(basicMode):
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
             this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
             env.history.message(msg, transient_id = this_drag_id)
+        
         self.o.gl_update()
         return
+        
+        
+    def setupDragChunk(self, a):
+        '''Setup dragging of atom 'a', including all atoms in the chunk it belongs to.
+        '''
+        if a.realNeighbors(): # probably part of larger molecule
+                    ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
+            self.dragmol = a.molecule
+            e=a.molecule.externs # externs are number of bonds to other chunks.
+            if len(e)==1: # pivot around one bond
+                self.pivot = e[0].center
+                # warning: Bond.center is only in abs coords since
+                # this is an external bond [bruce 050516 comment]
+                self.pivax = None
+                return
+            elif len(e)==2: # pivot around 2 bonds
+                self.pivot = e[0].center
+                self.pivax = norm(e[1].center-e[0].center)
+                return
+            elif len(e)==0: # drag it around
+                self.pivot = None
+                self.pivax = True #k might have bugs if realNeighbors in other mols??
+                #bruce 041130 tried using this case for 1-atom mol as well,
+                # but it made singlet highlighting wrong (due to pivax??).
+                # (Could that mean there's some sort of basepos-updating bug
+                # in mol.pivot? ###@@@)
+                return
+                # more than 2 externs -- fall thru
+        elif len(a.molecule.atoms) == 1 + len(a.bonds):
+                #bruce 041130 added this case to let plain left drag work to
+                # drag a 1-real-atom mol, not only a larger mol as before; the
+                # docstring makes me think this was the original intention, and
+                # the many "invalid bug reports" whose authors assume this will
+                # work imply this feature is desired and intuitively expected.
+            self.dragmol = a.molecule
+            # fall thru
+        else:
+                #bruce 041130 added this case too:
+                # no real neighbors, but more than just the singlets in the mol
+                # (weird but possible)... for now, just do the same, though if
+                # there are 1 or 2 externs it might be better to do pivoting. #e
+            self.dragmol = a.molecule
+            # fall thru
+            
+    def dragChunk(self, event):
+        """Drag an atom, including all atoms in the chunk it belongs to.
+        """
+        if not (self.dragmol and self.dragatom): return
+        m = self.dragmol
+        a = self.dragatom
+        px = self.dragto(a.posn(), event)
+        if self.pivot:
+            po = a.posn() - self.pivot
+            pxv = px - self.pivot
+        if self.pivot and self.pivax:
+            m.pivot(self.pivot, twistor(self.pivax, po, pxv))
+        elif self.pivot:
+            q1 = twistor(self.pivot-m.center, po, pxv)
+            q2 = Q(q1.rot(po), pxv)
+            m.pivot(self.pivot, q1+q2)
+        elif self.pivax:
+            m.rot(Q(a.posn()-m.center,px-m.center))
+            m.move(px-a.posn())
+        else:
+            m.move(px-a.posn())
+        #e bruce 041130 thinks this should be given a new-coordinates-message,
+        # like in leftShiftDrag but starting with the atom-creation message
+        # (but the entire mol gets dragged, so the msg should reflect that)
+        # ###@@@
+        self.o.gl_update()
 
     def leftShiftUp(self, event):
         env.history.flush_saved_transients()
