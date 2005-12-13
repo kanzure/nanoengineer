@@ -165,9 +165,9 @@ class XyzFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
-        todo("I'm pretty sure os.linesep is not used correctly here")
+        todo("I'm not sure os.linesep is used correctly here")
         lines = lines.split(os.linesep)
-        numAtoms = string.atoi(lines[0])
+        numAtoms = string.atoi(lines[0].strip())
         lines = lines[2:]
         for i in range(numAtoms):
             a = Atom()
@@ -948,6 +948,39 @@ class SlowTests(Tests):
         StructureTest(dir="heteroatom_organics", test="N_ADAM_C3v")
 Tests.slowVersion = SlowTests
 
+######################
+
+class PyrexTests(unittest.TestCase):
+    def test_minH2(self):
+        import sim
+        BASE = "tests/minimize/test_h2"
+        lac = LengthAngleComparison(BASE + ".mmp")
+        s = sim.Minimize(BASE + ".mmp")
+        s.Temperature = 300
+        z = s.go()
+        lac.compare(z, BASE + ".xyzcmp", LENGTH_TOLERANCE, ANGLE_TOLERANCE)
+    def test_other(self):
+        import sim
+        BASE = "tests/minimize/test_0001"
+        lac = LengthAngleComparison(BASE + ".mmp")
+        s = sim.Minimize(BASE + ".mmp")
+        s.Temperature = 300
+        z = s.go()
+        lac.compare(z, BASE + ".xyzcmp", LENGTH_TOLERANCE, ANGLE_TOLERANCE)
+
+class SlowPyrexTests(PyrexTests):
+    def test_dynamics(self):
+        import sim
+        s = sim.Dynamics("tests/dynamics/test_0002.mmp")
+        s.NumFrames = 10000
+        s.PrintFrameNums = 0
+        s.ItersPerFrame = 100
+        s.Temperature = 300
+        s.go()
+        # creates file: tests/dynamics/test_0002.dpb
+        # wouldn't it be nice to verify something? but what?
+PyrexTests.slowVersion = SlowPyrexTests
+
 ###########################################
 
 if __name__ == "__main__":
@@ -985,6 +1018,11 @@ if __name__ == "__main__":
         """
         global Tests
         Tests = Tests.slowVersion
+    def pyrex():
+        """Perform the Pyrex tests
+        """
+        global Tests, PyrexTests
+        Tests = PyrexTests
     def loose():
         """Loosen tolerances on length and angle comparisons.
         """
@@ -1029,6 +1067,7 @@ if __name__ == "__main__":
                lengths_angles,
                structcompare,
                slow,
+               pyrex,
                loose,
                generate,
                debug,
