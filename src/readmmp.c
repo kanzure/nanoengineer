@@ -439,7 +439,9 @@ readMMP(char *filename)
     }
 		
     // ground (<name>) (r, g, b) <atoms>
-    else if (!strcmp(tok, "ground")) {
+    // accept "anchor" as synonym for "ground" wware 051213
+    else if (!strcmp(tok, "ground") ||
+	     !strcmp(tok, "anchor")) {
       name = expectName(mmp);
       expectXYZInts(mmp, NULL); // ignore (rgb) triplet
       expectIntList(mmp, &atomList, &atomListLength, 0);

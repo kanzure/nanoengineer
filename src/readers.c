@@ -428,7 +428,9 @@ void filred(char *filnam) {
 	/* constraints */
 	/* welded to space: */
 	// ground (<name>) <atoms>
-	else if (0==strncasecmp("ground",buf,6)) {
+	// accept "anchor" as synonym for "ground" wware 051213
+	else if (0==strncasecmp("ground",buf,6) ||
+		 0==strncasecmp("anchor",buf,6)) {
 	  j=readname(buf+7,&strg);
 	  i=readname(buf+7+j+1, &junk);
 	  j=readshaft(buf+7+j+i+1, iv, atnotab);
