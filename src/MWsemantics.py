@@ -246,7 +246,23 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # and the Element Selector)
         self.Element = 6
         self.setElement(6)
-        # and paste the atom rather than the clipboard by default
+        
+        # All about 'pasteState'...
+        #
+        # 'pasteState' is True whenever Build Mode is placed in the "Paste from Clipboard" state.
+        # 'pasteState' is False whenever Build Mode is place in the "Atoms/Deposit" or "Library" state.
+        #
+        # 'pasteState' is used by depositMode and MMKit to synchonize the 
+        # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
+        # It is also used to determine what type of object (atom, clipboard chunk or library part)
+        # to deposit when pressing the left mouse button in Build mode.
+        # 
+        # This use of pasteState is confusing and should be changed.  I propose changing
+        # the name from 'pasteState' to 'depositState', making depositState an integer
+        # with the following values: 0 = Atoms, 1 = Clipboard, 2 = Library (these values also 
+        # map directly to the page index numbers of the MMKit tabs).  This should allow for
+        # extending its use in the future.  I also suggest making this an attribute of depositMode and
+        # removing it here.
         self.pasteState = False
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
@@ -1099,6 +1115,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     # Element Selector Slots
     #######################################
     def modifySetElement(self):
+        '''Creates the Element Selector for Select Atoms mode.
+        '''
         global elementSelectorWin
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
@@ -1188,6 +1206,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             
         
     def elemChange(self, a0):
+        '''Slot for Element selector combobox in Build mode's dashboard.
+        '''
         self.Element = eCCBtab1[a0]
         
         try: #bruce 050606
