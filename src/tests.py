@@ -812,6 +812,8 @@ class Tests(unittest.TestCase):
         StructureTest(dir="amino_acids", test="val_l_aminoacid")
     def tests_heteroatom_organics_ADAM_AlH2_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_AlH2_Cs")
+    def tests_heteroatom_organics_ADAM_BH2(self):
+        StructureTest(dir="heteroatom_organics", test="ADAM_BH2")
     def tests_heteroatom_organics_ADAM_Cl_c3v(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_Cl_c3v")
     def tests_heteroatom_organics_ADAM_F_c3v(self):
