@@ -1120,7 +1120,6 @@ class depositMode(basicMode):
         # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
         # motion before pressing the mouse. [bruce 050705 comment]
         a = self.o.selatom
-        atype = self.pastable_atomtype()
         self.modified = 1
         self.o.assy.changed()
         library_part_deposited = False
@@ -1128,9 +1127,7 @@ class depositMode(basicMode):
         if a: # if some atom (not bond) was "lit up" ############################
             
             if a.element is Singlet: # if a singlet was "lit up" ########################
-                
-                a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
-                
+
                 if self.w.depositState == 'Library':
                     library_part_deposited = self.deposit_from_Library(a) # try to bond the part selected in the Library
                     if not library_part_deposited: return # nothing pasted
@@ -1138,27 +1135,13 @@ class depositMode(basicMode):
                 elif self.w.depositState == 'Clipboard':
                     chunk, status = self.deposit_from_Clipboard(a) # try to bond the object selected on the Clipboard
             
+                elif self.w.depositState == 'Atoms':
+                    chunk, status = self.deposit_from_Atoms(a)
+                
                 else:
-                    # User wants to bond an atom of type atype to the singlet
-                    # (revised by bruce 050511)
-                    # if 1: # during devel, at least
-                    if platform.atom_debug: # Need this for A6 package builder to work.  Mark 050811.
-                        import build_utils
-                        reload(build_utils)
-                    from build_utils import AtomTypeDepositionTool
-                    deptool = AtomTypeDepositionTool( atype)
-                    autobond = self.w.depositAtomDashboard.autobondCB.isChecked() #bruce 050831
-                    a1, desc = deptool.attach_to(a, autobond = autobond)
-                        #e this might need to take over the generation of the following status msg...
-                    ## a1, desc = self.attach(el, a)
-                    if a1 is not None:
-                        self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
-                        status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
-                        chunk = a1.molecule #bruce 041207
-                    else:
-                        status = desc
-                        chunk = None #bruce 041207
-                    del a1, desc
+                    print "Error. depositState unknown:", self.w.depositState
+                    return
+                    
                 self.o.selatom = None
                 
                 # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
@@ -1207,18 +1190,12 @@ class depositMode(basicMode):
             elif self.w.depositState == 'Clipboard':
                 chunk, status = self.deposit_from_Clipboard(cursorPos)
             
-            else: # Deposit a single atom in empty space (leftDown)
-                self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
-                # Let the user drag the atom around if they want.
-                self.baggage, self.nonbaggage = self.o.selatom.baggage_and_other_neighbors()
-                self.dragatom= self.o.selatom
-                # we need to store something unique about this event;
-                # we'd use serno or time if it had one... instead this _count will do.
-                _count = _count + 1
-                self.dragatom_start = _count
+            elif self.w.depositState == 'Atoms':
+                chunk, status = self.deposit_from_Atoms(cursorPos)
                 
-                status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
-                chunk = self.o.selatom.molecule #bruce 041207
+            else:
+                print "Error. depositState unknown:", self.w.depositState
+                return
                 
             # now fix bug 229 part B (as called in comment #2),
             # by making this new chunk visible if it otherwise would not be.
@@ -1227,7 +1204,6 @@ class depositMode(basicMode):
             if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05]
                 status = self.ensure_visible(chunk, status) #bruce 041207
                 env.history.message(status)
-                # fall thru
 
         self.w.win_update()
 
@@ -1401,6 +1377,58 @@ class depositMode(basicMode):
                 status = "nothing selected to paste" #k correct??
                 chunk = None #bruce 041207
                 
+        return chunk, status
+        
+        
+
+    def deposit_from_Atoms(self, atom_or_pos):
+        '''Deposits an atom of the selected atom type from the MMKit Atoms page, or
+        the Clipboard (atom and hybridtype) comboboxes on the dashboard, which are the same atom.
+        If 'atom_or_pos' is a singlet, bond the atom to the singlet.
+        Otherwise, set up the atom at position 'atom_or_pos' to be dragged around.
+        Returns (chunk, status)
+        '''
+        atype = self.pastable_atomtype() # Type of atom to deposit
+        
+        if isinstance(atom_or_pos, Atom):
+            a = atom_or_pos
+            if a.element is Singlet: # bond an atom of type atype to the singlet
+                a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
+                # (revised by bruce 050511)
+                # if 1: # during devel, at least
+                if platform.atom_debug: # Need this for A6 package builder to work.  Mark 050811.
+                    import build_utils
+                    reload(build_utils)
+                from build_utils import AtomTypeDepositionTool
+                deptool = AtomTypeDepositionTool( atype)
+                autobond = self.w.depositAtomDashboard.autobondCB.isChecked() #bruce 050831
+                a1, desc = deptool.attach_to(a, autobond = autobond)
+                        #e this might need to take over the generation of the following status msg...
+                ## a1, desc = self.attach(el, a)
+                if a1 is not None:
+                    self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
+                    status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
+                    chunk = a1.molecule #bruce 041207
+                else:
+                    status = desc
+                    chunk = None #bruce 041207
+                del a1, desc
+
+        else: # Deposit atom at cursorPos
+                cursorPos = atom_or_pos
+                self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
+                # Let the user drag the atom around if they want.
+                self.baggage, self.nonbaggage = self.o.selatom.baggage_and_other_neighbors()
+                self.dragatom= self.o.selatom
+                # we need to store something unique about this event;
+                # we'd use serno or time if it had one... instead this _count will do.
+                global _count
+                _count = _count + 1
+                self.dragatom_start = _count
+                
+                status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
+                chunk = self.o.selatom.molecule #bruce 041207
+        
         return chunk, status
 
         
