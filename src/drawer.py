@@ -80,6 +80,17 @@ drum0=map((lambda a: (cos(a), sin(a), 0.0)), circ1)
 drum1=map((lambda a: (cos(a), sin(a), 1.0)), circ2)
 drum1n=map((lambda a: (cos(a), sin(a), 0.0)), circ2)
 
+# grantham 20051213 I finally decided the look of the oddly twisted
+# cylinder bonds was not pretty enough, so I made a "drum2" which is just
+# drum0 with a 1.0 Z coordinate, a la drum1.
+drum2=map((lambda a: (cos(a), sin(a), 1.0)), circ1)
+
+# This edge list zips up the "top" vertex and normal and then
+# the "bottom" vertex and normal.
+# Thus each tuple in the sequence would be (vtop, ntop, vbot, nbot)
+cylinderEdges = zip(drum0, drum0, drum2, drum0) +\
+    zip(drum0[:0], drum2[:0], drum0[:0], drum0[:0])
+
 circle=zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
        zip(drum1[:-1],drum0[1:],drum1[1:])
 circlen=zip(drum0[:-1],drum0[1:],drum1n[:-1]) +\
@@ -432,10 +443,7 @@ def get_gl_info_string():
 	    glFinish()
 
 	    residences = glAreTexturesResident(tex_names[:tex_count])
-	    all_tex_in = True
-	    # seems to me that Python must have an idiom for the next two lines 
-	    for r in residences:
-		all_tex_in = all_tex_in and r
+            all_tex_in = reduce(lambda a,b: a and b, residences)
 
 	glDisable(GL_TEXTURE_2D)
 	glDeleteTextures(tex_names)
@@ -658,14 +666,12 @@ def setup():
 
     CylList = listbase+numSphereSizes
     glNewList(CylList, GL_COMPILE)
-    glBegin(GL_TRIANGLES)
-    for i in range(len(circle)):
-        glNormal3fv(circlen[i][0])
-        glVertex3fv(circle[i][0])
-        glNormal3fv(circlen[i][1])
-        glVertex3fv(circle[i][1])
-        glNormal3fv(circlen[i][2])
-        glVertex3fv(circle[i][2])
+    glBegin(GL_TRIANGLE_STRIP)
+    for (vtop, ntop, vbot, nbot) in cylinderEdges:
+        glNormal3fv(nbot)
+        glVertex3fv(vbot)
+        glNormal3fv(ntop)
+        glVertex3fv(vtop)
     glEnd()
     glEndList()
 
