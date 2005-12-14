@@ -129,7 +129,7 @@ class MMKit(MMKitDialog):
         # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
         # when the user selects Copy and Paste from the Edit toolbar/menu, the MMKit should show
         # the Clipboard, not the Atoms page. Mark 050808
-        if self.w.pasteState:
+        if self.w.depositState == 'Clipboard':
             self.change2ClipboardPage()
         else:
             self.change2AtomsPage()
@@ -227,20 +227,21 @@ class MMKit(MMKitDialog):
     
     def setup_current_page(self, pagename):
         '''Slot method that is called whenever a user clicks on the 
-        'Atoms', 'Clipboard' or 'Library' tab to change to that page.'''
+        'Atoms', 'Clipboard' or 'Library' tab to change to that page.
+        '''
         
         #print "setup_current_page: pagename=", pagename
         
         if pagename == 'Atoms':  # Atoms page
-            self.w.pasteState = False
-            self.w.depositAtomDashboard.depositBtn.setOn(True)
+            self.w.depositState = 'Atoms'
+            self.w.glpane.mode.update_depositState_buttons(self.w.depositState)
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
         
         elif pagename == 'Clipboard': # Clipboard page
-            self.w.pasteState = True
-            self.w.depositAtomDashboard.pasteBtn.setOn(True)
+            self.w.depositState = 'Clipboard'
+            self.w.glpane.mode.update_depositState_buttons(self.w.depositState)
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
             self.browseButton.hide()
@@ -253,10 +254,8 @@ class MMKit(MMKitDialog):
             
             #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
-            self.w.pasteState = False # Only True when Clipboard is the current page.
-            self.w.depositAtomDashboard.pasteBtn.setOn(False)
-            self.w.depositAtomDashboard.depositBtn.setOn(False)
-            
+            self.w.depositState = 'Library'
+            self.w.glpane.mode.update_depositState_buttons(self.w.depositState)
         else:
             print 'Error: MMKit page unknown: ', pagename
             

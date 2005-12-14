@@ -442,7 +442,7 @@ class depositMode(basicMode):
 
         # First, if self.pastable is None, set it to the current value from
         # the spinbox and prior list, in case some other code set it to None
-        # when it set pasteState to False (tho I don't think that other code really
+        # when it set depositState to 'Atoms' or 'Library' (tho I don't think that other code really
         # needs to do that). This is safe even if called "too early". But if it's
         # already set, don't change it, so callers of UpdateDashboard can set it
         # to the value they want, even if that value is not yet in the spinbox
@@ -460,7 +460,7 @@ class depositMode(basicMode):
         # experiment 050122: mark the clipboard items to influence their appearance
         # in model tree... not easy to change their color, so maybe we'll let this
         # change their icon (just in chunk.py for now). Not yet done. We'd like the
-        # one equal to self.pastable (when self.pasteState and this is current mode)
+        # one equal to self.pastable (when self.depositState == 'Clipboard' and this is current mode)
         # to look the most special. But that needs to be recomputed more often
         # than this runs. Maybe we'll let the current mode have an mtree-icon-filter??
         # Or, perhaps, let it modify the displayed text in the mtree, from node.name. ###@@@
@@ -509,17 +509,22 @@ class depositMode(basicMode):
         #e future: if model tree indicates self.pastable somehow, e.g. by color of
         # its name, update it. (It might as well also show "is_pastables" that way.) ###@@@ good idea...
         
-        # Q: If not self.pastable, should we call setAtom to disable pasting??
-        # A: I don't think so, since user might not want atom-depositing enabled,
-        #    and they must have explicitly chosen paste mode even though there are
-        #    no pastable items.
-        # Update the dashboard button to match pasteState (which we did not change!).
-        # This is needed since changing the spinbox item sets pasteState.
-        if self.w.pasteState:
-            self.w.depositAtomDashboard.pasteBtn.setOn(True)
-        else:
-            self.w.depositAtomDashboard.depositBtn.setOn(True)
+        # This is needed since changing the spinbox item sets depositState.
+        self.update_depositState_buttons(self.w.depositState)
         return
+        
+    def update_depositState_buttons(self, depositState):
+        '''Update the dashboard 'depositState' buttons based on 'depositState'.
+        '''
+        if depositState== 'Atoms':
+            self.w.depositAtomDashboard.depositBtn.setOn(True)
+        elif depositState == 'Clipboard':
+            self.w.depositAtomDashboard.pasteBtn.setOn(True)
+        elif depositState == 'Library':
+            self.w.depositAtomDashboard.depositBtn.setOn(False)
+            self.w.depositAtomDashboard.pasteBtn.setOn(False)
+        else:
+            print "Error: depositState unknown: ", depositState, ".  depositState buttons unchanged."
 
     def clipboard_members_changed(self, clipboard): #bruce 050121
         "we'll subscribe this method to changes to shelf.members, if possible"
@@ -937,7 +942,7 @@ class depositMode(basicMode):
         #e should be split into "determine what to paste" and "describe it"
         # so the code for "determine it" can be shared with leftDown
         # rather than copied from it as now
-        if self.w.pasteState:
+        if self.w.depositState == 'Clipboard':
             p = self.pastable
             if p:
                 if onto_open_bond:
@@ -1143,7 +1148,7 @@ class depositMode(basicMode):
                         "or has open bonds but none of them have been set as a hotspot."
                     env.history.message(orangemsg(msg))
                     
-                elif self.w.pasteState:
+                elif self.w.depositState == 'Clipboard':
                     # Paste something from the Clipboard and bond it to the singlet
                     if self.pastable:
                         chunk, desc = self.pasteBond(a)
@@ -1231,7 +1236,7 @@ class depositMode(basicMode):
             # since that condition is checked near the beginning.  This can be confusing when reading 
             # this code.  I intend to move the conditional to a more obvious place later.  Mark 051213.
             
-            elif self.w.pasteState: # Paste from the 'Clipboard' into empty space
+            elif self.w.depositState == 'Clipboard': # Paste from the 'Clipboard' into empty space
                 if self.pastable:
                     chunk, desc = self.pasteFree(cursorPos)
                     status = "pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(cursorPos))
@@ -1730,8 +1735,8 @@ class depositMode(basicMode):
         if 1:
             ###@@@ always do this, since old code did this
             # and I didn't yet analyze changing cond to self.pastable
-            self.w.pasteState = True
-            self.w.depositAtomDashboard.pasteBtn.setOn(True)
+            self.w.depositState = 'Clipboard'
+            self.update_depositState_buttons(self.w.depositState)
         else:
             pass
             ###@@@ should we do the opposite of the above when not self.pastable?
@@ -1772,9 +1777,9 @@ class depositMode(basicMode):
         
     def setAtom(self):
         "called from radiobutton presses and spinbox changes" #k really from spinbox changes? I doubt it...#bruce 050121
-        self.w.pasteState = False
         self.pastable = None # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
-        self.w.depositAtomDashboard.depositBtn.setOn(True)
+        self.w.depositState = 'Atoms'
+        self.update_depositState_buttons(self.w.depositState)
         self.UpdateDashboard() #bruce 050121 added this
 
     bondclick_v6 = None
@@ -2154,7 +2159,7 @@ class depositMode(basicMode):
             # there in some other way.
             ##self.o.assy.shelf.unpick() # unpicks all shelf items too
             ##new.pick()
-            self.w.pasteState = True
+            self.w.depositState = 'Clipboard'
             self.pastable = new # do this again, to influence the following:
             self.UpdateDashboard()
                 # (also called by shelf.addchild(), but only after my home mods

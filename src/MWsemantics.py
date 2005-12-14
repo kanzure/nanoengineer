@@ -247,23 +247,19 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.Element = 6
         self.setElement(6)
         
-        # All about 'pasteState'...
-        #
-        # 'pasteState' is True whenever Build Mode is placed in the "Paste from Clipboard" state.
-        # 'pasteState' is False whenever Build Mode is place in the "Atoms/Deposit" or "Library" state.
-        #
-        # 'pasteState' is used by depositMode and MMKit to synchonize the 
+        # 'depositState' is used by depositMode and MMKit to synchonize the 
         # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
         # It is also used to determine what type of object (atom, clipboard chunk or library part)
         # to deposit when pressing the left mouse button in Build mode.
-        # 
-        # This use of pasteState is confusing and should be changed.  I propose changing
-        # the name from 'pasteState' to 'depositState', making depositState an integer
-        # with the following values: 0 = Atoms, 1 = Clipboard, 2 = Library (these values also 
-        # map directly to the page index numbers of the MMKit tabs).  This should allow for
-        # extending its use in the future.  I also suggest making this an attribute of depositMode and
-        # removing it here.
-        self.pasteState = False
+        #
+        # depositState can be either:
+        #   'Atoms' - deposit an atom based on the current atom type selected in the MMKit 'Atoms'
+        #           page or dashboard atom type combobox(es).
+        #   'Clipboard' - deposit a chunk from the clipboard based on what is currently selected in
+        #           the MMKit 'Clipboard' page or dashboard clipboard/paste combobox.
+        #   'Library' - deposit a part from the library based on what is currently selected in the
+        #           MMKit 'Library' page.  There is no dashboard option for this.
+        self.depositState = 'Atoms'
         
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
         
@@ -1003,7 +999,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
    
     def toolsBuildAtoms(self):
-        self.pasteState = False
+        self.depositState = 'Atoms'
         self.glpane.setMode('DEPOSIT')
 
     # get into cookiecutter mode
@@ -1226,7 +1222,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         global MMKitWin
         if MMKitWin and not MMKitWin.isHidden():
-           self.pasteState = False
+           self.depositState = 'Atoms'
            MMKitWin.update_dialog(self.Element)     
            MMKitWin.show()
            
