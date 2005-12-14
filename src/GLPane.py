@@ -1289,6 +1289,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # gl_update, but for some reason I'm uncomfortable with that for now (and even if it did, this bugfix here is
         # probably also needed). And many analogous LL changers don't do that.
         env.post_event_updates( warn_if_needed = False)
+
+        if self.debug_gl_timing: #bruce 051212
+            self._print_gl_timing(0) #e might also save values in self.xxx to help print fps in glpane at end of repaint?
         
         self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
 
@@ -1328,12 +1331,47 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             pass
         else:
             self.standard_repaint()
-        
-        glFlush()
-        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+
+        if self.debug_gl_timing: #bruce 051212
+            self._print_gl_timing(1) # also might draw fps onto screen; does its own glFlush (if any) and glFinish (if any)
+        else:
+            glFlush()
+            ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
         
         return # from paintGL
 
+    # ==
+    
+    debug_gl_timing = False #bruce 051212; default value; should be changed when some debug prefs are updated ###@@@ STUB
+
+    __last_time = time.time() # this would make more sense in __init__, but doing it on import should be ok for now
+    
+    def _print_gl_timing(self, endQ): #bruce 051212 ###@@@ STUB; needs debug_prefs to print in other places, print fps, etc
+        "private method for timing repaints. Note: doesn't print which widget since we assume only used in one (main GLPane)."
+        assert self.debug_gl_timing # remove when works
+        if endQ:
+            # end of repaint - do whatever glFlush or glFinish we need to, before measuring time
+            glFlush() #k always do this?
+            ## glFinish() # ever do this?
+        now = time.time()
+        gap = now - self.__last_time
+        self.__last_time = now
+        if not endQ:
+            # start of a repaint
+            self.__counter = env.redraw_counter
+            print "start repaint %d; inter-repaint time was %0.5f" % (self.__counter, gap)
+        else:
+            # end of a repaint
+            print " end repaint %d; took %0.5f" % (self.__counter, gap)
+                # total; fps; print somewhere else too (screen, history, internal queue)
+            if self.__counter != env.redraw_counter:
+                # this should be impossible, but could happen if we did something silly
+                # like recursively process events inside drawing code
+                print "  RECURSIVE REDRAW, end of redraw %d after start of redraw %d" % (self.__counter, env.redraw_counter)
+        return
+
+    # ==
+    
     special_topnode = None #bruce 050627 only used experimentally so far
 
     # The following behavior (in several methods herein) related to wants_gl_update
