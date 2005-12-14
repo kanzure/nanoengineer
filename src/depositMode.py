@@ -306,6 +306,7 @@ class depositMode(basicMode):
         self.pivot = None
         self.pivax = None
         self.baggage = []
+        self.nonbaggage = []
         self.line = None
     
     # init_gui does all the GUI display when entering this mode [mark 041004]
@@ -1104,11 +1105,8 @@ class depositMode(basicMode):
         # mark 051211 revised docstring
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
+        self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
-        self.pivot = self.pivax = None #bruce 041130 precautions
-        self.baggage = [] # precaution
-        self.nonbaggage = [] #bruce 051209 new feature so defn of baggage can be generalized
-        self.dragatom = None
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
         # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
         # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
@@ -1124,6 +1122,10 @@ class depositMode(basicMode):
         # Possible pastable part and its hotspot from the MMKit 'Library'.
         newPart, hotSpot = self.MMKit.getPastablePart()
         if self.MMKit.currentPageOpen('Library') and not newPart:
+            # Whenever the MMKit is closed with the 'Library' page open,
+            # MMKit.closeEvent() will change the current page to 'Atoms'.
+            # This ensures that this condition never happens if the MMKit is closed.
+            # Mark 051213.
             env.history.message(orangemsg("No library part has been selected to paste."))
             return
         
@@ -1157,6 +1159,11 @@ class depositMode(basicMode):
                         # Nothing selected from the Clipboard to paste, so do nothing
                         status = "nothing selected to paste" #k correct??
                         chunk = None #bruce 041207
+                        
+                # We don't get here if the MMKit's 'Library' page is open and no part is selected,
+                # since that condition is checked near the beginning.  This can be confusing when reading 
+                # this code.  I intend to move the conditional to a more obvious place later.  Mark 051213.
+            
                 else:
                     # User wants to bond an atom of type atype to the singlet
                     # (revised by bruce 050511)
@@ -1219,6 +1226,10 @@ class depositMode(basicMode):
             
             if newPart: # Paste from the MMKit part 'Library' into empty space
                 self._pastePart(newPart, hotSpot, cursorPos)
+                
+            # We don't get here if the MMKit's 'Library' page is open and no part is selected,
+            # since that condition is checked near the beginning.  This can be confusing when reading 
+            # this code.  I intend to move the conditional to a more obvious place later.  Mark 051213.
             
             elif self.w.pasteState: # Paste from the 'Clipboard' into empty space
                 if self.pastable:
@@ -1285,8 +1296,8 @@ class depositMode(basicMode):
         '''Drag a real atom (and any monovalent atoms attached to it).
         '''
         if not self.dragatom: return
+        if self.dragatom.is_singlet(): return
         a = self.dragatom
-        if a.element is Singlet: return
         apos0 = a.posn()
         px = self.dragto(a.posn(), event)
         apo = a.posn()
@@ -1328,8 +1339,8 @@ class depositMode(basicMode):
 
     def leftUp(self, event):
         env.history.flush_saved_transients() # flush any transient message it saved up
-        self.dragatom = None 
         self.baggage = []
+        self.dragatom = None 
         self.o.selatom = None
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
@@ -1349,11 +1360,8 @@ class depositMode(basicMode):
         If cursor is on a bond, do nothing.
         """
         # mark 051212 revised docstring
+        self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
-        self.pivot = self.pivax = self.line = None #bruce 041130 precaution
-        self.baggage = [] #bruce 041130 precaution
-        self.nonbaggage = [] #bruce 051209 new feature so defn of baggage can be generalized
-        self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
         # see warnings about update_selatom's delayed effect, in its docstring or in 
         # leftDown. [bruce 050705 comment]
@@ -1410,32 +1418,45 @@ class depositMode(basicMode):
         
         
     def setupDragChunk(self, a):
-        '''Setup dragging of atom 'a', including all atoms in the chunk it belongs to.
+        '''Setup dragging of a chunk by one of it's atoms, atom 'a'.
+        If the chunk is not bonded to any chunks, drag it around loosely, which means
+        the chunk follows atom 'a' around.
+        If the chunk is bonded to 1 other chunk, the chunk will pivot around the
+        bond to the neighoring chunk.
+        If the chunk is bonded to 2 chunks, the chunk will pivot around an axis
+        defined by the two bonds of the neighboring chunks.
+        If the chunk is bonded to 3 or more chunks, drag it rigidly, which means
+        translate the chunk in the plane of the screen.
         '''
         if a.realNeighbors(): # probably part of larger molecule
                     ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
             e=a.molecule.externs # externs are number of bonds to other chunks.
-            if len(e)==1: # bonded to 1 chunk; pivot around the single bond
-                self.pivot = e[0].center
-                # warning: Bond.center is only in abs coords since
-                # this is an external bond [bruce 050516 comment]
-                self.pivax = None
-                return
-            elif len(e)==2: # bonded to 2 other chunks; pivot around the 2 bonds
-                self.pivot = e[0].center
-                self.pivax = norm(e[1].center-e[0].center)
-                return
-            elif len(e)==0: # no bonds to other chunks, so just drag it around
+            
+            if len(e)==0: # no bonds to other chunks, so just drag it around "loosely" (follow 'a')
                 self.pivot = None
                 self.pivax = True #k might have bugs if realNeighbors in other mols??
                 #bruce 041130 tried using this case for 1-atom mol as well,
                 # but it made singlet highlighting wrong (due to pivax??).
                 # (Could that mean there's some sort of basepos-updating bug
                 # in mol.pivot? ###@@@)
-                return
-                # more than 2 externs -- fall thru
+                # I tried to reproduce the bug described above without success.  Sure it's still there?
+                # Mark 051213.
+                
+            elif len(e)==1: # bonded to 1 chunk; pivot around the single bond
+                self.pivot = e[0].center
+                # warning: Bond.center is only in abs coords since
+                # this is an external bond [bruce 050516 comment]
+                self.pivax = None
+                
+            elif len(e)==2: # bonded to 2 other chunks; pivot around the 2 bonds
+                self.pivot = e[0].center
+                self.pivax = norm(e[1].center-e[0].center)
+                
+            else: # more than 2 other chunks, drag it "rigidly" (translate the chunk)
+                self.pivot = None
+                self.pivax = None
         
-        # Keep this below for now.  From Bruce's comments, it may be needed later.  Mark 051213.
+        # Keep the comments below for now.  From Bruce's comments, it may be needed later.  Mark 051213.
         
         ##elif len(a.molecule.atoms) == 1 + len(a.bonds):
                 #bruce 041130 added this case to let plain left drag work to
@@ -1454,7 +1475,7 @@ class depositMode(basicMode):
             # fall thru
             
     def dragChunk(self, a, event):
-        """Drag an atom, including all atoms in the chunk it belongs to.
+        """Drag a chunk around by atom 'a'.
         """
         m = a.molecule
         px = self.dragto(a.posn(), event)
