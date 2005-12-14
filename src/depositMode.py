@@ -1136,21 +1136,7 @@ class depositMode(basicMode):
                     if not library_part_deposited: return # nothing pasted
                     
                 elif self.w.depositState == 'Clipboard':
-                    # Paste something from the Clipboard and bond it to the singlet
-                    if self.pastable:
-                        chunk, desc = self.pasteBond(a)
-                        if chunk:
-                            ## status = "replaced open bond on %r with %s (%s)" % (a0, chunk.name, desc)
-                            status = "replaced open bond on %r with %s" % (a0, desc) # is this better? [bruce 050121]
-                        else:
-                            status = desc
-                            # bruce 041123 added status message, to fix bug 163,
-                            # and added the rest of them to describe what we do
-                            # (or why we do nothing)
-                    else:
-                        # Nothing selected from the Clipboard to paste, so do nothing
-                        status = "nothing selected to paste" #k correct??
-                        chunk = None #bruce 041207
+                    chunk, status = self.deposit_from_Clipboard(a) # try to bond the object selected on the Clipboard
             
                 else:
                     # User wants to bond an atom of type atype to the singlet
@@ -1218,14 +1204,8 @@ class depositMode(basicMode):
                 library_part_deposited = self.deposit_from_Library(cursorPos)
                 if not library_part_deposited: return # nothing pasted
             
-            elif self.w.depositState == 'Clipboard': # Paste from the 'Clipboard' into empty space
-                if self.pastable:
-                    chunk, desc = self.pasteFree(cursorPos)
-                    status = "pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(cursorPos))
-                else:
-                    # Nothing selected from the Clipboard to paste, so do nothing
-                    status = "nothing selected to paste" #k correct??
-                    chunk = None #bruce 041207
+            elif self.w.depositState == 'Clipboard':
+                chunk, status = self.deposit_from_Clipboard(cursorPos)
             
             else: # Deposit a single atom in empty space (leftDown)
                 self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
@@ -1384,6 +1364,44 @@ class depositMode(basicMode):
                 self._depositLibraryPart(newPart, hotSpot, atom_or_pos)
                 
         return True # A part was deposited.
+
+
+    def deposit_from_Clipboard(self, atom_or_pos):
+        '''Deposits a copy of the selected object (chunk) from the MMKit Clipboard page, or
+        the Clipboard (paste) combobox on the dashboard, which are the same object.
+        If 'atom_or_pos' is a singlet, try bonding the object to the singlet by its hotspot.
+        Otherwise, deposit the object at the position 'atom_or_pos'.
+        Returns (chunk, status)
+        '''
+        if isinstance(atom_or_pos, Atom):
+            a = atom_or_pos
+            if a.element is Singlet:
+                if self.pastable: # bond clipboard object to the singlet
+                    a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed
+                    chunk, desc = self.pasteBond(a)
+                    if chunk:
+                        ## status = "replaced open bond on %r with %s (%s)" % (a0, chunk.name, desc)
+                        status = "replaced open bond on %r with %s" % (a0, desc) # is this better? [bruce 050121]
+                    else:
+                        status = desc
+                        # bruce 041123 added status message, to fix bug 163,
+                        # and added the rest of them to describe what we do
+                        # (or why we do nothing)
+                else:
+                    # Nothing selected from the Clipboard to paste, so do nothing
+                    status = "nothing selected to paste" #k correct??
+                    chunk = None #bruce 041207
+        
+        else:
+            if self.pastable: # deposit into empty space at the cursor position
+                chunk, desc = self.pasteFree(atom_or_pos)
+                status = "pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(atom_or_pos))
+            else:
+                # Nothing selected from the Clipboard to paste, so do nothing
+                status = "nothing selected to paste" #k correct??
+                chunk = None #bruce 041207
+                
+        return chunk, status
 
         
     def leftShiftDown(self, event): ###e should we revise this to check if cursor is on baggage, not on a singlet? [bruce 051209 Q]
