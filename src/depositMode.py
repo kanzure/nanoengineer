@@ -1036,7 +1036,7 @@ class depositMode(basicMode):
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
            
     
-    def _pastePart(self, newPart, hotspotAtom, atom_or_pos): 
+    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): 
         '''This method serves as an overloaded method, <atom_or_pos> is 
            the Singlet atom or the empty position that the new part <newPart> will be attached to or placed at.
            Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
@@ -1123,30 +1123,17 @@ class depositMode(basicMode):
         atype = self.pastable_atomtype()
         self.modified = 1
         self.o.assy.changed()
-        
-        # Possible pastable part and its hotspot from the MMKit 'Library'.
-        newPart, hotSpot = self.MMKit.getPastablePart()
-        if self.MMKit.currentPageOpen('Library') and not newPart:
-            # Whenever the MMKit is closed with the 'Library' page open,
-            # MMKit.closeEvent() will change the current page to 'Atoms'.
-            # This ensures that this condition never happens if the MMKit is closed.
-            # Mark 051213.
-            env.history.message(orangemsg("No library part has been selected to paste."))
-            return
+        library_part_deposited = False
         
         if a: # if some atom (not bond) was "lit up" ############################
             
             if a.element is Singlet: # if a singlet was "lit up" ########################
+                
                 a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
                 
-                # If the MMKit's 'Library' page is open and a part is selected, 
-                # then try to bond the part to the singlet. 
-                if newPart and hotSpot :
-                    self._pastePart(newPart, hotSpot, a)
-                elif newPart and not hotSpot:
-                    msg = "The part you want to paste either has no open bonds " \
-                        "or has open bonds but none of them have been set as a hotspot."
-                    env.history.message(orangemsg(msg))
+                if self.w.depositState == 'Library':
+                    library_part_deposited = self.deposit_from_Library(a) # try to bond the part selected in the Library
+                    if not library_part_deposited: return # nothing pasted
                     
                 elif self.w.depositState == 'Clipboard':
                     # Paste something from the Clipboard and bond it to the singlet
@@ -1164,10 +1151,6 @@ class depositMode(basicMode):
                         # Nothing selected from the Clipboard to paste, so do nothing
                         status = "nothing selected to paste" #k correct??
                         chunk = None #bruce 041207
-                        
-                # We don't get here if the MMKit's 'Library' page is open and no part is selected,
-                # since that condition is checked near the beginning.  This can be confusing when reading 
-                # this code.  I intend to move the conditional to a more obvious place later.  Mark 051213.
             
                 else:
                     # User wants to bond an atom of type atype to the singlet
@@ -1192,7 +1175,9 @@ class depositMode(basicMode):
                     del a1, desc
                 self.o.selatom = None
                 
-                if not newPart :  ##Added the condition [Huaicai 8/26/05]
+                # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
+                # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
+                if not library_part_deposited :  ##Added the condition [Huaicai 8/26/05]
                     status = self.ensure_visible(chunk, status) #bruce 041207
                     env.history.message(status)
                 self.w.win_update()
@@ -1229,12 +1214,9 @@ class depositMode(basicMode):
             # Would be nice to also support dragging of a clipboard chunk or library part.
             cursorPos = self.getCoords(event)
             
-            if newPart: # Paste from the MMKit part 'Library' into empty space
-                self._pastePart(newPart, hotSpot, cursorPos)
-                
-            # We don't get here if the MMKit's 'Library' page is open and no part is selected,
-            # since that condition is checked near the beginning.  This can be confusing when reading 
-            # this code.  I intend to move the conditional to a more obvious place later.  Mark 051213.
+            if self.w.depositState == 'Library':
+                library_part_deposited = self.deposit_from_Library(cursorPos)
+                if not library_part_deposited: return # nothing pasted
             
             elif self.w.depositState == 'Clipboard': # Paste from the 'Clipboard' into empty space
                 if self.pastable:
@@ -1257,9 +1239,12 @@ class depositMode(basicMode):
                 
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
                 chunk = self.o.selatom.molecule #bruce 041207
+                
             # now fix bug 229 part B (as called in comment #2),
-            # by making this new chunk visible if it otherwise would not be
-            if not newPart:  ##Added the condition [Huaicai 8/26/05]
+            # by making this new chunk visible if it otherwise would not be.
+            # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
+            # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
+            if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05]
                 status = self.ensure_visible(chunk, status) #bruce 041207
                 env.history.message(status)
                 # fall thru
@@ -1356,6 +1341,49 @@ class depositMode(basicMode):
         # current location (to set selatom again, if appropriate), but it's
         # not clear this would be good, so *this* is what I won't do for now.
         self.o.gl_update()
+        
+
+    def deposit_from_Library(self, atom_or_pos):
+        '''Deposits a copy of the selected part from the MMKit Library page.
+        If 'atom_or_pos' is a singlet, try bonding the part to the singlet by its hotspot.
+        Otherwise, deposit the part at the position 'atom_or_pos'.
+        Returns True if a part was deposited and False if nothing was deposited.
+        ''' 
+        newPart, hotSpot = self.MMKit.getPastablePart()
+        
+        if not newPart: # Make sure a part is selected in the MMKit Library.
+            # Whenever the MMKit is closed with the 'Library' page open,
+            # MMKit.closeEvent() will change the current page to 'Atoms'.
+            # This ensures that this condition never happens if the MMKit is closed.
+            # Mark 051213.
+            env.history.message(orangemsg("No library part has been selected to paste."))
+            return False # nothing deposited
+        
+        if isinstance(atom_or_pos, Atom):
+            a = atom_or_pos
+            if a.element is Singlet:
+                if newPart and hotSpot : # bond the part to the singlet.
+                    self._depositLibraryPart(newPart, hotSpot, a)
+            
+                elif newPart and not hotSpot: # part doesn't have hotspot.
+                    #if newPart.has_singlets(): # need a method like this so we can provide more descriptive msgs.
+                    #    msg = "To bond this part, you must pick a hotspot by left-clicking on an open bond  " \
+                    #            "of the library part in the Modeling Kit's 3D thumbview."
+                    #else:
+                    #    msg = "The library part cannot be bonded because it has no open bonds."
+                    msg = "The library part cannot be bonded because either it has no open bonds"\
+                                " or its hotspot hasn't been specified in the Modeling Kit's 3D thumbview"
+                    env.history.message(orangemsg(msg))
+                    return False # nothing deposited
+            
+            else: # atom_or_pos was an atom, but wasn't a singlet.  Do nothing
+                return False
+        
+        else:
+            if newPart: # deposit into empty space at the cursor position
+                self._depositLibraryPart(newPart, hotSpot, atom_or_pos)
+                
+        return True # A part was deposited.
 
         
     def leftShiftDown(self, event): ###e should we revise this to check if cursor is on baggage, not on a singlet? [bruce 051209 Q]
