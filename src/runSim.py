@@ -446,7 +446,9 @@ class SimRunner:
 
         arguments = QStringList()
         for arg in args:
-            arguments.append(arg)
+            # wware 051213  sim's getopt doesn't like empty arg strings
+            if arg != "":
+                arguments.append(arg)
         
         #bruce 050404 let simProcess be instvar so external code can abort it
         self.simProcess = None
