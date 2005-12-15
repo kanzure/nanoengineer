@@ -16,6 +16,22 @@
 #include "minimize.h"
 #include "structcompare.h"
 
+#ifdef WWDEBUG
+// handy little debug macros
+#define MARK()   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+              fprintf(outf, "%s:%d\n", __FILE__, __LINE__); fclose(outf); }
+#define SAY(fmt...)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, ##fmt); fprintf(outf, "\n"); fclose(outf); }
+#define SAY_INT(x)   SAY("%s=%d", #x, x)
+#define SAY_HEX(x)   SAY("%s=%p", #x, x)
+#else
+#define MARK()
+#define SAY(fmt...)
+#define SAY_INT(x)
+#define SAY_HEX(x)
+#endif
+
 #define iabs(x) (x<0 ? -(x) : x)
 #define min(x,y) (x<y ? x : y)
 #define max(x,y) (x>y ? x : y)
