@@ -1102,12 +1102,12 @@ class depositMode(basicMode):
  
     
     def leftDown(self, event):
-        """If cursor is on empty space, deposit a new atom, pasteable chunk or library part.
-        If cursor is on a singlet, bond an atom, pasteable chunk or library part to it.
+        """If cursor is on empty space, deposit a new object (atom, clipboard chunk or library part).
+        If cursor is on a singlet, bond a new object (atom, clipboard chunk or library part) to it.
         If cursor is on an atom, drag it (and any singlets or monovalent bonded to it) around.
         If cursor is on a bond, change the bond to a new bond type.
         """
-        # mark 051211 revised docstring
+        # mark 051214 revised docstring
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
         self.reset_drag_vars()
@@ -1122,41 +1122,11 @@ class depositMode(basicMode):
         a = self.o.selatom
         self.modified = 1
         self.o.assy.changed()
-        library_part_deposited = False
         
-        if a: # if some atom (not bond) was "lit up" ############################
-            
-            if a.element is Singlet: # if a singlet was "lit up" ########################
-
-                if self.w.depositState == 'Library':
-                    library_part_deposited = self.deposit_from_Library(a) # try to bond the part selected in the Library
-                    if not library_part_deposited: return # nothing pasted
-                    
-                elif self.w.depositState == 'Clipboard':
-                    chunk, status = self.deposit_from_Clipboard(a) # try to bond the object selected on the Clipboard
-            
-                elif self.w.depositState == 'Atoms':
-                    chunk, status = self.deposit_from_Atoms(a)
-                
-                else:
-                    print "Error. depositState unknown:", self.w.depositState
-                    return
-                    
-                self.o.selatom = None
-                
-                # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
-                # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
-                if not library_part_deposited :  ##Added the condition [Huaicai 8/26/05]
-                    status = self.ensure_visible(chunk, status) #bruce 041207
-                    env.history.message(status)
-                self.w.win_update()
-                return # don't move a newly bonded atom
-            
-            #== end of 'Singlet'
-            
-            # else we've grabbed a 'real' atom #################################
-            
-            else: # We've grabbed an existing atom.  
+        if a:
+            if a.element is Singlet: # a singlet is "lit up"
+                self.deposit_from_MMKit(a)
+            else: # a real atom is "lit up"
                 # Let the user drag the atom around if they want.
                 self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
                 self.dragatom = a
@@ -1166,46 +1136,19 @@ class depositMode(basicMode):
                 _count = _count + 1
                 self.dragatom_start = _count
                 
-        # a bond was "lit up" ##############################################
+        # a bond is "lit up"
         elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond():
-            # click on a real bond
             self.clicked_on_bond(self.o.selobj)
             
-        # we've selected something else (a jig) ##############################
+        # something else (a jig) is 'lit up"
         elif self.o.selobj is not None: # something *else* other than an atom was lit up
             pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
             
-        # Nothing was "lit up" ##############################################
-        else:
-            # nothing was "lit up" -- we're in empty space.
-            # Deposit either an atom, clipboard chunk or a libary part. 
-            # If an atom is deposited, allow the user to drag it around. 
-            # Would be nice to also support dragging of a clipboard chunk or library part.
-            cursorPos = self.getCoords(event)
-            
-            if self.w.depositState == 'Library':
-                library_part_deposited = self.deposit_from_Library(cursorPos)
-                if not library_part_deposited: return # nothing pasted
-            
-            elif self.w.depositState == 'Clipboard':
-                chunk, status = self.deposit_from_Clipboard(cursorPos)
-            
-            elif self.w.depositState == 'Atoms':
-                chunk, status = self.deposit_from_Atoms(cursorPos)
-                
-            else:
-                print "Error. depositState unknown:", self.w.depositState
-                return
-                
-            # now fix bug 229 part B (as called in comment #2),
-            # by making this new chunk visible if it otherwise would not be.
-            # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
-            # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
-            if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05]
-                status = self.ensure_visible(chunk, status) #bruce 041207
-                env.history.message(status)
+        else: # nothing is "lit up"
+            self.deposit_from_MMKit(self.getCoords(event))
 
         self.w.win_update()
+                
 
     def clicked_on_bond(self, bond): #bruce 050727
         v6 = self.bondclick_v6
@@ -1299,6 +1242,42 @@ class depositMode(basicMode):
         self.o.gl_update()
         
 
+#== Deposit methods
+        
+    def deposit_from_MMKit(self, atom_or_pos):
+        '''Deposits the a new object based on the current selection in the MMKit/dashboard, 
+        which is either an atom, a chunk on the clipboard, or a part from the library.
+        If 'atom_or_pos' is a singlet, then it will bond the object to that singlet if it can.
+        If 'atom_or_pos' is a position, then it will deposit the object at that coordinate.
+        '''
+        
+        library_part_deposited = False
+        
+        if self.w.depositState == 'Atoms':
+            chunk, status = self.deposit_from_Atoms(atom_or_pos)
+            
+        elif self.w.depositState == 'Clipboard':
+            chunk, status = self.deposit_from_Clipboard(atom_or_pos)
+                
+        elif self.w.depositState == 'Library':
+            library_part_deposited = self.deposit_from_Library(atom_or_pos)
+            if not library_part_deposited: return # nothing pasted
+            
+        else:
+            print "Error. depositState unknown:", self.w.depositState
+            return
+            
+        self.o.selatom = None
+            
+        # now fix bug 229 part B (as called in comment #2),
+        # by making this new chunk visible if it otherwise would not be.
+        # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
+        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
+        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05]
+            status = self.ensure_visible(chunk, status) #bruce 041207
+            env.history.message(status)
+            
+            
     def deposit_from_Library(self, atom_or_pos):
         '''Deposits a copy of the selected part from the MMKit Library page.
         If 'atom_or_pos' is a singlet, try bonding the part to the singlet by its hotspot.
@@ -1378,7 +1357,6 @@ class depositMode(basicMode):
                 chunk = None #bruce 041207
                 
         return chunk, status
-        
         
 
     def deposit_from_Atoms(self, atom_or_pos):
