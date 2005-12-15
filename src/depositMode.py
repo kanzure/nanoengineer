@@ -1113,37 +1113,34 @@ class depositMode(basicMode):
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
+        
         # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
         # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
         # Therefore, the present value might be out of date -- but it does correspond to whatever
         # highlighting is on the screen, so whatever it is should not be a surprise to the user,
         # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
         # motion before pressing the mouse. [bruce 050705 comment]
-        a = self.o.selatom
+        
+        a = self.o.selatom # a "lit up" atom or singlet
         self.modified = 1
         self.o.assy.changed()
         
         if a:
             if a.element is Singlet: # a singlet is "lit up"
                 self.deposit_from_MMKit(a)
+                # Commenting out deposit_from_MMKit() and uncommenting setupDragSinglet()
+                # will allow you to drag a singlet around, but it won't bond to anything.
+                # You will not be able to deposit anything on a singlet, either.  Mark 051214.
+                # self.setupDragSinglet(a)
             else: # a real atom is "lit up"
-                # Let the user drag the atom around if they want.
-                self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
-                self.dragatom = a
-                # we need to store something unique about this event;
-                # we'd use serno or time if it had one... instead this _count will do.
-                global _count
-                _count = _count + 1
-                self.dragatom_start = _count
-                
-        # a bond is "lit up"
-        elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond():
+                self.setupDragAtom(a)
+
+        elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # a bond is "lit up"
             self.clicked_on_bond(self.o.selobj)
-            
-        # something else (a jig) is 'lit up"
-        elif self.o.selobj is not None: # something *else* other than an atom was lit up
+
+        elif self.o.selobj is not None: # something else other than an atom, singlet or bond is 'lit up"
             pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
-            
+
         else: # nothing is "lit up"
             self.deposit_from_MMKit(self.getCoords(event))
 
@@ -1185,42 +1182,28 @@ class depositMode(basicMode):
         '''Drag a real atom (and any monovalent atoms attached to it).
         '''
         if not self.dragatom: return
-        if self.dragatom.is_singlet(): return
+        
         a = self.dragatom
         apos0 = a.posn()
-        px = self.dragto(a.posn(), event)
-        apo = a.posn()
-        # find the delta quat for the average non-baggage bond and apply
-        # it to the baggage
-        n = self.nonbaggage
-        old = V(0,0,0)
-        new = V(0,0,0)
-        for at in n:
-            old += at.posn()-apo
-            new += at.posn()-px
-            at.adjBaggage(a, px)
-        delta = px - apo
-        if n:
-            q=Q(old,new)
-            for at in self.baggage:
-                at.setposn(q.rot(at.posn()-apo)+px)
-        else: 
-            for at in self.baggage:
-                at.setposn(at.posn()+delta)
-        # [Josh wrote, about the following "a.setposn(px)":]
-        # there's some weirdness I don't understand
-        # this doesn't work if done before the loop above
-        a.setposn(px)
-        # [bruce 041108 writes:]
-        # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
-        # in the loop before it, or adjBaggage (which compares a.posn() to
-        # px) would think atom a was not moving.
+        
+        # This is setup to support dragging a singlet with leftDrag.
+        # To try it out, uncomment setupDragSinglet() in leftDown.
+        # For now, 'a' can't be a singlet.  Mark 051214.
+        if a.element is Singlet:
+            self.dragSinglet(a,event)
+        else:
+            self.dragAtom(a, event)
             
-        # Update status/history message with new coordinates
+        #bruce 041130 added status bar message with new coordinates
         apos1 = a.posn()
         if apos1 - apos0:
-            msg = "dragged atom %r to %s" % (a, self.posn_str(a))
-            this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
+            ##k does this ever overwrite some other message we want to keep??
+            if a.element is Singlet:
+                # this message might not be useful enough to be worthwhile...
+                msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
+            else:
+                msg = "dragged atom %r to %s" % (a, self.posn_str(a))
+            this_drag_id = (self.dragobj_start, self.__class__.leftDrag)
             env.history.message(msg, transient_id = this_drag_id)
         
         self.o.gl_update()
@@ -1392,17 +1375,11 @@ class depositMode(basicMode):
                     chunk = None #bruce 041207
                 del a1, desc
 
-        else: # Deposit atom at cursorPos
+        else: # Deposit atom at the cursor position and prep it for dragging
                 cursorPos = atom_or_pos
-                self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
-                # Let the user drag the atom around if they want.
-                self.baggage, self.nonbaggage = self.o.selatom.baggage_and_other_neighbors()
-                self.dragatom= self.o.selatom
-                # we need to store something unique about this event;
-                # we'd use serno or time if it had one... instead this _count will do.
-                global _count
-                _count = _count + 1
-                self.dragatom_start = _count
+                a = self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
+                self.initDragObject(a)
+                self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
                 
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
                 chunk = self.o.selatom.molecule #bruce 041207
@@ -1424,22 +1401,15 @@ class depositMode(basicMode):
         # leftDown. [bruce 050705 comment]
         a = self.o.selatom
         if not a: return
-        # now, if something was "lit up"
-        ## env.history.message("%r" % a) #bruce 041208 to zap leftover msgs
+        
         self.modified = 1
         self.o.assy.changed()
         
         if a.element is Singlet: # a singlet was "lit up"
             self.setupDragSinglet(a)
-        else: # an atom was "lit up" (leftShiftDown). 
+        else: # an atom was "lit up"
             self.setupDragChunk(a)
-
-        self.dragatom = a
-        # we need to store something unique about this event;
-        # we'd use serno or time if it had one... instead this _count will do.
-        global _count
-        _count = _count + 1
-        self.dragatom_start = _count
+        
         self.w.win_update()
         return
                         
@@ -1467,7 +1437,7 @@ class depositMode(basicMode):
                 msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
             else:
                 msg = "dragged %s by atom %r to %s" % (a.molecule.name, a, self.posn_str(a))
-            this_drag_id = (self.dragatom_start, self.__class__.leftShiftDrag)
+            this_drag_id = (self.dragobj_start, self.__class__.leftShiftDrag)
             env.history.message(msg, transient_id = this_drag_id)
         
         self.o.gl_update()
@@ -1485,6 +1455,8 @@ class depositMode(basicMode):
         If the chunk is bonded to 3 or more chunks, drag it rigidly, which means
         translate the chunk in the plane of the screen.
         '''
+        self.initDragObject(a)
+        
         if a.realNeighbors(): # probably part of larger molecule
                     ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
             e=a.molecule.externs # externs are number of bonds to other chunks.
@@ -1531,6 +1503,14 @@ class depositMode(basicMode):
             ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
             # fall thru
             
+    def initDragObject(self, a):
+        self.dragatom = a
+        # we need to store something unique about this event;
+        # we'd use serno or time if it had one... instead this _count will do.
+        global _count
+        _count = _count + 1
+        self.dragobj_start = _count
+            
     def dragChunk(self, a, event):
         """Drag a chunk around by atom 'a'.
         """
@@ -1555,10 +1535,52 @@ class depositMode(basicMode):
         # (but the entire mol gets dragged, so the msg should reflect that)
         # ###@@@
         self.o.gl_update()
+
+      
+    def setupDragAtom(self, a):
+        '''Setup dragging of real atom 'a'.
+        '''
+        self.initDragObject(a)
+        self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
+
+    def dragAtom(self, a, event):
+        """Drag an atom (not a singlet).
+        """
+        px = self.dragto(a.posn(), event)
+        apo = a.posn()
+        # find the delta quat for the average non-baggage bond and apply
+        # it to the baggage
+        n = self.nonbaggage
+        old = V(0,0,0)
+        new = V(0,0,0)
+        for at in n:
+            old += at.posn()-apo
+            new += at.posn()-px
+            at.adjBaggage(a, px)
+        delta = px - apo
+        if n:
+            q=Q(old,new)
+            for at in self.baggage:
+                at.setposn(q.rot(at.posn()-apo)+px)
+        else: 
+            for at in self.baggage:
+                at.setposn(at.posn()+delta)
+        # [Josh wrote, about the following "a.setposn(px)":]
+        # there's some weirdness I don't understand
+        # this doesn't work if done before the loop above
+        a.setposn(px)
+        # [bruce 041108 writes:]
+        # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
+        # in the loop before it, or adjBaggage (which compares a.posn() to
+        # px) would think atom a was not moving.
+
+      
     def setupDragSinglet(self, a):
         '''Setup dragging of singlet 'a'.
         '''
+        self.initDragObject(a)
+        
         pivatom = a.neighbors()[0]
         self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209
         neigh = self.nonbaggage
