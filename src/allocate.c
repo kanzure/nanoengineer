@@ -75,24 +75,28 @@ quantize_length(unsigned int len)
 void *
 accumulator(void *old, unsigned int len, int zerofill)
 {
-  unsigned int *accumulator;
-  unsigned int accum_length;
-  unsigned int old_accum_length;
-  
+  unsigned int *accumulator;     // points to length word, or NULL if a new accumulator
+  unsigned int new_len;          // includes the length word
+  unsigned int accum_length;     // includes the length word
+  unsigned int old_accum_length; // includes the length word
+  // The value stored in the length word includes the length word itself.
+
+  // allocate something even if len==0
+  new_len = (len ? len : 1) + sizeof(int);
   if (old == NULL) {
     accumulator = NULL;
-    old_accum_length = 0;
+    old_accum_length = sizeof(int);
   } else {
     accumulator = ((unsigned int *)old) - 1;
     old_accum_length = *accumulator;
   }
-  if (len > old_accum_length || old_accum_length == 0) {
-    accum_length = quantize_length(len + sizeof(int));
+  if (new_len > old_accum_length) {
+    accum_length = quantize_length(new_len);
     accumulator = (unsigned int *)reallocate(accumulator, accum_length);
-    *accumulator = accum_length - sizeof(int);
+    *accumulator = accum_length;
     if (zerofill) {
-      memset(((char *)(accumulator+2))+old_accum_length, 0,
-             accum_length - old_accum_length - sizeof(int));
+      memset(((char *)accumulator)+old_accum_length, 0,
+             accum_length - old_accum_length);
     }
     return (void *)(accumulator+1);
   }

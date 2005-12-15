@@ -415,7 +415,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
   if (externalID > p->max_atom_id) {
     p->max_atom_id = externalID;
     p->atom_id_to_index_plus_one = (int *)accumulator(p->atom_id_to_index_plus_one,
-                                                      sizeof(int) * p->max_atom_id, 1);
+                                                      sizeof(int) * (p->max_atom_id + 1), 1);
   }
   if (p->atom_id_to_index_plus_one[externalID]) {
     ERROR("atom ID %d already defined with index %d", externalID, p->atom_id_to_index_plus_one[externalID] - 1);
