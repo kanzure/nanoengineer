@@ -353,6 +353,10 @@ class depositMode(basicMode):
         
         # Huaicai 7/29/05: Open the MMKit every time entering this mode.
         self.MMKit = self.w.modifyMMKit()
+        
+        # This is a workaround for a bug caused by the way in which the MMKit is created.
+        # This should be fixed when the MMKit code gets cleaned up.  Mark 051216.
+        self.MMKit.elemGLPane.change_bg_color(self.backgroundColor, self.backgroundGradient)
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
 
@@ -606,6 +610,15 @@ class depositMode(basicMode):
     # event methods
     
     def keyPress(self,key):
+        
+        # I little thing that allows you to add the "lit up" object to the selection by clicking the spacebar.
+        # It is good for seeing how selection and highlighting might work together. Mark 051216.
+        #if key == Qt.Key_Space:
+        #    a = self.o.selobj
+        #    if a:
+        #        a.pick()
+        #        env.history.message(a.getinfo())
+        
         # bruce comment 041220:
         # doesn't call basicMode method, so Delete key is not active. Good??
         # bruce 050128: no, not good. And it shows selection anyway... so do it below.

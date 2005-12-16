@@ -708,6 +708,11 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         elementColorsWin = elementColors(self)
         elementColorsWin.setDisplay(self.Element)
+        # Sync the thumbview bg color with the current mode's bg color.  Mark 051216.
+        elementColorsWin.elemGLPane.change_bg_color(
+            self.glpane.mode.backgroundColor, 
+            self.glpane.mode.backgroundGradient
+            )
         elementColorsWin.show()
 
     def dispLighting(self):

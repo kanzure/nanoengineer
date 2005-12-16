@@ -29,7 +29,8 @@ class ThumbView(QGLWidget):
             if not self.isSharing():
                 print "Request of display list sharing is failed."
                 return
-        else:  QGLWidget.__init__(self, parent, name)  
+        else:  
+            QGLWidget.__init__(self, parent, name)  
         
         # point of view, and half-height of window in Angstroms
         self.pov = V(0.0, 0.0, 0.0)
@@ -50,10 +51,10 @@ class ThumbView(QGLWidget):
         # start in perspective mode
         self.ortho = False #True
         self.initialised = False
-        #if shareWidget and hasattr(shareWidget.mode, 'backgroundColor'):
-        #    self.backgroundColor = shareWidget.mode.backgroundColor
-        #else:
-        self.backgroundColor = (0.7, 0.66, 0.73)#(216/255.0, 213/255.0, 159/255.0)
+        
+        # default color and gradient values.
+        self.backgroundColor = gray
+        self.backgroundGradient = 1 # SkyBlue
 
     
     def drawModel(self):
@@ -99,6 +100,11 @@ class ThumbView(QGLWidget):
         self.pov = V(0.0, 0.0, 0.0)
         self.quat = Q(1, 0, 0, 0)
         
+    def change_bg_color(self, color, gradient):
+        '''Set the background  to 'color' or 'gradient' (Sky Blue).
+        '''
+        self.backgroundColor = color
+        self.backgroundGradient = gradient
                 
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
@@ -153,6 +159,14 @@ class ThumbView(QGLWidget):
         c=self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        
+        if self.backgroundGradient:
+            vtColors = (bluesky) # "Blue Sky" gradient
+            glMatrixMode(GL_PROJECTION)
+            glLoadIdentity()
+            glMatrixMode(GL_MODELVIEW)
+            glLoadIdentity()
+            drawer.drawFullWindow(vtColors)
         
         self.aspect = (self.width + 0.0)/(self.height + 0.0)
         self.vdist = 6.0 * self.scale

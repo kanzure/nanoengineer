@@ -1415,19 +1415,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def standard_repaint_0(self):
         drawer._glprefs.update() #bruce 051126 (so prefs changes do gl_update when needed)
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
+        
         c = self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
             #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
 
-        
-        #Huaicai 7/15/05 added this for Mark
-        #The following are used to set the glpane background colors
+        # "Blue Sky" is the only gradient supported in A7.  Mark 05
         if self.mode.backgroundGradient:
-            # vtColors = ((0.8, 0.8, 0.8), (0.8, 0.8, 0.8), (0.1, 0.2, 0.8), (0.1, 0.2, 0.8)) # "Blue Sky" gradient
-            # New "Blue Sky" gradient.  Mark 051012.
-            vtColors = ((0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0)) 
+            vtColors = (bluesky)
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)

@@ -125,6 +125,8 @@ navy =   (0.0, 0.09, 0.44)
 darkred = (0.6, 0.0, 0.2) 
 violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
 
+bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
+
 LEDoff = (0.8, 0.0, 0.0)
 LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added the name 'pink'; old value was (1.0, 0.5, 0.5)
 
