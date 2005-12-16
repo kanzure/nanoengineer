@@ -2,8 +2,6 @@
 """
 atomtypes.py -- AtomType object, knows about one bonding pattern for one element.
 
-Owned by bruce while atomtypes and higher-order bonds are being implemented.
-
 $Id$
 
 History:
@@ -14,7 +12,7 @@ and added all the superstructure, as part of supporting
 atom types with variable bonding patterns
 (and higher-order bonds, though as of 050511 these atoms
 don't yet know anything directly about bond-orders
-and their .valence attribute is probably not yet used.)
+and their .valence attribute is probably not yet used [later: now it's used].)
 
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.

@@ -81,6 +81,10 @@ BOND_MAX_VALENCES[V_UNKNOWN] = 3.0 # ditto
 def min_max_valences_from_v6(v6):
     return BOND_MIN_VALENCES[v6], BOND_MAX_VALENCES[v6]
 
+def valence_to_v6(valence): #bruce 051215
+    "Given a valence (int or float, single bond is 1 or 1.0), return it as a v6, being careful about rounding errors."
+    return int(valence * V_SINGLE + 0.01) # kluge: 0.01 is based on knowledge of scale of V_SINGLE (must be > 0, < 1/V_SINGLE)
+
 def bond_letter_from_v6(v6): #bruce 050705
     """Return a bond letter summarizing the given v6,
     which for legal values is one of 1 2 3 a g b,

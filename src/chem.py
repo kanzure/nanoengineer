@@ -528,22 +528,9 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         if self.atomtype.numbonds != len(bonds):
             ok = False
             return not ok
-        minv = maxv = 0
-        for bond in bonds:
-            minv1, maxv1 = min_max_valences_from_v6(bond.v6)
-            minv += minv1
-            maxv += maxv1
-        # minv and maxv are the min and max reasonable interpretations of actual valence, based on bond types
+        minv, maxv = self.min_max_actual_valence() # min and max reasonable interpretations of actual valence, based on bond types
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
-        #bruce 050920 removing special case to sometimes treat A or G as C (Carbomeric), now that bondc is savable.
-##        if not ok:
-##            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
-##            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
-##            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
-##            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
-##              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
-##                ok = True
         return not ok
 
     def bad_valence_explanation(self): #bruce 050806 ####@@@@ use more widely
@@ -559,22 +546,9 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         if self.atomtype.numbonds != len(bonds):
             ok = False
             return (not ok) and "wrong number of bonds" or ""
-        minv = maxv = 0
-        for bond in bonds:
-            minv1, maxv1 = min_max_valences_from_v6(bond.v6)
-            minv += minv1
-            maxv += maxv1
-        # minv and maxv are the min and max reasonable interpretations of actual valence, based on bond types
+        minv, maxv = self.min_max_actual_valence() # min and max reasonable interpretations of actual valence, based on bond types
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
-        #bruce 050920 removing special case to sometimes treat A or G as C (Carbomeric), now that bondc is savable.
-##        if not ok:
-##            # Need special case to sometimes treat A or G as C (Carbomeric), at least until that bond type is savable in the mmp file.
-##            # The only special cases we need to allow are A,A or G,G or A,G on C(sp) where one or both bonds could be carbomeric bonds.
-##            # We don't have to check the atomtype, since carbomeric bonds are only permitted on C(sp) anyway.
-##            if len(bonds) == 2 and bonds[0].v6 in (V_AROMATIC, V_GRAPHITE) and bonds[1].v6 in (V_AROMATIC, V_GRAPHITE) \
-##              and bonds[0].permits_v6(V_CARBOMERIC) and bonds[1].permits_v6(V_CARBOMERIC):
-##                ok = True
         if not ok:
             if maxv < want_valence:
                 return "valence too small -- need higher order for some bonds" #e improve this text
@@ -586,6 +560,32 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             return ""
         pass
 
+    def min_max_actual_valence(self): #bruce 051215 split this out of .bad and .bad_valence
+        """Return the pair (minv, maxv) of the min and max reasonable interpretations of self's current valence,
+        based on bond types.
+           Note: these are actual valence numbers (ints or floats, but single bond is 1.0), NOT v6 values.
+        """
+        minv = maxv = 0
+        for bond in self.bonds:
+            minv1, maxv1 = min_max_valences_from_v6(bond.v6)
+            minv += minv1
+            maxv += maxv1
+        return minv, maxv
+
+    def deficient_valence(self): #bruce 051215
+        """If this atom clearly wants more valence (based on existing bond types),
+        return the minimum amount it needs (as an int or float valence number, NOT as a v6).
+           Otherwise return 0.
+        """
+        minv, maxv = self.min_max_actual_valence()
+        want_valence = self.atomtype.valence
+        if maxv < want_valence:
+            return want_valence - maxv
+        return 0
+
+    def deficient_v6(self): #bruce 051215
+        return valence_to_v6(self.deficient_valence())
+    
     def mouseover_statusbar_message(self): #bruce 050806
         from bond_constants import describe_atom_and_atomtype
         msg = describe_atom_and_atomtype(self)

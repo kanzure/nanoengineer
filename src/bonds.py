@@ -1107,11 +1107,32 @@ class bonder_at_singlets:
         s1, a1 = self.s1, self.a1
         s2, a2 = self.s2, self.a2
         v1, v2 = s1.singlet_v6(), s2.singlet_v6()
+        if len(a1.bonds) == 2: # (btw, this method is only called when a1 and a2 have at least 2 bonds)
+            # Since a1 will have only one bond after this (if it's able to use up all of s1's valence),
+            # we might as well try to add even more valence to the bond, to correct any deficient valence on a1.
+            # But we'll never do this if there are uninvolved bonds to a1, since user might be planning
+            # to manually increase their valence after doing this operation.
+            # [bruce 051215 new feature, which ought to also fix bug 1221; other possible fixes seem too hard to do in isolation.
+            #  In that bug, -N-N- temporarily became N=N and was then "corrected" to N-N rather than to N#N as would be better.]
+            v1 += a1.deficient_v6() # usually adds 0
+        if len(a2.bonds) == 2:
+            v2 += a2.deficient_v6()
         vdelta = min(v1,v2) # but depending on the existing bond, we might use less than this, or none
         bond = find_bond(a1, a2)
-        vdelta_used = bond.increase_valence_noupdate(vdelta) # increases to legal value, returns actual amount of increase (maybe 0)
+##        old_bond_v6 = bond.v6 #bruce 051215 debug code
+        vdelta_used = bond.increase_valence_noupdate(vdelta)
+            # increases as much as possible up to vdelta, to some legal value
+            # (ignores elements and other bond orders -- "legal" just means for any conceivable bond);
+            # returns actual amount of increase (maybe 0)
+##        new_bond_v6 = bond.v6 #bruce 051215 debug code
+        ###@@@ why didn't we use vdelta_used in place of vdelta, below? (a likely bug, which would erroneously reduce valence;
+        # but so far I can't find a way to make it happen -- except dNdNd where it fixes preexisting valence errors!
+        # I will fix it anyway, since it obviously should have been written that way to start with. [bruce 051215])
+##        if platform.atom_debug: #bruce 051215
+##            print "atom_debug: bond_v6 changed from %r to %r; vdelta_used (difference) is %r; vdelta is %r" % (old_bond_v6, new_bond_v6, vdelta_used, vdelta)
         if not vdelta_used:
             return self.do_error("can't increase order of bond between atoms %r and %r" % (a1,a2), None) #e say existing order? say why not?
+        vdelta = vdelta_used #bruce 051215 fix unreported hypothetical bug (see comment above)
         s1.singlet_reduce_valence_noupdate(vdelta)
             # this might or might not kill it;
             # it might even reduce valence to 0 but not kill it,
