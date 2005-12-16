@@ -374,27 +374,27 @@ void traceJigData(FILE *f, struct part *part) {
         switch (j->type) {
         case DihedralMeter:
         case AngleMeter:
-	    fprintf(f, "%14.5f", j->data);
+	    fprintf(f, " %13.5f", j->data);
 	    break;
         case Ground:
 	    x=vlen(j->xdata)/1e4;
-	    fprintf(f, "%14.2f", x / j->data);
+	    fprintf(f, " %13.2f", x / j->data);
 	    j->data=0.0;
 	    vsetc(j->xdata, 0.0);
 	    break;
         case RadiusMeter:
         case LinearMotor:
 	    // convert from picometers to angstroms
-	    fprintf(f, "%14.2f", 0.01 * j->data);
+	    fprintf(f, " %13.2f", 0.01 * j->data);
 	    j->data = 0.0;
 	    break;
         case Thermometer:
         case Thermostat:
-	    fprintf(f, "%14.2f", j->data);
+	    fprintf(f, " %13.2f", j->data);
 	    j->data = 0.0;
 	    break;
         case RotaryMotor:
-	    fprintf(f, "%14.3f%14.3f", j->data/(Dt*2e9*Pi),
+	    fprintf(f, " %13.3f %13.3f", j->data/(Dt*2e9*Pi),
 		    j->data2/((1e-9/Dx)*(1e-9/Dx)));
 	    j->data = 0.0;
 	    j->data2 = 0.0;
