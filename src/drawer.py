@@ -362,15 +362,20 @@ def setup_standard_lights( lights, glprefs = None):
 
 # ==
 
-def apply_material(color): # grantham 20051121; revised by bruce 051126, 051203 (added specular_brightness)
-    "Set OpenGL material parameters based on the given color and the material-related prefs values in _glprefs."
+def apply_material(color): # grantham 20051121, renamed 20051201; revised by bruce 051126, 051203 (added specular_brightness), 051215
+    "Set OpenGL material parameters based on the given color (length 3 or 4) and the material-related prefs values in _glprefs."
 
-    # grantham 20051201 - This was "materialapply".  I changed it to have
-    # a more consistent naming, and I decided it wouldn't be that big a
-    # problem since the function is brand new.  (comment expires 20051215)
+    #bruce 051215: make sure color is a tuple, and has length exactly 4, for all uses inside this function,
+    # assuming callers pass sequences of length 3 or 4. Needed because glMaterial requires four-component
+    # vector and PyOpenGL doesn't check. [If this is useful elsewhere, we can split it into a separate function.]
+    color = tuple(color)
+    if len(color) == 3:
+        color = color + (1.0,) # usual case
+    elif len(color) != 4:
+        # should never happen; if it does, this assert will always fail
+        assert len(color) in [3,4], "color tuples must have length 3 or 4, unlike %r" % (color,)
 
     if not _glprefs.enable_specular_highlights:
-	color = tuple(color) + (1.0,)
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
         # glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (0,0,0,1))
         return
@@ -383,10 +388,6 @@ def apply_material(color): # grantham 20051121; revised by bruce 051126, 051203 
         specular = (1.0, 1.0, 1.0, 1.0) # optimization
     else:
         if whiteness == 0.0:
-            if len(color) == 3: # usually true
-                # needed because glMaterial requires four-component
-                # vector and PyOpenGL doesn't check
-                color = tuple(color) + (1.0,)
             specular = color # optimization
         else:
             # assume color[3] (alpha) is not passed or is always 1.0

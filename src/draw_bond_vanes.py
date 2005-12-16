@@ -20,6 +20,7 @@ from constants import TubeRadius, blue, gray, black, white
 from math import ceil
 
 from OpenGL.GL import *
+import drawer #bruce 051215
 
 MAXTWIST = 5 * pi / 180 # permissible twist of one vane segment (5 degrees -- just a guess)
 
@@ -117,7 +118,13 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
     #e want polygon outlines?
     #e want a 1d texture to emphasize the vane's ribbonness & help show ord_pi?
     glDisable(GL_CULL_FACE)
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color) # gl args partly guessed #e should add specularity, shininess...
+    #bruce 051215 use apply_material(color) instead of glMaterialfv, partly to prevent bug of passing 3-tuple to glMaterialfv,
+    # partly to make the vanes appear specular, partly to thereby fix bug 1216 (which was probably caused by not setting
+    # specular color here, thus letting it remain from whatever happened to be drawn just before). If we decide vanes should
+    # *not* appear specular, we have to actively turn off specular color here rather than ignoring the issue.
+    # One way would be to create and use some new functionality like apply_material(color, specular=False).
+    drawer.apply_material(color)
+    ## glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color) # gl args partly guessed #e should add specularity, shininess...
     glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
         # For vane lighting to be correct, two-sided polygon lighting is required,
         # and every polygon's vertex winding order (CCW) has to match its normal vector,
