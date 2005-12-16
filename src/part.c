@@ -257,17 +257,29 @@ makeDynamicVanDerWaals(struct part *p, struct atom *a1, struct atom *a2)
   vdw->parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
 }
 
-// Is there a bond between a1 and a2?
+// Are a1 and a2 both bonded to the same atom (or to each other)?
 static int
-isBonded(struct atom *a1, struct atom *a2)
+isBondedToSame(struct atom *a1, struct atom *a2)
 {
   int i;
-  struct bond *b;
-  
+  int j;
+  struct bond *b1;
+  struct bond *b2;
+  struct atom *ac;
+
   for (i=0; i<a1->num_bonds; i++) {
-    b = a1->bonds[i];
-    if (b->a1 == a2 || b->a2 == a2) {
+    b1 = a1->bonds[i];
+    ac = (b1->a1 == a1) ? b1->a2 : b1->a1;
+    if (ac == a2) {
+      // bonded to each other
       return 1;
+    }
+    for (j=0; j<a2->num_bonds; j++) {
+      b2 = a2->bonds[j];
+      if (ac == ((b2->a1 == a2) ? b2->a2 : b2->a1)) {
+        // both bonded to common atom ac
+        return 1;
+      }
     }
   }
   return 0;
@@ -330,7 +342,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
               // here, so the symmetry check which keeps us from
               // making two interactions (one for each direction) has
               // to be i > a2->index.
-              if (i > a2->index && !isBonded(a, a2)) {
+              if (i > a2->index && !isBondedToSame(a, a2)) {
                 r = vlen(vdif(positions[i], positions[a2->index]));
                 if (r<800.0) {
                   makeDynamicVanDerWaals(p, a, a2);
