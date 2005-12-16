@@ -87,9 +87,9 @@ drum2=map((lambda a: (cos(a), sin(a), 1.0)), circ1)
 
 # This edge list zips up the "top" vertex and normal and then
 # the "bottom" vertex and normal.
-# Thus each tuple in the sequence would be (vtop, ntop, vbot, nbot)
-cylinderEdges = zip(drum0, drum0, drum2, drum0) +\
-    zip(drum0[:0], drum2[:0], drum0[:0], drum0[:0])
+# Thus each tuple in the sequence would be (vtop, ntop, vbot, nbot) [grantham 20051213]
+# (bruce 051215 simplified the python usage in a way which should create the same list.)
+cylinderEdges = zip(drum0, drum0, drum2, drum0)
 
 circle=zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
        zip(drum1[:-1],drum0[1:],drum1[1:])
