@@ -294,7 +294,7 @@ void traceHeader(FILE *f, char *inputFileName, char *outputFileName, char *trace
             break;
 
         case RadiusMeter:
-            fprintf(f, "# %s: distance (pm)\n", j->name); 
+            fprintf(f, "# %s: distance (angstroms)\n", j->name); 
             break;
        
         case Ground:
@@ -310,7 +310,7 @@ void traceHeader(FILE *f, char *inputFileName, char *outputFileName, char *trace
             break;
 
         case LinearMotor:
-            fprintf(f, "# %s: displacement (pm)\n", j->name);
+            fprintf(f, "# %s: displacement (angstroms)\n", j->name);
             break;
                
         case RotaryMotor:
@@ -382,10 +382,14 @@ void traceJigData(FILE *f, struct part *part) {
 	    j->data=0.0;
 	    vsetc(j->xdata, 0.0);
 	    break;
-        case Thermometer:
         case RadiusMeter:
-        case Thermostat:
         case LinearMotor:
+	    // convert from picometers to angstroms
+	    fprintf(f, "%14.2f", 0.01 * j->data);
+	    j->data = 0.0;
+	    break;
+        case Thermometer:
+        case Thermostat:
 	    fprintf(f, "%14.2f", j->data);
 	    j->data = 0.0;
 	    break;
