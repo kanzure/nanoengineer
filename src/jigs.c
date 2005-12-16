@@ -115,9 +115,10 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     struct xyz rx;
     struct xyz f;
     double ff;
-    double omega;
+    double omega, omega0;
     double motorq;
     double theta;
+    double stall;
     double z;
     struct xyz v1, v2;
 
@@ -135,25 +136,18 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 		    
         //fprintf(stderr, "*** input torque %f\n", sum_torque);
 
-        omega = jig->j.rmotor.theta - jig->j.rmotor.theta0;
-        motorq = jig->j.rmotor.stall - omega*jig->j.rmotor.stall/(jig->j.rmotor.speed);
-        theta = jig->j.rmotor.theta + omega +
-            jig->j.rmotor.momentOfInertia*(motorq + sum_torque);
-  
-        /* theta_i+1 = 2theta_i - theta_i-1 + sum_torque + motorq
-           motorq = stall - omega*(stall/speed)
-           omega = (theta_i+1 - theta_i-1)/ 2Dt
-           solve for theta_i+1 -- preserves Verlet reversibility  */
-        /*
-          z = jig->j.rmotor.momentOfInertia;
-          m = - z * jig->j.rmotor.stall / (2.0 *  jig->j.rmotor.speed);
-          theta = (2.0*jig->j.rmotor.theta - (1.0+m)*jig->j.rmotor.theta0 +
-          z*(jig->j.rmotor.stall + sum_torque))  / (1.0 - m);
-        */
+#define FUDGE_FACTOR  2.0e6
+	omega0 = FUDGE_FACTOR * (2.0e9 * Pi) * jig->j.rmotor.speed;
+        omega = (jig->j.rmotor.theta - jig->j.rmotor.theta0) / Dt;
+        motorq = 0.1 * (omega0 - omega);
+	// treat stall torque as a _maximum_ torque
+	stall = FUDGE_FACTOR * abs(jig->j.rmotor.stall);
+	if (motorq < -stall) motorq = -stall;
+	if (motorq > stall) motorq = stall;
 
-        // fprintf(stderr, "***  Theta = %f, %f, %f\n",
-        //          theta*1e5, jig->j.rmotor.theta*1e5, jig->j.rmotor.theta0*1e5);
-		    
+        omega += motorq + sum_torque * Dt;
+        theta = jig->j.rmotor.theta + omega * Dt;
+
         /* put atoms in their new places */
         for (k=0; k<jig->num_atoms; k++) {
             a1 = jig->atoms[k]->index;
