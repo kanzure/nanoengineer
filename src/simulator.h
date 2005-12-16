@@ -24,11 +24,15 @@
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
               fprintf(outf, ##fmt); fprintf(outf, "\n"); fclose(outf); }
 #define SAY_INT(x)   SAY("%s=%d", #x, x)
+#define SAY_DBL(x)   SAY("%s=%lf", #x, x)
+#define SAY_XYZ(s)   SAY("%s={%lf,%lf,%lf)", #s, (s).x, (s).y, (s).z)
 #define SAY_HEX(x)   SAY("%s=%p", #x, x)
 #else
 #define MARK()
 #define SAY(fmt...)
 #define SAY_INT(x)
+#define SAY_DBL(x)
+#define SAY_XYZ(x)
 #define SAY_HEX(x)
 #endif
 

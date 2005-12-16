@@ -20,6 +20,10 @@ CFLAGS+=-pg
 LDFLAGS+=-pg
 endif
 
+ifeq ($(WWDEBUG),1)
+CFLAGS+=-DWWDEBUG
+endif
+
 all: simulator
 
 lall: all glviewer
@@ -134,7 +138,7 @@ install: simulator
 		mkdir $(EXE_DIRECTORY) ;\
 	fi
 	cp simulator ~/bin/simulator
-	mv simulator $(EXE_DIRECTORY) 
+	cp simulator $(EXE_DIRECTORY) 
 
 clean:
 	rm -f simulator moldisp molsim physeng sim.so sim.c
