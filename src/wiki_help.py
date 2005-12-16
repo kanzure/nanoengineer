@@ -44,6 +44,28 @@ def open_wiki_help_page( featurename, actually_open = True ): #e actually_open =
     """
     url = wiki_help_url( featurename)
     if url:
+        if 1:
+            #bruce 051215 experimental: always use the dialog with a link.
+            # When this works, figure out how prefs should influence what to do, how to clean up the code, etc.
+            # Other known issues:
+            # - needs try/except around its internal webbrowser call, or let callback do that part;
+            # - text is wrong;
+            # - maybe need checkbox "retain dialog" so it stays open after the click
+            # - doesn't put new dialog fully in front -- at least, closing mmkit brings main window in front of dialog
+            # - dialog might be nonmodal, but if we keep that, we'll need to autoupdate its contents i suppose
+            html = """<font color=\"red\">[stub text, will be changed before release]</font><br>
+                      Click one of the following links to launch your web browser
+                      to a Nanorex wiki page containing help on the appropriate topic:<br>
+                      * your current mode or selected jig: %s<br>
+                      * nanorex wiki main page: %s
+                   """ % (HTML_link(url, featurename), HTML_link(wiki_prefix(), "main page"))
+                        #e in real life it'll be various aspects of your current context
+            def clicked_func(url):
+                #####@@@@@ change this to print a history message
+                print "testing clicked_func, got %r, whose str() is %r" % (url,str(url))
+            w = WikiHelpBrowser(html, clicked_func = clicked_func) # this class also contains the link-opening code
+            w.show()
+            return
         if actually_open:
             env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
                 # print this in case user wants to open it manually or debug the url prefix preference,
@@ -66,6 +88,13 @@ def open_wiki_help_page( featurename, actually_open = True ): #e actually_open =
             env.history.message("Help for %r is available at: %s" % (featurename, url))
     return
 
+def wiki_prefix():
+    """Return the prefix to which wiki page titles should be appended, to form their urls.
+    """
+    from prefs_constants import wiki_help_prefix_prefs_key
+    prefix = env.prefs[wiki_help_prefix_prefs_key]
+    return prefix
+
 def wiki_help_url( featurename):
     """Return a URL at which the wiki help page for the named feature (e.g. "Rotary Motor" or "Build Mode")
     might be found (or should be created), or '' if this is not a valid featurename for this purpose [NIM - validity not yet checked].
@@ -77,8 +106,7 @@ def wiki_help_url( featurename):
     # If this function's behavior is ever changed, lots of wiki pages might need to be renamed,
     # with both old and new names supported as long as the old code is in use.
     # (The same would be true for wiki pages about specific features whose featurenames are changed.)
-    from prefs_constants import wiki_help_prefix_prefs_key
-    prefix = env.prefs[wiki_help_prefix_prefs_key]
+    prefix = wiki_prefix()
     title = "Feature:" + featurename.replace(' ', '_') # e.g. Feature:Build_Mode
     return prefix + title # assume no URL-encoding needed in title, since featurenames so far are just letters and spaces
 
@@ -119,21 +147,24 @@ def wiki_help_menuspec_for_featurename( featurename):
     command = wiki_help_lambda( featurename)
     return [( menutext, command )]
 
-#############################################
+# ==
 
 _keep_reference = None
 
-class WikiHelpBrowser(QTextBrowser):
-    def __init__(self,text,parent=None):
+class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bruce 051215
+    def __init__(self, text, parent=None, clicked_func = None):
         class MimeFactory(QMimeSourceFactory):
-            def data(self,name,context=None):
+            def data(self, name, context=None):
                 # [obs comment:] You'll always get a warning like this:
                 # QTextBrowser: no mimesource for http://....
                 # This could be avoided with QApplication.qInstallMsgHandler,
                 # but I don't think that's supported until PyQt 3.15. Also this falls
                 # victim to all the problems swarming around webbrowser.open().
+                name = str(name) # in case it's a QString
+                if clicked_func:
+                    clicked_func(name)
                 import webbrowser
-                webbrowser.open(str(name))
+                webbrowser.open(name)
                 self.owner.close()
                     # (remove this if you want the dialog to stay open after the link is clicked,
                     #  but its text will change to "link was clicked" due to the code below)
@@ -164,18 +195,28 @@ class WikiHelpBrowser(QTextBrowser):
         mf.owner = self
         self.setMimeSourceFactory(mf)
 
-# This is a provisional stub. Feel free to edit.
-def wikiPage(topic):
-    fmt = "http://www.nanoengineer-1.net/mediawiki/index.php?title="
+def wiki_url_for_topic(topic, wikiprefix = None):
+    wikiprefix = wikiprefix or "http://www.nanoengineer-1.net/mediawiki/index.php?title="
     topic1 = topic[:1].upper() + topic[1:]
-    topic1 = topic1.replace(" ", "_")
-    return " <a href=\"" + fmt + topic1 + "\">" + topic + "</a> "
+    topic1 = topic1.replace(" ", "_") # assume no additional url-encoding is needed
+    url = wikiprefix + topic1
+    return url
+
+def wikiPageHtmlLink(topic, text = None, wikiprefix = None):
+    url = wiki_url_for_topic(topic, wikiprefix = wikiprefix)
+    if text is None:
+        text = topic
+    return HTML_link(url, text)
+
+def HTML_link(url, text): #e might need to do some encoding in url, don't know; certainly needs to in text, in principle
+    # this is being used in real code as of bruce 051215
+    return "<a href=\"" + url + "\">" + text + "</a>"
 
 def __testWikiHelpBrowser():
     import sys
     app = QApplication(sys.argv)
     w = WikiHelpBrowser("Here is a wiki page about " +
-                        wikiPage("QWhatsThis and web links") +
+                        wikiPageHtmlLink("QWhatsThis and web links") +
                         " to click.")
     w.show()
     app.connect(app, SIGNAL("lastWindowClosed()"),
