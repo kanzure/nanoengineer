@@ -60,6 +60,7 @@ bontyp = {'-':'1', '=':'2', '+':'3','@':'a', '#':'g'}
 
 if __name__ == "__main__":
     f=open(sys.argv[1])
+    print '//                       e1  e2  ord    ks     r0      de     beta   inflectionR'
     for lin in f.readlines():
         if commpat.match(lin): continue
         m = parmpat.match(lin)

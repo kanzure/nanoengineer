@@ -131,7 +131,7 @@ main(int argc,char **argv)
     //vsetc(P,0.0);
     //vsetc(Omega,0.0);
 
-    //debug_flags = D_BEND_ONLY;
+    //debug_flags = D_SKIP_VDW;
     
     filename = (char *)0;
     ofilename = (char *)0;

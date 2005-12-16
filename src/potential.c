@@ -499,6 +499,11 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vmul2c(f, rv, gradient);
       vadd(force[vdw->a1->index], f);
       vsub(force[vdw->a2->index], f);
+      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
+        writeSimpleForceVector(position, vdw->a1->index, &f, 4); // cyan
+        vmulc(f, -1.0);
+        writeSimpleForceVector(position, vdw->a2->index, &f, 4); // cyan
+      }
     }
   }
 }

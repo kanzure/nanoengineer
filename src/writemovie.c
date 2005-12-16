@@ -416,7 +416,7 @@ static float forceColors[7][3] = {
     { 1.0, 1.0, 0.0 }  // yellow
 };
 
-#define FORCE_SCALE 10
+#define FORCE_SCALE 1
 void
 writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color)
 {

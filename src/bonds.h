@@ -1,3 +1,4 @@
+//                       e1  e2  ord    ks     r0      de     beta   inflectionR
   addInitialBondStretch( 17, 17, '1',  274.7, 204.5, 0.3145, 2.0898, 238.4400); // Cl-Cl
   addInitialBondStretch( 17,  1, '1',  502.5, 128.7, 0.7163, 1.8728, 166.3200); // Cl-H
   addInitialBondStretch( 17,  9, '1',  437.5, 167.0, 0.3873, 2.3765, 196.7600); // Cl-F
