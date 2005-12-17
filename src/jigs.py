@@ -908,8 +908,8 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
 
         atoms = self.assy.selatoms_list() #bruce 051031 change
         
-        if not atoms:
-            env.history.message(cmd + redmsg("You must first select an atom(s) to create a Rotary Motor."))
+        if len(atoms) < 2: # wware 051216, bug 1114, need >= 2 atoms for rotary motor
+            env.history.message(cmd + redmsg("You must select at least two atoms to create a Rotary Motor."))
             return
             
         # Print warning if over 200 atoms are selected.
