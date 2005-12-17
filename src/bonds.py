@@ -50,7 +50,7 @@ from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 
-from debug import print_compact_stack, print_compact_traceback, privateMethod
+from debug import print_compact_stack, compact_stack, print_compact_traceback, privateMethod
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
@@ -81,12 +81,14 @@ def find_bond(a1, a2): #bruce 050502; there might be an existing function in som
             return bond
     return None
 
-def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
-    """Make a new bond between atoms at1 and at2 (and add it to their lists of bonds),
+bond_atoms_oldversion_noops_seen = {} #bruce 051216
+
+def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
+    """Make a new bond between atoms a1 and a2 (and add it to their lists of bonds),
     if they are not already bonded; if they are already bonded do nothing. Return None.
     (The new bond object, if one is made, can't be found except by scanning the bonds
     of one of the atoms.)
-       If at1 == at2, this is an error; print a warning and do nothing.
+       If a1 == a2, this is an error; print a warning and do nothing.
        This increases the number of bonds on each atom (when it makes a new bond) --
     it never removes any singlets. Therefore it is mostly for low-level use.
     It could be called directly, but is usually called via the method molecule.bond,
@@ -99,49 +101,85 @@ def bond_atoms_oldversion(at1,at2): #bruce 050502 renamed this from bond_atoms; 
     # either makes (as the constructor does) or doesn't make (when the atoms are
     # already bonded). The test for a prior bond makes more sense outside of the
     # Bond constructor.
-    if at1 is at2: #bruce 041119, partial response to bug #203
-        print "BUG: bond_atoms was asked to bond %r to itself." % at1
+    if a1 is a2: #bruce 041119, partial response to bug #203
+        print "BUG: bond_atoms was asked to bond %r to itself." % a1
         print "Doing nothing (but further bugs may be caused by this)."
         print_compact_stack("stack when same-atom bond attempted: ")
         return
 
-    b = Bond(at1,at2) # (this does all necessary invals)
-    
-    #bruce 041029 precautionary change -- I find in debugging that the bond
-    # can be already in one but not the other of at1.bonds and at2.bonds,
-    # as a result of prior bugs. To avoid worsening those bugs, we should
-    # change this... but for now I'll just print a message about it.
-    #bruce 041109: when this happens I'll now also remove the obsolete bond.
-    if (b in at1.bonds) != (b in at2.bonds):
-        print "fyi: debug: for new bond %r, (b in at1.bonds) != (b in at2.bonds); removing old bond" % b
-        try:
-            at1.bonds.remove(b)
-        except:
-            pass
-        try:
-            at2.bonds.remove(b)
-        except:
-            pass
-    if not b in at2.bonds:
-        at1.bonds += [b]
-        at2.bonds += [b]
-    else:
-        # [bruce comment 041115: I don't know if this ever happens,
-        #  or if it's a good idea for it to be allowed, but it is allowed.
-        #  #e should it inval the old bond? I think so, but didn't add that.
-        #  later: it happens a lot when entering Extrude; guess: mol.copy copies
-        #  each internal bond twice (sounds right, but I did not verify this).]
-        #
-        # [addendum, bruce 051018: I added a message for when a new bond is equal to
-        #  an existing one, but entering Extrude does not print that, so either it's
-        #  been changed or mol.copy has or I misunderstand the above code (which
-        #  I predict would hit that message). Just to check, I'll print a debug message here (below);
-        #  that message is not happening either, so maybe this deprecated feature is no longer used at all. #k ####@@@@
-        #  (Should also try reading a pdb file with the same bond listed twice... ###k)
+    #bruce 051216 rewriting this to be faster and avoid console warning
+    # when bond already exists (re bug 1226), but still verify bond is on both atoms or neither
+    b1 = find_bond(a1,a2) # a Bond or None
+    b2 = find_bond(a2,a1)
+    if b1 is not b2:
+        print "bug warning: bond between %r and %r inconsistent in their .bonds lists; %r (id %#x) vs %r (id %#x)" \
+              % (a1,a2, b1, id(b1), b2, id(b2))
+        print_compact_stack("will remove one or both existing bonds, then make the requested new one: ")
+        if b1:
+            a1.bonds.remove(b1)
+            b1 = None
+        if b2:
+            a2.bonds.remove(b2)
+            b2 = None
+    if b1:
+        # these atoms are already bonded
+        ###e should we verify bond order is 1, otherwise complain more loudly??
         if platform.atom_debug:
-            print "atom_debug: fyi (possible bug): bond_atoms_oldversion is a noop since an equal bond exists:", b
-        pass
+            # print debug warning
+            #e refile this code -- only print warning once for each place in the code it can happen from
+            blame = compact_stack() # slow, but should be ok since this case should be rare
+                # known cases as of 051216 include only one: reading pdb files with redundant CONECT records
+            if not bond_atoms_oldversion_noops_seen.has_key(blame):
+                print_compact_stack( "atom_debug: note: bond_atoms_oldversion doing nothing since %r and %r already bonded: " % (a1,a2))
+                if not bond_atoms_oldversion_noops_seen:
+                    print "(above message (bond_atoms_oldversion noop) is only printed once for each compact_stack that calls it)"
+                bond_atoms_oldversion_noops_seen[blame] = None
+            pass
+        return
+    b = Bond(a1,a2) # (this does all necessary invals)
+    a1.bonds.append(b)
+    a2.bonds.append(b)
     return
+
+##    # pre-051216 code (starting from where new code starts above)
+##    at1,at2 = a1,a2
+##    b = Bond(at1,at2) # (this does all necessary invals)
+##    
+##    #bruce 041029 precautionary change -- I find in debugging that the bond
+##    # can be already in one but not the other of at1.bonds and at2.bonds,
+##    # as a result of prior bugs. To avoid worsening those bugs, we should
+##    # change this... but for now I'll just print a message about it.
+##    #bruce 041109: when this happens I'll now also remove the obsolete bond.
+##    if (b in at1.bonds) != (b in at2.bonds):
+##        print "fyi: debug: for new bond %r, (b in at1.bonds) != (b in at2.bonds); removing old bond" % b
+##        try:
+##            at1.bonds.remove(b)
+##        except:
+##            pass
+##        try:
+##            at2.bonds.remove(b)
+##        except:
+##            pass
+##    if not b in at2.bonds:
+##        at1.bonds += [b]
+##        at2.bonds += [b]
+##    else:
+##        # [bruce comment 041115: I don't know if this ever happens,
+##        #  or if it's a good idea for it to be allowed, but it is allowed.
+##        #  #e should it inval the old bond? I think so, but didn't add that.
+##        #  later: it happens a lot when entering Extrude; guess: mol.copy copies
+##        #  each internal bond twice (sounds right, but I did not verify this).]
+##        #
+##        # [addendum, bruce 051018: I added a message for when a new bond is equal to
+##        #  an existing one, but entering Extrude does not print that, so either it's
+##        #  been changed or mol.copy has or I misunderstand the above code (which
+##        #  I predict would hit that message). Just to check, I'll print a debug message here (below);
+##        #  that message is not happening either, so maybe this deprecated feature is no longer used at all. #k ####@@@@
+##        #  (Should also try reading a pdb file with the same bond listed twice... ###k)
+##        if platform.atom_debug:
+##            print "atom_debug: fyi (possible bug): bond_atoms_oldversion is a noop since an equal bond exists:", b
+##        pass
+##    return
 
 def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     """Bond two atoms, which must not be already bonded (this might not be checked).
@@ -210,7 +248,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     might copy some of them twice.
        Using the old bond_atoms code by not providing vnew is deprecated,
     and might eventually be made impossible after all old calling code is converted
-    for higher-valence bonds.
+    for higher-valence bonds. [However, as of 051216 it's still called in lots of places.]
     """
     if vnew is None:
         assert s1 is s2 is None
@@ -792,6 +830,9 @@ class Bond(GenericDiffTracker_API_Mixin):
             # If it indeed never happens (or if it does and we fix that), then I'll remove or reimplement __eq__
             # to just return "self is ob". ####@@@@ [bruce 051018]
             print_compact_stack( "possible bug: different bond objects equal: %r == %r: " % (self,ob) )
+        else:
+            if 0 and platform.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)
+                print_compact_stack( "atom_debug: deprecated Bond.__eq__ was called on %r and %r: " % (self,ob) )
         return ob.key == self.key
 
     def __ne__(self, ob):
