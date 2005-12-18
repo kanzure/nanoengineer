@@ -97,7 +97,7 @@ class UserPrefs(UserPrefsDialog):
         self.w = assy.w
         self.assy = assy
         #bruce 050811 added these:
-        self._setup_caption_page() # make sure the LineEdits are initialized before we hear their signals
+        self._setup_window_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
         
         # This is where What's This descriptions should go for UserPrefs.
@@ -411,8 +411,8 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
         return
 
-    def _setup_caption_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
-        ''' Setup widgets to initial (default or defined) values on the captions page.
+    def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
+        ''' Setup widgets to initial (default or defined) values on the window page.
         '''
         self.caption_prefix_linedit.setText(env.prefs[captionPrefix_prefs_key])
         self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
@@ -995,8 +995,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_plugins_page()
         elif pagename == 'History':
             self._setup_history_page()
-        elif pagename == 'Caption':
-            self._setup_caption_page()
+        elif pagename == 'Window':
+            self._setup_window_page()
         else:
             print 'Error: Preferences page unknown: ', pagename
             
