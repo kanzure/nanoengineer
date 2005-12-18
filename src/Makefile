@@ -22,5 +22,5 @@ $(PYFILES0) : %.py : %.ui
 	pyuic $< -o $@ 
 
 clean:
-	rm $(PYFILES0)
+	rm -f $(PYFILES0) *.pyc *~
 
