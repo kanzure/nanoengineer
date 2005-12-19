@@ -58,34 +58,35 @@ def open_wiki_help_page( featurename, actually_open = True ): #e actually_open =
                       to a Nanorex wiki page containing help on the appropriate topic:<br>
                       * your current mode or selected jig: %s<br>
                       * nanorex wiki main page: %s
-                   """ % (HTML_link(url, featurename), HTML_link(wiki_prefix(), "main page"))
+                   """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
                         #e in real life it'll be various aspects of your current context
             def clicked_func(url):
-                #####@@@@@ change this to print a history message
-                print "testing clicked_func, got %r, whose str() is %r" % (url,str(url))
+                url = str(url) # precaution in case of QString
+                env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
+                    # print this in case user wants to open it manually or debug the url prefix preference,
             w = WikiHelpBrowser(html, clicked_func = clicked_func) # this class also contains the link-opening code
             w.show()
             return
-        if actually_open:
-            env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
-                # print this in case user wants to open it manually or debug the url prefix preference,
-                # and to lessen their surprise if they didn't expect the help command to fire up their browser
-            try:
-                import webbrowser
-                webbrowser.open( url)
-            except:
-                #bruce 051201 catch exception to mitigate bug 1167
-                # (e.g. when Linux user doesn't have BROWSER env var set).
-                # Probably need to make this more intelligent, perhaps by
-                # catching the specific exception in the bug report, knowing
-                # the OS, passing options to webbrowser.open, etc.
-                print_compact_traceback("webbrowser exception: ")
-                env.history.message( redmsg("Problem opening web browser.") +
-                    "Suggest opening above URL by hand. "\
-                    "On some platforms, setting BROWSER environment variable might help."
-                 )
-        else:
-            env.history.message("Help for %r is available at: %s" % (featurename, url))
+##        if actually_open:
+##            env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
+##                # print this in case user wants to open it manually or debug the url prefix preference,
+##                # and to lessen their surprise if they didn't expect the help command to fire up their browser
+##            try:
+##                import webbrowser
+##                webbrowser.open( url)
+##            except:
+##                #bruce 051201 catch exception to mitigate bug 1167
+##                # (e.g. when Linux user doesn't have BROWSER env var set).
+##                # Probably need to make this more intelligent, perhaps by
+##                # catching the specific exception in the bug report, knowing
+##                # the OS, passing options to webbrowser.open, etc.
+##                print_compact_traceback("webbrowser exception: ")
+##                env.history.message( redmsg("Problem opening web browser.") +
+##                    "Suggest opening above URL by hand. "\
+##                    "On some platforms, setting BROWSER environment variable might help."
+##                 )
+##        else:
+##            env.history.message("Help for %r is available at: %s" % (featurename, url))
     return
 
 def wiki_prefix():
@@ -164,10 +165,13 @@ class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bru
                 if clicked_func:
                     clicked_func(name)
                 import webbrowser
-                webbrowser.open(name)
-                self.owner.close()
-                    # (remove this if you want the dialog to stay open after the link is clicked,
-                    #  but its text will change to "link was clicked" due to the code below)
+                webbrowser.open(name) ###e should this be moved into clicked_func?
+                if 1:
+                    # don't do this if you want the dialog to stay open after the link is clicked,
+                    #  but its text will change to "link was clicked" due to the code below
+                    ## self.owner.close() -- this caused hourglass cursor to remain in GLPane [bug 1233]
+                    ## self.owner.hide() - also causes hourglass cursor
+                    self.owner.deleteLater() # this fixed bug 1233 [bruce 051219]
                 #bruce 051209 kluge:
                 # one way to avoid the warning, in trusty old PyQt 3.12:
                 ##   QMimeSourceFactory.defaultFactory().setText("arbuniqname","hi mom") 
