@@ -712,6 +712,8 @@ def setup():
     CubeList = lonsGridList + 1
     glNewList(CubeList, GL_COMPILE)
     glBegin(GL_QUAD_STRIP)
+    # note: CubeList has only 4 faces of the cube; only suitable for use in wireframes;
+    # see also solidCubeList [bruce 051215 comment reporting grantham 20051213 observation]
     glVertex((-1,-1,-1))
     glVertex(( 1,-1,-1))
     glVertex((-1, 1,-1))
@@ -1043,6 +1045,10 @@ def drawLineCube(color, pos, radius):
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
     glEnableClientState(GL_VERTEX_ARRAY)
     glVertexPointer(3, GL_FLOAT, 0, flatCubeVertices) #bruce 051117 revised this
+        #grantham 20051213 observations, reported/paraphrased by bruce 051215:
+        # - should verify PyOpenGL turns Python float (i.e. C double) into C float
+        #   for OpenGL's GL_FLOAT array element type.
+        # - note that GPUs are optimized for DrawElements types GL_UNSIGNED_INT and GL_UNSIGNED_SHORT.
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glPushMatrix()
