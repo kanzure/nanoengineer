@@ -78,6 +78,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     #bruce 050906: same for fileSlotsMixin.
     
     initialised = 0 #bruce 041222
+    _ok_to_autosave_geometry_changes = False #bruce 051218
 
     # This is the location of the separator that gets inserted in the File menu above "Recent Files".
     RECENT_FILES_MENU_INDEX = 10 
