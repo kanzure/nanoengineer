@@ -32,61 +32,63 @@ import env
 from debug import print_compact_traceback
 from HistoryWidget import redmsg
 
-def open_wiki_help_page( featurename, actually_open = True ): #e actually_open = False is not yet used (and untested) as of 051201
-    """Open the wiki help page corresponding to the named nE-1 feature, in ways influenced by user preferences.
+def open_wiki_help_page( featurename, actually_open = True ): #e actually_open = False is presently disabled in the implem
+    """Show a dialog containing a link which can
+    open the wiki help page corresponding to the named nE-1 feature, in ways influenced by user preferences.
     Assume the featurename might contain blanks, but contains no other characters needing URL-encoding.
     [In the future, we might also accept options about the context or specific instance of the feature,
      which might turn into URL-anchors or the like.]
-       If actually_open = False, don't open a web browser, but instead
+       If actually_open = False [not yet implemented, probably won't ever be],
+    don't open a web browser, but instead
     print a history message so the user can open it manually.
     Intended use is for a user preference setting to pass this, either always
     or when the feature is invoked in certain ways.
     """
     url = wiki_help_url( featurename)
     if url:
-        if 1:
-            #bruce 051215 experimental: always use the dialog with a link.
-            # When this works, figure out how prefs should influence what to do, how to clean up the code, etc.
-            # Other known issues:
-            # - needs try/except around its internal webbrowser call, or let callback do that part;
-            # - text is wrong;
-            # - maybe need checkbox "retain dialog" so it stays open after the click
-            # - doesn't put new dialog fully in front -- at least, closing mmkit brings main window in front of dialog
-            # - dialog might be nonmodal, but if we keep that, we'll need to autoupdate its contents i suppose
-            html = """<font color=\"red\">[stub text, will be changed before release]</font><br>
-                      Click one of the following links to launch your web browser
-                      to a Nanorex wiki page containing help on the appropriate topic:<br>
-                      * your current mode or selected jig: %s<br>
-                      * nanorex wiki main page: %s
-                   """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
-                        #e in real life it'll be various aspects of your current context
-            def clicked_func(url):
-                url = str(url) # precaution in case of QString
-                env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
-                    # print this in case user wants to open it manually or debug the url prefix preference,
-            w = WikiHelpBrowser(html, clicked_func = clicked_func) # this class also contains the link-opening code
-            w.show()
-            return
-##        if actually_open:
-##            env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
-##                # print this in case user wants to open it manually or debug the url prefix preference,
-##                # and to lessen their surprise if they didn't expect the help command to fire up their browser
-##            try:
-##                import webbrowser
-##                webbrowser.open( url)
-##            except:
-##                #bruce 051201 catch exception to mitigate bug 1167
-##                # (e.g. when Linux user doesn't have BROWSER env var set).
-##                # Probably need to make this more intelligent, perhaps by
-##                # catching the specific exception in the bug report, knowing
-##                # the OS, passing options to webbrowser.open, etc.
-##                print_compact_traceback("webbrowser exception: ")
-##                env.history.message( redmsg("Problem opening web browser.") +
-##                    "Suggest opening above URL by hand. "\
-##                    "On some platforms, setting BROWSER environment variable might help."
-##                 )
-##        else:
-##            env.history.message("Help for %r is available at: %s" % (featurename, url))
+        #bruce 051215 experimental: always use the dialog with a link.
+        # When this works, figure out how prefs should influence what to do, how to clean up the code, etc.
+        # Other known issues:
+        # - UI to access this is unfinished
+        #   (F1 key, revise "web help" to "context help" in menu commands, access from Help menu)
+        # - text is a stub;
+        # - maybe need checkbox "retain dialog" so it stays open after the click
+        # - doesn't put new dialog fully in front -- at least, closing mmkit brings main window in front of dialog
+        # - dialog might be nonmodal, but if we keep that, we'll need to autoupdate its contents i suppose
+        html = """<font color=\"red\">[stub text, will be changed before release]</font><br>
+                  Click one of the following links to launch your web browser
+                  to a Nanorex wiki page containing help on the appropriate topic:<br>
+                  * your current mode or selected jig: %s<br>
+                  * nanorex wiki main page: %s
+               """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
+                    #e in real life it'll be various aspects of your current context
+        def clicked_func(url):
+            url = str(url) # precaution in case of QString
+            env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
+                # print this in case user wants to open it manually or debug the url prefix preference
+            try:
+                import webbrowser
+                webbrowser.open( url)
+                close_dialog = True
+            except:
+                #bruce 051201 catch exception to mitigate bug 1167
+                # (e.g. when Linux user doesn't have BROWSER env var set).
+                # Probably need to make this more intelligent, perhaps by
+                # catching the specific exception in the bug report, knowing
+                # the OS, passing options to webbrowser.open, etc.
+                print_compact_traceback("webbrowser exception: ")
+                env.history.message( redmsg("Problem opening web browser.") +
+                    "Suggest opening above URL by hand. "\
+                    "On some platforms, setting BROWSER environment variable might help."
+                 )
+                ## close_dialog = False # not good unless text in dialog is preserved or replaced with error msg
+                close_dialog = True
+            return close_dialog
+        w = WikiHelpBrowser(html, clicked_func = clicked_func, caption = "Context Help")
+        w.show()
+        return
+        ## if not actually_open: ## not yet used (and untested) as of 051201
+        ##    env.history.message("Help for %r is available at: %s" % (featurename, url))
     return
 
 def wiki_prefix():
@@ -153,7 +155,7 @@ def wiki_help_menuspec_for_featurename( featurename):
 _keep_reference = None
 
 class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bruce 051215
-    def __init__(self, text, parent=None, clicked_func = None):
+    def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
         class MimeFactory(QMimeSourceFactory):
             def data(self, name, context=None):
                 # [obs comment:] You'll always get a warning like this:
@@ -163,15 +165,18 @@ class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bru
                 # victim to all the problems swarming around webbrowser.open().
                 name = str(name) # in case it's a QString
                 if clicked_func:
-                    clicked_func(name)
-                import webbrowser
-                webbrowser.open(name) ###e should this be moved into clicked_func?
-                if 1:
+                    close_dialog = clicked_func(name) #e might generalize to let clicked_func return new html to show, etc...
+                else:
+                    #bruce 051216 let this just be default clicked_func (for testing) -- let provided clicked_func do this itself
+                    import webbrowser
+                    webbrowser.open(name) ###e should this be moved into clicked_func?
+                    close_dialog = True
+                if close_dialog:
                     # don't do this if you want the dialog to stay open after the link is clicked,
                     #  but its text will change to "link was clicked" due to the code below
                     ## self.owner.close() -- this caused hourglass cursor to remain in GLPane [bug 1233]
                     ## self.owner.hide() - also causes hourglass cursor
-                    self.owner.deleteLater() # this fixed bug 1233 [bruce 051219]
+                    self.owner.deleteLater() # using deleteLater instead of close or hide fixed bug 1233 [bruce 051219]
                 #bruce 051209 kluge:
                 # one way to avoid the warning, in trusty old PyQt 3.12:
                 ##   QMimeSourceFactory.defaultFactory().setText("arbuniqname","hi mom") 
@@ -193,6 +198,7 @@ class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bru
                 return _keep_reference
         QTextBrowser.__init__(self,parent)
         self.setMinimumSize(400, 300)
+        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
         # make it pale yellow like a post-it note
         self.setText("<qt bgcolor=\"#FFFF80\">" + text)
         self.mf = mf = MimeFactory()
