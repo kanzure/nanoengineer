@@ -30,7 +30,7 @@ bruce 050913 used env.history in some places.
 
 import sys, os, time
 from constants import debugButtons, noop
-from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key
+from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key, mainwindow_geometry_prefs_key_prefix
 import env
 
 from debug_prefs import debug_prefs_menuspec # bruce 050614
@@ -599,16 +599,16 @@ class DebugMenuMixin:
             ] )
         return res
 
-    def _debug_save_window_layout(self):
+    def _debug_save_window_layout(self): # [see also UserPrefs.save_current_win_pos_and_size, new as of 051218]
         from platform import save_window_pos_size
         win = self._debug_win
-        keyprefix = "main window/geometry"
+        keyprefix = mainwindow_geometry_prefs_key_prefix
         save_window_pos_size( win, keyprefix)
 
-    def _debug_load_window_layout(self):
+    def _debug_load_window_layout(self): # [similar code is in pre_main_show in startup_funcs.py, new as of 051218]
         from platform import load_window_pos_size
         win = self._debug_win
-        keyprefix = "main window/geometry"
+        keyprefix = mainwindow_geometry_prefs_key_prefix
         load_window_pos_size( win, keyprefix)
 
     def _debug_update_parts(self):

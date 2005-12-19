@@ -157,6 +157,7 @@ class UserPrefs(UserPrefsDialog):
         elif pagename == 'History':
             self.prefs_tab.setCurrentPage(6)
         elif pagename == 'Caption':
+            #bruce 051216 comment: I don't know if it's safe to change this string to 'Window' to match tab text
             self.prefs_tab.setCurrentPage(7)
         else:
             print 'Error: Preferences page unknown: ', pagename
@@ -949,9 +950,27 @@ class UserPrefs(UserPrefsDialog):
                             
     ########## End of slot methods for "Plug-ins" page widgets ###########
 
-    ########## Slot methods for "Caption" page widgets ################
+    ########## Slot methods for "Window" (former name "Caption") page widgets ################
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
+
+    def change_always_save_win_pos_and_size(self, state): #bruce 051218 ##k args
+        print "change_always_save_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
+        #e implem notes:
+        # needs a prefs key for this checkbox (what's the default?) and to grab it into widget when this page is inited
+        # need to catch signals from pos/size changes
+        # need to make sure it's not too early to save geom,
+        # either since signals are false alarms during init, or env.prefs is not set up, or exception in load-size code(?);
+        #  for part of that use win._ok_to_autosave_geometry_changes
+        # ideally, dim the manual-save button when this is checked (if not too early to let this checkbox work)
+
+    def save_current_win_pos_and_size(self): #bruce 051218; see also debug.py's _debug_save_window_layout
+        from platform import save_window_pos_size
+        from prefs_constants import mainwindow_geometry_prefs_key_prefix
+        win = self.w
+        keyprefix = mainwindow_geometry_prefs_key_prefix
+        save_window_pos_size( win, keyprefix) # prints history message
+        return
     
     def set_caption_fullpath(self, val): #bruce 050810 revised this
         # there is now a separate connection which sets the pref, so this is not needed:
@@ -960,7 +979,7 @@ class UserPrefs(UserPrefsDialog):
         ## self.win.update_mainwindow_caption(self.win.assy.has_changed())
         pass
         
-    ########## End of slot methods for "Caption" page widgets ###########
+    ########## End of slot methods for "Window" page widgets ###########
     
     ########## Slot methods for "History" page widgets ################
     

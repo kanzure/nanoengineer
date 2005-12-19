@@ -533,12 +533,12 @@ def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
     which caller ought to reserve for geometry aspects of the main window.
     (#e Someday, maybe save more aspects like dock layout and splitter bar positions??)
     """
-    from preferences import prefs_context
-    prefs = prefs_context()
+##    from preferences import prefs_context
+##    prefs = prefs_context()
     ksize, kpos = size_pos_keys( keyprefix)
     pos, size = get_window_pos_size(win)
     changes = { ksize: size, kpos: pos }
-    prefs.update( changes) # use update so it only opens/closes dbfile once
+    env.prefs.update( changes) # use update so it only opens/closes dbfile once
     env.history.message("saved window position %r and size %r" % (pos,size))
     return
 

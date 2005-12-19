@@ -211,6 +211,22 @@ def pre_main_show( win):
     from qt import QRect
     win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
 
+    ###e it might be good to register this as the default geom. in the prefs system, and use that to implement "restore defaults"
+
+    # After the above (whose side effects on main window geom. are used as defaults by the following code),
+    # load any mainwindow geometry present in prefs db. [bruce 051218 new feature; see also new "save" features in UserPrefs.py]
+    from debug import print_compact_stack
+    try:
+        # this code is similar to debug.py's _debug_load_window_layout
+        from platform import load_window_pos_size
+        from prefs_constants import mainwindow_geometry_prefs_key_prefix
+        keyprefix = mainwindow_geometry_prefs_key_prefix
+        load_window_pos_size( win, keyprefix)
+        win._ok_to_autosave_geometry_changes = True
+    except:
+        print_compact_stack("exception while loading/setting main window pos/size from prefs db: ")
+        win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
+
     return # from pre_main_show
 
 # This is debugging code used to find out the origin and size of the fullscreen window

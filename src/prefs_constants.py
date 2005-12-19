@@ -113,7 +113,8 @@ gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
 nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
 
-# Caption prefs
+# Window prefs (used to be called Caption prefs)
+mainwindow_geometry_prefs_key_prefix = "main window/geometry" #bruce 051218 moved this from debug.py
 captionPrefix_prefs_key = 'A6/Caption Prefix'
 captionSuffix_prefs_key = 'A6/Caption Suffix'
 captionFullPath_prefs_key = 'A6/Caption Full Path'

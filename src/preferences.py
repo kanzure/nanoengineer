@@ -305,7 +305,7 @@ def _record_default( pkey, dflt):
         # also check consistency each time
         if dflt != _defaults[pkey]:
             print "atom_debug: bug: ignoring inconsistent default %r for pref %r; retaining %r" % \
-                  ( dflt, key, _defaults[pkey] ) #e also print pkey if in future the key/pkey relation gets more complex
+                  ( dflt, pkey, _defaults[pkey] ) #e also print key if in future the key/pkey relation gets more complex
     return
 
 def _restore_default_while_open( pkey): #bruce 050805
@@ -514,7 +514,7 @@ def prefs_context():
 
 # ==
 
-# initialization code [bruce 050805]
+# initialization code [bruce 050805] (includes the set of env.prefs)
 
 def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is same as prefs_table record format
     assert typecode in ['color','boolean','string','int', 'float'] or type(typecode) == type([]) #e or others as we define them
@@ -533,7 +533,7 @@ def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is s
         curvaljunk = prefs.get( prefskey, dflt)
     return
 
-def init_prefs_table( prefs_table):
+def init_prefs_table( prefs_table): # sets env.prefs
     import platform
     from debug import print_compact_traceback
 
