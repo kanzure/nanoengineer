@@ -48,11 +48,19 @@ clamp(double min, double max, double value)
 static void
 minimizeStructureGradient(struct configuration *p)
 {
-  //int i;
+  int i;
   double rms_force;
   double max_force;
+  struct xyz *forces;
   
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
+  if (DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // -D 10
+    evaluateGradientFromPotential(p);
+    forces = (struct xyz *)p->gradient;
+    for (i=0; i<Part->num_atoms; i++) {
+      writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0);
+    }
+  }
   calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
   // dynamics wants gradient pointing downhill, we want it uphill
   //for (i=0; i<3*Part->num_atoms; i++) {

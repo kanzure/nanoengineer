@@ -19,6 +19,7 @@ extern int debug_flags;
 #define D_SKIP_BEND       (1<<7)
 #define D_PRINT_BEND_STRETCH (1<<8)
 #define D_SKIP_VDW        (1<<9)
+#define D_GRADIENT_FROM_POTENTIAL (1<<10)
 
 
 extern FILE *tracef;

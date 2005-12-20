@@ -416,9 +416,9 @@ static float forceColors[7][3] = {
     { 1.0, 1.0, 0.0 }  // yellow
 };
 
-#define FORCE_SCALE 1
+#define FORCE_SCALE 10000
 void
-writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color)
+writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color, double scale)
 {
     double fSquared;
     struct xyz f;
@@ -428,9 +428,9 @@ writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int colo
                 positions[i].x,
                 positions[i].y,
                 positions[i].z,
-                positions[i].x + (force->x * FORCE_SCALE),
-                positions[i].y + (force->y * FORCE_SCALE),
-                positions[i].z + (force->z * FORCE_SCALE),
+                positions[i].x + (force->x * scale * FORCE_SCALE),
+                positions[i].y + (force->y * scale * FORCE_SCALE),
+                positions[i].z + (force->z * scale * FORCE_SCALE),
                 forceColors[color][0],
                 forceColors[color][1],
                 forceColors[color][2]);
@@ -451,7 +451,7 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
     for (i=0; i<part->num_atoms; i++) {
         writeSimpleAtomPosition(part, positions, i);
         if (forces != NULL) {
-          writeSimpleForceVector(positions, i, &forces[i], 0);
+          writeSimpleForceVector(positions, i, &forces[i], 0, 1.0);
         }
     }
     fprintf(outf, "f ");

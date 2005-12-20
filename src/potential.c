@@ -384,9 +384,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vadd(force[bond->a1->index], f);
       vsub(force[bond->a2->index], f);
       if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-        writeSimpleForceVector(position, bond->a1->index, &f, 1); // red
+        writeSimpleForceVector(position, bond->a1->index, &f, 1, 1.0); // red
         vmulc(f, -1.0);
-        writeSimpleForceVector(position, bond->a2->index, &f, 1); // red
+        writeSimpleForceVector(position, bond->a2->index, &f, 1, 1.0); // red
       }
     }
   }
@@ -469,12 +469,12 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vsub(force[bend->ac->index], q2);
       vadd(force[bend->a2->index], q2);
       if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-        writeSimpleForceVector(position, bend->a1->index, &q1, 3); // blue
+        writeSimpleForceVector(position, bend->a1->index, &q1, 3, 1.0); // blue
         vmulc(q1, -1.0);
-        writeSimpleForceVector(position, bend->ac->index, &q1, 2); // green
-        writeSimpleForceVector(position, bend->a2->index, &q2, 3); // blue
+        writeSimpleForceVector(position, bend->ac->index, &q1, 2, 1.0); // green
+        writeSimpleForceVector(position, bend->a2->index, &q2, 3, 1.0); // blue
         vmulc(q2, -1.0);
-        writeSimpleForceVector(position, bend->ac->index, &q2, 2); // green
+        writeSimpleForceVector(position, bend->ac->index, &q2, 2, 1.0); // green
       }
     }
   }
@@ -500,9 +500,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vadd(force[vdw->a1->index], f);
       vsub(force[vdw->a2->index], f);
       if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-        writeSimpleForceVector(position, vdw->a1->index, &f, 4); // cyan
+        writeSimpleForceVector(position, vdw->a1->index, &f, 4, 1.0); // cyan
         vmulc(f, -1.0);
-        writeSimpleForceVector(position, vdw->a2->index, &f, 4); // cyan
+        writeSimpleForceVector(position, vdw->a2->index, &f, 4, 1.0); // cyan
       }
     }
   }
