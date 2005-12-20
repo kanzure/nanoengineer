@@ -19,15 +19,29 @@ SimArgs myArgs;
 int initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
-void everythingElse(void);
-char * structCompareHelp(void);
+struct sim_context *makeContext(void);
+void everythingElse(struct sim_context *);
+char * structCompareHelp(struct sim_context *);
 
 static char retval[100];
 static struct part *part;
 static char buf[1024], *filename;
 static int initializedAlready = 0;
 
-int initsimhelp(void)
+struct sim_context *
+makeContext(void)
+{
+    struct sim_context *ctx;
+	
+    ctx = (struct sim_context *) malloc(sizeof(struct sim_context));
+    if (ctx == NULL) {
+	perror("out of memory");
+	exit(1);
+    }
+}
+
+int
+initsimhelp(void)
 {
     char *printPotential = NULL;
     double printPotentialInitial = 1.0;
@@ -102,7 +116,8 @@ int initsimhelp(void)
     return 0;
 }
 
-void readPart(void)
+void
+readPart(void)
 {
     part = readMMP(buf);
     updateVanDerWaals(part, NULL, part->positions);
@@ -110,17 +125,19 @@ void readPart(void)
     generateBends(part);
 }
 
-void dumpPart(void)
+void
+dumpPart(void)
 {
     printPart(stdout, part);
 }
 
-void everythingElse(void)
+void
+everythingElse(struct sim_context *ctx)
 {
     traceHeader(tracef, filename, OutFileName, TraceFileName, 
                 part, NumFrames, IterPerFrame, Temperature);
 
-    if  (ToMinimize) {
+    if  (ctx->ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
 	Temperature = 0.0;
     } else {
@@ -142,18 +159,12 @@ void everythingElse(void)
     }
     writeOutputHeader(outf, part);
 
-    if  (ToMinimize) {
-	minimizeStructure(part);
+    if  (ctx->ToMinimize) {
+	minimizeStructure(ctx, part);
     }
     else {
-        dynamicsMovie(part);
+        dynamicsMovie(ctx, part);
     }
-
-    /* I'd like to remove the "return exitvalue" from doneExit() and
-     * do it separately, pending Eric's approval.
-     */
-
-    //doneExit(0, tracef, "");
 }
 
 
@@ -171,7 +182,7 @@ void printPotential(void)
 /**
  * If we return a non-empty string, it's an error message.
  */
-char * structCompareHelp(void) {
+char * structCompareHelp(struct sim_context *ctx) {
     int i1;
     int i2;
     struct xyz *basePositions;
@@ -200,7 +211,7 @@ char * structCompareHelp(void) {
 		"structures to compare must have same number of atoms");
 	return retval;
     }
-    if (doStructureCompare(i1, basePositions, initialPositions,
+    if (doStructureCompare(ctx, i1, basePositions, initialPositions,
 			   NumFrames, 1e-8, 1e-4, 1.0+1e-4)) {
 	sprintf(retval, "structure comparison failed");
 	return retval;

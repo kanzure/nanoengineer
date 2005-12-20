@@ -1,5 +1,8 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 
+#ifndef SIMULATOR_H_INCLUDED
+#define SIMULATOR_H_INCLUDED
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -8,6 +11,8 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <string.h>
+
+#include "globals.h"
 
 #include "lin-alg.h"
 #include "allocate.h"
@@ -60,7 +65,7 @@
 #include "minstructure.h"
 #include "writemovie.h"
 
-#include "globals.h"
+#endif
 
 /*
  * Local Variables:

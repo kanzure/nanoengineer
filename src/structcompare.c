@@ -142,7 +142,7 @@ structCompareResult(struct configuration *p,
 // basically doing a least-squares fit for the coordinates of the
 // structure as a whole.
 static void
-structComparePotential(struct configuration *p)
+structComparePotential(struct sim_context *ctx, struct configuration *p)
 {
   int i;
   struct xyz delta;
@@ -201,7 +201,8 @@ static struct functionDefinition structCompareFunctions;
 // structures.  Returns non-zero if the configuration exceeds any of
 // these limits.
 int
-doStructureCompare(int numberOfAtoms,
+doStructureCompare(struct sim_context *ctx,
+		   int numberOfAtoms,
                    struct xyz *basePositions,
                    struct xyz *initialPositions,
                    int iterLimit,
@@ -244,7 +245,7 @@ doStructureCompare(int numberOfAtoms,
     initial->coordinate[6] = 1.0;
   }
 
-  final = minimize(initial, &iter, iterLimit);
+  final = minimize(ctx, initial, &iter, iterLimit);
   ret = structCompareResult(final, deviationLimit, maxDeltaLimit, maxScale);
   SetConfiguration(&initial, NULL);
   SetConfiguration(&final, NULL);

@@ -385,7 +385,7 @@ static double findInflectionR(double r0, double ks, double de)
   // We stop the interpolation table at the inflection point if we're
   // minimizing, otherwise continue to 1.5 * r0.  See Lippincott in
   // interpolate.c.
-  if (1 || !ToMinimize) { // disabled by: (1 ||
+  if (1) {
     // this value is actually ignored
     return 1.5 * r0;
   }

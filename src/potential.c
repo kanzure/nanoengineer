@@ -44,7 +44,8 @@ setRUnit(struct xyz *position, struct bond *b, double *pr)
 // note: the first two parameters are only used for error processing...
 // result in aJ (1e-18 J)
 double
-stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double r)
+stretchPotential(struct sim_context *ctx, struct part *p,
+		 struct stretch *stretch, struct bondStretch *stretchType, double r)
 {
   int k;
   double potential;
@@ -65,13 +66,13 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   t2 = iTable->t2;
   k = (int)(r - start) / scale;
   if (k < 0) {
-    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
+    if (!ctx->ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
       fprintf(stderr, "stretch: low --");
       printStretch(stderr, p, stretch);
     }
     potential = t1[0] + r * t2[0];
   } else if (k >= TABLEN) {
-    if (ToMinimize) { // extend past end of table using a polynomial
+    if (ctx->ToMinimize) { // extend past end of table using a polynomial
       // XXX switch the following to use Horner's method:
       potential = stretchType->potentialExtensionA
         + stretchType->potentialExtensionB * r
@@ -97,7 +98,8 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
 
 // result in pN (1e-12 J/m)
 double
-stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double r)
+stretchGradient(struct sim_context *ctx, struct part *p,
+		struct stretch *stretch, struct bondStretch *stretchType, double r)
 {
   int k;
   double gradient;
@@ -119,13 +121,13 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     t2 = iTable->t2;
     k = (int)(r - start) / scale;
     if (k < 0) {
-      if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
+      if (!ctx->ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
         fprintf(stderr, "stretch: low --");
         printStretch(stderr, p, stretch);
       }
       gradient = t1[0] + r * t2[0];
     } else if (k >= TABLEN) {
-      if (ToMinimize) { // extend past end of table using a polynomial
+      if (ctx->ToMinimize) { // extend past end of table using a polynomial
         // XXX switch the following to use Horner's method:
         gradient = stretchType->potentialExtensionB
           + stretchType->potentialExtensionC * r * 2.0
@@ -150,7 +152,8 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
 
 // result in aJ (1e-18 J)
 double
-vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
+vanDerWaalsPotential(struct sim_context *ctx, struct part *p,
+		     struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
 {
   double potential;
   int k;
@@ -169,7 +172,7 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
 
   k=(int)(r - start) / scale;
   if (k < 0) {
-    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+    if (!ctx->ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
@@ -187,7 +190,8 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
 
 // result in pN (1e-12 J/m), but divided by the radius vector
 double
-vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
+vanDerWaalsGradient(struct sim_context *ctx, struct part *p,
+		    struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
 {
   double gradient;
   int k;
@@ -206,7 +210,7 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
 					
   k=(int)(r - start) / scale;
   if (k < 0) {
-    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+    if (!ctx->ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
@@ -224,7 +228,7 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
 
 // result in aJ (1e-18 J)
 double
-calculatePotential(struct part *p, struct xyz *position)
+calculatePotential(struct sim_context *ctx, struct part *p, struct xyz *position)
 {
   int j;
   double rSquared;
@@ -256,7 +260,7 @@ calculatePotential(struct part *p, struct xyz *position)
       // we presume here that rUnit is invalid, and we need rSquared
       // anyway.
       setRUnit(position, bond, &r);
-      potential += stretchPotential(p, stretch, stretch->stretchType, r);
+      potential += stretchPotential(ctx, p, stretch, stretch->stretchType, r);
     }
   }
 			
@@ -327,7 +331,7 @@ calculatePotential(struct part *p, struct xyz *position)
       vsub2(rv, position[vdw->a1->index], position[vdw->a2->index]);
       rSquared = vdot(rv, rv);
       r = sqrt(rSquared);
-      potential += vanDerWaalsPotential(p, vdw, vdw->parameters, r);
+      potential += vanDerWaalsPotential(ctx, p, vdw, vdw->parameters, r);
     }
   }
   
@@ -336,7 +340,7 @@ calculatePotential(struct part *p, struct xyz *position)
 
 // result placed in force is in pN (1e-12 J/m)
 void
-calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
+calculateGradient(struct sim_context *ctx, struct part *p, struct xyz *position, struct xyz *force)
 {
   int j;
   double rSquared;
@@ -378,7 +382,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       // we presume here that rUnit is invalid, and we need r anyway
       setRUnit(position, bond, &r);
 
-      gradient = stretchGradient(p, stretch, stretch->stretchType, r);
+      gradient = stretchGradient(ctx, p, stretch, stretch->stretchType, r);
       // rUnit points from a1 to a2; F = -gradient
       vmul2c(f, bond->rUnit, gradient);
       vadd(force[bond->a1->index], f);
@@ -494,7 +498,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       rSquared = vdot(rv, rv);
       r = sqrt(rSquared);
     
-      gradient = vanDerWaalsGradient(p, vdw, vdw->parameters, r);
+      gradient = vanDerWaalsGradient(ctx, p, vdw, vdw->parameters, r);
     
       vmul2c(f, rv, gradient);
       vadd(force[vdw->a1->index], f);

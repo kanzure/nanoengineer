@@ -1,3 +1,5 @@
+#ifndef MINIMIZE_H_INCLUDED
+#define MINIMIZE_H_INCLUDED
 
 struct configuration 
 {
@@ -45,7 +47,7 @@ struct functionDefinition
   // potential energy of a configuration.  It should take
   // p->coordinate as it's arguments, and set p->functionValue to the
   // result.
-  void (*func)(struct configuration *p);
+  void (*func)(struct sim_context *ctx, struct configuration *p);
 
   // This is the user function that is called to evaluate the gradient
   // of the potential energy function.  It should take p->coordinate
@@ -54,7 +56,7 @@ struct functionDefinition
   // NULL, the gradient will be calculated from the potential
   // function, make sure gradient_delta is set.  Don't do this for
   // high values of dimension!
-  void (*dfunc)(struct configuration *p);
+  void (*dfunc)(struct sim_context *ctx, struct configuration *p);
 
   // Called whenever a configuration is freed, if the extra field is
   // non-null.  Set freeExtra to NULL if extra is never used.
@@ -97,13 +99,15 @@ extern void freeConfiguration(struct configuration *conf);
 
 extern void SetConfiguration(struct configuration **dst, struct configuration *src);
 
-extern double evaluate(struct configuration *p);
+extern double evaluate(struct sim_context *ctx, struct configuration *p);
 
-extern void evaluateGradientFromPotential(struct configuration *p);
+extern void evaluateGradientFromPotential(struct sim_context *ctx, struct configuration *p);
 
-extern void evaluateGradient(struct configuration *p);
+extern void evaluateGradient(struct sim_context *ctx, struct configuration *p);
 
-extern struct configuration *gradientOffset(struct configuration *p, double q);
+extern struct configuration *gradientOffset(struct sim_context *ctx, struct configuration *p, double q);
 
-extern struct configuration *minimize(struct configuration *p, int *iteration, int iterationLimit);
+extern struct configuration *minimize(struct sim_context *ctx, struct configuration *p,
+				      int *iteration, int iterationLimit);
 
+#endif

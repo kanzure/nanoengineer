@@ -1,12 +1,16 @@
-extern double stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared);
+#ifndef POTENTIAL_H_INCLUDED
+#define POTENTIAL_H_INCLUDED
 
-extern double stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared);
+extern double stretchPotential(struct sim_context *ctx, struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared);
 
-extern double vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared);
+extern double stretchGradient(struct sim_context *ctx, struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared);
 
-extern double vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared);
+extern double vanDerWaalsPotential(struct sim_context *ctx, struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared);
 
-extern double calculatePotential(struct part *p, struct xyz *position);
+extern double vanDerWaalsGradient(struct sim_context *ctx, struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared);
 
-extern void calculateGradient(struct part *p, struct xyz *position, struct xyz *force);
+extern double calculatePotential(struct sim_context *ctx, struct part *p, struct xyz *position);
 
+extern void calculateGradient(struct sim_context *ctx, struct part *p, struct xyz *position, struct xyz *force);
+
+#endif

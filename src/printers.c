@@ -450,6 +450,26 @@ printError(FILE *f, const char *file, int line, const char *err_or_warn,
 }
 
 void
+donePrint(FILE *f, const char *format, ...)
+{
+    va_list args;
+
+    fprintf(stdout, "# Done: ");
+    va_start(args, format);
+    vfprintf(stdout, format, args);
+    va_end(args);
+    fprintf(stdout, "\n");
+
+    if (f != NULL) {
+        fprintf(f, "# Done: ");
+        va_start(args, format);
+        vfprintf(f, format, args);
+        va_end(args);
+        fprintf(f, "\n");
+    }
+}
+
+void
 doneExit(int exitvalue, FILE *f, const char *format, ...)
 {
     va_list args;

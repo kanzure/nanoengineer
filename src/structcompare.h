@@ -1,5 +1,8 @@
+#ifndef STRUCTCOMPARE_H_INCLUDED
+#define STRUCTCOMPARE_H_INCLUDED
 
-extern int doStructureCompare(int numberOfAtoms,
+extern int doStructureCompare(struct sim_context *ctx,
+			      int numberOfAtoms,
                               struct xyz *basePositions,
                               struct xyz *initialPositions,
                               int iterLimit,
@@ -7,4 +10,4 @@ extern int doStructureCompare(int numberOfAtoms,
                               double maxDeltaLimit,
                               double maxScale);
 
-
+#endif

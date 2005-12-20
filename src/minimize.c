@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "allocate.h"
-#include "minimize.h"
+
+#include "simulator.h"
 
 // Some of the routines in this file are based on routines found in
 // "Numerical Recipes in C, Second Edition", by William H. Press, Saul
@@ -147,12 +147,12 @@ LeaveRoutine(char *name, int count, int used)
 
 
 double
-evaluate(struct configuration *p)
+evaluate(struct sim_context *ctx, struct configuration *p)
 {
   struct functionDefinition *fd = p->functionDefinition;
   
   if (p->functionValueValid == 0) {
-    (*fd->func)(p);
+    (*fd->func)(ctx, p);
     p->functionValueValid = 1;
     fd->functionEvaluationCount++;
   }
@@ -160,7 +160,7 @@ evaluate(struct configuration *p)
 }
 
 void
-evaluateGradientFromPotential(struct configuration *p)
+evaluateGradientFromPotential(struct sim_context *ctx, struct configuration *p)
 {
   struct functionDefinition *fd = p->functionDefinition;
   struct configuration *pPlusDelta = NULL;
@@ -184,23 +184,23 @@ evaluateGradientFromPotential(struct configuration *p)
     }
     pMinusDelta->coordinate[i] -= fd->gradient_delta / 2.0;
 
-    p->gradient[i] = (evaluate(pMinusDelta) - evaluate(pPlusDelta)) / fd->gradient_delta;
+    p->gradient[i] = (evaluate(ctx, pMinusDelta) - evaluate(ctx, pPlusDelta)) / fd->gradient_delta;
     SetConfiguration(&pPlusDelta, NULL);
     SetConfiguration(&pMinusDelta, NULL);
   }
 }
 
 void
-evaluateGradient(struct configuration *p)
+evaluateGradient(struct sim_context *ctx, struct configuration *p)
 {
   struct functionDefinition *fd = p->functionDefinition;
   
   if (p->gradient == NULL) {
     p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
     if (fd->dfunc == NULL) {
-      evaluateGradientFromPotential(p);
+      evaluateGradientFromPotential(ctx, p);
     } else {
-      (*fd->dfunc)(p);
+      (*fd->dfunc)(ctx, p);
     }
     fd->gradientEvaluationCount++;
     p->parameter = 0.0;
@@ -209,14 +209,14 @@ evaluateGradient(struct configuration *p)
 
 // Return a new configuration which is p+q*gradient(p)
 struct configuration *
-gradientOffset(struct configuration *p, double q)
+gradientOffset(struct sim_context *ctx, struct configuration *p, double q)
 {
   struct functionDefinition *fd = p->functionDefinition;
   struct configuration *r;
   int i;
   
   r = makeConfiguration(fd);
-  evaluateGradient(p);
+  evaluateGradient(ctx, p);
   for (i=fd->dimension-1; i>=0; i--) {
     r->coordinate[i] = p->coordinate[i] + q * p->gradient[i];
   }
@@ -229,7 +229,8 @@ gradientOffset(struct configuration *p, double q)
 // configuration space, with b between a and c.  This assures that a
 // local minimum exists between a and c.
 static void
-bracketMinimum(struct configuration **ap,
+bracketMinimum(struct sim_context *ctx,
+	       struct configuration **ap,
                struct configuration **bp,
                struct configuration **cp,
                struct configuration *p)
@@ -247,9 +248,9 @@ bracketMinimum(struct configuration **ap,
   Enter();
   SetConfiguration(&a, p);
   a->parameter = 0.0;
-  evaluateGradient(p); // this lets (*dfunc)() set initial_parameter_guess
-  b = gradientOffset(p, p->functionDefinition->initial_parameter_guess);
-  if (evaluate(b) > evaluate(a)) {
+  evaluateGradient(ctx, p); // this lets (*dfunc)() set initial_parameter_guess
+  b = gradientOffset(ctx, p, p->functionDefinition->initial_parameter_guess);
+  if (evaluate(ctx, b) > evaluate(ctx, a)) {
     // swap a and b, so b is downhill of a
     u = a;
     a = b;
@@ -257,12 +258,12 @@ bracketMinimum(struct configuration **ap,
     u = NULL;
   }
   nx = b->parameter + GOLDEN_RATIO * (b->parameter - a->parameter);
-  c = gradientOffset(p, nx);
-  while (evaluate(b) > evaluate(c)) {
+  c = gradientOffset(ctx, p, nx);
+  while (evaluate(ctx, b) > evaluate(ctx, c)) {
 
     // u is the extreme point for a parabola passing through a, b, and c:
-    r = (b->parameter - a->parameter) * (evaluate(b) - evaluate(c));
-    q = (b->parameter - c->parameter) * (evaluate(b) - evaluate(a));
+    r = (b->parameter - a->parameter) * (evaluate(ctx, b) - evaluate(ctx, c));
+    q = (b->parameter - c->parameter) * (evaluate(ctx, b) - evaluate(ctx, a));
     denom = q - r;
     if (denom < 0.0) {
       if (denom > -DONT_DIVIDE_BY_ZERO) {
@@ -277,14 +278,14 @@ bracketMinimum(struct configuration **ap,
       ((b->parameter - c->parameter) * q - (b->parameter - a->parameter) * r) /
       (2.0 * denom);
     SetConfiguration(&u, NULL);
-    u = gradientOffset(p, nx);
+    u = gradientOffset(ctx, p, nx);
 
     // a, b, and c are in order, ulimit is far past c
     ulimit = b->parameter + PARABOLIC_BRACKET_LIMIT * (c->parameter - b->parameter);
     
     if ((b->parameter-u->parameter) * (u->parameter-c->parameter) > 0.0) {
       // u is between b and c, also f(c) < f(b) and f(b) < f(a)
-      if (evaluate(u) < evaluate(c)) { // success: (b, u, c) brackets
+      if (evaluate(ctx, u) < evaluate(ctx, c)) { // success: (b, u, c) brackets
         *ap = b;
         *bp = u;
         *cp = c;
@@ -292,7 +293,7 @@ bracketMinimum(struct configuration **ap,
         Leave(bracketMinimum, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
         return;
       }
-      if (evaluate(u) > evaluate(b)) { // success: (a, b, u) brackets
+      if (evaluate(ctx, u) > evaluate(ctx, b)) { // success: (a, b, u) brackets
         *ap = a;
         *bp = b;
         *cp = u;
@@ -304,22 +305,22 @@ bracketMinimum(struct configuration **ap,
       // try default golden ration extension for u:
       nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
       SetConfiguration(&u, NULL);
-      u = gradientOffset(p, nx);
+      u = gradientOffset(ctx, p, nx);
     } else if ((c->parameter-u->parameter) * (u->parameter-ulimit) > 0.0) {
       // u is between c and ulimit
-      if (evaluate(u) < evaluate(c)) {
+      if (evaluate(ctx, u) < evaluate(ctx, c)) {
         // we're still going down, keep going
         SetConfiguration(&b, c);
         SetConfiguration(&c, u);
         SetConfiguration(&u, NULL);
         nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
-        u = gradientOffset(p, nx);
+        u = gradientOffset(ctx, p, nx);
       }
     } else if ((u->parameter-ulimit) * (ulimit-c->parameter) >= 0.0) {
       // u is past ulimit, reign it in
       nx = ulimit;
       SetConfiguration(&u, NULL);
-      u = gradientOffset(p, nx);
+      u = gradientOffset(ctx, p, nx);
       // XXX we did an extra gradientOffset of the old ux that we're
       // discarding.  would be nice to avoid that.
     } else {
@@ -328,7 +329,7 @@ bracketMinimum(struct configuration **ap,
       // maximum, so we reject it.
       nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
       SetConfiguration(&u, NULL);
-      u = gradientOffset(p, nx);
+      u = gradientOffset(ctx, p, nx);
     }
     SetConfiguration(&a, b);
     SetConfiguration(&b, c);
@@ -348,7 +349,8 @@ bracketMinimum(struct configuration **ap,
 // (a, b, c) bracket a minimum.  Returns a new configuration within
 // tolerance of the bracketed minimum.
 static struct configuration *
-brent(struct configuration *parent,
+brent(struct sim_context *ctx,
+      struct configuration *parent,
       struct configuration *initial_a,
       struct configuration *initial_b,
       struct configuration *initial_c,
@@ -408,8 +410,8 @@ brent(struct configuration *parent,
     if (fabs(e) > tol) {
       // v, w, and x are our best points so far, compute the minimum
       // of a parabola passing through them.
-      r = (x->parameter - w->parameter) * (evaluate(x) - evaluate(v)) ;
-      q = (x->parameter - v->parameter) * (evaluate(x) - evaluate(w)) ;
+      r = (x->parameter - w->parameter) * (evaluate(ctx, x) - evaluate(ctx, v)) ;
+      q = (x->parameter - v->parameter) * (evaluate(ctx, x) - evaluate(ctx, w)) ;
       p = (x->parameter - v->parameter) * q - (x->parameter - w->parameter) * r ;
       q = 2.0 * (q - r) ;
       if (q > 0.0) {
@@ -453,8 +455,8 @@ brent(struct configuration *parent,
       (x->parameter + d) :
       (x->parameter + ((d<0) ? -tol : tol)) ;
     SetConfiguration(&u, NULL);
-    u = gradientOffset(parent, ux);
-    if (evaluate(u) <= evaluate(x)) {
+    u = gradientOffset(ctx, parent, ux);
+    if (evaluate(ctx, u) <= evaluate(ctx, x)) {
       // u is better than x (the best up until now)
       // pull the opposite side bound in to x
       if (u->parameter >= x->parameter) {
@@ -476,12 +478,12 @@ brent(struct configuration *parent,
       } else {
         SetConfiguration(&b, u);
       }
-      if (evaluate(u) <= evaluate(w) || u->parameter == w->parameter) {
+      if (evaluate(ctx, u) <= evaluate(ctx, w) || u->parameter == w->parameter) {
         // u is better than w (the second best until now)
         // ratchet v and w down, but leave x alone (still the best)
         SetConfiguration(&v, w);
         SetConfiguration(&w, u);
-      } else if (evaluate(u) <= evaluate(v) ||
+      } else if (evaluate(ctx, u) <= evaluate(ctx, v) ||
                  v->parameter == x->parameter ||
                  v->parameter == w->parameter)
       {
@@ -511,7 +513,7 @@ brent(struct configuration *parent,
 // minimization is along the line of that gradient.  The resulting
 // minimum configuration point is returned.
 static struct configuration *
-linearMinimize(struct configuration *p, double tolerance)
+linearMinimize(struct sim_context *ctx, struct configuration *p, double tolerance)
 {
   struct configuration *a = NULL;
   struct configuration *b = NULL;
@@ -519,8 +521,8 @@ linearMinimize(struct configuration *p, double tolerance)
   struct configuration *min;
 
   Enter();
-  bracketMinimum(&a, &b, &c, p);
-  min = brent(p, a, b, c, tolerance);
+  bracketMinimum(ctx, &a, &b, &c, p);
+  min = brent(ctx, p, a, b, c, tolerance);
   //printf("minimum at parameter value: %e, function value: %e\n", min->parameter, evaluate(min));
   SetConfiguration(&a, NULL);
   SetConfiguration(&b, NULL);
@@ -533,7 +535,8 @@ linearMinimize(struct configuration *p, double tolerance)
 // which minimizes the value of the function (as defined by fd).  The
 // number of iterations used is returned in iteration.
 static struct configuration *
-minimize_one_tolerance(struct configuration *initial_p,
+minimize_one_tolerance(struct sim_context *ctx,
+		       struct configuration *initial_p,
                        int *iteration,
                        int iterationLimit,
                        double tolerance,
@@ -551,18 +554,18 @@ minimize_one_tolerance(struct configuration *initial_p,
 
   Enter();
   SetConfiguration(&p, initial_p);
-  fp = evaluate(p);
+  fp = evaluate(ctx, p);
   for ((*iteration)=0; (*iteration)<iterationLimit; (*iteration)++) {
     SetConfiguration(&q, NULL);
-    q = linearMinimize(p, tolerance);
-    fq = evaluate(q);
+    q = linearMinimize(ctx, p, tolerance);
+    fq = evaluate(ctx, q);
     if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
       SetConfiguration(&p, NULL);
       Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
       return q;
     }
-    evaluateGradient(p); // should have been evaluated by linearMinimize already
-    evaluateGradient(q);
+    evaluateGradient(ctx, p); // should have been evaluated by linearMinimize already
+    evaluateGradient(ctx, q);
     if (minimization_algorithm != SteepestDescent) {
       dgg = gg = 0.0;
       if (minimization_algorithm == PolakRibiereConjugateGradient) {
@@ -605,7 +608,8 @@ minimize_one_tolerance(struct configuration *initial_p,
 // which minimizes the value of the function (as defined by fd).  The
 // number of iterations used is returned in iteration.
 struct configuration *
-minimize(struct configuration *initial_p,
+minimize(struct sim_context *ctx,
+	 struct configuration *initial_p,
          int *iteration,
          int iterationLimit)
 {
@@ -616,14 +620,16 @@ minimize(struct configuration *initial_p,
   int fine_iter;
 
   Enter();
-  intermediate = minimize_one_tolerance(initial_p,
+  intermediate = minimize_one_tolerance(ctx,
+					initial_p,
                                         &coarse_iter,
                                         iterationLimit * 0.8,
                                         fd->coarse_tolerance,
                                         SteepestDescent);
   if (fd->fine_tolerance < fd->coarse_tolerance) {
     //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
-    final = minimize_one_tolerance(intermediate,
+    final = minimize_one_tolerance(ctx,
+				   intermediate,
                                    &fine_iter,
                                    iterationLimit - coarse_iter,
                                    fd->fine_tolerance,
@@ -698,7 +704,7 @@ testMinimize()
   fprintf(stderr, "final minimum at (%f %f): %f\n",
           final->coordinate[0],
           final->coordinate[1],
-          evaluate(final));
+          evaluate(ctx, final));
   SetConfiguration(&initial, NULL);
   SetConfiguration(&final, NULL);
   fprintf(stderr, "after %d iterations, %d function evals, %d gradient evals\n",

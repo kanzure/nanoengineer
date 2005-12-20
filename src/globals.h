@@ -1,3 +1,9 @@
+#ifndef GLOBALS_H_INCLUDED
+#define GLOBALS_H_INCLUDED
+
+typedef struct sim_context {
+    int ToMinimize;
+} sim_context;
 
 extern int debug_flags;
 
@@ -10,7 +16,6 @@ extern int Iteration;
 
 // definitions for command line args
 
-extern int ToMinimize;
 extern int IterPerFrame;
 extern int NumFrames;
 extern int DumpAsText;
@@ -33,14 +38,16 @@ extern int Count;
 
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 extern double Dt;
-extern double Dx;
-extern double Dmass;           // units of mass vs. kg
+const extern double Dx;
+const extern double Dmass;           // units of mass vs. kg
 extern double Temperature;	/* Kelvins */
-extern double Boltz;	/* k, in J/K */
-extern double Pi;
+const extern double Boltz;	/* k, in J/K */
+const extern double Pi;
 
 extern double totClipped;  // internal thermostat for numerical stability
 
-extern double Gamma; // for Langevin thermostats
+const extern double Gamma; // for Langevin thermostats
 
-extern double G1;
+const extern double G1;
+
+#endif

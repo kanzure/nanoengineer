@@ -1,11 +1,18 @@
 """Example usage script
 
 import sim
-s = sim.Simulator()
-s.ToMinimize = 1
-s.DumpAsText = 1
-s.read("tests/rigid_organics/test_C6H10.mmp")
-s.everythingElse()
+
+m = sim.Minimize()
+m.ToMinimize = 1
+m.DumpAsText = 1
+m.read("tests/rigid_organics/test_C6H10.mmp")
+m.everythingElse()
+
+d = sim.Dynamics()
+d.ToMinimize = 1
+d.DumpAsText = 1
+d.read("tests/rigid_organics/test_C6H10.mmp")
+d.everythingElse()
 """
 
 cdef extern from "simhelp.c":
@@ -19,9 +26,10 @@ cdef extern from "simhelp.c":
         char *tfilename
         char *filename
     # stuff from globals.c
+    ctypedef struct sim_context:
+        int ToMinimize
     int debug_flags
     int Iteration
-    int ToMinimize
     int IterPerFrame
     int NumFrames
     int DumpAsText
@@ -38,14 +46,21 @@ cdef extern from "simhelp.c":
     double Temperature
     # end of globals.c stuff
     SimArgs myArgs
+    sim_context *makeContext()
     int initsimhelp()
     void readPart()
     void dumpPart()
-    void everythingElse()
-    cdef char *structCompareHelp()
+    void everythingElse(sim_context *ctx)
+    cdef char *structCompareHelp(sim_context *ctx)
 
-class Simulator:
+cdef class Minimize:
     """Pyrex permits access to doc strings"""
+
+    cdef sim_context *ctx
+
+    def __init__(self):
+        self.ctx = makeContext()
+        self.ctx.ToMinimize = 1
 
     def __getattr__(self, key):
         """Access to simulator's command line options and globals.c
@@ -132,18 +147,12 @@ class Simulator:
         elif key == "Dt":
             global Dt
             Dt = value
-        elif key == "Dx":
-            global Dx
-            Dx = value
-        elif key == "Dmass":
-            global Dmass
-            Dmass = value
         elif key == "Temperature":
             global Temperature
             Temperature = value
 
     def everythingElse(self):
-        everythingElse()
+        everythingElse(self.ctx)
 
     def read(self, filename,
              printPotentialInitial=1, # pm
@@ -172,6 +181,11 @@ class Simulator:
         readPart()
 
     def structCompare(self):
-        r = structCompareHelp()
+        r = structCompareHelp(self.ctx)
         if r:
             raise Exception, r
+
+cdef class Dynamics(Minimize):
+    def __init__(self):
+        self.ctx = makeContext()
+        self.ctx.ToMinimize = 0

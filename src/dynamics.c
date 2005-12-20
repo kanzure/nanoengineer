@@ -25,7 +25,8 @@
 */
 
 static void
-oneDynamicsFrame(struct part *part,
+oneDynamicsFrame(struct sim_context *ctx,
+		 struct part *part,
                  int iters,
                  struct xyz *averagePositions,
                  struct xyz **pOldPositions,
@@ -57,7 +58,7 @@ oneDynamicsFrame(struct part *part,
 	Iteration++;
 
         updateVanDerWaals(part, NULL, positions);
-	calculateGradient(part, positions, force);
+	calculateGradient(ctx, part, positions, force);
 
         /* first, for each atom, find non-accelerated new pos  */
         /* Atom moved from oldPositions to positions last time,
@@ -149,7 +150,7 @@ oneDynamicsFrame(struct part *part,
 }
 
 void
-dynamicsMovie(struct part *part)
+dynamicsMovie(struct sim_context *ctx, struct part *part)
 {
   struct xyz *averagePositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
   struct xyz *oldPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
@@ -168,7 +169,7 @@ dynamicsMovie(struct part *part)
     fflush(stdout);
     if ((i & 15) == 15)
       if (PrintFrameNums) printf("\n");
-    oneDynamicsFrame(part, IterPerFrame,
+    oneDynamicsFrame(ctx, part, IterPerFrame,
                      averagePositions, &oldPositions, &newPositions, &positions, force);
     writeDynamicsMovieFrame(outf, i, part, averagePositions);
   }
