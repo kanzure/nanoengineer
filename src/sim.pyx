@@ -46,7 +46,7 @@ cdef extern from "simhelp.c":
     void readPart()
     void dumpPart()
     everythingElse(sim_context *ctx)
-    cdef char *structCompareHelp(sim_context *ctx)
+    structCompareHelp(sim_context *ctx)
 
 cdef class Minimize:
     """Pyrex permits access to doc strings"""
@@ -64,7 +64,7 @@ cdef class Minimize:
                  tfilename=""):
 
         if not filename:
-            raise Exception("Need a filename (probably MMP)")
+            raise IOError("Need a filename (probably MMP)")
 
         self.ctx = makeContext()
         self.ctx.ToMinimize = 1
@@ -174,9 +174,7 @@ cdef class Minimize:
         return everythingElse(self.ctx)
 
     def structCompare(self):
-        r = structCompareHelp(self.ctx)
-        if r:
-            raise Exception, r
+        structCompareHelp(self.ctx)
 
 cdef class Dynamics(Minimize):
     def __init__(self,

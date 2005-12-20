@@ -22,9 +22,8 @@ void readPart(void);
 void dumpPart(void);
 struct sim_context *makeContext(void);
 PyObject * everythingElse(struct sim_context *);
-char * structCompareHelp(struct sim_context *);
+PyObject * structCompareHelp(struct sim_context *ctx);
 
-static char retval[100];
 static struct part *part;  // make this non-static, move into context
 static char buf[1024], *filename;
 
@@ -196,42 +195,40 @@ void printPotential(void)
 /**
  * If we return a non-empty string, it's an error message.
  */
-char * structCompareHelp(struct sim_context *ctx) {
+PyObject *
+structCompareHelp(struct sim_context *ctx)
+{
     int i1;
     int i2;
     struct xyz *basePositions;
     struct xyz *initialPositions;
-        
+    
     if (baseFilename == NULL || strlen(baseFilename) == 0) {
-	sprintf(retval, "No baseFilename");
-	return retval;
+	PyErr_SetString(PyExc_IOError, "No baseFilename");
+	return NULL;
     }
     basePositions = readXYZ(baseFilename, &i1);
     if (basePositions == NULL) {
-	sprintf(retval,
-		"could not read base positions file from \"%s\"",
-		baseFilename);
-	return retval;
+	PyErr_SetString(PyExc_IOError, baseFilename);
+	return NULL;
     }
     initialPositions = readXYZ(myArgs.filename, &i2);
     if (initialPositions == NULL) {
-	sprintf(retval,
-		"could not read comparison positions file \"%s\"",
-		myArgs.filename);
-	return retval;
+	PyErr_SetString(PyExc_IOError, myArgs.filename);
+	return NULL;
     }
     if (i1 != i2) {
-	sprintf(retval,
-		"structures to compare must have same number of atoms");
-	return retval;
+	PyErr_SetString(PyExc_RuntimeError,
+			"structures to compare must have same number of atoms");
+	return NULL;
     }
     if (doStructureCompare(ctx, i1, basePositions, initialPositions,
 			   NumFrames, 1e-8, 1e-4, 1.0+1e-4)) {
-	sprintf(retval, "structure comparison failed");
-	return retval;
+	PyErr_SetString(PyExc_ValueError, "structure comparison failed");
+	return NULL;
     }
-    retval[0] = '\0';
-    return retval;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 /*
