@@ -51,6 +51,8 @@ KEEP_RESULTS = False
 SHOW_TODO = False
 VERBOSE_FAILURES = False
 LOOSE_TOLERANCES = False
+TEST_DIR = None
+LIST_EVERYTHING = False
 
 class Unimplemented(AssertionError):
     pass
@@ -419,10 +421,14 @@ class LengthAngleComparison:
         xyz.read(knownGoodXyzFile)
         L2, A2 = self.getLAfromXYZ(xyz)
         for len1, len2 in map(None, L1, L2):
-            if not len1.closeEnough(len2, lengthTolerance):
+            if LIST_EVERYTHING:
+                print len1
+            elif not len1.closeEnough(len2, lengthTolerance):
                 raise LengthMismatch(repr(len1) + " expected " + repr(len2))
         for ang1, ang2 in map(None, A1, A2):
-            if not ang1.closeEnough(ang2, angleTolerance):
+            if LIST_EVERYTHING:
+                print ang1
+            elif not ang1.closeEnough(ang2, angleTolerance):
                 raise AngleMismatch(repr(ang1) + " expected " + repr(ang2))
 
 ##################################################################
@@ -474,6 +480,9 @@ class BaseTest:
         self.inputs = inputs
         self.simopts = simopts
         self.outputs = outputs
+        if LIST_EVERYTHING:
+            print
+            print dir, testname
         self.runInSandbox()
 
     def getBasename(self):
@@ -749,61 +758,61 @@ class Tests(unittest.TestCase):
         StructureTest(dir="amino_acids", test="met_l_aminoacid")
     def test_amino_acids_phe_l_aminoacid(self):
          StructureTest(dir="amino_acids", test="phe_l_aminoacid")
-    def tests_heteroatom_organics_ADAMframe_O_Cs(self):
+    def test_heteroatom_organics_ADAMframe_O_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_O_Cs")
-    def tests_heteroatom_organics_ADAMframe_PH_Cs(self):
+    def test_heteroatom_organics_ADAMframe_PH_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_PH_Cs")
-    def tests_heteroatom_organics_ADAMframe_SiH2_c2v(self):
+    def test_heteroatom_organics_ADAMframe_SiH2_c2v(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_SiH2_c2v")
-    def tests_heteroatom_organics_Al_ADAM_C3v(self):
+    def test_heteroatom_organics_Al_ADAM_C3v(self):
         StructureTest(dir="heteroatom_organics", test="Al_ADAM_C3v")
-    def tests_heteroatom_organics_C3H6AlH(self):
+    def test_heteroatom_organics_C3H6AlH(self):
         StructureTest(dir="heteroatom_organics", test="C3H6AlH")
-    def tests_heteroatom_organics_C3H6BH(self):
+    def test_heteroatom_organics_C3H6BH(self):
         StructureTest(dir="heteroatom_organics", test="C3H6BH")
-    def tests_heteroatom_organics_C3H6NH(self):
+    def test_heteroatom_organics_C3H6NH(self):
         StructureTest(dir="heteroatom_organics", test="C3H6NH")
-    def tests_heteroatom_organics_C3H6O(self):
+    def test_heteroatom_organics_C3H6O(self):
         StructureTest(dir="heteroatom_organics", test="C3H6O")
-    def tests_heteroatom_organics_C3H6PH(self):
+    def test_heteroatom_organics_C3H6PH(self):
         StructureTest(dir="heteroatom_organics", test="C3H6PH")
-    def tests_heteroatom_organics_C3H6SiH2(self):
+    def test_heteroatom_organics_C3H6SiH2(self):
         StructureTest(dir="heteroatom_organics", test="C3H6SiH2")
-    def tests_heteroatom_organics_C3H6S(self):
+    def test_heteroatom_organics_C3H6S(self):
         StructureTest(dir="heteroatom_organics", test="C3H6S")
-    def tests_heteroatom_organics_C4H8AlH(self):
+    def test_heteroatom_organics_C4H8AlH(self):
         StructureTest(dir="heteroatom_organics", test="C4H8AlH")
-    def tests_heteroatom_organics_C4H8PH(self):
+    def test_heteroatom_organics_C4H8PH(self):
         StructureTest(dir="heteroatom_organics", test="C4H8PH")
-    def tests_heteroatom_organics_C4H8SiH2(self):
+    def test_heteroatom_organics_C4H8SiH2(self):
         StructureTest(dir="heteroatom_organics", test="C4H8SiH2")
-    def tests_heteroatom_organics_C5H10AlH(self):
+    def test_heteroatom_organics_C5H10AlH(self):
         StructureTest(dir="heteroatom_organics", test="C5H10AlH")
-    def tests_heteroatom_organics_C5H10NH(self):
+    def test_heteroatom_organics_C5H10NH(self):
         StructureTest(dir="heteroatom_organics", test="C5H10NH")
-    def tests_heteroatom_organics_C5H10O(self):
+    def test_heteroatom_organics_C5H10O(self):
         StructureTest(dir="heteroatom_organics", test="C5H10O")
-    def tests_heteroatom_organics_C5H10PH(self):
+    def test_heteroatom_organics_C5H10PH(self):
         StructureTest(dir="heteroatom_organics", test="C5H10PH")
-    def tests_heteroatom_organics_C5H10SiH2(self):
+    def test_heteroatom_organics_C5H10SiH2(self):
         StructureTest(dir="heteroatom_organics", test="C5H10SiH2")
-    def tests_heteroatom_organics_C5H10S(self):
+    def test_heteroatom_organics_C5H10S(self):
         StructureTest(dir="heteroatom_organics", test="C5H10S")
-    def tests_heteroatom_organics_C_CH3_3_SH(self):
+    def test_heteroatom_organics_C_CH3_3_SH(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_SH")
-    def tests_heteroatom_organics_CH3NHCH3(self):
+    def test_heteroatom_organics_CH3NHCH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3NHCH3")
-    def tests_heteroatom_organics_CH3OCH3(self):
+    def test_heteroatom_organics_CH3OCH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3OCH3")
-    def tests_heteroatom_organics_CH3OH(self):
+    def test_heteroatom_organics_CH3OH(self):
         StructureTest(dir="heteroatom_organics", test="CH3OH")
-    def tests_heteroatom_organics_CH3PHCH3(self):
+    def test_heteroatom_organics_CH3PHCH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3PHCH3")
-    def tests_heteroatom_organics_CH3SCH3(self):
+    def test_heteroatom_organics_CH3SCH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3SCH3")
-    def tests_heteroatom_organics_CH3SH(self):
+    def test_heteroatom_organics_CH3SH(self):
         StructureTest(dir="heteroatom_organics", test="CH3SH")
-    def tests_heteroatom_organics_SiH_ADAM_C3v(self):
+    def test_heteroatom_organics_SiH_ADAM_C3v(self):
         StructureTest(dir="heteroatom_organics", test="SiH_ADAM_C3v")
 
 class SlowTests(Tests):
@@ -817,7 +826,7 @@ class SlowTests(Tests):
                                      "--iters-per-frame=10000",
                                      "--dump-as-text",
                                      "FOO.mmp"))
-    def tests_heteroatom_organics_N_ADAM_C3v(self):
+    def test_heteroatom_organics_N_ADAM_C3v(self):
         StructureTest(dir="heteroatom_organics", test="N_ADAM_C3v")
     def test_amino_acids_ala_l_aminoacid(self):
         StructureTest(dir="amino_acids", test="ala_l_aminoacid")
@@ -886,73 +895,73 @@ class SlowTests(Tests):
         MinimizeTest(dir="minimize", test="0008")
     def test_minimize_0012(self):
         MinimizeTest(dir="minimize", test="0012")
-    def tests_heteroatom_organics_ADAM_AlH2_Cs(self):
+    def test_heteroatom_organics_ADAM_AlH2_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_AlH2_Cs")
-    def tests_heteroatom_organics_ADAM_BH2(self):
+    def test_heteroatom_organics_ADAM_BH2(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_BH2")
-    def tests_heteroatom_organics_ADAM_Cl_c3v(self):
+    def test_heteroatom_organics_ADAM_Cl_c3v(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_Cl_c3v")
-    def tests_heteroatom_organics_ADAM_NH2_Cs(self):
+    def test_heteroatom_organics_ADAM_NH2_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_NH2_Cs")
-    def tests_heteroatom_organics_ADAM_PH2_Cs(self):
+    def test_heteroatom_organics_ADAM_PH2_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_PH2_Cs")
-    def tests_heteroatom_organics_ADAM_SiH3_C3v(self):
+    def test_heteroatom_organics_ADAM_SiH3_C3v(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_SiH3_C3v")
-    def tests_heteroatom_organics_C4H8S(self):
+    def test_heteroatom_organics_C4H8S(self):
         StructureTest(dir="heteroatom_organics", test="C4H8S")
-    def tests_heteroatom_organics_C4H8O(self):
+    def test_heteroatom_organics_C4H8O(self):
         StructureTest(dir="heteroatom_organics", test="C4H8O")
-    def tests_heteroatom_organics_ADAM_F_c3v(self):
+    def test_heteroatom_organics_ADAM_F_c3v(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_F_c3v")
-    def tests_heteroatom_organics_ADAM_OH_Cs(self):
+    def test_heteroatom_organics_ADAM_OH_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_OH_Cs")
-    def tests_heteroatom_organics_ADAM_SH_Cs(self):
+    def test_heteroatom_organics_ADAM_SH_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAM_SH_Cs")
-    def tests_heteroatom_organics_ADAMframe_AlH_Cs(self):
+    def test_heteroatom_organics_ADAMframe_AlH_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_AlH_Cs")
-    def tests_heteroatom_organics_ADAMframe_BH_Cs(self):
+    def test_heteroatom_organics_ADAMframe_BH_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_BH_Cs")
-    def tests_heteroatom_organics_ADAMframe_NH_Cs(self):
+    def test_heteroatom_organics_ADAMframe_NH_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_NH_Cs")
-    def tests_heteroatom_organics_ADAMframe_S_Cs(self):
+    def test_heteroatom_organics_ADAMframe_S_Cs(self):
         StructureTest(dir="heteroatom_organics", test="ADAMframe_S_Cs")
-    def tests_heteroatom_organics_B_ADAM_C3v(self):
+    def test_heteroatom_organics_B_ADAM_C3v(self):
         StructureTest(dir="heteroatom_organics", test="B_ADAM_C3v")
-    def tests_heteroatom_organics_C4H8BH(self):
+    def test_heteroatom_organics_C4H8BH(self):
         StructureTest(dir="heteroatom_organics", test="C4H8BH")
-    def tests_heteroatom_organics_C4H8NH(self):
+    def test_heteroatom_organics_C4H8NH(self):
         StructureTest(dir="heteroatom_organics", test="C4H8NH")
-    def tests_heteroatom_organics_C5H10BH(self):
+    def test_heteroatom_organics_C5H10BH(self):
         StructureTest(dir="heteroatom_organics", test="C5H10BH")
-    def tests_heteroatom_organics_CH3AlH2(self):
+    def test_heteroatom_organics_CH3AlH2(self):
         StructureTest(dir="heteroatom_organics", test="CH3AlH2")
-    def tests_heteroatom_organics_CH3AlHCH3(self):
+    def test_heteroatom_organics_CH3AlHCH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3AlHCH3")
-    def tests_heteroatom_organics_CH3BH2(self):
+    def test_heteroatom_organics_CH3BH2(self):
         StructureTest(dir="heteroatom_organics", test="CH3BH2")
-    def tests_heteroatom_organics_CH3BHCH3(self):
+    def test_heteroatom_organics_CH3BHCH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3BHCH3")
-    def tests_heteroatom_organics_CH3NH2(self):
+    def test_heteroatom_organics_CH3NH2(self):
         StructureTest(dir="heteroatom_organics", test="CH3NH2")
-    def tests_heteroatom_organics_CH3PH2(self):
+    def test_heteroatom_organics_CH3PH2(self):
         StructureTest(dir="heteroatom_organics", test="CH3PH2")
-    def tests_heteroatom_organics_CH3SiH2CH3(self):
+    def test_heteroatom_organics_CH3SiH2CH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3SiH2CH3")
-    def tests_heteroatom_organics_CH3SiH3(self):
+    def test_heteroatom_organics_CH3SiH3(self):
         StructureTest(dir="heteroatom_organics", test="CH3SiH3")
-    def tests_heteroatom_organics_C_CH3_3_AlH2(self):
+    def test_heteroatom_organics_C_CH3_3_AlH2(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_AlH2")
-    def tests_heteroatom_organics_C_CH3_3_BH2(self):
+    def test_heteroatom_organics_C_CH3_3_BH2(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_BH2")
-    def tests_heteroatom_organics_C_CH3_3_NH2(self):
+    def test_heteroatom_organics_C_CH3_3_NH2(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_NH2")
-    def tests_heteroatom_organics_C_CH3_3_OH(self):
+    def test_heteroatom_organics_C_CH3_3_OH(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_OH")
-    def tests_heteroatom_organics_C_CH3_3_PH2(self):
+    def test_heteroatom_organics_C_CH3_3_PH2(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_PH2")
-    def tests_heteroatom_organics_C_CH3_3_SiH3(self):
+    def test_heteroatom_organics_C_CH3_3_SiH3(self):
         StructureTest(dir="heteroatom_organics", test="C_CH3_3_SiH3")
-    def tests_heteroatom_organics_P_ADAM_C3v(self):
+    def test_heteroatom_organics_P_ADAM_C3v(self):
         StructureTest(dir="heteroatom_organics", test="P_ADAM_C3v")
 
 Tests.slowVersion = SlowTests
@@ -995,13 +1004,13 @@ PyrexTests.slowVersion = SlowPyrexTests
 if __name__ == "__main__":
 
     # Process command line arguments
-    def generate():
+    def generate(x):
         """update md5sums files according to current simulator
         behavior
         """
         global GENERATE
         GENERATE = True
-    def md5check():
+    def md5check(x):
         """perform MD5 checksum comparisons; useful for simulator
         development
         """
@@ -1009,66 +1018,77 @@ if __name__ == "__main__":
         if sys.platform != "linux2":
             raise SystemExit("MD5 checks supported only on Linux")
         MD5_CHECKS = True
-    def lengths_angles():
+    def lengths_angles(x):
         """perform structure comparisons with known-good structures
         computed by QM minimizations, comparing bond lengths and bond
         angles
         """
         global STRUCTURE_COMPARISON_TYPE
         STRUCTURE_COMPARISON_TYPE = LENGTH_ANGLE_TEST
-    def structcompare():
+    def structcompare(x):
         """perform structure comparisons with known-good structures
         computed by QM minimizations, using code in structcompare.c
         """
         global STRUCTURE_COMPARISON_TYPE
         STRUCTURE_COMPARISON_TYPE = STRUCTCOMPARE_C_TEST
-    def slow():
+    def slow(x):
         """perform slow tests (not for regression testing)
         """
         global Tests
         Tests = Tests.slowVersion
-    def pyrex():
+    def pyrex(x):
         """Perform the Pyrex tests
         """
         global Tests, PyrexTests
         Tests = PyrexTests
-    def loose():
+    def loose(x):
         """Loosen tolerances on length and angle comparisons.
         """
         global LOOSE_TOLERANCES
         LOOSE_TOLERANCES = True
+    def test_dir(x):
+        assert x[:1] == "="
+        x = x[1:]
+        assert x in ("minimize", "dynamics", "rigid_organics",
+                     "amino_acids", "floppy_organics",
+                     "heteroatom_organics")
+        global TEST_DIR
+        TEST_DIR = x
+    def list_everything(x):
+        global LIST_EVERYTHING
+        LIST_EVERYTHING = True
 
-    def debug():
+    def debug(x):
         """debug this script
         """
         global DEBUG
         DEBUG = 1
-    def time_only():
+    def time_only(x):
         """measure the time each test takes, ignore any results
         """
         global TIME_ONLY
         TIME_ONLY = 1
-    def keep():
+    def keep(x):
         """when a test is finished, don't delete its temporary
         directory (useful for debug)
         """
         global KEEP_RESULTS
         KEEP_RESULTS = True
-    def todo_tasks():
+    def todo_tasks(x):
         """reminders of what work still needs doing
         """
         global SHOW_TODO, MD5_CHECKS
         SHOW_TODO = True
         # catch all the TODOs everywhere
         MD5_CHECKS = True
-    def verbose_failures():
+    def verbose_failures(x):
         """print non-abbreviated assertion statements (useful for
         debug)
         """
         global VERBOSE_FAILURES
         VERBOSE_FAILURES = True
 
-    def help():
+    def help(x):
         """print help information
         """
         print __doc__
@@ -1083,6 +1103,8 @@ if __name__ == "__main__":
                slow,
                pyrex,
                loose,
+               test_dir,
+               list_everything,
                generate,
                debug,
                time_only,
@@ -1102,9 +1124,11 @@ if __name__ == "__main__":
     for arg in args:
         found = False
         for opt in options:
-            if opt.__name__ == arg:
+            nm = opt.__name__
+            if arg.startswith(nm):
                 found = True
-                opt()
+                arg = arg[len(nm):]
+                opt(arg)
                 break
         if not found:
             print "Don't understand command line arg:", arg
@@ -1120,6 +1144,13 @@ if __name__ == "__main__":
     if LOOSE_TOLERANCES:
         LENGTH_TOLERANCE = 0.15    # angstroms
         ANGLE_TOLERANCE = 15       # degrees
+    if TEST_DIR != None:
+        attrs = dir(Tests)
+        for attr in attrs:
+            if attr.startswith("test_") and not attr.startswith("test_" + TEST_DIR):
+                def passAutomatically(self):
+                    pass
+                setattr(Tests, attr, passAutomatically)
 
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
