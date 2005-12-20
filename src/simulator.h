@@ -12,9 +12,8 @@
 #include <errno.h>
 #include <string.h>
 
-#include "globals.h"
-
 #include "lin-alg.h"
+#include "globals.h"
 #include "allocate.h"
 #include "hashtable.h"
 
