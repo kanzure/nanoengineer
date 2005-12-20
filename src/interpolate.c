@@ -248,7 +248,7 @@ convertDashToSpace(char *s)
 }
 
 static void
-printBondPAndG(struct sim_context *ctx, char *bondName, double initial, double increment, double limit)
+printBondPAndG(char *bondName, double initial, double increment, double limit)
 {
   char elt1[4];
   char elt2[4];
@@ -296,12 +296,12 @@ printBondPAndG(struct sim_context *ctx, char *bondName, double initial, double i
          stretch->r0 * 0.5,
          stretch->inflectionR);
 
-  interpolated_potential = stretchPotential(ctx, NULL, NULL, stretch, initial);
+  interpolated_potential = stretchPotential(NULL, NULL, stretch, initial);
   for (r=initial; r<limit; r+=increment) {
     lip = interpolated_potential;
-    interpolated_potential = stretchPotential(ctx, NULL, NULL, stretch, r);
+    interpolated_potential = stretchPotential(NULL, NULL, stretch, r);
     dip = interpolated_potential - lip;
-    interpolated_gradient = stretchGradient(ctx, NULL, NULL, stretch, r);
+    interpolated_gradient = stretchGradient(NULL, NULL, stretch, r);
     direct_potential = potentialLippincottMorse(r, stretch);
     direct_gradient = gradientLippincottMorse(r, stretch);
     extension_potential =
@@ -342,12 +342,11 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
 }
 
 void
-printPotentialAndGradientFunctions(struct sim_context *ctx, char *name,
-				   double initial, double increment, double limit)
+printPotentialAndGradientFunctions(char *name, double initial, double increment, double limit)
 {
 
   if (!strncmp(name, "bond:", 5)) {
-    printBondPAndG(ctx, name+5, initial, increment, limit);
+    printBondPAndG(name+5, initial, increment, limit);
   } else if (!strncmp(name, "bend:", 5)) {
     printBendPAndG(name+5, initial, increment, limit);
   } else if (!strncmp(name, "vdw:", 4)) {
@@ -408,7 +407,7 @@ printPotentialAndGradientFunctions(struct sim_context *ctx, char *name,
 
 // run with -D 8
 void
-printBendStretch(struct sim_context *ctx)
+printBendStretch()
 {
   struct part *p;
   struct xyz pos[3];
@@ -486,16 +485,16 @@ printBendStretch(struct sim_context *ctx)
       if (b == B_MIN) {
         pos[2].x = x1;
         pos[2].y = y1;
-        prevB_potential = calculatePotential(ctx, p, pos) * POTENTIAL_SCALE;
+        prevB_potential = calculatePotential(p, pos) * POTENTIAL_SCALE;
       }
       pos[2].x = x;
       pos[2].y = y;
-      potential = calculatePotential(ctx, p, pos) * POTENTIAL_SCALE;
+      potential = calculatePotential(p, pos) * POTENTIAL_SCALE;
       x2 = X(a-A_INCR, b);
       y2 = Y(a-A_INCR, b);
       pos[2].x = x2;
       pos[2].y = y2;
-      prevA_potential = calculatePotential(ctx, p, pos) * POTENTIAL_SCALE;
+      prevA_potential = calculatePotential(p, pos) * POTENTIAL_SCALE;
 
       if (potential < POTENTIAL_CUTOFF) {
         red1 = 0;
@@ -528,7 +527,7 @@ printBendStretch(struct sim_context *ctx)
 
       prevB_potential = potential;
       
-      calculateGradient(ctx, p, pos, force);
+      calculateGradient(p, pos, force);
       
       flen = vlen(force[2]);
       if (flen > FORCE_CUTOFF) {

@@ -2,7 +2,6 @@
  * C helper file for sim.pyx
  */
 
-#include "Python.h"
 #include "simulator.h"
 
 typedef struct {
@@ -17,30 +16,18 @@ typedef struct {
 } SimArgs;
 SimArgs myArgs;
 
-void initsimhelp(void);
+int initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
-struct sim_context *makeContext(void);
-PyObject * everythingElse(struct sim_context *);
-PyObject * structCompareHelp(struct sim_context *ctx);
+void everythingElse(void);
+char * structCompareHelp(void);
 
-static struct part *part;  // make this non-static, move into context
+static char retval[100];
+static struct part *part;
 static char buf[1024], *filename;
+static int initializedAlready = 0;
 
-struct sim_context *
-makeContext(void)
-{
-    struct sim_context *ctx;
-	
-    ctx = (struct sim_context *) malloc(sizeof(struct sim_context));
-    if (ctx == NULL) {
-	perror("out of memory");
-	exit(1);
-    }
-}
-
-void
-initsimhelp(void)
+int initsimhelp(void)
 {
     char *printPotential = NULL;
     double printPotentialInitial = 1.0;
@@ -51,6 +38,9 @@ initsimhelp(void)
     char *tfilename;
     char *filename;
     char *p;
+    if (initializedAlready)
+	return 1;
+    initializedAlready = 1;
 
     printPotential = myArgs.printPotential;
     printPotentialInitial = myArgs.printPotentialInitial;
@@ -109,10 +99,10 @@ initsimhelp(void)
     }
     if (IterPerFrame <= 0) IterPerFrame = 1;
     initializeBondTable();
+    return 0;
 }
 
-void
-readPart(void)
+void readPart(void)
 {
     part = readMMP(buf);
     updateVanDerWaals(part, NULL, part->positions);
@@ -120,19 +110,17 @@ readPart(void)
     generateBends(part);
 }
 
-void
-dumpPart(void)
+void dumpPart(void)
 {
     printPart(stdout, part);
 }
 
-PyObject *
-everythingElse(struct sim_context *ctx)
+void everythingElse(void)
 {
     traceHeader(tracef, filename, OutFileName, TraceFileName, 
                 part, NumFrames, IterPerFrame, Temperature);
 
-    if  (ctx->ToMinimize) {
+    if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
 	Temperature = 0.0;
     } else {
@@ -154,30 +142,18 @@ everythingElse(struct sim_context *ctx)
     }
     writeOutputHeader(outf, part);
 
-    if  (ctx->ToMinimize) {
-	extern struct configuration *finalConfiguration;
-	int i;
-	struct atom *a;
-	PyObject *retval = PyList_New(0);
-	minimizeStructure(ctx, part);
-	for (i=0; i < part->num_atoms; i++) {
-	    struct xyz *positions = (struct xyz *) finalConfiguration->coordinate;
-	    // convert from picometers to angstroms
-	    PyObject *tpl = Py_BuildValue("(sfff)",
-					  part->atoms[i]->type->symbol,
-					  0.01 * positions[i].x,
-					  0.01 * positions[i].y,
-					  0.01 * positions[i].z);
-	    PyList_Append(retval, tpl);
-	}
-	SetConfiguration(&finalConfiguration, NULL);
-	return retval;
+    if  (ToMinimize) {
+	minimizeStructure(part);
     }
     else {
-        dynamicsMovie(ctx, part);
-	Py_INCREF(Py_None);
-        return Py_None;
+        dynamicsMovie(part);
     }
+
+    /* I'd like to remove the "return exitvalue" from doneExit() and
+     * do it separately, pending Eric's approval.
+     */
+
+    //doneExit(0, tracef, "");
 }
 
 
@@ -195,40 +171,42 @@ void printPotential(void)
 /**
  * If we return a non-empty string, it's an error message.
  */
-PyObject *
-structCompareHelp(struct sim_context *ctx)
-{
+char * structCompareHelp(void) {
     int i1;
     int i2;
     struct xyz *basePositions;
     struct xyz *initialPositions;
-    
+        
     if (baseFilename == NULL || strlen(baseFilename) == 0) {
-	PyErr_SetString(PyExc_IOError, "No baseFilename");
-	return NULL;
+	sprintf(retval, "No baseFilename");
+	return retval;
     }
     basePositions = readXYZ(baseFilename, &i1);
     if (basePositions == NULL) {
-	PyErr_SetString(PyExc_IOError, baseFilename);
-	return NULL;
+	sprintf(retval,
+		"could not read base positions file from \"%s\"",
+		baseFilename);
+	return retval;
     }
     initialPositions = readXYZ(myArgs.filename, &i2);
     if (initialPositions == NULL) {
-	PyErr_SetString(PyExc_IOError, myArgs.filename);
-	return NULL;
+	sprintf(retval,
+		"could not read comparison positions file \"%s\"",
+		myArgs.filename);
+	return retval;
     }
     if (i1 != i2) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"structures to compare must have same number of atoms");
-	return NULL;
+	sprintf(retval,
+		"structures to compare must have same number of atoms");
+	return retval;
     }
-    if (doStructureCompare(ctx, i1, basePositions, initialPositions,
+    if (doStructureCompare(i1, basePositions, initialPositions,
 			   NumFrames, 1e-8, 1e-4, 1.0+1e-4)) {
-	PyErr_SetString(PyExc_ValueError, "structure comparison failed");
-	return NULL;
+	sprintf(retval, "structure comparison failed");
+	return retval;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    retval[0] = '\0';
+    return retval;
 }
 
 /*

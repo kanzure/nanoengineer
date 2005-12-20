@@ -119,19 +119,11 @@ main(int argc,char **argv)
     double printPotentialIncrement = 1; // pm
     double printPotentialLimit = 200; // pm
     char buf[1024], *filename, *ofilename, *tfilename, *c;
-    struct sim_context *ctx;
 	
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
         perror("signal(SIGTERM)");
         exit(1);
     }
-
-    ctx = (struct sim_context *) malloc(sizeof(struct sim_context));
-    if (ctx == NULL) {
-	perror("out of memory");
-	exit(1);
-    }
-    ctx->ToMinimize = 0;
 
     //setupPositionsArrays();
 	
@@ -173,7 +165,7 @@ main(int argc,char **argv)
 	    // ignored
 	    break;
 	case 'm':
-	    ctx->ToMinimize=1;
+	    ToMinimize=1;
 	    break;
 	case 'E':
 	    printPotentialEnergy=1;
@@ -239,7 +231,7 @@ main(int argc,char **argv)
 
     if (DEBUG(D_PRINT_BEND_STRETCH)) {
         initializeBondTable();
-        printBendStretch(ctx);
+        printBendStretch();
         exit(0);
     }
 
@@ -271,7 +263,7 @@ main(int argc,char **argv)
             fprintf(stderr, "structures to compare must have same number of atoms\n");
             exit(1);
         }
-        exit(doStructureCompare(ctx, i1, basePositions, initialPositions,
+        exit(doStructureCompare(i1, basePositions, initialPositions,
                                 NumFrames, 1e-8, 1e-4, 1.0+1e-4));
     }
 
@@ -327,8 +319,7 @@ main(int argc,char **argv)
     initializeBondTable();
 
     if (printPotential) {
-        printPotentialAndGradientFunctions(ctx,
-					   printPotential,
+        printPotentialAndGradientFunctions(printPotential,
                                            printPotentialInitial,
                                            printPotentialIncrement,
                                            printPotentialLimit);
@@ -342,8 +333,8 @@ main(int argc,char **argv)
 
     if (printPotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-        potentialEnergy = calculatePotential(ctx, part, part->positions);
-        calculateGradient(ctx, part, part->positions, force);
+        potentialEnergy = calculatePotential(part, part->positions);
+        calculateGradient(part, part->positions, force);
         printf("%e %e %e %e (Potential energy in aJ, gradient of atom 1)\n", potentialEnergy, force[1].x, force[1].y, force[1].z);
         exit(0);
     }
@@ -361,7 +352,7 @@ main(int argc,char **argv)
     traceHeader(tracef, filename, OutFileName, TraceFileName, 
                 part, NumFrames, IterPerFrame, Temperature);
 
-    if  (ctx->ToMinimize) {
+    if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
 	Temperature = 0.0;
     } else {
@@ -386,14 +377,11 @@ main(int argc,char **argv)
     }
     writeOutputHeader(outf, part);
 
-    if  (ctx->ToMinimize) {
-	extern struct configuration *finalConfiguration;
-	minimizeStructure(ctx, part);
-	SetConfiguration(&finalConfiguration, NULL);
-	exit(0);
+    if  (ToMinimize) {
+	minimizeStructure(part);
     }
     else {
-        dynamicsMovie(ctx, part);
+        dynamicsMovie(part);
     }
 
     doneExit(0, tracef, "");

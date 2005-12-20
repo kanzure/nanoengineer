@@ -26,10 +26,10 @@ findRMSandMaxForce(struct configuration *p, double *pRMS, double *pMaxForce)
 
 // This is the potential function which is being minimized.
 static void
-minimizeStructurePotential(struct sim_context *ctx, struct configuration *p)
+minimizeStructurePotential(struct configuration *p)
 {
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
-  p->functionValue = calculatePotential(ctx, Part, (struct xyz *)p->coordinate);
+  p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
   //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter, Iteration++, "potential");
   if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D3
     writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential %e %e", p->functionValue, p->parameter);
@@ -46,7 +46,7 @@ clamp(double min, double max, double value)
 
 // This is the gradient of the potential function which is being minimized.
 static void
-minimizeStructureGradient(struct sim_context *ctx, struct configuration *p)
+minimizeStructureGradient(struct configuration *p)
 {
   int i;
   double rms_force;
@@ -55,13 +55,13 @@ minimizeStructureGradient(struct sim_context *ctx, struct configuration *p)
   
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   if (DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // -D 10
-    evaluateGradientFromPotential(ctx, p);
+    evaluateGradientFromPotential(p);
     forces = (struct xyz *)p->gradient;
     for (i=0; i<Part->num_atoms; i++) {
       writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0);
     }
   }
-  calculateGradient(ctx, Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
+  calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
   // dynamics wants gradient pointing downhill, we want it uphill
   //for (i=0; i<3*Part->num_atoms; i++) {
   //  p->gradient[i] = -p->gradient[i];
@@ -77,13 +77,12 @@ minimizeStructureGradient(struct sim_context *ctx, struct configuration *p)
 
 static struct functionDefinition minimizeStructureFunctions;
 
-struct configuration *finalConfiguration;
-
 void
-minimizeStructure(struct sim_context *ctx, struct part *part)
+minimizeStructure(struct part *part)
 {
   int iter;
   struct configuration *initial;
+  struct configuration *final;
   int i;
   int j;
   double rms_force;
@@ -109,20 +108,20 @@ minimizeStructure(struct sim_context *ctx, struct part *part)
     initial->coordinate[j++] = part->positions[i].z;
   }
 
-  finalConfiguration = minimize(ctx, initial, &iter, NumFrames * 100);
+  final = minimize(initial, &iter, NumFrames * 100);
 
-  evaluateGradient(ctx, finalConfiguration);
-  findRMSandMaxForce(finalConfiguration, &rms_force, &max_force);
+  evaluateGradient(final);
+  findRMSandMaxForce(final, &rms_force, &max_force);
   
   writeMinimizeMovieFrame(outf, part, 1,
-                          (struct xyz *)finalConfiguration->coordinate, rms_force, max_force, Iteration, "final structure");
+                          (struct xyz *)final->coordinate, rms_force, max_force, Iteration, "final structure");
   
   SetConfiguration(&initial, NULL);
-  // Remember to do SetConfiguration(&finalConfiguration, NULL);
-  donePrint(tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
-	    minimizeStructureFunctions.gradientEvaluationCount,
-	    minimizeStructureFunctions.functionEvaluationCount,
-	    rms_force,
-	    max_force);
+  SetConfiguration(&final, NULL);
+  doneExit(0, tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
+           minimizeStructureFunctions.gradientEvaluationCount,
+           minimizeStructureFunctions.functionEvaluationCount,
+           rms_force,
+           max_force);
 
 }

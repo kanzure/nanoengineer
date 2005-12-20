@@ -1,5 +1,3 @@
-#ifndef PRINTERS_H_INCLUDED
-#define PRINTERS_H_INCLUDED
 
 #if 0
 #define DBGPRINTF(x...) fprintf(stderr, ## x)
@@ -56,8 +54,4 @@ extern void traceJigData(FILE *f, struct part *part);
 extern void printError(FILE *f, const char *file, int line, const char *err_or_warn,
 		       int doPerror, const char *format, ...);
 
-extern void donePrint(FILE *f, const char *format, ...);
-
 extern void doneExit(int exitvalue, FILE *f, const char *format, ...);
-
-#endif

@@ -646,9 +646,6 @@ class DynamicsTest(MinimizeTest):
 class Tests(unittest.TestCase):
     """Put the fast tests here.
     """
-    def test_minH2(self):
-        MinimizeTest(dir="minimize", test="h2")
-
     def test_dynamics_0002(self):
         # ground, thermostat, and thermometer test
         DynamicsTest(dir="dynamics", test="0002",
@@ -979,13 +976,6 @@ class PyrexTests(unittest.TestCase):
         s.Temperature = 300
         z = s.go()
         lac.compare(z, BASE + ".xyzcmp", LENGTH_TOLERANCE, ANGLE_TOLERANCE)
-    def test_shouldFail(self):
-        import sim
-        try:
-            s = sim.Minimize("")
-            assert False, "This test should have failed"
-        except IOError:
-            pass
 
 class SlowPyrexTests(PyrexTests):
     def test_dynamics(self):
