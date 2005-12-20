@@ -99,6 +99,8 @@ extern void SetConfiguration(struct configuration **dst, struct configuration *s
 
 extern double evaluate(struct configuration *p);
 
+extern void evaluateGradientFromPotential(struct configuration *p);
+
 extern void evaluateGradient(struct configuration *p);
 
 extern struct configuration *gradientOffset(struct configuration *p, double q);

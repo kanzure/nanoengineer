@@ -160,25 +160,45 @@ evaluate(struct configuration *p)
 }
 
 void
-evaluateGradient(struct configuration *p)
+evaluateGradientFromPotential(struct configuration *p)
 {
   struct functionDefinition *fd = p->functionDefinition;
   struct configuration *pPlusDelta = NULL;
+  struct configuration *pMinusDelta = NULL;
   int i;
   int j;
+
+  if (fd->gradient_delta == 0.0) {
+    fd->gradient_delta = 1e-8;
+  }
+  for (i=0; i<fd->dimension; i++) {
+    pPlusDelta = makeConfiguration(fd);
+    for (j=0; j<fd->dimension; j++) {
+      pPlusDelta->coordinate[j] = p->coordinate[j];
+    }
+    pPlusDelta->coordinate[i] += fd->gradient_delta / 2.0;
+
+    pMinusDelta = makeConfiguration(fd);
+    for (j=0; j<fd->dimension; j++) {
+      pMinusDelta->coordinate[j] = p->coordinate[j];
+    }
+    pMinusDelta->coordinate[i] -= fd->gradient_delta / 2.0;
+
+    p->gradient[i] = (evaluate(pMinusDelta) - evaluate(pPlusDelta)) / fd->gradient_delta;
+    SetConfiguration(&pPlusDelta, NULL);
+    SetConfiguration(&pMinusDelta, NULL);
+  }
+}
+
+void
+evaluateGradient(struct configuration *p)
+{
+  struct functionDefinition *fd = p->functionDefinition;
   
   if (p->gradient == NULL) {
     p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
     if (fd->dfunc == NULL) {
-      for (i=0; i<fd->dimension; i++) {
-        pPlusDelta = makeConfiguration(fd);
-        for (j=0; j<fd->dimension; j++) {
-          pPlusDelta->coordinate[j] = p->coordinate[j];
-        }
-        pPlusDelta->coordinate[i] += fd->gradient_delta;
-        p->gradient[i] = (evaluate(p) - evaluate(pPlusDelta)) / fd->gradient_delta;
-        SetConfiguration(&pPlusDelta, NULL);
-      }
+      evaluateGradientFromPotential(p);
     } else {
       (*fd->dfunc)(p);
     }
