@@ -387,7 +387,9 @@ main(int argc,char **argv)
     writeOutputHeader(outf, part);
 
     if  (ctx->ToMinimize) {
+	extern struct configuration *finalConfiguration;
 	minimizeStructure(ctx, part);
+	SetConfiguration(&finalConfiguration, NULL);
 	exit(0);
     }
     else {

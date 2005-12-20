@@ -2,17 +2,12 @@
 
 import sim
 
-m = sim.Minimize()
-m.ToMinimize = 1
+m = sim.Minimize("tests/rigid_organics/test_C6H10.mmp")
 m.DumpAsText = 1
-m.read("tests/rigid_organics/test_C6H10.mmp")
-m.everythingElse()
+m.go()
 
-d = sim.Dynamics()
-d.ToMinimize = 1
-d.DumpAsText = 1
-d.read("tests/rigid_organics/test_C6H10.mmp")
-d.everythingElse()
+d = sim.Dynamics("tests/rigid_organics/test_C6H10.mmp")
+d.go()
 """
 
 cdef extern from "simhelp.c":
@@ -47,10 +42,10 @@ cdef extern from "simhelp.c":
     # end of globals.c stuff
     SimArgs myArgs
     sim_context *makeContext()
-    int initsimhelp()
+    void initsimhelp()
     void readPart()
     void dumpPart()
-    void everythingElse(sim_context *ctx)
+    everythingElse(sim_context *ctx)
     cdef char *structCompareHelp(sim_context *ctx)
 
 cdef class Minimize:
@@ -58,9 +53,33 @@ cdef class Minimize:
 
     cdef sim_context *ctx
 
-    def __init__(self):
+    def __init__(self,
+                 filename,
+                 printPotentialInitial=1, # pm
+                 printPotentialIncrement=1, # pm
+                 printPotentialLimit=200, # pm
+                 printPotentialEnergy=0,
+                 printPotential="",
+                 ofilename="",
+                 tfilename=""):
+
+        if not filename:
+            raise Exception("Need a filename (probably MMP)")
+
         self.ctx = makeContext()
         self.ctx.ToMinimize = 1
+        myArgs.printPotential = printPotential
+        myArgs.printPotentialInitial = printPotentialInitial
+        myArgs.printPotentialIncrement = printPotentialIncrement
+        myArgs.printPotentialLimit = printPotentialLimit
+        myArgs.printPotentialEnergy = printPotentialEnergy
+        myArgs.printPotential = printPotential
+        myArgs.ofilename = ofilename
+        myArgs.tfilename = tfilename
+        myArgs.filename = filename
+
+        initsimhelp()
+        readPart()
 
     def __getattr__(self, key):
         """Access to simulator's command line options and globals.c
@@ -151,34 +170,8 @@ cdef class Minimize:
             global Temperature
             Temperature = value
 
-    def everythingElse(self):
-        everythingElse(self.ctx)
-
-    def read(self, filename,
-             printPotentialInitial=1, # pm
-             printPotentialIncrement=1, # pm
-             printPotentialLimit=200, # pm
-             printPotentialEnergy=0,
-             printPotential="",
-             ofilename="",
-             tfilename=""):
-
-        if not filename:
-            raise Exception("Need a filename (probably MMP)")
-
-        myArgs.printPotential = printPotential
-        myArgs.printPotentialInitial = printPotentialInitial
-        myArgs.printPotentialIncrement = printPotentialIncrement
-        myArgs.printPotentialLimit = printPotentialLimit
-        myArgs.printPotentialEnergy = printPotentialEnergy
-        myArgs.printPotential = printPotential
-        myArgs.ofilename = ofilename
-        myArgs.tfilename = tfilename
-        myArgs.filename = filename
-
-        if initsimhelp():
-            raise Exception, "please only run initsim() once!"
-        readPart()
+    def go(self):
+        return everythingElse(self.ctx)
 
     def structCompare(self):
         r = structCompareHelp(self.ctx)
@@ -186,6 +179,22 @@ cdef class Minimize:
             raise Exception, r
 
 cdef class Dynamics(Minimize):
-    def __init__(self):
-        self.ctx = makeContext()
+    def __init__(self,
+                 filename,
+                 printPotentialInitial=1, # pm
+                 printPotentialIncrement=1, # pm
+                 printPotentialLimit=200, # pm
+                 printPotentialEnergy=0,
+                 printPotential="",
+                 ofilename="",
+                 tfilename=""):
+        Minimize.__init__(self,
+                          filename,
+                          printPotentialInitial,
+                          printPotentialIncrement,
+                          printPotentialLimit,
+                          printPotentialEnergy,
+                          printPotential,
+                          ofilename,
+                          tfilename)
         self.ctx.ToMinimize = 0

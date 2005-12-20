@@ -646,6 +646,9 @@ class DynamicsTest(MinimizeTest):
 class Tests(unittest.TestCase):
     """Put the fast tests here.
     """
+    def test_minH2(self):
+        MinimizeTest(dir="minimize", test="h2")
+
     def test_dynamics_0002(self):
         # ground, thermostat, and thermometer test
         DynamicsTest(dir="dynamics", test="0002",

@@ -77,12 +77,13 @@ minimizeStructureGradient(struct sim_context *ctx, struct configuration *p)
 
 static struct functionDefinition minimizeStructureFunctions;
 
+struct configuration *finalConfiguration;
+
 void
 minimizeStructure(struct sim_context *ctx, struct part *part)
 {
   int iter;
   struct configuration *initial;
-  struct configuration *final;
   int i;
   int j;
   double rms_force;
@@ -108,16 +109,16 @@ minimizeStructure(struct sim_context *ctx, struct part *part)
     initial->coordinate[j++] = part->positions[i].z;
   }
 
-  final = minimize(ctx, initial, &iter, NumFrames * 100);
+  finalConfiguration = minimize(ctx, initial, &iter, NumFrames * 100);
 
-  evaluateGradient(ctx, final);
-  findRMSandMaxForce(final, &rms_force, &max_force);
+  evaluateGradient(ctx, finalConfiguration);
+  findRMSandMaxForce(finalConfiguration, &rms_force, &max_force);
   
   writeMinimizeMovieFrame(outf, part, 1,
-                          (struct xyz *)final->coordinate, rms_force, max_force, Iteration, "final structure");
+                          (struct xyz *)finalConfiguration->coordinate, rms_force, max_force, Iteration, "final structure");
   
   SetConfiguration(&initial, NULL);
-  SetConfiguration(&final, NULL);
+  // Remember to do SetConfiguration(&finalConfiguration, NULL);
   donePrint(tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
 	    minimizeStructureFunctions.gradientEvaluationCount,
 	    minimizeStructureFunctions.functionEvaluationCount,

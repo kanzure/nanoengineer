@@ -2,6 +2,7 @@
  * C helper file for sim.pyx
  */
 
+#include "Python.h"
 #include "simulator.h"
 
 typedef struct {
@@ -16,17 +17,16 @@ typedef struct {
 } SimArgs;
 SimArgs myArgs;
 
-int initsimhelp(void);
+void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
 struct sim_context *makeContext(void);
-void everythingElse(struct sim_context *);
+PyObject * everythingElse(struct sim_context *);
 char * structCompareHelp(struct sim_context *);
 
 static char retval[100];
-static struct part *part;
+static struct part *part;  // make this non-static, move into context
 static char buf[1024], *filename;
-static int initializedAlready = 0;
 
 struct sim_context *
 makeContext(void)
@@ -40,7 +40,7 @@ makeContext(void)
     }
 }
 
-int
+void
 initsimhelp(void)
 {
     char *printPotential = NULL;
@@ -52,9 +52,6 @@ initsimhelp(void)
     char *tfilename;
     char *filename;
     char *p;
-    if (initializedAlready)
-	return 1;
-    initializedAlready = 1;
 
     printPotential = myArgs.printPotential;
     printPotentialInitial = myArgs.printPotentialInitial;
@@ -113,7 +110,6 @@ initsimhelp(void)
     }
     if (IterPerFrame <= 0) IterPerFrame = 1;
     initializeBondTable();
-    return 0;
 }
 
 void
@@ -131,7 +127,7 @@ dumpPart(void)
     printPart(stdout, part);
 }
 
-void
+PyObject *
 everythingElse(struct sim_context *ctx)
 {
     traceHeader(tracef, filename, OutFileName, TraceFileName, 
@@ -160,10 +156,28 @@ everythingElse(struct sim_context *ctx)
     writeOutputHeader(outf, part);
 
     if  (ctx->ToMinimize) {
+	extern struct configuration *finalConfiguration;
+	int i;
+	struct atom *a;
+	PyObject *retval = PyList_New(0);
 	minimizeStructure(ctx, part);
+	for (i=0; i < part->num_atoms; i++) {
+	    struct xyz *positions = (struct xyz *) finalConfiguration->coordinate;
+	    // convert from picometers to angstroms
+	    PyObject *tpl = Py_BuildValue("(sfff)",
+					  part->atoms[i]->type->symbol,
+					  0.01 * positions[i].x,
+					  0.01 * positions[i].y,
+					  0.01 * positions[i].z);
+	    PyList_Append(retval, tpl);
+	}
+	SetConfiguration(&finalConfiguration, NULL);
+	return retval;
     }
     else {
         dynamicsMovie(ctx, part);
+	Py_INCREF(Py_None);
+        return Py_None;
     }
 }
 
