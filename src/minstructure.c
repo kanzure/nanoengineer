@@ -115,6 +115,15 @@ minimizeStructure(struct part *part)
   
   writeMinimizeMovieFrame(outf, part, 1,
                           (struct xyz *)final->coordinate, rms_force, max_force, Iteration, "final structure");
+
+  if (DEBUG(D_MINIMIZE_FINAL_PRINT)) { // -D 11
+    for (i=0, j=0; i<part->num_atoms; i++) {
+      part->positions[i].x = final->coordinate[j++];
+      part->positions[i].y = final->coordinate[j++];
+      part->positions[i].z = final->coordinate[j++];
+    }
+    printPart(stdout, part);
+  }
   
   SetConfiguration(&initial, NULL);
   SetConfiguration(&final, NULL);

@@ -938,23 +938,75 @@ printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v)
 void
 printStretch(FILE *f, struct part *p, struct stretch *s)
 {
+  double len;
+  struct xyz p1;
+  struct xyz p2;
+  
   fprintf(f, " stretch ");
   printAtomShort(f, s->a1);
   fprintf(f, ", ");
   printAtomShort(f, s->a2);
-  fprintf(f, ":  %s\n", s->stretchType->bondName);
+  fprintf(f, ":  %s ", s->stretchType->bondName);
+
+  p1 = p->positions[s->a1->index];
+  p2 = p->positions[s->a2->index];
+  vsub(p1, p2);
+  len = vlen(p1);
+
+  fprintf(f, "r: %f r0: %f\n", len, s->stretchType->r0);
 }
 
 void
 printBend(FILE *f, struct part *p, struct bend *b)
 {
+  double invlen;
+  double costheta;
+  double theta;
+  double z;
+  struct xyz p1;
+  struct xyz pc;
+  struct xyz p2;
+  
   fprintf(f, " bend ");
   printAtomShort(f, b->a1);
   fprintf(f, ", ");
   printAtomShort(f, b->ac);
   fprintf(f, ", ");
   printAtomShort(f, b->a2);
-  fprintf(f, ":  %s\n", b->bendType->bendName);
+  fprintf(f, ":  %s ", b->bendType->bendName);
+
+  p1 = p->positions[b->a1->index];
+  pc = p->positions[b->ac->index];
+  p2 = p->positions[b->a2->index];
+
+  vsub(p1, pc);
+  invlen = 1.0 / vlen(p1);
+  vmulc(p1, invlen); // p1 is now unit vector from ac to a1
+  
+  vsub(p2, pc);
+  invlen = 1.0 / vlen(p2);
+  vmulc(p2, invlen); // p2 is now unit vector from ac to a2
+
+  costheta = vdot(p1, p2);
+  theta = acos(costheta);
+  fprintf(f, "theta: %f rad %f deg ", theta, theta * 180.0 / Pi);
+
+  z = vlen(vsum(p1, p2)); // z is length of cord between where bonds intersect unit sphere
+
+#define ACOS_POLY_A -0.0820599
+#define ACOS_POLY_B  0.142376
+#define ACOS_POLY_C -0.137239
+#define ACOS_POLY_D -0.969476
+
+  // this is the equivalent of theta=arccos(z);
+  theta = Pi + z * (ACOS_POLY_D +
+               z * (ACOS_POLY_C +
+               z * (ACOS_POLY_B +
+               z *  ACOS_POLY_A   )));
+
+  fprintf(f, "polytheta: %f rad %f deg ", theta, theta * 180.0 / Pi);
+  theta = b->bendType->theta0;
+  fprintf(f, "theta0: %f rad %f deg\n", theta, theta * 180.0 / Pi);
 }
 
 void

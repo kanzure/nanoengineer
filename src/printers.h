@@ -20,7 +20,7 @@ extern int debug_flags;
 #define D_PRINT_BEND_STRETCH (1<<8)
 #define D_SKIP_VDW        (1<<9)
 #define D_GRADIENT_FROM_POTENTIAL (1<<10)
-
+#define D_MINIMIZE_FINAL_PRINT (1<<11)
 
 extern FILE *tracef;
 #define ERROR(s...) (printError(tracef, __FILE__, __LINE__, "Error", 0, ## s))
