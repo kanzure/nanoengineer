@@ -84,7 +84,13 @@ def open_wiki_help_page( featurename, actually_open = True ): #e actually_open =
                 ## close_dialog = False # not good unless text in dialog is preserved or replaced with error msg
                 close_dialog = True
             return close_dialog
-        w = WikiHelpBrowser(html, clicked_func = clicked_func, caption = "Context Help")
+        parent = env.mainwindow() # not yet used...
+        parent = None # see comment below
+        w = WikiHelpBrowser(html, parent, clicked_func = clicked_func, caption = "Context Help")
+            #bruce 051220 add env.mainwindow() to fix bug 1235... hmm, technically this fixed the bug,
+            # but it also made the helpbrowser a subwidget of main window rather than a dialog... cute but weird.
+            # Let's disable this fix for now, then fix it better a little later (by placing it inside a Dialog).
+            #e (btw should we reorder args of WikiHelpBrowser constructor, parent first?)
         w.show()
         return
         ## if not actually_open: ## not yet used (and untested) as of 051201
