@@ -230,9 +230,10 @@ calculatePotential(struct part *p, struct xyz *position)
   double rSquared;
   struct xyz v1;
   struct xyz v2;
-  double z;
+  //double z;
   double theta;
   double dTheta;
+  double cosTheta;
   double ff;
   double potential = 0.0;
 
@@ -291,7 +292,10 @@ calculatePotential(struct part *p, struct xyz *position)
         vset(v2, bond2->rUnit);
       }
 
+      cosTheta = vdot(v1, v2);
+      theta = acos(cosTheta);
 
+#if 0
 #define ACOS_POLY_A -0.0820599
 #define ACOS_POLY_B  0.142376
 #define ACOS_POLY_C -0.137239
@@ -303,7 +307,8 @@ calculatePotential(struct part *p, struct xyz *position)
                    z * (ACOS_POLY_C +
                    z * (ACOS_POLY_B +
                    z *  ACOS_POLY_A   )));
-
+#endif
+      
       // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
       bType = bend->bendType;
       dTheta = (theta - bType->theta0);
@@ -343,8 +348,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
   double gradient;
   struct xyz v1;
   struct xyz v2;
-  double z;
+  //double z;
   double theta;
+  double cosTheta;
   double ff;
 
   struct stretch *stretch;
@@ -424,13 +430,19 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       // XXX figure out how close we can get / need to get
       // apply no force if v1 and v2 are close to being linear
 #define COLINEAR 1e-8
+
+      cosTheta = vdot(v1, v2);
+      theta = acos(cosTheta);
+
+#if 0
       z = vlen(vsum(v1, v2));
       // this is the equivalent of theta=arccos(z);
       theta = Pi + z * (ACOS_POLY_D +
                    z * (ACOS_POLY_C +
                    z * (ACOS_POLY_B +
                    z *  ACOS_POLY_A   )));
-
+#endif
+      
       v2x(foo, v1, v2);       // foo = v1 cross v2
       if (vlen(foo) < COLINEAR) {
         // v1 and v2 are very close to colinear.  We can pick any
