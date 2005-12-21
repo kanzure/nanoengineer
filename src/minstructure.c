@@ -118,10 +118,16 @@ minimizeStructure(struct part *part)
   
   SetConfiguration(&initial, NULL);
   SetConfiguration(&final, NULL);
-  doneExit(0, tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
-           minimizeStructureFunctions.gradientEvaluationCount,
-           minimizeStructureFunctions.functionEvaluationCount,
-           rms_force,
-           max_force);
-
+  // doneExit(0, tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
+  fprintf(stdout, "# Done: Minimize evals: %d, %d; final forces: rms %f, high %f\n",
+	  minimizeStructureFunctions.gradientEvaluationCount,
+	  minimizeStructureFunctions.functionEvaluationCount,
+	  rms_force,
+	  max_force);
+  if (tracef != NULL)
+      fprintf(tracef, "# Done: Minimize evals: %d, %d; final forces: rms %f, high %f\n",
+	      minimizeStructureFunctions.gradientEvaluationCount,
+	      minimizeStructureFunctions.functionEvaluationCount,
+	      rms_force,
+	      max_force);
 }

@@ -379,6 +379,7 @@ main(int argc,char **argv)
 
     if  (ToMinimize) {
 	minimizeStructure(part);
+	exit(0);
     }
     else {
         dynamicsMovie(part);

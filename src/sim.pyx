@@ -1,23 +1,15 @@
 """Example usage script
 
-import sim
-s = sim.Simulator()
-s.ToMinimize = 1
-s.DumpAsText = 1
-s.read("tests/rigid_organics/test_C6H10.mmp")
-s.everythingElse()
+make clean; make pyx && python -c "import sim; sim.test()"
 """
 
+import threading
+
 cdef extern from "simhelp.c":
-    ctypedef struct SimArgs:
-        char *printPotential
-        double printPotentialInitial
-        double printPotentialIncrement
-        double printPotentialLimit
-        int printPotentialEnergy
-        char *ofilename
-        char *tfilename
-        char *filename
+    ctypedef struct two_contexts:
+        # pyrex doesn't need to know what's inside
+        pass
+    char *filename
     # stuff from globals.c
     int debug_flags
     int Iteration
@@ -37,20 +29,66 @@ cdef extern from "simhelp.c":
     double Dmass
     double Temperature
     # end of globals.c stuff
-    SimArgs myArgs
-    int initsimhelp()
+
+    two_contexts *malloc_two_contexts()
+    void free_two_contexts(two_contexts *)
+    void swap_contexts(two_contexts *)
+
+    void initsimhelp()
     void readPart()
     void dumpPart()
     void everythingElse()
     cdef char *structCompareHelp()
 
-class Simulator:
+
+cdef class SimulatorBase:
+    """Pyrex permits access to doc strings"""
+    cdef two_contexts *mine
+
+    def __init__(self):
+        self.mine = malloc_two_contexts()
+
+    def __del__(self):
+        free_two_contexts(self.mine)
+
+    def swap(self):
+        swap_contexts(self.mine)
+
+
+
+class Minimize(SimulatorBase):
     """Pyrex permits access to doc strings"""
 
-    def __getattr__(self, key):
-        """Access to simulator's command line options and globals.c
-        goodies
-        """
+    def __init__(self, filename):
+        global ToMinimize, DumpAsText
+        ToMinimize = 1
+        DumpAsText = 1
+        self.__init(filename)
+
+    def __init(self, filename):
+        if not filename:
+            raise Exception("Need a filename (probably MMP)")
+        SimulatorBase.__init__(self)
+        self.simlock = threading.Lock()
+        self.do(self.__read_innards, filename)
+
+    def do(self, f, *args, **kw):
+        lock = self.simlock
+        retval = None
+        exc = None
+        lock.acquire()
+        self.swap()
+        try:
+            retval = f(*args, **kw)
+        except Exception, e:
+            exc = e
+        self.swap()
+        lock.release()
+        if exc != None:
+            raise exc
+        return retval
+
+    def __get_innards(self, key):
         if key == "debug_flags":
             return debug_flags
         elif key == "Iteration":
@@ -85,11 +123,10 @@ class Simulator:
             return Dmass
         elif key == "Temperature":
             return Temperature
+        else:
+            raise AttributeError, key
 
-    def __setattr__(self, key, value):
-        """Access to simulator's command line options and globals.c
-        goodies
-        """
+    def __set_innards(self, key, value):
         if key == "debug_flags":
             global debug_flags
             debug_flags = value
@@ -141,37 +178,52 @@ class Simulator:
         elif key == "Temperature":
             global Temperature
             Temperature = value
+        else:
+            raise AttributeError, key
 
-    def everythingElse(self):
+    def get(self, key):
+        """Access to simulator's command line options and globals.c
+        goodies
+        """
+        return self.do(self.__get_innards, key)
+
+    def set(self, key, value):
+        """Access to simulator's command line options and globals.c
+        goodies
+        """ 
+        self.do(self.__set_innards, key, value)
+
+    def __everythingElse_innards(self):
         everythingElse()
 
-    def read(self, filename,
-             printPotentialInitial=1, # pm
-             printPotentialIncrement=1, # pm
-             printPotentialLimit=200, # pm
-             printPotentialEnergy=0,
-             printPotential="",
-             ofilename="",
-             tfilename=""):
+    def go(self):
+        self.do(self.__everythingElse_innards)
 
-        if not filename:
-            raise Exception("Need a filename (probably MMP)")
-
-        myArgs.printPotential = printPotential
-        myArgs.printPotentialInitial = printPotentialInitial
-        myArgs.printPotentialIncrement = printPotentialIncrement
-        myArgs.printPotentialLimit = printPotentialLimit
-        myArgs.printPotentialEnergy = printPotentialEnergy
-        myArgs.printPotential = printPotential
-        myArgs.ofilename = ofilename
-        myArgs.tfilename = tfilename
-        myArgs.filename = filename
-
-        if initsimhelp():
-            raise Exception, "please only run initsim() once!"
+    def __read_innards(self, fname):
+        global filename
+        filename = fname
+        initsimhelp()
         readPart()
 
+    def __structCompare_innards(self):
+        structCompare()
+
     def structCompare(self):
-        r = structCompareHelp()
+        r = self.do(self.__structCompareHelp_innards)
         if r:
             raise Exception, r
+
+
+class Dynamics(Minimize):
+    def __init__(self, filename):
+        global ToMinimize, DumpAsText
+        ToMinimize = 0
+        DumpAsText = 0
+        self.__init(filename)
+
+def test():
+    m = Minimize("tests/rigid_organics/test_C6H10.mmp")
+    m.go()
+    print
+    d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
+    d.go()

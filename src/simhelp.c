@@ -2,21 +2,149 @@
  * C helper file for sim.pyx
  */
 
+#include "Python.h"
 #include "simulator.h"
 
-typedef struct {
-    char *printPotential;
-    double printPotentialInitial; // pm
-    double printPotentialIncrement; // pm
-    double printPotentialLimit; // pm
-    int printPotentialEnergy;
-    char *ofilename;
-    char *tfilename;
-    char *filename;
-} SimArgs;
-SimArgs myArgs;
+typedef struct sim_context {
+    int debug_flags;
+    int Iteration;
+    int ToMinimize;
+    int IterPerFrame;
+    int NumFrames;
+    int DumpAsText;
+    int DumpIntermediateText;
+    int PrintFrameNums;
+    int OutputFormat;
+    int KeyRecordInterval;
+    int DirectEvaluate;
+    char *IDKey;
+    char *baseFilename;
+    double Temperature;
+    /* other stuff that might belong here? */
+    /* finalConfiguration in minstructure.c */
+    /* Part in minstructure.c */
+} sim_context;
 
-int initsimhelp(void);
+typedef struct two_contexts {
+    struct sim_context *first, *second;
+} two_contexts;
+
+
+/* call this guy from Simulator.__init__() */
+static struct sim_context *
+malloc_context(void)
+{
+    struct sim_context *ctx = (struct sim_context *)
+	malloc(sizeof(struct sim_context));
+    if (ctx == NULL) {
+	perror("out of memory");
+	exit(1);
+    }
+    return ctx;
+}
+
+struct two_contexts *
+malloc_two_contexts(void)
+{
+    static void
+	save_context(struct sim_context *ctx);
+    struct two_contexts *ctxs = (struct two_contexts *)
+	malloc(sizeof(struct two_contexts));
+    if (ctxs == NULL) {
+	perror("out of memory");
+	exit(1);
+    }
+    ctxs->first = malloc_context();
+    save_context(ctxs->first);
+    ctxs->second = malloc_context();
+    save_context(ctxs->second);
+    return ctxs;
+}
+
+static void
+free_context(sim_context *ctx)
+{
+    if (ctx == NULL) {
+	perror("free_context: ctx null??");
+	exit(1);
+    }
+    free(ctx);
+}
+
+void
+free_two_contexts(two_contexts *ctxs)
+{
+    if (ctxs == NULL) {
+	perror("free_two_contexts: ctxs null??");
+	exit(1);
+    }
+    free_context(ctxs->first);
+    free_context(ctxs->second);
+    free(ctxs);
+}
+
+
+static void
+save_context(struct sim_context *ctx)
+{
+    if (ctx == NULL) {
+	perror("save_context: ctx null??");
+	exit(1);
+    }
+    ctx->debug_flags = debug_flags;
+    ctx->Iteration = Iteration;
+    ctx->ToMinimize = ToMinimize;
+    ctx->IterPerFrame = IterPerFrame;
+    ctx->NumFrames = NumFrames;
+    ctx->DumpAsText = DumpAsText;
+    ctx->DumpIntermediateText = DumpIntermediateText;
+    ctx->PrintFrameNums = PrintFrameNums;
+    ctx->OutputFormat = OutputFormat;
+    ctx->KeyRecordInterval = KeyRecordInterval;
+    ctx->DirectEvaluate = DirectEvaluate;
+    ctx->IDKey = IDKey;
+    ctx->baseFilename = baseFilename;
+    ctx->Temperature = Temperature;
+}
+
+static void
+restore_context(struct sim_context *ctx)
+{
+    if (ctx == NULL) {
+	perror("restore_context: ctx null??");
+	exit(1);
+    }
+    debug_flags = ctx->debug_flags;
+    Iteration = ctx->Iteration;
+    ToMinimize = ctx->ToMinimize;
+    IterPerFrame = ctx->IterPerFrame;
+    NumFrames = ctx->NumFrames;
+    DumpAsText = ctx->DumpAsText;
+    DumpIntermediateText = ctx->DumpIntermediateText;
+    PrintFrameNums = ctx->PrintFrameNums;
+    OutputFormat = ctx->OutputFormat;
+    KeyRecordInterval = ctx->KeyRecordInterval;
+    DirectEvaluate = ctx->DirectEvaluate;
+    IDKey = ctx->IDKey;
+    baseFilename = ctx->baseFilename;
+    Temperature = ctx->Temperature;
+}
+
+void
+swap_contexts(struct two_contexts *ctxs)
+{
+    struct sim_context *tmp;
+    save_context(ctxs->first);
+    restore_context(ctxs->second);
+    tmp = ctxs->first;
+    ctxs->first = ctxs->second;
+    ctxs->second = tmp;
+}
+
+
+
+
+void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
 void everythingElse(void);
@@ -24,10 +152,23 @@ char * structCompareHelp(void);
 
 static char retval[100];
 static struct part *part;
-static char buf[1024], *filename;
-static int initializedAlready = 0;
+static char buf[1024];
 
-int initsimhelp(void)
+char *filename;
+
+static PyObject *
+get_a_pipe(void)
+{
+    // maybe steal code from posix_popen? no, do this:
+    // use pipe(2) to create pairs of file descriptors
+    // use fdopen to associate streams with the filedeses
+    // use the write stream to replace tracef/outf
+    // use PyFile_FromFile to turn the read stream into a Python file
+}
+
+
+
+void initsimhelp(void)
 {
     char *printPotential = NULL;
     double printPotentialInitial = 1.0;
@@ -36,21 +177,10 @@ int initsimhelp(void)
     int printPotentialEnergy = 0;
     char *ofilename;
     char *tfilename;
-    char *filename;
     char *p;
-    if (initializedAlready)
-	return 1;
-    initializedAlready = 1;
 
-    printPotential = myArgs.printPotential;
-    printPotentialInitial = myArgs.printPotentialInitial;
-    printPotentialIncrement = myArgs.printPotentialIncrement;
-    printPotentialLimit = myArgs.printPotentialLimit;
-    printPotentialEnergy = myArgs.printPotentialEnergy;
-    printPotential = myArgs.printPotential;
-    ofilename = myArgs.ofilename;
-    tfilename = myArgs.tfilename;
-    filename = myArgs.filename;
+    ofilename = "";
+    tfilename = "";
 
     if (DumpAsText) {
         OutputFormat = 0;
@@ -99,7 +229,6 @@ int initsimhelp(void)
     }
     if (IterPerFrame <= 0) IterPerFrame = 1;
     initializeBondTable();
-    return 0;
 }
 
 void readPart(void)
@@ -188,11 +317,11 @@ char * structCompareHelp(void) {
 		baseFilename);
 	return retval;
     }
-    initialPositions = readXYZ(myArgs.filename, &i2);
+    initialPositions = readXYZ(filename, &i2);
     if (initialPositions == NULL) {
 	sprintf(retval,
 		"could not read comparison positions file \"%s\"",
-		myArgs.filename);
+		filename);
 	return retval;
     }
     if (i1 != i2) {
