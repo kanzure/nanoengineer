@@ -1000,6 +1000,7 @@ class Movie:
             print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
                   (len(newPositions), len(self.alist))
             return
+        singlets = []
         for a, newPos in zip(self.alist, newPositions):
             #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
             # (and therefore have the wrong distance from their base atom).
@@ -1010,7 +1011,9 @@ class Movie:
             # is wildly wrong, and it should also complain. I won't do this for now.
             a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
             if a.is_singlet(): # same code as in movend()
-                a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
+                singlets.append(a) #bruce 051221 to fix bug 1239: do all snuggles after all moves; see snuggle docstring warning
+        for a in singlets:
+            a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
         self.glpane.gl_update()
         return
 
@@ -1115,6 +1118,9 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
             if a.is_singlet() and a.bonds: # could check a.molecule.part instead, but a.bonds is more to the point and faster
                 #bruce 050428 exclude killed atoms (a.killed() is too slow [not anymore, bruce 050702, but this check is better anyway])
                 a.snuggle() # same code as in moveAtoms() except for killed-atom check
+                    #bruce 051221 comment: note that to avoid an analog of bug 1239, it's critical that atoms are first all moved,
+                    # and only then are singlets snuggled. This was already the case here, but not in moveAtoms() from which this
+                    # code was copied.
             #e could optimize this (enough to do it continuously) by using Numeric to do them all at once
         for m in self.molecules:
             # should be ok even if some atoms moved into other mols since this was made [bruce 050516 comment]

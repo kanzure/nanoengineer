@@ -1434,25 +1434,37 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             return 0
         pass
 
-    def snuggle(self):
+    def snuggle(self): #bruce 051221 revised docstring re bug 1239
         """self is a singlet and the simulator has moved it out to the
         radius of an H. move it back. the molecule may or may not be still
         in frozen mode. Do all needed invals.
+           WARNING: if you are moving several atoms at once, first move them all,
+        then snuggle them all, since snuggling self is only correct after self's
+        real neighbor has already been moved to its final position. [Ignorance of
+        this issue was the cause of bug 1239.]
         """
         if not self.bonds:
             #bruce 050428: a bug, but probably just means we're a killed singlet.
             # The caller should be fixed, and maybe is_singlet should check this too,
             # but for now let's also make it harmless here:
             if platform.atom_debug:
-                print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet: ")
+                print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet of atomkey %r: " %
+                                     self.key )#bruce 051221 revised this; untested
             return
+##        if platform.atom_debug:#bruce 051221 debug code for bug 1239
+##            print_compact_stack( "atom_debug: snuggle %r, info printed below: " % self )
         #bruce 050406 revised docstring to say mol needn't be frozen.
         # note that this could be rewritten to call ideal_posn_re_neighbor,
         # but we'll still use it since it's better tested and faster.
         o = self.bonds[0].other(self)
         op = o.posn()
-        np = norm(self.posn()-op)*o.atomtype.rcovalent + op
+        sp = self.posn()
+        np = norm(sp-op)*o.atomtype.rcovalent + op
         self.setposn(np) # bruce 041112 rewrote last line
+##        if platform.atom_debug:#bruce 051221 debug code for bug 1239
+##            print "  self %r posn %r, other %r posn %r, new self posn %r, new self-other distance %r" % (
+##                self, sp, o, op, np, vlen(np-op) )
+        return
 
     def Passivate(self): ###@@@ not yet modified for atomtypes since it's not obvious what it should do! [bruce 050511]
         """[Public method, does all needed invalidations:]
