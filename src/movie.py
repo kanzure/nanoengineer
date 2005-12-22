@@ -22,7 +22,8 @@ import os, sys
 from struct import unpack
 from qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from VQT import A
+from VQT import A #k needed??
+from chem import move_alist_and_snuggle
 import platform
 from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
@@ -1000,20 +1001,7 @@ class Movie:
             print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
                   (len(newPositions), len(self.alist))
             return
-        singlets = []
-        for a, newPos in zip(self.alist, newPositions):
-            #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
-            # (and therefore have the wrong distance from their base atom).
-            # Rather than needing to know whether or not they were H during the sim,
-            # we can just regularize the singlet-baseatom distance for all singlets.
-            # For now I'll just use setposn to set the direction and snuggle to fix the distance.
-            #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
-            # is wildly wrong, and it should also complain. I won't do this for now.
-            a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
-            if a.is_singlet(): # same code as in movend()
-                singlets.append(a) #bruce 051221 to fix bug 1239: do all snuggles after all moves; see snuggle docstring warning
-        for a in singlets:
-            a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
+        move_alist_and_snuggle(self.alist, newPositions) #bruce 051221 fixed bug 1239 in this function, then split it out
         self.glpane.gl_update()
         return
 

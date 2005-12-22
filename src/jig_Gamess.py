@@ -19,6 +19,7 @@ from SimServer import SimServer
 from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 import env
 from HistoryWidget import redmsg #bruce 050913 precaution -- probably covered by some "import *" above, but good to do explicitly
+from chem import move_alist_and_snuggle
 
 # == GAMESS
 
@@ -249,8 +250,7 @@ class Gamess(Jig):
             return 1
                 
     def move_atoms(self, newPositions): # used when reading xyz files
-        """Borrowed from movie.moveAtoms.  Seems like a candidate for a 
-        general method - just supply the args alist and newPositions.
+        """Borrowed from movie.moveAtoms.
         Move a list of atoms to newPosition. After 
         all atoms moving, bond updated, update display once.
         <parameter>newPosition is a list of atom absolute position,
@@ -266,17 +266,9 @@ class Gamess(Jig):
             print "move_atoms: The number of atoms from GAMESS file (%d) is not matching with that of the current model (%d)" % \
                   (len(newPositions), len(atomList))
             return
-        for a, newPos in zip(atomList, newPositions):
-            #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
-            # (and therefore have the wrong distance from their base atom).
-            # Rather than needing to know whether or not they were H during the sim,
-            # we can just regularize the singlet-baseatom distance for all singlets.
-            # For now I'll just use setposn to set the direction and snuggle to fix the distance.
-            #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
-            # is wildly wrong, and it should also complain. I won't do this for now.
-            a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
-            if a.is_singlet(): # same code as in movend()
-                a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
+        move_alist_and_snuggle(atomList, newPositions)
+            #bruce 051221 fix a bug analogous to bug 1239 by letting this new function (containing a loop)
+            # replace a copy (which was right here) of the older buggy version of that loop
         self.assy.o.gl_update()
         return
                         

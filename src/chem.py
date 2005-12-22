@@ -2028,6 +2028,35 @@ def atom_angle_radians(atom1, atom2, atom3):
 
 # ==
 
+def move_alist_and_snuggle(alist, newPositions):
+    """Move the atoms in alist to the new positions in the given array or sequence
+    (which must have the same length);
+    then for any singlets in alist, correct their positions using Atom.snuggle.
+       WARNING: it would be wrong to call this on several alists in a row if they might overlap
+    or were connected by bonded atoms, for the same reason that the snuggle has to be done in a separate loop
+    (see snuggle docstring for details, re bug 1239).
+       WARNING: I'm not sure if it does all required invals; it doesn't do gl_update.
+    """
+    #bruce 051221 split this out of class Movie so its bug1239 fix can be used in jig_Gamess.
+    assert len(alist) == len(newPositions)
+    singlets = []
+    for a, newPos in zip(alist, newPositions):
+        #bruce 050406 this needs a special case for singlets, in case they are H in the xyz file
+        # (and therefore have the wrong distance from their base atom).
+        # Rather than needing to know whether or not they were H during the sim,
+        # we can just regularize the singlet-baseatom distance for all singlets.
+        # For now I'll just use setposn to set the direction and snuggle to fix the distance.
+        #e BTW, I wonder if it should also regularize the distance for H itself? Maybe only if sim value
+        # is wildly wrong, and it should also complain. I won't do this for now.
+        a.setposn_batch(A(newPos)) #bruce 050513 try to optimize this
+        if a.is_singlet(): # same code as in movend()
+            singlets.append(a) #bruce 051221 to fix bug 1239: do all snuggles after all moves; see snuggle docstring warning
+    for a in singlets:
+        a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
+    return
+
+# ==
+
 # class Bond (etc) used to be defined here, but now it's in bonds.py. [bruce 050502]
 
 from bonds import *  # only for the sake of other files which still import bond-related symbols from this file
