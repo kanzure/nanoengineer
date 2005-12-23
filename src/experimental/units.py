@@ -1,26 +1,19 @@
-'''mks.py - physical units for calculations
+"""Physical units for calculations
 
-Physical quantities are represented here as dictionaries. One key
-is 'coefficient', the other keys are metric units like 'm', 'sec',
-'kg'. The value for each dimension key is the power to which that unit
-is raised. For instance, force is in newtons, (kg m/sec^2), so the
-representation for a newton is {'sec': -2, 'kg': 1, 'm': 1,
-'coefficient': 1.0}.
+Physical quantities are represented here as dictionaries. One key is
+'coefficient', the other keys are metric units like 'm', 'sec', 'kg'.
+The value for each dimension key is the power to which that unit is
+raised. For instance, the representation for a newton is {'sec': -2,
+'kg': 1, 'm': 1, 'coefficient': 1.0}.
 
 When quantities are multiplied or divided, the powers of units are
 correctly maintained. If one unit ends up being raised to a zeroth
-power, that unit is discarded in the product or ratio. If there are
-no units left at all, i.e. the result is dimensionless, just return
-a float.
-
-Many physical formulas apply transcendental functions to dimensionless
-ratios of quantities. For instance, the voltage across a discharging
-capacitor is exp(-t/(R*C)), where t, R, and C have dimensions
-(seconds, ohms, and farads), but the ratio is dimensionless. So
-returning a float in such cases is a desirable behavior.
+power, that unit is discarded in the product or ratio. If a result is
+dimensionless, just return a float.
 
 There are also some handy units and conversions at the bottom of the
-file.'''
+file.
+"""
 
 import types
 
@@ -62,6 +55,9 @@ class Quantity:
 	del units[coeff]
 	return Quantity(self.stuff[coeff] - other.stuff[coeff],
 			units)
+    def __cmp__(self,other):
+	self.testUnitsMatch(other)
+	return cmp(self.stuff[coeff], other.stuff[coeff])
     def __mul__(self,other):
         if type(other) in (types.IntType, types.FloatType, types.ComplexType):
             stuff = self.stuff.copy()
@@ -69,35 +65,26 @@ class Quantity:
             return Quantity(stuff)
         if not isinstance(other, Quantity):
             raise UnitsMismatch, repr(self) + " * " + repr(other)
-	c = 1. * self.stuff[coeff] * other.stuff[coeff]
-	u = self.multUnits(other, 1)
-	if u.keys() == [ ]:
-	    return c
-	else:
-	    return Quantity(c, u)
+        stuff = self.stuff.copy()
+        for k in other.stuff.keys():
+            if k != coeff:
+                if stuff.has_key(k):
+                    stuff[k] += other.stuff[k]
+                    if abs(stuff[k]) < 1.0e-8:
+                        del stuff[k]
+                else:
+                    stuff[k] = other.stuff[k]
+        stuff[coeff] *= other.stuff[coeff]
+        if len(stuff.keys()) == 1:
+            return stuff[coeff]
+        else:
+            return Quantity(stuff)
     def __rmul__(self,other):
-	a = self.stuff.copy()
-	a[coeff] = other * a[coeff]
-	return Quantity(a)
+        return self * other
     def __div__(self,other):
-	try:
-	    c = 1. * self.stuff[coeff] / other.stuff[coeff]
-	    u = self.multUnits(other, -1)
-	except AttributeError:
-	    c = 1. * self.stuff[coeff] / other
-	    u = self.stuff.copy()
-	    del u[coeff]
-	if u.keys() == [ ]:
-	    return c
-	else:
-	    return Quantity(c, u)
+        return self * (other ** -1)
     def __rdiv__(self,other):
-	a = self.stuff.copy()
-	b = other / a[coeff]
-	del a[coeff]
-	for k in a.keys():
-	    a[k] = -a[k]
-	return Quantity(b, a)
+        return (self ** -1) * other
     def __pow__(self, z):
         stuff = self.stuff.copy()
         for k in stuff.keys():
@@ -105,21 +92,6 @@ class Quantity:
                 stuff[k] = z * stuff[k]
         stuff[coeff] = stuff[coeff] ** z
         return Quantity(stuff)
-    def multUnits(self,other,n):
-	units1 = self.stuff.copy()
-	units2 = other.stuff.copy()
-	del units1[coeff]
-	del units2[coeff]
-	for k in units1.keys():
-	    if k in units2.keys():
-		units1[k] = units1[k] + n * units2[k]
-	for k in units2.keys():
-	    if k not in units1.keys():
-		units1[k] = n * units2[k]
-	for k in units1.keys():
-	    if units1[k] == 0:
-		del units1[k]
-	return units1
     def unitsMatch(self,other):
         if not isinstance(other, Quantity):
             return False
@@ -226,3 +198,47 @@ day = 24 * hour
 year = 365.25 * day
 # There is some disagreement on years. There are Julian years (this is
 # that), Gregorian years (365.2425), and tropical years (365.24219).
+
+angstrom = 1.e-10 * meter
+
+protonMass = 1.672621e-27 * kilogram
+MomentOfInertiaUnit = kilogram * meter2
+TorqueUnit = radian * newton * meter
+AngularVelocityUnit = radian / second
+
+class Vector:
+    def __init__(self, x, y, z):
+        self.x, self.y, self.z = x, y, z
+    def __repr__(self):
+        return "[%s %s %s]" % (repr(self.x), repr(self.y), repr(self.z))
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+    def __neg__(self, other):
+        return Vector(-self.x, -self.y, -self.z)
+    def scale(self, m):
+        return Vector(self.x * m, self.y * m, self.z * m)
+    def dot(self, other):
+        return self.x * other.x + self.y * other.y + self.z * other.z
+    def cross(self, other):
+        return Vector(self.y * other.z - self.z * other.y,
+                      self.z * other.x - self.x * other.z,
+                      self.x * other.y - self.y * other.x)
+    def length(self):
+        return self.dot(self) ** .5
+    def normalize(self):
+        return self.scale(1. / self.length())
+
+ZERO_POSITION = Vector(0. * meter,
+                       0. * meter,
+                       0. * meter)
+ZERO_VELOCITY = Vector(0. * meter / second,
+                       0. * meter / second,
+                       0. * meter / second)
+ZERO_FORCE = Vector(0. * newton,
+                    0. * newton,
+                    0. * newton)
+ZERO_TORQUE = Vector(0. * TorqueUnit,
+                     0. * TorqueUnit,
+                     0. * TorqueUnit)
