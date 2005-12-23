@@ -6,10 +6,18 @@
 from math import pi, cos, sin
 import random
 import units
+import sys
 
+DEBUG = False
 
 DT = 1.e-16 * units.second
 SPRING_STIFFNESS = 10 * units.newton / units.meter
+
+# Sw(x) goes from 0 to 1, use 1-Sw(x) to go from 1 to 0
+def Sw(x, a=.5/pi, b=2*pi):
+    if x < 0: return 0
+    elif x > 1: return 1
+    else: return x - a * cos(b * (x - .25))
 
 class Atom:
     def __init__(self, mass, x, y, z):
@@ -26,13 +34,20 @@ class Atom:
         self.position += self.velocity.scale(DT)
         self.velocity += self.force.scale(DT / self.mass)
 
-class BoschMotor:
+class Spring:
+    def __init__(self, stiffness, atom1, atom2):
+        self.stiffness = stiffness
+        self.atom1 = atom1
+        self.atom2 = atom2
+        self.length = (atom1.position - atom2.position).length()
+    def timeStep(self):
+        x = self.atom1.position - self.atom2.position
+        f = x.normalize().scale(self.stiffness * (x.length() - self.length))
+        self.atom1.force -= f
+        self.atom2.force += f
 
-    def __init__(self, atomlist, torque, gigahertz):
-        speed = (2 * pi * 1.e9 * units.AngularVelocityUnit) * gigahertz
-        print "target speed", speed
-        assert units.TorqueUnit.unitsMatch(torque)
-        assert units.AngularVelocityUnit.unitsMatch(speed)
+class RotaryController:
+    def __init__(self, atomlist):
         self.atoms = atomlist
         center = units.ZERO_POSITION
         for atm in atomlist:
@@ -46,16 +61,64 @@ class BoschMotor:
             u = extended[i].position - center
             v = extended[i+1].position - center
             axis += u.cross(v).scale(1./units.meter)
-        axis = axis.normalize()
+        self.axis = axis = axis.normalize()
         # at this point, axis is dimensionless and unit-length
-        self.axis = axis
-        atomsMomentOfInertia = 0. * units.MomentOfInertiaUnit
+        self.anchors = anchors = [ ]
         for atom in atomlist:
-            spoke = atom.position - center
-            r = spoke.cross(axis).length()
-            atomsMomentOfInertia += atom.mass * r**2
-        flywheelMomentOfInertia = 10 * atomsMomentOfInertia
-        self.momentOfInertia = atomsMomentOfInertia + flywheelMomentOfInertia
+            x = atom.position - center
+            u = axis.scale(x.dot(axis))
+            v = x - u
+            w = axis.cross(v)
+            def getAnchor(theta, u=u, v=v, w=w):
+                # be able to rotate the anchor around the axis
+                theta /= units.radian
+                return u + v.scale(cos(theta)) + w.scale(sin(theta))
+            anchors.append(getAnchor)
+        self.omega = 0. * units.radian / units.second
+        self.theta = 0. * units.radian
+
+    def nudgeAtomsTowardTheta(self):
+        # this is called during the controller's time step function
+        # assume that any interatomic forces have already been computed
+        # and are represented in the "force" attribute of each atom
+        # calculate positions of each anchor, and spring force to atom
+        atoms, anchors, center = self.atoms, self.anchors, self.center
+        atomDragTorque = 0. * units.TorqueUnit
+        for i in range(len(atoms)):
+            atom = atoms[i]
+            anchor = anchors[i](self.theta)
+            # compute force between atom and anchor
+            springForce = (atom.position - anchor).scale(SPRING_STIFFNESS)
+            atom.force -= springForce
+            r = atom.position - center
+            T = r.cross(springForce).scale(units.radian)
+            atomDragTorque += self.axis.dot(T)
+        return atomDragTorque
+
+    def atomsMomentOfInertia(self):
+        center, axis, atoms = self.center, self.axis, self.atoms
+        amoi = 0. * units.MomentOfInertiaUnit
+        for atom in self.atoms:
+            spoke = atom.position - self.center
+            r = spoke.cross(self.axis).length()
+            amoi += atom.mass * r**2
+        return amoi
+        
+
+class BoschMotor(RotaryController):
+
+    def __init__(self, atomlist, torque, gigahertz):
+        RotaryController.__init__(self, atomlist)
+        speed = (2 * pi * 1.e9 * units.AngularVelocityUnit) * gigahertz
+        if DEBUG: print "target speed", speed
+        assert units.TorqueUnit.unitsMatch(torque)
+        assert units.AngularVelocityUnit.unitsMatch(speed)
+        self.stallTorque = torque
+        self.speed = speed
+
+        amoi = self.atomsMomentOfInertia()
+        flywheelMomentOfInertia = 10 * amoi
+        self.momentOfInertia = amoi + flywheelMomentOfInertia
 
         #
         #   There REALLY IS a criterion for numerical stability!
@@ -67,39 +130,13 @@ class BoschMotor:
             # the equivalent thing at this point.
             raise Exception, "torque-to-speed ratio is too high"
 
-        self.anchors = anchors = [ ]
-        for atom in atomlist:
-            x = atom.position - center
-            u = axis.scale(x.dot(axis))
-            v = x - u
-            w = axis.cross(v)
-            def getAnchor(theta):
-                # be able to rotate the anchor around the axis
-                theta /= units.radian
-                return u + v.scale(cos(theta)) + w.scale(sin(theta))
-            anchors.append(getAnchor)
-        self.stallTorque = torque
-        self.speed = speed
-        self.omega = 0. * units.radian / units.second
-        self.theta = 0. * units.radian
-
     def timeStep(self):
         # assume that any interatomic forces have already been computed
         # and are represented in the "force" attribute of each atom
         # calculate positions of each anchor, and spring force to atom
-        atoms, anchors, center = self.atoms, self.anchors, self.center
-        atomTorqueOnFlywheel = 0. * units.TorqueUnit
-        for i in range(len(atoms)):
-            atom = atoms[i]
-            anchor = anchors[i](self.theta)
-            f = (atom.position - anchor).scale(SPRING_STIFFNESS)
-            atom.force -= f
-            # use f to compute torque atom applies to flywheel
-            r = atom.position - center
-            T = r.cross(f).scale(units.radian)
-            atomTorqueOnFlywheel += self.axis.dot(T)
+        atomDragTorque = self.nudgeAtomsTowardTheta()
         controlTorque = self.torqueFunction()
-        self.torque = torque = controlTorque + atomTorqueOnFlywheel
+        self.torque = torque = controlTorque + atomDragTorque
 
         # iterate equations of motion
         self.theta += DT * self.omega
@@ -109,45 +146,86 @@ class BoschMotor:
         # The Bosch model
         return (1.0 - self.omega / self.speed) * self.stallTorque
 
-class DrexlerSwMotor(BoschMotor):
-    def torqueFunction(self):
-        def Sw(x):
-            if x <= 0:
-                return 1.
-            elif x >= 1:
-                return 0.
-            return (.5/pi) * cos(2*pi*(x-.25)) - x + 1
-        return self.stallTorque * Sw(self.omega / self.speed)
-
 class ThermostatMotor(BoschMotor):
     def torqueFunction(self):
+        # bang-bang control
         if self.omega < self.speed:
             return self.stallTorque
-        return 0. * units.TorqueUnit
+        else:
+            return -self.stallTorque
 
-#Motor = BoschMotor
-#Motor = DrexlerSwMotor
-Motor = ThermostatMotor
+class RotarySpeedController(RotaryController):
+    def __init__(self, atomlist, rampupTime, gigahertz):
+        RotaryController.__init__(self, atomlist)
+        speed = (2 * pi * 1.e9 * units.AngularVelocityUnit) * gigahertz
+        if DEBUG: print "target speed", speed
+        assert units.second.unitsMatch(rampupTime)
+        assert units.AngularVelocityUnit.unitsMatch(speed)
+        self.time = 0. * units.second
+        self.rampupTime = rampupTime
+        self.speed = speed
+
+    def timeStep(self):
+        self.nudgeAtomsTowardTheta()
+        # iterate equations of motion
+        self.theta += DT * self.omega
+        self.omega = self.speed * Sw(self.time / self.rampupTime)
+        self.time += DT
 
 ################################################
 
-N = 3
+N = 6
 alst = [ ]
 for i in range(N):
+    def rand():
+        return 0.1 * (1. - 2. * random.random())
     a = 3 * units.angstrom
-    atm = Atom(12 * units.protonMass,
-               (1. - 2. * random.random()) * a,
-               (1. - 2. * random.random()) * a,
-               0.1 * (1. - 2. * random.random()) * a)
+    x = a * (rand() + cos(2 * pi * i / N))
+    y = a * (rand() + sin(2 * pi * i / N))
+    z = a * rand()
+    atm = Atom(12 * units.protonMass, x, y, z)
     alst.append(atm)
 
-m = Motor(alst, 1.0e-16 * units.TorqueUnit, 2.0e4)
+springs = [ ]
+extended = alst + [ alst[0], ]
+for i in range(N):
+    atom1 = extended[i]
+    atom2 = extended[i+1]
+    stiffness = 400 * units.newton / units.meter
+    springs.append(Spring(stiffness, atom1, atom2))
 
-for i in range(1000):
+type = "T"
+ghz = 2000
+
+if type == "B":
+    Motor = BoschMotor
+    m = Motor(alst, 1.0e-16 * units.TorqueUnit, ghz)
+elif type == "T":
+    Motor = ThermostatMotor
+    m = Motor(alst, 1.0e-16 * units.TorqueUnit, ghz)
+elif type == "S":
+    Motor = RotarySpeedController
+    m = Motor(alst, 1000 * DT, ghz)
+
+yyy = open("yyy", "w")
+zzz = open("zzz", "w")
+
+for i in range(10000):
     for a in alst:
         a.zeroForce()
+    for s in springs:
+        s.timeStep()
     m.timeStep()
     for a in alst:
         a.timeStep()
-    print m.theta, m.omega, m.torque
-    #print "---", alst[0]
+    if (i % 100) == 0:
+        #print m.theta, m.omega, alst[0]
+        p = alst[0].position
+        yyy.write("%g %g\n" % (p.x.coefficient(), p.y.coefficient()))
+        p = alst[N/2].position
+        zzz.write("%g %g\n" % (p.x.coefficient(), p.y.coefficient()))
+
+yyy.close()
+zzz.close()
+
+print "Gnuplot command:   plot \"yyy\" with lines, \"zzz\" with lines"

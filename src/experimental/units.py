@@ -43,22 +43,21 @@ class Quantity:
 		if self.stuff[k] != 1:
 		    str = str + '^' + `self.stuff[k]`
 	return str + '>'
-    def __add__(self,other):
+    def __add__(self, other):
 	self.testUnitsMatch(other)
-	units = self.stuff.copy()
-	del units[coeff]
-	return Quantity(self.stuff[coeff] + other.stuff[coeff],
-			units)
-    def __sub__(self,other):
-	self.testUnitsMatch(other)
-	units = self.stuff.copy()
-	del units[coeff]
-	return Quantity(self.stuff[coeff] - other.stuff[coeff],
-			units)
-    def __cmp__(self,other):
+	stuff = self.stuff.copy()
+	stuff[coeff] += other.stuff[coeff]
+	return Quantity(stuff)
+    def __neg__(self):
+	stuff = self.stuff.copy()
+	stuff[coeff] = -stuff[coeff]
+	return Quantity(stuff)
+    def __sub__(self, other):
+        return self + (-other)
+    def __cmp__(self, other):
 	self.testUnitsMatch(other)
 	return cmp(self.stuff[coeff], other.stuff[coeff])
-    def __mul__(self,other):
+    def __mul__(self, other):
         if type(other) in (types.IntType, types.FloatType, types.ComplexType):
             stuff = self.stuff.copy()
             stuff[coeff] = other * stuff[coeff]
@@ -79,11 +78,11 @@ class Quantity:
             return stuff[coeff]
         else:
             return Quantity(stuff)
-    def __rmul__(self,other):
+    def __rmul__(self, other):
         return self * other
-    def __div__(self,other):
+    def __div__(self, other):
         return self * (other ** -1)
-    def __rdiv__(self,other):
+    def __rdiv__(self, other):
         return (self ** -1) * other
     def __pow__(self, z):
         stuff = self.stuff.copy()
@@ -92,7 +91,9 @@ class Quantity:
                 stuff[k] = z * stuff[k]
         stuff[coeff] = stuff[coeff] ** z
         return Quantity(stuff)
-    def unitsMatch(self,other):
+    def coefficient(self):
+        return self.stuff[coeff]
+    def unitsMatch(self, other):
         if not isinstance(other, Quantity):
             return False
 	otherkeys = other.stuff.keys()
@@ -102,7 +103,7 @@ class Quantity:
 	    if k != coeff and self.stuff[k] != other.stuff[k]:
 		return False
         return True
-    def testUnitsMatch(self,other):
+    def testUnitsMatch(self, other):
         if not self.unitsMatch(other):
             raise UnitsMismatch, repr(self) + " mismatch " + repr(other)
 
