@@ -12,7 +12,7 @@ interp_sqrt.c: interp.py
 	mv interp.c interp_sqrt.c
 
 clean:
-	rm -f *.o *~ interp*.c gmon.out testsqrt
+	rm -f *.o *~ interp*.c gmon.out testsqrt *.pyc
 
 # doing a profile is incompatible with "static_inline"
 profile:
