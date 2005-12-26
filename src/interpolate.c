@@ -193,7 +193,8 @@ potentialBuckingham(double r, void *p)
 	
   // rvdW in pm (1e-12 m)
   // evdW in zJ (1e-21 J)
-  return 1e-3 * vdw->evdW * (2.48e5 * exp(-12.5*(r/vdw->rvdW)) -1.924*pow(r/vdw->rvdW, -6.0));
+  return 1e-3 * vdw->evdW * (2.48e5 * exp(-12.5*(r/vdw->rvdW)) -1.924*pow(r/vdw->rvdW, -6.0))
+    - vdw->vInfinity;
 }
 
 // the result is in yoctoJoules per picometer = picoNewtons
@@ -232,6 +233,9 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   end = vdw->rvdW * 1.5;
   scale = (end - start) / TABLEN;
 
+  vdw->vInfinity = 0.0;
+  vdw->vInfinity = potentialBuckingham(end, vdw);
+  
   fillInterpolationTable(&vdw->potentialBuckingham, potentialBuckingham, start, scale, vdw);
   fillInterpolationTable(&vdw->gradientBuckingham, gradientBuckingham, start, scale, vdw);
 }
@@ -337,8 +341,62 @@ printBendPAndG(char *bendName, double initial, double increment, double limit)
 static void
 printVdWPAndG(char *vdwName, double initial, double increment, double limit)
 {
-  fprintf(stderr, "printVdWPAndG not implemented yet\n");
-  exit(1);
+  char elt1[4];
+  char elt2[4];
+  struct atomType *e1;
+  struct atomType *e2;
+  struct vanDerWaalsParameters *vdw;
+  double r;
+  double interpolated_potential;
+  double interpolated_gradient;
+  double direct_potential;
+  double direct_gradient;
+  double lip; // last interpolated_potential
+  double dip; // derivitive of interpolated_potential
+  
+  convertDashToSpace(vdwName);
+  if (2 != sscanf(vdwName, "%2s v %2s", elt1, elt2)) {
+    fprintf(stderr, "vdw format must be: vdw:C-v-H\n");
+    exit(1);
+  }
+  e1 = getAtomTypeByName(elt1);
+  if (e1 == NULL) {
+    fprintf(stderr, "Element %s not defined\n", elt1);
+    exit(1);
+  }
+  e2 = getAtomTypeByName(elt2);
+  if (e2 == NULL) {
+    fprintf(stderr, "Element %s not defined\n", elt2);
+    exit(1);
+  }
+  
+  vdw = getVanDerWaalsTable(e1->protons, e2->protons);
+
+  printf("# rvdW=%e evdW=%e\n",
+         vdw->rvdW,
+         vdw->evdW);
+
+  printf("# table start = %e table end = %e\n",
+         vdw->rvdW * 0.4,
+         vdw->rvdW * 1.5);
+
+  interpolated_potential = vanDerWaalsPotential(NULL, NULL, vdw, initial);
+  for (r=initial; r<limit; r+=increment) {
+    lip = interpolated_potential;
+    interpolated_potential = vanDerWaalsPotential(NULL, NULL, vdw, r);
+    dip = interpolated_potential - lip;
+    interpolated_gradient = vanDerWaalsGradient(NULL, NULL, vdw, r);
+    direct_potential = potentialBuckingham(r, vdw);
+    direct_gradient = gradientBuckingham(r, vdw);
+    printf("%e %e %e %e %e %e\n",
+           r,                      // 1
+           interpolated_potential, // 2
+           interpolated_gradient, // 3
+           direct_potential,       // 4
+           direct_gradient,       // 5
+           dip                    // 6
+           );
+  }
 }
 
 void

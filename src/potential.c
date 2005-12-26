@@ -175,10 +175,10 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
     }
     k=0;
     potential = t1[k] + r * t2[k];
-  } else if (DirectEvaluate) {
-    potential = potentialBuckingham(r, parameters);
   } else if (k>=TABLEN) {
     potential = 0.0;
+  } else if (DirectEvaluate) {
+    potential = potentialBuckingham(r, parameters);
   } else {
     potential = t1[k] + r * t2[k];
   }

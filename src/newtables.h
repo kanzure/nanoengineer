@@ -46,6 +46,12 @@ struct vanDerWaalsParameters
   double rvdW; // in pm (1e-12 m)
   double evdW; // in zJ (1e-21 J)
 
+  // We subtract vInfinity from the potential, so it reaches zero at
+  // the end of the interpolation table, rather than have a step
+  // there.
+  // XXX This changes the depth of the potential well, which may be a problem.
+  double vInfinity; // potential at "infinity", the end of the interpolation table
+
   struct interpolationTable potentialBuckingham;
   struct interpolationTable gradientBuckingham;
 };
