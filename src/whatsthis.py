@@ -7,6 +7,35 @@ $Id$
 
 from qt import *
 
+###@@@ bruce 051227 experimental code for putting hyperlinks into selected WhatsThis texts
+
+enable_whatsthis_links = False # DO NOT COMMIT with True (since incomplete), but keep the code (might be used for A7)
+
+class MyWhatsThis(QWhatsThis):
+    def __init__(self, widget, text = None):
+        QWhatsThis.__init__(self, widget)
+        self.__text = text # note: using QString(text) here is ok but not required
+    def text(self, pos):
+        # this runs when Qt puts up a WhatsThis help window for widget
+        print "text at pos %r in %r was queried by Qt" % (pos, self) # note: pos repr is not useful, doesn't show x,y
+        text = self.__text
+        if not text:
+            print " no text" # never happens in current calling code [051227]
+        return text
+    def clicked(self, link):
+        # this runs when user clicks on a hyperlink in the help text, with 'link' being the link text (href attribute)
+        link = str(link) # QString to string (don't know if this is needed, guess yes)
+        print "clicked hyperlink in %r, href text is %r" % (self,link)
+            ##e revise this to change link text to URL if it's not already, and open browser to help page (see wiki_help.py)
+        return True ## return True to make help text widget go away, or False to keep it around (with no change in contents)
+    pass
+
+    ## note: doesn't work on QActions (at least for an earlier version of the class with no __init__ method):
+    ## MyWhatsThis(self.editCopyAction) ## TypeError: argument 1 of QWhatsThis() has an invalid type
+
+###@@@ end bruce 051227 experimental code [but there's more, far below]
+
+
 def createWhatsThis(self):
         
         ##############################################
@@ -1310,17 +1339,43 @@ def fix_whatsthis_text_for_mac(parent):
     whatsthis text for all QAction widgets that are children of parent.  This should be 
     called after all widgets (and their whatsthis text) in the UI have been created.
     '''
-    from platform import is_not_macintosh
+    from platform import is_macintosh #bruce 051227 zapped only use of misguided is_not_macintosh variant of this
     
-    if is_not_macintosh():
-        return
-        
-    objList = parent.queryList("QAction")
+    if is_macintosh():  
+        objList = parent.queryList("QAction")
+        for obj in objList:
+            original_txt = obj.whatsThis()
+            new_txt = replace_ctrl_with_cmd_text(original_txt)
+            obj.setWhatsThis(new_txt)
+###@@@ bruce 051227 hack
+    if enable_whatsthis_links:
+        hack_whatsthis_object_for_widgets(parent)
+###@@@ end bruce hack
+    return
+
+###@@@ bruce 051227 hack
+_KEEPERS = []
+def hack_whatsthis_object_for_widgets(parent):
+    objList = parent.queryList("QWidget")
     for obj in objList:
-        original_txt = obj.whatsThis()
-        new_txt = replace_ctrl_with_cmd_text(original_txt)
-        obj.setWhatsThis(new_txt)
-        
+        try:
+            ## this never works: original_txt = obj.whatsThis()
+            original_txt = QWhatsThis.textFor( obj)
+        except:
+            pass ## print "no textFor attr, or it fails:",obj
+            ## this happens for a lot of QObjects (don't know what they are), e.g. for <constants.qt.QObject object at 0xb96b750>
+        else:
+            # it's often a null string
+            if original_txt:
+                print "hacking",obj
+                ## print obj, original_txt # seems like original_txt is already a Python string??
+                FAKELINK = "<a href=\"xxx\">linktoxxx</a>"
+                original_txt = FAKELINK + str(original_txt) + FAKELINK
+                obj1 = MyWhatsThis( obj, original_txt)
+                ## obj._KEEP_WHATSTHIS = obj1 # this was not sufficient to prevent a bus error
+                _KEEPERS.append(obj1) # this is needed to prevent a bus error
+    return
+###@@@ end bruce hack
     
 def replace_ctrl_with_cmd_text(str):
     '''Returns a string, replacing all occurances of Ctrl with Cmd in 'str'.

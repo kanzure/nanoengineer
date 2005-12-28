@@ -41,14 +41,6 @@ def is_macintosh():
     # have a different value for sys.platform
     return sys.platform in ['darwin']
 
-# is_not_macintosh() function added for code readability.  For example:
-#    if is_not_macintosh():
-# is easier than:
-#    if not is_macintosh():
-# Mark 051126.
-def is_not_macintosh(): 
-    return not sys.platform in ['darwin']
-
 def filter_key(key, debug_keys = 0):
     """given a Qt keycode key, usually return it unchanged,
        but return a different keycode if that would help fix platform-specific bugs in Qt keycodes
