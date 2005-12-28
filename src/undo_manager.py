@@ -21,7 +21,8 @@ class UndoManager:
     """[abstract class]
     Own and manage an undo-archive, in such a way as to provide undo/redo operations
     and a current-undo-point within the archive
-    on top of state-holding objects which would otherwise not have these undo/redo ops.
+    on top of state-holding objects which would otherwise not have these undo/redo ops
+    (though they must have the ability to track changes and/or support scanning of their state).
        Assume that no other UndoManager or UndoArchive is tracking the same state-holding objects
     (i.e. we own them for undo-related purposes).
        #e future: Perhaps also delegate all command-method-calls to the state-holding objects...

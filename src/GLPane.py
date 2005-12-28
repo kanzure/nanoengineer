@@ -380,6 +380,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         sure I'm right about that, since I didn't test it.
            Revised 050911: leaves self.mode as nullmode.
         """
+        ##e should previous self.assy be destroyed, or at least made to no longer point to self? [bruce 051227 question]
         assy.o = self ###@@@ should only the part know the glpane?? or, only the mode itself? [bruce 050418 comment]
         self.assy = assy
         try:

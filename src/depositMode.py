@@ -1014,9 +1014,14 @@ class depositMode(basicMode):
             x,y,z = atm # kluge to accept either arg type
         return "(%.2f, %.2f, %.2f)" % (x,y,z)
 
-    def ensure_visible(self, chunk, status):
-        """if chunk is not visible now, make it visible by changing its
-        display mode, and append a warning about this to the given status message
+    def ensure_visible(self, stuff, status):
+        """if any chunk in stuff (#doc format) is not visible now, make it visible by changing its
+        display mode, and append a warning about this to the given status message,
+        which is returned whether or not it's modified.
+           Suggested revision: if some chunks in a library part are explicitly invisible and some are visible, I suspect this
+        behavior is wrong and it might be better to require only that some of them are visible,
+        and/or to only do this when overall display mode was visible. [bruce 051227]
+           Suggested revision: maybe the default display mode for deposited stuff should also be user-settable. [bruce 051227]
         """
         # By bruce 041207, to fix bug 229 part B (as called in comment #2),
         # by making each deposited chunk visible if it otherwise would not be.
@@ -1024,12 +1029,38 @@ class depositMode(basicMode):
         # but after future planned changes to the code, it might instead be a
         # preexisting chunk which was extended. Either way, we'll make the
         # entire chunk visible if it's not.
-        if chunk and chunk.get_dispdef(self.o) == diINVISIBLE:
-            chunk.setDisplay(diTUBES) # Build mode's own default display mode
+        #bruce 051227 revising this to handle more general deposited_stuff, for deposited library parts.
+        n = self.ensure_visible_0( stuff)
+        if n:
             status += " (warning: gave it Tubes display mode)"
-        elif platform.atom_debug:
-            pass ## status += " (atom_debug: already visible)"
+            #k is "it" correct even for library parts? even when not all deposited chunks were changed?
         return status
+
+    def ensure_visible_0(self, stuff): #bruce 051227 split out and generalized
+        "[private recursive worker method for ensure_visible; returns number of things whose display mode was modified]"
+        if not stuff:
+            return 0 #k can this happen? I think so, since old code could handle it.
+        from chunk import Chunk #k might not be needed
+        if isinstance(stuff, Chunk):
+            chunk = stuff
+            if chunk.get_dispdef(self.o) == diINVISIBLE:
+                chunk.setDisplay(diTUBES) # Build mode's own default display mode
+                return 1
+            return 0
+        elif isinstance(stuff, Group):
+            return self.ensure_visible_0( stuff.members)
+        elif isinstance(stuff, type([])):
+            res = 0
+            for m in stuff:
+                res += self.ensure_visible_0( m)
+            return res
+        else:
+            assert isinstance(stuff, Node) # presumably Jig
+            ##e not sure how to handle this or whether we need to [bruce 051227]; leave it out and await bug report?
+            if platform.atom_debug:
+                print "atom_debug: ignoring object of unhandled type (Jig?) in ensure_visible_0", stuff
+            return 0
+        pass
     
     def __createBond(self, s1, a1, s2, a2):
         '''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets. No rotation/movement involved. Based on
@@ -1047,21 +1078,25 @@ class depositMode(basicMode):
         
         vnew = min(v1,v2)
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
-           
+        return
     
-    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): 
+    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227
         '''This method serves as an overloaded method, <atom_or_pos> is 
            the Singlet atom or the empty position that the new part <newPart> will be attached to or placed at.
            Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
-           another assembly is all right. 
-           Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>. '''
-        attach2Bond = False	
+           another assembly is all right. [It wasn't, so bruce 051227 revised it.]
+           Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>.
+           [bruce 051227 new feature:] return a list of new nodes created, and a message for history (currently almost a stub).
+           [not sure if subrs ever print history messages... if they do we'd want to return those instead.]
+        '''
+        attach2Bond = False
+        stuff = [] # list of deposited nodes [bruce 051227 new feature]
         
         if isinstance(atom_or_pos, Atom):
             attch2Singlet = atom_or_pos
             if hotspotAtom and hotspotAtom.is_singlet() and attch2Singlet .is_singlet():
                 newMol = hotspotAtom.molecule.copy(None)
-                newMol.assy = self.o.assy
+                newMol.setAssy(self.o.assy) #bruce 051227 revised this
                 hs = newMol.hotspot
                 ha = hs.singlet_neighbor() # hotspot neighbor atom
                 attch2Atom = attch2Singlet.singlet_neighbor() # atttch to atom
@@ -1076,9 +1111,10 @@ class depositMode(basicMode):
                 self.__createBond(hs, ha, attch2Singlet, attch2Atom)
                 
                 self.o.assy.addmol(newMol)
+                stuff.append(newMol)
                 
             else: ## something is wrong, do nothing
-                return
+                return stuff, "internal error"
             attach2Bond = True
         else:
             placedPos = atom_or_pos
@@ -1093,7 +1129,7 @@ class depositMode(basicMode):
             for m in newPart.molecules:
               if not m is hotspotAtom.molecule: 
                 newMol = m.copy(None)
-                newMol.assy = self.o.assy
+                newMol.setAssy(self.o.assy) #bruce 051227 revised this
                 
                 ## Get each of all other chunks' center movement for the rotation around 'rotCenter'
                 coff = rotOffset.rot(newMol.center - rotCenter)
@@ -1104,15 +1140,18 @@ class depositMode(basicMode):
                 newMol.move(moveOffset + coff)
                 
                 self.o.assy.addmol(newMol)
+                stuff.append(newMol)
         else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
             for m in newPart.molecules:
                 newMol = m.copy(None)
-                newMol.assy = self.o.assy
+                newMol.setAssy(self.o.assy) #bruce 051227 revised this
                 
                 newMol.move(moveOffset)
                 
                 self.o.assy.addmol(newMol)
- 
+                stuff.append(newMol)
+        self.o.assy.update_parts() #bruce 051227 see if this fixes the atom_debug exception in checkparts
+        return stuff, "deposited library part" ####@@@@ should revise this message (stub is by bruce 051227)
     
     def leftDown(self, event):
         """If cursor is on empty space, deposit a new object (atom, clipboard chunk or library part).
@@ -1158,7 +1197,7 @@ class depositMode(basicMode):
             self.deposit_from_MMKit(self.getCoords(event))
 
         self.w.win_update()
-                
+        return
 
     def clicked_on_bond(self, bond): #bruce 050727
         v6 = self.bondclick_v6
@@ -1238,47 +1277,53 @@ class depositMode(basicMode):
         self.o.gl_update()
         
 
-#== Deposit methods
+# == Deposit methods
         
-    def deposit_from_MMKit(self, atom_or_pos):
-        '''Deposits the a new object based on the current selection in the MMKit/dashboard, 
+    def deposit_from_MMKit(self, atom_or_pos): #mark circa 051200; revised by bruce 051227
+        '''Deposit a new object based on the current selection in the MMKit/dashboard, 
         which is either an atom, a chunk on the clipboard, or a part from the library.
         If 'atom_or_pos' is a singlet, then it will bond the object to that singlet if it can.
         If 'atom_or_pos' is a position, then it will deposit the object at that coordinate.
         '''
         
-        library_part_deposited = False
-        
         if self.w.depositState == 'Atoms':
-            chunk, status = self.deposit_from_Atoms(atom_or_pos)
+            deposited_stuff, status = self.deposit_from_Atoms(atom_or_pos) # deposited_stuff is a chunk
             
         elif self.w.depositState == 'Clipboard':
-            chunk, status = self.deposit_from_Clipboard(atom_or_pos)
+            deposited_stuff, status = self.deposit_from_Clipboard(atom_or_pos) # deposited_stuff is a chunk
                 
         elif self.w.depositState == 'Library':
-            library_part_deposited = self.deposit_from_Library(atom_or_pos)
-            if not library_part_deposited: return # nothing pasted
+            #bruce 051227 revised this case and its subrs as part of fix of reopened bug 229;
+            # deposited_stuff might be a chunk, node, list, etc.
+            # Not sure if subrs still print redundant history messages besides the one
+            # newly returned here (status).
+            deposited_stuff, status = self.deposit_from_Library(atom_or_pos)
             
         else:
             print "Error. depositState unknown:", self.w.depositState
             return
             
-        self.o.selatom = None
+        self.o.selatom = None ##k could this be moved earlier, or does one of those submethods use it? [bruce 051227 question]
             
         # now fix bug 229 part B (as called in comment #2),
-        # by making this new chunk visible if it otherwise would not be.
-        # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
-        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
-        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05]
-            status = self.ensure_visible(chunk, status) #bruce 041207
+        # by making this new chunk (or perhaps multiple chunks, in deposited_stuff) visible if it otherwise would not be.
+        # [bruce 051227 is extending this fix to depositing Library parts, whose initial implementation reinstated the bug.
+        #  Note, Mark says the following comment is in 2 places but I can't find the other place, so not removing it yet.]
+##        # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
+##        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
+##        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it, added a different one]
+        if deposited_stuff:
+            status = self.ensure_visible( deposited_stuff, status) #bruce 041207
             env.history.message(status)
+        else:
+            env.history.message(orangemsg(status)) # nothing deposited
+        return
             
-            
-    def deposit_from_Library(self, atom_or_pos):
-        '''Deposits a copy of the selected part from the MMKit Library page.
+    def deposit_from_Library(self, atom_or_pos): #mark circa 051200; retval revised by bruce 051227 re bug 229
+        '''Deposit a copy of the selected part from the MMKit Library page.
         If 'atom_or_pos' is a singlet, try bonding the part to the singlet by its hotspot.
         Otherwise, deposit the part at the position 'atom_or_pos'.
-        Returns True if a part was deposited and False if nothing was deposited.
+        Return (deposited_stuff, status_msg_text), whether or not deposition was successful.
         ''' 
         newPart, hotSpot = self.MMKit.getPastablePart()
         
@@ -1287,35 +1332,35 @@ class depositMode(basicMode):
             # MMKit.closeEvent() will change the current page to 'Atoms'.
             # This ensures that this condition never happens if the MMKit is closed.
             # Mark 051213.
-            env.history.message(orangemsg("No library part has been selected to paste."))
-            return False # nothing deposited
+            ## env.history.message(orangemsg("No library part has been selected to paste.")) [bruce 051227 zapped this, caller does it]
+            return False, "No library part has been selected to paste." # nothing deposited
         
         if isinstance(atom_or_pos, Atom):
             a = atom_or_pos
             if a.element is Singlet:
-                if newPart and hotSpot : # bond the part to the singlet.
-                    self._depositLibraryPart(newPart, hotSpot, a)
-            
-                elif newPart and not hotSpot: # part doesn't have hotspot.
+                if hotSpot : # bond the part to the singlet.
+                    return self._depositLibraryPart(newPart, hotSpot, a) #bruce 051227 revised retval
+                
+                else: # part doesn't have hotspot.
                     #if newPart.has_singlets(): # need a method like this so we can provide more descriptive msgs.
                     #    msg = "To bond this part, you must pick a hotspot by left-clicking on an open bond  " \
                     #            "of the library part in the Modeling Kit's 3D thumbview."
                     #else:
                     #    msg = "The library part cannot be bonded because it has no open bonds."
                     msg = "The library part cannot be bonded because either it has no open bonds"\
-                                " or its hotspot hasn't been specified in the Modeling Kit's 3D thumbview"
-                    env.history.message(orangemsg(msg))
-                    return False # nothing deposited
+                            " or its hotspot hasn't been specified in the Modeling Kit's 3D thumbview"
+                    ## env.history.message(orangemsg(msg)) [bruce 051227 zapped this, caller does it]
+                    return False, msg # nothing deposited
             
-            else: # atom_or_pos was an atom, but wasn't a singlet.  Do nothing
-                return False
+            else: # atom_or_pos was an atom, but wasn't a singlet.  Do nothing. [bruce 051227 added debug message in retval]
+                return False, "internal error: can't deposit onto a real atom %r" % a
         
         else:
-            if newPart: # deposit into empty space at the cursor position
-                self._depositLibraryPart(newPart, hotSpot, atom_or_pos)
-                
-        return True # A part was deposited.
-
+            # deposit into empty space at the cursor position
+            #bruce 051227 note: looks like subr repeats these conds; are they needed here?
+            return self._depositLibraryPart(newPart, hotSpot, atom_or_pos) #bruce 051227 revised retval
+        assert 0, "notreached"
+        pass
 
     def deposit_from_Clipboard(self, atom_or_pos):
         '''Deposits a copy of the selected object (chunk) from the MMKit Clipboard page, or

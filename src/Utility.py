@@ -172,6 +172,25 @@ class Node( GenericDiffTracker_API_Mixin):
             assert self.dad is dad
         return
 
+    def setAssy(self, assy): #bruce 051227
+        "Change self.assy from its current value to assy, cleanly removing self from the prior self.assy if that is not assy."
+        if self.assy is not assy:
+            oldassy = self.assy
+            if oldassy is not None:
+                assert oldassy != '<not an assembly>' # simplest to just require this; nodes constructed that way shouldn't be moved
+                from assembly import assembly # the class
+                assert isinstance(oldassy, assembly)
+                # some of the above conds might not be needed, or might be undesirable; others should be moved into following subr
+                self.remove_from_parents()
+                assert self.assy is None
+            # now ok to replace self.assy, which is None or (ignoring the above assert) '<not an assembly>'
+            # (safety of latter case unverified, but I think it will never happen, even without the assert that disallows it)
+            assert self.assy is None
+            self.assy = assy
+            assert self.part is None
+            assert self.dad is None
+        return
+    
     def get_featurename(self): #bruce 051201
         "Return the wiki-help featurename for this object's class, or '' if there isn't one."
         return self.__class__.featurename # intended to be a per-subclass constant... so enforce this until we need otherwise
@@ -946,23 +965,40 @@ class Node( GenericDiffTracker_API_Mixin):
     # ==
     
     def kill(self):
+        """Remove self from its parents and destroy enough of its content that it takes little room.
+        [subclasses should extend this]
+        """
         ###@@@ bruce 050214 changes and comments:
         #e needs docstring;
         #  as of now, intended to be called at end (not start middle or never) of all subclass kill methods
         #  ok to call twice on a node (i.e. to call on an already-killed node); subclass methods should preserve this property
+        # also modified the Group.kill method, which extends this method
+        self.remove_from_parents()
+
+    def remove_from_parents(self): #bruce 051227 split this out of Node.kill for use in new Node.setAssy
+        "Remove self from its parents of various kinds (part, dad, assy, selection) without otherwise altering it."
+        ###@@@ bruce 050214 changes and comments:
         # added condition on self.dad existing, before delmember
         # added unpick (*after* dad.delmember)
         # added self.assy = None
-        # also modified the Group.kill method, which extends this method
 ##        self._um_deinit() #bruce 051005 #k this is not good enough unless this is always called when a node is lost from the MT!
-        if self.part: #bruce 050303
-            self.part.remove(self)
         if self.dad:
             self.dad.delmember(self)
                 # this does assy.changed (if assy), dad = None, and unpick,
                 # but the unpick might be removed someday, so we do it below too
                 # [bruce 050214]
         self.unpick() # must come after delmember (else would unpick dad) and before forgetting self.assy
+        self.reset_subtree_part_assy()
+
+    def reset_subtree_part_assy(self): #bruce 051227 split this out
+        """Cleanly reset self.part and self.assy to None, in self and its node-subtree
+        (removing self and kids from those containers in whatever ways are needed).
+        Assume self is not picked.
+        [Subclasses (especially Group) must extend this as needed.]
+        """
+        assert not self.picked
+        if self.part: #bruce 050303; bruce 051227 moved from start of routine (before delmember) to here (after unpick), not sure ok
+            self.part.remove(self)
         self.assy = None #bruce 050214 added this ###k review more
 
     def is_ascendant(self, node): # implem corrected by bruce 050121; was "return None"
@@ -1670,6 +1706,13 @@ class Group(Node):
             m.kill()
         Node.kill(self)
 
+    def reset_subtree_part_assy(self): #bruce 051227
+        "[overrides Node method]"
+        for m in self.members[:]:
+            m.reset_subtree_part_assy()
+        Node.reset_subtree_part_assy(self)
+        return
+    
     def is_ascendant(self, node):
             #e rename nodetree_contains? is_ancestor? (tho true of self too)
             #e or just contains? (no, not obvious arg is a node)

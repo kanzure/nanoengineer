@@ -1665,30 +1665,30 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.invalidate_attr('atlist') # probably not needed; covers atpos
             # and basepos too, due to rules; externs were correctly set to []
         if self.assy:
-            # bruce 050308 for assy/part split:
-            # do this differently if Node.part code has been committed
-            try:
-                self.part
-            except AttributeError:
-                # use pre-050308 code:
-                # remove from assy.molecules, if necessary
-                try:
-                    self.assy.molecules.remove(self)
-                    self.assy.changed()
-                    #bruce 050206: this should not be reached if we were in the clipboard!
-                    # (since there should be an exception from not being in assy.molecules.)
-                    # so if we reached it, "safely assert" we were not.
-                    if platform.atom_debug and self.in_clipboard():
-                        print "atom_debug: bug: killed mol was in clipboard but also in assy.molecules:", self
-                except ValueError:
-                    #bruce 050206: this might be legal, e.g. if we're in the clipboard.
-                    # But it might be important to warn about, if we're not.
-                    if platform.atom_debug and not self.in_clipboard():
-                        print "atom_debug: possible bug (not sure): killed mol was not in clipboard but not in assy.molecules:", self
-                    ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
-                    pass
-                ## self.assy = None # [done by Node.kill as of 050214]
-            else:
+            # bruce 050308 for assy/part split: [bruce 051227 removing obsolete code]
+##            # do this differently if Node.part code has been committed
+##            try:
+##                self.part
+##            except AttributeError:
+##                # use pre-050308 code:
+##                # remove from assy.molecules, if necessary
+##                try:
+##                    self.assy.molecules.remove(self)
+##                    self.assy.changed()
+##                    #bruce 050206: this should not be reached if we were in the clipboard!
+##                    # (since there should be an exception from not being in assy.molecules.)
+##                    # so if we reached it, "safely assert" we were not.
+##                    if platform.atom_debug and self.in_clipboard():
+##                        print "atom_debug: bug: killed mol was in clipboard but also in assy.molecules:", self
+##                except ValueError:
+##                    #bruce 050206: this might be legal, e.g. if we're in the clipboard.
+##                    # But it might be important to warn about, if we're not.
+##                    if platform.atom_debug and not self.in_clipboard():
+##                        print "atom_debug: possible bug (not sure): killed mol was not in clipboard but not in assy.molecules:", self
+##                    ## print "fyi: mol.kill: mol %r not in self.assy.molecules" % self #bruce 041029
+##                    pass
+##                ## self.assy = None # [done by Node.kill as of 050214]
+##            else:
                 # let the Part handle it
                 if self.part:
                     self.part.remove(self)
@@ -2387,6 +2387,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             return True
             
     pass # end of class molecule
+
+Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename the class this way
 
 # ==
 

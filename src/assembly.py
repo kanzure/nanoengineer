@@ -423,7 +423,7 @@ class assembly(GenericDiffTracker_API_Mixin):
                     assert kid.part is node.part
                 assert node.part.nodecount == len(kids), "node.part.nodecount %d != len(kids) %d" % (node.part.nodecount, len(kids))
             except:
-                print "exception while checking part-related stuff about node:", node
+                print "exception while checking part-related stuff about node:", node, "in assy", self
                 raise
         return
 
@@ -431,8 +431,11 @@ class assembly(GenericDiffTracker_API_Mixin):
 
     def draw(self, glpane): #bruce 050617 renamed win arg to glpane, and made submethod use it for the first time
         if platform.atom_debug:
-            self.checkparts()
-            # if that raises an exception, don't catch it, drawing might not work
+            try:
+                self.checkparts()
+            except: #bruce 051227 catch exception in order to act more like non-atom_debug version
+                print_compact_traceback("atom_debug: exception in checkparts; drawing anyway though this might not work: ")
+                print_compact_stack("atom_debug: more info about that exception: self %r, glpane %r: " % (self, glpane))
         if glpane.special_topnode is not None:
             #bruce 050627 new feature, only used experimentally so far (mainly a kluge for old-mode-API compatibility)
             glpane.special_topnode.draw(glpane, glpane.display) #k 2nd arg might not be needed someday, but is needed for now

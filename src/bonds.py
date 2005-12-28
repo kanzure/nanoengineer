@@ -175,7 +175,7 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
 ##        #  been changed or mol.copy has or I misunderstand the above code (which
 ##        #  I predict would hit that message). Just to check, I'll print a debug message here (below);
 ##        #  that message is not happening either, so maybe this deprecated feature is no longer used at all. #k ####@@@@
-##        #  (Should also try reading a pdb file with the same bond listed twice... ###k)
+##        #  (Should also try reading a pdb file with the same bond listed twice... ###k) [like bug 1226!]
 ##        if platform.atom_debug:
 ##            print "atom_debug: fyi (possible bug): bond_atoms_oldversion is a noop since an equal bond exists:", b
 ##        pass
