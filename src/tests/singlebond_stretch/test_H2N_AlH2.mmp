@@ -1,0 +1,28 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.977417) (0.188000, 0.001500, -0.000000) (1.000000)
+egroup (View Data)
+group (H2N_AlH2_cs)
+info opengroup open = True
+mol (H2N_AlH2_cs.pdb) def
+atom 1 (7) (-1629, -230, 95) def
+atom 2 (13) (911, 79, 278) def
+bond1 1
+atom 3 (1) (-1398, -126, -328) def
+bond1 1
+atom 4 (1) (-1850, -365, 823) def
+bond1 1
+atom 5 (1) (1428, 376, 1309) def
+bond1 2
+atom 6 (1) (2058, 113, -1512) def
+bond1 2
+egroup (H2N_AlH2_cs)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part H2N_AlH2_cs
+

@@ -1,0 +1,26 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.708515) (-0.258500, -0.000000, 0.511500) (1.000000)
+egroup (View Data)
+group (Cl_CH3_c3v)
+info opengroup open = True
+mol (Cl_CH3_c3v.pdb) cpk
+atom 1 (6) (132, 229, -1346) def
+atom 2 (17) (46, 62, 825) def
+bond1 1
+atom 3 (1) (-879, 893, -1740) def
+bond1 1
+atom 4 (1) (107, -1197, -1733) def
+bond1 1
+atom 5 (1) (660, 779, -1682) def
+bond1 1
+egroup (Cl_CH3_c3v)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Cl_CH3_c3v
+
