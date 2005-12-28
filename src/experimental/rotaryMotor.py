@@ -64,16 +64,19 @@ class RotaryController:
         self.axis = axis = axis.normalize()
         # at this point, axis is dimensionless and unit-length
         self.anchors = anchors = [ ]
+        amoi = 0. * units.MomentOfInertiaUnit
         for atom in atomlist:
             x = atom.position - center
             u = axis.scale(x.dot(axis))
-            v = x - u
+            v = x - u   # component perpendicular to motor axis
             w = axis.cross(v)
             def getAnchor(theta, u=u, v=v, w=w):
                 # be able to rotate the anchor around the axis
                 theta /= units.radian
                 return u + v.scale(cos(theta)) + w.scale(sin(theta))
             anchors.append(getAnchor)
+            amoi = atom.mass * v.length() ** 2
+        self.atomsMomentOfInertia = amoi
         self.omega = 0. * units.radian / units.second
         self.theta = 0. * units.radian
 
@@ -94,15 +97,6 @@ class RotaryController:
             T = r.cross(springForce).scale(units.radian)
             atomDragTorque += self.axis.dot(T)
         return atomDragTorque
-
-    def atomsMomentOfInertia(self):
-        center, axis, atoms = self.center, self.axis, self.atoms
-        amoi = 0. * units.MomentOfInertiaUnit
-        for atom in self.atoms:
-            spoke = atom.position - self.center
-            r = spoke.cross(self.axis).length()
-            amoi += atom.mass * r**2
-        return amoi
         
 
 class BoschMotor(RotaryController):
@@ -116,7 +110,7 @@ class BoschMotor(RotaryController):
         self.stallTorque = torque
         self.speed = speed
 
-        amoi = self.atomsMomentOfInertia()
+        amoi = self.atomsMomentOfInertia
         flywheelMomentOfInertia = 10 * amoi
         self.momentOfInertia = amoi + flywheelMomentOfInertia
 
@@ -178,7 +172,8 @@ N = 6
 alst = [ ]
 for i in range(N):
     def rand():
-        return 0.1 * (1. - 2. * random.random())
+        #return 0.1 * (1. - 2. * random.random())
+        return 0.
     a = 3 * units.angstrom
     x = a * (rand() + cos(2 * pi * i / N))
     y = a * (rand() + sin(2 * pi * i / N))
@@ -194,7 +189,7 @@ for i in range(N):
     stiffness = 400 * units.newton / units.meter
     springs.append(Spring(stiffness, atom1, atom2))
 
-type = "T"
+type = "S"
 ghz = 2000
 
 if type == "B":
@@ -205,7 +200,7 @@ elif type == "T":
     m = Motor(alst, 1.0e-16 * units.TorqueUnit, ghz)
 elif type == "S":
     Motor = RotarySpeedController
-    m = Motor(alst, 1000 * DT, ghz)
+    m = Motor(alst, 10000 * DT, ghz)
 
 yyy = open("yyy", "w")
 zzz = open("zzz", "w")
