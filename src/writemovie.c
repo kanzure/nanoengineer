@@ -416,7 +416,7 @@ static float forceColors[7][3] = {
     { 1.0, 1.0, 0.0 }  // yellow
 };
 
-#define FORCE_SCALE 10000
+#define FORCE_SCALE 0.1
 void
 writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color, double scale)
 {
@@ -440,6 +440,50 @@ writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int colo
             fprintf(stderr, "force: %f type: %d\n", sqrt(fSquared), color);
         }
     }
+}
+
+void
+writeSimpleStressVector(struct xyz *positions, int a1, int a2, int ac, double stress, double min, double max)
+{
+  float r;
+  float b;
+  float intensity;
+  int sign = stress < 0.0;
+#define MIN_INTENSITY 0.2
+
+  intensity = (fabs(stress) - min) / (max - min);
+  if (intensity < 0) {
+    return;
+  }
+  intensity = MIN_INTENSITY + intensity / (1.0 - MIN_INTENSITY);
+  if (intensity > 1.0) {
+    intensity = 1.0;
+  }
+  if (sign) {
+    r = intensity;
+    b = 0.0;
+  } else {
+    r = 0.0;
+    b = intensity;
+  }
+  fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+          positions[a1].x,
+          positions[a1].y,
+          positions[a1].z,
+          positions[a2].x,
+          positions[a2].y,
+          positions[a2].z,
+          r, 0.0, b);
+  if (ac >= 0) {
+    fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+            positions[ac].x,
+            positions[ac].y,
+            positions[ac].z,
+            (positions[a1].x + positions[a2].x) / 2.0,
+            (positions[a1].y + positions[a2].y) / 2.0,
+            (positions[a1].z + positions[a2].z) / 2.0,
+            r, 0.0, b);
+  }
 }
 
 void
@@ -495,13 +539,9 @@ int writeMinimizeMovieFrame(FILE *outf,
                             double rms,
                             double max_force,
                             int frameNumber,
-                            char *callLocation)
+                            char *callLocation,
+                            char *message)
 {
-    /*
-    if (DEBUG(D_MINIMIZE)) {
-        min_debug(callLocation, rms, frameNumber);
-    }
-    */
     switch (OutputFormat) {
     case 0:
         if (final || DumpIntermediateText) {
@@ -520,8 +560,14 @@ int writeMinimizeMovieFrame(FILE *outf,
     }
     flushOutputFile(outf);
 
-    fprintf(tracef,"%4d %20f %20f %s\n", frameNumber, rms, max_force, callLocation);
-    DPRINT(D_MINIMIZE, "%4d %20e %20e %s\n", frameNumber, rms, max_force, callLocation); // -D2
+    if (message == NULL) {
+      message = "";
+    }
+    fprintf(tracef,"%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
+    DPRINT(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message); // -D2
+    if (message[0] != '\0') {
+      message[0] = '\0';
+    }
     if (final) {
         writeOutputTrailer(outf, part, frameNumber);
     }

@@ -61,7 +61,7 @@ usage()
    -q<string>, --trace-file=<string>\n\
                     trace file name (default=\"trace\")\n\
    -D<int>, --debug=<int>\n\
-                    turn on a debugging flag (see printers.h)\n\
+                    turn on a debugging flag (see debug.h)\n\
    -B<filename>, --base-file=<filename>\n\
                     base XYZ file for position comparison (compared to following file)\n\
    filename         if no file extension, add .mmp to read, .dpb to write\n");
@@ -106,8 +106,29 @@ static const struct option option_vec[] = {
     { NULL, no_argument, NULL, 0 }
 };
 
+static char *
+assembleCommandLine(int argc, char **argv)
+{
+    int len = 0;
+    int len1;
+    char *arg;
+    char *s = NULL;
+
+    while (argc-- > 0) {
+        arg = *argv++;
+        len1 = len + strlen(arg);
+        s = (char *)accumulator(s, len1, 0);
+        while (len < len1) {
+            s[len++] = *arg++;
+        }
+        s[len++] = ' ';
+    }
+    s[len] = '\0';
+    return s;
+}
+
 int
-main(int argc,char **argv)
+main(int argc, char **argv)
 {
     struct part *part;
     int opt, n;
@@ -119,6 +140,7 @@ main(int argc,char **argv)
     double printPotentialIncrement = 1; // pm
     double printPotentialLimit = 200; // pm
     char buf[1024], *filename, *ofilename, *tfilename, *c;
+    char *commandLine;
 	
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
         perror("signal(SIGTERM)");
@@ -131,12 +153,13 @@ main(int argc,char **argv)
     //vsetc(P,0.0);
     //vsetc(Omega,0.0);
 
-    //debug_flags = D_SKIP_VDW;
+    //debug_flags = D_GRADIENT_FROM_POTENTIAL;
     
     filename = (char *)0;
     ofilename = (char *)0;
     tfilename = (char *)0;
 
+    commandLine = assembleCommandLine(argc, argv);
     while ((opt = getopt_long(argc, argv,
 			    "hnmEi:f:s:t:xXONI:K:rD:o:q:B:",
 			    option_vec, NULL)) != -1) {
@@ -312,6 +335,7 @@ main(int argc,char **argv)
             perror(TraceFileName);
             exit(1);
         }
+        fprintf(tracef, "# %s\n", commandLine);
     }
 
     if (IterPerFrame <= 0) IterPerFrame = 1;

@@ -337,15 +337,14 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
           for (z=az-3; z<=az+3; z++) {
             a2 = p->vdwHash[x&VDW_HASH][y&VDW_HASH][z&VDW_HASH];
             while (a2 != NULL) {
-              // The first time through this routine we will have only
-              // added atoms with indexes less than i when we get
-              // here, so the symmetry check which keeps us from
-              // making two interactions (one for each direction) has
-              // to be i > a2->index.
-              if (i > a2->index && !isBondedToSame(a, a2)) {
+              if (!isBondedToSame(a, a2)) {
                 r = vlen(vdif(positions[i], positions[a2->index]));
                 if (r<800.0) {
-                  makeDynamicVanDerWaals(p, a, a2);
+                  if (i < a2->index) {
+                    makeDynamicVanDerWaals(p, a, a2);
+                  } else {
+                    makeDynamicVanDerWaals(p, a2, a);
+                  }
                 }
               }
               a2 = a2->vdwNext;
@@ -928,17 +927,36 @@ printJig(FILE *f, struct part *p, struct jig *j)
 void
 printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v)
 {
-  fprintf(f, " vanDerWaals ");
-  printAtomShort(f, v->a1);
-  fprintf(f, " ");
-  printAtomShort(f, v->a2);
-  fprintf(f, "\n"); //params...
+  double len;
+  double potential;
+  double gradient;
+  struct xyz p1;
+  struct xyz p2;
+
+  if (v != NULL) {
+    fprintf(f, " vanDerWaals ");
+    printAtomShort(f, v->a1);
+    fprintf(f, " ");
+    printAtomShort(f, v->a2);
+
+    p1 = p->positions[v->a1->index];
+    p2 = p->positions[v->a2->index];
+    vsub(p1, p2);
+    len = vlen(p1);
+
+    
+    potential = vanDerWaalsPotential(NULL, NULL, v->parameters, len);
+    gradient = vanDerWaalsGradient(NULL, NULL, v->parameters, len);
+    fprintf(f, " r: %f r0: %f, V: %f, dV: %f\n", len, v->parameters->rvdW, potential, gradient);
+  }
 }
 
 void
 printStretch(FILE *f, struct part *p, struct stretch *s)
 {
   double len;
+  double potential;
+  double gradient;
   struct xyz p1;
   struct xyz p2;
   
@@ -953,7 +971,9 @@ printStretch(FILE *f, struct part *p, struct stretch *s)
   vsub(p1, p2);
   len = vlen(p1);
 
-  fprintf(f, "r: %f r0: %f\n", len, s->stretchType->r0);
+  potential = stretchPotential(NULL, NULL, s->stretchType, len);
+  gradient = stretchGradient(NULL, NULL, s->stretchType, len);
+  fprintf(f, "r: %f r0: %f, V: %f, dV: %f\n", len, s->stretchType->r0, potential, gradient);
 }
 
 void
@@ -962,7 +982,9 @@ printBend(FILE *f, struct part *p, struct bend *b)
   double invlen;
   double costheta;
   double theta;
-  double z;
+  double dTheta;
+  double potential;
+  //double z;
   struct xyz p1;
   struct xyz pc;
   struct xyz p2;
@@ -989,8 +1011,9 @@ printBend(FILE *f, struct part *p, struct bend *b)
 
   costheta = vdot(p1, p2);
   theta = acos(costheta);
-  fprintf(f, "theta: %f rad %f deg ", theta, theta * 180.0 / Pi);
+  fprintf(f, "theta: %f ", theta * 180.0 / Pi);
 
+#if 0
   z = vlen(vsum(p1, p2)); // z is length of cord between where bonds intersect unit sphere
 
 #define ACOS_POLY_A -0.0820599
@@ -1004,9 +1027,13 @@ printBend(FILE *f, struct part *p, struct bend *b)
                z * (ACOS_POLY_B +
                z *  ACOS_POLY_A   )));
 
-  fprintf(f, "polytheta: %f rad %f deg ", theta, theta * 180.0 / Pi);
-  theta = b->bendType->theta0;
-  fprintf(f, "theta0: %f rad %f deg\n", theta, theta * 180.0 / Pi);
+  fprintf(f, "polytheta: %f ", theta * 180.0 / Pi);
+#endif
+      
+  dTheta = (theta - b->bendType->theta0);
+  potential = 1e-6 * 0.5 * dTheta * dTheta * b->bendType->kb;
+  
+  fprintf(f, "theta0: %f dTheta: %f, V: %f\n", b->bendType->theta0 * 180.0 / Pi, dTheta * 180.0 / Pi, potential);
 }
 
 void

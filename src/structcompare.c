@@ -232,6 +232,8 @@ doStructureCompare(int numberOfAtoms,
   structCompareFunctions.initial_parameter_guess = 0.001;
   structCompareFunctions.functionEvaluationCount = 0;
   structCompareFunctions.gradientEvaluationCount = 0;
+  structCompareFunctions.message = "";
+  structCompareFunctions.messageBufferLength = 0;
 
   initial = makeConfiguration(&structCompareFunctions);
   initial->coordinate[0] = 0.0;

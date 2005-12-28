@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+
+#include "debug.h"
 #include "allocate.h"
 #include "minimize.h"
 
@@ -56,6 +60,33 @@ static int freeCount = 0;
 static int maxAllocation = 0;
 
 static struct configuration *PROBE = NULL;
+
+// Append a message to then end of the message buffer.  The buffer is
+// fixed length, and we just stop appending when it's full.
+static void
+message(struct functionDefinition *fd, const char *format, ...)
+{
+  va_list args;
+  char *message = fd->message;
+  int messageBufferLength = fd->messageBufferLength;
+  int len;
+
+  if (message == NULL || messageBufferLength == 0) {
+    return;
+  }
+  len = strlen(message);
+  message += len;
+  messageBufferLength -= len;
+  if (messageBufferLength <= 1) {
+    return;
+  }
+  *message++ = ' ';
+  *message = '\0';
+  
+  va_start(args, format);
+  vsnprintf(message, messageBufferLength, format, args);
+  va_end(args);
+}
 
 struct configuration *
 makeConfiguration(struct functionDefinition *fd)
@@ -194,6 +225,8 @@ void
 evaluateGradient(struct configuration *p)
 {
   struct functionDefinition *fd = p->functionDefinition;
+  int i;
+  double gradientCoordinate;
   
   if (p->gradient == NULL) {
     p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
@@ -204,6 +237,13 @@ evaluateGradient(struct configuration *p)
     }
     fd->gradientEvaluationCount++;
     p->parameter = 0.0;
+    p->maximumCoordinateInGradient = 0.0;
+    for (i=fd->dimension-1; i>=0; i--) {
+      gradientCoordinate = fabs(p->gradient[i]);
+      if (p->maximumCoordinateInGradient < gradientCoordinate) {
+        p->maximumCoordinateInGradient = gradientCoordinate;
+      }
+    }
   }
 }
 
@@ -369,6 +409,7 @@ brent(struct configuration *parent,
   double etemp;
   double xm; // midpoint between a and b
   double tol; // tolerance scaled by x position
+  double maxp; // maximum coordinate in gradient, multiply parameters by this for tolerance testing
   int iteration;
 
   Enter();
@@ -383,6 +424,8 @@ brent(struct configuration *parent,
     SetConfiguration(&a, initial_a);
     SetConfiguration(&b, initial_c);
   }
+
+  maxp = parent->maximumCoordinateInGradient;
   
   // At this point, a is the left side of the interval, b is the right
   // side.  v, w, and x are all our middle point between the ends.
@@ -393,6 +436,12 @@ brent(struct configuration *parent,
   for (iteration=1; iteration<=LINEAR_ITERATION_LIMIT; iteration++) {
     xm = 0.5 * (a->parameter + b->parameter); // midpoint of bracketing interval
     tol = tolerance * fabs(x->parameter) + TOLERANCE_AT_ZERO ;
+    DPRINT(D_MINIMIZE, "brent: x: %e xm: %e |x-xm|: %e\n",
+           x->parameter, xm, fabs(x->parameter - xm));
+    DPRINT(D_MINIMIZE, "brent: tol: %e (b-a)/2: %e 2*tol-(b-a)/2: %e\n",
+           tol, 0.5 * (b->parameter - a->parameter),
+           2.0 * tol - 0.5 * (b->parameter - a->parameter));
+    // if (b - a > 4 * tol) then right hand side of following is < 0
     if (fabs(x->parameter - xm) <= (tol * 2.0 - 0.5 * (b->parameter - a->parameter))) {
       // width of interval (a, b) is less than 4 * tol
       // x is close to the center of the interval
@@ -403,6 +452,7 @@ brent(struct configuration *parent,
       SetConfiguration(&v, NULL);
       SetConfiguration(&w, NULL);
       Leave(brent, (x == initial_b) ? 0 : 1);
+      DPRINT(D_MINIMIZE, "leaving brent\n");
       return x;
     }
     if (fabs(e) > tol) {
@@ -490,7 +540,7 @@ brent(struct configuration *parent,
       }
     }
   }
-  fprintf(stderr, "reached iteration limit in linearMinimize\n");
+  message(parent->functionDefinition, "reached iteration limit in linearMinimize\n");
   // too many iterations without getting close enough
   SetConfiguration(&a, NULL);
   SetConfiguration(&b, NULL);
@@ -511,20 +561,33 @@ brent(struct configuration *parent,
 // minimization is along the line of that gradient.  The resulting
 // minimum configuration point is returned.
 static struct configuration *
-linearMinimize(struct configuration *p, double tolerance)
+linearMinimize(struct configuration *p,
+               double tolerance,
+               enum minimizationAlgorithm minimization_algorithm)
 {
   struct configuration *a = NULL;
   struct configuration *b = NULL;
   struct configuration *c = NULL;
-  struct configuration *min;
+  struct configuration *min = NULL;
 
   Enter();
   bracketMinimum(&a, &b, &c, p);
-  min = brent(p, a, b, c, tolerance);
+  message(p->functionDefinition, "bmin: a %e[%e] b %e[%e] c %e[%e]",
+          evaluate(a), a->parameter,
+          evaluate(b), b->parameter,
+          evaluate(c), c->parameter);
+  if (minimization_algorithm == SteepestDescent && b != p) {
+    SetConfiguration(&min, b);
+  } else {
+    min = brent(p, a, b, c, tolerance);
+  }
   //printf("minimum at parameter value: %e, function value: %e\n", min->parameter, evaluate(min));
   SetConfiguration(&a, NULL);
   SetConfiguration(&b, NULL);
   SetConfiguration(&c, NULL);
+  if (min == p) {
+    message(p->functionDefinition, "linearMinimize returning argument");
+  }
   Leave(linearMinimize, (min == p) ? 0 : 1);
   return min;
 }
@@ -554,9 +617,15 @@ minimize_one_tolerance(struct configuration *initial_p,
   fp = evaluate(p);
   for ((*iteration)=0; (*iteration)<iterationLimit; (*iteration)++) {
     SetConfiguration(&q, NULL);
-    q = linearMinimize(p, tolerance);
+    q = linearMinimize(p, tolerance, minimization_algorithm);
     fq = evaluate(q);
+    DPRINT(D_MINIMIZE, "delta %e, tol*avgVal %e\n", 
+           fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
     if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
+      message(fd,
+               "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
+               fp, fq,
+               fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
       SetConfiguration(&p, NULL);
       Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
       return q;
@@ -583,11 +652,13 @@ minimize_one_tolerance(struct configuration *initial_p,
       if (gg == 0.0) {
         // rather than divide by zero below, note that the gradient
         // is zero, so we must be done.
+        DPRINT(D_MINIMIZE, "gg==0 in minimize_one_tolerance\n");
         SetConfiguration(&p, NULL);
-        Leave(minimize, 1);
+        Leave(minimize_one_tolerance, 1);
         return q;
       }
       gamma = dgg / gg;
+      DPRINT(D_MINIMIZE, "gamma[%e] = %e / %e\n", gamma, dgg, gg);
       for (i=fd->dimension-1; i>=0; i--) {
         q->gradient[i] += gamma * p->gradient[i];
       }
@@ -595,7 +666,7 @@ minimize_one_tolerance(struct configuration *initial_p,
     fp = fq;
     SetConfiguration(&p, q);
   }
-  // error iteration count exceeded
+  message(fd, "reached iteration limit");
   SetConfiguration(&p, NULL);
   Leave(minimize_one_tolerance, 1);
   return q;
@@ -622,7 +693,8 @@ minimize(struct configuration *initial_p,
                                         fd->coarse_tolerance,
                                         SteepestDescent);
   if (fd->fine_tolerance < fd->coarse_tolerance) {
-    //fprintf(stderr, "cutover to fine tolerance at %d\n", coarse_iter);
+    DPRINT(D_MINIMIZE, "cutover to fine tolerance at %d\n", coarse_iter);
+    message(fd, "cutover to fine tolerance at %d", coarse_iter);
     final = minimize_one_tolerance(intermediate,
                                    &fine_iter,
                                    iterationLimit - coarse_iter,
@@ -689,6 +761,8 @@ testMinimize()
   fd.initial_parameter_guess = 1.0;
   fd.functionEvaluationCount = 0;
   fd.gradientEvaluationCount = 0;
+  fd.message = "";
+  fd.messageBufferLength = 0;
 
   initial = makeConfiguration(&fd);
   initial->coordinate[0] = 6.0;

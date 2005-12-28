@@ -35,6 +35,7 @@ SUFFIXES: .c .h .o ;
 
 SIMINCLUDES=\
 	allocate.h \
+	debug.h \
 	dynamics.h \
 	globals.h \
 	hashtable.h \
@@ -60,7 +61,7 @@ hashtable.o: allocate.h hashtable.h
 interpolate.o: simulator.h
 jigs.o: simulator.h
 lin-alg.o: lin-alg.h
-minimize.o: allocate.h minimize.h
+minimize.o: allocate.h minimize.h debug.h
 minstructure.o: simulator.h
 newtables.o: simulator.h bonds.h
 part.o: simulator.h

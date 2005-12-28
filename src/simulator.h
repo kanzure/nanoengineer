@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include "debug.h"
+
 #include "lin-alg.h"
 #include "allocate.h"
 #include "hashtable.h"

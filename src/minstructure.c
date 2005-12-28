@@ -30,7 +30,7 @@ minimizeStructurePotential(struct configuration *p)
 {
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
-  //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter, Iteration++, "potential");
+  //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter, Iteration++, "potential", p->functionDefinition->message);
   if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D3
     writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential %e %e", p->functionValue, p->parameter);
   }
@@ -56,19 +56,23 @@ minimizeStructureGradient(struct configuration *p)
   updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
   if (DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // -D 10
     evaluateGradientFromPotential(p);
-    forces = (struct xyz *)p->gradient;
-    for (i=0; i<Part->num_atoms; i++) {
-      writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0);
+    if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
+      forces = (struct xyz *)p->gradient;
+      for (i=0; i<Part->num_atoms; i++) {
+        writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0);
+      }
     }
+  } else {
+    calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
   }
-  calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
+  
   // dynamics wants gradient pointing downhill, we want it uphill
   //for (i=0; i<3*Part->num_atoms; i++) {
   //  p->gradient[i] = -p->gradient[i];
   //}
   findRMSandMaxForce(p, &rms_force, &max_force);
   p->functionDefinition->initial_parameter_guess = clamp(1e-9, 1e3, 10.0 / max_force);
-  writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient");
+  writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, "gradient", p->functionDefinition->message);
   if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
     writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
   }
@@ -100,6 +104,8 @@ minimizeStructure(struct part *part)
   minimizeStructureFunctions.initial_parameter_guess = 1.0; // recalculated in gradient
   minimizeStructureFunctions.functionEvaluationCount = 0;
   minimizeStructureFunctions.gradientEvaluationCount = 0;
+  minimizeStructureFunctions.message = (char *)allocate(1024);
+  minimizeStructureFunctions.messageBufferLength = 1024;
 
   initial = makeConfiguration(&minimizeStructureFunctions);
   for (i=0, j=0; i<part->num_atoms; i++) {
@@ -114,7 +120,7 @@ minimizeStructure(struct part *part)
   findRMSandMaxForce(final, &rms_force, &max_force);
   
   writeMinimizeMovieFrame(outf, part, 1,
-                          (struct xyz *)final->coordinate, rms_force, max_force, Iteration, "final structure");
+                          (struct xyz *)final->coordinate, rms_force, max_force, Iteration, "final structure", minimizeStructureFunctions.message);
 
   if (DEBUG(D_MINIMIZE_FINAL_PRINT)) { // -D 11
     for (i=0, j=0; i<part->num_atoms; i++) {

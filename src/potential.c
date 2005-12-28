@@ -254,7 +254,7 @@ calculatePotential(struct part *p, struct xyz *position)
       stretch = &p->stretches[j];
       bond = stretch->b;
 
-      // we presume here that rUnit is invalid, and we need rSquared
+      // we presume here that rUnit is invalid, and we need r
       // anyway.
       setRUnit(position, bond, &r);
       potential += stretchPotential(p, stretch, stretch->stretchType, r);
@@ -389,6 +389,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vmul2c(f, bond->rUnit, gradient);
       vadd(force[bond->a1->index], f);
       vsub(force[bond->a2->index], f);
+      if (DEBUG(D_STRESS_MOVIE)) { // -D12
+        writeSimpleStressVector(position, bond->a1->index, bond->a2->index, -1, gradient, 1000.0, 10000.0);
+      }
       if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
         writeSimpleForceVector(position, bond->a1->index, &f, 1, 1.0); // red
         vmulc(f, -1.0);
@@ -480,6 +483,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vadd(force[bend->a1->index], q1);
       vsub(force[bend->ac->index], q2);
       vadd(force[bend->a2->index], q2);
+      if (DEBUG(D_STRESS_MOVIE)) { // -D12
+        writeSimpleStressVector(position, bend->a1->index, bend->a2->index, bend->ac->index, torque, 500000.0, 1000000.0);
+      }
       if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
         writeSimpleForceVector(position, bend->a1->index, &q1, 3, 1.0); // blue
         vmulc(q1, -1.0);
@@ -511,6 +517,9 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vmul2c(f, rv, gradient);
       vadd(force[vdw->a1->index], f);
       vsub(force[vdw->a2->index], f);
+      if (DEBUG(D_STRESS_MOVIE)) { // -D12
+        writeSimpleStressVector(position, vdw->a1->index, vdw->a2->index, -1, -gradient, 10.0, 100.0);
+      }
       if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
         writeSimpleForceVector(position, vdw->a1->index, &f, 4, 1.0); // cyan
         vmulc(f, -1.0);
