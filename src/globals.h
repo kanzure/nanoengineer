@@ -36,8 +36,8 @@ extern double Dt;
 extern double Dx;
 extern double Dmass;           // units of mass vs. kg
 extern double Temperature;	/* Kelvins */
-extern double Boltz;	/* k, in J/K */
-extern double Pi;
+extern const double Boltz;	/* k, in J/K */
+extern const double Pi;
 
 extern double totClipped;  // internal thermostat for numerical stability
 

@@ -37,8 +37,8 @@ double Dx = 1e-12;              // meters
 double Dmass = 1e-27;           // units of mass vs. kg
 
 double Temperature = 300.0;	/* Kelvins */
-double Boltz = 1.38e-23;	/* k, in J/K */
-double Pi = 3.1415926;
+const double Boltz = 1.3806503e-23;	/* k, in J/K */
+const double Pi = 3.14159265358979323846;
 
 double totClipped=0.0;  // internal thermostat for numerical stability
 
