@@ -99,6 +99,7 @@ findPotentialExtension(struct bondStretch *s, double r0, double pr0, double gr0,
   double r13 = r12 * r1;
   double r14 = r12 * r12;
   double d2r1 = 0.01;
+  double denom;
 
   gr1 /= DR;
   
@@ -128,7 +129,7 @@ findPotentialExtension(struct bondStretch *s, double r0, double pr0, double gr0,
   // XXX might want to try specifying the third derivative instead of
   // the curve match at r0.
   
-  double denom = 2*(r0 - r1)*(r0 - r1)*(r0 - r1);
+  denom = 2*(r0 - r1)*(r0 - r1)*(r0 - r1);
 
   s->potentialExtensionA = 
     -(-2*pr1*r03 + 6*pr1*r02*r1 + 

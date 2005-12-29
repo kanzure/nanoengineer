@@ -18,7 +18,7 @@ mmpParseError(void *stream)
   // generic error handler and user data pointer.
   struct mmpStream *mmp = (struct mmpStream *)stream;
   
-  ERROR("In mmp file %s, line %d, col %d", mmp->fileName, mmp->lineNumber, mmp->charPosition);
+  ERROR3("In mmp file %s, line %d, col %d", mmp->fileName, mmp->lineNumber, mmp->charPosition);
   doneExit(1, tracef, "Failed to parse mmp file");
 }
 
@@ -140,7 +140,7 @@ expectToken(struct mmpStream *mmp, char *expected)
     ret = !strcmp(tok, expected);
   }
   if (!ret) {
-    ERROR("expected %s, got %s", expected ? expected : "EOF", tok ? tok : "EOF");
+    ERROR2("expected %s, got %s", expected ? expected : "EOF", tok ? tok : "EOF");
     mmpParseError(mmp);
   }
   return ret;
@@ -176,15 +176,15 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
     errno = 0;
     val = strtol(tok, &end, 0);
     if (errno != 0) {
-      ERROR("integer value out of range: %s", tok);
+      ERROR1("integer value out of range: %s", tok);
       mmpParseError(mmp);
     }
     if (*end != '\0') {
-      ERROR("expected int, got %s", tok);
+      ERROR1("expected int, got %s", tok);
       mmpParseError(mmp);
     }
     if (val > INT_MAX || val < INT_MIN) {
-      ERROR("integer value out of range: %s", tok);
+      ERROR1("integer value out of range: %s", tok);
       mmpParseError(mmp);
     }
     *value = val;
@@ -226,11 +226,11 @@ expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
     errno = 0;
     val = strtod(tok, &end);
     if (errno != 0) {
-      ERROR("double value out of range: %s", tok);
+      ERROR1("double value out of range: %s", tok);
       mmpParseError(mmp);
     }
     if (*end != '\0') {
-      ERROR("expected double, got %s", tok);
+      ERROR1("expected double, got %s", tok);
       mmpParseError(mmp);
     }
     *value = val;
@@ -351,7 +351,7 @@ expectIntList(struct mmpStream *mmp, int **listPtr, int *length, int expectedLen
     mmpParseError(mmp);
   }
   if (expectedLength != 0 && expectedLength != index) {
-    ERROR("expected exactly %d atoms, got %d", expectedLength, index);
+    ERROR2("expected exactly %d atoms, got %d", expectedLength, index);
     mmpParseError(mmp);
   }
   *length = index;
@@ -388,7 +388,7 @@ readMMP(char *filename)
   mmp->charPosition = 1;
   mmp->f = fopen(filename, "r");
   if (mmp->f == NULL) {
-    ERROR_ERRNO("Could not open %s", mmp->fileName);
+    ERROR_ERRNO1("Could not open %s", mmp->fileName);
     mmp->lineNumber = 0;
     mmp->charPosition = 0;
     mmpParseError(mmp);
@@ -593,7 +593,7 @@ readMMP(char *filename)
 #endif
 
     else {
-      DPRINT(D_READER, "??? %s\n", tok);
+      DPRINT1(D_READER, "??? %s\n", tok);
       consumeRestOfLine(mmp);
     }
   }

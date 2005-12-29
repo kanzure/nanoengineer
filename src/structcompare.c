@@ -55,6 +55,14 @@ structCompareFreeExtra(struct configuration *p)
   }
 }
 
+#ifndef __GNUC__
+int
+isnormal(double a)
+{
+    return (a > 0.0 || a <= 0.0);
+}
+#endif
+
 // Handle the final result for a structure compare.  Pass in an upper
 // limit for the standard deviation of atom positions between the two
 // structures, and an upper limit for the maximum distance that any

@@ -90,7 +90,7 @@ bonds.h: parmlist.py stretch.parms
 bends.h: bend.perl bending.parms
 	./bend.perl < bending.parms > bends.h
 
-PYREXOBJS=\
+SIMOBJS=\
 	allocate.o \
 	dynamics.o \
 	globals.o \
@@ -107,9 +107,8 @@ PYREXOBJS=\
 	readmmp.o \
 	readxyz.o \
 	structcompare.o \
-	writemovie.o
-
-SIMOBJS=$(PYREXOBJS) simulator.o
+	writemovie.o \
+	simulator.o
 
 noopt:
 	make CFLAGS=-g simulator
@@ -129,7 +128,7 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-extensions: $(PYREXOBJS)
+extensions:
 	python setup.py build_ext --inplace
 
 pyx: extensions

@@ -289,7 +289,7 @@ angleBetween(struct xyz xyz1, struct xyz xyz2)
 	return 0.0;
     if (dprod <= -1.0)
 	return 180.0;
-    return (180.0 / M_PI) * acos(dprod);
+    return (180.0 / Pi) * acos(dprod);
 }
 
 

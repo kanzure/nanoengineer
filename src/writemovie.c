@@ -1,7 +1,13 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 #include "simulator.h"
 
+#if defined(__GNUC__) || defined(__MWERKS__)
+// GCC and kin
 typedef long long int_64;
+#else        // #elif defined(WIN32) ???
+// Microsoft
+typedef __int64 int_64;
+#endif
 
 // arrays of 3 times part->num_atoms
 static int *ixyz = NULL;
@@ -13,7 +19,7 @@ static void flushOutputFile(FILE *f)
 {
     if (fflush(f) < 0 && !flushWriteWarning) {
         /* it's a good bet that this will fail too, but we'll try... */
-        WARNING_ERRNO("Unable to write to file %s", OutFileName);
+        WARNING_ERRNO1("Unable to write to file %s", OutFileName);
         flushWriteWarning = 1;
     }
 }
@@ -348,7 +354,7 @@ void writeOutputHeader(FILE *f, struct part *part)
         writeNewOutputHeader(f, part);
         break;
     default:
-        ERROR("Invalid OutputFormat: %d", OutputFormat);
+        ERROR1("Invalid OutputFormat: %d", OutputFormat);
     }
 }
 
@@ -365,7 +371,7 @@ void writeOutputTrailer(FILE *f, struct part *part, int frameNumber)
         writeNewOutputTrailer(f, part, frameNumber);
         break;
     default:
-        ERROR("Invalid OutputFormat: %d", OutputFormat);
+        ERROR1("Invalid OutputFormat: %d", OutputFormat);
     }
 }
 
@@ -564,7 +570,7 @@ int writeMinimizeMovieFrame(FILE *outf,
       message = "";
     }
     fprintf(tracef,"%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
-    DPRINT(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message); // -D2
+    DPRINT5(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message); // -D2
     if (message[0] != '\0') {
       message[0] = '\0';
     }

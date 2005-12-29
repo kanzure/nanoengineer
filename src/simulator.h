@@ -22,25 +22,38 @@
 // handy little debug macros
 #define MARK()   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d\n", __FILE__, __LINE__); fclose(outf); }
-#define SAY(fmt...)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+#define SAY(fmt)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
-              fprintf(outf, ##fmt); fprintf(outf, "\n"); fclose(outf); }
-#define SAY_INT(x)   SAY("%s=%d", #x, x)
-#define SAY_DBL(x)   SAY("%s=%lg", #x, x)
-#define SAY_XYZ(s)   SAY("%s={%lf,%lf,%lf)", #s, (s).x, (s).y, (s).z)
-#define SAY_HEX(x)   SAY("%s=%p", #x, x)
+              fprintf(outf, fmt); fprintf(outf, "\n"); fclose(outf); }
+#define SAY1(fmt,a)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, fmt, a); fprintf(outf, "\n"); fclose(outf); }
+#define SAY2(fmt,a,b)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, fmt, a, b); fprintf(outf, "\n"); fclose(outf); }
+#define SAY3(fmt,a,b,c)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, fmt, a, b, c); fprintf(outf, "\n"); fclose(outf); }
 #else
 #define MARK()
-#define SAY(fmt...)
-#define SAY_INT(x)
-#define SAY_DBL(x)
-#define SAY_XYZ(x)
-#define SAY_HEX(x)
+#define SAY(fmt)
+#define SAY1(fmt,a)
+#define SAY2(fmt,a,b)
+#define SAY3(fmt,a,b,c)
 #endif
 
+#define SAY_INT(x)   SAY1("%s=%d", #x, x)
+#define SAY_DBL(x)   SAY1("%s=%lg", #x, x)
+#define SAY_XYZ(s)   SAY1("%s={%lf,%lf,%lf)", #s, (s).x, (s).y, (s).z)
+#define SAY_HEX(x)   SAY1("%s=%p", #x, x)
+
 #define iabs(x) (x<0 ? -(x) : x)
-#define min(x,y) (x<y ? x : y)
-#define max(x,y) (x>y ? x : y)
+#ifndef min
+#define min(x,y) ((x) < (y) ? (x) : (y))
+#endif
+#ifndef max
+#define max(x,y) ((x) > (y) ? (x) : (y))
+#endif
 
 #define PICOSEC (1e-12)
 

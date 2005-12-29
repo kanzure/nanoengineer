@@ -67,6 +67,7 @@ static void
 message(struct functionDefinition *fd, const char *format, ...)
 {
   va_list args;
+  char subbuf[200];
   char *message = fd->message;
   int messageBufferLength = fd->messageBufferLength;
   int len;
@@ -84,8 +85,13 @@ message(struct functionDefinition *fd, const char *format, ...)
   *message = '\0';
   
   va_start(args, format);
-  vsnprintf(message, messageBufferLength, format, args);
+  len = sprintf(subbuf, format, args);
   va_end(args);
+
+  if (messageBufferLength < len)
+      len = messageBufferLength;
+  strncpy(message, subbuf, len);
+  message[len] = '\0';
 }
 
 struct configuration *
@@ -436,11 +442,11 @@ brent(struct configuration *parent,
   for (iteration=1; iteration<=LINEAR_ITERATION_LIMIT; iteration++) {
     xm = 0.5 * (a->parameter + b->parameter); // midpoint of bracketing interval
     tol = tolerance * fabs(x->parameter) + TOLERANCE_AT_ZERO ;
-    DPRINT(D_MINIMIZE, "brent: x: %e xm: %e |x-xm|: %e\n",
-           x->parameter, xm, fabs(x->parameter - xm));
-    DPRINT(D_MINIMIZE, "brent: tol: %e (b-a)/2: %e 2*tol-(b-a)/2: %e\n",
-           tol, 0.5 * (b->parameter - a->parameter),
-           2.0 * tol - 0.5 * (b->parameter - a->parameter));
+    DPRINT3(D_MINIMIZE, "brent: x: %e xm: %e |x-xm|: %e\n",
+	    x->parameter, xm, fabs(x->parameter - xm));
+    DPRINT3(D_MINIMIZE, "brent: tol: %e (b-a)/2: %e 2*tol-(b-a)/2: %e\n",
+	    tol, 0.5 * (b->parameter - a->parameter),
+	    2.0 * tol - 0.5 * (b->parameter - a->parameter));
     // if (b - a > 4 * tol) then right hand side of following is < 0
     if (fabs(x->parameter - xm) <= (tol * 2.0 - 0.5 * (b->parameter - a->parameter))) {
       // width of interval (a, b) is less than 4 * tol
@@ -619,8 +625,8 @@ minimize_one_tolerance(struct configuration *initial_p,
     SetConfiguration(&q, NULL);
     q = linearMinimize(p, tolerance, minimization_algorithm);
     fq = evaluate(q);
-    DPRINT(D_MINIMIZE, "delta %e, tol*avgVal %e\n", 
-           fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+    DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n", 
+	    fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
     if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
       message(fd,
                "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
@@ -658,7 +664,7 @@ minimize_one_tolerance(struct configuration *initial_p,
         return q;
       }
       gamma = dgg / gg;
-      DPRINT(D_MINIMIZE, "gamma[%e] = %e / %e\n", gamma, dgg, gg);
+      DPRINT3(D_MINIMIZE, "gamma[%e] = %e / %e\n", gamma, dgg, gg);
       for (i=fd->dimension-1; i>=0; i--) {
         q->gradient[i] += gamma * p->gradient[i];
       }
@@ -693,7 +699,7 @@ minimize(struct configuration *initial_p,
                                         fd->coarse_tolerance,
                                         SteepestDescent);
   if (fd->fine_tolerance < fd->coarse_tolerance) {
-    DPRINT(D_MINIMIZE, "cutover to fine tolerance at %d\n", coarse_iter);
+    DPRINT1(D_MINIMIZE, "cutover to fine tolerance at %d\n", coarse_iter);
     message(fd, "cutover to fine tolerance at %d", coarse_iter);
     final = minimize_one_tolerance(intermediate,
                                    &fine_iter,

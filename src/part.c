@@ -21,7 +21,7 @@ defaultParseError(void *stream)
   struct part *p;
 
   p = (struct part *)stream;
-  ERROR("Parsing part %s", p->filename);
+    ERROR1("Parsing part %s", p->filename);
   doneExit(1, tracef, "Failed to parse part %s", p->filename);
 }
 
@@ -366,12 +366,12 @@ translateAtomID(struct part *p, int atomID)
   int atomIndex;
   
   if (atomID < 0 || atomID > p->max_atom_id) {
-    ERROR("atom ID %d out of range [0, %d]", atomID, p->max_atom_id);
+	ERROR2("atom ID %d out of range [0, %d]", atomID, p->max_atom_id);
     p->parseError(p->stream);
   }
   atomIndex = p->atom_id_to_index_plus_one[atomID] - 1;
   if (atomIndex < 0) {
-    ERROR("atom ID %d not yet encountered", atomID);
+	ERROR1("atom ID %d not yet encountered", atomID);
     p->parseError(p->stream);
   }
   return p->atoms[atomIndex];
@@ -420,7 +420,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
   struct xyz momentum;
 
   if (externalID < 0) {
-    ERROR("atom ID %d must be >= 0", externalID);
+	ERROR1("atom ID %d must be >= 0", externalID);
     p->parseError(p->stream);
   }
   if (externalID > p->max_atom_id) {
@@ -429,7 +429,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
                                                       sizeof(int) * (p->max_atom_id + 1), 1);
   }
   if (p->atom_id_to_index_plus_one[externalID]) {
-    ERROR("atom ID %d already defined with index %d", externalID, p->atom_id_to_index_plus_one[externalID] - 1);
+	ERROR2("atom ID %d already defined with index %d", externalID, p->atom_id_to_index_plus_one[externalID] - 1);
     p->parseError(p->stream);
   }
   p->atom_id_to_index_plus_one[externalID] = ++(p->num_atoms);
@@ -446,12 +446,12 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
   vset(p->positions[a->index], position);
 
   if (elementType < 0 || elementType > MAX_ELEMENT) {
-    ERROR("Invalid element type: %d", elementType);
+	ERROR1("Invalid element type: %d", elementType);
     p->parseError(p->stream);
   }
   a->type = &periodicTable[elementType];
   if (a->type->name == NULL) {
-    ERROR("Unsupported element type: %d", elementType);
+	ERROR1("Unsupported element type: %d", elementType);
     p->parseError(p->stream);
   }
 
