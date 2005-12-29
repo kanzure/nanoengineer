@@ -25,8 +25,11 @@ class MyWhatsThis(QWhatsThis):
     def clicked(self, link):
         # this runs when user clicks on a hyperlink in the help text, with 'link' being the link text (href attribute)
         link = str(link) # QString to string (don't know if this is needed, guess yes)
-        print "clicked hyperlink in %r, href text is %r" % (self,link)
+        if link:
+            print "clicked hyperlink in %r, href text is %r" % (self,link)
             ##e revise this to change link text to URL if it's not already, and open browser to help page (see wiki_help.py)
+        else:
+            print "clicked non-link in %r" % self # happens for clicking any empty part or other text in that popup dialog
         return True ## return True to make help text widget go away, or False to keep it around (with no change in contents)
     pass
 
@@ -1354,27 +1357,51 @@ def fix_whatsthis_text_for_mac(parent):
     return
 
 ###@@@ bruce 051227 hack
+
 _KEEPERS = []
+
 def hack_whatsthis_object_for_widgets(parent):
     objList = parent.queryList("QWidget")
-    for obj in objList:
+    for widget in objList:
         try:
-            ## this never works: original_txt = obj.whatsThis()
-            original_txt = QWhatsThis.textFor( obj)
+            ## this never works: original_txt = widget.whatsThis()
+            original_txt = QWhatsThis.textFor( widget)
         except:
-            pass ## print "no textFor attr, or it fails:",obj
+            pass ## print "no textFor attr, or it fails:",widget
             ## this happens for a lot of QObjects (don't know what they are), e.g. for <constants.qt.QObject object at 0xb96b750>
         else:
             # it's often a null string
             if original_txt:
-                print "hacking",obj
-                ## print obj, original_txt # seems like original_txt is already a Python string??
-                FAKELINK = "<a href=\"xxx\">linktoxxx</a>"
-                original_txt = FAKELINK + str(original_txt) + FAKELINK
-                obj1 = MyWhatsThis( obj, original_txt)
-                ## obj._KEEP_WHATSTHIS = obj1 # this was not sufficient to prevent a bus error
-                _KEEPERS.append(obj1) # this is needed to prevent a bus error
+                original_txt = str(original_txt) # in case of QString, tho during debug it seemed this was already a Python string
+                newtext = modified_whatsthis_text(original_txt, widget)
+                if newtext:
+                    pass
+                else:
+                    print "didn't find desired content in:", original_text ###@@@
+                    FAKELINK = "<a href=\"xxx\">linktoxxx</a>"
+                    newtext = FAKELINK + str(original_txt) + FAKELINK ###@@@
+                set_hyperlinked_whatsthis_text(widget, newtext)
     return
+
+def set_hyperlinked_whatsthis_text(widget, text):
+    obj1 = MyWhatsThis( widget, text)
+    ## widget._KEEP_WHATSTHIS = obj1 # this was not sufficient to prevent a bus error
+    _KEEPERS.append(obj1) # this is needed to prevent a bus error
+    return
+
+def modified_whatsthis_text(text, widget):
+    "Given some nonempty whatsthis text from a widget, return None or modified text (e.g. containing a web help URL)."
+    if text.startswith("<u><b>"):
+        text = text[len("<u><b>"):] # strip that prefix
+        ff = text.split("</b></u>", 1)
+        if len(ff) == 2: # should never be more than 2
+            text = ff[0] # the words between <u><b> and </b></u>
+            rest = ff[1] # use this part later, unchanged
+            #e should verify text is one or more capitalized words sep by ' '; could use split, isalpha (or so) ###@@@
+            print "proposed web help name: %r" % (text,) ###@@@
+            return "<a href=\"%s\">%s</a>" % ("fakeurl", text) + rest #WRONG link URL (or featurename to be made into URL later) ###@@@
+    return None
+
 ###@@@ end bruce hack
     
 def replace_ctrl_with_cmd_text(str):
