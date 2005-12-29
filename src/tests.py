@@ -179,6 +179,7 @@ class XyzFile:
             a.x, a.y, a.z = map(string.atof, (x, y, z))
             self.atoms.append(a)
     def readFromList(self, lst):
+        assert type(lst) == types.ListType
         for atminfo in lst:
             a = Atom()
             element, x, y, z = atminfo
@@ -414,8 +415,10 @@ class LengthAngleComparison:
         xyz = XyzFile()
         if type(questionableXyz) == types.StringType:
             xyz.read(questionableXyz)
-        else:
+        elif type(questionableXyz) == types.ListType:
             xyz.readFromList(questionableXyz)
+        else:
+            raise Exception, type(questionableXyz)
         L1, A1 = self.getLAfromXYZ(xyz)
         xyz = XyzFile()
         xyz.read(knownGoodXyzFile)
@@ -975,8 +978,9 @@ class PyrexTests(unittest.TestCase):
         lac = LengthAngleComparison(BASE + ".mmp")
         s = sim.Minimize(BASE + ".mmp")
         s.Temperature = 300
-        z = s.go()
-        lac.compare(z, BASE + ".xyzcmp", LENGTH_TOLERANCE, ANGLE_TOLERANCE)
+        s.go()
+        lac.compare(BASE + ".xyz", BASE + ".xyzcmp",
+                    LENGTH_TOLERANCE, ANGLE_TOLERANCE)
     def test_other(self):
         import sim
         BASE = "tests/minimize/test_0001"
@@ -984,7 +988,8 @@ class PyrexTests(unittest.TestCase):
         s = sim.Minimize(BASE + ".mmp")
         s.Temperature = 300
         z = s.go()
-        lac.compare(z, BASE + ".xyzcmp", LENGTH_TOLERANCE, ANGLE_TOLERANCE)
+        lac.compare(BASE + ".xyz", BASE + ".xyzcmp",
+                    LENGTH_TOLERANCE, ANGLE_TOLERANCE)
 
 class SlowPyrexTests(PyrexTests):
     def test_dynamics(self):

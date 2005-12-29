@@ -55,7 +55,7 @@ structCompareFreeExtra(struct configuration *p)
   }
 }
 
-#ifndef __GNUC__
+#ifndef isnormal
 int
 isnormal(double a)
 {
