@@ -234,14 +234,14 @@ class MMKit(MMKitDialog):
         
         if pagename == 'Atoms':  # Atoms page
             self.w.depositState = 'Atoms'
-            self.w.glpane.mode.update_depositState_buttons(self.w.depositState)
+            self.w.update_depositState_buttons()
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
         
         elif pagename == 'Clipboard': # Clipboard page
             self.w.depositState = 'Clipboard'
-            self.w.glpane.mode.update_depositState_buttons(self.w.depositState)
+            self.w.update_depositState_buttons()
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
             self.browseButton.hide()
@@ -255,7 +255,7 @@ class MMKit(MMKitDialog):
             #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
             self.w.depositState = 'Library'
-            self.w.glpane.mode.update_depositState_buttons(self.w.depositState)
+            self.w.update_depositState_buttons()
         else:
             print 'Error: MMKit page unknown: ', pagename
             

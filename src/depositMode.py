@@ -513,23 +513,10 @@ class depositMode(basicMode):
         #e future: if model tree indicates self.pastable somehow, e.g. by color of
         # its name, update it. (It might as well also show "is_pastables" that way.) ###@@@ good idea...
         
-        # This is needed since changing the spinbox item sets depositState.
-        self.update_depositState_buttons(self.w.depositState)
+        # This is needed since changing the spinbox item sets self.w.depositState.
+        self.w.update_depositState_buttons()
         return
         
-    def update_depositState_buttons(self, depositState):
-        '''Update the dashboard 'depositState' buttons based on 'depositState'.
-        '''
-        if depositState== 'Atoms':
-            self.w.depositAtomDashboard.depositBtn.setOn(True)
-        elif depositState == 'Clipboard':
-            self.w.depositAtomDashboard.pasteBtn.setOn(True)
-        elif depositState == 'Library':
-            self.w.depositAtomDashboard.depositBtn.setOn(False)
-            self.w.depositAtomDashboard.pasteBtn.setOn(False)
-        else:
-            print "Error: depositState unknown: ", depositState, ".  depositState buttons unchanged."
-
     def clipboard_members_changed(self, clipboard): #bruce 050121
         "we'll subscribe this method to changes to shelf.members, if possible"
         if self.now_using_this_mode_object():
@@ -1868,7 +1855,7 @@ class depositMode(basicMode):
             ###@@@ always do this, since old code did this
             # and I didn't yet analyze changing cond to self.pastable
             self.w.depositState = 'Clipboard'
-            self.update_depositState_buttons(self.w.depositState)
+            self.w.update_depositState_buttons()
         else:
             pass
             ###@@@ should we do the opposite of the above when not self.pastable?
@@ -1911,7 +1898,7 @@ class depositMode(basicMode):
         "called from radiobutton presses and spinbox changes" #k really from spinbox changes? I doubt it...#bruce 050121
         self.pastable = None # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
         self.w.depositState = 'Atoms'
-        self.update_depositState_buttons(self.w.depositState)
+        self.w.update_depositState_buttons()
         self.UpdateDashboard() #bruce 050121 added this
 
     bondclick_v6 = None

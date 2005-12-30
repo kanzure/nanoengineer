@@ -1129,7 +1129,25 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         elementSelectorWin = elementSelector(self)
         elementSelectorWin.update_dialog(self.Element)
         elementSelectorWin.show()
-
+    
+    def update_depositState_buttons(self): #bruce 051230 moved this from depositMode to MWsemantics and removed the argument.
+        '''Update the Build dashboard 'depositState' buttons based on self.depositState.
+        '''
+        depositState = self.depositState
+            # (this is the only correct source of this info, so I made it not an argument;
+            #  if that changes then we can supply an *optional* argument to get this info
+            #  from a nonstandard source [bruce 051230])
+        if depositState == 'Atoms':
+            self.depositAtomDashboard.depositBtn.setOn(True)
+        elif depositState == 'Clipboard':
+            self.depositAtomDashboard.pasteBtn.setOn(True)
+        elif depositState == 'Library':
+            self.depositAtomDashboard.depositBtn.setOn(False)
+            self.depositAtomDashboard.pasteBtn.setOn(False)
+        else:
+            print "Bug: depositState unknown: ", depositState, ".  depositState buttons unchanged." #bruce 051230 revised text
+        return
+    
     def _findGoodLocation(self, firstShow):
         '''Find ideal location for the MMKit. Should only be called after history, and MMKit
            has been created.'''
