@@ -1,4 +1,5 @@
 # Makefile for the simulator
+# $Id$
 
 ifeq ($(OS),Windows_NT)
 CC = "C:/Dev-Cpp/bin/gcc.exe"
@@ -6,8 +7,11 @@ CFLAGS=-I"C:/Dev-Cpp/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
 STDC99=
 else
+# non-Windows
 CC=gcc
 CFLAGS=-g -Wmissing-prototypes -Wall
+# Note: these CFLAGS are probably not used to build the files for Pyrex, 
+# only for the standalone simulator executable. [bruce 051230 guess]
 LDFLAGS=-L/usr/lib -lm
 STDC99=-std=c99
 endif
@@ -53,15 +57,19 @@ SIMINCLUDES=\
 	structcompare.h \
 	writemovie.h
 
-simulator.h: $(SIMINCLUDES)
+#bruce 051230 added dependency on Makefile to most rules (probably not all);
+# this is desirable since Makefile defines CFLAGS (and full remake doesn't take very long);
+# feel free to do this in a cleaner way, or not at all if it causes problems.
 
-allocate.o: allocate.h
+simulator.h: $(SIMINCLUDES) Makefile
+
+allocate.o: allocate.h Makefile
 globals.o: simulator.h
-hashtable.o: allocate.h hashtable.h
+hashtable.o: allocate.h hashtable.h Makefile
 interpolate.o: simulator.h
 jigs.o: simulator.h
-lin-alg.o: lin-alg.h
-minimize.o: allocate.h minimize.h debug.h
+lin-alg.o: lin-alg.h Makefile
+minimize.o: allocate.h minimize.h debug.h Makefile
 minstructure.o: simulator.h
 newtables.o: simulator.h bonds.h
 part.o: simulator.h
@@ -78,6 +86,8 @@ structcompare.o: structcompare.c simulator.h
 
 sim.o: sim.c simulator.h
 	gcc -c -g -fPIC -I/usr/include/python2.3 sim.c
+
+### is this sim.c rule obsolete? Will it interfere with anything? [bruce 051230 question]
 sim.c: sim.pyx simhelp.c
 	pyrexc sim.pyx
 
@@ -140,6 +150,7 @@ install: simulator
 	cp simulator ~/bin/simulator
 	cp simulator $(EXE_DIRECTORY) 
 
+## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
 	rm -f simulator moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz

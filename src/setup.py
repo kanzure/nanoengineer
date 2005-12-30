@@ -1,40 +1,30 @@
 # Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
 '''
-setup.py
+setup.py (for sim code)
 
 Distutils setup file -- tells distutils how to rebuild our custom extension modules.
 
+NOTE: very similar to cad/src/setup.py in the cad cvs module.
+Some comments and docstrings (more relevant to cad than to sim)
+appear only in that file; others occur in both files.
+
 $Id$
 
-This file is NOT meant to be imported directly by nE-1.
-
-One way to run it might be "make extensions"; see Makefile in this directory.
+One way to run this might be "make extensions" or "make pyx"; see Makefile in this directory.
 A more direct way is to ask your shell to do
 
   python setup.py build_ext --inplace
   
-(I don't know if that works on Windows.)
+For up to date info about how to do this (especially for Windows), see the wiki.
 
 Running this makes some output files and subdirectories, and prints lots of output.
 I think it only recompiles what needs to be recompiled (based on modtimes), but I'm not sure.
 (I've had a hard time finding any documentation about the internal workings of distutils,
 though it's easy to find basic instructions about how to use it.)
 
-==
-
-For now [051202], all our custom extension modules are written in Pyrex, and we have exactly one,
-which is just for testing our use of Pyrex and our integration of Pyrex code into our release-building system.
-
-For plans and status related to our use of Pyrex, see:
-
-  http://www.nanoengineer-1.net/mediawiki/index.php?title=Integrating_Pyrex_into_the_Build_System
-
-See README-Pyrex for the list of related files and their roles.
-
 This is based on the Pyrex example file Pyrex-0.9.3/Demos/Setup.py.
-
 '''
-__author__ = 'bruce'
+__author__ = ['bruce', 'will']
 
 import sys
 
@@ -44,13 +34,20 @@ try:
     from Pyrex.Distutils import build_ext
 except:
     print "Problem importing Pyrex. You need to install Pyrex before it makes sense to run this."
-    print "For more info see README-Pyrex and/or "
+    print "For more info see cad/src/README-Pyrex and/or "
     print "  http://www.nanoengineer-1.net/mediawiki/index.php?title=Integrating_Pyrex_into_the_Build_System"
     print "(If you already installed Pyrex, there's a bug in your Pyrex installation or in setup.py, "
     print " since the import should have worked.)"
     sys.exit(1)
 
 if sys.platform == "darwin":
+    # Work around Mac compiler hang for -O3 with newtables.c
+    # (and perhaps other files, though problem didn't occur for the ones compiled before newtables).
+    # Ideally we'd do this only for that one file, but we don't yet know a non-klugy way to do that.
+    # If we can't find one, we can always build newtables.o separately (perhaps also using distutils)
+    # and then link newtables.o here by using the extra_objects distutils keyword,
+    # which was used for most .o files in a prior cvs revision of this file.
+    # [change by Will, commented by Bruce, 051230.]
     extra_compile_args = [ "-O" ]
 else:
     extra_compile_args = [ ]
@@ -74,7 +71,7 @@ setup(name = 'Simulator',
                                      "readxyz.c",
                                      "structcompare.c",
                                      "writemovie.c"],
-                             extra_compile_args=extra_compile_args
+                             extra_compile_args = extra_compile_args
                              ),
                    ],
       cmdclass = {'build_ext': build_ext})

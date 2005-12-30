@@ -1,0 +1,21 @@
+# README file for sim/src directory.
+# $Id$
+# [initial draft by bruce 051230, very incomplete]
+
+To remake the standalone simulator:
+  make clean # this doesn't yet remove the python-or-perl-produced source files
+  make
+
+To remake the Pyrex extension:
+  make clean # might not clean enough to force this remake; try touching *.pyx
+  make pyx
+
+To test the Pyrex extension, see its module docstring in sim.pyx:
+
+  python -c "import sim; sim.test()"
+
+For other info which might or might not be more up-to-date than this,
+see the wiki, searching for Simulator, Pyrex, Windows.
+[We can add the URLs to this file sometime.]
+
+# end
