@@ -44,7 +44,7 @@ if __name__ == "__main__":
 DEBUG = 0
 MD5_CHECKS = False
 TIME_ONLY = False
-TIME_ONLY_TIME_LIMIT = 1.0
+TIME_LIMIT = 15.0
 LENGTH_ANGLE_TEST, STRUCTCOMPARE_C_TEST = range(2)
 STRUCTURE_COMPARISON_TYPE = LENGTH_ANGLE_TEST
 GENERATE = False
@@ -61,6 +61,9 @@ class Unimplemented(AssertionError):
 def todo(str):
     if SHOW_TODO:
         raise Unimplemented(str)
+
+testTimes = { }
+testsSkipped = 0
 
 ##################################################################
 
@@ -468,12 +471,25 @@ class BaseTest:
                  simopts=None, inputs=None, outputs=None,
                  expectedExitStatus=0):
 
-        self.dirname = dir
-        self.shortname = test
+        global Tests
+
+        self.dirname = dir  # rigid_organics
+        self.shortname = test  # C2H4
         self.testname = testname = "test_" + test # test_C2H4
+        # midname = tests/rigid_organics/test_C2H4
         self.midname = midname = os.sep.join(["tests", dir, testname])
+        # methodname = test_rigid_organics_C2H4
+        self.methodname = methodname = "_".join(["test", dir, test])
+        # basename = .../sim/src/tests/rigid_organics/test_C2H4
         self.basename = os.sep.join([os.getcwd(), midname])
         self.expectedExitStatus = expectedExitStatus
+
+        if not TIME_ONLY:
+            t, total = Tests.RANKED_BY_SPEED[methodname]
+            if total > TIME_LIMIT:
+                global testsSkipped
+                testsSkipped += 1
+                return
 
         if inputs == None:
             inputs = self.DEFAULT_INPUTS
@@ -488,17 +504,6 @@ class BaseTest:
             print
             print dir, testname
         self.runInSandbox()
-
-    def getBasename(self):
-        # get the calling method name e.g. "test_rigid_organics_C2H4"
-        name = sys._getframe(2).f_code.co_name
-        name = name[5:]  # get rid of "test_"
-        n = name.rindex("_")
-        self.dirname = dirname = name[:n]  # rigid_organics
-        self.shortname = shortname = name[n+1:]  # C2H4
-        self.testname = testname = "test_" + shortname # test_C2H4
-        self.midname = midname = os.sep.join(["tests", dirname, testname])
-        self.basename = os.sep.join([os.getcwd(), midname])
 
     def runInSandbox(self):
         # Run the simulator in sim/src/tmp.
@@ -571,9 +576,9 @@ class BaseTest:
                     print "---- " + f + " ----"
                     sys.stdout.write(open(f).read())
         if TIME_ONLY:
+            global testTimes
             startTime, finishTime = self.startTime, time.time()
-            # there are about 200 tests and we want to finish in 15 secs
-            assert finishTime - startTime < TIME_ONLY_TIME_LIMIT
+            testTimes[self.methodname] = finishTime - startTime
         elif MD5_CHECKS:
             self.checkMd5Sums()
         else:
@@ -614,18 +619,21 @@ class BaseTest:
 
 #########################################
 
-class FailureExpectedTest(BaseTest):
+class NullTest(BaseTest):
+    def runInSandbox(self):
+        global testTimes
+        testTimes[self.methodname] = 0.0
+
+class FailureExpectedTest(NullTest):
     """By default, the input for this kind of test is a MMP file,
     the command line is given explicitly in the test methods, and the
     outputs are stdout, stderr, and the exit value. We expect a failure
     here but I'm not sure exactly what kind of failure.
+
+    Until I know exactly what kind of failure Eric wants here,
+    just make it pass all the time.
     """
     DEFAULT_SIMOPTS = None  # force an explicit choice
-    def runInSandbox(self):
-        """Until I know exactly what kind of failure Eric wants here,
-        just make it pass all the time.
-        """
-        pass
 
 class MinimizeTest(BaseTest):
     """Perform a minimization, starting with a MMP file. The results
@@ -657,8 +665,186 @@ class DynamicsTest(MinimizeTest):
 ####################################################
 
 class Tests(unittest.TestCase):
-    """Put the fast tests here.
-    """
+    # Re-generate this with "python tests.py time_only"
+    RANKED_BY_SPEED = {
+        'test_amino_acids_ala_l_aminoacid': (8.4515881538391113, 292.8698992729187),
+        'test_amino_acids_arg_l_aminoacid': (16.897550821304321, 454.8538236618042),
+        'test_amino_acids_asn_l_aminoacid': (10.056391954421997, 331.14827513694763),
+        'test_amino_acids_asp_l_aminoacid': (12.478914976119995, 422.92954587936401),
+        'test_amino_acids_cys_l_aminoacid': (10.552248001098633, 341.70052313804626),
+        'test_amino_acids_gln_l_aminoacid': (7.2884318828582764, 253.37105631828308),
+        'test_amino_acids_glu_l_aminoacid': (18.545698881149292, 490.9207603931427),
+        'test_amino_acids_gly_l_aminoacid': (6.2237210273742676, 192.34123921394348),
+        'test_amino_acids_his_l_aminoacid': (5.7051258087158203, 168.16432523727417),
+        'test_amino_acids_ile_l_aminoacid': (7.1139130592346191, 246.0826244354248),
+        'test_amino_acids_leu_l_aminoacid': (9.8509140014648438, 311.21676707267761),
+        'test_amino_acids_lys_l_aminoacid': (4.6640949249267578, 140.85138630867004),
+        'test_amino_acids_met_l_aminoacid': (7.4319419860839844, 268.12668037414551),
+        'test_amino_acids_phe_l_aminoacid': (0.054956912994384766,
+                                             0.30835819244384766),
+        'test_amino_acids_pro_l_aminoacid': (4.5057921409606934, 122.52460861206055),
+        'test_amino_acids_ser_l_aminoacid': (10.827859878540039, 352.5283830165863),
+        'test_amino_acids_thr_l_aminoacid': (4.0716040134429932, 118.01881647109985),
+        'test_amino_acids_tyr_l_aminoacid': (17.521237850189209, 472.37506151199341),
+        'test_amino_acids_val_l_aminoacid': (7.100614070892334, 238.96871137619019),
+        'test_dynamics_0001': (0.0, 0.0),
+        'test_dynamics_0002': (0.28501796722412109, 1.8783180713653564),
+        'test_floppy_organics_C2H6': (0.99122405052185059, 16.262491703033447),
+        'test_floppy_organics_C3H8': (3.969290018081665, 105.89462566375732),
+        'test_floppy_organics_C4H10a': (1.0303390026092529, 18.287234783172607),
+        'test_floppy_organics_C4H10b': (6.1513998508453369, 186.11751818656921),
+        'test_floppy_organics_C4H10c': (3.4591710567474365, 98.314822673797607),
+        'test_floppy_organics_C4H8': (0.48324894905090332, 4.4755322933197021),
+        'test_floppy_organics_C5H10': (11.981503963470459, 410.45063090324402),
+        'test_floppy_organics_C5H12a': (1.4010508060455322, 34.388141870498657),
+        'test_floppy_organics_C5H12b': (4.5366709232330322, 127.06127953529358),
+        'test_floppy_organics_C5H12c': (5.5371201038360596, 162.45919942855835),
+        'test_floppy_organics_C5H12d': (2.0090811252593994, 53.655117273330688),
+        'test_floppy_organics_C5H12e': (9.8751161098480225, 321.09188318252563),
+        'test_floppy_organics_C6H12a': (1.3278310298919678, 30.313368082046509),
+        'test_floppy_organics_C6H12b': (0.88967704772949219, 12.365112543106079),
+        'test_floppy_organics_C6H14a': (2.2347090244293213, 62.0400550365448),
+        'test_floppy_organics_C6H14b': (1.7417080402374268, 44.11979603767395),
+        'test_floppy_organics_C6H14c': (1.1762402057647705, 25.200761079788208),
+        'test_floppy_organics_C6H14d': (11.932842969894409, 386.49255299568176),
+        'test_floppy_organics_C6H14e': (2.2804429531097412, 64.320497989654541),
+        'test_floppy_organics_C6H14f': (8.2306308746337891, 284.41831111907959),
+        'test_floppy_organics_C7H14a': (2.7018167972564697, 82.040554761886597),
+        'test_floppy_organics_C7H14b': (6.0212090015411377, 179.96611833572388),
+        'test_floppy_organics_C7H14c': (10.990864038467407, 363.51924705505371),
+        'test_floppy_organics_CH4': (0.054437160491943359, 0.25340127944946289),
+        'test_heteroatom_organics_ADAM_AlH2_Cs': (1.2039239406585693,
+                                                  26.404685020446777),
+        'test_heteroatom_organics_ADAM_BH2': (3.3327479362487793, 91.417218685150146),
+        'test_heteroatom_organics_ADAM_Cl_c3v': (0.97649097442626953,
+                                                 15.271267652511597),
+        'test_heteroatom_organics_ADAM_F_c3v': (0.81246709823608398,
+                                                9.7333366870880127),
+        'test_heteroatom_organics_ADAM_NH2_Cs': (6.7423648834228516,
+                                                 224.78610825538635),
+        'test_heteroatom_organics_ADAM_OH_Cs': (1.7084159851074219,
+                                                42.378087997436523),
+        'test_heteroatom_organics_ADAM_PH2_Cs': (6.3031060695648193,
+                                                 204.93387937545776),
+        'test_heteroatom_organics_ADAM_SH_Cs': (0.99440407752990723,
+                                                17.256895780563354),
+        'test_heteroatom_organics_ADAM_SiH3_C3v': (44.870447874069214,
+                                                   535.79120826721191),
+        'test_heteroatom_organics_ADAMframe_AlH_Cs': (2.0612678527832031,
+                                                      59.805346012115479),
+        'test_heteroatom_organics_ADAMframe_BH_Cs': (2.5925590991973877,
+                                                     74.017199039459229),
+        'test_heteroatom_organics_ADAMframe_NH_Cs': (0.60892510414123535,
+                                                     6.6141974925994873),
+        'test_heteroatom_organics_ADAMframe_O_Cs': (1.3116340637207031,
+                                                    28.985537052154541),
+        'test_heteroatom_organics_ADAMframe_PH_Cs': (1.3447470664978027,
+                                                     32.987091064453125),
+        'test_heteroatom_organics_ADAMframe_S_Cs': (0.74076104164123535,
+                                                    7.3549585342407227),
+        'test_heteroatom_organics_ADAMframe_SiH2_c2v': (1.9843220710754395,
+                                                        51.646036148071289),
+        'test_heteroatom_organics_Al_ADAM_C3v': (3.0713629722595215,
+                                                 88.084470748901367),
+        'test_heteroatom_organics_B_ADAM_C3v': (1.3289759159088135,
+                                                31.642343997955322),
+        'test_heteroatom_organics_C3H6AlH': (0.79894709587097168, 8.9208695888519287),
+        'test_heteroatom_organics_C3H6BH': (0.39984798431396484, 2.6626601219177246),
+        'test_heteroatom_organics_C3H6NH': (0.2454218864440918, 1.3251669406890869),
+        'test_heteroatom_organics_C3H6O': (0.23571491241455078, 1.0797450542449951),
+        'test_heteroatom_organics_C3H6PH': (0.48624897003173828, 5.4468502998352051),
+        'test_heteroatom_organics_C3H6S': (0.23258590698242188, 0.84403014183044434),
+        'test_heteroatom_organics_C3H6SiH2': (0.76696395874023438, 8.121922492980957),
+        'test_heteroatom_organics_C4H8AlH': (1.2692179679870605, 27.673902988433838),
+        'test_heteroatom_organics_C4H8BH': (4.5707628726959229, 136.18729138374329),
+        'test_heteroatom_organics_C4H8NH': (11.040462970733643, 374.55971002578735),
+        'test_heteroatom_organics_C4H8O': (8.4959537982940674, 301.36585307121277),
+        'test_heteroatom_organics_C4H8PH': (2.499208927154541, 71.424639940261841),
+        'test_heteroatom_organics_C4H8S': (2.291511058807373, 66.612009048461914),
+        'test_heteroatom_organics_C4H8SiH2': (0.87538981437683105,
+                                              11.475435495376587),
+        'test_heteroatom_organics_C5H10AlH': (2.0489368438720703, 57.744078159332275),
+        'test_heteroatom_organics_C5H10BH': (1.6558411121368408, 40.669672012329102),
+        'test_heteroatom_organics_C5H10NH': (0.9700310230255127, 14.294776678085327),
+        'test_heteroatom_organics_C5H10O': (1.5707600116729736, 37.374046802520752),
+        'test_heteroatom_organics_C5H10PH': (0.38449406623840332, 2.2628121376037598),
+        'test_heteroatom_organics_C5H10S': (0.47199916839599609, 3.9922833442687988),
+        'test_heteroatom_organics_C5H10SiH2': (1.1684699058532715,
+                                               24.024520874023438),
+        'test_heteroatom_organics_CH3AlH2': (2.972553014755249, 85.013107776641846),
+        'test_heteroatom_organics_CH3AlHCH3': (1.9149010181427002, 49.66171407699585),
+        'test_heteroatom_organics_CH3BH2': (3.6105129718780518, 101.92533564567566),
+        'test_heteroatom_organics_CH3BHCH3': (5.7805840969085693, 173.94490933418274),
+        'test_heteroatom_organics_CH3NH2': (0.95963311195373535, 13.324745655059814),
+        'test_heteroatom_organics_CH3NHCH3': (3.4384329319000244, 94.855651617050171),
+        'test_heteroatom_organics_CH3OCH3': (5.0952639579772949, 145.94665026664734),
+        'test_heteroatom_organics_CH3OH': (0.26813316345214844, 1.5933001041412354),
+        'test_heteroatom_organics_CH3PH2': (2.6964559555053711, 79.338737964630127),
+        'test_heteroatom_organics_CH3PHCH3': (0.43955302238464355,
+                                              3.5202841758728027),
+        'test_heteroatom_organics_CH3SCH3': (0.55842208862304688, 6.005272388458252),
+        'test_heteroatom_organics_CH3SH': (0.86670899391174316, 10.600045680999756),
+        'test_heteroatom_organics_CH3SiH2CH3': (1.1079399585723877,
+                                                19.395174741744995),
+        'test_heteroatom_organics_CH3SiH3': (4.0488529205322266, 113.94721245765686),
+        'test_heteroatom_organics_C_CH3_3_AlH2': (11.976573944091797,
+                                                  398.46912693977356),
+        'test_heteroatom_organics_C_CH3_3_BH2': (2.3134219646453857,
+                                                 68.9254310131073),
+        'test_heteroatom_organics_C_CH3_3_NH2': (6.5994019508361816,
+                                                 218.0437433719635),
+        'test_heteroatom_organics_C_CH3_3_OH': (4.0037338733673096,
+                                                109.89835953712463),
+        'test_heteroatom_organics_C_CH3_3_PH2': (7.3236820697784424,
+                                                 260.69473838806152),
+        'test_heteroatom_organics_C_CH3_3_SH': (2.0400240421295166,
+                                                55.695141315460205),
+        'test_heteroatom_organics_C_CH3_3_SiH3': (4.5552489757537842,
+                                                  131.61652851104736),
+        'test_heteroatom_organics_N_ADAM_C3v': (1.1632251739501953,
+                                                21.692574977874756),
+        'test_heteroatom_organics_P_ADAM_C3v': (1.7552249431610107,
+                                                45.875020980834961),
+        'test_heteroatom_organics_SiH_ADAM_C3v': (1.8717920780181885,
+                                                  47.746813058853149),
+        'test_minimize_0001': (7.081989049911499, 231.86809730529785),
+        'test_minimize_0002': (0.0, 0.0),
+        'test_minimize_0003': (0.0, 0.0),
+        'test_minimize_0004': (0.0, 0.0),
+        'test_minimize_0005': (6.5104620456695557, 211.44434142112732),
+        'test_minimize_0006': (0.0, 0.0),
+        'test_minimize_0007': (0.0, 0.0),
+        'test_minimize_0008': (5.4587171077728271, 151.40536737442017),
+        'test_minimize_0009': (0.48506903648376465, 4.9606013298034668),
+        'test_minimize_0010': (0.068049192428588867, 0.43266439437866211),
+        'test_minimize_0011': (6.2895340919494629, 198.63077330589294),
+        'test_minimize_0012': (5.516711950302124, 156.92207932472229),
+        'test_minimize_0013': (0.05047297477722168, 0.19896411895751953),
+        'test_minimize_h2': (0.049383163452148438, 0.098462104797363281),
+        'test_rigid_organics_C10H12': (0.41807103157043457, 3.0807311534881592),
+        'test_rigid_organics_C10H14': (1.4151449203491211, 35.803286790847778),
+        'test_rigid_organics_C14H20': (1.6397840976715088, 39.013830900192261),
+        'test_rigid_organics_C14H24': (15.026726961135864, 437.95627284049988),
+        'test_rigid_organics_C2H6': (1.1634759902954102, 22.856050968170166),
+        'test_rigid_organics_C3H6': (0.049078941345214844, 0.049078941345214844),
+        'test_rigid_organics_C3H8': (2.6250829696655273, 76.642282009124756),
+        'test_rigid_organics_C4H8': (0.05002903938293457, 0.14849114418029785),
+        'test_rigid_organics_C6H10': (1.1341750621795654, 20.529349803924561),
+        'test_rigid_organics_C8H14': (8.060999870300293, 276.1876802444458),
+        'test_rigid_organics_C8H8': (0.17877984046936035, 0.61144423484802246),
+        'test_rigid_organics_CH4': (0.056257009506225586, 0.36461520195007324)}
+
+    def test_minimize_h2(self):
+        StructureTest(dir="minimize", test="h2")
+
+    def test_dynamics_0001(self):
+        # rotary motor test
+        FailureExpectedTest(dir="dynamics", test="0001",
+                            simopts=("--num-frames=30",
+                                     "--temperature=0",
+                                     "--iters-per-frame=10000",
+                                     "--dump-as-text",
+                                     "FOO.mmp"))
     def test_dynamics_0002(self):
         # ground, thermostat, and thermometer test
         DynamicsTest(dir="dynamics", test="0002",
@@ -667,8 +853,7 @@ class Tests(unittest.TestCase):
                               "--iters-per-frame=10",
                               "--dump-as-text",
                               "FOO.mmp"))
-    def test_minimize_h2(self):
-        StructureTest(dir="minimize", test="h2")
+
     def test_minimize_0002(self):
         FailureExpectedTest(dir="minimize", test="0002",
                             simopts=("--num-frames=500",
@@ -704,40 +889,6 @@ class Tests(unittest.TestCase):
                                      "FOO.mmp"))
 
     # In Emacs, do "sort-lines" to keep things organized
-    def test_amino_acids_phe_l_aminoacid(self): StructureTest(dir="amino_acids", test="phe_l_aminoacid")
-    def test_floppy_organics_C4H8(self): StructureTest(dir="floppy_organics", test="C4H8")
-    def test_floppy_organics_CH4(self): StructureTest(dir="floppy_organics", test="CH4")
-    def test_heteroatom_organics_C3H6BH(self): StructureTest(dir="heteroatom_organics", test="C3H6BH")
-    def test_heteroatom_organics_C3H6NH(self): StructureTest(dir="heteroatom_organics", test="C3H6NH")
-    def test_heteroatom_organics_C3H6O(self): StructureTest(dir="heteroatom_organics", test="C3H6O")
-    def test_heteroatom_organics_C3H6PH(self): StructureTest(dir="heteroatom_organics", test="C3H6PH")
-    def test_heteroatom_organics_C3H6S(self): StructureTest(dir="heteroatom_organics", test="C3H6S")
-    def test_heteroatom_organics_C5H10PH(self): StructureTest(dir="heteroatom_organics", test="C5H10PH")
-    def test_heteroatom_organics_C5H10S(self): StructureTest(dir="heteroatom_organics", test="C5H10S")
-    def test_heteroatom_organics_CH3OH(self): StructureTest(dir="heteroatom_organics", test="CH3OH")
-    def test_heteroatom_organics_CH3PHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3PHCH3")
-    def test_minimize_0009(self): StructureTest(dir="minimize", test="0009")
-    def test_minimize_0010(self): MinimizeTest(dir="minimize", test="0010")
-    def test_minimize_0013(self): StructureTest(dir="minimize", test="0013")
-    def test_rigid_organics_C10H12(self): StructureTest(dir="rigid_organics", test="C10H12")
-    def test_rigid_organics_C3H6(self): StructureTest(dir="rigid_organics", test="C3H6")
-    def test_rigid_organics_C4H8(self): StructureTest(dir="rigid_organics", test="C4H8")
-    def test_rigid_organics_C8H8(self): StructureTest(dir="rigid_organics", test="C8H8")
-    def test_rigid_organics_CH4(self): StructureTest(dir="rigid_organics", test="CH4")
-
-class SlowTests(Tests):
-    """Put the slow tests here.
-    """
-    def test_dynamics_0001(self):
-        # rotary motor test
-        FailureExpectedTest(dir="dynamics", test="0001",
-                            simopts=("--num-frames=30",
-                                     "--temperature=0",
-                                     "--iters-per-frame=10000",
-                                     "--dump-as-text",
-                                     "FOO.mmp"))
-
-    # In Emacs, do "sort-lines" to keep things organized
     def test_amino_acids_ala_l_aminoacid(self): StructureTest(dir="amino_acids", test="ala_l_aminoacid")
     def test_amino_acids_arg_l_aminoacid(self): StructureTest(dir="amino_acids", test="arg_l_aminoacid")
     def test_amino_acids_asn_l_aminoacid(self): StructureTest(dir="amino_acids", test="asn_l_aminoacid")
@@ -751,6 +902,7 @@ class SlowTests(Tests):
     def test_amino_acids_leu_l_aminoacid(self): StructureTest(dir="amino_acids", test="leu_l_aminoacid")
     def test_amino_acids_lys_l_aminoacid(self): StructureTest(dir="amino_acids", test="lys_l_aminoacid")
     def test_amino_acids_met_l_aminoacid(self): StructureTest(dir="amino_acids", test="met_l_aminoacid")
+    def test_amino_acids_phe_l_aminoacid(self): StructureTest(dir="amino_acids", test="phe_l_aminoacid")
     def test_amino_acids_pro_l_aminoacid(self): StructureTest(dir="amino_acids", test="pro_l_aminoacid")
     def test_amino_acids_ser_l_aminoacid(self): StructureTest(dir="amino_acids", test="ser_l_aminoacid")
     def test_amino_acids_thr_l_aminoacid(self): StructureTest(dir="amino_acids", test="thr_l_aminoacid")
@@ -761,6 +913,7 @@ class SlowTests(Tests):
     def test_floppy_organics_C4H10a(self): StructureTest(dir="floppy_organics", test="C4H10a")
     def test_floppy_organics_C4H10b(self): StructureTest(dir="floppy_organics", test="C4H10b")
     def test_floppy_organics_C4H10c(self): StructureTest(dir="floppy_organics", test="C4H10c")
+    def test_floppy_organics_C4H8(self): StructureTest(dir="floppy_organics", test="C4H8")
     def test_floppy_organics_C5H10(self): StructureTest(dir="floppy_organics", test="C5H10")
     def test_floppy_organics_C5H12a(self): StructureTest(dir="floppy_organics", test="C5H12a")
     def test_floppy_organics_C5H12b(self): StructureTest(dir="floppy_organics", test="C5H12b")
@@ -778,6 +931,7 @@ class SlowTests(Tests):
     def test_floppy_organics_C7H14a(self): StructureTest(dir="floppy_organics", test="C7H14a")
     def test_floppy_organics_C7H14b(self): StructureTest(dir="floppy_organics", test="C7H14b")
     def test_floppy_organics_C7H14c(self): StructureTest(dir="floppy_organics", test="C7H14c")
+    def test_floppy_organics_CH4(self): StructureTest(dir="floppy_organics", test="CH4")
     def test_heteroatom_organics_ADAM_AlH2_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAM_AlH2_Cs")
     def test_heteroatom_organics_ADAM_BH2(self): StructureTest(dir="heteroatom_organics", test="ADAM_BH2")
     def test_heteroatom_organics_ADAM_Cl_c3v(self): StructureTest(dir="heteroatom_organics", test="ADAM_Cl_c3v")
@@ -797,6 +951,11 @@ class SlowTests(Tests):
     def test_heteroatom_organics_Al_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="Al_ADAM_C3v")
     def test_heteroatom_organics_B_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="B_ADAM_C3v")
     def test_heteroatom_organics_C3H6AlH(self): StructureTest(dir="heteroatom_organics", test="C3H6AlH")
+    def test_heteroatom_organics_C3H6BH(self): StructureTest(dir="heteroatom_organics", test="C3H6BH")
+    def test_heteroatom_organics_C3H6NH(self): StructureTest(dir="heteroatom_organics", test="C3H6NH")
+    def test_heteroatom_organics_C3H6O(self): StructureTest(dir="heteroatom_organics", test="C3H6O")
+    def test_heteroatom_organics_C3H6PH(self): StructureTest(dir="heteroatom_organics", test="C3H6PH")
+    def test_heteroatom_organics_C3H6S(self): StructureTest(dir="heteroatom_organics", test="C3H6S")
     def test_heteroatom_organics_C3H6SiH2(self): StructureTest(dir="heteroatom_organics", test="C3H6SiH2")
     def test_heteroatom_organics_C4H8AlH(self): StructureTest(dir="heteroatom_organics", test="C4H8AlH")
     def test_heteroatom_organics_C4H8BH(self): StructureTest(dir="heteroatom_organics", test="C4H8BH")
@@ -809,6 +968,8 @@ class SlowTests(Tests):
     def test_heteroatom_organics_C5H10BH(self): StructureTest(dir="heteroatom_organics", test="C5H10BH")
     def test_heteroatom_organics_C5H10NH(self): StructureTest(dir="heteroatom_organics", test="C5H10NH")
     def test_heteroatom_organics_C5H10O(self): StructureTest(dir="heteroatom_organics", test="C5H10O")
+    def test_heteroatom_organics_C5H10PH(self): StructureTest(dir="heteroatom_organics", test="C5H10PH")
+    def test_heteroatom_organics_C5H10S(self): StructureTest(dir="heteroatom_organics", test="C5H10S")
     def test_heteroatom_organics_C5H10SiH2(self): StructureTest(dir="heteroatom_organics", test="C5H10SiH2")
     def test_heteroatom_organics_CH3AlH2(self): StructureTest(dir="heteroatom_organics", test="CH3AlH2")
     def test_heteroatom_organics_CH3AlHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3AlHCH3")
@@ -817,7 +978,9 @@ class SlowTests(Tests):
     def test_heteroatom_organics_CH3NH2(self): StructureTest(dir="heteroatom_organics", test="CH3NH2")
     def test_heteroatom_organics_CH3NHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3NHCH3")
     def test_heteroatom_organics_CH3OCH3(self): StructureTest(dir="heteroatom_organics", test="CH3OCH3")
+    def test_heteroatom_organics_CH3OH(self): StructureTest(dir="heteroatom_organics", test="CH3OH")
     def test_heteroatom_organics_CH3PH2(self): StructureTest(dir="heteroatom_organics", test="CH3PH2")
+    def test_heteroatom_organics_CH3PHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3PHCH3")
     def test_heteroatom_organics_CH3SCH3(self): StructureTest(dir="heteroatom_organics", test="CH3SCH3")
     def test_heteroatom_organics_CH3SH(self): StructureTest(dir="heteroatom_organics", test="CH3SH")
     def test_heteroatom_organics_CH3SiH2CH3(self): StructureTest(dir="heteroatom_organics", test="CH3SiH2CH3")
@@ -835,17 +998,24 @@ class SlowTests(Tests):
     def test_minimize_0001(self): StructureTest(dir="minimize", test="0001")
     def test_minimize_0005(self): StructureTest(dir="minimize", test="0005")
     def test_minimize_0008(self): MinimizeTest(dir="minimize", test="0008")
+    def test_minimize_0009(self): StructureTest(dir="minimize", test="0009")
+    def test_minimize_0010(self): MinimizeTest(dir="minimize", test="0010")
     def test_minimize_0011(self): MinimizeTest(dir="minimize", test="0011")
     def test_minimize_0012(self): MinimizeTest(dir="minimize", test="0012")
+    def test_minimize_0013(self): StructureTest(dir="minimize", test="0013")
+    def test_rigid_organics_C10H12(self): StructureTest(dir="rigid_organics", test="C10H12")
     def test_rigid_organics_C10H14(self): StructureTest(dir="rigid_organics", test="C10H14")
     def test_rigid_organics_C14H20(self): StructureTest(dir="rigid_organics", test="C14H20")
     def test_rigid_organics_C14H24(self): StructureTest(dir="rigid_organics", test="C14H24")
     def test_rigid_organics_C2H6(self): StructureTest(dir="rigid_organics", test="C2H6")
+    def test_rigid_organics_C3H6(self): StructureTest(dir="rigid_organics", test="C3H6")
     def test_rigid_organics_C3H8(self): StructureTest(dir="rigid_organics", test="C3H8")
+    def test_rigid_organics_C4H8(self): StructureTest(dir="rigid_organics", test="C4H8")
     def test_rigid_organics_C6H10(self): StructureTest(dir="rigid_organics", test="C6H10")
     def test_rigid_organics_C8H14(self): StructureTest(dir="rigid_organics", test="C8H14")
+    def test_rigid_organics_C8H8(self): StructureTest(dir="rigid_organics", test="C8H8")
+    def test_rigid_organics_CH4(self): StructureTest(dir="rigid_organics", test="CH4")
 
-Tests.slowVersion = SlowTests
 
 ######################
 
@@ -917,8 +1087,8 @@ if __name__ == "__main__":
     def slow(x):
         """perform slow tests (not for regression testing)
         """
-        global Tests
-        Tests = Tests.slowVersion
+        global TIME_LIMIT
+        TIME_LIMIT = 1.e9
     def pyrex(x):
         """Perform the Pyrex tests
         """
@@ -954,8 +1124,8 @@ if __name__ == "__main__":
     def time_only(x):
         """measure the time each test takes, ignore any results
         """
-        global TIME_ONLY
-        TIME_ONLY = 1
+        global TIME_ONLY, Tests
+        TIME_ONLY = True
     def keep(x):
         """when a test is finished, don't delete its temporary
         directory (useful for debug)
@@ -1043,3 +1213,19 @@ if __name__ == "__main__":
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
     runner.run(suite)
+
+    if TIME_ONLY:
+        lst = [ ]
+        dct = { }
+        for name in testTimes.keys():
+            t = testTimes[name]
+            lst.append((t, name))
+        lst.sort()
+        total = 0.0
+        for t, name in lst:
+            total = total + t
+            dct[name] = (t, total)
+        import pprint
+        pprint.pprint(dct)
+    else:
+        print testsSkipped, "tests skipped"
