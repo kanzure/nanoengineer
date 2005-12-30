@@ -50,6 +50,11 @@ except:
     print " since the import should have worked.)"
     sys.exit(1)
 
+if sys.platform == "darwin":
+    extra_compile_args = [ "-O" ]
+else:
+    extra_compile_args = [ ]
+
 setup(name = 'Simulator',
       ext_modules=[Extension("sim", ["sim.pyx",
                                      "allocate.c",
@@ -69,6 +74,7 @@ setup(name = 'Simulator',
                                      "readxyz.c",
                                      "structcompare.c",
                                      "writemovie.c"],
+                             extra_compile_args=extra_compile_args
                              ),
                    ],
       cmdclass = {'build_ext': build_ext})
