@@ -32,7 +32,9 @@ import env
 from debug import print_compact_traceback
 from HistoryWidget import redmsg
 
-def open_wiki_help_page( featurename, actually_open = True ): #e actually_open = False is presently disabled in the implem
+def open_wiki_help_page( featurename, actually_open = True ):
+    ###e this function is misnamed, since it opens a context help dialog whose link might open a wiki help page
+    #e actually_open = False is presently disabled in the implem
     """Show a dialog containing a link which can
     open the wiki help page corresponding to the named nE-1 feature, in ways influenced by user preferences.
     Assume the featurename might contain blanks, but contains no other characters needing URL-encoding.
@@ -63,26 +65,9 @@ def open_wiki_help_page( featurename, actually_open = True ): #e actually_open =
                """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
                     #e in real life it'll be various aspects of your current context
         def clicked_func(url):
-            url = str(url) # precaution in case of QString
-            env.history.message("Wiki help: opening " + url) # see module docstring re "wiki help" vs. "web help"
-                # print this in case user wants to open it manually or debug the url prefix preference
-            try:
-                import webbrowser
-                webbrowser.open( url)
-                close_dialog = True
-            except:
-                #bruce 051201 catch exception to mitigate bug 1167
-                # (e.g. when Linux user doesn't have BROWSER env var set).
-                # Probably need to make this more intelligent, perhaps by
-                # catching the specific exception in the bug report, knowing
-                # the OS, passing options to webbrowser.open, etc.
-                print_compact_traceback("webbrowser exception: ")
-                env.history.message( redmsg("Problem opening web browser.") +
-                    "Suggest opening above URL by hand. "\
-                    "On some platforms, setting BROWSER environment variable might help."
-                 )
-                ## close_dialog = False # not good unless text in dialog is preserved or replaced with error msg
-                close_dialog = True
+            worked = open_wiki_help_URL(url)
+            ## close_dialog = worked # not good to not close it on error, unless text in dialog is preserved or replaced with error msg
+            close_dialog = True
             return close_dialog
         parent = env.mainwindow() # not yet used...
         parent = None # see comment below
@@ -97,6 +82,34 @@ def open_wiki_help_page( featurename, actually_open = True ): #e actually_open =
         ##    env.history.message("Help for %r is available at: %s" % (featurename, url))
     return
 
+def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split this out of open_wiki_help_page (which is misnamed)
+    """Try to open the given url in the user's browser (unless they've set preferences to prevent this (NIM)),
+    first emitting a history message containing the url
+    (which is described as coming from whosdoingthis, which should be a capitalized string).
+    Return True if there's no evidence of an error; print error message to history and return False if it definitely failed.
+    """
+    url = str(url) # precaution in case of QString
+    ###e should check prefs to see if we should really open browser; if not, print different hist message
+    env.history.message("%s: opening " % whosdoingthis + url) # see module docstring re "wiki help" vs. "web help"
+        # print this in case user wants to open it manually or debug the url prefix preference
+    try:
+        import webbrowser
+        webbrowser.open( url)
+        worked = True
+    except:
+        #bruce 051201 catch exception to mitigate bug 1167
+        # (e.g. when Linux user doesn't have BROWSER env var set).
+        # Probably need to make this more intelligent, perhaps by
+        # catching the specific exception in the bug report, knowing
+        # the OS, passing options to webbrowser.open, etc.
+        print_compact_traceback("webbrowser exception: ")
+        env.history.message( redmsg("Problem opening web browser.") +
+            "Suggest opening above URL by hand. "\
+            "On some platforms, setting BROWSER environment variable might help."
+         )
+        worked = False
+    return worked
+    
 def wiki_prefix():
     """Return the prefix to which wiki page titles should be appended, to form their urls.
     """

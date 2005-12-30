@@ -7,37 +7,55 @@ $Id$
 
 from qt import *
 
-###@@@ bruce 051227 experimental code for putting hyperlinks into selected WhatsThis texts
+#bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
+# (now finished enough for release, though needs testing and perhaps cleanup and documentation)
 
-enable_whatsthis_links = False # DO NOT COMMIT with True (since incomplete), but keep the code (might be used for A7)
+enable_whatsthis_links = True
+
+debug_whatsthis_links = False # do not commit with True
 
 class MyWhatsThis(QWhatsThis):
+    ## note: doesn't work on QActions (at least for an earlier version of the class with no __init__ method):
+    ## MyWhatsThis(self.editCopyAction) ## TypeError: argument 1 of QWhatsThis() has an invalid type
     def __init__(self, widget, text = None):
         QWhatsThis.__init__(self, widget)
         self.__text = text # note: using QString(text) here is ok but not required
     def text(self, pos):
         # this runs when Qt puts up a WhatsThis help window for widget
-        print "text at pos %r in %r was queried by Qt" % (pos, self) # note: pos repr is not useful, doesn't show x,y
+        if debug_whatsthis_links:
+            print "text at pos %r in %r was queried by Qt" % (pos, self) # note: pos repr is not useful, doesn't show x,y
         text = self.__text
-        if not text:
+        if not text and debug_whatsthis_links:
             print " no text" # never happens in current calling code [051227]
         return text
     def clicked(self, link):
         # this runs when user clicks on a hyperlink in the help text, with 'link' being the link text (href attribute)
         link = str(link) # QString to string (don't know if this is needed, guess yes)
+        # note: link is not a real URL, but either false or "Feature:<featurename>"
+        # (whether or not wiki_help_url() still hardcodes "Feature:" or some other prefix).
         if link:
-            print "clicked hyperlink in %r, href text is %r" % (self,link)
-            ##e revise this to change link text to URL if it's not already, and open browser to help page (see wiki_help.py)
+            if debug_whatsthis_links:
+                print "clicked hyperlink in %r, href text is %r" % (self,link)
+            # change link text to URL, and open browser to help page (see wiki_help.py)
+            if link.startswith("Feature:"):
+                from wiki_help import wiki_help_url, open_wiki_help_URL
+                featurename = link[len("Feature:"):]
+                    # not exactly the featurename, since we already turned ' ' into '_', but close enough (doing it twice won't hurt)
+                url = wiki_help_url( featurename) # presently this just redundantly turns ' ' into '_' and re-prepends "Feature:"
+                worked = open_wiki_help_URL(url, whosdoingthis = "What's This link")
+                ## close_dialog = worked # let it stay open if it fails (not sure why since it'll go away soon anyway)
+                close_dialog = True # close it even on failure so user knows something happened and looks at history
+            else:
+                print "bug: invalid What's This pseudo-url %r" % link # even if not debug_whatsthis_links
+                ## close_dialog = False
+                close_dialog = True
         else:
-            print "clicked non-link in %r" % self # happens for clicking any empty part or other text in that popup dialog
-        return True ## return True to make help text widget go away, or False to keep it around (with no change in contents)
-    pass
-
-    ## note: doesn't work on QActions (at least for an earlier version of the class with no __init__ method):
-    ## MyWhatsThis(self.editCopyAction) ## TypeError: argument 1 of QWhatsThis() has an invalid type
-
-###@@@ end bruce 051227 experimental code [but there's more, far below]
-
+            # happens for clicking any empty part or other text in that popup dialog
+            if debug_whatsthis_links:
+                print "clicked non-link in %r" % self
+            close_dialog = True
+        return close_dialog ## return True to make help text widget go away, or False to keep it around (with no change in contents)
+    pass # end of class MyWhatsThis
 
 def createWhatsThis(self):
         
@@ -714,7 +732,7 @@ def createWhatsThis(self):
         
         #### Select Chunks ####
 
-        toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><br>"\
+        toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><!-- [[Feature:Select Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsSelectMoleculesAction\"><br> "\
                        "<b>Select Chunks</b> allows you to select/unselect chunks with the mouse.</p>"\
                        "<p><b><u>Mouse/Key Combinations</u></b></p>"\
@@ -730,7 +748,7 @@ def createWhatsThis(self):
 
         #### Select Atoms ####
 
-        toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><br>"\
+        toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><!-- [[Feature:Select Atoms Mode]] --><br>"\
                        "<p><img source=\" toolsSelectAtomsAction\"><br> "\
                        "<b>Select Atoms</b> allows you to select/unselect atoms with the mouse.</p>"\
                        "<p><b><u>Mouse/Key Combinations</u></b></p>"\
@@ -746,7 +764,7 @@ def createWhatsThis(self):
         
         #### Move Chunks ####
 
-        toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><br>"\
+        toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><!-- [[Feature:Move Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
                        "Activates <b>Move Chunks</b> mode, allowing you to select, "\
                        "move and rotate one of more chunks with the mouse.</p>"\
@@ -763,7 +781,7 @@ def createWhatsThis(self):
         
         #### Build Atoms Tool ####
 
-        toolsDepositAtomActionText = "<u><b>Build Tool</b></u><br>"\
+        toolsDepositAtomActionText = "<u><b>Build Tool</b></u><!-- [[Feature:Build Mode]] --><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
                        "<b>Build Tool</b> allows you to deposit individual atoms or add/move/delete "\
                        "atoms from an existing chunk.  Build Tool can also be used to paste "\
@@ -785,7 +803,7 @@ def createWhatsThis(self):
         
         #### Cookie Cutter ####
                                         
-        toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><br>"\
+        toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><!-- [[Feature:Cookie Cutter Mode]] --><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
                        "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a "\
                        "slab of diamond or lonsdaleite lattice.</p>"
@@ -797,7 +815,7 @@ def createWhatsThis(self):
        
         #### Extrude Tool ####
 
-        toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><br>"\
+        toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
                        "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as "\
                        "a repeating unit.</p>"
@@ -809,7 +827,7 @@ def createWhatsThis(self):
         
         #### Fuse Chunks Tool ####
 
-        toolsFuseChunksActionText = "<u><b>Fuse Chunks Tool</b></u><br>"\
+        toolsFuseChunksActionText = "<u><b>Fuse Chunks Tool</b></u><!-- [[Feature:Fuse Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsFuseChunksAction\"><br> "\
                        "<b>Fuse Chunks</b> creates bonds between two or more chunks.</p>"
 
@@ -820,7 +838,7 @@ def createWhatsThis(self):
         
         #### Fuse Atoms Tool ####
 
-        toolsFuseAtomsActionText = "<u><b>Fuse Atoms Tool</b></u><br>"\
+        toolsFuseAtomsActionText = "<u><b>Fuse Atoms Tool</b></u><!-- [[Feature:Fuse Atoms Mode]] (nim?) --><br>"\
                        "<p><img source=\" toolsFuseAtomsAction\"><br> "\
                        "<b>Fuse Atoms</b> fuses the overlapping atoms between two or more chunks.</p>"
 
@@ -1337,12 +1355,13 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
 
     QToolTip.add(w.MPQC_ESP_checkbox, MPQCESPTipText)
     
-def fix_whatsthis_text_for_mac(parent):
+def fix_whatsthis_text_for_mac(parent): #bruce 051227-29 revised this; now it's misnamed and needs renaming and/or cleanup ###@@@
     '''If the system is a Mac, this replaces all occurances of 'Ctrl' with 'Cmd' in all the 
     whatsthis text for all QAction widgets that are children of parent.  This should be 
     called after all widgets (and their whatsthis text) in the UI have been created.
+    THIS MUST BE CALLED FOR ALL OSes since it now [051227] also does non-Mac-specific things. [###doc, rename]
     '''
-    from platform import is_macintosh #bruce 051227 zapped only use of misguided is_not_macintosh variant of this
+    from platform import is_macintosh #bruce 051227 zapped only use of is_not_macintosh variant of this function
     
     if is_macintosh():  
         objList = parent.queryList("QAction")
@@ -1350,17 +1369,20 @@ def fix_whatsthis_text_for_mac(parent):
             original_txt = obj.whatsThis()
             new_txt = replace_ctrl_with_cmd_text(original_txt)
             obj.setWhatsThis(new_txt)
-###@@@ bruce 051227 hack
     if enable_whatsthis_links:
         hack_whatsthis_object_for_widgets(parent)
-###@@@ end bruce hack
     return
-
-###@@@ bruce 051227 hack
+    
+def replace_ctrl_with_cmd_text(str): # by mark; might be wrong for uses of Ctrl in unexpected ways
+    '''Returns a string, replacing all occurances of Ctrl with Cmd in 'str'.
+    '''
+    str = str.replace('Ctrl', 'Cmd')
+    str = str.replace('ctrl', 'cmd')
+    return str
 
 _KEEPERS = []
 
-def hack_whatsthis_object_for_widgets(parent):
+def hack_whatsthis_object_for_widgets(parent): #bruce 051227, revised 051229
     objList = parent.queryList("QWidget")
     for widget in objList:
         try:
@@ -1370,43 +1392,70 @@ def hack_whatsthis_object_for_widgets(parent):
             pass ## print "no textFor attr, or it fails:",widget
             ## this happens for a lot of QObjects (don't know what they are), e.g. for <constants.qt.QObject object at 0xb96b750>
         else:
-            # it's often a null string
+            # we got original_txt, but it's often a null string
             if original_txt:
                 original_txt = str(original_txt) # in case of QString, tho during debug it seemed this was already a Python string
                 newtext = modified_whatsthis_text(original_txt, widget)
-                if newtext:
-                    pass
-                else:
-                    print "didn't find desired content in:", original_text ###@@@
+                if not newtext and debug_whatsthis_links:
+                    # for debugging, modify it somehow even if not in a sensible way
+                    print "didn't find desired content in:", original_text
                     FAKELINK = "<a href=\"xxx\">linktoxxx</a>"
-                    newtext = FAKELINK + str(original_txt) + FAKELINK ###@@@
-                set_hyperlinked_whatsthis_text(widget, newtext)
+                    newtext = FAKELINK + str(original_txt) + FAKELINK
+                if newtext:
+                    set_hyperlinked_whatsthis_text(widget, newtext)
+                pass
+            pass
+        pass
     return
 
-def set_hyperlinked_whatsthis_text(widget, text):
+def set_hyperlinked_whatsthis_text(widget, text): #bruce 051229
     obj1 = MyWhatsThis( widget, text)
     ## widget._KEEP_WHATSTHIS = obj1 # this was not sufficient to prevent a bus error
     _KEEPERS.append(obj1) # this is needed to prevent a bus error
     return
 
-def modified_whatsthis_text(text, widget):
+def debracket(text, left, right): #bruce 051229 ##e refile this?
+    """If text contains (literal substrings) left followed eventually by right (without another occurrence of left),
+    return the triple (before, between, after)
+    where before + left + between + right + after == text. Otherwise return None.
+    """
+    splitleft = text.split(left, 1)
+    if len(splitleft) < 2: return None # len should never be more than 2
+    before, t2 = splitleft
+    splitright = t2.split(right, 1)
+    if len(splitright) < 2: return None
+    between, after = splitright
+    assert before + left + between + right + after == text
+    if left in between: return None # not sure we found the correct 'right' in this case
+    return (before, between, after)
+    
+def modified_whatsthis_text(text, widget): #bruce 051229
     "Given some nonempty whatsthis text from a widget, return None or modified text (e.g. containing a web help URL)."
-    if text.startswith("<u><b>"):
-        text = text[len("<u><b>"):] # strip that prefix
-        ff = text.split("</b></u>", 1)
-        if len(ff) == 2: # should never be more than 2
-            text = ff[0] # the words between <u><b> and </b></u>
-            rest = ff[1] # use this part later, unchanged
-            #e should verify text is one or more capitalized words sep by ' '; could use split, isalpha (or so) ###@@@
-            print "proposed web help name: %r" % (text,) ###@@@
-            return "<a href=\"%s\">%s</a>" % ("fakeurl", text) + rest #WRONG link URL (or featurename to be made into URL later) ###@@@
+    # look for words between <u><b> and </b></u> to replace with a web help link
+    
+    if text.startswith("<u><b>"): # require this at start, not just somewhere like debracket would
+        split1 = debracket(text, "<u><b>", "</b></u>")
+        if split1:
+            junk, name, rest = split1
+            featurename = name # might be changed below
+            if "[[Feature:" in rest: # it's an optim to test this first, since usually false
+                # Extract feature name to use in the link, when this differs from name shown in WhatsThis text;
+                # this name is usually given in an HTML comment but we use it w/o modifying the text whether or not it's in one.
+                # We use it in the link but not in the displayed WhatsThis text.
+                split2 = debracket(rest, "[[Feature:", "]]")
+                if not split2:
+                    print "syntax error in Feature: link for WhatsThis text for %r" % name
+                    return None
+                junk, featurename, junk2 = split2
+            #e should verify featurename is one or more capitalized words sep by ' '; could use split, isalpha (or so) ###@@@
+            if debug_whatsthis_links:
+                if featurename != name:
+                    print "web help name for %r: %r" % (name, featurename,)
+                else:
+                    print "web help name: %r" % (featurename,)
+            link = "Feature:" + featurename.replace(' ','_')
+                # maybe we can't let ' ' remain in it, otherwise replacement not needed since will be done later anyway
+            return "<a href=\"%s\">%s</a>" % (link, name) + rest # featurename will be made into URL later (url prefix varies at runtime)
     return None
 
-###@@@ end bruce hack
-    
-def replace_ctrl_with_cmd_text(str):
-    '''Returns a string, replacing all occurances of Ctrl with Cmd in 'str'.
-    '''
-    str = str.replace('Ctrl', 'Cmd')
-    str = str.replace('ctrl', 'cmd')
-    return str
+# end
