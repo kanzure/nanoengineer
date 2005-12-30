@@ -44,6 +44,7 @@ if __name__ == "__main__":
 DEBUG = 0
 MD5_CHECKS = False
 TIME_ONLY = False
+TIME_ONLY_TIME_LIMIT = 1.0
 LENGTH_ANGLE_TEST, STRUCTCOMPARE_C_TEST = range(2)
 STRUCTURE_COMPARISON_TYPE = LENGTH_ANGLE_TEST
 GENERATE = False
@@ -572,7 +573,7 @@ class BaseTest:
         if TIME_ONLY:
             startTime, finishTime = self.startTime, time.time()
             # there are about 200 tests and we want to finish in 15 secs
-            assert finishTime - startTime < 0.5
+            assert finishTime - startTime < TIME_ONLY_TIME_LIMIT
         elif MD5_CHECKS:
             self.checkMd5Sums()
         else:
@@ -701,122 +702,28 @@ class Tests(unittest.TestCase):
                                      "--dump-intermediate-text",
                                      "--dump-as-text",
                                      "FOO.mmp"))
-    def test_minimize_0009(self):
-        StructureTest(dir="minimize", test="0009")
-    def test_minimize_0010(self):
-        MinimizeTest(dir="minimize", test="0010")
-    def test_minimize_0011(self):
-        MinimizeTest(dir="minimize", test="0011")
-    def test_minimize_0013(self):
-        StructureTest(dir="minimize", test="0013")
-    def test_rigid_organics_C10H12(self):
-        StructureTest(dir="rigid_organics", test="C10H12")
-    def test_rigid_organics_C10H14(self):
-        StructureTest(dir="rigid_organics", test="C10H14")
-    def test_rigid_organics_C14H24(self):
-        StructureTest(dir="rigid_organics", test="C14H24")
-    def test_rigid_organics_C3H6(self):
-        StructureTest(dir="rigid_organics", test="C3H6")
-    def test_rigid_organics_C3H8(self):
-        StructureTest(dir="rigid_organics", test="C3H8")
-    def test_rigid_organics_C4H8(self):
-        StructureTest(dir="rigid_organics", test="C4H8")
-    def test_rigid_organics_C8H8(self):
-        StructureTest(dir="rigid_organics", test="C8H8")
-    def test_rigid_organics_CH4(self):
-        StructureTest(dir="rigid_organics", test="CH4")
-    def test_floppy_organics_C3H8(self):
-        StructureTest(dir="floppy_organics", test="C3H8")
-    def test_floppy_organics_C4H10b(self):
-        StructureTest(dir="floppy_organics", test="C4H10b")
-    def test_floppy_organics_C4H10c(self):
-        StructureTest(dir="floppy_organics", test="C4H10c")
-    def test_floppy_organics_C4H8(self):
-        StructureTest(dir="floppy_organics", test="C4H8")
-    def test_floppy_organics_C5H12c(self):
-        StructureTest(dir="floppy_organics", test="C5H12c")
-    def test_floppy_organics_C6H12b(self):
-        StructureTest(dir="floppy_organics", test="C6H12b")
-    def test_floppy_organics_C6H14b(self):
-        StructureTest(dir="floppy_organics", test="C6H14b")
-    def test_floppy_organics_C6H14c(self):
-        StructureTest(dir="floppy_organics", test="C6H14c")
-    def test_floppy_organics_C6H14d(self):
-        StructureTest(dir="floppy_organics", test="C6H14d")
-    def test_floppy_organics_C6H14e(self):
-        StructureTest(dir="floppy_organics", test="C6H14e")
-    def test_floppy_organics_C7H14a(self):
-        StructureTest(dir="floppy_organics", test="C7H14a")
-    def test_floppy_organics_C7H14b(self):
-        StructureTest(dir="floppy_organics", test="C7H14b")
-    def test_floppy_organics_C7H14c(self):
-        StructureTest(dir="floppy_organics", test="C7H14c")
-    def test_floppy_organics_CH4(self):
-        StructureTest(dir="floppy_organics", test="CH4")
-    def test_amino_acids_arg_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="arg_l_aminoacid")
-    def test_amino_acids_his_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="his_l_aminoacid")
-    def test_amino_acids_met_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="met_l_aminoacid")
-    def test_amino_acids_phe_l_aminoacid(self):
-         StructureTest(dir="amino_acids", test="phe_l_aminoacid")
-    def test_heteroatom_organics_ADAMframe_O_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_O_Cs")
-    def test_heteroatom_organics_ADAMframe_PH_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_PH_Cs")
-    def test_heteroatom_organics_ADAMframe_SiH2_c2v(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_SiH2_c2v")
-    def test_heteroatom_organics_Al_ADAM_C3v(self):
-        StructureTest(dir="heteroatom_organics", test="Al_ADAM_C3v")
-    def test_heteroatom_organics_C3H6AlH(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6AlH")
-    def test_heteroatom_organics_C3H6BH(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6BH")
-    def test_heteroatom_organics_C3H6NH(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6NH")
-    def test_heteroatom_organics_C3H6O(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6O")
-    def test_heteroatom_organics_C3H6PH(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6PH")
-    def test_heteroatom_organics_C3H6SiH2(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6SiH2")
-    def test_heteroatom_organics_C3H6S(self):
-        StructureTest(dir="heteroatom_organics", test="C3H6S")
-    def test_heteroatom_organics_C4H8AlH(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8AlH")
-    def test_heteroatom_organics_C4H8PH(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8PH")
-    def test_heteroatom_organics_C4H8SiH2(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8SiH2")
-    def test_heteroatom_organics_C5H10AlH(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10AlH")
-    def test_heteroatom_organics_C5H10NH(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10NH")
-    def test_heteroatom_organics_C5H10O(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10O")
-    def test_heteroatom_organics_C5H10PH(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10PH")
-    def test_heteroatom_organics_C5H10SiH2(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10SiH2")
-    def test_heteroatom_organics_C5H10S(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10S")
-    def test_heteroatom_organics_C_CH3_3_SH(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_SH")
-    def test_heteroatom_organics_CH3NHCH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3NHCH3")
-    def test_heteroatom_organics_CH3OCH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3OCH3")
-    def test_heteroatom_organics_CH3OH(self):
-        StructureTest(dir="heteroatom_organics", test="CH3OH")
-    def test_heteroatom_organics_CH3PHCH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3PHCH3")
-    def test_heteroatom_organics_CH3SCH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3SCH3")
-    def test_heteroatom_organics_CH3SH(self):
-        StructureTest(dir="heteroatom_organics", test="CH3SH")
-    def test_heteroatom_organics_SiH_ADAM_C3v(self):
-        StructureTest(dir="heteroatom_organics", test="SiH_ADAM_C3v")
+
+    # In Emacs, do "sort-lines" to keep things organized
+    def test_amino_acids_phe_l_aminoacid(self): StructureTest(dir="amino_acids", test="phe_l_aminoacid")
+    def test_floppy_organics_C4H8(self): StructureTest(dir="floppy_organics", test="C4H8")
+    def test_floppy_organics_CH4(self): StructureTest(dir="floppy_organics", test="CH4")
+    def test_heteroatom_organics_C3H6BH(self): StructureTest(dir="heteroatom_organics", test="C3H6BH")
+    def test_heteroatom_organics_C3H6NH(self): StructureTest(dir="heteroatom_organics", test="C3H6NH")
+    def test_heteroatom_organics_C3H6O(self): StructureTest(dir="heteroatom_organics", test="C3H6O")
+    def test_heteroatom_organics_C3H6PH(self): StructureTest(dir="heteroatom_organics", test="C3H6PH")
+    def test_heteroatom_organics_C3H6S(self): StructureTest(dir="heteroatom_organics", test="C3H6S")
+    def test_heteroatom_organics_C5H10PH(self): StructureTest(dir="heteroatom_organics", test="C5H10PH")
+    def test_heteroatom_organics_C5H10S(self): StructureTest(dir="heteroatom_organics", test="C5H10S")
+    def test_heteroatom_organics_CH3OH(self): StructureTest(dir="heteroatom_organics", test="CH3OH")
+    def test_heteroatom_organics_CH3PHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3PHCH3")
+    def test_minimize_0009(self): StructureTest(dir="minimize", test="0009")
+    def test_minimize_0010(self): MinimizeTest(dir="minimize", test="0010")
+    def test_minimize_0013(self): StructureTest(dir="minimize", test="0013")
+    def test_rigid_organics_C10H12(self): StructureTest(dir="rigid_organics", test="C10H12")
+    def test_rigid_organics_C3H6(self): StructureTest(dir="rigid_organics", test="C3H6")
+    def test_rigid_organics_C4H8(self): StructureTest(dir="rigid_organics", test="C4H8")
+    def test_rigid_organics_C8H8(self): StructureTest(dir="rigid_organics", test="C8H8")
+    def test_rigid_organics_CH4(self): StructureTest(dir="rigid_organics", test="CH4")
 
 class SlowTests(Tests):
     """Put the slow tests here.
@@ -829,143 +736,114 @@ class SlowTests(Tests):
                                      "--iters-per-frame=10000",
                                      "--dump-as-text",
                                      "FOO.mmp"))
-    def test_heteroatom_organics_N_ADAM_C3v(self):
-        StructureTest(dir="heteroatom_organics", test="N_ADAM_C3v")
-    def test_amino_acids_ala_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="ala_l_aminoacid")
-    def test_amino_acids_asn_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="asn_l_aminoacid")
-    def test_amino_acids_asp_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="asp_l_aminoacid")
-    def test_amino_acids_gln_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="gln_l_aminoacid")
-    def test_amino_acids_gly_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="gly_l_aminoacid")
-    def test_amino_acids_ile_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="ile_l_aminoacid")
-    def test_amino_acids_cys_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="cys_l_aminoacid")
-    def test_amino_acids_glu_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="glu_l_aminoacid")
-    def test_amino_acids_leu_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="leu_l_aminoacid")
-    def test_amino_acids_lys_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="lys_l_aminoacid")
-    def test_amino_acids_pro_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="pro_l_aminoacid")
-    def test_amino_acids_ser_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="ser_l_aminoacid")
-    def test_amino_acids_tyr_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="tyr_l_aminoacid")
-    def test_amino_acids_thr_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="thr_l_aminoacid")
-    def test_amino_acids_val_l_aminoacid(self):
-        StructureTest(dir="amino_acids", test="val_l_aminoacid")
-    def test_floppy_organics_C2H6(self):
-        StructureTest(dir="floppy_organics", test="C2H6")
-    def test_floppy_organics_C4H10a(self):
-        StructureTest(dir="floppy_organics", test="C4H10a")
-    def test_floppy_organics_C5H10(self):
-        StructureTest(dir="floppy_organics", test="C5H10")
-    def test_floppy_organics_C5H12a(self):
-        StructureTest(dir="floppy_organics", test="C5H12a")
-    def test_floppy_organics_C5H12b(self):
-        StructureTest(dir="floppy_organics", test="C5H12b")
-    def test_floppy_organics_C5H12d(self):
-        StructureTest(dir="floppy_organics", test="C5H12d")
-    def test_floppy_organics_C5H12e(self):
-        StructureTest(dir="floppy_organics", test="C5H12e")
-    def test_floppy_organics_C6H12a(self):
-        StructureTest(dir="floppy_organics", test="C6H12a")
-    def test_floppy_organics_C6H14a(self):
-        StructureTest(dir="floppy_organics", test="C6H14a")
-    def test_floppy_organics_C6H14f(self):
-        StructureTest(dir="floppy_organics", test="C6H14f")
-    def test_rigid_organics_C2H6(self):
-        StructureTest(dir="rigid_organics", test="C2H6")
-    def test_rigid_organics_C6H10(self):
-        StructureTest(dir="rigid_organics", test="C6H10")
-    def test_rigid_organics_C8H14(self):
-        StructureTest(dir="rigid_organics", test="C8H14")
-    def test_rigid_organics_C14H20(self):
-        StructureTest(dir="rigid_organics", test="C14H20")
-    def test_minimize_0001(self):
-        StructureTest(dir="minimize", test="0001")
-    def test_minimize_0005(self):
-        StructureTest(dir="minimize", test="0005")
-    def test_minimize_0008(self):
-        # test ground in minimize
-        MinimizeTest(dir="minimize", test="0008")
-    def test_minimize_0012(self):
-        MinimizeTest(dir="minimize", test="0012")
-    def test_heteroatom_organics_ADAM_AlH2_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_AlH2_Cs")
-    def test_heteroatom_organics_ADAM_BH2(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_BH2")
-    def test_heteroatom_organics_ADAM_Cl_c3v(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_Cl_c3v")
-    def test_heteroatom_organics_ADAM_NH2_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_NH2_Cs")
-    def test_heteroatom_organics_ADAM_PH2_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_PH2_Cs")
-    def test_heteroatom_organics_ADAM_SiH3_C3v(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_SiH3_C3v")
-    def test_heteroatom_organics_C4H8S(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8S")
-    def test_heteroatom_organics_C4H8O(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8O")
-    def test_heteroatom_organics_ADAM_F_c3v(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_F_c3v")
-    def test_heteroatom_organics_ADAM_OH_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_OH_Cs")
-    def test_heteroatom_organics_ADAM_SH_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAM_SH_Cs")
-    def test_heteroatom_organics_ADAMframe_AlH_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_AlH_Cs")
-    def test_heteroatom_organics_ADAMframe_BH_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_BH_Cs")
-    def test_heteroatom_organics_ADAMframe_NH_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_NH_Cs")
-    def test_heteroatom_organics_ADAMframe_S_Cs(self):
-        StructureTest(dir="heteroatom_organics", test="ADAMframe_S_Cs")
-    def test_heteroatom_organics_B_ADAM_C3v(self):
-        StructureTest(dir="heteroatom_organics", test="B_ADAM_C3v")
-    def test_heteroatom_organics_C4H8BH(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8BH")
-    def test_heteroatom_organics_C4H8NH(self):
-        StructureTest(dir="heteroatom_organics", test="C4H8NH")
-    def test_heteroatom_organics_C5H10BH(self):
-        StructureTest(dir="heteroatom_organics", test="C5H10BH")
-    def test_heteroatom_organics_CH3AlH2(self):
-        StructureTest(dir="heteroatom_organics", test="CH3AlH2")
-    def test_heteroatom_organics_CH3AlHCH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3AlHCH3")
-    def test_heteroatom_organics_CH3BH2(self):
-        StructureTest(dir="heteroatom_organics", test="CH3BH2")
-    def test_heteroatom_organics_CH3BHCH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3BHCH3")
-    def test_heteroatom_organics_CH3NH2(self):
-        StructureTest(dir="heteroatom_organics", test="CH3NH2")
-    def test_heteroatom_organics_CH3PH2(self):
-        StructureTest(dir="heteroatom_organics", test="CH3PH2")
-    def test_heteroatom_organics_CH3SiH2CH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3SiH2CH3")
-    def test_heteroatom_organics_CH3SiH3(self):
-        StructureTest(dir="heteroatom_organics", test="CH3SiH3")
-    def test_heteroatom_organics_C_CH3_3_AlH2(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_AlH2")
-    def test_heteroatom_organics_C_CH3_3_BH2(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_BH2")
-    def test_heteroatom_organics_C_CH3_3_NH2(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_NH2")
-    def test_heteroatom_organics_C_CH3_3_OH(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_OH")
-    def test_heteroatom_organics_C_CH3_3_PH2(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_PH2")
-    def test_heteroatom_organics_C_CH3_3_SiH3(self):
-        StructureTest(dir="heteroatom_organics", test="C_CH3_3_SiH3")
-    def test_heteroatom_organics_P_ADAM_C3v(self):
-        StructureTest(dir="heteroatom_organics", test="P_ADAM_C3v")
+
+    # In Emacs, do "sort-lines" to keep things organized
+    def test_amino_acids_ala_l_aminoacid(self): StructureTest(dir="amino_acids", test="ala_l_aminoacid")
+    def test_amino_acids_arg_l_aminoacid(self): StructureTest(dir="amino_acids", test="arg_l_aminoacid")
+    def test_amino_acids_asn_l_aminoacid(self): StructureTest(dir="amino_acids", test="asn_l_aminoacid")
+    def test_amino_acids_asp_l_aminoacid(self): StructureTest(dir="amino_acids", test="asp_l_aminoacid")
+    def test_amino_acids_cys_l_aminoacid(self): StructureTest(dir="amino_acids", test="cys_l_aminoacid")
+    def test_amino_acids_gln_l_aminoacid(self): StructureTest(dir="amino_acids", test="gln_l_aminoacid")
+    def test_amino_acids_glu_l_aminoacid(self): StructureTest(dir="amino_acids", test="glu_l_aminoacid")
+    def test_amino_acids_gly_l_aminoacid(self): StructureTest(dir="amino_acids", test="gly_l_aminoacid")
+    def test_amino_acids_his_l_aminoacid(self): StructureTest(dir="amino_acids", test="his_l_aminoacid")
+    def test_amino_acids_ile_l_aminoacid(self): StructureTest(dir="amino_acids", test="ile_l_aminoacid")
+    def test_amino_acids_leu_l_aminoacid(self): StructureTest(dir="amino_acids", test="leu_l_aminoacid")
+    def test_amino_acids_lys_l_aminoacid(self): StructureTest(dir="amino_acids", test="lys_l_aminoacid")
+    def test_amino_acids_met_l_aminoacid(self): StructureTest(dir="amino_acids", test="met_l_aminoacid")
+    def test_amino_acids_pro_l_aminoacid(self): StructureTest(dir="amino_acids", test="pro_l_aminoacid")
+    def test_amino_acids_ser_l_aminoacid(self): StructureTest(dir="amino_acids", test="ser_l_aminoacid")
+    def test_amino_acids_thr_l_aminoacid(self): StructureTest(dir="amino_acids", test="thr_l_aminoacid")
+    def test_amino_acids_tyr_l_aminoacid(self): StructureTest(dir="amino_acids", test="tyr_l_aminoacid")
+    def test_amino_acids_val_l_aminoacid(self): StructureTest(dir="amino_acids", test="val_l_aminoacid")
+    def test_floppy_organics_C2H6(self): StructureTest(dir="floppy_organics", test="C2H6")
+    def test_floppy_organics_C3H8(self): StructureTest(dir="floppy_organics", test="C3H8")
+    def test_floppy_organics_C4H10a(self): StructureTest(dir="floppy_organics", test="C4H10a")
+    def test_floppy_organics_C4H10b(self): StructureTest(dir="floppy_organics", test="C4H10b")
+    def test_floppy_organics_C4H10c(self): StructureTest(dir="floppy_organics", test="C4H10c")
+    def test_floppy_organics_C5H10(self): StructureTest(dir="floppy_organics", test="C5H10")
+    def test_floppy_organics_C5H12a(self): StructureTest(dir="floppy_organics", test="C5H12a")
+    def test_floppy_organics_C5H12b(self): StructureTest(dir="floppy_organics", test="C5H12b")
+    def test_floppy_organics_C5H12c(self): StructureTest(dir="floppy_organics", test="C5H12c")
+    def test_floppy_organics_C5H12d(self): StructureTest(dir="floppy_organics", test="C5H12d")
+    def test_floppy_organics_C5H12e(self): StructureTest(dir="floppy_organics", test="C5H12e")
+    def test_floppy_organics_C6H12a(self): StructureTest(dir="floppy_organics", test="C6H12a")
+    def test_floppy_organics_C6H12b(self): StructureTest(dir="floppy_organics", test="C6H12b")
+    def test_floppy_organics_C6H14a(self): StructureTest(dir="floppy_organics", test="C6H14a")
+    def test_floppy_organics_C6H14b(self): StructureTest(dir="floppy_organics", test="C6H14b")
+    def test_floppy_organics_C6H14c(self): StructureTest(dir="floppy_organics", test="C6H14c")
+    def test_floppy_organics_C6H14d(self): StructureTest(dir="floppy_organics", test="C6H14d")
+    def test_floppy_organics_C6H14e(self): StructureTest(dir="floppy_organics", test="C6H14e")
+    def test_floppy_organics_C6H14f(self): StructureTest(dir="floppy_organics", test="C6H14f")
+    def test_floppy_organics_C7H14a(self): StructureTest(dir="floppy_organics", test="C7H14a")
+    def test_floppy_organics_C7H14b(self): StructureTest(dir="floppy_organics", test="C7H14b")
+    def test_floppy_organics_C7H14c(self): StructureTest(dir="floppy_organics", test="C7H14c")
+    def test_heteroatom_organics_ADAM_AlH2_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAM_AlH2_Cs")
+    def test_heteroatom_organics_ADAM_BH2(self): StructureTest(dir="heteroatom_organics", test="ADAM_BH2")
+    def test_heteroatom_organics_ADAM_Cl_c3v(self): StructureTest(dir="heteroatom_organics", test="ADAM_Cl_c3v")
+    def test_heteroatom_organics_ADAM_F_c3v(self): StructureTest(dir="heteroatom_organics", test="ADAM_F_c3v")
+    def test_heteroatom_organics_ADAM_NH2_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAM_NH2_Cs")
+    def test_heteroatom_organics_ADAM_OH_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAM_OH_Cs")
+    def test_heteroatom_organics_ADAM_PH2_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAM_PH2_Cs")
+    def test_heteroatom_organics_ADAM_SH_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAM_SH_Cs")
+    def test_heteroatom_organics_ADAM_SiH3_C3v(self): StructureTest(dir="heteroatom_organics", test="ADAM_SiH3_C3v")
+    def test_heteroatom_organics_ADAMframe_AlH_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_AlH_Cs")
+    def test_heteroatom_organics_ADAMframe_BH_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_BH_Cs")
+    def test_heteroatom_organics_ADAMframe_NH_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_NH_Cs")
+    def test_heteroatom_organics_ADAMframe_O_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_O_Cs")
+    def test_heteroatom_organics_ADAMframe_PH_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_PH_Cs")
+    def test_heteroatom_organics_ADAMframe_S_Cs(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_S_Cs")
+    def test_heteroatom_organics_ADAMframe_SiH2_c2v(self): StructureTest(dir="heteroatom_organics", test="ADAMframe_SiH2_c2v")
+    def test_heteroatom_organics_Al_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="Al_ADAM_C3v")
+    def test_heteroatom_organics_B_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="B_ADAM_C3v")
+    def test_heteroatom_organics_C3H6AlH(self): StructureTest(dir="heteroatom_organics", test="C3H6AlH")
+    def test_heteroatom_organics_C3H6SiH2(self): StructureTest(dir="heteroatom_organics", test="C3H6SiH2")
+    def test_heteroatom_organics_C4H8AlH(self): StructureTest(dir="heteroatom_organics", test="C4H8AlH")
+    def test_heteroatom_organics_C4H8BH(self): StructureTest(dir="heteroatom_organics", test="C4H8BH")
+    def test_heteroatom_organics_C4H8NH(self): StructureTest(dir="heteroatom_organics", test="C4H8NH")
+    def test_heteroatom_organics_C4H8O(self): StructureTest(dir="heteroatom_organics", test="C4H8O")
+    def test_heteroatom_organics_C4H8PH(self): StructureTest(dir="heteroatom_organics", test="C4H8PH")
+    def test_heteroatom_organics_C4H8S(self): StructureTest(dir="heteroatom_organics", test="C4H8S")
+    def test_heteroatom_organics_C4H8SiH2(self): StructureTest(dir="heteroatom_organics", test="C4H8SiH2")
+    def test_heteroatom_organics_C5H10AlH(self): StructureTest(dir="heteroatom_organics", test="C5H10AlH")
+    def test_heteroatom_organics_C5H10BH(self): StructureTest(dir="heteroatom_organics", test="C5H10BH")
+    def test_heteroatom_organics_C5H10NH(self): StructureTest(dir="heteroatom_organics", test="C5H10NH")
+    def test_heteroatom_organics_C5H10O(self): StructureTest(dir="heteroatom_organics", test="C5H10O")
+    def test_heteroatom_organics_C5H10SiH2(self): StructureTest(dir="heteroatom_organics", test="C5H10SiH2")
+    def test_heteroatom_organics_CH3AlH2(self): StructureTest(dir="heteroatom_organics", test="CH3AlH2")
+    def test_heteroatom_organics_CH3AlHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3AlHCH3")
+    def test_heteroatom_organics_CH3BH2(self): StructureTest(dir="heteroatom_organics", test="CH3BH2")
+    def test_heteroatom_organics_CH3BHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3BHCH3")
+    def test_heteroatom_organics_CH3NH2(self): StructureTest(dir="heteroatom_organics", test="CH3NH2")
+    def test_heteroatom_organics_CH3NHCH3(self): StructureTest(dir="heteroatom_organics", test="CH3NHCH3")
+    def test_heteroatom_organics_CH3OCH3(self): StructureTest(dir="heteroatom_organics", test="CH3OCH3")
+    def test_heteroatom_organics_CH3PH2(self): StructureTest(dir="heteroatom_organics", test="CH3PH2")
+    def test_heteroatom_organics_CH3SCH3(self): StructureTest(dir="heteroatom_organics", test="CH3SCH3")
+    def test_heteroatom_organics_CH3SH(self): StructureTest(dir="heteroatom_organics", test="CH3SH")
+    def test_heteroatom_organics_CH3SiH2CH3(self): StructureTest(dir="heteroatom_organics", test="CH3SiH2CH3")
+    def test_heteroatom_organics_CH3SiH3(self): StructureTest(dir="heteroatom_organics", test="CH3SiH3")
+    def test_heteroatom_organics_C_CH3_3_AlH2(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_AlH2")
+    def test_heteroatom_organics_C_CH3_3_BH2(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_BH2")
+    def test_heteroatom_organics_C_CH3_3_NH2(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_NH2")
+    def test_heteroatom_organics_C_CH3_3_OH(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_OH")
+    def test_heteroatom_organics_C_CH3_3_PH2(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_PH2")
+    def test_heteroatom_organics_C_CH3_3_SH(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_SH")
+    def test_heteroatom_organics_C_CH3_3_SiH3(self): StructureTest(dir="heteroatom_organics", test="C_CH3_3_SiH3")
+    def test_heteroatom_organics_N_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="N_ADAM_C3v")
+    def test_heteroatom_organics_P_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="P_ADAM_C3v")
+    def test_heteroatom_organics_SiH_ADAM_C3v(self): StructureTest(dir="heteroatom_organics", test="SiH_ADAM_C3v")
+    def test_minimize_0001(self): StructureTest(dir="minimize", test="0001")
+    def test_minimize_0005(self): StructureTest(dir="minimize", test="0005")
+    def test_minimize_0008(self): MinimizeTest(dir="minimize", test="0008")
+    def test_minimize_0011(self): MinimizeTest(dir="minimize", test="0011")
+    def test_minimize_0012(self): MinimizeTest(dir="minimize", test="0012")
+    def test_rigid_organics_C10H14(self): StructureTest(dir="rigid_organics", test="C10H14")
+    def test_rigid_organics_C14H20(self): StructureTest(dir="rigid_organics", test="C14H20")
+    def test_rigid_organics_C14H24(self): StructureTest(dir="rigid_organics", test="C14H24")
+    def test_rigid_organics_C2H6(self): StructureTest(dir="rigid_organics", test="C2H6")
+    def test_rigid_organics_C3H8(self): StructureTest(dir="rigid_organics", test="C3H8")
+    def test_rigid_organics_C6H10(self): StructureTest(dir="rigid_organics", test="C6H10")
+    def test_rigid_organics_C8H14(self): StructureTest(dir="rigid_organics", test="C8H14")
 
 Tests.slowVersion = SlowTests
 
@@ -1052,6 +930,8 @@ if __name__ == "__main__":
         global LOOSE_TOLERANCES
         LOOSE_TOLERANCES = True
     def test_dir(x):
+        """which directory should we test
+        """
         assert x[:1] == "="
         x = x[1:]
         assert x in ("minimize", "dynamics", "rigid_organics",
@@ -1060,6 +940,9 @@ if __name__ == "__main__":
         global TEST_DIR
         TEST_DIR = x
     def list_everything(x):
+        """Instead of just showing the first failure for each test
+        case, show every non-compliant energy term
+        """
         global LIST_EVERYTHING
         LIST_EVERYTHING = True
 
