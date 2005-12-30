@@ -12,8 +12,8 @@ LDFLAGS=-L/usr/lib -lm
 STDC99=-std=c99
 ifeq ($(OSX),1)
 CFLAGS+=-O
-endif  // $(OSX),1
-endif  // $(OS),Windows_NT
+endif  # $(OSX),1
+endif  # $(OS),Windows_NT
 
 EXE_DIRECTORY=../../cad/bin
 #EXE_DIRECTORY=~/bin
