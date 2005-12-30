@@ -23,7 +23,6 @@ import Numeric
 import math
 import md5
 import os
-import qt
 import random
 import re
 import shutil
@@ -172,8 +171,7 @@ class XyzFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
-        todo("I'm not sure os.linesep is used correctly here")
-        lines = lines.split(os.linesep)
+        lines = lines.split("\n")
         numAtoms = string.atoi(lines[0].strip())
         lines = lines[2:]
         for i in range(numAtoms):
@@ -260,8 +258,7 @@ class MmpFile:
         self.readstring(inf.read())
         inf.close()
     def readstring(self, lines):
-        todo("I'm pretty sure os.linesep is not used correctly here")
-        lines = lines.split(os.linesep)
+        lines = lines.split("\n")
         i, n = 0, len(lines)
         while i < n:
             line = lines[i]
@@ -537,6 +534,7 @@ class BaseTest:
                 rmtreeSafe(tmpdir)
 
     def runCommand(self, opts):
+        import qt
         def substFOO(str):
             if str.startswith("FOO"):
                 return self.testname + str[3:]
@@ -1205,7 +1203,8 @@ if __name__ == "__main__":
     if TEST_DIR != None:
         attrs = dir(Tests)
         for attr in attrs:
-            if attr.startswith("test_") and not attr.startswith("test_" + TEST_DIR):
+            if attr.startswith("test_") and \
+               not attr.startswith("test_" + TEST_DIR):
                 def passAutomatically(self):
                     pass
                 setattr(Tests, attr, passAutomatically)
