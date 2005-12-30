@@ -66,8 +66,8 @@ class HandleSet:
         #e (i might prefer an octahedron, or a miniature-convex-hull-of-extrude-unit)
         offset = offset + self.origin
         radius_multiplier = self.radius_multiplier
+        color = tuple(color) + (1.0,) ## experiment 050218: alpha factor #bruce 051230 moved outside of loop to fix bug 1250
         for (pos,radius,info) in self.handles:
-            color = tuple(color) + (1.0,) ### experiment 050218: alpha factor
             drawer.drawsphere(color, pos + offset, radius * radius_multiplier, detailLevel)
 ##    def process_optional_info(self, info):
 ##        "some subclasses should override this to let info affect draw method"
