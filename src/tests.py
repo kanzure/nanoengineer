@@ -43,7 +43,7 @@ if __name__ == "__main__":
 DEBUG = 0
 MD5_CHECKS = False
 TIME_ONLY = False
-TIME_LIMIT = 15.0
+TIME_LIMIT = 1.e9
 LENGTH_ANGLE_TEST, STRUCTCOMPARE_C_TEST = range(2)
 STRUCTURE_COMPARISON_TYPE = LENGTH_ANGLE_TEST
 GENERATE = False
@@ -1082,11 +1082,12 @@ if __name__ == "__main__":
         """
         global STRUCTURE_COMPARISON_TYPE
         STRUCTURE_COMPARISON_TYPE = STRUCTCOMPARE_C_TEST
-    def slow(x):
-        """perform slow tests (not for regression testing)
+    def time_limit(x):
+        """do as many tests as possible in this many seconds
         """
+        assert x[:1] == "="
         global TIME_LIMIT
-        TIME_LIMIT = 1.e9
+        TIME_LIMIT = string.atof(x[1:])
     def pyrex(x):
         """Perform the Pyrex tests
         """
@@ -1156,7 +1157,7 @@ if __name__ == "__main__":
     options = (md5check,
                lengths_angles,
                structcompare,
-               slow,
+               time_limit,
                pyrex,
                loose,
                test_dir,
@@ -1169,9 +1170,9 @@ if __name__ == "__main__":
                verbose_failures,
                help)
 
-    # Default behavior is to do the very slow tests
+    # Default behavior is to do all the tests, including the slow ones,
     # with loose tolerances, so things pass
-    defaultArgs = ("lengths_angles", "slow")
+    defaultArgs = ("lengths_angles", "loose")
 
     args = sys.argv[1:]
     if len(args) < 1:
