@@ -58,7 +58,7 @@ class SimRunner:
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
     
-    def __init__(self, part, mflag, simaspect = None):
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = False):
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
@@ -68,6 +68,7 @@ class SimRunner:
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
+        self.use_dylib_sim = use_dylib_sim #bruce 051230
         return
     
     def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
@@ -204,13 +205,57 @@ class SimRunner:
         else:
             program = os.path.normpath(filePath + '/../bin/simulator')
         # Make sure the simulator exists
-        if not os.path.exists(program):
-            msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
-            env.history.message(cmd + msg)
-            return -1
+        if self.use_dylib_sim:
+            #bruce 051230 experimental code
+            self.dylib_path = os.path.dirname(program) #####@@@@@ might not be right...
+            worked = self.import_dylib_sim(self.dylib_path)
+            if not worked:
+                #####@@@@@ fix dylib filename in this message
+                msg = redmsg("The simulator dynamic library [sim.so or sim.dylib or so, in " + self.dylib_path +
+                             "] is missing or could not be imported.  Simulation aborted.")
+                env.history.message(cmd + msg)
+                return -1
+        else:
+            if not os.path.exists(program):
+                msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
+                env.history.message(cmd + msg)
+                return -1
         self.program = program
         
         return None # no error
+
+    def import_dylib_sim(self, dylib_path): #bruce 051230 experimental code
+        """Try to import the dynamic library version of the simulator, under the module name 'sim',
+        located in dylib_path. Return a success flag.
+        """
+        import sys
+        if not sys.modules.has_key['sim']:
+            oldpath = sys.path
+            sys.path = [dylib_path] + oldpath
+                ##k Do we need to include oldpath here? if not, we get better error detection if we leave it out.
+                # But we might need to (in principle), if this import has to do another one behind the scenes for some reason.
+                ##e maybe for some errors we should remove this invalid module so we can try the import again later??
+                # This might never work, since maybe Python removes it unless it got too far to try again;
+                # if it does ever import it it won't do more (even with reload) until you rerun the app.
+                # So it's probably not worth improving this error handling code.
+            try:
+                import sim
+                assert sys.modules.has_key['sim']
+                worked = True
+            except:
+                print_compact_traceback("error trying to import dylib sim: ")
+                worked = False
+                #e should we worry about whether sys.modules.has_key['sim'] at this point? Might depend on how it failed.
+            sys.path = oldpath
+        else:
+            worked = True # optimistic
+        if worked:
+            try:
+                from sim import SimulatorBase
+            except:
+                worked = False
+                print_compact_traceback("error trying to import SimulatorBase from dylib sim: ")
+        return worked
     
     def old_set_sim_output_filenames_errQ(self, movie, mflag):
         """Old code, not yet much cleaned up. Uses and/or sets movie.filename,
@@ -605,7 +650,15 @@ class SimRunner:
         if not tfile:
             return # no trace file was generated using a name we provide
                    # (maybe the sim wrote one using a name it made up... nevermind that here)
-        ff = open(tfile, "rU") # "U" probably not needed, but harmless
+        try:
+            ff = open(tfile, "rU") # "U" probably not needed, but harmless
+        except:
+            #bruce 051230 fix probably-unreported bug when sim program is missing
+            # (tho ideally we'd never get into this method in that case)
+            print_compact_traceback("exception opening trace file %r: " % tfile)
+            env.history.message( redmsg( "Error: simulator trace file not found at [%s]." % tfile ))
+            self.mentioned_sim_trace_file = True #k not sure if this is needed or has any effect
+            return
         lines = filter( lambda line: line.startswith("#"), ff.readlines() )
         ff.close()
         seen = {} # whether we saw each known error or warning tracefile-keyword
@@ -642,7 +695,8 @@ class SimRunner:
             self.said_we_are_done = False # not needed unless other code has bugs
             # Note [bruce 050415]: this happens when user presses Abort,
             # since we don't abort the sim process gently enough. This should be fixed.
-            env.history.message( redmsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
+            #bruce 051230 changed following from redmsg to orangemsg
+            env.history.message( orangemsg( "Warning: simulator trace file should normally end with \"# Done:\", but it doesn't."))
             self.mentioned_sim_trace_file = True
         if self.mentioned_sim_trace_file:
             # sim trace file was mentioned; user might wonder where it is...
@@ -719,6 +773,12 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     if print_sim_warnings:
         try:
             simrun.print_sim_warnings()
+                #bruce 051230 comment: this runs even if sim executable was not found; why?? #####@@@@@
+                # guess: need to check error code from run_using_old_movie_obj_to_hold_sim_params;
+                # that's done by checking simrun.errcode, but I wonder if for some values (like user aborted sim)
+                # we should still print the warnings? So I'll refrain from not trying to print them on errcode, for now.
+                # Instead I made it (print_sim_warnings) handle the error of not finding the trace file,
+                # instead of raising an exception then.
         except:
             print_compact_traceback("bug in print_sim_warnings, ignored: ")
     return simrun.errcode
