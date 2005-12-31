@@ -58,7 +58,7 @@ class SimRunner:
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
     
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = False):
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = False): #####@@@@@ DO NOT COMMIT with True [bruce 051230]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
@@ -85,11 +85,14 @@ class SimRunner:
         self.set_waitcursor(True)
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
-            self.spawn_process()
-                # spawn_process also includes monitor_progress [and insert results back into part]
-                # for now; result error code (or abort button flag) stored in self.errcode
-##            if self.run_in_foreground:
-##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
+            if self.use_dylib_sim:
+                self.sim_loop_using_dylib() #bruce 051230
+            else:
+                self.spawn_process()
+                    # spawn_process also includes monitor_progress [and insert results back into part]
+                    # for now; result error code (or abort button flag) stored in self.errcode
+    ##            if self.run_in_foreground:
+    ##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
@@ -207,7 +210,8 @@ class SimRunner:
         # Make sure the simulator exists
         if self.use_dylib_sim:
             #bruce 051230 experimental code
-            self.dylib_path = os.path.dirname(program) #####@@@@@ might not be right...
+            self.dylib_path = os.path.dirname(program)
+                # this works for developers if they set up symlinks... might not be right...
             worked = self.import_dylib_sim(self.dylib_path)
             if not worked:
                 #####@@@@@ fix dylib filename in this message
@@ -215,6 +219,8 @@ class SimRunner:
                              "] is missing or could not be imported.  Simulation aborted.")
                 env.history.message(cmd + msg)
                 return -1
+                #####@@@@@ bug report: even after this, it will find tracefile from prior run (if one exists) and print its warnings.
+                # probably we should remove that before this point?? [bruce 051230]
         else:
             if not os.path.exists(program):
                 msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
@@ -229,7 +235,7 @@ class SimRunner:
         located in dylib_path. Return a success flag.
         """
         import sys
-        if not sys.modules.has_key['sim']:
+        if not sys.modules.has_key('sim'):
             oldpath = sys.path
             sys.path = [dylib_path] + oldpath
                 ##k Do we need to include oldpath here? if not, we get better error detection if we leave it out.
@@ -240,12 +246,12 @@ class SimRunner:
                 # So it's probably not worth improving this error handling code.
             try:
                 import sim
-                assert sys.modules.has_key['sim']
+                assert sys.modules.has_key('sim')
                 worked = True
             except:
                 print_compact_traceback("error trying to import dylib sim: ")
                 worked = False
-                #e should we worry about whether sys.modules.has_key['sim'] at this point? Might depend on how it failed.
+                #e should we worry about whether sys.modules.has_key('sim') at this point? Might depend on how it failed.
             sys.path = oldpath
         else:
             worked = True # optimistic
@@ -413,7 +419,7 @@ class SimRunner:
             #win.setCursor(oldCursor)
         return
     
-    def spawn_process(self): # also includes monitor_progress, for now
+    def spawn_process(self): # also includes monitor_progress, for now; see also sim_loop_using_dylib
         """Actually spawn the process, making its args based on the given options
         (and/or on other options we've specified earlier to this class?)
         and with other args telling it to use the previously written input files.
@@ -495,25 +501,12 @@ class SimRunner:
             if arg != "":
                 arguments.append(arg)
         
+        #e if we wanted to split this method here, the vars it uses are probably only movie, moviefile, arguments [bruce 051230]
+        
         #bruce 050404 let simProcess be instvar so external code can abort it
         self.simProcess = None
         try:
-            if os.path.exists(moviefile):
-                #bruce 050428: do something about this being the moviefile for an existing open movie.
-                try:
-                    ## print "calling apply2movies",moviefile
-                    self.assy.apply2movies( lambda movie: movie.fyi_reusing_your_moviefile( moviefile) )
-                    # note that this is only correct if we're sure it won't be called for the new Movie
-                    # we're making right now! For now, this is true. Later we might need to add an "except for this movie" arg.
-                except:
-                    #e in future they might tell us to lay off this way... for now it's a bug, but we'll ignore it.
-                    print_compact_traceback("exception in preparing to reuse moviefile for new movie ignored: ")
-                    pass
-                #bruce 050407 moving this into the try, since it can fail if we lack write permission
-                # (and it's a good idea to give up then, so we're not fooled by an old file)
-                if debug_sim:
-                    print "deleting moviefile: [",moviefile,"]"
-                os.remove (moviefile) # Delete before spawning simulator.
+            self.remove_old_moviefile(moviefile) # can raise exceptions #bruce 051230 split this out
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
@@ -558,6 +551,26 @@ class SimRunner:
         # Later:
         # Do it continuously as we monitor progress (in fact, that will be
         # *how* we monitor progress, rather than watching the filesize grow).
+        return
+
+    def remove_old_moviefile(self, moviefile): #bruce 051230 split this out of spawn_process
+        "remove the moviefile if it exists, after warning existing Movie objects that we'll do so; can raise exceptions"
+        if os.path.exists(moviefile):
+            #bruce 050428: do something about this being the moviefile for an existing open movie.
+            try:
+                ## print "calling apply2movies",moviefile
+                self.assy.apply2movies( lambda movie: movie.fyi_reusing_your_moviefile( moviefile) )
+                # note that this is only correct if we're sure it won't be called for the new Movie
+                # we're making right now! For now, this is true. Later we might need to add an "except for this movie" arg.
+            except:
+                #e in future they might tell us to lay off this way... for now it's a bug, but we'll ignore it.
+                print_compact_traceback("exception in preparing to reuse moviefile for new movie ignored: ")
+                pass
+            #bruce 050407 moving this into the try, since it can fail if we lack write permission
+            # (and it's a good idea to give up then, so we're not fooled by an old file)
+            if debug_sim:
+                print "deleting moviefile: [",moviefile,"]"
+            os.remove (moviefile) # Delete before spawning simulator.
         return
 
     def old_guess_filesize_and_progbartext(self, movie): # also emits history msg
@@ -641,6 +654,45 @@ class SimRunner:
         "..."
         pass
 
+    def sim_loop_using_dylib(self): #bruce 051230 experimental; compare to spawn_process
+        """#doc; this will set same args as spawn_process via the m.set('name', value) scheme in sim.pyx ...
+        these are the mappings from arg name to var name...
+	case 'm':
+	    ToMinimize=1; #
+	    break;
+	case 'x':
+	    DumpAsText = 1; # xyz rather than dpb, i guess
+	    break;
+	    
+	### might need new ones to make it use my callbacks (nim, not needed just to launch it differently)
+	
+	case 'o':
+	    ofilename = optarg; # copied to OutFileName ###k, get/set
+	    break;
+	case 'q':
+	    tfilename = optarg; # copied to TraceFileName ###k, get/set
+	    break;
+
+	case 'i':
+	    IterPerFrame = atoi(optarg); #
+	    break;
+	case 'f':
+	    NumFrames = atoi(optarg); #
+	    break;
+	case 's':
+	    Dt = atof(optarg);
+	    break;
+	case 't':
+	    Temperature = atof(optarg); #
+	    break;
+	case 'r':
+	    PrintFrameNums = 0; #
+	    break;
+
+        """
+        assert 0, "nim" #####@@@@@
+        return
+        
     def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
         "#doc; might change self.said_we_are_done to False or True, or leave it alone"
         try:
