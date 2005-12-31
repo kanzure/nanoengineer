@@ -1,7 +1,13 @@
-"""Example usage script
+"""
+sim.pyx
+
+$Id$
+
+Example usage script:
 
 make clean; make pyx && python -c "import sim; sim.test()"
 """
+__author__ = "Will"
 
 import threading
 
@@ -22,8 +28,11 @@ cdef extern from "simhelp.c":
     int OutputFormat
     int KeyRecordInterval
     int DirectEvaluate
+    int Interrupted
     char *IDKey
     char *baseFilename
+    char *OutFileName
+    char *TraceFileName
     double Dt
     double Dx
     double Dmass
@@ -39,6 +48,8 @@ cdef extern from "simhelp.c":
     void dumpPart()
     void everythingElse()
     cdef char *structCompareHelp()
+
+    void strcpy(char *, char *) #bruce 051230 guess
 
 
 cdef class SimulatorBase:
@@ -78,6 +89,8 @@ class Minimize(SimulatorBase):
         exc = None
         lock.acquire()
         self.swap()
+            # note: this could be done more efficiently (usually no swaps, not two), with simpler code,
+            # as described on the wiki under "context switching" [bruce 051230 comment]
         try:
             retval = f(*args, **kw)
         except Exception, e:
@@ -111,10 +124,22 @@ class Minimize(SimulatorBase):
             return KeyRecordInterval
         elif key == "DirectEvaluate":
             return DirectEvaluate
+        elif key == "Interrupted":
+            return Interrupted
         elif key == "IDKey":
             return IDKey
         elif key == "baseFilename":
+            if baseFilename == NULL: #bruce 051230 prevent exception when this is NULL (its default value)
+                return "" # (not sure if None would be permitted here; probably it would, but this is better anyway)
             return baseFilename
+        elif key == "OutFileName":
+            if OutFileName == NULL:
+                return ""
+            return OutFileName
+        elif key == "TraceFileName":
+            if TraceFileName == NULL:
+                return ""
+            return TraceFileName
         elif key == "Dt":
             return Dt
         elif key == "Dx":
@@ -160,12 +185,23 @@ class Minimize(SimulatorBase):
         elif key == "DirectEvaluate":
             global DirectEvaluate
             DirectEvaluate = value
+        elif key == "Interrupted":
+            global Interrupted
+            Interrupted = value
         elif key == "IDKey":
             global IDKey
             IDKey = value
         elif key == "baseFilename":
             global baseFilename
             baseFilename = value
+        elif key == "OutFileName":
+            global OutFileName
+            assert len(value) < 1024
+            strcpy( OutFileName, value)
+        elif key == "TraceFileName":
+            global TraceFileName
+            assert len(value) < 1024
+            strcpy( TraceFileName, value)
         elif key == "Dt":
             global Dt
             Dt = value

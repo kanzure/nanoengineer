@@ -1,5 +1,7 @@
 /**
  * C helper file for sim.pyx
+ *
+ * $Id$
  */
 
 #include "Python.h"
@@ -17,8 +19,19 @@ typedef struct sim_context {
     int OutputFormat;
     int KeyRecordInterval;
     int DirectEvaluate;
+    int Interrupted; /* bruce 051230 */
     char *IDKey;
     char *baseFilename;
+#if 0 
+ /* these ought to be here, but the globals are char OutFileName[1024];
+  * which is too inefficient to copy all the time, so we need to handle them differently,
+  * which is not worth it for now since there is never more than one sim object at a time.
+  * [bruce 051230]
+  */
+    char *OutFileName; /* bruce 051230 */
+    char *TraceFileName; /* bruce 051230 */
+#endif
+    /* double Dt; ?? note: it's already accessible in sim.pyx. */
     double Temperature;
     /* other stuff that might belong here? */
     /* finalConfiguration in minstructure.c */
@@ -102,8 +115,13 @@ save_context(struct sim_context *ctx)
     ctx->OutputFormat = OutputFormat;
     ctx->KeyRecordInterval = KeyRecordInterval;
     ctx->DirectEvaluate = DirectEvaluate;
+    ctx->Interrupted = Interrupted;
     ctx->IDKey = IDKey;
     ctx->baseFilename = baseFilename;
+#if 0 /* bruce 051230 */
+    ctx->OutFileName = OutFileName;
+    ctx->TraceFileName = TraceFileName;
+#endif
     ctx->Temperature = Temperature;
 }
 
@@ -125,8 +143,13 @@ restore_context(struct sim_context *ctx)
     OutputFormat = ctx->OutputFormat;
     KeyRecordInterval = ctx->KeyRecordInterval;
     DirectEvaluate = ctx->DirectEvaluate;
+    Interrupted = ctx->Interrupted;
     IDKey = ctx->IDKey;
     baseFilename = ctx->baseFilename;
+#if 0 /* bruce 051230 */
+    OutFileName = ctx->OutFileName;
+    TraceFileName = ctx->TraceFileName;
+#endif
     Temperature = ctx->Temperature;
 }
 
