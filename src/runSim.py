@@ -58,7 +58,7 @@ class SimRunner:
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
     
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = False): #####@@@@@ DO NOT COMMIT with True [bruce 051230]
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = None): #####@@@@@ DO NOT COMMIT with True; None or False is ok [bruce 051230]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
@@ -68,6 +68,9 @@ class SimRunner:
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
+        if 1: # temporary kluge #####@@@@@
+            if use_dylib_sim is None:
+                use_dylib_sim = os.path.exists('/Nanorex/Working/cad/bin/sim.so') # only works for bruce! clean this up before others try it.
         self.use_dylib_sim = use_dylib_sim #bruce 051230
         return
     
@@ -85,14 +88,12 @@ class SimRunner:
         self.set_waitcursor(True)
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
-            if self.use_dylib_sim:
-                self.sim_loop_using_dylib() #bruce 051230
-            else:
-                self.spawn_process()
-                    # spawn_process also includes monitor_progress [and insert results back into part]
-                    # for now; result error code (or abort button flag) stored in self.errcode
-    ##            if self.run_in_foreground:
-    ##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
+            self.simProcess = None #bruce 051231
+            self.spawn_process()
+                # spawn_process also includes monitor_progress [and insert results back into part]
+                # for now; result error code (or abort button flag) stored in self.errcode
+##            if self.run_in_foreground:
+##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
@@ -101,19 +102,19 @@ class SimRunner:
             return # success
         if self.errcode == 1: # User pressed Abort button in progress dialog.
             msg = redmsg("Aborted.")
-            env.history.message(cmd + msg)         
-            
-            ##Tries to terminate the process the nice way first, so the process
-            ## can do whatever clean up it requires. If the process
-            ## is still running after 2 seconds (a kludge). it terminates the 
-            ## process the hard way.
-            #self.simProcess.tryTerminate()
-            #QTimer.singleShot( 2000, self.simProcess, SLOT('kill()') )
-            
-            # The above does not work, so we'll hammer the process with SIGKILL.
-            # This works.  Mark 050210
-            assert self.simProcess
-            self.simProcess.kill()
+            env.history.message(cmd + msg)
+
+            if self.simProcess: #bruce 051231 added condition (since won't be there when use_dylib)
+                ##Tries to terminate the process the nice way first, so the process
+                ## can do whatever clean up it requires. If the process
+                ## is still running after 2 seconds (a kludge). it terminates the 
+                ## process the hard way.
+                #self.simProcess.tryTerminate()
+                #QTimer.singleShot( 2000, self.simProcess, SLOT('kill()') )
+                
+                # The above does not work, so we'll hammer the process with SIGKILL.
+                # This works.  Mark 050210
+                self.simProcess.kill()
             
         else: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
@@ -257,7 +258,7 @@ class SimRunner:
             worked = True # optimistic
         if worked:
             try:
-                from sim import SimulatorBase
+                from sim import Minimize, Dynamics # the two constructors we might need to use
             except:
                 worked = False
                 print_compact_traceback("error trying to import SimulatorBase from dylib sim: ")
@@ -419,94 +420,148 @@ class SimRunner:
             #win.setCursor(oldCursor)
         return
     
-    def spawn_process(self): # also includes monitor_progress, for now; see also sim_loop_using_dylib
-        """Actually spawn the process, making its args based on the given options
-        (and/or on other options we've specified earlier to this class?)
-        and with other args telling it to use the previously written input files.
-        ###retval? or record some info?
-        ### do we wait? no, we want to watch the files grow -- caller does that separately.
+    def spawn_process(self): # misnamed, since (1) also includes monitor_progress, and (2) doesn't always use a process
+        """Actually spawn the process [or the extension class object],
+        making its args [or setting its params] based on some of self's attributes.
+        Wait til we're done with this simulation, then record results in other self attributes.
         """
         if debug_sim: #bruce 051115 added this; confirmed this is always called for any use of sim (Minimize or Run Sim)
             print "calling spawn_process" 
-        # figure out process arguments
+        # First figure out process arguments
         # [bruce 050401 doing this later than before, used to come before writing sim-input file]
+        self.setup_sim_args() # stores them in an attribute, whose name and value depends on self.use_dylib_sim
+        # Now run the sim to completion (success or fail or user abort),
+        # as well as whatever updates we do at the same time in the cad code
+        # (progress bar, showing movie in realtime [nim but being added circa 051231], ...)
+        if self.use_dylib_sim:
+            self.sim_loop_using_dylib() #bruce 051231 wrote this anew
+        else:
+            self.sim_loop_using_standalone_executable() #bruce 051231 made this from last part of old spawn_process code
+        return
+
+    def setup_sim_args(self): #bruce 051231 split this out of spawn_process, added dylib case
+        """Set up arguments for the simulator, using one of two different interfaces:
+        either constructing a command line for the standalone executable simulator,
+        or creating and setting up an instance of an extension class defined in the
+        sim module (a dynamic library). (But don't start it running.)
+           We use the same method to set up both kinds of interface, so that it will
+        be easier to keep them in sync as the code evolves.
+           WARNING: We also set a few attributes of self which cause side effects later;
+        in one case, the attribute looks just like a sim-executable command line option
+        (purely for historical reasons).
+        """
+        # set one of the sim-interface-format flags
+        use_dylib = self.use_dylib_sim
+        use_command_line = not self.use_dylib_sim
+        # (The rest of this method would permit both of these flags to be set together, if desired;
+        #  that might be useful if we want to try one interface, and if it fails, try the other.)
         
         movie = self._movie # old-code compat kluge
         moviefile = movie.filename
-        outfileArg = "-o%s" % moviefile #SIMOPT
+        if use_command_line:
+            program = self.program
+            outfileArg = "-o%s" % moviefile #SIMOPT
+            traceFileArg = self.traceFileArg
         infile = self.sim_input_file
-        program = self.program
-        traceFileArg = self.traceFileArg
 
         ext = movie.filetype #bruce 050404 added movie.filetype
         mflag = self.mflag
         
-        # "formarg" = File format argument
+        # "formarg" = File format argument -- we need this even when use_dylib,
+        # since it's also used as an internal flag via self._formarg
         if ext == ".dpb": formarg = ''
-        elif ext == ".xyz": formarg = "-x" #SIMOPT -- WARNING, this value is also used as an internal flag via self._formarg
+        elif ext == ".xyz": formarg = "-x" #SIMOPT (value also used as internal flag)
         else: assert 0
-        
-        # "args" = arguments for the simulator. #SIMOPT -- this appears to be the only place the entire simulator command line is created.
-        if mflag:
-            # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
-            # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
-            args = [program, '-m', str(formarg), traceFileArg, outfileArg, infile] #SIMOPT
-        else: 
-            # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
-            # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
-            args = [program, 
-                        '-f' + str(movie.totalFramesRequested), #SIMOPT
-                        '-t' + str(movie.temp),  #SIMOPT
-                        '-i' + str(movie.stepsper),  #SIMOPT
-                        '-r', #SIMOPT
-                        str(formarg),
-                        traceFileArg,
-                        outfileArg,
-                        infile]
-        self._args = args # needed??
-        self._formarg = formarg # old-code kluge -- WARNING, this value is also used as an internal flag via self._formarg
+        self._formarg = formarg # kluge
+        # the use_dylib code for formarg is farther below
 
-        # delete old moviefile we're about to write on, and warn anything that might have it open
-        # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
-
-        # We can't overwrite an existing moviefile, so delete it if it exists.
-        ##bruce 050428 this is now all done by fyi_reusing_your_moviefile, lower down.
-##        if os.path.exists(moviefile):
-##            # [bruce 050401 comment:]
-##            # and make sure the movie obj is not still trying to use the file, first!
-##            # this is an old-code kluge... but necessary. In future we probably need
-##            # to inform *all* our current sims and movies that we're doing this
-##            # (deleting or renaming some file they might care about). ###@@@
-##            # BTW this stuff should be a method of movie, it uses private attrs...
-##            # and it might not be correct/safe in all cases either... [not reviewed]
-##            #bruce 050425 comment: is this trying to reuse an old movie obj for a new movie?
-##            # does it ever happen now that the movie is open?
-##            if debug_sim: print "movie.isOpen =",movie.isOpen
-##            if movie.isOpen:
-##                if debug_sim: print "closing moviefile"
-##                movie.fileobj.close()
-##                movie.isOpen = False
-##                if debug_sim: print "writemovie(): movie.isOpen =", movie.isOpen
-##                #bruce 050407 moved the actual delete down below...
+        self._simopts = self._arguments = None # one of these is set below
         
-        # These are useful when debugging the simulator.
-        # [bruce 050407: But not for all users all the time! So putting them inside a flag.]
-        if debug_sim:
-            print  "program = ",program
-            print  "Spawnv args are %r" % (args,) # this %r remains (see above)
-
-        arguments = QStringList()
-        for arg in args:
-            # wware 051213  sim's getopt doesn't like empty arg strings
-            if arg != "":
-                arguments.append(arg)
+        if use_command_line:
+            # "args" = arguments for the simulator.
+            #SIMOPT -- this appears to be the only place the entire standalone simulator command line is created.
+            if mflag:
+                # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
+                # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
+                # [later, bruce 051231: I think only one of the two true mflag values is presently supported.]
+                args = [program, '-m', str(formarg), traceFileArg, outfileArg, infile] #SIMOPT
+            else: 
+                # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
+                # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
+                args = [program, 
+                            '-f' + str(movie.totalFramesRequested), #SIMOPT
+                            '-t' + str(movie.temp),  #SIMOPT
+                            '-i' + str(movie.stepsper),  #SIMOPT
+                            '-r', #SIMOPT
+                            str(formarg),
+                            traceFileArg,
+                            outfileArg,
+                            infile]
+            if debug_sim:
+                print  "program = ",program
+                print  "Spawnv args are %r" % (args,) # note: we didn't yet remove args equal to "", that's done below
+            arguments = QStringList()
+            for arg in args:
+                # wware 051213  sim's getopt doesn't like empty arg strings
+                if arg != "":
+                    arguments.append(arg)
+            self._arguments = arguments
+            del args, arguments
+        if use_dylib:
+            import sim # whether this will work was checked by a prior method
+            if mflag:
+                clas = sim.Minimize
+            else:
+                clas = sim.Dynamics
+            simobj = clas(infile)
+            # order of set of remaining options should not matter;
+            # for correspondence see sim/src files sim.pyx, simhelp.c, and simulator.c
+            class opts0:
+                "helper class so we can set sim params using attribute notation; ideally sim.pyx's simobj would do this itself"
+                def __init__(self, simobj):
+                    self._simobj = simobj
+                def __setattr__(self, attr, val):
+                    if attr.startswith("_"):
+                        # this happens when we set our own _simobj attribute, during __init__!
+                        # Assume no simobj params start with "_".
+                        self.__dict__[attr] = val
+                    else:
+                        self._simobj.set(attr, val)
+                    return
+                pass
+            simopts = opts0(simobj)
+            del simobj
+            if formarg == '-x':
+                simopts.DumpAsText = 1 # xyz rather than dpb, i guess
+            else:
+                assert formarg == ''
+                simopts.DumpAsText = 0
+            if self.traceFileName:
+                simopts.TraceFileName = self.traceFileName
+                #k not sure if this would be ok to do otherwise, since C code doesn't turn "" into NULL and might get confused
+            simopts.OutFileName = moviefile
+            if not mflag:
+                # The timestep argument "-s + (movie.timestep)" or Dt is not supported for Alpha...
+                simopts.NumFrames = movie.totalFramesRequested
+                simopts.Temperature = movie.temp
+                simopts.IterPerFrame = movie.stepsper
+                simopts.PrintFrameNums = 0
+            #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
+            # probably we'll let the later sim-start code set those itself.
+            self._simopts = simopts
+        # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
+        return
         
-        #e if we wanted to split this method here, the vars it uses are probably only movie, moviefile, arguments [bruce 051230]
+    def sim_loop_using_standalone_executable(self): #bruce 051231 made this from part of spawn_process; compare to sim_loop_using_dylib
+        "#doc"
+        movie = self._movie
+        arguments = self._arguments
         
-        #bruce 050404 let simProcess be instvar so external code can abort it
+        #bruce 050404 let simProcess be instvar so external code can abort it [this is still used as of 051231]
         self.simProcess = None
         try:
-            self.remove_old_moviefile(moviefile) # can raise exceptions #bruce 051230 split this out
+            self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
+            ###e should also remove old trace file, to avoid confusion [this comment is in two places] #####@@@@@
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
@@ -520,15 +575,10 @@ class SimRunner:
             simProcess.setArguments(arguments)
             simProcess.start()
             
-            # Launch the progress bar. Wait until simulator is finished
-                        ####@@@@ move this part into separate method??
-            filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
-                # also emits a history message...
-            self.errcode = self.win.progressbar.launch( filesize,
-                            filename = moviefile, 
-                            caption = pbarCaption, 
-                            message = pbarMsg, 
-                            show_duration = 1)
+            # Launch the progress bar, and let it monitor and show progress and wait until
+            # simulator is finished or user aborts it.
+            self.monitor_progress_by_file_growth(movie)
+
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
             if simProcess:
@@ -551,6 +601,7 @@ class SimRunner:
         # Later:
         # Do it continuously as we monitor progress (in fact, that will be
         # *how* we monitor progress, rather than watching the filesize grow).
+        
         return
 
     def remove_old_moviefile(self, moviefile): #bruce 051230 split this out of spawn_process
@@ -571,8 +622,24 @@ class SimRunner:
             if debug_sim:
                 print "deleting moviefile: [",moviefile,"]"
             os.remove (moviefile) # Delete before spawning simulator.
-        return
+        return        
+        #bruce 051231: here is an old comment related to remove_old_moviefile;
+        # I don't know whether it's obsolete regarding the bug it warns about:
+        # delete old moviefile we're about to write on, and warn anything that might have it open
+        # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
 
+    def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
+        filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
+            # also emits a history message...
+        self.errcode = self.win.progressbar.launch(
+                            filesize,
+                            filename = movie.filename, 
+                            caption = pbarCaption, 
+                            message = pbarMsg, 
+                            show_duration = 1 )
+            # that 'launch' method is misnamed, since it also waits for completion
+        return
+    
     def old_guess_filesize_and_progbartext(self, movie): # also emits history msg
         "..."
         #bruce 050401 now calling this after spawn not before? not sure... note it emits a history msg.
@@ -631,66 +698,69 @@ class SimRunner:
             pbarCaption = caption_from_movie
         return filesize, pbarCaption, pbarMsg
 
-    # seperate monitor routines not yet split out from spawn_process, not yet called ###@@@doit
-    def monitor_progress(self): #e or monitor_some_progress, to be called in a loop with a sleep or show-frame, also by movie player?
-        """Put up a progress bar (if suitable);
-        watch the growing trace and trajectory files,
-        displaying warnings and errors in history widget,
-        progress-guess in progress bar,
-        and perhaps in a realtime-playing movie in future;
-        handle abort button (in progress bar or maybe elsewhere, maybe a command key)
-        (btw abort or sim-process-crash does not imply failure, since there might be
-         usable partial results, even for minimize with single-frame output);
-        process other user events (or some of them) (maybe);
-        and eventually return when the process is done,
-        whether by abort, crash, or success to end;
-        return True if there are any usable results,
-        and have a results object available in some public attribute.
+##    # separate monitor routines not yet split out from spawn_process, not yet called ###@@@doit
+##    def monitor_progress(self): #e or monitor_some_progress, to be called in a loop with a sleep or show-frame, also by movie player?
+##        """Put up a progress bar (if suitable);
+##        watch the growing trace and trajectory files,
+##        displaying warnings and errors in history widget,
+##        progress-guess in progress bar,
+##        and perhaps in a realtime-playing movie in future;
+##        handle abort button (in progress bar or maybe elsewhere, maybe a command key)
+##        (btw abort or sim-process-crash does not imply failure, since there might be
+##         usable partial results, even for minimize with single-frame output);
+##        process other user events (or some of them) (maybe);
+##        and eventually return when the process is done,
+##        whether by abort, crash, or success to end;
+##        return True if there are any usable results,
+##        and have a results object available in some public attribute.
+##        """
+##        while not self.monitor_some_progress_doneQ(): # should store self.res I guess??
+##            time.sleep(0.1)
+##        return self.res
+##    def monitor_some_progress_doneQ(self):
+##        "..."
+##        pass
+
+    def sim_loop_using_dylib(self): #bruce 051231; compare to sim_loop_using_standalone_executable
+        # 051231 6:29pm: works, except no trace file is written so results in history come from prior one (if any)
+        """#doc
         """
-        while not self.monitor_some_progress_doneQ(): # should store self.res I guess??
-            time.sleep(0.1)
-        return self.res
-    def monitor_some_progress_doneQ(self):
-        "..."
-        pass
+        movie = self._movie
+        simopts = self._simopts
+        simobj = simopts._simobj
+        
+        try:
+            self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
+            ###e should also remove old trace file, to avoid confusion [this comment is in two places] #####@@@@@
 
-    def sim_loop_using_dylib(self): #bruce 051230 experimental; compare to spawn_process
-        """#doc; this will set same args as spawn_process via the m.set('name', value) scheme in sim.pyx ...
-        these are the mappings from arg name to var name...
-	case 'm':
-	    ToMinimize=1; #
-	    break;
-	case 'x':
-	    DumpAsText = 1; # xyz rather than dpb, i guess
-	    break;
-	    
-	### might need new ones to make it use my callbacks (nim, not needed just to launch it differently)
-	
-	case 'o':
-	    ofilename = optarg; # copied to OutFileName ###k, get/set
-	    break;
-	case 'q':
-	    tfilename = optarg; # copied to TraceFileName ###k, get/set
-	    break;
+            ###e need to set up Python callbacks, if only to provide time for us to run our progress bar, etc;
+            # or we could run it in a different thread (so old monitoring code can run in this thread) --
+            # that ought to work now...
+            
+            ## Start the simulator in a different thread ### FOR NOW, THIS STARTS IT IN THE SAME THREAD!#####@@@@@
+            env.history.message(orangemsg("Warning: running pyrex sim in same thread; nE-1 will hang until it finishes and won't be abortable"))
+            env.call_qApp_processEvents() # so user can see that history message
 
-	case 'i':
-	    IterPerFrame = atoi(optarg); #
-	    break;
-	case 'f':
-	    NumFrames = atoi(optarg); #
-	    break;
-	case 's':
-	    Dt = atof(optarg);
-	    break;
-	case 't':
-	    Temperature = atof(optarg); #
-	    break;
-	case 'r':
-	    PrintFrameNums = 0; #
-	    break;
+            simobj.go()
 
-        """
-        assert 0, "nim" #####@@@@@
+##            # capture and print its stdout and stderr [not yet possible via pyrex interface]
+##            if debug_sim: #bruce 051115 revised this debug code
+##                def blabout():
+##                    print "stdout:", simProcess.readStdout()
+##                def blaberr():
+##                    print "stderr:", simProcess.readStderr()
+##                QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
+##                QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
+            
+            # Launch the progress bar, and let it monitor and show progress and wait until
+            # simulator is finished or user aborts it.
+            ### WHILE WE'RE IN SAME THREAD, by this time it's done, so pbar should immediately show full progress (or maybe not get shown at all).
+            self.monitor_progress_by_file_growth(movie)
+
+        except: # We had an exception.
+            print_compact_traceback("exception in simulation; continuing: ")
+            ##e terminate it, if it might be in a different thread; destroy object; etc
+            self.errcode = -1 # simulator failure
         return
         
     def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
