@@ -255,6 +255,8 @@ void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     }
     // bruce 060101 moved the rest of this function into the start of everythingElse 
     // since it depends on parameters set by the client code after this init method runs
+    
+    initializeBondTable(); // try doing this here instead ####@@@@@
 }
 
 void readPart(void)
@@ -284,7 +286,7 @@ void everythingElse(void) // WARNING: this duplicates some code from simulator.c
         // ##e should print options set before run, but it's too early to do that in this code
     }
     if (IterPerFrame <= 0) IterPerFrame = 1;
-    initializeBondTable();
+    // initializeBondTable();// try doing this elsewhere instead ####@@@@@
     // end of section moved by bruce 060101
     
     traceHeader(tracef, filename, OutFileName, TraceFileName, 
