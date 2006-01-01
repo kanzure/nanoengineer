@@ -3,6 +3,9 @@ sim.pyx
 
 $Id$
 
+Note: this file is processed by Pyrex to produce sim.c in this directory
+(not in the build subdirectory). [bruce 060101]
+
 Example usage script:
 
 make clean; make pyx && python -c "import sim; sim.test()"
@@ -11,7 +14,12 @@ __author__ = "Will"
 
 import threading
 
-cdef extern from "simhelp.c":
+cdef extern from "simhelp.c": 
+    # note: this produces '#include "simhelp.c"' in generated sim.c file,
+    # but distutils fails to realize there's a dependency on simhelp.c,
+    # so I added some Makefile dependencies to fix that,
+    # but these mean that sim.c is produced in the makefile
+    # rather than by setup.py. [bruce 060101]
     ctypedef struct two_contexts:
         # pyrex doesn't need to know what's inside
         pass

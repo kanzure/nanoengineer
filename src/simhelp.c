@@ -1,8 +1,17 @@
 /**
  * C helper file for sim.pyx
  *
+ * WARNING: This file is not compiled separately -- it's #included in sim.c
+ * due to the "cdef extern" declaration in sim.pyx which names it.
+ * For some reason distutils doesn't realize this means there's a dependency,
+ * so I added some dependencies in Makefile to fix this, which as a side effect
+ * cause Makefile rather than setup.py to produce sim.c.
+ * [bruce 060101]
+ *
  * $Id$
  */
+
+char __author__[] = "Will";
 
 #include "Python.h"
 #include "simulator.h"
@@ -190,14 +199,15 @@ get_a_pipe(void)
 }
 
 
+int printPotentialEnergy = 0; 
+	// bruce 060101 made this global from localvar; it probably needs to be context-switched ###
 
-void initsimhelp(void)
+void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 {
     char *printPotential = NULL;
     double printPotentialInitial = 1.0;
     double printPotentialIncrement = 1.0;
     double printPotentialLimit = 200.0;
-    int printPotentialEnergy = 0;
     char *ofilename;
     char *tfilename;
     char *p;
@@ -243,15 +253,8 @@ void initsimhelp(void)
     if (! strchr(TraceFileName, '.')) {
         strcat(TraceFileName,".trc");
     }
-    if (!printPotentialEnergy) {
-        tracef = fopen(TraceFileName, "w");
-        if (!tracef) {
-            perror(TraceFileName);
-            exit(1);
-        }
-    }
-    if (IterPerFrame <= 0) IterPerFrame = 1;
-    initializeBondTable();
+    // bruce 060101 moved the rest of this function into the start of everythingElse 
+    // since it depends on parameters set by the client code after this init method runs
 }
 
 void readPart(void)
@@ -267,8 +270,23 @@ void dumpPart(void)
     printPart(stdout, part);
 }
 
-void everythingElse(void)
+void everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
+    // bruce 060101 moved this section here, from the end of initsimhelp,
+    // since it depends on parameters set by the client code after that init method runs
+    if (!printPotentialEnergy) {
+        tracef = fopen(TraceFileName, "w");
+        if (!tracef) {
+            perror(TraceFileName);
+            exit(1);
+        }
+        fprintf(tracef, "# %s\n", "run from pyrex interface"); // like printing the commandLine
+        // ##e should print options set before run, but it's too early to do that in this code
+    }
+    if (IterPerFrame <= 0) IterPerFrame = 1;
+    initializeBondTable();
+    // end of section moved by bruce 060101
+    
     traceHeader(tracef, filename, OutFileName, TraceFileName, 
                 part, NumFrames, IterPerFrame, Temperature);
 

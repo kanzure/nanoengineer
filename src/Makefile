@@ -57,7 +57,8 @@ SIMINCLUDES=\
 	structcompare.h \
 	writemovie.h
 
-#bruce 051230 added dependency on Makefile to most rules (probably not all);
+#bruce 051230 added dependency on Makefile to some rules (not all, and not as many are
+# affected as I'd hoped);
 # this is desirable since Makefile defines CFLAGS (and full remake doesn't take very long);
 # feel free to do this in a cleaner way, or not at all if it causes problems.
 
@@ -84,11 +85,30 @@ writemovie.o: simulator.h
 structcompare.o: structcompare.c simulator.h
 	$(CC) -c $(STDC99) $(CFLAGS) -o structcompare.o structcompare.c
 
-sim.o: sim.c simulator.h
+# Is this rule obsolete too? [bruce 060101 question] 
+# Partial answer: It is not used by make or make pyx.
+# It is used if you type "make sim". I think that can't work correctly, 
+# so I'll leave this rule in, with an error, to detect that mistake. [bruce 060101]
+sim.o: sim.c simulator.h Makefile
+	echo "using toplevel make rule for sim.o"
+	cause an error on purpose if this is used
 	gcc -c -g -fPIC -I/usr/include/python2.3 sim.c
 
-### is this sim.c rule obsolete? Will it interfere with anything? [bruce 051230 question]
-sim.c: sim.pyx simhelp.c
+# is this sim.c rule obsolete? Will it interfere with anything? [bruce 051230 question]
+# Partial answers:
+# - It is probably not used when you do "make pyx", since its echo does not happen then.
+# - If you run it separately (e.g. by "make sim.c"), the sim.c it produces is identical
+#   (except for date in comment) to what "make pyx" would silently produce itself;
+#   and the sim.c this rule produces *is* used (not overwritten) by a subsequent
+#   "make pyx" (proved by intervening manual edit to introduce syntax error).
+# - This means it does not in itself create the needed dependency on simhelp.c,
+#   but if "make extensions" is also given a dependency on sim.c, then it uses this rule
+#   and does have the desired dependency on simhelp.c, so I've added that and left this 
+#   rule in place. This only works if we also touch sim.pyx here so the setup.py knows it
+#   has to do something. [Does it then overwrite sim.c? Not retested. ###] [bruce 060101]
+sim.c: sim.pyx simhelp.c Makefile
+	echo "using toplevel make rule for sim.c, which touches sim.pyx"
+	touch sim.pyx
 	pyrexc sim.pyx
 
 tables.c: gentab.py
@@ -138,7 +158,10 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-extensions:
+# bruce 060101 added sim.c to help cause dependency of pyrex rebuild on simhelp.c
+# (just adding simhelp.c here is not enough, since in that case distutils (setup.py)
+#  doesn't realize it needs to do any work)
+extensions: sim.c Makefile
 	python setup.py build_ext --inplace
 
 pyx: extensions
