@@ -23,6 +23,8 @@ one subclass (eventually) of a new SimRunner class.
 bruce 050901 and 050913 used env.history in some places.
 
 bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator executable command-line flag is hardcoded.
+
+bruce 051231 partly-done code for using pyrex interface to sim
 '''
 
 from debug import print_compact_traceback
@@ -537,7 +539,7 @@ class SimRunner:
                 assert formarg == ''
                 simopts.DumpAsText = 0
             if self.traceFileName:
-                simopts.TraceFileName = self.traceFileName
+                simopts.TraceFileName = self.traceFileName # note spelling difference, 'T' vs 't' ###e should fix
                 #k not sure if this would be ok to do otherwise, since C code doesn't turn "" into NULL and might get confused
             simopts.OutFileName = moviefile
             if not mflag:
@@ -561,7 +563,7 @@ class SimRunner:
         self.simProcess = None
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
-            ###e should also remove old trace file, to avoid confusion [this comment is in two places] #####@@@@@
+            self.remove_old_tracefile(self.traceFileName) ##k not sure if this attr exists yet, or is always true if it does #####@@@@@
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
@@ -627,7 +629,13 @@ class SimRunner:
         # I don't know whether it's obsolete regarding the bug it warns about:
         # delete old moviefile we're about to write on, and warn anything that might have it open
         # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
-
+    
+    def remove_old_tracefile(self, tracefile): #bruce 060101
+        "remove the tracefile if it exists, after warning anything that might care [nim]; can raise exceptions"
+        if os.path.exists(tracefile):
+            os.remove(tracefile) # can raise exception, e.g. due to directory permission error
+        return
+    
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
         filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
             # also emits a history message...
@@ -731,7 +739,7 @@ class SimRunner:
         
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
-            ###e should also remove old trace file, to avoid confusion [this comment is in two places] #####@@@@@
+            self.remove_old_tracefile(self.traceFileName) ##k not sure if this attr exists yet, or is always true if it does #####@@@@@
 
             ###e need to set up Python callbacks, if only to provide time for us to run our progress bar, etc;
             # or we could run it in a different thread (so old monitoring code can run in this thread) --
