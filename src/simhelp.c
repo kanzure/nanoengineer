@@ -17,165 +17,6 @@ char __author__[] = "Will";
 #include "Numeric/arrayobject.h"
 #include "simulator.h"
 
-typedef struct sim_context {
-    int debug_flags;
-    int Iteration;
-    int ToMinimize;
-    int IterPerFrame;
-    int NumFrames;
-    int DumpAsText;
-    int DumpIntermediateText;
-    int PrintFrameNums;
-    int OutputFormat;
-    int KeyRecordInterval;
-    int DirectEvaluate;
-    int Interrupted; /* bruce 051230 */
-    char *IDKey;
-    char *baseFilename;
-#if 0 
- /* these ought to be here, but the globals are char OutFileName[1024];
-  * which is too inefficient to copy all the time, so we need to handle them differently,
-  * which is not worth it for now since there is never more than one sim object at a time.
-  * [bruce 051230]
-  */
-    char *OutFileName; /* bruce 051230 */
-    char *TraceFileName; /* bruce 051230 */
-#endif
-    /* double Dt; ?? note: it's already accessible in sim.pyx. */
-    double Temperature;
-    /* other stuff that might belong here? */
-    /* finalConfiguration in minstructure.c */
-    /* Part in minstructure.c */
-} sim_context;
-
-typedef struct two_contexts {
-    struct sim_context *first, *second;
-} two_contexts;
-
-
-/* call this guy from Simulator.__init__() */
-static struct sim_context *
-malloc_context(void)
-{
-    struct sim_context *ctx = (struct sim_context *)
-	malloc(sizeof(struct sim_context));
-    if (ctx == NULL) {
-	perror("out of memory");
-	exit(1);
-    }
-    return ctx;
-}
-
-struct two_contexts *
-malloc_two_contexts(void)
-{
-    static void
-	save_context(struct sim_context *ctx);
-    struct two_contexts *ctxs = (struct two_contexts *)
-	malloc(sizeof(struct two_contexts));
-    if (ctxs == NULL) {
-	perror("out of memory");
-	exit(1);
-    }
-    ctxs->first = malloc_context();
-    save_context(ctxs->first);
-    ctxs->second = malloc_context();
-    save_context(ctxs->second);
-    return ctxs;
-}
-
-static void
-free_context(sim_context *ctx)
-{
-    if (ctx == NULL) {
-	perror("free_context: ctx null??");
-	exit(1);
-    }
-    free(ctx);
-}
-
-void
-free_two_contexts(two_contexts *ctxs)
-{
-    if (ctxs == NULL) {
-	perror("free_two_contexts: ctxs null??");
-	exit(1);
-    }
-    free_context(ctxs->first);
-    free_context(ctxs->second);
-    free(ctxs);
-}
-
-
-static void
-save_context(struct sim_context *ctx)
-{
-    if (ctx == NULL) {
-	perror("save_context: ctx null??");
-	exit(1);
-    }
-    ctx->debug_flags = debug_flags;
-    ctx->Iteration = Iteration;
-    ctx->ToMinimize = ToMinimize;
-    ctx->IterPerFrame = IterPerFrame;
-    ctx->NumFrames = NumFrames;
-    ctx->DumpAsText = DumpAsText;
-    ctx->DumpIntermediateText = DumpIntermediateText;
-    ctx->PrintFrameNums = PrintFrameNums;
-    ctx->OutputFormat = OutputFormat;
-    ctx->KeyRecordInterval = KeyRecordInterval;
-    ctx->DirectEvaluate = DirectEvaluate;
-    ctx->Interrupted = Interrupted;
-    ctx->IDKey = IDKey;
-    ctx->baseFilename = baseFilename;
-#if 0 /* bruce 051230 */
-    ctx->OutFileName = OutFileName;
-    ctx->TraceFileName = TraceFileName;
-#endif
-    ctx->Temperature = Temperature;
-}
-
-static void
-restore_context(struct sim_context *ctx)
-{
-    if (ctx == NULL) {
-	perror("restore_context: ctx null??");
-	exit(1);
-    }
-    debug_flags = ctx->debug_flags;
-    Iteration = ctx->Iteration;
-    ToMinimize = ctx->ToMinimize;
-    IterPerFrame = ctx->IterPerFrame;
-    NumFrames = ctx->NumFrames;
-    DumpAsText = ctx->DumpAsText;
-    DumpIntermediateText = ctx->DumpIntermediateText;
-    PrintFrameNums = ctx->PrintFrameNums;
-    OutputFormat = ctx->OutputFormat;
-    KeyRecordInterval = ctx->KeyRecordInterval;
-    DirectEvaluate = ctx->DirectEvaluate;
-    Interrupted = ctx->Interrupted;
-    IDKey = ctx->IDKey;
-    baseFilename = ctx->baseFilename;
-#if 0 /* bruce 051230 */
-    OutFileName = ctx->OutFileName;
-    TraceFileName = ctx->TraceFileName;
-#endif
-    Temperature = ctx->Temperature;
-}
-
-void
-swap_contexts(struct two_contexts *ctxs)
-{
-    struct sim_context *tmp;
-    save_context(ctxs->first);
-    restore_context(ctxs->second);
-    tmp = ctxs->first;
-    ctxs->first = ctxs->second;
-    ctxs->second = tmp;
-}
-
-
-
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
@@ -188,7 +29,8 @@ static char buf[1024];
 
 char *filename;
 
-static PyObject *mostRecentFrame = NULL;
+static double *data = NULL;
+static int framesize;
 
 // wware 060101   callback for getting frame info in pyrex
 void
@@ -196,11 +38,9 @@ callback_writeFrame(struct part *part, struct xyz *pos)
 {
 // .xyz files are in angstroms (1e-10 m)
 #define XYZ (1.0e-2)
-    double *data;
     int i, n;
-    if (mostRecentFrame != NULL)
-	Py_DECREF(mostRecentFrame);
-    n = 3 * part->num_atoms * sizeof(double);
+    if (data != NULL) free(data);
+    framesize = n = 3 * part->num_atoms * sizeof(double);
     data = (double *) malloc(n);
     if (data == NULL) {
 	perror("Out of memory");
@@ -211,18 +51,22 @@ callback_writeFrame(struct part *part, struct xyz *pos)
 	data[i * 3 + 1] = pos[i].y * XYZ;
 	data[i * 3 + 2] = pos[i].z * XYZ;
     }
-    mostRecentFrame = PyString_FromStringAndSize((char*) data, n);
 }
 
 // wware 060101   make frame info available in pyrex
 PyObject * getMostRecentFrame(void)
 {
-    return mostRecentFrame;
+    return PyString_FromStringAndSize((char*) data, framesize);
 }
 
 int printPotentialEnergy = 0; 
-	// bruce 060101 made this global from localvar; it probably needs to be context-switched ###
+// bruce 060101 made this global from localvar; it probably needs to be context-switched ###
 
+
+/*
+ * A good goal would be to eliminate all the filename-twiddling in this
+ * function, and only set up the bond tables.
+ */
 void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 {
     char *printPotential = NULL;

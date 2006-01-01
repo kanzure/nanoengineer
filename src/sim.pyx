@@ -21,9 +21,6 @@ cdef extern from "simhelp.c":
     # so I added some Makefile dependencies to fix that,
     # but these mean that sim.c is produced in the makefile
     # rather than by setup.py. [bruce 060101]
-    ctypedef struct two_contexts:
-        # pyrex doesn't need to know what's inside
-        pass
     char *filename
     # stuff from globals.c
     int debug_flags
@@ -48,11 +45,7 @@ cdef extern from "simhelp.c":
     double Temperature
     # end of globals.c stuff
 
-    two_contexts *malloc_two_contexts()
-    void free_two_contexts(two_contexts *)
-    void swap_contexts(two_contexts *)
     getMostRecentFrame()
-
     void initsimhelp()
     void readPart()
     void dumpPart()
@@ -62,56 +55,18 @@ cdef extern from "simhelp.c":
     void strcpy(char *, char *) #bruce 051230 guess
 
 
-cdef class SimulatorBase:
-    """Pyrex permits access to doc strings"""
-    cdef two_contexts *mine
-
-    def __init__(self):
-        self.mine = malloc_two_contexts()
-
-    def __del__(self):
-        free_two_contexts(self.mine)
-
-    def swap(self):
-        swap_contexts(self.mine)
-
-
-
-class Minimize(SimulatorBase):
+cdef class Minimize:
     """Pyrex permits access to doc strings"""
 
-    def __init__(self, filename):
-        global ToMinimize, DumpAsText
+    def __init__(self, fname):
+        global ToMinimize, DumpAsText, filename
         ToMinimize = 1
         DumpAsText = 1
-        self.__init(filename)
+        filename = fname
+        initsimhelp()
+        readPart()
 
-    def __init(self, filename):
-        if not filename:
-            raise Exception("Need a filename (probably MMP)")
-        SimulatorBase.__init__(self)
-        self.simlock = threading.Lock()
-        self.do(self.__read_innards, filename)
-
-    def do(self, f, *args, **kw):
-        lock = self.simlock
-        retval = None
-        exc = None
-        lock.acquire()
-        self.swap()
-            # note: this could be done more efficiently (usually no swaps, not two), with simpler code,
-            # as described on the wiki under "context switching" [bruce 051230 comment]
-        try:
-            retval = f(*args, **kw)
-        except Exception, e:
-            exc = e
-        self.swap()
-        lock.release()
-        if exc != None:
-            raise exc
-        return retval
-
-    def __get_innards(self, key):
+    def __getattr__(self, key):
         if key == "debug_flags":
             return debug_flags
         elif key == "Iteration":
@@ -161,7 +116,7 @@ class Minimize(SimulatorBase):
         else:
             raise AttributeError, key
 
-    def __set_innards(self, key, value):
+    def __setattr__(self, key, value):
         if key == "debug_flags":
             global debug_flags
             debug_flags = value
@@ -227,44 +182,20 @@ class Minimize(SimulatorBase):
         else:
             raise AttributeError, key
 
-    def get(self, key):
-        """Access to simulator's command line options and globals.c
-        goodies
-        """
-        return self.do(self.__get_innards, key)
-
-    def set(self, key, value):
-        """Access to simulator's command line options and globals.c
-        goodies
-        """ 
-        self.do(self.__set_innards, key, value)
-
-    def __everythingElse_innards(self):
+    def go(self):
         everythingElse()
 
-    def go(self):
-        self.do(self.__everythingElse_innards)
-
-    def __read_innards(self, fname):
-        global filename
-        filename = fname
-        initsimhelp()
-        readPart()
-
-    def __structCompare_innards(self):
-        structCompare()
-
     def structCompare(self):
-        r = self.do(self.__structCompareHelp_innards)
+        r = structCompare()
         if r:
             raise Exception, r
 
 # The idea of a global most-recent frame is very non-object-oriented.
 # Maybe I'll get a better idea over the next few days.  wware 060101
 def getFrame():
-    zz = getMostRecentFrame()
-    atoms = len(zz) / (3 * 8)
-    array = Numeric.fromstring(getMostRecentFrame(), Numeric.Float64)
+    frm = getMostRecentFrame()
+    atoms = len(frm) / (3 * 8)
+    array = Numeric.fromstring(frm, Numeric.Float64)
     return Numeric.resize(array, [atoms, 3])
 
 class Dynamics(Minimize):
@@ -275,10 +206,12 @@ class Dynamics(Minimize):
         self.__init(filename)
 
 def test():
-    m = Minimize("tests/rigid_organics/test_C6H10.mmp")
+    # m = Minimize("tests/rigid_organics/test_C6H10.mmp")
+    m = Minimize("tests/minimize/test_h2.mmp")
     m.go()
     print getFrame()
-    print
+
+def test2():
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
     d.go()
     print getFrame()
