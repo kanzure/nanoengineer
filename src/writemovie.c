@@ -516,6 +516,7 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
  */
 void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos)
 {
+    callback_writeFrame(part, pos);  // wware 060101  callback for pyrex
     switch (OutputFormat) {
     case 0:
         fprintf(outf, "%d\nFrame %d, Iteration: %d\n", part->num_atoms, n, Iteration);
@@ -548,6 +549,7 @@ int writeMinimizeMovieFrame(FILE *outf,
                             char *callLocation,
                             char *message)
 {
+    callback_writeFrame(part, pos);  // wware 060101  callback for pyrex
     switch (OutputFormat) {
     case 0:
         if (final || DumpIntermediateText) {

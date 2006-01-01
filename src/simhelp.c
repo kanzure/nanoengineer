@@ -14,6 +14,7 @@
 char __author__[] = "Will";
 
 #include "Python.h"
+#include "Numeric/arrayobject.h"
 #include "simulator.h"
 
 typedef struct sim_context {
@@ -175,7 +176,6 @@ swap_contexts(struct two_contexts *ctxs)
 
 
 
-
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
@@ -188,16 +188,37 @@ static char buf[1024];
 
 char *filename;
 
-static PyObject *
-get_a_pipe(void)
+static PyObject *mostRecentFrame = NULL;
+
+// wware 060101   callback for getting frame info in pyrex
+void
+callback_writeFrame(struct part *part, struct xyz *pos)
 {
-    // maybe steal code from posix_popen? no, do this:
-    // use pipe(2) to create pairs of file descriptors
-    // use fdopen to associate streams with the filedeses
-    // use the write stream to replace tracef/outf
-    // use PyFile_FromFile to turn the read stream into a Python file
+// .xyz files are in angstroms (1e-10 m)
+#define XYZ (1.0e-2)
+    double *data;
+    int i, n;
+    if (mostRecentFrame != NULL)
+	Py_DECREF(mostRecentFrame);
+    n = 3 * part->num_atoms * sizeof(double);
+    data = (double *) malloc(n);
+    if (data == NULL) {
+	perror("Out of memory");
+	exit(1);
+    }
+    for (i = 0; i < part->num_atoms; i++) {
+	data[i * 3 + 0] = pos[i].x * XYZ;
+	data[i * 3 + 1] = pos[i].y * XYZ;
+	data[i * 3 + 2] = pos[i].z * XYZ;
+    }
+    mostRecentFrame = PyString_FromStringAndSize((char*) data, n);
 }
 
+// wware 060101   make frame info available in pyrex
+PyObject * getMostRecentFrame(void)
+{
+    return mostRecentFrame;
+}
 
 int printPotentialEnergy = 0; 
 	// bruce 060101 made this global from localvar; it probably needs to be context-switched ###

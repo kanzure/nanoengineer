@@ -13,6 +13,7 @@ make clean; make pyx && python -c "import sim; sim.test()"
 __author__ = "Will"
 
 import threading
+import Numeric
 
 cdef extern from "simhelp.c": 
     # note: this produces '#include "simhelp.c"' in generated sim.c file,
@@ -50,6 +51,7 @@ cdef extern from "simhelp.c":
     two_contexts *malloc_two_contexts()
     void free_two_contexts(two_contexts *)
     void swap_contexts(two_contexts *)
+    getMostRecentFrame()
 
     void initsimhelp()
     void readPart()
@@ -257,6 +259,13 @@ class Minimize(SimulatorBase):
         if r:
             raise Exception, r
 
+# The idea of a global most-recent frame is very non-object-oriented.
+# Maybe I'll get a better idea over the next few days.  wware 060101
+def getFrame():
+    zz = getMostRecentFrame()
+    atoms = len(zz) / (3 * 8)
+    array = Numeric.fromstring(getMostRecentFrame(), Numeric.Float64)
+    return Numeric.resize(array, [atoms, 3])
 
 class Dynamics(Minimize):
     def __init__(self, filename):
@@ -268,6 +277,8 @@ class Dynamics(Minimize):
 def test():
     m = Minimize("tests/rigid_organics/test_C6H10.mmp")
     m.go()
+    print getFrame()
     print
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
     d.go()
+    print getFrame()

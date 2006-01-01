@@ -78,6 +78,13 @@
 #include "globals.h"
 
 /*
+ * Callbacks for use with Pyrex, do-nothing functions in the stand-alone
+ * simulator.  wware 060101
+ */
+
+extern void callback_writeFrame(struct part *part, struct xyz *pos);
+
+/*
  * Local Variables:
  * c-basic-offset: 4
  * tab-width: 8

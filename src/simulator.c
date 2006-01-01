@@ -68,6 +68,12 @@ usage()
     exit(1);
 }
 
+// wware 060101  callback for pyrex, no-op in standalone simulator
+void
+callback_writeFrame(struct part *part, struct xyz *pos)
+{
+}
+
 #define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
 #define OPT_HELP              LONG_OPT (0)
 #define OPT_DUMP_PART         LONG_OPT (1)
