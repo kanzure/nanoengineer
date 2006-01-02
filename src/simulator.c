@@ -73,6 +73,18 @@ void
 callback_writeFrame(struct part *part, struct xyz *pos)
 {
 }
+// wware 060102  callback for trace file
+void
+write_traceline(const char *format, ...)
+{
+    va_list args;
+
+    if (tracef != NULL) {
+	va_start(args, format);
+	vfprintf(tracef, format, args);
+	va_end(args);
+    }
+}
 
 #define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
 #define OPT_HELP              LONG_OPT (0)

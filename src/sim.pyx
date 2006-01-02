@@ -43,12 +43,13 @@ cdef extern from "simhelp.c":
     double Temperature
     # end of globals.c stuff
 
-    void setCallbackFunc(PyObject)
+    void setWriteTraceCallbackFunc(PyObject)
+    void setFrameCallbackFunc(PyObject)
     getFrame_c()
     void initsimhelp()
     void readPart()
     void dumpPart()
-    void everythingElse()
+    everythingElse()
     cdef char *structCompareHelp()
 
     void strcpy(char *, char *) #bruce 051230 guess
@@ -188,24 +189,23 @@ cdef class BaseSimulator:
         else:
             raise AttributeError, key
 
-    def go(self, frame_callback = None):
+    def go(self, frame_callback=None, trace_callback=None):
         "run the simulator loop; optional frame_callback should be None or a callable object"
         # bruce 060102 adding frame_callback option, and try/finally to reset callback to None.
         ### note, this broke the test methods, need to make them pass their callback to .go().
         if frame_callback:
-            #e would be best to verify it's callable here, not wait for error when it's used
-            # (but if that error does happen, or an exception in it, maybe it should
-            #  abort the sim run and reraise that exception or some other one from this method)
-            setCallbackFunc(frame_callback)
+            setFrameCallbackFunc(frame_callback)
         else:
-            setCallbackFunc(None) # NULL is not allowed as an argument to this;
-            #e it would be good to convert None to NULL in C code for setCallbackFunc, as an optim
-        # I don't want to bother saving/restoring an old frame_callback, 
-        # since I think having a permanent one should be deprecated [bruce 060102]
+            setFrameCallbackFunc(None)
+        if trace_callback:
+            setWriteTraceCallbackFunc(trace_callback)
+        else:
+            setWriteTraceCallbackFunc(None)
         try:
             everythingElse()
         finally:
-            setCallbackFunc(None)
+            setFrameCallbackFunc(None)
+            setWriteTraceCallbackFunc(None)
         return
 
     def structCompare(self):
@@ -255,24 +255,34 @@ def myCallback():
 #bruce 060101 made testsetup a function so it only happens when asked for,
 # not on every import and sim run (for example, runSim.py doesn't want it)
 
-def testsetup(freq = 1): 
+def testsetup(freq=1): 
     "conventional setup for test functions; returns frame_callback argument for .go method"
     global frameNumber, frameFreq
     frameNumber = 0
     frameFreq = max(1, freq)
-    ## setCallbackFunc(myCallback)
+    ## setFrameCallbackFunc(myCallback)
     return myCallback
 
 def testunsetup(): #bruce 060101
-    setCallbackFunc(None) # as of bruce 060102 this should be redundant
+    setFrameCallbackFunc(None) # as of bruce 060102 this should be redundant
 
 ###e actually we often need to unset the callback at the end of a run, so, 
 ###  maybe it should be an argument to .go()... we'd just leave in all the
-###  existing code, and add to "def go" (above) a setCallbackFunc(func) at start,
-###  and a setCallbackFunc(None) at the end, protected from exceptions. [bruce 060101]
+###  existing code, and add to "def go" (above) a setFrameCallbackFunc(func) at start,
+###  and a setFrameCallbackFunc(None) at the end, protected from exceptions. [bruce 060101]
 
 def nullcallback(): #k still used??
     pass
+
+tracefile = [ ]
+
+def tracecallback(str):
+    global tracefile
+    tracefile.append(str)
+def badcallback(str):
+    raise RuntimeError, "bad callback"
+def badcallback2():
+    raise RuntimeError, "should take an argument"
 
 #####################################################
 
@@ -286,11 +296,32 @@ def test():
 def test2():
     func = testsetup(10)
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
-    d.go(frame_callback = func)
+    d.go(frame_callback=func, trace_callback=tracecallback)
     ## testunsetup()
 
 def test3():
-    setCallbackFunc(None)
+    # Are we getting trace info correctly?
+    # use a test with a motor
+    d = Dynamics("tests/dynamics/test_0001.mmp")
+    d.go(trace_callback=tracecallback)
+    print "".join(tracefile)
+
+def test3a():
+    # Test bad callbacks
+    d = Dynamics("tests/dynamics/test_0001.mmp")
+    d.go(trace_callback=badcallback)
+
+def test3b():
+    # Test bad callbacks
+    d = Dynamics("tests/dynamics/test_0001.mmp")
+    d.go(trace_callback=badcallback2)
+
+def test3c():
+    # Test bad callbacks
+    d = Dynamics("tests/dynamics/test_0001.mmp")
+    d.go(trace_callback=42)
+
+def test4():
     Dynamics("tests/rigid_organics/test_C6H10.mmp")
     dynamicsMovie_start()
     for i in range(10000):

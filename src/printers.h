@@ -26,3 +26,5 @@ extern void printError(FILE *f, const char *file, int line, const char *err_or_w
 		       int doPerror, const char *format, ...);
 
 extern void doneExit(int exitvalue, FILE *f, const char *format, ...);
+
+extern void doneNoExit(int exitvalue, FILE *f, const char *format, ...);

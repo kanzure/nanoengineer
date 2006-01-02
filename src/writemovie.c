@@ -1,4 +1,7 @@
-// Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
+/*
+ * Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
+ */
+
 #include "simulator.h"
 
 #if defined(__GNUC__) || defined(__MWERKS__)
@@ -572,8 +575,9 @@ int writeMinimizeMovieFrame(FILE *outf,
     if (message == NULL) {
       message = "";
     }
-    fprintf(tracef,"%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
-    DPRINT5(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message); // -D2
+    // wware 060102  callback for trace file
+    write_traceline("%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
+    DPRINT5(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message);
     if (message[0] != '\0') {
       message[0] = '\0';
     }

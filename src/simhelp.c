@@ -1,13 +1,18 @@
 /**
  * C helper file for sim.pyx
  *
+ * $Id$
+ *
+ * CHANGES  (reverse chronological order, use CVS log for details)
+ *
+ * wware 060102 - Added a callback for Python to pick up trace file info.
+ *
  * WARNING: This file is not compiled separately -- it's #included in sim.c
  * due to the "cdef extern" declaration in sim.pyx which names it.
  * For some reason distutils doesn't realize this means there's a dependency,
  * so Will added one in setup.py to fix this.
  * [bruce 060101]
  *
- * $Id$
  */
 
 char __author__[] = "Will";
@@ -19,7 +24,7 @@ char __author__[] = "Will";
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
-void everythingElse(void);
+PyObject *everythingElse(void);
 char * structCompareHelp(void);
 
 static char retval[100];
@@ -28,35 +33,63 @@ static struct xyz *pos;
 static char buf[1024];
 
 char *filename;
+int error_occurred = 0;
 
-static PyObject *callbackFunc = NULL;
+static PyObject *writeTraceCallbackFunc = NULL;
+static PyObject *frameCallbackFunc = NULL;
 
-void setCallbackFunc(PyObject *f)
+void setWriteTraceCallbackFunc(PyObject *f)
 {
-    callbackFunc = f;
+    writeTraceCallbackFunc = f;
+}
+
+void setFrameCallbackFunc(PyObject *f)
+{
+    frameCallbackFunc = f;
+}
+
+
+// wware 060102   callback for getting info from C to python
+static void
+do_python_callback(PyObject *callbackFunc, PyObject* args)
+{
+    PyObject *pValue;
+    pValue = PyObject_CallObject(callbackFunc, args);
+    Py_DECREF(args);
+    if (pValue == NULL)
+	error_occurred = 1;
+    else
+	Py_DECREF(pValue);
+}
+
+// wware 060102  callback for trace file
+void
+write_traceline(const char *format, ...)
+{
+    va_list args;
+    char line[1000];
+
+    if (writeTraceCallbackFunc != NULL && writeTraceCallbackFunc != Py_None &&
+	PyCallable_Check(writeTraceCallbackFunc)) {
+        va_start(args, format);
+        sprintf(line, format, args);
+        va_end(args);
+	do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", line));
+    }
 }
 
 // wware 060101   callback for getting frame info in pyrex
 void
 callback_writeFrame(struct part *part1, struct xyz *pos1)
 {
-    PyObject *pArgs, *pValue;
     if (part != part1) {
 	fprintf(stderr, "Part mismatch\n");
 	exit(1);
     }
     pos = pos1;
-    if (callbackFunc != NULL && PyCallable_Check(callbackFunc)) {
-        pArgs = PyTuple_New(0);
-        pValue = PyObject_CallObject(callbackFunc, pArgs);
-	if (pValue == NULL) {
-	    PyErr_Print();
-	    fprintf(stderr,"Call failed\n");
-	    exit(1);
-	}
-	Py_DECREF(pArgs);
-	Py_DECREF(pValue);
-    }
+    if (frameCallbackFunc != NULL && frameCallbackFunc != Py_None &&
+	PyCallable_Check(frameCallbackFunc))
+	do_python_callback(frameCallbackFunc, PyTuple_New(0));
 }
 
 // wware 060101   make frame info available in pyrex
@@ -164,9 +197,10 @@ void dumpPart(void)
     printPart(stdout, part);
 }
 
-void
+PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
+#if 0   /* do not set tracef */
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
     if (!printPotentialEnergy) {
@@ -178,12 +212,14 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         fprintf(tracef, "# %s\n", "run from pyrex interface"); // like printing the commandLine
         // ##e should print options set before run, but it's too early to do that in this code
     }
+#endif
     if (IterPerFrame <= 0) IterPerFrame = 1;
     // initializeBondTable(); // this had to be done in initsimhelp instead [bruce 060101]
     // end of section moved by bruce 060101
-    
-    traceHeader(tracef, filename, OutFileName, TraceFileName, 
-                part, NumFrames, IterPerFrame, Temperature);
+
+    if (tracef != NULL)
+	traceHeader(tracef, filename, OutFileName, TraceFileName, 
+		    part, NumFrames, IterPerFrame, Temperature);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
@@ -192,13 +228,13 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         traceJigHeader(tracef, part);
     }
 
-    printf("iters per frame = %d\n",IterPerFrame);
-    printf("number of frames = %d\n",NumFrames);
-    printf("timestep = %e\n",Dt);
-    printf("temp = %f\n",Temperature);
-    if (DumpAsText) printf("dump as text\n");
+    // printf("iters per frame = %d\n",IterPerFrame);
+    // printf("number of frames = %d\n",NumFrames);
+    // printf("timestep = %e\n",Dt);
+    // printf("temp = %f\n",Temperature);
+    // if (DumpAsText) printf("dump as text\n");
 
-    printf("< %s  > %s\n", buf, OutFileName);
+    // printf("< %s  > %s\n", buf, OutFileName);
 
     outf = fopen(OutFileName, DumpAsText ? "w" : "wb");
     if (outf == NULL) {
@@ -215,6 +251,10 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     }
     if (outf != NULL) fclose(outf);
     if (tracef != NULL) fclose(tracef);
+
+    if (error_occurred) return NULL;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 

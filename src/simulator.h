@@ -84,6 +84,9 @@
 
 extern void callback_writeFrame(struct part *part, struct xyz *pos);
 
+// wware 060102  callback for trace file
+extern void write_traceline(const char *format, ...);
+
 /*
  * Local Variables:
  * c-basic-offset: 4
