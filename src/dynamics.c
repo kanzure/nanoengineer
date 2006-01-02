@@ -24,7 +24,7 @@
     AveragePositions
 */
 
-static void
+void
 oneDynamicsFrame(struct part *part,
                  int iters,
                  struct xyz *averagePositions,

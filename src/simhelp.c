@@ -216,6 +216,60 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 }
 
 
+/*
+ * Decompose dynamicsMovie into steps callable from Python.
+ *
+ * Later I'd like to decompose dynamicsMovie_step into still-smaller
+ * steps, with one subgoal being to move all the jig calculations
+ * entirely into Python.
+ */
+
+static struct xyz *_averagePositions;
+static struct xyz *_oldPositions;
+static struct xyz *_newPositions;
+static struct xyz *_positions;
+static struct xyz *_force;
+static int _framenumber;
+
+void
+dynamicsMovie_start(void)
+{
+    int i;
+
+    _averagePositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
+    _oldPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
+    _newPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
+    _positions =  (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
+    _force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
+
+    for (i=0; i<part->num_atoms; i++) {
+	vset(_positions[i], part->positions[i]);
+	vsub2(_oldPositions[i], _positions[i], part->velocities[i]);
+    }
+    _framenumber = 0;
+    initializeDeltaBuffers(part);
+}
+
+void
+dynamicsMovie_step(void)
+{
+    oneDynamicsFrame(part, IterPerFrame,
+		     _averagePositions, &_oldPositions, &_newPositions, &_positions, _force);
+    writeDynamicsMovieFrame(outf, _framenumber++, part, _averagePositions);
+}
+
+
+void
+dynamicsMovie_finish(void)
+{
+    free(_averagePositions);
+    free(_oldPositions);
+    free(_newPositions);
+    free(_positions);
+    free(_force);
+}
+
+
 /**
  * If we return a non-empty string, it's an error message.
  */

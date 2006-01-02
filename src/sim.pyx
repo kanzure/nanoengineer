@@ -53,6 +53,9 @@ cdef extern from "simhelp.c":
 
     void strcpy(char *, char *) #bruce 051230 guess
 
+    void dynamicsMovie_start()
+    void dynamicsMovie_step()
+    void dynamicsMovie_finish()
 
 cdef class BaseSimulator:
     """Pyrex permits access to doc strings"""
@@ -242,6 +245,8 @@ def testunsetup(): #bruce 060101
 ###  maybe it should be an argument to .go()... we'd just leave in all the
 ###  existing code, and add to "def go" (above) a setCallbackFunc(func) at start,
 ###  and a setCallbackFunc(None) at the end, protected from exceptions. [bruce 060101]
+def nullcallback():
+    pass
 
 #####################################################
 
@@ -258,4 +263,13 @@ def test2():
     d.go()
     testunsetup()
 
-# end
+def test3():
+    setCallbackFunc(nullcallback)
+    Dynamics("tests/rigid_organics/test_C6H10.mmp")
+    dynamicsMovie_start()
+    for i in range(10000):
+        dynamicsMovie_step()
+        if (i % 500) == 0:
+            print "Here is frame", i
+            print getFrame()
+    dynamicsMovie_finish()

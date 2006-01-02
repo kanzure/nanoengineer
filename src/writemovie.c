@@ -24,7 +24,7 @@ static void flushOutputFile(FILE *f)
     }
 }
 
-static void initializeDeltaBuffers(struct part *part)
+void initializeDeltaBuffers(struct part *part)
 {
     int i;
     int j;
@@ -517,21 +517,22 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
 void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos)
 {
     callback_writeFrame(part, pos);  // wware 060101  callback for pyrex
-    switch (OutputFormat) {
-    case 0:
-        fprintf(outf, "%d\nFrame %d, Iteration: %d\n", part->num_atoms, n, Iteration);
-        writeXYZFrame(outf, part, pos);
-        break;
-    case 1:
-        writeOldFrame(outf, part, pos);
-        break;
-    case 2:
-        writeNewFrame(outf, part, pos);
-        break;
+    if (outf != NULL) {
+	switch (OutputFormat) {
+	case 0:
+	    fprintf(outf, "%d\nFrame %d, Iteration: %d\n", part->num_atoms, n, Iteration);
+	    writeXYZFrame(outf, part, pos);
+	    break;
+	case 1:
+	    writeOldFrame(outf, part, pos);
+	    break;
+	case 2:
+	    writeNewFrame(outf, part, pos);
+	    break;
+	}
+	traceJigData(tracef, part);
+	flushOutputFile(outf);
     }
-
-    traceJigData(tracef, part);
-    flushOutputFile(outf);
     // fprintf(stderr, "found Ke = %e\n",FoundKE);
 }
 

@@ -1,3 +1,4 @@
+extern void initializeDeltaBuffers(struct part *part);
 
 extern void writeOutputHeader(FILE *f, struct part *part);
 
