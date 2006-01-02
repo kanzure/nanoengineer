@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 runSim.py
 
@@ -74,6 +74,8 @@ class SimRunner:
             if use_dylib_sim is None:
                 use_dylib_sim = os.path.exists('/Nanorex/Working/cad/bin/sim.so') # only works for bruce! clean this up before others try it.
         self.use_dylib_sim = use_dylib_sim #bruce 051230
+        if use_dylib_sim:
+            env.history.message(greenmsg("this simulator run will use experimental pyrex interface"))
         return
     
     def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
@@ -528,7 +530,9 @@ class SimRunner:
                         # Assume no simobj params start with "_".
                         self.__dict__[attr] = val
                     else:
-                        self._simobj.set(attr, val)
+                        ## self._simobj.set(attr, val)
+                        self._simobj.__setattr__(attr, val) #bruc 060101 responding to Will's sim.pyx use of __setattr__
+                            ###e should be cleaned up (opts0 object should be no longer needed at all), but this should do for now.
                     return
                 pass
             simopts = opts0(simobj)
