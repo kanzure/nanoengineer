@@ -7,20 +7,18 @@ Note: this file is processed by Pyrex to produce sim.c in this directory
 (not in the build subdirectory). [bruce 060101]
 
 Example usage script:
-
-make clean; make pyx && python -c "import sim; sim.test()"
+  make clean; make pyx && python -c "import sim; sim.test()"
 """
 __author__ = "Will"
 
-import threading
+## import threading #bruce 060101 removed this since I think it's not used now
+
 import Numeric
 
 cdef extern from "simhelp.c": 
     # note: this produces '#include "simhelp.c"' in generated sim.c file,
     # but distutils fails to realize there's a dependency on simhelp.c,
-    # so I added some Makefile dependencies to fix that,
-    # but these mean that sim.c is produced in the makefile
-    # rather than by setup.py. [bruce 060101]
+    # so Will added a setup.py dependency to fix that. [bruce 060101]
     char *filename
     # stuff from globals.c
     int debug_flags
@@ -197,7 +195,7 @@ class Minimize(BaseSimulator):
         initsimhelp()
         readPart()
 
-class Dynamics(Minimize):
+class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to BaseSimulator
     def __init__(self, fname):
         global filename
         self.ToMinimize = 0
@@ -217,23 +215,47 @@ def getFrame():
 
 #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
 
+# conventional globals for callback -- they don't have to be used
 frameNumber = 0
+frameFreq = 1
 
 def myCallback():
     global frameNumber
     frameNumber = frameNumber + 1
-    if (frameNumber % 4) == 0:
-        print getFrame()
+    if (frameNumber % frameFreq) == 0:
+        print "frame %d:" % frameNumber, getFrame()
 
-setCallbackFunc(myCallback)
+#bruce 060101 made testsetup a function so it only happens when asked for,
+# not on every import and sim run (for example, runSim.py doesn't want it)
+
+def testsetup(freq = 1): 
+    "conventional setup for test functions; can be done before or after initing sim object"
+    global frameNumber, frameFreq
+    frameNumber = 0
+    frameFreq = max(1, freq)
+    setCallbackFunc(myCallback)
+
+def testunsetup(): #bruce 060101
+    setCallbackFunc(None)
+
+###e actually we often need to unset the callback at the end of a run, so, 
+###  maybe it should be an argument to .go()... we'd just leave in all the
+###  existing code, and add to "def go" (above) a setCallbackFunc(func) at start,
+###  and a setCallbackFunc(None) at the end, protected from exceptions. [bruce 060101]
 
 #####################################################
 
 def test():
+    testsetup(2)
     # m = Minimize("tests/rigid_organics/test_C6H10.mmp")
     m = Minimize("tests/minimize/test_h2.mmp")
     m.go()
+    testunsetup()
 
 def test2():
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
+    testsetup(10)
     d.go()
+    testunsetup()
+
+# end
