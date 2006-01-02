@@ -76,6 +76,7 @@ setup(name = 'Simulator',
                                      "readxyz.c",
                                      "structcompare.c",
                                      "writemovie.c"],
+                             depends = ["simhelp.c"],
                              extra_compile_args = extra_compile_args
                              ),
                    ],
