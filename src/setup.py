@@ -52,11 +52,6 @@ if sys.platform == "darwin":
 else:
     extra_compile_args = [ ]
 
-# The following ought to mention the dependency on simhelp.c, but it would probably be wrong to
-# include it as an object file in the following list, since it's an include file. I fixed this
-# in Makefile, in a way which means sim.c is built by a Make rule rather than by this setup.py.
-# [bruce 060101]
-
 setup(name = 'Simulator',
       ext_modules=[Extension("sim", ["sim.pyx",
                                      "allocate.c",

@@ -85,7 +85,7 @@ writemovie.o: simulator.h
 structcompare.o: structcompare.c simulator.h
 	$(CC) -c $(STDC99) $(CFLAGS) -o structcompare.o structcompare.c
 
-# Rules for sim.o and sim.c are obsolete.  wware 060101
+# Rules for sim.o and sim.c are obsolete.  wware 060101 [rev 1.48]
 
 tables.c: gentab.py
 	python gentab.py > tables.c
