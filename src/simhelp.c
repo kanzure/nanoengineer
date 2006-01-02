@@ -252,7 +252,10 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     if (outf != NULL) fclose(outf);
     if (tracef != NULL) fclose(tracef);
 
-    if (error_occurred) return NULL;
+    if (error_occurred) {
+        error_occurred = 0;
+	return NULL;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
