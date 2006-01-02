@@ -46,11 +46,11 @@ cdef extern from "simhelp.c":
     # end of globals.c stuff
 
     void setCallbackFunc(PyObject)
-    getMostRecentFrame()
+    getFrame_c()
     void initsimhelp()
     void readPart()
     void dumpPart()
-    double * everythingElse()
+    void everythingElse()
     cdef char *structCompareHelp()
 
     void strcpy(char *, char *) #bruce 051230 guess
@@ -181,59 +181,12 @@ cdef class BaseSimulator:
             raise AttributeError, key
 
     def go(self):
-        # self.data = everythingElse()
         everythingElse()
 
     def structCompare(self):
         r = structCompare()
         if r:
             raise Exception, r
-
-##############################################
-
-"""
-The frame is a Numeric array. If you do this:
-
-def myCallback(frame):
-    print frame
-
-then you get something like this for a two-atom structure:
-
-[[-0.348  0.089 -0.118]
- [ 0.769 -0.082 -0.011]]
-[[-0.16465366  0.06093176 -0.10043683]
- [ 0.58565366 -0.05393176 -0.02856317]]
-[[-0.15508652  0.05946714 -0.09952037]
- [ 0.57608652 -0.05246714 -0.02947963]]
-[[-0.15508652  0.05946714 -0.09952037]
- [ 0.57608652 -0.05246714 -0.02947963]]
-[[-0.15508652  0.05946714 -0.09952037]
- [ 0.57608652 -0.05246714 -0.02947963]]
-[[-0.15508652  0.05946714 -0.09952037]
- [ 0.57608652 -0.05246714 -0.02947963]]
-
-I would have liked to make "myCallback" a method of the simulator
-object, but I don't see a good way to do that. I'm starting to think
-that the idea of a simulator "object" is superfluous (except for the
-convenience of the __setattr__ and __getattr__ methods).
-"""
-
-def myCallback(frame):
-    pass
-
-# The idea of a global most-recent frame is very non-object-oriented.
-# Maybe I'll get a better idea over the next few days.  wware 060101
-def getFrame():
-    frm = getMostRecentFrame()
-    atoms = len(frm) / (3 * 8)
-    array = Numeric.fromstring(frm, Numeric.Float64)
-    return Numeric.resize(array, [atoms, 3])
-
-def callbackWrapper():
-    myCallback(getFrame())
-setCallbackFunc(callbackWrapper)
-
-#####################################################
 
 class Minimize(BaseSimulator):
     def __init__(self, fname):
@@ -246,11 +199,35 @@ class Minimize(BaseSimulator):
 
 class Dynamics(Minimize):
     def __init__(self, fname):
+        global filename
         self.ToMinimize = 0
         self.DumpAsText = 0
         filename = fname
         initsimhelp()
         readPart()
+
+#####################################################
+# Per-frame callbacks to Python, wware 060101
+
+def getFrame():
+    frm = getFrame_c()
+    num_atoms = len(frm) / (3 * 8)
+    array = Numeric.fromstring(frm, Numeric.Float64)
+    return Numeric.resize(array, [num_atoms, 3])
+
+#  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
+
+frameNumber = 0
+
+def myCallback():
+    global frameNumber
+    frameNumber = frameNumber + 1
+    if (frameNumber % 4) == 0:
+        print getFrame()
+
+setCallbackFunc(myCallback)
+
+#####################################################
 
 def test():
     # m = Minimize("tests/rigid_organics/test_C6H10.mmp")

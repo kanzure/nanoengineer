@@ -20,17 +20,16 @@ char __author__[] = "Will";
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
-double * everythingElse(void);
+void everythingElse(void);
 char * structCompareHelp(void);
 
 static char retval[100];
 static struct part *part;
+static struct xyz *pos;
 static char buf[1024];
 
 char *filename;
 
-static double *data = NULL;
-static int framesize;
 static PyObject *callbackFunc = NULL;
 
 void setCallbackFunc(PyObject *f)
@@ -40,25 +39,14 @@ void setCallbackFunc(PyObject *f)
 
 // wware 060101   callback for getting frame info in pyrex
 void
-callback_writeFrame(struct part *part, struct xyz *pos)
+callback_writeFrame(struct part *part1, struct xyz *pos1)
 {
-// .xyz files are in angstroms (1e-10 m)
-#define XYZ (1.0e-2)
-    int i, n;
     PyObject *pArgs, *pValue;
-    if (data != NULL) free(data);
-    framesize = n = 3 * part->num_atoms * sizeof(double);
-    data = (double *) malloc(n);
-    if (data == NULL) {
-	perror("Out of memory");
+    if (part != part1) {
+	fprintf(stderr, "Part mismatch\n");
 	exit(1);
     }
-    for (i = 0; i < part->num_atoms; i++) {
-	data[i * 3 + 0] = pos[i].x * XYZ;
-	data[i * 3 + 1] = pos[i].y * XYZ;
-	data[i * 3 + 2] = pos[i].z * XYZ;
-    }
-
+    pos = pos1;
     if (callbackFunc != NULL && PyCallable_Check(callbackFunc)) {
         pArgs = PyTuple_New(0);
         pValue = PyObject_CallObject(callbackFunc, pArgs);
@@ -73,9 +61,28 @@ callback_writeFrame(struct part *part, struct xyz *pos)
 }
 
 // wware 060101   make frame info available in pyrex
-PyObject * getMostRecentFrame(void)
+PyObject *
+getFrame_c(void)
 {
-    return PyString_FromStringAndSize((char*) data, framesize);
+// .xyz files are in angstroms (1e-10 m)
+#define XYZ (1.0e-2)
+    PyObject *retval;
+    double *data;
+    int i, n;
+    n = 3 * part->num_atoms * sizeof(double);
+    data = (double *) malloc(n);
+    if (data == NULL) {
+	perror("Out of memory");
+	exit(1);
+    }
+    for (i = 0; i < part->num_atoms; i++) {
+	data[i * 3 + 0] = pos[i].x * XYZ;
+	data[i * 3 + 1] = pos[i].y * XYZ;
+	data[i * 3 + 2] = pos[i].z * XYZ;
+    }
+    retval = PyString_FromStringAndSize((char*) data, n);
+    free(data);
+    return retval;
 }
 
 int printPotentialEnergy = 0; 
@@ -156,7 +163,7 @@ void dumpPart(void)
     printPart(stdout, part);
 }
 
-double *
+void
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
     // bruce 060101 moved this section here, from the end of initsimhelp,
@@ -205,8 +212,6 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     else {
         dynamicsMovie(part);
     }
-
-    return data;
 }
 
 
