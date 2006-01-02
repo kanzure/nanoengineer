@@ -24,7 +24,7 @@ bruce 050901 and 050913 used env.history in some places.
 
 bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator executable command-line flag is hardcoded.
 
-bruce 051231 partly-done code for using pyrex interface to sim
+bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 '''
 
 from debug import print_compact_traceback
@@ -224,8 +224,9 @@ class SimRunner:
                              "] is missing or could not be imported.  Simulation aborted.")
                 env.history.message(cmd + msg)
                 return -1
-                #####@@@@@ bug report: even after this, it will find tracefile from prior run (if one exists) and print its warnings.
-                # probably we should remove that before this point?? [bruce 051230]
+                ####@@@@ bug report: even after this, it will find tracefile from prior run (if one exists) and print its warnings.
+                # probably we should remove that before this point?? [bruce 051230] [hmm, did my later removal of the old tracefile
+                # fix this, or is it not removed until after this point?? bruce question 060102]
         else:
             if not os.path.exists(program):
                 msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
@@ -479,7 +480,7 @@ class SimRunner:
         self._formarg = formarg # kluge
         # the use_dylib code for formarg is farther below
 
-        self._simopts = self._arguments = None # one of these is set below
+        self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
         
         if use_command_line:
             # "args" = arguments for the simulator.
@@ -520,30 +521,33 @@ class SimRunner:
             simobj = clas(infile)
             # order of set of remaining options should not matter;
             # for correspondence see sim/src files sim.pyx, simhelp.c, and simulator.c
-            class opts0:
-                "helper class so we can set sim params using attribute notation; ideally sim.pyx's simobj would do this itself"
-                def __init__(self, simobj):
-                    self._simobj = simobj
-                def __setattr__(self, attr, val):
-                    if attr.startswith("_"):
-                        # this happens when we set our own _simobj attribute, during __init__!
-                        # Assume no simobj params start with "_".
-                        self.__dict__[attr] = val
-                    else:
-                        ## self._simobj.set(attr, val)
-                        self._simobj.__setattr__(attr, val) #bruc 060101 responding to Will's sim.pyx use of __setattr__
-                            ###e should be cleaned up (opts0 object should be no longer needed at all), but this should do for now.
-                    return
-                pass
-            simopts = opts0(simobj)
-            del simobj
+##            class opts0:
+##                "helper class so we can set sim params using attribute notation; ideally sim.pyx's simobj would do this itself"
+##                def __init__(self, simobj):
+##                    self._simobj = simobj
+##                def __setattr__(self, attr, val):
+##                    if attr.startswith("_"):
+##                        # this happens when we set our own _simobj attribute, during __init__!
+##                        # Assume no simobj params start with "_".
+##                        self.__dict__[attr] = val
+##                    else:
+##                        ## self._simobj.set(attr, val)
+##                        self._simobj.__setattr__(attr, val) #bruce 060101 responding to Will's sim.pyx use of __setattr__
+##                            ###e should be cleaned up (opts0 object should be no longer needed at all), but this should do for now.
+##                            # but i'll leave it for now, but comment it out,
+##                            # just in case the __setattr__ now in sim.pyx goes away for some reason.
+##                    return
+##                pass
+##            simopts = opts0(simobj)
+##            del simobj
+            simopts = simobj # for now, use separate variable names to access params vs methods, in case this changes again [b 060102]
             if formarg == '-x':
                 simopts.DumpAsText = 1 # xyz rather than dpb, i guess
             else:
                 assert formarg == ''
                 simopts.DumpAsText = 0
             if self.traceFileName:
-                simopts.TraceFileName = self.traceFileName # note spelling difference, 'T' vs 't' ###e should fix
+                simopts.TraceFileName = self.traceFileName # note spelling diff, 'T' vs 't' (I guess I like this difference [b 060102])
                 #k not sure if this would be ok to do otherwise, since C code doesn't turn "" into NULL and might get confused
             simopts.OutFileName = moviefile
             if not mflag:
@@ -555,6 +559,7 @@ class SimRunner:
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
             self._simopts = simopts
+            self._simobj = simobj
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return
         
@@ -567,7 +572,7 @@ class SimRunner:
         self.simProcess = None
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
-            self.remove_old_tracefile(self.traceFileName) ##k not sure if this attr exists yet, or is always true if it does #####@@@@@
+            self.remove_old_tracefile(self.traceFileName)
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
@@ -739,21 +744,49 @@ class SimRunner:
         """
         movie = self._movie
         simopts = self._simopts
-        simobj = simopts._simobj
+        simobj = self._simobj
         
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
-            self.remove_old_tracefile(self.traceFileName) ##k not sure if this attr exists yet, or is always true if it does #####@@@@@
+            self.remove_old_tracefile(self.traceFileName)
 
             ###e need to set up Python callbacks, if only to provide time for us to run our progress bar, etc;
             # or we could run it in a different thread (so old monitoring code can run in this thread) --
             # that ought to work now...
             
-            ## Start the simulator in a different thread ### FOR NOW, THIS STARTS IT IN THE SAME THREAD!#####@@@@@
+            ## Start the simulator in a different thread ### FOR NOW, THIS STARTS IT IN THE SAME THREAD! ####@@@@
+            # But there is no need to fix that, since soon this won't matter since we'll use a per-frame callback function.
             env.history.message(orangemsg("Warning: running pyrex sim in same thread; nE-1 will hang until it finishes and won't be abortable"))
             env.call_qApp_processEvents() # so user can see that history message
 
-            simobj.go()
+            ###@@@ SIM CLEANUP desired: [bruce 060102]
+            # 1. should set callback using simobj method, or as argument to .go()
+            # (then all this exception crud below would not be needed);
+            # 2. name of callback-setter or option should refer to 'frame',
+            # since there might be more than one callback in the future;
+            # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
+            # 4. setting it to None should set it internally to NULL as optim; not sure if good for noncallable object,
+            # that might later become callable and otherwise is only an error so no need to optim.
+
+##            # do simobj.go with a callback -- everything else here is only to protect against errors
+##            from sim import setCallbackFunc
+##            setCallbackFunc(self.sim_frame_callback)
+##            worked = False
+##            try:
+##                simobj.go()
+##                worked = True
+##            except:
+##                try:
+##                    setCallbackFunc(None) # do this immediately, since it's very important to do it
+##                except:
+##                    # paranoid
+##                    print_compact_traceback("exception in setCallbackFunc(None) while handling (and planning to reraise) another exception: ")
+##                raise # let outer try/except handle the exception in simobj.go()
+##                      # (I don't know if this will still work if we had an exception in setCallbackFunc(None) above... but might as well try)
+##            setCallbackFunc(None) # do this now (redundant after exception (if it didn't reraise), that's ok and maybe good)
+##            assert(worked) # due to reraise, above; means rest of this clause needn't worry about 'not worked'
+
+            simobj.go( frame_callback = self.sim_frame_callback)
 
 ##            # capture and print its stdout and stderr [not yet possible via pyrex interface]
 ##            if debug_sim: #bruce 051115 revised this debug code
@@ -774,7 +807,89 @@ class SimRunner:
             ##e terminate it, if it might be in a different thread; destroy object; etc
             self.errcode = -1 # simulator failure
         return
-        
+
+    __callback_time = -1
+    __frame_number = 0 #e do we ever need to reset this? probably not -- i think this is a single-use object.
+    def sim_frame_callback(self): #bruce 060102
+        "Per-frame callback function for simulator object."
+        ## print "f",
+        # This happened 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the time first.
+        #e Maybe we should make this into a lambda, or even code it in C, to optimize it. First make it work.
+        import time
+        now = time.time() # should we use real time like this, or cpu time like .clock()??
+        self.__frame_number += 1
+        ###e how to improve timing:
+        # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
+        if now > self.__callback_time + 0.05: # max 20 times per second; this probably needs coding in C or further optim
+            print "frame %d" % self.__frame_number, now #e add frame number, maybe let it be an arg to the callback in the future
+            self.__callback_time = now
+            ###e IN REAL LIFE we don't only store this time, but the time *after* we do our other work here, in case redraw takes long.
+            # i.e. we always let sim run for 0.05 sec even if our python loop body took longer.
+            # maybe best to let sim run even longer, i.e. max(0.05, python loop body time), but no more than say 1 or 2 sec.
+            ####@@@@ where i am - fill in loop body, right here. don't worry about progbar for now, or abort -- just movie.
+            try:
+                self.sim_frame_callback_worker( self.__frame_number) # might call self.abort_sim_run()
+            except:
+                print_compact_traceback("exception in sim_frame_callback_worker, aborting run: ")
+                self.abort_sim_run("exception in sim_frame_callback_worker(%d)" % self.__frame_number ) # sets flag inside sim object
+            self.__callback_time = time.time() # in case later than 'now' set earlier; #e use this difference to adjust 0.05 above
+            print "python stuff took", self.__callback_time - now #####@@@@@ remove when works
+                # python stuff took 0.00386619567871 -- for when no real work done, just overhead
+        return
+
+    def sim_frame_callback_worker(self, frame_number): #bruce 060102
+        """Do whatever should be done on frame_callbacks that don't return immediately
+           (due to not enough time passing).
+           Might raise exceptions -- caller should protect itself from them until the sim does.
+           + stuff new frame data into atom positions
+             +? fix singlet positions, if not too slow
+           + gl_update
+           - update progress bar
+           - tell Qt to process events
+           - see if user aborted, if so, set flag in simulator object so it will 
+             abort too 
+           (but for now, separate code will also terminate the sim run in the usual way, 
+            reading redundantly from xyz file)
+        """
+##        if frame_number > 10:
+##            self.abort_sim_run("testing abort at frame %d" % frame_number)
+        from sim import getFrame
+        frame = getFrame()
+        print "frame no. %d len %d is" % (frame_number, len(frame)), frame #####@@@@@ remove when works
+
+        #e stick the atom posns in - i think the following also adjusts the singlet posns #k check that
+        # - how does xyz reader do it? is that done in movie object? sim_aspect?? readxyz?
+        # here is how we do it at the end from an xyz file:
+##        #bruce 060102 note: following code is duplicated somewhere else in this file.
+##        movie.moveAtoms(newPositions)
+##        # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
+##        self.part.changed() # Mark - bugfix 386
+##        self.part.gl_update()
+        #####@@@@@ I don't know if self.attrs used below are always present -- might be tested only in Minimize!
+        newPositions = frame #k guess type is ok
+        movie = self._movie #k guess
+        # guess self.part is there
+        #bruce 060102 note: following code is approximately duplicated somewhere else in this file.
+        movie.moveAtoms(newPositions)
+        # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
+        self.part.changed() # Mark - bugfix 386
+        self.part.gl_update()
+        # end of dup code
+
+        #e update progress bar #####@@@@@ later
+        # tell Qt to process events (for progress bar, its abort button, user moving the dialog or window, changing display mode,
+        #  and for gl_update)
+        env.call_qApp_processEvents() 
+        #e see if user aborted #####@@@@@ later
+        # that's it!
+        return
+
+    def abort_sim_run(self, why = "(reason not specified by internal code)" ): #bruce 060102
+        "#doc"
+        self._simopts.Interrupted = True
+        env.history.message( redmsg( "aborting sim run: %s" % why ))
+        return
+    
     def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
         "#doc; might change self.said_we_are_done to False or True, or leave it alone"
         try:
@@ -1288,6 +1403,7 @@ class Minimize_CommandRun(CommandRun):
             # retval is either a list of atom posns or an error message string.
             assert type(newPositions) in [type([]),type("")]
             if type(newPositions) == type([]):
+                #bruce 060102 note: following code is duplicated somewhere else in this file.
                 movie.moveAtoms(newPositions)
                 # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
                 self.part.changed() # Mark - bugfix 386
