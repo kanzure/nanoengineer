@@ -20,7 +20,7 @@ char __author__[] = "Will";
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
-void everythingElse(void);
+double * everythingElse(void);
 char * structCompareHelp(void);
 
 static char retval[100];
@@ -31,6 +31,12 @@ char *filename;
 
 static double *data = NULL;
 static int framesize;
+static PyObject *callbackFunc = NULL;
+
+void setCallbackFunc(PyObject *f)
+{
+    callbackFunc = f;
+}
 
 // wware 060101   callback for getting frame info in pyrex
 void
@@ -39,6 +45,7 @@ callback_writeFrame(struct part *part, struct xyz *pos)
 // .xyz files are in angstroms (1e-10 m)
 #define XYZ (1.0e-2)
     int i, n;
+    PyObject *pArgs, *pValue;
     if (data != NULL) free(data);
     framesize = n = 3 * part->num_atoms * sizeof(double);
     data = (double *) malloc(n);
@@ -50,6 +57,18 @@ callback_writeFrame(struct part *part, struct xyz *pos)
 	data[i * 3 + 0] = pos[i].x * XYZ;
 	data[i * 3 + 1] = pos[i].y * XYZ;
 	data[i * 3 + 2] = pos[i].z * XYZ;
+    }
+
+    if (callbackFunc != NULL && PyCallable_Check(callbackFunc)) {
+        pArgs = PyTuple_New(0);
+        pValue = PyObject_CallObject(callbackFunc, pArgs);
+	if (pValue == NULL) {
+	    PyErr_Print();
+	    fprintf(stderr,"Call failed\n");
+	    exit(1);
+	}
+	Py_DECREF(pArgs);
+	Py_DECREF(pValue);
     }
 }
 
@@ -137,7 +156,8 @@ void dumpPart(void)
     printPart(stdout, part);
 }
 
-void everythingElse(void) // WARNING: this duplicates some code from simulator.c
+double *
+everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
@@ -186,24 +206,9 @@ void everythingElse(void) // WARNING: this duplicates some code from simulator.c
         dynamicsMovie(part);
     }
 
-    /* I'd like to remove the "return exitvalue" from doneExit() and
-     * do it separately, pending Eric's approval.
-     */
-
-    //doneExit(0, tracef, "");
+    return data;
 }
 
-
-
-#if 0
-void printPotential(void)
-{
-    printPotentialAndGradientFunctions(printPotential,
-				       printPotentialInitial,
-				       printPotentialIncrement,
-				       printPotentialLimit);
-}
-#endif
 
 /**
  * If we return a non-empty string, it's an error message.

@@ -45,26 +45,21 @@ cdef extern from "simhelp.c":
     double Temperature
     # end of globals.c stuff
 
+    void setCallbackFunc(PyObject)
     getMostRecentFrame()
     void initsimhelp()
     void readPart()
     void dumpPart()
-    void everythingElse()
+    double * everythingElse()
     cdef char *structCompareHelp()
 
     void strcpy(char *, char *) #bruce 051230 guess
 
 
-cdef class Minimize:
+cdef class BaseSimulator:
     """Pyrex permits access to doc strings"""
 
-    def __init__(self, fname):
-        global ToMinimize, DumpAsText, filename
-        ToMinimize = 1
-        DumpAsText = 1
-        filename = fname
-        initsimhelp()
-        readPart()
+    # cdef double *data
 
     def __getattr__(self, key):
         if key == "debug_flags":
@@ -94,8 +89,11 @@ cdef class Minimize:
         elif key == "IDKey":
             return IDKey
         elif key == "baseFilename":
-            if baseFilename == NULL: #bruce 051230 prevent exception when this is NULL (its default value)
-                return "" # (not sure if None would be permitted here; probably it would, but this is better anyway)
+            #bruce 051230 prevent exception when this is NULL (its default value)
+            if baseFilename == NULL:
+                # not sure if None would be permitted here
+                # probably it would, but this is better anyway
+                return ""
             return baseFilename
         elif key == "OutFileName":
             if OutFileName == NULL:
@@ -183,12 +181,45 @@ cdef class Minimize:
             raise AttributeError, key
 
     def go(self):
+        # self.data = everythingElse()
         everythingElse()
 
     def structCompare(self):
         r = structCompare()
         if r:
             raise Exception, r
+
+##############################################
+
+"""
+The frame is a Numeric array. If you do this:
+
+def myCallback(frame):
+    print frame
+
+then you get something like this for a two-atom structure:
+
+[[-0.348  0.089 -0.118]
+ [ 0.769 -0.082 -0.011]]
+[[-0.16465366  0.06093176 -0.10043683]
+ [ 0.58565366 -0.05393176 -0.02856317]]
+[[-0.15508652  0.05946714 -0.09952037]
+ [ 0.57608652 -0.05246714 -0.02947963]]
+[[-0.15508652  0.05946714 -0.09952037]
+ [ 0.57608652 -0.05246714 -0.02947963]]
+[[-0.15508652  0.05946714 -0.09952037]
+ [ 0.57608652 -0.05246714 -0.02947963]]
+[[-0.15508652  0.05946714 -0.09952037]
+ [ 0.57608652 -0.05246714 -0.02947963]]
+
+I would have liked to make "myCallback" a method of the simulator
+object, but I don't see a good way to do that. I'm starting to think
+that the idea of a simulator "object" is superfluous (except for the
+convenience of the __setattr__ and __getattr__ methods).
+"""
+
+def myCallback(frame):
+    pass
 
 # The idea of a global most-recent frame is very non-object-oriented.
 # Maybe I'll get a better idea over the next few days.  wware 060101
@@ -198,20 +229,34 @@ def getFrame():
     array = Numeric.fromstring(frm, Numeric.Float64)
     return Numeric.resize(array, [atoms, 3])
 
+def callbackWrapper():
+    myCallback(getFrame())
+setCallbackFunc(callbackWrapper)
+
+#####################################################
+
+class Minimize(BaseSimulator):
+    def __init__(self, fname):
+        global filename
+        self.ToMinimize = 1
+        self.DumpAsText = 1
+        filename = fname
+        initsimhelp()
+        readPart()
+
 class Dynamics(Minimize):
-    def __init__(self, filename):
-        global ToMinimize, DumpAsText
-        ToMinimize = 0
-        DumpAsText = 0
-        self.__init(filename)
+    def __init__(self, fname):
+        self.ToMinimize = 0
+        self.DumpAsText = 0
+        filename = fname
+        initsimhelp()
+        readPart()
 
 def test():
     # m = Minimize("tests/rigid_organics/test_C6H10.mmp")
     m = Minimize("tests/minimize/test_h2.mmp")
     m.go()
-    print getFrame()
 
 def test2():
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
     d.go()
-    print getFrame()
