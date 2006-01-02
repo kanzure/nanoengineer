@@ -290,7 +290,7 @@ def test2():
     ## testunsetup()
 
 def test3():
-    setCallbackFunc(nullcallback)
+    setCallbackFunc(None)
     Dynamics("tests/rigid_organics/test_C6H10.mmp")
     dynamicsMovie_start()
     for i in range(10000):

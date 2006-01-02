@@ -27,7 +27,8 @@ char TraceFileName[1024];
 char *baseFilename;
 
 // for writing the differential position and trace files
-FILE *outf, *tracef;
+FILE *outf = NULL;
+FILE *tracef = NULL;
 
 int Count = 0;
 

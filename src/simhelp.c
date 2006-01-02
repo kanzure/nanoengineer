@@ -213,6 +213,8 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     else {
         dynamicsMovie(part);
     }
+    if (outf != NULL) fclose(outf);
+    if (tracef != NULL) fclose(tracef);
 }
 
 
