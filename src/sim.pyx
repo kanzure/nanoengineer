@@ -63,6 +63,11 @@ cdef class BaseSimulator:
     # cdef double *data
 
     def __getattr__(self, key):
+        if key.startswith('_'):
+            # important optimization (when Python asks for __xxx__) [bruce 060102]
+            raise AttributeError, key
+        # the following could probably be optimized by converting key into a C string
+        # [bruce guess 060102; comment in two places]
         if key == "debug_flags":
             return debug_flags
         elif key == "Iteration":
@@ -116,6 +121,8 @@ cdef class BaseSimulator:
             raise AttributeError, key
 
     def __setattr__(self, key, value):
+        # the following could probably be optimized by converting key into a C string
+        # [bruce guess 060102; comment in two places]
         if key == "debug_flags":
             global debug_flags
             debug_flags = value
@@ -181,8 +188,25 @@ cdef class BaseSimulator:
         else:
             raise AttributeError, key
 
-    def go(self):
-        everythingElse()
+    def go(self, frame_callback = None):
+        "run the simulator loop; optional frame_callback should be None or a callable object"
+        # bruce 060102 adding frame_callback option, and try/finally to reset callback to None.
+        ### note, this broke the test methods, need to make them pass their callback to .go().
+        if frame_callback:
+            #e would be best to verify it's callable here, not wait for error when it's used
+            # (but if that error does happen, or an exception in it, maybe it should
+            #  abort the sim run and reraise that exception or some other one from this method)
+            setCallbackFunc(frame_callback)
+        else:
+            setCallbackFunc(None) # NULL is not allowed as an argument to this;
+            #e it would be good to convert None to NULL in C code for setCallbackFunc, as an optim
+        # I don't want to bother saving/restoring an old frame_callback, 
+        # since I think having a permanent one should be deprecated [bruce 060102]
+        try:
+            everythingElse()
+        finally:
+            setCallbackFunc(None)
+        return
 
     def structCompare(self):
         r = structCompare()
@@ -232,36 +256,38 @@ def myCallback():
 # not on every import and sim run (for example, runSim.py doesn't want it)
 
 def testsetup(freq = 1): 
-    "conventional setup for test functions; can be done before or after initing sim object"
+    "conventional setup for test functions; returns frame_callback argument for .go method"
     global frameNumber, frameFreq
     frameNumber = 0
     frameFreq = max(1, freq)
-    setCallbackFunc(myCallback)
+    ## setCallbackFunc(myCallback)
+    return myCallback
 
 def testunsetup(): #bruce 060101
-    setCallbackFunc(None)
+    setCallbackFunc(None) # as of bruce 060102 this should be redundant
 
 ###e actually we often need to unset the callback at the end of a run, so, 
 ###  maybe it should be an argument to .go()... we'd just leave in all the
 ###  existing code, and add to "def go" (above) a setCallbackFunc(func) at start,
 ###  and a setCallbackFunc(None) at the end, protected from exceptions. [bruce 060101]
-def nullcallback():
+
+def nullcallback(): #k still used??
     pass
 
 #####################################################
 
 def test():
-    testsetup(2)
+    func = testsetup(2)
     # m = Minimize("tests/rigid_organics/test_C6H10.mmp")
     m = Minimize("tests/minimize/test_h2.mmp")
-    m.go()
-    testunsetup()
+    m.go(frame_callback = func)
+    ## testunsetup()
 
 def test2():
+    func = testsetup(10)
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
-    testsetup(10)
-    d.go()
-    testunsetup()
+    d.go(frame_callback = func)
+    ## testunsetup()
 
 def test3():
     setCallbackFunc(nullcallback)
