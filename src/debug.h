@@ -30,7 +30,8 @@ extern int debug_flags;
 #define D_SKIP_VDW        (1<<9)
 #define D_GRADIENT_FROM_POTENTIAL (1<<10)
 #define D_MINIMIZE_FINAL_PRINT (1<<11)
-#define D_STRESS_MOVIE (1<<12)
+#define D_STRESS_MOVIE    (1<<12)
+#define D_VERIFY_VDW      (1<<13)
 
 extern FILE *tracef;
 #define ERROR(fmt) (printError(tracef, __FILE__, __LINE__, "Error", 0, fmt))

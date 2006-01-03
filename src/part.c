@@ -285,6 +285,96 @@ isBondedToSame(struct atom *a1, struct atom *a2)
   return 0;
 }
 
+static void
+verifyVanDerWaals(struct part *p, struct xyz *positions)
+{
+  int *seen;
+  int i;
+  int j;
+  int k;
+  struct atom *a1, *a2;
+  double r1, r2;
+  int i1, i2;
+  struct xyz p1, p2;
+  struct vanDerWaals *vdw;
+  double rvdw;
+  double distance;
+  int found;
+  int actual_count;
+  int notseen_count;
+
+  seen = (int *)allocate(sizeof(int) * p->num_vanDerWaals);
+  for (i=0; i<p->num_vanDerWaals; i++) {
+    seen[i] = 0;
+  }
+
+  for (j=0; j<p->num_atoms; j++) {
+    a1 = p->atoms[j];
+    i1 = a1->index;
+    r1 = a1->type->vanDerWaalsRadius; // angstroms
+    p1 = positions[i1];
+    for (k=j+1; k<p->num_atoms; k++) {
+      a2 = p->atoms[k];
+      if (!isBondedToSame(a1, a2)) {
+        i2 = a2->index;
+        r2 = a2->type->vanDerWaalsRadius; // angstroms
+        p2 = positions[i2];
+        rvdw = (r1 + r2) * 100.0; // picometers
+        distance = vlen(vdif(p1, p2));
+        if (distance < rvdw * 1.5) {
+          found = 0;
+          for (i=0; i<p->num_vanDerWaals; i++) {
+            vdw = p->vanDerWaals[i];
+            if (vdw != NULL) {
+              if (vdw->a1 == a1 && vdw->a2 == a2) {
+                seen[i] = 1;
+                found = 1;
+                break;
+              }
+            }
+          }
+          if (!found) {
+            fprintf(stderr, "missing vdw: a1:");
+            printAtomShort(stderr, a1);
+            fprintf(stderr, " a2:");
+            printAtomShort(stderr, a2);
+            fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
+          }
+        }
+      }
+    }
+  }
+  actual_count = 0;
+  notseen_count = 0;
+  for (i=0; i<p->num_vanDerWaals; i++) {
+    vdw = p->vanDerWaals[i];
+    if (vdw != NULL) {
+      actual_count++;
+      if (!seen[i]) {
+        notseen_count++;
+        p1 = positions[vdw->a1->index];
+        p2 = positions[vdw->a2->index];
+        distance = vlen(vdif(p1, p2));
+        r1 = vdw->a1->type->vanDerWaalsRadius; // angstroms
+        r2 = vdw->a2->type->vanDerWaalsRadius; // angstroms
+        rvdw = (r1 + r2) * 100.0; // picometers
+        if (distance < rvdw * 1.5) {
+          fprintf(stderr, "should have found this one above!!!\n");
+        }
+        if (distance > rvdw * 1.5 + 866.0) {
+          fprintf(stderr, "unnecessary vdw: a1:");
+          printAtomShort(stderr, vdw->a1);
+          fprintf(stderr, " a2:");
+          printAtomShort(stderr, vdw->a2);
+          fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
+        }
+      }
+    }
+  }
+  //fprintf(stderr, "num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
+  free(seen); // yes, alloca would work here too.
+}
+
 // XXX watch for atom vibrating between buckets
 
 // Update the dynamic van der Waals list for this part.  Validity is a
@@ -355,6 +445,9 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     }
   }
   p->vanDerWaals_validity = validity;
+  if (DEBUG(D_VERIFY_VDW)) { // -D13
+    verifyVanDerWaals(p, positions);
+  }
 }
 
 

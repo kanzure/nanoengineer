@@ -1,6 +1,6 @@
 
 #define VDW_HASH 127
-#define VDW_SIZE 128
+#define VDW_SIZE (VDW_HASH+1)
 
 struct atom 
 {

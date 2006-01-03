@@ -461,7 +461,8 @@ brent(struct configuration *parent,
 	    SetConfiguration(&v, NULL);
 	    SetConfiguration(&w, NULL);
 	    Leave(brent, (x == initial_b) ? 0 : 1);
-	    DPRINT(D_MINIMIZE, "leaving brent\n");
+            DPRINT3(D_MINIMIZE, "leaving brent, parameter %e * %e == %e\n",
+                   x->parameter, maxp, x->parameter * maxp);
 	    return x;
 	}
 	if (fabs(e) > tol) {
