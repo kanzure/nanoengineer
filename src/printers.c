@@ -45,6 +45,7 @@ void traceHeader(FILE *f, char *inputFileName, char *outputFileName, char *trace
     
     write_traceline("# nanoENGINEER-1.com Simulator Trace File, Version 050310\n");
     write_traceline("#\n");
+    // asctime provides '\n' so we needn't add one
     write_traceline("# Date and Time: %s", asctime(ptr));
     write_traceline("# Input File:%s\n", inputFileName);
     write_traceline("# Output File: %s\n", outputFileName);
@@ -150,7 +151,8 @@ void traceJigHeader(FILE *f, struct part *part) {
     }
     sprintf(__p, "\n");
     write_traceline(__line);
-    sprintf(__line, "#\n");
+    __p = __line;
+    sprintf(__p, "#\n");
     write_traceline(__line);
 }
 
@@ -245,7 +247,7 @@ doneExit(int exitvalue, FILE *f, const char *format, ...)
     __p = __line;
     __p += sprintf(__p, "# Done: ");
     va_start(args, format);
-    __p += sprintf(__p, format, args);
+    __p += vsprintf(__p, format, args);
     va_end(args);
     sprintf(__p, "\n");
     fprintf(stdout, __line);
@@ -261,7 +263,7 @@ doneNoExit(int exitvalue, FILE *f, const char *format, ...)
     __p = __line;
     __p += sprintf(__p, "# Done: ");
     va_start(args, format);
-    __p += sprintf(__p, format, args);
+    __p += vsprintf(__p, format, args);
     va_end(args);
     sprintf(__p, "\n");
     fprintf(stdout, __line);
