@@ -322,6 +322,11 @@ def test3c():
     d = Dynamics("tests/dynamics/test_0001.mmp")
     d.go(trace_callback=42)
 
+def test3d():
+    # Make sure that the DPB file is really binary
+    d = Dynamics("tests/dynamics/test_0001.mmp")
+    d.go()
+
 def test4():
     Dynamics("tests/rigid_organics/test_C6H10.mmp")
     dynamicsMovie_start()
