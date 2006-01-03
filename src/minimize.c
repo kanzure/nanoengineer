@@ -230,6 +230,7 @@ evaluateGradientFromPotential(struct configuration *p)
 void
 evaluateGradient(struct configuration *p)
 {
+  extern int Interrupted;
   struct functionDefinition *fd = p->functionDefinition;
   int i;
   double gradientCoordinate;
