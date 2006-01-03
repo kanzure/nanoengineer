@@ -42,6 +42,9 @@ import env #bruce 050901
 
 debug_sim = 0 # DO NOT COMMIT with 1
 
+use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
+    # [this is true for bruce and probably false for other developers] #######@@@@@@@
+
 cmd = greenmsg("Simulator: ")
     #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
     # It ought to become some object's attribute, once we figure out what uses it and whether anything changes it.
@@ -60,7 +63,7 @@ class SimRunner:
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
     
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = None): #####@@@@@ DO NOT COMMIT with True; None or False is ok [bruce 051230]
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim): # [bruce 051230 added use_dylib_sim; revised 060102]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
@@ -70,12 +73,9 @@ class SimRunner:
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
-        if 1: # temporary kluge #####@@@@@
-            if use_dylib_sim is None:
-                use_dylib_sim = os.path.exists('/Nanorex/Working/cad/bin/sim.so') # only works for bruce! clean this up before others try it.
         self.use_dylib_sim = use_dylib_sim #bruce 051230
         if use_dylib_sim:
-            env.history.message(greenmsg("this simulator run will use experimental pyrex interface"))
+            env.history.message(greenmsg("this simulator run will use experimental pyrex interface if it can be imported properly"))
         return
     
     def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
@@ -205,36 +205,46 @@ class SimRunner:
         # don't call sim_input_filename here, that's done later for some reason
 
         # prepare to spawn the process later (and detect some errors now)
-        # filePath = the current directory NE-1 is running from.
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        # "program" is the full path to the simulator executable. 
-        if sys.platform == 'win32': 
-            program = os.path.normpath(filePath + '/../bin/simulator.exe')
-        else:
-            program = os.path.normpath(filePath + '/../bin/simulator')
-        # Make sure the simulator exists
+        bin_dir = self.sim_bin_dir_path()
+        
+        # Make sure the simulator exists (as dylib or as standalone program)
         if self.use_dylib_sim:
             #bruce 051230 experimental code
-            self.dylib_path = os.path.dirname(program)
+            self.dylib_path = bin_dir
                 # this works for developers if they set up symlinks... might not be right...
             worked = self.import_dylib_sim(self.dylib_path)
             if not worked:
                 #####@@@@@ fix dylib filename in this message
-                msg = redmsg("The simulator dynamic library [sim.so or sim.dylib or so, in " + self.dylib_path +
-                             "] is missing or could not be imported.  Simulation aborted.")
+                msg = redmsg("The simulator dynamic library [sim.so on Mac or Linux, in " + self.dylib_path +
+                             "] is missing or could not be imported. Trying standalone executable simulator.")
                 env.history.message(cmd + msg)
-                return -1
+                ## return -1
+                self.use_dylib_sim = False
                 ####@@@@ bug report: even after this, it will find tracefile from prior run (if one exists) and print its warnings.
                 # probably we should remove that before this point?? [bruce 051230] [hmm, did my later removal of the old tracefile
                 # fix this, or is it not removed until after this point?? bruce question 060102]
-        else:
+
+        if not self.use_dylib_sim:
+            # "program" is the full path to the simulator executable. 
+            if sys.platform == 'win32': 
+                program = os.path.join(bin_dir, 'simulator.exe')
+            else:
+                program = os.path.join(bin_dir, 'simulator')
             if not os.path.exists(program):
                 msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
                 env.history.message(cmd + msg)
                 return -1
-        self.program = program
+            self.program = program
         
         return None # no error
+        
+    def sim_bin_dir_path(self): #bruce 060102 split this out
+        """Return pathname of bin directory that ought to contain simulator executable and/or dynamic library.
+        (Doesn't check whether it exists.)
+        """
+        # filePath = the current directory NE-1 is running from.
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        return os.path.normpath(filePath + '/../bin')
 
     def import_dylib_sim(self, dylib_path): #bruce 051230 experimental code
         """Try to import the dynamic library version of the simulator, under the module name 'sim',
@@ -266,7 +276,7 @@ class SimRunner:
                 from sim import Minimize, Dynamics # the two constructors we might need to use
             except:
                 worked = False
-                print_compact_traceback("error trying to import SimulatorBase from dylib sim: ")
+                print_compact_traceback("error trying to import Minimize and Dynamics from dylib sim: ")
         return worked
     
     def old_set_sim_output_filenames_errQ(self, movie, mflag):
@@ -851,8 +861,9 @@ class SimRunner:
            (but for now, separate code will also terminate the sim run in the usual way, 
             reading redundantly from xyz file)
         """
-##        if frame_number > 10:
-##            self.abort_sim_run("testing abort at frame %d" % frame_number)
+        if 0:
+            if frame_number > 10:# DO NOT COMMIT with this code activated
+                self.abort_sim_run("testing abort at frame %d" % frame_number)
         from sim import getFrame
         frame = getFrame()
         print "frame no. %d len %d is" % (frame_number, len(frame)), frame #####@@@@@ remove when works
