@@ -97,7 +97,8 @@ write_traceline(const char *format, ...)
         va_end(args);
 	if (writeTraceCallbackFunc != NULL)
 	    do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", buf));
-	fprintf(tracef, "%s", buf);
+	if (tracef != NULL)
+	    fprintf(tracef, "%s", buf);
     }
 }
 
