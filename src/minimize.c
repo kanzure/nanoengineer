@@ -617,11 +617,12 @@ minimize_one_tolerance(struct configuration *initial_p,
   struct configuration *p = NULL;
   struct configuration *q = NULL;
   int i;
+  extern int Interrupted;
 
   Enter();
   SetConfiguration(&p, initial_p);
   fp = evaluate(p);
-  for ((*iteration)=0; (*iteration)<iterationLimit; (*iteration)++) {
+  for ((*iteration)=0; (*iteration)<iterationLimit && !Interrupted; (*iteration)++) {
     SetConfiguration(&q, NULL);
     q = linearMinimize(p, tolerance, minimization_algorithm);
     fq = evaluate(q);
@@ -672,7 +673,8 @@ minimize_one_tolerance(struct configuration *initial_p,
     fp = fq;
     SetConfiguration(&p, q);
   }
-  message(fd, "reached iteration limit");
+  if (Interrupted) message(fd, "minimization interrupted");
+  else message(fd, "reached iteration limit");
   SetConfiguration(&p, NULL);
   Leave(minimize_one_tolerance, 1);
   return q;
