@@ -21,6 +21,19 @@ char __author__[] = "Will";
 #include "Numeric/arrayobject.h"
 #include "simulator.h"
 
+// remember no variadic macros in windows!
+#if 0
+#define dbgprintf  printf
+#else
+#define dbgprintf noprintf
+#endif
+
+static void
+noprintf(char *format, ...)
+{
+    // do nothing, hope to be optimized away
+}
+
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
@@ -35,17 +48,40 @@ static char buf[1024];
 char *filename;
 int error_occurred = 0;
 
+//PyObject *errType = NULL;
+char *errString = NULL;
+
 static PyObject *writeTraceCallbackFunc = NULL;
 static PyObject *frameCallbackFunc = NULL;
 
-void setWriteTraceCallbackFunc(PyObject *f)
+static PyObject *
+setCallbackFunc(PyObject *f, PyObject **cb)
 {
-    writeTraceCallbackFunc = f;
+    if (f == NULL) goto okay;
+    if (f == Py_None) { f = NULL; goto okay; }
+    if (!PyCallable_Check(f)) goto error;
+ okay:
+    *cb = f;
+    Py_INCREF(Py_None);
+    return Py_None;
+ error:
+    *cb = NULL;
+    PyErr_SetString(PyExc_RuntimeError, "bad callback");
+    return NULL;
 }
 
-void setFrameCallbackFunc(PyObject *f)
+PyObject *
+setWriteTraceCallbackFunc(PyObject *f)
 {
-    frameCallbackFunc = f;
+    dbgprintf("setWriteTraceCallbackFunc(%p)\n", f);
+    return setCallbackFunc(f, &writeTraceCallbackFunc);
+}
+
+PyObject *
+setFrameCallbackFunc(PyObject *f)
+{
+    dbgprintf("setFrameCallbackFunc(%p)\n", f);
+    return setCallbackFunc(f, &frameCallbackFunc);
 }
 
 
@@ -54,6 +90,8 @@ static void
 do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
     PyObject *pValue;
+    dbgprintf("do_python_callback: callbackFunc = %p\n", callbackFunc);
+    if (callbackFunc == NULL) return;
     pValue = PyObject_CallObject(callbackFunc, args);
     Py_DECREF(args);
     if (pValue == NULL)
@@ -69,10 +107,9 @@ write_traceline(const char *format, ...)
     va_list args;
     char line[1000];
 
-    if (writeTraceCallbackFunc != NULL && writeTraceCallbackFunc != Py_None &&
-	PyCallable_Check(writeTraceCallbackFunc)) {
+    if (writeTraceCallbackFunc != NULL) {
         va_start(args, format);
-        sprintf(line, format, args);
+        vsprintf(line, format, args);
         va_end(args);
 	do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", line));
     }
@@ -83,13 +120,13 @@ void
 callback_writeFrame(struct part *part1, struct xyz *pos1)
 {
     if (part != part1) {
-	fprintf(stderr, "Part mismatch\n");
-	exit(1);
+	PyErr_SetString(PyExc_RuntimeError, "Part mismatch\n");
+	error_occurred = 1;
+    } else {
+	pos = pos1;
+	if (frameCallbackFunc != NULL)
+	    do_python_callback(frameCallbackFunc, PyTuple_New(0));
     }
-    pos = pos1;
-    if (frameCallbackFunc != NULL && frameCallbackFunc != Py_None &&
-	PyCallable_Check(frameCallbackFunc))
-	do_python_callback(frameCallbackFunc, PyTuple_New(0));
 }
 
 // wware 060101   make frame info available in pyrex
@@ -200,7 +237,6 @@ void dumpPart(void)
 PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
-#if 0   /* do not set tracef */
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
     if (!printPotentialEnergy) {
@@ -212,14 +248,12 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         fprintf(tracef, "# %s\n", "run from pyrex interface"); // like printing the commandLine
         // ##e should print options set before run, but it's too early to do that in this code
     }
-#endif
     if (IterPerFrame <= 0) IterPerFrame = 1;
     // initializeBondTable(); // this had to be done in initsimhelp instead [bruce 060101]
     // end of section moved by bruce 060101
 
-    if (tracef != NULL)
-	traceHeader(tracef, filename, OutFileName, TraceFileName, 
-		    part, NumFrames, IterPerFrame, Temperature);
+    traceHeader(tracef, filename, OutFileName, TraceFileName, 
+		part, NumFrames, IterPerFrame, Temperature);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
@@ -238,8 +272,10 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 
     outf = fopen(OutFileName, DumpAsText ? "w" : "wb");
     if (outf == NULL) {
-        perror(OutFileName);
-        exit(1);
+	static char msg[100];
+	sprintf(msg, "bad output filename: %s", OutFileName);
+	PyErr_SetString(PyExc_IOError, msg);
+	return NULL;
     }
     writeOutputHeader(outf, part);
 
@@ -249,13 +285,22 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     else {
         dynamicsMovie(part);
     }
-    if (outf != NULL) fclose(outf);
+    fclose(outf);
     if (tracef != NULL) fclose(tracef);
 
     if (error_occurred) {
         error_occurred = 0;
 	return NULL;
     }
+
+    if (Interrupted) {
+	Interrupted = 0;  // clear the flag
+	if (errString == NULL)
+	    errString = "Simulation interrupted";
+	PyErr_SetString(PyExc_StopIteration, errString);
+	return NULL;
+    }
+
     Py_INCREF(Py_None);
     return Py_None;
 }

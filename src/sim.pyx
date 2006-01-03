@@ -42,9 +42,10 @@ cdef extern from "simhelp.c":
     double Dmass
     double Temperature
     # end of globals.c stuff
+    char *errString
 
-    void setWriteTraceCallbackFunc(PyObject)
-    void setFrameCallbackFunc(PyObject)
+    setWriteTraceCallbackFunc(PyObject)
+    setFrameCallbackFunc(PyObject)
     getFrame_c()
     void initsimhelp()
     void readPart()
@@ -193,11 +194,13 @@ cdef class BaseSimulator:
         "run the simulator loop; optional frame_callback should be None or a callable object"
         # bruce 060102 adding frame_callback option, and try/finally to reset callback to None.
         ### note, this broke the test methods, need to make them pass their callback to .go().
-        if frame_callback:
+        if callable(frame_callback):
             setFrameCallbackFunc(frame_callback)
         else:
             setFrameCallbackFunc(None)
-        if trace_callback:
+        # I don't want to bother saving/restoring an old frame_callback, 
+        # since I think having a permanent one should be deprecated [bruce 060102]
+        if callable(trace_callback):
             setWriteTraceCallbackFunc(trace_callback)
         else:
             setWriteTraceCallbackFunc(None)
@@ -231,6 +234,9 @@ class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to
         initsimhelp()
         readPart()
 
+def setErrorString(str):
+    errString = str
+
 #####################################################
 # Per-frame callbacks to Python, wware 060101
 
@@ -260,19 +266,7 @@ def testsetup(freq=1):
     global frameNumber, frameFreq
     frameNumber = 0
     frameFreq = max(1, freq)
-    ## setFrameCallbackFunc(myCallback)
     return myCallback
-
-def testunsetup(): #bruce 060101
-    setFrameCallbackFunc(None) # as of bruce 060102 this should be redundant
-
-###e actually we often need to unset the callback at the end of a run, so, 
-###  maybe it should be an argument to .go()... we'd just leave in all the
-###  existing code, and add to "def go" (above) a setFrameCallbackFunc(func) at start,
-###  and a setFrameCallbackFunc(None) at the end, protected from exceptions. [bruce 060101]
-
-def nullcallback(): #k still used??
-    pass
 
 tracefile = [ ]
 
@@ -280,9 +274,10 @@ def tracecallback(str):
     global tracefile
     tracefile.append(str)
 def badcallback(str):
-    raise RuntimeError, "bad callback"
+    raise RuntimeError, "This is a bad callback"
 def badcallback2():
-    raise RuntimeError, "should take an argument"
+    "This callback should really take an argument"
+    pass
 
 #####################################################
 
@@ -291,13 +286,11 @@ def test():
     # m = Minimize("tests/rigid_organics/test_C6H10.mmp")
     m = Minimize("tests/minimize/test_h2.mmp")
     m.go(frame_callback = func)
-    ## testunsetup()
 
 def test2():
     func = testsetup(10)
     d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
     d.go(frame_callback=func, trace_callback=tracecallback)
-    ## testunsetup()
 
 def test3():
     # Are we getting trace info correctly?
