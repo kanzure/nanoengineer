@@ -234,6 +234,7 @@ evaluateGradient(struct configuration *p)
   int i;
   double gradientCoordinate;
   
+  if (Interrupted) return;
   if (p->gradient == NULL) {
     p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
     if (fd->dfunc == NULL) {
