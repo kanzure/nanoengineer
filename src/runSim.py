@@ -44,6 +44,10 @@ debug_sim = 0 # DO NOT COMMIT with 1
 
 use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
     # [this is true for bruce and probably false for other developers] #######@@@@@@@
+    # [quick links for developers: see also (search for) abort_ or 'if frame_number > 10' ]
+
+debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
+
 
 cmd = greenmsg("Simulator: ")
     #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
@@ -818,10 +822,12 @@ class SimRunner:
             self.errcode = -1 # simulator failure
         return
 
-    __callback_time = -1
+    __callback_time = -1 ###e could easily optim our test by storing this plus __sim_work_time
     __frame_number = 0 #e do we ever need to reset this? probably not -- i think this is a single-use object.
+    __sim_work_time = 0.05 # initial value -- we'll run sim_frame_callback_worker 20 times per second, with this value
     def sim_frame_callback(self): #bruce 060102
         "Per-frame callback function for simulator object."
+        # some of these prints I commented out need to show up as fields in the progress bar instead...
         ## print "f",
         # This happened 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the time first.
         #e Maybe we should make this into a lambda, or even code it in C, to optimize it. First make it work.
@@ -830,10 +836,13 @@ class SimRunner:
         self.__frame_number += 1
         ###e how to improve timing:
         # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
-        if now > self.__callback_time + 0.05: # max 20 times per second; this probably needs coding in C or further optim
-            print "frame %d" % self.__frame_number, now #e add frame number, maybe let it be an arg to the callback in the future
+        if now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
+            simtime = now - self.__callback_time # for sbar
+            if debug_pyrex_prints:
+                print "sim hit frame %d in" % self.__frame_number, simtime
+                    #e maybe let frame number be an arg from C to the callback in the future?
             self.__callback_time = now
-            ###e IN REAL LIFE we don't only store this time, but the time *after* we do our other work here, in case redraw takes long.
+            # Note that we don't only store this time, but the time *after* we do our other work here, in case redraw takes long.
             # i.e. we always let sim run for 0.05 sec even if our python loop body took longer.
             # maybe best to let sim run even longer, i.e. max(0.05, python loop body time), but no more than say 1 or 2 sec.
             ####@@@@ where i am - fill in loop body, right here. don't worry about progbar for now, or abort -- just movie.
@@ -842,9 +851,20 @@ class SimRunner:
             except:
                 print_compact_traceback("exception in sim_frame_callback_worker, aborting run: ")
                 self.abort_sim_run("exception in sim_frame_callback_worker(%d)" % self.__frame_number ) # sets flag inside sim object
-            self.__callback_time = time.time() # in case later than 'now' set earlier; #e use this difference to adjust 0.05 above
-            print "python stuff took", self.__callback_time - now #####@@@@@ remove when works
-                # python stuff took 0.00386619567871 -- for when no real work done, just overhead
+            self.__callback_time = time.time() # in case later than 'now' set earlier
+            # use this difference to adjust 0.05 above, for the upcoming period of sim work;
+            # note, in current code this also affects abortability
+            pytime = self.__callback_time - now
+            if debug_pyrex_prints:
+                print "python stuff took", pytime
+                # python stuff took 0.00386619567871 -- for when no real work done, just overhead; small real egs more like 0.03
+            self.__sim_work_time = max(0.05, min(pytime * 4, 2.0))
+            if debug_pyrex_prints:
+                print "set self.__sim_work_time to", self.__sim_work_time
+            if 1: # set status bar
+                msg = "sim took %0.3f, hit frame %03d, py took %0.3f, next simtime %0.3f" % \
+                      (simtime, self.__frame_number, pytime, self.__sim_work_time)
+                env.history.statusbar_msg(msg)
         return
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
@@ -866,7 +886,7 @@ class SimRunner:
                 self.abort_sim_run("testing abort at frame %d" % frame_number)
         from sim import getFrame
         frame = getFrame()
-        print "frame no. %d len %d is" % (frame_number, len(frame)), frame #####@@@@@ remove when works
+        ## print "frame no. %d (len %d)" % (frame_number, len(frame)) #####@@@@@ remove when works, or also print frame to see more
 
         #e stick the atom posns in - i think the following also adjusts the singlet posns #k check that
         # - how does xyz reader do it? is that done in movie object? sim_aspect?? readxyz?
