@@ -194,19 +194,13 @@ cdef class BaseSimulator:
         "run the simulator loop; optional frame_callback should be None or a callable object"
         # bruce 060102 adding frame_callback option, and try/finally to reset callback to None.
         ### note, this broke the test methods, need to make them pass their callback to .go().
-        if callable(frame_callback):
-            setFrameCallbackFunc(frame_callback)
-        else:
-            setFrameCallbackFunc(None)
-        # I don't want to bother saving/restoring an old frame_callback, 
-        # since I think having a permanent one should be deprecated [bruce 060102]
-        if callable(trace_callback):
-            setWriteTraceCallbackFunc(trace_callback)
-        else:
-            setWriteTraceCallbackFunc(None)
+        setFrameCallbackFunc(frame_callback)
+        setWriteTraceCallbackFunc(trace_callback)
         try:
             everythingElse()
         finally:
+            # I don't want to bother saving/restoring an old frame_callback, 
+            # since I think having a permanent one should be deprecated [bruce 060102]
             setFrameCallbackFunc(None)
             setWriteTraceCallbackFunc(None)
         return

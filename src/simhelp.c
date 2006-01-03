@@ -21,19 +21,6 @@ char __author__[] = "Will";
 #include "Numeric/arrayobject.h"
 #include "simulator.h"
 
-// remember no variadic macros in windows!
-#if 0
-#define dbgprintf  printf
-#else
-#define dbgprintf noprintf
-#endif
-
-static void
-noprintf(char *format, ...)
-{
-    // do nothing, hope to be optimized away
-}
-
 void initsimhelp(void);
 void readPart(void);
 void dumpPart(void);
@@ -57,14 +44,15 @@ static PyObject *frameCallbackFunc = NULL;
 static PyObject *
 setCallbackFunc(PyObject *f, PyObject **cb)
 {
-    if (f == NULL) goto okay;
-    if (f == Py_None) { f = NULL; goto okay; }
-    if (!PyCallable_Check(f)) goto error;
- okay:
-    *cb = f;
-    Py_INCREF(Py_None);
-    return Py_None;
- error:
+    if (f == Py_None) {
+	*cb = NULL;
+	Py_INCREF(Py_None);
+	return Py_None;
+    } else if (f != NULL && PyCallable_Check(f)) {
+	*cb = f;
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
     *cb = NULL;
     PyErr_SetString(PyExc_RuntimeError, "bad callback");
     return NULL;
@@ -73,14 +61,12 @@ setCallbackFunc(PyObject *f, PyObject **cb)
 PyObject *
 setWriteTraceCallbackFunc(PyObject *f)
 {
-    dbgprintf("setWriteTraceCallbackFunc(%p)\n", f);
     return setCallbackFunc(f, &writeTraceCallbackFunc);
 }
 
 PyObject *
 setFrameCallbackFunc(PyObject *f)
 {
-    dbgprintf("setFrameCallbackFunc(%p)\n", f);
     return setCallbackFunc(f, &frameCallbackFunc);
 }
 
@@ -90,7 +76,6 @@ static void
 do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
     PyObject *pValue;
-    dbgprintf("do_python_callback: callbackFunc = %p\n", callbackFunc);
     if (callbackFunc == NULL) return;
     pValue = PyObject_CallObject(callbackFunc, args);
     Py_DECREF(args);
@@ -120,13 +105,16 @@ void
 callback_writeFrame(struct part *part1, struct xyz *pos1)
 {
     if (part != part1) {
-	PyErr_SetString(PyExc_RuntimeError, "Part mismatch\n");
+	// assert part is <previous value for part>
+	// we haven't seen this yet, but it would be important to know about
+	snprintf(buf, 1024, "%s:%n the part has changed", __FILE__, __LINE__);
+	PyErr_SetString(PyExc_AssertionError, buf);
 	error_occurred = 1;
-    } else {
-	pos = pos1;
-	if (frameCallbackFunc != NULL)
-	    do_python_callback(frameCallbackFunc, PyTuple_New(0));
+	return;
     }
+    pos = pos1;
+    if (frameCallbackFunc != NULL)
+	do_python_callback(frameCallbackFunc, PyTuple_New(0));
 }
 
 // wware 060101   make frame info available in pyrex
@@ -272,9 +260,8 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 
     outf = fopen(OutFileName, DumpAsText ? "w" : "wb");
     if (outf == NULL) {
-	static char msg[100];
-	sprintf(msg, "bad output filename: %s", OutFileName);
-	PyErr_SetString(PyExc_IOError, msg);
+	snprintf(buf, 1024, "bad output filename: %s", OutFileName);
+	PyErr_SetString(PyExc_IOError, buf);
 	return NULL;
     }
     writeOutputHeader(outf, part);
@@ -297,7 +284,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	Interrupted = 0;  // clear the flag
 	if (errString == NULL)
 	    errString = "Simulation interrupted";
-	PyErr_SetString(PyExc_StopIteration, errString);
+	PyErr_SetString(PyExc_RuntimeError, errString);
 	return NULL;
     }
 
