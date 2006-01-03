@@ -90,13 +90,14 @@ void
 write_traceline(const char *format, ...)
 {
     va_list args;
-    char line[1000];
 
-    if (writeTraceCallbackFunc != NULL) {
+    if (writeTraceCallbackFunc != NULL || tracef != NULL) {
         va_start(args, format);
-        vsprintf(line, format, args);
+        vsnprintf(buf, 1024, format, args);
         va_end(args);
-	do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", line));
+	if (writeTraceCallbackFunc != NULL)
+	    do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", buf));
+	fprintf(tracef, "%s", buf);
     }
 }
 
