@@ -194,6 +194,20 @@ cdef class BaseSimulator:
         "run the simulator loop; optional frame_callback should be None or a callable object"
         # bruce 060102 adding frame_callback option, and try/finally to reset callback to None.
         ### note, this broke the test methods, need to make them pass their callback to .go().
+
+        #e would be best to verify it's callable here, not wait for error when it's used
+        # (but if that error does happen, or an exception in it, maybe it should
+        #  abort the sim run and reraise that exception or some other one from this method)
+        # setFrameCallbackFunc/setWriteTraceCallbackFunc do this
+        # Does "#e" mean the comment can be removed when issue is resolved?   wware 060103
+
+        # NULL is not allowed as an argument to this;
+        # If you type "NULL" in Python, you'll get --> NameError: name 'NULL' is not defined
+        # How else would one use NULL as an argument?   wware 060103
+
+        #e it would be good to convert None to NULL in C code for setCallbackFunc, as an optim
+        # This is done now.  wware 060103
+
         setFrameCallbackFunc(frame_callback)
         setWriteTraceCallbackFunc(trace_callback)
         try:
