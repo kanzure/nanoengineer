@@ -234,6 +234,7 @@ doStructureCompare(int numberOfAtoms,
   structCompareFunctions.dfunc = NULL; // use default gradient
   structCompareFunctions.gradient_delta = 1e-8;
   structCompareFunctions.freeExtra = structCompareFreeExtra;
+  structCompareFunctions.termination = NULL;
   structCompareFunctions.coarse_tolerance = 1e-3;
   structCompareFunctions.fine_tolerance = 1e-8;
   structCompareFunctions.dimension = allowScaling ? 7 : 6;

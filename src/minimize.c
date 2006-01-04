@@ -602,6 +602,28 @@ linearMinimize(struct configuration *p,
     return min;
 }
 
+static int
+defaultTermination(struct functionDefinition *fd,
+                   struct configuration *previous,
+                   struct configuration *current,
+                   double tolerance)
+{
+    double fp = evaluate(previous);
+    double fq = evaluate(current);
+    
+    DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n",
+            fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+    if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
+        message(fd,
+                "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
+                fp, fq,
+                fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+        return 1;
+    }
+    return 0;
+}
+
+
 // Starting with an initial configuration p, find the configuration
 // which minimizes the value of the function (as defined by fd).  The
 // number of iterations used is returned in iteration.
@@ -614,7 +636,6 @@ minimize_one_tolerance(struct configuration *initial_p,
 {
     struct functionDefinition *fd = initial_p->functionDefinition;
     double fp;
-    double fq;
     double dgg;
     double gg;
     double gamma;
@@ -623,20 +644,16 @@ minimize_one_tolerance(struct configuration *initial_p,
     int i;
     extern int Interrupted;
 
+    if (fd->termination == NULL) {
+        fd->termination = defaultTermination;
+    }
     Enter();
     SetConfiguration(&p, initial_p);
     fp = evaluate(p);
     for ((*iteration)=0; (*iteration)<iterationLimit && !Interrupted; (*iteration)++) {
 	SetConfiguration(&q, NULL);
 	q = linearMinimize(p, tolerance, minimization_algorithm);
-	fq = evaluate(q);
-	DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n",
-		fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
-	if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
-	    message(fd,
-		    "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
-		    fp, fq,
-		    fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+        if ((fd->termination)(fd, p, q, tolerance)) {
 	    SetConfiguration(&p, NULL);
 	    Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
 	    return q;
@@ -674,11 +691,14 @@ minimize_one_tolerance(struct configuration *initial_p,
 		q->gradient[i] += gamma * p->gradient[i];
 	    }
 	}
-	fp = fq;
+	fp = evaluate(q); // previous value of function
 	SetConfiguration(&p, q);
     }
-    if (Interrupted) message(fd, "minimization interrupted");
-    else message(fd, "reached iteration limit");
+    if (Interrupted) {
+        message(fd, "minimization interrupted");
+    } else {
+        message(fd, "reached iteration limit");
+    }
     SetConfiguration(&p, NULL);
     Leave(minimize_one_tolerance, 1);
     return q;
@@ -767,6 +787,7 @@ testMinimize()
     fd.func = testFunction;
     fd.dfunc = testGradient;
     fd.freeExtra = NULL;
+    fd.termination = NULL;
     fd.coarse_tolerance = 1e-5;
     fd.fine_tolerance = 1e-8;
     fd.dimension = 2;

@@ -80,6 +80,42 @@ minimizeStructureGradient(struct configuration *p)
     }
 }
 
+static int
+minimizeStructureTermination(struct functionDefinition *fd,
+                             struct configuration *previous,
+                             struct configuration *current,
+                             double tolerance)
+{
+    double fp = evaluate(previous);
+    double fq = evaluate(current);
+    double rms_force;
+    double max_force;
+
+    evaluateGradient(current);
+    findRMSandMaxForce(current, &rms_force, &max_force);
+    if (tolerance == fd->coarse_tolerance) {
+        if (rms_force < 50.0 && max_force < 300.0) {
+            return 1;
+        }
+    } else {
+        if (rms_force < 1.0 && max_force < 10.0) {
+            return 1;
+        }
+    }
+#define EPSILON 1e-10
+    
+    DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n", // -D2
+            fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+    if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
+        DPRINT5(D_MINIMIZE,
+                "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
+                fp, fq,
+                fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+        return 1;
+    }
+    return 0;
+}
+
 
 static struct functionDefinition minimizeStructureFunctions;
 
@@ -99,6 +135,7 @@ minimizeStructure(struct part *part)
     minimizeStructureFunctions.func = minimizeStructurePotential;
     minimizeStructureFunctions.dfunc = minimizeStructureGradient;
     minimizeStructureFunctions.freeExtra = NULL;
+    minimizeStructureFunctions.termination = minimizeStructureTermination;
     minimizeStructureFunctions.coarse_tolerance = 1e-8;
     minimizeStructureFunctions.fine_tolerance = 1e-10;
     minimizeStructureFunctions.gradient_delta = 0.0; // unused

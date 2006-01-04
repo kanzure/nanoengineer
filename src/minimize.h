@@ -66,6 +66,15 @@ struct functionDefinition
   // Called whenever a configuration is freed, if the extra field is
   // non-null.  Set freeExtra to NULL if extra is never used.
   void (*freeExtra)(struct configuration *p);
+
+  // Called from minimize_one_tolerance with the previous and current
+  // configurations.  Return non-zero to terminate this tolerance,
+  // zero to continue.  If set to NULL, continues until the delta *
+  // tolerance is about the average value of the function.
+  int (*termination)(struct functionDefinition *fd,
+                     struct configuration *previous,
+                     struct configuration *current,
+                     double tolerance);
   
   // How close do we need to get to the minimum?  Should be no smaller
   // than the square root of the machine precision.  First we minimize
