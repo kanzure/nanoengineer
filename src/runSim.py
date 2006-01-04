@@ -558,6 +558,7 @@ class SimRunner:
             self.simProcess = QProcess()
             simProcess = self.simProcess
             if debug_sim: #bruce 051115 revised this debug code
+		open("args", "w").write(repr(self._arguments) + "\n")
                 def blabout():
                     print "stdout:", simProcess.readStdout()
                 def blaberr():
