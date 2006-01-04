@@ -1,0 +1,36 @@
+CC=C:/Dev-Cpp/bin/gcc.exe
+CFLAGS=-IC:/Dev-Cpp/include
+LDFLAGS=-LC:/Dev-Cpp/lib
+
+PYREXOBJS=allocate.o \
+	dynamics.o \
+	globals.o \
+	hashtable.o \
+	interpolate.o \
+	jigs.o \
+	lin-alg.o \
+	minimize.o \
+	minstructure.o \
+	newtables.o \
+	part.o \
+	potential.o \
+	printers.o \
+	readmmp.o \
+	readxyz.o \
+	structcompare.o \
+	writemovie.o
+
+all: sim.dll
+
+clean:
+	rm -f *~ *.o *.a *.dll sim.c *.def
+
+sim.c: simhelp.c sim.pyx
+	python c:/Python23/Scripts/pyrexc.py sim.pyx
+
+libpython23.a: libpython23.a.gz
+	gunzip < libpython23.a.gz > libpython23.a
+
+sim.dll: sim.c $(PYREXOBJS) libpython23.a
+	gcc -shared -I"C:/Python23/include" -o sim.dll sim.c $(PYREXOBJS) \
+		-Wl,--output-def,sim.def -L. -lpython23
