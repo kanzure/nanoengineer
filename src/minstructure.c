@@ -145,6 +145,7 @@ minimizeStructure(struct part *part)
     minimizeStructureFunctions.gradientEvaluationCount = 0;
     minimizeStructureFunctions.message = (char *)allocate(1024);
     minimizeStructureFunctions.messageBufferLength = 1024;
+    minimizeStructureFunctions.message[0] = '\0';
 
     initial = makeConfiguration(&minimizeStructureFunctions);
     for (i=0, j=0; i<part->num_atoms; i++) {
