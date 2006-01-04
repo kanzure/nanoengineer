@@ -35,8 +35,29 @@ static char buf[1024];
 char *filename;
 int error_occurred = 0;
 
+static void *mostRecentSimObject = NULL;
+
 //PyObject *errType = NULL;
 char *errString = NULL;
+
+void
+reinitSimGlobals(PyObject *sim)
+{
+    reinit_globals();
+    mostRecentSimObject = sim;
+}
+
+PyObject *
+verifySimObject(PyObject *sim)
+{
+    if (sim != mostRecentSimObject) {
+	PyErr_SetString(PyExc_AssertionError,
+			"not the most recent simulator object");
+	return NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyObject *writeTraceCallbackFunc = NULL;
 static PyObject *frameCallbackFunc = NULL;

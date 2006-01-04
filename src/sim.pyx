@@ -14,6 +14,7 @@ __author__ = "Will"
 ## import threading #bruce 060101 removed this since I think it's not used now
 
 import Numeric
+import unittest
 
 cdef extern from "simhelp.c": 
     # note: this produces '#include "simhelp.c"' in generated sim.c file,
@@ -55,6 +56,9 @@ cdef extern from "simhelp.c":
 
     void strcpy(char *, char *) #bruce 051230 guess
 
+    void reinitSimGlobals(PyObject)
+    verifySimObject(PyObject)
+
     void dynamicsMovie_start()
     void dynamicsMovie_step()
     void dynamicsMovie_finish()
@@ -72,6 +76,7 @@ cdef class BaseSimulator:
     # except for the issue of the globals not being reset to their initial values.
     
     def __getattr__(self, key):
+        verifySimObject(self)
         if key.startswith('_'):
             # important optimization (when Python asks for __xxx__) [bruce 060102]
             raise AttributeError, key
@@ -130,6 +135,7 @@ cdef class BaseSimulator:
             raise AttributeError, key
 
     def __setattr__(self, key, value):
+        verifySimObject(self)
         # the following could probably be optimized by converting key into a C string
         # [bruce guess 060102; comment in two places]
         if key == "debug_flags":
@@ -205,6 +211,7 @@ cdef class BaseSimulator:
         # and reraise that exception or some other one from this method
         #bruce 060103
 
+        verifySimObject(self)
         setFrameCallbackFunc(frame_callback)
         setWriteTraceCallbackFunc(trace_callback)
         try:
@@ -217,6 +224,7 @@ cdef class BaseSimulator:
         return
 
     def structCompare(self):
+        verifySimObject(self)
         r = structCompare()
         if r:
             raise Exception, r
@@ -224,6 +232,7 @@ cdef class BaseSimulator:
 class Minimize(BaseSimulator):
     def __init__(self, fname):
         global filename
+        reinitSimGlobals(self)
         self.ToMinimize = 1
         self.DumpAsText = 1
         filename = fname
@@ -233,6 +242,7 @@ class Minimize(BaseSimulator):
 class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to BaseSimulator
     def __init__(self, fname):
         global filename
+        reinitSimGlobals(self)
         self.ToMinimize = 0
         self.DumpAsText = 0
         filename = fname
@@ -257,18 +267,23 @@ def getFrame():
 frameNumber = 0
 frameFreq = 1
 
+callbackCounter = 0
+
 def myCallback():
     global frameNumber
     frameNumber = frameNumber + 1
     if (frameNumber % frameFreq) == 0:
-        print "frame %d:" % frameNumber, getFrame()
+        #print "frame %d:" % frameNumber, getFrame()
+        global callbackCounter
+        callbackCounter = callbackCounter + 1
 
 #bruce 060101 made testsetup a function so it only happens when asked for,
 # not on every import and sim run (for example, runSim.py doesn't want it)
 
 def testsetup(freq=1): 
     "conventional setup for test functions; returns frame_callback argument for .go method"
-    global frameNumber, frameFreq
+    global frameNumber, frameFreq, callbackCounter
+    callbackCounter = 0
     frameNumber = 0
     frameFreq = max(1, freq)
     return myCallback
@@ -286,58 +301,106 @@ def badcallback2():
 
 #####################################################
 
+def isFileAscii(filename):
+    from string import printable
+    for x in open(filename).read():
+        if x not in printable:
+            return False
+    return True
+
+class Tests(unittest.TestCase):
+
+    def setUp(self):
+        global tracefile
+        tracefile = [ ]
+
+    def test_framecallback(self):
+        func = testsetup(2)
+        m = Minimize("tests/minimize/test_h2.mmp")
+        m.go(frame_callback=func)
+        assert callbackCounter == 2
+
+    def test_frameAndTraceCallback(self):
+        func = testsetup(10)
+        d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
+        d.go(frame_callback=func, trace_callback=tracecallback)
+        assert callbackCounter == 10
+
+    def test_traceCallbackWithMotor(self):
+        d = Dynamics("tests/dynamics/test_0001.mmp")
+        d.go(trace_callback=tracecallback)
+        # Make sure there is motor information being printed
+        assert len(tracefile[18].split()) == 3, \
+               "Motor info not appearing in trace file:" + tracefile[18]
+
+    def test_dpbFileShouldBeBinary(self):
+        d = Dynamics("tests/dynamics/test_0001.mmp")
+        d.go()
+        # Make sure that the DPB file is really binary
+        assert not isFileAscii("tests/dynamics/test_0001.dpb")
+
+    def test_dpbFileShouldBeBinaryAfterMinimize(self):
+        # bruce 060103 added this; it presently fails, but I hope to fix it in same commit
+        m = Minimize("tests/minimize/test_h2.mmp")
+        m.go()
+        d = Dynamics("tests/dynamics/test_0001.mmp")
+        d.go()
+        # Make sure that the DPB file is really binary, even after Minimize is run
+        assert not isFileAscii("tests/dynamics/test_0001.dpb")
+
+    def test_dynamicsStepStuff(self):
+        Dynamics("tests/rigid_organics/test_C6H10.mmp")
+        dynamicsMovie_start()
+        j = 0
+        for i in range(10000):
+            dynamicsMovie_step()
+            if (i % 500) == 0:
+                #print "Here is frame", i
+                #print getFrame()
+                j = j + 1
+        dynamicsMovie_finish()
+        assert j == 20
+
+    ######### Tests that should be expected to fail
+
+    def test_badCallback1(self):
+        try:
+            d = Dynamics("tests/dynamics/test_0001.mmp")
+            d.go(trace_callback=badcallback)
+            assert False, "This test should have failed"
+        except RuntimeError, e:
+            assert e.args[0] == "This is a bad callback"
+
+    def test_badCallback2(self):
+        try:
+            d = Dynamics("tests/dynamics/test_0001.mmp")
+            d.go(trace_callback=badcallback2)
+            assert False, "This test should have failed"
+        except TypeError:
+            pass
+
+    def test_badCallback3(self):
+        try:
+            d = Dynamics("tests/dynamics/test_0001.mmp")
+            d.go(trace_callback=42)
+            assert False, "This test should have failed"
+        except RuntimeError, e:
+            assert e.args[0] == "bad callback"
+
+    def test_callWrongSimulatorObject(self):
+        try:
+            m = Minimize("tests/dynamics/test_0001.mmp")
+            d = Dynamics("tests/dynamics/test_0001.mmp")
+            m.go(trace_callback=42)
+            assert False, "This test should have failed"
+        except AssertionError, e:
+            assert e.args[0] == "not the most recent simulator object"
+
+#
+# make pyx && python -c "import sim; sim.test()"
+#
+
 def test():
-    func = testsetup(2)
-    # m = Minimize("tests/rigid_organics/test_C6H10.mmp")
-    m = Minimize("tests/minimize/test_h2.mmp")
-    m.go(frame_callback = func)
-
-def test2():
-    func = testsetup(10)
-    d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
-    d.go(frame_callback=func, trace_callback=tracecallback)
-
-def test3():
-    # Are we getting trace info correctly?
-    # use a test with a motor
-    d = Dynamics("tests/dynamics/test_0001.mmp")
-    d.go(trace_callback=tracecallback)
-    print "".join(tracefile)
-
-def test3a():
-    # Test bad callbacks
-    d = Dynamics("tests/dynamics/test_0001.mmp")
-    d.go(trace_callback=badcallback)
-
-def test3b():
-    # Test bad callbacks
-    d = Dynamics("tests/dynamics/test_0001.mmp")
-    d.go(trace_callback=badcallback2)
-
-def test3c():
-    # Test bad callbacks
-    d = Dynamics("tests/dynamics/test_0001.mmp")
-    d.go(trace_callback=42)
-
-def test3d():
-    # Make sure that the DPB file is really binary
-    d = Dynamics("tests/dynamics/test_0001.mmp")
-    d.go()
-
-def test3e(): #bruce 060103 added this; it presently fails, but I hope to fix it in same commit
-    # Make sure that the DPB file is really binary, even after Minimize is run
-    m = Minimize("tests/minimize/test_h2.mmp")
-    m.go()
-    d = Dynamics("tests/dynamics/test_0001.mmp")
-    d.go()
-    print "now see if tests/dynamics/test_0001.dpb is in DPB format as it should be"
-
-def test4():
-    Dynamics("tests/rigid_organics/test_C6H10.mmp")
-    dynamicsMovie_start()
-    for i in range(10000):
-        dynamicsMovie_step()
-        if (i % 500) == 0:
-            print "Here is frame", i
-            print getFrame()
-    dynamicsMovie_finish()
+    suite = unittest.makeSuite(Tests, 'test')
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
