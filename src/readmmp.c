@@ -592,7 +592,10 @@ readMMP(char *filename)
     }
 #endif
 
-    else {
+    else if (tok[0] == '\r' || tok[0] == '\n') {
+      // blank line, or second char of \r\n combo
+      ;
+    } else {
       DPRINT1(D_READER, "??? %s\n", tok);
       consumeRestOfLine(mmp);
     }

@@ -270,7 +270,7 @@ main(int argc, char **argv)
 	filename = argv[optind];
     }
 
-    if (DEBUG(D_PRINT_BEND_STRETCH)) {
+    if (DEBUG(D_PRINT_BEND_STRETCH)) { // -D8
         initializeBondTable();
         printBendStretch();
         exit(0);
