@@ -644,10 +644,10 @@ minimize_one_tolerance(struct configuration *initial_p,
     int i;
     extern int Interrupted;
 
+    Enter();
     if (fd->termination == NULL) {
         fd->termination = defaultTermination;
     }
-    Enter();
     SetConfiguration(&p, initial_p);
     fp = evaluate(p);
     for ((*iteration)=0; (*iteration)<iterationLimit && !Interrupted; (*iteration)++) {
