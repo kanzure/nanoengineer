@@ -49,3 +49,38 @@ double Gamma = 0.01; // for Langevin thermostats
 
 double G1=(1.01-0.27*0.01)*1.4*0.1;
 //double G1=(1.01-0.27*0.1)*1.4*0.31623;
+
+void
+reinit_globals(void)
+{
+    debug_flags = 0;
+    Interrupted = 0;
+    Iteration = 0;
+    ToMinimize = 0;
+    IterPerFrame = 10;
+    NumFrames = 100;
+    DumpAsText = 0;
+    DumpIntermediateText = 0;
+    PrintFrameNums = 1;
+    OutputFormat = 1;
+    KeyRecordInterval = 32;
+    DirectEvaluate = 1;
+    IDKey = "";
+    outf = NULL;
+    tracef = NULL;
+    Count = 0;
+    Dt = 1e-16;
+    Dx = 1e-12;
+    Dmass = 1e-27;
+    Temperature = 300.0;
+    totClipped = 0.0;
+    Gamma = 0.01;
+    G1 = (1.01-0.27*0.01)*1.4*0.1;
+}
+
+/*
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * End:
+ */

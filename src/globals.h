@@ -1,3 +1,5 @@
+#ifndef GLOBALS_H_INCLUDED
+#define GLOBALS_H_INCLUDED
 
 extern int debug_flags;
 
@@ -44,3 +46,7 @@ extern double totClipped;  // internal thermostat for numerical stability
 extern double Gamma; // for Langevin thermostats
 
 extern double G1;
+
+extern void reinit_globals(void);
+
+#endif  /* GLOBALS_H_INCLUDED */
