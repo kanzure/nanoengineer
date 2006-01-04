@@ -350,6 +350,7 @@ dynamicsMovie_step(void)
 void
 dynamicsMovie_finish(void)
 {
+    writeOutputTrailer(outf, part, NumFrames);
     free(_averagePositions);
     free(_oldPositions);
     free(_newPositions);
