@@ -185,6 +185,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
         # Create a progress bar widget for use during time consuming operations,
         # such as minimize, simulator and select doubly.  Mark 050101
+        # [bruce 060103 suspects it's by now quite customized for Minimize and Simulate; not sure.]
         from ProgressBar import ProgressBar
         self.progressbar = ProgressBar()
         

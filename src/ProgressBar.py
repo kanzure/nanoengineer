@@ -13,16 +13,33 @@ from qt import qApp, QMessageBox
 from ProgressBarDialog import ProgressBarDialog
     #bruce 050415 removed "import *" from both of those
 
+import env #bruce 060103
+
 class ProgressBar( ProgressBarDialog ):
     def __init__(self):
         ### Huaicai 1/10/05: make the dialog as a modal dialog, 
         ### otherwise, if the user close the main window, it will get 
-        ### "RuntimeError: underlying C/C++ object has been deleted   
-        ProgressBarDialog.__init__(self, None, None, True)
+        ### "RuntimeError: underlying C/C++ object has been deleted
+        ## parent = None
+        ## modal = True
+        #bruce 060103 experiment: see if we can let it be nonmodal if we give it a parent.
+        # This works, though it also changes its style and IMHO (on my Mac) makes it worse
+        # (thinner dragbar with tinier closebuttons).
+        # Also there could be bugs for some ops user might do while minimize is running
+        # (but the best fix for those would be to make it safe and permit the ops).
+        # But for now I'll disable this experiment (modal = True).
+        parent = env.mainwindow()
+        modal = True # can work with False, see comment above
+        ProgressBarDialog.__init__(self, parent, None, modal)
+            #args are: def __init__(self,parent = None,name = None,modal = 0,fl = 0)
+
         
-        self.duration = 0 # Seconds that the progress bar takes to complete
-            # [bruce 050415 comment: this is a public atttribute, used by external code
+        self._duration = 0 # Seconds that the progress bar takes to complete
+            # [bruce 050415 comment: 'duration' is a public attribute, used by external code
             #  after the progress bar is hidden and the launch method has returned.]
+            # [bruce 060103: I've now removed that kluge from runSim.py.
+            #  This attr should now be considered private.
+            #  I think I'll rename it to '_duration' to verify that. ####@@@@]
 
     # Start the progressbar
     def launch( self , nsteps, filename = '', caption = "Progress", message = "Calculating...", show_duration = 0):
@@ -74,10 +91,10 @@ class ProgressBar( ProgressBarDialog ):
                 # Process queued events (i.e. clicking Abort button).
             
             if show_duration: # Display duration.
-                elapsedtime = self.duration
-                self.duration = time.time() - self.stime
-                if elapsedtime == self.duration: continue
-                elapmsg = "Elasped Time: " + hhmmss_str(int(self.duration))
+                elapsedtime = self._duration
+                self._duration = time.time() - self.stime
+                if elapsedtime == self._duration: continue
+                elapmsg = "Elasped Time: " + hhmmss_str(int(self._duration))
                 self.msgLabel2.setText(elapmsg) 
             
             if self.abort: # User hit abort button
@@ -88,7 +105,7 @@ class ProgressBar( ProgressBarDialog ):
             
         # End of Main loop
         self.progress.setProgress(nsteps) # 100% done
-        self.duration = time.time() - self.stime
+        self._duration = time.time() - self.stime
         time.sleep(0.1)  # Give the progress bar a moment to show 100%
         self.hide()
         self.progress.reset() # Reset the progress bar.

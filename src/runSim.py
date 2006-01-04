@@ -43,7 +43,7 @@ import env #bruce 050901
 debug_sim = 0 # DO NOT COMMIT with 1
 
 use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
-    # [this is true for bruce and probably false for other developers] #######@@@@@@@
+    # [this is true for bruce and probably false for other developers] ####@@@@
     # [quick links for developers: see also (search for) abort_ or 'if frame_number > 10' ]
 
 debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
@@ -91,17 +91,14 @@ class SimRunner:
         if self.errcode: # used to be a local var 'r'
             # bruce 051115 comment: more than one reason this can happen, one is sim executable missing
             return
-##        self.run_in_foreground = True # all we have for now [050401]
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
         self.set_waitcursor(True)
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
             self.spawn_process()
-                # spawn_process also includes monitor_progress [and insert results back into part]
-                # for now; result error code (or abort button flag) stored in self.errcode
-##            if self.run_in_foreground:
-##                self.monitor_progress() # and wait for it to be done or for abort to be requested and done
+                # spawn_process is misnamed since it also includes monitor_progress [and insert results back into part]
+                # result error code (or abort button flag) stored in self.errcode
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
@@ -322,11 +319,8 @@ class SimRunner:
             return -1
         movie.filetype = ext #bruce 050404 added this
 
-        # Figure out tracefile name, come up with sim-command argument for it,
-        # store that in self.traceFileArg [###e clean that up! split filename and cmd-option...]
-        
-        # The trace file saves the simulation parameters and the output data for jigs.
-        # Mark 2005-03-08
+        # Figure out tracefile name, store in self.traceFileName,
+        # and come up with sim-command argument for it, store that in self.traceFileArg.
         if mflag:
             #bruce 050407 comment: mflag true means "minimize" (value when true means output filetype).
             # Change: Always write tracefile, so Minimize can see warnings in it.
@@ -334,10 +328,6 @@ class SimRunner:
             # so if you create xxx.dpb and xxx.xyz, the trace file names differ.
             # (This means you could save one movie and one minimize output for the same xxx,
             #  and both trace files would be saved too.) That change is now in movie.get_trace_filename().
-            ## old code:
-##            # We currently don't need to write a tracefile when minimizing the part (mflag != 0).
-##            # [bruce comment 050324: but soon we will, to know better when the xyz file is finished or given up on.]
-##            self.traceFileArg = ""
             self.traceFileName = movie.get_trace_filename()
                 # (same as in other case, but retval differs due to movie.filetype)
         else:
@@ -380,10 +370,6 @@ class SimRunner:
         movie = self._movie # old-code compat kluge
         assert movie.alist is not None #bruce 050404
         
-        # Tell user we're creating the movie file...
-    #    msg = "Creating movie file [" + moviefile + "]"
-    #    env.history.message(msg)
-
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
             if debug_sim: #bruce 051115 added this
                 print "part.writemmpfile(%r)" % (mmpfile,)
@@ -535,25 +521,6 @@ class SimRunner:
             simobj = clas(infile)
             # order of set of remaining options should not matter;
             # for correspondence see sim/src files sim.pyx, simhelp.c, and simulator.c
-##            class opts0:
-##                "helper class so we can set sim params using attribute notation; ideally sim.pyx's simobj would do this itself"
-##                def __init__(self, simobj):
-##                    self._simobj = simobj
-##                def __setattr__(self, attr, val):
-##                    if attr.startswith("_"):
-##                        # this happens when we set our own _simobj attribute, during __init__!
-##                        # Assume no simobj params start with "_".
-##                        self.__dict__[attr] = val
-##                    else:
-##                        ## self._simobj.set(attr, val)
-##                        self._simobj.__setattr__(attr, val) #bruce 060101 responding to Will's sim.pyx use of __setattr__
-##                            ###e should be cleaned up (opts0 object should be no longer needed at all), but this should do for now.
-##                            # but i'll leave it for now, but comment it out,
-##                            # just in case the __setattr__ now in sim.pyx goes away for some reason.
-##                    return
-##                pass
-##            simopts = opts0(simobj)
-##            del simobj
             simopts = simobj # for now, use separate variable names to access params vs methods, in case this changes again [b 060102]
             if formarg == '-x':
                 simopts.DumpAsText = 1 # xyz rather than dpb, i guess
@@ -598,11 +565,14 @@ class SimRunner:
                 QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
                 QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
             simProcess.setArguments(arguments)
+            import time
+            start = time.time() #bruce 060103 compute duration differently
             simProcess.start()
-            
             # Launch the progress bar, and let it monitor and show progress and wait until
             # simulator is finished or user aborts it.
-            self.monitor_progress_by_file_growth(movie)
+            self.monitor_progress_by_file_growth(movie) #bruce 060103 made this no longer help us compute duration
+            duration = time.time() - start
+            movie.duration = duration #bruce 060103 (more detailed comment in other place this occurs)
 
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
@@ -661,18 +631,20 @@ class SimRunner:
     
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
         filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
-            # also emits a history message...
+            # only side effect: history message [bruce 060103 comment]
         self.errcode = self.win.progressbar.launch(
                             filesize,
                             filename = movie.filename, 
                             caption = pbarCaption, 
                             message = pbarMsg, 
                             show_duration = 1 )
-            # that 'launch' method is misnamed, since it also waits for completion
+            # that 'launch' method is misnamed, since it also waits for completion;
+            # its only side effects [as of bruce 060103] are showing/updating/hiding progress dialog, abort button, etc.
         return
     
-    def old_guess_filesize_and_progbartext(self, movie): # also emits history msg
-        "..."
+    def old_guess_filesize_and_progbartext(self, movie):
+        "#doc [return a triple of useful values for a progressbar, and emit a related history msg]"
+        #bruce 060103 added docstring
         #bruce 050401 now calling this after spawn not before? not sure... note it emits a history msg.
         # BTW this is totally unclean, all this info should be supplied by the subclass
         # or caller that knows what's going on, not guessed by this routine
@@ -729,13 +701,7 @@ class SimRunner:
             pbarCaption = caption_from_movie
         return filesize, pbarCaption, pbarMsg
 
-##    # separate monitor routines not yet split out from spawn_process, not yet called ###@@@doit
-##    def monitor_progress(self): #e or monitor_some_progress, to be called in a loop with a sleep or show-frame, also by movie player?
-##        """Put up a progress bar (if suitable);
-##        watch the growing trace and trajectory files,
-##        displaying warnings and errors in history widget,
-##        progress-guess in progress bar,
-##        and perhaps in a realtime-playing movie in future;
+#bruce 060103 pared this old comment down to its perhaps-useful parts:
 ##        handle abort button (in progress bar or maybe elsewhere, maybe a command key)
 ##        (btw abort or sim-process-crash does not imply failure, since there might be
 ##         usable partial results, even for minimize with single-frame output);
@@ -744,13 +710,6 @@ class SimRunner:
 ##        whether by abort, crash, or success to end;
 ##        return True if there are any usable results,
 ##        and have a results object available in some public attribute.
-##        """
-##        while not self.monitor_some_progress_doneQ(): # should store self.res I guess??
-##            time.sleep(0.1)
-##        return self.res
-##    def monitor_some_progress_doneQ(self):
-##        "..."
-##        pass
 
     def sim_loop_using_dylib(self): #bruce 051231; compare to sim_loop_using_standalone_executable
         # 051231 6:29pm: works, except no trace file is written so results in history come from prior one (if any)
@@ -764,57 +723,29 @@ class SimRunner:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
             self.remove_old_tracefile(self.traceFileName)
 
-            ###e need to set up Python callbacks, if only to provide time for us to run our progress bar, etc;
-            # or we could run it in a different thread (so old monitoring code can run in this thread) --
-            # that ought to work now...
-            
-            ## Start the simulator in a different thread ### FOR NOW, THIS STARTS IT IN THE SAME THREAD! ####@@@@
-            # But there is no need to fix that, since soon this won't matter since we'll use a per-frame callback function.
-            env.history.message(orangemsg("Warning: running pyrex sim in same thread; nE-1 will hang until it finishes and won't be abortable"))
+            env.history.message(orangemsg("Warning: prototype pyrex sim has no way to abort, and editing structure during sim causes tracebacks"))
             env.call_qApp_processEvents() # so user can see that history message
 
             ###@@@ SIM CLEANUP desired: [bruce 060102]
-            # 1. should set callback using simobj method, or as argument to .go()
-            # (then all this exception crud below would not be needed);
-            # 2. name of callback-setter or option should refer to 'frame',
-            # since there might be more than one callback in the future;
+            # (items 1 & 2 & 4 have been done)
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
-            # 4. setting it to None should set it internally to NULL as optim; not sure if good for noncallable object,
-            # that might later become callable and otherwise is only an error so no need to optim.
 
-##            # do simobj.go with a callback -- everything else here is only to protect against errors
-##            from sim import setCallbackFunc
-##            setCallbackFunc(self.sim_frame_callback)
-##            worked = False
-##            try:
-##                simobj.go()
-##                worked = True
-##            except:
-##                try:
-##                    setCallbackFunc(None) # do this immediately, since it's very important to do it
-##                except:
-##                    # paranoid
-##                    print_compact_traceback("exception in setCallbackFunc(None) while handling (and planning to reraise) another exception: ")
-##                raise # let outer try/except handle the exception in simobj.go()
-##                      # (I don't know if this will still work if we had an exception in setCallbackFunc(None) above... but might as well try)
-##            setCallbackFunc(None) # do this now (redundant after exception (if it didn't reraise), that's ok and maybe good)
-##            assert(worked) # due to reraise, above; means rest of this clause needn't worry about 'not worked'
-
+            import time
+            start = time.time()
             simobj.go( frame_callback = self.sim_frame_callback)
-
-##            # capture and print its stdout and stderr [not yet possible via pyrex interface]
-##            if debug_sim: #bruce 051115 revised this debug code
-##                def blabout():
-##                    print "stdout:", simProcess.readStdout()
-##                def blaberr():
-##                    print "stderr:", simProcess.readStderr()
-##                QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
-##                QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
+            duration = time.time() - start
             
-            # Launch the progress bar, and let it monitor and show progress and wait until
-            # simulator is finished or user aborts it.
-            ### WHILE WE'RE IN SAME THREAD, by this time it's done, so pbar should immediately show full progress (or maybe not get shown at all).
-            self.monitor_progress_by_file_growth(movie)
+            #e capture and print its stdout and stderr [not yet possible via pyrex interface]
+            
+            if 0: #bruce 060103 that progress/abort dialog does us no good when displayed after we're already done, so zap this call
+                self.monitor_progress_by_file_growth(movie)
+            else:
+##                self.win.progressbar.duration = duration ####@@@@
+##                    # kluge, needed since we use this attr to store an estimate of movie-creation time
+##                    # for printing a message about it... far better would be to store duration somewhere else,
+##                    # like in movie object, but current code without this kluge might use a value from some
+##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
+                movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
 
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
@@ -1197,12 +1128,18 @@ class simSetup_CommandRun(CommandRun):
         if not r: # Movie file saved successfully; movie is a newly made Movie object just for the new file
             assert movie
             # if duration took at least 10 seconds, print msg.
-            self.progressbar = self.win.progressbar
-            if self.progressbar.duration >= 10.0: 
-                spf = "%.2f" % (self.progressbar.duration / movie.totalFramesRequested)
+##            self.progressbar = self.win.progressbar ###k needed???
+##            duration = self.progressbar.duration [bruce 060103 zapped this kluge]
+            try:
+                duration = movie.duration #bruce 060103
+            except:
+                # this might happen if earlier exceptions prevented us storing one, so nevermind it for now
+                duration = 0.0
+            if duration >= 10.0: 
+                spf = "%.2f" % (duration / movie.totalFramesRequested)
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
                 from ProgressBar import hhmmss_str
-                estr = hhmmss_str(self.progressbar.duration)
+                estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 env.history.message(cmd + msg) 
             msg = "Movie written to [" + movie.filename + "]."\
