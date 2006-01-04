@@ -64,6 +64,13 @@ cdef class BaseSimulator:
 
     # cdef double *data
 
+    # bruce 060103 comments: BaseSimulator needs an __init__ method which resets all globals 
+    # to their desired initial values, in order to make this correct for successive 
+    # uses of one of these objects in one session. ###@@@
+    # Current code does not support more than one of these objects being active
+    # at one time (trying this will crash); but it's ok to use several in succession 
+    # except for the issue of the globals not being reset to their initial values.
+    
     def __getattr__(self, key):
         if key.startswith('_'):
             # important optimization (when Python asks for __xxx__) [bruce 060102]
@@ -192,21 +199,11 @@ cdef class BaseSimulator:
 
     def go(self, frame_callback=None, trace_callback=None):
         "run the simulator loop; optional frame_callback should be None or a callable object"
-        # bruce 060102 adding frame_callback option, and try/finally to reset callback to None.
-        ### note, this broke the test methods, need to make them pass their callback to .go().
-
-        #e would be best to verify it's callable here, not wait for error when it's used
-        # (but if that error does happen, or an exception in it, maybe it should
-        #  abort the sim run and reraise that exception or some other one from this method)
-        # setFrameCallbackFunc/setWriteTraceCallbackFunc do this
-        # Does "#e" mean the comment can be removed when issue is resolved?   wware 060103
-
-        # NULL is not allowed as an argument to this;
-        # If you type "NULL" in Python, you'll get --> NameError: name 'NULL' is not defined
-        # How else would one use NULL as an argument?   wware 060103
-
-        #e it would be good to convert None to NULL in C code for setCallbackFunc, as an optim
-        # This is done now.  wware 060103
+        
+        #e if there's an exception in the callback, maybe that should abort the sim run
+        # (requiring change to callback-call-helper in simhelp.c, I think)
+        # and reraise that exception or some other one from this method
+        #bruce 060103
 
         setFrameCallbackFunc(frame_callback)
         setWriteTraceCallbackFunc(trace_callback)
@@ -326,6 +323,14 @@ def test3d():
     # Make sure that the DPB file is really binary
     d = Dynamics("tests/dynamics/test_0001.mmp")
     d.go()
+
+def test3e(): #bruce 060103 added this; it presently fails, but I hope to fix it in same commit
+    # Make sure that the DPB file is really binary, even after Minimize is run
+    m = Minimize("tests/minimize/test_h2.mmp")
+    m.go()
+    d = Dynamics("tests/dynamics/test_0001.mmp")
+    d.go()
+    print "now see if tests/dynamics/test_0001.dpb is in DPB format as it should be"
 
 def test4():
     Dynamics("tests/rigid_organics/test_C6H10.mmp")

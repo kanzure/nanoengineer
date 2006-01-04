@@ -167,6 +167,15 @@ void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 
     if (DumpAsText) {
         OutputFormat = 0;
+    } else {
+        // bruce 060103 part of bugfix for Dynamics output format after Minimize
+        // (to complete the fix it would be necessary for every change by sim.pyx of either
+        //  OutputFormat or DumpAsText to make sure the other one changed to fit,
+        //  either at the time of the change or before the next .go method
+        // (or if changed during that method, before their next use by any C code); 
+        // this is not needed by the present client code, so I'll put it off for now 
+        // and hope we can more extensively clean up this option later.)
+        OutputFormat = 1; // sim.pyx only tries to support "old" dpb format for now 
     }
     if (strchr(filename, '.')) {
         sprintf(buf, "%s", filename);
