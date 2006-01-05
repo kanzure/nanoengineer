@@ -521,7 +521,11 @@ class ESPWindow(RectGadget):
         
         cmd = greenmsg("Calculate ESP: ")
         
-        errmsgs = ["Error: Couldn't connect to Nano-Hive instance.",
+        errmsgs = ["Error: Nano-Hive plug-in not enabled.",
+                            "Error: Nano-Hive Plug-in path is empty.",
+                            "Error: Nano-Hive plug-in path points to a file that does not exist.",
+                            "Error: Nano-Hive plug-in is not Version 1.2b.",
+                            "Error: Couldn't connect to Nano-Hive instance.",
                             "Error: Load command failed.",
                             "Error: Run command failed"]
         
@@ -529,7 +533,7 @@ class ESPWindow(RectGadget):
         sims_to_run = ["MPQC_ESP"]
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
         
-        
+        # Name of image file.  This should become a relative path.
         from platform import find_or_make_Nanorex_subdir
         results_file = os.path.join(find_or_make_Nanorex_subdir("Nano-Hive"), self.name + ".png")
         
@@ -537,7 +541,6 @@ class ESPWindow(RectGadget):
         r = run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
         
         if r:
-            #msg = redmsg("Error: Couldn't connect to Nano-Hive instance.")
             msg = redmsg(errmsgs[r-1])
             env.history.message( cmd + msg )
             return

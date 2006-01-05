@@ -2892,7 +2892,7 @@
                                             <cstring>nanohive_lbl</cstring>
                                         </property>
                                         <property name="enabled">
-                                            <bool>false</bool>
+                                            <bool>true</bool>
                                         </property>
                                         <property name="sizePolicy">
                                             <sizepolicy>
@@ -2931,7 +2931,7 @@
                                             <cstring>nanohive_checkbox</cstring>
                                         </property>
                                         <property name="enabled">
-                                            <bool>false</bool>
+                                            <bool>true</bool>
                                         </property>
                                         <property name="text">
                                             <string></string>

@@ -902,13 +902,11 @@ class UserPrefs(UserPrefsDialog):
         if enable:
             self.gamess_path_linedit.setEnabled(1)
             self.gamess_choose_btn.setEnabled(1)
-            self.w.jigsGamessAction.setVisible(1)
             env.prefs[gamess_enabled_prefs_key] = True
             
         else:
             self.gamess_path_linedit.setEnabled(0)
             self.gamess_choose_btn.setEnabled(0)
-            self.w.jigsGamessAction.setVisible(0)
             self.gamess_path_linedit.setText("")
             env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
@@ -916,27 +914,34 @@ class UserPrefs(UserPrefsDialog):
     def set_nanohive_path(self):
         '''Slot for Nano-Hive path "Choose" button.
         '''
-        nanohive_exe = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
-         
-        if nanohive_exe:
-            self.nanohive_path_linedit.setText(nanohive_exe)
-            self.enable_nanohive(1)
+
+        nh = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
+        
+        if nh:
+            self.nanohive_path_linedit.setText(nh)
             
     def enable_nanohive(self, enable=True):
-        '''Nano-Hive is enabled when enable=True.
-        Nano-Hive is disabled when enable=False.
+        '''Enable/disables Nano-Hive plug-in when enable=True/False.
         '''
         if enable:
             self.nanohive_path_linedit.setEnabled(1)
             self.nanohive_choose_btn.setEnabled(1)
-            self.w.simNanoHiveAction.setVisible(1)
-            # Create the Nano-Hive dialog widget.
-            # Mark 050914.
-            from NanoHive import NanoHive
-            self.w.nanohive = NanoHive(self.assy)
-        
-            self.w.simNanoHiveAction.setVisible(1)
+            # Leave Nano-Hive action button/menu hidden for A7.  Mark 2005-01-04.
+            # self.w.simNanoHiveAction.setVisible(1)
+            
+            # Sets the Nano-Hive (executable) path to the standard location, if it exists.
+            if not env.prefs[nanohive_path_prefs_key]:
+                from NanoHiveUtils import get_default_nh_path
+                env.prefs[nanohive_path_prefs_key] = get_default_nh_path()
+            
             env.prefs[nanohive_enabled_prefs_key] = True
+            self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
+                
+            # Create the Nano-Hive dialog widget.
+            # Not needed for A7.  Mark 2005-01-05.
+            #if not self.w.nanohive:
+            #    from NanoHive import NanoHive
+            #    self.w.nanohive = NanoHive(self.assy)
             
         else:
             self.nanohive_path_linedit.setEnabled(0)

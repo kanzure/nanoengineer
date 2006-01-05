@@ -12,9 +12,9 @@ History:
 '''
 __author__ = "Brian"
 
-import env, os
+import env, os, sys, time
 from platform import find_or_make_Nanorex_subdir
-from constants import nanohive_path_prefs_key
+from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 
 def get_nh_simspec_filename(basename):
     '''Return the full path of the Nano-Hive simulation specification file.
@@ -62,8 +62,8 @@ def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
     
     sims_to_run is a list of simulations to run, where:
         MPQC_ESP = MPQC ESP Plane
-        MPQC_GD = MPQC Gradient Dynamics
-        AIREBO = AIREBO
+        MPQC_GD = MPQC Gradient Dynamics (not supported in A7)
+        AIREBO = AIREBO (not supported in A7)
         
     results_to_save is a list of results to save, where:
         MEASUREMENTS = Measurements to file
@@ -72,19 +72,34 @@ def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
 
     Return values:
         0 = successful
-        1 = couldn't connect to Nano-Hive instance
-        2 = load command failed
-        3 = run command failed
+        1 = Nano-Hive plug-in not enabled
+        2 = Nano-Hive Plug-in path is empty
+        3 = Nano-Hive plug-in path points to a file that does not exist
+        4 = Nano-Hive plug-in is not Version 1.2b
+        5 = couldn't connect to Nano-Hive instance
+        6 = load command failed
+        7 = run command failed
     '''
     
     if not sims_to_run:
         return # No simulations to run in the list.
         
-    # Validate that the Nano-Hive executable exists.
-    r = validate_nh_program(None)
+    # Validate that the Nano-Hive plug-in is enabled.
+    if not env.prefs[nanohive_enabled_prefs_key]:
+        r = activate_nh_plugin(assy.w)
+        
+        if r:
+            return 1 # Nano-Hive plug-in not enabled.
+            
+    if not env.prefs[nanohive_path_prefs_key]:
+        return 2 # Nano-Hive plug-in path is empty
     
-    if r: # Nano-Hive program was not found/valid.
-        return 1 # Simulation Cancelled.
+    if not os.path.exists(env.prefs[nanohive_path_prefs_key]):
+        return 3 # Nano-Hive plug-in path points to a file that does not exist
+        
+    r = verify_nanohive_program()
+    if r:
+        return 4 # Nano-Hive plug-in is not Version 1.2b
     
     if not sim_name:
         sim_name = get_sim_name()   
@@ -95,8 +110,13 @@ def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
     # 1. Connect to Nano-Hive, get socket.
     nh_socket = connect_to_nanohive()
     
-#    if not nh_socket: # Error connecting to Nano-Hive instance
-#        return 1
+    if not nh_socket: # No socket.
+        # We assume that Nano-Hive needs to be started, so start it and try connecting again.
+        start_nanohive()
+
+        nh_socket = connect_to_nanohive() # Nano-Hive should be started now. Try connecting again.
+        if not nh_socket:
+            return 5 # Couldn't connect to Nano-Hive socket.
         
     # 2. Write the MMP file that Nano-Hive will use for the sim run.
     assy.writemmpfile(get_nh_mmp_filename(sim_name))
@@ -109,72 +129,158 @@ def run_nh_simulation(assy, sim_name, sim_parms, sims_to_run, results_to_save):
     from files_nh import write_nh_workflow_file
     write_nh_workflow_file(sim_name)
     
-    if not nh_socket: # Error connecting to Nano-Hive instance
-        return 1
-    
     # 5. Send commands to Nano-Hive.  There can be no spaces in partname.  Need to fix this.
     cmd = 'load simulation -f "' + get_nh_simspec_filename(sim_name) + '" -n ' + sim_name
     print "NanoHiveUtils.run_nh_simulation(): N-H load command: ", cmd
     
     success, result = nh_socket.sendCommand(cmd) # Send "load" command.
     if not success:
-        print success, result
-        return 2
+        #print success, result
+        return 6 # "load" command failed
     
     cmd = "run " + sim_name
     print "NanoHiveUtils.run_nh_simulation(): N-H run command: ", cmd
     
     success, result = nh_socket.sendCommand(cmd) # Send "run" command.
     if not success:
-        print success, result
-        return 3
+        #print success, result
+        return 7 # "run" command failed
     
     # All done.  Close the socket. 
     nh_socket.close()
     
     return 0
 
-def validate_nh_program(parent):
-    '''Checks that the Nano-Hive program path exists in the user pref database
-    and that the file it points to exists.  If the Nano-Hive path does not exist, the
-    user will be prompted with the file chooser to select the Nano-Hive executable.
-    This function does not check whether the Nano-Hive path is actually Nano-Hive.
-    
-    parent is the parent Qt Window or Dialog.
-    
-    Returns:  0 = Valid
-                    1 = Invalid
+# This should probably be moved to somewhere else like
+# prefs_constants.py (to set the default value of nanohive_path_prefs_key)
+# or platform.py.
+# Talk to Bruce about pros/cons of this.  Mark 2005-01-05.
+def get_default_nh_path():
+    '''Returns the Nano-Hive (executable) path to the standard location for each platform, 
+    if it exists. Otherwise, return an empty string.
     '''
-    # Get Nano-Hive executable path from the prefs db
-    nanohive_exe = env.prefs[nanohive_path_prefs_key]
-    
-    if not nanohive_exe:
-        msg = "The Nano-Hive executable path is not set.\n"
-    elif os.path.exists(nanohive_exe):
-        return 0
-    else:
-        msg = nanohive_exe + " does not exist.\n"
-        
-    # Nano-Hive Dialog is the parent for messagebox and file chooser.
+    if sys.platform == "win32": # Windows
+        nh_path = "C:\Program Files\Nano-Hive\\bin\win32-x86\NanoHive.exe"
+        if not os.path.exists(nh_path):
+            nh_path = ""
+    elif sys.platform == "darwin": # MacOS
+        nh_path = "" # Need to confirm the default path for MacOS.
+    else: # Linux
+        nh_path = "" # Need to confirm the default path for Linux.
+    return nh_path
+
+def activate_nh_plugin(win):
+    '''Opens a message box informing the user that the Nano-Hive plugin
+    needs to be enabled and asking if they wish to do so.
+    win is the main window object.
+    '''
+
     from qt import QMessageBox
-    ret = QMessageBox.warning( parent, "Nano-Hive Executable Path",
-        msg + "Please select OK to set the location of Nano-Hive for this computer.",
+    ret = QMessageBox.warning( win, "Activate Nano-Hive Plug-in",
+        "Nano-Hive plug-in not enabled. Please select <b>OK</b> to \n" \
+        "activate the Nano-Hive plug-in from the Preferences dialog.",
         "&OK", "Cancel", None,
         0, 1 )
             
     if ret==0: # OK
-        #from UserPrefs import get_gamess_path
-        #self.server.program = get_gamess_path(parent)
-        from UserPrefs import get_filename_and_save_in_prefs
-        nanohive_exe = \
-            get_filename_and_save_in_prefs(parent, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
-        if not nanohive_exe:
-            return 1 # Cancelled from file chooser.
+        win.uprefs.showDialog('Plug-ins') # Show Prefences | Plug-in.
+        if not env.prefs[nanohive_enabled_prefs_key]:
+            return 1 # Nano-Hive was not enabled by user.
         
     elif ret==1: # Cancel
         return 1
 
     return 0
+
+def verify_nanohive_program():
+    '''Returns 0 if nanohive_path_prefs_key is the path to the Nano-Hive v1.2b executable.
+    Otherwise, returns 1.
+    '''
+    vstring = "Nano-Hive version 1.2.0-beta-1 Copyright (C) 2004,2005 Nano-Hive, LLC"
+    r = verify_program(env.prefs[nanohive_path_prefs_key], '-v', vstring)
+    return r
+    
+# This is a general function that should be moved to platform.py or other file.  Mark 2005-01-05.
+def verify_program(program, version_flag, vstring):
+    '''Verifies a program by running it with the version_flag and matching the output to vstring.
+    Returns 0 if there is a match.  Otherwise, returns 1
+    '''
+    
+    if not program:
+        return 1
+    
+    if not os.path.exists(program):
+        return 1
+        
+    args = [program, version_flag]
+    
+    from qt import QStringList, QProcess
+    
+    arguments = QStringList()
+    for arg in args:
+        if arg != "":
+            arguments.append(arg)
+    
+    p = QProcess()
+    p.setArguments(arguments)
+    p.start()
+    
+    start = time.time()
+    while not p.canReadLineStdout():
+        time.sleep(0.25)
+        duration = time.time() - start
+        if duration > 2.0: # 2 seconds
+            return 1
+    
+    output = 'Not vstring'
+    
+    if p.canReadLineStdout():
+        output = str(p.readLineStdout())
+    
+    #print "output=", output
+    #print "vstring=", vstring
+        
+    if output == vstring:
+        return 0
+    else:
+        return 1
+    
+def start_nanohive():
+    '''Starts Nano-Hive in the background.
+    Returns 1 if Nano-Hive path is not set or if the path does not exist.
+    '''
+    # Get Nano-Hive executable path from the prefs db.
+    nanohive_exe = env.prefs[nanohive_path_prefs_key]
+    
+    if not nanohive_exe:
+        return 1
+    
+    if not os.path.exists(nanohive_exe):
+        return 1
+        
+    nanohive_config = os.path.join(get_nh_home(), 'conf\configs.txt')
+    
+    args = [nanohive_exe, '-f', nanohive_config]
+        
+    # Should I check if the configs.txt file exists, too?  Should ask Brian Helfrich. mark 2005-01-04.
+    
+    from qt import QStringList, QProcess
+    
+    arguments = QStringList()
+    for arg in args:
+        if arg != "":
+            arguments.append(arg)
+    
+    nhProcess = QProcess()
+    nhProcess.setArguments(arguments)
+    nhProcess.start()
+    
+    time.sleep(1.0) # Give Nano-Hive a chance to init.
+    
+    # nhProcess is never killed.  Like the EverReady Bunny, it just keeps running and running....
+    # The nhProcess object should be kept so that it can be killed when nE-1 exits.
+    # Talk to Bruce about options for doing this.
+    # Mark 2005-01-04.
 
 def connect_to_nanohive():
     '''Connects to a Nano-Hive instance.  
@@ -184,7 +290,7 @@ def connect_to_nanohive():
     import NanoHiveUtils
 
     hostIP = "127.0.0.1"
-    port = 3002 # SpiderMonkey
+    port = 3000 # Nano-Hive 1.2b uses port 3000, not 3002 as 1.2a did.  mark 2005-01-04.
     serverTimeout = 5.0
     clientTimeout = 30.0
     
