@@ -46,6 +46,11 @@ use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
     # [this is true for bruce and probably false for other developers] ####@@@@
     # [quick links for developers: see also (search for) abort_ or 'if frame_number > 10' ]
 
+# wware 060104   enable use of pyrex with "export USE_PYREX=1" or "set USE_PYREX=1"
+usePyrexKey = "USE_PYREX"
+if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
+    use_pyrex_sim = True
+
 debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
 
 
