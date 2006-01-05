@@ -90,10 +90,15 @@ View changes should happen in succession, i.e. nested requests are saved until
 prior ones complete. This is a form of "merging" since only the ongoing one
 knows when/how it will end and therefore when to start the next one.
 
-(Abort of view change is actually just "abort of the animation", i.e. "hurry
-up and jump to the final viewpoint" (of all view changes queued up). If we
-later have "continuous view changes", abort just means "stop where you are".
-If looping ones, "stop instead of doing the next repetition".)
+Is "abort of view change" just "abort of the animation", i.e. "hurry up and
+jump to the final viewpoint" (of all view changes queued up)? Or is it "stop
+where you are"? Probably the latter -- that's what I assumed in a later part
+of this text, and it's analogous to "abort of minimize".
+
+If we later have "continuous view changes", abort of them just means "stop
+where you are". If we have looping ones, it might mean "stop at the end of
+the current repetition" (or it might still mean "stop here" for consistency).
+
 
 Minimize and View change should be merged, so they happen in parallel, with
 the Minimize loop in control, which means it has to understand that successive
@@ -113,7 +118,9 @@ they have to have special code to decide what to do, or if not, some default
 rule about suspending or aborting the older one, or deferring the newer one,
 decided in general by the older one.
 
-I'll try to code this in a decentralized way and see how it works out.
+I'll try to code this in a decentralized way and see how it works out. (Not
+all *that* decentralized -- there is a new object for the stack of extended
+ops, and a new superclass for specific extended op classes.)
 
 (Hopefully the merging leading to parallel actions is always describable by
 "take union of involved atoms" or "run each parallel action's step method for
@@ -128,10 +135,11 @@ UI:
 
 It seems like we want both Pause and Abort buttons.
 
-View changes: Pause/Continue doesn't change overall amount. Abort abandons it
-where it stands. In future, Undo gets back to beginning. (Undo might even have
-a way to get back into middle of prior ops... not considered yet.) And we
-might add rate-changers, reverse, etc.
+View changes: Pause/Continue doesn't change overall amount. Abort abandons
+it where it stands. In future, Undo gets back to beginning. (Undo might even
+have a way to get back into middle of prior ops... not considered yet.) And
+we might add rate-changer controls, play in reverse, etc (like movie player
+controls).
 
 Minimize: rate changes or reverse would be within the trajectory of a Minimize
 Movie. Same as view changes if we think of that as a smooth trajectory of
@@ -145,6 +153,9 @@ Dynamics re that UI - not thought through.
 
 Future:
 
+We can imagine parallel continuous operations that are aspects of Minimize,
+like basic minimize and "add heat".
+
 Eventually this might subsume and extend the scheme for changing modes, but
 that won't be implemented at first.
 
@@ -156,7 +167,7 @@ based on whether they can legally occur during some op.
 Eventually this needs close integration with "Command architecture", e.g.
 scripting/CLI, Undo, History, etc.
 
-Someday these ops might also share a pause/continue button and maybe more, or
+Someday these ops might also share more buttons (like in movie player), or
 more likely, they might each have a variant of a control panel but share the
 UI location and size for showing this panel when they're the innermost
 abortable operation.
