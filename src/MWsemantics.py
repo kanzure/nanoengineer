@@ -337,11 +337,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # Abort Simulation button and menu item (we will dynamically change its text in methods of self.stack_of_extended_ops)
         #e (make this adder a little helper routine, or loop over table?)
         self.simAbortAction = QAction(self,"simAbortAction")
-        self.simAbortAction.setEnabled(False) # disabled by default
+        self.simAbortAction.setEnabled(True) # disabled by default -- no, enabled for now, so it's visible... #######@@@@@@@
         if 1:
             from Utility import imagename_to_pixmap
             pixmap = imagename_to_pixmap("stopsign.png")
                 # icon file stopsign.png (as of bruce 060104) works in menu but not in toolbar (for Mac Panther)
+                # (actually it works when enabled, it's just gray when disabled, in toolbar.)
         self.simAbortAction.setIconSet(QIconSet(pixmap))
         self.simAbortAction.addTo(self.simToolbar)
         self.simAbortAction.addTo(self.simulatorMenu)
