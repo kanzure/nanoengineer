@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 MWsemantics.py provides the main window class, MWsemantics.
 
@@ -19,23 +19,20 @@ deprecated any remaining uses of win.history, and print a console
 warning whenever they occur.
 '''
 
-## bruce 050408 removed: import qt
 from qt import QWidget, QFrame, SIGNAL, QFileDialog
-    ## bruce 050408 removed: QPushButton, QMainWindow, QPixmap, QGroupBox,
-    ## QComboBox, QAction, QMenuBar, QPopupMenu, SLOT, QListView, QListViewItem
 from qt import QCursor, QBitmap, QWMatrix, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
-from GLPane import GLPane ## bruce 050408 removed: import *
-from assembly import assembly ## bruce 050408 added this, was coming from GLPane
+from GLPane import GLPane 
+from assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
 import os, sys
 import help
 from math import ceil
-from modelTree import modelTree ## bruce 050408 removed: import *
+from modelTree import modelTree 
 import platform
 
 from constants import *
-from elementColors import elementColors ## bruce 050408 removed: import *
-from elementSelector import elementSelector ## bruce 050408 removed: import *
+from elementColors import elementColors 
+from elementSelector import elementSelector 
 from MMKit import MMKit
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
 
@@ -51,11 +48,11 @@ from MainWindowUI import MainWindow
 from HistoryWidget import greenmsg, redmsg
 
 from movieMode import movieDashboardSlotsMixin
-from ops_files import fileSlotsMixin #bruce 050907
+from ops_files import fileSlotsMixin 
 from changes import register_postinit_object
 import preferences
-import env #bruce 050901 (also moved pre_init_fake_history_widget into env.py)
-import undo #bruce 050917
+import env 
+import undo 
 
 elementSelectorWin = None
 elementColorsWin = None
@@ -91,6 +88,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
             # fyi: this connects 138 or more signals to our slot methods [bruce 050917 comment]
+
+        self.make_buttons_not_in_UI_file()
 
         undo.just_after_mainwindow_super_init()
 
@@ -138,7 +137,6 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # self.assy.reset_changed() sometime in this method; it's called below.
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
-#        self.setCaption(self.trUtf8( self.name() +  " - " + "[" + self.assy.name + "]"))
         self.update_mainwindow_caption()
 
         # Create the vertical-splitter between history area (at bottom)
@@ -290,25 +288,29 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             from debug import auto_enable_MacOSX_Tiger_workaround_if_desired
             auto_enable_MacOSX_Tiger_workaround_if_desired( self)
 
-        self.initialised = 1 # enables win_update
+        self.initialised = 1 # enables win_update [should this be moved into _init_after_geometry_is_set?? bruce 060104 question]
 
         # be told to add new Jigs menu items, now or as they become available [bruce 050504]
         register_postinit_object( "Jigs menu items", self )
 
+        # Anything which depends on this window's geometry (which is not yet set at this point)
+        # should be done in the _init_after_geometry_is_set method below, not here. [bruce guess 060104]
+
         return # from MWsemantics.__init__
 
-
-    def startRun(self):
-        '''After the main window(its size and location) has been setup, begin to run the program from this method. 
-        [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method'''
+    def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
+        """Do whatever initialization of self needs to wait until its geometry has been set.
+        [Should be called only once, after geometry is set; can be called before self is shown.]
+        """
+        # older docstring:
+        # After the main window(its size and location) has been setup, begin to run the program from this method. 
+        # [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method]
         
         self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
-            # (no longer done in GLPane.__init__, which used a hardcoded default mode)
-        
+            # Note: this might depend on self's geometry in choosing dialog placement, so it shouldn't be done in __init__.
         self.win_update() # bruce 041222
-
-        undo.just_before_mainwindow_init_returns()
-    
+        undo.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
+        return
     
     def __getattr__(self, attr): #bruce 050913 report deprecated uses of win.history
         if attr == 'history':
@@ -323,7 +325,46 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             # blame item
             print_compact_traceback( "exception (ignored) in postinit_item(%r): " % item )
         return
+
+    stack_of_extended_ops = None
+        # owns a stack of nested actions-with-duration that can be aborted or paused (last first). [bruce 060104]
+
+    def make_buttons_not_in_UI_file(self): #bruce 060104
+        """Make whatever buttons, actions, etc, are for some reason (perhaps a temporary reason)
+        not made in our superclass .ui file. [If you move them into there, remove their code from here,
+        but I suggest not removing this method even if it becomes empty.]
+        """
+        # Abort Simulation button and menu item (we will dynamically change its text in methods of self.stack_of_extended_ops)
+        #e (make this adder a little helper routine, or loop over table?)
+        self.simAbortAction = QAction(self,"simAbortAction")
+        self.simAbortAction.setEnabled(False) # disabled by default
+        if 1:
+            from Utility import imagename_to_pixmap
+            pixmap = imagename_to_pixmap("stopsign.png")
+                # icon file stopsign.png (as of bruce 060104) works in menu but not in toolbar (for Mac Panther)
+        self.simAbortAction.setIconSet(QIconSet(pixmap))
+        self.simAbortAction.addTo(self.simToolbar)
+        self.simAbortAction.addTo(self.simulatorMenu)
+        self.connect(self.simAbortAction,SIGNAL("activated()"),self.simAbort)
+        self.simAbortAction.setText("Abort Sim") # removed __tr, could add it back if desired
+        self.simAbortAction.setMenuText("Abort Sim...")
+
+        ###e also need pause and continue, one hidden and one shown; imitate movie player icons etc
         
+        if 1: # this is needed here even if the self.simAbortAction initializing code gets moved into the .ui file
+          if 0: #######@@@@@@@ DISABLED FOR SAFE COMMIT OF UNFINISHED CODE [bruce 060104]
+            from extended_ops import ExtendedOpStack
+            self.stack_of_extended_ops = ExtendedOpStack(self, [self.simAbortAction])
+                #e in present implem this knows a lot about self.simAbortAction; needs cleanup
+            self.stack_of_extended_ops.update_UI()
+        return
+
+    def simAbort(self): #bruce 060104 ###e also need pause and continue
+        "[slot method]"
+        if self.stack_of_extended_ops:
+            self.stack_of_extended_ops.do_abort()
+        return
+    
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]
         

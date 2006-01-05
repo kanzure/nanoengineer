@@ -1,0 +1,156 @@
+extended_ops.txt
+
+# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+
+$Id$
+
+__author__ = 'bruce'  [drafted 060104]
+
+Internal documentation for extended_ops.py.
+
+==
+
+Generality of this module:
+
+Any operation which recursively processes events should eventually be part of
+this system. It will use this to help it filter what those events can do and
+to notice and adapt to what they did, whether they were the press of an abort
+button, or the start (or end) of another extended op, or something that
+modified the structure the extended op in question is working on.
+
+Even mouse drags should be part of this if anything except mousemoves can
+happen during them (e.g. keypresses, or structure updates by remote
+collaborative users) and potentially needs to affect them.
+
+In the near term, this should include realtime Minimize or Dynamics,
+Movie-file-playing, view change animation, and perhaps Extrude-entry if we
+don't speed that up.
+
+==
+
+Basic idea:
+
+There are some suspended ops and a current op (or nothing).
+
+(Maybe we'll think of Qt's event loop as the default current op. Or the
+current mode. Or both.)
+
+When a trivial new op occurs (not part of this system), it happens atomically;
+if it might mess up extended ops, it needs to run some methods (to be defined
+later #e) to ask whether it can run, or report what it did; in many cases
+these can be standard change-reporting or change-counting methods, with the
+extended op responsible for subscribing to changes and checking for them after
+every call of processEvents, before it does more of its own work that might be
+affected by those changes.
+
+When another extended op is started, it should call something which says to
+the current op "do you want to do me yourself (either in parallel or after
+you're done), or refuse to let me run, or suspend yourself while I run, or
+abort yourself so I can run, or let me decide?"
+
+The current op decides and replies and/or does that.
+
+The stack of suspended ops might end up inside the current op (what it should
+do when done), but in case of bugs in specific ops it seems safer to let it
+exist outside.
+
+===
+
+Examples:
+
+Ongoing Minimizes should be merged with new ones (union of atom sets).
+Therefore there is no "nested Minimize".
+
+Minimize should either incorporate structure changes, or stop when they happen
+(certainly stop when a new file is opened, and probably when we switch Parts
+due to technical limitations, though restart when we switch back ought to be
+doable, if desired).
+
+To implement those, there's a current set of minimizing atoms (maybe with
+per-atom or per-subset details, as if a kind of display mode, and indeed it
+might also contain display prefs for the atoms, that can show things related
+to their motion); structure changes to that set stop the internal Min and
+restart a new one -- this includes changing their bonds or jigs, and also
+"freezing" atoms to remove them from that set, or "Local Min" and "Min Sel" to
+add them to it.
+
+(This means a series of Local Mins ends up adding more and more atoms to the
+set... the set of Anchors needs to be recomputed each time as part of the
+"restart of minimizer".)
+
+
+Dynamics might be treated analogously (with its own set of atoms), but right
+now, we don't have technology to let Min and Dyn happen at the same time,
+though that would be nice; maybe we could do it with the split-out steps of
+Dynamics?
+
+
+View changes should happen in succession, i.e. nested requests are saved until
+prior ones complete. This is a form of "merging" since only the ongoing one
+knows when/how it will end and therefore when to start the next one.
+
+(Abort of view change is actually just "abort of the animation", i.e. "hurry
+up and jump to the final viewpoint" (of all view changes queued up). If we
+later have "continuous view changes", abort just means "stop where you are".
+If looping ones, "stop instead of doing the next repetition".)
+
+Minimize and View change should be merged, so they happen in parallel, with
+the Minimize loop in control, which means it has to understand that successive
+view changes should be done in succession... I wonder if even these parallel
+ops can be kept as separate objects on the stack, with the last one in
+control? The last one decides if the ones stacked behind it are fully
+suspended or can be told to step (as they might also be telling themselves in
+their own loop, between processEvent calls).
+
+
+In general, to handle these: ops know what kind of state they affect; if two
+ops affect disjoint state (like View and Minimize) and are expressed as
+start/step/finish methods (which measure their own time and decide how much
+work to do), then in general they can happen in parallel with one doing the
+loop and calling both their step methods (I think); if the same state, then
+they have to have special code to decide what to do, or if not, some default
+rule about suspending or aborting the older one, or deferring the newer one,
+decided in general by the older one.
+
+I'll try to code this in a decentralized way and see how it works out.
+
+==
+
+UI:
+
+It seems like we want both Pause and Abort buttons.
+
+View changes: Pause/Continue doesn't change overall amount. Abort abandons it
+where it stands. In future, Undo gets back to beginning. (Undo might even have
+a way to get back into middle of prior ops... not considered yet.) And we
+might add rate-changers, reverse, etc.
+
+Minimize: rate changes or reverse would be within the trajectory of a Minimize
+Movie. Same as view changes if we think of that as a smooth trajectory of
+independent state (the view). Pause and Abort are more similar, though, but I
+guess there is this difference: Abort clears the set of Minimized atoms, Pause
+doesn't. (Guess, not thought through.)
+
+Dynamics re that UI - not thought through.
+
+==
+
+Future:
+
+Eventually this might subsume and extend the scheme for changing modes, but
+that won't be implemented at first.
+
+Not sure how it will relate to file open/save/close, or change current part.
+
+Eventually this should also take over the disabling/reenabling of UI actions
+based on whether they can legally occur during some op.
+
+Eventually this needs close integration with "Command architecture", e.g.
+scripting/CLI, Undo, History, etc.
+
+Someday these ops might also share a pause/continue button and maybe more, or
+more likely, they might each have a variant of a control panel but share the
+UI location and size for showing this panel when they're the innermost
+abortable operation.
+
+[end]
