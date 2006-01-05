@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (14.419512) (0.000000, 
 egroup (View Data)
 group (Untitled)
 info opengroup open = True
-mol (Chunk-Si16) vdw
+mol (Chunk-Si16) def
 atom 1 (14) (4184, 1106, 4381) def
 atom 2 (1) (5658, 1216, 4526) def
 bond1 1
