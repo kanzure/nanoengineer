@@ -941,7 +941,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         atoms = self.assy.selatoms_list() #bruce 051031 change
 
         if not atoms:
-            env.history.message(cmd + redmsg("You must first select an atom(s) to create a Linear Motor."))
+            env.history.message(cmd + redmsg("At least one atom must be selected to create a Linear Motor."))
             return
             
         # Print warning if over 200 atoms are selected.
@@ -970,7 +970,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         atoms = self.assy.selatoms_list() #bruce 051031 change
         
         if not atoms:
-            env.history.message(cmd + redmsg("You must first select an atom(s) to create a Gamess Jig."))
+            env.history.message(cmd + redmsg("At least one atom must be selected to create a Gamess Jig."))
             return
         
         # Make sure that no more than 200 atoms are selected.
