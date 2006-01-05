@@ -304,7 +304,7 @@ def badcallback2():
 def isFileAscii(filename):
     from string import printable
     inf = open(filename)
-    R = inf.read()[:1000]
+    R = inf.read(1000)
     inf.close()
     nonascii = 0
     for x in R:
