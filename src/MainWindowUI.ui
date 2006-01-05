@@ -3741,9 +3741,6 @@
         <property name="menuText">
             <string>Gamess</string>
         </property>
-        <property name="visible">
-            <bool>false</bool>
-        </property>
     </action>
     <action>
         <property name="name">

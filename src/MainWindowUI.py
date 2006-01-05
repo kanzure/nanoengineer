@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Nov 26 13:05:20 2005
+# Created: Thu Jan 5 10:30:47 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6737,7 +6737,6 @@ class MainWindow(QMainWindow):
         self.jigsGamessAction = QAction(self,"jigsGamessAction")
         self.jigsGamessAction.setEnabled(1)
         self.jigsGamessAction.setIconSet(QIconSet(self.image128))
-        self.jigsGamessAction.setVisible(0)
         self.simJobManagerAction = QAction(self,"simJobManagerAction")
         self.simJobManagerAction.setIconSet(QIconSet(self.image129))
         self.serverManagerAction = QAction(self,"serverManagerAction")
