@@ -761,6 +761,9 @@ class SimRunner:
             # (items 1 & 2 & 4 have been done)
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
 
+            # wware 060104  Record the positions of the atoms before the simulation, so that they can be
+            # moved back after the real-time movie display. Bruce tells me that this is not acceptable as
+            # a long-term solution, and a history message should be printed. Fixes bug 1265 on a temporary basis.
             oldposns = map(lambda a: a.posn(),
                             self.part.alist)
 
@@ -781,6 +784,9 @@ class SimRunner:
 ##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
                 movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
 
+            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
+            # bug 1265.
+            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
             movie.moveAtoms(oldposns)
 
         except: # We had an exception.
