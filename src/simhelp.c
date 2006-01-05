@@ -305,6 +305,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         dynamicsMovie(part);
     }
     fclose(outf);
+    doneNoExit(0, tracef, "");
     if (tracef != NULL) fclose(tracef);
 
     if (error_occurred) {

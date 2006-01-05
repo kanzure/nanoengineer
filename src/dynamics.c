@@ -43,7 +43,7 @@ oneDynamicsFrame(struct part *part,
     struct xyz *oldPositions = *pOldPositions;
     struct xyz *newPositions = *pNewPositions;
     struct xyz *positions = *pPositions;
-    
+
     iters = max(iters,1);
 
     deltaTframe = 1.0/iters;
@@ -163,7 +163,7 @@ dynamicsMovie(struct part *part)
     vsub2(oldPositions[i], positions[i], part->velocities[i]);
   }
         
-  for (i=0; i<NumFrames; i++) {
+  for (i=0; i<NumFrames && !Interrupted; i++) {
     if (PrintFrameNums) printf(" %d", i);
     fflush(stdout);
     if ((i & 15) == 15)
