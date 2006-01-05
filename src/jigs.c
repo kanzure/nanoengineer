@@ -25,6 +25,7 @@ struct xyz gxyz(double v) {
 void
 jigMotorPreforce(struct jig *jig, struct xyz *position, struct xyz *force, double deltaTframe)
 {
+#if 0
     int n;
     struct xyz rx;
     int k;
@@ -50,7 +51,7 @@ jigMotorPreforce(struct jig *jig, struct xyz *position, struct xyz *force, doubl
             a1 = jig->atoms[k]->index;
             rx = vdif(position[a1], jig->j.rmotor.center);
             f  = vprodc(vx(jig->j.rmotor.axis, uvec(rx)),ff/vlen(rx));
-			    
+
             //fprintf(stderr, "applying torque %f to %d: other force %f\n",
             //       vlen(f), a1, vlen(force[a1]));
 
@@ -60,7 +61,7 @@ jigMotorPreforce(struct jig *jig, struct xyz *position, struct xyz *force, doubl
         jig->data2 = jig->j.rmotor.stall; // torque
 
         rx=uvec(vdif(position[jig->atoms[0]->index], jig->j.rmotor.center));
-			
+
         theta = atan2(vdot(rx, jig->j.rmotor.axisZ), vdot(rx, jig->j.rmotor.axisY));
         /* update the motor's position */
         if (theta>Pi) {
@@ -75,6 +76,7 @@ jigMotorPreforce(struct jig *jig, struct xyz *position, struct xyz *force, doubl
 
         jig->data += theta * deltaTframe;
     }
+#endif
 }
 
 void
@@ -106,71 +108,62 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
     }
 }
 
+/*
+ */
+#define SPRING_STIFFNESS  10.0
+
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
 {
-    double sum_torque;
     int k;
     int a1;
-    struct xyz rx;
+    struct xyz tmp;
     struct xyz f;
-    double ff;
-    double omega, omega0;
-    double motorq;
-    double theta;
-    double stall;
-    double z;
-    struct xyz v1, v2;
+    struct xyz r;
+    double omega, domega_dt;
+    double motorq, dragTorque;
+    double theta, cos_theta, sin_theta;
+    struct xyz anchor;
 
-    if (jig->j.rmotor.speed != 0.0) {
-        sum_torque = 0.0;
-					
-        /* input torque due to forces on each atom */
-        for (k=0; k<jig->num_atoms; k++) {
-            a1 = jig->atoms[k]->index;
-            rx = vdif(position[a1],jig->j.rmotor.atomCenterOfRotation[k]);
-            f = vx(rx,force[a1]);
-            ff = vdot(f, jig->j.rmotor.axis);
-            sum_torque += ff;
-        }
-		    
-        //fprintf(stderr, "*** input torque %f\n", sum_torque);
+    omega = jig->j.rmotor.omega;
+    // Bosch model
+    motorq = jig->j.rmotor.stall * (1. - omega / jig->j.rmotor.speed);
 
-#define FUDGE_FACTOR  2.0e6
-	omega0 = FUDGE_FACTOR * (2.0e9 * Pi) * jig->j.rmotor.speed;
-        omega = (jig->j.rmotor.theta - jig->j.rmotor.theta0) / Dt;
-        motorq = 0.1 * (omega0 - omega);
-	// treat stall torque as a _maximum_ torque
-	stall = FUDGE_FACTOR * abs(jig->j.rmotor.stall);
-	if (motorq < -stall) motorq = -stall;
-	if (motorq > stall) motorq = stall;
+    cos_theta = cos(jig->j.rmotor.theta);
+    sin_theta = sin(jig->j.rmotor.theta);
 
-        omega += motorq + sum_torque * Dt;
-        theta = jig->j.rmotor.theta + omega * Dt;
-
-        /* put atoms in their new places */
-        for (k=0; k<jig->num_atoms; k++) {
-            a1 = jig->atoms[k]->index;
-            z = theta + jig->j.rmotor.atomAngle[k];
-            vmul2c(v1, jig->j.rmotor.axisY, jig->j.rmotor.atomRadius[k] * cos(z));
-            vmul2c(v2, jig->j.rmotor.axisZ, jig->j.rmotor.atomRadius[k] * sin(z));
-            vadd2(new_position[a1], v1, v2);
-            vadd(new_position[a1], jig->j.rmotor.atomCenterOfRotation[k]);
-        }
-					
-        /* update the motor's position */
-        if (theta>Pi) {
-            jig->j.rmotor.theta0 = jig->j.rmotor.theta-2.0*Pi;
-            jig->j.rmotor.theta = theta-2.0*Pi;
-        }
-        else {
-            jig->j.rmotor.theta0 = jig->j.rmotor.theta;
-            jig->j.rmotor.theta = theta;
-        }
-        // data for printing speed trace
-        jig->data += omega * deltaTframe;
-        jig->data2 += (motorq) * deltaTframe;
+    /* nudge atoms toward their new places */
+    for (k=0; k<jig->num_atoms; k++) {
+	a1 = jig->atoms[k]->index;
+	// get the position of this atom's anchor
+	anchor = jig->j.rmotor.u[a1];
+	vmul2c(tmp, jig->j.rmotor.v[a1], cos_theta);
+	vadd(anchor, tmp);
+	vmul2c(tmp, jig->j.rmotor.w[a1], sin_theta);
+	vadd(anchor, tmp);
+	// compute a spring force pushing on the atom
+	tmp = anchor;
+	vsub(tmp, position[jig->atoms[k]->index]);
+	vmul2c(f, tmp, SPRING_STIFFNESS);
+	vadd(force[a1],f);
+	// compute the drag torque pulling back on the motor
+	r = vdif(position[jig->atoms[k]->index], jig->j.rmotor.center);
+	tmp = vx(r, f);   // this time, f is negative
+	dragTorque -= vdot(tmp, jig->j.rmotor.axis);  // so subtract it
     }
+
+    domega_dt = (motorq + dragTorque) / jig->j.rmotor.momentOfInertia;
+    theta = jig->j.rmotor.theta + omega * Dt;
+    jig->j.rmotor.omega = omega = jig->j.rmotor.omega + domega_dt * Dt;
+
+    /* update the motor's position */
+    while (theta > Pi) theta -= 2.0 * Pi;
+    while (theta < -Pi) theta += 2.0 * Pi;
+    jig->j.rmotor.theta = theta;
+    // convert rad/sec to GHz
+    jig->data = jig->j.rmotor.omega / (2.0e9 * Pi);
+    // convert from pN-pm to nN-nm
+    jig->data2 = motorq / ((1e-9/Dx) * (1e-9/Dx));
 }
 
 void
@@ -189,11 +182,11 @@ jigLinearMotor(struct jig *jig, struct xyz *position, struct xyz *new_position, 
         r=vsum(r,position[jig->atoms[i]->index]);
     }
     r=vprodc(r, 1.0/jig->num_atoms);
-    	
+
     // x is length of projection of r onto axis (axis is unit vector)
     x=vdot(r,jig->j.lmotor.axis);
     jig->data = x - jig->j.lmotor.motorPosition;
-    
+
     if (jig->j.lmotor.stiffness == 0.0) {
         vset(f, jig->j.lmotor.center);
     } else {
@@ -226,9 +219,9 @@ jigThermometer(struct jig *jig, double deltaTframe, struct xyz *position, struct
     z = deltaTframe / (3 * jig->num_atoms);
     ff=0.0;
     for (k=0; k<jig->num_atoms; k++) {
-      a1 = jig->atoms[k]->index;
-      f = vdif(position[a1],new_position[a1]);
-      ff += vdot(f, f) * jig->atoms[k]->type->mass;
+	a1 = jig->atoms[k]->index;
+	f = vdif(position[a1],new_position[a1]);
+	ff += vdot(f, f) * jig->atoms[k]->type->mass;
     }
     ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
     jig->data += ff*z;
@@ -252,13 +245,13 @@ jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct 
     ke=0.0;
 
     for (k=0; k<jig->num_atoms; k++) {
-      a1 = jig->atoms[k]->index;
-      mass = jig->atoms[k]->type->mass;
-      therm = sqrt((Boltz*jig->j.thermostat.temperature)/
-                   (mass * 1e-27))*Dt/Dx;
+	a1 = jig->atoms[k]->index;
+	mass = jig->atoms[k]->type->mass;
+	therm = sqrt((Boltz*jig->j.thermostat.temperature)/
+		     (mass * 1e-27))*Dt/Dx;
         v1 = vdif(new_position[a1],position[a1]);
         ff = vdot(v1, v1) * mass;
-        
+
         vmulc(v1,1.0-Gamma);
         v2= gxyz(G1*therm);
         vadd(v1, v2);
@@ -349,3 +342,10 @@ jigRadius(struct jig *jig, struct xyz *new_position)
 
     jig->data = vlen(v1);
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * End:
+ */

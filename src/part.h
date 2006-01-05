@@ -74,18 +74,12 @@ struct jig
       // Vector along motor axis (from center)
       struct xyz axis;
 
-      // Vector perpendicular to axis.  Establishes zero angle for
-      // rotation of motor.
-      struct xyz axisY; // formerly roty
-
-      // Vector orthogonal to both axis and axisY.  Establishes plane
-      // of rotation.
-      struct xyz axisZ; // formerly rotz
+      struct xyz *u, *v, *w;
 
       // How far the motor has turned.
       double theta;
 
-      double theta0;
+      double omega;
 
       // Around axis.
       double momentOfInertia; // formerly moment

@@ -190,8 +190,7 @@ void traceJigData(FILE *f, struct part *part) {
 	    j->data = 0.0;
 	    break;
         case RotaryMotor:
-	    __p += sprintf(__p, " %15.3f %15.3f", j->data/(Dt*2e9*Pi),
-		    j->data2/((1e-9/Dx)*(1e-9/Dx)));
+	    __p += sprintf(__p, " %15.3f %15.3f", j->data, j->data2);
 	    j->data = 0.0;
 	    j->data2 = 0.0;
 	    break;

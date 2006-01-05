@@ -18,11 +18,11 @@
 static void
 defaultParseError(void *stream)
 {
-  struct part *p;
-
-  p = (struct part *)stream;
+    struct part *p;
+    
+    p = (struct part *)stream;
     ERROR1("Parsing part %s", p->filename);
-  doneExit(1, tracef, "Failed to parse part %s", p->filename);
+    doneExit(1, tracef, "Failed to parse part %s", p->filename);
 }
 
 // Create a new part.  Pass in a filename (or any other string
@@ -36,31 +36,31 @@ defaultParseError(void *stream)
 struct part *
 makePart(char *filename, void (*parseError)(void *), void *stream)
 {
-  struct part *p;
-
-  p = (struct part *)allocate(sizeof(struct part));
-  memset(p, 0, sizeof(struct part));
-  p->max_atom_id = -1;
-  p->filename = filename;
-  p->parseError = parseError ? parseError : &defaultParseError;
-  p->stream = parseError ? stream : p;
-  return p;
+    struct part *p;
+    
+    p = (struct part *)allocate(sizeof(struct part));
+    memset(p, 0, sizeof(struct part));
+    p->max_atom_id = -1;
+    p->filename = filename;
+    p->parseError = parseError ? parseError : &defaultParseError;
+    p->stream = parseError ? stream : p;
+    return p;
 }
 
 // Add a bond to the bond list for a single atom.
 static void
 addBondToAtom(struct part *p, struct bond *b, struct atom *a)
 {
-  int i;
-  
-  for (i=0; i<a->num_bonds; i++) {
-    if (a->bonds[i] == NULL) {
-      a->bonds[i] = b;
-      return;
+    int i;
+    
+    for (i=0; i<a->num_bonds; i++) {
+	if (a->bonds[i] == NULL) {
+	    a->bonds[i] = b;
+	    return;
+	}
     }
-  }
-  ERROR("Internal error: No slot for bond in atom");
-  p->parseError(p->stream);
+    ERROR("Internal error: No slot for bond in atom");
+    p->parseError(p->stream);
 }
 
 // After creating all of the atoms and bonds, we go back and tell each
@@ -68,25 +68,25 @@ addBondToAtom(struct part *p, struct bond *b, struct atom *a)
 static void
 addBondsToAtoms(struct part *p)
 {
-  int i;
-  struct bond *b;
-  struct atom *a;
-  
-  for (i=0; i<p->num_bonds; i++) {
-    b = p->bonds[i];
-    b->a1->num_bonds++;
-    b->a2->num_bonds++;
-  }
-  for (i=0; i<p->num_atoms; i++) {
-    a = p->atoms[i];
-    a->bonds = (struct bond **)allocate(sizeof(struct bond *) * a->num_bonds);
-    memset(a->bonds, 0, sizeof(struct bond *) * a->num_bonds);
-  }
-  for (i=0; i<p->num_bonds; i++) {
-    b = p->bonds[i];
-    addBondToAtom(p, b, b->a1);
-    addBondToAtom(p, b, b->a2);
-  }
+    int i;
+    struct bond *b;
+    struct atom *a;
+    
+    for (i=0; i<p->num_bonds; i++) {
+	b = p->bonds[i];
+	b->a1->num_bonds++;
+	b->a2->num_bonds++;
+    }
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+	a->bonds = (struct bond **)allocate(sizeof(struct bond *) * a->num_bonds);
+	memset(a->bonds, 0, sizeof(struct bond *) * a->num_bonds);
+    }
+    for (i=0; i<p->num_bonds; i++) {
+	b = p->bonds[i];
+	addBondToAtom(p, b, b->a1);
+	addBondToAtom(p, b, b->a2);
+    }
 }
 
 // Called to indicate that a parser has finished reading data for this
@@ -95,19 +95,19 @@ addBondsToAtoms(struct part *p)
 struct part *
 endPart(struct part *p)
 {
-  p->parseError = &defaultParseError;
-  p->stream = p;
-  p->num_vanDerWaals = p->num_static_vanDerWaals;
-
-  // XXX realloc any accumulators
-
-  addBondsToAtoms(p);
-
-  // other routines should:
-  // build stretchs, bends, and torsions
-  // calculate initial velocities
-
-  return p;
+    p->parseError = &defaultParseError;
+    p->stream = p;
+    p->num_vanDerWaals = p->num_static_vanDerWaals;
+    
+    // XXX realloc any accumulators
+    
+    addBondsToAtoms(p);
+    
+    // other routines should:
+    // build stretchs, bends, and torsions
+    // calculate initial velocities
+    
+    return p;
 }
 
 
@@ -115,20 +115,20 @@ endPart(struct part *p)
 void
 generateStretches(struct part *p)
 {
-  int i;
-  
-  p->num_stretches = p->num_bonds;
-  p->stretches = (struct stretch *)allocate(sizeof(struct stretch) * p->num_stretches);
-  for (i=0; i<p->num_bonds; i++) {
-    // XXX skip stretch if both ends are grounded
-    p->stretches[i].a1 = p->bonds[i]->a1;
-    p->stretches[i].a2 = p->bonds[i]->a2;
-    p->stretches[i].b = p->bonds[i];
-    // XXX really should send struct atomType instead of protons
-    p->stretches[i].stretchType = getBondStretch(p->stretches[i].a1->type->protons,
-                                                 p->stretches[i].a2->type->protons,
-                                                 p->bonds[i]->order);
-  }
+    int i;
+    
+    p->num_stretches = p->num_bonds;
+    p->stretches = (struct stretch *)allocate(sizeof(struct stretch) * p->num_stretches);
+    for (i=0; i<p->num_bonds; i++) {
+	// XXX skip stretch if both ends are grounded
+	p->stretches[i].a1 = p->bonds[i]->a1;
+	p->stretches[i].a2 = p->bonds[i]->a2;
+	p->stretches[i].b = p->bonds[i];
+	// XXX really should send struct atomType instead of protons
+	p->stretches[i].stretchType = getBondStretch(p->stretches[i].a1->type->protons,
+						     p->stretches[i].a2->type->protons,
+						     p->bonds[i]->order);
+    }
 }
 
 // Fill in the bend data structure for a bend centered on the given
@@ -137,72 +137,72 @@ generateStretches(struct part *p)
 static void
 makeBend(struct part *p, int bend_number, struct atom *a, int bond1, int bond2)
 {
-  struct bend *b;
-
-  b = &p->bends[bend_number];
-  b->ac = a;
-  b->b1 = a->bonds[bond1];
-  b->b2 = a->bonds[bond2];
-
-  if (b->b1->a1 == a) {
-    b->a1 = b->b1->a2;
-    b->dir1 = 1;
-  } else if (b->b1->a2 == a) {
-    b->a1 = b->b1->a1;
-    b->dir1 = 0;
-  } else {
-    // print a better error if it ever happens...
-    fprintf(stderr, "neither end of bond on center!");
-  }
-
-  if (b->b2->a1 == a) {
-    b->a2 = b->b2->a2;
-    b->dir2 = 1;
-  } else if (b->b2->a2 == a) {
-    b->a2 = b->b2->a1;
-    b->dir2 = 0;
-  } else {
-    // print a better error if it ever happens...
-    fprintf(stderr, "neither end of bond on center!");
-  }
-	
-  // XXX should just use atomType instead of protons
-  b->bendType = getBendData(a->type->protons,
-                            b->a1->type->protons, b->b1->order,
-                            b->a2->type->protons, b->b2->order);
+    struct bend *b;
+    
+    b = &p->bends[bend_number];
+    b->ac = a;
+    b->b1 = a->bonds[bond1];
+    b->b2 = a->bonds[bond2];
+    
+    if (b->b1->a1 == a) {
+	b->a1 = b->b1->a2;
+	b->dir1 = 1;
+    } else if (b->b1->a2 == a) {
+	b->a1 = b->b1->a1;
+	b->dir1 = 0;
+    } else {
+	// print a better error if it ever happens...
+	fprintf(stderr, "neither end of bond on center!");
+    }
+    
+    if (b->b2->a1 == a) {
+	b->a2 = b->b2->a2;
+	b->dir2 = 1;
+    } else if (b->b2->a2 == a) {
+	b->a2 = b->b2->a1;
+	b->dir2 = 0;
+    } else {
+	// print a better error if it ever happens...
+	fprintf(stderr, "neither end of bond on center!");
+    }
+    
+    // XXX should just use atomType instead of protons
+    b->bendType = getBendData(a->type->protons,
+			      b->a1->type->protons, b->b1->order,
+			      b->a2->type->protons, b->b2->order);
 }
 
 // Creates a bend for each pair of adjacent bonds in the part.
 void
 generateBends(struct part *p)
 {
-  int i;
-  int j;
-  int k;
-  int bend_index = 0;
-  struct atom *a;
-  
-  // first, count the number of bends
-  for (i=0; i<p->num_atoms; i++) {
-    a = p->atoms[i];
-    for (j=0; j<a->num_bonds; j++) {
-      for (k=j+1; k<a->num_bonds; k++) {
-        p->num_bends++;
-      }
+    int i;
+    int j;
+    int k;
+    int bend_index = 0;
+    struct atom *a;
+    
+    // first, count the number of bends
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+	for (j=0; j<a->num_bonds; j++) {
+	    for (k=j+1; k<a->num_bonds; k++) {
+		p->num_bends++;
+	    }
+	}
     }
-  }
-
-  p->bends = (struct bend *)allocate(sizeof(struct bend) * p->num_bends);
-
-  // now, fill them in (make sure loop structure is same as above)
-  for (i=0; i<p->num_atoms; i++) {
-    a = p->atoms[i];
-    for (j=0; j<a->num_bonds; j++) {
-      for (k=j+1; k<a->num_bonds; k++) {
-        makeBend(p, bend_index++, a, j, k);
-      }
+    
+    p->bends = (struct bend *)allocate(sizeof(struct bend) * p->num_bends);
+    
+    // now, fill them in (make sure loop structure is same as above)
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+	for (j=0; j<a->num_bonds; j++) {
+	    for (k=j+1; k<a->num_bonds; k++) {
+		makeBend(p, bend_index++, a, j, k);
+	    }
+	}
     }
-  }
 }
 
 
@@ -211,19 +211,19 @@ generateBends(struct part *p)
 static void
 invalidateVanDerWaals(struct part *p, struct atom *a)
 {
-  int i;
-  struct vanDerWaals *vdw;
-  
-  for (i=p->num_static_vanDerWaals; i<p->num_vanDerWaals; i++) {
-    vdw = p->vanDerWaals[i];
-    if (vdw && (vdw->a1 == a || vdw->a2 == a)) {
-      p->vanDerWaals[i] = NULL;
-      free(vdw);
-      if (i < p->start_vanDerWaals_free_scan) {
-        p->start_vanDerWaals_free_scan = i;
-      }
+    int i;
+    struct vanDerWaals *vdw;
+    
+    for (i=p->num_static_vanDerWaals; i<p->num_vanDerWaals; i++) {
+	vdw = p->vanDerWaals[i];
+	if (vdw && (vdw->a1 == a || vdw->a2 == a)) {
+	    p->vanDerWaals[i] = NULL;
+	    free(vdw);
+	    if (i < p->start_vanDerWaals_free_scan) {
+		p->start_vanDerWaals_free_scan = i;
+	    }
+	}
     }
-  }
 }
 
 // Find a free slot in the dynamic van der Waals list (either one
@@ -232,147 +232,147 @@ invalidateVanDerWaals(struct part *p, struct atom *a)
 static void
 makeDynamicVanDerWaals(struct part *p, struct atom *a1, struct atom *a2)
 {
-  int i;
-  struct vanDerWaals *vdw = NULL;
-  
-  vdw = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
-
-  for (i=p->start_vanDerWaals_free_scan; i<p->num_vanDerWaals; i++) {
-    if (!(p->vanDerWaals[i])) {
-      p->vanDerWaals[i] = vdw;
-      p->start_vanDerWaals_free_scan = i + 1;
-      break;
+    int i;
+    struct vanDerWaals *vdw = NULL;
+    
+    vdw = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
+    
+    for (i=p->start_vanDerWaals_free_scan; i<p->num_vanDerWaals; i++) {
+	if (!(p->vanDerWaals[i])) {
+	    p->vanDerWaals[i] = vdw;
+	    p->start_vanDerWaals_free_scan = i + 1;
+	    break;
+	}
     }
-  }
-  if (i >= p->num_vanDerWaals) {
-    p->num_vanDerWaals++;
-    p->vanDerWaals = (struct vanDerWaals **)
-      accumulator(p->vanDerWaals,
-                  sizeof(struct vanDerWaals *) * p->num_vanDerWaals, 0);
-    p->vanDerWaals[p->num_vanDerWaals - 1] = vdw;
-    p->start_vanDerWaals_free_scan = p->num_vanDerWaals;
-  }
-  vdw->a1 = a1;
-  vdw->a2 = a2;
-  vdw->parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
+    if (i >= p->num_vanDerWaals) {
+	p->num_vanDerWaals++;
+	p->vanDerWaals = (struct vanDerWaals **)
+	    accumulator(p->vanDerWaals,
+			sizeof(struct vanDerWaals *) * p->num_vanDerWaals, 0);
+	p->vanDerWaals[p->num_vanDerWaals - 1] = vdw;
+	p->start_vanDerWaals_free_scan = p->num_vanDerWaals;
+    }
+    vdw->a1 = a1;
+    vdw->a2 = a2;
+    vdw->parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
 }
 
 // Are a1 and a2 both bonded to the same atom (or to each other)?
 static int
 isBondedToSame(struct atom *a1, struct atom *a2)
 {
-  int i;
-  int j;
-  struct bond *b1;
-  struct bond *b2;
-  struct atom *ac;
-
-  for (i=0; i<a1->num_bonds; i++) {
-    b1 = a1->bonds[i];
-    ac = (b1->a1 == a1) ? b1->a2 : b1->a1;
-    if (ac == a2) {
-      // bonded to each other
-      return 1;
+    int i;
+    int j;
+    struct bond *b1;
+    struct bond *b2;
+    struct atom *ac;
+    
+    for (i=0; i<a1->num_bonds; i++) {
+	b1 = a1->bonds[i];
+	ac = (b1->a1 == a1) ? b1->a2 : b1->a1;
+	if (ac == a2) {
+	    // bonded to each other
+	    return 1;
+	}
+	for (j=0; j<a2->num_bonds; j++) {
+	    b2 = a2->bonds[j];
+	    if (ac == ((b2->a1 == a2) ? b2->a2 : b2->a1)) {
+		// both bonded to common atom ac
+		return 1;
+	    }
+	}
     }
-    for (j=0; j<a2->num_bonds; j++) {
-      b2 = a2->bonds[j];
-      if (ac == ((b2->a1 == a2) ? b2->a2 : b2->a1)) {
-        // both bonded to common atom ac
-        return 1;
-      }
-    }
-  }
-  return 0;
+    return 0;
 }
 
 static void
 verifyVanDerWaals(struct part *p, struct xyz *positions)
 {
-  int *seen;
-  int i;
-  int j;
-  int k;
-  struct atom *a1, *a2;
-  double r1, r2;
-  int i1, i2;
-  struct xyz p1, p2;
-  struct vanDerWaals *vdw;
-  double rvdw;
-  double distance;
-  int found;
-  int actual_count;
-  int notseen_count;
-
-  seen = (int *)allocate(sizeof(int) * p->num_vanDerWaals);
-  for (i=0; i<p->num_vanDerWaals; i++) {
-    seen[i] = 0;
-  }
-
-  for (j=0; j<p->num_atoms; j++) {
-    a1 = p->atoms[j];
-    i1 = a1->index;
-    r1 = a1->type->vanDerWaalsRadius; // angstroms
-    p1 = positions[i1];
-    for (k=j+1; k<p->num_atoms; k++) {
-      a2 = p->atoms[k];
-      if (!isBondedToSame(a1, a2)) {
-        i2 = a2->index;
-        r2 = a2->type->vanDerWaalsRadius; // angstroms
-        p2 = positions[i2];
-        rvdw = (r1 + r2) * 100.0; // picometers
-        distance = vlen(vdif(p1, p2));
-        if (distance < rvdw * 1.5) {
-          found = 0;
-          for (i=0; i<p->num_vanDerWaals; i++) {
-            vdw = p->vanDerWaals[i];
-            if (vdw != NULL) {
-              if (vdw->a1 == a1 && vdw->a2 == a2) {
-                seen[i] = 1;
-                found = 1;
-                break;
-              }
-            }
-          }
-          if (!found) {
-            fprintf(stderr, "missing vdw: a1:");
-            printAtomShort(stderr, a1);
-            fprintf(stderr, " a2:");
-            printAtomShort(stderr, a2);
-            fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
-          }
-        }
-      }
+    int *seen;
+    int i;
+    int j;
+    int k;
+    struct atom *a1, *a2;
+    double r1, r2;
+    int i1, i2;
+    struct xyz p1, p2;
+    struct vanDerWaals *vdw;
+    double rvdw;
+    double distance;
+    int found;
+    int actual_count;
+    int notseen_count;
+    
+    seen = (int *)allocate(sizeof(int) * p->num_vanDerWaals);
+    for (i=0; i<p->num_vanDerWaals; i++) {
+	seen[i] = 0;
     }
-  }
-  actual_count = 0;
-  notseen_count = 0;
-  for (i=0; i<p->num_vanDerWaals; i++) {
-    vdw = p->vanDerWaals[i];
-    if (vdw != NULL) {
-      actual_count++;
-      if (!seen[i]) {
-        notseen_count++;
-        p1 = positions[vdw->a1->index];
-        p2 = positions[vdw->a2->index];
-        distance = vlen(vdif(p1, p2));
-        r1 = vdw->a1->type->vanDerWaalsRadius; // angstroms
-        r2 = vdw->a2->type->vanDerWaalsRadius; // angstroms
-        rvdw = (r1 + r2) * 100.0; // picometers
-        if (distance < rvdw * 1.5) {
-          fprintf(stderr, "should have found this one above!!!\n");
-        }
-        if (distance > rvdw * 1.5 + 866.0) {
-          fprintf(stderr, "unnecessary vdw: a1:");
-          printAtomShort(stderr, vdw->a1);
-          fprintf(stderr, " a2:");
-          printAtomShort(stderr, vdw->a2);
-          fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
-        }
-      }
+    
+    for (j=0; j<p->num_atoms; j++) {
+	a1 = p->atoms[j];
+	i1 = a1->index;
+	r1 = a1->type->vanDerWaalsRadius; // angstroms
+	p1 = positions[i1];
+	for (k=j+1; k<p->num_atoms; k++) {
+	    a2 = p->atoms[k];
+	    if (!isBondedToSame(a1, a2)) {
+		i2 = a2->index;
+		r2 = a2->type->vanDerWaalsRadius; // angstroms
+		p2 = positions[i2];
+		rvdw = (r1 + r2) * 100.0; // picometers
+		distance = vlen(vdif(p1, p2));
+		if (distance < rvdw * 1.5) {
+		    found = 0;
+		    for (i=0; i<p->num_vanDerWaals; i++) {
+			vdw = p->vanDerWaals[i];
+			if (vdw != NULL) {
+			    if (vdw->a1 == a1 && vdw->a2 == a2) {
+				seen[i] = 1;
+				found = 1;
+				break;
+			    }
+			}
+		    }
+		    if (!found) {
+			fprintf(stderr, "missing vdw: a1:");
+			printAtomShort(stderr, a1);
+			fprintf(stderr, " a2:");
+			printAtomShort(stderr, a2);
+			fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
+		    }
+		}
+	    }
+	}
     }
-  }
-  //fprintf(stderr, "num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
-  free(seen); // yes, alloca would work here too.
+    actual_count = 0;
+    notseen_count = 0;
+    for (i=0; i<p->num_vanDerWaals; i++) {
+	vdw = p->vanDerWaals[i];
+	if (vdw != NULL) {
+	    actual_count++;
+	    if (!seen[i]) {
+		notseen_count++;
+		p1 = positions[vdw->a1->index];
+		p2 = positions[vdw->a2->index];
+		distance = vlen(vdif(p1, p2));
+		r1 = vdw->a1->type->vanDerWaalsRadius; // angstroms
+		r2 = vdw->a2->type->vanDerWaalsRadius; // angstroms
+		rvdw = (r1 + r2) * 100.0; // picometers
+		if (distance < rvdw * 1.5) {
+		    fprintf(stderr, "should have found this one above!!!\n");
+		}
+		if (distance > rvdw * 1.5 + 866.0) {
+		    fprintf(stderr, "unnecessary vdw: a1:");
+		    printAtomShort(stderr, vdw->a1);
+		    fprintf(stderr, " a2:");
+		    printAtomShort(stderr, vdw->a2);
+		    fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
+		}
+	    }
+	}
+    }
+    //fprintf(stderr, "num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
+    free(seen); // yes, alloca would work here too.
 }
 
 // XXX watch for atom vibrating between buckets
@@ -382,72 +382,72 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 void
 updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 {
-  int i;
-  int x;
-  int y;
-  int z;
-  int ax;
-  int ay;
-  int az;
-  struct atom *a;
-  struct atom *a2;
-  struct atom **bucket;
-  double r;
-  
-  if (validity && p->vanDerWaals_validity == validity) {
-    return;
-  }
-  for (i=0; i<p->num_atoms; i++) {
-    a = p->atoms[i];
-    ax = (int)positions[i].x / 250;
-    ay = (int)positions[i].y / 250;
-    az = (int)positions[i].z / 250;
-    bucket = &(p->vdwHash[ax&VDW_HASH][ay&VDW_HASH][az&VDW_HASH]);
-    if (a->vdwBucket != bucket) {
-      invalidateVanDerWaals(p, a);
-      // remove a from it's old bucket chain
-      if (a->vdwNext) {
-        a->vdwNext->vdwPrev = a->vdwPrev;
-      }
-      if (a->vdwPrev) {
-        a->vdwPrev->vdwNext = a->vdwNext;
-      } else if (a->vdwBucket) {
-        *(a->vdwBucket) = a->vdwNext;
-      }
-      // and add it to the new one
-      a->vdwBucket = bucket;
-      a->vdwNext = *bucket;
-      a->vdwPrev = NULL;
-      *bucket = a;
-      if (a->vdwNext) {
-        a->vdwNext->vdwPrev = a;
-      }
-      for (x=ax-3; x<=ax+3; x++) {
-        for (y=ay-3; y<=ay+3; y++) {
-          for (z=az-3; z<=az+3; z++) {
-            a2 = p->vdwHash[x&VDW_HASH][y&VDW_HASH][z&VDW_HASH];
-            while (a2 != NULL) {
-              if (!isBondedToSame(a, a2)) {
-                r = vlen(vdif(positions[i], positions[a2->index]));
-                if (r<800.0) {
-                  if (i < a2->index) {
-                    makeDynamicVanDerWaals(p, a, a2);
-                  } else {
-                    makeDynamicVanDerWaals(p, a2, a);
-                  }
-                }
-              }
-              a2 = a2->vdwNext;
-            }
-          }
-        }
-      }
+    int i;
+    int x;
+    int y;
+    int z;
+    int ax;
+    int ay;
+    int az;
+    struct atom *a;
+    struct atom *a2;
+    struct atom **bucket;
+    double r;
+    
+    if (validity && p->vanDerWaals_validity == validity) {
+	return;
     }
-  }
-  p->vanDerWaals_validity = validity;
-  if (DEBUG(D_VERIFY_VDW)) { // -D13
-    verifyVanDerWaals(p, positions);
-  }
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+	ax = (int)positions[i].x / 250;
+	ay = (int)positions[i].y / 250;
+	az = (int)positions[i].z / 250;
+	bucket = &(p->vdwHash[ax&VDW_HASH][ay&VDW_HASH][az&VDW_HASH]);
+	if (a->vdwBucket != bucket) {
+	    invalidateVanDerWaals(p, a);
+	    // remove a from it's old bucket chain
+	    if (a->vdwNext) {
+		a->vdwNext->vdwPrev = a->vdwPrev;
+	    }
+	    if (a->vdwPrev) {
+		a->vdwPrev->vdwNext = a->vdwNext;
+	    } else if (a->vdwBucket) {
+		*(a->vdwBucket) = a->vdwNext;
+	    }
+	    // and add it to the new one
+	    a->vdwBucket = bucket;
+	    a->vdwNext = *bucket;
+	    a->vdwPrev = NULL;
+	    *bucket = a;
+	    if (a->vdwNext) {
+		a->vdwNext->vdwPrev = a;
+	    }
+	    for (x=ax-3; x<=ax+3; x++) {
+		for (y=ay-3; y<=ay+3; y++) {
+		    for (z=az-3; z<=az+3; z++) {
+			a2 = p->vdwHash[x&VDW_HASH][y&VDW_HASH][z&VDW_HASH];
+			while (a2 != NULL) {
+			    if (!isBondedToSame(a, a2)) {
+				r = vlen(vdif(positions[i], positions[a2->index]));
+				if (r<800.0) {
+				    if (i < a2->index) {
+					makeDynamicVanDerWaals(p, a, a2);
+				    } else {
+					makeDynamicVanDerWaals(p, a2, a);
+				    }
+				}
+			    }
+			    a2 = a2->vdwNext;
+			}
+		    }
+		}
+	    }
+	}
+    }
+    p->vanDerWaals_validity = validity;
+    if (DEBUG(D_VERIFY_VDW)) { // -D13
+	verifyVanDerWaals(p, positions);
+    }
 }
 
 
@@ -456,18 +456,18 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 static struct atom *
 translateAtomID(struct part *p, int atomID)
 {
-  int atomIndex;
-  
-  if (atomID < 0 || atomID > p->max_atom_id) {
+    int atomIndex;
+    
+    if (atomID < 0 || atomID > p->max_atom_id) {
 	ERROR2("atom ID %d out of range [0, %d]", atomID, p->max_atom_id);
-    p->parseError(p->stream);
-  }
-  atomIndex = p->atom_id_to_index_plus_one[atomID] - 1;
-  if (atomIndex < 0) {
+	p->parseError(p->stream);
+    }
+    atomIndex = p->atom_id_to_index_plus_one[atomID] - 1;
+    if (atomIndex < 0) {
 	ERROR1("atom ID %d not yet encountered", atomID);
-    p->parseError(p->stream);
-  }
-  return p->atoms[atomIndex];
+	p->parseError(p->stream);
+    }
+    return p->atoms[atomIndex];
 }
 
 // gavss() and gxyz() are also used by the thermostat jig...
@@ -475,28 +475,28 @@ translateAtomID(struct part *p, int atomID)
 static double
 part_gavss(double v)
 {
-  double v0,v1, rSquared;
-
-  do {
-    // generate random numbers in the range [-1.0 .. 1.0]
-    v0=(float)rand()/(float)(RAND_MAX/2) - 1.0;
-    v1=(float)rand()/(float)(RAND_MAX/2) - 1.0;
-    rSquared = v0*v0 + v1*v1;
-  } while (rSquared>=1.0 || rSquared==0.0);
-  // v0 and v1 are uniformly distributed within a unit circle
-  // (excluding the origin)
-  return v*v0*sqrt(-2.0*log(rSquared)/rSquared);
+    double v0,v1, rSquared;
+    
+    do {
+	// generate random numbers in the range [-1.0 .. 1.0]
+	v0=(float)rand()/(float)(RAND_MAX/2) - 1.0;
+	v1=(float)rand()/(float)(RAND_MAX/2) - 1.0;
+	rSquared = v0*v0 + v1*v1;
+    } while (rSquared>=1.0 || rSquared==0.0);
+    // v0 and v1 are uniformly distributed within a unit circle
+    // (excluding the origin)
+    return v*v0*sqrt(-2.0*log(rSquared)/rSquared);
 }
 
 static struct xyz
 part_gxyz(double v)
 {
-  struct xyz g;
-
-  g.x=part_gavss(v);
-  g.y=part_gavss(v);
-  g.z=part_gavss(v);
-  return g;
+    struct xyz g;
+    
+    g.x=part_gavss(v);
+    g.y=part_gavss(v);
+    g.z=part_gavss(v);
+    return g;
 }
 
 // Add an atom to the part.  ExternalID is the atom number as it
@@ -505,75 +505,75 @@ part_gxyz(double v)
 void
 makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 {
-  double mass;
-  double therm;
-  struct atom *a;
-  struct xyz velocity;
-  struct xyz moment;
-  struct xyz momentum;
-
-  if (externalID < 0) {
+    double mass;
+    double therm;
+    struct atom *a;
+    struct xyz velocity;
+    struct xyz moment;
+    struct xyz momentum;
+    
+    if (externalID < 0) {
 	ERROR1("atom ID %d must be >= 0", externalID);
-    p->parseError(p->stream);
-  }
-  if (externalID > p->max_atom_id) {
-    p->max_atom_id = externalID;
-    p->atom_id_to_index_plus_one = (int *)accumulator(p->atom_id_to_index_plus_one,
-                                                      sizeof(int) * (p->max_atom_id + 1), 1);
-  }
-  if (p->atom_id_to_index_plus_one[externalID]) {
+	p->parseError(p->stream);
+    }
+    if (externalID > p->max_atom_id) {
+	p->max_atom_id = externalID;
+	p->atom_id_to_index_plus_one = (int *)accumulator(p->atom_id_to_index_plus_one,
+							  sizeof(int) * (p->max_atom_id + 1), 1);
+    }
+    if (p->atom_id_to_index_plus_one[externalID]) {
 	ERROR2("atom ID %d already defined with index %d", externalID, p->atom_id_to_index_plus_one[externalID] - 1);
-    p->parseError(p->stream);
-  }
-  p->atom_id_to_index_plus_one[externalID] = ++(p->num_atoms);
-
-  p->atoms = (struct atom **)accumulator(p->atoms, sizeof(struct atom *) * p->num_atoms, 0);
-  p->positions = (struct xyz *)accumulator(p->positions, sizeof(struct xyz) * p->num_atoms, 0);
-  p->velocities = (struct xyz *)accumulator(p->velocities, sizeof(struct xyz) * p->num_atoms, 0);
-
-  a = (struct atom *)allocate(sizeof(struct atom));
-  p->atoms[p->num_atoms - 1] = a;
-  a->index = p->num_atoms - 1;
-  a->atomID = externalID;
-
-  vset(p->positions[a->index], position);
-
-  if (elementType < 0 || elementType > MAX_ELEMENT) {
+	p->parseError(p->stream);
+    }
+    p->atom_id_to_index_plus_one[externalID] = ++(p->num_atoms);
+    
+    p->atoms = (struct atom **)accumulator(p->atoms, sizeof(struct atom *) * p->num_atoms, 0);
+    p->positions = (struct xyz *)accumulator(p->positions, sizeof(struct xyz) * p->num_atoms, 0);
+    p->velocities = (struct xyz *)accumulator(p->velocities, sizeof(struct xyz) * p->num_atoms, 0);
+    
+    a = (struct atom *)allocate(sizeof(struct atom));
+    p->atoms[p->num_atoms - 1] = a;
+    a->index = p->num_atoms - 1;
+    a->atomID = externalID;
+    
+    vset(p->positions[a->index], position);
+    
+    if (elementType < 0 || elementType > MAX_ELEMENT) {
 	ERROR1("Invalid element type: %d", elementType);
-    p->parseError(p->stream);
-  }
-  a->type = &periodicTable[elementType];
-  if (a->type->name == NULL) {
+	p->parseError(p->stream);
+    }
+    a->type = &periodicTable[elementType];
+    if (a->type->name == NULL) {
 	ERROR1("Unsupported element type: %d", elementType);
-    p->parseError(p->stream);
-  }
-
-  a->isGrounded = 0;
-  a->num_bonds = 0;
-  a->bonds = NULL;
-  a->vdwBucket = NULL;
-  a->vdwPrev = NULL;
-  a->vdwNext = NULL;
-	
-  mass = a->type->mass * 1e-27;
-  a->inverseMass = Dt * Dt / mass;
-
-  // XXX break this out into another routine
-  therm = sqrt(2.0 * (Boltz * Temperature) / mass) * Dt / Dx;
-  velocity = part_gxyz(therm);
-  vset(p->velocities[a->index], velocity);
-
-  // we should probably have a separate routine that calculates this
-  // based on velocities
-  p->totalKineticEnergy += Boltz*Temperature*1.5;
-
-  p->totalMass += mass;
-	
-  vmul2c(moment, position, mass);
-  vadd(p->centerOfGravity, moment);
-  
-  vmul2c(momentum, velocity, mass);
-  vadd(p->totalMomentum, momentum);
+	p->parseError(p->stream);
+    }
+    
+    a->isGrounded = 0;
+    a->num_bonds = 0;
+    a->bonds = NULL;
+    a->vdwBucket = NULL;
+    a->vdwPrev = NULL;
+    a->vdwNext = NULL;
+    
+    mass = a->type->mass * 1e-27;
+    a->inverseMass = Dt * Dt / mass;
+    
+    // XXX break this out into another routine
+    therm = sqrt(2.0 * (Boltz * Temperature) / mass) * Dt / Dx;
+    velocity = part_gxyz(therm);
+    vset(p->velocities[a->index], velocity);
+    
+    // we should probably have a separate routine that calculates this
+    // based on velocities
+    p->totalKineticEnergy += Boltz*Temperature*1.5;
+    
+    p->totalMass += mass;
+    
+    vmul2c(moment, position, mass);
+    vadd(p->centerOfGravity, moment);
+    
+    vmul2c(momentum, velocity, mass);
+    vadd(p->totalMomentum, momentum);
 }
 
 // Add a new bond to this part.  The atomID's are the external atom
@@ -581,24 +581,24 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 void
 makeBond(struct part *p, int atomID1, int atomID2, char order)
 {
-  struct bond *b;
-
-  /*********************************************************************/
-  // patch to pretend that carbomeric bonds are the same as double bonds
-  if (order == 'c') {
-    order = '2';
-  }
-  /*********************************************************************/
-  
-  p->num_bonds++;
-  p->bonds = (struct bond **)accumulator(p->bonds, sizeof(struct bond *) * p->num_bonds, 0);
-  b = (struct bond *)allocate(sizeof(struct bond));
-  p->bonds[p->num_bonds - 1] = b;
-  b->a1 = translateAtomID(p, atomID1);
-  b->a2 = translateAtomID(p, atomID2);
-  // XXX should we reject unknown bond orders here?
-  b->order = order;
-  b->valid = -1;
+    struct bond *b;
+    
+    /*********************************************************************/
+    // patch to pretend that carbomeric bonds are the same as double bonds
+    if (order == 'c') {
+	order = '2';
+    }
+    /*********************************************************************/
+    
+    p->num_bonds++;
+    p->bonds = (struct bond **)accumulator(p->bonds, sizeof(struct bond *) * p->num_bonds, 0);
+    b = (struct bond *)allocate(sizeof(struct bond));
+    p->bonds[p->num_bonds - 1] = b;
+    b->a1 = translateAtomID(p, atomID1);
+    b->a2 = translateAtomID(p, atomID2);
+    // XXX should we reject unknown bond orders here?
+    b->order = order;
+    b->valid = -1;
 }
 
 // Add a static van der Waals interaction between a pair of bonded
@@ -607,40 +607,40 @@ makeBond(struct part *p, int atomID1, int atomID2, char order)
 void
 makeVanDerWaals(struct part *p, int atomID1, int atomID2)
 {
-  struct vanDerWaals *v;
-
-  p->num_static_vanDerWaals++;
-  p->vanDerWaals = (struct vanDerWaals **)accumulator(p->vanDerWaals, sizeof(struct vanDerWaals *) * p->num_static_vanDerWaals, 0);
-  v = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
-  p->vanDerWaals[p->num_static_vanDerWaals - 1] = v;
-  v->a1 = translateAtomID(p, atomID1);
-  v->a2 = translateAtomID(p, atomID2);
-  v->parameters = getVanDerWaalsTable(v->a1->type->protons, v->a2->type->protons);
+    struct vanDerWaals *v;
+    
+    p->num_static_vanDerWaals++;
+    p->vanDerWaals = (struct vanDerWaals **)accumulator(p->vanDerWaals, sizeof(struct vanDerWaals *) * p->num_static_vanDerWaals, 0);
+    v = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
+    p->vanDerWaals[p->num_static_vanDerWaals - 1] = v;
+    v->a1 = translateAtomID(p, atomID1);
+    v->a2 = translateAtomID(p, atomID2);
+    v->parameters = getVanDerWaalsTable(v->a1->type->protons, v->a2->type->protons);
 }
 
 static struct jig *
 newJig(struct part *p)
 {
-  struct jig *j;
-  
-  p->num_jigs++;
-  p->jigs = (struct jig **)accumulator(p->jigs, sizeof(struct jig *) * p->num_jigs, 0);
-  j = (struct jig *)allocate(sizeof(struct jig));
-  p->jigs[p->num_jigs - 1] = j;
-  return j;
+    struct jig *j;
+    
+    p->num_jigs++;
+    p->jigs = (struct jig **)accumulator(p->jigs, sizeof(struct jig *) * p->num_jigs, 0);
+    j = (struct jig *)allocate(sizeof(struct jig));
+    p->jigs[p->num_jigs - 1] = j;
+    return j;
 }
 
 // Turn an atomID list into an array of struct atom's inside a jig.
 static void
 jigAtomList(struct part *p, struct jig *j, int atomListLength, int *atomList)
 {
-  int i;
-  
-  j->atoms = (struct atom **)allocate(sizeof(struct atom *) * atomListLength);
-  j->num_atoms = atomListLength;
-  for (i=0; i<atomListLength; i++) {
-    j->atoms[i] = translateAtomID(p, atomList[i]);
-  }
+    int i;
+    
+    j->atoms = (struct atom **)allocate(sizeof(struct atom *) * atomListLength);
+    j->num_atoms = atomListLength;
+    for (i=0; i<atomListLength; i++) {
+	j->atoms[i] = translateAtomID(p, atomList[i]);
+    }
 }
 
 // Turn a pair of atomID's into an array of struct atom's inside a
@@ -649,15 +649,15 @@ jigAtomList(struct part *p, struct jig *j, int atomListLength, int *atomList)
 static void
 jigAtomRange(struct part *p, struct jig *j, int firstID, int lastID)
 {
-  int len = lastID < firstID ? 0 : 1 + lastID - firstID;
-  int id;
-  int i;
-  
-  j->atoms = (struct atom **)allocate(sizeof(struct atom *) * len);
-  j->num_atoms = len;
-  for (i=0, id=firstID; id<=lastID; i++, id++) {
-    j->atoms[i] = translateAtomID(p, id);
-  }
+    int len = lastID < firstID ? 0 : 1 + lastID - firstID;
+    int id;
+    int i;
+    
+    j->atoms = (struct atom **)allocate(sizeof(struct atom *) * len);
+    j->num_atoms = len;
+    for (i=0, id=firstID; id<=lastID; i++, id++) {
+	j->atoms[i] = translateAtomID(p, id);
+    }
 }
 
 // Create a ground jig in this part, given the jig name, and the list
@@ -665,15 +665,15 @@ jigAtomRange(struct part *p, struct jig *j, int firstID, int lastID)
 void
 makeGround(struct part *p, char *name, int atomListLength, int *atomList)
 {
-  int i;
-  struct jig *j = newJig(p);
-
-  j->type = Ground;
-  j->name = name;
-  jigAtomList(p, j, atomListLength, atomList);
-  for (i=0; i<atomListLength; i++) {
-    j->atoms[i]->isGrounded = 1;
-  }
+    int i;
+    struct jig *j = newJig(p);
+    
+    j->type = Ground;
+    j->name = name;
+    jigAtomList(p, j, atomListLength, atomList);
+    for (i=0; i<atomListLength; i++) {
+	j->atoms[i]->isGrounded = 1;
+    }
 }
 
 
@@ -683,11 +683,11 @@ makeGround(struct part *p, char *name, int atomListLength, int *atomList)
 void
 makeThermometer(struct part *p, char *name, int firstAtomID, int lastAtomID)
 {
-  struct jig *j = newJig(p);
-
-  j->type = Thermometer;
-  j->name = name;
-  jigAtomRange(p, j, firstAtomID, lastAtomID);
+    struct jig *j = newJig(p);
+    
+    j->type = Thermometer;
+    j->name = name;
+    jigAtomRange(p, j, firstAtomID, lastAtomID);
 }
 
 // Create an dihedral meter jig in this part, given the jig name, and the
@@ -696,16 +696,16 @@ makeThermometer(struct part *p, char *name, int firstAtomID, int lastAtomID)
 void
 makeDihedralMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3, int atomID4)
 {
-  struct jig *j = newJig(p);
-
-  j->type = DihedralMeter;
-  j->name = name;
-  j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 4);
-  j->num_atoms = 4;
-  j->atoms[0] = translateAtomID(p, atomID1);
-  j->atoms[1] = translateAtomID(p, atomID2);
-  j->atoms[2] = translateAtomID(p, atomID3);
-  j->atoms[3] = translateAtomID(p, atomID4);
+    struct jig *j = newJig(p);
+    
+    j->type = DihedralMeter;
+    j->name = name;
+    j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 4);
+    j->num_atoms = 4;
+    j->atoms[0] = translateAtomID(p, atomID1);
+    j->atoms[1] = translateAtomID(p, atomID2);
+    j->atoms[2] = translateAtomID(p, atomID3);
+    j->atoms[3] = translateAtomID(p, atomID4);
 }
 
 // Create an angle meter jig in this part, given the jig name, and the
@@ -714,15 +714,15 @@ makeDihedralMeter(struct part *p, char *name, int atomID1, int atomID2, int atom
 void
 makeAngleMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3)
 {
-  struct jig *j = newJig(p);
-
-  j->type = AngleMeter;
-  j->name = name;
-  j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 3);
-  j->num_atoms = 3;
-  j->atoms[0] = translateAtomID(p, atomID1);
-  j->atoms[1] = translateAtomID(p, atomID2);
-  j->atoms[2] = translateAtomID(p, atomID3);
+    struct jig *j = newJig(p);
+    
+    j->type = AngleMeter;
+    j->name = name;
+    j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 3);
+    j->num_atoms = 3;
+    j->atoms[0] = translateAtomID(p, atomID1);
+    j->atoms[1] = translateAtomID(p, atomID2);
+    j->atoms[2] = translateAtomID(p, atomID3);
 }
 
 // Create a radius jig in this part, given the jig name, and the two
@@ -731,14 +731,14 @@ makeAngleMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3
 void
 makeRadiusMeter(struct part *p, char *name, int atomID1, int atomID2)
 {
-  struct jig *j = newJig(p);
-
-  j->type = RadiusMeter;
-  j->name = name;
-  j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 2);
-  j->num_atoms = 2;
-  j->atoms[0] = translateAtomID(p, atomID1);
-  j->atoms[1] = translateAtomID(p, atomID2);
+    struct jig *j = newJig(p);
+    
+    j->type = RadiusMeter;
+    j->name = name;
+    j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 2);
+    j->num_atoms = 2;
+    j->atoms[0] = translateAtomID(p, atomID1);
+    j->atoms[1] = translateAtomID(p, atomID2);
 }
 
 // Create a thermostat jig in this part, given the name of the jig,
@@ -748,12 +748,12 @@ makeRadiusMeter(struct part *p, char *name, int atomID1, int atomID2)
 void
 makeThermostat(struct part *p, char *name, double temperature, int firstAtomID, int lastAtomID)
 {
-  struct jig *j = newJig(p);
-
-  j->type = Thermostat;
-  j->name = name;
-  j->j.thermostat.temperature = temperature;
-  jigAtomRange(p, j, firstAtomID, lastAtomID);
+    struct jig *j = newJig(p);
+    
+    j->type = Thermostat;
+    j->name = name;
+    j->j.thermostat.temperature = temperature;
+    jigAtomRange(p, j, firstAtomID, lastAtomID);
 }
 
 // Create a rotary motor jig in this part, given the name of the jig,
@@ -768,72 +768,65 @@ makeRotaryMotor(struct part *p, char *name,
                 struct xyz *center, struct xyz *axis,
                 int atomListLength, int *atomList)
 {
-  int i;
-  double mass;
-  double x;
-  double rmax = 0.0;
-  double momentOfInertia;
-  struct xyz r;
-  struct xyz maxRadiusVector;
-  struct xyz q;
-  struct jig *j = newJig(p);
+    int i, k;
+    double mass, ratio;
+    struct jig *j = newJig(p);
+    
+    j->type = RotaryMotor;
+    j->name = name;
 
-  j->type = RotaryMotor;
-  j->name = name;
-  j->j.rmotor.stall = stall * (1e-9/Dx) * (1e-9/Dx);
-  j->j.rmotor.speed = speed * 1e9 * 2.0 * Pi * Dt;
-  j->j.rmotor.center = *center;
-  j->j.rmotor.axis = uvec(*axis);
-  jigAtomList(p, j, atomListLength, atomList);
+    // Example uses 1 nN-nm -> 1e6 pN-pm
+    // Example uses 2 GHz -> 12.5664e9 radians/second
 
-  j->j.rmotor.atomCenterOfRotation = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
-  j->j.rmotor.atomSpoke = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
-  j->j.rmotor.atomRadius = (double *)allocate(sizeof(double) * atomListLength);
-  j->j.rmotor.atomAngle = (double *)allocate(sizeof(double) * atomListLength);
-  for (i=0; i<j->num_atoms; i++) {
-    /* for each atom connected to the "shaft" */
-    mass = j->atoms[i]->type->mass * 1e-27;
-		
-    /* find its projection onto the rotation vector */
-    r = vdif(p->positions[j->atoms[i]->index], j->j.rmotor.center);
-    x = vdot(r,j->j.rmotor.axis);
-    vmul2c(q, j->j.rmotor.axis, x);
-    vadd2(j->j.rmotor.atomCenterOfRotation[i], q, j->j.rmotor.center);
-		
-    /* and orthogonal distance */
-    r=vdif(p->positions[j->atoms[i]->index], j->j.rmotor.atomCenterOfRotation[i]);
-    j->j.rmotor.atomSpoke[i] = r;
-    j->j.rmotor.atomRadius[i] = vlen(r);
-    if (j->j.rmotor.atomRadius[i] > rmax) {
-      //rmax = j->j.rmotor.atomRadius[i] XXX not in original code, but should be.
-      maxRadiusVector = r;
-    }
-		
-    momentOfInertia += j->j.rmotor.atomRadius[i] * mass;
-  }
-  // mot->moment = (Dt*Dt)/mominert;
-  // give the motor a flywheel w/ Tc about a picosecond
-  j->j.rmotor.momentOfInertia = (Dt*Dt)/(stall*1e8*1e-27/(1e-9/Dx));
-
-  j->j.rmotor.theta = 0.0;
-  j->j.rmotor.theta0 = 0.0;
+    // convert nN-nm to pN-pm
+    j->j.rmotor.stall = stall * (1e-9/Dx) * (1e-9/Dx);
+    // convert from gigahertz to radians per second
+    j->j.rmotor.speed = speed * 2.0e9 * Pi;
+    j->j.rmotor.center = *center;
+    j->j.rmotor.axis = uvec(*axis);
+    // axis now has a length of one
+    jigAtomList(p, j, atomListLength, atomList);
+    
+    j->j.rmotor.u = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.v = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.w = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.momentOfInertia = 0.0;
+    for (i=0; i<j->num_atoms; i++) {
+	struct xyz r, v;
+	double lenv;
+	k = j->atoms[i]->index;
+	/* for each atom connected to the motor */
+	mass = j->atoms[i]->type->mass * 1e-27;   // TODO: review units
 	
-  /* set up coordinate system for rotations */
-  j->j.rmotor.axisY = uvec(maxRadiusVector);
-  j->j.rmotor.axisZ = vx(j->j.rmotor.axis, j->j.rmotor.axisY);
-
-  /* the idea is that an atom at (radius, atang) can be rotated theta
-     by putting it at radius*(roty*cos(nt)+rotz*sin(nt))
-     where nt is theta + atang
-  */
-  for (i=0; i<j->num_atoms; i++) {
-    r = uvec(j->j.rmotor.atomSpoke[i]);
-    j->j.rmotor.atomAngle[i] = atan2(vdot(r, j->j.rmotor.axisZ), vdot(r, j->j.rmotor.axisY));
-  }
-
-  if (speed == 0) {
-    j->j.rmotor.theta = j->j.rmotor.atomAngle[0];
-  }
+	/* u, v, and w can be used to compute the new anchor position from
+	 * theta. The new position is u + v cos(theta) + w sin(theta). u is
+	 * parallel to the motor axis, v and w are perpendicular to the axis
+	 * and perpendicular to each other and the same length.
+	 */
+	r = vdif(p->positions[k], j->j.rmotor.center);
+	vmul2c(j->j.rmotor.u[i], j->j.rmotor.axis, vdot(r, j->j.rmotor.axis));
+	v = r;
+	vsub(v, j->j.rmotor.u[i]);
+	lenv = vlen(v);
+	j->j.rmotor.v[i] = v;
+	j->j.rmotor.w[i] = vx(j->j.rmotor.axis, v);
+	
+	j->j.rmotor.momentOfInertia += mass * lenv * lenv;
+    }
+    
+    // Add a flywheel with ten times the moment of inertia of the atoms
+    j->j.rmotor.momentOfInertia *= 11.0;
+    j->j.rmotor.theta = 0.0;
+    j->j.rmotor.omega = 0.0;
+    
+    /* test for numerical stability */
+    // TODO: review units
+    ratio = (Dt * j->j.rmotor.stall) /
+	(j->j.rmotor.momentOfInertia * j->j.rmotor.speed);
+    if (ratio < -0.3 || ratio > 0.3) {
+	fprintf(stderr, "ratio of torque to speed is too high\n");
+	exit(1);
+    }
 }
 
 // Create a linear motor jig in this part, given the name of the jig,
@@ -851,306 +844,313 @@ makeLinearMotor(struct part *p, char *name,
                 struct xyz *center, struct xyz *axis,
                 int atomListLength, int *atomList)
 {
-  int i;
-  double x;
-  struct xyz centerOfAtoms;
-  struct jig *j = newJig(p);
-
-  j->type = LinearMotor;
-  j->name = name;
-  j->j.lmotor.force = force;
-  j->j.lmotor.stiffness = stiffness;
-  j->j.lmotor.center = *center;
-  j->j.lmotor.axis = uvec(*axis);
-  jigAtomList(p, j, atomListLength, atomList);
-
-  centerOfAtoms = vcon(0.0);
-  for (i=0; i<atomListLength; i++) {
-    centerOfAtoms = vsum(centerOfAtoms, p->positions[j->atoms[i]->index]);
-  }
-  centerOfAtoms = vprodc(centerOfAtoms, 1.0 / atomListLength);
-  
-  // x is length of projection of centerOfAtoms onto axis (from
-  // origin, not center)
-  x = vdot(centerOfAtoms, j->j.lmotor.axis);
-  j->j.lmotor.motorPosition = x;
-
-  if (stiffness == 0.0) {
-    j->j.lmotor.zeroPosition = x;
-    j->j.lmotor.center = vprodc(j->j.lmotor.axis, force / atomListLength);
-  } else {
-    j->j.lmotor.zeroPosition = x + force / stiffness ;
-  }
+    int i;
+    double x;
+    struct xyz centerOfAtoms;
+    struct jig *j = newJig(p);
+    
+    j->type = LinearMotor;
+    j->name = name;
+    j->j.lmotor.force = force;
+    j->j.lmotor.stiffness = stiffness;
+    j->j.lmotor.center = *center;
+    j->j.lmotor.axis = uvec(*axis);
+    jigAtomList(p, j, atomListLength, atomList);
+    
+    centerOfAtoms = vcon(0.0);
+    for (i=0; i<atomListLength; i++) {
+	centerOfAtoms = vsum(centerOfAtoms, p->positions[j->atoms[i]->index]);
+    }
+    centerOfAtoms = vprodc(centerOfAtoms, 1.0 / atomListLength);
+    
+    // x is length of projection of centerOfAtoms onto axis (from
+    // origin, not center)
+    x = vdot(centerOfAtoms, j->j.lmotor.axis);
+    j->j.lmotor.motorPosition = x;
+    
+    if (stiffness == 0.0) {
+	j->j.lmotor.zeroPosition = x;
+	j->j.lmotor.center = vprodc(j->j.lmotor.axis, force / atomListLength);
+    } else {
+	j->j.lmotor.zeroPosition = x + force / stiffness ;
+    }
 }
 
 void
 printXYZ(FILE *f, struct xyz p)
 {
-  fprintf(f, "(%f, %f, %f)", p.x, p.y, p.z);
+    fprintf(f, "(%f, %f, %f)", p.x, p.y, p.z);
 }
 
 void
 printAtomShort(FILE *f, struct atom *a)
 {
-  fprintf(f, "%s(%d)", a->type->symbol, a->atomID);
+    fprintf(f, "%s(%d)", a->type->symbol, a->atomID);
 }
 
 char
 printableBondOrder(struct bond *b)
 {
-  switch (b->order) {
-  case '1':
-    return '-' ;
-    break;
-  case '2':
-    return '=' ;
-    break;
-  case '3':
-    return '+' ;
-    break;
-  case 'a':
-    return '~' ;
-    break;
-  case 'g':
-    return '^' ;
-    break;
-  case 'c':
-    return '#' ;
-    break;
-  default:
-    return b->order;
-    break;
-  }
+    switch (b->order) {
+    case '1':
+	return '-' ;
+	break;
+    case '2':
+	return '=' ;
+	break;
+    case '3':
+	return '+' ;
+	break;
+    case 'a':
+	return '~' ;
+	break;
+    case 'g':
+	return '^' ;
+	break;
+    case 'c':
+	return '#' ;
+	break;
+    default:
+	return b->order;
+	break;
+    }
 }
 
 
 void
 printAtom(FILE *f, struct part *p, struct atom *a)
 {
-  int i;
-  struct bond *b;
-  
-  fprintf(f, " atom ");
-  printAtomShort(f, a);
-  fprintf(f, " ");
-  printXYZ(f, p->positions[a->index]);
-  for (i=0; i<a->num_bonds; i++) {
+    int i;
+    struct bond *b;
+    
+    fprintf(f, " atom ");
+    printAtomShort(f, a);
     fprintf(f, " ");
-    b = a->bonds[i];
-    fprintf(f, "%c", printableBondOrder(b));
-    if (b->a1 == a) {
-      printAtomShort(f, b->a2);
-    } else if (b->a2 == a) {
-      printAtomShort(f, b->a1);
-    } else {
-      fprintf(f, "!!! improper bond on atom: ");
-      printAtomShort(f, b->a1);
-      printAtomShort(f, b->a2);
+    printXYZ(f, p->positions[a->index]);
+    for (i=0; i<a->num_bonds; i++) {
+	fprintf(f, " ");
+	b = a->bonds[i];
+	fprintf(f, "%c", printableBondOrder(b));
+	if (b->a1 == a) {
+	    printAtomShort(f, b->a2);
+	} else if (b->a2 == a) {
+	    printAtomShort(f, b->a1);
+	} else {
+	    fprintf(f, "!!! improper bond on atom: ");
+	    printAtomShort(f, b->a1);
+	    printAtomShort(f, b->a2);
+	}
     }
-  }
-  fprintf(f, "\n");
+    fprintf(f, "\n");
 }
 
 void
 printBond(FILE *f, struct part *p, struct bond *b)
 {
-  fprintf(f, " bond ");
-  printAtomShort(f, b->a1);
-  fprintf(f, "%c", printableBondOrder(b));
-  printAtomShort(f, b->a2);
-  fprintf(f, "\n");
+    fprintf(f, " bond ");
+    printAtomShort(f, b->a1);
+    fprintf(f, "%c", printableBondOrder(b));
+    printAtomShort(f, b->a2);
+    fprintf(f, "\n");
 }
 
 char *
 printableJigType(struct jig *j)
 {
-  switch (j->type) {
-  case Ground:        return "Ground";
-  case Thermometer:   return "Thermometer";
-  case DihedralMeter: return "DihedralMeter";
-  case AngleMeter:    return "AngleMeter";
-  case RadiusMeter:   return "RadiusMeter";
-  case Thermostat:    return "Thermostat";
-  case RotaryMotor:   return "RotaryMotor";
-  case LinearMotor:   return "LinearMotor";
-  default:            return "unknown";
-  }
+    switch (j->type) {
+    case Ground:        return "Ground";
+    case Thermometer:   return "Thermometer";
+    case DihedralMeter: return "DihedralMeter";
+    case AngleMeter:    return "AngleMeter";
+    case RadiusMeter:   return "RadiusMeter";
+    case Thermostat:    return "Thermostat";
+    case RotaryMotor:   return "RotaryMotor";
+    case LinearMotor:   return "LinearMotor";
+    default:            return "unknown";
+    }
 }
 
 void
 printJig(FILE *f, struct part *p, struct jig *j)
 {
-  int i;
-  
-  fprintf(f, " %s jig (%s)", printableJigType(j), j->name);
-  for (i=0; i<j->num_atoms; i++) {
-    fprintf(f, " ");
-    printAtomShort(f, j->atoms[i]);
-  }
-  fprintf(f, "\n");
-  switch (j->type) {
-  case Thermostat:
-    fprintf(f, "  temperature: %f\n", j->j.thermostat.temperature);
-    break;
-  case RotaryMotor:
-    fprintf(f, "  stall: %f\n", j->j.rmotor.stall);
-    fprintf(f, "  speed: %f\n", j->j.rmotor.speed);
-    fprintf(f, "  center: ");
-    printXYZ(f, j->j.rmotor.center);
+    int i;
+    
+    fprintf(f, " %s jig (%s)", printableJigType(j), j->name);
+    for (i=0; i<j->num_atoms; i++) {
+	fprintf(f, " ");
+	printAtomShort(f, j->atoms[i]);
+    }
     fprintf(f, "\n");
-    fprintf(f, "  axis: ");
-    printXYZ(f, j->j.rmotor.axis);
-    fprintf(f, "\n");
-    break;
-  case LinearMotor:
-    fprintf(f, "  force: %f\n", j->j.lmotor.force);
-    fprintf(f, "  stiffness: %f\n", j->j.lmotor.stiffness);
-    fprintf(f, "  center: ");
-    printXYZ(f, j->j.lmotor.center);
-    fprintf(f, "\n");
-    fprintf(f, "  axis: ");
-    printXYZ(f, j->j.lmotor.axis);
-    fprintf(f, "\n");
-    break;
-  default:
-    break;
-  }
+    switch (j->type) {
+    case Thermostat:
+	fprintf(f, "  temperature: %f\n", j->j.thermostat.temperature);
+	break;
+    case RotaryMotor:
+	fprintf(f, "  stall: %f\n", j->j.rmotor.stall);
+	fprintf(f, "  speed: %f\n", j->j.rmotor.speed);
+	fprintf(f, "  center: ");
+	printXYZ(f, j->j.rmotor.center);
+	fprintf(f, "\n");
+	fprintf(f, "  axis: ");
+	printXYZ(f, j->j.rmotor.axis);
+	fprintf(f, "\n");
+	break;
+    case LinearMotor:
+	fprintf(f, "  force: %f\n", j->j.lmotor.force);
+	fprintf(f, "  stiffness: %f\n", j->j.lmotor.stiffness);
+	fprintf(f, "  center: ");
+	printXYZ(f, j->j.lmotor.center);
+	fprintf(f, "\n");
+	fprintf(f, "  axis: ");
+	printXYZ(f, j->j.lmotor.axis);
+	fprintf(f, "\n");
+	break;
+    default:
+	break;
+    }
 }
 
 void
 printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v)
 {
-  double len;
-  double potential;
-  double gradient;
-  struct xyz p1;
-  struct xyz p2;
-
-  if (v != NULL) {
-    fprintf(f, " vanDerWaals ");
-    printAtomShort(f, v->a1);
-    fprintf(f, " ");
-    printAtomShort(f, v->a2);
-
-    p1 = p->positions[v->a1->index];
-    p2 = p->positions[v->a2->index];
-    vsub(p1, p2);
-    len = vlen(p1);
-
+    double len;
+    double potential;
+    double gradient;
+    struct xyz p1;
+    struct xyz p2;
     
-    potential = vanDerWaalsPotential(NULL, NULL, v->parameters, len);
-    gradient = vanDerWaalsGradient(NULL, NULL, v->parameters, len);
-    fprintf(f, " r: %f r0: %f, V: %f, dV: %f\n", len, v->parameters->rvdW, potential, gradient);
-  }
+    if (v != NULL) {
+	fprintf(f, " vanDerWaals ");
+	printAtomShort(f, v->a1);
+	fprintf(f, " ");
+	printAtomShort(f, v->a2);
+	
+	p1 = p->positions[v->a1->index];
+	p2 = p->positions[v->a2->index];
+	vsub(p1, p2);
+	len = vlen(p1);
+	
+	
+	potential = vanDerWaalsPotential(NULL, NULL, v->parameters, len);
+	gradient = vanDerWaalsGradient(NULL, NULL, v->parameters, len);
+	fprintf(f, " r: %f r0: %f, V: %f, dV: %f\n", len, v->parameters->rvdW, potential, gradient);
+    }
 }
 
 void
 printStretch(FILE *f, struct part *p, struct stretch *s)
 {
-  double len;
-  double potential;
-  double gradient;
-  struct xyz p1;
-  struct xyz p2;
-  
-  fprintf(f, " stretch ");
-  printAtomShort(f, s->a1);
-  fprintf(f, ", ");
-  printAtomShort(f, s->a2);
-  fprintf(f, ":  %s ", s->stretchType->bondName);
-
-  p1 = p->positions[s->a1->index];
-  p2 = p->positions[s->a2->index];
-  vsub(p1, p2);
-  len = vlen(p1);
-
-  potential = stretchPotential(NULL, NULL, s->stretchType, len);
-  gradient = stretchGradient(NULL, NULL, s->stretchType, len);
-  fprintf(f, "r: %f r0: %f, V: %f, dV: %f\n", len, s->stretchType->r0, potential, gradient);
+    double len;
+    double potential;
+    double gradient;
+    struct xyz p1;
+    struct xyz p2;
+    
+    fprintf(f, " stretch ");
+    printAtomShort(f, s->a1);
+    fprintf(f, ", ");
+    printAtomShort(f, s->a2);
+    fprintf(f, ":  %s ", s->stretchType->bondName);
+    
+    p1 = p->positions[s->a1->index];
+    p2 = p->positions[s->a2->index];
+    vsub(p1, p2);
+    len = vlen(p1);
+    
+    potential = stretchPotential(NULL, NULL, s->stretchType, len);
+    gradient = stretchGradient(NULL, NULL, s->stretchType, len);
+    fprintf(f, "r: %f r0: %f, V: %f, dV: %f\n", len, s->stretchType->r0, potential, gradient);
 }
 
 void
 printBend(FILE *f, struct part *p, struct bend *b)
 {
-  double invlen;
-  double costheta;
-  double theta;
-  double dTheta;
-  double potential;
-  //double z;
-  struct xyz p1;
-  struct xyz pc;
-  struct xyz p2;
-  
-  fprintf(f, " bend ");
-  printAtomShort(f, b->a1);
-  fprintf(f, ", ");
-  printAtomShort(f, b->ac);
-  fprintf(f, ", ");
-  printAtomShort(f, b->a2);
-  fprintf(f, ":  %s ", b->bendType->bendName);
-
-  p1 = p->positions[b->a1->index];
-  pc = p->positions[b->ac->index];
-  p2 = p->positions[b->a2->index];
-
-  vsub(p1, pc);
-  invlen = 1.0 / vlen(p1);
-  vmulc(p1, invlen); // p1 is now unit vector from ac to a1
-  
-  vsub(p2, pc);
-  invlen = 1.0 / vlen(p2);
-  vmulc(p2, invlen); // p2 is now unit vector from ac to a2
-
-  costheta = vdot(p1, p2);
-  theta = acos(costheta);
-  fprintf(f, "theta: %f ", theta * 180.0 / Pi);
-
+    double invlen;
+    double costheta;
+    double theta;
+    double dTheta;
+    double potential;
+    //double z;
+    struct xyz p1;
+    struct xyz pc;
+    struct xyz p2;
+    
+    fprintf(f, " bend ");
+    printAtomShort(f, b->a1);
+    fprintf(f, ", ");
+    printAtomShort(f, b->ac);
+    fprintf(f, ", ");
+    printAtomShort(f, b->a2);
+    fprintf(f, ":  %s ", b->bendType->bendName);
+    
+    p1 = p->positions[b->a1->index];
+    pc = p->positions[b->ac->index];
+    p2 = p->positions[b->a2->index];
+    
+    vsub(p1, pc);
+    invlen = 1.0 / vlen(p1);
+    vmulc(p1, invlen); // p1 is now unit vector from ac to a1
+    
+    vsub(p2, pc);
+    invlen = 1.0 / vlen(p2);
+    vmulc(p2, invlen); // p2 is now unit vector from ac to a2
+    
+    costheta = vdot(p1, p2);
+    theta = acos(costheta);
+    fprintf(f, "theta: %f ", theta * 180.0 / Pi);
+    
 #if 0
-  z = vlen(vsum(p1, p2)); // z is length of cord between where bonds intersect unit sphere
-
+    z = vlen(vsum(p1, p2)); // z is length of cord between where bonds intersect unit sphere
+    
 #define ACOS_POLY_A -0.0820599
 #define ACOS_POLY_B  0.142376
 #define ACOS_POLY_C -0.137239
 #define ACOS_POLY_D -0.969476
-
-  // this is the equivalent of theta=arccos(z);
-  theta = Pi + z * (ACOS_POLY_D +
-               z * (ACOS_POLY_C +
-               z * (ACOS_POLY_B +
-               z *  ACOS_POLY_A   )));
-
-  fprintf(f, "polytheta: %f ", theta * 180.0 / Pi);
+    
+    // this is the equivalent of theta=arccos(z);
+    theta = Pi + z * (ACOS_POLY_D +
+		      z * (ACOS_POLY_C +
+			   z * (ACOS_POLY_B +
+				z *  ACOS_POLY_A   )));
+    
+    fprintf(f, "polytheta: %f ", theta * 180.0 / Pi);
 #endif
-      
-  dTheta = (theta - b->bendType->theta0);
-  potential = 1e-6 * 0.5 * dTheta * dTheta * b->bendType->kb;
-  
-  fprintf(f, "theta0: %f dTheta: %f, V: %f\n", b->bendType->theta0 * 180.0 / Pi, dTheta * 180.0 / Pi, potential);
+    
+    dTheta = (theta - b->bendType->theta0);
+    potential = 1e-6 * 0.5 * dTheta * dTheta * b->bendType->kb;
+    
+    fprintf(f, "theta0: %f dTheta: %f, V: %f\n", b->bendType->theta0 * 180.0 / Pi, dTheta * 180.0 / Pi, potential);
 }
 
 void
 printPart(FILE *f, struct part *p)
 {
-  int i;
-  
-  fprintf(f, "part loaded from file %s\n", p->filename);
-  for (i=0; i<p->num_atoms; i++) {
-    printAtom(f, p, p->atoms[i]);
-  }
-  for (i=0; i<p->num_bonds; i++) {
-    printBond(f, p, p->bonds[i]);
-  }
-  for (i=0; i<p->num_jigs; i++) {
-    printJig(f, p, p->jigs[i]);
-  }
-  for (i=0; i<p->num_vanDerWaals; i++) {
-    printVanDerWaals(f, p, p->vanDerWaals[i]);
-  }
-  for (i=0; i<p->num_stretches; i++) {
-    printStretch(f, p, &p->stretches[i]);
-  }
-  for (i=0; i<p->num_bends; i++) {
-    printBend(f, p, &p->bends[i]);
-  }
+    int i;
+    
+    fprintf(f, "part loaded from file %s\n", p->filename);
+    for (i=0; i<p->num_atoms; i++) {
+	printAtom(f, p, p->atoms[i]);
+    }
+    for (i=0; i<p->num_bonds; i++) {
+	printBond(f, p, p->bonds[i]);
+    }
+    for (i=0; i<p->num_jigs; i++) {
+	printJig(f, p, p->jigs[i]);
+    }
+    for (i=0; i<p->num_vanDerWaals; i++) {
+	printVanDerWaals(f, p, p->vanDerWaals[i]);
+    }
+    for (i=0; i<p->num_stretches; i++) {
+	printStretch(f, p, &p->stretches[i]);
+    }
+    for (i=0; i<p->num_bends; i++) {
+	printBend(f, p, &p->bends[i]);
+    }
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * End:
+ */

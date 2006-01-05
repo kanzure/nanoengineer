@@ -20,32 +20,30 @@
 
 #ifdef WWDEBUG
 // handy little debug macros
-#define MARK()   { FILE *outf = fopen("/home/wware/FOO", "a"); \
-              fprintf(outf, "%s:%d\n", __FILE__, __LINE__); fclose(outf); }
 #define SAY(fmt)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
-              fprintf(outf, fmt); fprintf(outf, "\n"); fclose(outf); }
+              fprintf(outf, fmt); fclose(outf); }
 #define SAY1(fmt,a)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
-              fprintf(outf, fmt, a); fprintf(outf, "\n"); fclose(outf); }
+              fprintf(outf, fmt, a); fclose(outf); }
 #define SAY2(fmt,a,b)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
-              fprintf(outf, fmt, a, b); fprintf(outf, "\n"); fclose(outf); }
+              fprintf(outf, fmt, a, b); fclose(outf); }
 #define SAY3(fmt,a,b,c)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
-              fprintf(outf, fmt, a, b, c); fprintf(outf, "\n"); fclose(outf); }
+              fprintf(outf, fmt, a, b, c); fclose(outf); }
 #else
-#define MARK()
 #define SAY(fmt)
 #define SAY1(fmt,a)
 #define SAY2(fmt,a,b)
 #define SAY3(fmt,a,b,c)
 #endif
 
-#define SAY_INT(x)   SAY1("%s=%d", #x, x)
-#define SAY_DBL(x)   SAY1("%s=%lg", #x, x)
-#define SAY_XYZ(s)   SAY1("%s={%lf,%lf,%lf)", #s, (s).x, (s).y, (s).z)
-#define SAY_HEX(x)   SAY1("%s=%p", #x, x)
+#define MARK()       SAY("\n")
+#define SAY_INT(x)   SAY2("%s=%d\n", #x, x)
+#define SAY_DBL(x)   SAY2("%s=%lg\n", #x, x)
+#define SAY_XYZ(s)   SAY2("%s={%lf,%lf,%lf)\n", #s, (s).x, (s).y, (s).z)
+#define SAY_PTR(x)   SAY2("%s=%p\n", #x, x)
 
 #define iabs(x) (x<0 ? -(x) : x)
 #ifndef min
