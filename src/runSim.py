@@ -53,6 +53,23 @@ if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
 
 debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
 
+if debug_sim:
+    import qt, GLPane
+    def recursiveFindAttribute(obj, stack=None, indent="", ignoreThese=dir(qt)+dir(GLPane)):
+        import types
+        if stack == None:
+            stack = [ ]
+        keys = filter(lambda x: not x.startswith("__"), dir(obj))
+        for k in keys:
+            v = getattr(obj, k)
+            if v not in stack:
+                sys.stderr.write(indent + repr(v) + " " + repr(k) + " " + repr(obj) + " " + repr(stack) + "\n")
+                if type(v) == types.InstanceType and \
+                       v.__class__.__name__ not in ignoreThese:
+                    recursiveFindAttribute(v, [ obj, k, ] + stack, indent+"\t")
+                if type(v) == types.ListType:
+                    for vv in v:
+                        recursiveFindAttribute(vv, [ obj, k, ] + stack, indent+"\t")
 
 cmd = greenmsg("Simulator: ")
     #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
@@ -744,6 +761,9 @@ class SimRunner:
             # (items 1 & 2 & 4 have been done)
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
 
+            oldposns = map(lambda a: a.posn(),
+                            self.part.alist)
+
             import time
             start = time.time()
             simobj.go( frame_callback = self.sim_frame_callback)
@@ -760,6 +780,8 @@ class SimRunner:
 ##                    # like in movie object, but current code without this kluge might use a value from some
 ##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
                 movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
+
+            movie.moveAtoms(oldposns)
 
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
