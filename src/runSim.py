@@ -558,8 +558,11 @@ class SimRunner:
             self.simProcess = QProcess()
             simProcess = self.simProcess
             if debug_sim: #bruce 051115 revised this debug code
+                # wware 060104  Create a shell script to re-run simulator
 		outf = open("args", "w")
-                outf.write("#!/bin/sh\n")
+                # On the Mac, "-f" prevents running .bashrc
+                # On Linux it disables filename wildcards (harmless)
+                outf.write("#!/bin/sh -f\n")
                 for a in arguments:
                     outf.write(str(a) + " \\\n")
                 outf.write("\n")
