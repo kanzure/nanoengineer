@@ -378,6 +378,7 @@ dynamicsMovie_finish(void)
     free(_newPositions);
     free(_positions);
     free(_force);
+    doneNoExit(0, tracef, "");
 }
 
 
