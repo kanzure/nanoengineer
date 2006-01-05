@@ -237,8 +237,11 @@ class SimRunner:
                 # this works for developers if they set up symlinks... might not be right...
             worked = self.import_dylib_sim(self.dylib_path)
             if not worked:
-                #####@@@@@ fix dylib filename in this message
-                msg = redmsg("The simulator dynamic library [sim.so on Mac or Linux, in " + self.dylib_path +
+                # The dylib filename on Windows can be either sim.dll or sim.pyd -- should we mention them both?
+                # If the imported name is not the usual one, or if two are present, should we print a warning?
+                ##e Surely this message text (and the other behavior suggested above) should depend on the platform
+                # and be encapsulated in some utility function for loading dynamic libraries. [bruce 060104]
+                msg = redmsg("The simulator dynamic library [sim.so or sim.dll, in " + self.dylib_path +
                              "] is missing or could not be imported. Trying standalone executable simulator.")
                 env.history.message(cmd + msg)
                 ## return -1
@@ -761,11 +764,16 @@ class SimRunner:
             # (items 1 & 2 & 4 have been done)
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
 
-            # wware 060104  Record the positions of the atoms before the simulation, so that they can be
-            # moved back after the real-time movie display. Bruce tells me that this is not acceptable as
-            # a long-term solution, and a history message should be printed. Fixes bug 1265 on a temporary basis.
-            oldposns = map(lambda a: a.posn(),
-                            self.part.alist)
+#bruce 060104 commenting this out, since it causes problems for Minimize and since it doesn't always work even for Dynamics,
+# often producing shell output like
+# "moveAtoms: The number of atoms from XYZ file (11) is not matching with that of the current model (16)"
+# and not actually moving the atoms.
+# Also the intended fix is controversial so we might as well agree on what's desired before fixing the fix.
+##            # wware 060104  Record the positions of the atoms before the simulation, so that they can be
+##            # moved back after the real-time movie display. Bruce tells me that this is not acceptable as
+##            # a long-term solution, and a history message should be printed. Fixes bug 1265 on a temporary basis.
+##            oldposns = map(lambda a: a.posn(),
+##                            self.part.alist)
 
             import time
             start = time.time()
@@ -784,10 +792,11 @@ class SimRunner:
 ##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
                 movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
 
-            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
-            # bug 1265.
-            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
-            movie.moveAtoms(oldposns)
+#bruce 060104 commenting this out [explained above]
+##            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
+##            # bug 1265.
+##            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
+##            movie.moveAtoms(oldposns)
 
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
