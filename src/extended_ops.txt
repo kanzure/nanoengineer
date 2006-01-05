@@ -75,14 +75,15 @@ restart a new one -- this includes changing their bonds or jigs, and also
 add them to it.
 
 (This means a series of Local Mins ends up adding more and more atoms to the
-set... the set of Anchors needs to be recomputed each time as part of the
-"restart of minimizer".)
+set, if the older ones have not finished... the set of Anchors needs to be
+recomputed each time as part of the "restart of minimizer".)
 
 
-Dynamics might be treated analogously (with its own set of atoms), but right
-now, we don't have technology to let Min and Dyn happen at the same time,
-though that would be nice; maybe we could do it with the split-out steps of
-Dynamics?
+Dynamics might be treated analogously (with its own set of atoms). Also,
+Will's split of Dynamics loop into steps means that we could run one internal
+Minimize job in parallel with one or more internal Dynamics jobs, so it's
+feasible to let some atoms do dynamics while others minimize, if anyone wants
+this.)
 
 
 View changes should happen in succession, i.e. nested requests are saved until
@@ -113,6 +114,13 @@ rule about suspending or aborting the older one, or deferring the newer one,
 decided in general by the older one.
 
 I'll try to code this in a decentralized way and see how it works out.
+
+(Hopefully the merging leading to parallel actions is always describable by
+"take union of involved atoms" or "run each parallel action's step method for
+each overall step, in the right order" (for when view changes are in parallel
+with Minimize), and the other kind of combinations are "do this guy at end, or
+first, or not, or abort first". If so, how to implement it in principle is
+pretty fully described above.)
 
 ==
 
