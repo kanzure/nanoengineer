@@ -13,6 +13,7 @@ from qt import qApp, QMessageBox
 from ProgressBarDialog import ProgressBarDialog
     #bruce 050415 removed "import *" from both of those
 
+from platform import hhmmss_str #bruce 060106 moved that function there
 import env #bruce 060103
 
 class ProgressBar( ProgressBarDialog ):
@@ -41,7 +42,7 @@ class ProgressBar( ProgressBarDialog ):
             #  This attr should now be considered private.
             #  I think I'll rename it to '_duration' to verify that. ####@@@@]
 
-    # Start the progressbar
+    # Start the progressbar [see also StatusBar.py's show_progressbar_and_stop_button, which is a modified copy of this method]
     def launch( self , nsteps, filename = '', caption = "Progress", message = "Calculating...", show_duration = 0):
         """Launch a progress bar dialog, and update it while a file is being written
         by some other process, to show the size of that file as progress, while waiting
@@ -70,8 +71,6 @@ class ProgressBar( ProgressBarDialog ):
             self.progress.hide()
         else:
             self.progress.show()
-
-#        print "ProgressBar: nsteps =",nsteps,", filename =", filename
         
         # Set up and show progress box
         # Need to set the border icon to "minimize", "simulator" or default based on flag.  Later...
@@ -87,7 +86,7 @@ class ProgressBar( ProgressBarDialog ):
             if os.path.exists(filename): filesize = os.path.getsize(filename)
             self.progress.setProgress( filesize )
             import env
-            env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
+            env.call_qApp_processEvents()
                 # Process queued events (i.e. clicking Abort button).
             
             if show_duration: # Display duration.
@@ -142,24 +141,5 @@ class ProgressBar( ProgressBarDialog ):
         self.abort_run()
         
     pass # end of class ProgressBar
-
-# This was originally a method of ProgressBar.  Made it standalone so that other
-# modules can import and use it (like runSim.py and GamessJob.py).
-# This should be moved to another file.  Ask Bruce.  Mark 051119.
-def hhmmss_str(secs):
-    """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
-    # [bruce 050415 comment: this is sometimes called from external code
-    #  after the progressbar is hidden and our launch method has returned.]
-    # bruce 050415 revising this to use pure int computations (so bugs from
-    #  numeric roundoff can't occur) and to fix a bug when hours > 0 (commented below).
-    secs = int(secs)
-    hours = int(secs/3600) # use int divisor, not float
-    # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
-    minutes = int(secs/60 - hours*60)
-    seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
-    if hours:
-        return '%02d:%02d:%02d' % (hours, minutes, seconds)
-    else:
-        return '%02d:%02d' % (minutes, seconds)
 
 # end

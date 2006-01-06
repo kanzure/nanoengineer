@@ -53,6 +53,9 @@ usePyrexKey = "USE_PYREX"
 if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
     use_pyrex_sim = True
 
+use_pyrex_sim = False #######@@@@@@@ DO NOT COMMIT
+
+
 debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
 
 if debug_sim:
@@ -1192,7 +1195,7 @@ class simSetup_CommandRun(CommandRun):
             if duration >= 10.0: 
                 spf = "%.2f" % (duration / movie.totalFramesRequested)
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
-                from ProgressBar import hhmmss_str
+                from platform import hhmmss_str
                 estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 env.history.message(cmd + msg) 

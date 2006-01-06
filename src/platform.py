@@ -4,13 +4,16 @@ platform.py -- module for platform-specific code,
 especially for such code that needs to be called from various other modules.
 
 Also includes some other code that might conceivably vary by platform,
-but mainly is here since it had no better place to live.
+but mainly is here since it had no better place to live. In fact, by 060106
+most of its code is like that, and a lot of it has something to do with messages
+or the screen or files, that is, issues having to do with both the UI and the
+OS interface.
 
 $Id$
 
 bruce 050913 used env.history in some places, revised open_file_in_editor API.
 """
-__author__ = "bruce"
+__author__ = "bruce" # and others
 
 import sys, os, time
 from qt import Qt, QDesktopWidget, QRect
@@ -453,6 +456,22 @@ def fix_plurals(text, between = 1):
     if not count:
         print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
     return " ".join(words)
+
+def hhmmss_str(secs):
+    """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
+    # [bruce 050415 comment: this is sometimes called from external code
+    #  after the progressbar is hidden and our launch method has returned.]
+    # bruce 050415 revising this to use pure int computations (so bugs from
+    #  numeric roundoff can't occur) and to fix a bug when hours > 0 (commented below).
+    secs = int(secs)
+    hours = int(secs/3600) # use int divisor, not float
+    # (btw, the int() wrapper has no effect until python int '/' operator changes to produce nonints)
+    minutes = int(secs/60 - hours*60)
+    seconds = int(secs - minutes*60 - hours*3600) #bruce 050415 fix bug 439: also subtract hours
+    if hours:
+        return '%02d:%02d:%02d' % (hours, minutes, seconds)
+    else:
+        return '%02d:%02d' % (minutes, seconds)
 
 # ==
 

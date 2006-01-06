@@ -176,7 +176,7 @@ class GamessJob(SimJob):
                 
             msgLabel = self.progressDialog.getMsgLabel()
             duration = time.time() - self.stime
-            from ProgressBar import hhmmss_str
+            from platform import hhmmss_str
             elapmsg = "Elasped Time: " + hhmmss_str(int(duration))
             msgLabel.setText(elapmsg)
             
@@ -437,7 +437,7 @@ class JobProgressDialog(QDialog):
                     break
                 
                 duration = time.time() - stime
-                from ProgressBar import hhmmss_str
+                from platform import hhmmss_str
                 elapmsg = "Elasped Time: " + hhmmss_str(int(duration))
                 self.msgLabel2.setText(elapmsg) 
         

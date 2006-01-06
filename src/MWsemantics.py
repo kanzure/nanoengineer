@@ -184,11 +184,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         vsplitter.setOpaqueResize(False)
         self.setCentralWidget(vsplitter) # this was required (what exactly does it do?)
 
-        # Create a progress bar widget for use during time consuming operations,
-        # such as minimize, simulator and select doubly.  Mark 050101
-        # [bruce 060103 suspects it's by now quite customized for Minimize and Simulate; not sure.]
-        from ProgressBar import ProgressBar
-        self.progressbar = ProgressBar()
+#bruce 060106: this is not used anymore, but don't remove the code or file entirely until after A7 goes out.
+##        # Create a progress bar widget for use during time consuming operations,
+##        # such as minimize, simulator and select doubly.  Mark 050101
+##        # [bruce 060103 suspects it's by now quite customized for Minimize and Simulate; not sure.]
+##        from ProgressBar import ProgressBar
+##        self.progressbar = ProgressBar()
         
         # Create the Preferences dialog widget.
         # Mark 050628
@@ -329,46 +330,51 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             print_compact_traceback( "exception (ignored) in postinit_item(%r): " % item )
         return
 
-    stack_of_extended_ops = None
-        # owns a stack of nested actions-with-duration that can be aborted or paused (last first). [bruce 060104]
+    # == start of code which is unused as of 060106 -- might become real soon, don't know yet;
+    # please don't remove it without asking me [bruce 060106]
+    
+##    stack_of_extended_ops = None
+##        # owns a stack of nested actions-with-duration that can be aborted or paused (last first). [bruce 060104]
+##
+##    def make_buttons_not_in_UI_file(self): #bruce 060104
+##        """Make whatever buttons, actions, etc, are for some reason (perhaps a temporary reason)
+##        not made in our superclass .ui file. [If you move them into there, remove their code from here,
+##        but I suggest not removing this method even if it becomes empty.]
+##        """
+##        # Abort Simulation button and menu item (we will dynamically change its text in methods of self.stack_of_extended_ops)
+##        #e (make this adder a little helper routine, or loop over table?)
+##        self.simAbortAction = QAction(self,"simAbortAction")
+##        self.simAbortAction.setEnabled(True) # disabled by default -- no, enabled for now, so it's visible... #######@@@@@@@
+##        if 1:
+##            from Utility import imagename_to_pixmap
+##            pixmap = imagename_to_pixmap("stopsign.png")
+##                # icon file stopsign.png (as of bruce 060104) works in menu but not in toolbar (for Mac Panther)
+##                # (actually it works when enabled, it's just gray when disabled, in toolbar.)
+##        self.simAbortAction.setIconSet(QIconSet(pixmap))
+##        self.simAbortAction.addTo(self.simToolbar)
+##        self.simAbortAction.addTo(self.simulatorMenu)
+##        self.connect(self.simAbortAction,SIGNAL("activated()"),self.simAbort)
+##        self.simAbortAction.setText("Abort Sim") # removed __tr, could add it back if desired
+##        self.simAbortAction.setMenuText("Abort Sim...")
+##
+##        ###e also need pause and continue, one hidden and one shown; imitate movie player icons etc
+##        
+##        if 1: # this is needed here even if the self.simAbortAction initializing code gets moved into the .ui file
+##          if 0: #######@@@@@@@ DISABLED FOR SAFE COMMIT OF UNFINISHED CODE [bruce 060104]
+##            from extended_ops import ExtendedOpStack
+##            self.stack_of_extended_ops = ExtendedOpStack(self, [self.simAbortAction])
+##                #e in present implem this knows a lot about self.simAbortAction; needs cleanup
+##            self.stack_of_extended_ops.update_UI()
+##        return
+##
+##    def simAbort_orig(self): #bruce 060104 ###e also need pause and continue
+##        "[slot method]"
+##        print "MWsemantics.simAbort(): simAbortButton clicked"
+##        if self.stack_of_extended_ops:
+##            self.stack_of_extended_ops.do_abort()
+##        return
 
-    def make_buttons_not_in_UI_file(self): #bruce 060104
-        """Make whatever buttons, actions, etc, are for some reason (perhaps a temporary reason)
-        not made in our superclass .ui file. [If you move them into there, remove their code from here,
-        but I suggest not removing this method even if it becomes empty.]
-        """
-        # Abort Simulation button and menu item (we will dynamically change its text in methods of self.stack_of_extended_ops)
-        #e (make this adder a little helper routine, or loop over table?)
-        self.simAbortAction = QAction(self,"simAbortAction")
-        self.simAbortAction.setEnabled(True) # disabled by default -- no, enabled for now, so it's visible... #######@@@@@@@
-        if 1:
-            from Utility import imagename_to_pixmap
-            pixmap = imagename_to_pixmap("stopsign.png")
-                # icon file stopsign.png (as of bruce 060104) works in menu but not in toolbar (for Mac Panther)
-                # (actually it works when enabled, it's just gray when disabled, in toolbar.)
-        self.simAbortAction.setIconSet(QIconSet(pixmap))
-        self.simAbortAction.addTo(self.simToolbar)
-        self.simAbortAction.addTo(self.simulatorMenu)
-        self.connect(self.simAbortAction,SIGNAL("activated()"),self.simAbort)
-        self.simAbortAction.setText("Abort Sim") # removed __tr, could add it back if desired
-        self.simAbortAction.setMenuText("Abort Sim...")
-
-        ###e also need pause and continue, one hidden and one shown; imitate movie player icons etc
-        
-        if 1: # this is needed here even if the self.simAbortAction initializing code gets moved into the .ui file
-          if 0: #######@@@@@@@ DISABLED FOR SAFE COMMIT OF UNFINISHED CODE [bruce 060104]
-            from extended_ops import ExtendedOpStack
-            self.stack_of_extended_ops = ExtendedOpStack(self, [self.simAbortAction])
-                #e in present implem this knows a lot about self.simAbortAction; needs cleanup
-            self.stack_of_extended_ops.update_UI()
-        return
-
-    def simAbort_orig(self): #bruce 060104 ###e also need pause and continue
-        "[slot method]"
-        print "MWsemantics.simAbort(): simAbortButton clicked"
-        if self.stack_of_extended_ops:
-            self.stack_of_extended_ops.do_abort()
-        return
+    # == end of code which is unused as of 060106
         
     def simAbort(self):
         '''Original slot for Abort button.
@@ -909,7 +915,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
     def modifyMinimizeSel(self):
         """Minimize the current selection"""
-        if platform.atom_debug: ###@@@ remove this when devel is done
+        if platform.atom_debug:
             print "atom_debug: reloading runSim on each use, for development"
             import runSim
             reload(runSim)
@@ -920,7 +926,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     def modifyMinimizeAll(self):
         """Minimize the entire (current) Part"""
-        if platform.atom_debug: ###@@@ remove this when devel is done
+        if platform.atom_debug:
             print "atom_debug: reloading runSim on each use, for development"
             import runSim
             reload(runSim)
@@ -1090,6 +1096,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def simSetup(self):
         """Creates a movie of a molecular dynamics simulation.
         """
+        if platform.atom_debug: #bruce 060106 added this (fixing trivial bug 1260)
+            print "atom_debug: reloading runSim on each use, for development"
+            import runSim
+            reload(runSim)
         from runSim import simSetup_CommandRun
         cmdrun = simSetup_CommandRun( self)
         cmdrun.run()
