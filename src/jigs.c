@@ -109,8 +109,16 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
 }
 
 /*
+ * What's the right number here? I would have thought it would be in
+ * piconewtons per picometer, and therefore just 10, but that's way
+ * too big.  0.1-1.0 gives a noticeable drag, 10 is numerically unstable.
+ * Could that be because my motor torque is unreasonably large??
+ *
+ * One complication of attaching the atoms to springs is that it takes
+ * longer for speed variations to settle down, because the differential
+ * equation describing rotational motor speed has more state variables.
  */
-#define SPRING_STIFFNESS  10.0
+#define SPRING_STIFFNESS  1.0
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
@@ -157,8 +165,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     jig->j.rmotor.omega = omega = jig->j.rmotor.omega + domega_dt * Dt;
 
     /* update the motor's position */
-    while (theta > Pi) theta -= 2.0 * Pi;
-    while (theta < -Pi) theta += 2.0 * Pi;
+    theta = fmod(theta, 2.0 * Pi);
     jig->j.rmotor.theta = theta;
     // convert rad/sec to GHz
     jig->data = jig->j.rmotor.omega / (2.0e9 * Pi);
