@@ -363,12 +363,32 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             self.stack_of_extended_ops.update_UI()
         return
 
-    def simAbort(self): #bruce 060104 ###e also need pause and continue
+    def simAbort_orig(self): #bruce 060104 ###e also need pause and continue
         "[slot method]"
         print "MWsemantics.simAbort(): simAbortButton clicked"
         if self.stack_of_extended_ops:
             self.stack_of_extended_ops.do_abort()
         return
+        
+    def simAbort(self):
+        '''Original slot for Abort button.
+        '''
+
+        # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
+        # Bug 915 had to do with a problem if the user accidently hit the space bar or espace key,
+        # which would call this slot and abort the simulation.  This should no longer be an issue here
+        # since we aren't using a dialog.  I still like having this confirmation anyway.  
+        # IMHO, it should be kept. Mark 060106. 
+        ret = QMessageBox.warning( self, "Confirm",
+            "Please confirm you want to abort.\n",
+            "Confirm",
+            "Cancel", 
+            None, 
+            1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
+            1)  # Escape (1= Cancel)
+          
+        if ret==0: # Confirmed
+            self.sim_abort_button_pressed = True
     
     def update_mode_status(self, mode_obj = None):
         """[by bruce 040927]

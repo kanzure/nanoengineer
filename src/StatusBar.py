@@ -79,7 +79,7 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
         Return value: 0 if file reached desired size, 1 if user hit abort button.
         """
         
-        win.abort = False
+        win.sim_abort_button_pressed = False
         filesize = 0
         sinc = .1
         win.stime = time.time()
@@ -110,7 +110,7 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
                 # Need to display the duration somewhere.  History msg?
                 env.history.statusbar_msg(elapmsg)
             
-            if win.abort: # User hit abort button
+            if win.sim_abort_button_pressed: # User hit abort button
                 win.status_pbar.hide()
                 win.simAbortButton.hide()
                 env.history.statusbar_msg("Aborted.")
@@ -127,22 +127,6 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
         env.history.statusbar_msg("Done.")
         return 0
 
-def abort_run(win):
-        '''Original slot for Abort button.
-        This is currently not used and superceded by simAbort()
-        '''
-        
-        # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
-        ret = QMessageBox.warning( win, "Confirm",
-            "Please confirm you want to abort.\n",
-            "Confirm",
-            "Cancel", 
-            None, 
-            1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
-            1)  # Escape (1= Cancel)
-          
-        if ret==0: # Confirmed
-            win.abort = True
             
 # An identical copy of this function is in ProgressBar.py (soon to be obsolete).
 # runSim.py and GamessJob.py both import this function. 
