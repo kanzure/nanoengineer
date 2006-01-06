@@ -59,16 +59,13 @@ line(float x1, float y1, float z1,
 void
 sphere(double x, double y, double z, double radius, double r, double g, double b)
 {
-    double materialColor[4];
-
-    materialColor[0] = r;
-    materialColor[1] = g;
-    materialColor[2] = b;
-    materialColor[3] = 1.0; // alpha
+    const GLfloat materialColor[4] = {
+	r, g, b, 1.0
+    };
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialColor);
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialColor);
 
     glPushMatrix();
     glTranslated(x, y, z);
