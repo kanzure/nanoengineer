@@ -23,6 +23,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
   stretch->beta = beta;
   stretch->inflectionR = inflectionR;
   stretch->isGeneric = generic;
+  stretch->warned = 0;
   initializeBondStretchInterpolater(stretch);
   return stretch;
 }
@@ -30,7 +31,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
 // kb in yJ / rad^2 (yoctoJoules per radian squared, or 1e-24 J/rad^2)
 // theta0 in radians
 static struct bendData *
-newBendData(char *bendName, double kb, double theta0)
+newBendData(char *bendName, double kb, double theta0, int generic)
 {
   struct bendData *bend;
 
@@ -39,6 +40,8 @@ newBendData(char *bendName, double kb, double theta0)
   bend->kb = kb;
   bend->theta0 = theta0;
   bend->cosTheta0 = cos(theta0);
+  bend->isGeneric = generic;
+  bend->warned = 0;
   return bend;
 }
 
@@ -99,11 +102,11 @@ addBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
 
 // kb in yoctoJoules / radian^2
 static struct bendData *
-addBendData(char *bendName, double kb, double theta0)
+addBendData(char *bendName, double kb, double theta0, int generic)
 {
   struct bendData *bend;
 
-  bend = newBendData(bendName, kb, theta0);
+  bend = newBendData(bendName, kb, theta0, generic);
   hashtable_put(bendDataHashtable, bendName, bend);
   return bend;
 }
@@ -137,7 +140,7 @@ addInitialBendData(char *bendName, double kb, double theta0)
 {
   struct bendData *bend;
 
-  bend = newBendData(bendName, kb*1e6, theta0);
+  bend = newBendData(bendName, kb*1e6, theta0, 0);
   hashtable_put(bendDataHashtable, bendName, bend);
 }
 
@@ -518,7 +521,7 @@ generateGenericBendData(char *bendName,
   theta0 = 1.9106;
   // kb in zeptoJoules / radian^2
 
-  return addBendData(bendName, kb*1000.0, theta0);
+  return addBendData(bendName, kb*1000.0, theta0, 1);
 }
 
 static struct vanDerWaalsParameters *
@@ -552,7 +555,13 @@ getBondStretch(int element1, int element2, char bondOrder)
   struct bondStretch *entry;
 
   entry = getBondStretchEntry(element1, element2, bondOrder);
-  // XXX if (entry->isGeneric) { WARN ABOUT THIS }
+  if (entry->isGeneric && !entry->warned) {
+    WARNING3("Using computed parameters for %s-%s order %c bond stretch",
+            periodicTable[element1].symbol,
+            periodicTable[element2].symbol,
+            bondOrder);
+    entry->warned = 1;
+  }
   return entry;
 }
 
@@ -570,6 +579,10 @@ getBendData(int element_center,
   bend = (struct bendData *)hashtable_get(bendDataHashtable, bendName);
   if (bend == NULL) {
     bend = generateGenericBendData(bendName, element_center, element1, bondOrder1, element2, bondOrder2);
+  }
+  if (bend->isGeneric && !bend->warned) {
+    WARNING1("Using computed parameters for %s bend", bendName);
+    bend->warned = 1;
   }
   return bend;
 }

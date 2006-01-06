@@ -228,7 +228,7 @@ printError(FILE *f, const char *file, int line, const char *err_or_warn,
   __p = __line;
   __p += sprintf(__p, "# %s: ", err_or_warn);
   va_start(args, format);
-  __p += sprintf(__p, format, args);
+  __p += vsprintf(__p, format, args);
   va_end(args);
   if (doPerror) {
       sprintf(__p, ": %s\n", err);

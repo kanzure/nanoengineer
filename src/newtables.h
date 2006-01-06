@@ -36,6 +36,7 @@ struct bondStretch
   double potentialExtensionD;
   
   int isGeneric; // set to non-zero if the above are based on a heuristic
+  int warned; // set to non-zero if a warning about using this entry has been printed
   
   struct interpolationTable potentialLippincottMorse;
   struct interpolationTable gradientLippincottMorse;
@@ -67,6 +68,9 @@ struct bendData
   double kb;      // stiffness in yJ / rad^2 (1e-24 J/rad^2)
   double theta0;
   double cosTheta0;
+
+  int isGeneric; // set to non-zero if the above are based on a heuristic
+  int warned; // set to non-zero if a warning about using this entry has been printed
 };
 
 #define MAX_ELEMENT 109

@@ -40,6 +40,8 @@ extern FILE *tracef;
 #define ERROR3(fmt,a,b,c) (printError(tracef, __FILE__, __LINE__, "Error", 0, fmt, a, b, c))
 #define WARNING(fmt) (printError(tracef, __FILE__, __LINE__, "Warning", 0, fmt))
 #define WARNING1(fmt,a) (printError(tracef, __FILE__, __LINE__, "Warning", 0, fmt, a))
+#define WARNING2(fmt,a,b) (printError(tracef, __FILE__, __LINE__, "Warning", 0, fmt, a, b))
+#define WARNING3(fmt,a,b,c) (printError(tracef, __FILE__, __LINE__, "Warning", 0, fmt, a, b, c))
 #define ERROR_ERRNO(fmt) (printError(tracef, __FILE__, __LINE__, "Error", 1, fmt))
 #define ERROR_ERRNO1(fmt,a) (printError(tracef, __FILE__, __LINE__, "Error", 1, fmt, a))
 #define WARNING_ERRNO(fmt) (printError(tracef, __FILE__, __LINE__, "Warning", 1, fmt))
