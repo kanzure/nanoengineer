@@ -53,9 +53,6 @@ usePyrexKey = "USE_PYREX"
 if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
     use_pyrex_sim = True
 
-use_pyrex_sim = False #######@@@@@@@ DO NOT COMMIT
-
-
 debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
 
 if debug_sim:
