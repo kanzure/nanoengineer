@@ -42,6 +42,8 @@ import env #bruce 050901
 
 debug_sim = 0 # DO NOT COMMIT with 1
 
+#use_pyrex_sim = True
+
 use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
     # [this is true for bruce and probably false for other developers] ####@@@@
     # [quick links for developers: see also (search for) abort_ or 'if frame_number > 10' ]
@@ -666,11 +668,12 @@ class SimRunner:
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
         filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
             # only side effect: history message [bruce 060103 comment]
-        self.errcode = self.win.progressbar.launch(
+        # pbarCaption and pbarMsg are not used any longer.  [mark 060105 comment]
+        from StatusBar import show_progressbar_and_stop_button
+        self.errcode = show_progressbar_and_stop_button(
+                            self.win,
                             filesize,
                             filename = movie.filename, 
-                            caption = pbarCaption, 
-                            message = pbarMsg, 
                             show_duration = 1 )
             # that 'launch' method is misnamed, since it also waits for completion;
             # its only side effects [as of bruce 060103] are showing/updating/hiding progress dialog, abort button, etc.

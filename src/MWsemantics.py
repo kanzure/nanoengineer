@@ -89,7 +89,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
             # fyi: this connects 138 or more signals to our slot methods [bruce 050917 comment]
 
-        self.make_buttons_not_in_UI_file()
+        # mark 060105 commented out self.make_buttons_not_in_UI_file()
+        # Now done below: _StatusBar.do_what_MainWindowUI_should_do(self)
+        #self.make_buttons_not_in_UI_file()
 
         undo.just_after_mainwindow_super_init()
 
@@ -125,7 +127,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         # (see also env.history.message())
-        self.createStatusBars()
+        import StatusBar as _StatusBar
+        _StatusBar.do_what_MainWindowUI_should_do(self)
 
         windowList += [self]
         if name == None:
@@ -362,6 +365,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
     def simAbort(self): #bruce 060104 ###e also need pause and continue
         "[slot method]"
+        print "MWsemantics.simAbort(): simAbortButton clicked"
         if self.stack_of_extended_ops:
             self.stack_of_extended_ops.do_abort()
         return
@@ -1553,21 +1557,6 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             10, 10)
 
         return # from loadCursors
-    
-    def createStatusBars(self):
-        """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
-        # (see also env.history.message())
-
-        # Mark - Set up display mode bar (right) in status bar area.        
-        self.dispbarLabel = QLabel(self.statusBar(), "dispbarLabel")
-        self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.statusBar().addWidget(self.dispbarLabel, 0, True)
-        
-        # Mark - Set up mode bar (right) in status bar area.        
-        self.modebarLabel = QLabel(self.statusBar(), "modebarLabel")
-        self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.statusBar().addWidget(self.modebarLabel, 0, True)
-        return
     
     def hideDashboards(self):
         # [bruce 050408 comment: this list should be recoded somehow so that it
