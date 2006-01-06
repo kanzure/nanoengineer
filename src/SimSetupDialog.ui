@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>325</width>
-            <height>181</height>
+            <width>333</width>
+            <height>286</height>
         </rect>
     </property>
     <property name="caption">
@@ -28,7 +28,7 @@
         <property name="spacing">
             <number>21</number>
         </property>
-        <widget class="QGroupBox" row="1" column="0">
+        <widget class="QGroupBox" row="0" column="0">
             <property name="name">
                 <cstring>parms_grpbox</cstring>
             </property>
@@ -220,6 +220,41 @@
                     </property>
                 </widget>
             </hbox>
+        </widget>
+        <widget class="QGroupBox" row="1" column="0">
+            <property name="name">
+                <cstring>groupBox2</cstring>
+            </property>
+            <property name="title">
+                <string>Simulation Options</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox" row="0" column="0">
+                    <property name="name">
+                        <cstring>watch_motion_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Watch motion in realtime</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QCheckBox" row="1" column="0">
+                    <property name="name">
+                        <cstring>create_movie_file_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Create Movie file</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </grid>
         </widget>
     </grid>
 </widget>

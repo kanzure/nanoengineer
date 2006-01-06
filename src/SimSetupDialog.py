@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Tue Sep 13 16:00:28 2005
+# Created: Fri Jan 6 15:16:28 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,7 +111,7 @@ class SimSetupDialog(QDialog):
         layout27.addLayout(layout26)
         parms_grpboxLayout.addLayout(layout27)
 
-        SimSetupDialogLayout.addWidget(self.parms_grpbox,1,0)
+        SimSetupDialogLayout.addWidget(self.parms_grpbox,0,0)
 
         layout28 = QHBoxLayout(None,0,6,"layout28")
 
@@ -125,9 +125,28 @@ class SimSetupDialog(QDialog):
 
         SimSetupDialogLayout.addLayout(layout28,2,0)
 
+        self.groupBox2 = QGroupBox(self,"groupBox2")
+        self.groupBox2.setColumnLayout(0,Qt.Vertical)
+        self.groupBox2.layout().setSpacing(6)
+        self.groupBox2.layout().setMargin(11)
+        groupBox2Layout = QGridLayout(self.groupBox2.layout())
+        groupBox2Layout.setAlignment(Qt.AlignTop)
+
+        self.watch_motion_checkbox = QCheckBox(self.groupBox2,"watch_motion_checkbox")
+        self.watch_motion_checkbox.setChecked(1)
+
+        groupBox2Layout.addWidget(self.watch_motion_checkbox,0,0)
+
+        self.create_movie_file_checkbox = QCheckBox(self.groupBox2,"create_movie_file_checkbox")
+        self.create_movie_file_checkbox.setChecked(1)
+
+        groupBox2Layout.addWidget(self.create_movie_file_checkbox,1,0)
+
+        SimSetupDialogLayout.addWidget(self.groupBox2,1,0)
+
         self.languageChange()
 
-        self.resize(QSize(325,181).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(333,286).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
@@ -144,6 +163,9 @@ class SimSetupDialog(QDialog):
         self.textLabel3_2.setText(self.__tr("Kelvin"))
         self.run_sim_btn.setText(self.__tr("Run Simulation"))
         self.cancel_btn.setText(self.__tr("Cancel"))
+        self.groupBox2.setTitle(self.__tr("Simulation Options"))
+        self.watch_motion_checkbox.setText(self.__tr("Watch motion in realtime"))
+        self.create_movie_file_checkbox.setText(self.__tr("Create Movie file"))
 
 
     def NumFramesValueChanged(self,a0):
