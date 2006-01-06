@@ -1,23 +1,29 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 PlotTool.py
 
 $Id$
 
 bruce 050913 used env.history in some places.
+
+bruce 060105 revised trace file header parsing to fix bug 1266
+and make it more likely to keep working with future revisions
+to trace file format.
 '''
 __author__ = "Mark"
 
 from PlotToolDialog import *
 from qt import *
 import time
-import sys, os, string, linecache
-from HistoryWidget import redmsg, greenmsg
-from movie import find_saved_movie #bruce 050329 fix bug 499
+import sys, os, string
+from HistoryWidget import redmsg, greenmsg, orangemsg
+from movie import find_saved_movie
 from platform import open_file_in_editor
 import env
 
-cmd = greenmsg("Plot Tool: ")
+debug_plottool = False
+
+cmd = greenmsg("Plot Tool: ") #### this is bad, needs to be removed, but that's hard to do safely [bruce 060105 comment]
 
 class PlotTool(PlotToolDialog):
     def __init__(self, assy, movie): #bruce 050326 added movie arg
@@ -49,7 +55,6 @@ class PlotTool(PlotToolDialog):
         
         # Construct the trace file name.
         self.traceFile = self.movie.get_trace_filename()
-#        print "PlotTool: Trace file = ", self.traceFile
         
         # Make sure the tracefile exists
         if not os.path.exists(self.traceFile):
@@ -59,46 +64,85 @@ class PlotTool(PlotToolDialog):
             
         # Construct the GNUplot filename.
         self.plotFile = self.movie.get_GNUplot_filename()
-#        print "Plot file = ", self.plotFile
         
         # Now we read specific lines of the traceFile to read parts of the header we need.
         # I will change this soon so that we can find this header info without knowing what line they are on.
         # Mark 050310
         
+        #bruce 060105: changing this now, to fix bug 1266.
+        
         # If we've opened the tracefile once during this session, we
         # must check to see if the trace file has changed on disk.
-        # Doesn't appear to be an issue calling checkcache before getline.
-        #linecache.checkcache() 
+        # To avoid this issue we reopen it every time and make sure to close it
+        # and don't use any sort of line cache.
+        # Mark had a comment about this but I [bruce 060105] am not sure what he meant by it:
+            # Doesn't appear to be an issue calling checkcache before getline.
+            #linecache.checkcache() 
+        # He also had some commented out code such as "#linecache.getline(self.traceFile, 5)"
+        # which I've removed (as of rev 1.32).
 
         #Open trace file to read.
-        traceFile = open(self.traceFile)
-        traceLines = traceFile.readlines()        
+        traceFile = open(self.traceFile, 'rU') #bruce 060105 added 'rU'
+        traceLines = traceFile.readlines() #e could optim by reading only the first XXX lines (100 or 1000)
+        traceFile.close()
+        headerLines = [] # all lines of header (used to count line numbers and for column headings)
+        field_to_content = {} # maps fieldname to content,
+            # where entire line is "#" + fieldname + ":" + content, but we strip outer whitespace on field and content
+        columns_lineno = -1 # line number (0-based) of "%d columns" (-1 == not yet known)
+        number_of_columns = 0 # will be changed to correct value when that's found
+        for line in traceLines:
+            # loop over lines, but stop when we find end of header, and partly stop when we find "%d columns".
+            if not line.startswith("#"): # note: most start with "# ", but some are just "#" and nothing more.
+                break # first non-comment line ends the header
+            # header line
+            headerLines.append(line)
+            if ":" in line and columns_lineno == -1: # not all of these contain ": "
+                field, content = line.split(":", 1)
+                field = field[1:].strip() # get rid of "#" before stripping field
+                content = content.strip() # (note: zaps final newline as well as blanks)
+                if field.endswith(" columns"):
+                    # assume we found "# <nnn> columns:" and column-header lines will follow (but no more field:content lines)
+                    columns_lineno = len(headerLines) - 1 # 0-based, since purpose is internal indexing
+                        # note: this assignment also makes this loop stop looking for field:content lines
+                    number_of_columns = int(field.split()[0])
+                else:
+                    field_to_content[field] = content
+                pass
+            pass
+        del traceLines
 
-        # Get Date from trace file from line #3 in the header.
-        #header = linecache.getline(self.traceFile, 3)
-        header = traceLines[2]
-        hlist = string.split(header, ": ")
-        self.date = hlist[1][:-1]
+        if debug_plottool:
+            print "columns_lineno (0-based) =", columns_lineno
+            print "  that line is:", headerLines[columns_lineno]
+            print "number_of_columns =", number_of_columns
+            print "field_to_content = %r" % (field_to_content,)
+
+        # figure out column headers all at once
+        column_header = {}
+        for i in range(number_of_columns):
+            column_header[i] = headerLines[columns_lineno + 1 + i][2:-1]
+                # strip off "# " and final newline (would .strip be better or worse??)
+            if debug_plottool:
+                print "column header %d is %r" % (i, column_header[i],)
+            pass
+
+        # use the parsed header
+        # (the code above depends only on the trace file format;
+        #  the code below depends only on our use of it here)
         
-        # Get trajectory file name from trace file from line #5 in the header.
-        header =  traceLines[4]#linecache.getline(self.traceFile, 5)
-        hlist = string.split(header, ": ")
-        self.dpbname = hlist[1][:-1]
-#        print "Trajectory file name = ", self.dpbname
+        self.date = field_to_content["Date and Time"]
+            # Mark's code had [:-1] after that -- I'm guessing it was to zap final newline, now done by .strip(),
+            # so I'm leaving it out for now. [bruce 060105]
         
-        # Get number of columns, located in line 14 of the header.
-        hloc = 12 # Line number in file contain the "# n columns"
-        header = traceLines[hloc-1]#linecache.getline(self.traceFile, hloc)
-        hlist = string.split(header, " ")
-        ncols = int(hlist[1])
-#        print "Columns header:", header
-#        print "ncols =", ncols
-            
+        # Get trajectory file name
+        self.dpbname = field_to_content["Output File"]
+        
+        ncols = number_of_columns
+        
         # Populate the plot combobox with plotting options.
         if ncols:
             for i in range(ncols):
-                gname =  traceLines[hloc + i]#linecache.getline(self.traceFile, hloc + 1 + i)
-                self.plot_combox.insertItem(gname[2:-1])
+                self.plot_combox.insertItem( column_header[i] )
         else: # No jigs in the part, so nothing to plot.  Revised msgs per bug 440-2.  Mark 050731.
             msg = redmsg("The part contains no jigs that write data to the trace file.  Nothing to plot.")
             env.history.message(cmd + msg)
@@ -107,15 +151,12 @@ class PlotTool(PlotToolDialog):
             return 1
         
         self.lastplot = 0
-        
-        traceFile.close()
-        
+        return
 
     def genPlot(self):
         """Generates GNUplot plotfile, then calls self.runGNUplot.
         """
         col = self.plot_combox.currentItem() + 2 # Column number to plot
-#        print "Selected plot # column =", col, "\n"
         
         # If this plot was the same as the last plot, just run GNUplot on the plotfile.
         # This allows us to edit the current plotfile in a text editor via "Open GNUplot File"
