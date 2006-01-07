@@ -85,27 +85,12 @@ def write_nh_workflow_file(sim_name):
 
     
 def write_nh_header(f, desc, iter, spf, temp, workflow_fname, mmp_fname):
-#def write_simspec_file(self, filename, workflow_filename, mmp_filename, outdir, partname):
     '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the
     simulation environment, plugin selection and plugin parameters.
     '''
-    
-    # The Nano-Hive Sim Spec file has 4 different sections that must be written in the following order:
-    # 1. Header Section
-    # 2. Physical Interaction Plugin(s) Section
-    # 3. Results Plugin(s) Section
-    # 4. Footer Section.
-    # Mark 050915.
-    
-    #iterations = self.nframes_spinbox.value() # Iterations = Frames
-    #spf = self.stepsper_spinbox.value() * 1e-17 # Steps per Frame
-    #temp = self.temp_spinbox.value() # Temp in Kelvin
-    
     nh_home = get_nh_home()
     
-    print "files_nh.write_nh_header(): Nano-Hive Home:", nh_home
-    
-#    f = open(filename,'w') # Open Nano-Hive Sim Spec file.
+    #print "files_nh.write_nh_header(): Nano-Hive Home:", nh_home
     
     # Write SimSpec header ########################################
     
@@ -169,7 +154,7 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     f.write('      <parameter name="dataDirectory" value="%s/data/MPQC_SClib" />\n' % nh_home)
     f.write('      <parameter name="basis" value="STO-3G" />\n')
     f.write('      <parameter name="method" value="HF" />\n')
-    f.write('      <parameter name="desiredEnergyAccuracy" value="1.0e-3" />\n')
+    f.write('      <parameter name="desiredEnergyAccuracy" value="1.0e-5" />\n')
     f.write('      <parameter name="multiplicity" value="%d" />\n' % multi)
     f.write('\n')
     f.write('      <parameter name="outputType" value="ESPplane" />\n')
