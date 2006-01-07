@@ -164,8 +164,8 @@ class NanoHive(NanoHiveDialog):
         
 # ==
 
-    def get_sim_name(self):
-        '''Return the simulation name from the dialog's Name widget.
+    def get_sim_id(self):
+        '''Return the simulation id (name) from the dialog's Name widget.
         If it is empty, return "Untitled" as the sim_name.
         '''
         name = QString(self.name_linedit.text())
