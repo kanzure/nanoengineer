@@ -926,7 +926,7 @@ class UserPrefs(UserPrefsDialog):
         if enable:
             self.nanohive_path_linedit.setEnabled(1)
             self.nanohive_choose_btn.setEnabled(1)
-            # Leave Nano-Hive action button/menu hidden for A7.  Mark 2005-01-04.
+            # Leave Nano-Hive action button/menu hidden for A7.  Mark 2006-01-04.
             # self.w.simNanoHiveAction.setVisible(1)
             
             # Sets the Nano-Hive (executable) path to the standard location, if it exists.
@@ -938,7 +938,7 @@ class UserPrefs(UserPrefsDialog):
             self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
                 
             # Create the Nano-Hive dialog widget.
-            # Not needed for A7.  Mark 2005-01-05.
+            # Not needed for A7.  Mark 2006-01-05.
             #if not self.w.nanohive:
             #    from NanoHive import NanoHive
             #    self.w.nanohive = NanoHive(self.assy)
