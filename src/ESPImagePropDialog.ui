@@ -1,0 +1,1029 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ESPImagePropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ESPImagePropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>291</width>
+            <height>592</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>ESP Image Properties</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox" row="1" column="0">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>ESP Image Bounding Box</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>show_esp_bbox_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Show Bounding Box</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>highlight_atoms_in_bbox_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Highlight Atoms Inside Bounding Box</string>
+                    </property>
+                    <property name="checked">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>select_atoms_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Select Atoms Inside Volume</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QLayoutWidget" row="4" column="0">
+            <property name="name">
+                <cstring>layout30</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>92</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ok_btn</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;OK</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+O</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+C</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <spacer row="3" column="0">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>MinimumExpanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>101</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QGroupBox" row="2" column="0">
+            <property name="name">
+                <cstring>groupBox5</cstring>
+            </property>
+            <property name="title">
+                <string>ESP Results Image</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QToolButton" row="2" column="6">
+                    <property name="name">
+                        <cstring>choose_file_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>...</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="4">
+                    <property name="name">
+                        <cstring>mirror_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Mirror</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Flip image horizontally (left to right).</string>
+                    </property>
+                </widget>
+                <spacer row="3" column="5" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>spacer29</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QToolButton" row="3" column="0">
+                    <property name="name">
+                        <cstring>rotate_ccw_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>+90</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Rotate  90 degrees counter clock-wisely.</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="2" column="0" rowspan="1" colspan="6">
+                    <property name="name">
+                        <cstring>png_fname_linedit</cstring>
+                    </property>
+                    <property name="readOnly">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>rotate_cw_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>-90</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Rotate  90 degrees clock-wisely.</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="3" column="3">
+                    <property name="name">
+                        <cstring>flip_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Flip</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Flip the image vertically (top to bottom).</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="0" column="0" rowspan="1" colspan="4">
+                    <property name="name">
+                        <cstring>calculate_esp_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Calculate ESP</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="1" column="2" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>clear_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Clear</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" row="1" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>load_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Load</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="4" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>textLabel1_6</cstring>
+                    </property>
+                    <property name="text">
+                        <string>xaxisOrient :</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="4" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>textLabel1_6_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>yaxisOrient :</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="0" column="6">
+                    <property name="name">
+                        <cstring>xaxis_spinbox</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>1</number>
+                    </property>
+                    <property name="minValue">
+                        <number>-1</number>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="1" column="6">
+                    <property name="name">
+                        <cstring>yaxis_spinbox</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>1</number>
+                    </property>
+                    <property name="minValue">
+                        <number>-1</number>
+                    </property>
+                    <property name="value">
+                        <number>0</number>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout20</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout17</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_4</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Name :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>colorTextLabel_3</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Fill Color :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>colorTextLabel_4</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Border Color :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Width :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_3</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Height Offset :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_5</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Edge Offset :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Resolution :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Opacity:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout19</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>name_linedit</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>LineEditPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignLeft</set>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout18</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout17</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout48</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLabel">
+                                                    <property name="name">
+                                                        <cstring>fill_color_pixmap</cstring>
+                                                    </property>
+                                                    <property name="sizePolicy">
+                                                        <sizepolicy>
+                                                            <hsizetype>5</hsizetype>
+                                                            <vsizetype>5</vsizetype>
+                                                            <horstretch>1</horstretch>
+                                                            <verstretch>0</verstretch>
+                                                        </sizepolicy>
+                                                    </property>
+                                                    <property name="minimumSize">
+                                                        <size>
+                                                            <width>40</width>
+                                                            <height>0</height>
+                                                        </size>
+                                                    </property>
+                                                    <property name="paletteBackgroundColor">
+                                                        <color>
+                                                            <red>230</red>
+                                                            <green>231</green>
+                                                            <blue>230</blue>
+                                                        </color>
+                                                    </property>
+                                                    <property name="frameShape">
+                                                        <enum>Box</enum>
+                                                    </property>
+                                                    <property name="frameShadow">
+                                                        <enum>Plain</enum>
+                                                    </property>
+                                                    <property name="scaledContents">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QPushButton">
+                                                    <property name="name">
+                                                        <cstring>choose_fill_color_btn</cstring>
+                                                    </property>
+                                                    <property name="enabled">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Choose...</string>
+                                                    </property>
+                                                    <property name="autoDefault">
+                                                        <bool>false</bool>
+                                                    </property>
+                                                    <property name="toolTip" stdset="0">
+                                                        <string>Change color</string>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer14</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>16</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout47</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLabel">
+                                                    <property name="name">
+                                                        <cstring>border_color_pixmap</cstring>
+                                                    </property>
+                                                    <property name="sizePolicy">
+                                                        <sizepolicy>
+                                                            <hsizetype>5</hsizetype>
+                                                            <vsizetype>5</vsizetype>
+                                                            <horstretch>1</horstretch>
+                                                            <verstretch>0</verstretch>
+                                                        </sizepolicy>
+                                                    </property>
+                                                    <property name="minimumSize">
+                                                        <size>
+                                                            <width>40</width>
+                                                            <height>0</height>
+                                                        </size>
+                                                    </property>
+                                                    <property name="paletteBackgroundColor">
+                                                        <color>
+                                                            <red>230</red>
+                                                            <green>231</green>
+                                                            <blue>230</blue>
+                                                        </color>
+                                                    </property>
+                                                    <property name="frameShape">
+                                                        <enum>Box</enum>
+                                                    </property>
+                                                    <property name="frameShadow">
+                                                        <enum>Plain</enum>
+                                                    </property>
+                                                    <property name="scaledContents">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QPushButton">
+                                                    <property name="name">
+                                                        <cstring>choose_border_color_btn</cstring>
+                                                    </property>
+                                                    <property name="enabled">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Choose...</string>
+                                                    </property>
+                                                    <property name="autoDefault">
+                                                        <bool>false</bool>
+                                                    </property>
+                                                    <property name="toolTip" stdset="0">
+                                                        <string>Change color</string>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer17</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>16</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout16</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLineEdit">
+                                                    <property name="name">
+                                                        <cstring>width_linedit</cstring>
+                                                    </property>
+                                                    <property name="maximumSize">
+                                                        <size>
+                                                            <width>80</width>
+                                                            <height>32767</height>
+                                                        </size>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QLabel">
+                                                    <property name="name">
+                                                        <cstring>textLabel2</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Angstroms</string>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer18</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>16</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout15</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLineEdit">
+                                                    <property name="name">
+                                                        <cstring>image_offset_linedit</cstring>
+                                                    </property>
+                                                    <property name="maximumSize">
+                                                        <size>
+                                                            <width>80</width>
+                                                            <height>32767</height>
+                                                        </size>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QLabel">
+                                                    <property name="name">
+                                                        <cstring>textLabel2_2</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Angstroms</string>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer18_2</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>16</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout14</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLineEdit">
+                                                    <property name="name">
+                                                        <cstring>edge_offset_linedit</cstring>
+                                                    </property>
+                                                    <property name="maximumSize">
+                                                        <size>
+                                                            <width>80</width>
+                                                            <height>32767</height>
+                                                        </size>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QLabel">
+                                                    <property name="name">
+                                                        <cstring>textLabel2_3</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Angstroms</string>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer18_3</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>16</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout13</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QSpinBox">
+                                                    <property name="name">
+                                                        <cstring>resolution_spinbox</cstring>
+                                                    </property>
+                                                    <property name="maxValue">
+                                                        <number>512</number>
+                                                    </property>
+                                                    <property name="minValue">
+                                                        <number>1</number>
+                                                    </property>
+                                                    <property name="value">
+                                                        <number>20</number>
+                                                    </property>
+                                                </widget>
+                                                <spacer>
+                                                    <property name="name">
+                                                        <cstring>spacer16</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>95</width>
+                                                            <height>20</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QLayoutWidget">
+                                            <property name="name">
+                                                <cstring>layout83</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLineEdit">
+                                                    <property name="name">
+                                                        <cstring>opacity_linedit</cstring>
+                                                    </property>
+                                                    <property name="maximumSize">
+                                                        <size>
+                                                            <width>40</width>
+                                                            <height>32767</height>
+                                                        </size>
+                                                    </property>
+                                                    <property name="maxLength">
+                                                        <number>5</number>
+                                                    </property>
+                                                    <property name="readOnly">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QSlider">
+                                                    <property name="name">
+                                                        <cstring>opacity_slider</cstring>
+                                                    </property>
+                                                    <property name="maxValue">
+                                                        <number>100</number>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Horizontal</enum>
+                                                    </property>
+                                                </widget>
+                                            </hbox>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer19</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>16</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </hbox>
+                        </widget>
+                    </vbox>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="305">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000f849444154789cad54cb0ec220101c8c077fa4479a1e4df43ffc0bffcbffa08947c21e89f1e8ddbbd183019765a9af4ed2a4406798ee2c0033c3f0c166e8eeff0a2efe1590587e4b703ee6f7edd055eb4d87cec7fc7c229e906bc8eb37250200bdb500804054381d7d34d52f273149e273fbe3e1395eef8a75a051c3deda82941088b2e8e57456dd4f869248dc4520ca9b04a22a1855509280579d9c8f8553892a65bea326c6c7cdb69127841334d2f5b6aac2187d34aa43e7a34a90e9f3398ea286fc83de5a045f8acaf4e5a695e014893b6bb58c2a2849b2c165fa6f05b59691eb095a6046262c0b2d49da6d931256057f01179cfd827d00ba5894460adaa42b0000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>ok_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>choose_border_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_border_color()</slot>
+    </connection>
+    <connection>
+        <sender>choose_fill_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_fill_color()</slot>
+    </connection>
+    <connection>
+        <sender>show_esp_bbox_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>show_esp_bbox()</slot>
+    </connection>
+    <connection>
+        <sender>select_atoms_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>select_atoms_inside_esp_bbox()</slot>
+    </connection>
+    <connection>
+        <sender>highlight_atoms_in_bbox_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>highlight_atoms_in_bbox()</slot>
+    </connection>
+    <connection>
+        <sender>calculate_esp_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>calculate_esp()</slot>
+    </connection>
+    <connection>
+        <sender>rotate_ccw_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>rotate_90()</slot>
+    </connection>
+    <connection>
+        <sender>rotate_cw_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>rotate_neg_90()</slot>
+    </connection>
+    <connection>
+        <sender>flip_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>flip_esp_image()</slot>
+    </connection>
+    <connection>
+        <sender>mirror_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>mirror_esp_image()</slot>
+    </connection>
+    <connection>
+        <sender>opacity_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_opacity()</slot>
+    </connection>
+    <connection>
+        <sender>choose_file_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_esp_image()</slot>
+    </connection>
+    <connection>
+        <sender>load_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>load_esp_image()</slot>
+    </connection>
+    <connection>
+        <sender>clear_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>clear_esp_image()</slot>
+    </connection>
+    <connection>
+        <sender>xaxis_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_xaxisOrient()</slot>
+    </connection>
+    <connection>
+        <sender>yaxis_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_yaxisOrient()</slot>
+    </connection>
+    <connection>
+        <sender>width_linedit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_jig_size()</slot>
+    </connection>
+    <connection>
+        <sender>edge_offset_linedit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_jig_size()</slot>
+    </connection>
+    <connection>
+        <sender>image_offset_linedit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>ESPImagePropDialog</receiver>
+        <slot>change_jig_size()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>name_linedit</tabstop>
+    <tabstop>choose_fill_color_btn</tabstop>
+    <tabstop>choose_border_color_btn</tabstop>
+    <tabstop>resolution_spinbox</tabstop>
+    <tabstop>show_esp_bbox_checkbox</tabstop>
+    <tabstop>highlight_atoms_in_bbox_checkbox</tabstop>
+    <tabstop>select_atoms_btn</tabstop>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>cancel_btn</tabstop>
+</tabstops>
+<slots>
+    <slot>change_fill_color()</slot>
+    <slot>change_border_color()</slot>
+    <slot>show_esp_bbox()</slot>
+    <slot>select_atoms_inside_esp_bbox()</slot>
+    <slot>highlight_atoms_in_bbox()</slot>
+    <slot>change_opacity()</slot>
+    <slot>change_esp_image()</slot>
+    <slot>rotate_90()</slot>
+    <slot>rotate_neg_90()</slot>
+    <slot>flip_esp_image()</slot>
+    <slot>mirror_esp_image()</slot>
+    <slot>load_esp_image()</slot>
+    <slot>clear_esp_image()</slot>
+    <slot>calculate_esp()</slot>
+    <slot>change_yaxisOrient()</slot>
+    <slot>change_xaxisOrient()</slot>
+    <slot>change_jig_size()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
