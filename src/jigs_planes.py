@@ -497,7 +497,6 @@ class ESPWindow(RectGadget):
             self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.window_offset, self.edge_offset)
         return " " + dataline
 
-
     def get_sim_parms(self):
         from NanoHive import NH_Sim_Parameters
         sim_parms = NH_Sim_Parameters()
@@ -527,7 +526,8 @@ class ESPWindow(RectGadget):
                             "Error: Nano-Hive plug-in is not Version 1.2b.",
                             "Error: Couldn't connect to Nano-Hive instance.",
                             "Error: Load command failed.",
-                            "Error: Run command failed"]
+                            "Error: Run command failed.",
+                            "Simulation Aborted"]
         
         sim_parms = self.get_sim_parms()
         sims_to_run = ["MPQC_ESP"]
@@ -537,6 +537,9 @@ class ESPWindow(RectGadget):
         from platform import find_or_make_Nanorex_subdir
         results_file = os.path.join(find_or_make_Nanorex_subdir("Nano-Hive"), self.name + ".png")
         
+        msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, results_file)
+        env.history.message( cmd + msg ) 
+        
         from NanoHiveUtils import run_nh_simulation
         r = run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
         
@@ -545,8 +548,10 @@ class ESPWindow(RectGadget):
             env.history.message( cmd + msg )
             return
             
-        msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, results_file) 
+        msg = "ESP calculation on [%s] finished." % (self.name)
         env.history.message( cmd + msg ) 
+        
+        self.load_esp_image()
         self.assy.w.win_update()
         
         return
