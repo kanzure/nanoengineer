@@ -67,7 +67,6 @@ def do_what_MainWindowUI_should_do(win):
         
     return
 
-
 def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration = 0):
     """Display the statusbar's progressbar and stop button, and update it while a file is 
     being written by some other process, to show the size of that file as progress, while 
@@ -140,4 +139,78 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
     env.history.statusbar_msg("Done.")
     return 0
 
+def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_duration = 0):
+    """Display the statusbar's progressbar and stop button, and update it while an ESP calculation
+    is being run by Nano-Hive.
+    Parameters:
+        win - the main window
+        sim_id - simulation Id
+        nh_socket - the Nano-Hive socket
+        show_duration - if True, display duration (in seconds) below progressbar
+    Return value: 0 if Nano-Hive finished, 1 if user hit abort button.
+    """
+        
+    win.sim_abort_button_pressed = False
+    sinc = .1
+    win.stime = time.time()
+        
+    win.status_pbar.reset()
+    win.status_pbar.setTotalSteps(100) # 0-100 percent
+    win.status_pbar.setProgress(0)
+    win.status_pbar.show()
+        
+    win.simAbortButton.show()
+        
+    done = False
+    percentDone = 0
+        
+    # Main loop
+    while not done:
+            
+        success, response = nh_socket.sendCommand("status " + sim_id) # Send "status" command.
+        #print success, response
+        r, p = response.split(sim_id)
+        #print "responseCode=", r,", percent=", p
+            
+        responseCode = int(r)
+        
+        # Need to do this since we only get a percent value when responseCode == 5 (sim is running).
+        # If responseCode != 5, p can be None (r=10) or a whitespace char (r=4).
+        if responseCode == 5: #
+            percentDone = int(p)
+
+        #print "responseCode =", responseCode,", percentDone =", percentDone
+
+        win.status_pbar.setProgress( percentDone )
+        import env
+        env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
+        # Process queued events (i.e. clicking Abort button).
+            
+        if show_duration: # Display duration.
+            elapsedtime = win._duration
+            win._duration = time.time() - win.stime
+            if elapsedtime == win._duration: continue
+            elapmsg = "Elasped Time: " + hhmmss_str(int(win._duration))
+            env.history.statusbar_msg(elapmsg)
+                
+        if responseCode == 4: # 5 == Sim is Idle (Done)
+            done = True
+            
+        if win.sim_abort_button_pressed: # User hit abort button
+            win.status_pbar.hide()
+            win.simAbortButton.hide()
+            env.history.statusbar_msg("Aborted.")
+            return 1
+
+        time.sleep(sinc) # Take a rest
+            
+    # End of Main loop
+    win.status_pbar.setProgress(100) # 100 percent
+    win._duration = time.time() - win.stime
+    time.sleep(0.1)  # Give the progress bar a moment to show 100%
+    win.status_pbar.hide()
+    win.simAbortButton.hide()
+    env.history.statusbar_msg("Done.")
+    return 0
+        
 # end
