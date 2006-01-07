@@ -41,8 +41,7 @@ import env #bruce 050901
 # more imports lower down
 
 debug_sim = 0 # DO NOT COMMIT with 1
-
-#use_pyrex_sim = True
+debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 
 use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
     # [this is true for bruce and probably false for other developers] ####@@@@
@@ -53,32 +52,19 @@ usePyrexKey = "USE_PYREX"
 if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
     use_pyrex_sim = True
 
-debug_pyrex_prints = False # prints to stdout the same info that gets shown transiently in statusbar
+#use_pyrex_sim = True
 
-if debug_sim:
-    import qt, GLPane
-    def recursiveFindAttribute(obj, stack=None, indent="", ignoreThese=dir(qt)+dir(GLPane)):
-        import types
-        if stack == None:
-            stack = [ ]
-        keys = filter(lambda x: not x.startswith("__"), dir(obj))
-        for k in keys:
-            v = getattr(obj, k)
-            if v not in stack:
-                sys.stderr.write(indent + repr(v) + " " + repr(k) + " " + repr(obj) + " " + repr(stack) + "\n")
-                if type(v) == types.InstanceType and \
-                       v.__class__.__name__ not in ignoreThese:
-                    recursiveFindAttribute(v, [ obj, k, ] + stack, indent+"\t")
-                if type(v) == types.ListType:
-                    for vv in v:
-                        recursiveFindAttribute(vv, [ obj, k, ] + stack, indent+"\t")
+#use_pyrex_sim = False
 
-cmd = greenmsg("Simulator: ")
-    #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
-    # It ought to become some object's attribute, once we figure out what uses it and whether anything changes it.
-    # (It looks like class SimRunner uses it a lot, but it's hard to tell what else does.)
-    # It's hard to clean this up safely, because in theory it might be accessed from other files, and "cmd" is too common
-    # to easily search for (187 matches in current sources). Fix this sometime. #e ####@@@@
+
+##cmd = greenmsg("Simulator: ")
+##    #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
+##    # It ought to become some object's attribute, once we figure out what uses it and whether anything changes it.
+##    # (It looks like class SimRunner uses it a lot, but it's hard to tell what else does.)
+##    # It's hard to clean this up safely, because in theory it might be accessed from other files, and "cmd" is too common
+##    # to easily search for (187 matches in current sources). Fix this sometime. #e ####@@@@
+##    #bruce 060106: I fixed it in this file, and I decided I can just remove it, and if some other file imports it
+##    # and depends on that (unlikely), that's a bug in that file which can be found and fixed there.
 
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
@@ -91,7 +77,8 @@ class SimRunner:
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
     
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim): # [bruce 051230 added use_dylib_sim; revised 060102]
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator"):
+            # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
@@ -102,6 +89,7 @@ class SimRunner:
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
         self.use_dylib_sim = use_dylib_sim #bruce 051230
+        self.cmdname = cmdname
         if use_dylib_sim:
             env.history.message(greenmsg("this simulator run will use experimental pyrex interface if it can be imported properly"))
         return
@@ -131,7 +119,7 @@ class SimRunner:
             return # success
         if self.errcode == 1: # User pressed Abort button in progress dialog.
             msg = redmsg("Aborted.")
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
 
             if self.simProcess: #bruce 051231 added condition (since won't be there when use_dylib)
                 ##Tries to terminate the process the nice way first, so the process
@@ -147,7 +135,8 @@ class SimRunner:
             
         else: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
+                #fyi this was 'cmd' which was wrong, it says 'Simulator' even for Minimize [bruce 060106 comment, fixed it now]
         self.said_we_are_done = True # since saying we aborted or had an error is good enough... ###e revise if kill can take time.
         return # caller should look at self.errcode
         # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
@@ -245,7 +234,7 @@ class SimRunner:
                 # and be encapsulated in some utility function for loading dynamic libraries. [bruce 060104]
                 msg = redmsg("The simulator dynamic library [sim.so or sim.dll, in " + self.dylib_path +
                              "] is missing or could not be imported. Trying standalone executable simulator.")
-                env.history.message(cmd + msg)
+                env.history.message(self.cmdname + msg)
                 ## return -1
                 self.use_dylib_sim = False
                 ####@@@@ bug report: even after this, it will find tracefile from prior run (if one exists) and print its warnings.
@@ -260,7 +249,7 @@ class SimRunner:
                 program = os.path.join(bin_dir, 'simulator')
             if not os.path.exists(program):
                 msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
-                env.history.message(cmd + msg)
+                env.history.message(self.cmdname + msg)
                 return -1
             self.program = program
         
@@ -333,7 +322,7 @@ class SimRunner:
             moviefile = movie.filename
         else:
             msg = redmsg("Can't create movie.  Empty filename.")
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
             return -1
             
         # Check that the moviefile has a valid extension.
@@ -341,7 +330,7 @@ class SimRunner:
         if ext not in ['.dpb', '.xyz']:
             # Don't recognize the moviefile extension.
             msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
             print "writeMovie: " + msg
             return -1
         movie.filetype = ext #bruce 050404 added this
@@ -726,7 +715,7 @@ class SimRunner:
                 msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
                         + ", Steps per Frame: " + str(movie.stepsper)\
                         + ", Temperature: " + str(movie.temp)
-                env.history.message(cmd + msg)
+                env.history.message(self.cmdname + msg)
         #bruce 050415: let caller specify caption via movie object's _cmdname
         # (might not be set, depending on caller) [needs cleanup].
         # For important details see same-dated comment above.
@@ -753,14 +742,20 @@ class SimRunner:
         """#doc
         """
         movie = self._movie
+        movie.duration = 0.0
         simopts = self._simopts
         simobj = self._simobj
+
+        from StatusBar import AbortButtonForOneTask
+            #bruce 060106 try to let pyrex sim share some abort button code with non-pyrex sim
+        self.abortbutton_controller = abortbutton = AbortButtonForOneTask()
+        abortbutton.start()
         
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
             self.remove_old_tracefile(self.traceFileName)
 
-            env.history.message(orangemsg("Warning: prototype pyrex sim has no way to abort, and editing structure during sim causes tracebacks"))
+            env.history.message(orangemsg("Warning: editing structure during sim causes tracebacks; cancelling an abort skips some realtime display time"))
             env.call_qApp_processEvents() # so user can see that history message
 
             ###@@@ SIM CLEANUP desired: [bruce 060102]
@@ -780,31 +775,57 @@ class SimRunner:
 
             import time
             start = time.time()
-            simobj.go( frame_callback = self.sim_frame_callback)
-            duration = time.time() - start
             
-            #e capture and print its stdout and stderr [not yet possible via pyrex interface]
+            if not abortbutton.aborting():
+                # checked here since above processEvents can take time, include other tasks
+
+                # do these before entering the "try" clause
+                frame_callback = self.sim_frame_callback
+                simgo = simobj.go
+                try:
+                    simgo( frame_callback = frame_callback)
+                        # note: as of 060106, if this calls a callback which sets simobj.Interrupted
+                        # (which happens if the user aborts this simulation), this method call (simobj.go) aborts
+                        # and raises an exception like "exceptions.RuntimeError: Simulation interrupted".
+                        # It also generates a tracefile line "# Warning: minimizer run was interrupted "
+                        # (presumably before that exception gets back to here,
+                        #  which means a tracefile callback would presumably see it if we set one).
+                except RuntimeError:
+                    env.history.statusbar_msg("Aborted")
+                    print "pyrex sim: aborted" ###@@@ remove this sometime
+                    if not abortbutton.aborting():
+                        print "error: abort without abortbutton doing it (did a subtask intervene and finish it?)"
+                        abortbutton.status = ABORTING ###@@@ kluge, should clean up, or at least use a method and store an error string too
+                        assert abortbutton.aborting()
+                    pass
+                pass
+            if 1: # even if aborting
+                duration = time.time() - start
+                
+                #e capture and print its stdout and stderr [not yet possible via pyrex interface]
+                
+                if 0: #bruce 060103 that progress/abort dialog does us no good when displayed after we're already done, so zap this call
+                    self.monitor_progress_by_file_growth(movie)
+                else:
+    ##                self.win.progressbar.duration = duration ####@@@@
+    ##                    # kluge, needed since we use this attr to store an estimate of movie-creation time
+    ##                    # for printing a message about it... far better would be to store duration somewhere else,
+    ##                    # like in movie object, but current code without this kluge might use a value from some
+    ##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
+                    movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
+
+    #bruce 060104 commenting this out [explained above]
+    ##            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
+    ##            # bug 1265.
+    ##            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
+    ##            movie.moveAtoms(oldposns)
             
-            if 0: #bruce 060103 that progress/abort dialog does us no good when displayed after we're already done, so zap this call
-                self.monitor_progress_by_file_growth(movie)
-            else:
-##                self.win.progressbar.duration = duration ####@@@@
-##                    # kluge, needed since we use this attr to store an estimate of movie-creation time
-##                    # for printing a message about it... far better would be to store duration somewhere else,
-##                    # like in movie object, but current code without this kluge might use a value from some
-##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
-                movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
-
-#bruce 060104 commenting this out [explained above]
-##            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
-##            # bug 1265.
-##            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
-##            movie.moveAtoms(oldposns)
-
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
             ##e terminate it, if it might be in a different thread; destroy object; etc
             self.errcode = -1 # simulator failure
+
+        abortbutton.finish() # whether or not there was an exception and/or it aborted
         return
 
     __callback_time = -1 ###e could easily optim our test by storing this plus __sim_work_time
@@ -866,44 +887,53 @@ class SimRunner:
            (but for now, separate code will also terminate the sim run in the usual way, 
             reading redundantly from xyz file)
         """
-        if 0:
-            if frame_number > 10:# DO NOT COMMIT with this code activated
-                self.abort_sim_run("testing abort at frame %d" % frame_number)
-        from sim import getFrame
-        frame = getFrame()
-        ## print "frame no. %d (len %d)" % (frame_number, len(frame)) #####@@@@@ remove when works, or also print frame to see more
+        if 1: ### if not self.pyrex_sim_aborting(): ######@@@@@@ needs to be a method of a separated task-loop, like abortbutton itself has
+            if 0:
+                if frame_number > 10:# DO NOT COMMIT with this code activated
+                    self.abort_sim_run("testing abort at frame %d" % frame_number)
+            if self.abortbutton_controller.aborting():
+                # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
+                self.abort_sim_run("got real  abort at frame %d" % frame_number)######@@@@@@ also set self-aborting flag to be used above
+            else:
+                from sim import getFrame
+                frame = getFrame()
+                ## print "frame no. %d (len %d)" % (frame_number, len(frame)) #####@@@@@ remove when works, or also print frame to see more
 
-        #e stick the atom posns in - i think the following also adjusts the singlet posns #k check that
-        # - how does xyz reader do it? is that done in movie object? sim_aspect?? readxyz?
-        # here is how we do it at the end from an xyz file:
-##        #bruce 060102 note: following code is duplicated somewhere else in this file.
-##        movie.moveAtoms(newPositions)
-##        # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
-##        self.part.changed() # Mark - bugfix 386
-##        self.part.gl_update()
-        #####@@@@@ I don't know if self.attrs used below are always present -- might be tested only in Minimize!
-        newPositions = frame #k guess type is ok
-        movie = self._movie #k guess
-        # guess self.part is there
-        #bruce 060102 note: following code is approximately duplicated somewhere else in this file.
-        movie.moveAtoms(newPositions)
-        # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
-        self.part.changed() # Mark - bugfix 386
-        self.part.gl_update()
-        # end of dup code
+                #e stick the atom posns in - i think the following also adjusts the singlet posns #k check that
+                # - how does xyz reader do it? is that done in movie object? sim_aspect?? readxyz?
+                # here is how we do it at the end from an xyz file:
+        ##        #bruce 060102 note: following code is duplicated somewhere else in this file.
+        ##        movie.moveAtoms(newPositions)
+        ##        # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
+        ##        self.part.changed() # Mark - bugfix 386
+        ##        self.part.gl_update()
+                #####@@@@@ I don't know if self.attrs used below are always present -- might be tested only in Minimize!
+                newPositions = frame #k guess type is ok
+                movie = self._movie #k guess
+                # guess self.part is there
+                #bruce 060102 note: following code is approximately duplicated somewhere else in this file.
+                movie.moveAtoms(newPositions)
+                # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
+                self.part.changed() # Mark - bugfix 386
+                self.part.gl_update()
+                # end of dup code
 
-        #e update progress bar #####@@@@@ later
-        # tell Qt to process events (for progress bar, its abort button, user moving the dialog or window, changing display mode,
-        #  and for gl_update)
-        env.call_qApp_processEvents() 
-        #e see if user aborted #####@@@@@ later
-        # that's it!
+            #e update progress bar #####@@@@@ later
+            # tell Qt to process events (for progress bar, its abort button, user moving the dialog or window, changing display mode,
+            #  and for gl_update)
+            env.call_qApp_processEvents() 
+            #e see if user aborted #####@@@@@ later
+            if self.abortbutton_controller.aborting():
+                self.abort_sim_run("got real abort at frame %d" % frame_number)
+                    ######@@@@@@ also set self-aborting flag to be used above
+            # that's it!
         return
 
     def abort_sim_run(self, why = "(reason not specified by internal code)" ): #bruce 060102
         "#doc"
         self._simopts.Interrupted = True
-        env.history.message( redmsg( "aborting sim run: %s" % why ))
+        env.history.message( redmsg( "aborting sim run: %s" % why )) ######@@@@@@@ only if we didn't do this already
+            #####@@@@@ current code (kluge) might do it 2 times even if sim behaves perfectly and no nested tasks (not sure)
         return
     
     def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
@@ -1008,7 +1038,8 @@ else:
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False):
+def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator"):
+        #bruce 060106 added cmdname
     """Write an input file for the simulator, then run the simulator,
     in order to create a moviefile (.dpb file), or an .xyz file containing all
     frames(??), or an .xyz file containing what would have
@@ -1032,7 +1063,8 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    simrun = SimRunner( part, mflag, simaspect = simaspect) #e in future mflag should choose subclass (or caller should)
+    simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname)
+        #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
     if print_sim_warnings:
@@ -1156,15 +1188,16 @@ class simSetup_CommandRun(CommandRun):
     when the command is invoked, to prep to run the command once;
     then call self.run() to actually run it.
     """
+    cmdname = 'Simulator' #bruce 060106 temporary hack, should be set by subclass ###@@@
     def run(self):
         #bruce 050324 made this method from the body of MWsemantics.simSetup
         # and cleaned it up a bit in terms of how it finds the movie to use.
         if not self.part.molecules: # Nothing in the part to simulate.
             msg = redmsg("Nothing to simulate.")
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
             return
         
-        env.history.message(cmd + "Enter simulation parameters and select <b>Run Simulation.</b>")
+        env.history.message(self.cmdname + "Enter simulation parameters and select <b>Run Simulation.</b>")
 
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
         # iff it's the current mode.
@@ -1195,7 +1228,7 @@ class simSetup_CommandRun(CommandRun):
                 from platform import hhmmss_str
                 estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
-                env.history.message(cmd + msg) 
+                env.history.message(self.cmdname + msg) 
             msg = "Movie written to [" + movie.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon " \
                         "and press Play on the Movie Mode dashboard." #bruce 050510 added note about Play button.
@@ -1204,13 +1237,13 @@ class simSetup_CommandRun(CommandRun):
             #   If so, make sure it plays the correct one even if new ones have been made since then!)
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.win.simMoviePlayerAction.iconSet().pixmap() )
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
             assert not movie
-            env.history.message(cmd + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
+            env.history.message(self.cmdname + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
         return
 
     def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
@@ -1220,7 +1253,7 @@ class simSetup_CommandRun(CommandRun):
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge
             msg = redmsg( "Simulator is not yet implemented for clipboard items.")
-            env.history.message(cmd + msg)
+            env.history.message(self.cmdname + msg)
             return -1
         ###@@@ else use suffix below!
         

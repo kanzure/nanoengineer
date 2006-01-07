@@ -375,11 +375,15 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 ##        return
 
     # == end of code which is unused as of 060106
-        
+    
+    sim_abort_button_pressed = False #bruce 060106
+    
     def simAbort(self):
         '''Original slot for Abort button.
         '''
-
+        if platform.atom_debug and self.sim_abort_button_pressed: #bruce 060106
+            print "atom_debug: self.sim_abort_button_pressed is already True before we even put up our dialog"
+        
         # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
         # Bug 915 had to do with a problem if the user accidently hit the space bar or espace key,
         # which would call this slot and abort the simulation.  This should no longer be an issue here
@@ -394,6 +398,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             1)  # Escape (1= Cancel)
           
         if ret==0: # Confirmed
+            if platform.atom_debug: #bruce 060106
+                print "atom_debug: user confirmed abort, self.sim_abort_button_pressed = True"
             self.sim_abort_button_pressed = True
     
     def update_mode_status(self, mode_obj = None):

@@ -35,6 +35,8 @@ def do_what_MainWindowUI_should_do(win):
     win.simAbortButton.setMaximumWidth(32)
     win.statusBar().addWidget(win.simAbortButton,1,True)
     win.connect(win.simAbortButton,SIGNAL("clicked()"),win.simAbort)
+        # as of 060106 this puts up confirmation dialog,
+        # then does self.sim_abort_button_pressed = True (if user confirms)
     win.simAbortButton.hide()
 
     # Create (current) display mode bar.
@@ -67,7 +69,8 @@ def do_what_MainWindowUI_should_do(win):
         
     return
 
-def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration = 0):
+
+def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration = 0): # misnamed, also waits... [bruce 060106 comment]
     """Display the statusbar's progressbar and stop button, and update it while a file is 
     being written by some other process, to show the size of that file as progress, while 
     waiting for that size to reach a given value; when it does, hide the progressbar and stop
@@ -82,19 +85,26 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
     """
     # (note: mark circa 060105 made this by copying and modifying ProgressBar.launch().)
     
-    win.sim_abort_button_pressed = False
+    #bruce 060106 splitting this into pieces so Pyrex sim interface can share some of its code.
+    # (These pieces are global functions, but should really be methods of a new class, but that can wait. #e)
+    
+    ## win.sim_abort_button_pressed = False # moved into AbortButtonForOneTask.start
     filesize = 0
     sinc = .1
-    win.stime = time.time()
     
+    ###e the following is WRONG if there is more than one task at a time... [bruce 060106 comment]
+    win.stime = time.time() 
     win.status_pbar.reset()
     win.status_pbar.setTotalSteps(nsteps)
     win.status_pbar.setProgress(0)
     win.status_pbar.show()
     
-    win.simAbortButton.show()
-    
+    ## win.simAbortButton.show() # moved into AbortButtonForOneTask.start
 
+    abortbutton = AbortButtonForOneTask()
+        #bruce 060106 moved some code from this loop into that class (so pyrex sim can use it too)
+    abortbutton.start()
+    
     # Main loop
     while filesize < nsteps:
         if os.path.exists(filename): filesize = os.path.getsize(filename)
@@ -115,8 +125,10 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
                 # might mess up more important ones from foreground operations --
                 # need to reconsider this (even if we prohibit other long-running
                 # tasks from being launched during this time). [bruce 060106 comment]
-        
-        if win.sim_abort_button_pressed: # User hit abort button
+
+        abortbutton.step()
+        if abortbutton.status == ABORTING:
+        ## if win.sim_abort_button_pressed: # User hit abort button
             ## win.sim_abort_button_pressed = False #bruce 060106 -- make sure at most one task responds [not sure this is good]
                 # I decided not to add that, since until we have a better/safer way to control multiple long running tasks,
                 # we might as well let 'abort' clear out all the ongoing tasks at once! Chnces are the user didn't even
@@ -124,18 +136,20 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
                 # this one (running inside them and effectively suspending them) has already done!
                 # [bruce 060106]
             win.status_pbar.hide()
-            win.simAbortButton.hide()
+            abortbutton.finish()
+            ## win.simAbortButton.hide()
             env.history.statusbar_msg("Aborted.")
             return 1
 
         time.sleep(sinc) # Take a rest
         
-    # End of Main loop
+    # End of Main loop (this only runs if it ended without being aborted)
     win.status_pbar.setProgress(nsteps)
     win._duration = time.time() - win.stime
     time.sleep(0.1)  # Give the progress bar a moment to show 100%
     win.status_pbar.hide()
-    win.simAbortButton.hide()
+    abortbutton.finish()
+    ## win.simAbortButton.hide()
     env.history.statusbar_msg("Done.")
     return 0
 
@@ -213,4 +227,54 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
     env.history.statusbar_msg("Done.")
     return 0
         
+
+class AbortButtonForOneTask: #bruce 060106; will become a subclass of something like "subtask with its own start/step/finish methods"
+    "initial stub or kluge -- all tasks use the same abort button -- will probably mess up if more than one task is run at once"
+    #e a task name (for tooltip, history, etc) should be passed to some method here...
+    #e note: if this would create its own copy of the stopsign button, with a custom tooltip, and its own signal/slot/flag,
+    # then we'd have (1) visible warning of multiple tasks, (2) prototype of "task icons on sbar" proposal,
+    # (3) better chance of avoiding bugs from multiple tasks.
+    def __init__(self):
+        self.win = env.mainwindow()
+            # used for the global flag self.win.sim_abort_button_pressed (shared among all tasks for now)
+        self.abortButton = self.win.simAbortButton
+        self.status = None
+        self.error = None
+    def start(self):
+        self.win.sim_abort_button_pressed = False
+            # This is very dubious if there is more than one task at a time... [bruce 060106 comment]
+        self.status = STARTED
+        self.abortButton.show()
+    def step(self):
+        if self.win.sim_abort_button_pressed: # User hit abort button [and main window slot method noticed that and set this flag]
+            ## self.win.sim_abort_button_pressed = False #bruce 060106 -- make sure at most one task responds [not sure this is good]
+                # I decided not to add that, since until we have a better/safer way to control multiple long running tasks,
+                # we might as well let 'abort' clear out all the ongoing tasks at once! Chnces are the user didn't even
+                # realize there was more than one, and furthermore, if they continue they might mess things up more than
+                # this one (running inside them and effectively suspending them) has already done!
+                # [bruce 060106]
+            ## return STEP_SAYS_ABORT ###k ??? this is very dubious -- most tasks don't tell *other* ones to abort...
+                # more likely, this is just passing state info somewhere (eg set an attr and notify subscribers)
+            self.status = ABORTING # client can notice this (or in future, subscribe to it #e)
+            self.error = 'abort button pressed'
+        ## return None
+        return
+    def aborting(self):
+        "[specialized method for only this subclass -- i think -- or one which generates internal aborts, anyway ##k]"
+        self.step()
+        return self.status == ABORTING
+    def finish(self):
+        "This should be called when this ends for any reason, even an abort (from another looping object, or this one)"
+        self.abortButton.hide()
+            # this is very dubious if there is more than one task, in fact it's VERY WRONG for success of subtask
+            # and MIGHT NOT HAVE BEEN AS BAD IN THE OLD CODE (if it didn't happen for all finishes but only aborting ones) (???),
+            # but at least the current code will try to abort them all at once
+            # when the abort button is pressed once. [bruce 060106 comment]
+        self.status = FINISHED # whether or not it was ABORTING earlier
+    pass
+
+## STEP_SAYS_ABORT = 'STEP_SAYS_ABORT'
+
+_junk, STARTED, ABORTING, FINISHED = range(4)
+
 # end
