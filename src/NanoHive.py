@@ -15,7 +15,7 @@ from NanoHiveDialog import NanoHiveDialog
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env, os
 from constants import *
-from jigs_planes import ESPWindow
+from jigs_planes import ESPImage
 from files_nh import *
 from NanoHiveUtils import *
 
@@ -39,15 +39,15 @@ def get_partname(assy):
     else:
         return "Untitled"
 
-def find_all_ESP_window_jigs_under( root):
-    '''Returns a list of ESP Window jigs.
+def find_all_ESP_image_jigs_under( root):
+    '''Returns a list of ESP Image jigs.
     '''
     # Code copied from node_indices.find_all_jigs_under().  Mark 050919.
     res = []
-    def grab_if_ESP_Window_jig(node):
-        if isinstance(node, ESPWindow):
+    def grab_if_ESP_Image_jig(node):
+        if isinstance(node, ESPImage):
             res.append(node)
-    root.apply2all( grab_if_ESP_Window_jig)
+    root.apply2all( grab_if_ESP_Image_jig)
     return res
 
 class NanoHive(NanoHiveDialog):
@@ -58,8 +58,8 @@ class NanoHive(NanoHiveDialog):
         NanoHiveDialog.__init__(self)
         self.assy = assy
         self.part=assy.part
-        self.esp_window_list = [] # List of ESP Window jigs.
-        self.esp_window = None # The currently selected ESP Window.
+        self.esp_image_list = [] # List of ESP Image jigs.
+        self.esp_image = None # The currently selected ESP Image.
         
         # This is where What's This descriptions should go for the Nano-Hive dialog.
         # Mark 050831.
@@ -95,7 +95,7 @@ class NanoHive(NanoHiveDialog):
         self.MPQC_GD_checkbox.setChecked(False)
         self.AIREBO_checkbox.setChecked(False)
         
-        self.populate_ESP_window_combox() # Update the ESP Window combo box.
+        self.populate_ESP_image_combox() # Update the ESP Image combo box.
         
         self.Measurements_to_File_checkbox.setChecked(False)
         self.POVRayVideo_checkbox.setChecked(False)
@@ -113,44 +113,44 @@ class NanoHive(NanoHiveDialog):
         '''The slot method for the "Cancel" button.'''
         QDialog.reject(self)
         
-    def update_ESP_window_combox(self, toggle):
-        '''Enables/disables the ESP Window combo box.
+    def update_ESP_image_combox(self, toggle):
+        '''Enables/disables the ESP Image combo box.
         '''
-        if self.esp_window_list:
-            self.ESP_window_combox.setEnabled(toggle)
+        if self.esp_image_list:
+            self.ESP_image_combox.setEnabled(toggle)
         else:
-            env.history.message("No ESP Window Jigs")
+            env.history.message("No ESP Image Jigs")
             self.MPQC_ESP_checkbox.setChecked(False)
-            self.ESP_window_combox.setEnabled(False)
+            self.ESP_image_combox.setEnabled(False)
         
-    def populate_ESP_window_combox(self):
-        '''Populates the ESP Window combo box with the names of all ESP Window jigs in the current part.
+    def populate_ESP_image_combox(self):
+        '''Populates the ESP Image combo box with the names of all ESP Image jigs in the current part.
         '''
-        self.esp_window_list = find_all_ESP_window_jigs_under(self.assy.tree)
+        self.esp_image_list = find_all_ESP_image_jigs_under(self.assy.tree)
         
-        self.ESP_window_combox.clear()
-        for jig in self.esp_window_list:
-            self.ESP_window_combox.insertItem(jig.name)
+        self.ESP_image_combox.clear()
+        for jig in self.esp_image_list:
+            self.ESP_image_combox.insertItem(jig.name)
         
-        if self.esp_window_list:
-            # Set default ESP Window to the first one in the list.
-            self.esp_window = self.esp_window_list[0]
+        if self.esp_image_list:
+            # Set default ESP Image to the first one in the list.
+            self.esp_image = self.esp_image_list[0]
         else:
-            # Must have at least one ESP Window in the part to select this plugin
+            # Must have at least one ESP Image in the part to select this plugin
             # self.MPQC_ESP_checkbox.setEnabled(False) # Disable the ESP Plane plugin. 
-            self.ESP_window_combox.setEnabled(False)
+            self.ESP_image_combox.setEnabled(False)
             
-    def set_ESP_window(self, indx):
-        '''Slot for the ESP Window combo box.
+    def set_ESP_image(self, indx):
+        '''Slot for the ESP Image combo box.
         '''
         print "Index = ", indx
         
         if indx:
-            self.esp_window = self.esp_window_list[indx]
-            print "ESP Window Name =", self.esp_window.name
+            self.esp_image = self.esp_image_list[indx]
+            print "ESP Image Name =", self.esp_image.name
         else:
-            self.esp_window = None
-            print "ESP Window Name =", self.esp_window
+            self.esp_image = None
+            print "ESP Image Name =", self.esp_image
         
     def update_MPQC_GD_options_btn(self, toggle):
         '''Enables/disables the MPQC Gradient Dynamics Options button.
@@ -224,7 +224,7 @@ class NanoHive(NanoHiveDialog):
         sp.iterations = self.nframes_spinbox.value() # Iterations = Frames
         sp.spf = self.stepsper_spinbox.value() * 1e-17 # Steps per Frame
         sp.temp = self.temp_spinbox.value() # Temp in Kelvin
-        sp.esp_window = self.esp_window
+        sp.esp_image = self.esp_image
         
         return sp
          

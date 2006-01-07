@@ -1146,7 +1146,7 @@ class Node( GenericDiffTracker_API_Mixin):
         stats.nstats = 0
         stats.nthermos = 0
         stats.ngamess = 0
-        stats.num_espwindow = 0
+        stats.num_espimage = 0
         stats.num_gridplane = 0
         stats.num_mdistance = 0
         stats.num_mangle = 0
@@ -1792,11 +1792,11 @@ class Group(Node):
             #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
             return
         self.draw_begin(glpane, dispdef)
-        from jigs_planes import ESPWindow
+        from jigs_planes import ESPImage
     
         try:
             for ob in self.members[:]:
-                if not isinstance(ob, ESPWindow): #Exclude any ESP window drawing here because of its translucency. [Huaicai 9/28/05]
+                if not isinstance(ob, ESPImage): #Exclude any ESP image drawing here because of its translucency. [Huaicai 9/28/05]
                     ob.draw(glpane, dispdef)
             #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
             #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".

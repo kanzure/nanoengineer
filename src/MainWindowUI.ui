@@ -153,7 +153,7 @@
         <action name="jigsAnchorAction"/>
         <action name="jigsStatAction"/>
         <action name="jigsThermoAction"/>
-        <action name="jigsESPWindowAction"/>
+        <action name="jigsESPImageAction"/>
         <action name="jigsGamessAction"/>
         <action name="jigsGridPlaneAction"/>
         <action name="jigAtomSetAction"/>
@@ -3901,16 +3901,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>jigsESPWindowAction</cstring>
+            <cstring>jigsESPImageAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image136</iconset>
         </property>
         <property name="text">
-            <string>ESP Window</string>
+            <string>ESP Image</string>
         </property>
         <property name="menuText">
-            <string>ESP Window</string>
+            <string>ESP Image</string>
         </property>
     </action>
     <action>
@@ -4466,7 +4466,7 @@
         <data format="PNG" length="164">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006b49444154789c6360186a80115dc0da40f53fa5861ebd701bc35c0c833bd25c48e2c3f43351ea3a5c806606a3006a050303035ae4591ba8fef7359327db619b4f3da46dc431300cc5c8a37d1853337c19188674180f8934ccc040ebb282daae6560a075e4d1acd6a0050000164d573ca14e125b0000000049454e44ae426082</data>
     </image>
     <image name="image136">
-        <data format="PNG" length="386">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000014949444154789cd594b14ec3301086ff20a6eced1b64bc285b23327666e62d589b4748d7be030333cf10c458f9c6aa62447276af660836b66327112c7092a5f8ceffe73ff139c07f8b2c4c3455a17f0bedcf97ec3656b87fed7f0c7db96b000051f0521cf2ad7d3e2a195d73b3043063cd26c968aa42774aea4e49ad81d941449a88ecbc5352bbe713fd14c64549040010ccb666728f6fcfe3bc7ef0eab3600370c52604b3857f5cdf936fbf787846ecba12cc7633c11c3dc024381403df1d70c8b79ef35844bbc2751042db7c830c1ad9d7e54ab59b75dc5485762fc6514960b74f0a8948330b000380f162f4e78bbdc951c76dbec1d36e8f51e8e7476839c9251dc716129568731f4e54da6e39d5e564f324784eec3a9d6bb52438141ba0d9e054fbf3d56066312b76739d1aa2e00c9876447820a1d8ad776a987444d271cac5daba07363fe83f1f9fc88ab64324d4ef6c0000000049454e44ae426082</data>
+        <data format="PNG" length="318">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010549444154789cd554cb0ac230109c8a077fc4634a8f82fe877fe17ff91f29780cc9318847efde450f9276b3dd4d4b4b0f0e149ac74ca6bbd300ff868a4f1c9bfd67a968eb62b5592aa2613b87645decde4fcd5edc53746c5dec9e2987506435a6f52d8901406d0c00c08700a077deba58014a29922827d3b9cbedfa1b1fced97a825ae3da988c9ce043e8c49ff787fa45a3cd4b64eaca87d01de643101ba80a7332d0d7d1ba98399720a6823a9044e978346efc8fa34489fc7aef064d4b89501d5b1745224f0b9de318d4986eac8d8177b9384f8b143551b844a64e4b5153853999ff283c2d9385a5a8f1f5042d1515304c046f08274bb71b4d842a3c075c78b58b7e357c01d2ab96b7bf2609da0000000049454e44ae426082</data>
     </image>
     <image name="image137">
         <data format="PNG" length="372">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000013b49444154789cb555318ec230101c4714e9b82e7cc2ef205f084d3e9167f8075ce3e6507ee0bc231254a72b0f1e00ed5e011b6d12db980346b2b2bbd99dac272b1b7813140068ad89037ddfab677d005870a0691ae4798ee5c792ca75a9acb50400c5aa48f68d31709da3725d2a70c7d65a2260b4625bf5e56aada96ddb795d0ae14335ac1127a4924ff3a5d6191bac19002840a548a16e3f5f82793219948931f229a9ef0319701d916255cc08b8a0da5404806e4f2f9197476a3345b5a98888687bded3f6bc1fc87db8abb1c4ee6b87cfcb61e4c7e0d538d0f160ff7eff8cfc24b8ce45e580d0389927a4716c2a7cf1a0c6b22034a7c07c14a51dd538461a229f6298e3474843e4c1397ec5e936ea18b86aa30025d7bd6e7db9acf170d01b63a0b5a6676f10c6825fbaced1e9780200aaebfa5f37486c872fc31faf5a0bd11901addf0000000049454e44ae426082</data>
@@ -4828,10 +4828,10 @@
         <slot>makeDyno()</slot>
     </connection>
     <connection>
-        <sender>jigsESPWindowAction</sender>
+        <sender>jigsESPImageAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>makeESPWindow()</slot>
+        <slot>makeESPImage()</slot>
     </connection>
     <connection>
         <sender>jigsGamessAction</sender>
@@ -5561,7 +5561,7 @@
     <slot>toolsFuseAtoms()</slot>
     <slot>simNanoHive()</slot>
     <slot>createRecentFilesList()</slot>
-    <slot>makeESPWindow()</slot>
+    <slot>makeESPImage()</slot>
     <slot>selectExpand()</slot>
     <slot>selectContract()</slot>
     <slot>makeAtomSet()</slot>

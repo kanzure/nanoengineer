@@ -44,7 +44,7 @@ class Statistics:
         
         item = QListViewItem(statsView,None)
         item.setText(0,"ESP Window:")
-        item.setText(1, str(self.num_espwindow))
+        item.setText(1, str(self.num_espimage))
         
         item = QListViewItem(statsView,None)
         item.setText(0,"Gamess:")

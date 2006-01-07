@@ -41,7 +41,7 @@ def write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, out
     # Physical Interaction Plugins ########################################
     
     if "MPQC_ESP" in sims_to_run:
-        write_nh_mpqc_esp_plane_rec(f, sp.esp_window, output_dir)
+        write_nh_mpqc_esp_plane_rec(f, sp.esp_image, output_dir)
         
     if "MPQC_GD" in sims_to_run:
         write_nh_mpqc_gd_rec(f)
@@ -76,7 +76,7 @@ def write_nh_workflow_file(sim_name):
 
     f.write ('NH_Import $inFile\n\n')
     f.write ('NH_Calculate 0 $traverser\n')
-    f.write ('NH_Calculate 0 $espWindow $traverser\n')
+    f.write ('NH_Calculate 0 $espImage $traverser\n')
     f.write ('NH_Intermediate 0 $simResult\n\n')
     f.write ('NH_Final $simResult\n')
     
@@ -119,37 +119,37 @@ def write_nh_bond_calc_rec(f):
     
 # == Physical Interaction Plug-ins ==========================
     
-def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
+def write_nh_mpqc_esp_plane_rec(f, esp_image, output_dir):
     
     nh_home = get_nh_home()
     
-    cpnt = esp_window.center * 1e-10
+    cpnt = esp_image.center * 1e-10
     centerPoint = (float(cpnt[0]), float(cpnt[1]), float(cpnt[2]))
-    #print "ESP Window CenterPoint =", centerPoint
+    #print "ESP Image CenterPoint =", centerPoint
         
-    npnt = cpnt + (esp_window.planeNorm  * 1e-10)
+    npnt = cpnt + (esp_image.planeNorm  * 1e-10)
     
     # This is a temporary workaround until Brian fixes the normalPoint Y value issue (must be positive).
-    # This forces ESP Windows to be oriented in the X-Z plane until it is fixed.
+    # This forces ESP Images to be oriented in the X-Z plane until it is fixed.
     # Mark 050927.
     # normalPoint = (0.0, 0.0, 1.0) + cpnt
     normalPoint = (float(npnt[0]), float(npnt[1]), float(npnt[2])) # KEEP THIS!!!
-    #print "ESP Window NormalPoint =", normalPoint
+    #print "ESP Image NormalPoint =", normalPoint
         
-    resolution = esp_window.resolution
-    # print "ESP Window Resolution =", resolution
+    resolution = esp_image.resolution
+    # print "ESP Image Resolution =", resolution
         
-    cutoffHeight = esp_window.window_offset * 1e-10
-    #print "ESP Window cutoffHeight =", cutoffHeight
-    cutoffWidth = esp_window.edge_offset * 1e-10
-    #print "ESP Window cutoffWidth =", cutoffWidth
-    outputLength = esp_window.width * 1e-10
-    #print "ESP Window outputLength =", outputLength
+    cutoffHeight = esp_image.image_offset * 1e-10
+    #print "ESP Image cutoffHeight =", cutoffHeight
+    cutoffWidth = esp_image.edge_offset * 1e-10
+    #print "ESP Image cutoffWidth =", cutoffWidth
+    outputLength = esp_image.width * 1e-10
+    #print "ESP Image outputLength =", outputLength
 
-    multi = esp_window.multiplicity
+    multi = esp_image.multiplicity
     
     f.write('\n')
-    f.write('    <calculator name="espWindow" plugin="MPQC_SClib">\n')
+    f.write('    <calculator name="espImage" plugin="MPQC_SClib">\n')
     f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
     f.write('      <parameter name="dataDirectory" value="%s/data/MPQC_SClib" />\n' % nh_home)
     f.write('      <parameter name="basis" value="STO-3G" />\n')
@@ -168,9 +168,9 @@ def write_nh_mpqc_esp_plane_rec(f, esp_window, output_dir):
     f.write('    </calculator>\n')
     f.write('\n')
     f.write('    <result name="simResult" plugin="_ESP_Image">\n')
-    f.write('      <parameter name="outputFilename" value="%s\\%s.png" />\n' % (output_dir, esp_window.name))
-    f.write('      <parameter name="xaxisOrient" value="%d" />\n' % esp_window.xaxis_orient)
-    f.write('      <parameter name="yaxisOrient" value="%d" />\n' % esp_window.yaxis_orient)
+    f.write('      <parameter name="outputFilename" value="%s\\%s.png" />\n' % (output_dir, esp_image.name))
+    f.write('      <parameter name="xaxisOrient" value="%d" />\n' % esp_image.xaxis_orient)
+    f.write('      <parameter name="yaxisOrient" value="%d" />\n' % esp_image.yaxis_orient)
     f.write('    </result>\n')
 
 def write_nh_mpqc_gd_rec(f):

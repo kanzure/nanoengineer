@@ -341,7 +341,7 @@ class Jig(Node):
     def _mmp_record_last_part(self, mapping):
         '''Last part of the record. Subclass can override this method to provide specific version of this part.
          Note: If it returns anything other than empty, make sure to put one extra space character at the front.'''
-        # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Window, which is none.
+        # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Image, which is none.
         if mapping is not None:
             ndix = mapping.atnums
             minflag = mapping.min # writing this record for Minimize? [bruce 051031]
@@ -1115,18 +1115,18 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.assy.w.win_update()
         
         
-    def makeESPWindow(self):
-        cmd = greenmsg("ESP Window: ")
+    def makeESPImage(self):
+        cmd = greenmsg("ESP Image: ")
 
         atoms = self.assy.selatoms_list() #bruce 051031 change
 
         if len(atoms) < 3:
-            msg = redmsg("You must select at least 3 atoms to create an ESP Window.")
+            msg = redmsg("You must select at least 3 atoms to create an ESP Image.")
             env.history.message(cmd + msg)
             return
         
-        from jigs_planes import ESPWindow
-        m = ESPWindow(self.assy, atoms)
+        from jigs_planes import ESPImage
+        m = ESPImage(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
             env.history.message(cmd + "Cancelled")
@@ -1138,7 +1138,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         #After placing the jig, remove the atom list from the jig.
         m.atoms = []
         
-        env.history.message(cmd + "ESP Window created.")
+        env.history.message(cmd + "ESP Image created.")
         self.assy.w.win_update()
            
         

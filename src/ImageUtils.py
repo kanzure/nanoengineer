@@ -56,7 +56,7 @@ class nEImageOps:
         width = self.img.size[0]
         height = self.img.size[1]
         rst = self.img.tostring("raw", "RGBX", 0, -1)
-        print "image size: ", width, height
+        #print "image size: ", width, height
         return width, height, rst
      
 

@@ -1,6 +1,6 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
-jigs_planes.py -- Classes for Plane jigs, including RectGadget, GridPlane and ESPWindow.
+jigs_planes.py -- Classes for Plane jigs, including RectGadget, GridPlane and ESPImage.
 
 $Id$
 
@@ -280,17 +280,17 @@ def povStrVec(va):
     
     return rstr
 
-# == ESPWindow
+# == ESPImage
 
-class ESPWindow(RectGadget):
+class ESPImage(RectGadget):
     ''' '''
     mutable_attrs = ('fill_color', )
-    copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'opacity', 'show_esp_bbox', 'window_offset', 'edge_offset') + mutable_attrs
+    copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'opacity', 'show_esp_bbox', 'image_offset', 'edge_offset') + mutable_attrs
     
-    sym = "ESP Window"
-    icon_names = ["espwindow.png", "espwindow-hide.png"] # Added espwindow icons.  Mark 050919.
-    mmp_record_name = "espwindow"
-    featurename = "ESP Window" #bruce 051203
+    sym = "ESP Image"
+    icon_names = ["espimage.png", "espimage-hide.png"]
+    mmp_record_name = "espimage"
+    featurename = "ESP Image" #bruce 051203
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -299,14 +299,14 @@ class ESPWindow(RectGadget):
         self.normcolor = black
         self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
         
-        # This specifies the resolution of the ESP Window. 
-        # The total number of ESP data points in the window will number resolution^2. 
+        # This specifies the resolution of the ESP Image. 
+        # The total number of ESP data points in the image will number resolution^2. 
         self.resolution = 32 # Keep it small so sim run doesn't take so long. Mark 050930.
-        # Show/Hide ESP Window Volume (Bbox).  All atoms inside this volume are used by 
+        # Show/Hide ESP Image Volume (Bbox).  All atoms inside this volume are used by 
         # the MPQC ESP Plane plug-in to calculate the ESP points.
         self.show_esp_bbox = True
-        # the perpendicular (front and back) window offset used to create the depth of the bbox
-        self.window_offset = 1.0
+        # the perpendicular (front and back) image offset used to create the depth of the bbox
+        self.image_offset = 1.0
         # the edge offset used to create the edge boundary of the bbox
         self.edge_offset = 1.0 
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
@@ -350,7 +350,7 @@ class ESPWindow(RectGadget):
         
     
     def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color,show_bbox, win_offset, edge_offset):
-        '''Set the properties for a ESP Window read from a (MMP) file. '''
+        '''Set the properties for a ESP Image read from a (MMP) file. '''
         self.name = name; self.color = self.normcolor = border_color;
         self.width = width; self.height = height; self.resolution = resolution; 
         self.center = center;  
@@ -358,7 +358,7 @@ class ESPWindow(RectGadget):
         self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
         
         self.opacity = trans;  self.fill_color = fill_color
-        self.show_esp_bbox = show_bbox; self.window_offset = win_offset; self.edge_offset = edge_offset
+        self.show_esp_bbox = show_bbox; self.image_offset = win_offset; self.edge_offset = edge_offset
 
     def _getinfo(self):
         
@@ -370,21 +370,21 @@ class ESPWindow(RectGadget):
         np = (float(n[0]), float(n[1]), float(n[2]))
         normalPoint = '%1.2e %1.2e %1.2e' % np
         
-        return  "[Object: ESP Window] [Name: " + str(self.name) + "] " + \
+        return  "[Object: ESP Image] [Name: " + str(self.name) + "] " + \
                     "[centerPoint = " + centerPoint + "] " + \
                     "[normalPoint = " + normalPoint + "]"
 
     def getstatistics(self, stats):
-        stats.num_espwindow += 1  
+        stats.num_espimage += 1  
       
     def set_cntl(self):
-        from ESPWindowProp import ESPWindowProp
-        self.cntl = ESPWindowProp(self, self.assy.o)
+        from ESPImageProp import ESPImageProp
+        self.cntl = ESPImageProp(self, self.assy.o)
 
     
     def _createShape(self, selSense = 2):
         ''' '''
-        hw = self.width/2.0; wo = self.window_offset; eo = self.edge_offset
+        hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
         
         shape = SelectionShape(self.right, self.up, self.planeNorm)
         slab = Slab(self.center-self.planeNorm*wo, self.planeNorm, 2*wo)
@@ -398,7 +398,7 @@ class ESPWindow(RectGadget):
     
         
     def pickSelected(self, pick):
-        '''Select atoms inside the ESP Window bounding box. Actually this works for chunk too.'''
+        '''Select atoms inside the ESP Image bounding box. Actually this works for chunk too.'''
         if not pick: sense = 0
         else: sense = 2
         
@@ -437,7 +437,7 @@ class ESPWindow(RectGadget):
         if self.hidden: return
         if self.is_disabled(): return #bruce 050421
         
-        hw = self.width/2.0; wo = self.window_offset; eo = self.edge_offset
+        hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
         povPlaneCorners = []
         for v in corners_pos:
@@ -468,9 +468,9 @@ class ESPWindow(RectGadget):
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
         drawLineLoop(self.color, corners_pos)  
         
-        # Draw the ESP Window bbox.
+        # Draw the ESP Image bbox.
         if self.show_esp_bbox:
-            wo = self.window_offset
+            wo = self.image_offset
             eo = self.edge_offset
             drawwirecube(self.color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo), 1.0) #drawwirebox
             
@@ -494,7 +494,7 @@ class ESPWindow(RectGadget):
            (self.width, self.height, self.resolution, 
             self.center[0], self.center[1], self.center[2], 
             self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
-            self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.window_offset, self.edge_offset)
+            self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.image_offset, self.edge_offset)
         return " " + dataline
 
     def get_sim_parms(self):
@@ -506,12 +506,12 @@ class ESPWindow(RectGadget):
         sim_parms.spf = 1e-17 # Steps per Frame
         sim_parms.temp = 300 # Room temp
         
-        #Get updated multiplicity from this ESP window jig bbox
+        #Get updated multiplicity from this ESP image jig bbox
         from chem import getMultiplicity
         atomList = self.findObjsInside()
         self.multiplicity = getMultiplicity(atomList)        
        
-        sim_parms.esp_window = self
+        sim_parms.esp_image = self
         
         return sim_parms
 
@@ -569,8 +569,8 @@ class ESPWindow(RectGadget):
         
     def load_esp_image(self, load_new_image = False):
         '''Load the ESP (.png) image file, which will have the same name as the Jig.
-        If the jig's name is "ESP Window.1", the image will be called 
-        "ESP Window.1.png", located in the ~/Nanorex/Nano-Hive directory.
+        If the jig's name is "ESP Image.1", the image will be called 
+        "ESP Image.1.png", located in the ~/Nanorex/Nano-Hive directory.
         
         If the file does not exist, or if load_new_image is True, the
         user will be prompted to load an image.
@@ -579,7 +579,7 @@ class ESPWindow(RectGadget):
         no image was loaded.
         '''
         
-        # It would be a good idea to add the image filename as a attribute of the ESP Window
+        # It would be a good idea to add the image filename as a attribute of the ESP Image
         # jig object.  This would require including the filename in the MMP record for the jig,
         # probably as an "info" record. Before doing this, I want to discuss it with Bruce.
         # Mark 051003
@@ -622,7 +622,7 @@ class ESPWindow(RectGadget):
     
     
     def clear_esp_image(self):
-        '''Clears the image in the ESP Window.'''
+        '''Clears the image in the ESP Image.'''
         self.image_obj = None
         self.assy.o.gl_update()
 
@@ -644,6 +644,6 @@ class ESPWindow(RectGadget):
             self.image_obj.rotate(deg)
             self._loadTexture()
     
-    pass # end of class ESPWindow       
+    pass # end of class ESPImage       
 
 #end

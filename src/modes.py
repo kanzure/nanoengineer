@@ -831,26 +831,26 @@ class basicMode(anyMode):
         return
     
 
-    def _drawESPWindow(self, grp, pickCheckOnly):
-        '''Draw any member in the Group <grp> if it is an ESP Window. Not consider the order
-           of ESP Window objects'''
-        from jigs_planes import ESPWindow
+    def _drawESPImage(self, grp, pickCheckOnly):
+        '''Draw any member in the Group <grp> if it is an ESP Image. Not consider the order
+           of ESP Image objects'''
+        from jigs_planes import ESPImage
        
         anythingDrawn = False
     
         try:
-            if isinstance(grp, ESPWindow):
+            if isinstance(grp, ESPImage):
                 anythingDrawn = True
                 grp.pickCheckOnly = pickCheckOnly
                 grp.draw(self.o, self.o.display)
             elif isinstance(grp, Group):    
                 for ob in grp.members[:]:
-                    if isinstance(ob, ESPWindow):
+                    if isinstance(ob, ESPImage):
                         anythingDrawn = True
                         ob.pickCheckOnly = pickCheckOnly
                         ob.draw(self.o, self.o.display)
                     elif isinstance(ob, Group):
-                        self._drawESPWindow(ob, pickCheckOnly)
+                        self._drawESPImage(ob, pickCheckOnly)
                 #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
                 #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
                 # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
@@ -873,7 +873,7 @@ class basicMode(anyMode):
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
-        return self._drawESPWindow(self.o.assy.part.topnode, pickCheckOnly)
+        return self._drawESPImage(self.o.assy.part.topnode, pickCheckOnly)
             
     
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API

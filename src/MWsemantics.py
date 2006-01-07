@@ -900,8 +900,8 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def makeGridPlane(self):
         self.assy.makeGridPlane()
 
-    def makeESPWindow(self):
-        self.assy.makeESPWindow()
+    def makeESPImage(self):
+        self.assy.makeESPImage()
         
     def makeAtomSet(self):
         self.assy.makeAtomSet()
