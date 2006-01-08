@@ -118,7 +118,7 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
  * longer for speed variations to settle down, because the differential
  * equation describing rotational motor speed has more state variables.
  */
-#define SPRING_STIFFNESS  1.0
+#define SPRING_STIFFNESS  10.0
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
@@ -129,7 +129,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     struct xyz f;
     struct xyz r;
     double omega, domega_dt;
-    double motorq, dragTorque;
+    double motorq, dragTorque = 0.0;
     double theta, cos_theta, sin_theta;
     struct xyz anchor;
 
@@ -144,10 +144,11 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     for (k=0; k<jig->num_atoms; k++) {
 	a1 = jig->atoms[k]->index;
 	// get the position of this atom's anchor
-	anchor = jig->j.rmotor.u[a1];
-	vmul2c(tmp, jig->j.rmotor.v[a1], cos_theta);
+	anchor = jig->j.rmotor.center;
+	vadd(anchor, jig->j.rmotor.u[k]);
+	vmul2c(tmp, jig->j.rmotor.v[k], cos_theta);
 	vadd(anchor, tmp);
-	vmul2c(tmp, jig->j.rmotor.w[a1], sin_theta);
+	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
 	vadd(anchor, tmp);
 	// compute a spring force pushing on the atom
 	tmp = anchor;
