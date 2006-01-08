@@ -95,6 +95,10 @@ addBondsToAtoms(struct part *p)
 struct part *
 endPart(struct part *p)
 {
+    int i;
+    struct xyz mm1;
+    struct xyz momentum;
+
     p->parseError = &defaultParseError;
     p->stream = p;
     p->num_vanDerWaals = p->num_static_vanDerWaals;
@@ -102,7 +106,19 @@ endPart(struct part *p)
     // XXX realloc any accumulators
     
     addBondsToAtoms(p);
-    
+
+    // force a net momentum of zero
+    momentum.x = momentum.y = momentum.z = 0.0;
+    for (i=0; i < p->num_atoms; i++) {
+	vmul2c(mm1, p->velocities[i], 1.0 / p->atoms[i]->inverseMass);
+	vadd(momentum, mm1);
+    }
+    vmulc(momentum, 1.0 / p->num_atoms);
+    for (i=0; i < p->num_atoms; i++) {
+	vmul2c(mm1, momentum, p->atoms[i]->inverseMass);
+	vsub(p->velocities[i], mm1);
+    }
+
     // other routines should:
     // build stretchs, bends, and torsions
     // calculate initial velocities
@@ -393,7 +409,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     struct atom *a2;
     struct atom **bucket;
     double r;
-    
+
     if (validity && p->vanDerWaals_validity == validity) {
 	return;
     }
