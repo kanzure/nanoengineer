@@ -80,7 +80,7 @@ class Jig(Node):
     
     def __init__(self, assy, atomlist): # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
         "each subclass needs to call this, at least sometime before it's used as a Node"
-        Node.__init__(self, assy, gensym("%s." % self.sym))
+        Node.__init__(self, assy, gensym("%s-" % self.sym)) # Changed from "." to "-". mark 060107
         self.setAtoms(atomlist) #bruce 050526 revised this; this matters since some subclasses now override setAtoms
             # Note: the atomlist fed to __init__ is always [] for some subclasses
             # (with the real one being fed separately, later, to self.setAtoms)
