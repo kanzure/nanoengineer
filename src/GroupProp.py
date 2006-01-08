@@ -43,7 +43,7 @@ class Statistics:
         item.setText(1, str(self.num_gridplane))
         
         item = QListViewItem(statsView,None)
-        item.setText(0,"ESP Window:")
+        item.setText(0,"ESP Image:")
         item.setText(1, str(self.num_espimage))
         
         item = QListViewItem(statsView,None)
