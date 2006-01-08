@@ -355,11 +355,11 @@
                         <widget class="QComboBox">
                             <item>
                                 <property name="text">
-                                    <string>(No ESP Window jigs)</string>
+                                    <string>(No ESP Image jigs)</string>
                                 </property>
                             </item>
                             <property name="name">
-                                <cstring>ESP_window_combox</cstring>
+                                <cstring>ESP_image_combox</cstring>
                             </property>
                             <property name="enabled">
                                 <bool>false</bool>
@@ -528,7 +528,7 @@
         <slot>update_MPQC_GD_options_btn()</slot>
     </connection>
     <connection>
-        <sender>ESP_window_combox</sender>
+        <sender>ESP_image_combox</sender>
         <signal>activated(int)</signal>
         <receiver>NanoHiveDialog</receiver>
         <slot>set_ESP_window()</slot>

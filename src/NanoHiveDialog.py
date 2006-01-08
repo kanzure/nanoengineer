@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\NanoHiveDialog.ui'
 #
-# Created: Wed Sep 21 15:16:59 2005
+# Created: Sun Jan 8 13:48:51 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -252,9 +252,9 @@ class NanoHiveDialog(QDialog):
         self.MPQC_ESP_checkbox = QCheckBox(self.buttonGroup1,"MPQC_ESP_checkbox")
         layout44.addWidget(self.MPQC_ESP_checkbox)
 
-        self.ESP_window_combox = QComboBox(0,self.buttonGroup1,"ESP_window_combox")
-        self.ESP_window_combox.setEnabled(0)
-        layout44.addWidget(self.ESP_window_combox)
+        self.ESP_image_combox = QComboBox(0,self.buttonGroup1,"ESP_image_combox")
+        self.ESP_image_combox.setEnabled(0)
+        layout44.addWidget(self.ESP_image_combox)
 
         buttonGroup1Layout.addLayout(layout44,0,0)
 
@@ -317,7 +317,7 @@ class NanoHiveDialog(QDialog):
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.MPQC_ESP_checkbox,SIGNAL("toggled(bool)"),self.update_ESP_window_combox)
         self.connect(self.MPQC_GD_checkbox,SIGNAL("toggled(bool)"),self.update_MPQC_GD_options_btn)
-        self.connect(self.ESP_window_combox,SIGNAL("activated(int)"),self.set_ESP_window)
+        self.connect(self.ESP_image_combox,SIGNAL("activated(int)"),self.set_ESP_window)
         self.connect(self.MPQC_GD_options_btn,SIGNAL("clicked()"),self.show_MPQC_GD_options_dialog)
 
 
@@ -336,8 +336,8 @@ class NanoHiveDialog(QDialog):
         self.MPQC_GD_checkbox.setText(self.__tr("MPQC - Gradient Dynamics"))
         self.MPQC_GD_options_btn.setText(self.__tr("Options..."))
         self.MPQC_ESP_checkbox.setText(self.__tr("MPQC - ESP Plane"))
-        self.ESP_window_combox.clear()
-        self.ESP_window_combox.insertItem(self.__tr("(No ESP Window jigs)"))
+        self.ESP_image_combox.clear()
+        self.ESP_image_combox.insertItem(self.__tr("(No ESP Image jigs)"))
         self.AIREBO_checkbox.setText(self.__tr("AIREBO"))
         self.buttonGroup1_2.setTitle(self.__tr("Results Plugins"))
         self.Measurements_to_File_checkbox.setText(self.__tr("Measurement Set to File"))
