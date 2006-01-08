@@ -97,7 +97,9 @@ endPart(struct part *p)
 {
     int i;
     struct xyz mm1;
-    struct xyz momentum;
+    struct xyz totalMomentum;
+    struct xyz driftVelocity;
+    double totalMass;
 
     p->parseError = &defaultParseError;
     p->stream = p;
@@ -108,15 +110,17 @@ endPart(struct part *p)
     addBondsToAtoms(p);
 
     // force a net momentum of zero
-    momentum.x = momentum.y = momentum.z = 0.0;
+    vsetc(totalMomentum, 0.0);
+    totalMass = 0.0;
     for (i=0; i < p->num_atoms; i++) {
-	vmul2c(mm1, p->velocities[i], 1.0 / p->atoms[i]->inverseMass);
-	vadd(momentum, mm1);
+	double mass = 1.0 / p->atoms[i]->inverseMass;
+	totalMass += mass;
+	vmul2c(mm1, p->velocities[i], mass);
+	vadd(totalMomentum, mm1);
     }
-    vmulc(momentum, 1.0 / p->num_atoms);
+    vmul2c(driftVelocity, totalMomentum, 1.0 / totalMass);
     for (i=0; i < p->num_atoms; i++) {
-	vmul2c(mm1, momentum, p->atoms[i]->inverseMass);
-	vsub(p->velocities[i], mm1);
+	vsub(p->velocities[i], driftVelocity);
     }
 
     // other routines should:
