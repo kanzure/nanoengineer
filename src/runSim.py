@@ -109,7 +109,9 @@ class SimRunner:
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
             self.spawn_process()
-                # spawn_process is misnamed since it also includes monitor_progress [and insert results back into part]
+                # spawn_process is misnamed since it can go thru either interface (pyrex or exec OS process),
+                # since it also monitors progress and waits until it's done,
+                # and insert results back into part, either in realtime or when done.
                 # result error code (or abort button flag) stored in self.errcode
         except:
             print_compact_traceback("bug in simulator-calling code: ")
@@ -590,6 +592,10 @@ class SimRunner:
                 QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
                 QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
             simProcess.setArguments(arguments)
+            if self._movie.watch_motion:
+                env.history.message(orangemsg("(watch motion in realtime is only implemented for pyrex interface to simulator)"))
+            if not self._movie.create_movie_file:
+                env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for non-pyrex sim
             import time
             start = time.time() #bruce 060103 compute duration differently
             simProcess.start()
@@ -755,6 +761,8 @@ class SimRunner:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
             self.remove_old_tracefile(self.traceFileName)
 
+            if not self._movie.create_movie_file:
+                env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for non-pyrex sim
             env.history.message(orangemsg("Warning: editing structure during sim causes tracebacks; cancelling an abort skips some realtime display time"))
             env.call_qApp_processEvents() # so user can see that history message
 
@@ -780,6 +788,8 @@ class SimRunner:
                 # checked here since above processEvents can take time, include other tasks
 
                 # do these before entering the "try" clause
+                # note: we need the frame callback even if not self._movie.watch_motion,
+                # since it's when we check for user aborts and process all other user events.
                 frame_callback = self.sim_frame_callback
                 simgo = simobj.go
                 try:
@@ -816,7 +826,7 @@ class SimRunner:
 
     #bruce 060104 commenting this out [explained above]
     ##            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
-    ##            # bug 1265.
+    ##            # bug 1265. [see also bug 1273 and its comments herein -- bruce 060108]
     ##            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
     ##            movie.moveAtoms(oldposns)
             
@@ -888,41 +898,35 @@ class SimRunner:
             reading redundantly from xyz file)
         """
         if 1: ### if not self.pyrex_sim_aborting(): ######@@@@@@ needs to be a method of a separated task-loop, like abortbutton itself has
-            if 0:
-                if frame_number > 10:# DO NOT COMMIT with this code activated
-                    self.abort_sim_run("testing abort at frame %d" % frame_number)
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number)######@@@@@@ also set self-aborting flag to be used above
-            else:
+            elif self._movie.watch_motion:
                 from sim import getFrame
                 frame = getFrame()
-                ## print "frame no. %d (len %d)" % (frame_number, len(frame)) #####@@@@@ remove when works, or also print frame to see more
-
-                #e stick the atom posns in - i think the following also adjusts the singlet posns #k check that
-                # - how does xyz reader do it? is that done in movie object? sim_aspect?? readxyz?
-                # here is how we do it at the end from an xyz file:
-        ##        #bruce 060102 note: following code is duplicated somewhere else in this file.
-        ##        movie.moveAtoms(newPositions)
-        ##        # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
-        ##        self.part.changed() # Mark - bugfix 386
-        ##        self.part.gl_update()
-                #####@@@@@ I don't know if self.attrs used below are always present -- might be tested only in Minimize!
-                newPositions = frame #k guess type is ok
-                movie = self._movie #k guess
-                # guess self.part is there
+                # stick the atom posns in - i think the following also adjusts the singlet posns #k check that
+                #####@@@@@ I don't know if self attrs used below are always present -- might be tested only in Minimize!
+                newPositions = frame
+                movie = self._movie
                 #bruce 060102 note: following code is approximately duplicated somewhere else in this file.
-                movie.moveAtoms(newPositions)
-                # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
-                self.part.changed() # Mark - bugfix 386
-                self.part.gl_update()
-                # end of dup code
+                try:
+                    movie.moveAtoms(newPositions)
+                except ValueError: #bruce 060108
+                    # wrong number of atoms in newPositions (only catches a subset of possible model-editing-induced errors)
+                    self.abort_sim_run("can't apply frame %d, model has changed" % frame_number)
+                else:
+                    if 1: #bruce 060108 part of attempt to fix bug 1273
+                        movie.realtime_played_framenumber = frame_number
+                        movie.currentFrame = frame_number
+                    self.part.changed() #[bruce 060108 comment: moveAtoms should do this ###@@@]
+                    self.part.gl_update()
+                # end of approx dup code
 
-            #e update progress bar #####@@@@@ later
+            #e update progress bar ####@@@@ later
             # tell Qt to process events (for progress bar, its abort button, user moving the dialog or window, changing display mode,
             #  and for gl_update)
             env.call_qApp_processEvents() 
-            #e see if user aborted #####@@@@@ later
+            #e see if user aborted
             if self.abortbutton_controller.aborting():
                 self.abort_sim_run("got real abort at frame %d" % frame_number)
                     ######@@@@@@ also set self-aborting flag to be used above
@@ -1066,7 +1070,15 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname)
         #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
+    movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases
+    movie.realtime_played_framenumber = 0 #bruce 060108
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
+    if 1:
+        #bruce 060108 experiment with one possible fix of bug 1273 #####@@@@@
+        fn = movie.realtime_played_framenumber
+        if fn:
+            env.history.message(greenmsg("(current atom positions correspond to movie frame %d)" % fn))
+        assert movie.currentFrame == fn
     if print_sim_warnings:
         try:
             simrun.print_sim_warnings()
@@ -1150,6 +1162,11 @@ def readxyz(filename, alist):
         except ValueError:
             msg = "readxyz: %s: atom %d (%s) position number format error." % (xyzFile, atomIndex+1, atomList[atomIndex])
                 #bruce 050404: same revisions as above.
+            print msg
+            return msg
+        except:
+            #bruce 060108 added this case (untested) since it looks necessary to catch atomList[atomIndex] attributeerrors 
+            msg = "readxyz: %s: error (perhaps fewer atoms in model than in xyz file)" % (xyzFile,)
             print msg
             return msg
         
@@ -1265,14 +1282,13 @@ class simSetup_CommandRun(CommandRun):
         if movie.cancelled:
             # user hit Cancel button in SimSetup Dialog. No history msg went out; caller will do that.
             movie.destroy()
-            return -1 
-        r = writemovie(self.part, movie, print_sim_warnings = True) # not passing mtype means "run dynamic sim (not minimize), make movie"
+            return -1
+        r = writemovie(self.part, movie, print_sim_warnings = True, cmdname = self.cmdname) # not passing mtype means "run dynamic sim (not minimize), make movie"
             ###@@@ bruce 050324 comment: maybe should do following in that function too
         if not r: 
             # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
             movie.IsValid = True # Movie is valid.###@@@ bruce 050325 Q: what exactly does this (or should this) mean?
                 ###@@@ bruce 050404: need to make sure this is a new obj-- if not always and this is not init False, will cause bugs
-            movie.currentFrame = 0
             self.movie = movie # bruce 050324 added this
             # it's up to caller to store self.movie in self.assy.current_movie if it wants to.
         return r
@@ -1445,8 +1461,8 @@ class Minimize_CommandRun(CommandRun):
             # (not really wrong -- appropriate for only one of several
             # classes Movie should be split into, i.e. one for the way we're using it here, to know how to run the sim,
             # which is perhaps really self (a SimRunner), once the code is fully cleaned up.
-        
-        r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True) # write input for sim, and run sim
+
+        r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True, cmdname = self.cmdname) # write input for sim, and run sim
             # this also sets movie.alist from simaspect
         if r:
             # We had a problem writing the minimize file.
@@ -1458,7 +1474,7 @@ class Minimize_CommandRun(CommandRun):
             # retval is either a list of atom posns or an error message string.
             assert type(newPositions) in [type([]),type("")]
             if type(newPositions) == type([]):
-                #bruce 060102 note: following code is duplicated somewhere else in this file.
+                #bruce 060102 note: following code is approximately duplicated somewhere else in this file.
                 movie.moveAtoms(newPositions)
                 # bruce 050311 hand-merged mark's 1-line bugfix in assembly.py (rev 1.135):
                 self.part.changed() # Mark - bugfix 386
@@ -1474,7 +1490,6 @@ class Minimize_CommandRun(CommandRun):
             # before trying to play it (or might be a side effect of playing it, this is not reviewed either).
             ###e bruce 050428 comment: if self.assy.current_movie exists, should do something like close or destroy it... need to review
             self.assy.current_movie = movie
-            movie.currentFrame = 0
             # If _setup() returns a non-zero value, something went wrong loading the movie.
             if movie._setup(): return
             movie._play()

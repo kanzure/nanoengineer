@@ -406,6 +406,7 @@ class movieDashboardSlotsMixin:
             # (since (as a temporary kluge) we create an empty one, if necessary, before entering
             #  Movie Mode, of which this is a dashboard method [bruce 050328])
         if self.assy.current_movie and self.assy.current_movie.currentFrame != 0:
+            ###k bruce 060108 comment: I don't know if this will happen when currentFrame != 0 due to bug 1273 fix... #####@@@@@
             env.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
             return
         

@@ -56,6 +56,11 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.tempSB.setValue( self.previous_movie.temp )
         self.stepsperSB.setValue( self.previous_movie.stepsper )
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
+        # new checkboxes fpr Alpha7, circa 060108
+        self.watch_motion_checkbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
+        self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) # whether to store movie file
+            # create_movie_file might be removed before the release (treated as always T); we'll decide later. [bruce & mark 060108]
+        return
     
     def createMoviePressed(self):
         """Creates a DPB (movie) file of the current part.
@@ -70,6 +75,8 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.movie.temp = self.tempSB.value()
         self.movie.stepsper = self.stepsperSB.value()
 #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
+        self.movie.watch_motion = self.watch_motion_checkbox.isChecked()
+        self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked()
 
         suffix = self.suffix
         if self.assy.filename: # Could be an MMP or PDB file.

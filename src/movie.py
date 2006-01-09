@@ -146,8 +146,12 @@ class Movie:
         self.totalFramesActual = 0
             # bruce 050324 split uses of self.totalFrames into totalFramesActual and totalFramesRequested
             # to help fix some bugs, especially when these numbers differ
-        # the most recent frame number of this movie that was played
+        # currentFrame is the most recent frame number of this movie that was played (i.e. used to set model atom positions)
+        # by either movieMode or real-time viewing of movie as it's being created
+        # [bruce 060108 added realtime update of this attr, and revised some related code, re bug 1273]
         self.currentFrame = 0
+        # the most recent frame number of this movie that was played during its creation by realtime dynamics, or 0 [bruce 060108]
+        self.realtime_played_framenumber = 0
         # the starting (current) frame number when we last entered MOVIE mode   ###k
         self.startFrame = 0
         # a flag that indicates whether this Movie has been _setup since the last _close
@@ -189,6 +193,9 @@ class Movie:
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
             # and this attribute is not presently used in the cad code.
+        # support for new options for Alpha7 [bruce 060108]
+        self.watch_motion = True # whether to show atom motion in realtime
+        self.create_movie_file = True # whether to store movie file [nim, treated as always T -- current code uses file for progress ]
         # bruce 050324 added these:
         self.alist = None # list of atoms for which this movie was made, if this has yet been defined
         self.alist_and_moviefile = None #bruce 050427: hold checked correspondence between alist and moviefile, if we have one
@@ -378,6 +385,8 @@ class Movie:
             if self.currentFrame != 0:
                 # shouldn't ever happen, I think, since this movie was not played yet since self created;
                 # so if it does, tell me, since it might be a bug; maybe useful to say anyway [bruce 050427]
+                #bruce 060108 now it can happen, if we moved atoms in realtime while creating movie (due to fixing bug 1273);
+                # seems good to have then; might be redundant but fix that later
                 env.history.message( greenmsg( "(Starting movie from frame %d.)" % self.currentFrame ))
                 # [note: self.currentFrame is maintained independently of a similar variable
                 #  inside a lower-level moviefile-related object.]
@@ -452,7 +461,7 @@ class Movie:
         if hflag:
             self._info() # prints info to history
         
-        # startframe and currentframe are compared in _close to determine if the assy has changed due to playing this movie. ###k
+        # startFrame and currentFrame are compared in _close to determine if the assy has changed due to playing this movie. ###k
         self.startFrame = self.currentFrame
         
         return 0
@@ -559,7 +568,8 @@ class Movie:
         ## self.movend() # Unfreeze atoms.
         if self.startFrame != self.currentFrame:
             self.assy.changed()
-                #bruce 050427 comment: this only helps if nothing else in playing a movie does this...
+                #bruce 050427 comment: this [i.e. having this condition rather than 'if 1' [060107]]
+                # only helps if nothing else in playing a movie does this...
                 # I'm not sure if that's still true (or if it was in the older code, either).
         return
         
@@ -583,9 +593,10 @@ class Movie:
         
         self.playDirection = direction
         
-        if self.currentFrame == 0: 
+        if self.currentFrame in [0, self.realtime_played_framenumber]:
+            #bruce 060108 added realtime_played_framenumber; probably more correct would be only it, or a flag to emit this once
             env.history.message("Playing movie file [" + self.filename + "]")
-            self._continue(0)
+            self._continue(hflag = False) #bruce 060108 revised call, should be equivalent
         else:
             self._continue()
 
@@ -998,9 +1009,12 @@ class Movie:
             #bruce 050225 added some parameters to this error message
             #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
             # so I won't bother to print it to history here. But leaving it in is good for safety.
-            print "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
+            #bruce 060108: it can come out for realtime minimize if you edit the model. hopefully we'll fix that soon.
+            msg = "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
                   (len(newPositions), len(self.alist))
-            return
+            print msg
+            raise ValueError, msg
+                #bruce 060108 reviewed/revised all 2 calls, added this exception to preexisting noop/errorprint (untested)
         move_alist_and_snuggle(self.alist, newPositions) #bruce 051221 fixed bug 1239 in this function, then split it out
         self.glpane.gl_update()
         return
@@ -1195,9 +1209,13 @@ class alist_and_moviefile:
             n = curframe_in_alist
             frame_n = self.movable_atoms.get_posns()
             self.moviefile.donate_immutable_cached_frame( n, frame_n)
-            self.current_frame = n
-        else:
-            self.current_frame = None # since it's unknown (#k ok for all callers?)
+#bruce 060108 commenting out all sets of self.current_frame to avoid confusion, since nothing uses it;
+# but I suggest leaving the commented-out code around until the next major rewrite.
+##            self.current_frame = n
+##                # warning [bruce 060108]: related or client code keeps its own version of this,
+##                # called currentFrame, not necessarily in sync with this.
+##        else:
+##            self.current_frame = None # since it's unknown (#k ok for all callers?)
         return
     def destroy(self):
         try:
@@ -1239,7 +1257,7 @@ class alist_and_moviefile:
             ## print "not playing frame %d" % n
             ma.set_posns(frame_n) # now we no longer need frame_n
                 # (note: set_posns did invals but not updates.)
-            self.current_frame = n #k might not be needed -- our caller keeps its own version of this
+##            self.current_frame = n #k might not be needed -- our caller keeps its own version of this (named currentFrame)
             return True ###k does caller, or this method, need to update dashboards and glpanes that care?
         else:
             ## self.pause() ###k guess -- since we presumably hit the end... maybe return errcode instead, let caller decide??
