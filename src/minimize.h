@@ -113,6 +113,12 @@ enum minimizationAlgorithm {
   FletcherReevesConjugateGradient
 };
 
+
+extern void initializeFunctionDefinition(struct functionDefinition *fd,
+                                         void (*func)(struct configuration *p),
+                                         int dimension,
+                                         int messageBufferLength);
+
 extern struct configuration *makeConfiguration(struct functionDefinition *fd);
 
 extern void freeConfiguration(struct configuration *conf);

@@ -59,6 +59,34 @@ static int maxAllocation = 0;
 
 static struct configuration *PROBE = NULL;
 
+void
+initializeFunctionDefinition(struct functionDefinition *fd,
+                             void (*func)(struct configuration *p),
+                             int dimension,
+                             int messageBufferLength)
+{
+    NULLPTR(func);
+    fd->func = func;
+    fd->dfunc = NULL;
+    fd->freeExtra = NULL;
+    fd->termination = NULL;
+    fd->coarse_tolerance = 1e-5;
+    fd->fine_tolerance = 1e-8;
+    fd->gradient_delta = 1e-8;
+    fd->dimension = dimension;
+    fd->initial_parameter_guess = 1.0;
+    fd->functionEvaluationCount = 0;
+    fd->gradientEvaluationCount = 0;
+    if (messageBufferLength > 0) {
+        fd->message = (char *)allocate(messageBufferLength);
+        fd->message[0] = '\0';
+        fd->messageBufferLength = messageBufferLength;
+    } else {
+        fd->message = "";
+        fd->messageBufferLength = 0;
+    }
+}
+
 // Append a message to then end of the message buffer.  The buffer is
 // fixed length, and we just stop appending when it's full.
 static void
@@ -842,18 +870,11 @@ testMinimize()
     struct configuration *final = NULL;
     int iteration;
 
+    initializeFunctionDefinition(&fd, testFunction, 2, 0);
     fd.func = testFunction;
-    fd.dfunc = testGradient;
-    fd.freeExtra = NULL;
-    fd.termination = NULL;
+
     fd.coarse_tolerance = 1e-5;
     fd.fine_tolerance = 1e-8;
-    fd.dimension = 2;
-    fd.initial_parameter_guess = 1.0;
-    fd.functionEvaluationCount = 0;
-    fd.gradientEvaluationCount = 0;
-    fd.message = "";
-    fd.messageBufferLength = 0;
 
     initial = makeConfiguration(&fd);
     initial->coordinate[0] = 6.0;

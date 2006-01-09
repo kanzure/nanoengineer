@@ -139,20 +139,15 @@ minimizeStructure(struct part *part)
 
     Part = part;
 
-    minimizeStructureFunctions.func = minimizeStructurePotential;
+    initializeFunctionDefinition(&minimizeStructureFunctions,
+                                 minimizeStructurePotential,
+                                 part->num_atoms * 3,
+                                 1024);
+
     minimizeStructureFunctions.dfunc = minimizeStructureGradient;
-    minimizeStructureFunctions.freeExtra = NULL;
     minimizeStructureFunctions.termination = minimizeStructureTermination;
     minimizeStructureFunctions.coarse_tolerance = 1e-8;
     minimizeStructureFunctions.fine_tolerance = 1e-10;
-    minimizeStructureFunctions.gradient_delta = 0.0; // unused
-    minimizeStructureFunctions.dimension = part->num_atoms * 3;
-    minimizeStructureFunctions.initial_parameter_guess = 1.0; // recalculated in gradient
-    minimizeStructureFunctions.functionEvaluationCount = 0;
-    minimizeStructureFunctions.gradientEvaluationCount = 0;
-    minimizeStructureFunctions.message = (char *)allocate(1024);
-    minimizeStructureFunctions.messageBufferLength = 1024;
-    minimizeStructureFunctions.message[0] = '\0';
 
     initial = makeConfiguration(&minimizeStructureFunctions);
     for (i=0, j=0; i<part->num_atoms; i++) {

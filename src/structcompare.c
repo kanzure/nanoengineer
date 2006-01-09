@@ -229,20 +229,17 @@ doStructureCompare(int numberOfAtoms,
 
   translateToCenterOfMass(BasePositions, atomCount);
   translateToCenterOfMass(InitialPositions, atomCount);
-  
-  structCompareFunctions.func = structComparePotential;
-  structCompareFunctions.dfunc = NULL; // use default gradient
+
+  initializeFunctionDefinition(&structCompareFunctions,
+                               structComparePotential,
+                               allowScaling ? 7 : 6,
+                               0);
+
   structCompareFunctions.gradient_delta = 1e-8;
   structCompareFunctions.freeExtra = structCompareFreeExtra;
-  structCompareFunctions.termination = NULL;
   structCompareFunctions.coarse_tolerance = 1e-3;
   structCompareFunctions.fine_tolerance = 1e-8;
-  structCompareFunctions.dimension = allowScaling ? 7 : 6;
   structCompareFunctions.initial_parameter_guess = 0.001;
-  structCompareFunctions.functionEvaluationCount = 0;
-  structCompareFunctions.gradientEvaluationCount = 0;
-  structCompareFunctions.message = "";
-  structCompareFunctions.messageBufferLength = 0;
 
   initial = makeConfiguration(&structCompareFunctions);
   initial->coordinate[0] = 0.0;
