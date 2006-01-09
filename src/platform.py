@@ -662,15 +662,6 @@ def get_rootdir():
         rootdir = "/"
     
     return rootdir
-    
-def get_cwd(assy):
-    '''Returns the current working directory for assy.
-    '''
-    if assy.filename: 
-        cwd, file = os.path.split(assy.filename)
-    else: 
-        cwd = globalParms['WorkingDirectory']
-    return cwd
 
 def get_gms_name():
     '''Returns either GAMESS (Linux or MacOS) or PC GAMESS (Windows). 
