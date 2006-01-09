@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 SimSetup.py
 
@@ -56,10 +56,11 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.tempSB.setValue( self.previous_movie.temp )
         self.stepsperSB.setValue( self.previous_movie.stepsper )
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
-        # new checkboxes fpr Alpha7, circa 060108
+        # new checkboxes for Alpha7, circa 060108
         self.watch_motion_checkbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
         self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) # whether to store movie file
-            # create_movie_file might be removed before the release (treated as always T); we'll decide later. [bruce & mark 060108]
+            # create_movie_file might be removed before the release (treated as always T);
+            # we'll decide later (see NFR/bug 1286). [bruce & mark 060108]
         return
     
     def createMoviePressed(self):

@@ -202,3 +202,57 @@ Exit 1
 [!5073] sim/src % 
 
 '''
+
+# design qs:
+# - are the set of periodic tasks per-part?
+#   - minimize - yes, but when part not shown, we might do it in bg, depending on prefs...
+#     tech issue: our minimizer can't run more than one task, so all bg mins would have to suspend for any fg min!
+#   - sim - for viewing, yes; for making movies, bg task, might do it in bg
+#   - view anim - yes
+#   - general event loop - no
+# Looks like we have a tree of task-sets, a main one and one per part, and perhaps some in finer parts of model,
+# and in future one per open file
+# and we call the loopbodies in an order related to datalayers and perhaps also to this tree
+#
+# So this obj should be nestable in treelike way
+
+class Tasks:
+    "Maintain a set of parallel tasks with steps to be executed periodically in a certain order; track timing info..."
+    pass
+
+class PartTasks(Tasks):
+    "Tasks specific to a Part."
+    def __init__(self, part):
+        self.part = part
+    def minimize_atoms(self, atoms):
+        "add the atoms in this dict to our set of atoms to minimize"
+        if self.minimizing_atoms:
+            self.abort_min() #e option to say it's not an error
+        self.minimizing_atoms.update(atoms)
+        self.start_min()
+    def user_abort_min(self):
+        "user asks to abort minimize" # same func as internal asking?
+        self.abort_min()
+    def abort_min(self):
+        self.should_abort_min = True
+    def min_frame_callback(self):
+        "callback for Minimize object (or something called by the callback, since there's more than one part?)"
+        #e similar logic to now
+    #==
+    def view_change(self, details):
+        self.view_changes.append(details) # always [] or more, looked at when time to redraw
+        self.gl_update()
+    def pause_view_changes(self):
+        bla
+    def continue_view_changes(self):
+        bla
+    pass
+
+# ... we want one thing to translate user commands into simpler ones (eg more min -> abortold, start new)
+# which maybe knows perpart issues
+# but really as a set of prefs about how to treat bg tasks in hidden parts (pause? skip to end? lower pri?)
+# and of course knowing the tasks are specific to parts when they are (as all the "ops" are)
+# rather than as smth even more fundamental like a complete split.
+# I guess the sbar icon set (when we have that) would also change when the current part changed.
+# except for the remote tasks... even if they'll put results into a part.
+# I guess if a part is waiting for results, maybe its glpane text should show that??

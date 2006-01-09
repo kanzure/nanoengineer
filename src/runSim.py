@@ -121,7 +121,7 @@ class SimRunner:
             return # success
         if self.errcode == 1: # User pressed Abort button in progress dialog.
             msg = redmsg("Aborted.")
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
 
             if self.simProcess: #bruce 051231 added condition (since won't be there when use_dylib)
                 ##Tries to terminate the process the nice way first, so the process
@@ -137,7 +137,7 @@ class SimRunner:
             
         else: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
                 #fyi this was 'cmd' which was wrong, it says 'Simulator' even for Minimize [bruce 060106 comment, fixed it now]
         self.said_we_are_done = True # since saying we aborted or had an error is good enough... ###e revise if kill can take time.
         return # caller should look at self.errcode
@@ -235,8 +235,8 @@ class SimRunner:
                 ##e Surely this message text (and the other behavior suggested above) should depend on the platform
                 # and be encapsulated in some utility function for loading dynamic libraries. [bruce 060104]
                 msg = redmsg("The simulator dynamic library [sim.so or sim.dll, in " + self.dylib_path +
-                             "] is missing or could not be imported. Trying standalone executable simulator.")
-                env.history.message(self.cmdname + msg)
+                             "] is missing or could not be imported. Trying command-line simulator.")
+                env.history.message(self.cmdname + ": " + msg)
                 ## return -1
                 self.use_dylib_sim = False
                 ####@@@@ bug report: even after this, it will find tracefile from prior run (if one exists) and print its warnings.
@@ -251,7 +251,7 @@ class SimRunner:
                 program = os.path.join(bin_dir, 'simulator')
             if not os.path.exists(program):
                 msg = redmsg("The simulator program [" + program + "] is missing.  Simulation aborted.")
-                env.history.message(self.cmdname + msg)
+                env.history.message(self.cmdname + ": " + msg)
                 return -1
             self.program = program
         
@@ -324,7 +324,7 @@ class SimRunner:
             moviefile = movie.filename
         else:
             msg = redmsg("Can't create movie.  Empty filename.")
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
             return -1
             
         # Check that the moviefile has a valid extension.
@@ -332,7 +332,7 @@ class SimRunner:
         if ext not in ['.dpb', '.xyz']:
             # Don't recognize the moviefile extension.
             msg = redmsg("Movie [" + moviefile + "] has unsupported extension.")
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
             print "writeMovie: " + msg
             return -1
         movie.filetype = ext #bruce 050404 added this
@@ -594,8 +594,12 @@ class SimRunner:
             simProcess.setArguments(arguments)
             if self._movie.watch_motion:
                 env.history.message(orangemsg("(watch motion in realtime is only implemented for pyrex interface to simulator)"))
+                # note: we have no plans to change that; instead, the pyrex interface will become the usual one
+                # except for background or remote jobs. [bruce 060109]
             if not self._movie.create_movie_file:
                 env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for non-pyrex sim
+                # NFR/bug 1286 not useful for non-pyrex sim, won't be implemented, this msg will be revised then
+                # to say "not supported for command-line simulator"
             import time
             start = time.time() #bruce 060103 compute duration differently
             simProcess.start()
@@ -721,7 +725,7 @@ class SimRunner:
                 msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
                         + ", Steps per Frame: " + str(movie.stepsper)\
                         + ", Temperature: " + str(movie.temp)
-                env.history.message(self.cmdname + msg)
+                env.history.message(self.cmdname + ": " + msg)
         #bruce 050415: let caller specify caption via movie object's _cmdname
         # (might not be set, depending on caller) [needs cleanup].
         # For important details see same-dated comment above.
@@ -762,24 +766,15 @@ class SimRunner:
             self.remove_old_tracefile(self.traceFileName)
 
             if not self._movie.create_movie_file:
-                env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for non-pyrex sim
+                env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for pyrex sim
+                # NFR/bug 1286; other comments describe how to implement it; it would need a warning
+                # (esp if both checkboxes unchecked, since no frame output in that case, tho maybe tracef warnings alone are useful)
             env.history.message(orangemsg("Warning: editing structure during sim causes tracebacks; cancelling an abort skips some realtime display time"))
             env.call_qApp_processEvents() # so user can see that history message
 
             ###@@@ SIM CLEANUP desired: [bruce 060102]
             # (items 1 & 2 & 4 have been done)
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
-
-#bruce 060104 commenting this out, since it causes problems for Minimize and since it doesn't always work even for Dynamics,
-# often producing shell output like
-# "moveAtoms: The number of atoms from XYZ file (11) is not matching with that of the current model (16)"
-# and not actually moving the atoms.
-# Also the intended fix is controversial so we might as well agree on what's desired before fixing the fix.
-##            # wware 060104  Record the positions of the atoms before the simulation, so that they can be
-##            # moved back after the real-time movie display. Bruce tells me that this is not acceptable as
-##            # a long-term solution, and a history message should be printed. Fixes bug 1265 on a temporary basis.
-##            oldposns = map(lambda a: a.posn(),
-##                            self.part.alist)
 
             import time
             start = time.time()
@@ -791,9 +786,13 @@ class SimRunner:
                 # note: we need the frame callback even if not self._movie.watch_motion,
                 # since it's when we check for user aborts and process all other user events.
                 frame_callback = self.sim_frame_callback
+                
                 simgo = simobj.go
+
+                self.tracefileProcessor = TracefileProcessor(self) # so self.tracefile_callback does something [bruce 060109]
+
                 try:
-                    simgo( frame_callback = frame_callback)
+                    simgo( frame_callback = frame_callback, trace_callback = self.tracefile_callback )
                         # note: as of 060106, if this calls a callback which sets simobj.Interrupted
                         # (which happens if the user aborts this simulation), this method call (simobj.go) aborts
                         # and raises an exception like "exceptions.RuntimeError: Simulation interrupted".
@@ -811,24 +810,8 @@ class SimRunner:
                 pass
             if 1: # even if aborting
                 duration = time.time() - start
-                
                 #e capture and print its stdout and stderr [not yet possible via pyrex interface]
-                
-                if 0: #bruce 060103 that progress/abort dialog does us no good when displayed after we're already done, so zap this call
-                    self.monitor_progress_by_file_growth(movie)
-                else:
-    ##                self.win.progressbar.duration = duration ####@@@@
-    ##                    # kluge, needed since we use this attr to store an estimate of movie-creation time
-    ##                    # for printing a message about it... far better would be to store duration somewhere else,
-    ##                    # like in movie object, but current code without this kluge might use a value from some
-    ##                    # other use of progressbar, so kluge is needed until better location is found and vetted.
-                    movie.duration = duration #bruce 060103 a scan of the code for 'duration' suggests this cleaner code will be safe.
-
-    #bruce 060104 commenting this out [explained above]
-    ##            # wware 060104  Move atoms to their positions before the simulation. Part of the temporary fix for
-    ##            # bug 1265. [see also bug 1273 and its comments herein -- bruce 060108]
-    ##            env.history.message(orangemsg("temp hack for bug 1265: move atoms back to earlier positions"))
-    ##            movie.moveAtoms(oldposns)
+                movie.duration = duration #bruce 060103
             
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
@@ -904,8 +887,7 @@ class SimRunner:
             elif self._movie.watch_motion:
                 from sim import getFrame
                 frame = getFrame()
-                # stick the atom posns in - i think the following also adjusts the singlet posns #k check that
-                #####@@@@@ I don't know if self attrs used below are always present -- might be tested only in Minimize!
+                # stick the atom posns in, and adjust the singlet posns
                 newPositions = frame
                 movie = self._movie
                 #bruce 060102 note: following code is approximately duplicated somewhere else in this file.
@@ -915,7 +897,7 @@ class SimRunner:
                     # wrong number of atoms in newPositions (only catches a subset of possible model-editing-induced errors)
                     self.abort_sim_run("can't apply frame %d, model has changed" % frame_number)
                 else:
-                    if 1: #bruce 060108 part of attempt to fix bug 1273
+                    if 1: #bruce 060108 part of fixing bug 1273
                         movie.realtime_played_framenumber = frame_number
                         movie.currentFrame = frame_number
                     self.part.changed() #[bruce 060108 comment: moveAtoms should do this ###@@@]
@@ -933,65 +915,109 @@ class SimRunner:
             # that's it!
         return
 
+    def tracefile_callback(self, line): #bruce 060109
+        if line.startswith('#') and self.tracefileProcessor: # redundant test is to make this as fast as possible
+            self.tracefileProcessor.step(line)
+
     def abort_sim_run(self, why = "(reason not specified by internal code)" ): #bruce 060102
         "#doc"
         self._simopts.Interrupted = True
         env.history.message( redmsg( "aborting sim run: %s" % why )) ######@@@@@@@ only if we didn't do this already
             #####@@@@@ current code (kluge) might do it 2 times even if sim behaves perfectly and no nested tasks (not sure)
         return
+
+    tracefileProcessor = None
     
-    def print_sim_warnings(self): #bruce 050407; soon we should do this continuously instead
-        "#doc; might change self.said_we_are_done to False or True, or leave it alone"
-        try:
-            tfile = self.traceFileName
-        except AttributeError:
-            return # sim never ran (not always an error, I suspect)
-        if not tfile:
-            return # no trace file was generated using a name we provide
-                   # (maybe the sim wrote one using a name it made up... nevermind that here)
-        try:
-            ff = open(tfile, "rU") # "U" probably not needed, but harmless
-        except:
-            #bruce 051230 fix probably-unreported bug when sim program is missing
-            # (tho ideally we'd never get into this method in that case)
-            print_compact_traceback("exception opening trace file %r: " % tfile)
-            env.history.message( redmsg( "Error: simulator trace file not found at [%s]." % tfile ))
-            self.mentioned_sim_trace_file = True #k not sure if this is needed or has any effect
-            return
-        lines = filter( lambda line: line.startswith("#"), ff.readlines() )
-        ff.close()
-        seen = {} # whether we saw each known error or warning tracefile-keyword
-        donecount = 0 # how many Done keywords we saw in there
-        self.mentioned_sim_trace_file = False
-        for line in lines:
-            ## don't do this, I think: line = line[1:].strip() # discard initial "#" or "# "
-            for start in ["# Warning:", "# Error:", "# Done:"]:
-                if line.startswith(start):
-                    if start != "# Done:":
-                        self.said_we_are_done = False # not needed if lines come in their usual order
-                        if not seen:
-                            env.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
-                            self.mentioned_sim_trace_file = True
-                        if start == "# Warning:":
-                            cline = orangemsg(line)
-                        else:
-                            cline = redmsg(line)
-                        env.history.message( cline) # leave in the '#' I think
-                        seen[start] = True
+    def print_sim_warnings(self): #bruce 050407; revised 060109, used whether or not we're not printing warnings continuously
+        """Print warnings and errors from tracefile (if this was not already done);
+        then print summary/finishing info related to tracefile.
+        Note: this might change self.said_we_are_done to False or True, or leave it alone.
+        """
+        # Note: this method is sometimes called after errors, and that is usually a bug but might sometimes be good;
+        # caller needs cleanup about this.
+        # Meanwhile, possible bug -- not sure revisions of 060109 (or prior state) is fully safe when called after errors.
+        if not self.tracefileProcessor:
+            # we weren't printing tracefile warnings continuously -- print them now
+            self.tracefileProcessor = TracefileProcessor(self) # this might change self.said_we_are_done, now and/or later
+            try:
+                tfile = self.traceFileName
+            except AttributeError:
+                return # sim never ran (not always an error, I suspect)
+            if not tfile:
+                return # no trace file was generated using a name we provide
+                       # (maybe the sim wrote one using a name it made up... nevermind that here)
+            try:
+                ff = open(tfile, "rU") # "U" probably not needed, but harmless
+            except:
+                #bruce 051230 fix probably-unreported bug when sim program is missing
+                # (tho ideally we'd never get into this method in that case)
+                print_compact_traceback("exception opening trace file %r: " % tfile)
+                env.history.message( redmsg( "Error: simulator trace file not found at [%s]." % tfile ))
+                self.tracefileProcessor.mentioned_sim_trace_file = True #k not sure if this is needed or has any effect
+                return
+            lines = filter( lambda line: line.startswith("#"), ff.readlines() ) # optimization, redundant with TracefileProcessor
+            ff.close()
+            for line in lines:
+                self.tracefileProcessor.step(line)
+        # print summary/done
+        self.tracefileProcessor.finish()
+        return
+
+    pass # end of class SimRunner
+
+# ==
+
+print_sim_comments_to_history = False
+
+class TracefileProcessor: #bruce 060109 split this out of SimRunner to support continuous tracefile line processing
+    "Helper object to filter tracefile lines and print history messages as they come and at the end"
+    def __init__(self, owner):
+        "store owner so we can later set owner.said_we_are_done = True; also start"
+        self.owner = owner
+        self.start() # too easy for client code to forget to do this
+    def start(self):
+        "prepare to loop over lines"
+        self.seen = {} # whether we saw each known error or warning tracefile-keyword
+        self.donecount = 0 # how many Done keywords we saw in there
+        self.mentioned_sim_trace_file = False # public, can be set by client code
+    def step(self, line): #k should this also be called by __call__ ? no, that would slow down its use as a callback.
+        """do whatever should be done immediately with this line, and save things to do later;
+        this bound method might be used directly as a trace_callback [but isn't, for clarity, as of 060109]
+        """
+        if not line.startswith("#"):
+            return # this happens a lot, needs to be as fast as possible
+        if print_sim_comments_to_history: #e add checkbox or debug-pref for this??
+            env.history.message("tracefile: " + line)
+        # don't discard initial "#" or "# "
+        for start in ["# Warning:", "# Error:", "# Done:"]:
+            if line.startswith(start):
+                if start != "# Done:":
+                    self.owner.said_we_are_done = False # not needed if lines come in their usual order
+                    if not self.seen:
+                        env.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
+                        self.mentioned_sim_trace_file = True
+                    if start == "# Warning:":
+                        cline = orangemsg(line)
                     else:
-                        # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
-                        donecount += 1
-                        text = line[len(start):].strip()
-                        if text:
-                            if "# Error:" in seen:
-                                line = redmsg(line)
-                            elif "# Warning:" in seen:
-                                line = orangemsg(line)
-                            env.history.message( line) #k is this the right way to choose the color?
-                            ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
-                            ## self.said_we_are_done = True # so we don't have to say it again [bruce 050415]
-        if not donecount:
-            self.said_we_are_done = False # not needed unless other code has bugs
+                        cline = redmsg(line)
+                    env.history.message( cline) # leave in the '#' I think
+                    self.seen[start] = True
+                else:
+                    # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
+                    self.donecount += 1
+                    text = line[len(start):].strip()
+                    if text:
+                        if "# Error:" in self.seen:
+                            line = redmsg(line)
+                        elif "# Warning:" in self.seen:
+                            line = orangemsg(line)
+                        env.history.message( line) #k is this the right way to choose the color?
+                        ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
+                        ## self.owner.said_we_are_done = True # so we don't have to say it again [bruce 050415]
+        return
+    def finish(self):
+        if not self.donecount:
+            self.owner.said_we_are_done = False # not needed unless other code has bugs
             # Note [bruce 050415]: this happens when user presses Abort,
             # since we don't abort the sim process gently enough. This should be fixed.
             #bruce 051230 changed following from redmsg to orangemsg
@@ -1012,7 +1038,7 @@ class SimRunner:
                 env.history.message( msg)
         return
         
-    pass # end of class SimRunner
+    pass # end of class TracefileProcessor
 
 # this global needs to preserve its value when we reload!
 try:
@@ -1020,8 +1046,6 @@ try:
 except:
     last_sim_tracefile = None
 else:
-    ## if platform.atom_debug:
-    ##     print "atom_debug: reload retaining last_sim_tracefile = %r" % (last_sim_tracefile ,)
     pass
 
 # ==
@@ -1074,7 +1098,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     movie.realtime_played_framenumber = 0 #bruce 060108
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
     if 1:
-        #bruce 060108 experiment with one possible fix of bug 1273 #####@@@@@
+        #bruce 060108 part of fixing bug 1273
         fn = movie.realtime_played_framenumber
         if fn:
             env.history.message(greenmsg("(current atom positions correspond to movie frame %d)" % fn))
@@ -1211,7 +1235,7 @@ class simSetup_CommandRun(CommandRun):
         # and cleaned it up a bit in terms of how it finds the movie to use.
         if not self.part.molecules: # Nothing in the part to simulate.
             msg = redmsg("Nothing to simulate.")
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
             return
         
         env.history.message(self.cmdname + "Enter simulation parameters and select <b>Run Simulation.</b>")
@@ -1245,7 +1269,7 @@ class simSetup_CommandRun(CommandRun):
                 from platform import hhmmss_str
                 estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
-                env.history.message(self.cmdname + msg) 
+                env.history.message(self.cmdname + ": " + msg) 
             msg = "Movie written to [" + movie.filename + "]."\
                         "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon " \
                         "and press Play on the Movie Mode dashboard." #bruce 050510 added note about Play button.
@@ -1254,7 +1278,7 @@ class simSetup_CommandRun(CommandRun):
             #   If so, make sure it plays the correct one even if new ones have been made since then!)
             QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
                         self.win.simMoviePlayerAction.iconSet().pixmap() )
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
@@ -1270,7 +1294,7 @@ class simSetup_CommandRun(CommandRun):
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge
             msg = redmsg( "Simulator is not yet implemented for clipboard items.")
-            env.history.message(self.cmdname + msg)
+            env.history.message(self.cmdname + ": " + msg)
             return -1
         ###@@@ else use suffix below!
         

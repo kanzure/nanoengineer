@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 """
 movie.py -- the Movie class.
 
@@ -159,9 +159,8 @@ class Movie:
         self.isOpen = False
         # a flag that indicates the current direction the movie is playing
         self.playDirection = FWD
-        ##bruce 050427: removing isValid since not used; should be renamed to avoid confusion with QColor.isValid
-##        # for future use: a flag that indicates if the movie and the part are synchronized
-##        self.isValid = False
+        #e someday [mark, unknown date]: a flag that indicates if the movie and the part are synchronized
+        ## self.isValid = False # [bruce 050427 comment: should be renamed to avoid confusion with QColor.isValid]
         # the number of atoms in each frame of the movie.
         self.natoms = 0
         # show each frame when _playToFrame is called
@@ -195,7 +194,9 @@ class Movie:
             # and this attribute is not presently used in the cad code.
         # support for new options for Alpha7 [bruce 060108]
         self.watch_motion = True # whether to show atom motion in realtime
-        self.create_movie_file = True # whether to store movie file [nim, treated as always T -- current code uses file for progress ]
+        self.create_movie_file = True # whether to store movie file
+            # [nim (see NFR/bug 1286), treated as always T -- current code uses growing moviefile length to measure progress;
+            #  to implem this, use framebuffer callback instead, but only when this option is asked for.]
         # bruce 050324 added these:
         self.alist = None # list of atoms for which this movie was made, if this has yet been defined
         self.alist_and_moviefile = None #bruce 050427: hold checked correspondence between alist and moviefile, if we have one
@@ -251,21 +252,6 @@ class Movie:
             #bruce 050913 revised this; I suspect it's not needed and could be removed
             print_compact_traceback("deprecated code warning: something accessed Movie.history attribute: ")
             return env.history
-##        if attr == 'part':
-##            if self.alist:
-##                part = self.alist[0].molecule.part
-##                    # not checked for consistency, but correct if anything is; could be None, I think,
-##                    # especially for killed atoms (guess; see bug 497) [bruce 050411]
-##                if part is None and platform.atom_debug:
-##                    print_compact_stack( "part false (%r) here; alist[0].molecule is %r: " % (part, self.alist[0].molecule) )
-##                return part
-##             #bruce 050411: the following does happen, see comments in bug 497;
-##            # so until that's fixed, don't do an assertion.
-##            ## assert 0, "part needed before alist"
-##                ### can this happen? if it does, return cur part??? main part??? depends on why...
-##            if platform.atom_debug:
-##                self.debug_print_movie_info("bug: part needed before alist")
-##            return None # hope this is ok, but it's probably not! ####@@@@
         raise AttributeError, attr
 
     def destroy(self): #bruce 050325
@@ -329,29 +315,7 @@ class Movie:
         alist = part.alist # this recomputes it
         self.set_alist(alist) #e could optimize (bypass checks in that method)
         return
-        
-##        ##(In the future we might change that to the order in which they
-##        ## were last written to an actual file, if they ever were,
-##        ## and if the set of atoms has not changed since then. ###e)
-##        ##The right soln is to save alist when we load or save part,
-##        ##then when we get this new one, check if atoms in it are same,
-##        ##and if so use the saved one instead. [not always legal re jigs, see below]
-##        # Check by sorting list of keys.
-##        ##Or could we acually use that order in alist? only if we use it to write atoms to sim...
-##        ##maybe we can, we'll see. In fact, I'm sure we can, since sim does not care
-##        # about chunks, groups, atom order... oh, one exception -- it requires
-##        # some jigs to be on contiguous sets of atoms.
-##        # even so we could come close... or we might just let those jigs be on too many atoms. ###e
-##        res = []
-##        for mol in part.molecules: #e check >= 1? with atoms? ###WRONG, order of mols is arb.
-##            lis = mol.atoms_in_mmp_file_order(): ###k
-##                ###e worry about singlets re bug 254
-##                ###e or let new code in minimize selection handle this
-##            res.extend(lis)
-##        ###e split into a part method to get alist, and our own set_alist method
-##        self.set_alist(res) #e could optimize (bypass checks in that method)
-##        return None
-        
+
     # == methods for playing the movie file we know about (ie the movie we represent)
     
     # [bruce 050427 comments/warnings:
@@ -1001,7 +965,7 @@ class Movie:
     
     def moveAtoms(self, newPositions): # used when reading xyz files
         """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
-            all atoms moving, bond updated, update display once.
+            all atoms moving [and singlet positions updated], bond updated, update display once.
            <parameter>newPosition is a list of atom absolute position,
            the list order is the same as self.alist
         """   
@@ -1018,24 +982,6 @@ class Movie:
         move_alist_and_snuggle(self.alist, newPositions) #bruce 051221 fixed bug 1239 in this function, then split it out
         self.glpane.gl_update()
         return
-
-##    def debug_print_movie_info(self, msg = None): #bruce, sometime before 050427
-##        if not msg:
-##            msg = "debug_print_movie_info"
-##        print_compact_stack( msg + "\n")
-##        alist = self.alist
-##        if not alist:
-##            alist_report = "alist false (%r)" % alist
-##        elif len(alist) <= 30:
-##            alist_report = "alist len %d contains %r" % (len(alist), alist)
-##        else:
-##            alist_report = "alist len %d starts %r..." % (len(alist), alist[0:30])
-##        if self.__dict__.has_key( 'part'): # hasattr isn't safe or correct here -- it calls getattr and recurses!
-##            part_report = "self.part is already set to %r" % (self.part,)
-##        else:
-##            part_report = "self.part is unset"
-##        print "\natom_debug: movie %r:\n%s\n%s\nfilename [%s]\n" % (self, alist_report, part_report, self.filename)
-##        return
 
     pass # end of class Movie
 
@@ -1075,8 +1021,11 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         [#e someday we might have a version which only does this for the atoms now in a given Part]
         """
         #e later we'll optimize this by owning atoms and speeding up or eliminating invals
-        for atm, pos in zip(self.alist, newposns):
-            atm.setposn_batch( pos) #bruce 050513 try to optimize this
+##        for atm, pos in zip(self.alist, newposns):
+##            atm.setposn_batch( pos) #bruce 050513 try to optimize this
+        #bruce 060109 replaced above code with this recently split out routine, so that singlet correction is done on every frame;
+        # could be optimized, e.g. by precomputing singlet list and optimizing setposn_batch on lists of atoms
+        move_alist_and_snuggle(self.alist, newposns)
 
     set_posns_no_inval = set_posns #e for now... later this can be faster, and require own/release around it
 
@@ -1092,27 +1041,10 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
             m = a.molecule
             moldict[id(m)] = m
         self.molecules = moldict.values()
-        ## self.part = part = self.molecules[0].part
-##        parts = {}
-##        for m in self.molecules:
-##            p = m.part
-##            parts[id(p)] = p
-##        self.parts = parts.values() # includes None if any mols are killed ###k I assume this works for _nullMol too, for killed atoms?
-##        del parts
-##        if 0: #e do we want this? maybe as a warning?
-##            # check them all before freezing any (does this cover killed atoms too? I think so.)
-##            if len(self.parts) > 1 or self.parts[0] is None: #revised 050513
-##                env.history.message( redmsg( "Can't play movie, since not all its atoms are still in the same Part, or some have been deleted" ))
-##                assert 0 # not sure how well this will be caught... #e should use retval, fix caller ####@@@@
-##            part = self.parts[0] # only ok if we don't keep going above when >1 part...
-##            self.assy.set_current_part(part) #obs comment: ###@@@ ok here?? should also do this whenever movie dashboard is used, i think...
         for m in self.molecules:
             if m.part is not None: # not for killed ones!
                 m.freeze()        
         return
-    
-##    def atoms_are_owned(self):
-##        } pass
     
     def release_atoms(self): #bruce 050427 made this from movend
         # terrible hack for singlets in simulator, which treats them as H
@@ -1131,23 +1063,6 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         self.glpane.gl_update() # needed because of the snuggle above
         return
 
-##    def parts_touched(self): ###@@@ redundant with code in own_atoms; also not currently used, I think
-##        """Scan our atoms and report a list of the Parts they're currently in, using None for killed atoms;
-##        callers can use this to decide which Part to show or whether they want to keep using us at all.
-##        """
-##        #e in future, will caller know when this needs doing (re invals of these atoms' parts), or will we track that?
-##        res = {}
-##        for atm in self.alist:
-##            part = atm.molecule.part # can this fail for a killed atom?? is it None for a killed atom, as it should be?
-##            res[part] = part
-##        return res.values()
-##
-##    def touches_part(self, part): ###@@@ not currently used, I think
-##        for atm in self.alist:
-##            if part is atm.molecule.part: #revised 050513
-##                return True
-##        return False
-        
     def update_displays(self):
         ###@@@ should use same glpane as in self.glpane.gl_update code above (one or the other is wrong) [bruce 050516 guess/comment]
         self.assy.o.gl_update() #stub? someday might need to update the MT as well if it's showing animated icons for involved Parts...
@@ -1239,8 +1154,6 @@ class alist_and_moviefile:
         return self._valid
     def own_atoms(self):
         self.movable_atoms.own_atoms()
-##    def atoms_are_owned(self):
-##        return self.movable_atoms.atoms_are_owned()
     def release_atoms(self):
         self.movable_atoms.release_atoms()
     def play_frame(self, n):
@@ -1253,8 +1166,6 @@ class alist_and_moviefile:
         ma = self.movable_atoms
         if mf.frame_index_in_range(n):
             frame_n = mf.ref_to_transient_frame_n(n)
-            #####@@@@@ bruce 050513
-            ## print "not playing frame %d" % n
             ma.set_posns(frame_n) # now we no longer need frame_n
                 # (note: set_posns did invals but not updates.)
 ##            self.current_frame = n #k might not be needed -- our caller keeps its own version of this (named currentFrame)
@@ -1268,6 +1179,7 @@ class alist_and_moviefile:
     def close_file(self):
         self.moviefile.close_file()
     pass # end of class alist_and_moviefile
+
 
 # == helper functions
 
