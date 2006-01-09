@@ -883,6 +883,15 @@ class assembly(GenericDiffTracker_API_Mixin):
     def writemmpfile(self, filename):
         from files_mmp import writemmpfile_assy
         writemmpfile_assy( self, filename, addshelf = True)
+        
+    def get_cwd(self):
+        '''Returns the current working directory for assy.
+        '''
+        if self.filename: 
+            cwd, file = os.path.split(self.filename)
+        else: 
+            cwd = globalParms['WorkingDirectory']
+        return cwd
     
     pass # end of class assembly
 
