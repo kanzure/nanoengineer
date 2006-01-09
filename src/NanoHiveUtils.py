@@ -14,7 +14,7 @@ __author__ = "Brian"
 
 import env, os, sys, time
 from platform import find_or_make_Nanorex_subdir
-from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
+from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key, globalParms
 
 def get_nh_simspec_filename(basename):
     '''Return the full path of the Nano-Hive simulation specification file.
@@ -43,6 +43,17 @@ def get_nh_mmp_filename(basename):
     else:
         return None
 
+def get_nh_espimage_filename(assy, jigname):
+    '''Return the filename of the ESP Image's png given assy and ESP Image's jigname, 
+    The filename format is "assyname-jigname.png"
+    This is the file name to be stored in the ESP Image's MMP record.
+    '''
+
+    #if not assy.name or not jigname:
+    #    return None
+
+    return os.path.join(assy.get_cwd(), assy.name + "-" + jigname + ".png")
+        
 def get_nh_home():    
     '''Return the Nano-Hive home directory'''
     

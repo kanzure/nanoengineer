@@ -49,6 +49,8 @@ class ESPImageProp(ESPImagePropDialog):
         self.xaxis_spinbox.setValue(self.jig.xaxis_orient)
         self.yaxis_spinbox.setValue(self.jig.yaxis_orient)
         
+        self.png_fname_linedit.setText(self.jig.espimage_file)
+        
     def change_fill_color(self):
         '''Slot method to change fill color.'''
         color = QColorDialog.getColor(self.fill_QColor, self, "ColorDialog")
@@ -111,12 +113,12 @@ class ESPImageProp(ESPImagePropDialog):
         self.jig.calculate_esp()
         
     def load_esp_image(self):
-        png_fname = self.jig.load_esp_image()
-        self.png_fname_linedit.setText(png_fname)
+        self.jig.load_esp_image()
+        self.png_fname_linedit.setText(self.jig.espimage_file)
         
     def change_esp_image(self):
-        png_fname = self.jig.load_esp_image(True)
-        self.png_fname_linedit.setText(png_fname)
+        self.jig.load_esp_image(choose_new_image = True)
+        self.png_fname_linedit.setText(self.jig.espimage_file)
         
     def clear_esp_image(self):
         self.jig.clear_esp_image()

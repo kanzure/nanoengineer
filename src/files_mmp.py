@@ -486,7 +486,8 @@ class _readmmp_state:
         as.name = name
         as.color = col
         self.addmember(as)
-        
+    
+    prevespimage = None
     def _read_espimage(self, card):
         ''' Read the MMP record for a ESP Image jig as:
             espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
@@ -506,6 +507,7 @@ class _readmmp_state:
         espImage = ESPImage(self.assy, [], READ_FROM_MMP=True)
         espImage.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espImage)
+        self.prevespimage = espImage # added for interpreting "info espimage" records. mark 060108.
         
     # Read the MMP record for a Ground (Anchor) as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
@@ -807,7 +809,8 @@ class _readmmp_state:
             opengroup = self.groupstack[-1], #bruce 050421
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
             atom = self.prevatom, #bruce 050511
-            gamess = self.prevgamess #bruce 050701
+            gamess = self.prevgamess, #bruce 050701
+            espimage = self.prevespimage #mark 060108
         )
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card

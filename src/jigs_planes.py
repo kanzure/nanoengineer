@@ -290,7 +290,7 @@ class ESPImage(RectGadget):
     sym = "ESP Image"
     icon_names = ["espimage.png", "espimage-hide.png"]
     mmp_record_name = "espimage"
-    featurename = "ESP Image" #bruce 051203
+    featurename = "ESP Image" #Renamed. mark 060108
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -312,6 +312,7 @@ class ESPImage(RectGadget):
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
         self.opacity = 0.6
         self.image_obj = None # Flag if texture image is ready or not
+        self.espimage_file = '' # ESP Image (png) filename
         self.highlightChecked = False # Flag if highlight is turned on or off
         self.xaxis_orient = 0 # ESP Image X Axis orientation
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
@@ -330,10 +331,11 @@ class ESPImage(RectGadget):
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
 
 
-    def _createImageFile(self, fileName):
-        '''Create image file. '''
-        self.image_obj = nEImageOps(fileName)
+    def _create_PIL_image_obj_from_espimage_file(self):
+        '''Creates a PIL image object from the jig's ESP image (png) file. '''
         
+        if self.espimage_file:
+            self.image_obj = nEImageOps(self.espimage_file)
         
     def _loadTexture(self):
         '''Load texture data from current image object '''
@@ -444,8 +446,8 @@ class ESPImage(RectGadget):
             povPlaneCorners += [self.quat.rot(v) + self.center]
         strPts = ' %s, %s, %s, %s ' % tuple(map(povpoint, povPlaneCorners))
         if self.image_obj:
-            imgName = os.path.basename(self.png_name)
-            imgPath = os.path.dirname(self.png_name)
+            imgName = os.path.basename(self.espimage_file)
+            imgPath = os.path.dirname(self.espimage_file)
             file.write('\n // Before you render, please set this command option: Library_Path="%s"\n\n' % (imgPath,))
             file.write('esp_plane_texture(' + strPts + ', "'+ imgName + '") \n')
         else:
@@ -486,6 +488,13 @@ class ESPImage(RectGadget):
         if 0:
             drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
  
+    def writemmp(self, mapping):
+        "[extends Jig method]"
+        super = Jig
+        super.writemmp(self, mapping)
+        # Write espimage "info" record.
+        line = "info espimage espimage_file = " + self.espimage_file + "\n"
+        mapping.write(line)
  
     def mmp_record_jigspecific_midpart(self):
         color = map(int,A(self.fill_color)*255)
@@ -496,6 +505,23 @@ class ESPImage(RectGadget):
             self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
             self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.image_offset, self.edge_offset)
         return " " + dataline
+        
+    def readmmp_info_espimage_setitem( self, key, val, interp ):
+        """This is called when reading an mmp file, for each "info espimage" record
+        which occurs right after this node is read and no other (espimage jig) node has been read.
+           Key is a list of words, val a string; the entire record format
+        is presently [060108] "info espimage <key> = <val>", and there is exactly
+        one word in <key>, "espimage_file". <val> is the espimage filename.
+        <interp> is not currently used.
+        """
+        if len(key) != 1:
+            if platform.atom_debug:
+                print "atom_debug: fyi: info espimage with unrecognized key %r (not an error)" % (key,)
+            return
+            
+        self.espimage_file = val
+        self.load_esp_image()
+        return
 
     def get_sim_parms(self):
         from NanoHive import NH_Sim_Parameters
@@ -533,11 +559,16 @@ class ESPImage(RectGadget):
         sims_to_run = ["MPQC_ESP"]
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
         
-        # Name of image file.  This should become a relative path.
+        # Temporary file name of ESP image file.
         from platform import find_or_make_Nanorex_subdir
-        results_file = os.path.join(find_or_make_Nanorex_subdir("Nano-Hive"), self.name + ".png")
+        nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
+        tmp_espimage_file = os.path.join(nhdir, "%s.png" % (self.name))
         
-        msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, results_file)
+        # Destination (permanant) file name of ESP image file.
+        from NanoHiveUtils import get_nh_espimage_filename
+        espimage_file = get_nh_espimage_filename(self.assy, self.name)
+        
+        msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, espimage_file)
         env.history.message( cmd + msg ) 
         
         from NanoHiveUtils import run_nh_simulation
@@ -551,7 +582,17 @@ class ESPImage(RectGadget):
         msg = "ESP calculation on [%s] finished." % (self.name)
         env.history.message( cmd + msg ) 
         
+        # Move tmp file to permanant location.  Make sure the tmp file is there.
+        if os.path.exists(tmp_espimage_file):
+            import shutil
+            shutil.move(tmp_espimage_file, espimage_file)
+        else:
+            print "Temporary ESP Image file ", tmp_espimage_file," does not exist. Image not loaded."
+            return
+        
+        self.espimage_file = espimage_file
         self.load_esp_image()
+        self.assy.changed()
         self.assy.w.win_update()
         
         return
@@ -567,58 +608,45 @@ class ESPImage(RectGadget):
         self.load_esp_image()
    
         
-    def load_esp_image(self, load_new_image = False):
-        '''Load the ESP (.png) image file, which will have the same name as the Jig.
-        If the jig's name is "ESP Image.1", the image will be called 
-        "ESP Image.1.png", located in the ~/Nanorex/Nano-Hive directory.
+    def load_esp_image(self, choose_new_image = False):
+        '''Load the ESP (.png) image file.
         
-        If the file does not exist, or if load_new_image is True, the
-        user will be prompted to load an image.
+        If the file does not exist, or if choose_new_image is True, the
+        user will be prompted to load a new image.
         
         Returns the name of the image file loaded.  None is returned if
         no image was loaded.
         '''
         
-        # It would be a good idea to add the image filename as a attribute of the ESP Image
-        # jig object.  This would require including the filename in the MMP record for the jig,
-        # probably as an "info" record. Before doing this, I want to discuss it with Bruce.
-        # Mark 051003
-        
         cmd = greenmsg("Load ESP Image: ")
-        
-        from platform import find_or_make_Nanorex_subdir
-        nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
-        png_name = os.path.join(nhdir,self.name+".png")
-        self.png_name = png_name
-        print png_name
     
-        if not os.path.exists(png_name) or load_new_image:
+        if not os.path.exists(self.espimage_file) or choose_new_image:
             
-            if not load_new_image:
+            if not choose_new_image:
                 QMessageBox.warning( self.assy.w, "ESP Image Not Found", \
-                    "The ESP image file:\n" + png_name + "\ndoes not exist.\n\nPlease choose a different one.", \
+                    "The ESP image file:\n" + self.espimage_file + "\ndoes not exist.\n\nPlease choose a different one.", \
                     QMessageBox.Ok, QMessageBox.NoButton)
-              
-            # odir = globalParms['WorkingDirectory']
-    
-            fn = QFileDialog.getOpenFileName(nhdir, \
-                    "All Files (*.png *.jpg *.gif *.bmp);;", self.assy.w )
-                
-            png_name = str(fn)
-            self.png_name = png_name
             
+            cwd = self.assy.get_cwd()
+    
+            fn = QFileDialog.getOpenFileName(cwd, \
+                    "Portable Network Graphics (*.png);;", self.assy.w )
+                
             if not fn:
                 env.history.message("Cancelled.")
                 return None
+                
+            self.espimage_file = str(fn)
         
-        self._createImageFile(png_name)
+        #print "load_esp_image(): espimage_file = ", self.espimage_file
+        self._create_PIL_image_obj_from_espimage_file()
         self._loadTexture()
         
         # Bug fix 1041-1.  Mark 051003
-        msg = "ESP image loaded: [" + png_name + "]"
+        msg = "ESP image loaded: [" + self.espimage_file + "]"
         env.history.message(cmd + msg)
         
-        return png_name
+        return self.espimage_file
     
     
     def clear_esp_image(self):
