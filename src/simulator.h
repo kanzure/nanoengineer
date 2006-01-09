@@ -32,6 +32,9 @@
 #define SAY3(fmt,a,b,c)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
               fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
               fprintf(outf, fmt, a, b, c); fclose(outf); }
+#define SAY4(fmt,a,b,c,d)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
+              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, fmt, a, b, c, d); fclose(outf); }
 #else
 #define SAY(fmt)
 #define SAY1(fmt,a)
@@ -42,7 +45,7 @@
 #define MARK()       SAY("\n")
 #define SAY_INT(x)   SAY2("%s=%d\n", #x, x)
 #define SAY_DBL(x)   SAY2("%s=%lg\n", #x, x)
-#define SAY_XYZ(s)   SAY2("%s={%lf,%lf,%lf)\n", #s, (s).x, (s).y, (s).z)
+#define SAY_XYZ(s)   SAY4("%s={%lf,%lf,%lf)\n", #s, (s).x, (s).y, (s).z)
 #define SAY_PTR(x)   SAY2("%s=%p\n", #x, x)
 
 #define iabs(x) (x<0 ? -(x) : x)
