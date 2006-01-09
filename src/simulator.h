@@ -40,6 +40,7 @@
 #define SAY1(fmt,a)
 #define SAY2(fmt,a,b)
 #define SAY3(fmt,a,b,c)
+#define SAY4(fmt,a,b,c,d)
 #endif
 
 #define MARK()       SAY("\n")

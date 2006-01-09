@@ -141,7 +141,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     sin_theta = sin(jig->j.rmotor.theta);
 
     /* nudge atoms toward their new places */
-    for (k=0; k<jig->num_atoms; k++) {
+    for (k = 0; k < jig->num_atoms; k++) {
 	a1 = jig->atoms[k]->index;
 	// get the position of this atom's anchor
 	anchor = jig->j.rmotor.center;

@@ -811,7 +811,7 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.v = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.w = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.momentOfInertia = 0.0;
-    for (i=0; i<j->num_atoms; i++) {
+    for (i = 0; i < j->num_atoms; i++) {
 	struct xyz r, v;
 	double lenv;
 	k = j->atoms[i]->index;
@@ -830,7 +830,6 @@ makeRotaryMotor(struct part *p, char *name,
 	lenv = vlen(v);
 	j->j.rmotor.v[i] = v;
 	j->j.rmotor.w[i] = vx(j->j.rmotor.axis, v);
-	
 	j->j.rmotor.momentOfInertia += mass * lenv * lenv;
     }
     
@@ -844,6 +843,11 @@ makeRotaryMotor(struct part *p, char *name,
     ratio = (Dt * j->j.rmotor.stall) /
 	(j->j.rmotor.momentOfInertia * j->j.rmotor.speed);
     if (ratio < -0.3 || ratio > 0.3) {
+	/*
+	 * We should really raise a Python exception here, instead of
+	 * just killing the program. It would also be good to tell the
+	 * user, the maximum torque you should be using is XXX.
+	 */
 	fprintf(stderr, "ratio of torque to speed is too high\n");
 	exit(1);
     }
