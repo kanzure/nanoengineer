@@ -75,6 +75,11 @@ struct functionDefinition
                      struct configuration *previous,
                      struct configuration *current,
                      double tolerance);
+
+  // Called from gradientOffset after coordinates are updated to the
+  // new values.  Used by callers to constrain coordinates in caller
+  // specific ways.
+  void (*constraints)(struct configuration *p);
   
   // How close do we need to get to the minimum?  Should be no smaller
   // than the square root of the machine precision.  First we minimize

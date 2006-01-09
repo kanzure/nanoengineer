@@ -17,6 +17,9 @@ findRMSandMaxForce(struct configuration *p, double *pRMS, double *pMaxForce)
     NULLPTR(pRMS);
     NULLPTR(pMaxForce);
     for (i=0; i<Part->num_atoms; i++) {
+        if (Part->atoms[i]->isGrounded) {
+            continue;
+        }
 	f = ((struct xyz *)p->gradient)[i];
 	forceSquared = vdot(f,f);
 	sum_forceSquared += forceSquared;
@@ -123,6 +126,27 @@ minimizeStructureTermination(struct functionDefinition *fd,
     return 0;
 }
 
+static void
+minimizeStructureConstraints(struct configuration *p) 
+{
+    int i;
+    int j;
+    struct jig *jig;
+    struct xyz *positions = (struct xyz *)p->coordinate;
+    struct atom *a;
+    int index;
+    
+    for (i=0; i<Part->num_jigs; i++) {
+        jig = Part->jigs[i];
+        if (jig->type == Ground) {
+            for (j=0; j<jig->num_atoms; j++) {
+                a = jig->atoms[j];
+                index = a->index;
+                positions[index] = Part->positions[index];
+            }
+        }
+    }
+}
 
 static struct functionDefinition minimizeStructureFunctions;
 
@@ -143,9 +167,11 @@ minimizeStructure(struct part *part)
                                  minimizeStructurePotential,
                                  part->num_atoms * 3,
                                  1024);
-
+    BAIL();
+    
     minimizeStructureFunctions.dfunc = minimizeStructureGradient;
     minimizeStructureFunctions.termination = minimizeStructureTermination;
+    minimizeStructureFunctions.constraints = minimizeStructureConstraints;
     minimizeStructureFunctions.coarse_tolerance = 1e-8;
     minimizeStructureFunctions.fine_tolerance = 1e-10;
 

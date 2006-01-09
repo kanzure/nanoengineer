@@ -70,6 +70,7 @@ initializeFunctionDefinition(struct functionDefinition *fd,
     fd->dfunc = NULL;
     fd->freeExtra = NULL;
     fd->termination = NULL;
+    fd->constraints = NULL;
     fd->coarse_tolerance = 1e-5;
     fd->fine_tolerance = 1e-8;
     fd->gradient_delta = 1e-8;
@@ -314,6 +315,9 @@ gradientOffset(struct configuration *p, double q)
 	r->coordinate[i] = p->coordinate[i] + q * p->gradient[i];
     }
     r->parameter = q;
+    if (fd->constraints != NULL) {
+        (*fd->constraints)(r);
+    }
     return r;
 }
 
