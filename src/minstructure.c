@@ -12,6 +12,10 @@ findRMSandMaxForce(struct configuration *p, double *pRMS, double *pMaxForce)
     double sum_forceSquared = 0.0;
     double max_forceSquared = -1.0;
 
+    // wware 060109  python exception handling
+    NULLPTR(p);
+    NULLPTR(pRMS);
+    NULLPTR(pMaxForce);
     for (i=0; i<Part->num_atoms; i++) {
 	f = ((struct xyz *)p->gradient)[i];
 	forceSquared = vdot(f,f);
@@ -54,9 +58,11 @@ minimizeStructureGradient(struct configuration *p)
     double max_force;
     struct xyz *forces;
 
-    updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
+    // wware 060109  python exception handling
+    updateVanDerWaals(Part, p, (struct xyz *)p->coordinate); BAIL();
     if (DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // -D 10
-	evaluateGradientFromPotential(p);
+	// wware 060109  python exception handling
+	evaluateGradientFromPotential(p); BAIL();
 	if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
 	    forces = (struct xyz *)p->gradient;
 	    for (i=0; i<Part->num_atoms; i++) {
@@ -91,8 +97,9 @@ minimizeStructureTermination(struct functionDefinition *fd,
     double rms_force;
     double max_force;
 
-    evaluateGradient(current);
-    findRMSandMaxForce(current, &rms_force, &max_force);
+    // wware 060109  python exception handling
+    evaluateGradient(current); BAILR(0);
+    findRMSandMaxForce(current, &rms_force, &max_force); BAILR(0);
     if (tolerance == fd->coarse_tolerance) {
         if (rms_force < 50.0 && max_force < 300.0) {
             return 1;
@@ -155,10 +162,13 @@ minimizeStructure(struct part *part)
     }
 
     final = minimize(initial, &iter, NumFrames * 100);
+    // wware 060109  python exception handling
+    BAIL();
 
     if (final != NULL) {
-	evaluateGradient(final);
-	findRMSandMaxForce(final, &rms_force, &max_force);
+	// wware 060109  python exception handling
+	evaluateGradient(final); BAIL();
+	findRMSandMaxForce(final, &rms_force, &max_force); BAIL();
 
 	writeMinimizeMovieFrame(outf, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,
 				Iteration, "final structure", minimizeStructureFunctions.message);

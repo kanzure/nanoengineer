@@ -49,7 +49,7 @@ cdef extern from "simhelp.c":
     setFrameCallbackFunc(PyObject)
     getFrame_c()
     void initsimhelp()
-    void readPart()
+    readPart()
     void dumpPart()
     everythingElse()
     cdef char *structCompareHelp()
@@ -58,6 +58,7 @@ cdef extern from "simhelp.c":
 
     void reinitSimGlobals(PyObject)
     verifySimObject(PyObject)
+    void set_interrupted_flag(int)
 
     void dynamicsMovie_start()
     void dynamicsMovie_step()
@@ -174,6 +175,8 @@ cdef class BaseSimulator:
         elif key == "Interrupted":
             global Interrupted
             Interrupted = value
+            # wware 060109  python exception handling
+            set_interrupted_flag(value)
         elif key == "IDKey":
             global IDKey
             IDKey = value

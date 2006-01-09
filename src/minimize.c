@@ -4,9 +4,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "debug.h"
-#include "allocate.h"
-#include "minimize.h"
+#include "simulator.h"    // wware 060109  python exception handling
 
 // Some of the routines in this file are based on routines found in
 // "Numerical Recipes in C, Second Edition", by William H. Press, Saul
@@ -100,8 +98,12 @@ makeConfiguration(struct functionDefinition *fd)
     struct configuration *ret;
 
     ret = (struct configuration *)allocate(sizeof(struct configuration));
+    // wware 060109  python exception handling
+    NULLPTRR(ret, NULL);
     ret->functionValue = 0.0;
     ret->coordinate = (double *)allocate(sizeof(double) * fd->dimension);
+    // wware 060109  python exception handling
+    NULLPTRR(ret->coordinate, NULL);
     ret->gradient = NULL;
     ret->parameter = 0.0;
     ret->functionDefinition = fd;
@@ -188,7 +190,11 @@ evaluate(struct configuration *p)
 {
     struct functionDefinition *fd = p->functionDefinition;
 
+    // wware 060109  python exception handling
+    NULLPTRR(p, 0.0);
     if (p->functionValueValid == 0) {
+	// wware 060109  python exception handling
+	NULLPTRR(fd->func, 0.0);
 	(*fd->func)(p);
 	p->functionValueValid = 1;
 	fd->functionEvaluationCount++;
@@ -199,23 +205,30 @@ evaluate(struct configuration *p)
 void
 evaluateGradientFromPotential(struct configuration *p)
 {
-    struct functionDefinition *fd = p->functionDefinition;
+    struct functionDefinition *fd;
     struct configuration *pPlusDelta = NULL;
     struct configuration *pMinusDelta = NULL;
     int i;
     int j;
 
+    // wware 060109  python exception handling
+    NULLPTR(p);
+    fd = p->functionDefinition;
+    // wware 060109  python exception handling
+    NULLPTR(fd);
     if (fd->gradient_delta == 0.0) {
 	fd->gradient_delta = 1e-8;
     }
     for (i=0; i<fd->dimension; i++) {
-	pPlusDelta = makeConfiguration(fd);
+	// wware 060109  python exception handling
+	pPlusDelta = makeConfiguration(fd); BAIL();
 	for (j=0; j<fd->dimension; j++) {
 	    pPlusDelta->coordinate[j] = p->coordinate[j];
 	}
 	pPlusDelta->coordinate[i] += fd->gradient_delta / 2.0;
 
-	pMinusDelta = makeConfiguration(fd);
+	// wware 060109  python exception handling
+	pMinusDelta = makeConfiguration(fd); BAIL();
 	for (j=0; j<fd->dimension; j++) {
 	    pMinusDelta->coordinate[j] = p->coordinate[j];
 	}
@@ -230,17 +243,19 @@ evaluateGradientFromPotential(struct configuration *p)
 void
 evaluateGradient(struct configuration *p)
 {
-    extern int Interrupted;
     struct functionDefinition *fd;
     int i;
     double gradientCoordinate;
 
-    if (Interrupted) return;
+    // wware 060109  python exception handling
+    BAIL();  // Interrupted?
     fd = p->functionDefinition;
     if (p->gradient == NULL) {
 	p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
+	// wware 060109  python exception handling
+	NULLPTR(p->gradient);
 	if (fd->dfunc == NULL) {
-	    evaluateGradientFromPotential(p);
+	    evaluateGradientFromPotential(p); BAIL();
 	} else {
 	    (*fd->dfunc)(p);
 	}
@@ -264,8 +279,9 @@ gradientOffset(struct configuration *p, double q)
     struct configuration *r;
     int i;
 
-    r = makeConfiguration(fd);
-    evaluateGradient(p);
+    // wware 060109  python exception handling
+    r = makeConfiguration(fd); BAILR(NULL);
+    evaluateGradient(p); BAILR(NULL);
     for (i=fd->dimension-1; i>=0; i--) {
 	r->coordinate[i] = p->coordinate[i] + q * p->gradient[i];
     }
@@ -297,7 +313,11 @@ bracketMinimum(struct configuration **ap,
     SetConfiguration(&a, p);
     a->parameter = 0.0;
     evaluateGradient(p); // this lets (*dfunc)() set initial_parameter_guess
+    // wware 060109  python exception handling
+    BAIL();
     b = gradientOffset(p, p->functionDefinition->initial_parameter_guess);
+    // wware 060109  python exception handling
+    BAIL();
     if (evaluate(b) > evaluate(a)) {
 	// swap a and b, so b is downhill of a
 	u = a;
@@ -306,7 +326,8 @@ bracketMinimum(struct configuration **ap,
 	u = NULL;
     }
     nx = b->parameter + GOLDEN_RATIO * (b->parameter - a->parameter);
-    c = gradientOffset(p, nx);
+    // wware 060109  python exception handling
+    c = gradientOffset(p, nx); BAIL();
     while (evaluate(b) > evaluate(c)) {
 
 	// u is the extreme point for a parabola passing through a, b, and c:
@@ -326,7 +347,7 @@ bracketMinimum(struct configuration **ap,
 	    ((b->parameter - c->parameter) * q - (b->parameter - a->parameter) * r) /
 	    (2.0 * denom);
 	SetConfiguration(&u, NULL);
-	u = gradientOffset(p, nx);
+	u = gradientOffset(p, nx); BAIL();
 
 	// a, b, and c are in order, ulimit is far past c
 	ulimit = b->parameter + PARABOLIC_BRACKET_LIMIT * (c->parameter - b->parameter);
@@ -634,7 +655,7 @@ minimize_one_tolerance(struct configuration *initial_p,
                        double tolerance,
                        enum minimizationAlgorithm minimization_algorithm)
 {
-    struct functionDefinition *fd = initial_p->functionDefinition;
+    struct functionDefinition *fd;
     double fp;
     double dgg;
     double gg;
@@ -642,24 +663,48 @@ minimize_one_tolerance(struct configuration *initial_p,
     struct configuration *p = NULL;
     struct configuration *q = NULL;
     int i;
-    extern int Interrupted;
 
     Enter();
+    // wware 060109  python exception handling
+    NULLPTRR(initial_p, NULL);
+    NULLPTRR(iteration, NULL);
+    fd = initial_p->functionDefinition;
+    // wware 060109  python exception handling
+    NULLPTRR(fd, NULL);
     if (fd->termination == NULL) {
         fd->termination = defaultTermination;
     }
     SetConfiguration(&p, initial_p);
+    // wware 060109  python exception handling
+    BAILR(NULL);
     fp = evaluate(p);
-    for ((*iteration)=0; (*iteration)<iterationLimit && !Interrupted; (*iteration)++) {
+    // wware 060109  python exception handling
+    BAILR(NULL);
+    for ((*iteration)=0; (*iteration) < iterationLimit; (*iteration)++) {
+	if (Interrupted) {
+	    message(fd, "minimization interrupted");
+	    // wware 060109  python exception handling
+	    BAILR(NULL);
+	}
 	SetConfiguration(&q, NULL);
+	// wware 060109  python exception handling
+	BAILR(NULL);
 	q = linearMinimize(p, tolerance, minimization_algorithm);
+	// wware 060109  python exception handling
+	BAILR(NULL);
         if ((fd->termination)(fd, p, q, tolerance)) {
 	    SetConfiguration(&p, NULL);
+	    // wware 060109  python exception handling
+	    BAILR(NULL);
 	    Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
 	    return q;
 	}
 	evaluateGradient(p); // should have been evaluated by linearMinimize already
+	// wware 060109  python exception handling
+	BAILR(NULL);
 	evaluateGradient(q);
+	// wware 060109  python exception handling
+	BAILR(NULL);
 	if (minimization_algorithm != SteepestDescent) {
 	    dgg = gg = 0.0;
 	    if (minimization_algorithm == PolakRibiereConjugateGradient) {
@@ -682,6 +727,8 @@ minimize_one_tolerance(struct configuration *initial_p,
 		// is zero, so we must be done.
 		DPRINT(D_MINIMIZE, "gg==0 in minimize_one_tolerance\n");
 		SetConfiguration(&p, NULL);
+		// wware 060109  python exception handling
+		BAILR(NULL);
 		Leave(minimize_one_tolerance, 1);
 		return q;
 	    }
@@ -692,7 +739,9 @@ minimize_one_tolerance(struct configuration *initial_p,
 	    }
 	}
 	fp = evaluate(q); // previous value of function
+	BAILR(NULL);
 	SetConfiguration(&p, q);
+	BAILR(NULL);
     }
     if (Interrupted) {
         message(fd, "minimization interrupted");
@@ -700,6 +749,8 @@ minimize_one_tolerance(struct configuration *initial_p,
         message(fd, "reached iteration limit");
     }
     SetConfiguration(&p, NULL);
+    // wware 060109  python exception handling
+    BAILR(NULL);
     Leave(minimize_one_tolerance, 1);
     return q;
 }
@@ -724,6 +775,7 @@ minimize(struct configuration *initial_p,
 					  iterationLimit * 0.8,
 					  fd->coarse_tolerance,
 					  SteepestDescent);
+    BAILR(NULL);
     if (fd->fine_tolerance < fd->coarse_tolerance) {
 	DPRINT1(D_MINIMIZE, "cutover to fine tolerance at %d\n", coarse_iter);
 	message(fd, "cutover to fine tolerance at %d", coarse_iter);
@@ -732,10 +784,16 @@ minimize(struct configuration *initial_p,
 				       iterationLimit - coarse_iter,
 				       fd->fine_tolerance,
 				       PolakRibiereConjugateGradient);
+	// wware 060109  python exception handling
+	BAILR(NULL);
     } else {
 	SetConfiguration(&final, intermediate);
+	// wware 060109  python exception handling
+	BAILR(NULL);
     }
     SetConfiguration(&intermediate, NULL);
+    // wware 060109  python exception handling
+    BAILR(NULL);
     *iteration = coarse_iter + fine_iter;
     Leave(minimize, (final == initial_p) ? 0 :1);
     return final;

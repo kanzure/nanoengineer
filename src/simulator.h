@@ -89,6 +89,22 @@ extern void callback_writeFrame(struct part *part, struct xyz *pos);
 // wware 060102  callback for trace file
 extern void write_traceline(const char *format, ...);
 
+// Python exception stuff, wware 060109
+extern char *py_exc_str;
+extern void set_py_exc_str(const char *filename, const char *funcname,
+			   const char *format, ...);
+
+#define NULLPTR(p)  \
+  if ((p) == NULL) { \
+  set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return; }
+#define NULLPTRR(p,x)  \
+  if ((p) == NULL) { \
+  set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return (x); }
+#define BAIL()  \
+  if (py_exc_str != NULL) return
+#define BAILR(x)  \
+  if (py_exc_str != NULL) return (x)
+
 /*
  * Local Variables:
  * c-basic-offset: 4

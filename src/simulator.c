@@ -86,6 +86,15 @@ write_traceline(const char *format, ...)
     }
 }
 
+// Python exception stuff, wware 060109
+char *py_exc_str = NULL;
+
+void
+set_py_exc_str(const char *filename, const char *funcname,
+               const char *format, ...)
+{
+}
+
 #define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
 #define OPT_HELP              LONG_OPT (0)
 #define OPT_DUMP_PART         LONG_OPT (1)

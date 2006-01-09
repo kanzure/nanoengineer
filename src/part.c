@@ -324,6 +324,8 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
     int notseen_count;
     
     seen = (int *)allocate(sizeof(int) * p->num_vanDerWaals);
+    // wware 060109  python exception handling
+    NULLPTR(seen);
     for (i=0; i<p->num_vanDerWaals; i++) {
 	seen[i] = 0;
     }
@@ -414,6 +416,9 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     struct atom **bucket;
     double r;
 
+    // wware 060109  python exception handling
+    NULLPTR(p);
+    NULLPTR(positions);
     if (validity && p->vanDerWaals_validity == validity) {
 	return;
     }
@@ -451,9 +456,11 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 				r = vlen(vdif(positions[i], positions[a2->index]));
 				if (r<800.0) {
 				    if (i < a2->index) {
-					makeDynamicVanDerWaals(p, a, a2);
+					// wware 060109  python exception handling
+					makeDynamicVanDerWaals(p, a, a2); BAIL();
 				    } else {
-					makeDynamicVanDerWaals(p, a2, a);
+					// wware 060109  python exception handling
+					makeDynamicVanDerWaals(p, a2, a); BAIL();
 				    }
 				}
 			    }
@@ -466,7 +473,8 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     }
     p->vanDerWaals_validity = validity;
     if (DEBUG(D_VERIFY_VDW)) { // -D13
-	verifyVanDerWaals(p, positions);
+	// wware 060109  python exception handling
+	verifyVanDerWaals(p, positions); BAIL();
     }
 }
 
@@ -789,7 +797,7 @@ makeRotaryMotor(struct part *p, char *name,
                 int atomListLength, int *atomList)
 {
     int i, k;
-    double mass, ratio;
+    double mass, maxtorque;
     struct jig *j = newJig(p);
     
     j->type = RotaryMotor;
@@ -816,7 +824,7 @@ makeRotaryMotor(struct part *p, char *name,
 	double lenv;
 	k = j->atoms[i]->index;
 	/* for each atom connected to the motor */
-	mass = j->atoms[i]->type->mass * 1e-27;   // TODO: review units
+	mass = j->atoms[i]->type->mass * 1e-27;
 	
 	/* u, v, and w can be used to compute the new anchor position from
 	 * theta. The new position is u + v cos(theta) + w sin(theta). u is
@@ -838,18 +846,15 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.theta = 0.0;
     j->j.rmotor.omega = 0.0;
     
+    // wware 060109  python exception handling
     /* test for numerical stability */
-    // TODO: review units
-    ratio = (Dt * j->j.rmotor.stall) /
-	(j->j.rmotor.momentOfInertia * j->j.rmotor.speed);
-    if (ratio < -0.3 || ratio > 0.3) {
-	/*
-	 * We should really raise a Python exception here, instead of
-	 * just killing the program. It would also be good to tell the
-	 * user, the maximum torque you should be using is XXX.
-	 */
-	fprintf(stderr, "ratio of torque to speed is too high\n");
-	exit(1);
+    maxtorque = 0.3 * j->j.rmotor.momentOfInertia
+	* j->j.rmotor.speed / Dt;
+    if (j->j.rmotor.stall < -maxtorque ||
+	j->j.rmotor.stall > maxtorque) {
+	set_py_exc_str(__FILE__, __FUNCTION__,
+		       "maximum recommended torque is %g nN-nm\n",
+		       maxtorque / ((1e-9/Dx) * (1e-9/Dx)));
     }
 }
 

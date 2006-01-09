@@ -5,6 +5,9 @@
  *
  * CHANGES  (reverse chronological order, use CVS log for details)
  *
+ * wware 060109 - Made several changes to facilitate passing Python
+ * exceptions upstream from deep inside C function call stacks.
+ *
  * wware 060102 - Added a callback for Python to pick up trace file info.
  *
  * WARNING: This file is not compiled separately -- it's #included in sim.c
@@ -22,7 +25,7 @@ char __author__[] = "Will";
 #include "simulator.h"
 
 void initsimhelp(void);
-void readPart(void);
+PyObject * readPart(void);
 void dumpPart(void);
 PyObject *everythingElse(void);
 char * structCompareHelp(void);
@@ -31,14 +34,11 @@ static char retval[100];
 static struct part *part;
 static struct xyz *pos;
 static char buf[1024];
+static int callback_exception = 0;
 
 char *filename;
-int error_occurred = 0;
 
 static void *mostRecentSimObject = NULL;
-
-//PyObject *errType = NULL;
-char *errString = NULL;
 
 void
 reinitSimGlobals(PyObject *sim)
@@ -100,10 +100,13 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
     if (callbackFunc == NULL) return;
     pValue = PyObject_CallObject(callbackFunc, args);
     Py_DECREF(args);
-    if (pValue == NULL)
-	error_occurred = 1;
-    else
+    if (pValue == NULL) {
+	callback_exception = 1;
+	// wware 060109  python exception handling
+	py_exc_str = "callback exception";
+    } else {
 	Py_DECREF(pValue);
+    }
 }
 
 // wware 060102  callback for trace file
@@ -130,9 +133,8 @@ callback_writeFrame(struct part *part1, struct xyz *pos1)
     if (part != part1) {
 	// assert part is <previous value for part>
 	// we haven't seen this yet, but it would be important to know about
-	snprintf(buf, 1024, "%s:%n the part has changed", __FILE__, __LINE__);
-	PyErr_SetString(PyExc_AssertionError, buf);
-	error_occurred = 1;
+	// wware 060109  python exception handling
+	set_py_exc_str(__FILE__, __FUNCTION__, "the part has changed");
 	return;
     }
     pos = pos1;
@@ -241,12 +243,29 @@ void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     initializeBondTable();
 }
 
-void readPart(void)
+// wware 060109  python exception handling
+#define PYBAIL() \
+  if (py_exc_str != NULL) { \
+    PyErr_SetString(PyExc_RuntimeError, py_exc_str); return NULL; }
+
+PyObject *
+readPart(void)
 {
+    // wware 060109  python exception handling
+    py_exc_str = NULL;
     part = readMMP(buf);
+    if (part == NULL) {
+	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
+	PYBAIL();
+    }
     updateVanDerWaals(part, NULL, part->positions);
+    PYBAIL();
     generateStretches(part);
+    PYBAIL();
     generateBends(part);
+    PYBAIL();
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 void dumpPart(void)
@@ -257,6 +276,9 @@ void dumpPart(void)
 PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
+    // wware 060109  python exception handling
+    py_exc_str = NULL;
+    callback_exception = 0;
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
     if (!printPotentialEnergy) {
@@ -304,20 +326,17 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     else {
         dynamicsMovie(part);
     }
+
     fclose(outf);
     doneNoExit(0, tracef, "");
     if (tracef != NULL) fclose(tracef);
 
-    if (error_occurred) {
-        error_occurred = 0;
+    if (callback_exception) {
 	return NULL;
-    }
-
-    if (Interrupted) {
-	Interrupted = 0;  // clear the flag
-	if (errString == NULL)
-	    errString = "Simulation interrupted";
-	PyErr_SetString(PyExc_RuntimeError, errString);
+    } else if (py_exc_str != NULL) {
+	// wware 060109  python exception handling
+	// If we're Interrupted, it will have happened by now
+	PyErr_SetString(PyExc_RuntimeError, py_exc_str);
 	return NULL;
     }
 
@@ -421,6 +440,34 @@ char * structCompareHelp(void) {
     }
     retval[0] = '\0';
     return retval;
+}
+
+// Python exception stuff, wware 010609
+char *py_exc_str = NULL;
+static char py_exc_strbuf[1024];
+
+void
+set_interrupted_flag(int value)
+{
+    // used in sim.pyx by __setattr__, which has already set Interrupted
+    // so our only job here is to set py_exc_str
+    if (py_exc_str != NULL) return;
+    sprintf(py_exc_strbuf, "simulator has been interrupted");
+    py_exc_str = py_exc_strbuf;
+}
+
+void
+set_py_exc_str(const char *filename, const char *funcname,
+               const char *format, ...)
+{
+    va_list args;
+    int n;
+    if (py_exc_str != NULL) return;
+    n = sprintf(py_exc_strbuf, "%s(%s) ", filename, funcname);
+    va_start(args, format);
+    vsnprintf(py_exc_strbuf + n, 1024 - n, format, args);
+    va_end(args);
+    py_exc_str = py_exc_strbuf;
 }
 
 /*
