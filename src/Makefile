@@ -6,6 +6,8 @@ CC = "C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-I"C:/Dev-Cpp/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
 STDC99=
+WARNWIN32="echo Please build this with Makefile.win32, not Makefile"
+HALTWIN32="exit 1"
 else
 # non-Windows
 CC=gcc
@@ -14,6 +16,8 @@ CFLAGS=-g -Wmissing-prototypes -Wall
 # only for the standalone simulator executable. [bruce 051230 guess]
 LDFLAGS=-L/usr/lib -lm
 STDC99=-std=c99
+WARNWIN32=
+HALTWIN32=
 endif
 
 EXE_DIRECTORY=../../cad/bin
@@ -136,6 +140,8 @@ glviewer: glviewer.c allocate.o
 
 # wware 060101  sim.c dependency no longer needed, simhelp.c dependency in setup.py
 extensions: Makefile
+	$(WARNWIN32)
+	$(HALTWIN32)
 	python setup.py build_ext --inplace
 
 pyx: extensions
