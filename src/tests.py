@@ -708,181 +708,255 @@ class PyrexTest(TimedTest):
 class Tests(unittest.TestCase):
     # Re-generate this with "python tests.py time_only"
     RANKED_BY_SPEED = {
-        'test_amino_acids_ala_l_aminoacid': (2.1361310482025146, 60.734745740890503),
-        'test_amino_acids_arg_l_aminoacid': (2.86472487449646, 71.399204730987549),
-        'test_amino_acids_asn_l_aminoacid': (3.9853050708770752, 97.671952724456787),
-        'test_amino_acids_asp_l_aminoacid': (4.6278619766235352, 110.90385794639587),
-        'test_amino_acids_cys_l_aminoacid': (3.2748000621795654, 86.588639736175537),
-        'test_amino_acids_gln_l_aminoacid': (7.2739131450653076, 129.11651110649109),
-        'test_amino_acids_glu_l_aminoacid': (11.064543962478638, 156.54863214492798),
-        'test_amino_acids_gly_l_aminoacid': (1.046766996383667, 42.096516132354736),
-        'test_amino_acids_his_l_aminoacid': (5.3623778820037842, 116.26623582839966),
-        'test_amino_acids_ile_l_aminoacid': (2.799105167388916, 68.534479856491089),
-        'test_amino_acids_leu_l_aminoacid': (8.5254340171813965, 145.48408818244934),
-        'test_amino_acids_lys_l_aminoacid': (7.8421430587768555, 136.95865416526794),
-        'test_amino_acids_met_l_aminoacid': (5.576362133026123, 121.84259796142578),
-        'test_amino_acids_phe_l_aminoacid': (0.054872035980224609,
-                                             4.2642321586608887),
-        'test_amino_acids_pro_l_aminoacid': (3.7014391422271729, 93.686647653579712),
-        'test_amino_acids_ser_l_aminoacid': (4.4551970958709717, 106.27599596977234),
-        'test_amino_acids_thr_l_aminoacid': (3.396568775177002, 89.985208511352539),
-        'test_amino_acids_tyr_l_aminoacid': (29.602286100387573, 186.15091824531555),
-        'test_amino_acids_val_l_aminoacid': (4.1488461494445801, 101.82079887390137),
-        'test_dynamics_0001': (0.0, 4.0157961845397949),
-        'test_dynamics_0002': (0.26390290260314941, 8.5535628795623779),
-        'test_floppy_organics_C2H6': (0.12605190277099609, 5.1095349788665771),
-        'test_floppy_organics_C3H8': (0.4305880069732666, 17.07902717590332),
-        'test_floppy_organics_C4H10a': (0.38778901100158691, 15.836851119995117),
-        'test_floppy_organics_C4H10b': (2.2738659381866455, 63.008611679077148),
-        'test_floppy_organics_C4H10c': (0.34254908561706543, 13.595400333404541),
-        'test_floppy_organics_C4H8': (0.12869596481323242, 5.2382309436798096),
-        'test_floppy_organics_C5H10': (0.97918081283569336, 40.01852822303772),
-        'test_floppy_organics_C5H12a': (1.5250980854034424, 54.891353845596313),
-        'test_floppy_organics_C5H12b': (0.61285710334777832, 27.048907279968262),
-        'test_floppy_organics_C5H12c': (1.4685628414154053, 51.871577739715576),
-        'test_floppy_organics_C5H12d': (0.94368791580200195, 38.06898045539856),
-        'test_floppy_organics_C5H12e': (0.93286514282226562, 37.125292539596558),
-        'test_floppy_organics_C6H12a': (0.27508306503295898, 9.3654770851135254),
-        'test_floppy_organics_C6H12b': (0.28235697746276855, 10.482476234436035),
-        'test_floppy_organics_C6H14a': (1.0312209129333496, 41.049749135971069),
-        'test_floppy_organics_C6H14b': (0.74984407424926758, 32.057233333587646),
-        'test_floppy_organics_C6H14c': (1.0749549865722656, 44.234846115112305),
-        'test_floppy_organics_C6H14d': (1.3201429843902588, 49.074630975723267),
-        'test_floppy_organics_C6H14e': (1.8596408367156982, 58.598614692687988),
-        'test_floppy_organics_C6H14f': (2.7267630100250244, 65.735374689102173),
-        'test_floppy_organics_C7H14a': (0.74799489974975586, 31.307389259338379),
-        'test_floppy_organics_C7H14b': (1.1731078624725342, 46.5451819896698),
-        'test_floppy_organics_C7H14c': (3.1054120063781738, 83.313839673995972),
-        'test_floppy_organics_CH4': (0.051273822784423828, 4.1558291912078857),
-        'test_heteroatom_organics_ADAM_AlH2_Cs': (1.8476200103759766,
-                                                  56.73897385597229),
-        'test_heteroatom_organics_ADAM_BH2': (0.68889999389648438,
-                                              27.737807273864746),
-        'test_heteroatom_organics_ADAM_Cl_c3v': (0.32364201545715332,
-                                                 12.577920198440552),
-        'test_heteroatom_organics_ADAM_F_c3v': (0.26750016212463379,
-                                                8.8210630416870117),
-        'test_heteroatom_organics_ADAM_NH2_Cs': (0.9703669548034668,
-                                                 39.039347410202026),
-        'test_heteroatom_organics_ADAM_OH_Cs': (0.77491903305053711,
-                                                32.832152366638184),
-        'test_heteroatom_organics_ADAM_PH2_Cs': (1.4946780204772949,
-                                                 53.366255760192871),
-        'test_heteroatom_organics_ADAM_SH_Cs': (0.43122982978820801,
-                                                17.510257005691528),
-        'test_heteroatom_organics_ADAM_SiH3_C3v': (2.9105839729309082,
-                                                   77.212392568588257),
-        'test_heteroatom_organics_ADAMframe_AlH_Cs': (0.52909708023071289,
-                                                      21.836250066757202),
-        'test_heteroatom_organics_ADAMframe_BH_Cs': (0.71109294891357422,
-                                                     29.834685325622559),
-        'test_heteroatom_organics_ADAMframe_NH_Cs': (0.28492307662963867,
-                                                     10.767399311065674),
-        'test_heteroatom_organics_ADAMframe_O_Cs': (0.29105901718139648,
-                                                    11.34357738494873),
-        'test_heteroatom_organics_ADAMframe_PH_Cs': (0.30997586250305176,
-                                                     12.254278182983398),
-        'test_heteroatom_organics_ADAMframe_S_Cs': (0.26933097839355469,
-                                                    9.0903940200805664),
-        'test_heteroatom_organics_ADAMframe_SiH2_c2v': (0.40139603614807129,
-                                                        16.238247156143188),
-        'test_heteroatom_organics_Al_ADAM_C3v': (0.59396982192993164,
-                                                 25.224642992019653),
-        'test_heteroatom_organics_B_ADAM_C3v': (0.37047100067138672,
-                                                14.696600198745728),
-        'test_heteroatom_organics_C3H6AlH': (0.18274307250976562, 6.508547306060791),
-        'test_heteroatom_organics_C3H6BH': (0.14454102516174316, 5.6550850868225098),
-        'test_heteroatom_organics_C3H6NH': (0.13019394874572754, 5.3684248924255371),
-        'test_heteroatom_organics_C3H6O': (0.087415933609008789, 4.7723052501678467),
-        'test_heteroatom_organics_C3H6PH': (0.16218805313110352, 5.9764571189880371),
-        'test_heteroatom_organics_C3H6S': (0.085256099700927734, 4.6848893165588379),
-        'test_heteroatom_organics_C3H6SiH2': (0.21521091461181641,
-                                              7.3477191925048828),
-        'test_heteroatom_organics_C4H8AlH': (0.41019201278686523, 16.648439168930054),
-        'test_heteroatom_organics_C4H8BH': (0.54033017158508301, 22.376580238342285),
-        'test_heteroatom_organics_C4H8NH': (1.3283839225769043, 50.403014898300171),
-        'test_heteroatom_organics_C4H8O': (1.0633749961853027, 43.159891128540039),
-        'test_heteroatom_organics_C4H8PH': (0.3343350887298584, 12.91225528717041),
-        'test_heteroatom_organics_C4H8S': (0.30015683174133301, 11.643734216690063),
-        'test_heteroatom_organics_C4H8SiH2': (0.45637106895446777,
-                                              17.966628074645996),
-        'test_heteroatom_organics_C5H10AlH': (0.59928607940673828,
-                                              25.823929071426392),
-        'test_heteroatom_organics_C5H10BH': (0.6121211051940918, 26.436050176620483),
-        'test_heteroatom_organics_C5H10NH': (0.36077308654785156, 13.956173419952393),
-        'test_heteroatom_organics_C5H10O': (0.27758312225341797, 9.9202103614807129),
-        'test_heteroatom_organics_C5H10PH': (0.27715015411376953, 9.6426272392272949),
-        'test_heteroatom_organics_C5H10S': (0.21777987480163574, 7.7807650566101074),
-        'test_heteroatom_organics_C5H10SiH2': (0.48028421401977539,
-                                               20.320580005645752),
-        'test_heteroatom_organics_CH3AlH2': (0.062333106994628906,
-                                             4.4461402893066406),
-        'test_heteroatom_organics_CH3AlHCH3': (0.92999601364135742,
-                                               36.192427396774292),
-        'test_heteroatom_organics_CH3BH2': (0.10545992851257324, 4.8777651786804199),
-        'test_heteroatom_organics_CH3BHCH3': (1.209306001663208, 47.754487991333008),
-        'test_heteroatom_organics_CH3NH2': (0.15918397903442383, 5.8142690658569336),
-        'test_heteroatom_organics_CH3NHCH3': (0.38019490242004395, 15.44906210899353),
-        'test_heteroatom_organics_CH3OCH3': (0.10571789741516113, 4.9834830760955811),
-        'test_heteroatom_organics_CH3OH': (0.076545000076293945, 4.5226852893829346),
-        'test_heteroatom_organics_CH3PH2': (0.3005681037902832, 11.944302320480347),
-        'test_heteroatom_organics_CH3PHCH3': (0.25300908088684082,
-                                              8.0337741374969482),
-        'test_heteroatom_organics_CH3SCH3': (0.58141899108886719, 24.630673170089722),
-        'test_heteroatom_organics_CH3SH': (0.17423295974731445, 6.1506900787353516),
-        'test_heteroatom_organics_CH3SiH2CH3': (0.46363091468811035,
-                                                18.430258989334106),
-        'test_heteroatom_organics_CH3SiH3': (0.4827120304107666, 20.803292036056519),
-        'test_heteroatom_organics_C_CH3_3_AlH2': (0.79044699668884277,
-                                                  34.401838302612305),
-        'test_heteroatom_organics_C_CH3_3_BH2': (0.68949413299560547,
-                                                 28.427301406860352),
-        'test_heteroatom_organics_C_CH3_3_NH2': (0.86059308052062988,
-                                                 35.262431383132935),
-        'test_heteroatom_organics_C_CH3_3_OH': (0.47454285621643066,
-                                                19.840295791625977),
-        'test_heteroatom_organics_C_CH3_3_PH2': (0.77923893928527832,
-                                                 33.611391305923462),
-        'test_heteroatom_organics_C_CH3_3_SH': (0.72470903396606445,
-                                                30.559394359588623),
-        'test_heteroatom_organics_C_CH3_3_SiH3': (0.46388006210327148,
-                                                  18.894139051437378),
-        'test_heteroatom_organics_N_ADAM_C3v': (0.28511905670166016,
-                                                11.052518367767334),
-        'test_heteroatom_organics_P_ADAM_C3v': (0.36995577812194824,
-                                                14.326129198074341),
-        'test_heteroatom_organics_SiH_ADAM_C3v': (0.47161388397216797,
-                                                  19.365752935409546),
-        'test_minimize_0001': (0.69629096984863281, 29.123592376708984),
-        'test_minimize_0002': (0.0, 4.0157961845397949),
-        'test_minimize_0003': (0.0, 4.0157961845397949),
-        'test_minimize_0004': (0.0, 4.0157961845397949),
-        'test_minimize_0005': (0.55771994590759277, 23.490433216094971),
-        'test_minimize_0006': (0.0, 4.0157961845397949),
-        'test_minimize_0007': (0.0, 4.0157961845397949),
-        'test_minimize_0008': (2.9026038646697998, 74.301808595657349),
-        'test_minimize_0009': (0.21526598930358887, 7.5629851818084717),
-        'test_minimize_0010': (0.05353093147277832, 4.2093601226806641),
-        'test_minimize_0011': (0.55882096290588379, 24.049254179000854),
-        'test_minimize_0012': (0.34059596061706543, 13.252851247787476),
-        'test_minimize_0013': (0.050394058227539062, 4.1045553684234619),
-        'test_minimize_h2': (0.05764007568359375, 4.3218722343444824),
-        'test_pyrexDynamics': (0.21431517601013184, 7.1325082778930664),
-        'test_pyrexMinH2': (0.03836512565612793, 4.0541613101959229),
-        'test_pyrexMinimize0001': (0.5038609504699707, 21.307152986526489),
-        'test_pyrexUnittests': (4.0157961845397949, 4.0157961845397949),
-        'test_rigid_organics_C10H12': (0.21392488479614258, 6.9181931018829346),
-        'test_rigid_organics_C10H14': (0.37226700782775879, 15.068867206573486),
-        'test_rigid_organics_C14H20': (0.55613303184509277, 22.932713270187378),
-        'test_rigid_organics_C14H24': (2.996035099029541, 80.208427667617798),
-        'test_rigid_organics_C2H6': (0.19572091102600098, 6.704268217086792),
-        'test_rigid_organics_C3H6': (0.076947927474975586, 4.5996332168579102),
-        'test_rigid_organics_C3H8': (0.25588583946228027, 8.2896599769592285),
-        'test_rigid_organics_C4H8': (0.17511415481567383, 6.3258042335510254),
-        'test_rigid_organics_C6H10': (0.27990889549255371, 10.200119256973267),
-        'test_rigid_organics_C8H14': (1.1372280120849609, 45.372074127197266),
-        'test_rigid_organics_C8H8': (0.14211916923522949, 5.5105440616607666),
-        'test_rigid_organics_CH4': (0.061934947967529297, 4.3838071823120117)}
+        'test_amino_acids_ala_l_aminoacid': (1.9574508666992188, 65.829175472259521),
+        'test_amino_acids_arg_l_aminoacid': (2.845736026763916, 84.467382431030273),
+        'test_amino_acids_asn_l_aminoacid': (3.9342498779296875, 98.459981203079224),
+        'test_amino_acids_asp_l_aminoacid': (4.5649271011352539, 111.43301033973694),
+        'test_amino_acids_cys_l_aminoacid': (2.6238188743591309, 70.673336505889893),
+        'test_amino_acids_gln_l_aminoacid': (6.6940081119537354, 128.93099141120911),
+        'test_amino_acids_glu_l_aminoacid': (9.4835491180419922, 154.51688146591187),
+        'test_amino_acids_gly_l_aminoacid': (1.0299968719482422, 48.772754430770874),
+        'test_amino_acids_his_l_aminoacid': (5.2524340152740479, 116.68544435501099),
+        'test_amino_acids_ile_l_aminoacid': (2.6943509578704834, 76.034211397171021),
+        'test_amino_acids_leu_l_aminoacid': (8.3265669345855713, 145.03333234786987),
+        'test_amino_acids_lys_l_aminoacid': (7.7757740020751953, 136.7067654132843),
+        'test_amino_acids_met_l_aminoacid': (5.5515389442443848, 122.23698329925537),
+        'test_amino_acids_phe_l_aminoacid': (0.055304050445556641,
+                                             3.0889453887939453),
+        'test_amino_acids_pro_l_aminoacid': (3.6579089164733887, 94.525731325149536),
+        'test_amino_acids_ser_l_aminoacid': (4.3427910804748535, 106.86808323860168),
+        'test_amino_acids_thr_l_aminoacid': (3.3646390438079834, 90.867822408676147),
+        'test_amino_acids_tyr_l_aminoacid': (23.940731048583984, 178.45761251449585),
+        'test_amino_acids_val_l_aminoacid': (4.0653109550476074, 102.52529215812683),
+        'test_dynamics_0001': (0.0, 2.8426270484924316),
+        'test_dynamics_0002': (0.27630090713500977, 13.105825185775757),
+        'test_floppy_organics_C2H6': (0.12293386459350586, 7.9696669578552246),
+        'test_floppy_organics_C3H8': (0.43416190147399902, 22.770768642425537),
+        'test_floppy_organics_C4H10a': (0.39482307434082031, 19.865383625030518),
+        'test_floppy_organics_C4H10b': (2.2203421592712402, 68.049517631530762),
+        'test_floppy_organics_C4H10c': (0.34117007255554199, 18.01392126083374),
+        'test_floppy_organics_C4H8': (0.13282299041748047, 8.1024899482727051),
+        'test_floppy_organics_C5H10': (0.9909508228302002, 45.731656551361084),
+        'test_floppy_organics_C5H12a': (1.491508960723877, 60.223838567733765),
+        'test_floppy_organics_C5H12b': (0.58927702903747559, 30.990051507949829),
+        'test_floppy_organics_C5H12c': (1.417910099029541, 57.259235620498657),
+        'test_floppy_organics_C5H12d': (0.88733601570129395, 41.024554491043091),
+        'test_floppy_organics_C5H12e': (0.94618821144104004, 44.740705728530884),
+        'test_floppy_organics_C6H12a': (0.27666187286376953, 13.382487058639526),
+        'test_floppy_organics_C6H12b': (0.28373289108276367, 13.947802782058716),
+        'test_floppy_organics_C6H14a': (1.0165359973907471, 47.742757558822632),
+        'test_floppy_organics_C6H14b': (0.73052382469177246, 37.734435558319092),
+        'test_floppy_organics_C6H14c': (1.0690550804138184, 49.841809511184692),
+        'test_floppy_organics_C6H14d': (1.31803297996521, 55.841325521469116),
+        'test_floppy_organics_C6H14e': (1.8434181213378906, 63.871724605560303),
+        'test_floppy_organics_C6H14f': (2.6665239334106445, 73.339860439300537),
+        'test_floppy_organics_C7H14a': (0.71399593353271484, 37.003911733627319),
+        'test_floppy_organics_C7H14b': (1.1561110019683838, 52.094208478927612),
+        'test_floppy_organics_C7H14c': (3.0358009338378906, 87.503183364868164),
+        'test_floppy_organics_CH4': (0.050858020782470703, 3.0336413383483887),
+        'test_heteroatom_organics_ADAM_AlH2_Cs': (1.8044679164886475,
+                                                  62.028306484222412),
+        'test_heteroatom_organics_ADAM_BH2': (0.63968896865844727, 32.85053539276123),
+        'test_heteroatom_organics_ADAM_Cl_c3v': (0.39522695541381836,
+                                                 20.260610580444336),
+        'test_heteroatom_organics_ADAM_F_c3v': (0.27051901817321777,
+                                                12.829524278640747),
+        'test_heteroatom_organics_ADAM_NH2_Cs': (0.93056797981262207,
+                                                 42.850147485733032),
+        'test_heteroatom_organics_ADAM_OH_Cs': (0.88188600540161133,
+                                                40.137218475341797),
+        'test_heteroatom_organics_ADAM_PH2_Cs': (1.4730939865112305,
+                                                 58.732329607009888),
+        'test_heteroatom_organics_ADAM_SH_Cs': (0.43400216102600098,
+                                                22.336606740951538),
+        'test_heteroatom_organics_ADAM_SiH3_C3v': (2.8224000930786133,
+                                                   81.621646404266357),
+        'test_heteroatom_organics_ADAMframe_AlH_Cs': (0.49486494064331055,
+                                                      26.526994705200195),
+        'test_heteroatom_organics_ADAMframe_BH_Cs': (0.69986796379089355,
+                                                     35.580101728439331),
+        'test_heteroatom_organics_ADAMframe_NH_Cs': (0.28516888618469238,
+                                                     14.517940521240234),
+        'test_heteroatom_organics_ADAMframe_O_Cs': (0.2931821346282959,
+                                                    15.103321552276611),
+        'test_heteroatom_organics_ADAMframe_PH_Cs': (0.31265497207641602,
+                                                     16.342389345169067),
+        'test_heteroatom_organics_ADAMframe_S_Cs': (0.23904585838317871,
+                                                    11.518996238708496),
+        'test_heteroatom_organics_ADAMframe_SiH2_c2v': (0.39939999580383301,
+                                                        20.660010576248169),
+        'test_heteroatom_organics_Al_ADAM_C3v': (0.5531761646270752,
+                                                 28.693865776062012),
+        'test_heteroatom_organics_B_ADAM_C3v': (0.34799599647521973,
+                                                18.36191725730896),
+        'test_heteroatom_organics_C3H6AlH': (0.1853950023651123, 9.3459186553955078),
+        'test_heteroatom_organics_C3H6BH': (0.14544486999511719, 8.3908967971801758),
+        'test_heteroatom_organics_C3H6NH': (0.11328792572021484, 7.4958279132843018),
+        'test_heteroatom_organics_C3H6O': (0.088491916656494141, 6.8671247959136963),
+        'test_heteroatom_organics_C3H6PH': (0.16201400756835938, 9.1605236530303955),
+        'test_heteroatom_organics_C3H6S': (0.08668208122253418, 6.6909139156341553),
+        'test_heteroatom_organics_C3H6SiH2': (0.21787381172180176, 10.38456130027771),
+        'test_heteroatom_organics_C4H8AlH': (0.41529703140258789, 21.483160495758057),
+        'test_heteroatom_organics_C4H8BH': (0.54457187652587891, 28.140689611434937),
+        'test_heteroatom_organics_C4H8NH': (1.2428290843963623, 54.523292541503906),
+        'test_heteroatom_organics_C4H8O': (0.99456501007080078, 46.726221561431885),
+        'test_heteroatom_organics_C4H8PH': (0.3402099609375, 17.332291126251221),
+        'test_heteroatom_organics_C4H8S': (0.30320405960083008, 15.406525611877441),
+        'test_heteroatom_organics_C4H8SiH2': (0.45977091789245605,
+                                              24.139268398284912),
+        'test_heteroatom_organics_C5H10AlH': (0.61157083511352539,
+                                              32.210846424102783),
+        'test_heteroatom_organics_C5H10BH': (0.60922408103942871, 31.599275588989258),
+        'test_heteroatom_organics_C5H10NH': (0.34046006202697754, 17.672751188278198),
+        'test_heteroatom_organics_C5H10O': (0.2671349048614502, 12.559005260467529),
+        'test_heteroatom_organics_C5H10PH': (0.29219889640808105, 14.810139417648315),
+        'test_heteroatom_organics_C5H10S': (0.21963405609130859, 10.82377028465271),
+        'test_heteroatom_organics_C5H10SiH2': (0.48593807220458984,
+                                               26.032129764556885),
+        'test_heteroatom_organics_CH3AlH2': (0.063932895660400391,
+                                             5.3263344764709473),
+        'test_heteroatom_organics_CH3AlHCH3': (0.94437003135681152,
+                                               43.794517517089844),
+        'test_heteroatom_organics_CH3BH2': (0.093707084655761719, 6.960831880569458),
+        'test_heteroatom_organics_CH3BHCH3': (1.1862549781799316, 53.280463457107544),
+        'test_heteroatom_organics_CH3NH2': (0.16070890426635742, 8.9985096454620361),
+        'test_heteroatom_organics_CH3NHCH3': (0.37237715721130371,
+                                              19.095346450805664),
+        'test_heteroatom_organics_CH3OCH3': (0.10467100143432617, 7.166569709777832),
+        'test_heteroatom_organics_CH3OH': (0.076311826705932617, 6.3633959293365479),
+        'test_heteroatom_organics_CH3PH2': (0.31078290939331055, 15.717308521270752),
+        'test_heteroatom_organics_CH3PHCH3': (0.25824618339538574,
+                                              12.029121398925781),
+        'test_heteroatom_organics_CH3SCH3': (0.58856391906738281, 30.400774478912354),
+        'test_heteroatom_organics_CH3SH': (0.19000887870788574, 9.5359275341033936),
+        'test_heteroatom_organics_CH3SiH2CH3': (0.46847820281982422,
+                                                24.607746601104736),
+        'test_heteroatom_organics_CH3SiH3': (0.44934988021850586, 23.220118522644043),
+        'test_heteroatom_organics_C_CH3_3_AlH2': (0.73638701438903809,
+                                                  38.47082257270813),
+        'test_heteroatom_organics_C_CH3_3_BH2': (0.67547917366027832,
+                                                 34.183696746826172),
+        'test_heteroatom_organics_C_CH3_3_NH2': (0.70981407165527344,
+                                                 36.289915800094604),
+        'test_heteroatom_organics_C_CH3_3_OH': (0.46898913383483887,
+                                                25.076735734939575),
+        'test_heteroatom_organics_C_CH3_3_PH2': (0.78450989723205566,
+                                                 39.255332469940186),
+        'test_heteroatom_organics_C_CH3_3_SH': (0.55492591857910156,
+                                                29.248791694641113),
+        'test_heteroatom_organics_C_CH3_3_SiH3': (0.4078528881072998,
+                                                  21.067863464355469),
+        'test_heteroatom_organics_N_ADAM_C3v': (0.28158283233642578,
+                                                13.664069890975952),
+        'test_heteroatom_organics_P_ADAM_C3v': (0.3752140998840332,
+                                                19.470560550689697),
+        'test_heteroatom_organics_SiH_ADAM_C3v': (0.45937895774841309,
+                                                  23.679497480392456),
+        'test_minimize_0001': (0.65768218040466309, 33.508217573165894),
+        'test_minimize_0002': (0.0, 2.8426270484924316),
+        'test_minimize_0003': (0.0, 2.8426270484924316),
+        'test_minimize_0004': (0.0, 2.8426270484924316),
+        'test_minimize_0005': (0.52554893493652344, 27.052543640136719),
+        'test_minimize_0006': (0.0, 2.8426270484924316),
+        'test_minimize_0007': (0.0, 2.8426270484924316),
+        'test_minimize_0008': (0.89502501487731934, 41.91957950592041),
+        'test_minimize_0009': (0.2143549919128418, 9.9494695663452148),
+        'test_minimize_0010': (0.055970907211303711, 3.144916296005249),
+        'test_minimize_0011': (0.54357409477233887, 27.596117734909058),
+        'test_minimize_0012': (0.33484196662902832, 16.992081165313721),
+        'test_minimize_0013': (0.050697088241577148, 2.982783317565918),
+        'test_minimize_h2': (0.049787998199462891, 2.9320862293243408),
+        'test_pyrex_dynamics': (0.21957492828369141, 10.604136228561401),
+        'test_pyrex_minH2': (0.039671182632446289, 2.8822982311248779),
+        'test_pyrex_minimize0001': (0.46945595741271973, 25.546191692352295),
+        'test_pyrex_unittests': (2.8426270484924316, 2.8426270484924316),
+        'test_rigid_organics_C10H12': (0.21721792221069336, 10.166687488555908),
+        'test_rigid_organics_C10H14': (0.36105203628540039, 18.72296929359436),
+        'test_rigid_organics_C14H20': (0.56341886520385742, 29.812210559844971),
+        'test_rigid_organics_C14H24': (2.7650349140167236, 78.799246311187744),
+        'test_rigid_organics_C2H6': (0.19918704032897949, 9.735114574432373),
+        'test_rigid_organics_C3H6': (0.078390836715698242, 6.4417867660522461),
+        'test_rigid_organics_C3H8': (0.23208117485046387, 11.279950380325317),
+        'test_rigid_organics_C4H8': (0.14832496643066406, 8.6855347156524658),
+        'test_rigid_organics_C6H10': (0.26274895668029785, 12.291870355606079),
+        'test_rigid_organics_C8H14': (1.0962879657745361, 50.938097476959229),
+        'test_rigid_organics_C8H8': (0.11592411994934082, 7.7258720397949219),
+        'test_rigid_organics_CH4': (0.060283184051513672, 4.2758197784423828),
+        'test_singlebond_stretch_Cl_AlH2': (0.061307907104492188, 4.8833048343658447),
+        'test_singlebond_stretch_Cl_BH2': (0.063423871994018555, 5.135122537612915),
+        'test_singlebond_stretch_Cl_CH3': (0.059573173522949219, 3.7362344264984131),
+        'test_singlebond_stretch_Cl_Cl': (0.059303045272827148, 3.5576772689819336),
+        'test_singlebond_stretch_Cl_F': (0.058634042739868164, 3.2620124816894531),
+        'test_singlebond_stretch_Cl_NH2': (0.060225009918212891, 4.2155365943908691),
+        'test_singlebond_stretch_Cl_OH': (0.059254884719848633, 3.4391021728515625),
+        'test_singlebond_stretch_Cl_PH2': (0.060878992080688477, 4.6998758316040039),
+        'test_singlebond_stretch_Cl_SH': (0.059272050857543945, 3.4983742237091064),
+        'test_singlebond_stretch_Cl_SiH3': (0.059774160385131836, 3.9154026508331299),
+        'test_singlebond_stretch_F_AlH2': (0.064551115036010742, 5.455256462097168),
+        'test_singlebond_stretch_F_BH2': (0.062253952026367188, 4.9455587863922119),
+        'test_singlebond_stretch_F_CH3': (0.05990910530090332, 4.0352096557617188),
+        'test_singlebond_stretch_F_F': (0.059068918228149414, 3.3798472881317139),
+        'test_singlebond_stretch_F_NH2': (0.060482025146484375, 4.3967528343200684),
+        'test_singlebond_stretch_F_OH': (0.059668064117431641, 3.7959024906158447),
+        'test_singlebond_stretch_F_PH2': (0.06052398681640625, 4.5177936553955078),
+        'test_singlebond_stretch_F_SH': (0.059530019760131836, 3.6766612529754639),
+        'test_singlebond_stretch_F_SiH3': (0.060665130615234375, 4.6389968395233154),
+        'test_singlebond_stretch_H2Al_AlH2': (0.074005126953125, 6.2124252319335938),
+        'test_singlebond_stretch_H2Al_CH3': (0.071208953857421875,
+                                             6.0660891532897949),
+        'test_singlebond_stretch_H2Al_SiH3': (0.072330951690673828,
+                                              6.1384201049804688),
+        'test_singlebond_stretch_H2B_AlH2': (0.070688009262084961, 5.994880199432373),
+        'test_singlebond_stretch_H2B_BH2': (0.080048084259033203, 6.5218348503112793),
+        'test_singlebond_stretch_H2B_CH3': (0.1141200065612793, 7.6099479198455811),
+        'test_singlebond_stretch_H2B_NH2': (0.69653701782226562, 34.880233764648438),
+        'test_singlebond_stretch_H2B_PH2': (0.065023899078369141, 5.5849902629852295),
+        'test_singlebond_stretch_H2B_SiH3': (0.087718963623046875,
+                                             6.7786328792572021),
+        'test_singlebond_stretch_H2N_AlH2': (0.12086105346679688, 7.8467330932617188),
+        'test_singlebond_stretch_H2N_CH3': (0.22409892082214355, 11.047869205474854),
+        'test_singlebond_stretch_H2N_NH2': (0.14631295204162598, 8.5372097492218018),
+        'test_singlebond_stretch_H2N_PH2': (0.15226602554321289, 8.8378007411956787),
+        'test_singlebond_stretch_H2N_SiH3': (0.069988012313842773,
+                                             5.9241921901702881),
+        'test_singlebond_stretch_H2P_AlH2': (0.066989898681640625,
+                                             5.7189431190490723),
+        'test_singlebond_stretch_H2P_CH3': (0.11021709442138672, 7.3825399875640869),
+        'test_singlebond_stretch_H2P_PH2': (0.064709901809692383, 5.5199663639068604),
+        'test_singlebond_stretch_H2P_SiH3': (0.064370870590209961,
+                                             5.3907053470611572),
+        'test_singlebond_stretch_H3C_CH3': (0.074658870697021484, 6.2870841026306152),
+        'test_singlebond_stretch_H3C_SiH3': (0.082396984100341797,
+                                             6.6042318344116211),
+        'test_singlebond_stretch_H3Si_SiH3': (0.066962957382202148,
+                                              5.6519532203674316),
+        'test_singlebond_stretch_HO_AlH2': (0.063498973846435547, 5.1986215114593506),
+        'test_singlebond_stretch_HO_BH2': (0.314849853515625, 16.657239198684692),
+        'test_singlebond_stretch_HO_CH3': (0.10575318336486816, 7.2723228931427002),
+        'test_singlebond_stretch_HO_NH2': (0.10106682777404785, 7.0618987083435059),
+        'test_singlebond_stretch_HO_OH': (0.14296197891235352, 8.2454519271850586),
+        'test_singlebond_stretch_HO_PH2': (0.062848806381225586, 5.0084075927734375),
+        'test_singlebond_stretch_HO_SiH3': (0.068184137344360352, 5.8542041778564453),
+        'test_singlebond_stretch_HS_AlH2': (0.41944408416748047, 21.902604579925537),
+        'test_singlebond_stretch_HS_BH2': (0.31242585182189941, 16.029734373092651),
+        'test_singlebond_stretch_HS_CH3': (0.067076921463012695, 5.786020040512085),
+        'test_singlebond_stretch_HS_NH2': (0.28496885299682617, 14.232771635055542),
+        'test_singlebond_stretch_HS_OH': (0.06089019775390625, 4.7607660293579102),
+        'test_singlebond_stretch_HS_PH2': (0.061230897903442383, 4.8219969272613525),
+        'test_singlebond_stretch_HS_SH': (0.060516834259033203, 4.4572696685791016),
+        'test_singlebond_stretch_HS_SiH3': (0.25187897682189941, 11.770875215530396),
+        'test_singlebond_stretch_H_AlH2': (0.059977054595947266, 4.095186710357666),
+        'test_singlebond_stretch_H_BH2': (0.060451030731201172, 4.336270809173584),
+        'test_singlebond_stretch_H_CH3': (0.060538053512573242, 4.5783317089080811),
+        'test_singlebond_stretch_H_Cl': (0.058765888214111328, 3.3207783699035645),
+        'test_singlebond_stretch_H_F': (0.058462142944335938, 3.203378438949585),
+        'test_singlebond_stretch_H_H': (0.059453964233398438, 3.617131233215332),
+        'test_singlebond_stretch_H_NH2': (0.05972599983215332, 3.855628490447998),
+        'test_singlebond_stretch_H_OH': (0.059897899627685547, 3.9753005504608154),
+        'test_singlebond_stretch_H_PH2': (0.063291072845458984, 5.0716986656188965),
+        'test_singlebond_stretch_H_SH': (0.063780069351196289, 5.2624015808105469),
+        'test_singlebond_stretch_H_SiH3': (0.060124874114990234, 4.1553115844726562)
+        }
     
     def test_minimize_h2(self):
         StructureTest(dir="minimize", test="h2")
@@ -1065,13 +1139,145 @@ class Tests(unittest.TestCase):
     def test_rigid_organics_C8H14(self): StructureTest(dir="rigid_organics", test="C8H14")
     def test_rigid_organics_C8H8(self): StructureTest(dir="rigid_organics", test="C8H8")
     def test_rigid_organics_CH4(self): StructureTest(dir="rigid_organics", test="CH4")
+    def test_singlebond_stretch_Cl_AlH2(self): StructureTest(dir="singlebond_stretch", test="Cl_AlH2")
+    def test_singlebond_stretch_Cl_BH2(self): StructureTest(dir="singlebond_stretch", test="Cl_BH2")
+    def test_singlebond_stretch_Cl_CH3(self): StructureTest(dir="singlebond_stretch", test="Cl_CH3")
+    def test_singlebond_stretch_Cl_Cl(self): StructureTest(dir="singlebond_stretch", test="Cl_Cl")
+    def test_singlebond_stretch_Cl_F(self): StructureTest(dir="singlebond_stretch", test="Cl_F")
+    def test_singlebond_stretch_Cl_NH2(self): StructureTest(dir="singlebond_stretch", test="Cl_NH2")
+    def test_singlebond_stretch_Cl_OH(self): StructureTest(dir="singlebond_stretch", test="Cl_OH")
+    def test_singlebond_stretch_Cl_PH2(self): StructureTest(dir="singlebond_stretch", test="Cl_PH2")
+    def test_singlebond_stretch_Cl_SH(self): StructureTest(dir="singlebond_stretch", test="Cl_SH")
+    def test_singlebond_stretch_Cl_SiH3(self): StructureTest(dir="singlebond_stretch", test="Cl_SiH3")
+    def test_singlebond_stretch_F_AlH2(self): StructureTest(dir="singlebond_stretch", test="F_AlH2")
+    def test_singlebond_stretch_F_BH2(self): StructureTest(dir="singlebond_stretch", test="F_BH2")
+    def test_singlebond_stretch_F_CH3(self): StructureTest(dir="singlebond_stretch", test="F_CH3")
+    def test_singlebond_stretch_F_F(self): StructureTest(dir="singlebond_stretch", test="F_F")
+    def test_singlebond_stretch_F_NH2(self): StructureTest(dir="singlebond_stretch", test="F_NH2")
+    def test_singlebond_stretch_F_OH(self): StructureTest(dir="singlebond_stretch", test="F_OH")
+    def test_singlebond_stretch_F_PH2(self): StructureTest(dir="singlebond_stretch", test="F_PH2")
+    def test_singlebond_stretch_F_SH(self): StructureTest(dir="singlebond_stretch", test="F_SH")
+    def test_singlebond_stretch_F_SiH3(self): StructureTest(dir="singlebond_stretch", test="F_SiH3")
+    def test_singlebond_stretch_H2Al_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2Al_AlH2")
+    def test_singlebond_stretch_H2Al_CH3(self): StructureTest(dir="singlebond_stretch", test="H2Al_CH3")
+    def test_singlebond_stretch_H2Al_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2Al_SiH3")
+    def test_singlebond_stretch_H2B_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2B_AlH2")
+    def test_singlebond_stretch_H2B_BH2(self): StructureTest(dir="singlebond_stretch", test="H2B_BH2")
+    def test_singlebond_stretch_H2B_CH3(self): StructureTest(dir="singlebond_stretch", test="H2B_CH3")
+    def test_singlebond_stretch_H2B_NH2(self): StructureTest(dir="singlebond_stretch", test="H2B_NH2")
+    def test_singlebond_stretch_H2B_PH2(self): StructureTest(dir="singlebond_stretch", test="H2B_PH2")
+    def test_singlebond_stretch_H2B_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2B_SiH3")
+    def test_singlebond_stretch_H2N_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2N_AlH2")
+    def test_singlebond_stretch_H2N_CH3(self): StructureTest(dir="singlebond_stretch", test="H2N_CH3")
+    def test_singlebond_stretch_H2N_NH2(self): StructureTest(dir="singlebond_stretch", test="H2N_NH2")
+    def test_singlebond_stretch_H2N_PH2(self): StructureTest(dir="singlebond_stretch", test="H2N_PH2")
+    def test_singlebond_stretch_H2N_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2N_SiH3")
+    def test_singlebond_stretch_H2P_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2P_AlH2")
+    def test_singlebond_stretch_H2P_CH3(self): StructureTest(dir="singlebond_stretch", test="H2P_CH3")
+    def test_singlebond_stretch_H2P_PH2(self): StructureTest(dir="singlebond_stretch", test="H2P_PH2")
+    def test_singlebond_stretch_H2P_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2P_SiH3")
+    def test_singlebond_stretch_H3C_CH3(self): StructureTest(dir="singlebond_stretch", test="H3C_CH3")
+    def test_singlebond_stretch_H3C_SiH3(self): StructureTest(dir="singlebond_stretch", test="H3C_SiH3")
+    def test_singlebond_stretch_H3Si_SiH3(self): StructureTest(dir="singlebond_stretch", test="H3Si_SiH3")
+    def test_singlebond_stretch_H_AlH2(self): StructureTest(dir="singlebond_stretch", test="H_AlH2")
+    def test_singlebond_stretch_H_BH2(self): StructureTest(dir="singlebond_stretch", test="H_BH2")
+    def test_singlebond_stretch_H_CH3(self): StructureTest(dir="singlebond_stretch", test="H_CH3")
+    def test_singlebond_stretch_H_Cl(self): StructureTest(dir="singlebond_stretch", test="H_Cl")
+    def test_singlebond_stretch_H_F(self): StructureTest(dir="singlebond_stretch", test="H_F")
+    def test_singlebond_stretch_H_H(self): StructureTest(dir="singlebond_stretch", test="H_H")
+    def test_singlebond_stretch_H_NH2(self): StructureTest(dir="singlebond_stretch", test="H_NH2")
+    def test_singlebond_stretch_HO_AlH2(self): StructureTest(dir="singlebond_stretch", test="HO_AlH2")
+    def test_singlebond_stretch_HO_BH2(self): StructureTest(dir="singlebond_stretch", test="HO_BH2")
+    def test_singlebond_stretch_HO_CH3(self): StructureTest(dir="singlebond_stretch", test="HO_CH3")
+    def test_singlebond_stretch_H_OH(self): StructureTest(dir="singlebond_stretch", test="H_OH")
+    def test_singlebond_stretch_HO_NH2(self): StructureTest(dir="singlebond_stretch", test="HO_NH2")
+    def test_singlebond_stretch_HO_OH(self): StructureTest(dir="singlebond_stretch", test="HO_OH")
+    def test_singlebond_stretch_HO_PH2(self): StructureTest(dir="singlebond_stretch", test="HO_PH2")
+    def test_singlebond_stretch_HO_SiH3(self): StructureTest(dir="singlebond_stretch", test="HO_SiH3")
+    def test_singlebond_stretch_H_PH2(self): StructureTest(dir="singlebond_stretch", test="H_PH2")
+    def test_singlebond_stretch_HS_AlH2(self): StructureTest(dir="singlebond_stretch", test="HS_AlH2")
+    def test_singlebond_stretch_HS_BH2(self): StructureTest(dir="singlebond_stretch", test="HS_BH2")
+    def test_singlebond_stretch_HS_CH3(self): StructureTest(dir="singlebond_stretch", test="HS_CH3")
+    def test_singlebond_stretch_H_SH(self): StructureTest(dir="singlebond_stretch", test="H_SH")
+    def test_singlebond_stretch_H_SiH3(self): StructureTest(dir="singlebond_stretch", test="H_SiH3")
+    def test_singlebond_stretch_HS_NH2(self): StructureTest(dir="singlebond_stretch", test="HS_NH2")
+    def test_singlebond_stretch_HS_OH(self): StructureTest(dir="singlebond_stretch", test="HS_OH")
+    def test_singlebond_stretch_HS_PH2(self): StructureTest(dir="singlebond_stretch", test="HS_PH2")
+    def test_singlebond_stretch_HS_SH(self): StructureTest(dir="singlebond_stretch", test="HS_SH")
+    def test_singlebond_stretch_HS_SiH3(self): StructureTest(dir="singlebond_stretch", test="HS_SiH3")
+    def test_singlebond_stretch_test_Cl_AlH2(self): StructureTest(dir="singlebond_stretch", test="Cl_AlH2")
+    def test_singlebond_stretch_test_Cl_BH2(self): StructureTest(dir="singlebond_stretch", test="Cl_BH2")
+    def test_singlebond_stretch_test_Cl_CH3(self): StructureTest(dir="singlebond_stretch", test="Cl_CH3")
+    def test_singlebond_stretch_test_Cl_Cl(self): StructureTest(dir="singlebond_stretch", test="Cl_Cl")
+    def test_singlebond_stretch_test_Cl_F(self): StructureTest(dir="singlebond_stretch", test="Cl_F")
+    def test_singlebond_stretch_test_Cl_NH2(self): StructureTest(dir="singlebond_stretch", test="Cl_NH2")
+    def test_singlebond_stretch_test_Cl_OH(self): StructureTest(dir="singlebond_stretch", test="Cl_OH")
+    def test_singlebond_stretch_test_Cl_PH2(self): StructureTest(dir="singlebond_stretch", test="Cl_PH2")
+    def test_singlebond_stretch_test_Cl_SH(self): StructureTest(dir="singlebond_stretch", test="Cl_SH")
+    def test_singlebond_stretch_test_Cl_SiH3(self): StructureTest(dir="singlebond_stretch", test="Cl_SiH3")
+    def test_singlebond_stretch_test_F_AlH2(self): StructureTest(dir="singlebond_stretch", test="F_AlH2")
+    def test_singlebond_stretch_test_F_BH2(self): StructureTest(dir="singlebond_stretch", test="F_BH2")
+    def test_singlebond_stretch_test_F_CH3(self): StructureTest(dir="singlebond_stretch", test="F_CH3")
+    def test_singlebond_stretch_test_F_F(self): StructureTest(dir="singlebond_stretch", test="F_F")
+    def test_singlebond_stretch_test_F_NH2(self): StructureTest(dir="singlebond_stretch", test="F_NH2")
+    def test_singlebond_stretch_test_F_OH(self): StructureTest(dir="singlebond_stretch", test="F_OH")
+    def test_singlebond_stretch_test_F_PH2(self): StructureTest(dir="singlebond_stretch", test="F_PH2")
+    def test_singlebond_stretch_test_F_SH(self): StructureTest(dir="singlebond_stretch", test="F_SH")
+    def test_singlebond_stretch_test_F_SiH3(self): StructureTest(dir="singlebond_stretch", test="F_SiH3")
+    def test_singlebond_stretch_test_H2Al_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2Al_AlH2")
+    def test_singlebond_stretch_test_H2Al_CH3(self): StructureTest(dir="singlebond_stretch", test="H2Al_CH3")
+    def test_singlebond_stretch_test_H2Al_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2Al_SiH3")
+    def test_singlebond_stretch_test_H2B_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2B_AlH2")
+    def test_singlebond_stretch_test_H2B_BH2(self): StructureTest(dir="singlebond_stretch", test="H2B_BH2")
+    def test_singlebond_stretch_test_H2B_CH3(self): StructureTest(dir="singlebond_stretch", test="H2B_CH3")
+    def test_singlebond_stretch_test_H2B_NH2(self): StructureTest(dir="singlebond_stretch", test="H2B_NH2")
+    def test_singlebond_stretch_test_H2B_PH2(self): StructureTest(dir="singlebond_stretch", test="H2B_PH2")
+    def test_singlebond_stretch_test_H2B_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2B_SiH3")
+    def test_singlebond_stretch_test_H2N_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2N_AlH2")
+    def test_singlebond_stretch_test_H2N_CH3(self): StructureTest(dir="singlebond_stretch", test="H2N_CH3")
+    def test_singlebond_stretch_test_H2N_NH2(self): StructureTest(dir="singlebond_stretch", test="H2N_NH2")
+    def test_singlebond_stretch_test_H2N_PH2(self): StructureTest(dir="singlebond_stretch", test="H2N_PH2")
+    def test_singlebond_stretch_test_H2N_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2N_SiH3")
+    def test_singlebond_stretch_test_H2P_AlH2(self): StructureTest(dir="singlebond_stretch", test="H2P_AlH2")
+    def test_singlebond_stretch_test_H2P_CH3(self): StructureTest(dir="singlebond_stretch", test="H2P_CH3")
+    def test_singlebond_stretch_test_H2P_PH2(self): StructureTest(dir="singlebond_stretch", test="H2P_PH2")
+    def test_singlebond_stretch_test_H2P_SiH3(self): StructureTest(dir="singlebond_stretch", test="H2P_SiH3")
+    def test_singlebond_stretch_test_H3C_CH3(self): StructureTest(dir="singlebond_stretch", test="H3C_CH3")
+    def test_singlebond_stretch_test_H3C_SiH3(self): StructureTest(dir="singlebond_stretch", test="H3C_SiH3")
+    def test_singlebond_stretch_test_H3Si_SiH3(self): StructureTest(dir="singlebond_stretch", test="H3Si_SiH3")
+    def test_singlebond_stretch_test_H_AlH2(self): StructureTest(dir="singlebond_stretch", test="H_AlH2")
+    def test_singlebond_stretch_test_H_BH2(self): StructureTest(dir="singlebond_stretch", test="H_BH2")
+    def test_singlebond_stretch_test_H_CH3(self): StructureTest(dir="singlebond_stretch", test="H_CH3")
+    def test_singlebond_stretch_test_H_Cl(self): StructureTest(dir="singlebond_stretch", test="H_Cl")
+    def test_singlebond_stretch_test_H_F(self): StructureTest(dir="singlebond_stretch", test="H_F")
+    def test_singlebond_stretch_test_H_H(self): StructureTest(dir="singlebond_stretch", test="H_H")
+    def test_singlebond_stretch_test_H_NH2(self): StructureTest(dir="singlebond_stretch", test="H_NH2")
+    def test_singlebond_stretch_test_HO_AlH2(self): StructureTest(dir="singlebond_stretch", test="HO_AlH2")
+    def test_singlebond_stretch_test_HO_BH2(self): StructureTest(dir="singlebond_stretch", test="HO_BH2")
+    def test_singlebond_stretch_test_HO_CH3(self): StructureTest(dir="singlebond_stretch", test="HO_CH3")
+    def test_singlebond_stretch_test_H_OH(self): StructureTest(dir="singlebond_stretch", test="H_OH")
+    def test_singlebond_stretch_test_HO_NH2(self): StructureTest(dir="singlebond_stretch", test="HO_NH2")
+    def test_singlebond_stretch_test_HO_OH(self): StructureTest(dir="singlebond_stretch", test="HO_OH")
+    def test_singlebond_stretch_test_HO_PH2(self): StructureTest(dir="singlebond_stretch", test="HO_PH2")
+    def test_singlebond_stretch_test_HO_SiH3(self): StructureTest(dir="singlebond_stretch", test="HO_SiH3")
+    def test_singlebond_stretch_test_H_PH2(self): StructureTest(dir="singlebond_stretch", test="H_PH2")
+    def test_singlebond_stretch_test_HS_AlH2(self): StructureTest(dir="singlebond_stretch", test="HS_AlH2")
+    def test_singlebond_stretch_test_HS_BH2(self): StructureTest(dir="singlebond_stretch", test="HS_BH2")
+    def test_singlebond_stretch_test_HS_CH3(self): StructureTest(dir="singlebond_stretch", test="HS_CH3")
+    def test_singlebond_stretch_test_H_SH(self): StructureTest(dir="singlebond_stretch", test="H_SH")
+    def test_singlebond_stretch_test_H_SiH3(self): StructureTest(dir="singlebond_stretch", test="H_SiH3")
+    def test_singlebond_stretch_test_HS_NH2(self): StructureTest(dir="singlebond_stretch", test="HS_NH2")
+    def test_singlebond_stretch_test_HS_OH(self): StructureTest(dir="singlebond_stretch", test="HS_OH")
+    def test_singlebond_stretch_test_HS_PH2(self): StructureTest(dir="singlebond_stretch", test="HS_PH2")
+    def test_singlebond_stretch_test_HS_SH(self): StructureTest(dir="singlebond_stretch", test="HS_SH")
+    def test_singlebond_stretch_test_HS_SiH3(self): StructureTest(dir="singlebond_stretch", test="HS_SiH3")
 
     ### Pyrex tests
 
-    def test_pyrexMinH2(self): PyrexTest("test_pyrexMinH2", "tests/minimize/test_h2")
-    def test_pyrexMinimize0001(self): PyrexTest("test_pyrexMinimize0001", "tests/minimize/test_0001")
+    def test_pyrex_minH2(self): PyrexTest("test_pyrex_minH2", "tests/minimize/test_h2")
+    def test_pyrex_minimize0001(self): PyrexTest("test_pyrex_minimize0001", "tests/minimize/test_0001")
 
-    def test_pyrexDynamics(self):
+    def test_pyrex_dynamics(self):
         class Foo(PyrexTest):
             def run(self):
                 import sim
@@ -1082,14 +1288,14 @@ class Tests(unittest.TestCase):
                 s.Temperature = 300
                 s.go()
                 assert not sim.isFileAscii("tests/dynamics/test_0002.dpb")
-        Foo("test_pyrexDynamics")
+        Foo("test_pyrex_dynamics")
 
-    def test_pyrexUnittests(self):
+    def test_pyrex_unittests(self):
         class Foo(PyrexTest):
             def run(self):
                 import sim
                 sim.test()
-        Foo("test_pyrexUnittests")
+        Foo("test_pyrex_unittests")
 
 ###########################################
 
@@ -1262,9 +1468,9 @@ if __name__ == "__main__":
             t = testTimes[name]
             lst.append([t, name])
         def sortfunc(x, y):
-            if x[1] == "test_pyrexUnittests":
+            if x[1] == "test_pyrex_unittests":
                 return -1
-            elif y[1] == "test_pyrexUnittests":
+            elif y[1] == "test_pyrex_unittests":
                 return 1
             else: return cmp(x[0], y[0])
         lst.sort(sortfunc)
