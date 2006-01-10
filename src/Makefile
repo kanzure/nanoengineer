@@ -143,6 +143,7 @@ extensions: Makefile
 	$(WARNWIN32)
 	$(HALTWIN32)
 	python setup.py build_ext --inplace
+	cp -f sim.so ../../cad/src/sim.so
 
 pyx: extensions
 
