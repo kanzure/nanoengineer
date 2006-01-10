@@ -93,6 +93,13 @@ void
 set_py_exc_str(const char *filename, const char *funcname,
                const char *format, ...)
 {
+    va_list args;
+    fprintf(stderr, "\n%s(%s) ", filename, funcname);
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    exit(1);
 }
 
 #define LONG_OPT(n)  ((n) + 128)  /* This is used to mark options with no short value.  */
