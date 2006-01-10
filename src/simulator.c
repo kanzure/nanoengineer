@@ -176,6 +176,7 @@ main(int argc, char **argv)
     char buf[1024], *filename, *ofilename, *tfilename, *c;
     char *commandLine;
 	
+    reinit_globals();
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
         perror("signal(SIGTERM)");
         exit(1);

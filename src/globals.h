@@ -21,6 +21,7 @@ extern int PrintFrameNums;
 extern int OutputFormat;
 extern int KeyRecordInterval;
 extern int DirectEvaluate;
+extern float ExcessiveEnergyLevel;
 extern char *IDKey;
 
 extern char OutFileName[1024];
@@ -33,6 +34,9 @@ extern FILE *tracef;
 
 extern int Count;
 
+// have we warned the user about too much energy in a dynamics run?
+extern int ExcessiveEnergyWarning;
+
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 extern double Dt;
 extern double Dx;
@@ -43,9 +47,9 @@ extern const double Pi;
 
 extern double totClipped;  // internal thermostat for numerical stability
 
-extern double Gamma; // for Langevin thermostats
+extern const double Gamma; // for Langevin thermostats
 
-extern double G1;
+extern const double G1;
 
 extern void reinit_globals(void);
 

@@ -24,6 +24,13 @@ struct bondStretch
   
   double inflectionR; // r value in pm where d^2(Lippincott(r)) / dr^2 == 0
 
+  // These are the indices into the interpolation tables where the
+  // potential exceeds ExcessiveEnergyLevel.  If a dynamics run
+  // references table entries outside these bounds, a warning will be
+  // emitted.
+  int maxPhysicalTableIndex;
+  int minPhysicalTableIndex;
+
   // For minimize, the potential function extends as a cubic
   // polynomial beyond the end of the interpolation table:
   // potential = potentialExtensionA
@@ -44,6 +51,8 @@ struct bondStretch
 
 struct vanDerWaalsParameters
 {
+  char *vdwName;
+  
   double rvdW; // in pm (1e-12 m)
   double evdW; // in zJ (1e-21 J)
 
@@ -52,6 +61,11 @@ struct vanDerWaalsParameters
   // there.
   // XXX This changes the depth of the potential well, which may be a problem.
   double vInfinity; // potential at "infinity", the end of the interpolation table
+
+  // Index into the interpolation tables where the potnetial exceeds
+  // ExcessiveEnergyLevel.  If a dynamics run references a table entry
+  // at less than this index, a warning will be emitted.
+  int minPhysicalTableIndex;
 
   struct interpolationTable potentialBuckingham;
   struct interpolationTable gradientBuckingham;

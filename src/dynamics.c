@@ -103,10 +103,10 @@ oneDynamicsFrame(struct part *part,
 	      ff, ff*atom[j].massacc);
 	    */
 	    vmul2c(f,force[j],part->atoms[j]->inverseMass); // inverseMass = Dt*Dt/mass
-	    
-	    if (vlen(f)>15.0) {
-		fprintf(stderr, "High force %.2f in iteration %d\n",vlen(f), Iteration);
-                printAtom(stderr, part, part->atoms[j]);
+
+	    if (!ExcessiveEnergyWarning && vlen(f)>0.15) { // 0.15 is just below H flyaway
+		WARNING3("Excessive force %.6f in iteration %d on atom %d\n", vlen(f), Iteration, j+1);
+                ExcessiveEnergyWarning = 1;
 	    }
 	    
 	    vadd(newPositions[j],f);

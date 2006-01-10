@@ -118,6 +118,14 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     t1 = iTable->t1;
     t2 = iTable->t2;
     k = (int)(r - start) / scale;
+    if (!ToMinimize &&
+        !ExcessiveEnergyWarning &&
+        (k < stretchType->minPhysicalTableIndex ||
+         k > stretchType->maxPhysicalTableIndex))
+    {
+      WARNING2("excessive energy on %s bond at iteration %d", stretchType->bondName, Iteration);
+      ExcessiveEnergyWarning = 1;
+    }
     if (k < 0) {
       if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
         fprintf(stderr, "stretch: low --");
@@ -205,6 +213,15 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
   t2 = iTable->t2;
 					
   k=(int)(r - start) / scale;
+
+  if (!ToMinimize &&
+      !ExcessiveEnergyWarning &&
+      k < parameters->minPhysicalTableIndex)
+  {
+    WARNING2("excessive energy in %s vdw at iteration %d", parameters->vdwName, Iteration);
+    ExcessiveEnergyWarning = 1;
+  }
+
   if (k < 0) {
     if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);

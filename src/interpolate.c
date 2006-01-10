@@ -158,6 +158,48 @@ findPotentialExtension(struct bondStretch *s, double r0, double pr0, double gr0,
     /denom;
 }
 
+// Examine a potential interpolation table to find where it exceeds a
+// global maximum physical energy.  Those index values are recorded,
+// so we can test for them during a dynamics run and issue a warning.
+// The idea is that too much energy in a single bond might indicate
+// that the simulation is suspect (would require a quantum
+// calculation).
+static int
+findExcessiveEnergyLevel(struct interpolationTable *t,
+                         double r0,
+                         int searchIncrement,
+                         int searchLimit,
+                         double minPotential)
+{
+  double start = t->start;
+  double scale = t->scale;
+  double *t1 = t->t1;
+  double *t2 = t->t2;
+  int k;
+  double x;
+  double potential = 0.0;
+  
+  k = (int)(r0 - start) / scale;
+  while ((searchLimit-k)*searchIncrement > 0) {
+    x = k * scale + start;
+    potential = t1[k] + x * t2[k] - minPotential;
+    if (potential > ExcessiveEnergyLevel) {
+      return k;
+    }
+    k += searchIncrement;
+  }
+  if (!ExcessiveEnergyWarning) {
+    WARNING2("ExcessiveEnergyLevel %e exceeds interpolation table limits at %e",
+             ExcessiveEnergyLevel, potential);
+    ExcessiveEnergyWarning = 1;
+  }
+  if (minPotential == 0.0 && searchIncrement > 0) {
+    fprintf(stderr, "potential: %e\n", potential);
+  }
+  return searchLimit;
+}
+
+
 // Initialize the function interpolation tables for each stretch
 void
 initializeBondStretchInterpolater(struct bondStretch *stretch)
@@ -182,6 +224,11 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
 
   fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, rmin, scale, stretch);
   fillInterpolationTable(&stretch->gradientLippincottMorse, gradientLippincottMorse, rmin, scale, stretch);
+  stretch->maxPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->potentialLippincottMorse,
+                                                            stretch->r0, 1, TABLEN, 0.0);
+  stretch->minPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->potentialLippincottMorse,
+                                                            stretch->r0, -1, 0, 0.0);
+  
 }
 
 
@@ -239,6 +286,9 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   
   fillInterpolationTable(&vdw->potentialBuckingham, potentialBuckingham, start, scale, vdw);
   fillInterpolationTable(&vdw->gradientBuckingham, gradientBuckingham, start, scale, vdw);
+  vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->potentialBuckingham,
+                                                        vdw->rvdW, -1, 0,
+                                                        potentialBuckingham(vdw->rvdW, vdw));
 }
 
 static void

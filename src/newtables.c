@@ -24,7 +24,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
   stretch->inflectionR = inflectionR;
   stretch->isGeneric = generic;
   stretch->warned = 0;
-  initializeBondStretchInterpolater(stretch);
+  stretch->maxPhysicalTableIndex = -1; // flag to indicate interpolator not initialized
   return stretch;
 }
 
@@ -530,6 +530,7 @@ generateVanDerWaals(char *bondName, int element1, int element2)
   struct vanDerWaalsParameters *vdw;
 
   vdw = (struct vanDerWaalsParameters *)allocate(sizeof(struct vanDerWaalsParameters));
+  vdw->vdwName = copy_string(bondName);
   initializeVanDerWaalsInterpolator(vdw, element1, element2);
   hashtable_put(vanDerWaalsHashtable, bondName, vdw);
   return vdw;
@@ -561,6 +562,12 @@ getBondStretch(int element1, int element2, char bondOrder)
             periodicTable[element2].symbol,
             bondOrder);
     entry->warned = 1;
+  }
+  if (entry->maxPhysicalTableIndex == -1) {
+    // Only call initializeBondStretchInterpolater when we're actually
+    // going to use it.  That way, we don't warn about too large of an
+    // ExcessiveEnergyLevel
+    initializeBondStretchInterpolater(entry);
   }
   return entry;
 }
