@@ -445,22 +445,22 @@ def rmtreeSafe(dir):
     try: shutil.rmtree(dir)
     except OSError, e: pass
 
+lastRecordedTime = testStartTime = time.time()
+
 class TimedTest:
 
-    def __init__(self):
-        if not TIME_ONLY:
-            t, total = Tests.RANKED_BY_SPEED[self.methodname]
-            if total > TIME_LIMIT:
-                global testsSkipped
-                testsSkipped += 1
-                raise EarlyTermination
-        self.startTime = time.time()
+    def start(self):
+        global testsSkipped
+        if not TIME_ONLY and time.time() > testStartTime + TIME_LIMIT:
+            testsSkipped += 1
+            raise EarlyTermination
 
     def finish(self):
         if TIME_ONLY:
-            global testTimes
-            startTime, finishTime = self.startTime, time.time()
-            testTimes[self.methodname] = finishTime - startTime
+            global testTimes, lastRecordedTime
+            previous = lastRecordedTime
+            lastRecordedTime = t = time.time()
+            testTimes[self.methodname] = t - previous
             raise EarlyTermination
 
 class SandboxTest(TimedTest):
@@ -503,7 +503,7 @@ class SandboxTest(TimedTest):
         self.expectedExitStatus = expectedExitStatus
 
         try:
-            TimedTest.__init__(self)
+            TimedTest.start(self)
         except EarlyTermination:
             return
 
@@ -536,9 +536,11 @@ class SandboxTest(TimedTest):
                 shutil.copy(self.basename + "." + ext, tmpdir)
             # Go into the tmp directory and run the simulator.
             os.chdir(tmpdir)
-            #self.startTime = time.time()
             exitStatus = self.runCommand(self.simopts)
             if exitStatus != self.expectedExitStatus:
+                inf = open("stderr")
+                sys.stderr.write(inf.read())
+                inf.close()
                 str = ("simulator exit status was %d, expected %d" %
                        (exitStatus, self.expectedExitStatus))
                 raise AssertionError(str)
@@ -685,7 +687,7 @@ class PyrexTest(TimedTest):
         self.methodname = methodname
         self.base = base
         try:
-            TimedTest.__init__(self)
+            self.start()
         except EarlyTermination:
             return
         self.run()
@@ -703,261 +705,328 @@ class PyrexTest(TimedTest):
         lac.compare(self.base + ".xyz", self.base + ".xyzcmp",
                     LENGTH_TOLERANCE, ANGLE_TOLERANCE)
 
+
 ####################################################
 
-class Tests(unittest.TestCase):
-    # Re-generate this with "python tests.py time_only"
-    RANKED_BY_SPEED = {
-        'test_amino_acids_ala_l_aminoacid': (1.9574508666992188, 65.829175472259521),
-        'test_amino_acids_arg_l_aminoacid': (2.845736026763916, 84.467382431030273),
-        'test_amino_acids_asn_l_aminoacid': (3.9342498779296875, 98.459981203079224),
-        'test_amino_acids_asp_l_aminoacid': (4.5649271011352539, 111.43301033973694),
-        'test_amino_acids_cys_l_aminoacid': (2.6238188743591309, 70.673336505889893),
-        'test_amino_acids_gln_l_aminoacid': (6.6940081119537354, 128.93099141120911),
-        'test_amino_acids_glu_l_aminoacid': (9.4835491180419922, 154.51688146591187),
-        'test_amino_acids_gly_l_aminoacid': (1.0299968719482422, 48.772754430770874),
-        'test_amino_acids_his_l_aminoacid': (5.2524340152740479, 116.68544435501099),
-        'test_amino_acids_ile_l_aminoacid': (2.6943509578704834, 76.034211397171021),
-        'test_amino_acids_leu_l_aminoacid': (8.3265669345855713, 145.03333234786987),
-        'test_amino_acids_lys_l_aminoacid': (7.7757740020751953, 136.7067654132843),
-        'test_amino_acids_met_l_aminoacid': (5.5515389442443848, 122.23698329925537),
-        'test_amino_acids_phe_l_aminoacid': (0.055304050445556641,
-                                             3.0889453887939453),
-        'test_amino_acids_pro_l_aminoacid': (3.6579089164733887, 94.525731325149536),
-        'test_amino_acids_ser_l_aminoacid': (4.3427910804748535, 106.86808323860168),
-        'test_amino_acids_thr_l_aminoacid': (3.3646390438079834, 90.867822408676147),
-        'test_amino_acids_tyr_l_aminoacid': (23.940731048583984, 178.45761251449585),
-        'test_amino_acids_val_l_aminoacid': (4.0653109550476074, 102.52529215812683),
-        'test_dynamics_0001': (0.0, 2.8426270484924316),
-        'test_dynamics_0002': (0.27630090713500977, 13.105825185775757),
-        'test_floppy_organics_C2H6': (0.12293386459350586, 7.9696669578552246),
-        'test_floppy_organics_C3H8': (0.43416190147399902, 22.770768642425537),
-        'test_floppy_organics_C4H10a': (0.39482307434082031, 19.865383625030518),
-        'test_floppy_organics_C4H10b': (2.2203421592712402, 68.049517631530762),
-        'test_floppy_organics_C4H10c': (0.34117007255554199, 18.01392126083374),
-        'test_floppy_organics_C4H8': (0.13282299041748047, 8.1024899482727051),
-        'test_floppy_organics_C5H10': (0.9909508228302002, 45.731656551361084),
-        'test_floppy_organics_C5H12a': (1.491508960723877, 60.223838567733765),
-        'test_floppy_organics_C5H12b': (0.58927702903747559, 30.990051507949829),
-        'test_floppy_organics_C5H12c': (1.417910099029541, 57.259235620498657),
-        'test_floppy_organics_C5H12d': (0.88733601570129395, 41.024554491043091),
-        'test_floppy_organics_C5H12e': (0.94618821144104004, 44.740705728530884),
-        'test_floppy_organics_C6H12a': (0.27666187286376953, 13.382487058639526),
-        'test_floppy_organics_C6H12b': (0.28373289108276367, 13.947802782058716),
-        'test_floppy_organics_C6H14a': (1.0165359973907471, 47.742757558822632),
-        'test_floppy_organics_C6H14b': (0.73052382469177246, 37.734435558319092),
-        'test_floppy_organics_C6H14c': (1.0690550804138184, 49.841809511184692),
-        'test_floppy_organics_C6H14d': (1.31803297996521, 55.841325521469116),
-        'test_floppy_organics_C6H14e': (1.8434181213378906, 63.871724605560303),
-        'test_floppy_organics_C6H14f': (2.6665239334106445, 73.339860439300537),
-        'test_floppy_organics_C7H14a': (0.71399593353271484, 37.003911733627319),
-        'test_floppy_organics_C7H14b': (1.1561110019683838, 52.094208478927612),
-        'test_floppy_organics_C7H14c': (3.0358009338378906, 87.503183364868164),
-        'test_floppy_organics_CH4': (0.050858020782470703, 3.0336413383483887),
-        'test_heteroatom_organics_ADAM_AlH2_Cs': (1.8044679164886475,
-                                                  62.028306484222412),
-        'test_heteroatom_organics_ADAM_BH2': (0.63968896865844727, 32.85053539276123),
-        'test_heteroatom_organics_ADAM_Cl_c3v': (0.39522695541381836,
-                                                 20.260610580444336),
-        'test_heteroatom_organics_ADAM_F_c3v': (0.27051901817321777,
-                                                12.829524278640747),
-        'test_heteroatom_organics_ADAM_NH2_Cs': (0.93056797981262207,
-                                                 42.850147485733032),
-        'test_heteroatom_organics_ADAM_OH_Cs': (0.88188600540161133,
-                                                40.137218475341797),
-        'test_heteroatom_organics_ADAM_PH2_Cs': (1.4730939865112305,
-                                                 58.732329607009888),
-        'test_heteroatom_organics_ADAM_SH_Cs': (0.43400216102600098,
-                                                22.336606740951538),
-        'test_heteroatom_organics_ADAM_SiH3_C3v': (2.8224000930786133,
-                                                   81.621646404266357),
-        'test_heteroatom_organics_ADAMframe_AlH_Cs': (0.49486494064331055,
-                                                      26.526994705200195),
-        'test_heteroatom_organics_ADAMframe_BH_Cs': (0.69986796379089355,
-                                                     35.580101728439331),
-        'test_heteroatom_organics_ADAMframe_NH_Cs': (0.28516888618469238,
-                                                     14.517940521240234),
-        'test_heteroatom_organics_ADAMframe_O_Cs': (0.2931821346282959,
-                                                    15.103321552276611),
-        'test_heteroatom_organics_ADAMframe_PH_Cs': (0.31265497207641602,
-                                                     16.342389345169067),
-        'test_heteroatom_organics_ADAMframe_S_Cs': (0.23904585838317871,
-                                                    11.518996238708496),
-        'test_heteroatom_organics_ADAMframe_SiH2_c2v': (0.39939999580383301,
-                                                        20.660010576248169),
-        'test_heteroatom_organics_Al_ADAM_C3v': (0.5531761646270752,
-                                                 28.693865776062012),
-        'test_heteroatom_organics_B_ADAM_C3v': (0.34799599647521973,
-                                                18.36191725730896),
-        'test_heteroatom_organics_C3H6AlH': (0.1853950023651123, 9.3459186553955078),
-        'test_heteroatom_organics_C3H6BH': (0.14544486999511719, 8.3908967971801758),
-        'test_heteroatom_organics_C3H6NH': (0.11328792572021484, 7.4958279132843018),
-        'test_heteroatom_organics_C3H6O': (0.088491916656494141, 6.8671247959136963),
-        'test_heteroatom_organics_C3H6PH': (0.16201400756835938, 9.1605236530303955),
-        'test_heteroatom_organics_C3H6S': (0.08668208122253418, 6.6909139156341553),
-        'test_heteroatom_organics_C3H6SiH2': (0.21787381172180176, 10.38456130027771),
-        'test_heteroatom_organics_C4H8AlH': (0.41529703140258789, 21.483160495758057),
-        'test_heteroatom_organics_C4H8BH': (0.54457187652587891, 28.140689611434937),
-        'test_heteroatom_organics_C4H8NH': (1.2428290843963623, 54.523292541503906),
-        'test_heteroatom_organics_C4H8O': (0.99456501007080078, 46.726221561431885),
-        'test_heteroatom_organics_C4H8PH': (0.3402099609375, 17.332291126251221),
-        'test_heteroatom_organics_C4H8S': (0.30320405960083008, 15.406525611877441),
-        'test_heteroatom_organics_C4H8SiH2': (0.45977091789245605,
-                                              24.139268398284912),
-        'test_heteroatom_organics_C5H10AlH': (0.61157083511352539,
-                                              32.210846424102783),
-        'test_heteroatom_organics_C5H10BH': (0.60922408103942871, 31.599275588989258),
-        'test_heteroatom_organics_C5H10NH': (0.34046006202697754, 17.672751188278198),
-        'test_heteroatom_organics_C5H10O': (0.2671349048614502, 12.559005260467529),
-        'test_heteroatom_organics_C5H10PH': (0.29219889640808105, 14.810139417648315),
-        'test_heteroatom_organics_C5H10S': (0.21963405609130859, 10.82377028465271),
-        'test_heteroatom_organics_C5H10SiH2': (0.48593807220458984,
-                                               26.032129764556885),
-        'test_heteroatom_organics_CH3AlH2': (0.063932895660400391,
-                                             5.3263344764709473),
-        'test_heteroatom_organics_CH3AlHCH3': (0.94437003135681152,
-                                               43.794517517089844),
-        'test_heteroatom_organics_CH3BH2': (0.093707084655761719, 6.960831880569458),
-        'test_heteroatom_organics_CH3BHCH3': (1.1862549781799316, 53.280463457107544),
-        'test_heteroatom_organics_CH3NH2': (0.16070890426635742, 8.9985096454620361),
-        'test_heteroatom_organics_CH3NHCH3': (0.37237715721130371,
-                                              19.095346450805664),
-        'test_heteroatom_organics_CH3OCH3': (0.10467100143432617, 7.166569709777832),
-        'test_heteroatom_organics_CH3OH': (0.076311826705932617, 6.3633959293365479),
-        'test_heteroatom_organics_CH3PH2': (0.31078290939331055, 15.717308521270752),
-        'test_heteroatom_organics_CH3PHCH3': (0.25824618339538574,
-                                              12.029121398925781),
-        'test_heteroatom_organics_CH3SCH3': (0.58856391906738281, 30.400774478912354),
-        'test_heteroatom_organics_CH3SH': (0.19000887870788574, 9.5359275341033936),
-        'test_heteroatom_organics_CH3SiH2CH3': (0.46847820281982422,
-                                                24.607746601104736),
-        'test_heteroatom_organics_CH3SiH3': (0.44934988021850586, 23.220118522644043),
-        'test_heteroatom_organics_C_CH3_3_AlH2': (0.73638701438903809,
-                                                  38.47082257270813),
-        'test_heteroatom_organics_C_CH3_3_BH2': (0.67547917366027832,
-                                                 34.183696746826172),
-        'test_heteroatom_organics_C_CH3_3_NH2': (0.70981407165527344,
-                                                 36.289915800094604),
-        'test_heteroatom_organics_C_CH3_3_OH': (0.46898913383483887,
-                                                25.076735734939575),
-        'test_heteroatom_organics_C_CH3_3_PH2': (0.78450989723205566,
-                                                 39.255332469940186),
-        'test_heteroatom_organics_C_CH3_3_SH': (0.55492591857910156,
-                                                29.248791694641113),
-        'test_heteroatom_organics_C_CH3_3_SiH3': (0.4078528881072998,
-                                                  21.067863464355469),
-        'test_heteroatom_organics_N_ADAM_C3v': (0.28158283233642578,
-                                                13.664069890975952),
-        'test_heteroatom_organics_P_ADAM_C3v': (0.3752140998840332,
-                                                19.470560550689697),
-        'test_heteroatom_organics_SiH_ADAM_C3v': (0.45937895774841309,
-                                                  23.679497480392456),
-        'test_minimize_0001': (0.65768218040466309, 33.508217573165894),
-        'test_minimize_0002': (0.0, 2.8426270484924316),
-        'test_minimize_0003': (0.0, 2.8426270484924316),
-        'test_minimize_0004': (0.0, 2.8426270484924316),
-        'test_minimize_0005': (0.52554893493652344, 27.052543640136719),
-        'test_minimize_0006': (0.0, 2.8426270484924316),
-        'test_minimize_0007': (0.0, 2.8426270484924316),
-        'test_minimize_0008': (0.89502501487731934, 41.91957950592041),
-        'test_minimize_0009': (0.2143549919128418, 9.9494695663452148),
-        'test_minimize_0010': (0.055970907211303711, 3.144916296005249),
-        'test_minimize_0011': (0.54357409477233887, 27.596117734909058),
-        'test_minimize_0012': (0.33484196662902832, 16.992081165313721),
-        'test_minimize_0013': (0.050697088241577148, 2.982783317565918),
-        'test_minimize_h2': (0.049787998199462891, 2.9320862293243408),
-        'test_pyrex_dynamics': (0.21957492828369141, 10.604136228561401),
-        'test_pyrex_minH2': (0.039671182632446289, 2.8822982311248779),
-        'test_pyrex_minimize0001': (0.46945595741271973, 25.546191692352295),
-        'test_pyrex_unittests': (2.8426270484924316, 2.8426270484924316),
-        'test_rigid_organics_C10H12': (0.21721792221069336, 10.166687488555908),
-        'test_rigid_organics_C10H14': (0.36105203628540039, 18.72296929359436),
-        'test_rigid_organics_C14H20': (0.56341886520385742, 29.812210559844971),
-        'test_rigid_organics_C14H24': (2.7650349140167236, 78.799246311187744),
-        'test_rigid_organics_C2H6': (0.19918704032897949, 9.735114574432373),
-        'test_rigid_organics_C3H6': (0.078390836715698242, 6.4417867660522461),
-        'test_rigid_organics_C3H8': (0.23208117485046387, 11.279950380325317),
-        'test_rigid_organics_C4H8': (0.14832496643066406, 8.6855347156524658),
-        'test_rigid_organics_C6H10': (0.26274895668029785, 12.291870355606079),
-        'test_rigid_organics_C8H14': (1.0962879657745361, 50.938097476959229),
-        'test_rigid_organics_C8H8': (0.11592411994934082, 7.7258720397949219),
-        'test_rigid_organics_CH4': (0.060283184051513672, 4.2758197784423828),
-        'test_singlebond_stretch_Cl_AlH2': (0.061307907104492188, 4.8833048343658447),
-        'test_singlebond_stretch_Cl_BH2': (0.063423871994018555, 5.135122537612915),
-        'test_singlebond_stretch_Cl_CH3': (0.059573173522949219, 3.7362344264984131),
-        'test_singlebond_stretch_Cl_Cl': (0.059303045272827148, 3.5576772689819336),
-        'test_singlebond_stretch_Cl_F': (0.058634042739868164, 3.2620124816894531),
-        'test_singlebond_stretch_Cl_NH2': (0.060225009918212891, 4.2155365943908691),
-        'test_singlebond_stretch_Cl_OH': (0.059254884719848633, 3.4391021728515625),
-        'test_singlebond_stretch_Cl_PH2': (0.060878992080688477, 4.6998758316040039),
-        'test_singlebond_stretch_Cl_SH': (0.059272050857543945, 3.4983742237091064),
-        'test_singlebond_stretch_Cl_SiH3': (0.059774160385131836, 3.9154026508331299),
-        'test_singlebond_stretch_F_AlH2': (0.064551115036010742, 5.455256462097168),
-        'test_singlebond_stretch_F_BH2': (0.062253952026367188, 4.9455587863922119),
-        'test_singlebond_stretch_F_CH3': (0.05990910530090332, 4.0352096557617188),
-        'test_singlebond_stretch_F_F': (0.059068918228149414, 3.3798472881317139),
-        'test_singlebond_stretch_F_NH2': (0.060482025146484375, 4.3967528343200684),
-        'test_singlebond_stretch_F_OH': (0.059668064117431641, 3.7959024906158447),
-        'test_singlebond_stretch_F_PH2': (0.06052398681640625, 4.5177936553955078),
-        'test_singlebond_stretch_F_SH': (0.059530019760131836, 3.6766612529754639),
-        'test_singlebond_stretch_F_SiH3': (0.060665130615234375, 4.6389968395233154),
-        'test_singlebond_stretch_H2Al_AlH2': (0.074005126953125, 6.2124252319335938),
-        'test_singlebond_stretch_H2Al_CH3': (0.071208953857421875,
-                                             6.0660891532897949),
-        'test_singlebond_stretch_H2Al_SiH3': (0.072330951690673828,
-                                              6.1384201049804688),
-        'test_singlebond_stretch_H2B_AlH2': (0.070688009262084961, 5.994880199432373),
-        'test_singlebond_stretch_H2B_BH2': (0.080048084259033203, 6.5218348503112793),
-        'test_singlebond_stretch_H2B_CH3': (0.1141200065612793, 7.6099479198455811),
-        'test_singlebond_stretch_H2B_NH2': (0.69653701782226562, 34.880233764648438),
-        'test_singlebond_stretch_H2B_PH2': (0.065023899078369141, 5.5849902629852295),
-        'test_singlebond_stretch_H2B_SiH3': (0.087718963623046875,
-                                             6.7786328792572021),
-        'test_singlebond_stretch_H2N_AlH2': (0.12086105346679688, 7.8467330932617188),
-        'test_singlebond_stretch_H2N_CH3': (0.22409892082214355, 11.047869205474854),
-        'test_singlebond_stretch_H2N_NH2': (0.14631295204162598, 8.5372097492218018),
-        'test_singlebond_stretch_H2N_PH2': (0.15226602554321289, 8.8378007411956787),
-        'test_singlebond_stretch_H2N_SiH3': (0.069988012313842773,
-                                             5.9241921901702881),
-        'test_singlebond_stretch_H2P_AlH2': (0.066989898681640625,
-                                             5.7189431190490723),
-        'test_singlebond_stretch_H2P_CH3': (0.11021709442138672, 7.3825399875640869),
-        'test_singlebond_stretch_H2P_PH2': (0.064709901809692383, 5.5199663639068604),
-        'test_singlebond_stretch_H2P_SiH3': (0.064370870590209961,
-                                             5.3907053470611572),
-        'test_singlebond_stretch_H3C_CH3': (0.074658870697021484, 6.2870841026306152),
-        'test_singlebond_stretch_H3C_SiH3': (0.082396984100341797,
-                                             6.6042318344116211),
-        'test_singlebond_stretch_H3Si_SiH3': (0.066962957382202148,
-                                              5.6519532203674316),
-        'test_singlebond_stretch_HO_AlH2': (0.063498973846435547, 5.1986215114593506),
-        'test_singlebond_stretch_HO_BH2': (0.314849853515625, 16.657239198684692),
-        'test_singlebond_stretch_HO_CH3': (0.10575318336486816, 7.2723228931427002),
-        'test_singlebond_stretch_HO_NH2': (0.10106682777404785, 7.0618987083435059),
-        'test_singlebond_stretch_HO_OH': (0.14296197891235352, 8.2454519271850586),
-        'test_singlebond_stretch_HO_PH2': (0.062848806381225586, 5.0084075927734375),
-        'test_singlebond_stretch_HO_SiH3': (0.068184137344360352, 5.8542041778564453),
-        'test_singlebond_stretch_HS_AlH2': (0.41944408416748047, 21.902604579925537),
-        'test_singlebond_stretch_HS_BH2': (0.31242585182189941, 16.029734373092651),
-        'test_singlebond_stretch_HS_CH3': (0.067076921463012695, 5.786020040512085),
-        'test_singlebond_stretch_HS_NH2': (0.28496885299682617, 14.232771635055542),
-        'test_singlebond_stretch_HS_OH': (0.06089019775390625, 4.7607660293579102),
-        'test_singlebond_stretch_HS_PH2': (0.061230897903442383, 4.8219969272613525),
-        'test_singlebond_stretch_HS_SH': (0.060516834259033203, 4.4572696685791016),
-        'test_singlebond_stretch_HS_SiH3': (0.25187897682189941, 11.770875215530396),
-        'test_singlebond_stretch_H_AlH2': (0.059977054595947266, 4.095186710357666),
-        'test_singlebond_stretch_H_BH2': (0.060451030731201172, 4.336270809173584),
-        'test_singlebond_stretch_H_CH3': (0.060538053512573242, 4.5783317089080811),
-        'test_singlebond_stretch_H_Cl': (0.058765888214111328, 3.3207783699035645),
-        'test_singlebond_stretch_H_F': (0.058462142944335938, 3.203378438949585),
-        'test_singlebond_stretch_H_H': (0.059453964233398438, 3.617131233215332),
-        'test_singlebond_stretch_H_NH2': (0.05972599983215332, 3.855628490447998),
-        'test_singlebond_stretch_H_OH': (0.059897899627685547, 3.9753005504608154),
-        'test_singlebond_stretch_H_PH2': (0.063291072845458984, 5.0716986656188965),
-        'test_singlebond_stretch_H_SH': (0.063780069351196289, 5.2624015808105469),
-        'test_singlebond_stretch_H_SiH3': (0.060124874114990234, 4.1553115844726562)
-        }
-    
+# Re-generate this with "python tests.py time_only"
+RANKED_BY_RUNTIME = [
+    'test_dynamics_0001',
+    'test_minimize_0002',
+    'test_minimize_0003',
+    'test_minimize_0004',
+    'test_minimize_0006',
+    'test_minimize_0007',
+    'test_badCallback1',
+    'test_framecallback',
+    'test_pyrex_minH2',
+    'test_callWrongSimulatorObject',
+    'test_dpbFileShouldBeBinary',
+    'test_traceCallbackWithMotor',
+    'test_badCallback3',
+    'test_badCallback2',
+    'test_floppy_organics_CH4',
+    'test_amino_acids_phe_l_aminoacid',
+    'test_minimize_h2',
+    'test_minimize_0013',
+    'test_singlebond_stretch_F_F',
+    'test_singlebond_stretch_Cl_OH',
+    'test_singlebond_stretch_H_F',
+    'test_singlebond_stretch_H_Cl',
+    'test_singlebond_stretch_Cl_F',
+    'test_singlebond_stretch_H_H',
+    'test_singlebond_stretch_Cl_Cl',
+    'test_singlebond_stretch_F_OH',
+    'test_singlebond_stretch_H_SH',
+    'test_singlebond_stretch_Cl_SH',
+    'test_singlebond_stretch_H_PH2',
+    'test_singlebond_stretch_F_SH',
+    'test_singlebond_stretch_HS_SH',
+    'test_singlebond_stretch_Cl_SiH3',
+    'test_singlebond_stretch_H_SiH3',
+    'test_singlebond_stretch_H_OH',
+    'test_singlebond_stretch_Cl_CH3',
+    'test_singlebond_stretch_F_AlH2',
+    'test_singlebond_stretch_H_BH2',
+    'test_singlebond_stretch_H_AlH2',
+    'test_singlebond_stretch_F_CH3',
+    'test_singlebond_stretch_Cl_PH2',
+    'test_singlebond_stretch_H_NH2',
+    'test_singlebond_stretch_F_SiH3',
+    'test_singlebond_stretch_F_PH2',
+    'test_rigid_organics_CH4',
+    'test_singlebond_stretch_H_CH3',
+    'test_singlebond_stretch_F_NH2',
+    'test_singlebond_stretch_HS_OH',
+    'test_singlebond_stretch_Cl_AlH2',
+    'test_singlebond_stretch_HS_PH2',
+    'test_singlebond_stretch_F_BH2',
+    'test_singlebond_stretch_Cl_BH2',
+    'test_minimize_0010',
+    'test_singlebond_stretch_H2P_PH2',
+    'test_singlebond_stretch_HO_AlH2',
+    'test_singlebond_stretch_HO_PH2',
+    'test_singlebond_stretch_HS_CH3',
+    'test_singlebond_stretch_H2P_AlH2',
+    'test_singlebond_stretch_H2B_PH2',
+    'test_singlebond_stretch_H2P_SiH3',
+    'test_singlebond_stretch_H3Si_SiH3',
+    'test_singlebond_stretch_Cl_NH2',
+    'test_singlebond_stretch_HO_SiH3',
+    'test_singlebond_stretch_H3C_SiH3',
+    'test_singlebond_stretch_H2B_AlH2',
+    'test_singlebond_stretch_H2N_SiH3',
+    'test_singlebond_stretch_H2Al_CH3',
+    'test_heteroatom_organics_CH3AlH2',
+    'test_singlebond_stretch_H2Al_AlH2',
+    'test_singlebond_stretch_H2Al_SiH3',
+    'test_singlebond_stretch_H3C_CH3',
+    'test_dpbFileShouldBeBinaryAfterMinimize',
+    'test_rigid_organics_C3H6',
+    'test_singlebond_stretch_H2B_BH2',
+    'test_heteroatom_organics_CH3OH',
+    'test_frameAndTraceCallback',
+    'test_singlebond_stretch_H2B_SiH3',
+    'test_heteroatom_organics_C3H6S',
+    'test_heteroatom_organics_C3H6O',
+    'test_heteroatom_organics_CH3BH2',
+    'test_singlebond_stretch_HO_NH2',
+    'test_singlebond_stretch_HO_CH3',
+    'test_singlebond_stretch_H2P_CH3',
+    'test_heteroatom_organics_CH3OCH3',
+    'test_rigid_organics_C8H8',
+    'test_singlebond_stretch_H2B_CH3',
+    'test_heteroatom_organics_C3H6NH',
+    'test_singlebond_stretch_H2N_AlH2',
+    'test_floppy_organics_C2H6',
+    'test_floppy_organics_C4H8',
+    'test_singlebond_stretch_HO_OH',
+    'test_singlebond_stretch_H2N_NH2',
+    'test_rigid_organics_C4H8',
+    'test_singlebond_stretch_H2N_PH2',
+    'test_heteroatom_organics_C3H6BH',
+    'test_heteroatom_organics_CH3NH2',
+    'test_heteroatom_organics_C3H6PH',
+    'test_heteroatom_organics_CH3SH',
+    'test_heteroatom_organics_C3H6AlH',
+    'test_rigid_organics_C2H6',
+    'test_pyrex_dynamics',
+    'test_rigid_organics_C10H12',
+    'test_singlebond_stretch_H2N_CH3',
+    'test_minimize_0009',
+    'test_heteroatom_organics_C3H6SiH2',
+    'test_heteroatom_organics_C5H10S',
+    'test_rigid_organics_C3H8',
+    'test_heteroatom_organics_ADAMframe_S_Cs',
+    'test_singlebond_stretch_HS_SiH3',
+    'test_rigid_organics_C6H10',
+    'test_dynamics_0002',
+    'test_heteroatom_organics_CH3PHCH3',
+    'test_heteroatom_organics_C5H10O',
+    'test_heteroatom_organics_ADAM_F_c3v',
+    'test_singlebond_stretch_HS_NH2',
+    'test_heteroatom_organics_ADAM_Cl_c3v',
+    'test_heteroatom_organics_C5H10PH',
+    'test_heteroatom_organics_N_ADAM_C3v',
+    'test_floppy_organics_C6H12b',
+    'test_floppy_organics_C6H12a',
+    'test_heteroatom_organics_ADAMframe_NH_Cs',
+    'test_heteroatom_organics_ADAMframe_O_Cs',
+    'test_heteroatom_organics_C4H8S',
+    'test_singlebond_stretch_HO_BH2',
+    'test_heteroatom_organics_CH3PH2',
+    'test_heteroatom_organics_ADAMframe_PH_Cs',
+    'test_singlebond_stretch_HS_BH2',
+    'test_minimize_0012',
+    'test_heteroatom_organics_C4H8PH',
+    'test_floppy_organics_C4H10c',
+    'test_heteroatom_organics_B_ADAM_C3v',
+    'test_heteroatom_organics_C5H10NH',
+    'test_rigid_organics_C10H14',
+    'test_heteroatom_organics_P_ADAM_C3v',
+    'test_heteroatom_organics_CH3NHCH3',
+    'test_floppy_organics_C4H10a',
+    'test_heteroatom_organics_ADAMframe_SiH2_c2v',
+    'test_heteroatom_organics_C_CH3_3_SiH3',
+    'test_singlebond_stretch_HS_AlH2',
+    'test_heteroatom_organics_C4H8AlH',
+    'test_heteroatom_organics_ADAM_SH_Cs',
+    'test_floppy_organics_C3H8',
+    'test_heteroatom_organics_CH3SiH3',
+    'test_heteroatom_organics_C4H8SiH2',
+    'test_heteroatom_organics_SiH_ADAM_C3v',
+    'test_pyrex_minimize0001',
+    'test_heteroatom_organics_C_CH3_3_OH',
+    'test_heteroatom_organics_CH3SiH2CH3',
+    'test_heteroatom_organics_C5H10SiH2',
+    'test_heteroatom_organics_ADAMframe_AlH_Cs',
+    'test_minimize_0005',
+    'test_heteroatom_organics_C4H8BH',
+    'test_heteroatom_organics_Al_ADAM_C3v',
+    'test_heteroatom_organics_C_CH3_3_SH',
+    'test_minimize_0011',
+    'test_rigid_organics_C14H20',
+    'test_heteroatom_organics_CH3SCH3',
+    'test_floppy_organics_C5H12b',
+    'test_heteroatom_organics_C5H10BH',
+    'test_heteroatom_organics_ADAM_BH2',
+    'test_minimize_0001',
+    'test_heteroatom_organics_C_CH3_3_BH2',
+    'test_singlebond_stretch_H2B_NH2',
+    'test_heteroatom_organics_ADAMframe_BH_Cs',
+    'test_heteroatom_organics_C_CH3_3_NH2',
+    'test_floppy_organics_C7H14a',
+    'test_heteroatom_organics_C5H10AlH',
+    'test_floppy_organics_C6H14b',
+    'test_heteroatom_organics_C_CH3_3_AlH2',
+    'test_heteroatom_organics_ADAM_OH_Cs',
+    'test_heteroatom_organics_C_CH3_3_PH2',
+    'test_floppy_organics_C5H12d',
+    'test_minimize_0008',
+    'test_heteroatom_organics_ADAM_NH2_Cs',
+    'test_floppy_organics_C5H12e',
+    'test_heteroatom_organics_CH3AlHCH3',
+    'test_floppy_organics_C5H10',
+    'test_floppy_organics_C6H14a',
+    'test_amino_acids_gly_l_aminoacid',
+    'test_floppy_organics_C6H14c',
+    'test_rigid_organics_C8H14',
+    'test_heteroatom_organics_C4H8O',
+    'test_floppy_organics_C7H14b',
+    'test_heteroatom_organics_CH3BHCH3',
+    'test_heteroatom_organics_C4H8NH',
+    'test_floppy_organics_C6H14d',
+    'test_floppy_organics_C5H12c',
+    'test_heteroatom_organics_ADAM_PH2_Cs',
+    'test_floppy_organics_C5H12a',
+    'test_heteroatom_organics_ADAM_AlH2_Cs',
+    'test_floppy_organics_C6H14e',
+    'test_amino_acids_ala_l_aminoacid',
+    'test_floppy_organics_C4H10b',
+    'test_dynamicsStepStuff',
+    'test_amino_acids_cys_l_aminoacid',
+    'test_floppy_organics_C6H14f',
+    'test_amino_acids_ile_l_aminoacid',
+    'test_rigid_organics_C14H24',
+    'test_heteroatom_organics_ADAM_SiH3_C3v',
+    'test_amino_acids_arg_l_aminoacid',
+    'test_floppy_organics_C7H14c',
+    'test_amino_acids_thr_l_aminoacid',
+    'test_amino_acids_pro_l_aminoacid',
+    'test_amino_acids_asn_l_aminoacid',
+    'test_amino_acids_val_l_aminoacid',
+    'test_amino_acids_ser_l_aminoacid',
+    'test_amino_acids_asp_l_aminoacid',
+    'test_amino_acids_his_l_aminoacid',
+    'test_amino_acids_met_l_aminoacid',
+    'test_amino_acids_gln_l_aminoacid',
+    'test_amino_acids_lys_l_aminoacid',
+    'test_amino_acids_leu_l_aminoacid',
+    'test_amino_acids_glu_l_aminoacid',
+    'test_amino_acids_tyr_l_aminoacid'
+    ]
+
+try:
+    import sim
+    class PyrexUnitTests(sim.Tests, TimedTest):
+
+        def test_framecallback(self):
+            self.methodname = "test_framecallback"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_framecallback(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_frameAndTraceCallback(self):
+            self.methodname = "test_frameAndTraceCallback"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_frameAndTraceCallback(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_traceCallbackWithMotor(self):
+            self.methodname = "test_traceCallbackWithMotor"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_traceCallbackWithMotor(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_dpbFileShouldBeBinary(self):
+            self.methodname = "test_dpbFileShouldBeBinary"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_dpbFileShouldBeBinary(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_dpbFileShouldBeBinaryAfterMinimize(self):
+            self.methodname = "test_dpbFileShouldBeBinaryAfterMinimize"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_dpbFileShouldBeBinaryAfterMinimize(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_dynamicsStepStuff(self):
+            self.methodname = "test_dynamicsStepStuff"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_dynamicsStepStuff(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_badCallback1(self):
+            self.methodname = "test_badCallback1"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_badCallback1(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_badCallback2(self):
+            self.methodname = "test_badCallback2"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_badCallback2(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_badCallback3(self):
+            self.methodname = "test_badCallback3"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_badCallback3(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        def test_callWrongSimulatorObject(self):
+            self.methodname = "test_callWrongSimulatorObject"
+            try: TimedTest.start(self)
+            except EarlyTermination: return
+            try:
+                sim.Tests.test_callWrongSimulatorObject(self)
+            finally:
+                try: TimedTest.finish(self)
+                except EarlyTermination: pass
+        
+    baseClass = PyrexUnitTests
+except ImportError:
+    baseClass = unittest.TestCase
+
+
+class Tests(baseClass):
+
     def test_minimize_h2(self):
         StructureTest(dir="minimize", test="h2")
         
@@ -1290,14 +1359,8 @@ class Tests(unittest.TestCase):
                 assert not sim.isFileAscii("tests/dynamics/test_0002.dpb")
         Foo("test_pyrex_dynamics")
 
-    def test_pyrex_unittests(self):
-        class Foo(PyrexTest):
-            def run(self):
-                import sim
-                sim.test()
-        Foo("test_pyrex_unittests")
-
 ###########################################
+
 
 if __name__ == "__main__":
 
@@ -1457,29 +1520,33 @@ if __name__ == "__main__":
                     pass
                 setattr(Tests, attr, passAutomatically)
 
-    suite = unittest.makeSuite(Tests, 'test')
+    if TIME_ONLY:
+        assert "test_framecallback" in dir(Tests)
+        print dir(Tests)
+        casenames = filter(lambda n: n.startswith("test_"),
+                           dir(Tests))
+        def gettime(x):
+            try: return testTimes[x]
+            except KeyError: return 0.
+        def sortfunc(x, y):
+            return cmp(gettime(x), gettime(y))
+        if not TIME_ONLY:
+            pass
+        casenames.sort(sortfunc)
+    else:
+        casenames = RANKED_BY_RUNTIME
+    suite = unittest.TestSuite(map(Tests, casenames))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
     if TIME_ONLY:
         lst = [ ]
-        dct = { }
         for name in testTimes.keys():
             t = testTimes[name]
             lst.append([t, name])
-        def sortfunc(x, y):
-            if x[1] == "test_pyrex_unittests":
-                return -1
-            elif y[1] == "test_pyrex_unittests":
-                return 1
-            else: return cmp(x[0], y[0])
-        lst.sort(sortfunc)
-        total = 0.0
-        for t, name in lst:
-            total = total + t
-            dct[name] = (t, total)
+        lst.sort()
         import pprint
-        pprint.pprint(dct)
+        pprint.pprint(map(lambda x: x[1], lst))
     else:
-        print len(Tests.RANKED_BY_SPEED) - testsSkipped, "tests really done,",
+        print len(RANKED_BY_RUNTIME) - testsSkipped, "tests really done,",
         print testsSkipped, "tests skipped"

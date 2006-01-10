@@ -238,6 +238,7 @@ class Minimize(BaseSimulator):
         reinitSimGlobals(self)
         self.ToMinimize = 1
         self.DumpAsText = 1
+        self.PrintFrameNums = 0
         filename = fname
         initsimhelp()
         readPart()
@@ -248,6 +249,7 @@ class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to
         reinitSimGlobals(self)
         self.ToMinimize = 0
         self.DumpAsText = 0
+        self.PrintFrameNums = 0
         filename = fname
         initsimhelp()
         readPart()
