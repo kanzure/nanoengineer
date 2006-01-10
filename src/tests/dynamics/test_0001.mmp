@@ -68,7 +68,7 @@ atom 29 (6) (97, -1127, -2345) def
 bond1 20 27 23
 atom 30 (0) (123, -1492, -3022) def
 bond1 29
-rmotor (Rotary Motor.2) (112, 0, 0) 9000.00 2.00 (-40, 204, 253) (-28, -9, -999) 4.00 0.50 0.20
+rmotor (Rotary Motor.2) (112, 0, 0) 3.00 2.00 (-40, 204, 253) (-28, -9, -999) 4.00 0.50 0.20
 shaft 1 5 2 3 4
 mol (AllInOne-blankPdb.pdb) def
 egroup (test_0001)
