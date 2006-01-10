@@ -217,10 +217,12 @@ LeaveRoutine(char *name, int count, int used)
 double
 evaluate(struct configuration *p)
 {
-    struct functionDefinition *fd = p->functionDefinition;
+    struct functionDefinition *fd;
 
     // wware 060109  python exception handling
     NULLPTRR(p, 0.0);
+    // wware 060110  don't deref p until it's checked (doh)
+    fd = p->functionDefinition;
     if (p->functionValueValid == 0) {
 	// wware 060109  python exception handling
 	NULLPTRR(fd->func, 0.0);
@@ -635,6 +637,10 @@ linearMinimize(struct configuration *p,
 
     Enter();
     bracketMinimum(&a, &b, &c, p);
+    // wware 060110  forgot some null ptr tests
+    NULLPTRR(a, NULL);
+    NULLPTRR(b, NULL);
+    NULLPTRR(c, NULL);
     message(p->functionDefinition, "bmin: a %e[%e] b %e[%e] c %e[%e]",
 	    evaluate(a), a->parameter,
 	    evaluate(b), b->parameter,
