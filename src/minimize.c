@@ -719,10 +719,6 @@ minimize_one_tolerance(struct configuration *initial_p,
     // wware 060109  python exception handling
     BAILR(NULL);
     for ((*iteration)=0; (*iteration) < iterationLimit; (*iteration)++) {
-	if (Interrupted) {
-	    message(fd, "minimization interrupted");
-	    break;  // wware 060110  don't handle this with BAIL
-	}
 	SetConfiguration(&q, NULL);
 	// wware 060109  python exception handling
 	BAILR(NULL);
@@ -779,6 +775,10 @@ minimize_one_tolerance(struct configuration *initial_p,
 	BAILR(NULL);
 	SetConfiguration(&p, q);
 	BAILR(NULL);
+	if (Interrupted) {
+	    message(fd, "minimization interrupted");
+	    break;  // wware 060110  don't handle this with BAIL
+	}
     }
     if (Interrupted) {
         message(fd, "minimization interrupted");
