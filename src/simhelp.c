@@ -151,11 +151,20 @@ getFrame_c(void)
     PyObject *retval;
     double *data;
     int i, n;
+    if (part == NULL) {
+	PyErr_SetString(PyExc_MemoryError,
+			"part is null");
+	return NULL;
+    }
+    if (part->num_atoms == 0) {
+	return PyString_FromString("");
+    }
     n = 3 * part->num_atoms * sizeof(double);
     data = (double *) malloc(n);
     if (data == NULL) {
-	perror("Out of memory");
-	exit(1);
+	PyErr_SetString(PyExc_MemoryError,
+			"out of memory");
+	return NULL;
     }
     for (i = 0; i < part->num_atoms; i++) {
 	data[i * 3 + 0] = pos[i].x * XYZ;
