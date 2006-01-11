@@ -113,11 +113,11 @@ class ESPImageProp(ESPImagePropDialog):
         self.jig.calculate_esp()
         
     def load_esp_image(self):
-        self.jig.load_esp_image()
+        self.jig.load_espimage_file()
         self.png_fname_linedit.setText(self.jig.espimage_file)
         
     def change_esp_image(self):
-        self.jig.load_esp_image(choose_new_image = True)
+        self.jig.load_espimage_file(choose_new_image = True, parent=self)
         self.png_fname_linedit.setText(self.jig.espimage_file)
         
     def clear_esp_image(self):

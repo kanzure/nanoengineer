@@ -518,9 +518,14 @@ class ESPImage(RectGadget):
             if platform.atom_debug:
                 print "atom_debug: fyi: info espimage with unrecognized key %r (not an error)" % (key,)
             return
-            
-        self.espimage_file = val
-        self.load_esp_image()
+        
+        if val:
+            if os.path.exists(val):
+                self.espimage_file = val
+                self.load_espimage_file()
+            else:
+                msg = redmsg("info espimage espimage_file = " + val + ". File does not exist.  No image loaded.")
+                env.history.message(msg)
         return
 
     def get_sim_parms(self):
@@ -591,7 +596,7 @@ class ESPImage(RectGadget):
             return
         
         self.espimage_file = espimage_file
-        self.load_esp_image()
+        self.load_espimage_file()
         self.assy.changed()
         self.assy.w.win_update()
         
@@ -605,32 +610,38 @@ class ESPImage(RectGadget):
         
     def __CM_Load_ESP_Image(self):
         '''Method for "Calculate ESP" context menu'''
-        self.load_esp_image()
+        self.load_espimage_file()
    
         
-    def load_esp_image(self, choose_new_image = False):
-        '''Load the ESP (.png) image file.
-        
+    def load_espimage_file(self, choose_new_image = False, parent = None):
+        '''Load the ESP (.png) image file pointed to by self.espimage_file.
         If the file does not exist, or if choose_new_image is True, the
         user will be prompted to load a new image.
         
-        Returns the name of the image file loaded.  None is returned if
-        no image was loaded.
+        Returns the name of the image file loaded or None if no image was loaded.
         '''
         
+        if not parent:
+            parent = self.assy.w
+        
         cmd = greenmsg("Load ESP Image: ")
-    
-        if not os.path.exists(self.espimage_file) or choose_new_image:
+        
+        print "load_espimage_file(): espimage_file = ", self.espimage_file
+
+        if choose_new_image or not self.espimage_file:
+            choose_new_image = True
             
-            if not choose_new_image:
-                QMessageBox.warning( self.assy.w, "ESP Image Not Found", \
-                    "The ESP image file:\n" + self.espimage_file + "\ndoes not exist.\n\nPlease choose a different one.", \
-                    QMessageBox.Ok, QMessageBox.NoButton)
-            
+        elif not os.path.exists(self.espimage_file):
+            msg = "The ESP image file:\n" + self.espimage_file + "\ndoes not exist.\n\nWould you like to select one?"
+            choose_new_image = True
+            QMessageBox.warning( parent, "Choose ESP Image", \
+                    msg, QMessageBox.Ok, QMessageBox.Cancel)
+        
+        if choose_new_image: 
             cwd = self.assy.get_cwd()
     
             fn = QFileDialog.getOpenFileName(cwd, \
-                    "Portable Network Graphics (*.png);;", self.assy.w )
+                    "Portable Network Graphics (*.png);;", parent )
                 
             if not fn:
                 env.history.message("Cancelled.")
@@ -638,7 +649,6 @@ class ESPImage(RectGadget):
                 
             self.espimage_file = str(fn)
         
-        #print "load_esp_image(): espimage_file = ", self.espimage_file
         self._create_PIL_image_obj_from_espimage_file()
         self._loadTexture()
         

@@ -15,6 +15,7 @@ __author__ = "Brian"
 import env, os, sys, time
 from platform import find_or_make_Nanorex_subdir
 from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key, globalParms
+from qt import Qt, QApplication, QCursor
 
 def get_nh_simspec_filename(basename):
     '''Return the full path of the Nano-Hive simulation specification file.
@@ -44,15 +45,12 @@ def get_nh_mmp_filename(basename):
         return None
 
 def get_nh_espimage_filename(assy, jigname):
-    '''Return the filename of the ESP Image's png given assy and ESP Image's jigname, 
+    '''Returns the filename of the ESP Image's png given assy and ESP Image's jigname,
+    to be stored in the ESP Image's MMP info record.
     The filename format is "assyname-jigname.png"
-    This is the file name to be stored in the ESP Image's MMP record.
     '''
-
-    #if not assy.name or not jigname:
-    #    return None
-
-    return os.path.join(assy.get_cwd(), assy.name + "-" + jigname + ".png")
+    cwd = os.path.join(assy.get_cwd(), assy.name + "-" + jigname + ".png")
+    return os.path.normpath(cwd)
         
 def get_nh_home():    
     '''Return the Nano-Hive home directory'''
@@ -66,10 +64,11 @@ def get_nh_home():
     return nh_home
 
 def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
-    '''Run a Nano-Hive simulation on the part (assy).
+    '''Run a Nano-Hive simulation on the part (assy).  Only the MPQC_ESP plug-in
+    used for creating an ESP Image file is supported in A7.
     
-    sim_id is the name of the simulation.  It is used to construct the basename of all
-    the simulation files and is the name of the Nano-Hive simulation run.
+    sim_id is the simulation id of the simulation.  It is used to construct the 
+    basename of all the simulation files and is the name of the Nano-Hive simulation run.
     
     sims_to_run is a list of simulations to run, where:
         MPQC_ESP = MPQC ESP Plane
@@ -119,13 +118,18 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     from platform import find_or_make_Nanorex_subdir
     output_dir = find_or_make_Nanorex_subdir("Nano-Hive") # ~/Nanorex/Nano-Hive
     
+    # Put up the wait cursor.  The cursor will be restored by exit_nh().       
+    QApplication.setOverrideCursor( assy.w.SelectWaitCursor )
+    
     # 1. Try to connect to Nano-Hive, get socket.
     # 99% of the time, no socket will be returned since Nano-Hive hasn't been started yet.
     # Let's check, just in case this is a Nano-Hive instance running.
     nh_socket = connect_to_nh()
     
-    if not nh_socket: # No socket.
-        # We've confirmed that no Nano-Hive instance is running.
+    if nh_socket:
+        kill_nh = False
+    else: # No Nano-Hive instance is running.  Start it.
+        kill_nh = True
         start_nh() # Start Nano-Hive server (instance).
         
         # It may take a second or two to connect to the new Nano-Hive instance.
@@ -136,6 +140,7 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
             nh_socket = connect_to_nh() 
             duration = time.time() - start
             if duration > 4.0: # Give up after 4 seconds
+                exit_nh() # Only restore's the cursor
                 return 5 # Couldn't connect to Nano-Hive socket.
         
     # 2. Write the MMP file that Nano-Hive will use for the sim run.
@@ -156,7 +161,7 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     success, response = nh_socket.sendCommand(cmd) # Send "load" command.
     if not success:
         print success, response
-        exit_nh(nh_socket)
+        exit_nh(nh_socket, kill_nh)
         return 6 # "load" command failed
     
     cmd = "run " + sim_id
@@ -165,17 +170,18 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     success, response = nh_socket.sendCommand(cmd) # Send "run" command.
     if not success:
         print success, response
-        exit_nh(nh_socket)
+        exit_nh(nh_socket, kill_nh)
         return 7 # "run" command failed
     
     from StatusBar import show_pbar_and_stop_button_for_esp_calculation
     r = show_pbar_and_stop_button_for_esp_calculation(assy.w, sim_id, nh_socket, 1)
     
     if r:
-        exit_nh(nh_socket, sim_id)
+        stop_nh_sim(sim_id)
+        exit_nh(nh_socket, kill_nh)
         return 8 # simulation aborted
-        
-    exit_nh(nh_socket)
+    
+    exit_nh(nh_socket, kill_nh)
     
     return 0
 
@@ -304,13 +310,25 @@ def start_nh():
     nhProcess.start()
     
     return 0
-    
-def exit_nh(nh_socket, sim_id=None):
-    "Stops sim_id (if supplied), exits Nano-Hive and closes the socket"
-    if sim_id:
-        success, response = nh_socket.sendCommand("stop " + sim_id) # Send "stop" command.
-    success, response = nh_socket.sendCommand("exit") # Send "exit" command.
-    nh_socket.close()
+
+def stop_nh_sim(nh_socket, sim_id=None):
+    '''Stops a running Nano-Hive simulation.
+    <sim_id> - the id (name) of the simulator to stop.
+    '''
+    if nh_socket:
+        if sim_id:
+            success, response = nh_socket.sendCommand("stop " + sim_id) # Send "stop" command.
+    QApplication.restoreOverrideCursor() # Restore the cursor
+        
+def exit_nh(nh_socket, kill_nh):
+    '''Exits (kills) the Nano-Hive instance if kill_nh is True, 
+    closes the socket and restores the cursor."
+    '''
+    if nh_socket:
+        if kill_nh:
+            success, response = nh_socket.sendCommand("exit") # Send "exit" command.
+        nh_socket.close()
+    QApplication.restoreOverrideCursor() # Restore the cursor
 
 def connect_to_nh():
     '''Connects to a Nano-Hive instance.  
