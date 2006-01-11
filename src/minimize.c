@@ -721,8 +721,7 @@ minimize_one_tolerance(struct configuration *initial_p,
     for ((*iteration)=0; (*iteration) < iterationLimit; (*iteration)++) {
 	if (Interrupted) {
 	    message(fd, "minimization interrupted");
-	    // wware 060109  python exception handling
-	    BAILR(NULL);
+	    break;  // wware 060110  don't handle this with BAIL
 	}
 	SetConfiguration(&q, NULL);
 	// wware 060109  python exception handling
