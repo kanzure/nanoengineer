@@ -116,19 +116,15 @@ addBendData(char *bendName, double kb, double theta0, int generic)
 // de in aJ, or 1e-18 J
 // beta in 1e10 m^-1
 static void
-addInitialBondStretch(int element1,
-                      int element2,
-                      char order,
-                      double ks,
+addInitialBondStretch(double ks,
                       double r0,
                       double de,
                       double beta,
-                      double inflectionR)
+                      double inflectionR,
+                      char *bondName)
 {
   struct bondStretch *stretch;
-  char bondName[10]; // expand if atom types become longer than 2 chars
-  
-  generateBondName(bondName, element1, element2, order);
+
   stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, 0);
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
@@ -252,35 +248,6 @@ initializeBondTable(void)
   bondStretchHashtable = hashtable_new(40);
 
 #include "bonds.h"
-
-#ifdef OLD_BONDS
-  addInitialBondStretch( 1, 6, '1',  460.0,  111.3, 0.671, 1.851); // H-C
-  addInitialBondStretch( 1, 8, '1',  460.0,   94.2, 0.753, 1.747); // H-O
-  addInitialBondStretch( 1,14, '1',  359.4,  125.6, 0.627, 1.693); // H-Si
-  addInitialBondStretch( 1,16, '1',  360.0,  125.2, 0.606, 1.769); // H-S
-  addInitialBondStretch( 1,17, '1',  380.0,  134.6, 0.716, 1.628); // H-Cl
-  addInitialBondStretch( 6, 6, '1',  440.0,  152.3, 0.556, 1.989); // C-C
-  addInitialBondStretch( 6, 7, '1',  510.0,  143.8, 0.509, 2.238); // C-N
-  addInitialBondStretch( 6, 8, '1',  536.0,  140.2, 0.575, 2.159); // C-O
-  addInitialBondStretch( 6, 9, '1',  510.0,  139.2, 0.887, 1.695); // C-F
-  addInitialBondStretch( 6,14, '1',  297.0,  188.0, 0.624, 1.543); // C-Si
-  addInitialBondStretch( 6,15, '1',  291.0,  185.4, 0.852, 1.306); // C-P
-  addInitialBondStretch( 6,16, '1',  321.3,  181.5, 0.539, 1.726); // C-S
-  addInitialBondStretch( 6,17, '1',  323.0,  179.5, 0.591, 1.653); // C-Cl
-  addInitialBondStretch( 6,35, '1',  230.0,  194.9, 0.488, 1.536); // C-Br
-  addInitialBondStretch( 7, 7, '1',  560.0,  138.1, 0.417, 2.592); // N-N
-
-  addInitialBondStretch( 8, 8, '1',  781.0,  147.0, 0.272, 3.789); // O-O
-  addInitialBondStretch( 8,14, '1',  550.0,  162.0, 0.89,  1.757); // O-Si
-  addInitialBondStretch( 8,15, '1',  290.0,  161.5, 0.994, 1.207); // O-P
-
-  addInitialBondStretch(14,14, '1',  185.0,  233.2, 0.559, 1.286); // Si-Si
-  addInitialBondStretch(14,16, '1',  219.37, 213.0, 0.58,  1.375); // Si-S
-  addInitialBondStretch(16,16, '1',  310.0,  202  , 0.706, 1.481); // S-S
-
-  addInitialBondStretch( 6, 6, '2',  960.0,  133.7, 1.207, 1.994); // C=C
-  addInitialBondStretch( 6, 6, '3', 1560.0,  121.2, 1.616, 2.198); // C<3>C
-#endif
   
   deHashtable = hashtable_new(10);
 
@@ -297,56 +264,6 @@ initializeBondTable(void)
   bendDataHashtable = hashtable_new(40);
 
 #include "bends.h"
-
-#ifdef OLD_BENDS
-  //                 bendName      kb, theta0
-  //                         zJ/rad^2, radians
-  //
-  addInitialBendData("C-1-C-1-C", 450, 1.911);
-  addInitialBendData("H-1-C-1-C", 360, 1.909);
-  addInitialBendData("H-1-C-1-H", 320, 1.909);
-  addInitialBendData("C-1-C-1-F", 650, 1.911);
-  addInitialBendData("F-1-C-1-F", 1070, 1.869);
-  addInitialBendData("O-1-C-1-O", 460, 1.727);
-  addInitialBendData("S-1-C-1-S", 420, 2.024);
-  addInitialBendData("C-1-O-1-O", 635, 1.722);
-  addInitialBendData("C-1-O-1-P", 770, 2.024);
-  addInitialBendData("C-1-O-1-N", 500, 2.094);
-  addInitialBendData("C-1-O-1-Si", 400, 2.000);
-  addInitialBendData("Si-1-O-1-Si", 150, 2.44);
-  addInitialBendData("N-1-O-1-N", 200, 2.286);
-  addInitialBendData("P-1-O-1-P", 200, 2.826);
-
-  addInitialBendData("H-1-O-1-C", 770, 1.864);
-  addInitialBendData("C-1-O-1-C", 770, 1.864);
-  addInitialBendData("C-1-N-1-C", 630, 1.880);
-  addInitialBendData("C-1-N-1-N", 740, 1.841);
-
-  addInitialBendData("C-1-C-1-O", 700, 1.876);
-  addInitialBendData("N-1-C-1-O", 630, 1.900);
-  addInitialBendData("C-1-C-1-N", 570, 1.911);
-  addInitialBendData("Si-1-Si-1-Si", 350, 1.943);
-  addInitialBendData("Si-1-S-1-Si", 350, 1.726);
-  addInitialBendData("S-1-Si-1-S", 350, 1.815);
-  addInitialBendData("C-1-Si-1-O", 350, 1.893);
-  addInitialBendData("C-1-Si-1-Si", 750, 1.919);
-  addInitialBendData("O-1-Si-1-O", 450, 1.980);
-  addInitialBendData("Si-1-O-1-P", 450, 1.726); // XXX
-
-  addInitialBendData("Si-1-C-1-Si", 400, 2.016);
-  addInitialBendData("C-1-Si-1-C", 480, 1.934);
-  addInitialBendData("Cl-1-C-1-Cl", 1080, 1.950);
-  addInitialBendData("C-1-C-1-S", 550, 1.902);
-  addInitialBendData("C-1-S-1-C", 720, 1.902);
-  addInitialBendData("C-1-S-1-S", 1168, 1.795);
-  addInitialBendData("C-1-P-1-C", 576, 1.675);
-  addInitialBendData("O-1-P-1-O", 450, 1.736);
-  addInitialBendData("O-1-P-1-Si", 450, 1.736); // XXX
-
-  addInitialBendData("C-2-C-1-C", 550, 2.119); 
-  addInitialBendData("C-3-C-1-C", 200, 3.1415926); 
-  addInitialBendData("C-1-C-2-O", 460, 2.138);
-#endif
 
   vanDerWaalsHashtable = hashtable_new(40);
 }

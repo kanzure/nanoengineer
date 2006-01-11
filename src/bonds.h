@@ -1,65 +1,65 @@
-//                       e1  e2  ord    ks     r0      de     beta   inflectionR
-  addInitialBondStretch( 17, 17, '1',  274.7, 204.5, 0.3145, 2.0898, 238.4400); // Cl-Cl
-  addInitialBondStretch( 17,  1, '1',  502.5, 128.7, 0.7163, 1.8728, 166.3200); // Cl-H
-  addInitialBondStretch( 17,  9, '1',  437.5, 167.0, 0.3873, 2.3765, 196.7600); // Cl-F
-  addInitialBondStretch( 17,  6, '1',  352.5, 179.6, 0.6352, 1.6658, 222.0100); // Cl-C
-  addInitialBondStretch( 17,  7, '1',  344.4, 175.8, 0.3575, 2.1947, 208.0900); // Cl-N
-  addInitialBondStretch( 17,  8, '1',  365.1, 172.3, 0.4910, 1.9281, 208.9600); // Cl-O
-  addInitialBondStretch( 17,  5, '1',  376.7, 174.9, 0.8529, 1.4860, 222.3000); // Cl-B
-  addInitialBondStretch( 17, 16, '1',  247.8, 209.4, 0.3779, 1.8106, 248.5500); // Cl-S
-  addInitialBondStretch( 17, 15, '1',  249.9, 207.1, 0.4061, 1.7543, 247.3900); // Cl-P
-  addInitialBondStretch(  1,  1, '1',  599.5,  74.3, 0.7763, 1.9651, 109.8200); // H-H
-  addInitialBondStretch(  1,  9, '1',  930.2,  92.8, 0.9595, 2.2016, 124.7200); // H-F
-  addInitialBondStretch(  1,  6, '1',  540.4, 108.7, 0.8397, 1.7938, 147.8500); // H-C
-  addInitialBondStretch(  1,  7, '1',  716.7, 101.6, 0.7920, 2.1271, 134.7300); // H-N
-  addInitialBondStretch(  1,  8, '1',  838.2,  96.5, 0.8485, 2.2224, 128.2300); // H-O
-  addInitialBondStretch(  1,  5, '1',  385.2, 119.4, 0.7747, 1.5768, 163.7800); // H-B
-  addInitialBondStretch(  1, 16, '1',  415.8, 134.9, 0.6438, 1.7969, 174.1300); // H-S
-  addInitialBondStretch(  1, 15, '1',  363.3, 140.3, 0.5327, 1.8466, 178.5300); // H-P
-  addInitialBondStretch(  9,  9, '1',  599.5, 141.1, 0.2414, 3.5239, 161.3100); // F-F
-  addInitialBondStretch(  9,  6, '1',  573.9, 141.8, 0.8204, 1.8703, 179.5300); // F-C
-  addInitialBondStretch(  9,  7, '1',  524.1, 141.4, 0.4805, 2.3354, 171.6800); // F-N
-  addInitialBondStretch(  9,  8, '1',  524.8, 142.8, 0.3222, 2.8538, 167.6400); // F-O
-  addInitialBondStretch(  9,  5, '1',  674.9, 133.0, 1.1693, 1.6988, 174.3800); // F-B
-  addInitialBondStretch(  9, 16, '1',  414.9, 167.3, 0.5560, 1.9316, 203.8600); // F-S
-  addInitialBondStretch(  9, 15, '1',  464.5, 163.0, 0.6214, 1.9332, 199.4800); // F-P
-  addInitialBondStretch(  6,  6, '3', 1730.6, 120.8, 1.8689, 2.1517, 153.6500); // C+C
-  addInitialBondStretch(  6,  6, '1',  437.8, 154.9, 0.7578, 1.6996, 196.3800); // C-C
-  addInitialBondStretch(  6,  7, '1',  497.2, 150.4, 0.6519, 1.9528, 186.5600); // C-N
-  addInitialBondStretch(  6,  8, '1',  538.5, 145.7, 0.6953, 1.9679, 181.6000); // C-O
-  addInitialBondStretch(  6,  5, '1',  374.9, 157.1, 0.7836, 1.5466, 202.5900); // C-B
-  addInitialBondStretch(  6, 16, '1',  310.1, 184.4, 0.5671, 1.6536, 227.1400); // C-S
-  addInitialBondStretch(  6, 15, '1',  299.6, 185.1, 0.4918, 1.7452, 225.6400); // C-P
-  addInitialBondStretch(  7,  7, '1',  506.8, 146.1, 0.4548, 2.3604, 176.0800); // N-N
-  addInitialBondStretch(  7,  8, '1',  533.1, 142.5, 0.4571, 2.4149, 171.7600); // N-O
-  addInitialBondStretch(  7,  5, '1',  592.2, 142.8, 0.9424, 1.7725, 182.5200); // N-B
-  addInitialBondStretch(  7, 16, '1',  342.6, 177.2, 0.4387, 1.9760, 212.9500); // N-S
-  addInitialBondStretch(  7, 15, '1',  352.7, 176.1, 0.3841, 2.1428, 209.0700); // N-P
-  addInitialBondStretch(  8,  8, '1',  495.9, 144.3, 0.3277, 2.7507, 170.0700); // O-O
-  addInitialBondStretch(  8,  5, '1',  596.4, 138.8, 0.9424, 1.7788, 178.4200); // O-B
-  addInitialBondStretch(  8, 16, '1',  349.2, 173.3, 0.4774, 1.9125, 210.3200); // O-S
-  addInitialBondStretch(  8, 15, '1',  439.5, 167.0, 0.5014, 2.0935, 200.7800); // O-P
-  addInitialBondStretch(  5,  5, '1',  255.7, 175.8, 0.6481, 1.4046, 225.8900); // B-B
-  addInitialBondStretch(  5, 16, '1',  280.5, 187.2, 0.6401, 1.4803, 234.7500); // B-S
-  addInitialBondStretch(  5, 15, '1',  321.3, 184.1, 0.6418, 1.5822, 228.6500); // B-P
-  addInitialBondStretch( 16, 16, '1',  215.9, 216.0, 0.3505, 1.7550, 256.2600); // S-S
-  addInitialBondStretch( 16, 15, '1',  242.4, 212.2, 0.3651, 1.8220, 251.0100); // S-P
-  addInitialBondStretch( 15, 15, '1',  207.1, 220.0, 0.2030, 2.2583, 251.4300); // P-P
-  addInitialBondStretch( 17, 14, '1',  275.9, 208.2, 0.7021, 1.4017, 258.5400); // Cl-Si
-  addInitialBondStretch(  1, 14, '1',  290.4, 148.7, 0.6601, 1.4832, 196.1300); // H-Si
-  addInitialBondStretch(  9, 14, '1',  508.0, 163.3, 0.9925, 1.5997, 207.3200); // F-Si
-  addInitialBondStretch( 14, 14, '1',  165.2, 236.1, 0.5095, 1.2733, 291.4900); // Si-Si
-  addInitialBondStretch( 14,  6, '1',  272.7, 188.8, 0.6522, 1.4458, 237.5000); // Si-C
-  addInitialBondStretch( 14,  7, '1',  359.2, 178.1, 0.6579, 1.6523, 220.7600); // Si-N
-  addInitialBondStretch( 14,  8, '1',  434.3, 169.5, 0.7898, 1.6581, 212.0100); // Si-O
-  addInitialBondStretch( 14,  5, '1',  204.4, 203.4, 0.5867, 1.3199, 256.8000); // Si-B
-  addInitialBondStretch( 14, 16, '1',  231.2, 217.3, 0.5644, 1.4310, 266.6000); // Si-S
-  addInitialBondStretch( 14, 15, '1',  201.4, 225.3, 0.4227, 1.5436, 271.0600); // Si-P
-  addInitialBondStretch(  6,  7, '3', 2004.9, 115.8, 1.6892, 2.4361, 144.8000); // C+N
-  addInitialBondStretch(  8,  8, '2', 1257.2, 121.6, 0.2724, 4.8039, 136.3900); // O=O
-  addInitialBondStretch(  8,  6, '2', 1359.1, 121.2, 1.2578, 2.3244, 151.5800); // O=C
-  addInitialBondStretch(  6,  6, '2',  988.5, 133.4, 1.2708, 1.9721, 169.2400); // C=C
-  addInitialBondStretch(  7,  7, '3', 2477.7, 110.5, 1.5347, 2.8412, 135.4400); // N+N
-  addInitialBondStretch(  7,  7, '2', 1278.4, 123.2, 0.8346, 2.7674, 148.7500); // N=N
-  addInitialBondStretch(  7,  8, '2', 1320.7, 120.6, 0.7920, 2.8876, 145.0600); // N=O
-  addInitialBondStretch(  7,  6, '2', 1167.0, 127.0, 1.1232, 2.2793, 158.0100); // N=C
+//                        ks      r0       de    beta  inflectionR bondName
+  addInitialBondStretch( 274.70, 204.54, 0.3145, 2.0898, 238.29, "Cl-1-Cl");
+  addInitialBondStretch( 502.46, 128.72, 0.7163, 1.8728, 166.19, "H-1-Cl");
+  addInitialBondStretch( 437.46, 166.96, 0.3873, 2.3765, 196.63, "F-1-Cl");
+  addInitialBondStretch( 352.51, 179.61, 0.6352, 1.6658, 221.84, "C-1-Cl");
+  addInitialBondStretch( 344.38, 175.79, 0.3575, 2.1947, 207.91, "N-1-Cl");
+  addInitialBondStretch( 365.06, 172.26, 0.4910, 1.9281, 208.78, "O-1-Cl");
+  addInitialBondStretch( 376.69, 174.90, 0.8529, 1.4860, 222.16, "B-1-Cl");
+  addInitialBondStretch( 247.76, 209.45, 0.3779, 1.8106, 248.38, "S-1-Cl");
+  addInitialBondStretch( 249.95, 207.09, 0.4061, 1.7543, 247.26, "P-1-Cl");
+  addInitialBondStretch( 599.55,  74.32, 0.7763, 1.9651, 109.65, "H-1-H");
+  addInitialBondStretch( 930.16,  92.82, 0.9595, 2.2016, 124.61, "H-1-F");
+  addInitialBondStretch( 540.39, 108.75, 0.8397, 1.7938, 147.73, "H-1-C");
+  addInitialBondStretch( 716.72, 101.63, 0.7920, 2.1271, 134.56, "H-1-N");
+  addInitialBondStretch( 838.19,  96.53, 0.8485, 2.2224, 128.05, "H-1-O");
+  addInitialBondStretch( 385.25, 119.38, 0.7747, 1.5768, 163.69, "H-1-B");
+  addInitialBondStretch( 415.75, 134.93, 0.6438, 1.7969, 173.98, "H-1-S");
+  addInitialBondStretch( 363.28, 140.33, 0.5327, 1.8466, 178.36, "H-1-P");
+  addInitialBondStretch( 599.55, 141.11, 0.2414, 3.5239, 161.15, "F-1-F");
+  addInitialBondStretch( 573.94, 141.83, 0.8204, 1.8703, 179.39, "C-1-F");
+  addInitialBondStretch( 524.14, 141.38, 0.4805, 2.3354, 171.53, "N-1-F");
+  addInitialBondStretch( 524.82, 142.84, 0.3222, 2.8538, 167.55, "O-1-F");
+  addInitialBondStretch( 674.89, 132.98, 1.1693, 1.6988, 174.24, "B-1-F");
+  addInitialBondStretch( 414.90, 167.26, 0.5560, 1.9316, 203.71, "F-1-S");
+  addInitialBondStretch( 464.48, 162.98, 0.6214, 1.9332, 199.39, "F-1-P");
+  addInitialBondStretch(1730.61, 120.85, 1.8689, 2.1517, 153.49, "C-3-C");
+  addInitialBondStretch( 437.82, 154.88, 0.7578, 1.6996, 196.21, "C-1-C");
+  addInitialBondStretch( 497.22, 150.36, 0.6519, 1.9528, 186.38, "C-1-N");
+  addInitialBondStretch( 538.53, 145.70, 0.6953, 1.9679, 181.43, "C-1-O");
+  addInitialBondStretch( 374.86, 157.09, 0.7836, 1.5466, 202.46, "B-1-C");
+  addInitialBondStretch( 310.12, 184.44, 0.5671, 1.6536, 226.99, "C-1-S");
+  addInitialBondStretch( 299.57, 185.14, 0.4918, 1.7452, 225.48, "C-1-P");
+  addInitialBondStretch( 506.79, 146.08, 0.4548, 2.3604, 175.92, "N-1-N");
+  addInitialBondStretch( 533.13, 142.46, 0.4571, 2.4149, 171.63, "N-1-O");
+  addInitialBondStretch( 592.16, 142.82, 0.9424, 1.7725, 182.43, "B-1-N");
+  addInitialBondStretch( 342.60, 177.15, 0.4387, 1.9760, 212.80, "N-1-S");
+  addInitialBondStretch( 352.72, 176.07, 0.3841, 2.1428, 208.96, "N-1-P");
+  addInitialBondStretch( 495.90, 144.27, 0.3277, 2.7507, 169.91, "O-1-O");
+  addInitialBondStretch( 596.39, 138.82, 0.9424, 1.7788, 178.28, "B-1-O");
+  addInitialBondStretch( 349.25, 173.32, 0.4774, 1.9125, 210.14, "O-1-S");
+  addInitialBondStretch( 439.50, 166.98, 0.5014, 2.0935, 200.63, "O-1-P");
+  addInitialBondStretch( 255.71, 175.79, 0.6481, 1.4046, 225.76, "B-1-B");
+  addInitialBondStretch( 280.54, 187.15, 0.6401, 1.4803, 234.63, "B-1-S");
+  addInitialBondStretch( 321.32, 184.05, 0.6418, 1.5822, 228.50, "B-1-P");
+  addInitialBondStretch( 215.90, 215.96, 0.3505, 1.7550, 256.12, "S-1-S");
+  addInitialBondStretch( 242.40, 212.21, 0.3651, 1.8220, 250.90, "P-1-S");
+  addInitialBondStretch( 207.05, 220.03, 0.2030, 2.2583, 251.29, "P-1-P");
+  addInitialBondStretch( 275.90, 208.24, 0.7021, 1.4017, 258.41, "Si-1-Cl");
+  addInitialBondStretch( 290.41, 148.73, 0.6601, 1.4832, 195.97, "H-1-Si");
+  addInitialBondStretch( 507.97, 163.32, 0.9925, 1.5997, 207.23, "F-1-Si");
+  addInitialBondStretch( 165.22, 236.09, 0.5095, 1.2733, 291.33, "Si-1-Si");
+  addInitialBondStretch( 272.66, 188.80, 0.6522, 1.4458, 237.40, "C-1-Si");
+  addInitialBondStretch( 359.22, 178.06, 0.6579, 1.6523, 220.63, "N-1-Si");
+  addInitialBondStretch( 434.29, 169.51, 0.7898, 1.6581, 211.91, "O-1-Si");
+  addInitialBondStretch( 204.42, 203.40, 0.5867, 1.3199, 256.63, "B-1-Si");
+  addInitialBondStretch( 231.15, 217.30, 0.5644, 1.4310, 266.47, "Si-1-S");
+  addInitialBondStretch( 201.44, 225.26, 0.4227, 1.5436, 270.89, "Si-1-P");
+  addInitialBondStretch(2004.91, 115.80, 1.6892, 2.4361, 144.66, "C-3-N");
+  addInitialBondStretch(1257.24, 121.59, 0.2724, 4.8039, 136.30, "O-2-O");
+  addInitialBondStretch(1359.14, 121.18, 1.2578, 2.3244, 151.43, "C-2-O");
+  addInitialBondStretch( 988.51, 133.44, 1.2708, 1.9721, 169.06, "C-2-C");
+  addInitialBondStretch(2477.70, 110.54, 1.5347, 2.8412, 135.32, "N-3-N");
+  addInitialBondStretch(1278.37, 123.15, 0.8346, 2.7674, 148.60, "N-2-N");
+  addInitialBondStretch(1320.74, 120.56, 0.7920, 2.8876, 144.96, "N-2-O");
+  addInitialBondStretch(1167.02, 127.01, 1.1232, 2.2793, 157.87, "C-2-N");

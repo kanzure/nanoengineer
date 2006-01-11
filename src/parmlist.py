@@ -60,7 +60,7 @@ bontyp = {'-':'1', '=':'2', '+':'3','@':'a', '#':'g'}
 
 if __name__ == "__main__":
     f=open(sys.argv[1])
-    print '//                       e1  e2  ord    ks     r0      de     beta   inflectionR'
+    print '//                        ks      r0       de    beta  inflectionR bondName'
     for lin in f.readlines():
         if commpat.match(lin): continue
         m = parmpat.match(lin)
@@ -77,12 +77,13 @@ if __name__ == "__main__":
             a = (r * r - r0 * r0)
             b = a * a / r - 4000000 * de * r0 / ks
 #            print '%f %f' %(r, b) 
-            r = r + 0.1
-        
-        print '  addInitialBondStretch(',
-        print '%2d,'%sym2num[which[0]],
-        print '%2d,'%sym2num[which[2]],
-        print "'%s',"%bontyp[which[1]],
-        
-        print '%6.1f,%6.1f,%7.4f,%7.4f, %7.4f); //'%(ks,r0,de,bt,r),
-        print which[0]+which[1]+which[2]
+            r = r + 0.01
+
+        if sym2num[which[0]] > sym2num[which[2]]:
+                e2 = which[0]
+                e1 = which[2]
+        else:
+                e1 = which[0]
+                e2 = which[2]
+        print '  addInitialBondStretch(%7.2f,%7.2f,%7.4f,%7.4f,%7.2f,'%(ks,r0,de,bt,r),
+        print '"%s-%s-%s");'%(e1, bontyp[which[1]], e2)
