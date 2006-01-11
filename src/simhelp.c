@@ -103,7 +103,9 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
     if (pValue == NULL) {
 	callback_exception = 1;
 	// wware 060109  python exception handling
-	py_exc_str = "callback exception";
+	// This string is ignored because callback_exception is 1, but
+	// it must be non-NULL so we pop out through all the BAIL()s.
+	py_exc_str = "this string is ignored";
     } else {
 	Py_DECREF(pValue);
     }
@@ -341,6 +343,9 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     if (tracef != NULL) fclose(tracef);
 
     if (callback_exception) {
+	if (!PyErr_Occurred())
+	    PyErr_SetString(PyExc_RuntimeError,
+			    "Unknown exception occurred in callback");
 	return NULL;
     } else if (py_exc_str != NULL) {
 	// wware 060109  python exception handling
