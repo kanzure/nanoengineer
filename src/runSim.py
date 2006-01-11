@@ -40,7 +40,9 @@ import env #bruce 050901
 
 # more imports lower down
 
-debug_all_frames = 0 # DO NOT COMMIT with 1
+debug_sim_exceptions = 0 # DO NOT COMMIT WITH 1 -- set this to reproduce a bug being investigated by Will #bruce 060111
+
+debug_all_frames = 0 # DO NOT COMMIT with 1 
 debug_sim = 0 # DO NOT COMMIT with 1
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 
@@ -56,6 +58,9 @@ if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
 #use_pyrex_sim = True
 
 #use_pyrex_sim = False
+
+if debug_sim_exceptions:
+    debug_all_frames = 1
 
 
 ##cmd = greenmsg("Simulator: ")
@@ -800,13 +805,29 @@ class SimRunner:
                         # It also generates a tracefile line "# Warning: minimizer run was interrupted "
                         # (presumably before that exception gets back to here,
                         #  which means a tracefile callback would presumably see it if we set one).
+                    print "pyrex sim: returned normally" ###@@@ remove this sometime
                 except RuntimeError:
+                    # This is the pyrex sim's usual exit from a user abort; as of 060111 9am PST it's also
+                    # (due to a bug it has) its exit from certain internal errors caused by exceptions in Python callbacks.
+                    if debug_sim_exceptions: #bruce 060111
+                        print_compact_traceback("fyi: sim.go aborted with this: ")
+                    # following code is wrong unless this was a user abort, but I'm too lazy to test for that from the exception text,
+                    # better to wait until it's a new subclass of RuntimeError I can test for [bruce 060111]
                     env.history.statusbar_msg("Aborted")
                     print "pyrex sim: aborted" ###@@@ remove this sometime
                     if not abortbutton.aborting():
                         print "error: abort without abortbutton doing it (did a subtask intervene and finish it?)"
+                        print " (or this can happen due to sim bug in which callback exceptions turn into RuntimeErrors)"####@@@@
+                        from StatusBar import ABORTING #bruce 060111 9:16am PST bugfix of unreported bug
                         abortbutton.status = ABORTING ###@@@ kluge, should clean up, or at least use a method and store an error string too
                         assert abortbutton.aborting()
+                    ## bug: this fails to cause an abort to be reported by history. might relate to bug 1303.
+                    # or might only occur due to current bugs in the pyrex sim, since I think user abort used to work. [bruce 060111]
+                    # Initial attempt to fix that -- need to improve errcode after reviewing them all
+                    # (check for errorcode spelling error too? or rename it?) #######@@@@@@@
+                    if not self.errcode:
+                        print "self.errcode was not set, using -1"
+                        self.errcode = -1 # simulator failure [wrong errorcode for user abort, fix this]
                     pass
                 pass
             if 1: # even if aborting
@@ -839,8 +860,13 @@ class SimRunner:
         self.__frame_number += 1
         if debug_all_frames:
             from sim import getFrame
-            print "frame %d" % self.__frame_number, getFrame()
-                ## note: not print "frame %d" % self.__frame_number, self._simobj.getFrame() # this is a bug, that attr should not exist
+            if debug_sim_exceptions:
+                # intentially buggy code
+                print "frame %d" % self.__frame_number, self._simobj.getFrame() # this is a bug, that attr should not exist
+            else:
+                # correct code
+                print "frame %d" % self.__frame_number, getFrame()
+            pass
         ###e how to improve timing:
         # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
         if debug_all_frames or now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
@@ -930,6 +956,8 @@ class SimRunner:
     def abort_sim_run(self, why = "(reason not specified by internal code)" ): #bruce 060102
         "#doc"
         self._simopts.Interrupted = True
+        if not self.errcode:
+            self.errcode = -1 #######@@@@@@@ temporary kluge in case of bugs in RuntimeError from that or its handler [bruce 060111]
         env.history.message( redmsg( "aborting sim run: %s" % why )) ######@@@@@@@ only if we didn't do this already
             #####@@@@@ current code (kluge) might do it 2 times even if sim behaves perfectly and no nested tasks (not sure)
         return
