@@ -21,19 +21,19 @@
 #ifdef WWDEBUG
 // handy little debug macros
 #define SAY(fmt)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
-              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, "%s:%d(%s)  ", __FILE__, __LINE__, __FUNCTION__); \
               fprintf(outf, fmt); fclose(outf); }
 #define SAY1(fmt,a)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
-              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, "%s:%d(%s)  ", __FILE__, __LINE__, __FUNCTION__); \
               fprintf(outf, fmt, a); fclose(outf); }
 #define SAY2(fmt,a,b)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
-              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, "%s:%d(%s)  ", __FILE__, __LINE__, __FUNCTION__); \
               fprintf(outf, fmt, a, b); fclose(outf); }
 #define SAY3(fmt,a,b,c)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
-              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, "%s:%d(%s)  ", __FILE__, __LINE__, __FUNCTION__); \
               fprintf(outf, fmt, a, b, c); fclose(outf); }
 #define SAY4(fmt,a,b,c,d)   { FILE *outf = fopen("/home/wware/FOO", "a"); \
-              fprintf(outf, "%s:%d  ", __FILE__, __LINE__); \
+              fprintf(outf, "%s:%d(%s)  ", __FILE__, __LINE__, __FUNCTION__); \
               fprintf(outf, fmt, a, b, c, d); fclose(outf); }
 #else
 #define SAY(fmt)
@@ -95,15 +95,15 @@ extern void set_py_exc_str(const char *filename, const char *funcname,
 			   const char *format, ...);
 
 #define NULLPTR(p)  \
-  if ((p) == NULL) { \
+  if ((p) == NULL) { SAY("NULLPTR\n"); \
   set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return; }
 #define NULLPTRR(p,x)  \
-  if ((p) == NULL) { \
+  if ((p) == NULL) { SAY("NULLPTRR\n"); \
   set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return (x); }
 #define BAIL()  \
-  if (py_exc_str != NULL) return
+  if (py_exc_str != NULL) { SAY("BAIL\n"); return; }
 #define BAILR(x)  \
-  if (py_exc_str != NULL) return (x)
+  if (py_exc_str != NULL) { SAY("BAILR\n"); return x; }
 
 /*
  * Local Variables:
