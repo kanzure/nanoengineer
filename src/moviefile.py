@@ -334,7 +334,16 @@ class OldFormatMovieFile: #bruce 050426
         # (with luck, reading the whole frame at once will be a nice speedup for fast-forwarding...)
         res = array(bytes,Int8)
         res.shape = (-1,3)
-        return res * 0.01 #e it might be nice to avoid that multiply someday...
+        return res * 0.01 #e it might be nice to move that multiply into caller (for speedup and error-reduction):
+            #bruce 060110 comment: 0.01 is not represented exactly, so including it here might introduce cumulative
+            # roundoff errors into callers who add up lots of delta frames! Let's estimate the size: assume 53 significant bits,
+            # and typical values within 10^6 of 0, and need for 10^-3 precision, then we're using about 30 bits,
+            # so an error in last bit, accumulating badly, still has say 1/4 * 2^23 = >> 10^6 steps to cause trouble...
+            # and I think adding or subtracting this delta frame should reverse properly (same error gets added or removed),
+            # except perhaps for special coord values that won't occur most times, so if true, what matters is movie length
+            # rather than how often user plays it forwards and back. So I think we can tolerate this error for A7, at least,
+            # and I think we can rule it out as a possible cause of bug 1297 (and an experiment also seems to rule that out).
+            # In the long run, we should fix this, though I never observed a problem. ####@@@@
 
     def close_file(self):
         self.filereader.close_file() # but don't forget about it!

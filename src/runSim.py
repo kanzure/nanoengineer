@@ -40,6 +40,7 @@ import env #bruce 050901
 
 # more imports lower down
 
+debug_all_frames = 0 # DO NOT COMMIT with 1
 debug_sim = 0 # DO NOT COMMIT with 1
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 
@@ -821,8 +822,11 @@ class SimRunner:
         abortbutton.finish() # whether or not there was an exception and/or it aborted
         return
 
-    __callback_time = -1 ###e could easily optim our test by storing this plus __sim_work_time
-    __frame_number = 0 #e do we ever need to reset this? probably not -- i think this is a single-use object.
+    __callback_time = -1 ###e we could easily optim our test by storing this plus __sim_work_time
+    __frame_number = 0 # starts at 0 so incrementing it labels first frame as 1 (since initial frame is not returned)
+        #k ought to verify that in sim code -- seems correct, looking at coords and total number of frames
+        # note: we never need to reset __frame_number since this is a single-use object.
+        # could this relate to bug 1297? [bruce 060110]
     __sim_work_time = 0.05 # initial value -- we'll run sim_frame_callback_worker 20 times per second, with this value
     def sim_frame_callback(self): #bruce 060102
         "Per-frame callback function for simulator object."
@@ -833,9 +837,13 @@ class SimRunner:
         import time
         now = time.time() # should we use real time like this, or cpu time like .clock()??
         self.__frame_number += 1
+        if debug_all_frames:
+            from sim import getFrame
+            print "frame %d" % self.__frame_number, getFrame()
+                ## note: not print "frame %d" % self.__frame_number, self._simobj.getFrame() # this is a bug, that attr should not exist
         ###e how to improve timing:
         # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
-        if now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
+        if debug_all_frames or now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
             simtime = now - self.__callback_time # for sbar
             if debug_pyrex_prints:
                 print "sim hit frame %d in" % self.__frame_number, simtime
@@ -938,7 +946,8 @@ class SimRunner:
         # Meanwhile, possible bug -- not sure revisions of 060109 (or prior state) is fully safe when called after errors.
         if not self.tracefileProcessor:
             # we weren't printing tracefile warnings continuously -- print them now
-            self.tracefileProcessor = TracefileProcessor(self) # this might change self.said_we_are_done, now and/or later
+            self.tracefileProcessor = TracefileProcessor(self)
+                # this might change self.said_we_are_done and/or use self.traceFileName, now and/or later
             try:
                 tfile = self.traceFileName
             except AttributeError:
@@ -1028,6 +1037,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             # but [bruce 050415] only say this if the location has changed since last time we said it,
             # and only include the general advice once per session.
             global last_sim_tracefile
+            tfile = self.owner.traceFileName #bruce 060110 try to fix bug 1299
             if last_sim_tracefile != tfile:
                 preach = (last_sim_tracefile is None)
                 last_sim_tracefile = tfile
@@ -1238,7 +1248,7 @@ class simSetup_CommandRun(CommandRun):
             env.history.message(self.cmdname + ": " + msg)
             return
         
-        env.history.message(self.cmdname + "Enter simulation parameters and select <b>Run Simulation.</b>")
+        env.history.message(self.cmdname + ": " + "Enter simulation parameters and select <b>Run Simulation.</b>")
 
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
         # iff it's the current mode.
@@ -1284,7 +1294,7 @@ class simSetup_CommandRun(CommandRun):
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
             assert not movie
-            env.history.message(self.cmdname + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
+            env.history.message(self.cmdname + ": " + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
         return
 
     def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
