@@ -1458,6 +1458,12 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
 
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
 
+        # Create "SelectWaitCursor" cursor.  Added 060111 by Mark.
+        self.SelectWaitCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectWaitCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectWaitCursor-bm.bmp"),
+            0, 0)
+            
         # Create "SelectAtomsCursor" cursor
         self.SelectAtomsCursor = QCursor(
             QBitmap(filePath + "/../images/SelectAtomsCursor.bmp"),
