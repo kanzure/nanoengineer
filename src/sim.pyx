@@ -58,10 +58,17 @@ cdef extern from "simhelp.c":
 
     void reinitSimGlobals(PyObject)
     verifySimObject(PyObject)
+    specialExceptionIs(PyObject)
 
     void dynamicsMovie_start()
     void dynamicsMovie_step()
     void dynamicsMovie_finish()
+
+# wware 060111  a special exception for simulator interruptions
+class SimulatorInterrupted(Exception):
+    pass
+
+specialExceptionIs(SimulatorInterrupted)
 
 cdef class BaseSimulator:
     """Pyrex permits access to doc strings"""

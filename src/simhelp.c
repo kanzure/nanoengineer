@@ -45,6 +45,20 @@ static void *mostRecentSimObject = NULL;
 // Python exception stuff, wware 010609
 char *py_exc_str = NULL;
 static char py_exc_strbuf[1024];
+PyObject *simulatorInterruptedException;
+
+PyObject *
+specialExceptionIs(PyObject *specialExcep)
+{
+    if (!PyClass_Check(specialExcep)) {
+	PyErr_SetString(PyExc_SystemError,
+			"argument must be a PyClass");
+	return NULL;
+    }
+    simulatorInterruptedException = specialExcep;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static void
 begin_python_call(void)
@@ -113,8 +127,10 @@ static void
 do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
     PyObject *pValue;
-    if (callbackFunc == NULL) return;
+    if (Interrupted || callbackFunc == NULL)
+	return;
     if (PyErr_Occurred()) {
+	// there was already a Python error when we got here
 	callback_exception = 1;
 	return;
     }
@@ -123,7 +139,10 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
 	PyErr_SetString(PyExc_RuntimeError, "callback not callable");
     }
     pValue = PyObject_CallObject(callbackFunc, args);
-    if (PyErr_Occurred()) callback_exception = 1;
+    if (PyErr_Occurred()) {
+	callback_exception = 1;
+	Interrupted = 1;
+    }
     Py_DECREF(args);
     Py_XDECREF(pValue);
 }
@@ -365,8 +384,11 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	return NULL;
     } else if (py_exc_str != NULL) {
 	// wware 060109  python exception handling
-	// If we're Interrupted, it will have happened by now
 	PyErr_SetString(PyExc_RuntimeError, py_exc_str);
+	return NULL;
+    } else if (Interrupted) {
+	PyErr_SetString(simulatorInterruptedException,
+			"simulator was interrupted");
 	return NULL;
     }
 
