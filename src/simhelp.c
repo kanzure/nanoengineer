@@ -5,6 +5,8 @@
  *
  * CHANGES  (reverse chronological order, use CVS log for details)
  *
+ * wware 060111 - Be more careful with error checking in do_python_callback.
+ *
  * wware 060109 - Made several changes to facilitate passing Python
  * exceptions upstream from deep inside C function call stacks.
  *
@@ -40,6 +42,17 @@ char *filename;
 
 static void *mostRecentSimObject = NULL;
 
+// Python exception stuff, wware 010609
+char *py_exc_str = NULL;
+static char py_exc_strbuf[1024];
+
+static void
+begin_python_call(void)
+{
+    py_exc_str = NULL;
+    callback_exception = 0;
+}
+
 void
 reinitSimGlobals(PyObject *sim)
 {
@@ -50,6 +63,7 @@ reinitSimGlobals(PyObject *sim)
 PyObject *
 verifySimObject(PyObject *sim)
 {
+    begin_python_call();
     if (sim != mostRecentSimObject) {
 	PyErr_SetString(PyExc_AssertionError,
 			"not the most recent simulator object");
@@ -82,12 +96,14 @@ setCallbackFunc(PyObject *f, PyObject **cb)
 PyObject *
 setWriteTraceCallbackFunc(PyObject *f)
 {
+    begin_python_call();
     return setCallbackFunc(f, &writeTraceCallbackFunc);
 }
 
 PyObject *
 setFrameCallbackFunc(PyObject *f)
 {
+    begin_python_call();
     return setCallbackFunc(f, &frameCallbackFunc);
 }
 
@@ -98,20 +114,18 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
     PyObject *pValue;
     if (callbackFunc == NULL) return;
-    pValue = PyObject_CallObject(callbackFunc, args);
-    Py_DECREF(args);
-    if (pValue == NULL) {
+    if (PyErr_Occurred()) {
 	callback_exception = 1;
-	if (!PyErr_Occurred())
-	    PyErr_SetString(PyExc_SystemError,
-			    "Callback return NULL but did not give exception info");
-	// wware 060109  python exception handling
-	// This string is ignored because callback_exception is 1, but
-	// it must be non-NULL so we pop out through all the BAIL()s.
-	py_exc_str = "this string is ignored";
-    } else {
-	Py_DECREF(pValue);
+	return;
     }
+    if (!PyCallable_Check(callbackFunc)) {
+	callback_exception = 1;
+	PyErr_SetString(PyExc_RuntimeError, "callback not callable");
+    }
+    pValue = PyObject_CallObject(callbackFunc, args);
+    if (PyErr_Occurred()) callback_exception = 1;
+    Py_DECREF(args);
+    Py_XDECREF(pValue);
 }
 
 // wware 060102  callback for trace file
@@ -156,6 +170,8 @@ getFrame_c(void)
     PyObject *retval;
     double *data;
     int i, n;
+
+    begin_python_call();
     if (part == NULL) {
 	PyErr_SetString(PyExc_MemoryError,
 			"part is null");
@@ -199,6 +215,7 @@ void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     char *tfilename;
     char *p;
 
+    begin_python_call();
     ofilename = "";
     tfilename = "";
 
@@ -266,7 +283,7 @@ PyObject *
 readPart(void)
 {
     // wware 060109  python exception handling
-    py_exc_str = NULL;
+    begin_python_call();
     part = readMMP(buf);
     if (part == NULL) {
 	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
@@ -291,8 +308,7 @@ PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
     // wware 060109  python exception handling
-    py_exc_str = NULL;
-    callback_exception = 0;
+    begin_python_call();
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
     if (!printPotentialEnergy) {
@@ -455,10 +471,6 @@ char * structCompareHelp(void) {
     retval[0] = '\0';
     return retval;
 }
-
-// Python exception stuff, wware 010609
-char *py_exc_str = NULL;
-static char py_exc_strbuf[1024];
 
 void
 set_interrupted_flag(int value)
