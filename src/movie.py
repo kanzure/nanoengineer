@@ -124,6 +124,11 @@ class Movie:
     # kinds of sim runs (eg minimize) can be different. The superclass would
     # have most of the "writemovie" function (write sim input and run sim)
     # as a method, with subclasses customizing it.
+
+    duration = 0.0 # seconds it took to create moviefile (if one was created and after that's finished) [bruce 060112]
+    ref_frame = None # None or (frame_number, sim_posn_array) for a reference frame for use in playing the movie
+        # from purely differential data in old-format moviefiles (to finish fixing bug 1297; someday can help improve fix to 1273)
+        # (see comments in get_sim_posns for relevant info and caveats) [bruce 060112]
     
     ignore_slider_and_spinbox = False # (in case needed before init done)
     def __init__(self, assembly, name=None):
@@ -346,15 +351,35 @@ class Movie:
                 # For now, nothing so fancy. [bruce 050427]
                 self.set_alist_from_entire_part( self.assy.part)
                 we_set_alist = True
+            if self.ref_frame is None: #bruce 060112
+                # make a reference frame the best we can from current atom positions
+                # [note: only needed if movie file format needs one, so once we support new DPB file format,
+                #  we should make this conditional on the format, or do it in a callback provided to alist_and_moviefile ###@@@]
+                if self.currentFrame:
+                    # should never happen once bug 1297 fix is completed 
+                    print "warning: making ref_frame from nonzero currentFrame %d" % self.currentFrame
+                self.ref_frame = ( self.currentFrame, A(map(lambda a: a.sim_posn(), self.alist)) )
+            else:
+                # Client code supplied ref_frame, and that would be the fastest frame to start playing,
+                # but we should not change currentFrame to match it since it should match actual atom posns,
+                # not "desired frame to play next". Besides, I'm not sure this only runs when we cue the movie.
+                # Some other code can play to frame 0 when cueing movie, if desired. For now that's nim;
+                # it would require figuring out where movies are cued and when to autoplay to the desired frame
+                # and which frame that was (presumably the reference frame). ###@@@ [bruce 060112]
+                pass ## self.currentFrame = self.ref_frame[0]
+            if len(self.ref_frame[1]) != len(self.alist):
+                print "apparent bug: len(self.ref_frame[1]) != len(self.alist)" # should never happen, add %d if it does
             if self.currentFrame != 0:
-                # shouldn't ever happen, I think, since this movie was not played yet since self created;
-                # so if it does, tell me, since it might be a bug; maybe useful to say anyway [bruce 050427]
-                #bruce 060108 now it can happen, if we moved atoms in realtime while creating movie (due to fixing bug 1273);
-                # seems good to have then; might be redundant but fix that later
+                # As of 060111, this can happen (due to fixing bug 1273) if we moved atoms in realtime while creating movie.
+                # Even after the complete fix of bug 1297 (just done, 060112) it will still happen unless we decide to
+                # change the fix of bug 1273 to start playing from ref_frame (see comment above about that).
+                #    Maybe it could also happen if we leave moviemode on a nonzero frame, then reenter it?
+                # Should test, but right now my guess is that we're prohibited from leaving it in that case!
                 env.history.message( greenmsg( "(Starting movie from frame %d.)" % self.currentFrame ))
                 # [note: self.currentFrame is maintained independently of a similar variable
                 #  inside a lower-level moviefile-related object.]
-            self.alist_and_moviefile = alist_and_moviefile( self.assy, self.alist, self.filename, curframe_in_alist = self.currentFrame)
+            self.alist_and_moviefile = alist_and_moviefile( self.assy, self.alist, self.filename, ref_frame = self.ref_frame )
+                                                            ## curframe_in_alist = self.currentFrame)
                 # if this detected an error in the file matching the alist, it stored this fact but didn't report it yet or fail #####@@@@@ doit
                 # maybe it won't even check yet, until asked...
             we_set_alist_and_moviefile = True
@@ -1008,6 +1033,8 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         self.natoms = len(self.alist)
 
     def get_sim_posns(self): #bruce 060111 renamed and revised this from get_posns, for use in approximate fix of bug 1297
+        # note: this method is no longer called as of bruce 060112, but its comments are relevant and are referred to
+        # from several files using the name of this method. It's also still correctly implemented, so we can leave it in for now.
         """Return an Array (mutable and owned by caller) of current positions-for-simulator of our atoms
         (like positions, except singlets pretend they're H's and correct their posns accordingly).
         (This must work even if some of our atoms have been killed, or moved into different Parts,
@@ -1103,14 +1130,16 @@ class alist_and_moviefile:
     or it might still be better to let that be a separate object which represents one of these. #k
     """
     _valid = False
-    def __init__(self, assy, alist, filename, curframe_in_alist = None):
+    def __init__(self, assy, alist, filename, ref_frame = None): #bruce 060112 removed curframe_in_alist, added ref_frame
         """Caller promises that filename exists. If it matches alist well enough to use with it,
         we set self.valid() true and fully init ourselves, i.e. set up the file/alist relationship
         and get ready to play specific frames (i.e. copy posns from file into alist's atoms) on request.
         If file doesn't match alist, we set self.valid() false and return early
         (but we might still be usable later if the file changes and some recheck method (NIM) is called (#e)).
-           If provided, curframe_in_alist is the frame whose abs positions are the current positions of the atoms in alist,
-        and caller is saying to use this to understand how to interpret a purely-differential moviefile.
+           If provided, ref_frame is (frame_number, sim_posn_array) for some frame of the movie,
+        which we should use as a reference for interpreting a purely-differential moviefile.
+        Such moviefiles require that this argument be provided.
+        [I'm not sure when this is checked -- leaving it out might cause later exception or (unlikely) wrong positions.]
         If the moviefile has its own abs positions, we can ignore this argument
         (#e but in future we might decide instead to check it, or to use it in some other way...).
         """
@@ -1129,11 +1158,14 @@ class alist_and_moviefile:
             self.moviefile = None
             return # caller should check self.valid()
         self.movable_atoms = MovableAtomList( assy, alist)
-        if curframe_in_alist is not None:
-            n = curframe_in_alist
-            frame_n = self.movable_atoms.get_sim_posns()
-                #bruce 060111 replaced get_posns with new get_sim_posns to approximately fix bug 1297;
-                # see comment in definition of get_sim_posns for more info.
+##        if curframe_in_alist is not None:
+##            n = curframe_in_alist
+##            frame_n = self.movable_atoms.get_sim_posns()
+##                #bruce 060111 replaced get_posns with new get_sim_posns to approximately fix bug 1297;
+##                # see comment in definition of get_sim_posns for more info.
+##            self.moviefile.donate_immutable_cached_frame( n, frame_n)
+        if ref_frame:
+            n, frame_n = ref_frame
             self.moviefile.donate_immutable_cached_frame( n, frame_n)
 #bruce 060108 commenting out all sets of self.current_frame to avoid confusion, since nothing uses it;
 # but I suggest leaving the commented-out code around until the next major rewrite.

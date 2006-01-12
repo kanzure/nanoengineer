@@ -37,6 +37,7 @@ from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env #bruce 050901
+from VQT import A, V
 
 # more imports lower down
 
@@ -760,7 +761,12 @@ class SimRunner:
         """#doc
         """
         movie = self._movie
-        movie.duration = 0.0
+        if platform.atom_debug and movie.duration:
+            print "atom_debug: possible bug: movie.duration was already set to", movie.duration
+        movie.duration = 0.0 #k hopefully not needed
+        # provide a reference frame for later movie-playing (for complete fix of bug 1297) [bruce 060112]
+        movie.ref_frame = (self.__frame_number,  A(map(lambda a: a.sim_posn(), movie.alist))) # see similar code in class Movie
+            #e this could be slow, and the simobj already knows it, but I don't think getFrame has access to it [bruce 060112]
         simopts = self._simopts
         simobj = self._simobj
 
