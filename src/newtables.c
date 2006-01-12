@@ -81,7 +81,7 @@ generateBendName(char *bendName,
           bondOrder2, periodicTable[element2].symbol);
 }
 
-static struct hashtable *bondStretchHashtable;
+static struct hashtable *bondStretchHashtable = NULL;
 static struct hashtable *bendDataHashtable;
 static struct hashtable *deHashtable;
 static struct hashtable *vanDerWaalsHashtable;
@@ -182,6 +182,7 @@ setElement(int protons,
 void
 initializeBondTable(void)
 {
+  if (bondStretchHashtable != NULL) return;  // no need to repeat
   memset(periodicTable, 0, sizeof(periodicTable));
   
   // groups 9-22 are lanthanides

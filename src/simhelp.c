@@ -70,6 +70,7 @@ begin_python_call(void)
 void
 reinitSimGlobals(PyObject *sim)
 {
+    initializeBondTable();
     reinit_globals();
     mostRecentSimObject = sim;
 }
