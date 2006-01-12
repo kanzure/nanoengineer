@@ -40,6 +40,8 @@ extern int ExcessiveEnergyWarning;
 // have we warned the user about using a generic/guessed force field parameter?
 extern int ComputedParameterWarning;
 
+extern int InterruptionWarning;
+
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 extern double Dt;
 extern double Dx;

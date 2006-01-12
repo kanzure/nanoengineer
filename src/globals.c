@@ -35,6 +35,7 @@ int Count;
 
 int ExcessiveEnergyWarning;
 int ComputedParameterWarning;
+int InterruptionWarning;
 
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 double Dt;              // seconds
@@ -77,6 +78,7 @@ reinit_globals(void)
     Count = 0;
     ExcessiveEnergyWarning = 0;
     ComputedParameterWarning = 0;
+    InterruptionWarning = 0;
     Dt = 1e-16; // seconds
     Dx = 1e-12; // meters
     Dmass = 1e-27; // mass units in kg

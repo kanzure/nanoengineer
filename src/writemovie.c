@@ -539,8 +539,6 @@ void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *p
     // fprintf(stderr, "found Ke = %e\n",FoundKE);
 }
 
-static int interruptionWarning = 0;
-
 /**
  */
 int writeMinimizeMovieFrame(FILE *outf,
@@ -584,9 +582,9 @@ int writeMinimizeMovieFrame(FILE *outf,
     if (final) {
         writeOutputTrailer(outf, part, frameNumber);
     }
-    if (Interrupted && !interruptionWarning) {
+    if (Interrupted && !InterruptionWarning) {
         WARNING("minimizer run was interrupted");
-        interruptionWarning = 1;
+        InterruptionWarning = 1;
     }
-    return interruptionWarning;
+    return InterruptionWarning;
 }
