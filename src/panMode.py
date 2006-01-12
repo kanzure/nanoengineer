@@ -47,7 +47,6 @@ class panMode(basicMode):
         Alpha goes out; see also the removal of Done from weird_to_override
         in modes.py. [bruce and mark 050130]
         """
-        self.w.panToolAction.setOn(0) # toggle off the Pan Tool icon
         ## [bruce's symbol to get him to review it soon: ####@@@@]
         if new_mode is None:
             try:
@@ -59,6 +58,7 @@ class panMode(basicMode):
         
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
+        self.w.panToolAction.setOn(0) # toggle off the Pan Tool icon
         self.o.setCursor(self.OldCursor) # restore cursor
         self.w.panDashboard.hide()
 

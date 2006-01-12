@@ -173,6 +173,7 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
         
         self.setup()
 
+
     # These four methods are needed to implement the GUI semantics.
     
     def setup(self):
@@ -201,12 +202,11 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
             self.generateTube()
             env.history.message(cmd + "Done.")
             QApplication.restoreOverrideCursor() # Restore the cursor
-            QDialog.accept(self)
-        
-        else: # Shouldn't take long.
-            QDialog.accept(self)
+        else: # Nanotubes under 100 Angstroms shouldn't take long.
             env.history.message(cmd + "Nanotube created.")
             self.generateTube()
+            
+        QDialog.accept(self)
 
     def generateTube(self):
         try:

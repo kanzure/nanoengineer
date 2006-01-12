@@ -222,10 +222,13 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
             self.fileMenu.setItemEnabled(menuIndex, False)
 
 
-        # Create the Help dialog.
-        # Mark 050812
+        # Create the Help dialog. Mark 050812
         from help import Help
         self.help = Help()
+        
+        # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
+        from NanotubeGenerator import NanotubeGenerator
+        self.nanotubecntl = NanotubeGenerator(self)
 
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
@@ -572,11 +575,19 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         env.history.message(cmd + info)
         self.glpane.setViewRecenter()
                 
-    def zoomTool(self):
+    def zoomTool(self, val):
         """Zoom Tool, allowing the user to specify a rectangular area 
         by holding down the left button and dragging the mouse to zoom 
         into a specific area of the model.
+        val = True when Zoom tool button was toggled on, False when it
+            it was toggled off.
         """
+
+        # This fixes bug 1081.  mark 060111.
+        if not val: # The Zoom button was toggled off.  Return to 'prevMode'.
+            self.glpane.mode.Done()
+            return
+        
         # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
@@ -589,9 +600,17 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         # before the green "Entering Mode: Zoom" msg.  So I put it here.  Mark 050130
         env.history.message("You may hit the Esc key to exit Zoom Tool.")
 
-    def panTool(self):
+    def panTool(self, val):
         """Pan Tool allows X-Y panning using the left mouse button.
+        val = True when Pan tool button was toggled on, False when it
+            it was toggled off.
         """
+        
+        # This fixes bug 1081.  mark 060111.
+        if not val: # The Pan button was toggled off.  Return to 'prevMode'.
+            self.glpane.mode.Done()
+            return
+            
         # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
@@ -601,9 +620,17 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.glpane.setMode('PAN')
         env.history.message("You may hit the Esc key to exit Pan Tool.")
 
-    def rotateTool(self):
+    def rotateTool(self, val):
         """Rotate Tool allows free rotation using the left mouse button.
+        val = True when Rotate tool button was toggled on, False when it
+            it was toggled off.
         """
+        
+        # This fixes bug 1081.  mark 060111.
+        if not val: # The Rotate button was toggled off.  Return to 'prevMode'.
+            self.glpane.mode.Done()
+            return
+            
         # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
@@ -1152,8 +1179,7 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         ServerManager().showDialog()
         
     def insertNanotube(self):
-        from NanotubeGenerator import NanotubeGenerator
-        NanotubeGenerator(self).show()
+        self.nanotubecntl.show()
 
     #### Movie Player Dashboard Slots ############
 

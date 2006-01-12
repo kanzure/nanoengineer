@@ -445,7 +445,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1087</width>
+                <width>1084</width>
                 <height>29</height>
             </rect>
         </property>
@@ -4768,6 +4768,12 @@
         <slot>helpContents()</slot>
     </connection>
     <connection>
+        <sender>helpGraphicsCardAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>helpGraphicsCard()</slot>
+    </connection>
+    <connection>
         <sender>helpKeyboardShortcutsAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -4796,6 +4802,12 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>makeAtomSet()</slot>
+    </connection>
+    <connection>
+        <sender>jigsAnchorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>makeAnchor()</slot>
     </connection>
     <connection>
         <sender>jigsAngleAction</sender>
@@ -4844,12 +4856,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>makeGridPlane()</slot>
-    </connection>
-    <connection>
-        <sender>jigsAnchorAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>makeAnchor()</slot>
     </connection>
     <connection>
         <sender>jigsHandleAction</sender>
@@ -5057,13 +5063,13 @@
     </connection>
     <connection>
         <sender>panToolAction</sender>
-        <signal>activated()</signal>
+        <signal>toggled(bool)</signal>
         <receiver>MainWindow</receiver>
         <slot>panTool()</slot>
     </connection>
     <connection>
         <sender>rotateToolAction</sender>
-        <signal>activated()</signal>
+        <signal>toggled(bool)</signal>
         <receiver>MainWindow</receiver>
         <slot>rotateTool()</slot>
     </connection>
@@ -5387,15 +5393,9 @@
     </connection>
     <connection>
         <sender>zoomToolAction</sender>
-        <signal>activated()</signal>
+        <signal>toggled(bool)</signal>
         <receiver>MainWindow</receiver>
         <slot>zoomTool()</slot>
-    </connection>
-    <connection>
-        <sender>helpGraphicsCardAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>helpGraphicsCard()</slot>
     </connection>
 </connections>
 <slots>

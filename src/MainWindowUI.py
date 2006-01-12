@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sat Jan 7 13:18:59 2006
+# Created: Wed Jan 11 18:42:56 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6866,7 +6866,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1084,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -7223,11 +7223,13 @@ class MainWindow(QMainWindow):
         self.connect(self.helpAboutAction,SIGNAL("activated()"),self.helpAbout)
         self.connect(self.helpAssistantAction,SIGNAL("activated()"),self.helpAssistant)
         self.connect(self.helpContentsAction,SIGNAL("activated()"),self.helpContents)
+        self.connect(self.helpGraphicsCardAction,SIGNAL("activated()"),self.helpGraphicsCard)
         self.connect(self.helpKeyboardShortcutsAction,SIGNAL("activated()"),self.helpKeyboardShortcuts)
         self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
         self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
         self.connect(self.insertNanotubeAction,SIGNAL("activated()"),self.insertNanotube)
         self.connect(self.jigAtomSetAction,SIGNAL("activated()"),self.makeAtomSet)
+        self.connect(self.jigsAnchorAction,SIGNAL("activated()"),self.makeAnchor)
         self.connect(self.jigsAngleAction,SIGNAL("activated()"),self.makeMeasureAngle)
         self.connect(self.jigsBearingAction,SIGNAL("activated()"),self.makeBearing)
         self.connect(self.jigsDihedralAction,SIGNAL("activated()"),self.makeMeasureDihedral)
@@ -7236,7 +7238,6 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsESPImageAction,SIGNAL("activated()"),self.makeESPImage)
         self.connect(self.jigsGamessAction,SIGNAL("activated()"),self.makeGamess)
         self.connect(self.jigsGridPlaneAction,SIGNAL("activated()"),self.makeGridPlane)
-        self.connect(self.jigsAnchorAction,SIGNAL("activated()"),self.makeAnchor)
         self.connect(self.jigsHandleAction,SIGNAL("activated()"),self.makeHandle)
         self.connect(self.jigsHeatsinkAction,SIGNAL("activated()"),self.makeHeatsink)
         self.connect(self.jigsLinearMotorAction,SIGNAL("activated()"),self.makeLinearMotor)
@@ -7271,8 +7272,8 @@ class MainWindow(QMainWindow):
         self.connect(self.orient110Action,SIGNAL("activated()"),self.orient110)
         self.connect(self.orient111Action,SIGNAL("activated()"),self.orient111)
         self.connect(self.panDoneAction,SIGNAL("activated()"),self.panDone)
-        self.connect(self.panToolAction,SIGNAL("activated()"),self.panTool)
-        self.connect(self.rotateToolAction,SIGNAL("activated()"),self.rotateTool)
+        self.connect(self.panToolAction,SIGNAL("toggled(bool)"),self.panTool)
+        self.connect(self.rotateToolAction,SIGNAL("toggled(bool)"),self.rotateTool)
         self.connect(self.selectAllAction,SIGNAL("activated()"),self.selectAll)
         self.connect(self.selectConnectedAction,SIGNAL("activated()"),self.selectConnected)
         self.connect(self.selectContractAction,SIGNAL("activated()"),self.selectContract)
@@ -7326,8 +7327,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.zoomToolAction,SIGNAL("activated()"),self.zoomTool)
-        self.connect(self.helpGraphicsCardAction,SIGNAL("activated()"),self.helpGraphicsCard)
+        self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
 
 
     def languageChange(self):
