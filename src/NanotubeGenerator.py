@@ -157,7 +157,6 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
     def __init__(self, win):
         NanotubeGeneratorDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
-        self.mol = molecule(win.assy, chem.gensym("Nanotube."))
         
         # Validator for the length linedit widget.
         self.validator = QDoubleValidator(self)
@@ -237,12 +236,13 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
 
     def buildChunk(self):
         PROFILE = False
-	if PROFILE:
+        if PROFILE:
             from debug import Stopwatch
             sw = Stopwatch()
             sw.start()
         length = self.length
         xyz = self.chirality.xyz
+        self.mol = molecule(self.win.assy, chem.gensym("Nanotube-"))
         atoms = self.mol.atoms
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
