@@ -471,13 +471,21 @@ struct bondStretch *
 getBondStretch(int element1, int element2, char bondOrder)
 {
   struct bondStretch *entry;
+  char bondName[10]; // expand if atom types become longer than 2 chars
 
   entry = getBondStretchEntry(element1, element2, bondOrder);
   if (entry->isGeneric && !entry->warned) {
-    WARNING3("Using computed parameters for %s-%s order %c bond stretch",
-            periodicTable[element1].symbol,
-            periodicTable[element2].symbol,
-            bondOrder);
+    if (!ComputedParameterWarning) {
+      WARNING("Using a computed parameter, see the trace output for details");
+      ComputedParameterWarning = 1;
+    }
+    generateBondName(bondName, element1, element2, bondOrder);
+    INFO1("Using computed parameters for %s stretch", bondName);
+    INFO4("Computed ks: %e, r0: %e, de: %e, beta: %e",
+          entry->ks,
+          entry->r0,
+          entry->de,
+          entry->beta);
     entry->warned = 1;
   }
   if (entry->maxPhysicalTableIndex == -1) {
@@ -505,7 +513,12 @@ getBendData(int element_center,
     bend = generateGenericBendData(bendName, element_center, element1, bondOrder1, element2, bondOrder2);
   }
   if (bend->isGeneric && !bend->warned) {
-    WARNING1("Using computed parameters for %s bend", bendName);
+    if (!ComputedParameterWarning) {
+      WARNING("Using a computed parameter, see the trace output for details");
+      ComputedParameterWarning = 1;
+    }
+    INFO1("Using computed parameters for %s bend", bendName);
+    INFO2("Computed kb: %e, theta0: %e", bend->kb, bend->theta0);
     bend->warned = 1;
   }
   return bend;

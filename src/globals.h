@@ -37,6 +37,9 @@ extern int Count;
 // have we warned the user about too much energy in a dynamics run?
 extern int ExcessiveEnergyWarning;
 
+// have we warned the user about using a generic/guessed force field parameter?
+extern int ComputedParameterWarning;
+
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 extern double Dt;
 extern double Dx;
