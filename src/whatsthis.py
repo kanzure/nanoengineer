@@ -1067,18 +1067,6 @@ def createWhatsThis(self):
         # Help Toolbar
         ##############################################
         
-        #### NE-1 Assistant ####
-        
-        helpAssistantText = "<u><b>nanoENGINEER-1 Assistant</b></u><br>"\
-                        "<p><img source=\"helpAssistant\"><br> "\
-                       "Opens  <b>nanoENGINEER-1 Assistant</b>, "\
-                       "the nanoENGINEER-1 Reference Documentation.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "helpAssistant",
-                                                       self.helpAssistantAction.iconSet().pixmap() )
-
-        self.helpAssistantAction.setWhatsThis( helpAssistantText )
-        
         #### What's This ####
         
         helpWhatsThisText = "<u><b>What's This</b></u><br>"\
