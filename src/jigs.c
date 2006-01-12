@@ -128,7 +128,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     struct xyz tmp;
     struct xyz f;
     struct xyz r;
-    double omega, domega_dt;
+    double omega, domega_dt, mass;
     double motorq, dragTorque = 0.0;
     double theta, cos_theta, sin_theta;
     struct xyz anchor;
@@ -152,13 +152,17 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	vadd(anchor, tmp);
 	// compute a spring force pushing on the atom
 	tmp = anchor;
-	vsub(tmp, position[jig->atoms[k]->index]);
+	vsub(tmp, position[a1]);
 	vmul2c(f, tmp, SPRING_STIFFNESS);
-	vadd(force[a1],f);
+
+	// nudge the new positions accordingly
+	mass = jig->atoms[k]->type->mass * 1e-27;
+	vadd2scale(new_position[a1], f, Dt*Dt/mass);
+
 	// compute the drag torque pulling back on the motor
-	r = vdif(position[jig->atoms[k]->index], jig->j.rmotor.center);
-	tmp = vx(r, f);   // this time, f is negative
-	dragTorque -= vdot(tmp, jig->j.rmotor.axis);  // so subtract it
+	r = vdif(position[a1], jig->j.rmotor.center);
+	tmp = vx(r, f);
+	dragTorque += vdot(tmp, jig->j.rmotor.axis);
     }
 
     domega_dt = (motorq + dragTorque) / jig->j.rmotor.momentOfInertia;
