@@ -1007,16 +1007,25 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
             # is alist a public attribute? (if so, no need for methods to prune its atoms by part or killedness, etc)
         self.natoms = len(self.alist)
 
-    def get_posns(self):
-        """Return an Array (mutable and owned by caller) of current positions of our atoms
+    def get_sim_posns(self): #bruce 060111 renamed and revised this from get_posns, for use in approximate fix of bug 1297
+        """Return an Array (mutable and owned by caller) of current positions-for-simulator of our atoms
+        (like positions, except singlets pretend they're H's and correct their posns accordingly).
         (This must work even if some of our atoms have been killed, or moved into different Parts,
         since we were made, though the positions returned for killed atoms probably don't matter (#k not sure).)
         """
-        res = map( lambda a: a.posn(), self.alist )
+        # Problem: to fully fix bug 1297, we need to return the H position actually used in the sim, not the equilibrium H position
+        # like a.sim_posn returns. For frame 0 it's the same; for other frames the only source for that info is the frame
+        # returned from the sim (to the frame_callback), but it's only safe to use it if neither involved atom has been moved
+        # since the sim was started. I might decide it's not worth fixing this except by moving to new DPB format which defines
+        # absolute atom positions. Or I might have the realtime-motion code in runSim save frame 0, or any other frame
+        # of a known number, and pass it to the movie object along with the "current frame number", for use instead of the array
+        # returned by this method. For now, I won't bother with that, hoping this fix is good enough until we move to the new
+        # DPB file format. ####@@@@
+        res = map( lambda a: a.sim_posn(), self.alist )
         return A(res)
             
-    def set_posns(self, newposns):
-        """set our atoms' positions (even killed ones) to those in the given array;
+    def set_posns(self, newposns): #bruce 060111 comment: should probably be renamed set_sim_posns since it corrects singlet posns
+        """set our atoms' positions (even killed ones) to those in the given array (but correct singlet positions);
         do all required invals but no redisplay
         [#e someday we might have a version which only does this for the atoms now in a given Part]
         """
@@ -1122,7 +1131,9 @@ class alist_and_moviefile:
         self.movable_atoms = MovableAtomList( assy, alist)
         if curframe_in_alist is not None:
             n = curframe_in_alist
-            frame_n = self.movable_atoms.get_posns()
+            frame_n = self.movable_atoms.get_sim_posns()
+                #bruce 060111 replaced get_posns with new get_sim_posns to approximately fix bug 1297;
+                # see comment in definition of get_sim_posns for more info.
             self.moviefile.donate_immutable_cached_frame( n, frame_n)
 #bruce 060108 commenting out all sets of self.current_frame to avoid confusion, since nothing uses it;
 # but I suggest leaving the commented-out code around until the next major rewrite.

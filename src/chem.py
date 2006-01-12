@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 chem.py -- class Atom, for single atoms, and related code
 
@@ -318,6 +318,19 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             return + self.xyz
         else:
             return + self.molecule.curpos[self.index]
+
+    def sim_posn(self): #bruce 060111
+        """Return our posn, as the simulator should see it -- same as posn except for Singlets,
+        which should pretend to be H and correct their distance from base atom accordingly.
+        Should work even for killed atoms (e.g. singlets with no bonds).
+           Note that if this is used on a corrected singlet position derived from a simulated H position
+        (as in the 060111 approximate fix of bug 1297), it's only approximate, since the actual H position
+        might not have been exactly its equilibrium position.
+        """
+        if self.element is Singlet and len(self.bonds) == 1:
+            oa = self.bonds[0].other(self) # like self.singlet_neighbor() but fewer asserts
+            return self.ideal_posn_re_neighbor( oa, pretend_I_am = Hydrogen ) # see also self.writemmp()
+        return self.posn()
 
     def baseposn(self): #bruce 041107; rewritten 041201 to help fix bug 204; optimized 050513
         """Like posn, but return the mol-relative position.
@@ -776,7 +789,7 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
             # (for writing only, not stored in our attrs)
             # [bruce 050404 to help fix bug 254]
             eltnum = Hydrogen.eltnum
-            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen )
+            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen ) # see also self.sim_posn()
             disp = "openbond" # kluge, meant as a comment in the file #bruce 051115 changed this from "singlet" to "openbond"
             #bruce 051209 for history message in runSim (re bug 254):
             stats = mapping.options.get('dict_for_stats')

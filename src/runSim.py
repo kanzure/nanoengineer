@@ -40,9 +40,11 @@ import env #bruce 050901
 
 # more imports lower down
 
-debug_sim_exceptions = 0 # DO NOT COMMIT WITH 1 -- set this to reproduce a bug being investigated by Will #bruce 060111
+debug_sim_exceptions = 0 # DO NOT COMMIT WITH 1 -- set this to reproduce a bug mostly fixed by Will today #bruce 060111
 
-debug_all_frames = 0 # DO NOT COMMIT with 1 
+debug_all_frames = 0 # DO NOT COMMIT with 1
+debug_all_frames_atom_index = 1 # index of atom to print in detail, when debug_all_frames
+
 debug_sim = 0 # DO NOT COMMIT with 1
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 
@@ -809,6 +811,8 @@ class SimRunner:
                 except RuntimeError:
                     # This is the pyrex sim's usual exit from a user abort; as of 060111 9am PST it's also
                     # (due to a bug it has) its exit from certain internal errors caused by exceptions in Python callbacks.
+                    # (That bug was fixed later that day, and it also now aborts with sim.SimulatorAbort rather than RuntimeError,
+                    #  but I didn't yet clean up this code for that, so right now it's catching the wrong exception! ######@@@@@@)
                     if debug_sim_exceptions: #bruce 060111
                         print_compact_traceback("fyi: sim.go aborted with this: ")
                     # following code is wrong unless this was a user abort, but I'm too lazy to test for that from the exception text,
@@ -847,7 +851,7 @@ class SimRunner:
     __frame_number = 0 # starts at 0 so incrementing it labels first frame as 1 (since initial frame is not returned)
         #k ought to verify that in sim code -- seems correct, looking at coords and total number of frames
         # note: we never need to reset __frame_number since this is a single-use object.
-        # could this relate to bug 1297? [bruce 060110]
+        # could this relate to bug 1297? [bruce 060110] (apparently not [bruce 060111])
     __sim_work_time = 0.05 # initial value -- we'll run sim_frame_callback_worker 20 times per second, with this value
     def sim_frame_callback(self): #bruce 060102
         "Per-frame callback function for simulator object."
@@ -865,7 +869,7 @@ class SimRunner:
                 print "frame %d" % self.__frame_number, self._simobj.getFrame() # this is a bug, that attr should not exist
             else:
                 # correct code
-                print "frame %d" % self.__frame_number, getFrame()
+                print "frame %d" % self.__frame_number, getFrame()[debug_all_frames_atom_index]
             pass
         ###e how to improve timing:
         # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
@@ -957,7 +961,9 @@ class SimRunner:
         "#doc"
         self._simopts.Interrupted = True
         if not self.errcode:
-            self.errcode = -1 #######@@@@@@@ temporary kluge in case of bugs in RuntimeError from that or its handler [bruce 060111]
+            self.errcode = -1
+            #######@@@@@@@ temporary kluge in case of bugs in RuntimeError from that or its handler;
+            # also needed until we clean up our code to use the new sim.SimulatorInterrupt instead of RuntimeError [bruce 060111]
         env.history.message( redmsg( "aborting sim run: %s" % why )) ######@@@@@@@ only if we didn't do this already
             #####@@@@@ current code (kluge) might do it 2 times even if sim behaves perfectly and no nested tasks (not sure)
         return

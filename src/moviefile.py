@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 """
 moviefile.py -- classes and other code for interpreting movie files
 (of various formats, once we have them)
@@ -150,6 +150,8 @@ class OldFormatMovieFile: #bruce 050426
         # in case the file doesn't? What if it doesn't know (for new-format file being explored)?
         # A: the way it tells us is by calling donate_immutable_cached_frame if it needs to,
         # on any single frame it wants (often but not always frame 0).
+        # Re bug 1297, it better give us sim-corrected positions rather than raw ones, for any open bonds!
+        # (For more info on that see comment in get_sim_posns.) [bruce 060111]
 
         self.totalFramesActual = filereader.totalFramesActual
         self.natoms = filereader.natoms # maybe these should be the same object... not sure
@@ -230,6 +232,12 @@ class OldFormatMovieFile: #bruce 050426
         #e   If we'd especially like to keep a cached copy for future speed, make one now...
         #e   Or do this inside forward-going loop?
         #e   Or in caller, having it stop for breath every so many frames, perhaps also to process user events?
+        if 0: #bruce 060111 debug code (two places), safe but could be removed when not needed (tiny bit slow) [bruce 060111] ###@@@
+            # maybe print coords for one atom
+            import runSim
+            if runSim.debug_all_frames:
+                ii = runSim.debug_all_frames_atom_index
+                print "copy_of_frame %d[%d] is" % (n, ii), frame0[ii]
         return frame0
 
     def donate_mutable_known_frame(self, n, frame):
@@ -245,14 +253,17 @@ class OldFormatMovieFile: #bruce 050426
         ###e do something to affect the retval of nearest_knownposns_frame_index?? it should optimize for the last one of these being near...
         return
 
-    def donate_immutable_cached_frame(self, n, frame):
+    def donate_immutable_cached_frame(self, n, frame): # (this is how client code can tell us abs posns to start with)
         """Caller gives us the frame of abs positions for frame-index n,
         which we can keep and will never modify (in case caller wants to keep using it too),
         and caller also promises to never modify it (so we can keep trusting and copying it).
         This is the only way for client code using us on an all-differential file
         can tell us a known absolute frame from which other absolute frames can be derived.
         Note that that known frame need not be frame 0, and perhaps will sometimes not be
-        (I don't know, as of 050426 2pm).
+        (I don't know, as of 050426 2pm). [As of shortly before 060111 it can indeed be any frame.]
+           Note: these positions better be sim-corrected (as if X was H) rather than raw, for any open bonds!
+        Otherwise we'll get bug 1297. In fact, they really need to be a copy of positions the sim had,
+        not just newly corrected H positions (see get_sim_posns comment for more info). [bruce 060111]
         """
         self.cached_immutable_frames[n] = frame
             # note: we only need one per n! so don't worry if this replaces an older one.
@@ -334,7 +345,8 @@ class OldFormatMovieFile: #bruce 050426
         # (with luck, reading the whole frame at once will be a nice speedup for fast-forwarding...)
         res = array(bytes,Int8)
         res.shape = (-1,3)
-        return res * 0.01 #e it might be nice to move that multiply into caller (for speedup and error-reduction):
+        res = res * 0.01
+            #e it might be nice to move that multiply into caller (for speedup and error-reduction):
             #bruce 060110 comment: 0.01 is not represented exactly, so including it here might introduce cumulative
             # roundoff errors into callers who add up lots of delta frames! Let's estimate the size: assume 53 significant bits,
             # and typical values within 10^6 of 0, and need for 10^-3 precision, then we're using about 30 bits,
@@ -343,7 +355,15 @@ class OldFormatMovieFile: #bruce 050426
             # except perhaps for special coord values that won't occur most times, so if true, what matters is movie length
             # rather than how often user plays it forwards and back. So I think we can tolerate this error for A7, at least,
             # and I think we can rule it out as a possible cause of bug 1297 (and an experiment also seems to rule that out).
+            # [For the true cause, see 060111 comment in get_sim_posns.]
             # In the long run, we should fix this, though I never observed a problem. ####@@@@
+        if 0: #bruce 060111 debug code (two places), safe but could be removed when not needed (tiny bit slow) [bruce 060111] ###@@@
+            # maybe print deltas for one atom
+            import runSim
+            if runSim.debug_all_frames:
+                ii = runSim.debug_all_frames_atom_index
+                print "delta_frame %d[%d] is" % (n, ii), res[ii]
+        return res
 
     def close_file(self):
         self.filereader.close_file() # but don't forget about it!
