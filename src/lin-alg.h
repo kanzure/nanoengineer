@@ -44,6 +44,9 @@ extern void matrixInverseTransform(struct xyz *out, double *m, struct xyz *in);
 /** vector addition (non-incremental) */
 #define vadd2(dest,src1,src2) dest.x=src1.x+src2.x; \
     dest.y=src1.y+src2.y; dest.z=src1.z+src2.z
+/** vector addition (incremental, with scaling) */
+#define vadd2scale(dest,src1,k) dest.x+=src1.x*k; \
+    dest.y+=src1.y*k; dest.z+=src1.z*k
 /** vector subtraction (incremental: subtract src from dest) */
 #define vsub(dest,src) dest.x-=src.x; dest.y-=src.y; dest.z-=src.z
 /** vector subtraction (non-incremental) */
