@@ -23,8 +23,12 @@ class JigProp(JigPropDialog):
 
         JigPropDialog.__init__(self)
         
-        # Set Dialog caption based on the jig type.
-        self.setCaption( jig.__class__.__name__ + " Properties")
+        # Set the dialog's border icon and caption based on the jig type.
+        jigtype_name = jig.__class__.__name__ 
+        from Utility import imagename_to_pixmap
+        pixmap = imagename_to_pixmap(jigtype_name + "-border.png")
+        self.setIcon(pixmap) # Fixes bug 1208. mark 060112.
+        self.setCaption(jigtype_name + " Properties")
             
         self.jig = jig
         self.glpane = glpane
