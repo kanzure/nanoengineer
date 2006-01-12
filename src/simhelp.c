@@ -26,9 +26,9 @@ char __author__[] = "Will";
 #include "Numeric/arrayobject.h"
 #include "simulator.h"
 
-void initsimhelp(void);
+PyObject * initsimhelp(void);
 PyObject * readPart(void);
-void dumpPart(void);
+PyObject * dumpPart(void);
 PyObject *everythingElse(void);
 char * structCompareHelp(void);
 
@@ -61,11 +61,31 @@ specialExceptionIs(PyObject *specialExcep)
 }
 
 static void
-begin_python_call(void)
+start_python_call(void)
 {
     py_exc_str = NULL;
     callback_exception = 0;
 }
+
+static PyObject *
+finish_python_call(PyObject *retval)
+{
+    if (callback_exception) {
+	return NULL;
+    } else if (py_exc_str != NULL) {
+	// wware 060109  python exception handling
+	PyErr_SetString(PyExc_RuntimeError, py_exc_str);
+	return NULL;
+    } else if (Interrupted) {
+	PyErr_SetString(simulatorInterruptedException,
+			"simulator was interrupted");
+	return NULL;
+    }
+    if (retval == Py_None)
+	Py_INCREF(Py_None);
+    return retval;
+}
+
 
 void
 reinitSimGlobals(PyObject *sim)
@@ -78,14 +98,13 @@ reinitSimGlobals(PyObject *sim)
 PyObject *
 verifySimObject(PyObject *sim)
 {
-    begin_python_call();
+    start_python_call();
     if (sim != mostRecentSimObject) {
 	PyErr_SetString(PyExc_AssertionError,
 			"not the most recent simulator object");
 	return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    return finish_python_call(Py_None);
 }
 
 static PyObject *writeTraceCallbackFunc = NULL;
@@ -111,14 +130,14 @@ setCallbackFunc(PyObject *f, PyObject **cb)
 PyObject *
 setWriteTraceCallbackFunc(PyObject *f)
 {
-    begin_python_call();
+    start_python_call();
     return setCallbackFunc(f, &writeTraceCallbackFunc);
 }
 
 PyObject *
 setFrameCallbackFunc(PyObject *f)
 {
-    begin_python_call();
+    start_python_call();
     return setCallbackFunc(f, &frameCallbackFunc);
 }
 
@@ -128,7 +147,8 @@ static void
 do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
     PyObject *pValue;
-    if (Interrupted || callbackFunc == NULL)
+    // int previousInterrupted = Interrupted;
+    if (callbackFunc == NULL)
 	return;
     if (PyErr_Occurred()) {
 	// there was already a Python error when we got here
@@ -144,6 +164,15 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
 	callback_exception = 1;
 	Interrupted = 1;
     }
+    /*
+     * Theoretically we could compare the value of Interrupted at this
+     * point with previousInterrupted (its value before the callback
+     * was called), and then raise a SimulatorInterrupted exception if
+     * it had been set during the callback. We don't do that, because
+     * the SimulatorInterrupted exception is raised in
+     * finish_python_call(), and any pathway to get us to this point
+     * will return to Python through that routine.
+     */
     Py_DECREF(args);
     Py_XDECREF(pValue);
 }
@@ -191,7 +220,7 @@ getFrame_c(void)
     double *data;
     int i, n;
 
-    begin_python_call();
+    start_python_call();
     if (part == NULL) {
 	PyErr_SetString(PyExc_MemoryError,
 			"part is null");
@@ -214,7 +243,7 @@ getFrame_c(void)
     }
     retval = PyString_FromStringAndSize((char*) data, n);
     free(data);
-    return retval;
+    return finish_python_call(retval);
 }
 
 int printPotentialEnergy = 0; 
@@ -225,7 +254,8 @@ int printPotentialEnergy = 0;
  * A good goal would be to eliminate all the filename-twiddling in this
  * function, and only set up the bond tables.
  */
-void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
+PyObject *
+initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 {
     char *printPotential = NULL;
     double printPotentialInitial = 1.0;
@@ -235,7 +265,7 @@ void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     char *tfilename;
     char *p;
 
-    begin_python_call();
+    start_python_call();
     ofilename = "";
     tfilename = "";
 
@@ -292,6 +322,7 @@ void initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     // but then had to move initializeBondTable back here to fix a bug (since mmp reading
     // depends on it)
     initializeBondTable();
+    return finish_python_call(Py_None);
 }
 
 // wware 060109  python exception handling
@@ -303,7 +334,7 @@ PyObject *
 readPart(void)
 {
     // wware 060109  python exception handling
-    begin_python_call();
+    start_python_call();
     part = readMMP(buf);
     if (part == NULL) {
 	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
@@ -315,20 +346,22 @@ readPart(void)
     PYBAIL();
     generateBends(part);
     PYBAIL();
-    Py_INCREF(Py_None);
-    return Py_None;
+    return finish_python_call(Py_None);
 }
 
-void dumpPart(void)
+PyObject *
+dumpPart(void)
 {
+    start_python_call();
     printPart(stdout, part);
+    return finish_python_call(Py_None);
 }
 
 PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
     // wware 060109  python exception handling
-    begin_python_call();
+    start_python_call();
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
     if (!printPotentialEnergy) {
@@ -392,9 +425,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 			"simulator was interrupted");
 	return NULL;
     }
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return finish_python_call(Py_None);
 }
 
 

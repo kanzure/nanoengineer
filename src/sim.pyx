@@ -48,7 +48,7 @@ cdef extern from "simhelp.c":
     setWriteTraceCallbackFunc(PyObject)
     setFrameCallbackFunc(PyObject)
     getFrame_c()
-    void initsimhelp()
+    initsimhelp()
     readPart()
     void dumpPart()
     everythingElse()
