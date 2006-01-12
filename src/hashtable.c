@@ -223,7 +223,7 @@ hashtable_print(FILE *f, struct hashtable *table)
    the iteration.
  */
 void
-hashtable_iterate(struct hashtable *table, void func())
+hashtable_iterate(struct hashtable *table, void func(char *key, void *value))
 {
   int i;
   struct hashtable_bucket *b;

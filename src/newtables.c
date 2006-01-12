@@ -268,6 +268,25 @@ initializeBondTable(void)
   vanDerWaalsHashtable = hashtable_new(40);
 }
 
+static void
+clearBondWarnings(char *bondName, void *entry)
+{
+  ((struct bondStretch *)entry)->warned = 0;
+}
+
+static void
+clearBendWarnings(char *bendName, void *entry)
+{
+  ((struct bendData *)entry)->warned = 0;
+}
+
+void
+reInitializeBondTable()
+{
+  hashtable_iterate(bondStretchHashtable, clearBondWarnings);
+  hashtable_iterate(bendDataHashtable, clearBendWarnings);  
+}
+
 static double
 getDe(char *bondName)
 {

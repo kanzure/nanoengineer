@@ -108,6 +108,8 @@ extern struct atomType periodicTable[MAX_ELEMENT+1];
 
 extern void initializeBondTable(void);
 
+extern void reInitializeBondTable(void);
+
 extern struct bondStretch *getBondStretch(int element1, int element2, char bondOrder);
 
 extern struct bendData *getBendData(int element_center,

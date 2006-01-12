@@ -22,4 +22,4 @@ extern void *hashtable_get(struct hashtable *table, char *key);
 
 extern void hashtable_print(FILE *f, struct hashtable *table);
 
-extern void hashtable_iterate(struct hashtable *table, void func(void));
+extern void hashtable_iterate(struct hashtable *table, void func(char *key, void *value));

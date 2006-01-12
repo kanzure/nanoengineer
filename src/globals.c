@@ -82,6 +82,7 @@ reinit_globals(void)
     Dmass = 1e-27; // mass units in kg
     Temperature = 300.0; // Kelvins
     totClipped = 0.0;
+    reInitializeBondTable();
 }
 
 /*
