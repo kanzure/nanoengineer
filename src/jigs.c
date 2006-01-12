@@ -23,63 +23,6 @@ struct xyz gxyz(double v) {
 }
 
 void
-jigMotorPreforce(struct jig *jig, struct xyz *position, struct xyz *force, double deltaTframe)
-{
-#if 0
-    int n;
-    struct xyz rx;
-    int k;
-    double ff;
-    int a1;
-    double theta;
-    struct xyz f;
-
-    if (jig->j.rmotor.speed==0.0) { // just add torque to force
-
-        // set the center of torque each time to the average position
-        // of the atoms in the motor
-        n=jig->num_atoms;
-        vsetc(rx, 0.0);
-        for (k=0; k<n; k++) {
-            vadd(rx,position[jig->atoms[k]->index]);
-        }
-        vmulc(rx,1.0/(double)n);
-        jig->j.rmotor.center = rx;
-
-        ff = 1e-3 * jig->j.rmotor.stall / n;
-        for (k=0; k<n; k++) {
-            a1 = jig->atoms[k]->index;
-            rx = vdif(position[a1], jig->j.rmotor.center);
-            f  = vprodc(vx(jig->j.rmotor.axis, uvec(rx)),ff/vlen(rx));
-
-            //fprintf(stderr, "applying torque %f to %d: other force %f\n",
-            //       vlen(f), a1, vlen(force[a1]));
-
-            vadd(force[a1],f);
-        }
-        // data for printing speed trace
-        jig->data2 = jig->j.rmotor.stall; // torque
-
-        rx=uvec(vdif(position[jig->atoms[0]->index], jig->j.rmotor.center));
-
-        theta = atan2(vdot(rx, jig->j.rmotor.axisZ), vdot(rx, jig->j.rmotor.axisY));
-        /* update the motor's position */
-        if (theta>Pi) {
-            jig->j.rmotor.theta0 = jig->j.rmotor.theta-2.0*Pi;
-            jig->j.rmotor.theta = theta-2.0*Pi;
-        }
-        else {
-            jig->j.rmotor.theta0 = jig->j.rmotor.theta;
-            jig->j.rmotor.theta = theta;
-        }
-        theta = jig->j.rmotor.theta - jig->j.rmotor.theta0;
-
-        jig->data += theta * deltaTframe;
-    }
-#endif
-}
-
-void
 jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
 {
     struct xyz foo, bar;
@@ -109,14 +52,9 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
 }
 
 /*
- * What's the right number here? I would have thought it would be in
- * piconewtons per picometer, and therefore just 10, but that's way
- * too big.  0.1-1.0 gives a noticeable drag, 10 is numerically unstable.
- * Could that be because my motor torque is unreasonably large??
- *
- * One complication of attaching the atoms to springs is that it takes
- * longer for speed variations to settle down, because the differential
- * equation describing rotational motor speed has more state variables.
+ * Springs connect atoms to a flywheel. We drive the flywheel and it
+ * pulls the atoms along. The units of spring stiffness are piconewtons
+ * per picometer, or equivalently newtons per meter.
  */
 #define SPRING_STIFFNESS  10.0
 

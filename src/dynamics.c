@@ -59,6 +59,9 @@ oneDynamicsFrame(struct part *part,
 	vsetc(averagePositions[j],0.0);
     }
     
+    // See http://www.nanoengineer-1.net/mediawiki/index.php?title=Verlet_integration
+    // for a discussion of how dynamics is done in the simulator.
+
     // wware 060110  don't handle Interrupted with the BAIL mechanism
     for (loop=0; loop < iters && !Interrupted; loop++) {
 	
@@ -82,9 +85,6 @@ oneDynamicsFrame(struct part *part,
 	    // wware 060109  python exception handling
 	    NULLPTR(jig);
 	    switch (jig->type) {
-	    case RotaryMotor:
-		jigMotorPreforce(jig, positions, force, deltaTframe);
-		break;
 	    case LinearMotor:
 		jigLinearMotor(jig, positions, newPositions, force, deltaTframe);
 		break;
@@ -96,11 +96,6 @@ oneDynamicsFrame(struct part *part,
 	/* convert forces to accelerations, giving new positions */
 	//FoundKE = 0.0;		/* and add up total KE */
 	for (j=0; j<part->num_atoms; j++) {
-	    /*
-	      ff=vlen(force[j]);
-	      fprintf(stderr, "--> Total force on atom %d is %.2f, displacement %f\n", j,
-	      ff, ff*atom[j].massacc);
-	    */
 	    vmul2c(f,force[j],part->atoms[j]->inverseMass); // inverseMass = Dt*Dt/mass
 
 	    if (!ExcessiveEnergyWarning && vlen(f)>0.15) { // 0.15 is just below H flyaway
@@ -111,7 +106,7 @@ oneDynamicsFrame(struct part *part,
 	    vadd(newPositions[j],f);
 	    vadd(averagePositions[j],newPositions[j]);
 	    
-	    vsub2(f, newPositions[j], positions[j]);
+	    //vsub2(f, newPositions[j], positions[j]);
 	    //ff = vdot(f, f);
 	    //FoundKE += atom[j].energ * ff;
 	}
