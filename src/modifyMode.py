@@ -206,6 +206,9 @@ class modifyMode(basicMode):
             junk, self.movingPoint = self.o.mousepoints(event)
         else:
             self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
+            
+        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+        
         # end of Move section
 
         # Translate section
@@ -262,7 +265,7 @@ class modifyMode(basicMode):
         
             # Print status bar msg indicating the current move delta.
             if 1:
-                self.moveOffset += norm(point - self.movingPoint) # Increment move offset
+                self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
                 msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
                 env.history.statusbar_msg(msg)
 
