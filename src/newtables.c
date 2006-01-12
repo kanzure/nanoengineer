@@ -82,7 +82,7 @@ generateBendName(char *bendName,
 }
 
 static struct hashtable *bondStretchHashtable = NULL;
-static struct hashtable *bendDataHashtable;
+static struct hashtable *bendDataHashtable = NULL;
 static struct hashtable *deHashtable;
 static struct hashtable *vanDerWaalsHashtable;
 
@@ -182,7 +182,10 @@ setElement(int protons,
 void
 initializeBondTable(void)
 {
-  if (bondStretchHashtable != NULL) return;  // no need to repeat
+  if (bondStretchHashtable != NULL) {
+    return;  // no need to repeat
+  }
+  
   memset(periodicTable, 0, sizeof(periodicTable));
   
   // groups 9-22 are lanthanides
@@ -284,8 +287,12 @@ clearBendWarnings(char *bendName, void *entry)
 void
 reInitializeBondTable()
 {
-  hashtable_iterate(bondStretchHashtable, clearBondWarnings);
-  hashtable_iterate(bendDataHashtable, clearBendWarnings);  
+  if (bondStretchHashtable != NULL) {
+    hashtable_iterate(bondStretchHashtable, clearBondWarnings);
+  }
+  if (bendDataHashtable != NULL) {
+    hashtable_iterate(bendDataHashtable, clearBendWarnings);
+  }
 }
 
 static double

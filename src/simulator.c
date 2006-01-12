@@ -59,7 +59,7 @@ usage()
    -o<string>, --output-file=<string>\n\
                     output file name (otherwise same as input)\n\
    -q<string>, --trace-file=<string>\n\
-                    trace file name (default=\"trace\")\n\
+                    trace file name (default=stdout)\n\
    -D<int>, --debug=<int>\n\
                     turn on a debugging flag (see debug.h)\n\
    -B<filename>, --base-file=<filename>\n\
@@ -328,8 +328,6 @@ main(int argc, char **argv)
 
     if (strchr(filename, '.')) {
         sprintf(buf, "%s", filename);
-    } else if (baseFilename != NULL) {
-        sprintf(buf, "%s.xyz", filename);
     } else {
         sprintf(buf, "%s.mmp", filename);
     }
@@ -345,7 +343,7 @@ main(int argc, char **argv)
     }
     
     if (! strchr(OutFileName, '.')) {
-	if (DumpAsText || baseFilename != NULL) {
+	if (DumpAsText) {
             strcat(OutFileName,".xyz");
         } else {
             strcat(OutFileName,".dpb");
