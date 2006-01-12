@@ -176,6 +176,7 @@ main(int argc, char **argv)
     char buf[1024], *filename, *ofilename, *tfilename, *c;
     char *commandLine;
 	
+    initializeBondTable();
     reinit_globals();
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
         perror("signal(SIGTERM)");
@@ -374,8 +375,6 @@ main(int argc, char **argv)
     }
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
-
-    initializeBondTable();
 
     if (printPotential) {
         printPotentialAndGradientFunctions(printPotential,
