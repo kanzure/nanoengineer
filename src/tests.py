@@ -445,6 +445,9 @@ class LengthAngleComparison:
 class EarlyTermination(Exception):
     pass
 
+class TestAbortedInOvertime(Exception):
+    pass
+
 def rmtreeSafe(dir):
     # platform-independent 'rm -rf'
     try: shutil.rmtree(dir)
@@ -589,8 +592,14 @@ class SandboxTest(TimedTest):
             args.append(arg)
         simProcess.setArguments(args)
         simProcess.start()
+        n = 0
         while simProcess.isRunning():
             time.sleep(0.1)
+            n = n + 1
+            if n > 150:
+                # no test should take more than 15 seconds, right?
+                raise TestAbortedInOvertime, self.basename
+                simProcess.kill()
         stdout.close()
         stderr.close()
         return simProcess.exitStatus()
