@@ -147,6 +147,9 @@ class GamessJob(SimJob):
             if not self.server.program:
                 return 1 # Cancelled from file chooser.
             
+            # Enable GAMESS Plug-in. Mark 060112.
+            env.prefs[gamess_enabled_prefs_key] = True
+            
         elif ret==1: # Cancel
             return 1
 
