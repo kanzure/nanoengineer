@@ -22,6 +22,9 @@ PYREXOBJS=allocate.o \
 
 all: sim.dll
 
+# I'm now trained to type "make pyx"
+pyx: sim.dll
+
 clean:
 	rm -f *~ *.o *.a *.dll sim.c *.def
 
