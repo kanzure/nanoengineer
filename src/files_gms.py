@@ -390,11 +390,10 @@ def get_energy_from_gms_outfile(filename):
     '''Returns a string containing the final energy value from a GAMESS OUT file.
     Works for both PC GAMESS and GAMESS-US.
     '''
-    # This now returns a return code (0=Success, 1=Failed) along with the energy.
-    # The caller checks the return code.  I'd like to ask Bruce if this is a good way to
-    # do this.  It seems there should be a nifty way to do this with a single return value.
-    # One idea is to check the type (float = success, str = failuer) of the return value 
-    # to determine success or failure.
+    # Method: Process the output file line by line backwards.  Since there are multiple 
+    # "FINAL ENERGY IS" lines in the output file of an Optimization run (one for each iteration), 
+    # it is the last line that contains the final energy value we need. This fixes an undocumented 
+    # bug I discovered on 060112.  Mark.
     
     if not os.path.exists(filename):
         return 2, None
@@ -404,8 +403,8 @@ def get_energy_from_gms_outfile(filename):
     lines = open(filename,"rU").readlines()
     
     gamessEnergyStr = re.compile(r'\bFINAL R.+ ENERGY IS')
-        
-    for line in lines:
+    
+    for line in lines[::-1]: # Read file backwards.
         
         if failpat.search(line): # GAMESS Aborted.  Final energy will not be found.
             return 1, line
