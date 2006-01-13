@@ -318,7 +318,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 
     if (TraceFileName != NULL) {
 	TraceFile = fopen(TraceFileName, "w");
-	if (TraceFile != NULL) {
+	if (TraceFile == NULL) {
 	    snprintf(buf, 1024, "can't open tracefile for writing: %s", TraceFileName);
 	    PyErr_SetString(PyExc_IOError, buf);
 	    return NULL;
