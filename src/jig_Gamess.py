@@ -17,6 +17,7 @@ from GamessJob import *
 from povheader import povpoint # Fix for bug 692 Mark 050628
 from SimServer import SimServer
 from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
+from HistoryWidget import redmsg, greenmsg
 import env
 from HistoryWidget import redmsg #bruce 050913 precaution -- probably covered by some "import *" above, but good to do explicitly
 from chem import move_alist_and_snuggle
@@ -130,6 +131,17 @@ class Gamess(Jig):
     def __CM_Calculate_Energy(self):
         '''Gamess Jig context menu "Calculate Energy"
         '''
+        self.calculate_energy()
+        
+    def calculate_energy(self):
+        '''Calculate energy.
+        '''
+        
+        cmd = greenmsg("Calculate Energy: ")
+        
+        errmsgs = ["GAMESS job aborted.",
+                            "Error: GAMESS job failed."]
+                            
         pset = self.pset
         runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
         pset.ui.runtyp = 0 # Energy calculation
@@ -140,23 +152,34 @@ class Gamess(Jig):
         
         # Run GAMESS job.  Return value r:
         # 0 = success
-        # 1 = job cancelled
+        # 1 = job aborted
         # 2 = job failed.
         r = self.gmsjob.launch()
         
         pset.ui.runtyp = runtyp # Restore to original value
         self.gmsjob.Calculation = origCalType
         
-        if r == 0: # Success
-            self.print_energy()
-        elif r==1: # Job was cancelled
-            env.history.message( redmsg( "GAMESS job cancelled."))
-        else: # Job failed.
-            env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
+        if r: # Job was aborted or an error occurred.
+            msg = redmsg(errmsgs[r-1])
+            env.history.message( cmd + msg )
+            return
             
-    def __CM_Optimize(self):
-        '''Gamess Jig context menu "Optimize"
+        self.print_energy()
+            
+    def __CM_Optimize_Geometry(self):
+        '''Gamess Jig context menu "Optimize Geometry"
         '''
+        self.optimize_geometry()
+        
+    def optimize_geometry(self):
+        '''Optimize geometry
+        '''
+        
+        cmd = greenmsg("Optimize Geometry: ")
+        
+        errmsgs = ["GAMESS job aborted.",
+                            "Error: GAMESS job failed."]
+                            
         pset = self.pset
         runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
         pset.ui.runtyp = 1 # Optimize
@@ -167,35 +190,33 @@ class Gamess(Jig):
         
         # Run GAMESS job.  Return value r:
         # 0 = success
-        # 1 = job cancelled
+        # 1 = job aborted.
         # 2 = job failed.
         r = self.gmsjob.launch()
         
         pset.ui.runtyp = runtyp # Restore to original value
         self.gmsjob.Calculation = origCalType
         
-        if r == 0: # Success
-            try:
-                r2 = self.move_optimized_atoms()
-            except:
-                print_compact_traceback( "GamessProp.run_job(): error reading GAMESS OUT file [%s]: " % \
+        if r: # Job was aborted or an error occurred.
+            msg = redmsg(errmsgs[r-1])
+            env.history.message( cmd + msg )
+            return
+        
+        try:
+            r2 = self.move_optimized_atoms()
+        except:
+            print_compact_traceback( "GamessProp.run_job(): error reading GAMESS OUT file [%s]: " % \
                     self.outputfile )
-                env.history.message( redmsg( "Internal error while inserting GAMESS geometry: " + self.outputfile) )
+            env.history.message( redmsg( cmd + "Internal error while inserting GAMESS geometry: " + self.outputfile) )
+        else:
+            if r2:
+                env.history.message(cmd + redmsg( "Atoms not adjusted."))
             else:
-                if r2:
-                    env.history.message(redmsg( "Atoms not adjusted."))
-                else:
-                    self.assy.changed() # The file and the part are not the same.
-                    self.print_energy() # Print the final energy from the optimize OUT file, too.
-                    env.history.message( "Atoms adjusted.")
-                    
-        elif r==1: # Job was cancelled
-            env.history.message( redmsg( "GAMESS job cancelled."))
-            
-        else: # Job failed.
-            env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
+                self.assy.changed() # The file and the part are not the same.
+                self.print_energy() # Print the final energy from the optimize OUT file, too.
+                env.history.message( cmd + "Atoms adjusted.")
     
-    def __CM_Optimize__options(self):
+    def __CM_Optimize_Geometry__options(self):
         if Jig.is_disabled(self):
             return ['disabled']
         else:
