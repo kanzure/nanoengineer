@@ -316,12 +316,14 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
 
-    TraceFile = fopen(TraceFileName, "w");
-    if (!TraceFile) {
-        perror(TraceFileName);
-        exit(1);
+    if (TraceFileName != NULL) {
+	TraceFile = fopen(TraceFileName, "w");
+	if (!TraceFile) {
+	    perror(TraceFileName);
+	    exit(1);
+	}
+	fprintf(TraceFile, "# %s\n", "run from pyrex interface"); // like printing the commandLine
     }
-    fprintf(TraceFile, "# %s\n", "run from pyrex interface"); // like printing the commandLine
     // ##e should print options set before run, but it's too early to do that in this code
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
