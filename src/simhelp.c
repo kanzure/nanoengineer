@@ -38,8 +38,6 @@ static struct xyz *pos;
 static char buf[1024];
 static int callback_exception = 0;
 
-char *filename;
-
 static void *mostRecentSimObject = NULL;
 
 // Python exception stuff, wware 010609
@@ -183,14 +181,14 @@ write_traceline(const char *format, ...)
 {
     va_list args;
 
-    if (writeTraceCallbackFunc != NULL || tracef != NULL) {
+    if (writeTraceCallbackFunc != NULL || TraceFile != NULL) {
         va_start(args, format);
         vsnprintf(buf, 1024, format, args);
         va_end(args);
 	if (writeTraceCallbackFunc != NULL)
 	    do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", buf));
-	if (tracef != NULL)
-	    fprintf(tracef, "%s", buf);
+	if (TraceFile != NULL)
+	    fprintf(TraceFile, "%s", buf);
     }
 }
 
@@ -246,10 +244,6 @@ getFrame_c(void)
     return finish_python_call(retval);
 }
 
-int printPotentialEnergy = 0; 
-// bruce 060101 made this global from localvar
-
-
 /*
  * A good goal would be to eliminate all the filename-twiddling in this
  * function, and only set up the bond tables.
@@ -257,17 +251,7 @@ int printPotentialEnergy = 0;
 PyObject *
 initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 {
-    char *printPotential = NULL;
-    double printPotentialInitial = 1.0;
-    double printPotentialIncrement = 1.0;
-    double printPotentialLimit = 200.0;
-    char *ofilename;
-    char *tfilename;
-    char *p;
-
     start_python_call();
-    ofilename = "";
-    tfilename = "";
 
     if (DumpAsText) {
         OutputFormat = 0;
@@ -281,41 +265,8 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
         // and hope we can more extensively clean up this option later.)
         OutputFormat = 1; // sim.pyx only tries to support "old" dpb format for now 
     }
-    if (strchr(filename, '.')) {
-        sprintf(buf, "%s", filename);
-    } else if (baseFilename != NULL && strlen(baseFilename) > 0) {
-        sprintf(buf, "%s.xyz", filename);
-    } else {
-        sprintf(buf, "%s.mmp", filename);
-    }
-    if (ofilename == NULL || strlen(ofilename) == 0) {
-	strcpy(OutFileName,buf);
-	p = strchr(OutFileName, '.');
-	if (p) {
-            *p = '\0';
-        }
-    } else {
-        strcpy(OutFileName,ofilename);
-    }
-    if (! strchr(OutFileName, '.')) {
-	if (DumpAsText || baseFilename != NULL) {
-            strcat(OutFileName,".xyz");
-        } else {
-            strcat(OutFileName,".dpb");
-        }
-    }
-    if (tfilename == NULL || strlen(tfilename) == 0) {
-	strcpy(TraceFileName,buf);
-	p = strchr(TraceFileName, '.');
-	if (p) {
-            *p = '\0';
-        }
-    } else {
-        strcpy(TraceFileName,tfilename);
-    }
-    if (! strchr(TraceFileName, '.')) {
-        strcat(TraceFileName,".trc");
-    }
+    InputFileName = copy_string(InputFileName);
+    OutputFileName = replaceExtension(InputFileName, DumpAsText ? "xyz" : "dpb");
     
     // bruce 060101 moved the rest of this function into the start of everythingElse 
     // since it depends on parameters set by the client code after this init method runs,
@@ -335,7 +286,7 @@ readPart(void)
 {
     // wware 060109  python exception handling
     start_python_call();
-    part = readMMP(buf);
+    part = readMMP(InputFileName);
     if (part == NULL) {
 	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
 	PYBAIL();
@@ -364,44 +315,36 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     start_python_call();
     // bruce 060101 moved this section here, from the end of initsimhelp,
     // since it depends on parameters set by the client code after that init method runs
-    if (!printPotentialEnergy) {
-        tracef = fopen(TraceFileName, "w");
-        if (!tracef) {
-            perror(TraceFileName);
-            exit(1);
-        }
-        fprintf(tracef, "# %s\n", "run from pyrex interface"); // like printing the commandLine
-        // ##e should print options set before run, but it's too early to do that in this code
+
+    TraceFile = fopen(TraceFileName, "w");
+    if (!TraceFile) {
+        perror(TraceFileName);
+        exit(1);
     }
+    fprintf(TraceFile, "# %s\n", "run from pyrex interface"); // like printing the commandLine
+    // ##e should print options set before run, but it's too early to do that in this code
+
     if (IterPerFrame <= 0) IterPerFrame = 1;
     // initializeBondTable(); // this had to be done in initsimhelp instead [bruce 060101]
     // end of section moved by bruce 060101
 
-    traceHeader(tracef, filename, OutFileName, TraceFileName, 
+    traceHeader(InputFileName, OutputFileName, TraceFileName, 
 		part, NumFrames, IterPerFrame, Temperature);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
 	Temperature = 0.0;
     } else {
-        traceJigHeader(tracef, part);
+        traceJigHeader(part);
     }
 
-    // printf("iters per frame = %d\n",IterPerFrame);
-    // printf("number of frames = %d\n",NumFrames);
-    // printf("timestep = %e\n",Dt);
-    // printf("temp = %f\n",Temperature);
-    // if (DumpAsText) printf("dump as text\n");
-
-    // printf("< %s  > %s\n", buf, OutFileName);
-
-    outf = fopen(OutFileName, DumpAsText ? "w" : "wb");
-    if (outf == NULL) {
-	snprintf(buf, 1024, "bad output filename: %s", OutFileName);
+    OutputFile = fopen(OutputFileName, DumpAsText ? "w" : "wb");
+    if (OutputFile == NULL) {
+	snprintf(buf, 1024, "bad output filename: %s", OutputFileName);
 	PyErr_SetString(PyExc_IOError, buf);
 	return NULL;
     }
-    writeOutputHeader(outf, part);
+    writeOutputHeader(OutputFile, part);
 
     if  (ToMinimize) {
 	minimizeStructure(part);
@@ -410,9 +353,11 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         dynamicsMovie(part);
     }
 
-    fclose(outf);
-    doneNoExit(0, tracef, "");
-    if (tracef != NULL) fclose(tracef);
+    fclose(OutputFile);
+    done("");
+    if (TraceFile != NULL) {
+        fclose(TraceFile);
+    }
 
     if (callback_exception) {
 	return NULL;
@@ -468,20 +413,20 @@ dynamicsMovie_step(void)
 {
     oneDynamicsFrame(part, IterPerFrame,
 		     _averagePositions, &_oldPositions, &_newPositions, &_positions, _force);
-    writeDynamicsMovieFrame(outf, _framenumber++, part, _averagePositions);
+    writeDynamicsMovieFrame(OutputFile, _framenumber++, part, _averagePositions);
 }
 
 
 void
 dynamicsMovie_finish(void)
 {
-    writeOutputTrailer(outf, part, NumFrames);
+    writeOutputTrailer(OutputFile, part, NumFrames);
     free(_averagePositions);
     free(_oldPositions);
     free(_newPositions);
     free(_positions);
     free(_force);
-    doneNoExit(0, tracef, "");
+    done("");
 }
 
 
@@ -494,22 +439,22 @@ char * structCompareHelp(void) {
     struct xyz *basePositions;
     struct xyz *initialPositions;
         
-    if (baseFilename == NULL || strlen(baseFilename) == 0) {
-	sprintf(retval, "No baseFilename");
+    if (BaseFileName == NULL || strlen(BaseFileName) == 0) {
+	sprintf(retval, "No BaseFileName");
 	return retval;
     }
-    basePositions = readXYZ(baseFilename, &i1);
+    basePositions = readXYZ(BaseFileName, &i1);
     if (basePositions == NULL) {
 	sprintf(retval,
 		"could not read base positions file from \"%s\"",
-		baseFilename);
+		BaseFileName);
 	return retval;
     }
-    initialPositions = readXYZ(filename, &i2);
+    initialPositions = readXYZ(InputFileName, &i2);
     if (initialPositions == NULL) {
 	sprintf(retval,
 		"could not read comparison positions file \"%s\"",
-		filename);
+		InputFileName);
 	return retval;
     }
     if (i1 != i2) {

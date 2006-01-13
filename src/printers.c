@@ -33,7 +33,7 @@ countOutputColumns(struct jig *j)
     }
 }
 
-void traceHeader(FILE *f, char *inputFileName, char *outputFileName, char *traceFileName, 
+void traceHeader(char *inputFileName, char *outputFileName, char *traceFileName, 
                  struct part *part, int numFrames, int stepsPerFrame, double temperature)
 {
     int i, ncols;
@@ -109,7 +109,7 @@ void traceHeader(FILE *f, char *inputFileName, char *outputFileName, char *trace
     write_traceline("#\n");
 }
 
-void traceJigHeader(FILE *f, struct part *part) {
+void traceJigHeader(struct part *part) {
     struct jig *j;
     int i;
     int ncol;
@@ -157,7 +157,7 @@ void traceJigHeader(FILE *f, struct part *part) {
 }
 
 
-void traceJigData(FILE *f, struct part *part) {
+void traceJigData(struct part *part) {
     double x;
     int i;
     struct jig *j;
@@ -201,45 +201,44 @@ void traceJigData(FILE *f, struct part *part) {
 }
 
 void
-printError(FILE *f, const char *file, int line, const char *err_or_warn,
+printError(const char *file, int line, int error_type,
 	   int doPerror, const char *format, ...)
 {
   va_list args;
-  char *err;
+  char *errorType;
+  int toStderr = 0;
+
+  switch (error_type) {
+  case TYPE_ERROR:
+      errorType = "Error";
+      toStderr = 1;
+      break;
+  case TYPE_WARNING:
+      errorType = "Warning";
+      break;
+  default:
+      errorType = "Info";
+      break;
+  }
   
-  if (doPerror) {
-      err = strerror(errno);
-  }
-
-  fprintf(stderr, "%s at %s:%d: ", err_or_warn, file, line);
-  va_start(args, format);
-  vfprintf(stderr, format, args);
-  va_end(args);
-  if (doPerror) {
-      fprintf(stderr, ": %s\n", err);
-  } else {
-      fprintf(stderr, "\n");
-  }
-
-  if (f == NULL) {
-      return;
-  }
-
   __p = __line;
-  __p += sprintf(__p, "# %s: ", err_or_warn);
+  __p += sprintf(__p, "# %s: ", errorType);
   va_start(args, format);
   __p += vsprintf(__p, format, args);
   va_end(args);
   if (doPerror) {
-      sprintf(__p, ": %s\n", err);
+      sprintf(__p, ": %s\n", strerror(errno));
   } else {
       sprintf(__p, "\n");
   }
   write_traceline(__line);
+  if (toStderr) {
+      fprintf(stderr, "%s", __line);
+  }
 }
 
 void
-doneExit(int exitvalue, FILE *f, const char *format, ...)
+done(const char *format, ...)
 {
     va_list args;
 
@@ -249,25 +248,7 @@ doneExit(int exitvalue, FILE *f, const char *format, ...)
     __p += vsprintf(__p, format, args);
     va_end(args);
     sprintf(__p, "\n");
-    fprintf(stdout, __line);
     write_traceline(__line);
-    exit(exitvalue);
-}
-
-void
-doneNoExit(int exitvalue, FILE *f, const char *format, ...)
-{
-    va_list args;
-
-    __p = __line;
-    __p += sprintf(__p, "# Done: ");
-    va_start(args, format);
-    __p += vsprintf(__p, format, args);
-    va_end(args);
-    sprintf(__p, "\n");
-    fprintf(stdout, __line);
-    write_traceline(__line);
-    // exit(exitvalue);
 }
 
 /*

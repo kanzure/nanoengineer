@@ -20,7 +20,7 @@ cdef extern from "simhelp.c":
     # note: this produces '#include "simhelp.c"' in generated sim.c file,
     # but distutils fails to realize there's a dependency on simhelp.c,
     # so Will added a setup.py dependency to fix that. [bruce 060101]
-    char *filename
+
     # stuff from globals.c
     int debug_flags
     int Iteration
@@ -35,8 +35,9 @@ cdef extern from "simhelp.c":
     int DirectEvaluate
     int Interrupted
     char *IDKey
-    char *baseFilename
-    char *OutFileName
+    char *BaseFileName
+    char *InputFileName
+    char *OutputFileName
     char *TraceFileName
     double Dt
     double Dx
@@ -117,15 +118,15 @@ cdef class BaseSimulator:
             return IDKey
         elif key == "baseFilename":
             #bruce 051230 prevent exception when this is NULL (its default value)
-            if baseFilename == NULL:
+            if BaseFileName == NULL:
                 # not sure if None would be permitted here
                 # probably it would, but this is better anyway
                 return ""
-            return baseFilename
+            return BaseFileName
         elif key == "OutFileName":
-            if OutFileName == NULL:
+            if OutputFileName == NULL:
                 return ""
-            return OutFileName
+            return OutputFileName
         elif key == "TraceFileName":
             if TraceFileName == NULL:
                 return ""
@@ -185,16 +186,14 @@ cdef class BaseSimulator:
             global IDKey
             IDKey = value
         elif key == "baseFilename":
-            global baseFilename
-            baseFilename = value
+            global BaseFileName
+            BaseFileName = value
         elif key == "OutFileName":
-            global OutFileName
-            assert len(value) < 1024
-            strcpy( OutFileName, value)
+            global OutputFileName
+            OutputFileName = value
         elif key == "TraceFileName":
             global TraceFileName
-            assert len(value) < 1024
-            strcpy( TraceFileName, value)
+            TraceFileName = value
         elif key == "Dt":
             global Dt
             Dt = value
@@ -238,23 +237,23 @@ cdef class BaseSimulator:
 
 class Minimize(BaseSimulator):
     def __init__(self, fname):
-        global filename
+        global InputFileName
         reinitSimGlobals(self)
         self.ToMinimize = 1
         self.DumpAsText = 1
         self.PrintFrameNums = 0
-        filename = fname
+        InputFileName = fname
         initsimhelp()
         readPart()
 
 class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to BaseSimulator
     def __init__(self, fname):
-        global filename
+        global InputFileName
         reinitSimGlobals(self)
         self.ToMinimize = 0
         self.DumpAsText = 0
         self.PrintFrameNums = 0
-        filename = fname
+        InputFileName = fname
         initsimhelp()
         readPart()
 

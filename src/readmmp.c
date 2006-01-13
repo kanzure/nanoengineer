@@ -19,7 +19,8 @@ mmpParseError(void *stream)
   struct mmpStream *mmp = (struct mmpStream *)stream;
   
   ERROR3("In mmp file %s, line %d, col %d", mmp->fileName, mmp->lineNumber, mmp->charPosition);
-  doneExit(1, tracef, "Failed to parse mmp file");
+  done("Failed to parse mmp file");
+  exit(1); // XXX should throw exception
 }
 
 
@@ -371,7 +372,7 @@ readMMP(char *filename)
   char *name, *fontname, *junk;
   int fontsize;
   int elementType;
-  int previousAtomID; // ID of atom just defined, so we can back-reference to it in later lines
+  int previousAtomID = -1; // ID of atom just defined, so we can back-reference to it in later lines
   double stall;
   double speed;
   double force;

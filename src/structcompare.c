@@ -21,7 +21,7 @@ structCompareSetExtra(struct configuration *p)
   struct xyz translate;
   struct xyz t;
   double rotation[9];
-  double scale;
+  double scale = 1.0;
   
   if (p->extra != NULL) {
     return;
@@ -87,7 +87,7 @@ structCompareResult(struct configuration *p,
   double maxDeltaLenSquared = 0.0;
   double maxDeltaLen;
   double standardDeviation;
-  double scale;
+  double scale = 1.0;
   
   structCompareSetExtra(p);
   for (i=0; i<atomCount; i++) {
@@ -116,8 +116,7 @@ structCompareResult(struct configuration *p,
   printf("at: translate (%f %f %f)\n       rotate (%f %f %f)\n        scale %f,\nstandard deviation = %e, max delta = %e\n",
          p->coordinate[0], p->coordinate[1], p->coordinate[2],
          p->coordinate[3], p->coordinate[4], p->coordinate[5],
-         allowScaling ? scale : 1.0,
-         standardDeviation, maxDeltaLen);
+         scale, standardDeviation, maxDeltaLen);
 
   if (standardDeviation != 0.0 && !isnormal(standardDeviation)) {
     printf("standard deviation not defined\n");

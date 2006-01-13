@@ -532,7 +532,7 @@ printBendStretch()
   double y2;
   double potential;
   double prevA_potential;
-  double prevB_potential;
+  double prevB_potential = 0.0;
   double flen;
   float red, grn, blu;
   int red1, red2;

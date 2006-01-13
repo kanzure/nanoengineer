@@ -1,5 +1,18 @@
 #include "simulator.h"
 
+// Everything in here has to be updated in 6 places:
+//
+// The top of this file, where the actual symbol is defined.
+// The bottom of this file, where the initial value is set.
+// In globals.h, where others pick up the definitions.
+// The top of sim.pyx, where these symbols are linked to python code.
+// In __getattr__ in sim.pyx, to let python get them.
+// In __setattr__ in sim.pyx, to let python set them.
+//
+// Sure would be nice to do it all just once...
+//
+// That could be done if sim.pyx can have cpp macros in it...
+
 int debug_flags;
 
 int Interrupted; /* set to 1 when a SIGTERM is received */
@@ -21,15 +34,13 @@ int KeyRecordInterval;
 int DirectEvaluate;
 float ExcessiveEnergyLevel;
 char *IDKey;
+char *InputFileName;
+char *OutputFileName;
+char *TraceFileName;
+char *BaseFileName;
 
-char OutFileName[1024];
-char TraceFileName[1024];
-
-char *baseFilename;
-
-// for writing the differential position and trace files
-FILE *outf;
-FILE *tracef;
+FILE *OutputFile;
+FILE *TraceFile;
 
 int Count;
 
@@ -73,17 +84,26 @@ reinit_globals(void)
     DirectEvaluate = 1;  // XXX should default to 0 eventually
     ExcessiveEnergyLevel = 0.1; // attoJoules
     IDKey = "";
-    outf = NULL;
-    tracef = NULL;
+    InputFileName = NULL;
+    OutputFileName = NULL;
+    TraceFileName = NULL;
+    BaseFileName = NULL;
+
+    OutputFile = NULL;
+    TraceFile = NULL;
+
     Count = 0;
+
     ExcessiveEnergyWarning = 0;
     ComputedParameterWarning = 0;
     InterruptionWarning = 0;
+
     Dt = 1e-16; // seconds
     Dx = 1e-12; // meters
     Dmass = 1e-27; // mass units in kg
     Temperature = 300.0; // Kelvins
     totClipped = 0.0;
+
     reInitializeBondTable();
 }
 

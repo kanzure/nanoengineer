@@ -22,7 +22,7 @@ static void flushOutputFile(FILE *f)
 {
     if (fflush(f) < 0 && !flushWriteWarning) {
         /* it's a good bet that this will fail too, but we'll try... */
-        WARNING_ERRNO1("Unable to write to file %s", OutFileName);
+        WARNING_ERRNO1("Unable to write to file %s", OutputFileName);
         flushWriteWarning = 1;
     }
 }
@@ -404,7 +404,7 @@ writeSimpleAtomPosition(struct part *part, struct xyz *positions, int i)
   }
   
   // sphere x y z radius r g b
-  fprintf(outf, "s %f %f %f %f %f %f %f\n",
+  fprintf(OutputFile, "s %f %f %f %f %f %f %f\n",
           positions[i].x,
           positions[i].y,
           positions[i].z,
@@ -433,7 +433,7 @@ writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int colo
     struct xyz f;
     
     if (1 /*!atom[i].inJig*/) {
-        fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+        fprintf(OutputFile, "l %f %f %f %f %f %f %f %f %f\n",
                 positions[i].x,
                 positions[i].y,
                 positions[i].z,
@@ -475,7 +475,7 @@ writeSimpleStressVector(struct xyz *positions, int a1, int a2, int ac, double st
     r = 0.0;
     b = intensity;
   }
-  fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+  fprintf(OutputFile, "l %f %f %f %f %f %f %f %f %f\n",
           positions[a1].x,
           positions[a1].y,
           positions[a1].z,
@@ -484,7 +484,7 @@ writeSimpleStressVector(struct xyz *positions, int a1, int a2, int ac, double st
           positions[a2].z,
           r, 0.0, b);
   if (ac >= 0) {
-    fprintf(outf, "l %f %f %f %f %f %f %f %f %f\n",
+    fprintf(OutputFile, "l %f %f %f %f %f %f %f %f %f\n",
             positions[ac].x,
             positions[ac].y,
             positions[ac].z,
@@ -507,12 +507,12 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
           writeSimpleForceVector(positions, i, &forces[i], 0, 1.0);
         }
     }
-    fprintf(outf, "f ");
+    fprintf(OutputFile, "f ");
     va_start(args, format);
-    vfprintf(outf, format, args);
+    vfprintf(OutputFile, format, args);
     va_end(args);
-    fprintf(outf, "\n");
-    fflush(outf);
+    fprintf(OutputFile, "\n");
+    fflush(OutputFile);
 }
 
 /**
@@ -533,8 +533,8 @@ void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *p
 	    writeNewFrame(outf, part, pos);
 	    break;
 	}
-	traceJigData(tracef, part);
-	flushOutputFile(outf);
+	traceJigData(part);
+	flushOutputFile(OutputFile);
     }
     // fprintf(stderr, "found Ke = %e\n",FoundKE);
 }
@@ -574,6 +574,7 @@ int writeMinimizeMovieFrame(FILE *outf,
       message = "";
     }
     // wware 060102  callback for trace file
+    // cad code depends on first 4 fields when callLocation=="gradient"
     write_traceline("%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
     DPRINT5(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message);
     if (message[0] != '\0') {

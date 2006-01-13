@@ -102,3 +102,39 @@ accumulator(void *old, unsigned int len, int zerofill)
   }
   return old;
 }
+
+// given a template filename, returns a new string which is a copy of
+// the template, but with characters after the trailing '.' replaced
+// with newExtension.  If there is no '.' after the last '/' or '\' in
+// template, then a '.' and newExtension are appended to template.
+char *
+replaceExtension(char *template, char *newExtension)
+{
+    char *end;
+    int len;
+    char *ret;
+    
+    end = template + strlen(template); // end points to '\0' at end of string
+    while (--end > template) {
+        if (*end == '.') {
+            break; // found a . in filename component, add .newExtension from there
+        }
+        if (*end == '/' || *end == '\\') {
+            // there's no . in the filename component, so add .newExtension to the end
+            end = template + strlen(template);
+            break;
+        }
+    }
+    if (end < template) {
+        // there's no . anywhere in the string, so add .newExtension to the end
+        end = template + strlen(template);
+    }
+
+    len = end-template + strlen(newExtension) + 2; // add 1 for . and for \0
+    ret = (char *)allocate(len);
+    ret[0] = '\0';
+    strncat(ret, template, end-template);
+    strcat(ret, ".");
+    strcat(ret, newExtension);
+    return ret;
+}

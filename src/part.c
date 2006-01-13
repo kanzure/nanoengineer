@@ -22,7 +22,8 @@ defaultParseError(void *stream)
     
     p = (struct part *)stream;
     ERROR1("Parsing part %s", p->filename);
-    doneExit(1, tracef, "Failed to parse part %s", p->filename);
+    done("Failed to parse part %s", p->filename);
+    exit(1); // XXX should throw exception so pyrex doesn't exit cad here
 }
 
 // Create a new part.  Pass in a filename (or any other string

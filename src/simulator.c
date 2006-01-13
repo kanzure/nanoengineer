@@ -79,11 +79,10 @@ write_traceline(const char *format, ...)
 {
     va_list args;
 
-    if (tracef != NULL) {
-	va_start(args, format);
-	vfprintf(tracef, format, args);
-	va_end(args);
-    }
+    va_start(args, format);
+    vfprintf(TraceFile, format, args);
+    va_end(args);
+    fflush(stdout);
 }
 
 // Python exception stuff, wware 060109
@@ -173,7 +172,9 @@ main(int argc, char **argv)
     double printPotentialInitial = 1; // pm
     double printPotentialIncrement = 1; // pm
     double printPotentialLimit = 200; // pm
-    char buf[1024], *filename, *ofilename, *tfilename, *c;
+    char *fileNameTemplate = NULL;
+    char *outputFilename = NULL;
+    char *traceFilename = NULL;
     char *commandLine;
 	
     initializeBondTable();
@@ -183,18 +184,8 @@ main(int argc, char **argv)
         exit(1);
     }
 
-    //setupPositionsArrays();
-	
-    //vsetc(Cog,0.0);
-    //vsetc(P,0.0);
-    //vsetc(Omega,0.0);
-
     //debug_flags = D_GRADIENT_FROM_POTENTIAL;
     
-    filename = (char *)0;
-    ofilename = (char *)0;
-    tfilename = (char *)0;
-
     commandLine = assembleCommandLine(argc, argv);
     while ((opt = getopt_long(argc, argv,
 			    "hnmEi:f:s:t:xXONI:K:rD:o:q:B:",
@@ -269,13 +260,13 @@ main(int argc, char **argv)
 	    }
 	    break;
 	case 'o':
-	    ofilename = optarg;
+	    outputFilename = optarg;
 	    break;
 	case 'q':
-	    tfilename = optarg;
+	    traceFilename = optarg;
 	    break;
 	case 'B':
-	    baseFilename = optarg;
+	    BaseFileName = optarg;
 	    break;
         case ':':
         case '?':
@@ -285,7 +276,7 @@ main(int argc, char **argv)
 	}
     }
     if (optind + 1 == argc) {   // (optind < argc) if not paranoid
-	filename = argv[optind];
+	fileNameTemplate = argv[optind];
     }
 
     if (DEBUG(D_PRINT_BEND_STRETCH)) { // -D8
@@ -298,22 +289,23 @@ main(int argc, char **argv)
         OutputFormat = 0;
     }
 
-    if (!filename) {
+    if (!fileNameTemplate) {
         usage();
     }
+    InputFileName = replaceExtension(fileNameTemplate, "mmp");
 
-    if (baseFilename != NULL) {
+    if (BaseFileName != NULL) {
         int i1;
         int i2;
         struct xyz *basePositions;
         struct xyz *initialPositions;
         
-        basePositions = readXYZ(baseFilename, &i1);
+        basePositions = readXYZ(BaseFileName, &i1);
         if (basePositions == NULL) {
             fprintf(stderr, "could not read base positions file from -B<filename>\n");
             exit(1);
         }
-        initialPositions = readXYZ(filename, &i2);
+        initialPositions = readXYZ(InputFileName, &i2);
         if (initialPositions == NULL) {
             fprintf(stderr, "could not read comparison positions file\n");
             exit(1);
@@ -326,51 +318,26 @@ main(int argc, char **argv)
                                 NumFrames, 1e-8, 1e-4, 1.0+1e-4));
     }
 
-    if (strchr(filename, '.')) {
-        sprintf(buf, "%s", filename);
+    if (outputFilename) {
+        OutputFileName = copy_string(outputFilename);
     } else {
-        sprintf(buf, "%s.mmp", filename);
+        OutputFileName = replaceExtension(fileNameTemplate, DumpAsText ? "xyz" : "dpb");
     }
 
-    if (! ofilename) {
-	strcpy(OutFileName,buf);
-	c=strchr(OutFileName, '.');
-	if (c) {
-            *c='\0';
-        }
-    } else {
-        strcpy(OutFileName,ofilename);
-    }
-    
-    if (! strchr(OutFileName, '.')) {
-	if (DumpAsText) {
-            strcat(OutFileName,".xyz");
-        } else {
-            strcat(OutFileName,".dpb");
-        }
-    }
-
-    if (! tfilename) {
-	strcpy(TraceFileName,buf);
-	c=strchr(TraceFileName, '.');
-	if (c) {
-            *c='\0';
-        }
-    } else {
-        strcpy(TraceFileName,tfilename);
-    }
-    
-    if (! strchr(TraceFileName, '.')) {
-        strcat(TraceFileName,".trc");
-    }
-    if (!printPotentialEnergy) {
-        tracef = fopen(TraceFileName, "w");
-        if (!tracef) {
-            perror(TraceFileName);
+    if (traceFilename) {
+        TraceFile = fopen(traceFilename, "w");
+        if (TraceFile == NULL) {
+            perror(traceFilename);
             exit(1);
         }
-        fprintf(tracef, "# %s\n", commandLine);
+    } else {
+        TraceFile = fdopen(1, "w");
+        if (TraceFile == NULL) {
+            perror("fdopen stdout as TraceFile");
+            exit(1);
+        }
     }
+    fprintf(TraceFile, "# %s\n", commandLine);
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
@@ -382,7 +349,7 @@ main(int argc, char **argv)
         exit(0);
     }
     
-    part = readMMP(buf);
+    part = readMMP(InputFileName);
     updateVanDerWaals(part, NULL, part->positions);
     generateStretches(part);
     generateBends(part);
@@ -400,38 +367,22 @@ main(int argc, char **argv)
         exit(0);
     }
 
-    /*
-    fprintf(stderr, " center of mass velocity: %f\n", vlen(vdif(CoM(Positions),CoM(OldPositions))));
-    fprintf(stderr, " center of mass: %f -- %f\n", vlen(CoM(Positions)), vlen(Cog));
-    fprintf(stderr, " total momentum: %f\n",P);
-    */
-    traceHeader(tracef, filename, OutFileName, TraceFileName, 
+    traceHeader(InputFileName, OutputFileName, TraceFileName, 
                 part, NumFrames, IterPerFrame, Temperature);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));
 	Temperature = 0.0;
     } else {
-        traceJigHeader(tracef, part);
+        traceJigHeader(part);
     }
 
-    printf("iters per frame = %d\n",IterPerFrame);
-    printf("number of frames = %d\n",NumFrames);
-    printf("timestep = %e\n",Dt);
-    printf("temp = %f\n",Temperature);
-    if (DumpAsText) printf("dump as text\n");
-
-    printf("< %s  > %s\n", buf, OutFileName);
-
-    // XXX put me back
-    //printf("\nTotal Ke = %e\n",TotalKE);
-
-    outf = fopen(OutFileName, DumpAsText ? "w" : "wb");
-    if (outf == NULL) {
-        perror(OutFileName);
+    OutputFile = fopen(OutputFileName, DumpAsText ? "w" : "wb");
+    if (OutputFile == NULL) {
+        perror(OutputFileName);
         exit(1);
     }
-    writeOutputHeader(outf, part);
+    writeOutputHeader(OutputFile, part);
 
     if  (ToMinimize) {
 	minimizeStructure(part);
@@ -441,8 +392,8 @@ main(int argc, char **argv)
         dynamicsMovie(part);
     }
 
-    doneExit(0, tracef, "");
-    return 1; // not reached
+    done(0,  "");
+    return 0;
 }
 
 /*

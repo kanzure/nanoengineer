@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "simulator.h"    // wware 060109  python exception handling
+#include "simulator.h"
 
 // Some of the routines in this file are based on routines found in
 // "Numerical Recipes in C, Second Edition", by William H. Press, Saul
@@ -112,7 +112,7 @@ message(struct functionDefinition *fd, const char *format, ...)
     *message = '\0';
 
     va_start(args, format);
-    len = sprintf(subbuf, format, args);
+    len = vsprintf(subbuf, format, args);
     va_end(args);
 
     if (messageBufferLength < len)
@@ -127,11 +127,9 @@ makeConfiguration(struct functionDefinition *fd)
     struct configuration *ret;
 
     ret = (struct configuration *)allocate(sizeof(struct configuration));
-    // wware 060109  python exception handling
     NULLPTRR(ret, NULL);
     ret->functionValue = 0.0;
     ret->coordinate = (double *)allocate(sizeof(double) * fd->dimension);
-    // wware 060109  python exception handling
     NULLPTRR(ret->coordinate, NULL);
     ret->gradient = NULL;
     ret->parameter = 0.0;
@@ -219,12 +217,9 @@ evaluate(struct configuration *p)
 {
     struct functionDefinition *fd;
 
-    // wware 060109  python exception handling
     NULLPTRR(p, 0.0);
-    // wware 060110  don't deref p until it's checked (doh)
     fd = p->functionDefinition;
     if (p->functionValueValid == 0) {
-	// wware 060109  python exception handling
 	NULLPTRR(fd->func, 0.0);
 	(*fd->func)(p);
 	p->functionValueValid = 1;
@@ -242,23 +237,19 @@ evaluateGradientFromPotential(struct configuration *p)
     int i;
     int j;
 
-    // wware 060109  python exception handling
     NULLPTR(p);
     fd = p->functionDefinition;
-    // wware 060109  python exception handling
     NULLPTR(fd);
     if (fd->gradient_delta == 0.0) {
 	fd->gradient_delta = 1e-8;
     }
     for (i=0; i<fd->dimension; i++) {
-	// wware 060109  python exception handling
 	pPlusDelta = makeConfiguration(fd); BAIL();
 	for (j=0; j<fd->dimension; j++) {
 	    pPlusDelta->coordinate[j] = p->coordinate[j];
 	}
 	pPlusDelta->coordinate[i] += fd->gradient_delta / 2.0;
 
-	// wware 060109  python exception handling
 	pMinusDelta = makeConfiguration(fd); BAIL();
 	for (j=0; j<fd->dimension; j++) {
 	    pMinusDelta->coordinate[j] = p->coordinate[j];
@@ -278,12 +269,10 @@ evaluateGradient(struct configuration *p)
     int i;
     double gradientCoordinate;
 
-    // wware 060109  python exception handling
     BAIL();  // Interrupted?
     fd = p->functionDefinition;
     if (p->gradient == NULL) {
 	p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
-	// wware 060109  python exception handling
 	NULLPTR(p->gradient);
 	if (fd->dfunc == NULL) {
 	    evaluateGradientFromPotential(p); BAIL();
@@ -310,7 +299,6 @@ gradientOffset(struct configuration *p, double q)
     struct configuration *r;
     int i;
 
-    // wware 060109  python exception handling
     r = makeConfiguration(fd); BAILR(NULL);
     evaluateGradient(p); BAILR(NULL);
     for (i=fd->dimension-1; i>=0; i--) {
@@ -347,10 +335,8 @@ bracketMinimum(struct configuration **ap,
     SetConfiguration(&a, p);
     a->parameter = 0.0;
     evaluateGradient(p); // this lets (*dfunc)() set initial_parameter_guess
-    // wware 060109  python exception handling
     BAIL();
     b = gradientOffset(p, p->functionDefinition->initial_parameter_guess);
-    // wware 060109  python exception handling
     BAIL();
     if (evaluate(b) > evaluate(a)) {
 	// swap a and b, so b is downhill of a
@@ -360,7 +346,6 @@ bracketMinimum(struct configuration **ap,
 	u = NULL;
     }
     nx = b->parameter + GOLDEN_RATIO * (b->parameter - a->parameter);
-    // wware 060109  python exception handling
     c = gradientOffset(p, nx); BAIL();
     while (evaluate(b) > evaluate(c)) {
 
@@ -637,14 +622,15 @@ linearMinimize(struct configuration *p,
 
     Enter();
     bracketMinimum(&a, &b, &c, p);
-    // wware 060110  forgot some null ptr tests
     NULLPTRR(a, NULL);
     NULLPTRR(b, NULL);
     NULLPTRR(c, NULL);
-    message(p->functionDefinition, "bmin: a %e[%e] b %e[%e] c %e[%e]",
-	    evaluate(a), a->parameter,
-	    evaluate(b), b->parameter,
-	    evaluate(c), c->parameter);
+    if (DEBUG(D_MINIMIZE)) {
+        message(p->functionDefinition, "bmin: a %e[%e] b %e[%e] c %e[%e]",
+                evaluate(a), a->parameter,
+                evaluate(b), b->parameter,
+                evaluate(c), c->parameter);
+    }
     if (minimization_algorithm == SteepestDescent && b != p) {
 	SetConfiguration(&min, b);
     } else {
@@ -654,7 +640,7 @@ linearMinimize(struct configuration *p,
     SetConfiguration(&a, NULL);
     SetConfiguration(&b, NULL);
     SetConfiguration(&c, NULL);
-    if (min == p) {
+    if (DEBUG(D_MINIMIZE) && min == p) {
 	message(p->functionDefinition, "linearMinimize returning argument");
     }
     Leave(linearMinimize, (min == p) ? 0 : 1);
@@ -673,10 +659,12 @@ defaultTermination(struct functionDefinition *fd,
     DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n",
             fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
     if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
-        message(fd,
-                "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
-                fp, fq,
-                fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+        if (DEBUG(D_MINIMIZE)) {
+            message(fd,
+                    "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
+                    fp, fq,
+                    fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
+        }
         return 1;
     }
     return 0;
@@ -703,40 +691,31 @@ minimize_one_tolerance(struct configuration *initial_p,
     int i;
 
     Enter();
-    // wware 060109  python exception handling
     NULLPTRR(initial_p, NULL);
     NULLPTRR(iteration, NULL);
     fd = initial_p->functionDefinition;
-    // wware 060109  python exception handling
     NULLPTRR(fd, NULL);
     if (fd->termination == NULL) {
         fd->termination = defaultTermination;
     }
     SetConfiguration(&p, initial_p);
-    // wware 060109  python exception handling
     BAILR(NULL);
     fp = evaluate(p);
-    // wware 060109  python exception handling
     BAILR(NULL);
     for ((*iteration)=0; (*iteration) < iterationLimit; (*iteration)++) {
 	SetConfiguration(&q, NULL);
-	// wware 060109  python exception handling
 	BAILR(NULL);
 	q = linearMinimize(p, tolerance, minimization_algorithm);
-	// wware 060109  python exception handling
 	BAILR(NULL);
         if ((fd->termination)(fd, p, q, tolerance)) {
 	    SetConfiguration(&p, NULL);
-	    // wware 060109  python exception handling
 	    BAILR(NULL);
 	    Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
 	    return q;
 	}
 	evaluateGradient(p); // should have been evaluated by linearMinimize already
-	// wware 060109  python exception handling
 	BAILR(NULL);
 	evaluateGradient(q);
-	// wware 060109  python exception handling
 	BAILR(NULL);
 	if (minimization_algorithm != SteepestDescent) {
 	    dgg = gg = 0.0;
@@ -760,7 +739,6 @@ minimize_one_tolerance(struct configuration *initial_p,
 		// is zero, so we must be done.
 		DPRINT(D_MINIMIZE, "gg==0 in minimize_one_tolerance\n");
 		SetConfiguration(&p, NULL);
-		// wware 060109  python exception handling
 		BAILR(NULL);
 		Leave(minimize_one_tolerance, 1);
 		return q;
@@ -786,7 +764,6 @@ minimize_one_tolerance(struct configuration *initial_p,
         message(fd, "reached iteration limit");
     }
     SetConfiguration(&p, NULL);
-    // wware 060109  python exception handling
     BAILR(NULL);
     Leave(minimize_one_tolerance, 1);
     return q;
@@ -821,15 +798,12 @@ minimize(struct configuration *initial_p,
 				       iterationLimit - coarse_iter,
 				       fd->fine_tolerance,
 				       PolakRibiereConjugateGradient);
-	// wware 060109  python exception handling
 	BAILR(NULL);
     } else {
 	SetConfiguration(&final, intermediate);
-	// wware 060109  python exception handling
 	BAILR(NULL);
     }
     SetConfiguration(&intermediate, NULL);
-    // wware 060109  python exception handling
     BAILR(NULL);
     *iteration = coarse_iter + fine_iter;
     Leave(minimize, (final == initial_p) ? 0 :1);

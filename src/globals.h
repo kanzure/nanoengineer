@@ -23,14 +23,13 @@ extern int KeyRecordInterval;
 extern int DirectEvaluate;
 extern float ExcessiveEnergyLevel;
 extern char *IDKey;
+extern char *InputFileName;
+extern char *OutputFileName;
+extern char *TraceFileName;
+extern char *BaseFileName;
 
-extern char OutFileName[1024];
-extern char TraceFileName[1024];
-extern char *baseFilename;
-
-// for writing the differential position and trace files
-extern FILE *outf;
-extern FILE *tracef;
+extern FILE *OutputFile;
+extern FILE *TraceFile;
 
 extern int Count;
 

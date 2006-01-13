@@ -37,7 +37,7 @@ minimizeStructurePotential(struct configuration *p)
 {
     updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
     p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
-    //writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter,
+    //writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter,
     //                        Iteration++, "potential", p->functionDefinition->message);
     if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D3
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential %e %e", p->functionValue, p->parameter);
@@ -82,7 +82,7 @@ minimizeStructureGradient(struct configuration *p)
     //}
     findRMSandMaxForce(p, &rms_force, &max_force);
     p->functionDefinition->initial_parameter_guess = clamp(1e-9, 1e3, 10.0 / max_force);
-    writeMinimizeMovieFrame(outf, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++,
+    writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++,
 			    "gradient", p->functionDefinition->message);
     if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
@@ -191,7 +191,7 @@ minimizeStructure(struct part *part)
 	evaluateGradient(final); BAIL();
 	findRMSandMaxForce(final, &rms_force, &max_force); BAIL();
 
-	writeMinimizeMovieFrame(outf, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,
+	writeMinimizeMovieFrame(OutputFile, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,
 				Iteration, "final structure", minimizeStructureFunctions.message);
 
 	if (DEBUG(D_MINIMIZE_FINAL_PRINT)) { // -D 11
@@ -206,11 +206,11 @@ minimizeStructure(struct part *part)
 
     SetConfiguration(&initial, NULL);
     SetConfiguration(&final, NULL);
-    doneNoExit(0, tracef, "Minimize evals: %d, %d; final forces: rms %f, high %f",
-	       minimizeStructureFunctions.gradientEvaluationCount,
-	       minimizeStructureFunctions.functionEvaluationCount,
-	       rms_force,
-	       max_force);
+    done("Minimize evals: %d, %d; final forces: rms %f, high %f",
+         minimizeStructureFunctions.gradientEvaluationCount,
+         minimizeStructureFunctions.functionEvaluationCount,
+         rms_force,
+         max_force);
 }
 
 /*

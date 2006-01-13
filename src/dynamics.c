@@ -177,7 +177,7 @@ dynamicsMovie(struct part *part)
 	    if (PrintFrameNums) printf("\n");
 	oneDynamicsFrame(part, IterPerFrame,
 			 averagePositions, &oldPositions, &newPositions, &positions, force);
-	writeDynamicsMovieFrame(outf, i, part, averagePositions);
+	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions);
     }
     if (PrintFrameNums) printf("\n");
     
@@ -192,11 +192,11 @@ dynamicsMovie(struct part *part)
 	    printf("\n");
 	oneDynamicsFrame(part, IterPerFrame,
 			 averagePositions, &oldPositions, &newPositions, &positions, force);
-	snapshot(outf, i, averagePositions);
+	snapshot(OutputFile, i, averagePositions);
     }
 #endif
     
-    writeOutputTrailer(outf, part, NumFrames);
+    writeOutputTrailer(OutputFile, part, NumFrames);
     
     free(averagePositions);
     free(oldPositions);
