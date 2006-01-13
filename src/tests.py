@@ -33,8 +33,13 @@ import traceback
 import types
 import unittest
 
+if sys.platform == "win32":
+    simulatorCmd = "simulator.exe"
+else:
+    simulatorCmd = "simulator"
+
 if __name__ == "__main__":
-    if not os.path.exists("simulator"):
+    if not os.path.exists(simulatorCmd):
         print "simulator needs rebuilding"
     if not os.path.exists("sim.so"):
         print "sim.so needs rebuilding"
@@ -529,7 +534,7 @@ class SandboxTest(TimedTest):
             rmtreeSafe(tmpdir)
             os.mkdir(tmpdir)
             # Copy the input files into the tmp directory.
-            shutil.copy("simulator", tmpdir)
+            shutil.copy(simulatorCmd, tmpdir)
             # We always have a .mmp file
             shutil.copy(self.basename + ".mmp", tmpdir)
             for ext in self.inputs:
@@ -560,7 +565,7 @@ class SandboxTest(TimedTest):
             if str.startswith("FOO"):
                 return self.testname + str[3:]
             return str
-        cmdline = [ "./simulator" ] + map(substFOO, opts)
+        cmdline = [ "./" + simulatorCmd ] + map(substFOO, opts)
         if DEBUG > 0:
             print self.basename
             print cmdline
@@ -568,8 +573,14 @@ class SandboxTest(TimedTest):
         stdout = open("stdout", "a")
         stderr = open("stderr", "a")
         def blabout():
+            r = str(simProcess.readStdout())
+            if DEBUG > 1:
+                print "STDOUT", r
             stdout.write(str(simProcess.readStdout()))
         def blaberr():
+            r = str(simProcess.readStderr())
+            if DEBUG > 1:
+                print "STDERR", r
             stderr.write(str(simProcess.readStderr()))
         qt.QObject.connect(simProcess, qt.SIGNAL("readyReadStdout()"), blabout)
         qt.QObject.connect(simProcess, qt.SIGNAL("readyReadStderr()"), blaberr)
@@ -587,10 +598,10 @@ class SandboxTest(TimedTest):
     def checkOutputFiles(self):
         if DEBUG > 0:
             print os.listdir(".")
-        if DEBUG > 1:
+        if DEBUG > 2:
             print ("******** " + self.basename + " ********")
             for f in os.listdir("."):
-                if f != "simulator":
+                if f != simulatorCmd:
                     # assume everything else is a text file
                     print "---- " + f + " ----"
                     sys.stdout.write(open(f).read())
@@ -1400,8 +1411,10 @@ if __name__ == "__main__":
     def pyrex(x):
         """Perform the Pyrex tests
         """
-        global Tests, PyrexTests
-        Tests = PyrexTests
+        for nm in dir(Tests):
+            if nm.startswith("test_") and not nm.startswith("test_pyrex"):
+                try: delattr(Tests, nm)
+                except AttributeError: pass
     def loose(x):
         """Loosen tolerances on length and angle comparisons.
         """
@@ -1428,7 +1441,10 @@ if __name__ == "__main__":
         """debug this script
         """
         global DEBUG
-        DEBUG = 1
+        if x[:1] == "=":
+            DEBUG = string.atoi(x[1:])
+        else:
+            DEBUG = 1
     def time_only(x):
         """measure the time each test takes, ignore any results
         """
@@ -1533,7 +1549,7 @@ if __name__ == "__main__":
             pass
         casenames.sort(sortfunc)
     else:
-        casenames = RANKED_BY_RUNTIME
+        casenames = filter(lambda x: x in dir(Tests), RANKED_BY_RUNTIME)
     suite = unittest.TestSuite(map(Tests, casenames))
     runner = unittest.TextTestRunner()
     runner.run(suite)
