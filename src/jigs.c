@@ -55,8 +55,11 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
  * Springs connect atoms to a flywheel. We drive the flywheel and it
  * pulls the atoms along. The units of spring stiffness are piconewtons
  * per picometer, or equivalently newtons per meter.
+ *
+ * 10 newtons/meter is too stiff, we get oscillations that grow out of
+ * control. 1 N/m and 0.1 N/m give oscillations but they don't go crazy.
  */
-#define SPRING_STIFFNESS  10.0
+#define SPRING_STIFFNESS  0.1
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
