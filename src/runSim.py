@@ -48,6 +48,7 @@ debug_all_frames_atom_index = 1 # index of atom to print in detail, when debug_a
 
 debug_sim = 0 # DO NOT COMMIT with 1
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
+debug_timing_loop_on_sbar = 0
 
 use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
     # [this is true for bruce and probably false for other developers] ####@@@@
@@ -677,11 +678,13 @@ class SimRunner:
         filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
             # only side effect: history message [bruce 060103 comment]
         # pbarCaption and pbarMsg are not used any longer.  [mark 060105 comment]
+        # (but they or similar might be used again soon, eg for cmdname in tooltip -- bruce 060112 comment)
         from StatusBar import show_progressbar_and_stop_button
         self.errcode = show_progressbar_and_stop_button(
                             self.win,
                             filesize,
-                            filename = movie.filename, 
+                            filename = movie.filename,
+                            cmdname = self.cmdname, #bruce 060112
                             show_duration = 1 )
             # that 'launch' method is misnamed, since it also waits for completion;
             # its only side effects [as of bruce 060103] are showing/updating/hiding progress dialog, abort button, etc.
@@ -772,7 +775,7 @@ class SimRunner:
 
         from StatusBar import AbortButtonForOneTask
             #bruce 060106 try to let pyrex sim share some abort button code with non-pyrex sim
-        self.abortbutton_controller = abortbutton = AbortButtonForOneTask()
+        self.abortbutton_controller = abortbutton = AbortButtonForOneTask(self.cmdname)
         abortbutton.start()
         
         try:
@@ -800,31 +803,43 @@ class SimRunner:
                 # note: we need the frame callback even if not self._movie.watch_motion,
                 # since it's when we check for user aborts and process all other user events.
                 frame_callback = self.sim_frame_callback
+                trace_callback = self.tracefile_callback
                 
                 simgo = simobj.go
 
-                self.tracefileProcessor = TracefileProcessor(self) # so self.tracefile_callback does something [bruce 060109]
+                minflag = movie.minimize_flag
+                    ###@@@ should we merge this logic with how we choose the simobj class? [bruce 060112]
+                
+                self.tracefileProcessor = TracefileProcessor(self, minimize = minflag)
+                    # so self.tracefile_callback does something [bruce 060109]
 
+                from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
                 try:
-                    simgo( frame_callback = frame_callback, trace_callback = self.tracefile_callback )
-                        # note: as of 060106, if this calls a callback which sets simobj.Interrupted
-                        # (which happens if the user aborts this simulation), this method call (simobj.go) aborts
-                        # and raises an exception like "exceptions.RuntimeError: Simulation interrupted".
+                    simgo( frame_callback = frame_callback, trace_callback = trace_callback )
+                        # note: if this calls a callback which raises an exception, that exception gets
+                        # propogated out of this call, with correct traceback info (working properly as of sometime on 060111).
+                        # If a callback sets simobj.Interrupted (but doesn't raise an exception),
+                        # this is turned into an exception like "sim.SimulatorInterrupted: simulator was interrupted".
                         # It also generates a tracefile line "# Warning: minimizer run was interrupted "
                         # (presumably before that exception gets back to here,
-                        #  which means a tracefile callback would presumably see it if we set one).
-                    print "pyrex sim: returned normally" ###@@@ remove this sometime
-                except RuntimeError:
-                    # This is the pyrex sim's usual exit from a user abort; as of 060111 9am PST it's also
-                    # (due to a bug it has) its exit from certain internal errors caused by exceptions in Python callbacks.
-                    # (That bug was fixed later that day, and it also now aborts with sim.SimulatorAbort rather than RuntimeError,
-                    #  but I didn't yet clean up this code for that, so right now it's catching the wrong exception! ######@@@@@@)
+                        #  which means a tracefile callback would presumably see it if we set one --
+                        #  but as of 060111 there's a bug in which that doesn't happen since all callbacks
+                        #  are turned off by Interrupted).
+                    if platform.atom_debug:
+                        print "atom_debug: pyrex sim: returned normally" ###@@@ remove this sometime
+                except SimulatorInterrupted:
+                    # This is the pyrex sim's new usual exit from a user abort, as of sometime 060111.
+                    # Before that it was RuntimeError, but that could overlap with exceptions raised by Python callbacks
+                    # (in fact, it briefly had a bug where all such exceptions turned into RuntimeErrors).
+                    #
+                    # I didn't yet fully clean up this code for the new exception. [bruce 060112] ######@@@@@@
                     if debug_sim_exceptions: #bruce 060111
                         print_compact_traceback("fyi: sim.go aborted with this: ")
                     # following code is wrong unless this was a user abort, but I'm too lazy to test for that from the exception text,
                     # better to wait until it's a new subclass of RuntimeError I can test for [bruce 060111]
                     env.history.statusbar_msg("Aborted")
-                    print "pyrex sim: aborted" ###@@@ remove this sometime
+                    if platform.atom_debug:
+                        print "atom_debug: pyrex sim: aborted" ###@@@ remove this sometime
                     if not abortbutton.aborting():
                         print "error: abort without abortbutton doing it (did a subtask intervene and finish it?)"
                         print " (or this can happen due to sim bug in which callback exceptions turn into RuntimeErrors)"####@@@@
@@ -849,6 +864,8 @@ class SimRunner:
             print_compact_traceback("exception in simulation; continuing: ")
             ##e terminate it, if it might be in a different thread; destroy object; etc
             self.errcode = -1 # simulator failure
+
+        env.history.statusbar_msg("") # clear out transient statusbar messages
 
         abortbutton.finish() # whether or not there was an exception and/or it aborted
         return
@@ -904,10 +921,19 @@ class SimRunner:
             self.__sim_work_time = max(0.05, min(pytime * 4, 2.0))
             if debug_pyrex_prints:
                 print "set self.__sim_work_time to", self.__sim_work_time
-            if 1: # set status bar
+            # set status bar
+            if debug_timing_loop_on_sbar:
+                # debug: show timing loop properties
                 msg = "sim took %0.3f, hit frame %03d, py took %0.3f, next simtime %0.3f" % \
                       (simtime, self.__frame_number, pytime, self.__sim_work_time)
                 env.history.statusbar_msg(msg)
+            else:
+                tp = self.tracefileProcessor
+                if tp:
+                    msg = tp.progress_text()
+                    if msg:
+                        env.history.statusbar_msg(self.cmdname + ": " + msg)
+                pass
         return
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
@@ -959,9 +985,10 @@ class SimRunner:
             # that's it!
         return
 
-    def tracefile_callback(self, line): #bruce 060109
-        if line.startswith('#') and self.tracefileProcessor: # redundant test is to make this as fast as possible
-            self.tracefileProcessor.step(line)
+    def tracefile_callback(self, line): #bruce 060109, revised 060112; needs to be fast; should optim by passing step method to .go
+        tp = self.tracefileProcessor
+        if tp:
+            tp.step(line)
 
     def abort_sim_run(self, why = "(reason not specified by internal code)" ): #bruce 060102
         "#doc"
@@ -1004,7 +1031,10 @@ class SimRunner:
                 env.history.message( redmsg( "Error: simulator trace file not found at [%s]." % tfile ))
                 self.tracefileProcessor.mentioned_sim_trace_file = True #k not sure if this is needed or has any effect
                 return
-            lines = filter( lambda line: line.startswith("#"), ff.readlines() ) # optimization, redundant with TracefileProcessor
+            lines = ff.readlines()
+            ## remove this in case those non-comment lines matter for the summary (unlikely, so add it back if too slow) [bruce 060112]
+##            lines = filter( lambda line: line.startswith("#"), lines )
+##                # not just an optimization, since TracefileProcessor tracks non-# lines for status info
             ff.close()
             for line in lines:
                 self.tracefileProcessor.step(line)
@@ -1018,11 +1048,35 @@ class SimRunner:
 
 print_sim_comments_to_history = False
 
+'''
+Date: 12 Jan 2006 20:57:05 -0000
+From: ericm
+To: bruce
+Subject: Minimize trace file format
+
+Here's the code that writes the trace file during minimize:
+
+    write_traceline("%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
+
+You can count on the first three not changing.
+
+Note that with some debugging flags on you get extra lines of this
+same form that have other info in the same places.  I think you can
+just use the rms value for progress and it will do strange things if
+you have that debugging flag on.  If you want to ignore those lines,
+you can only use lines that have callLocation=="gradient", and that
+should work well.
+
+-eric
+'''
+
 class TracefileProcessor: #bruce 060109 split this out of SimRunner to support continuous tracefile line processing
     "Helper object to filter tracefile lines and print history messages as they come and at the end"
-    def __init__(self, owner):
+    def __init__(self, owner, minimize = False):
         "store owner so we can later set owner.said_we_are_done = True; also start"
         self.owner = owner
+        self.minimize = minimize # whether to check for line syntax specific to Minimize
+        self.__last_plain_line_words = None # or words returned from string.split(None, 4)
         self.start() # too easy for client code to forget to do this
     def start(self):
         "prepare to loop over lines"
@@ -1034,7 +1088,17 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         this bound method might be used directly as a trace_callback [but isn't, for clarity, as of 060109]
         """
         if not line.startswith("#"):
-            return # this happens a lot, needs to be as fast as possible
+            # this happens a lot, needs to be as fast as possible
+            if self.minimize:
+                # check for "gradient" seems required based on current syntax (and will usually be true)
+                # (as documented in email from ericm today) (if too slow, deferring until line used is tolerable,
+                #  but might result in some missed lines, at least if sim internal debug flags are used) [bruce 060112]
+                words = line.split(None, 4) # split in at most 4 places
+                if len(words) >= 4 and words[3] == 'gradient': # 4th word -- see also self.progress_text()
+                    self.__last_plain_line_words = words
+                elif platform.atom_debug:
+                    print "atom_debug: weird tracef line:", line ####@@@@ remove this?
+            return 
         if print_sim_comments_to_history: #e add checkbox or debug-pref for this??
             env.history.message("tracefile: " + line)
         # don't discard initial "#" or "# "
@@ -1064,6 +1128,20 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                         ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
                         ## self.owner.said_we_are_done = True # so we don't have to say it again [bruce 050415]
         return
+    def progress_text(self): ####@@@@ call this instead of printing that time stuff
+        "Return some brief text suitable for periodically displaying on statusbar to show progress"
+        words = self.__last_plain_line_words
+        if not words:
+            return ""
+        if len(words) == 4: #k needed?
+            words = list(words) + [""]
+        try:
+            frameNumber, rms, max_force, callLocation, message = words
+            assert callLocation == 'gradient'
+        except:
+            return "?"
+        return "frame %s: rms force = %s; high force = %s" % (frameNumber, rms, max_force)
+            # 'high' instead of 'max' is to match Done line syntax (by experiment as of 060112)
     def finish(self):
         if not self.donecount:
             self.owner.said_we_are_done = False # not needed unless other code has bugs
@@ -1146,12 +1224,15 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases
     movie.realtime_played_framenumber = 0 #bruce 060108
+    movie.minimize_flag = not not mflag # whether we're doing some form of Minimize [bruce 060112]
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
     if 1:
         #bruce 060108 part of fixing bug 1273
         fn = movie.realtime_played_framenumber
         if fn:
-            env.history.message(greenmsg("(current atom positions correspond to movie frame %d)" % fn))
+            if not movie.minimize_flag: #bruce 060112
+                #e a more accurate condition would be something like "if we made a movie file and bragged about it"
+                env.history.message(greenmsg("(current atom positions correspond to movie frame %d)" % fn))
         assert movie.currentFrame == fn
     if print_sim_warnings:
         try:

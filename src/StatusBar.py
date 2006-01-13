@@ -70,7 +70,8 @@ def do_what_MainWindowUI_should_do(win):
     return
 
 
-def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration = 0): # misnamed, also waits... [bruce 060106 comment]
+def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unknown command>", show_duration = 0):
+    # misnamed, since specialized for watching a growing file, and since also waits for progress to be done... [bruce 060106 comment]
     """Display the statusbar's progressbar and stop button, and update it while a file is 
     being written by some other process, to show the size of that file as progress, while 
     waiting for that size to reach a given value; when it does, hide the progressbar and stop
@@ -80,10 +81,11 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
         win - the main window
         nsteps - total steps for the progress bar (final size in bytes of filename)
         filename - name of file we are waiting for.
+        cmdname - name of command (used in some messages and in abort button tooltip)
         show_duration - if True, display duration (in seconds) below progressbar
     Return value: 0 if file reached desired size, 1 if user hit abort button.
     """
-    # (note: mark circa 060105 made this by copying and modifying ProgressBar.launch().)
+    # (note: mark circa 060105 made this by copying and modifying ProgressBar.launch(). bruce 060112 added cmdname.)
     
     #bruce 060106 splitting this into pieces so Pyrex sim interface can share some of its code.
     # (These pieces are global functions, but should really be methods of a new class, but that can wait. #e)
@@ -101,7 +103,7 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', show_duration =
     
     ## win.simAbortButton.show() # moved into AbortButtonForOneTask.start
 
-    abortbutton = AbortButtonForOneTask()
+    abortbutton = AbortButtonForOneTask( cmdname)
         #bruce 060106 moved some code from this loop into that class (so pyrex sim can use it too)
     abortbutton.start()
     
@@ -226,7 +228,28 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
     win.simAbortButton.hide()
     env.history.statusbar_msg("Done.")
     return 0
-        
+
+# ==
+
+abortables = [] #bruce 060112 quick fix to prevent more than one task at a time from owning the stopsign button
+    ########@@@@@@@ partly NIM
+
+def cmdname_already_running():
+    if not abortables:
+        return "" # nothing is running
+    cmdname = abortables[-1].cmdname # command name of what's running (which is why a new command can't start)
+    return cmdname or "<some command>" # ensure this retval is True (bug if cmdname is not, but don't bother to catch that here)
+
+def ok_to_start(cmdname, explain_why_not = False):
+    """Is it ok to start a new task of the command of the given name? If yes return True,
+    if no return False. If no and explain_why_not is true, first emit a standard
+    history message explaining why not.
+    """
+    old = cmdname_already_running()
+    ok = not old
+    if not ok and explain_why_not:
+        env.history.message(redmsg("%s is not allowed while %s is still running" % (cmdname, old) ))
+    return ok
 
 class AbortButtonForOneTask: #bruce 060106; will become a subclass of something like "subtask with its own start/step/finish methods"
     "initial stub or kluge -- all tasks use the same abort button -- will probably mess up if more than one task is run at once"
@@ -234,46 +257,80 @@ class AbortButtonForOneTask: #bruce 060106; will become a subclass of something 
     #e note: if this would create its own copy of the stopsign button, with a custom tooltip, and its own signal/slot/flag,
     # then we'd have (1) visible warning of multiple tasks, (2) prototype of "task icons on sbar" proposal,
     # (3) better chance of avoiding bugs from multiple tasks.
-    def __init__(self):
+    def __init__(self, cmdname):
+        self.cmdname = cmdname or '<unknown command>' # required argument
         self.win = env.mainwindow()
             # used for the global flag self.win.sim_abort_button_pressed (shared among all tasks for now)
         self.abortButton = self.win.simAbortButton
         self.status = None
         self.error = None
+        self.force_quit = False
+    def ok_to_start(self, explain_why_not = False):
+        return ok_to_start(self.cmdname, explain_why_not = explain_why_not)
     def start(self):
+        ok = self.ok_to_start(explain_why_not = True)
+        assert ok, "self == %r should have checked self.ok_to_start() before calling start"
+        abortables.append(self)
         self.win.sim_abort_button_pressed = False
             # This is very dubious if there is more than one task at a time... [bruce 060106 comment]
         self.status = STARTED
+        self.set_tooltip("Abort %s" % self.cmdname)
         self.abortButton.show()
+    def set_tooltip(self, text):
+        print "set tooltip for abort button is nim:",text ####@@@@
+        pass ### self.abortButton.setText(text) ###k setTooltip ok for Action, but not Button... what is correct?
     def step(self):
+        assert not self.force_quit # purpose of this is to raise an exception to force caller to quit! KeyboardInterrupt might be better
         if self.win.sim_abort_button_pressed: # User hit abort button [and main window slot method noticed that and set this flag]
-            ## self.win.sim_abort_button_pressed = False #bruce 060106 -- make sure at most one task responds [not sure this is good]
-                # I decided not to add that, since until we have a better/safer way to control multiple long running tasks,
-                # we might as well let 'abort' clear out all the ongoing tasks at once! Chnces are the user didn't even
-                # realize there was more than one, and furthermore, if they continue they might mess things up more than
-                # this one (running inside them and effectively suspending them) has already done!
-                # [bruce 060106]
-            ## return STEP_SAYS_ABORT ###k ??? this is very dubious -- most tasks don't tell *other* ones to abort...
-                # more likely, this is just passing state info somewhere (eg set an attr and notify subscribers)
-            self.status = ABORTING # client can notice this (or in future, subscribe to it #e)
-            self.error = 'abort button pressed'
-        ## return None
+            self.win.sim_abort_button_pressed = False # so we can detect if it's pressed again
+            if self.status in [None, FINISHED]:
+                print "unexpected status %d in %r.step()" % (self.status, self)
+            if self.status in [ABORTING, FINISHED]:
+                # pressed more than once
+                self.force_quit()
+            elif self.status in [STARTED,None]:
+                self.abort()
+            pass
+        return
+    def abort(self):
+        self.status = ABORTING # client can notice this (or in future, subscribe to it #e)
+        self.error = 'abort button pressed' ###@@@ not yet used??
+        self.set_tooltip("Force Quit %s" % self.cmdname) # only seen if the abort fails (I hope)
+        ###e history message good here?
         return
     def aborting(self):
         "[specialized method for only this subclass -- i think -- or one which generates internal aborts, anyway ##k]"
         self.step()
         return self.status == ABORTING
+    def force_quit(self):
+        # ideally this should never happen, but it might if system gets slow and user gets impatient
+        self.set_tooltip("Force Quit already done on %s" % self.cmdname)
+        self.force_quit = True
+        print "force quit",self
+        env.history.message(redmsg("Force Quit %s (since it didn't respond to first abort)" % self.cmdname))
+        self.finish()
+        return
     def finish(self):
-        "This should be called when this ends for any reason, even an abort (from another looping object, or this one)"
-        self.abortButton.hide()
-            # this is very dubious if there is more than one task, in fact it's VERY WRONG for success of subtask
-            # and MIGHT NOT HAVE BEEN AS BAD IN THE OLD CODE (if it didn't happen for all finishes but only aborting ones) (???),
-            # but at least the current code will try to abort them all at once
-            # when the abort button is pressed once. [bruce 060106 comment]
+        """This should be called when the task it's about ends for any reason,
+        whether success or error or abort or even crash;
+        if not called it will prevent all other abortable tasks from running!
+        """
+        ####e should try to figure out a way to auto-call it for tasks that user clicked abort for but that failed to call it...
+        # for example, if user clicks abort button twice for same task. or if __del__ called (have to not save .win). #####@@@@@
+        try:
+            abortables.remove(self)
+        except:
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: bug: failure in abortables.remove(self): ")
+            pass
+        if not abortables: # (could just as well be 'if 1' until we permit more than one abortable object)
+            self.abortButton.hide()
+                # this is very dubious if there is more than one task, in fact it's VERY WRONG for success of subtask
+                # and MIGHT NOT HAVE BEEN AS BAD IN THE OLD CODE (if it didn't happen for all finishes but only aborting ones) (???),
+                # but at least the current code will try to abort them all at once
+                # when the abort button is pressed once. [bruce 060106 comment]
         self.status = FINISHED # whether or not it was ABORTING earlier
     pass
-
-## STEP_SAYS_ABORT = 'STEP_SAYS_ABORT'
 
 _junk, STARTED, ABORTING, FINISHED = range(4)
 

@@ -131,6 +131,7 @@ class Movie:
         # (see comments in get_sim_posns for relevant info and caveats) [bruce 060112]
     
     ignore_slider_and_spinbox = False # (in case needed before init done)
+    minimize_flag = False # whether we're doing some form of Minimize [bruce 060112]
     def __init__(self, assembly, name=None):
         """###doc; note that this Movie might be made to hold params for a sim run,
         and then be told its filename, or to read a previously saved file;
