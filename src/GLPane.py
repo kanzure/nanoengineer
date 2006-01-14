@@ -517,16 +517,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         for i in range(1, nsteps):
             wxyz += off
             self.quat = Q(norm(wxyz))
-            
-            # This test acts as a safety valve if the animation is taking too long.
-            # This is a partial solution to bug 1109.  Mark 051111.
-            duration = time.time() - start_time
-            if duration > 1.5: # 1.5 seconds
-                break
-            
             self.gl_update()
             env.call_qApp_processEvents() # This allows the screen to update.
-            
             
         # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
         self.quat = Q(q2) 
@@ -534,8 +526,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         env.call_qApp_processEvents() # This allows the screen to update.
         
         end_time = time.time() # Stop stopwatch.  
-        
-        self.fps = nsteps / (end_time - start_time + .001 ) # +.001 eliminates div by zero.
+        duration = min (1.5, end_time - start_time + .001) # +.001 eliminates div by zero.
+        self.fps = nsteps / duration
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
@@ -600,13 +592,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.pov += pov_inc
             self.zoomFactor += zoom_inc
             self.scale += scale_inc
-            
-            # This test acts as a safety valve if the animation is taking too long.
-            # This is a partial solution to bug 1109.  Mark 051111.
-            duration = time.time() - start_time
-            if duration > 1.5: # 1.5 seconds
-                break
-                
             self.gl_update()
             env.call_qApp_processEvents() # This allows the screen to update.
             
@@ -619,8 +604,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         env.call_qApp_processEvents() # This allows the screen to update.
         
         end_time = time.time() # Stop stopwatch.
-        
-        self.fps = nsteps / (end_time - start_time + .001 ) # +.001 eliminates div by zero.
+        duration = min(1.5, time.time() - start_time + .001) # +.001 eliminates div by zero.
+        self.fps = nsteps / duration
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
