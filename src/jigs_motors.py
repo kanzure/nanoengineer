@@ -118,6 +118,7 @@ class Motor(Jig):
         newAxis = chunk.getaxis()
         newAxis = sign(dot(self.axis,newAxis))*newAxis
         self.axis = newAxis
+        self.assy.changed()   # wware 060116 bug 1331 - assembly changed when axis changed
         
         info = "Aligned motor [%s] on chunk [%s]" % (self.name, chunk.name) 
         env.history.message( cmd + info ) 
