@@ -110,7 +110,14 @@ class Motor(Jig):
         cmd = greenmsg("Align to Chunk: ")
         
         chunk = self.atoms[0].molecule # Get the chunk attached to the motor's first atom.
-        self.axis = chunk.getaxis()
+        # wware 060116 bug 1330
+        # The chunk's axis could have its direction exactly reversed and be equally valid.
+        # We should choose between those two options for which one has the positive dot
+        # product with the old axis, to avoid reversals of motor direction when going
+        # between "align to chunk" and "recenter on atoms".
+        newAxis = chunk.getaxis()
+        newAxis = sign(dot(self.axis,newAxis))*newAxis
+        self.axis = newAxis
         
         info = "Aligned motor [%s] on chunk [%s]" % (self.name, chunk.name) 
         env.history.message( cmd + info ) 
