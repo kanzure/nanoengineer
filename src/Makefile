@@ -153,6 +153,9 @@ install: simulator
 	cp simulator ~/bin/simulator
 	cp simulator $(EXE_DIRECTORY) 
 
+install-linux: install extensions
+	cp sim.so $(EXE_DIRECTORY)
+
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
 	rm -f simulator moldisp molsim physeng sim.so sim.c
