@@ -392,7 +392,7 @@ main(int argc, char **argv)
         dynamicsMovie(part);
     }
 
-    done(0,  "");
+    done("");
     return 0;
 }
 
