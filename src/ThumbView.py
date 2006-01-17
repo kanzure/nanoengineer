@@ -104,7 +104,16 @@ class ThumbView(QGLWidget):
         '''Set the background  to 'color' or 'gradient' (Sky Blue).
         '''
         self.backgroundColor = color
-        self.backgroundGradient = gradient
+        
+        # Ninad and I discussed this and decided that the background should always be set to skyblue.
+        # This issue has to do with Build mode's water surface introducing inconsistencies 
+        # with the thumbview background color whenever Build mode's bg color is solid.
+        # Change to "if 0:" to have the thubview background match the current mode background.
+        # This fixes bug 1229.  Mark 060116
+        if 1:
+            self.backgroundGradient = 1 
+        else:
+            self.backgroundGradient = gradient
                 
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
