@@ -52,71 +52,86 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
 }
 
 /*
- * Springs connect atoms to a flywheel. We drive the flywheel and it
- * pulls the atoms along. The units of spring stiffness are piconewtons
- * per picometer, or equivalently newtons per meter.
- *
- * 10 newtons/meter is too stiff, we get oscillations that grow out of
- * control. 1 N/m and 0.1 N/m give oscillations but they don't go crazy.
+ * 5 nanonewtons
  */
-#define SPRING_STIFFNESS  0.1
+#define MAX_FORCE  5000.0
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
 {
     int k;
     int a1;
-    struct xyz tmp;
-    struct xyz f;
-    struct xyz r;
-    double omega, domega_dt, mass;
+    double omega, mass, fmult, rmax;
     double motorq, dragTorque = 0.0;
-    double theta, cos_theta, sin_theta;
-    struct xyz anchor;
+    double dtheta, sumRsquared;
 
-    omega = jig->j.rmotor.omega;
+    // Avoid problems where speed is zero. This disables motors which
+    // rotate no more than once every ~20 minutes.
+    if (jig->j.rmotor.speed < 1.0e-3) {
+	jig->data = 0.0;
+	jig->data2 = 0.0;
+	return;
+    }
+
+    // compute the average angle through which the atoms have
+    // rotated in the last time step
+    sumRsquared = 0.0;
+    rmax = 0.0;
+    for (k = 0, dtheta = 0.0; k < jig->num_atoms; k++) {
+	struct xyz r, r_old, p_old;
+	double ar, rsq, rlen;
+	a1 = jig->atoms[k]->index;
+	r_old = jig->j.rmotor.atomSpoke[k];
+	// flatten r into the plane perpendicular to the axis
+	vsub2(r, position[a1], jig->j.rmotor.center);
+	jig->j.rmotor.atomSpoke[k] = r;
+	rsq = vdot(r, r);
+	rlen = sqrt(rsq);
+	if (rmax < rlen)
+	    rmax = rlen;
+	jig->j.rmotor.atomRadius[k] = rlen;
+	sumRsquared += rsq;
+	ar = vdot(jig->j.rmotor.axis, r);
+	vadd2scale(r, jig->j.rmotor.axis, -ar);
+	// p is perpendicular to r - what sign?
+	p_old = vx(jig->j.rmotor.axis, r_old);
+	dtheta += atan2(vdot(p_old, jig->j.rmotor.atomSpoke[k]),
+			vdot(r_old, jig->j.rmotor.atomSpoke[k]));
+    }
+    dtheta /= jig->num_atoms;
+
+    omega = dtheta / Dt;
     // Bosch model
     motorq = jig->j.rmotor.stall * (1. - omega / jig->j.rmotor.speed);
 
-    cos_theta = cos(jig->j.rmotor.theta);
-    sin_theta = sin(jig->j.rmotor.theta);
+    fmult = motorq / sumRsquared;
+    if (fmult > MAX_FORCE / rmax)
+	fmult = MAX_FORCE / rmax;
+    if (fmult < -MAX_FORCE / rmax)
+	fmult = -MAX_FORCE / rmax;
 
     /* nudge atoms toward their new places */
-    for (k = 0; k < jig->num_atoms; k++) {
+    dragTorque = 0.0;
+    for (k = 0, dtheta = 0.0; k < jig->num_atoms; k++) {
+	double fmag;  // magnitude of force
+	struct xyz f;  // direction of force
+	struct xyz r;
+	double rlen;
 	a1 = jig->atoms[k]->index;
-	// get the position of this atom's anchor
-	anchor = jig->j.rmotor.center;
-	vadd(anchor, jig->j.rmotor.u[k]);
-	vmul2c(tmp, jig->j.rmotor.v[k], cos_theta);
-	vadd(anchor, tmp);
-	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
-	vadd(anchor, tmp);
-	// compute a spring force pushing on the atom
-	tmp = anchor;
-	vsub(tmp, position[a1]);
-	vmul2c(f, tmp, SPRING_STIFFNESS);
-
-	// nudge the new positions accordingly
+	r = jig->j.rmotor.atomSpoke[k];
+	f = vx(jig->j.rmotor.axis, r);  // axis is a unit vector, len(f)=rlen
+	rlen = jig->j.rmotor.atomRadius[k];
+	fmag = fmult * rlen;
+	dragTorque += fmag * rlen;
 	mass = jig->atoms[k]->type->mass * 1e-27;
-	vadd2scale(new_position[a1], f, Dt*Dt/mass);
-
-	// compute the drag torque pulling back on the motor
-	r = vdif(position[a1], jig->j.rmotor.center);
-	tmp = vx(r, f);
-	dragTorque += vdot(tmp, jig->j.rmotor.axis);
+	vmulc(f, Dt * Dt * fmag / (mass * rlen));
+	vadd(new_position[a1], f);
     }
 
-    domega_dt = (motorq + dragTorque) / jig->j.rmotor.momentOfInertia;
-    theta = jig->j.rmotor.theta + omega * Dt;
-    jig->j.rmotor.omega = omega = jig->j.rmotor.omega + domega_dt * Dt;
-
-    /* update the motor's position */
-    theta = fmod(theta, 2.0 * Pi);
-    jig->j.rmotor.theta = theta;
     // convert rad/sec to GHz
-    jig->data = jig->j.rmotor.omega / (2.0e9 * Pi);
+    jig->data = omega / (2.0e9 * Pi);
     // convert from pN-pm to nN-nm
-    jig->data2 = motorq / ((1e-9/Dx) * (1e-9/Dx));
+    jig->data2 = dragTorque / ((1e-9/Dx) * (1e-9/Dx));
 }
 
 void

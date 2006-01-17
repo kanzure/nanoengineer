@@ -74,19 +74,8 @@ struct jig
       // Vector along motor axis (from center)
       struct xyz axis;
 
-      struct xyz *u, *v, *w;
-
       // How far the motor has turned.
       double theta;
-
-      double omega;
-
-      // Around axis.
-      double momentOfInertia; // formerly moment
-
-      // For each atom in motor, the point along the axis that that
-      // atom rotates around
-      struct xyz *atomCenterOfRotation; // formerly atocent
 
       // For each atom in motor, vector from atomCenterOfRotation to
       // atom location.
@@ -94,10 +83,6 @@ struct jig
 
       // For each atom in motor, length of atomSpoke.
       double *atomRadius; // formerly radius
-
-      // For each atom in motor, angle from axisY to atomSpoke, in
-      // plane of atom's rotation.
-      double *atomAngle; // formerly atang
       
     } rmotor;
 
