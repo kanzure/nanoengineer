@@ -24,6 +24,7 @@ from jigs import Jig
 
 class Motor(Jig):
     "superclass for Motor jigs"
+    axis = V(0,0,0) #bruce 060116
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Jig.__init__(self, assy, atomlist)
@@ -52,9 +53,10 @@ class Motor(Jig):
         self.atomPos = []
         for a in shaft:
             self.atomPos += [a.posn()]
-            
+        return
 
     def recompute_center_axis(self, los = None): #bruce 050518 split this out of findCenter, for use in a new cmenu item
+        oldaxis = self.axis
         if los is None:
             los = self.assy.o.lineOfSight
         shaft = self.atoms
@@ -73,6 +75,9 @@ class Motor(Jig):
             guess = map(cross, relpos[:-1], relpos[1:])
             guess = map(lambda x: sign(dot(los,x))*x, guess)
             self.axis=norm(sum(guess))
+        if dot(oldaxis, self.axis) < 0:
+            self.axis = - self.axis #bruce 060116 fix unreported bug analogous to bug 1330
+        self.assy.changed()  #bruce 060116 fix unreported bug analogous to bug 1331
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
         return
 
@@ -126,6 +131,22 @@ class Motor(Jig):
         env.history.message( cmd + info ) 
         self.assy.w.win_update()
         
+        return
+
+    def __CM_Reverse_direction(self): #bruce 060116 new feature (experimental)
+        '''Rotary or Linear Motor context menu command: "Reverse direction"
+        '''
+        cmd = greenmsg("Reverse direction: ")
+        self.reverse_direction()
+        info = "Reversed direction of motor [%s]" % self.name 
+        env.history.message( cmd + info ) 
+        self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
+        return
+
+    def reverse_direction(self): #bruce 060116
+        "Negate axis of this motor in order to reverse its direction."
+        self.axis = - self.axis
+        self.assy.changed()
         return
             
     def move(self, offset): #k can this ever be called?
