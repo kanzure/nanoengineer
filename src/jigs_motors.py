@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 jigs_motors.py -- Classes for motors.
 
@@ -115,8 +115,10 @@ class Motor(Jig):
         # We should choose between those two options for which one has the positive dot
         # product with the old axis, to avoid reversals of motor direction when going
         # between "align to chunk" and "recenter on atoms".
+        #bruce 060116 modified this fix to avoid setting axis to V(0,0,0) if it's perpendicular to old axis.
         newAxis = chunk.getaxis()
-        newAxis = sign(dot(self.axis,newAxis))*newAxis
+        if dot(self.axis,newAxis) < 0:
+            newAxis = - newAxis
         self.axis = newAxis
         self.assy.changed()   # wware 060116 bug 1331 - assembly changed when axis changed
         
