@@ -208,10 +208,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             else: ###PDB or other file format        
                 self.setViewFitToWindow()
 
-            self.glpane.gl_update() #bruce 050418
-            self.mt.mt_update()
+            self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
-            self.glpane.fps = 10.0 #mark 051110
+            self.mt.mt_update()
             
         return
 

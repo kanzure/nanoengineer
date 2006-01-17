@@ -110,6 +110,9 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
+MIN_REPAINT_TIME = 0.025 # minimum time to repaint (in seconds)
+ANIMATION_CYCLE = 1.5 # 1.5 seconds
+
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.
     """
@@ -213,7 +216,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # also be part-specific and/or saved in the mmp file? [bruce 050418]
 
         # clipping planes, as percentage of distance from the eye
-        self.near = 0.66
+        self.near = 0.25 # After testing, this is much, much better.  Mark 060116.
         self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
                                ## more likely sitting within the view volume
         # start in perspective mode
@@ -245,8 +248,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs
             # see also env.obj_with_glselect_name
-            
-        self.fps = 10.0 # frames/second
+        
+        self._last_few_repaint_times = []
+            # repaint times will be appended to this,
+            # but it will be trimmed to keep only the last 5 (or fewer) times
+        self._repaint_duration = MIN_REPAINT_TIME
 
         ###### User Preference initialization ##############################
         
@@ -496,38 +502,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             
         # Disable standard view actions on toolbars/menus.
         self.win.enableViews(False)
-        
-        if angle > 180:
-            angle = 360-angle
 
-        # Can't let nsteps < 2, or self.fps will become very large next time due to the way it is computed below.
-        nsteps = int(min(max(self.fps, 2), max(angle, 2))) # Number of steps in the animation (rotation)
-        
-        # print "angle = ", angle,", fps = ", str(self.fps), ", nsteps =", nsteps
-        
+        nsteps = int(max(1, ANIMATION_CYCLE/self._repaint_duration))
         off *= (1.0/nsteps)
         wxyz = wxyz1
-
-        # time.time() is real time, and that's good (compared to CPU time), since it does and should 
-        # take into account time usage by other processes and is more likely to include time 
-        # spent rendering OpenGL. 
-        start_time = time.time() # Start stopwatch
 
         # Main animation loop.
         for i in range(1, nsteps):
             wxyz += off
             self.quat = Q(norm(wxyz))
-            self.gl_update()
-            env.call_qApp_processEvents() # This allows the screen to update.
+            self.gl_update_duration()
             
         # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
         self.quat = Q(q2) 
-        self.gl_update()
-        env.call_qApp_processEvents() # This allows the screen to update.
-        
-        end_time = time.time() # Stop stopwatch.  
-        duration = min (1.5, end_time - start_time + .001) # +.001 eliminates div by zero.
-        self.fps = nsteps / duration
+        self.gl_update_duration()
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
@@ -566,7 +554,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         off = wxyz2 -wxyz1
 
-        nsteps = int(max(self.fps, 2))
+        nsteps = int(max(1, ANIMATION_CYCLE/self._repaint_duration))
         
         #print "nsteps =", nsteps
         
@@ -579,11 +567,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         pov_inc = pov2 - pov1
         pov_inc *= (1.0/nsteps)
         pov = pov1
-
-        # time.time() is real time, and that's good (compared to CPU time), since it does and should 
-        # take into account time usage by other processes and is more likely to include time 
-        # spent rendering OpenGL. 
-        start_time = time.time() # Start stopwatch
         
         # Main animation loop.
         for i in range(1, nsteps):
@@ -592,20 +575,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.pov += pov_inc
             self.zoomFactor += zoom_inc
             self.scale += scale_inc
-            self.gl_update()
-            env.call_qApp_processEvents() # This allows the screen to update.
+            self.gl_update_duration()
             
         # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
         self.quat = Q(q2)
         self.pov = V(p2[0], p2[1], p2[2])
         self.zoomFactor = z2
         self.scale = s2
-        self.gl_update()
-        env.call_qApp_processEvents() # This allows the screen to update.
-        
-        end_time = time.time() # Stop stopwatch.
-        duration = min(1.5, time.time() - start_time + .001) # +.001 eliminates div by zero.
-        self.fps = nsteps / duration
+        self.gl_update_duration()
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
@@ -1190,7 +1167,36 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def setZoomFactor(self, zFactor):
             self.zoomFactor = zFactor
     def getZoomFactor(self):
-            return self.zoomFactor        
+            return self.zoomFactor    
+            
+    def gl_update_duration(self, new_part=False):
+        '''Redraw GLPane and update the repaint duration variable used by rotateView() and 
+        animateView() to compute the number of animation steps. 
+        Redraws the GLPane twice if <new_part> is True and only saves the repaint 
+        duration of the second redraw.  This is needed in the case of drawing a newly opened part,
+        which takes much longer to draw the first time than the second (or thereafter).
+        '''
+        
+        # The first redraw of a new part takes much longer than the second redraw.
+        if new_part: 
+            self.gl_update()
+            env.call_qApp_processEvents() # Required!
+         
+        self._repaint_start_time = time.time()
+        self.gl_update()
+        env.call_qApp_processEvents() # This forces the GLPane to update before executing the next gl_update().
+        self._repaint_end_time = time.time()
+        
+        self._repaint_duration =  max(MIN_REPAINT_TIME, self._repaint_end_time - self._repaint_start_time)
+        
+        # _last_few_repaint_times is currently unused. May need it later.  Mark 060116.
+        self._last_few_repaint_times.append( self._repaint_duration)
+        self._last_few_repaint_times = self._last_few_repaint_times[-5:] # keep at most the last five times
+        
+        #print "repaint duration = ", self._repaint_duration
+        
+        return
+        
 
     _needs_repaint = 1 #bruce 050516 experiment -- initial value is true
     
