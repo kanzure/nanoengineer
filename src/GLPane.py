@@ -110,7 +110,7 @@ for q in pquats:
 
 allQuats = quats100 + quats110 + quats111
 
-MIN_REPAINT_TIME = 0.025 # minimum time to repaint (in seconds)
+MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
 ANIMATION_CYCLE = 1.5 # 1.5 seconds
 
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
