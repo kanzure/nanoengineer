@@ -648,36 +648,90 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
         self.glpane.setViewProjection(PERSPECTIVE)
 
     def setViewNormalTo(self):
-        '''Set view to the normal vector of the plane defined by 3 selected atoms.
+        '''Set view to the normal vector of the plane defined by 3 or more
+        selected atoms or a jig's (Motor or RectGadget) axis.
         '''
         cmd = greenmsg("Orient View Normal To: ")
-        info = 'View set to normal vector of the plane defined by the selected atoms.'
-        env.history.message(cmd + info)
         
         atoms = self.assy.selatoms_list()
-
-        if len(atoms) != 3:
-            msg = redmsg("Select exactly 3 atoms.")
+        jigs = self.assy.getSelectedJigs()
+        
+        if len(jigs) == 1 and len(atoms) == 0:
+            v = jigs[0].getaxis()
+        elif len(atoms) >= 3:
+            v = self.getaxis(atoms)
+        else:
+            msg = redmsg("Please select at least 3 atoms or a jig.")
             env.history.message(cmd + msg)
             return
+            
+        if vlen(v) < 0.0001: # Atoms are in a line or on top of each other.
+            info = 'The selected atoms are in a line or on top of each other.  No change in view.'
+            env.history.message(cmd + info)
+            return
         
-        atomPos = []
-        for a in atoms:
-            atomPos += [a.posn()]
-    
-        v1 = atomPos[-2] - atomPos[-1]
-        v2 = atomPos[-3] - atomPos[-1]
-        nvec = norm(cross(v1, v2)) # the normal vector to the plane defined by the selected atoms.
-        
-        # If nvec is pointing into the screen, negate (reverse) npnt.
-        if dot(nvec, self.assy.o.lineOfSight) >= 0:
-            nvec = -nvec
+        # If v is pointing into the screen, negate (reverse) v.
+        if dot(v, self.glpane.lineOfSight) > 0:
+            v = -v
         
         # Compute the destination quat (q2).
-        q2 = Q(V(0,0,1), nvec)
+        q2 = Q(V(0,0,1), v)
         q2 = q2.conj()
         
         self.glpane.rotateView(q2)
+        
+        info = 'View set to normal vector of the plane defined by the selected atoms.'
+        env.history.message(cmd + info)
+
+# This should be moved somewhere else.  
+# Someday when we have a selection class, this would be a nice method for it.
+# Talk to Bruce.  Mark 060118.
+    def getaxis(self, atoms):
+        '''Returns the 'center' axis. atoms is a list of 3 or more atoms used to compute the 
+        center axis.
+        '''
+        if len(atoms) < 3:
+            return V(0,0,0) # Caller beware.
+        
+        # This code was copied from Motor.recompute_center_axis().  Mark 060118.
+        pos=A(map((lambda a: a.posn()), atoms))
+        center=sum(pos)/len(pos)
+        relpos=pos-center
+        guess = map(cross, relpos[:-1], relpos[1:])
+        axis=sum(guess)
+        return axis
+        
+    def setViewParallelTo(self):
+        '''Set view parallel to the vector defined by 2 selected atoms.
+        '''
+        cmd = greenmsg("Orient View Parallel To: ")
+        
+        atoms = self.assy.selatoms_list()
+        
+        if len(atoms) != 2:
+            msg = redmsg("You must select 2 atoms.")
+            env.history.message(cmd + msg)
+            return
+        
+        v = norm(atoms[0].posn()-atoms[1].posn())
+        
+        if vlen(v) < 0.0001: # Atoms are on top of each other.
+            info = 'The selected atoms are on top of each other.  No change in view.'
+            env.history.message(cmd + info)
+            return
+        
+        # If vec is pointing into the screen, negate (reverse) vec.
+        if dot(v, self.glpane.lineOfSight) > 0:
+            v = -v
+        
+        # Compute the destination quat (q2).
+        q2 = Q(V(0,0,1), v)
+        q2 = q2.conj()
+        
+        self.glpane.rotateView(q2)
+        
+        info = 'View set parallel to the vector defined by the 2 selected atoms.'
+        env.history.message(cmd + info)
         
     def pointing_into_screen(self, v):
         '''Debugging method.  Returns true if vector v points into the screen.
@@ -1720,6 +1774,9 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def enableViews(self, enableFlag=True):
         '''Disables/enables view actions on toolbar and menu.
         '''
+        self.setViewNormalToAction.setEnabled(enableFlag)
+        self.setViewParallelToAction.setEnabled(enableFlag)
+        
         self.setViewFrontAction.setEnabled(enableFlag)
         self.setViewBackAction.setEnabled(enableFlag)
         self.setViewTopAction.setEnabled(enableFlag)

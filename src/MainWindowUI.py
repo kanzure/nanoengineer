@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jan 18 10:15:12 2006
+# Created: Wed Jan 18 17:19:37 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6002,6 +6002,22 @@ image145_data = \
     "\xa0\x0e\xe6\x0c\x79\x2f\xaf\xfb\xd6\xdf\xcd\x09" \
     "\x19\x5b\x39\xfe\x0d\xc2\x45\x51\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
+image146_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\x77\x49\x44\x41\x54\x78\x9c\xed\x92\x41\x0a\xc0" \
+    "\x20\x0c\x04\x6d\xff\xb3\x2f\xf6\x59\x01\x6f\xa5" \
+    "\xc7\xbe\xc0\x73\x7a\x29\x25\xb5\x20\x09\x89\x60" \
+    "\xa1\x73\x13\x74\x88\x9b\x4d\xe9\xe7\x62\xf1\x3c" \
+    "\x06\xc0\xf2\x4c\x44\xb7\x6f\xf5\x88\xa5\xa8\xc5" \
+    "\x25\x1e\x86\x8c\xa2\x8d\x25\x44\x1a\x86\x46\xaa" \
+    "\x6e\x85\x94\xf5\x96\x66\x02\x00\xe7\x5a\x38\xd7" \
+    "\xc2\xda\x08\x4c\xad\x38\xb6\x5d\x7d\x57\xf5\xa5" \
+    "\x61\x31\x84\x88\xa6\x97\x3e\xf2\x9a\xa6\x52\x3d" \
+    "\x5e\x75\xb3\x54\x4a\x0d\x80\x90\x69\xbf\xc9\x09" \
+    "\xba\x56\x39\x2f\xae\x67\x0b\x4b\x00\x00\x00\x00" \
+    "\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6276,6 +6292,8 @@ class MainWindow(QMainWindow):
         self.image144.loadFromData(image144_data,"PNG")
         self.image145 = QPixmap()
         self.image145.loadFromData(image145_data,"PNG")
+        self.image146 = QPixmap()
+        self.image146.loadFromData(image146_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image11 = QPixmap(image11_data)
         self.image19 = QPixmap(image19_data)
@@ -6747,6 +6765,8 @@ class MainWindow(QMainWindow):
         self.helpGraphicsCardAction = QAction(self,"helpGraphicsCardAction")
         self.setViewNormalToAction = QAction(self,"setViewNormalToAction")
         self.setViewNormalToAction.setIconSet(QIconSet(self.image145))
+        self.setViewParallelToAction = QAction(self,"setViewParallelToAction")
+        self.setViewParallelToAction.setIconSet(QIconSet(self.image146))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6770,7 +6790,7 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setEnabled(1)
-        self.viewToolbar.setGeometry(QRect(252,0,396,29))
+        self.viewToolbar.setGeometry(QRect(252,0,424,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -6780,6 +6800,7 @@ class MainWindow(QMainWindow):
         self.rotateToolAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewNormalToAction.addTo(self.viewToolbar)
+        self.setViewParallelToAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewFrontAction.addTo(self.viewToolbar)
         self.setViewRightAction.addTo(self.viewToolbar)
@@ -6791,7 +6812,7 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setEnabled(1)
-        self.molecularDispToolbar.setGeometry(QRect(648,0,182,29))
+        self.molecularDispToolbar.setGeometry(QRect(676,0,182,29))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
@@ -6802,7 +6823,7 @@ class MainWindow(QMainWindow):
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.selectToolbar.setEnabled(1)
-        self.selectToolbar.setGeometry(QRect(830,0,210,29))
+        self.selectToolbar.setGeometry(QRect(858,0,210,29))
         self.selectToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
@@ -6814,7 +6835,7 @@ class MainWindow(QMainWindow):
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(1040,0,42,29))
+        self.helpToolbar.setGeometry(QRect(1068,0,42,29))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -7305,6 +7326,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
         self.connect(self.setViewNormalToAction,SIGNAL("activated()"),self.setViewNormalTo)
+        self.connect(self.setViewParallelToAction,SIGNAL("activated()"),self.setViewParallelTo)
 
 
     def languageChange(self):
@@ -7770,6 +7792,9 @@ class MainWindow(QMainWindow):
         self.helpGraphicsCardAction.setText(self.__tr("Graphics Card Info"))
         self.helpGraphicsCardAction.setMenuText(self.__tr("Graphics Card Info..."))
         self.setViewNormalToAction.setText(self.__tr("Normal To"))
+        self.setViewNormalToAction.setToolTip(self.__tr("Normal To"))
+        self.setViewParallelToAction.setText(self.__tr("Parallel To"))
+        self.setViewParallelToAction.setToolTip(self.__tr("Parallel To"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8352,6 +8377,9 @@ class MainWindow(QMainWindow):
 
     def setViewNormalTo(self):
         print "MainWindow.setViewNormalTo(): Not implemented yet"
+
+    def setViewParallelTo(self):
+        print "MainWindow.setViewParallelTo(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

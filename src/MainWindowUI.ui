@@ -241,7 +241,7 @@
             <rect>
                 <x>252</x>
                 <y>0</y>
-                <width>396</width>
+                <width>424</width>
                 <height>29</height>
             </rect>
         </property>
@@ -259,6 +259,7 @@
         <action name="rotateToolAction"/>
         <separator/>
         <action name="setViewNormalToAction"/>
+        <action name="setViewParallelToAction"/>
         <separator/>
         <action name="setViewFrontAction"/>
         <action name="setViewRightAction"/>
@@ -277,7 +278,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>648</x>
+                <x>676</x>
                 <y>0</y>
                 <width>182</width>
                 <height>29</height>
@@ -305,7 +306,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>830</x>
+                <x>858</x>
                 <y>0</y>
                 <width>210</width>
                 <height>29</height>
@@ -334,7 +335,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>1040</x>
+                <x>1068</x>
                 <y>0</y>
                 <width>42</width>
                 <height>29</height>
@@ -4052,6 +4053,23 @@
         <property name="text">
             <string>Normal To</string>
         </property>
+        <property name="toolTip">
+            <string>Normal To</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>setViewParallelToAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image146</iconset>
+        </property>
+        <property name="text">
+            <string>Parallel To</string>
+        </property>
+        <property name="toolTip">
+            <string>Parallel To</string>
+        </property>
     </action>
 </actions>
 <images>
@@ -4492,6 +4510,9 @@
     </image>
     <image name="image145">
         <data format="PNG" length="164">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006b49444154789cedd3410ac0200c04c04dff93ff3f240fda5e5ac190d62839b52e7830ea28a2c0ce3fa2aaccce9515d4cc86eb527074d20c9ececc551c65bb6e781126fb16d5a239af3009025d83ebfb31487b820ff08566233dda4ad56800d7a00ee60c792faffbd6dfcd09195b39fe0dc245510000000049454e44ae426082</data>
+    </image>
+    <image name="image146">
+        <data format="PNG" length="176">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000007749444154789ced92410ac0200c046dffb32ff659016fa5c7bec0737a2925b520098960a1731374889b4de9e762f13c06c0f24c44b76ff588a5a8c5251e868ca28d25441a8646aa6e8594f596660200e75a38d7c2da084cad38b65d7d57f5a561318488a6973ef29aa6523d5e75b3544a0d809069bfc909ba56392fae670b4b0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5395,6 +5416,12 @@
         <receiver>MainWindow</receiver>
         <slot>setViewNormalTo()</slot>
     </connection>
+    <connection>
+        <sender>setViewParallelToAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewParallelTo()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5572,6 +5599,7 @@
     <slot>insertNanotube()</slot>
     <slot>helpGraphicsCard()</slot>
     <slot>setViewNormalTo()</slot>
+    <slot>setViewParallelTo()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
