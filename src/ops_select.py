@@ -40,8 +40,11 @@ class ops_select_Mixin:
         from jigs_planes import RectGadget
         from jigs_motors import Motor
         def addSelectedJig(obj, jigs=selJigs):
-            if obj.picked and (isinstance(obj, RectGadget) or False):#isinstance(obj, Motor)): 
+            if obj.picked and (isinstance(obj, RectGadget) or False):
                 jigs += [obj]
+            # Added motor.  Mark 060118.
+            if obj.picked and (isinstance(obj, Motor) or False):
+               jigs += [obj]
         
         self.topnode.apply2all(addSelectedJig)
         
