@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 Utility.py -- class Node (superclass for all model-tree objects), Group, and a few subclasses,
 defining a uniform API to permit all Node subclasses to be shown in the model tree.
@@ -974,6 +974,10 @@ class Node( GenericDiffTracker_API_Mixin):
         #  ok to call twice on a node (i.e. to call on an already-killed node); subclass methods should preserve this property
         # also modified the Group.kill method, which extends this method
         self.remove_from_parents()
+
+    def destroy(self): #bruce 060117 draft, experimental, not yet widely used, not sure if it should differ at all from kill
+        "delete cyclic refs and refs to large contents of self, so that python refdecr should free it"
+        self.kill() #bruce 060117 guess at implem
 
     def remove_from_parents(self): #bruce 051227 split this out of Node.kill for use in new Node.setAssy
         "Remove self from its parents of various kinds (part, dad, assy, selection) without otherwise altering it."

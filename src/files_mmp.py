@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 files_mmp.py -- reading and writing MMP files
 
@@ -216,6 +216,8 @@ class _readmmp_state:
     # (e.g. for reading sim input files for minimize selection)
     def __init__(self, assy, isInsert):
         self.assy = assy
+            #bruce 060117 comment: self.assy is only used to pass to Node constructors (including MarkerNode),
+            # and to set assy.temperature and assy.mmpformat (only done if not isInsert, which looks like only use of isInsert here).
         self.isInsert = isInsert
         #bruce 050405 made the following from old _readmmp localvars, and revised their comments
         self.mol = None # the current molecule being built, if any [bruce comment 050228]
@@ -275,7 +277,7 @@ class _readmmp_state:
             errmsg = None
             #bruce 050217 new debug feature: warning for unrecognized record
             #e (maybe only do this the first time we see it?)
-            if platform.atom_debug:
+            if platform.atom_debug and key != '#':
                 print "atom_debug: fyi: unrecognized mmp record type ignored (not an error): %r" % key
         except:
             # bug, or syntax error (e.g. from non-identifier chars in key? not sure if that triggers this)

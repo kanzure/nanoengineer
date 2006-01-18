@@ -1,10 +1,21 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 undo.py
 
 Undo-related code.
 
 $Id$
+
+Status as of 060117:
+
+- contains some timing test commands still cluttering up the debug menu, 
+
+- and some real code that wraps Qt slot calls and which will probably remain in the release
+for helping identify commands, make their undo checkpoints, etc.
+
+See also undo_archive.py, undo_manager.py.
+
+Older:
 
 At present [050922], a lot of new undo-related code is being added here
 even though some of it belongs in other modules (existing or new).
@@ -14,6 +25,7 @@ and perhaps HistoryWidget.py.
 A result of the mess of modules might be that too much gets imported
 at app-startup time (even before .atom-debug-rc gets to run).
 This needs to be cleaned up, but it's probably not urgent.
+
 '''
 __author__ = 'bruce'
 
@@ -76,7 +88,7 @@ def saveposns_cmd( target): # arg is the widget that has this debug menu
     saveposns(part, filename)
     return
 
-register_debug_menu_command("save atom posns", saveposns_cmd) # put this command into debug menu
+## register_debug_menu_command("save atom posns", saveposns_cmd) # put this command into debug menu
 
 # ==
 
@@ -95,7 +107,7 @@ def loadposns_cmd( target):
     loadposns(part, filename)
     return
 
-register_debug_menu_command("load atom posns", loadposns_cmd)
+## register_debug_menu_command("load atom posns", loadposns_cmd)
 
 # ==
 
@@ -129,7 +141,7 @@ def saveelts_cmd( target):
     saveelts(part, filename)
     return
 
-register_debug_menu_command("save atom element numbers", saveelts_cmd)
+## register_debug_menu_command("save atom element numbers", saveelts_cmd)
 
 # ==
 
@@ -157,7 +169,7 @@ def savebtypes_cmd( target):
     savebtypes(part, filename)
     return
 
-register_debug_menu_command("save bond type v6 ints", savebtypes_cmd)
+## register_debug_menu_command("save bond type v6 ints", savebtypes_cmd)
 
 # ==
 
@@ -245,15 +257,19 @@ def blerg_cmd( target):
     env.history.message("count was %d, %d" % (na,nb,) )
     return
 
-register_debug_menu_command("make key->pos dict", blerg_cmd)
+## register_debug_menu_command("make key->pos dict", blerg_cmd)
 
 # ===  [real code starts here]
 
 
 def reload_undo(target=None):
+    import undo_archive
+    reload(undo_archive)
+    import undo_manager
+    reload(undo_manager)
     import undo
     reload(undo)
-    print "reloaded undo.py"
+    print "\nreloaded undo.py and two others; open a new file and we'll use them\n" #e (works, but should make reopen automatic)
 
 register_debug_menu_command("reload undo.py", reload_undo)
 

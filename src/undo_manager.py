@@ -7,20 +7,25 @@ Own and manage an UndoArchive, feeding it info about user-command events
 and package the undo/redo ops it offers into a reasonable UI.
 
 $Id$
+
+[060117 -- for current status see undo_archive.py module docstring]
 '''
 __author__ = 'bruce'
 
 
 from debug import register_debug_menu_command_maker
+import platform
 
 from undo_archive import AssyUndoArchive #060117 revised
 from constants import noop
-
+import env
+from HistoryWidget import orangemsg, greenmsg, redmsg
 
 class UndoManager:
-    """[abstract class]
+    """[abstract class] [060117 addendum: this docstring is mostly obsolete or nim]
     Own and manage an undo-archive, in such a way as to provide undo/redo operations
-    and a current-undo-point within the archive
+    and a current-undo-point within the archive [addendum 060117: undo point might be in model objects or archive, not here,
+      and since objects can't be in more than one archive or have more than one cur state (at present), this doesn't matter much]
     on top of state-holding objects which would otherwise not have these undo/redo ops
     (though they must have the ability to track changes and/or support scanning of their state).
        Assume that no other UndoManager or UndoArchive is tracking the same state-holding objects
@@ -34,90 +39,114 @@ class UndoManager:
 
 class AssyUndoManager(UndoManager):
     "An UndoManager specialized for handling the state held by an assy (an instance of class assembly)."
-    def __init__(self, assy):
+    def __init__(self, assy): # called from assy.__init__, i think
         # assy owns the state whose changes we'll be managing...
-        # should it have same undo-interface as eg chunks do??
+        # [semiobs cmt:] should it have same undo-interface as eg chunks do??
         ## self.thingies = {}
-        self.archive = AssyUndoArchive(assy)
+        self._current_main_menu_ops = {}
+        self.archive = AssyUndoArchive(assy) # does initial checkpoint
         self.assy = assy #k still needed?
         assy._u_archive = self.archive ########@@@@@@@@ still safe in 060117 stub code??
             # this is how model objects in assy find something to report changes to (typically in their __init__ methods);
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
+        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
+        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
         return
 
     def menu_cmd_checkpoint(self):
         self.archive.checkpoint()
 
-    def undo_cmds_menuspec(self, widget): # 060117; biggest chgs are name of doit/do_op, and state_version
-        "return a menu_spec for undo-related commands (to be shown in the given widget, tho i don't know why the widget could matter)"
-        # copied code below
+    def undo_redo_ops(self):
+        # copied code below [dup code is in undo_manager_older.py, not in cvs]
         ops = self.archive.find_undoredos() # state_version - now held inside UndoArchive.last_cp (might be wrong) ###@@@
         undos = []
         redos = []
         d1 = {'Undo':undos, 'Redo':redos}
         for op in ops:
             ## optype == op.type
-            optype = op.menu_desc().split[0] # should be 'Undo' or 'Redo'
+            desc = op.menu_desc()
+            optype = desc.split()[0] # should be 'Undo' or 'Redo'
             d1[optype].append(op) # sort ops by type
-        # there are at most one per chunk per undoable attr... so for this test, show them all, don't bother with submenus
+        return undos, redos
+    
+    def undo_cmds_menuspec(self, widget): # 060117; biggest chgs are name of doit/do_op, and state_version
+        "return a menu_spec for undo-related commands (to be shown in the given widget, tho i don't know why the widget could matter)"
+        del widget
+        archive = self.archive
+        # copied code below [dup code is in undo_manager_older.py, not in cvs]
         res = []
+        res.append(( 'undo checkpoint (in RAM only)', self.menu_cmd_checkpoint ))
+
+        undos, redos = self.undo_redo_ops()
+        ###e sort each list by some sort of time order (maybe of most recent use of the op in either direction??), and limit lengths
+        
+        # there are at most one per chunk per undoable attr... so for this test, show them all, don't bother with submenus
         if not undos:
             res.append(( "Nothing we can Undo", noop, 'disabled' ))
                 ###e should figure out whether "Can't Undo XXX" or "Nothing to Undo" is more correct
-        ###e sort each list by some sort of time order (maybe of most recent use of the op in either direction??), and limit lengths
         for op in undos + redos:
             # for now, we're not even including them unless as far as we know we can do them, so no role for "Can't Undo" unless none
             arch = archive # it's on purpose that op itself has no ref to model, so we have to pass it [obs cmt?]
             cmd = lambda _guard1_ = None, _guard2_ = None, arch = arch: arch.do_op(op) #k guards needed? (does qt pass args to menu cmds?)
-            res.append(( "%s %s" % (op.type, op.what()) , cmd ))
+            ## text = "%s %s" % (op.type, op.what())
+            text = op.menu_desc()
+            res.append(( text , cmd ))
         if not redos:
             res.append(( "Nothing we can Redo", noop, 'disabled' ))
-        res.append(( 'undo checkpoint (in RAM only)', self.menu_cmd_checkpoint ))
         return res
-        
-    def undo_cmds_menuspec_older(self, widget): #older than 060117
-        "return a menu_spec for undo-related commands (to be shown in the given widget, tho i don't know why the widget could matter)"
-        ###e include an undo and redo for the current part, and one for the current selection;
-        # maybe also a submenu of orthog choices (at most the last 10), called "undo other"??
-        # just scan backwards (for undo) and forwards (for redo, no limit on number I think, maybe include all possible redos, old/new)
-        # to see what intersects part or sel, and what is doable.
-        archive = self.archive
-        part = self.assy.part
-        sel = part.selection_from_part() #k choice of routine? this includes atoms jigs chunks groups,
-            # but selection_from_glpane only atoms and chunks, also _from_MT... ideally we'd depend on the calling widget.
-            # in fact, we'd call a method on it (or something related to it, passed instead of it) and ask it for its sel.
-##        u1, r1, s1 = archive.undo_menuspecs([part]) ##k??
-##        u2, r2, s2 = archive.undo_menuspecs(sel) ###k???
-        # let's try out doing it for just the sel, and doing it manually, only for chunks in the sel for now -- TESTING STUB.
-        # even ultimately, for selection, tree, etc, only we know which exact objs we care about (and maybe which attrsets in them).
-        # so the code to scan the current objs for the ones to include here, is our business.
-        state_version = {}
-        for obj in sel.selmols:
-            moreitems = self.archive.varid_vers_for_obj(obj) ###IMPLEM
-            state_version.update(dict(moreitems))
-        # copied code below
-        ops = self.archive.find_undoredos(state_version)
-        undos = []
-        redos = []
-        d1 = {'Undo':undos, 'Redo':redos}
-        for op in ops:
-            d1[op.type].append(op) # sort ops by type
-        # there are at most one per chunk per undoable attr... so for this test, show them all, don't bother with submenus
-        res = []
-        if not undos:
-            res.append(( "Nothing we can Undo", noop, 'disabled' ))
-                ###e should figure out whether "Can't Undo XXX" or "Nothing to Undo" is more correct
-        ###e sort each list by some sort of time order (maybe of most recent use of the op in either direction??), and limit lengths
-        for op in undos + redos:
-            # for now, we're not even including them unless as far as we know we can do them, so no role for "Can't Undo" unless none
-            model = archive # it's on purpose that op itself has no ref to model, so we have to pass it
-            cmd = lambda _guard1_ = None, _guard2_ = None, model = model: op.doit(model) #k guards needed? (does qt pass args to menu cmds?)
-            res.append(( "%s %s" % (op.type, op.what()) , cmd ))
-        if not redos:
-            res.append(( "Nothing we can Redo", noop, 'disabled' ))
-        res.append(( 'undo checkpoint (in RAM only)', self.menu_cmd_checkpoint ))
-        return res
-    pass
+
+    def remake_UI_menuitems(self):
+        undos, redos = self.undo_redo_ops()
+        win = self.assy.w
+        undo_mitem = win.editUndoAction
+        redo_mitem = win.editRedoAction
+        if platform.is_macintosh():
+            # kluge; should do this sooner! but this might turn out to happen as soon as user can see it...
+            win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # was "Ctrl+Y"
+        for ops, action, optype in [(undos, undo_mitem, 'Undo'), (redos, redo_mitem, 'Redo')]:
+            if ops:
+                action.setEnabled(True)
+                assert len(ops) == 1 #e there will always be just one for now
+                op = ops[0]
+                action.setMenuText("%s to checkpoint" % optype)
+                #e tooltip
+                self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
+            else:
+                action.setEnabled(False)
+                ## action.setText("Can't %s" % optype) # someday we might have to say "can't undo Cmdxxx" for certain cmds
+                ## action.setMenuText("Nothing to %s" % optype)
+                action.setMenuText("%s" % optype) # for 061117 commit, look like it used to look, for the time being
+                #e tooltip
+                self._current_main_menu_ops[optype] = None
+            pass
+        return
+        ''' the kinds of things we can set on one of those actions include:
+        self.setViewFitToWindowAction.setText(self.__tr("Fit to Window"))
+        self.setViewFitToWindowAction.setMenuText(self.__tr("&Fit to Window"))
+        self.setViewFitToWindowAction.setToolTip(self.__tr("Fit to Window (Ctrl+F)"))
+        self.setViewFitToWindowAction.setAccel(self.__tr("Ctrl+F"))
+        self.setViewRightAction.setStatusTip(self.__tr("Right View"))
+        self.helpMouseControlsAction.setWhatsThis(self.__tr("Displays help for mouse controls"))
+        '''
+    # main menu items (their slots in MWsemantics forward to assy which forwards to here)
+    def editUndo(self):
+        env.history.message(orangemsg("Undo: (prototype implementation)")) #e or repeat the text from the menu item?
+        self.do_main_menu_op('Undo')
+
+    def editRedo(self):
+        env.history.message(orangemsg("Redo: (prototype implementation)"))
+        self.do_main_menu_op('Redo')
+
+    def do_main_menu_op(self, optype):
+        "optype should be Undo or Redo"
+        op = self._current_main_menu_ops.get(optype)
+        if op:
+            self.archive.do_op(op)
+        else:
+            print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
+        return
+    
+    pass # end of class AssyUndoManager
 
 # == debugging code - invoke undo/redo from debug menu (only) in initial test implem
 
@@ -139,6 +168,7 @@ def undo_cmds_maker(widget):
     mgr = assy.undo_manager #k should it be an attr like this, or a sep func?
     return mgr.undo_cmds_menuspec(widget)
 
-register_debug_menu_command_maker( "undo_cmds", undo_cmds_maker) # fyi: this rins once when the first assy is being created.
+register_debug_menu_command_maker( "undo_cmds", undo_cmds_maker)
+    # fyi: this runs once when the first assy is being created, but undo_cmds_maker runs every time the debug menu is put up.
 
 # end

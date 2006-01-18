@@ -507,10 +507,10 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     ###################################
 
     def editUndo(self):
-        env.history.message(redmsg("Undo: Not implemented yet."))
+        self.assy.editUndo()
 
     def editRedo(self):
-        env.history.message(redmsg("Redo: Not implemented yet."))
+        self.assy.editRedo()
 
     # bruce 050131 moved some history messages from the following methods
     # into the assy methods they call, so the menu command versions also have them

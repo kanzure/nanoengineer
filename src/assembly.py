@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 
 """
 assembly.py -- provides class assembly, for everything stored in one file,
@@ -102,7 +102,7 @@ class assembly(GenericDiffTracker_API_Mixin):
         # [bruce 050429 revised that behavior and this comment, re bug 413]
         self._modified = 1 
         
-        # the MWsemantics displaying this assembly. 
+        # the MWsemantics displaying this assembly (or None, when called from ThumbView)
         self.w = win
         # self.mt = win.modelTreeView
         # self.o = win.glpane
@@ -116,15 +116,16 @@ class assembly(GenericDiffTracker_API_Mixin):
         assy_number += 1
         self._debug_name = self.name + "-%d" % assy_number
 
-        #bruce 051005: create object for tracking changes in our model, before creating any
-        # model objects (ie nodes for tree and shelf). Since this is not initially used except
-        # to record changes as these objects are created, the fact that self is still incomplete 
-        # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
-        import undo_manager
-        self.undo_manager = undo_manager.AssyUndoManager(self)
-            # fyi: this sets self._u_archive for use by our model objects when they report changes
-            # (but its name and value are private to AssyUndoManager's API for our model objects,
-            #  which is why we don't set it here)
+        if self.w: # i.e. not when called from ThumbView to make its "dummy assembly"
+            #bruce 051005: create object for tracking changes in our model, before creating any
+            # model objects (ie nodes for tree and shelf). Since this is not initially used except
+            # to record changes as these objects are created, the fact that self is still incomplete 
+            # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
+            import undo_manager
+            self.undo_manager = undo_manager.AssyUndoManager(self)
+                # fyi: this sets self._u_archive for use by our model objects when they report changes
+                # (but its name and value are private to AssyUndoManager's API for our model objects,
+                #  which is why we don't set it here)
         
         # the Clipboard... this is replaced by another one later (of a different class),
         # once or twice each time a file is opened. ####@@@@ should clean up
@@ -892,6 +893,22 @@ class assembly(GenericDiffTracker_API_Mixin):
         else: 
             cwd = globalParms['WorkingDirectory']
         return cwd
+
+    # ==
+
+    def become_state(self, state): #bruce 060117 kluge
+        from undo_archive import assy_become_state
+        return assy_become_state(self, state)
+
+    def clear(self): #bruce 060117 kluge
+        from undo_archive import assy_clear
+        return assy_clear(self)
+
+    def editUndo(self):
+        self.undo_manager.editUndo()
+
+    def editRedo(self):
+        self.undo_manager.editRedo()
     
     pass # end of class assembly
 
