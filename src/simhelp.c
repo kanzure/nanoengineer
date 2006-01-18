@@ -22,6 +22,7 @@
 
 char __author__[] = "Will";
 
+#include <stdlib.h>
 #include "Python.h"
 #include "Numeric/arrayobject.h"
 #include "simulator.h"
@@ -63,6 +64,7 @@ start_python_call(void)
 {
     py_exc_str = NULL;
     callback_exception = 0;
+    srand(0);
 }
 
 static PyObject *
