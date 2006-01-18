@@ -647,6 +647,61 @@ class MWsemantics( fileSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     def setViewPerspec(self):
         self.glpane.setViewProjection(PERSPECTIVE)
 
+    def setViewNormalTo(self):
+        '''Set view to the normal vector of the plane defined by 3 selected atoms.
+        '''
+        cmd = greenmsg("Orient View Normal To: ")
+        info = 'View set to normal vector of the plane defined by the selected atoms.'
+        env.history.message(cmd + info)
+        
+        atoms = self.assy.selatoms_list()
+
+        if len(atoms) != 3:
+            msg = redmsg("Select exactly 3 atoms.")
+            env.history.message(cmd + msg)
+            return
+        
+        atomPos = []
+        for a in atoms:
+            atomPos += [a.posn()]
+    
+        v1 = atomPos[-2] - atomPos[-1]
+        v2 = atomPos[-3] - atomPos[-1]
+        nvec = norm(cross(v1, v2)) # the normal vector to the plane defined by the selected atoms.
+        
+        # If nvec is pointing into the screen, negate (reverse) npnt.
+        if dot(nvec, self.assy.o.lineOfSight) >= 0:
+            nvec = -nvec
+        
+        # Compute the destination quat (q2).
+        q2 = Q(V(0,0,1), nvec)
+        q2 = q2.conj()
+        
+        self.glpane.rotateView(q2)
+        
+    def pointing_into_screen(self, v):
+        '''Debugging method.  Returns true if vector v points into the screen.
+        '''
+        # Author - Mark.  060118.
+        # Keep this around.  I found it useful to understand this test.
+        
+        los = self.assy.o.lineOfSight
+        
+        if 1: 
+            print "-----------------------"
+            print "v= %.2f %.2f %.2f" % (float(v[0]), float(v[1]), float(v[2]))
+            print "los= %.2f %.2f %.2f" % (float(los[0]), float(los[1]), float(los[2]))
+            if dot(v, los) < 0:
+                print "Vector v is pointing out of the screen."
+            else:
+                print "Vector v is pointing into the screen."
+        
+        if dot(v, los) < 0:
+            return False
+        else:
+            return True
+
+    
     def setViewOpposite(self):
         '''Set view to the opposite of current view. '''
         cmd = greenmsg("Opposite View: ")
