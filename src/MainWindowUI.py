@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jan 18 17:19:37 2006
+# Created: Wed Jan 18 21:56:44 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6747,8 +6747,8 @@ class MainWindow(QMainWindow):
         self.selectExpandAction.setIconSet(QIconSet(self.image136))
         self.selectContractAction = QAction(self,"selectContractAction")
         self.selectContractAction.setIconSet(QIconSet(self.image137))
-        self.jigAtomSetAction = QAction(self,"jigAtomSetAction")
-        self.jigAtomSetAction.setIconSet(QIconSet(self.image138))
+        self.jigsAtomSetAction = QAction(self,"jigsAtomSetAction")
+        self.jigsAtomSetAction.setIconSet(QIconSet(self.image138))
         self.fileSaveSelectionAction = QAction(self,"fileSaveSelectionAction")
         self.setViewPlus90Action = QAction(self,"setViewPlus90Action")
         self.setViewPlus90Action.setIconSet(QIconSet(self.image139))
@@ -7149,7 +7149,7 @@ class MainWindow(QMainWindow):
         self.jigsESPImageAction.addTo(self.jigsMenu)
         self.jigsGamessAction.addTo(self.jigsMenu)
         self.jigsGridPlaneAction.addTo(self.jigsMenu)
-        self.jigAtomSetAction.addTo(self.jigsMenu)
+        self.jigsAtomSetAction.addTo(self.jigsMenu)
         self.jigsDistanceAction.addTo(self.jigsMenu)
         self.jigsAngleAction.addTo(self.jigsMenu)
         self.jigsDihedralAction.addTo(self.jigsMenu)
@@ -7225,7 +7225,7 @@ class MainWindow(QMainWindow):
         self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
         self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
         self.connect(self.insertNanotubeAction,SIGNAL("activated()"),self.insertNanotube)
-        self.connect(self.jigAtomSetAction,SIGNAL("activated()"),self.makeAtomSet)
+        self.connect(self.jigsAtomSetAction,SIGNAL("activated()"),self.makeAtomSet)
         self.connect(self.jigsAnchorAction,SIGNAL("activated()"),self.makeAnchor)
         self.connect(self.jigsAngleAction,SIGNAL("activated()"),self.makeMeasureAngle)
         self.connect(self.jigsBearingAction,SIGNAL("activated()"),self.makeBearing)
@@ -7777,7 +7777,7 @@ class MainWindow(QMainWindow):
         self.selectContractAction.setText(self.__tr("Contract"))
         self.selectContractAction.setToolTip(self.__tr("Contract Selection (Ctrl+Shift+D)"))
         self.selectContractAction.setAccel(self.__tr("Ctrl+Shift+D"))
-        self.jigAtomSetAction.setText(self.__tr("Atom Set"))
+        self.jigsAtomSetAction.setText(self.__tr("Atom Set"))
         self.fileSaveSelectionAction.setText(self.__tr("Save Selection..."))
         self.setViewPlus90Action.setText(self.__tr("Rotate +90"))
         self.setViewMinus90Action.setText(self.__tr("Rotate -90"))

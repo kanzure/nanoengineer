@@ -158,7 +158,7 @@
         <action name="jigsESPImageAction"/>
         <action name="jigsGamessAction"/>
         <action name="jigsGridPlaneAction"/>
-        <action name="jigAtomSetAction"/>
+        <action name="jigsAtomSetAction"/>
         <action name="jigsDistanceAction"/>
         <action name="jigsAngleAction"/>
         <action name="jigsDihedralAction"/>
@@ -3937,7 +3937,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>jigAtomSetAction</cstring>
+            <cstring>jigsAtomSetAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image138</iconset>
@@ -4811,7 +4811,7 @@
         <slot>insertNanotube()</slot>
     </connection>
     <connection>
-        <sender>jigAtomSetAction</sender>
+        <sender>jigsAtomSetAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>makeAtomSet()</slot>
