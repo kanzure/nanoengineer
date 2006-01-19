@@ -628,7 +628,7 @@ def createWhatsThis(self):
         
         #### Select Doubly ####
 
-        selectDoublyActionText = "<u><b>Select Doubly</b></u>    (Ctrl + Shift + D)</b></p><br>"\
+        selectDoublyActionText = "<u><b>Select Doubly</b></u></b></p><br>"\
                        "<p><img source=\"selectDoublyAction\"><br> "\
                        "Selects all the atoms that can be reached from a currently selected "\
                        "atom through two disjoint unbroken chains of bonds.  Atoms singly "\
@@ -641,6 +641,30 @@ def createWhatsThis(self):
                                                        self.selectDoublyAction.iconSet().pixmap() )
 
         self.selectDoublyAction.setWhatsThis(selectDoublyActionText )
+        
+        #### Expand Selection ####
+
+        selectExpandActionText = "<u><b>Expand Selection</b></u>    (Ctrl + D)</b></p><br>"\
+                       "<p><img source=\"selectExpandAction\"><br> "\
+                       "Selects any atom that is a neighbor of a currently selected atom."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "selectExpandAction",
+                                                       self.selectExpandAction.iconSet().pixmap() )
+
+        self.selectExpandAction.setWhatsThis(selectExpandActionText )
+        
+        #### Contract Selection ####
+
+        selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)</b></p><br>"\
+                       "<p><img source=\"selectContractAction\"><br> "\
+                       "Unselects any atom that has an open bond."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "selectContractAction",
+                                                       self.selectContractAction.iconSet().pixmap() )
+
+        self.selectContractAction.setWhatsThis(selectContractActionText )
         
         ##############################################
         # Modify Toolbar
@@ -1093,7 +1117,43 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsThermoAction",
                                                        self.jigsThermoAction.iconSet().pixmap() )
        
-        self.jigsThermoAction.setWhatsThis(jigsThermoActionText ) 
+        self.jigsThermoAction.setWhatsThis(jigsThermoActionText )
+        
+        #### ESP Image ####
+        
+        jigsESPImageActionText = "<u><b>ESP Image</b></u></b></p><br>"\
+                       "<p><img source=\"jigsESPImageAction\"><br> "\
+                        "Creates an <b>ESP Image</b> allowing the user to visualize the electrostatic potential "\
+                        "of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane plug-in "\
+                        "is used to calculate the electrostatic potential.</p>"\
+                       "<p>To create an ESP Image, enter <b>Select Atoms</b> mode, "\
+                       "select 3 or more atoms and then select this jig. The ESP Image is drawn as a "\
+                       "plane with a bounding volume."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsESPImageAction",
+                                                       self.jigsESPImageAction.iconSet().pixmap() )
+       
+        self.jigsESPImageAction.setWhatsThis(jigsESPImageActionText )
+        
+        #### Atom Set ####
+        
+        jigsAtomSetActionText = "<u><b>Atom Set</b></u></b></p><br>"\
+                       "<p><img source=\"jigsAtomSetAction\"><br> "\
+                        "An <b>Atom Set</b> provides a convienient way to save an atom "\
+                        "selection which can be reselected later.</p>"\
+                       "<p>To create an Atom Set, enter <b>Select Atoms</b> mode, "\
+                       "select any number of atoms and then select this jig. The Atom Set is "\
+                       "drawn as a set of wireframe boxes around each atom in the selection.</p>"\
+                       "<p>To reselect the atoms in an Atom Set, select it's context "\
+                       "menu in the Model Tree and click the menu item that states "\
+                       "<b>Select this jig's atoms</b>."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsAtomSetAction",
+                                                       self.jigsAtomSetAction.iconSet().pixmap() )
+       
+        self.jigsAtomSetAction.setWhatsThis(jigsAtomSetActionText )
         
         ##############################################
         # Display
