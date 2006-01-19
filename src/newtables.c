@@ -68,7 +68,7 @@ generateBendName(char *bendName,
 {
   int elt;
   char bnd;
-  if (element2 < element1) {
+  if (element1 > element2 || (element1 == element2 && bondOrder1 > bondOrder2)) {
     elt = element1;
     element1 = element2;
     element2 = elt;

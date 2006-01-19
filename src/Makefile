@@ -76,7 +76,7 @@ jigs.o: simulator.h
 lin-alg.o: lin-alg.h Makefile
 minimize.o: allocate.h minimize.h debug.h Makefile
 minstructure.o: simulator.h
-newtables.o: simulator.h bonds.h
+newtables.o: simulator.h bonds.h bends.h
 part.o: simulator.h
 potential.o: simulator.h
 printers.o: simulator.h
@@ -166,7 +166,7 @@ clean:
 	rm -f tests/dynamics/*.diff
 
 dist_clean: clean
-	rm -f TAGS
+	rm -f TAGS bonds.h bends.h
 
 TAGS:
 	etags *.c *.h

@@ -49,8 +49,11 @@ $bond{"@"} = "a";
 $bond{"#"} = "g";
 
 sub printbond {
-    my($e1, $b1, $ec, $b2, $e2, $ktheta, $theta0) = @_;
+    my($e1, $b1, $ec, $b2, $e2, %params) = @_;
     my($tmp);
+    my($ktheta) = $params{"Ktheta"};
+    my($theta0) = $params{"theta0"};
+    my($CenterHybridization) = $params{"CenterHybridization"};
 
     if (!defined($element{$e1})) {
 	print STDERR "strange element $e1\n";
@@ -73,7 +76,10 @@ sub printbond {
 	return;
     }
 
-    if ($element{$e1} > $element{$e2}) {
+    $b1 = $bond{$b1};
+    $b2 = $bond{$b2};
+
+    if ($element{$e1} > $element{$e2} || ($e1 eq $e2 && $b1 gt $b2)) {
 	$tmp = $e1;
 	$e1 = $e2;
 	$e2 = $tmp;
@@ -81,25 +87,47 @@ sub printbond {
 	$b1 = $b2;
 	$b2 = $tmp;
     }
-    print "addInitialBendData(\"$e1-$bond{$b1}-$ec-$bond{$b2}-$e2\", $ktheta, $theta0);\n";
+#    print "addInitialBendData(\"$e1-$b1-$ec.$CenterHybridization-$b2-$e2\", $ktheta, $theta0);\n";
+    print "addInitialBendData(\"$e1-$b1-$ec-$b2-$e2\", $ktheta, $theta0);\n";
 }
 
 while (<STDIN>) {
-    if (/^(.*) theta0\= (.*) Ktheta= (.*)$/) {
+    # remove leading space, and trailing newline
+    chomp;
+    s/^\s+//;
+
+    # ignore comments and blank lines
+    if (/^#/) {
+	next;
+    }
+    if (/^$/) {
+	next;
+    }
+
+    if (/^(\S*)\s+(.*)$/) {
 	$bond = $1;
-	$theta0 = $2;
-	$ktheta = $3;
+	$rest = $2;
+	%params = ();
+	$params{"bond"} = $bond;
+	$params{"CenterHybridization"} = "sp3" ;
+	while ($rest =~ /^([^=]+)\s*\=\s*(\S+)\s*(.*)/) {
+	    $key = $1;
+	    $value = $2;
+#	    print "$key = $value\n";
+	    $rest = $3;
+	    $params{$key} = $value;
+	}
 	if ($bond =~ /^(.*)([-=+@#])(.*)([-=+@#])(.*)$/) {
 		$e1 = $1;
 		$b1 = $2;
 		$ec = $3;
 		$b2 = $4;
 		$e2 = $5;
-		printbond($e1, $b1, $ec, $b2, $e2, $ktheta, $theta0);
+		printbond($e1, $b1, $ec, $b2, $e2, %params);
 	} else {
-	    print STDERR "malformed bond: $_";
+	    print STDERR "malformed bond: $_\n";
 	}
     } else {
-	print STDERR "unrecognized line: $_";
+	print STDERR "unrecognized line: $_\n";
     }
 }
