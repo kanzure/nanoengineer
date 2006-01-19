@@ -64,12 +64,12 @@
 
 /* van der Waals forces */
 
+#include "part.h"
 #include "newtables.h"
 #include "interpolate.h"
 
 #include "readmmp.h"
 #include "readxyz.h"
-#include "part.h"
 #include "printers.h"
 #include "dynamics.h"
 #include "jigs.h"

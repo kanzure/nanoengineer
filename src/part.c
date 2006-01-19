@@ -189,6 +189,7 @@ makeBend(struct part *p, int bend_number, struct atom *a, int bond1, int bond2)
     
     // XXX should just use atomType instead of protons
     b->bendType = getBendData(a->type->protons,
+                              a->hybridization,
 			      b->a1->type->protons, b->b1->order,
 			      b->a2->type->protons, b->b2->order);
 }
@@ -929,6 +930,22 @@ printableBondOrder(struct bond *b)
     }
 }
 
+char *
+hybridizationString(enum hybridization h)
+{
+    switch (h) {
+    case sp:
+        return "sp";
+    case sp2:
+        return "sp2";
+    case sp3:
+        return "sp3";
+    case sp3d:
+        return "sp3d";
+    default:
+        return "???";
+    }
+}
 
 void
 printAtom(FILE *f, struct part *p, struct atom *a)
@@ -938,23 +955,7 @@ printAtom(FILE *f, struct part *p, struct atom *a)
     
     fprintf(f, " atom ");
     printAtomShort(f, a);
-    switch (a->hybridization) {
-    case sp:
-        fprintf(f, ".sp ");
-        break;
-    case sp2:
-        fprintf(f, ".sp2 ");
-        break;
-    case sp3:
-        fprintf(f, ".sp3 ");
-        break;
-    case sp3d:
-        fprintf(f, ".sp3d ");
-        break;
-    default:
-        fprintf(f, ".??? ");
-        break;
-    }
+    fprintf(f, ".%s ", hybridizationString(a->hybridization));
     printXYZ(f, p->positions[a->index]);
     for (i=0; i<a->num_bonds; i++) {
 	fprintf(f, " ");

@@ -113,6 +113,7 @@ extern void reInitializeBondTable(void);
 extern struct bondStretch *getBondStretch(int element1, int element2, char bondOrder);
 
 extern struct bendData *getBendData(int element_center,
+                                    enum hybridization centerHybridization,
                                     int element1,
                                     char bondOrder1,
                                     int element2,

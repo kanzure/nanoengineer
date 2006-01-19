@@ -61,6 +61,7 @@ generateBondName(char *bondName, int element1, int element2, char bondOrder)
 static void
 generateBendName(char *bendName,
                  int element_center,
+                 enum hybridization centerHybridization,
                  int element1,
                  char bondOrder1,
                  int element2,
@@ -76,8 +77,9 @@ generateBendName(char *bendName,
     bondOrder1 = bondOrder2;
     bondOrder2 = bnd;
   }
-  sprintf(bendName, "%s-%c-%s-%c-%s", periodicTable[element1].symbol,
+  sprintf(bendName, "%s-%c-%s.%s-%c-%s", periodicTable[element1].symbol,
           bondOrder1, periodicTable[element_center].symbol,
+          hybridizationString(centerHybridization),
           bondOrder2, periodicTable[element2].symbol);
 }
 
@@ -444,6 +446,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
 static struct bendData *
 generateGenericBendData(char *bendName,
                         int element_center,
+                        enum hybridization centerHybridization,
                         int element1,
                         char bondOrder1,
                         int element2,
@@ -462,7 +465,26 @@ generateGenericBendData(char *bendName,
   if (kb > 2000.0) {
     kb = 2000.0;
   }
-  theta0 = 1.9106;
+
+  switch (centerHybridization) {
+  case sp:
+    theta0 = Pi;
+    break;
+  case sp2:
+    theta0 = 2.0 * Pi / 3.0;
+    break;
+  case sp3:
+    theta0 = 1.9106;
+    break;
+  case sp3d:
+    // XXX also need axial/equatorial info
+    theta0 = Pi / 2.0;
+    break;
+  default:
+    theta0 = 1.9106;
+    break;
+  }
+  
   // kb in zeptoJoules / radian^2
 
   return addBendData(bendName, kb*1000.0, theta0, 1);
@@ -526,6 +548,7 @@ getBondStretch(int element1, int element2, char bondOrder)
 
 struct bendData *
 getBendData(int element_center,
+            enum hybridization centerHybridization,
             int element1,
             char bondOrder1,
             int element2,
@@ -534,10 +557,10 @@ getBendData(int element_center,
   struct bendData *bend;
   char bendName[25]; // expand if atom types become longer than 2 chars
   
-  generateBendName(bendName, element_center, element1, bondOrder1, element2, bondOrder2);
+  generateBendName(bendName, element_center, centerHybridization, element1, bondOrder1, element2, bondOrder2);
   bend = (struct bendData *)hashtable_get(bendDataHashtable, bendName);
   if (bend == NULL) {
-    bend = generateGenericBendData(bendName, element_center, element1, bondOrder1, element2, bondOrder2);
+    bend = generateGenericBendData(bendName, element_center, centerHybridization, element1, bondOrder1, element2, bondOrder2);
   }
   if (bend->isGeneric && !bend->warned) {
     if (!ComputedParameterWarning) {

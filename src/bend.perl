@@ -87,8 +87,7 @@ sub printbond {
 	$b1 = $b2;
 	$b2 = $tmp;
     }
-#    print "addInitialBendData(\"$e1-$b1-$ec.$CenterHybridization-$b2-$e2\", $ktheta, $theta0);\n";
-    print "addInitialBendData(\"$e1-$b1-$ec-$b2-$e2\", $ktheta, $theta0);\n";
+    print "addInitialBendData(\"$e1-$b1-$ec.$CenterHybridization-$b2-$e2\", $ktheta, $theta0);\n";
 }
 
 while (<STDIN>) {

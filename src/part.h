@@ -243,6 +243,8 @@ extern void printAtomShort(FILE *f, struct atom *a);
 
 extern char printableBondOrder(struct bond *b);
 
+extern char *hybridizationString(enum hybridization h);
+
 extern void printAtom(FILE *f, struct part *p, struct atom *a);
 
 extern void printBond(FILE *f, struct part *p, struct bond *b);
