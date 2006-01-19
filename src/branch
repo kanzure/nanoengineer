@@ -1,0 +1,27 @@
+CVS branching is sometimes usefully done with small subsets of a
+source tree. In that case, you would change the branch file to be
+a list of the files specific to your branch, like this:
+
+----- 8< -----
+VQT.py
+jigs_motors.py
+whatsthis.py
+----- 8< -----
+
+When you want to check out your branch, you first check out the
+entire tree, then check out your branch on top of it:
+
+cvs co cad
+cd cad/src
+cvs up -r wware_mybranch_20051228 branch
+cvs up -r wware_mybranch_20051228 `cat branch`
+
+When you've done some work in your branch and you want to commit
+it, use this command:
+
+cvs commit -r wware_mybranch_20051228 `cat branch`
+
+and if the contents of the branch files changes (you need
+to branch more files, or fewer, or different ones), then:
+
+cvs commit -r wware_mybranch_20051228 branch
