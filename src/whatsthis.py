@@ -1123,11 +1123,11 @@ def createWhatsThis(self):
         
         jigsESPImageActionText = "<u><b>ESP Image</b></u></b></p><br>"\
                        "<p><img source=\"jigsESPImageAction\"><br> "\
-                        "Creates an <b>ESP Image</b> allowing the user to visualize the electrostatic potential "\
+                        "An <b>ESP Image</b> allows the user to visualize the electrostatic potential "\
                         "of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane plug-in "\
                         "is used to calculate the electrostatic potential.</p>"\
                        "<p>To create an ESP Image, enter <b>Select Atoms</b> mode, "\
-                       "select 3 or more atoms and then select this jig. The ESP Image is drawn as a "\
+                       "select three or more atoms and then select this jig. The ESP Image is drawn as a "\
                        "plane with a bounding volume."\
                        "</p>"
 
@@ -1140,7 +1140,7 @@ def createWhatsThis(self):
         
         jigsAtomSetActionText = "<u><b>Atom Set</b></u></b></p><br>"\
                        "<p><img source=\"jigsAtomSetAction\"><br> "\
-                        "An <b>Atom Set</b> provides a convienient way to save an atom "\
+                        "An <b>Atom Set</b> jig provides a convienient way to save an atom "\
                         "selection which can be reselected later.</p>"\
                        "<p>To create an Atom Set, enter <b>Select Atoms</b> mode, "\
                        "select any number of atoms and then select this jig. The Atom Set is "\
@@ -1154,6 +1154,65 @@ def createWhatsThis(self):
                                                        self.jigsAtomSetAction.iconSet().pixmap() )
        
         self.jigsAtomSetAction.setWhatsThis(jigsAtomSetActionText )
+        
+        #### Measure Distance ####
+        
+        jigsDistanceActionText = "<u><b>Measure Distance</b></u></b></p><br>"\
+                       "<p><img source=\"jigsDistanceAction\"><br> "\
+                        "A <b>Measure Distance</b> jig functions as a dimension to display the "\
+                        "distance between two atoms.</p>"\
+                       "<p>To create the Measure Distance jig, enter <b>Select Atoms</b> mode, "\
+                       "select two atoms and then select this jig. The Measure Distance jig is "\
+                       "drawn as a pair of wireframe boxes around each atom connected by "\
+                       "a line and a pair of numbers.  The first number is the distance between the "\
+                       "VdW radii (this can be a negative number for atoms that are close together). "\
+                       "The second number is the distance between the nuclei.</p>"\
+                       "<p>The Measure Distance jig will write the two distance values to the trace file "\
+                       "for each frame of a simulation run and can be plotted using the Plot Tool."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsDistanceAction",
+                                                       self.jigsDistanceAction.iconSet().pixmap() )
+       
+        self.jigsDistanceAction.setWhatsThis(jigsDistanceActionText )
+        
+        #### Measure Angle ####
+        
+        jigsAngleActionText = "<u><b>Measure Angle</b></u></b></p><br>"\
+                       "<p><img source=\"jigsAngleAction\"><br> "\
+                        "A <b>Measure Angle</b> jig functions as a dimension to display the "\
+                        "angle between three atoms.</p>"\
+                       "<p>To create the Measure Angle jig, enter <b>Select Atoms</b> mode, "\
+                       "select three atoms and then select this jig. The Measure Angle jig is "\
+                       "drawn as a set of wireframe boxes around each atom and a number "\
+                       "which is the angle between the three atoms.</p>"\
+                       "<p>The Measure Angle jig will write the angle value to the trace file "\
+                       "for each frame of a simulation run and can be plotted using the Plot Tool."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsAngleAction",
+                                                       self.jigsAngleAction.iconSet().pixmap() )
+       
+        self.jigsAngleAction.setWhatsThis(jigsAngleActionText )
+        
+        #### Measure Dihedral ####
+        
+        jigsDihedralActionText = "<u><b>Measure Dihedral</b></u></b></p><br>"\
+                       "<p><img source=\"jigsDihedralAction\"><br> "\
+                        "A <b>Measure Dihedral</b> jig functions as a dimension to display the "\
+                        "dihedral angle of a four atom sequence.</p>"\
+                       "<p>To create the Measure Dihedral jig, enter <b>Select Atoms</b> mode, "\
+                       "select four atoms and then select this jig. The Measure Dihedral jig is "\
+                       "drawn as a set of wireframe boxes around each atom and a number "\
+                       "which is the dihedral angle value.</p>"\
+                       "<p>The Measure Dihedral jig will write the dihedral angle value to the trace file "\
+                       "for each frame of a simulation run and can be plotted using the Plot Tool."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsDihedralAction",
+                                                       self.jigsDihedralAction.iconSet().pixmap() )
+       
+        self.jigsDihedralAction.setWhatsThis(jigsDihedralActionText )
         
         ##############################################
         # Display
