@@ -276,11 +276,36 @@ def createWhatsThis(self):
 
         self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )        
 
+        #### Normal To ####
+        
+        setViewNormalToActionText = "<u><b>Normal To</b></u><br>"\
+                       "<p><img source=\"setViewNormalTo\"><br> "\
+                       "Orients view to the normal vector of the plane defined by "\
+                       "3 or more selected atoms, or a jig's axis."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewNormalTo",
+                                                       self.setViewNormalToAction.iconSet().pixmap() )
+
+        self.setViewNormalToAction.setWhatsThis( setViewNormalToActionText )
+        
+        #### Parallel To ####
+        
+        setViewParallelToActionText = "<u><b>Parallel To</b></u><br>"\
+                       "<p><img source=\"setViewParallelTo\"><br> "\
+                       "Orients view parallel to the vector defined by 2 selected atoms."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewParallelTo",
+                                                       self.setViewParallelToAction.iconSet().pixmap() )
+
+        self.setViewParallelToAction.setWhatsThis( setViewParallelToActionText ) 
+        
         #### Front View ####
         
         setViewFrontActionText = "<u><b>Front View</b></u><br>"\
                        "<p><img source=\"setViewFront\"><br> "\
-                       "Reorients the model so that it is viewed from the front."\
+                       "Orients the view to the Front View."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewFront",
@@ -292,7 +317,7 @@ def createWhatsThis(self):
         
         setViewBackActionText = "<u><b>Back View</b></u><br>"\
                        "<p><img source=\"setViewBack\"><br> "\
-                       "Reorients the model so that it is viewed from the back."\
+                       "Orients the view to the Back View."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewBack",
@@ -304,7 +329,7 @@ def createWhatsThis(self):
         
         setViewTopActionText = "<u><b>Top View</b></u><br>"\
                        "<p><img source=\"setViewTop\"><br> "\
-                       "Reorients the model so that it is viewed from the top."\
+                       "Orients the view to the Top View."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewTop",
@@ -316,7 +341,7 @@ def createWhatsThis(self):
         
         setViewBottomActionText = "<u><b>Bottom View</b></u><br>"\
                        "<p><img source=\"setViewBottom\"><br> "\
-                       "Reorients the model so that it is viewed from the bottom."\
+                       "Orients the view to the Bottom View."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewBottom",
@@ -328,7 +353,7 @@ def createWhatsThis(self):
         
         setViewLeftActionText = "<u><b>Left View</b></u><br>"\
                        "<p><img source=\"setViewLeft\"><br> "\
-                       "Reorients the model so that it is viewed from the left side."\
+                       "Orients the view to the Left View."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewLeft",
@@ -340,7 +365,7 @@ def createWhatsThis(self):
         
         setViewRightActionText = "<u><b>Right View</b></u><br>"\
                        "<p><img source=\"setViewRight\"><br> "\
-                       "Reorients the model so that it is viewed from the right side."\
+                       "Orients the view to the Right View."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewRight",
@@ -352,13 +377,37 @@ def createWhatsThis(self):
         
         setViewOppositeActionText = "<u><b>Opposite View</b></u><br>"\
                        "<p><img source=\"setViewOpposite\"><br> "\
-                       "Reorients the model so that it is viewed from the opposite side of the current view."\
+                       "Rotates the view 180 degrees."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewOpposite",
                                                        self.setViewOppositeAction.iconSet().pixmap() )
 
         self.setViewOppositeAction.setWhatsThis( setViewOppositeActionText )
+        
+        #### Rotate +90 ####
+        
+        setViewPlus90ActionText = "<u><b>Rotate +90</b></u><br>"\
+                       "<p><img source=\"setViewPlus90\"><br> "\
+                       "Increment the current view by 90 degrees around the vertical axis."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewPlus90",
+                                                       self.setViewPlus90Action.iconSet().pixmap() )
+
+        self.setViewPlus90Action.setWhatsThis( setViewPlus90ActionText )
+        
+        #### Rotate -90 ####
+        
+        setViewMinus90ActionText = "<u><b>Rotate -90</b></u><br>"\
+                       "<p><img source=\"setViewMinus90\"><br> "\
+                       "Decrement the current view by 90 degrees around the vertical axis."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewMinus90",
+                                                       self.setViewMinus90Action.iconSet().pixmap() )
+
+        self.setViewMinus90Action.setWhatsThis( setViewMinus90ActionText )
         
         ##############################################
         # Grids Toolbar
@@ -829,7 +878,16 @@ def createWhatsThis(self):
 
         toolsFuseChunksActionText = "<u><b>Fuse Chunks Tool</b></u><!-- [[Feature:Fuse Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsFuseChunksAction\"><br> "\
-                       "<b>Fuse Chunks</b> creates bonds between two or more chunks.</p>"
+                       "<b>Fuse Chunks</b> can be used to interactively join two or more "\
+                       "chunks by dragging chunks around and fusing them together.  "\
+                       "Two types of fusing are supported:<br><br>"\
+                       "<b>Make Bonds</b> creates bonds between the existing open bonds) "\
+                       "of two or more chunks.  Bonds are drawn (and undrawn) as chunks "\
+                       "are moved together (and apart).<br><br>"\
+                       "<b>Fuse Atoms</b> fuses overlapping atoms between chunks. Overlapping "\
+                       "pairs of atoms are highlighted in green and blue to indicate which atoms "\
+                       "will be fused.<br>"\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseChunksAction",
                                                        self. toolsFuseChunksAction.iconSet().pixmap() )
