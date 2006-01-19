@@ -73,8 +73,14 @@ class Motor(Jig):
             self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
         else:
             guess = map(cross, relpos[:-1], relpos[1:])
-            guess = map(lambda x: sign(dot(los,x))*x, guess)
-            self.axis=norm(sum(guess))
+            # wware 060118, bug 1341, fix problem where if line-of-sight lies in plane of
+            # atoms, we never draw the body of the motor
+            def f(x):
+                s = sign(dot(los,x))
+                if s == 0: return -x
+                else: return s * x
+            guess = map(f, guess)
+            self.axis = norm(sum(guess))
         if dot(oldaxis, self.axis) < 0:
             self.axis = - self.axis #bruce 060116 fix unreported bug analogous to bug 1330
         self.assy.changed()  #bruce 060116 fix unreported bug analogous to bug 1331
