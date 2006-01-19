@@ -418,6 +418,41 @@ readMMP(char *filename)
 			
       makeAtom(p, atomID, elementType, position);
     }
+    
+    // info atom atomtype = sp2
+    else if (!strcmp(tok, "info")) {
+      consumeWhitespace(mmp);
+      tok = readToken(mmp);
+      if (!strcmp(tok, "atom")) {
+        consumeWhitespace(mmp);
+        tok = readToken(mmp);
+        if (!strcmp(tok, "atomtype")) {
+          enum hybridization hybridization;
+          
+          consumeWhitespace(mmp);
+          expectToken(mmp, "=");
+          consumeWhitespace(mmp);
+          tok = readToken(mmp);
+
+          if (!strcmp(tok, "sp3d")) {
+            hybridization = sp3d;
+          } else if (!strcmp(tok, "sp3")) {
+            hybridization = sp3;
+          } else if (!strcmp(tok, "sp2")) {
+            hybridization = sp2;
+          } else if (!strcmp(tok, "sp")) {
+            hybridization = sp;
+          } else {
+            ERROR1("unknown hybridization: %s", tok);
+            mmpParseError(mmp);
+          }
+
+          consumeRestOfLine(mmp);
+
+          setAtomHybridization(p, previousAtomID, hybridization);
+        }
+      }
+    }
 
     // bondO atno atno atno ...
     // Indicates bonds of order O between previous atom and listed

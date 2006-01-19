@@ -583,6 +583,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     a->vdwBucket = NULL;
     a->vdwPrev = NULL;
     a->vdwNext = NULL;
+    a->hybridization = sp3;
     
     mass = a->type->mass * 1e-27;
     a->inverseMass = Dt * Dt / mass;
@@ -603,6 +604,19 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     
     vmul2c(momentum, velocity, mass);
     vadd(p->totalMomentum, momentum);
+}
+
+void
+setAtomHybridization(struct part *p, int atomID, enum hybridization h)
+{
+    struct atom *a;
+    
+    if (atomID < 0 || atomID > p->max_atom_id || p->atom_id_to_index_plus_one[atomID] < 1) {
+	ERROR1("setAtomHybridization: atom ID %d not seen yet", atomID);
+	p->parseError(p->stream);
+    }
+    a = p->atoms[p->atom_id_to_index_plus_one[atomID] - 1];
+    a->hybridization = h;
 }
 
 // Add a new bond to this part.  The atomID's are the external atom
@@ -901,13 +915,13 @@ printableBondOrder(struct bond *b)
 	return '+' ;
 	break;
     case 'a':
-	return '~' ;
+	return '@' ;
 	break;
     case 'g':
-	return '^' ;
+	return '#' ;
 	break;
     case 'c':
-	return '#' ;
+	return '~' ;
 	break;
     default:
 	return b->order;
@@ -924,7 +938,23 @@ printAtom(FILE *f, struct part *p, struct atom *a)
     
     fprintf(f, " atom ");
     printAtomShort(f, a);
-    fprintf(f, " ");
+    switch (a->hybridization) {
+    case sp:
+        fprintf(f, ".sp ");
+        break;
+    case sp2:
+        fprintf(f, ".sp2 ");
+        break;
+    case sp3:
+        fprintf(f, ".sp3 ");
+        break;
+    case sp3d:
+        fprintf(f, ".sp3d ");
+        break;
+    default:
+        fprintf(f, ".??? ");
+        break;
+    }
     printXYZ(f, p->positions[a->index]);
     for (i=0; i<a->num_bonds; i++) {
 	fprintf(f, " ");

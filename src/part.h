@@ -2,9 +2,18 @@
 #define VDW_HASH 127
 #define VDW_SIZE (VDW_HASH+1)
 
+enum hybridization {
+  sp,
+  sp2,
+  sp3,
+  sp3d
+};
+
 struct atom 
 {
   struct atomType *type;
+  enum hybridization hybridization;
+  
   struct atom **vdwBucket;
   struct atom *vdwPrev;
   struct atom *vdwNext;
@@ -205,6 +214,8 @@ extern void generateBends(struct part *p);
 extern void updateVanDerWaals(struct part *p, void *validity, struct xyz *positions);
 
 extern void makeAtom(struct part *p, int externalID, int elementType, struct xyz position);
+
+extern void setAtomHybridization(struct part *p, int atomID, enum hybridization h);
 
 extern void makeBond(struct part *p, int atomID1, int atomID2, char order);
 
