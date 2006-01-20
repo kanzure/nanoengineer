@@ -24,7 +24,7 @@ from jigs import Jig
 
 class Motor(Jig):
     "superclass for Motor jigs"
-    axis = None #bruce 060120
+    axis = V(0,0,0) #bruce 060120; redundant with some subclass inits; some code could handle None here, but I'm not sure it all could.
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Jig.__init__(self, assy, atomlist)
@@ -45,19 +45,11 @@ class Motor(Jig):
     def findCenterAndAxis(self, shaft, glpane): #bruce 060120 renamed this from findCenter, replaced los arg with glpane re bug 1344
         self.setAtoms(shaft) #bruce 041105 code cleanup
         self.recompute_center_axis(glpane)
-        self.edit()
-        
-##        #bruce 060120 thinks the following looks bad and should be reviewed. The only reasonable purpose
-##        # I know of would be to store initial positions for use after atoms move, and if that's the true
-##        # purpose, it needs a comment explaining it. In fact, it looks like it's used for planes but not
-##        # for motors, so let's zap it and find out.
-##        self.atomPos = []
-##        for a in shaft:
-##            self.atomPos += [a.posn()]
+        self.edit()        
         return
 
     def recompute_center_axis(self, glpane): #bruce 060120 replaced los arg with glpane re bug 1344
-        # try to point in direction of prior axis, or along line of sight if no old axis (self.axis is None then)
+        # try to point in direction of prior axis, or along line of sight if no old axis (self.axis is V(0,0,0) then)
         nears = [self.axis, glpane.lineOfSight, glpane.down]
         pos = A( map( lambda a: a.posn(), self.atoms ) )
         self.center = sum(pos)/len(pos)

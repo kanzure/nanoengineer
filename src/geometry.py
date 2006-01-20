@@ -183,7 +183,8 @@ def compute_heuristic_axis( basepos, type,
                             evals_evec = None, already_centered = False,
                             aspect_threshhold = 0.95, numeric_threshhold = 0.0001,
                             near1 = None, near2 = None, nears = (), dflt = None ):
-    #bruce 060120 adding nears; will replace near1,near2, but not yet since Mark is adding code that calls it with those ###@@@
+    #bruce 060120 adding nears; will doc this and let it fully replace near1 and near2, but not yet,
+    # since Mark is right now adding code that calls this with near1 and near2 ###@@@
     """Given basepos (an array of positions),
     compute and return an axis in one of various ways according to 'type' (choices are listed below),
     optionally adjusting the algorithm using aspect_threshhold (when are two dimensions close enough to count as circular),
@@ -296,11 +297,11 @@ def aspect_too_close( dim1, dim2, aspect_threshhold ):
     return dim1 >= (dim2 * aspect_threshhold)
 
 def best_sign_on_vector(vec, goodvecs, numeric_threshhold):
-    """vec is an arbitrary vector, and goodvecs is a list of unit vectors or Nones;
-    return vec or - vec, whichever is more in the same direction as the first non-None goodvec
-    which helps determine this (i.e. which is not perpendicular to vec, using numeric_threshhold
+    """vec is an arbitrary vector, and goodvecs is a list of unit vectors or (ignored) zero vectors or Nones;
+    return vec or - vec, whichever is more in the same direction as the first goodvec
+    which helps determine this (i.e. which is not zero or None, and is not perpendicular to vec, using numeric_threshhold
     to determine what's too close to call). If none of the goodvecs help, just return vec
-    (this always happens if vec itself is too small).
+    (this always happens if vec itself is too small, so it's safest if vec is a unit vector, though it's not required).
     """
     for good in goodvecs:
         if good is not None:
@@ -321,19 +322,19 @@ def sign_with_threshhold( num, thresh ):
 
 def best_vector_in_plane( axes, goodvecs, numeric_threshhold ):
     """axes is a list of two orthonormal vectors defining a plane,
-    and goodvecs is a list of unit vectors or Nones;
+    and goodvecs is a list of unit vectors or (ignored) zero vectors or Nones;
     return whichever unit vector in the plane defined by axes is closest in direction
-    to the first non-None goodvec which helps determine this (i.e. which is not
-    perpendicular to the plane, using numeric_threshhold to determine what's too
+    to the first goodvec which helps determine this (i.e. which is not zero or None,
+    and is not perpendicular to the plane, using numeric_threshhold to determine what's too
     close to call). If none of the goodvecs help, return None.
     """
     x,y = axes
     for good in goodvecs:
         if good is not None:
-            dx = dot(x,good)
+            dx = dot(x,good) # will be 0 for good = V(0,0,0); not sensible for vlen(good) other than 0 or 1
             dy = dot(y,good)
             if abs(dx) < numeric_threshhold and abs(dy) < numeric_threshhold:
-                continue # good is perpendicular to the plane
+                continue # good is perpendicular to the plane (or is zero)
             return norm(dx * x + dy * y)
     return None
     
