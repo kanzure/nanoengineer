@@ -278,7 +278,7 @@ def createWhatsThis(self):
 
         #### Normal To ####
         
-        setViewNormalToActionText = "<u><b>Normal To</b></u><br>"\
+        setViewNormalToActionText = "<u><b>Set View Normal To</b></u><br>"\
                        "<p><img source=\"setViewNormalTo\"><br> "\
                        "Orients view to the normal vector of the plane defined by "\
                        "3 or more selected atoms, or a jig's axis."\
@@ -291,7 +291,7 @@ def createWhatsThis(self):
         
         #### Parallel To ####
         
-        setViewParallelToActionText = "<u><b>Parallel To</b></u><br>"\
+        setViewParallelToActionText = "<u><b>Set View Parallel To</b></u><br>"\
                        "<p><img source=\"setViewParallelTo\"><br> "\
                        "Orients view parallel to the vector defined by 2 selected atoms."\
                        "</p>"
@@ -373,9 +373,9 @@ def createWhatsThis(self):
 
         self.setViewRightAction.setWhatsThis( setViewRightActionText )
         
-        #### Opposite View ####
+        #### Rotate View 180 ####
         
-        setViewOppositeActionText = "<u><b>Opposite View</b></u><br>"\
+        setViewOppositeActionText = "<u><b>Rotate View 180</b></u><br>"\
                        "<p><img source=\"setViewOpposite\"><br> "\
                        "Rotates the view 180 degrees."\
                        "</p>"
@@ -385,9 +385,9 @@ def createWhatsThis(self):
 
         self.setViewOppositeAction.setWhatsThis( setViewOppositeActionText )
         
-        #### Rotate +90 ####
+        #### Rotate View +90 ####
         
-        setViewPlus90ActionText = "<u><b>Rotate +90</b></u><br>"\
+        setViewPlus90ActionText = "<u><b>Rotate View +90</b></u><br>"\
                        "<p><img source=\"setViewPlus90\"><br> "\
                        "Increment the current view by 90 degrees around the vertical axis."\
                        "</p>"
@@ -397,9 +397,9 @@ def createWhatsThis(self):
 
         self.setViewPlus90Action.setWhatsThis( setViewPlus90ActionText )
         
-        #### Rotate -90 ####
+        #### Rotate View -90 ####
         
-        setViewMinus90ActionText = "<u><b>Rotate -90</b></u><br>"\
+        setViewMinus90ActionText = "<u><b>Rotate View -90</b></u><br>"\
                        "<p><img source=\"setViewMinus90\"><br> "\
                        "Decrement the current view by 90 degrees around the vertical axis."\
                        "</p>"
@@ -1028,7 +1028,8 @@ def createWhatsThis(self):
                         
         ccAddLayerActionText = "<u><b>Add Layer</b></u><br>"\
                        "<p><img source=\"ccAddLayerAction\"><br> "\
-                       "Adds a new layer of diamond lattice to the existing layer.</p>"
+                       "Adds a new layer of diamond lattice to the existing layer."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "ccAddLayerAction",
                                                        self.ccAddLayerAction.iconSet().pixmap() )
@@ -1044,10 +1045,12 @@ def createWhatsThis(self):
         jigsAnchorActionText = "<u><b>Anchor</b></u><br>"\
                        "<p><img source=\"jigsAnchorAction\"><br> "\
                        "Attaches a <b>Anchor</b> to the selected atom(s), which "\
-                       "constrains its motion during a minimization or simulation.</p>"\
+                       "constrains its motion during a minimization or simulation."\
+                       "</p>"\
                        "<p>To create an Anchor, enter <b>Select Atoms</b> mode, "\
                        "select the atom(s) you want to anchor and then select this action. "\
-                       "Anchors are drawn as a black wireframe box around each selected atom.</p>"
+                       "Anchors are drawn as a black wireframe box around each selected atom."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsAnchorAction",
                                                        self.jigsAnchorAction.iconSet().pixmap() )
@@ -1060,9 +1063,11 @@ def createWhatsThis(self):
                        "<p><img source=\"jigsMotorAction\"><br> "\
                        "Attaches a <b>Rotary Motor</b> to the selected atoms.  The Rotary Motor is used by "\
                        "the simulator to apply rotary motion to a set of atoms during a simulation run.  You may "\
-                       "specify the <b>torque (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor.</p>"\
+                       "specify the <b>torque (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor."\
+                       "</p>"\
                        "<p>To create a Rotary Motor, enter <b>Select Atoms</b> mode, "\
-                       "select the atoms you want to attach the motor to and then select this action.</p>"
+                       "select the atoms you want to attach the motor to and then select this action."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsMotorAction",
                                                        self.jigsMotorAction.iconSet().pixmap() )
@@ -1075,9 +1080,11 @@ def createWhatsThis(self):
                        "<p><img source=\"jigsLinearMotorAction\"><br> "\
                        "Attaches a <b>Linear Motor</b> to the selected atoms.  The Linear Motor is used by "\
                        "the simulator to apply linear motion to a set of atoms during a simulation run.  You may "\
-                       "specify the <b>force (in nN*nm)</b> and <b>stiffness (in N/m)</b> of the motor.</p>"\
+                       "specify the <b>force (in nN*nm)</b> and <b>stiffness (in N/m)</b> of the motor."\
+                       "</p>"\
                        "<p>To create a Linear Motor, enter <b>Select Atoms</b> mode, "\
-                       "select the atoms you want to attach the motor to and then select this action.</p>"
+                       "select the atoms you want to attach the motor to and then select this action."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsLinearMotorAction",
                                                        self.jigsLinearMotorAction.iconSet().pixmap() )
@@ -1090,12 +1097,15 @@ def createWhatsThis(self):
                        "<p><img source=\"jigsStatAction\"><br> "\
                        "Attaches a <b>Langevin Thermostat</b> to a single selected atom, thereby associating "\
                        "the themostat to the entire molecule of which the selected atom is a member. The user "\
-                       "specifies the temperature (in Kelvin).</p>"\
+                       "specifies the temperature (in Kelvin)."\
+                       "</p>"\
                        "<p>The Langevin Thermostat is used to set and hold the temperature "\
-                       "of a molecule during a simulation run.</p>"\
+                       "of a molecule during a simulation run."\
+                       "</p>"\
                        "<p>To create a Langevin Thermostat, enter <b>Select Atoms</b> mode, "\
                        "select a single atom and then select this action. The thermostat is drawn as a "\
-                       "blue wireframe box around the selected atom.</p>"
+                       "blue wireframe box around the selected atom."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsStatAction",
                                                        self.jigsStatAction.iconSet().pixmap() )
@@ -1109,10 +1119,12 @@ def createWhatsThis(self):
                         "Attaches a <b>Thermometer</b> to a single selected atom, thereby associating "\
                        "the themometer to the entire molecule of which the selected atom is a member. "\
                        "<p>The temperature of the molecule will be recorded and written to a trace file "\
-                       "during a simulation run.</p>"\
+                       "during a simulation run."\
+                       "</p>"\
                        "<p>To create a Thermometer, enter <b>Select Atoms</b> mode, "\
                        "select a single atom and then select this action. The thermometer is drawn as a "\
-                       "dark red wireframe box around the selected atom.</p>"
+                       "dark red wireframe box around the selected atom."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "jigsThermoAction",
                                                        self.jigsThermoAction.iconSet().pixmap() )
@@ -1125,7 +1137,8 @@ def createWhatsThis(self):
                        "<p><img source=\"jigsESPImageAction\"><br> "\
                         "An <b>ESP Image</b> allows the user to visualize the electrostatic potential "\
                         "of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane plug-in "\
-                        "is used to calculate the electrostatic potential.</p>"\
+                        "is used to calculate the electrostatic potential."\
+                       "</p>"\
                        "<p>To create an ESP Image, enter <b>Select Atoms</b> mode, "\
                        "select three or more atoms and then select this jig. The ESP Image is drawn as a "\
                        "plane with a bounding volume."\
@@ -1141,10 +1154,12 @@ def createWhatsThis(self):
         jigsAtomSetActionText = "<u><b>Atom Set</b></u></b></p><br>"\
                        "<p><img source=\"jigsAtomSetAction\"><br> "\
                         "An <b>Atom Set</b> jig provides a convienient way to save an atom "\
-                        "selection which can be reselected later.</p>"\
+                        "selection which can be reselected later."\
+                       "</p>"\
                        "<p>To create an Atom Set, enter <b>Select Atoms</b> mode, "\
                        "select any number of atoms and then select this jig. The Atom Set is "\
-                       "drawn as a set of wireframe boxes around each atom in the selection.</p>"\
+                       "drawn as a set of wireframe boxes around each atom in the selection."\
+                       "</p>"\
                        "<p>To reselect the atoms in an Atom Set, select it's context "\
                        "menu in the Model Tree and click the menu item that states "\
                        "<b>Select this jig's atoms</b>."\
@@ -1157,17 +1172,19 @@ def createWhatsThis(self):
         
         #### Measure Distance ####
         
-        jigsDistanceActionText = "<u><b>Measure Distance</b></u></b></p><br>"\
+        jigsDistanceActionText = "<u><b>Measure Distance Jig</b></u></b></p><br>"\
                        "<p><img source=\"jigsDistanceAction\"><br> "\
-                        "A <b>Measure Distance</b> jig functions as a dimension to display the "\
-                        "distance between two atoms.</p>"\
-                       "<p>To create the Measure Distance jig, enter <b>Select Atoms</b> mode, "\
-                       "select two atoms and then select this jig. The Measure Distance jig is "\
+                        "A <b>Measure Distance Jig</b> functions as a dimension to display the "\
+                        "distance between two atoms."\
+                       "</p>"\
+                       "<p>To create the Measure Distance Jig, enter <b>Select Atoms</b> mode, "\
+                       "select two atoms and then select this jig. The Measure Distance Jig is "\
                        "drawn as a pair of wireframe boxes around each atom connected by "\
                        "a line and a pair of numbers.  The first number is the distance between the "\
                        "VdW radii (this can be a negative number for atoms that are close together). "\
-                       "The second number is the distance between the nuclei.</p>"\
-                       "<p>The Measure Distance jig will write the two distance values to the trace file "\
+                       "The second number is the distance between the nuclei."\
+                       "</p>"\
+                       "<p>The Measure Distance Jig will write the two distance values to the trace file "\
                        "for each frame of a simulation run and can be plotted using the Plot Tool."\
                        "</p>"
 
@@ -1178,15 +1195,16 @@ def createWhatsThis(self):
         
         #### Measure Angle ####
         
-        jigsAngleActionText = "<u><b>Measure Angle</b></u></b></p><br>"\
+        jigsAngleActionText = "<u><b>Measure Angle Jig</b></u></b></p><br>"\
                        "<p><img source=\"jigsAngleAction\"><br> "\
-                        "A <b>Measure Angle</b> jig functions as a dimension to display the "\
+                        "A <b>Measure Angle Jig</b> functions as a dimension to display the "\
                         "angle between three atoms.</p>"\
-                       "<p>To create the Measure Angle jig, enter <b>Select Atoms</b> mode, "\
-                       "select three atoms and then select this jig. The Measure Angle jig is "\
+                       "<p>To create the Measure Angle Jig, enter <b>Select Atoms</b> mode, "\
+                       "select three atoms and then select this jig. The Measure Angle Jig is "\
                        "drawn as a set of wireframe boxes around each atom and a number "\
-                       "which is the angle between the three atoms.</p>"\
-                       "<p>The Measure Angle jig will write the angle value to the trace file "\
+                       "which is the angle between the three atoms."\
+                       "</p>"\
+                       "<p>The Measure Angle Jig will write the angle value to the trace file "\
                        "for each frame of a simulation run and can be plotted using the Plot Tool."\
                        "</p>"
 
@@ -1197,15 +1215,16 @@ def createWhatsThis(self):
         
         #### Measure Dihedral ####
         
-        jigsDihedralActionText = "<u><b>Measure Dihedral</b></u></b></p><br>"\
+        jigsDihedralActionText = "<u><b>Measure Dihedral Jig</b></u></b></p><br>"\
                        "<p><img source=\"jigsDihedralAction\"><br> "\
-                        "A <b>Measure Dihedral</b> jig functions as a dimension to display the "\
+                        "A <b>Measure Dihedral Jig</b> functions as a dimension to display the "\
                         "dihedral angle of a four atom sequence.</p>"\
-                       "<p>To create the Measure Dihedral jig, enter <b>Select Atoms</b> mode, "\
-                       "select four atoms and then select this jig. The Measure Dihedral jig is "\
+                       "<p>To create the Measure Dihedral Jig, enter <b>Select Atoms</b> mode, "\
+                       "select four atoms and then select this jig. The Measure Dihedral Jig is "\
                        "drawn as a set of wireframe boxes around each atom and a number "\
-                       "which is the dihedral angle value.</p>"\
-                       "<p>The Measure Dihedral jig will write the dihedral angle value to the trace file "\
+                       "which is the dihedral angle value."\
+                       "</p>"\
+                       "<p>The Measure Dihedral Jig will write the dihedral angle value to the trace file "\
                        "for each frame of a simulation run and can be plotted using the Plot Tool."\
                        "</p>"
 
@@ -1213,6 +1232,43 @@ def createWhatsThis(self):
                                                        self.jigsDihedralAction.iconSet().pixmap() )
        
         self.jigsDihedralAction.setWhatsThis(jigsDihedralActionText )
+        
+        #### GAMESS Jig ####
+        
+        jigsGamessActionText = "<u><b>GAMESS Jig</b></u></b></p><br>"\
+                       "<p><img source=\"jigsGamessAction\"><br> "\
+                        "A <b>GAMESS Jig</b> is used to tag a set of atoms for running a GAMESS "\
+                        "calculation. <b>Energy</b> and <b>Geometry Optimization</b> calculations are supported."\
+                        "</p>"\
+                        "<p>To create the GAMESS Jig, enter <b>Select Atoms</b> mode, "\
+                        "select the atoms to tag and then select this jig. The GAMESS Jig is drawn as a "\
+                        "set of magenta wireframe boxes around each atom."\
+                        "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsGamessAction",
+                                                       self.jigsGamessAction.iconSet().pixmap() )
+       
+        self.jigsGamessAction.setWhatsThis(jigsGamessActionText )
+        
+        #### Grid Plane Jig ####
+        
+        jigsGridPlaneActionText = "<u><b>Grid Plane</b></u></b></p><br>"\
+                       "<p><img source=\"jigsGridPlaneAction\"><br> "\
+                        "A <b>Grid Plane</b> jig is a rectanglar plane that can display a square or SiC grid "\
+                        "within its boundary. It is often used as an aid in constructing large lattice "\
+                        "structures made of silicon carbide (SiC).  It is also used as a visual aid in estimating "\
+                        "distances between atoms and/or other structures."\
+                        "</p>"\
+                        "<p>To create the Grid Plane jig, enter <b>Select Atoms</b> mode, "\
+                        "select three or more atoms and then select this jig. "\
+                        "</p>"\
+                        "<p>The Grid Plane jig is drawn as a rectanglar plane with a grid."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "jigsGridPlaneAction",
+                                                       self.jigsGridPlaneAction.iconSet().pixmap() )
+       
+        self.jigsGridPlaneAction.setWhatsThis(jigsGridPlaneActionText )
         
         ##############################################
         # Display
