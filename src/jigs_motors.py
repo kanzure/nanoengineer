@@ -24,7 +24,7 @@ from jigs import Jig
 
 class Motor(Jig):
     "superclass for Motor jigs"
-    axis = V(0,0,0) #bruce 060116
+    axis = None #bruce 060120
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Jig.__init__(self, assy, atomlist)
@@ -41,55 +41,43 @@ class Motor(Jig):
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
     
     # for a motor created by the UI, center is average point and
-    # axis (kludge) is the average of the cross products of
-    # vectors from the center to successive points
-    # los is line of sight into the screen
-    def findCenter(self, shaft, los):
+    # axis is [as of 060120] computed as roughly normal to the shape of that set.
+    def findCenterAndAxis(self, shaft, glpane): #bruce 060120 renamed this from findCenter, replaced los arg with glpane re bug 1344
         self.setAtoms(shaft) #bruce 041105 code cleanup
-        self.recompute_center_axis(los)
+        self.recompute_center_axis(glpane)
         self.edit()
         
-        ##@@@--Huaicai
-        self.atomPos = []
-        for a in shaft:
-            self.atomPos += [a.posn()]
+##        #bruce 060120 thinks the following looks bad and should be reviewed. The only reasonable purpose
+##        # I know of would be to store initial positions for use after atoms move, and if that's the true
+##        # purpose, it needs a comment explaining it. In fact, it looks like it's used for planes but not
+##        # for motors, so let's zap it and find out.
+##        self.atomPos = []
+##        for a in shaft:
+##            self.atomPos += [a.posn()]
         return
 
-    def recompute_center_axis(self, los = None): #bruce 050518 split this out of findCenter, for use in a new cmenu item
-        oldaxis = self.axis
-        if los is None:
-            los = self.assy.o.lineOfSight
-        shaft = self.atoms
-        # remaining code is a kluge, according to the comment above findcenter;
-        # note that it depends on order of atoms, presumably initially derived
-        # from the selatoms dict and thus arbitrary (not even related to order
-        # in which user selected them or created them). [bruce 050518 comment]
-        pos=A(map((lambda a: a.posn()), shaft))
-        self.center=sum(pos)/len(pos)
-        relpos=pos-self.center
-        if len(shaft) == 1:
-            self.axis = norm(los)
-        elif len(shaft) == 2:
-            self.axis = norm(cross(relpos[0],cross(relpos[1],los)))
-        else:
-            guess = map(cross, relpos[:-1], relpos[1:])
-            # wware 060118, bug 1341, fix problem where if line-of-sight lies in plane of
-            # atoms, we never draw the body of the motor
-            def f(x):
-                s = sign(dot(los,x))
-                if s == 0: return -x
-                else: return s * x
-            guess = map(f, guess)
-            self.axis = norm(sum(guess))
-        if dot(oldaxis, self.axis) < 0:
-            self.axis = - self.axis #bruce 060116 fix unreported bug analogous to bug 1330
+    def recompute_center_axis(self, glpane): #bruce 060120 replaced los arg with glpane re bug 1344
+        # try to point in direction of prior axis, or along line of sight if no old axis (self.axis is None then)
+        nears = [self.axis, glpane.lineOfSight, glpane.down]
+        pos = A( map( lambda a: a.posn(), self.atoms ) )
+        self.center = sum(pos)/len(pos)
+        relpos = pos - self.center
+        from geometry import compute_heuristic_axis
+        axis = compute_heuristic_axis( relpos, 'normal', already_centered = True, nears = nears, dflt = None )
+        if not axis:
+            #e warning? I think so... BTW we pass dflt = None to make the warning come out more often;
+            # I don't know if we'd need to check for it here if we didn't.
+            env.history.message( orangemsg( "Warning: motor axis chosen arbitrarily since atom arrangement doesn't suggest one." ))
+                #k can this come out too often during movie-playing? No, because we don't recompute axis then at all.
+            axis = glpane.lineOfSight
+        self.axis = axis
         self.assy.changed()  #bruce 060116 fix unreported bug analogous to bug 1331
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
         return
 
     def recenter_on_atoms(self):
         "called from model tree cmenu command"
-        self.recompute_center_axis()
+        self.recompute_center_axis(self.assy.o) #bruce 060120 pass glpane for its "point of view" (re bug 1344)
         #e maybe return whether we moved??
         return
     

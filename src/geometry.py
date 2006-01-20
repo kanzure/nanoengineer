@@ -182,7 +182,8 @@ def unzip(pairs):
 def compute_heuristic_axis( basepos, type,
                             evals_evec = None, already_centered = False,
                             aspect_threshhold = 0.95, numeric_threshhold = 0.0001,
-                            near1 = None, near2 = None, dflt = None ):
+                            near1 = None, near2 = None, nears = (), dflt = None ):
+    #bruce 060120 adding nears; will replace near1,near2, but not yet since Mark is adding code that calls it with those ###@@@
     """Given basepos (an array of positions),
     compute and return an axis in one of various ways according to 'type' (choices are listed below),
     optionally adjusting the algorithm using aspect_threshhold (when are two dimensions close enough to count as circular),
@@ -264,13 +265,16 @@ def compute_heuristic_axis( basepos, type,
 
     del evals,evecs
 
+    #bruce 060120 adding nears; will replace near1, near2, but for now, accept them all, use in that order:
+    goodvecs = [near1, near2] + list(nears)
+
     # len(axes) now tells us how ambiguous the answer is, and axes are the vectors to make it from.
     if len(axes) == 1:
         # we know it up to a sign.
-        answer = best_sign_on_vector( axes[0], [near1, near2, dflt], numeric_threshhold )
+        answer = best_sign_on_vector( axes[0], goodvecs + [dflt], numeric_threshhold )
     elif len(axes) == 2:
         # the answer is arbitrary within a plane.
-        answer = best_vector_in_plane( axes, [near1, near2], numeric_threshhold )
+        answer = best_vector_in_plane( axes, goodvecs, numeric_threshhold )
         # (this could be None if caller didn't provide orthogonal near1 and near2)
     else:
         assert len(axes) == 3

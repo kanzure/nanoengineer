@@ -903,6 +903,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     def makeRotaryMotor(self, sightline):
         """Creates a Rotary Motor connected to the selected atoms.
         """
+
+        del sightline
+        glpane = self.assy.o #e this should be an argument. to be fixed soon. [bruce 060120]
+        "glpane is used for its point-of-view attributes" #e and after A7 a new "view object" should be passed instead.
                 
         cmd = greenmsg("Rotary Motor: ")
 
@@ -918,7 +922,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_motors import RotaryMotor
         m = RotaryMotor(self.assy)
-        m.findCenter(atoms, sightline)
+        m.findCenterAndAxis(atoms, glpane) # also puts up dialog
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
             #bruce 050415/050701: old code had del(m), perhaps hoping to destroy the jig here,
             # but in fact that statement would do nothing, so I removed it. But it might be good
@@ -935,6 +939,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.
         """
+
+        del sightline
+        glpane = self.assy.o # see comments in RotaryMotor case [bruce 060120]
+        "glpane is used for its point-of-view attributes"
         
         cmd = greenmsg("Linear Motor: ")
         
@@ -950,7 +958,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_motors import LinearMotor
         m = LinearMotor(self.assy)
-        m.findCenter(atoms, sightline)
+        m.findCenterAndAxis(atoms, glpane)
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             env.history.message(cmd + "Cancelled")
             return
