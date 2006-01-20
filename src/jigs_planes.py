@@ -81,6 +81,8 @@ class RectGadget(Jig):
             return self.__computeBBox()
         elif name == 'planeNorm':
             return self.quat.rot(V(0.0, 0.0, 1.0))
+        elif name == 'axis': 
+            return self.quat.rot(V(0.0, 0.0, 1.0))
         elif name == 'right':
             return self.quat.rot(V(1.0, 0.0, 0.0))
         elif name == 'up':
@@ -88,14 +90,16 @@ class RectGadget(Jig):
         else:
             raise AttributeError, 'Grid Plane has no "%s"' % name
 
+
     def getaxis(self):
-        return self.planeNorm # Axis is perpendicular to plane of jig.  Mark 050930
+        return self.axis # axis is normal to plane of RectGadget.  Mark 060120
+      
         
     def move(self, offset):
         '''Move the plane by <offset>, which is a 'V' object. '''
         self.center += offset
 
-        
+    
     def rot(self, q):
         self.quat += q
 
