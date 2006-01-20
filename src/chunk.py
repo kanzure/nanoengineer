@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 chunk.py -- provides class molecule, for a chunk of atoms
 which can be moved and selected as a unit.
@@ -581,10 +581,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     def _get_polyhedron(self):
         return self.poly_eval_evec_axis[0]
-    def _get_eval(self):
-        return self.poly_eval_evec_axis[1]
-    def _get_evec(self):
-        return self.poly_eval_evec_axis[2]
+#bruce 060119 commenting these out since they are not used, though if we want them it's fine to add them back.
+##    def _get_eval(self):
+##        return self.poly_eval_evec_axis[1]
+##    def _get_evec(self):
+##        return self.poly_eval_evec_axis[2]
     def _get_axis(self):
         return self.poly_eval_evec_axis[3]
 
@@ -725,6 +726,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         else:
             self.basepos = []
             # this has wrong type, so requires special code in mol.move etc
+            ###k Could we fix that by just assigning atpos to it (no elements, so should be correct)?? [bruce 060119 question]
 
         assert len(self.basepos) == len(atlist)
         
@@ -2405,6 +2407,8 @@ _nullMol = None
 
 # ==
 
+from geometry import selection_polyhedron, inertia_eigenvectors, compute_heuristic_axis
+
 def shakedown_poly_eval_evec_axis(basepos):
     """Given basepos (an array of atom positions), compute and return (as the
     elements of a tuple) the bounding polyhedron we should draw around these
@@ -2412,58 +2416,38 @@ def shakedown_poly_eval_evec_axis(basepos):
     eigenvectors of the inertia tensor (computed as if all atoms had the same
     mass), and the (heuristically defined) principal axis.
     """
-    # bruce 041106 split this out of the old molecule.shakedown() method,
+    #bruce 041106 split this out of the old molecule.shakedown() method,
     # replaced molecule attrs with simple variables (the ones we return),
     # and renamed self.eval to evals (just in this function) to avoid
     # confusion with python's built-in function eval.
+    #bruce 060119 split it into smaller routines in new file geometry.py.
+
+##    if platform.atom_debug: # DO NOT COMMIT with this code enabled, even subject to atom_debug -- too slow.
+##        import geometry
+##        reload(geometry)
+##        from geometry import selection_polyhedron, inertia_eigenvectors, compute_heuristic_axis
+
+    polyhedron = selection_polyhedron(basepos)
+
+    evals, evec = inertia_eigenvectors(basepos)
+        # These are no longer saved as chunk attrs (since they were not used),
+        # but compute_heuristic_axis would compute this anyway,
+        # so there's no cost to doing it here and remaining compatible
+        # with the pre-060119 version of this routine. This would also permit
+        # a future optimization in computing other kinds of axes for the same
+        # chunk (by passing different options to compute_heuristic_axis),
+        # as we may want to do in setViewParallelTo and setViewNormalTo
+        # (see also the comments about those in compute_heuristic_axis).
+
+    axis = compute_heuristic_axis( basepos, 'chunk',
+                                   evals_evec = (evals, evec), aspect_threshhold = 0.95,
+                                   near1 = V(1,0,0), near2 = V(0,1,0), dflt = V(1,0,0) # prefer axes parallel to screen in default view
+                                  )
+
+    assert axis is not None
+    axis = A(axis) ##k if this is in fact needed, we should probably do it inside compute_heuristic_axis for sake of other callers
+    assert type(axis) is type(V(0.1,0.1,0.1)) # this probably doesn't check element types (that's probably ok)
     
-    if not len(basepos): #bruce 041119 bugfix -- use len()
-        ## wrong: return None, None, None, V(1,0,0)
-        return [], [], [], V(1,0,0) # also a guess, but should be safer
-        #e do we need to figure out better values to return for 0 atoms??
-    
-    # find extrema in many directions
-    xtab = dot(basepos, polyXmat)
-    mins = minimum.reduce(xtab) - 1.8
-    maxs = maximum.reduce(xtab) + 1.8
-
-    polyhedron = makePolyList(cat(maxs,mins))
-
-    # and compute inertia tensor
-    tensor = zeros((3,3),Float)
-    for p in basepos:
-        rsq = dot(p, p)
-        m= - multiply.outer(p, p)
-        m[0,0] += rsq
-        m[1,1] += rsq
-        m[2,2] += rsq
-        tensor += m
-    evals, evec = eigenvectors(tensor)
-
-    # Pick a principal axis: if square or circular, the axle;
-    # otherwise the long axis (this is a heuristic)
-
-    # note: bruce 041112 suspects it was a bug in original source
-    # to say atpos rather than basepos. Evidence: axis as used
-    # in self.getaxis should be in base coords; axis computed
-    # below from evec (when > 2 atoms) is in base coords.
-    if len(basepos)<=1:
-        axis = V(1,0,0)
-    elif len(basepos) == 2:
-        axis = norm(subtract.reduce(basepos))
-    else:
-        ug = argsort(evals)
-        try:
-            if evals[ug[0]]/evals[ug[1]] >0.95:
-                axis = evec[ug[2]]
-            else: axis = evec[ug[0]]
-        except ZeroDivisionError:
-            # this happened in bug 452 item 18. I'll make it safe, then (separately)
-            # fix the bug which causes it in the first place. [bruce 050321]
-            if platform.atom_debug:
-                print_compact_traceback("atom_debug: ignoring ZeroDivisionError: ")
-            axis = evec[ug[0]]
-
     return polyhedron, evals, evec, axis # from shakedown_poly_evals_evec_axis
 
 # ==

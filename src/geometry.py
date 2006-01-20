@@ -11,8 +11,6 @@ History:
 '''
 __author__ = "Josh"
 
-###e needs cvs add
-
 
 # (If you think you need to import Atom, Chunk, etc, you're probably adding code to the wrong file.
 #  The code here should only deal in points, not (for example) Atoms -- let the callers turn atoms
@@ -27,7 +25,8 @@ def selection_polyhedron(basepos):
     a simple bounding polyhedron, convenient for designating the approximate extent of this set of points.
     (This is used on the array of atom and open bond positions in a chunk to designate a selected chunk.)
     """
-    #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py
+    #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py.
+    # Note, it has always had some bad bugs for certain cases, like long diagonal rods.
 
     if not len(basepos):
         return [] # a guess
@@ -142,6 +141,7 @@ def inertia_eigenvectors(basepos, already_centered = False):
        Optional small speedup: if caller knows basepos is centered at the origin, it can say so.
     """
     #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py
+    basepos = A(basepos) # make sure it's a Numeric array
     if not already_centered and len(basepos):
         center = add.reduce(basepos)/len(basepos)
         basepos = basepos - center
@@ -174,6 +174,10 @@ if 0: # self-test; works fine as of 060119
      ])
 
 # ==
+
+def unzip(pairs):
+    "inverse of zip, for a list of pairs. [#e should generalize.] [#e probably there's a simple general implem - transpose?]"
+    return [pair[0] for pair in pairs], [pair[1] for pair in pairs]
 
 def compute_heuristic_axis( basepos, type,
                             evals_evec = None, already_centered = False,
@@ -226,43 +230,41 @@ def compute_heuristic_axis( basepos, type,
     valvecs = zip(evals, evecs)
     valvecs.sort()
     
-    evals, evecs = unzip(valvecs) ###k ??
+    evals, evecs = unzip(valvecs) # (custom helper function, inverse of zip in this case)
     
-    ug = argsort(evals)
-    assert evals[ug[0]] <= evals[ug[1]] <= evals[ug[2]]
+    assert evals[0] <= evals[1] <= evals[2]
     
-    # evals[ug[0]] is now the lowest-valued evals[i] (i.e. longest axis, heuristically), evals[ug[2]] the highest.
-    # (The heuristic relating this to axis-length assumes a uniform density of points over some volume or its smooth-enough surface.)
+    # evals[0] is now the lowest-valued evals[i] (i.e. longest axis, heuristically), evals[2] the highest.
+    # (The heuristic relating this to axis-length assumes a uniform density of points
+    #  over some volume or its smooth-enough surface.)
 
     if type == 'chunk':
-        if aspect_too_close( evals[ug[0]], evals[ug[1]], aspect_threshhold ):
+        if aspect_too_close( evals[0], evals[1], aspect_threshhold ):
             # sufficiently circular-or-square pancake/disk/slab/plane
-            type = 'normal'
+            type = 'normal' # return the axle of a wheel
         else:
             # anything else
-            type = 'parallel'
+            type = 'parallel' # return the long axis
         pass
     
     if type == 'normal':
-        # we want the shortest axis == largest eval; try axes in this order (largest eval first):
-        order = [2,1,0]
+        # we want the shortest axis == largest eval; try axis (evec) with largest eval first:
+        evals.reverse()
+        evecs.reverse()
     elif type == 'parallel':
-        # we want longest axis == shortest eval
-        order = [0,1,2]
+        # we want longest axis == shortest eval; order is already correct
+        pass
     else:
         assert 0, "unrecognized type %r" % (type,)
-
-    a,b,c = order
     
-    axes = [ evec[ug[a]] ]
-    for i in [b,c]: # order of these matters, I think
-        if aspect_too_close( evals[ug[a]], evals[ug[i]], aspect_threshhold ):
-            axes.append( evec[ug[i]] )
+    axes = [ evecs[0] ]
+    for i in [1,2]: # order of these matters, I think
+        if aspect_too_close( evals[0], evals[i], aspect_threshhold ):
+            axes.append( evecs[i] )
 
-    del a,b,c,evals,evec,ug,order
+    del evals,evecs
 
     # len(axes) now tells us how ambiguous the answer is, and axes are the vectors to make it from.
-
     if len(axes) == 1:
         # we know it up to a sign.
         answer = best_sign_on_vector( axes[0], [near1, near2, dflt], numeric_threshhold )
@@ -273,14 +275,15 @@ def compute_heuristic_axis( basepos, type,
     else:
         assert len(axes) == 3
         # the answer is completely arbitrary
-        return dflt
-    pass # end of compute_heuristic_axis
+        answer = dflt
+    return answer # end of compute_heuristic_axis
+
 
 # == helper functions for compute_heuristic_axis (likely to also be generally useful)
 
 def aspect_too_close( dim1, dim2, aspect_threshhold ):
     "Are dim1 and dim2 (positive or zero real numbers) as close to 1:1 ratio as aspect_threshhold is to 1.0?"
-    # shouldn't matter whether aspect_threshhold or 1/aspect_threshhold is passed
+    # make sure it doesn't matter whether aspect_threshhold or 1/aspect_threshhold is passed
     aspect_threshhold = float(aspect_threshhold)
     if aspect_threshhold > 1:
         aspect_threshhold = 1.0 / aspect_threshhold
@@ -303,6 +306,14 @@ def best_sign_on_vector(vec, goodvecs, numeric_threshhold):
                 # it helps!
                 return s * vec
     return vec
+
+def sign_with_threshhold( num, thresh ):
+    """Return -1, 0, or 1 as num is << 0, close to 0, or >> 0,
+    where "close to 0" means abs(num) <= thresh.
+    """
+    if abs(num) <= thresh:
+        return 0
+    return sign(num)
 
 def best_vector_in_plane( axes, goodvecs, numeric_threshhold ):
     """axes is a list of two orthonormal vectors defining a plane,
