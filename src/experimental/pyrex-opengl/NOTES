@@ -1,0 +1,8 @@
+I'm working primarily on a Mandrake 10.1 box. I hadn't installed
+python-numeric-devel from the Mandrake DVD, so I was using headers and
+libraries from Numeric 24.0b2 instead of Numeric 23.1 and that messed
+me up for a while. There was a mismatch in the size of the struct for
+a Numeric array.
+
+Now that's all taken care of, and the Numeric array test works, and
+the connectivity to OpenGL also works, at least on Linux.

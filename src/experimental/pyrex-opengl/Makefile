@@ -6,7 +6,6 @@ LDFLAGS=-Wl,--output-def,tryit.def -L. -L"C:/Dev-Cpp/lib" \
 	-lpython23 -lopengl32
 PYREXC=python c:/Python23/Scripts/pyrexc.py
 TARGET=quux.dll
-LIBPYTHONDEP=libpython23.a
 else
 # Unix, and maybe the Mac
 # It turns out I need /usr/X11R6/(include,lib) to get the stuff for
@@ -17,7 +16,6 @@ CFLAGS+=-I/usr/X11R6/include -I/usr/include/python2.3
 LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
 PYREXC=pyrexc
 TARGET=quux.so
-LIBPYTHONDEP=
 endif
 
 all: $(TARGET)
@@ -30,8 +28,17 @@ quux.c: quux.pyx quux_help.c
 
 quux.o: quux.c
 
-distutils:
+# Unix, Mac can use distutils
+quux.so: quux.pyx quux_help.c
 	python setup.py build_ext --inplace
 
-$(TARGET): quux.o $(LIBPYTHONDEP)
-	$(CC) -shared -o $(TARGET) quux.o $(LDFLAGS)
+# Windows can't use distutils (avoid MSVC, use Dev-Cpp)
+quux.dll: quux.o libpython23.a
+	$(CC) -shared -o quux.dll quux.o $(LDFLAGS)
+
+rebuild:
+	gcc -pthread -fno-strict-aliasing -DNDEBUG -O2 -fomit-frame-pointer -pipe -march=i586 -mtune=pentiumpro -g -fPIC -I/usr/include/python2.3 -c quux.c -o build/temp.linux-i686-2.3/quux.o
+	gcc -pthread -shared build/temp.linux-i686-2.3/quux.o -o quux.so -L/usr/X11R6/lib -lGL
+
+test: $(TARGET)
+	python -c "import quux; quux.test()"
