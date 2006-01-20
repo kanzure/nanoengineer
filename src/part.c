@@ -938,6 +938,8 @@ hybridizationString(enum hybridization h)
         return "sp";
     case sp2:
         return "sp2";
+    case sp2_g:
+        return "sp2_g";
     case sp3:
         return "sp3";
     case sp3d:

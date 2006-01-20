@@ -471,6 +471,7 @@ generateGenericBendData(char *bendName,
     theta0 = Pi;
     break;
   case sp2:
+  case sp2_g:
     theta0 = 2.0 * Pi / 3.0;
     break;
   case sp3:

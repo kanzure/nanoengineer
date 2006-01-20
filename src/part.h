@@ -5,6 +5,7 @@
 enum hybridization {
   sp,
   sp2,
+  sp2_g, // graphitic
   sp3,
   sp3d
 };

@@ -438,6 +438,8 @@ readMMP(char *filename)
             hybridization = sp3d;
           } else if (!strcmp(tok, "sp3")) {
             hybridization = sp3;
+          } else if (!strcmp(tok, "sp2(graphitic)")) {
+            hybridization = sp2_g;
           } else if (!strcmp(tok, "sp2")) {
             hybridization = sp2;
           } else if (!strcmp(tok, "sp")) {
