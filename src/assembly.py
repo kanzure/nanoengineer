@@ -896,19 +896,22 @@ class assembly(GenericDiffTracker_API_Mixin):
 
     # ==
 
-    def become_state(self, state): #bruce 060117 kluge
+    def become_state(self, state): #bruce 060117 kluge 
         from undo_archive import assy_become_state
-        return assy_become_state(self, state)
+        return assy_become_state(self, state) # this subroutine will probably become a method of class assembly
 
     def clear(self): #bruce 060117 kluge
         from undo_archive import assy_clear
-        return assy_clear(self)
+        return assy_clear(self) # this subroutine will probably become a method of class assembly
 
     def editUndo(self):
         self.undo_manager.editUndo()
 
     def editRedo(self):
         self.undo_manager.editRedo()
+
+    def undo_checkpoint_before_command(self, cmdname = ""):
+        self.undo_manager.undo_checkpoint_before_command(cmdname)
     
     pass # end of class assembly
 

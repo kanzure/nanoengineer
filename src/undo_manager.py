@@ -17,9 +17,11 @@ from debug import register_debug_menu_command_maker
 import platform
 
 from undo_archive import AssyUndoArchive #060117 revised
+import undo_archive # for debug_undo2
 from constants import noop
 import env
 from HistoryWidget import orangemsg, greenmsg, redmsg
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
 class UndoManager:
     """[abstract class] [060117 addendum: this docstring is mostly obsolete or nim]
@@ -54,7 +56,19 @@ class AssyUndoManager(UndoManager):
         return
 
     def menu_cmd_checkpoint(self):
-        self.archive.checkpoint()
+        self.archive.checkpoint( cptype = 'user_explicit' )
+
+    def undo_checkpoint_before_command(self, cmdname = ""): #e should it be renamed begin_cmd_checkpoint()??
+        auto_checkpointing = debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False) # recheck the pref every time
+        if not auto_checkpointing:
+            return
+        # (everything before this point must be kept fast)
+        cmdname = cmdname or "command"
+        if undo_archive.debug_undo2:
+            env.history.message("debug_undo2: begin_cmd_checkpoint for %r" % (cmdname,))
+        # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
+        self.archive.checkpoint( cptype = 'begin_cmd' )
+        return
 
     def undo_redo_ops(self):
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
@@ -63,9 +77,7 @@ class AssyUndoManager(UndoManager):
         redos = []
         d1 = {'Undo':undos, 'Redo':redos}
         for op in ops:
-            ## optype == op.type
-            desc = op.menu_desc()
-            optype = desc.split()[0] # should be 'Undo' or 'Redo'
+            optype = op.optype()
             d1[optype].append(op) # sort ops by type
         return undos, redos
     
@@ -103,7 +115,7 @@ class AssyUndoManager(UndoManager):
         if platform.is_macintosh():
             # kluge; should do this sooner! but this might turn out to happen as soon as user can see it...
             win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # was "Ctrl+Y"
-        for ops, action, optype in [(undos, undo_mitem, 'Undo'), (redos, redo_mitem, 'Redo')]:
+        for ops, action, optype in [(undos, undo_mitem, 'Undo'), (redos, redo_mitem, 'Redo')]: #e or could grab op.optype()?
             if ops:
                 action.setEnabled(True)
                 assert len(ops) == 1 #e there will always be just one for now

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 depositMode.py -- Build mode.
 
@@ -1146,6 +1146,10 @@ class depositMode(basicMode):
         If cursor is on an atom, drag it (and any singlets or monovalent bonded to it) around.
         If cursor is on a bond, change the bond to a new bond type.
         """
+
+        if 1: #bruce 060118 undo-debugging code; should be safe, but cmdname is not yet correct (needs to be set later)
+            self.o.assy.undo_checkpoint_before_command(cmdname = "Build")
+        
         # mark 051214 revised docstring
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
