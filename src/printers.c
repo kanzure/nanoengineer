@@ -33,8 +33,7 @@ countOutputColumns(struct jig *j)
     }
 }
 
-void traceHeader(char *inputFileName, char *outputFileName, char *traceFileName, 
-                 struct part *part, int numFrames, int stepsPerFrame, double temperature)
+void traceHeader(struct part *part)
 {
     int i, ncols;
     struct jig *j;
@@ -45,20 +44,49 @@ void traceHeader(char *inputFileName, char *outputFileName, char *traceFileName,
     
     write_traceline("# nanoENGINEER-1.com Simulator Trace File, Version 050310\n");
     write_traceline("#\n");
+
+    if (CommandLine != NULL && CommandLine[0] != '\0') {
+        write_traceline("# Command Line: %s\n", CommandLine);
+    }
+    
     // asctime provides '\n' so we needn't add one
     write_traceline("# Date and Time: %s", asctime(ptr));
-    write_traceline("# Input File:%s\n", inputFileName);
-    write_traceline("# Output File: %s\n", outputFileName);
-    write_traceline("# Trace File: %s\n", traceFileName);
-    write_traceline("# Number of Atoms: %d\n", part->num_atoms);
-
+    if (InputFileName != NULL && InputFileName[0] != '\0') {
+        write_traceline("# Input File: %s\n", InputFileName);
+    }
+    if (OutputFileName != NULL && OutputFileName[0] != '\0') {
+        write_traceline("# Output File: %s\n", OutputFileName);
+    }
+    if (TraceFileName != NULL && TraceFileName[0] != '\0') {
+        write_traceline("# Trace File: %s\n", TraceFileName);
+    }
     if (IDKey != NULL && IDKey[0] != '\0') {
         write_traceline("# IDKey: %s\n", IDKey);
     }
-    write_traceline("# Number of Frames: %d\n", numFrames);
-    write_traceline("# Steps per Frame: %d\n", stepsPerFrame);
-    write_traceline("# Temperature: %.1f\n", temperature);
+    if (ToMinimize) {
+        write_traceline("#\n");
+        write_traceline("# Energy Minimization.\n");
+        write_traceline("#\n");
+        write_traceline("# iteration    RMS force        maximum force\n");
+        write_traceline("#\n");
+        return;
+    }
+
     write_traceline("# \n");
+    write_traceline("# Dynamics run.\n");
+    write_traceline("# \n");
+    write_traceline("# Number of Frames: %d\n", NumFrames);
+    write_traceline("# Steps per Frame: %d\n", IterPerFrame);
+    write_traceline("# Temperature: %.1f\n", Temperature);
+
+    if (part == NULL) {
+        write_traceline("# Hmmmm, no part supplied.\n");
+        return;
+    }
+
+    write_traceline("# Number of Atoms: %d\n", part->num_atoms);
+    write_traceline("# \n");
+
     
     ncols = 0;
     
@@ -66,7 +94,7 @@ void traceHeader(char *inputFileName, char *outputFileName, char *traceFileName,
         ncols += countOutputColumns(part->jigs[i]);
     }
         
-    write_traceline("# %d columns:\n", ncols);
+    write_traceline("# %d column%s:\n", ncols + 1, ncols == 0 ? "" : "s");
     
     for (i=0; i<part->num_jigs; i++) {
         j = part->jigs[i];

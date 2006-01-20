@@ -21,6 +21,8 @@ struct xyz Center, Bbox[2];
 
 int Iteration;
 
+char *CommandLine;
+
 // definitions for command line args
 
 int ToMinimize;
@@ -73,6 +75,7 @@ reinit_globals(void)
     debug_flags = 0;
     Interrupted = 0;
     Iteration = 0;
+    CommandLine = NULL;
     ToMinimize = 0;
     IterPerFrame = 10;
     NumFrames = 100;

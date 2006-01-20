@@ -333,8 +333,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     // initializeBondTable(); // this had to be done in initsimhelp instead [bruce 060101]
     // end of section moved by bruce 060101
 
-    traceHeader(InputFileName, OutputFileName, TraceFileName, 
-		part, NumFrames, IterPerFrame, Temperature);
+    traceHeader(part);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));

@@ -10,6 +10,8 @@ extern struct xyz Bbox[2];
 
 extern int Iteration;
 
+extern char *CommandLine;
+
 // definitions for command line args
 
 extern int ToMinimize;

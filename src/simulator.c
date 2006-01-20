@@ -174,8 +174,6 @@ main(int argc, char **argv)
     double printPotentialLimit = 200; // pm
     char *fileNameTemplate = NULL;
     char *outputFilename = NULL;
-    char *traceFilename = NULL;
-    char *commandLine;
 	
     initializeBondTable();
     reinit_globals();
@@ -186,7 +184,7 @@ main(int argc, char **argv)
 
     //debug_flags = D_GRADIENT_FROM_POTENTIAL;
     
-    commandLine = assembleCommandLine(argc, argv);
+    CommandLine = assembleCommandLine(argc, argv);
     while ((opt = getopt_long(argc, argv,
 			    "hnmEi:f:s:t:xXONI:K:rD:o:q:B:",
 			    option_vec, NULL)) != -1) {
@@ -263,7 +261,7 @@ main(int argc, char **argv)
 	    outputFilename = optarg;
 	    break;
 	case 'q':
-	    traceFilename = optarg;
+	    TraceFileName = optarg;
 	    break;
 	case 'B':
 	    BaseFileName = optarg;
@@ -324,10 +322,10 @@ main(int argc, char **argv)
         OutputFileName = replaceExtension(fileNameTemplate, DumpAsText ? "xyz" : "dpb");
     }
 
-    if (traceFilename) {
-        TraceFile = fopen(traceFilename, "w");
+    if (TraceFileName) {
+        TraceFile = fopen(TraceFileName, "w");
         if (TraceFile == NULL) {
-            perror(traceFilename);
+            perror(TraceFileName);
             exit(1);
         }
     } else {
@@ -337,7 +335,6 @@ main(int argc, char **argv)
             exit(1);
         }
     }
-    fprintf(TraceFile, "# %s\n", commandLine);
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
@@ -367,8 +364,7 @@ main(int argc, char **argv)
         exit(0);
     }
 
-    traceHeader(InputFileName, OutputFileName, TraceFileName, 
-                part, NumFrames, IterPerFrame, Temperature);
+    traceHeader(part);
 
     if  (ToMinimize) {
 	NumFrames = max(NumFrames,(int)sqrt((double)part->num_atoms));

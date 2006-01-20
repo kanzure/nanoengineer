@@ -159,11 +159,12 @@ install-linux: install extensions
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
 	rm -f simulator moldisp molsim physeng sim.so sim.c
-	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz
+	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
-	rm -f tests/minimize/*.altout
-	rm -f tests/minimize/*.diff
-	rm -f tests/dynamics/*.diff
+	rm -f tests/*/*.altout
+	rm -f tests/*/*.diff
+	rm -f tests/*/*.xyz
+	rm -f tests/*/*.dpb
 
 dist_clean: clean
 	rm -f TAGS bonds.h bends.h
