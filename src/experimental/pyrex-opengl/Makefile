@@ -1,4 +1,7 @@
+UNAME := $(shell uname)
+
 ifeq ($(OS),Windows_NT)
+# Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-g -Wmissing-prototypes
 CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
@@ -6,16 +9,24 @@ LDFLAGS=-Wl,--output-def,tryit.def -L. -L"C:/Dev-Cpp/lib" \
 	-lpython23 -lopengl32
 PYREXC=python c:/Python23/Scripts/pyrexc.py
 TARGET=quux.dll
+# End of Windows stuff
 else
-# Unix, and maybe the Mac
+# Start Unix/Mac stuff
+ifeq ($(strip $(UNAME)),Darwin)
+# Mac
+PYREXC=/Library/Python/2.3/Pyrex-0.9.3.1/bin/pyrexc
+else
+# Unix
+PYREXC=pyrexc
+endif
+CC=gcc
 # It turns out I need /usr/X11R6/(include,lib) to get the stuff for
 # OpenGL. This is NOT a dependency on X11 proper.
-CC=gcc
-CFLAGS=-g -Wmissing-prototypes
-CFLAGS+=-I/usr/X11R6/include -I/usr/include/python2.3
+CFLAGS=-I/usr/X11R6/include -I/usr/include/python2.3
 LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
 PYREXC=pyrexc
 TARGET=quux.so
+# End of Unix/Mac stuff
 endif
 
 all: $(TARGET)
