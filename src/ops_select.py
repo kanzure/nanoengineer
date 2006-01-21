@@ -32,33 +32,29 @@ class ops_select_Mixin:
     #  history messages, etc]
 
     def getSelectedJigs(self):
-        '''Returns a list of all the currently selected jigs. 
-        Currently, only 'RectGadget' and 'Motor' jigs are returned.
+        '''Returns a list of all the currently selected jigs.
         '''
-        # This needs to return all jigs that are selected.  Mark.
-        
+        from jigs import Jig
         selJigs = []
-        
-        from jigs_planes import RectGadget
-        from jigs_motors import Motor
         def addSelectedJig(obj, jigs=selJigs):
-            # Adding AtomSet to this list will probably generate a bug since this is called by 
-            # getMovables() and AtomSets are not movable. Mark 060120.
-            if obj.picked and (isinstance(obj, RectGadget) or (isinstance(obj, Motor))):# or (isinstance(obj, AtomSet))):
-                jigs += [obj]
+            if obj.picked and isinstance(obj, Jig):
+                    jigs += [obj]
         
         self.topnode.apply2all(addSelectedJig)
-        
         return selJigs
 
     
     def getMovables(self):
-        '''Returns a list of the selected objects (chunks and jigs) that are movable.
+        '''Return the list of movable objects, including selected chunks and jigs.
         '''
+        selected_jigs = self.getSelectedJigs()
+        movable_jigs = []
         
-        # Careful - problem calling getSelectedJigs() when it gets fixed and returns all selected
-        # jigs, including unmovable jigs.  mark 060120.
-        return self.selmols + self.getSelectedJigs()    
+        for j in selected_jigs[:]:
+            if j.is_movable:
+                movable_jigs += [j]
+        
+        return self.selmols + movable_jigs
     
 
     def selectAll(self):
