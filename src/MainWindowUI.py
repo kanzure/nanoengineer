@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jan 18 21:56:44 2006
+# Created: Fri Jan 20 21:12:10 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6862,7 +6862,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -7067,6 +7067,7 @@ class MainWindow(QMainWindow):
         self.setViewOrthoAction.addTo(self.viewMenu)
         self.viewMenu.insertSeparator()
         self.setViewNormalToAction.addTo(self.viewMenu)
+        self.setViewParallelToAction.addTo(self.viewMenu)
         self.viewMenu.insertSeparator()
         self.setViewFrontAction.addTo(self.viewMenu)
         self.setViewBackAction.addTo(self.viewMenu)
@@ -7753,10 +7754,10 @@ class MainWindow(QMainWindow):
         self.moveThetaMinusAction.setMenuText(self.__tr("Rotate Theta (-)"))
         self.moveThetaPlusAction.setText(self.__tr("Rotate Theta (+)"))
         self.moveThetaPlusAction.setMenuText(self.__tr("Rotate Theta (+)"))
-        self.setViewOppositeAction.setText(self.__tr("Opposite"))
-        self.setViewOppositeAction.setMenuText(self.__tr("Opposite"))
-        self.setViewOppositeAction.setToolTip(self.__tr("Opposite View"))
-        self.setViewOppositeAction.setStatusTip(self.__tr("Opposite View"))
+        self.setViewOppositeAction.setText(self.__tr("Rotate View 180"))
+        self.setViewOppositeAction.setMenuText(self.__tr("Rotate View 180"))
+        self.setViewOppositeAction.setToolTip(self.__tr("Rotate View 180"))
+        self.setViewOppositeAction.setStatusTip(self.__tr("Rotate View 180"))
         self.modifyMMKitAction.setText(self.__tr("Molecular Modeling Kit"))
         self.modifyMMKitAction.setToolTip(self.__tr("Modeling Kit"))
         self.helpMouseControlsAction.setText(self.__tr("Mouse Controls..."))
@@ -7779,8 +7780,8 @@ class MainWindow(QMainWindow):
         self.selectContractAction.setAccel(self.__tr("Ctrl+Shift+D"))
         self.jigsAtomSetAction.setText(self.__tr("Atom Set"))
         self.fileSaveSelectionAction.setText(self.__tr("Save Selection..."))
-        self.setViewPlus90Action.setText(self.__tr("Rotate +90"))
-        self.setViewMinus90Action.setText(self.__tr("Rotate -90"))
+        self.setViewPlus90Action.setText(self.__tr("Rotate View +90"))
+        self.setViewMinus90Action.setText(self.__tr("Rotate View -90"))
         self.jigsDistanceAction.setText(self.__tr("Measure Distance"))
         self.jigsDistanceAction.setMenuText(self.__tr("Measure Distance"))
         self.jigsAngleAction.setText(self.__tr("Measure Angle"))
@@ -7791,10 +7792,10 @@ class MainWindow(QMainWindow):
         self.insertNanotubeAction.setToolTip(self.__tr("Nanotube Generator"))
         self.helpGraphicsCardAction.setText(self.__tr("Graphics Card Info"))
         self.helpGraphicsCardAction.setMenuText(self.__tr("Graphics Card Info..."))
-        self.setViewNormalToAction.setText(self.__tr("Normal To"))
-        self.setViewNormalToAction.setToolTip(self.__tr("Normal To"))
-        self.setViewParallelToAction.setText(self.__tr("Parallel To"))
-        self.setViewParallelToAction.setToolTip(self.__tr("Parallel To"))
+        self.setViewNormalToAction.setText(self.__tr("Set View Normal To"))
+        self.setViewNormalToAction.setToolTip(self.__tr("Set View Normal To"))
+        self.setViewParallelToAction.setText(self.__tr("Set View Parallel To"))
+        self.setViewParallelToAction.setToolTip(self.__tr("Set View Parallel To"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))

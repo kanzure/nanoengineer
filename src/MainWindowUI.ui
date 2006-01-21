@@ -82,6 +82,7 @@
         <action name="setViewOrthoAction"/>
         <separator/>
         <action name="setViewNormalToAction"/>
+        <action name="setViewParallelToAction"/>
         <separator/>
         <action name="setViewFrontAction"/>
         <action name="setViewBackAction"/>
@@ -450,7 +451,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1087</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3794,16 +3795,16 @@
             <iconset>image132</iconset>
         </property>
         <property name="text">
-            <string>Opposite</string>
+            <string>Rotate View 180</string>
         </property>
         <property name="menuText">
-            <string>Opposite</string>
+            <string>Rotate View 180</string>
         </property>
         <property name="toolTip">
-            <string>Opposite View</string>
+            <string>Rotate View 180</string>
         </property>
         <property name="statusTip">
-            <string>Opposite View</string>
+            <string>Rotate View 180</string>
         </property>
     </action>
     <action>
@@ -3962,7 +3963,7 @@
             <iconset>image139</iconset>
         </property>
         <property name="text">
-            <string>Rotate +90</string>
+            <string>Rotate View +90</string>
         </property>
     </action>
     <action>
@@ -3973,7 +3974,7 @@
             <iconset>image140</iconset>
         </property>
         <property name="text">
-            <string>Rotate -90</string>
+            <string>Rotate View -90</string>
         </property>
     </action>
     <action>
@@ -4051,10 +4052,10 @@
             <iconset>image145</iconset>
         </property>
         <property name="text">
-            <string>Normal To</string>
+            <string>Set View Normal To</string>
         </property>
         <property name="toolTip">
-            <string>Normal To</string>
+            <string>Set View Normal To</string>
         </property>
     </action>
     <action>
@@ -4065,10 +4066,10 @@
             <iconset>image146</iconset>
         </property>
         <property name="text">
-            <string>Parallel To</string>
+            <string>Set View Parallel To</string>
         </property>
         <property name="toolTip">
-            <string>Parallel To</string>
+            <string>Set View Parallel To</string>
         </property>
     </action>
 </actions>
