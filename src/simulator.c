@@ -175,7 +175,6 @@ main(int argc, char **argv)
     char *fileNameTemplate = NULL;
     char *outputFilename = NULL;
 	
-    initializeBondTable();
     reinit_globals();
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
         perror("signal(SIGTERM)");
@@ -335,6 +334,7 @@ main(int argc, char **argv)
             exit(1);
         }
     }
+    initializeBondTable();
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
 

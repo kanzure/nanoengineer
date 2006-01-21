@@ -50,7 +50,6 @@ cdef extern from "simhelp.c":
     setFrameCallbackFunc(PyObject)
     getFrame_c()
     initsimhelp()
-    readPart()
     void dumpPart()
     everythingElse()
     cdef char *structCompareHelp()
@@ -244,7 +243,6 @@ class Minimize(BaseSimulator):
         self.PrintFrameNums = 0
         InputFileName = fname
         initsimhelp()
-        readPart()
 
 class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to BaseSimulator
     def __init__(self, fname):
@@ -255,7 +253,6 @@ class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to
         self.PrintFrameNums = 0
         InputFileName = fname
         initsimhelp()
-        readPart()
 
 def setErrorString(str):
     errString = str

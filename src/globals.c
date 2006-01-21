@@ -47,6 +47,7 @@ FILE *TraceFile;
 int Count;
 
 int ExcessiveEnergyWarning;
+int ExcessiveEnergyWarningThisFrame;
 int ComputedParameterWarning;
 int InterruptionWarning;
 
@@ -98,6 +99,7 @@ reinit_globals(void)
     Count = 0;
 
     ExcessiveEnergyWarning = 0;
+    ExcessiveEnergyWarningThisFrame = 0;
     ComputedParameterWarning = 0;
     InterruptionWarning = 0;
 

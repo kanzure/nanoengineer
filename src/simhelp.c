@@ -28,7 +28,6 @@ char __author__[] = "Will";
 #include "simulator.h"
 
 PyObject * initsimhelp(void);
-PyObject * readPart(void);
 PyObject * dumpPart(void);
 PyObject *everythingElse(void);
 char * structCompareHelp(void);
@@ -90,7 +89,6 @@ finish_python_call(PyObject *retval)
 void
 reinitSimGlobals(PyObject *sim)
 {
-    initializeBondTable();
     reinit_globals();
     mostRecentSimObject = sim;
 }
@@ -284,25 +282,6 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     PyErr_SetString(PyExc_RuntimeError, py_exc_str); return NULL; }
 
 PyObject *
-readPart(void)
-{
-    // wware 060109  python exception handling
-    start_python_call();
-    part = readMMP(InputFileName);
-    if (part == NULL) {
-	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
-	PYBAIL();
-    }
-    updateVanDerWaals(part, NULL, part->positions);
-    PYBAIL();
-    generateStretches(part);
-    PYBAIL();
-    generateBends(part);
-    PYBAIL();
-    return finish_python_call(Py_None);
-}
-
-PyObject *
 dumpPart(void)
 {
     start_python_call();
@@ -327,6 +306,23 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	}
 	fprintf(TraceFile, "# %s\n", "run from pyrex interface"); // like printing the commandLine
     }
+
+    // this has to happen after opening the trace file and setting up
+    // trace callbacks, since we might emit warnings when we do this.
+    initializeBondTable();
+
+    part = readMMP(InputFileName);
+    if (part == NULL) {
+	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
+	PYBAIL();
+    }
+    updateVanDerWaals(part, NULL, part->positions);
+    PYBAIL();
+    generateStretches(part);
+    PYBAIL();
+    generateBends(part);
+    PYBAIL();
+
     // ##e should print options set before run, but it's too early to do that in this code
 
     if (IterPerFrame <= 0) IterPerFrame = 1;

@@ -99,8 +99,8 @@ oneDynamicsFrame(struct part *part,
 	    vmul2c(f,force[j],part->atoms[j]->inverseMass); // inverseMass = Dt*Dt/mass
 
 	    if (!ExcessiveEnergyWarning && vlen(f)>0.15) { // 0.15 is just below H flyaway
-		WARNING3("Excessive force %.6f in iteration %d on atom %d\n", vlen(f), Iteration, j+1);
-                ExcessiveEnergyWarning = 1;
+		WARNING3("Excessive force %.6f in iteration %d on atom %d", vlen(f), Iteration, j+1);
+                ExcessiveEnergyWarningThisFrame++;
 	    }
 	    
 	    vadd(newPositions[j],f);
@@ -144,6 +144,9 @@ oneDynamicsFrame(struct part *part,
 	}
 	
 	tmp=oldPositions; oldPositions=positions; positions=newPositions; newPositions=tmp;
+        if (ExcessiveEnergyWarningThisFrame > 0) {
+            ExcessiveEnergyWarning = 1;
+        }
     }
     
     for (j=0; j<part->num_atoms; j++) {

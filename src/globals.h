@@ -36,7 +36,12 @@ extern FILE *TraceFile;
 extern int Count;
 
 // have we warned the user about too much energy in a dynamics run?
+// Each warning location warns only if ExcessiveEnergyWarning is zero.
+// If it warns, it increments ExcessiveEnergyWarningThisFrame.  After
+// each dynamics frame, ExcessiveEnergyWarning is set if
+// ExcessiveEnergyWarningThisFrame is non-zero.
 extern int ExcessiveEnergyWarning;
+extern int ExcessiveEnergyWarningThisFrame;
 
 // have we warned the user about using a generic/guessed force field parameter?
 extern int ComputedParameterWarning;

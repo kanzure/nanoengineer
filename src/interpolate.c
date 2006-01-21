@@ -169,7 +169,8 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
                          double r0,
                          int searchIncrement,
                          int searchLimit,
-                         double minPotential)
+                         double minPotential,
+                         char *name)
 {
   double start = t->start;
   double scale = t->scale;
@@ -188,14 +189,8 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
     }
     k += searchIncrement;
   }
-  if (!ExcessiveEnergyWarning) {
-    WARNING2("ExcessiveEnergyLevel %e exceeds interpolation table limits at %e",
-             ExcessiveEnergyLevel, potential);
-    ExcessiveEnergyWarning = 1;
-  }
-  if (minPotential == 0.0 && searchIncrement > 0) {
-    fprintf(stderr, "potential: %e\n", potential);
-  }
+  WARNING3("ExcessiveEnergyLevel %e exceeds interpolation table limits at %e for %s",
+           ExcessiveEnergyLevel, potential, name);
   return searchLimit;
 }
 
@@ -225,9 +220,9 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, rmin, scale, stretch);
   fillInterpolationTable(&stretch->gradientLippincottMorse, gradientLippincottMorse, rmin, scale, stretch);
   stretch->maxPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->potentialLippincottMorse,
-                                                            stretch->r0, 1, TABLEN, 0.0);
+                                                            stretch->r0, 1, TABLEN, 0.0, stretch->bondName);
   stretch->minPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->potentialLippincottMorse,
-                                                            stretch->r0, -1, 0, 0.0);
+                                                            stretch->r0, -1, 0, 0.0, stretch->bondName);
   
 }
 
@@ -288,7 +283,8 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   fillInterpolationTable(&vdw->gradientBuckingham, gradientBuckingham, start, scale, vdw);
   vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->potentialBuckingham,
                                                         vdw->rvdW, -1, 0,
-                                                        potentialBuckingham(vdw->rvdW, vdw));
+                                                        potentialBuckingham(vdw->rvdW, vdw),
+                                                        vdw->vdwName);
 }
 
 static void
