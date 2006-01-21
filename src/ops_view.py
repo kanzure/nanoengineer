@@ -139,25 +139,27 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         jigs = self.assy.getSelectedJigs()
         
         if len(jigs) == 1 and len(atoms) == 0:
-            v = jigs[0].getaxis()
+            axis = jigs[0].getaxis()
         elif len(atoms) >= 3:
-            v = self.getaxis(atoms)
+            pos = A( map( lambda a: a.posn(), atoms ) )
+            from geometry import compute_heuristic_axis
+            axis = compute_heuristic_axis( pos, 'normal' )
         else:
             msg = redmsg("Please select at least 3 atoms or a jig.")
             env.history.message(cmd + msg)
             return
-            
-        if vlen(v) < 0.0001: # Atoms are in a line or on top of each other.
-            info = 'The selected atoms are in a line or on top of each other.  No change in view.'
-            env.history.message(cmd + info)
+
+        if not axis:
+            msg = orangemsg( "Warning: Normal axis cannot be determined. No change in view." )
+            env.history.message(cmd + msg)
             return
-        
-        # If v is pointing into the screen, negate (reverse) v.
-        if dot(v, self.glpane.lineOfSight) > 0:
-            v = -v
+
+        # If axis is pointing into the screen, negate (reverse) axis.
+        if dot(axis, self.glpane.lineOfSight) > 0:
+            axis = -axis
         
         # Compute the destination quat (q2).
-        q2 = Q(V(0,0,1), v)
+        q2 = Q(V(0,0,1), axis)
         q2 = q2.conj()
         
         self.glpane.rotateView(q2)
