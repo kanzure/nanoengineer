@@ -25,6 +25,8 @@ from jigs import Jig
 class Motor(Jig):
     "superclass for Motor jigs"
     axis = V(0,0,0) #bruce 060120; redundant with some subclass inits; some code could handle None here, but I'm not sure it all could.
+    is_movable = True #mark 060120
+    
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Jig.__init__(self, assy, atomlist)
@@ -139,7 +141,7 @@ class Motor(Jig):
         self.center += offset
     
     def rot(self, q):
-        self.quat += q
+        self.axis = q.rot(self.axis) #mark 060120.
         
     def posn(self):
         return self.center
