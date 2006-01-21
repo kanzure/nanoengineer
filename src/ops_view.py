@@ -133,30 +133,42 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
-        cmd = greenmsg("Orient View Normal To: ")
+        cmd = greenmsg("Set View Normal To: ")
         
-        atoms = self.assy.selatoms_list()
+        chunks = self.assy.selmols
         jigs = self.assy.getSelectedJigs()
+        atoms = self.assy.selatoms_list()
         
-        if len(jigs) == 1 and len(atoms) == 0:
-            axis = jigs[0].getaxis()
-        elif len(atoms) >= 3:
-            pos = A( map( lambda a: a.posn(), atoms ) )
-            from geometry import compute_heuristic_axis
-            axis = compute_heuristic_axis( pos, 'normal' )
-        else:
-            msg = redmsg("Please select at least 3 atoms or a jig.")
+        if len(chunks) == 1 and len(atoms) == 0:
+            # Even though chunks have an axis, it is not necessarily the same
+            # axis attr stored in the chunk.  Get the chunks atoms and let
+            # compute_heuristic_axis() recompute them.
+            atoms = chunks[0].atoms.values()
+        elif len(jigs) == 1 and len(atoms) == 0:
+            # Warning: RectGadgets have no atoms.  We handle this special case below.
+            atoms = jigs[0].atoms 
+        elif len(atoms) < 2:
+            msg = redmsg("Please select at least two atoms, a jig or a chunk.")
             env.history.message(cmd + msg)
             return
+        
+        # This check is needed for jigs that have no atoms.  Currently, this 
+        # is the case for RectGadgets (ESP Image and Grid Plane) only.
+        if len(atoms):
+            pos = A( map( lambda a: a.posn(), atoms ) )
+            nears = [ self.glpane.out, self.glpane.up ]
+            from geometry import compute_heuristic_axis
+            axis = compute_heuristic_axis( pos, 'normal', already_centered = False, nears = nears, dflt = None )
+        else: # We have a jig with no atoms.
+            axis = jigs[0].getaxis() # Get the jig's axis.
+            # If axis is pointing into the screen, negate (reverse) axis.
+            if dot(axis, self.glpane.lineOfSight) > 0:
+                axis = -axis
 
         if not axis:
-            msg = orangemsg( "Warning: Normal axis cannot be determined. No change in view." )
+            msg = orangemsg( "Warning: Normal axis could not be determined. No change in view." )
             env.history.message(cmd + msg)
             return
-
-        # If axis is pointing into the screen, negate (reverse) axis.
-        if dot(axis, self.glpane.lineOfSight) > 0:
-            axis = -axis
         
         # Compute the destination quat (q2).
         q2 = Q(V(0,0,1), axis)
@@ -166,29 +178,11 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         
         info = 'View set to normal vector of the plane defined by the selected atoms.'
         env.history.message(cmd + info)
-
-# This should be moved somewhere else.  
-# Someday when we have a selection class, this would be a nice method for it.
-# Talk to Bruce.  Mark 060118.
-    def getaxis(self, atoms):
-        '''Returns the 'center' axis. atoms is a list of 3 or more atoms used to compute the 
-        center axis.
-        '''
-        if len(atoms) < 3:
-            return V(0,0,0) # Caller beware.
-        
-        # This code was copied from Motor.recompute_center_axis().  Mark 060118.
-        pos=A(map((lambda a: a.posn()), atoms))
-        center=sum(pos)/len(pos)
-        relpos=pos-center
-        guess = map(cross, relpos[:-1], relpos[1:])
-        axis=sum(guess)
-        return axis
         
     def setViewParallelTo(self):
         '''Set view parallel to the vector defined by 2 selected atoms.
         '''
-        cmd = greenmsg("Orient View Parallel To: ")
+        cmd = greenmsg("Set View Parallel To: ")
         
         atoms = self.assy.selatoms_list()
         
@@ -216,29 +210,6 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         
         info = 'View set parallel to the vector defined by the 2 selected atoms.'
         env.history.message(cmd + info)
-        
-    def pointing_into_screen(self, v):
-        '''Debugging method.  Returns true if vector v points into the screen.
-        '''
-        # Author - Mark.  060118.
-        # Keep this around.  I found it useful to understand this test.
-        
-        los = self.assy.o.lineOfSight
-        
-        if 1: 
-            print "-----------------------"
-            print "v= %.2f %.2f %.2f" % (float(v[0]), float(v[1]), float(v[2]))
-            print "los= %.2f %.2f %.2f" % (float(los[0]), float(los[1]), float(los[2]))
-            if dot(v, los) < 0:
-                print "Vector v is pointing out of the screen."
-            else:
-                print "Vector v is pointing into the screen."
-        
-        if dot(v, los) < 0:
-            return False
-        else:
-            return True
-
     
     def setViewOpposite(self):
         '''Set view to the opposite of current view. '''
