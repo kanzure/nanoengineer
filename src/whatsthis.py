@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 whatsthis.py
 
@@ -14,19 +14,35 @@ enable_whatsthis_links = True
 
 debug_whatsthis_links = False # do not commit with True
 
-class MyWhatsThis(QWhatsThis):
+class MyWhatsThis(QWhatsThis): #bruce 060120 revised this as part of fixing bug 1295, and added docstring
+    """QWhatsThis subclass for handling links. Due to quirks in Qt, this is used in two distinct ways:
+     1. For most widgets, mainly toolbuttons, they have their own whatsthis text, but that's ignored when they have this
+    object attached to them for handling whatsthis; Qt queries it for the text and also calls its clicked method.
+    So in this case, this object does two jobs: know the text (with embedded links), and know how to handle link clicks.
+     2. For menu items in QPopupMenu, the menu item itself is not a widget, and neither is the QAction it was probably
+    made from; neither of those (menu item or QAction) can have a QWhatsThis object of their own. The QPopupMenu can
+    have one, but it doesn't know which item to return text for, which doesn't matter anyway because Qt, for some
+    reason, never bothers to ask it for the text in the first place. But Qt will let it handle links. So this object
+    does only the click handling, and we separately modify the menu item whatsthis text (via their QActions) to contain
+    the links.
+     1+2. These ways interact as follows: separate code must modify QAction whatsthis text to contain links (so case (2)
+    can work), but that same text gets seen on toolbuttons made from those QActions, and modified again (re case (1)).
+    So the code to modify the text has to not cause trouble when run twice. See that code (end of this file) for details.
+    """
     ## note: doesn't work on QActions (at least for an earlier version of the class with no __init__ method):
     ## MyWhatsThis(self.editCopyAction) ## TypeError: argument 1 of QWhatsThis() has an invalid type
     def __init__(self, widget, text = None):
-        QWhatsThis.__init__(self, widget)
-        self.__text = text # note: using QString(text) here is ok but not required
+        QWhatsThis.__init__(self, widget) # this has a side effect of registering self as the whatsthis handler for widget
+        self.__text = text # notes: using QString(text) here is ok but not required. text might be None.
+        self.__widget = widget # perhaps only used for debug prints
     def text(self, pos):
-        # this runs when Qt puts up a WhatsThis help window for widget
+        # this runs when Qt puts up a WhatsThis help window for widget --
+        # but not for QPopupMenu widgets (at least not those in the main menu bar; context menu popups untested).
         if debug_whatsthis_links:
-            print "text at pos %r in %r was queried by Qt" % (pos, self) # note: pos repr is not useful, doesn't show x,y
+            print "text at pos %r in %r for %r queried by Qt" % (pos, self, self.__widget) # note: pos repr not useful, doesn't show x,y
         text = self.__text
         if not text and debug_whatsthis_links:
-            print " no text" # never happens in current calling code [051227]
+            print " no text" # never happens in current calling code [051227] (still true 060120, in theory)
         return text
     def clicked(self, link):
         # this runs when user clicks on a hyperlink in the help text, with 'link' being the link text (href attribute)
@@ -35,7 +51,7 @@ class MyWhatsThis(QWhatsThis):
         # (whether or not wiki_help_url() still hardcodes "Feature:" or some other prefix).
         if link:
             if debug_whatsthis_links:
-                print "clicked hyperlink in %r, href text is %r" % (self,link)
+                print "clicked hyperlink in %r for %r, href text is %r" % (self, self.__widget, link)
             # change link text to URL, and open browser to help page (see wiki_help.py)
             if link.startswith("Feature:"):
                 from wiki_help import wiki_help_url, open_wiki_help_URL
@@ -52,10 +68,13 @@ class MyWhatsThis(QWhatsThis):
         else:
             # happens for clicking any empty part or other text in that popup dialog
             if debug_whatsthis_links:
-                print "clicked non-link in %r" % self
+                print "clicked non-link in %r for %r, text starts %r" % (self, self.__widget, (self.__text or "")[:27])
             close_dialog = True
-        return close_dialog ## return True to make help text widget go away, or False to keep it around (with no change in contents)
+        return close_dialog # return True to make help text widget go away, or False to keep it around (with no change in contents)
+        # hint for debugging 1359: see if returning False helps prevent hangs on Linux. [bruce guess 060120]
     pass # end of class MyWhatsThis
+
+# ===
 
 def createWhatsThis(self):
         
@@ -1575,61 +1594,88 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
     MPQCESPTipText = "Enables/disables MPQC Electrostatics Potential Plane Plugin"
 
     QToolTip.add(w.MPQC_ESP_checkbox, MPQCESPTipText)
-    
-def fix_whatsthis_text_for_mac(parent): #bruce 051227-29 revised this; now it's misnamed and needs renaming and/or cleanup ###@@@
-    '''If the system is a Mac, this replaces all occurances of 'Ctrl' with 'Cmd' in all the 
-    whatsthis text for all QAction widgets that are children of parent.  This should be 
+
+# ===
+
+def fix_whatsthis_text_for_mac(parent):
+    #bruce 051227-29 revised this; now it's misnamed and needs renaming ###@@@
+    #bruce 060120 revised this as part of fixing bug 1295
+    """MISNAMED: does things for all OSes, not just macs. This should be 
     called after all widgets (and their whatsthis text) in the UI have been created.
-    THIS MUST BE CALLED FOR ALL OSes since it now [051227] also does non-Mac-specific things. [###doc, rename]
-    '''
-    from platform import is_macintosh #bruce 051227 zapped only use of is_not_macintosh variant of this function
-    
-    if is_macintosh():  
+    It does two things:
+    1. If the system is a Mac, this replaces all occurrences of 'Ctrl' with 'Cmd' in all the 
+    whatsthis text for all QAction or QWidget objects that are children of parent.  
+    2. For all systems, it replaces certain whatsthis text patterns with hyperlinks,
+    and adds MyWhatsThis objects to widgets with text modified that way (or that might contain hyperlinks)
+    or that are QPopupMenus.
+    """
+    from platform import is_macintosh
+    mac = is_macintosh()
+    if mac or enable_whatsthis_links:
+        # fix text in 1 or 2 ways for all QAction objects (which are not widgets)
         objList = parent.queryList("QAction")
         for obj in objList:
-            original_txt = obj.whatsThis()
-            new_txt = replace_ctrl_with_cmd_text(original_txt)
-            obj.setWhatsThis(new_txt)
+            text = str(obj.whatsThis())
+            if mac:
+                text = replace_ctrl_with_cmd(text)
+            if enable_whatsthis_links:
+                text = turn_featurenames_into_links(text)
+            obj.setWhatsThis(text)
     if enable_whatsthis_links:
-        hack_whatsthis_object_for_widgets(parent)
-    return
+        # add MyWhatsThis objects to all widgets that might need them
+        # (and also fix their text if it's not fixed already --
+        #  needed in case it didn't come from a QAction; maybe that never happens as of 060120)
+        objList = parent.queryList("QWidget")
+            # this includes QMenuBar, QPopupMenu for each main menu and cmenu (I guess),
+            # but not menuitems themselves. (No hope of including dynamic cmenu items, but since
+            # we make those, we could set their whatsthis text and process it the same way
+            # using separate code (nim ###@@@).) [bruce 060120]
+            # In fact there is no menu item class in Qt that I can find! You add items as Actions or as sets of attrs.
+            # Actions also don't show up in this list...
+        for obj in objList:
+            text = whatsthis_text_for_widget(obj) # could be either "" or None
+            if text:
+                # in case text doesn't come from a QAction, modify it in the same ways as above,
+                # and store it again or pass it to the MyWhatsThis object;
+                # both our mods are ok if they happen twice -- if some hyperlink contains 'ctrl',
+                # so did the text before it got command names converted to links.
+                if mac:
+                    text = replace_ctrl_with_cmd(text)
+                text = turn_featurenames_into_links(text)
+                assert text # we'll just feed it to a MyWhatsThis object so we don't have to store it here
+            else:
+                text = None # turn "" into None
+            if text or isinstance(obj, QPopupMenu):
+                # assume any text (even if not changed here) might contain hyperlinks,
+                # so any widget with text might need a MyWhatsThis object;
+                # the above code (which doesn't bother storing mac-modified text) also assumes we're doing this
+                give_widget_MyWhatsThis_and_text( obj, text)
+            continue
+    return # from (misnamed) fix_whatsthis_text_for_mac
     
-def replace_ctrl_with_cmd_text(str): # by mark; might be wrong for uses of Ctrl in unexpected ways
-    '''Returns a string, replacing all occurances of Ctrl with Cmd in 'str'.
-    '''
-    str = str.replace('Ctrl', 'Cmd')
-    str = str.replace('ctrl', 'cmd')
-    return str
+def replace_ctrl_with_cmd(text): # by mark; might be wrong for text which uses Ctrl in unexpected ways
+    "Replace all occurrences of Ctrl with Cmd in the given string."
+    text = text.replace('Ctrl', 'Cmd')
+    text = text.replace('ctrl', 'cmd')
+    return text
 
-_KEEPERS = []
+_KEEPERS = [] # keep permanent refs to certain objects we create
 
-def hack_whatsthis_object_for_widgets(parent): #bruce 051227, revised 051229
-    objList = parent.queryList("QWidget")
-    for widget in objList:
-        try:
-            ## this never works: original_txt = widget.whatsThis()
-            original_txt = QWhatsThis.textFor( widget)
-        except:
-            pass ## print "no textFor attr, or it fails:",widget
-            ## this happens for a lot of QObjects (don't know what they are), e.g. for <constants.qt.QObject object at 0xb96b750>
-        else:
-            # we got original_txt, but it's often a null string
-            if original_txt:
-                original_txt = str(original_txt) # in case of QString, tho during debug it seemed this was already a Python string
-                newtext = modified_whatsthis_text(original_txt, widget)
-                if not newtext and debug_whatsthis_links:
-                    # for debugging, modify it somehow even if not in a sensible way
-                    print "didn't find desired content in:", original_text
-                    FAKELINK = "<a href=\"xxx\">linktoxxx</a>"
-                    newtext = FAKELINK + str(original_txt) + FAKELINK
-                if newtext:
-                    set_hyperlinked_whatsthis_text(widget, newtext)
-                pass
-            pass
-        pass
-    return
+def whatsthis_text_for_widget(widget): #bruce 060120 split this out of other code
+    "Return a Python string containing the WhatsThis text for widget (perhaps ""), or None if we can't find that."
+    try:
+        ## original_text = widget.whatsThis() # never works for widgets (though it would work for QActions)
+        text = QWhatsThis.textFor( widget) # often a null string, often an exception; don't know if it can be a QString
+    except:
+        # this happens for a lot of QObjects (don't know what they are), e.g. for <constants.qt.QObject object at 0xb96b750>
+        return None
+    else:
+        return str( text or "" )
+            # note: the 'or ""' above is in case we got None (probably never needed, but might as well be safe)
+            # note: the str() (in case of QString) might not be needed; during debug it seemed this was already a Python string
+    pass
 
-def set_hyperlinked_whatsthis_text(widget, text): #bruce 051229
+def give_widget_MyWhatsThis_and_text(widget, text): #bruce 051229; renamed 060120
     obj1 = MyWhatsThis( widget, text)
     ## widget._KEEP_WHATSTHIS = obj1 # this was not sufficient to prevent a bus error
     _KEEPERS.append(obj1) # this is needed to prevent a bus error
@@ -1650,10 +1696,9 @@ def debracket(text, left, right): #bruce 051229 ##e refile this?
     if left in between: return None # not sure we found the correct 'right' in this case
     return (before, between, after)
     
-def modified_whatsthis_text(text, widget): #bruce 051229
-    "Given some nonempty whatsthis text from a widget, return None or modified text (e.g. containing a web help URL)."
+def turn_featurenames_into_links(text): #bruce 051229; revised and renamed 060120
+    "Given some nonempty whatsthis text, return identical or modified text (e.g. containing a web help URL)."
     # look for words between <u><b> and </b></u> to replace with a web help link
-    
     if text.startswith("<u><b>"): # require this at start, not just somewhere like debracket would
         split1 = debracket(text, "<u><b>", "</b></u>")
         if split1:
@@ -1666,7 +1711,7 @@ def modified_whatsthis_text(text, widget): #bruce 051229
                 split2 = debracket(rest, "[[Feature:", "]]")
                 if not split2:
                     print "syntax error in Feature: link for WhatsThis text for %r" % name
-                    return None
+                    return text
                 junk, featurename, junk2 = split2
             #e should verify featurename is one or more capitalized words sep by ' '; could use split, isalpha (or so) ###@@@
             if debug_whatsthis_links:
@@ -1677,6 +1722,6 @@ def modified_whatsthis_text(text, widget): #bruce 051229
             link = "Feature:" + featurename.replace(' ','_')
                 # maybe we can't let ' ' remain in it, otherwise replacement not needed since will be done later anyway
             return "<a href=\"%s\">%s</a>" % (link, name) + rest # featurename will be made into URL later (url prefix varies at runtime)
-    return None
+    return text
 
 # end
