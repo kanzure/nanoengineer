@@ -124,6 +124,8 @@ class Node( GenericDiffTracker_API_Mixin):
     prior_part = None #bruce 050527
     disabled_by_user_choice = False
         # [bruce 050505 made this default on all Nodes, tho only Jigs use the attr so far; see also is_disabled]
+    
+    is_movable = False #mark 060120
 
     copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526; see also _um_undoable_attrs
         # subclasses need to extend this

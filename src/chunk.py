@@ -74,6 +74,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     display = diDEFAULT
     # this overrides atom colors if set
     color = None
+    is_movable = True #mark 060120
         
     # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
 
