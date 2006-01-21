@@ -23,6 +23,7 @@ from ImageUtils import nEImageOps
 # == RectGadget
 
 class RectGadget(Jig):
+    is_movable = True #mark 060120
     mutable_attrs = ('center', 'quat')
     copyable_attrs = Jig.copyable_attrs + ('width', 'height') + mutable_attrs
 
@@ -81,8 +82,6 @@ class RectGadget(Jig):
             return self.__computeBBox()
         elif name == 'planeNorm':
             return self.quat.rot(V(0.0, 0.0, 1.0))
-        elif name == 'axis': 
-            return self.quat.rot(V(0.0, 0.0, 1.0))
         elif name == 'right':
             return self.quat.rot(V(1.0, 0.0, 0.0))
         elif name == 'up':
@@ -92,7 +91,7 @@ class RectGadget(Jig):
 
 
     def getaxis(self):
-        return self.axis # axis is normal to plane of RectGadget.  Mark 060120
+        return self.planeNorm # axis is normal to plane of RectGadget.  Mark 060120
       
         
     def move(self, offset):
