@@ -89,7 +89,7 @@ class RectGadget(Jig):
         else:
             raise AttributeError, 'Grid Plane has no "%s"' % name
 
-
+        
     def getaxis(self):
         return self.planeNorm # axis is normal to plane of RectGadget.  Mark 060120
       
@@ -117,7 +117,7 @@ class RectGadget(Jig):
         return cross(v1, v2)
     
 
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         pass
     
     
@@ -231,7 +231,7 @@ class GridPlane(RectGadget):
         self.cntl = GridPlaneProp(self, self.assy.o)
         
 
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -458,7 +458,7 @@ class ESPImage(RectGadget):
             file.write('esp_plane_color(' + strPts + ', ' + color + ') \n')
             
         
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])

@@ -64,11 +64,11 @@ class Gamess(Jig):
         self.gmsjob.edit()
         
     # it's drawn as a wire cube around each atom.
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             

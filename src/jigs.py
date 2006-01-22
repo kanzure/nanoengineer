@@ -528,7 +528,7 @@ class Jig(Node):
         "Return a string for display in history or Properties [subclasses should override this]"
         return "[%s: %s]" % (self.sym, self.name)
 
-    def draw(self, win, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
+    def draw(self, glpane, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
         if self.hidden:
             return
         disabled = self.is_disabled()
@@ -544,7 +544,7 @@ class Jig(Node):
 
         try:
             glPushName(self.glname)
-            self._draw(win, dispdef)
+            self._draw(glpane, dispdef)
         except:
             glPopName()
             print_compact_traceback("ignoring exception when drawing Jig %r: " % self)
@@ -597,11 +597,11 @@ class Anchor(Jig):
 
     # it's drawn as a wire cube around each atom (default color = black)
 
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -738,11 +738,11 @@ class Stat( Jig_onChunk_by1atom ):
         ## self.cntl = None #bruce 050526 do this later since it needs at least one atom to be present
 
     # it's drawn as a wire cube around each atom (default color = blue)
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -798,11 +798,11 @@ class Thermo(Jig_onChunk_by1atom):
         self.cntl = ThermoProp(self, self.assy.o)
 
     # it's drawn as a wire cube around each atom.
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -856,7 +856,7 @@ class AtomSet(Jig):
         self.cntl = JigProp(self, self.assy.o)
 
     # it's drawn as a wire cube around each atom (default color = black)
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         '''Draws a red wire frame cube around each atom, only if the jig is select.
         '''
         if not self.picked:
@@ -865,7 +865,7 @@ class AtomSet(Jig):
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
         

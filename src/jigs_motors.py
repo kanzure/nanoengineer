@@ -324,7 +324,7 @@ class RotaryMotor(Motor):
         
     # Rotary Motor is drawn as a cylinder along the axis,
     #  with a spoke to each atom
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -447,7 +447,7 @@ class LinearMotor(Motor):
    
     # drawn as a gray box along the axis,
     # with a thin cylinder to each atom 
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])

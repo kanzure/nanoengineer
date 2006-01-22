@@ -120,14 +120,14 @@ class MeasureDistance(MeasurementJig):
         
     # Measure Distance jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
         '''
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -165,14 +165,14 @@ class MeasureAngle(MeasurementJig):
         
     # Measure Angle jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the angle is included.
         '''
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -218,14 +218,14 @@ class MeasureDihedral(MeasurementJig):
         
     # Measure Dihedral jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
-    def _draw(self, win, dispdef):
+    def _draw(self, glpane, dispdef):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the dihedral is included.
         '''
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
-            dispdef = chunk.get_dispdef(win.assy.o)
+            dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
