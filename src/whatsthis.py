@@ -273,8 +273,7 @@ def createWhatsThis(self):
         #### Orthographic Projection ####
         
         setViewOrthoActionText = "<u><b>Orthographic Projection</b></u><br>"\
-                       "<p><img source=\"setViewOrtho\"><br> "\
-                       "Sets nonperspective (or parallel) projection, with no foreshortening."\
+                       "<p>Sets nonperspective (or parallel) projection, with no foreshortening."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "setViewOrtho",
@@ -285,8 +284,7 @@ def createWhatsThis(self):
         #### Perspective Projection ####
         
         setViewPerspecActionText = "<u><b>Perspective Projection</b></u><br>"\
-                       "<p><img source=\"setViewPerspec\"><br> "\
-                       "Set perspective projection, drawing objects slightly larger "\
+                       "<p>Set perspective projection, drawing objects slightly larger "\
                        "that are closer to the viewer."\
                        "</p>"
 
