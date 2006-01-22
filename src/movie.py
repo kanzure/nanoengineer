@@ -408,13 +408,14 @@ class Movie:
         # or perhaps we should not control dashboard directly from this object at all,
         # but rather have observers we can update
     
-    def _setup(self, hflag = True):
-        """Setup this movie for playing
+    def _setup(self, hflag = True): #bruce 060112 revised retval documentation and specific values
+        """Setup this movie for playing; return False if this worked, True if it failed (warning: reverse of common boolean retvals).
+        [#doc whether it always prints error msg to history if it failed.]
         """
         # bruce 050427 comment:
         # what it did before today:
         # - figure out part to use for movie file (this is wrong and needs changing).
-        # - check movie file for validity re that part (on error, print message and return nonzero error code)
+        # - check movie file for validity re that part (on error, print message and return true error code)
         # - freeze atoms (making some other operations on them illegal, I think, in the present code)
         # - possibly save frame 0 positions -- only if self.currentFrame is 0
         # - open movie file, read header
@@ -431,10 +432,10 @@ class Movie:
         ok = self._setup_check()
         if not ok:
             # bruce 050427 doing the following disable under more circumstances than before
-            # (since old code's errcode 'r' 1 or 2 no longer distinguished here) -- ok?
+            # (since old code's errcodes 'r' 1 or 2 are no longer distinguished here, they're just both False) -- is that ok?
             self._controls(0) # Disable movie control buttons.
             self.isOpen = False #bruce 050427 added this
-            return 1020102 # was sometimes 1 and sometimes 2... callers only care whether nonzero.
+            return True
             
         self._controls(1) # Enable movie control buttons.
 
@@ -454,18 +455,19 @@ class Movie:
         # startFrame and currentFrame are compared in _close to determine if the assy has changed due to playing this movie. ###k
         self.startFrame = self.currentFrame
         
-        return 0
+        return False
         
-        # Debugging Code [to enable, remove prior 'return' statement]
-        if DEBUG1:
-            msg = "Movie Ready: Number of Frames: " + str(self.totalFramesActual) + \
-                    ", Current Frame:" +  str(self.currentFrame) +\
-                    ", Number of Atoms:" + str(self.natoms)
-            env.history.message(msg)
-
-            ## filepos = self.fileobj.tell() # Current file position
-            msg = "Current frame:" + str(self.currentFrame) ## + ", filepos =" + str(filepos)
-            env.history.message(msg)
+##        # Debugging Code [to enable, uncomment and remove prior 'return' statement]
+##        if DEBUG1:
+##            msg = "Movie Ready: Number of Frames: " + str(self.totalFramesActual) + \
+##                    ", Current Frame:" +  str(self.currentFrame) +\
+##                    ", Number of Atoms:" + str(self.natoms)
+##            env.history.message(msg)
+##
+##            ## filepos = self.fileobj.tell() # Current file position
+##            msg = "Current frame:" + str(self.currentFrame) ## + ", filepos =" + str(filepos)
+##            env.history.message(msg)
+##        return False
         
     def update_dashboard_currentFrame(self):
         "update dashboard controls which show self.currentFrame, except for the ones being used to change it"
