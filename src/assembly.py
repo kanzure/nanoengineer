@@ -96,6 +96,10 @@ assy_number = 0 # count assembly objects [bruce 050429]
 class assembly(GenericDiffTracker_API_Mixin):
     """#doc
     """
+
+    # default values of some instance variables
+    _change_counter = 0 #bruce 060121; incremented by every call of self.changed() (even if self._modified); never reset
+    
     def __init__(self, win, name = None):
         # ignore changes to this assembly during __init__, and after it,
         # until the client code first calls our reset_changed method.
@@ -762,7 +766,14 @@ class assembly(GenericDiffTracker_API_Mixin):
         # uniform system for efficiently recording and propogating change-
         # notices of that kind, as part of implementing Undo (among other uses).]
 
-        env.in_op("(assy.changed)") #bruce 050908, for Undo -- will this call be too slow??
+        if self._suspend_noticing_changes:
+            return #bruce 060121 -- this changes effective implem of begin/end_suspend_noticing_changes; should be ok
+        
+        self._change_counter += 1 #bruce 060121
+##        if platform.atom_debug:
+##            print_compact_stack("change %d: " % self._change_counter)
+
+        env.in_op("(assy.changed)") #bruce 050908, for Undo -- will this call be too slow?? [might not be needed; 060121]
         
         if not self._modified:
             self._modified = 1
@@ -820,10 +831,17 @@ class assembly(GenericDiffTracker_API_Mixin):
     # [written by bruce 050110 as helper functions in Utility.py;
     #  renamed and moved here by bruce 050429, re bug 413]
 
-    def begin_suspend_noticing_changes(self):
+    _suspend_noticing_changes = False
+        #bruce 060121 for Undo; depends on proper matching and lack of nesting of following methods,
+        # which looks true at the moment; see also use of this in self.changed(), which changes
+        # effective implem of following methods.
+    
+    def begin_suspend_noticing_changes(self): #bruce 060121 revised implem, see comment above and in self.changed()
         """See docstring of end_suspend_noticing_changes."""
+        assert not self._suspend_noticing_changes
+        self._suspend_noticing_changes = True # this prevents self.changed() from doing much
         oldmod = self._modified
-        self._modified = 1
+        self._modified = 1 # probably no longer needed as of 060121
         return oldmod # this must be passed to the 'end' function
         # also, if this is True, caller can safely not worry about
         # calling "end" of this, i suppose; best not to depend on that
@@ -844,13 +862,17 @@ class assembly(GenericDiffTracker_API_Mixin):
         protection for mismatch-bugs and needs revision anyway.
            It's probably safe even if the assembly object these methods are being called on
         is not the same for the begin and end methods!
-        """ # docstring by bruce 050429
+        """ # docstring by bruce 050429 ; might be wrong due to changes of 060121
+        assert self._suspend_noticing_changes
+        self._suspend_noticing_changes = False
         self._modified = oldmod
         return
 
     def reset_changed(self): # bruce 050107
         """[private method] #doc this... see self.changed() docstring.
         """
+        if self._suspend_noticing_changes:
+            print "warning, possible bug: self._suspend_noticing_changes is True during reset_changed" #bruce guess 060121
         if debug_assy_changes:
             print_compact_stack( "debug_assy_changes: %r: reset_changed: " % self )
         self._modified = 0

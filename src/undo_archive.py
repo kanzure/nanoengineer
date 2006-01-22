@@ -88,7 +88,7 @@ def compute_checkpoint_kluge_filename():
     subdir = find_or_make_Nanorex_subdir('UndoKlugeCheckpoints')
     return os.path.join( subdir, "checkpoint-%d.mmp" % os.getpid())
 
-compute_checkpoint_kluge_filename = None
+_checkpoint_kluge_filename = None
 
 def checkpoint_kluge_filename():
     global _checkpoint_kluge_filename
@@ -373,6 +373,7 @@ def make_checkpoint(assy, cptype = None):
     cp = Checkpoint(assy_debug_name = assy._debug_name)
         # makes up cp.ver -- would we ideally do that here, or not?
     cp.cptype = cptype #e put this inside constructor? (i think it's always None or 'initial', here)
+    cp.assy_change_counter = None #060121
     return cp
 
 def current_state(assy, initial = False):
@@ -383,10 +384,11 @@ def current_state(assy, initial = False):
     data = mmp_state_from_assy(assy, initial = initial)
     return data
 
-def fill_checkpoint(cp, state): #e later replace calls to this with cp method calls
+def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp method calls
     assert cp is not None
     assert not cp.complete
     cp.store_complete_state(state)
+    cp.assy_change_counter = assy._change_counter #060121
     return
 
 # ==
@@ -415,7 +417,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         cp = make_checkpoint(self.assy, 'initial') # initial checkpoint
         #e the next three lines are similar to some in self.checkpoint --
         # should we make self.set_last_cp() to do part of them? compare to do_op's effect on that, when we code that. [060118]
-        fill_checkpoint(cp, current_state(assy, initial = True)) ### it's a kluge to pass initial; revise to detect this in assy itself
+        fill_checkpoint(cp, current_state(assy, initial = True), assy) ### it's a kluge to pass initial; revise to detect this in assy itself
         self.last_cp = self.initial_cp = cp
         self.last_cp_arrival_reason = 'initial' # why we got to the situation of model state agreeing with this, when last we did
             #e note, self.last_cp will be augmented by a desc of varid_vers pairs about cur state; 
@@ -472,6 +474,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         and could later be Undone to or Redone to.
         """
         assert cptype
+        #######@@@@@@@ DEBUG 060121: ok to commit since doesn't run unless user asks
+        if self.last_cp.assy_change_counter == self.assy._change_counter:
+            # no change in state; not sure if we make a new cp (eg in case ctype different) or not...
+            print "checkpoint but no change in state", self.assy._change_counter
+        else:
+            print "checkpoint at change %d, last cp was at %d" % (self.assy._change_counter, self.last_cp.assy_change_counter)
         self.last_cp = self.next_cp
         self.next_cp = None # in case of exceptions in rest of this method
         cp = self.last_cp
@@ -479,7 +487,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.last_cp_arrival_reason = cptype # affects semantics of Undo/Redo user-level ops
             # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
         #e store other metainfo, like time of completion, cmdname of caller, history serno, etc (here or in fill_checkpoint)
-        fill_checkpoint(cp, current_state(self.assy))
+        fill_checkpoint(cp, current_state(self.assy), self.assy)
             #e This will be revised once we incrementally track some changes - it won't redundantly grab unchanged state,
             # though it's likely to finalize and compress changes in some manner, or grab changed parts of the state.
             # It will also be revised if we compute diffs to save space, even for changes not tracked incrementally.

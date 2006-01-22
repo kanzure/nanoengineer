@@ -377,7 +377,7 @@ class wrappedslot:
             return res
         pass
     def begin(self):
-##        if 1: ######@@@@@@ 060121 debug code
+##        if 1: # 060121 debug code
 ##            try:
 ##                se = self.sender() # this can only be tried when we inherit from QObject, but it always had this exception.
 ##            except RuntimeError: # underlying C/C++ object has been deleted [common, don't yet know why, but have a guess]
@@ -399,8 +399,21 @@ class wrappedslot:
                 # but we'd have a memory leak for dynamic menus. Hmm... maybe we could add our own
                 # key attribute to these items? And also somehow remove temporary ones from this dict
                 # soon after they go away, or when new temp items are created for same featurename?
-                # ####@@@@
+                # ... Decision: use our own key attr, don't bother removing old items from dict,
+                # the leak per-cmenu is smaller than others we have per-user-command. ####@@@@ DOIT
             if fn:
+                if 1: #experiment 060121
+                    from debug import print_compact_traceback
+                    try:
+                        win = env.mainwindow()
+                        assert win.initialised # make sure it's not too early
+                        assy = win.assy
+                    except:
+                        if platform.atom_debug:
+                            print_compact_traceback("atom_debug: fyi: normal exception: ")
+                        pass # this is normal during init... or at least I thought it would be -- I never actually saw it yet.
+                    else:
+                        assy.undo_checkpoint_before_command(fn)
                 if 0: print " featurename =", fn
                     # This works! prints correct names for toolbuttons and main menu items.
                     # Doesn't work for glpane cmenu items, but I bet it will when we fix them to have proper WhatsThis text.
@@ -409,13 +422,11 @@ class wrappedslot:
                     # identity of the bound method they call as a slot! Not sure if this is possible. If not, we have to set
                     # command names from inside the methods that implement them (not the end of the world), or grab them from
                     # history text (doable).
-        import env
         return env.begin_op("(wr)")
     def error(self):
         "called when an exception occurs during our slot method call"
         pass ### mark the op_run as having an error
     def end(self, mc):
-        import env
         env.end_op(mc)
     pass
 
