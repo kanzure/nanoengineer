@@ -389,7 +389,17 @@ class wrappedslot:
             sender = self.__sender
             ##print "sender",sender # or could grab its icon for insertion into history
             from whatsthis import _actions
-            fn = _actions.get(id(sender)) # when we used sender rather than id(sender), the UI seemed noticably slower!!
+            fn = _actions.get(id(sender))
+                # When we used sender rather than id(sender), the UI seemed noticably slower!!
+                # Possible problem with using id() is for temporary items -- when they're gone,
+                # newly allocated ones with same id might seem to have those featurenames.
+                # Perhaps we need to verufy the name is still present in the whatsthis text?
+                # But we don't have the item itself here! We could keep it in the value, and then
+                # it would stick around forever anyway so its id wouldn't be reused
+                # but we'd have a memory leak for dynamic menus. Hmm... maybe we could add our own
+                # key attribute to these items? And also somehow remove temporary ones from this dict
+                # soon after they go away, or when new temp items are created for same featurename?
+                # ####@@@@
             if fn:
                 if 0: print " featurename =", fn
                     # This works! prints correct names for toolbuttons and main menu items.
