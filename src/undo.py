@@ -289,7 +289,8 @@ def keep_under_key(thing, key, obj, attr):
     dict1[key] = thing
     return
 
-class wrappedslot: ###@@@ try revising code and doc to just pass on all the args, see if this works. easier re signal choices.
+class wrappedslot:
+    ###@@@ try revising code and doc to just pass on all the args, see if this works. easier re signal choices.
     """Hold a boundmethod for a slot, and return callables (for various arglists)
     which call it with our own code wrapping the call.
        We don't just return a callable which accepts arbitrary args, and pass them on,
@@ -301,8 +302,9 @@ class wrappedslot: ###@@@ try revising code and doc to just pass on all the args
     pass us too many based on the ones listed in the signal name. We might have to
     revise this to count the args accepted by our saved slotboundmethod in __init__. ###k
     """
-    def __init__(self, slotboundmethod):
+    def __init__(self, slotboundmethod, sender = None):
         self.slotboundmethod = slotboundmethod
+        self.__sender = sender #060121
     def fbmethod_0args(self, *args, **kws):
         "fake bound method with 0 args" ###@@@ no, any number of args - redoc ###@@@
         slotboundmethod = self.slotboundmethod
@@ -375,6 +377,28 @@ class wrappedslot: ###@@@ try revising code and doc to just pass on all the args
             return res
         pass
     def begin(self):
+##        if 1: ######@@@@@@ 060121 debug code
+##            try:
+##                se = self.sender() # this can only be tried when we inherit from QObject, but it always had this exception.
+##            except RuntimeError: # underlying C/C++ object has been deleted [common, don't yet know why, but have a guess]
+##                print "no sender"
+##                pass
+##            else:
+##                print "sender",se
+        if 1: #060121
+            sender = self.__sender
+            ##print "sender",sender # or could grab its icon for insertion into history
+            from whatsthis import _actions
+            fn = _actions.get(id(sender)) # when we used sender rather than id(sender), the UI seemed noticably slower!!
+            if fn:
+                if 0: print " featurename =", fn
+                    # This works! prints correct names for toolbuttons and main menu items.
+                    # Doesn't work for glpane cmenu items, but I bet it will when we fix them to have proper WhatsThis text.
+                    # Hmm, how will we do that? There is presently no formal connection between them and the usual qactions
+                    # or toolbuttons or whatsthis features for the main UI for the same method. We might have to detect the
+                    # identity of the bound method they call as a slot! Not sure if this is possible. If not, we have to set
+                    # command names from inside the methods that implement them (not the end of the world), or grab them from
+                    # history text (doable).
         import env
         return env.begin_op("(wr)")
     def error(self):
@@ -485,7 +509,7 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
                 print "not wrapping %s from %s to %s" % (signal,sender,slotboundmethod) ###@@@
             return slotboundmethod
         # make object which can wrap it
-        wr = wrappedslot(slotboundmethod)
+        wr = wrappedslot(slotboundmethod, sender = sender) #060121 added sender arg
         # decide which api to call it with (#e this might be done inside the wrapper class)
         if 1: ## or signal == SIGNAL("activated()"):
             method = wr.fbmethod_0args

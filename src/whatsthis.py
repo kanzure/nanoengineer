@@ -1597,6 +1597,8 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
 
 # ===
 
+_actions = {} # map from QActions to the featurenames in their whatsthis text [bruce 060121 to help with Undo]
+
 def fix_whatsthis_text_for_mac(parent):
     #bruce 051227-29 revised this; now it's misnamed and needs renaming ###@@@
     #bruce 060120 revised this as part of fixing bug 1295
@@ -1619,7 +1621,7 @@ def fix_whatsthis_text_for_mac(parent):
             if mac:
                 text = replace_ctrl_with_cmd(text)
             if enable_whatsthis_links:
-                text = turn_featurenames_into_links(text)
+                text = turn_featurenames_into_links(text, savekey = id(obj), saveplace = _actions )
             obj.setWhatsThis(text)
     if enable_whatsthis_links:
         # add MyWhatsThis objects to all widgets that might need them
@@ -1696,8 +1698,10 @@ def debracket(text, left, right): #bruce 051229 ##e refile this?
     if left in between: return None # not sure we found the correct 'right' in this case
     return (before, between, after)
     
-def turn_featurenames_into_links(text): #bruce 051229; revised and renamed 060120
-    "Given some nonempty whatsthis text, return identical or modified text (e.g. containing a web help URL)."
+def turn_featurenames_into_links(text, savekey = None, saveplace = None): #bruce 051229; revised and renamed 060120; save args 060121
+    """Given some nonempty whatsthis text, return identical or modified text (e.g. containing a web help URL).
+    If savekey and saveplace are passed, and if the text contains a featurename, set saveplace[savekey] to that featurename.
+    """
     # look for words between <u><b> and </b></u> to replace with a web help link
     if text.startswith("<u><b>"): # require this at start, not just somewhere like debracket would
         split1 = debracket(text, "<u><b>", "</b></u>")
@@ -1719,6 +1723,8 @@ def turn_featurenames_into_links(text): #bruce 051229; revised and renamed 06012
                     print "web help name for %r: %r" % (name, featurename,)
                 else:
                     print "web help name: %r" % (featurename,)
+            if saveplace is not None:
+                saveplace[savekey] = featurename
             link = "Feature:" + featurename.replace(' ','_')
                 # maybe we can't let ' ' remain in it, otherwise replacement not needed since will be done later anyway
             return "<a href=\"%s\">%s</a>" % (link, name) + rest # featurename will be made into URL later (url prefix varies at runtime)
