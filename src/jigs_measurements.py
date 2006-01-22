@@ -125,6 +125,9 @@ class MeasureDistance(MeasurementJig):
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
         '''
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -167,6 +170,9 @@ class MeasureAngle(MeasurementJig):
         A label displaying the angle is included.
         '''
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -217,6 +223,9 @@ class MeasureDihedral(MeasurementJig):
         A label displaying the dihedral is included.
         '''
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             

@@ -596,8 +596,12 @@ class Anchor(Jig):
         self.cntl = JigProp(self, self.assy.o) 
 
     # it's drawn as a wire cube around each atom (default color = black)
+
     def _draw(self, win, dispdef):
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -736,6 +740,9 @@ class Stat( Jig_onChunk_by1atom ):
     # it's drawn as a wire cube around each atom (default color = blue)
     def _draw(self, win, dispdef):
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -793,6 +800,9 @@ class Thermo(Jig_onChunk_by1atom):
     # it's drawn as a wire cube around each atom.
     def _draw(self, win, dispdef):
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
             
@@ -853,6 +863,9 @@ class AtomSet(Jig):
             return
             
         for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(win.assy.o)
             disp, rad = a.howdraw(dispdef)
             drawwirecube(self.color, a.posn(), rad)
         
