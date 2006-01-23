@@ -111,7 +111,7 @@ for q in pquats:
 allQuats = quats100 + quats110 + quats111
 
 MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
-ANIMATION_CYCLE = 1.5 # 1.5 seconds
+MAX_ANIMATION_TIME = 1.5 # in seconds
 
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.
@@ -496,19 +496,32 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         deltaq = q2 - self.quat
         angle = deltaq.angle * 180/pi # in degrees
+        if angle > 180:
+            angle = 360 - angle
         
         if angle == 0: # Current view and new view are the same. No rotation.
             return
             
         # Disable standard view actions on toolbars/menus.
         self.win.enableViews(False)
+        
+        # The maximum number of frames is based on how long it 
+        # takes to repaint one frame.
+        max_frames = max(1, MAX_ANIMATION_TIME/self._repaint_duration)
 
-        nsteps = int(max(1, ANIMATION_CYCLE/self._repaint_duration))
-        off *= (1.0/nsteps)
+        # Make the rotation speed consistent for any arbitrary destination quat.  
+        # For example, if the angle to the destination quat is 90 degrees, then the 
+        # total number of frames will be cut in half.
+        # For small rotations, have at least 2 frames. It looks better than just 1.
+        total_frames = int(max(2,(angle/180 * max_frames)))
+        
+        #print "total_frames =", total_frames,", angle =",angle
+        
+        off *= (1.0/total_frames)
         wxyz = wxyz1
 
         # Main animation loop.
-        for i in range(1, nsteps):
+        for f in range(1, total_frames):
             wxyz += off
             self.quat = Q(norm(wxyz))
             self.gl_update_duration()
@@ -554,22 +567,48 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         off = wxyz2 -wxyz1
 
-        nsteps = int(max(1, ANIMATION_CYCLE/self._repaint_duration))
+        # The maximum number of frames is based on how long it 
+        # takes to repaint one frame.
+        max_frames = max(1, MAX_ANIMATION_TIME/self._repaint_duration)
         
-        #print "nsteps =", nsteps
+        # Just like rotateView(), we need to make the rotation speed consistent for any 
+        # arbitrary destination quat, pov, scale and zoomFactor.
         
-        off *= (1.0/nsteps)
+        deltaq = q2 - self.quat
+        angle = deltaq.angle * 180/pi # in degrees
+        if angle > 180:
+            angle = 360 - angle
+        
+        # Make the rotation speed consistent for any arbitrary destination quat.
+        # For example, if the angle to the destination quat is 90 degrees, then the 
+        # total number of frames will be cut in half.
+        qf = int(angle/180 * max_frames)
+        
+        deltap = p2 - self.pov
+        pf = int(vlen(deltap)*.2) # .2 based on guess/testing. mark 060123
+        
+        deltas = abs(s2 - self.scale)
+        sf = int(deltas * .05) # .05 based on guess/testing. mark 060123
+        
+        deltaz = abs(z2 - self.zoomFactor)
+        zf = int(deltaz * .05) # Not tested. mark 060123
+        
+        total_frames = int(min(max_frames,max(3, qf, pf, sf, zf)))
+        
+        #print "total_frames =", total_frames, "maxf=",max_frames,"qf=",qf,", pf=",pf,", sf=",sf,", zf=",zf
+        
+        off *= (1.0/total_frames)
         wxyz = wxyz1
         
-        scale_inc = (s2 - s1) / nsteps
-        zoom_inc = (z2 - z1) / nsteps
+        scale_inc = (s2 - s1) / total_frames
+        zoom_inc = (z2 - z1) / total_frames
         
         pov_inc = pov2 - pov1
-        pov_inc *= (1.0/nsteps)
+        pov_inc *= (1.0/total_frames)
         pov = pov1
         
         # Main animation loop.
-        for i in range(1, nsteps):
+        for f in range(1, total_frames):
             wxyz += off
             self.quat = Q(norm(wxyz))
             self.pov += pov_inc
@@ -1193,7 +1232,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self._last_few_repaint_times.append( self._repaint_duration)
         self._last_few_repaint_times = self._last_few_repaint_times[-5:] # keep at most the last five times
         
-        #print "repaint duration = ", self._repaint_duration
+        #if new_part:
+        #    print "repaint duration = ", self._repaint_duration
         
         return
         
