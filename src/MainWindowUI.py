@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Jan 20 21:12:10 2006
+# Created: Sun Jan 22 17:12:55 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6018,6 +6018,55 @@ image146_data = \
     "\x5e\x75\xb3\x54\x4a\x0d\x80\x90\x69\xbf\xc9\x09" \
     "\xba\x56\x39\x2f\xae\x67\x0b\x4b\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
+image147_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x01" \
+    "\xfd\x49\x44\x41\x54\x78\x9c\xbd\x94\x4d\x6b\x13" \
+    "\x51\x14\x86\x9f\x99\xe9\x60\x6d\x0c\x49\x93\x30" \
+    "\x21\x8d\x81\x88\x24\x30\x3f\x60\x16\x25\x0a\x75" \
+    "\xe5\xc6\x82\x58\x97\xba\x72\xd1\x95\xba\x70\xe1" \
+    "\xce\x0f\x10\xd7\x2e\x5c\x89\x3b\x97\xd6\x12\xe9" \
+    "\x1f\x28\x98\xe2\x22\x3f\x20\x50\x91\x0a\x92\x94" \
+    "\x84\x4c\x9a\x18\x6d\xd3\x0e\x33\xd7\xc5\x38\x93" \
+    "\x98\x98\x74\x4c\xab\x2f\x5c\x98\x99\x7b\xee\x73" \
+    "\xdf\x73\xee\xb9\x03\xff\x5a\x86\xae\x8a\xeb\x97" \
+    "\x66\xc5\x69\xf1\x64\x0f\xba\xbc\x94\x20\xab\xc9" \
+    "\x18\xba\x7a\x2a\xf0\x19\xef\x21\x9a\x08\x03\x50" \
+    "\xa0\x03\x20\xd2\x71\x85\x62\xa9\x27\x4d\x0b\x96" \
+    "\x01\xca\x15\x4b\x7a\xb3\xb6\x43\x34\x11\x66\xab" \
+    "\x62\x51\xd0\x55\x80\x13\xb9\xf7\x1d\x97\x2b\x96" \
+    "\xc4\xda\x8e\xb8\x7d\xf3\x02\xed\x66\x17\x5c\xe7" \
+    "\xd4\x34\x47\x18\x79\xf5\xaf\xdd\xcb\x83\x2f\xe9" \
+    "\xb8\x42\xbb\xd9\x25\x93\x4b\x11\x4b\x46\x28\x6f" \
+    "\x5b\x18\xf9\xe9\xdc\x8f\xb8\x30\x74\x55\x14\x74" \
+    "\x95\xad\x8a\xc5\xf2\x52\x82\x56\xdd\x75\xfe\xa5" \
+    "\xe1\x50\x35\x6d\x37\xb3\x00\x9a\x19\xfe\x50\xae" \
+    "\x58\x52\xcd\x74\xc4\xea\x8a\x46\x26\x97\x02\xa0" \
+    "\x55\xef\x90\xd5\x64\xe6\x43\x12\x80\x08\x02\x1f" \
+    "\x01\x03\x18\x79\xd5\x77\x3a\x08\x8f\x84\x24\x6a" \
+    "\xa6\xe3\x97\x65\x52\xe7\x8c\xdd\xd9\x2b\x49\x2c" \
+    "\x19\x21\x93\x4b\xf1\xf5\xd3\x2e\x1b\x9b\x4d\xd2" \
+    "\x71\x85\xac\xe6\x1e\xcd\xa4\xf2\xfc\xd1\x31\xe0" \
+    "\x05\x8b\x5f\x7d\xcd\xc6\x66\x13\xaf\x63\xbc\x6c" \
+    "\xbc\x0d\xd0\x47\xcb\x33\x16\x3c\x08\xaf\x95\x1a" \
+    "\x3c\x5c\xbd\x48\x78\xfe\x9c\x3f\x77\x1c\x7c\x22" \
+    "\xd8\x83\x1b\xba\x2a\xdc\xde\x26\x30\xfc\x58\xf0" \
+    "\xa0\xc6\xc1\x5f\xbc\xdf\xef\x07\x29\x08\x6c\xa4" \
+    "\x40\xe0\x74\x5c\xa1\x55\xef\x10\x4b\x46\x46\xe0" \
+    "\x8f\x5e\xed\xf2\xee\xc3\x0f\x3f\x76\xe5\x72\x08" \
+    "\x18\xba\x79\xe3\x54\x2c\xf5\xa4\xb7\xa5\x43\x3f" \
+    "\xf5\x76\xb3\x4b\x77\xef\x3b\xf7\x9e\x6f\xf3\xba" \
+    "\x78\xc0\x8d\xc5\xb9\x91\x35\x81\xc0\x00\xd5\x86" \
+    "\xfd\x1b\xfc\xc9\xcb\xcf\x3c\x78\x76\xc4\x9d\x6b" \
+    "\xb3\xac\x7f\x74\x4b\x71\xb0\xdf\x6f\x8c\xc0\xe0" \
+    "\x61\x78\xeb\x9b\xcd\xc2\x79\xc7\x9f\xdb\x33\x65" \
+    "\x6e\x5d\x9d\x03\xdb\xbd\x1b\x53\xfd\x6f\xd3\x9a" \
+    "\x22\xaa\xa6\xcd\xdd\xc7\x47\xa4\x16\x1c\x0e\x7b" \
+    "\x12\x4f\xef\x9f\xf1\xa1\x27\xd2\xd9\xe8\x15\x81" \
+    "\x42\x7f\xfc\x2f\xfd\x04\x35\x24\xec\x7c\x76\xc3" \
+    "\x98\x74\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6294,6 +6343,8 @@ class MainWindow(QMainWindow):
         self.image145.loadFromData(image145_data,"PNG")
         self.image146 = QPixmap()
         self.image146.loadFromData(image146_data,"PNG")
+        self.image147 = QPixmap()
+        self.image147.loadFromData(image147_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image11 = QPixmap(image11_data)
         self.image19 = QPixmap(image19_data)
@@ -6767,6 +6818,8 @@ class MainWindow(QMainWindow):
         self.setViewNormalToAction.setIconSet(QIconSet(self.image145))
         self.setViewParallelToAction = QAction(self,"setViewParallelToAction")
         self.setViewParallelToAction.setIconSet(QIconSet(self.image146))
+        self.saveNamedViewAction = QAction(self,"saveNamedViewAction")
+        self.saveNamedViewAction.setIconSet(QIconSet(self.image147))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6862,7 +6915,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -7068,6 +7121,7 @@ class MainWindow(QMainWindow):
         self.viewMenu.insertSeparator()
         self.setViewNormalToAction.addTo(self.viewMenu)
         self.setViewParallelToAction.addTo(self.viewMenu)
+        self.saveNamedViewAction.addTo(self.viewMenu)
         self.viewMenu.insertSeparator()
         self.setViewFrontAction.addTo(self.viewMenu)
         self.setViewBackAction.addTo(self.viewMenu)
@@ -7328,6 +7382,7 @@ class MainWindow(QMainWindow):
         self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
         self.connect(self.setViewNormalToAction,SIGNAL("activated()"),self.setViewNormalTo)
         self.connect(self.setViewParallelToAction,SIGNAL("activated()"),self.setViewParallelTo)
+        self.connect(self.saveNamedViewAction,SIGNAL("activated()"),self.saveNamedView)
 
 
     def languageChange(self):
@@ -7796,6 +7851,8 @@ class MainWindow(QMainWindow):
         self.setViewNormalToAction.setToolTip(self.__tr("Set View Normal To"))
         self.setViewParallelToAction.setText(self.__tr("Set View Parallel To"))
         self.setViewParallelToAction.setToolTip(self.__tr("Set View Parallel To"))
+        self.saveNamedViewAction.setText(self.__tr("Save Named View"))
+        self.saveNamedViewAction.setMenuText(self.__tr("Save Named View"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8381,6 +8438,9 @@ class MainWindow(QMainWindow):
 
     def setViewParallelTo(self):
         print "MainWindow.setViewParallelTo(): Not implemented yet"
+
+    def saveNamedView(self):
+        print "MainWindow.saveNamedView(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

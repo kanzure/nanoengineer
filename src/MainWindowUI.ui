@@ -83,6 +83,7 @@
         <separator/>
         <action name="setViewNormalToAction"/>
         <action name="setViewParallelToAction"/>
+        <action name="saveNamedViewAction"/>
         <separator/>
         <action name="setViewFrontAction"/>
         <action name="setViewBackAction"/>
@@ -451,7 +452,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1085</width>
+                <width>1087</width>
                 <height>29</height>
             </rect>
         </property>
@@ -4072,6 +4073,20 @@
             <string>Set View Parallel To</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>saveNamedViewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image147</iconset>
+        </property>
+        <property name="text">
+            <string>Save Named View</string>
+        </property>
+        <property name="menuText">
+            <string>Save Named View</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4514,6 +4529,9 @@
     </image>
     <image name="image146">
         <data format="PNG" length="176">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000007749444154789ced92410ac0200c046dffb32ff659016fa5c7bec0737a2925b520098960a1731374889b4de9e762f13c06c0f24c44b76ff588a5a8c5251e868ca28d25441a8646aa6e8594f596660200e75a38d7c2da084cad38b65d7d57f5a561318488a6973ef29aa6523d5e75b3544a0d809069bfc909ba56392fae670b4b0000000049454e44ae426082</data>
+    </image>
+    <image name="image147">
+        <data format="PNG" length="566">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001fd49444154789cbd944d6b135114869f99e9606d0c499330218d818824303f6016250a75e5c6825897ba72d195ba70e1ce0f10d72e5c893b97d612e91f2898e2223f2050910a9294844c9a186dd30e33d7c538939898744cab2f5c98997bee73df73eeb903ff5a86ae8aeb9766c569f1640fbabc9420abc918ba7a2af019ef219a080350a00320d2718562a9274d0b9601ca154b7ab3b643341166ab6251d0558013b9f71d972b96c4da8eb87df302ed66175ce7d434471879f5afddcb832fe9b842bbd925934b114b46286f5b18f9e9dc8fb8307455147495ad8ac5f2528256dd75fea5e150356d37b3009a19fe50ae5852cd74c4ea8a46269702a055ef90d564e643128008021f01031879d5773a088f84246aa6e3976552e78cddd92b492c1921934bf1f5d32e1b9b4dd27185ace61ecda4f2fcd131e0058b5f7dcdc66613af63bc6cbc0dd047cb33163c08af951a3c5cbd4878fe9c3f771c7c22d8831bba2adcde2630fc58f0a0c6c15fbcdfef0729086ca440e0745ca155ef104b4646e08f5eedf2eec30f3f76e5720818ba79e3542cf5a4b7a5433ff576b34b77ef3bf79e6ff3ba78c08dc5b9913581c000d586fd1bfcc9cbcf3c7876c49d6bb3ac7f744b71b0df6f8cc0e06178eb9bcdc279c79fdb33656e5d9d03dbbd1b53fd6fd39a22aaa6cdddc747a4161c0e7b124fef9ff1a127d2d9e81581427ffc2ffd043524ec7c76c398740000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5423,6 +5441,12 @@
         <receiver>MainWindow</receiver>
         <slot>setViewParallelTo()</slot>
     </connection>
+    <connection>
+        <sender>saveNamedViewAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>saveNamedView()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5601,6 +5625,7 @@
     <slot>helpGraphicsCard()</slot>
     <slot>setViewNormalTo()</slot>
     <slot>setViewParallelTo()</slot>
+    <slot>saveNamedView()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
