@@ -93,6 +93,8 @@ from part import Part # (this must come after the SELWHAT constants, in constant
 
 assy_number = 0 # count assembly objects [bruce 050429]
 
+_assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
+
 class assembly(GenericDiffTracker_API_Mixin):
     """#doc
     """
@@ -121,12 +123,18 @@ class assembly(GenericDiffTracker_API_Mixin):
         self._debug_name = self.name + "-%d" % assy_number
 
         if self.w: # i.e. not when called from ThumbView to make its "dummy assembly"
+            global _assy_owning_win
+            if _assy_owning_win is not None:
+                _assy_owning_win.deinit() # make sure assys don't fight over control of main menus, etc [bruce 060122]
+            _assy_owning_win = self
+            
             #bruce 051005: create object for tracking changes in our model, before creating any
             # model objects (ie nodes for tree and shelf). Since this is not initially used except
             # to record changes as these objects are created, the fact that self is still incomplete 
             # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
             import undo_manager
-            self.undo_manager = undo_manager.AssyUndoManager(self)
+            menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
+            self.undo_manager = undo_manager.AssyUndoManager(self, menus)
                 # fyi: this sets self._u_archive for use by our model objects when they report changes
                 # (but its name and value are private to AssyUndoManager's API for our model objects,
                 #  which is why we don't set it here)
@@ -219,6 +227,11 @@ class assembly(GenericDiffTracker_API_Mixin):
         
         return # from assembly.__init__
 
+    def deinit(self): # make sure assys don't fight over control of main menus, etc [bruce 060122]
+        assert self.w
+        self.undo_manager.deinit()
+        return
+    
     #bruce 051031: keep counter of selection commands in assy (the model object), not Part,
     # to avoid any chance of confusion when atoms (which will record this as their selection time)
     # move between Parts (though in theory, they should be deselected then, so this might not matter).

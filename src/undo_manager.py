@@ -22,6 +22,8 @@ from constants import noop
 import env
 from HistoryWidget import orangemsg, greenmsg, redmsg
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from qt import SIGNAL
+import time
 
 class UndoManager:
     """[abstract class] [060117 addendum: this docstring is mostly obsolete or nim]
@@ -41,7 +43,7 @@ class UndoManager:
 
 class AssyUndoManager(UndoManager):
     "An UndoManager specialized for handling the state held by an assy (an instance of class assembly)."
-    def __init__(self, assy): # called from assy.__init__, i think
+    def __init__(self, assy, menus = ()): # called from assy.__init__, i think
         # assy owns the state whose changes we'll be managing...
         # [semiobs cmt:] should it have same undo-interface as eg chunks do??
         ## self.thingies = {}
@@ -51,10 +53,26 @@ class AssyUndoManager(UndoManager):
         assy._u_archive = self.archive ########@@@@@@@@ still safe in 060117 stub code??
             # this is how model objects in assy find something to report changes to (typically in their __init__ methods);
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
-        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
-        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
+##        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
+##        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
+        self.menus = menus
+        self.connect_or_disconnect_menu_signals(True)
         return
 
+    def deinit(self):
+        self.connect_or_disconnect_menu_signals(False) 
+        #e more?
+        return
+    
+    def connect_or_disconnect_menu_signals(self, connectQ):
+        if connectQ:
+            method = self.assy.w.connect
+        else:
+            method = self.assy.w.disconnect
+        for menu in self.menus:
+            method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
+        return
+    
     def menu_cmd_checkpoint(self):
         self.archive.checkpoint( cptype = 'user_explicit' )
 
@@ -108,6 +126,12 @@ class AssyUndoManager(UndoManager):
         return res
 
     def remake_UI_menuitems(self):
+        #e see also: void QPopupMenu::aboutToShow () [signal], for how to know when to run this (when Edit menu is about to show);
+        # to find the menu, no easy way (only way: monitor QAction::addedTo in a custom QAction subclass - not worth the trouble),
+        # so just hardcode it as edit menu for now. We'll need to connect & disconnect this when created/finished,
+        # and get passed the menu (or list of them) from the caller, which is I guess assy.__init__.
+        if undo_archive.debug_undo2:
+            print "debug_undo2: running remake_UI_menuitems (could be direct call or signal)"
         undos, redos = self.undo_redo_ops()
         win = self.assy.w
         undo_mitem = win.editUndoAction
@@ -116,20 +140,23 @@ class AssyUndoManager(UndoManager):
             # kluge; should do this sooner! but this might turn out to happen as soon as user can see it...
             win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # was "Ctrl+Y"
         for ops, action, optype in [(undos, undo_mitem, 'Undo'), (redos, redo_mitem, 'Redo')]: #e or could grab op.optype()?
+            extra = ""
+            if undo_archive.debug_undo2:
+                extra = " (%s)" % str(time.time()) # show when it's updated in the menu text (remove when works) ####@@@@
             if ops:
                 action.setEnabled(True)
                 assert len(ops) == 1 #e there will always be just one for now
                 op = ops[0]
-                action.setMenuText("%s to checkpoint" % optype)
+                action.setMenuText("%s to checkpoint" % optype + extra)
                 #e tooltip
                 self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
             else:
                 action.setEnabled(False)
                 ## action.setText("Can't %s" % optype) # someday we might have to say "can't undo Cmdxxx" for certain cmds
                 ## action.setMenuText("Nothing to %s" % optype)
-                action.setMenuText("%s" % optype) # for 061117 commit, look like it used to look, for the time being
+                action.setMenuText("%s" % optype + extra) # for 061117 commit, look like it used to look, for the time being
                 #e tooltip
-                self._current_main_menu_ops[optype] = None
+                self._current_main_menu_ops[optype] = None ###k what is this used for? looks suspicious, but i think it's recent [060122]
             pass
         return
         ''' the kinds of things we can set on one of those actions include:
