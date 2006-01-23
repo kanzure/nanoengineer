@@ -15,16 +15,17 @@ else
 ifeq ($(strip $(UNAME)),Darwin)
 # Mac
 PYREXC=/Library/Python/2.3/Pyrex-0.9.3.1/bin/pyrexc
+CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers -I/usr/include/python2.3
+LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
 else
 # Unix
 PYREXC=pyrexc
-endif
-CC=gcc
 # It turns out I need /usr/X11R6/(include,lib) to get the stuff for
 # OpenGL. This is NOT a dependency on X11 proper.
 CFLAGS=-I/usr/X11R6/include -I/usr/include/python2.3
 LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
-PYREXC=pyrexc
+endif
+CC=gcc
 TARGET=quux.so
 # End of Unix/Mac stuff
 endif

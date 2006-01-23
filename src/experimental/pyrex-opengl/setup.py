@@ -9,8 +9,12 @@ except:
     sys.exit(1)
 
 if sys.platform == "darwin":
-    extra_compile_args = [ "-O" ]
-    extra_link_args = [ "-L/usr/X11R6/lib", "-lGL" ]
+    extra_compile_args = [ "-O", "-DMACOSX",
+        "-I/System/Library/Frameworks/AGL.Framework/Headers" ]
+    extra_link_args = [
+        # the "-L" appears to not help with the bus error
+        "-L/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries",
+        "-lGL" ]
 else:
     extra_compile_args = [ ]
     extra_link_args = [ "-L/usr/X11R6/lib", "-lGL" ]
