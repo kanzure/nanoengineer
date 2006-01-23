@@ -1,4 +1,5 @@
 import Numeric
+import types
 import unittest
 
 cdef extern from "Numeric/arrayobject.h":
@@ -14,51 +15,29 @@ cdef extern from "Numeric/arrayobject.h":
         cdef int flags
 
 cdef extern from "quux_help.c":
-    __glColor3f(float,float,float)
+    _getTestResult()
+    _glColor3f(float,float,float)
     _shapeRendererInit()
     _shapeRendererSetFrustum(float frustum[6])
     _shapeRendererSetViewport(int viewport[4])
     _shapeRendererSetModelView(float modelview[6])
     _shapeRendererUpdateLODEval()
     _shapeRendererSetLODScale(float s)
-    _shapeRendererDrawSpheres(int count, float center[][3],
-                              float radius[], float color[][4])
-    _shapeRendererDrawCylinders(int count, float pos1[][3],
-                                float pos2[][3], float radius[],
-                                float color[][4])
+    _shapeRendererDrawSpheres(int count, ArrayType center,
+                              ArrayType radius, ArrayType color)
+    _shapeRendererDrawCylinders(int count, ArrayType pos1,
+                                ArrayType pos2, ArrayType radius,
+                                ArrayType color)
     _checkArray(ArrayType a)
-
-#####################################
-
-def __hackNumericArray(ArrayType a):
-    if chr(a.descr.type) != "f":
-        raise TypeError("Float array required")
-    if a.nd != 2:
-        raise ValueError("2 dimensional array required")
-    cdef int nrows, ncols
-    cdef float *elems, x
-    nrows = a.dimensions[0]
-    ncols = a.dimensions[1]
-    elems = <float *>a.data
-    result = [ ]
-    for row in range(nrows):
-        thisRow = [ ]
-        for col in range(ncols):
-            thisRow.append(elems[row * ncols + col])
-        result.append(thisRow)
-    return result
-
-def hackNumericArray(ArrayType a):
-    return _checkArray(a)
 
 ####################################
 
 def glColor3f(r, g, b):
-    __glColor3f(r, g, b)
+    _glColor3f(r, g, b)
 
 
 def shapeRendererInit():
-    _shapeRendererInit()
+    return _shapeRendererInit()
 
 def shapeRendererSetFrustum(ArrayType frustum):
     if chr(frustum.descr.type) != "f":
@@ -66,33 +45,59 @@ def shapeRendererSetFrustum(ArrayType frustum):
     if frustum.nd != 1:
         raise ValueError("1 dimensional array required")
     cdef int nrows, ncols
-    cdef float *elems, x
+    cdef float *elems
     nelems = frustum.dimensions[0]
     assert nelems == 6
-    _shapeRendererSetFrustum(<float *>frustum.data)
+    return _shapeRendererSetFrustum(<float *>frustum.data)
 
-def shapeRendererSetViewport(viewport):
-    pass
+def shapeRendererSetViewport(ArrayType viewport):
+    if chr(viewport.descr.type) != "i":
+        raise TypeError("Int array required")
+    if viewport.nd != 1:
+        raise ValueError("1 dimensional array required")
+    cdef int nrows, ncols
+    cdef int *elems
+    nelems = viewport.dimensions[0]
+    assert nelems == 4
+    return _shapeRendererSetViewport(<int *>viewport.data)
 
-def shapeRendererSetModelView(modelview):
-    pass
+def shapeRendererSetModelView(ArrayType modelview):
+    if chr(modelview.descr.type) != "f":
+        raise TypeError("Float array required")
+    if modelview.nd != 1:
+        raise ValueError("1 dimensional array required")
+    cdef int nrows, ncols
+    cdef float *elems, x
+    nelems = modelview.dimensions[0]
+    assert nelems == 6
+    return _shapeRendererSetModelView(<float *>modelview.data)
 
 def shapeRendererUpdateLODEval():
-    pass
+    return _shapeRendererUpdateLODEval()
 
 def shapeRendererSetLODScale(s):
-    pass
+    return _shapeRendererSetLODScale(s)
 
-def shapeRendererDrawSpheres(count, center,
-                             radius, color):
-    pass
+def shapeRendererDrawSpheres(count, center, radius, color):
+    return _shapeRendererDrawSpheres(count, center, radius, color)
 
-def shapeRendererDrawCylinders(count, pos1,
-                               pos2, radius,
-                               color):
-    pass
+def shapeRendererDrawCylinders(count, pos1, pos2, radius, color):
+    return _shapeRendererDrawCylinders(count, pos1, pos2, radius, color);
 
 ####################################
+
+def diffSquared(x, y):
+    if type(x) in (types.FloatType, types.IntType):
+        return (x - y) ** 2
+    assert len(x) == len(y)
+    diff = 0.0
+    for u, v in map(None, x, y):
+        diff = diff + diffSquared(u, v)
+    return diff
+
+# Floats aren't as accurate as doubles
+def approximatelyEqual(x, y):
+    return diffSquared(x, y) < 1.0e-6
 
 class Tests(unittest.TestCase):
 
@@ -102,11 +107,23 @@ class Tests(unittest.TestCase):
     def testHackNumericArray(self):
         a = Numeric.array((Numeric.array((1, 2), 'f'),
                            Numeric.array((3, 4), 'f')), 'f')
-        assert hackNumericArray(a) == (1.0, 2.0, 3.0, 4.0)
+        assert _checkArray(a) == (1.0, 2.0, 3.0, 4.0)
+
+    def testInit(self):
+        assert shapeRendererInit() == "shapeRendererInit"
 
     def testSetFrustum(self):
         frustum = Numeric.array((1, 2, 3, 4, 5, 6), 'f')
-        shapeRendererSetFrustum(frustum)
+        assert shapeRendererSetFrustum(frustum) == (1., 2., 3., 4., 5., 6)
+
+    def testSetViewport(self):
+        viewport = Numeric.array((314, 159, 262, 5358), 'i')
+        assert shapeRendererSetViewport(viewport) == (314, 159, 262, 5358)
+
+    def testSetModelview(self):
+        modelview = Numeric.array((2, 7, 1, 8, 2, 8), 'f')
+        #print shapeRendererSetModelView(modelview)
+        assert shapeRendererSetModelView(modelview) == (2., 7., 1., 8., 2., 8.)
 
     def testSetFrustumWrongNumberOfFloats(self):
         try:
@@ -114,6 +131,59 @@ class Tests(unittest.TestCase):
             shapeRendererSetFrustum(frustum)
         except AssertionError:
             pass
+
+    def testSetLODScale(self):
+        assert approximatelyEqual(shapeRendererSetLODScale(1.73205), 1.73205)
+
+    def testUpdateLODEval(self):
+        assert shapeRendererUpdateLODEval() == "shapeRendererUpdateLODEval"
+
+    def testDrawSpheres(self):
+        center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
+                                Numeric.array((0, 0, 1), 'f'),
+                                Numeric.array((0, 1, 0), 'f'),
+                                Numeric.array((0, 1, 1), 'f'),
+                                Numeric.array((1, 0, 0), 'f'),
+                                Numeric.array((1, 0, 1), 'f'),
+                                Numeric.array((1, 1, 0), 'f'),
+                                Numeric.array((1, 1, 1), 'f')), 'f')
+        radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
+                                1.2, 1.4, 1.6, 1.8), 'f')
+        color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
+                               Numeric.array((0, 0, 1, 0.5), 'f'),
+                               Numeric.array((0, 1, 0, 0.5), 'f'),
+                               Numeric.array((0, 1, 1, 0.5), 'f'),
+                               Numeric.array((1, 0, 0, 0.5), 'f'),
+                               Numeric.array((1, 0, 1, 0.5), 'f'),
+                               Numeric.array((1, 1, 0, 0.5), 'f'),
+                               Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
+        result = shapeRendererDrawSpheres(8, center, radius, color)
+        assert approximatelyEqual(result, (
+            ((0., 0., 0.), (0., 0., 1.), (0., 1., 0.), (0., 1., 1.),
+             (1., 0., 0.), (1., 0., 1.), (1., 1., 0.), (1., 1., 1.)),
+            (0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+            ((0., 0., 0., 0.5), (0., 0., 1., 0.5),
+             (0., 1., 0., 0.5), (0., 1., 1., 0.5),
+             (1., 0., 0., 0.5), (1., 0., 1., 0.5),
+             (1., 1., 0., 0.5), (1., 1., 1., 0.5))))
+
+    def testDrawCylinders(self):
+        pos1 = Numeric.array((Numeric.array((0, 0, 0), 'f'),
+                              Numeric.array((0, 0, 1), 'f'),
+                              Numeric.array((0, 1, 0), 'f')), 'f')
+        pos2 = Numeric.array((Numeric.array((2, 5, 6), 'f'),
+                              Numeric.array((2, 5, 7), 'f'),
+                              Numeric.array((2, 8, 6), 'f')), 'f')
+        radius = Numeric.array((0.2, 0.4, 0.6), 'f')
+        color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
+                               Numeric.array((0, 0, 1, 0.5), 'f'),
+                               Numeric.array((0, 1, 0, 0.5), 'f')), 'f')
+        result = shapeRendererDrawCylinders(3, pos1, pos2, radius, color)
+        assert approximatelyEqual(result, (
+            ((0., 0., 0.), (0., 0., 1.), (0., 1., 0.)),
+            ((2., 5., 6.), (2., 5., 7.), (2., 8., 6.)),
+            (0.2, 0.4, 0.6),
+            ((0., 0., 0., 0.5), (0., 0., 1., 0.5), (0., 1., 0., 0.5))))
 
 def test():
     suite = unittest.makeSuite(Tests, 'test')

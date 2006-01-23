@@ -1,11 +1,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "Python.h"
+#include "bradg.h"
 
-extern PyObject *__glColor3f(float r, float g, float b);
+extern PyObject *_getTestResult(void);
 
-PyObject *
-__glColor3f(float r, float g, float b)
+static PyObject *
+_glColor3f(float r, float g, float b)
 {
     /* Don't call glGetError() in this function! */
     //printf("Hello from inside Will's code\n");
@@ -14,7 +15,7 @@ __glColor3f(float r, float g, float b)
     return Py_None;
 }
 
-PyObject *
+static PyObject *
 _checkArray(PyArrayObject *a)
 {
     PyObject *retval;
@@ -35,150 +36,50 @@ _checkArray(PyArrayObject *a)
     return retval;
 }
 
-
-
-
-/*
- * Brad's stuff
- */
-
-extern void shapeRendererInit();
-
-extern void shapeRendererSetFrustum(float frustum[6]);
-extern void shapeRendererSetViewport(int viewport[4]);
-extern void shapeRendererSetModelView(float modelview[6]);
-extern void shapeRendererUpdateLODEval();
-extern void shapeRendererSetLODScale(float s);
-
-extern void shapeRendererDrawSpheres(int count, float center[][3],
-				     float radius[], float color[][4]);
-extern void shapeRendererDrawCylinders(int count, float pos1[][3],
-				       float pos2[][3], float radius[],
-				       float color[][4]);
-
-// #define ZZ()  printf("%s\n", __FUNCTION__)
-#define ZZ()
-
-void shapeRendererInit()
-{
-    ZZ();
-}
-
-void shapeRendererSetFrustum(float frustum[6])
-{
-    ZZ();
-}
-
-void shapeRendererSetViewport(int viewport[4])
-{
-    ZZ();
-}
-
-void shapeRendererSetModelView(float modelview[6])
-{
-    ZZ();
-}
-
-void shapeRendererUpdateLODEval()
-{
-    ZZ();
-}
-
-void shapeRendererSetLODScale(float s)
-{
-    ZZ();
-}
-
-void shapeRendererDrawSpheres(int count, float center[][3],
-				     float radius[], float color[][4])
-{
-    ZZ();
-}
-
-void shapeRendererDrawCylinders(int count, float pos1[][3],
-				       float pos2[][3], float radius[],
-				       float color[][4])
-{
-    ZZ();
-}
-
-
-
 /*
  * Wrappers for Brad's stuff
  */
 
-extern PyObject *_shapeRendererInit();
-
-extern PyObject *_shapeRendererSetFrustum(float frustum[6]);
-extern PyObject *_shapeRendererSetViewport(int viewport[4]);
-extern PyObject *_shapeRendererSetModelView(float modelview[6]);
-extern PyObject *_shapeRendererUpdateLODEval(void);
-extern PyObject *_shapeRendererSetLODScale(float s);
-
-extern PyObject *_shapeRendererDrawSpheres(int count,
-					   PyArrayObject *center,
-					   PyArrayObject *radius,
-					   PyArrayObject *color);
-extern PyObject *_shapeRendererDrawCylinders(int count,
-					     PyArrayObject *pos1,
-					     PyArrayObject *pos2,
-					     PyArrayObject *radius,
-					     PyArrayObject *color);
-
-
-
-PyObject *_shapeRendererInit()
+static PyObject *_shapeRendererInit()
 {
     shapeRendererInit();
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererSetFrustum(float frustum[6])
+static PyObject *_shapeRendererSetFrustum(float frustum[6])
 {
     shapeRendererSetFrustum(frustum);
-#if 0
-    printf("%g %g %g %g %g %g\n",
-	   frustum[0], frustum[1], frustum[2],
-	   frustum[3], frustum[4], frustum[5]);
-#endif
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererSetViewport(int viewport[4])
+static PyObject *_shapeRendererSetViewport(int viewport[4])
 {
     shapeRendererSetViewport(viewport);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererSetModelView(float modelview[6])
+static PyObject *_shapeRendererSetModelView(float modelview[6])
 {
     shapeRendererSetModelView(modelview);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererUpdateLODEval(void)
+static PyObject *_shapeRendererUpdateLODEval(void)
 {
     shapeRendererUpdateLODEval();
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererSetLODScale(float s)
+static PyObject *_shapeRendererSetLODScale(float s)
 {
     shapeRendererSetLODScale(s);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererDrawSpheres(int count,
-				    PyArrayObject *center,
-				    PyArrayObject *radius,
-				    PyArrayObject *color)
+static PyObject *_shapeRendererDrawSpheres(int count,
+					   PyArrayObject *center,
+					   PyArrayObject *radius,
+					   PyArrayObject *color)
 {
     float center_data[count][3];
     float radius_data[count];
@@ -226,15 +127,14 @@ PyObject *_shapeRendererDrawSpheres(int count,
 			     center_data,
 			     radius_data,
 			     color_data);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }
 
-PyObject *_shapeRendererDrawCylinders(int count,
-				      PyArrayObject *pos1,
-				      PyArrayObject *pos2,
-				      PyArrayObject *radius,
-				      PyArrayObject *color)
+static PyObject *_shapeRendererDrawCylinders(int count,
+					     PyArrayObject *pos1,
+					     PyArrayObject *pos2,
+					     PyArrayObject *radius,
+					     PyArrayObject *color)
 {
     float pos1_data[count][3];
     float pos2_data[count][3];
@@ -294,6 +194,5 @@ PyObject *_shapeRendererDrawCylinders(int count,
     memmove(color_data, color->data, 4 * count * sizeof(float));
 
     shapeRendererDrawCylinders(count, pos1_data, pos2_data, radius_data, color_data);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return _getTestResult();
 }

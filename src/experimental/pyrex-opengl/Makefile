@@ -37,19 +37,20 @@ clean:
 quux.c: quux.pyx quux_help.c
 	$(PYREXC) quux.pyx
 
-quux.o: quux.c
+quux.o: quux.c bradg.h
+bradg.o: bradg.c bradg.h
 
 # Unix, Mac can use distutils
 quux.so: quux.pyx quux_help.c
 	python setup.py build_ext --inplace
 
+# Unix, Mac - don't use distutils
+__quux.so: quux.o bradg.o
+	$(CC) -shared -o quux.so quux.o bradg.o $(LDFLAGS)
+
 # Windows can't use distutils (avoid MSVC, use Dev-Cpp)
 quux.dll: quux.o libpython23.a
 	$(CC) -shared -o quux.dll quux.o $(LDFLAGS)
-
-rebuild:
-	gcc -pthread -fno-strict-aliasing -DNDEBUG -O2 -fomit-frame-pointer -pipe -march=i586 -mtune=pentiumpro -g -fPIC -I/usr/include/python2.3 -c quux.c -o build/temp.linux-i686-2.3/quux.o
-	gcc -pthread -shared build/temp.linux-i686-2.3/quux.o -o quux.so -L/usr/X11R6/lib -lGL
 
 test: $(TARGET)
 	python -c "import quux; quux.test()"
