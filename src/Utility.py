@@ -1882,13 +1882,24 @@ class DataNode(Node):
         return self.const_icon # set in their init methods
     pass
 
-
+ViewNum = 0
+def genViewNum(string):
+    """return string appended with a unique view number"""
+    global ViewNum
+    ViewNum += 1
+    return string + str(ViewNum)
+    
 class Csys(DataNode):
     """ Information for coordinate system"""
+    
+    sym = "View"
 
     def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
         self.const_icon = imagename_to_pixmap("csys.png")
-        Node.__init__(self, assy, name)
+        if name:
+            Node.__init__(self, assy, name)
+        else:
+            Node.__init__(self, assy, genViewNum("%s-" % self.sym))
         self.scale = scale
         assert type(pov) is type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
@@ -1915,7 +1926,7 @@ class Csys(DataNode):
         # if the names are still used when files_mmp reads the mmp file again). For Beta we plan
         # to make them useful and safe, and then make them showable again.
         "[overrides Node method]"
-        return False
+        return True
 
     def writemmp(self, mapping):
         v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,
@@ -1946,6 +1957,26 @@ class Csys(DataNode):
         #bruce 050420 comment: this is inadequate, but before revising it
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<csys " + self.name + ">"
+
+        
+    def __CM_Set_View(self): #mark 060122
+        self.set_view()
+        
+    def set_view(self): #mark 060122
+        '''Set the view to self.
+        '''
+        self.assy.o.animateView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
+        
+    def __CM_Save_to_Current_View(self): #mark 060122
+        self.save_to_current_view()
+    
+    def save_to_current_view(self): #mark 060122
+        '''Save the current view to self.
+        '''
+        self.scale = self.assy.o.scale
+        self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
+        self.zoomFactor = self.assy.o.zoomFactor
+        self.quat = Q(self.assy.o.quat)
         
     pass # end of class Csys
 

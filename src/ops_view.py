@@ -129,7 +129,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
     def setViewPerspec(self):
         self.glpane.setViewProjection(PERSPECTIVE)
 
-    def setViewNormalTo(self):
+    def setViewNormalToOrig(self):
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
@@ -148,7 +148,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             # Warning: RectGadgets have no atoms.  We handle this special case below.
             atoms = jigs[0].atoms 
         elif len(atoms) < 2:
-            msg = redmsg("Please select at least two atoms, a jig or a chunk.")
+            msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 2 atoms")
             env.history.message(cmd + msg)
             return
         
@@ -177,6 +177,43 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         self.glpane.rotateView(q2)
         
         info = 'View set to normal vector of the plane defined by the selected atoms.'
+        env.history.message(cmd + info)
+        
+    def setViewNormalTo(self):
+        '''Set view to the normal vector of the plane defined by 3 or more
+        selected atoms or a jig's (Motor or RectGadget) axis.
+        '''
+        cmd = greenmsg("Set View Normal To: ")
+        
+        # This implementation has two serious problems:
+        #   1. it selects a normal based on the atoms and not the axis of a jig (e.g. a moved rotary motor).
+        #   2. doesn't consider selected jigs that have no atoms.
+        # Bruce and I will discuss this and determine the best implem.  
+        # In the meantime, I'm keeping setViewNormalToOrig(). mark 060122.
+        atoms = self.assy.getSelectedAtoms()
+        
+        if len(atoms) < 2:
+            msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 2 atoms")
+            env.history.message(cmd + msg)
+            return
+        
+        pos = A( map( lambda a: a.posn(), atoms ) ) # build list of atom xyz positions.
+        nears = [ self.glpane.out, self.glpane.up ]
+        from geometry import compute_heuristic_axis
+        axis = compute_heuristic_axis( pos, 'normal', already_centered = False, nears = nears, dflt = None )
+
+        if not axis:
+            msg = orangemsg( "Warning: Normal axis could not be determined. No change in view." )
+            env.history.message(cmd + msg)
+            return
+        
+        # Compute the destination quat (q2).
+        q2 = Q(V(0,0,1), axis)
+        q2 = q2.conj()
+        
+        self.glpane.rotateView(q2)
+        
+        info = 'View set to normal of the plane defined by the selection.'
         env.history.message(cmd + info)
         
     def setViewParallelTo(self):
@@ -268,3 +305,15 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         env.history.message(cmd + info)
 
         self.glpane.rotateView(Q(V(1,0,0),pi/2))
+        
+    def saveNamedView(self):
+        from Utility import Csys
+        csys = Csys(self.assy, None, 
+                                self.glpane.scale, 
+                                self.glpane.pov, 
+                                self.glpane.zoomFactor, 
+                                self.glpane.quat)
+        part = self.assy.part
+        part.ensure_toplevel_group()
+        part.topnode.addchild(csys)
+        self.mt.mt_update()

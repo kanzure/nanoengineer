@@ -30,6 +30,21 @@ class ops_select_Mixin:
     #  when it's the current part; these are event handlers which should
     #  do necessary updates at the end, e.g. win_update, and should print
     #  history messages, etc]
+    
+    def getSelectedAtoms(self): #mark 060122
+        '''Returns a list of all the selected atoms, including those of selected chunks and jigs.
+        '''
+        atoms = []
+        
+        for chunk in self.assy.selmols[:]:
+            atoms += chunk.atoms.values()
+        
+        for jig in self.assy.getSelectedJigs():
+            atoms += jig.atoms 
+
+        atoms += self.assy.selatoms_list()
+        
+        return atoms
 
     def getSelectedJigs(self):
         '''Returns a list of all the currently selected jigs.
@@ -38,24 +53,20 @@ class ops_select_Mixin:
         selJigs = []
         def addSelectedJig(obj, jigs=selJigs):
             if obj.picked and isinstance(obj, Jig):
-                    jigs += [obj]
+                jigs += [obj]
         
         self.topnode.apply2all(addSelectedJig)
         return selJigs
-
-    
-    def getMovables(self):
-        '''Return the list of movable objects, including selected chunks and jigs.
+        
+    def getMovables(self): # Should be renamed to getSelectedMovables().  mark 060121.
+        '''Returns the list of all selected nodes that are movable.
         '''
-        selected_jigs = self.getSelectedJigs()
-        movable_jigs = []
-        
-        for j in selected_jigs[:]:
-            if j.is_movable:
-                movable_jigs += [j]
-        
-        return self.selmols + movable_jigs
-    
+        selected_movables = []
+        def addMovableNode(obj, nodes=selected_movables):
+            if obj.picked and obj.is_movable:
+                nodes += [obj]
+        self.topnode.apply2all(addMovableNode)
+        return selected_movables
 
     def selectAll(self):
         """Select all parts if nothing selected.
