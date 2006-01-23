@@ -5,7 +5,7 @@ ifeq ($(OS),Windows_NT)
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-g -Wmissing-prototypes
 CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
-LDFLAGS=-Wl,--output-def,tryit.def -L. -L"C:/Dev-Cpp/lib" \
+LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib" \
 	-lpython23 -lopengl32
 PYREXC=python c:/Python23/Scripts/pyrexc.py
 TARGET=quux.dll
@@ -32,7 +32,7 @@ endif
 all: $(TARGET)
 
 clean:
-	rm -rf *~ *.o quux.c $(TARGET) build
+	rm -rf *~ *.o quux.c $(TARGET) build *.def
 
 quux.c: quux.pyx quux_help.c
 	$(PYREXC) quux.pyx
@@ -49,8 +49,8 @@ __quux.so: quux.o bradg.o
 	$(CC) -shared -o quux.so quux.o bradg.o $(LDFLAGS)
 
 # Windows can't use distutils (avoid MSVC, use Dev-Cpp)
-quux.dll: quux.o libpython23.a
-	$(CC) -shared -o quux.dll quux.o $(LDFLAGS)
+quux.dll: quux.o bradg.o libpython23.a
+	$(CC) -shared -o quux.dll quux.o bradg.o $(LDFLAGS)
 
 test: $(TARGET)
 	python -c "import quux; quux.test()"
