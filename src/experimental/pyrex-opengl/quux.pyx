@@ -129,7 +129,17 @@ class Tests(unittest.TestCase):
         try:
             frustum = Numeric.array((1, 2, 3, 4, 5), 'f')
             shapeRendererSetFrustum(frustum)
+            assert False, "Failure expected here"
         except AssertionError:
+            pass
+
+    def testTooManyCallsToGetTestResult(self):
+        try:
+            frustum = Numeric.array((1, 2, 3, 4, 5, 6), 'f')
+            shapeRendererSetFrustum(frustum)
+            _getTestResult()
+            assert False, "Failure expected here"
+        except RuntimeError:
             pass
 
     def testSetLODScale(self):

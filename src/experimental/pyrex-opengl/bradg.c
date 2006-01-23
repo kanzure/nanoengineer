@@ -16,8 +16,9 @@ _getTestResult(void)
 {
     PyObject *retval;
     if (_result == NULL) {
-	Py_INCREF(Py_None);
-	return Py_None;
+	PyErr_SetString(PyExc_RuntimeError,
+			"no corresponding function call");
+	return NULL;
     }
     /*
      * Only return each result once, so refcounting works OK.
