@@ -14,14 +14,7 @@ static PyObject *
 _glColor3f(float r, float g, float b)
 {
     /* Don't call glGetError() in this function! */
-#ifdef MACOSX
-    printf("r=%g g=%g b=%g\n", r, g, b);
-#else
-    // This gives a bus error on the Mac?? Why?
-    // Maybe if I haven't set up the correct OpenGL environment or context
-    // or whatever, I'd get a null pointer somewhere in here.
     glColor3f(r, g, b);
-#endif
     Py_INCREF(Py_None);
     return Py_None;
 }
