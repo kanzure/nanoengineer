@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>Form1</class>
+<class>Cruft</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>Form1</cstring>
+        <cstring>Cruft</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Form1</string>
+        <string>Cruft</string>
     </property>
     <widget class="QFrame">
         <property name="name">
@@ -61,7 +61,7 @@
     <connection>
         <sender>pushButton1</sender>
         <signal>clicked()</signal>
-        <receiver>Form1</receiver>
+        <receiver>Cruft</receiver>
         <slot>pushButton1_clicked()</slot>
     </connection>
 </connections>
