@@ -9,6 +9,9 @@ from modes import *
 from chunk import molecule
 import env
 
+# wware 060124  Do not commit this file with this flag set to True.
+# This is a convenient way to embed Pyrex/OpenGL unit tests into the cad code.
+TEST_PYREX_OPENGL = False
 
 def do_what_MainWindowUI_should_do(w):
     '''This creates the Select Atoms (not the Select Chunks) dashboard .
@@ -442,8 +445,17 @@ class selectAtomsMode(selectMode):
             self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
             
             self.update_hybridComboBox(self.w)
-            self.w.selectAtomsDashboard.show() 
-
+            self.w.selectAtomsDashboard.show()
+            # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
+            if TEST_PYREX_OPENGL:
+                try:
+                    sys.path.append("./experimental/pyrex-opengl")
+                    import quux
+                    env.history.message("Running unit tests for Pyrex OpenGL extension")
+                    quux.test()
+                    env.history.message("Pyrex OpenGL unit tests finished")
+                except ImportError:
+                    env.history.message(redmsg("Can't import Pyrex OpenGL, rebuild it"))
             
         def restore_gui(self):
             self.w.disconnect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
