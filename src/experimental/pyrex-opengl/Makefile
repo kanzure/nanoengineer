@@ -33,7 +33,7 @@ endif
 all: $(TARGET)
 
 clean:
-	rm -rf *~ *.o quux.c $(TARGET) build *.def
+	rm -rf *~ *.o quux.c $(TARGET) build *.def PyrexOpenGLGui.py *.pyc
 
 quux.c: quux.pyx quux_help.c
 	$(PYREXC) quux.pyx
@@ -48,6 +48,9 @@ quux.so: quux.pyx quux_help.c
 # Unix, Mac - don't use distutils
 __quux.so: quux.o bradg.o
 	$(CC) -shared -o quux.so quux.o bradg.o $(LDFLAGS)
+
+PyrexOpenGLGui.py: PyrexOpenGLGui.ui
+	pyuic PyrexOpenGLGui.ui > PyrexOpenGLGui.py
 
 # Windows can't use distutils (avoid MSVC, use Dev-Cpp)
 quux.dll: quux.o bradg.o libpython23.a
