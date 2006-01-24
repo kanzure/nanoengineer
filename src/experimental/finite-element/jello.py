@@ -1,22 +1,25 @@
-from Tkinter import *
+#!/usr/bin/python
+
+from jelloGui import *
+from qt import *
+from qtcanvas import *
+import sys
 import random
+import time
+import Numeric
 from math import cos, sin
 
 MASS = 1.0e-7
 DT = 1.0e-3
 STIFFNESS = 1.0e-5
-VISCOSITY = 3.0e-8
+VISCOSITY = 1.0e-7
 
 class ForceTerm:
     def __init__(self, index1, index2, grid):
         self.index1 = index1
         self.index2 = index2
         self.grid = grid
-        #self.previousDiff = (0.0, 0.0)
     def compute(self, forces):
-        # get the previous diff
-        #Px, Py = self.previousDiff
-        # find the current diff
         i1, i2 = self.index1, self.index2
         g = self.grid
         u1, u2 = g.u[i1], g.u[i2]
@@ -29,17 +32,19 @@ class ForceTerm:
         f2x, f2y = forces[i2]
         forces[i1] = (f1x + fx, f1y + fy)
         forces[i2] = (f2x - fx, f2y - fy)
-        #self.previousDiff = (Dx, Dy)
 
-class FiniteElementGrid:
-    def __init__(self, side=3):
-        self.tk = tk = Tk()
-        self.canvas = canvas = Canvas(tk, width=400, height=400)
-        canvas.pack()
-        width, height = tk.getint(canvas['width']), \
-                        tk.getint(canvas['height'])
-        self.width, self.height = width, height
-        self.particles = particles = [ ]
+class Jello(JelloGui):
+
+    ANIMATION_DELAY = 20   # milliseconds
+    COLOR_CHOICES = (
+        QColor(Qt.red), QColor(Qt.yellow),
+        QColor(Qt.green), QColor(Qt.blue)
+        )
+
+    def __init__(self, side=5):
+        JelloGui.__init__(self, parent=None, name=None, modal=0, fl=0)
+        size = self.frame1.size()
+        self.width, self.height = size.width(), size.height()
         self.forceTerms = [ ]
 
         self.side = side
@@ -54,11 +59,6 @@ class FiniteElementGrid:
                 self.u_new.append((0., 0.))
                 u.append((0., 0.))
                 x.append((xi, yi))
-                wx, wy = ((width / 3.) * (xi + 1),
-                          (height / 3.) * (yi + 1))
-                particles.append(canvas.create_oval(wx-2, wy-2,
-                                                    wx+2, wy+2,
-                                                    fill='red'))
         # set up the force terms
         for i in range(side):
             for j in range(side - 1):
@@ -71,28 +71,80 @@ class FiniteElementGrid:
                 index2 = (i + 1) * side + j
                 self.forceTerms.append(ForceTerm(index1, index2, self))
         self.simTime = 0.0
-        tk.update()
 
-    counter = 0
+        self.timer = QTimer(self)
+        self.connect(self.timer, SIGNAL('timeout()'), self.timeout)
+        self.lastTime = time.time()
+        self.timer.start(self.ANIMATION_DELAY)
+
+
+
+    def pushButton1_clicked(self):
+        self.app.quit()
+
+    def timeout(self):
+        self.oneFrame()
+        self.timer.start(self.ANIMATION_DELAY)
+
+    def oneFrame(self):
+        # On each step we do verlet, using u_old and u to compute
+        # u_new. Then we move each particle from u to u_new. Then
+        # we move u to u_old, and u_new to u.
+        for i in range(1):
+            self.equationsOfMotion()
+            tmp = self.u_old
+            self.u_old = self.u
+            self.u = self.u_new
+            self.u_new = tmp
+        self.paintEvent(None)
+
+    def paintEvent(self, e):
+        """Draw a colorful collection of lines and circles.
+        """
+        p = QPainter()
+        n, w, h = self.side, self.width, self.height
+        self_x, self_u = self.x, self.u
+        p.begin(self.frame1)
+        p.eraseRect(0, 0, w, h)
+        p.setPen(QPen(Qt.black))
+        p.setBrush(QBrush(Qt.blue))
+        w3, h3 = w / 3, h / 3
+        index = 0
+        for i in range(n):
+            for j in range(n):
+                xvec = self_x[index]
+                uvec = self_u[index]
+                #x = w3 * (xvec[0] + uvec[0] + 1)
+                x = h3 * (xvec[0] + uvec[0] + 1)
+                y = h3 * (xvec[1] + uvec[1] + 1)
+                p.drawEllipse(x, y, w/50, w/50)
+                index += 1
+        p.flush()
+        p.end()
 
     def equationsOfMotion(self):
-        A = 1.0e-5
+        A = 3.0e-6
         n = self.side
-        forces = (n * n) * [ (0.0, 0.0) ]
         t = self.simTime
-        dt = 0.1
-        if t > 0 and t < dt:
+        self.simTime += DT
+        DTM = (DT ** 2) / MASS
+        # zero the forces
+        forces = (n * n) * [ (0.0, 0.0) ]
+        # apply external forces
+        forceTime = 0.1
+        if t > 0 and t < forceTime:
             forces[0] = (A, -A)
             forces[n*(n-1)] = (A, A)
-        elif t > 2.0 and t < 2.0 + dt:
+        elif t > 2.0 and t < 2.0 + forceTime:
             forces[-1] = (-A, A)
             forces[n-1] = (-A, -A)
-        self.counter += 1
+            pass
+        # compute internal forces  (opportunity for speed-up)
         for ft in self.forceTerms:
             ft.compute(forces)
         self_u, self_uold, self_unew = self.u, self.u_old, self.u_new
+        # iterate Verlet   (opportunity for speed-up)
         index = 0
-        DTM = (DT ** 2) / MASS
         for i in range(n):
             for j in range(n):
                 uvec = self_u[index]
@@ -102,45 +154,15 @@ class FiniteElementGrid:
                 self_unew[index] = (unew[0] + DTM * fi[0],
                                     unew[1] + DTM * fi[1])
                 index += 1
-        self.simTime += DT
 
-    def updateGraphics(self):
-        canvas, particles = self.canvas, self.particles
-        self_x, self_u, self_u_new = self.x, self.u, self.u_new
-        n = self.side
-        xs = self.width / 3.
-        ys = self.height / 3.
-        index = 0
-        for i in range(n):
-            for j in range(n):
-                unew = self_u_new[index]
-                uvec = self_u[index]
-                canvas.move(particles[index],
-                            xs * (unew[0] - uvec[0]),
-                            ys * (unew[1] - uvec[1]))
-                index += 1
-        self.tk.update()
-
-    def run(self):
-        # On each step we do verlet, using u_old and u to compute
-        # u_new. Then we move each particle from u to u_new. Then
-        # we move u to u_old, and u_new to u.
-        while self.simTime < 20:
-            for i in range(10):
-                self.equationsOfMotion()
-                tmp = self.u_old
-                self.u_old = self.u
-                self.u = self.u_new
-                self.u_new = tmp
-            self.updateGraphics()
-
-# Main program
 def main():
-    import sys, string
-    h = FiniteElementGrid(6)
-    h.run()
+    app = QApplication(sys.argv)
+    cr = Jello(4)
+    cr.app = app
+    app.setMainWidget(cr)
+    cr.show()
+    cr.update()
+    app.exec_loop()
 
-
-# Call main when run as script
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
