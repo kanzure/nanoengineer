@@ -501,9 +501,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         if angle == 0: # Current view and new view are the same. No rotation.
             return
-            
-        # Disable standard view actions on toolbars/menus.
-        self.win.enableViews(False)
         
         # The maximum number of frames is based on how long it 
         # takes to repaint one frame.
@@ -519,6 +516,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         off *= (1.0/total_frames)
         wxyz = wxyz1
+        
+        # Disable standard view actions on toolbars/menus while animating.
+        # This is a safety feature to keep the user from clicking another view 
+        # animation action while this one is still running.
+        self.win.enableViews(False)
 
         # Main animation loop.
         for f in range(1, total_frames):
@@ -549,9 +551,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.gl_update()
             return
             
-        # Disable standard view actions on toolbars/menus.
-        self.win.enableViews(False)
-        
         wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         s1 = self.scale
         pov1 = V(self.pov[0], self.pov[1], self.pov[2])
@@ -578,21 +577,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         angle = deltaq.angle * 180/pi # in degrees
         if angle > 180:
             angle = 360 - angle
+
+        deltap = vlen(p2 - self.pov)
+        deltas = abs(s2 - self.scale)
+        deltaz = abs(z2 - self.zoomFactor)
+        
+        if angle + deltap + deltas + deltaz == 0: 
+            # No change in view.  Fixes bugs 1350 and 1170. mark 060124.
+            return
         
         # Make the rotation speed consistent for any arbitrary destination quat.
         # For example, if the angle to the destination quat is 90 degrees, then the 
         # total number of frames will be cut in half.
         qf = int(angle/180 * max_frames)
-        
-        deltap = p2 - self.pov
-        pf = int(vlen(deltap)*.2) # .2 based on guess/testing. mark 060123
-        
-        deltas = abs(s2 - self.scale)
+        pf = int(deltap * .2) # .2 based on guess/testing. mark 060123
         sf = int(deltas * .05) # .05 based on guess/testing. mark 060123
-        
-        deltaz = abs(z2 - self.zoomFactor)
         zf = int(deltaz * .05) # Not tested. mark 060123
-        
         total_frames = int(min(max_frames,max(3, qf, pf, sf, zf)))
         
         #print "total_frames =", total_frames, "maxf=",max_frames,"qf=",qf,", pf=",pf,", sf=",sf,", zf=",zf
@@ -606,6 +606,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         pov_inc = pov2 - pov1
         pov_inc *= (1.0/total_frames)
         pov = pov1
+        
+        # Disable standard view actions on toolbars/menus while animating.
+        # This is a safety feature to keep the user from clicking another view 
+        # animation action while this one is still running.
+        self.win.enableViews(False)
         
         # Main animation loop.
         for f in range(1, total_frames):
