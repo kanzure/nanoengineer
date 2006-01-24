@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 env.py
 
@@ -144,6 +144,30 @@ history = pre_init_fake_history_widget() # this will be changed by MWsemantics._
 
 redraw_counter = 0 #bruce 050825
 
+# ==
+
+_change_checkpoint_counter = 0 #bruce 060123 for Undo and other uses
+    # almost any change-counter record can work (in part) by incrementing this if necessary to make it odd,
+    # then saving its value on changed things, if all observing-code for it increments it if necessary to make it even;
+    # this way it's easy to compare any change (odd saved value)
+    # with anything that serves as a state-checkpoint (even saved value),
+    # but we can still optimize saving this on all parents/containers of an object in low-level change-tracking code,
+    # by stopping the ascent from changed child to changed parent as soon as it would store the same value of this on the parent.
+
+def change_counter_checkpoint():
+    "Call this to get a value to save in state-snapshots or the like, for comparison (using >, not ==) with stored values."
+    global _change_checkpoint_counter
+    if _change_checkpoint_counter & 1:
+        _change_checkpoint_counter += 1 # make it even, when observed
+    return _change_checkpoint_counter
+
+def change_counter_for_changed_objects():
+    "Call this to get a value to store on changed objects and all their containers; see comment for important optimization."
+    global _change_checkpoint_counter
+    if _change_checkpoint_counter & 1 == 0:
+        _change_checkpoint_counter += 1 # make it odd, when recording a change
+    return _change_checkpoint_counter
+   
 # ==
 
 _last_glselect_name = 0

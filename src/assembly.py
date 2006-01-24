@@ -85,6 +85,7 @@ from platform import fix_plurals
 import platform
 import env
 from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051013
+from debug import print_compact_stack
 
 
 debug_assy_changes = 0 #bruce 050429
@@ -100,7 +101,7 @@ class assembly(GenericDiffTracker_API_Mixin):
     """
 
     # default values of some instance variables
-    _change_counter = 0 #bruce 060121; incremented by every call of self.changed() (even if self._modified); never reset
+    _change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
     
     def __init__(self, win, name = None):
         # ignore changes to this assembly during __init__, and after it,
@@ -134,7 +135,7 @@ class assembly(GenericDiffTracker_API_Mixin):
             # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
             import undo_manager
             menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
-            self.undo_manager = undo_manager.AssyUndoManager(self, menus)
+            self.undo_manager = undo_manager.AssyUndoManager(self, menus) # be sure to call init1() on this within self.__init__!
                 # fyi: this sets self._u_archive for use by our model objects when they report changes
                 # (but its name and value are private to AssyUndoManager's API for our model objects,
                 #  which is why we don't set it here)
@@ -224,6 +225,9 @@ class assembly(GenericDiffTracker_API_Mixin):
         assert self.tree.part
         assert self.tree.part.homeCsys
         assert self.tree.part.lastCsys
+
+        if self.w:
+            self.undo_manager.init1()
         
         return # from assembly.__init__
 
@@ -732,16 +736,18 @@ class assembly(GenericDiffTracker_API_Mixin):
                 return meth(*args,**kws)
             return deleg
         ###@@@ obs after this??
-        try:
-            #e learn how to extend part_methods, or the set of methods to split
-            meth = getattr(self.part, attr)
-            if callable(meth):
-                # guess it's a method we should delegate
-                print "assy delegating to part method -- bug, need to extend part_methods:",attr
-                return meth
-            # else fall thru
-        except AttributeError:
-            raise AttributeError, attr
+        #bruce 060123 - i guess it is obs after this, and it bit me with infrecur, so try zapping it:
+##        try:
+##            print "assy wrong getattr to part",attr #######@@@@@@@
+##            #e learn how to extend part_methods, or the set of methods to split
+##            meth = getattr(self.part, attr)
+##            if callable(meth):
+##                # guess it's a method we should delegate
+##                print "assy delegating to part method -- bug, need to extend part_methods:",attr
+##                return meth
+##            # else fall thru
+##        except AttributeError:
+##            raise AttributeError, attr
         raise AttributeError, attr
 
     # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
@@ -782,11 +788,16 @@ class assembly(GenericDiffTracker_API_Mixin):
         if self._suspend_noticing_changes:
             return #bruce 060121 -- this changes effective implem of begin/end_suspend_noticing_changes; should be ok
         
-        self._change_counter += 1 #bruce 060121
+##        self._change_counter += 1 #bruce 060121
+
+        self._change_counter = env.change_counter_for_changed_objects() #bruce 060123
+            ###e should optimize by feeding new value from changed children (mainly Nodes) only when needed
+            ##e will also change this in some other routine which is run for changes that are undoable but won't set _modified flag
+
 ##        if platform.atom_debug:
 ##            print_compact_stack("change %d: " % self._change_counter)
 
-        env.in_op("(assy.changed)") #bruce 050908, for Undo -- will this call be too slow?? [might not be needed; 060121]
+##        env.in_op("(assy.changed)") #bruce 050908, for Undo -- will this call be too slow?? [might not be needed; 060121]
         
         if not self._modified:
             self._modified = 1
@@ -832,10 +843,23 @@ class assembly(GenericDiffTracker_API_Mixin):
 ##            self.movieID = random.randint(0,4000000000) # 4B is good enough
             
             pass
+        
         # If you think you need to add a side-effect *here* (which runs every
         # time this method is called, not just the first time after each save),
         # that would probably be too slow -- we'll need to figure out a different
         # way to get the same effect (like recording a "modtime" or "event counter").
+        
+        self.modflag_asserts()
+        return # from assembly.changed()
+
+    def modflag_asserts(self): #bruce 060123
+        if platform.atom_debug:
+            #bruce 060123 guess -- _change_counter being even reports whether assy is saved, could serve to recompute self._modified
+            if not ((not self._modified) == (self._change_counter % 2 == 0)):
+                print_compact_stack(
+                    "atom_debug: bug? ((not self._modified) == (self._change_counter % 2 == 0)), selfmod %r, selfcc %r: " % \
+                      (self._modified, self._change_counter)
+                )
         return
 
     # Methods to toggle change-noticing during specific sections of code.
@@ -881,15 +905,44 @@ class assembly(GenericDiffTracker_API_Mixin):
         self._modified = oldmod
         return
 
+    _change_counter_when_reset_changed = -2 #bruce 060123 for Undo; value is even to match the effect of code in reset_changed()
+    
     def reset_changed(self): # bruce 050107
-        """[private method] #doc this... see self.changed() docstring.
+        """[private method] #doc this... see self.changed() docstring...
         """
+        #bruce 060123 assuming all calls are like File->Save call...
+        # actual calls are from MWsem.__init__, File->Open,
+        # File->Save (actually saved_main_file; does its own update_mainwindow_caption), File->Close
         if self._suspend_noticing_changes:
             print "warning, possible bug: self._suspend_noticing_changes is True during reset_changed" #bruce guess 060121
         if debug_assy_changes:
             print_compact_stack( "debug_assy_changes: %r: reset_changed: " % self )
         self._modified = 0
+        #e should this call self.w.update_mainwindow_caption(Changed = False),
+        # or fulfill a subs to do that?? [bruce question 060123]
 
+        self._change_counter_when_reset_changed = self._change_counter = env.change_counter_checkpoint() #bruce 060123 for Undo
+            ##k not sure it's right to call change_counter_checkpoint and not subsequently call change_counter_for_changed_objects
+        return
+
+    def reset_changed_for_undo(self, change_counter ): #bruce 060123 guess; needs cleanup
+        """External code (doing an Undo or Redo) has made our state like it was when self._change_counter was as given.
+        Set self._change_counter to that value and update self._modified to match (using self._change_counter_when_reset_changed
+        without changing it).
+        """
+        # in other words, treat self._change_counter as a varid_vers for our current state... ###@@@
+        modflag = (self._change_counter_when_reset_changed != change_counter)
+            #### ignores issue of undoable changes that are not saved (selection) or don't trigger save (view/part??)
+        if debug_assy_changes:
+            print_compact_stack( "debug_assy_changes for %r: reset_changed_for_undo(%r), modflag %r: " % (self,change_counter,modflag) )
+        self._modified = modflag
+        self._change_counter = change_counter
+        self.modflag_asserts()
+        #####@@@@@ need any other side effects of assy.changed()??
+        if self.w:
+            self.w.update_mainwindow_caption_properly()
+        return
+    
     # ==
     
     ## bruce 050308 disabling checkpicked for assy/part split; they should be per-part
@@ -945,8 +998,11 @@ class assembly(GenericDiffTracker_API_Mixin):
     def editRedo(self):
         self.undo_manager.editRedo()
 
-    def undo_checkpoint_before_command(self, cmdname = ""):
-        self.undo_manager.undo_checkpoint_before_command(cmdname)
+    def undo_checkpoint_before_command(self, *args, **kws):
+        return self.undo_manager.undo_checkpoint_before_command(*args, **kws)
+
+    def undo_checkpoint_after_command(self, *args, **kws):
+        return self.undo_manager.undo_checkpoint_after_command(*args, **kws)
     
     pass # end of class assembly
 

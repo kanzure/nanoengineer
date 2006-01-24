@@ -385,6 +385,7 @@ class wrappedslot:
 ##                pass
 ##            else:
 ##                print "sender",se
+        cp_fn = None # None, or a true thing enabling us to call undo_checkpoint_after_command
         if 1: #060121
             sender = self.__sender
             ##print "sender",sender # or could grab its icon for insertion into history
@@ -413,7 +414,8 @@ class wrappedslot:
                             print_compact_traceback("atom_debug: fyi: normal exception: ")
                         pass # this is normal during init... or at least I thought it would be -- I never actually saw it yet.
                     else:
-                        assy.undo_checkpoint_before_command(fn)
+                        begin_retval = assy.undo_checkpoint_before_command(fn)
+                        cp_fn = fn, begin_retval #e this should include a retval from that method, but must also always be true
                 if 0: print " featurename =", fn
                     # This works! prints correct names for toolbuttons and main menu items.
                     # Doesn't work for glpane cmenu items, but I bet it will when we fix them to have proper WhatsThis text.
@@ -422,12 +424,20 @@ class wrappedslot:
                     # identity of the bound method they call as a slot! Not sure if this is possible. If not, we have to set
                     # command names from inside the methods that implement them (not the end of the world), or grab them from
                     # history text (doable).
-        return env.begin_op("(wr)")
+        return cp_fn, env.begin_op("(wr)") #060123 revised retval
     def error(self):
         "called when an exception occurs during our slot method call"
         pass ### mark the op_run as having an error
-    def end(self, mc):
+    def end(self, fn_mc):
+        cp_fn, mc = fn_mc
         env.end_op(mc)
+        if 1: #060123
+            if cp_fn:
+                fn, begin_retval = cp_fn
+                win = env.mainwindow()
+                assy = win.assy
+                assy.undo_checkpoint_after_command( begin_retval)
+        return
     pass
 
 class hacked_connect_method_installer: #e could be refactored into hacked-method-installer and hacked-method-code to call origmethod

@@ -43,32 +43,41 @@ class UndoManager:
 
 class AssyUndoManager(UndoManager):
     "An UndoManager specialized for handling the state held by an assy (an instance of class assembly)."
-    def __init__(self, assy, menus = ()): # called from assy.__init__, i think
+    def __init__(self, assy, menus = ()): # called from assy.__init__
+        "Do what can be done early in assy.__init__; that must also (subsequently) call self.init1()"
         # assy owns the state whose changes we'll be managing...
         # [semiobs cmt:] should it have same undo-interface as eg chunks do??
-        ## self.thingies = {}
         self._current_main_menu_ops = {}
+        self.assy = assy
+        self.menus = menus
+        return
+
+    def init1(self):
+        "Do what we might do in __init__ except that it might be too early during assy.__init__ then"
+        assy = self.assy
         self.archive = AssyUndoArchive(assy) # does initial checkpoint
-        self.assy = assy #k still needed?
-        assy._u_archive = self.archive ########@@@@@@@@ still safe in 060117 stub code??
-            # this is how model objects in assy find something to report changes to (typically in their __init__ methods);
+        assy._u_archive = self.archive ####@@@@ still safe in 060117 stub code??
+            # [obs??] this is how model objects in assy find something to report changes to (typically in their __init__ methods);
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
 ##        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
 ##        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
-        self.menus = menus
+        if platform.is_macintosh(): 
+            win = assy.w
+            win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # set up incorrectly (for Mac) as "Ctrl+Y"
         self.connect_or_disconnect_menu_signals(True)
         return
-
+        
     def deinit(self):
         self.connect_or_disconnect_menu_signals(False) 
         #e more?
         return
     
     def connect_or_disconnect_menu_signals(self, connectQ):
+        win = self.assy.w
         if connectQ:
-            method = self.assy.w.connect
+            method = win.connect
         else:
-            method = self.assy.w.disconnect
+            method = win.disconnect
         for menu in self.menus:
             method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
         return
@@ -79,15 +88,29 @@ class AssyUndoManager(UndoManager):
     def undo_checkpoint_before_command(self, cmdname = ""): #e should it be renamed begin_cmd_checkpoint()??
         auto_checkpointing = debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False) # recheck the pref every time
         if not auto_checkpointing:
-            return
+            return False
         # (everything before this point must be kept fast)
         cmdname = cmdname or "command"
         if undo_archive.debug_undo2:
             env.history.message("debug_undo2: begin_cmd_checkpoint for %r" % (cmdname,))
         # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
         self.archive.checkpoint( cptype = 'begin_cmd' )
-        return
+        return True # this code should be passed to the matching undo_checkpoint_after_command (#e could make it fancier)
 
+    def undo_checkpoint_after_command(self, begin_retval):
+        assert begin_retval in [False, True], "begin_retval should not be %r" % (begin_retval,)
+        if begin_retval:
+            # this means [as of 060123] that debug pref for undo checkpointing is enabled
+            if undo_archive.debug_undo2:
+                env.history.message("  debug_undo2: end_cmd_checkpoint")
+            # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
+            self.archive.checkpoint( cptype = 'end_cmd' )
+            self.remake_UI_menuitems() # redundant; needed since cmd-Z accel key is not preceded by it, like looking at menu is!
+                ######@@@@@@ THIS MIGHT BE INADEQUATE AS A WORKAROUND when we do an Undo or Redo itself -- or it might be ok --
+                # need to re-call it when they end, for sure; not sure this is happening now. ##k
+            pass
+        return
+    
     def undo_redo_ops(self):
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
         ops = self.archive.find_undoredos() # state_version - now held inside UndoArchive.last_cp (might be wrong) ###@@@
@@ -136,9 +159,6 @@ class AssyUndoManager(UndoManager):
         win = self.assy.w
         undo_mitem = win.editUndoAction
         redo_mitem = win.editRedoAction
-        if platform.is_macintosh():
-            # kluge; should do this sooner! but this might turn out to happen as soon as user can see it...
-            win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # was "Ctrl+Y"
         for ops, action, optype in [(undos, undo_mitem, 'Undo'), (redos, redo_mitem, 'Redo')]: #e or could grab op.optype()?
             extra = ""
             if undo_archive.debug_undo2:
@@ -156,7 +176,7 @@ class AssyUndoManager(UndoManager):
                 ## action.setMenuText("Nothing to %s" % optype)
                 action.setMenuText("%s" % optype + extra) # for 061117 commit, look like it used to look, for the time being
                 #e tooltip
-                self._current_main_menu_ops[optype] = None ###k what is this used for? looks suspicious, but i think it's recent [060122]
+                self._current_main_menu_ops[optype] = None
             pass
         return
         ''' the kinds of things we can set on one of those actions include:
