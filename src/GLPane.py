@@ -340,9 +340,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # from original setAssy() method. This method can be called
         # after setAssy() has been called, for example, when opening
         # an mmp file. 
-        self.setViewFromCsys( part.lastCsys)
+        
+        # We could eliminate the need for animateView()'s <animate> argument
+        # by temporarily setting animateStandardViews_prefs_key to False here,
+        # and restoring its value after calling setViewFromCsys().  
+        # I'll run it by Bruce just to make sure I'm not missing something.  
+        # BTW, the reason we need animation=False here is that an opened part
+        # will animate from it's default view (csys) to the last view (csys) without
+        # it. Mark 060124.
+        
+        self.setViewFromCsys( part.lastCsys, animate = False)
 
-    def setViewFromCsys(self, csys, animate = False):
+    def setViewFromCsys(self, csys, animate = True):
         "Set the initial or current view used by this GLPane to the one stored in the given Csys object."
         self.animateView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
     
@@ -415,7 +424,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     
     def setViewHome(self):
         "Change current view to our model's home view (for glpane's current part), and gl_update."
-        self.setViewFromCsys( self.part.homeCsys, animate=True)
+        self.setViewFromCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self):
         "Change current view so that our model's bbox fits in our window, and gl_update."
@@ -470,79 +479,33 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             
         self.ortho = projection
         self.gl_update()
-    
-    # rotateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
-    # which traces the same path as slerp but works much faster.
-    # The advantages to this approach are explained in detail here:
-    # http://number-none.com/product/Hacking%20Quaternions/
+
+
     def rotateView(self, q2): 
         "Rotate current view to quat (viewpoint) q2"
         
-        # Check User Preference "General | Standard Views: Animate"
-        if not env.prefs[animateStandardViews_prefs_key]:
-            self.quat = Q(q2)
-            self.gl_update()
-            return
-            
-        wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
-        wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
-        
-        # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
-        # Long paths can be prevented by negating one end (if the dot product is negative).
-        if dot(wxyz1, wxyz2) < 0: 
-            wxyz2 = V(-q2.w, -q2.x, -q2.y, -q2.z)
-        
-        off = wxyz2 -wxyz1
-
-        deltaq = q2 - self.quat
-        angle = deltaq.angle * 180/pi # in degrees
-        if angle > 180:
-            angle = 360 - angle
-        
-        if angle == 0: # Current view and new view are the same. No rotation.
-            return
-        
-        # The maximum number of frames is based on how long it 
-        # takes to repaint one frame.
-        max_frames = max(1, MAX_ANIMATION_TIME/self._repaint_duration)
-
-        # Make the rotation speed consistent for any arbitrary destination quat.  
-        # For example, if the angle to the destination quat is 90 degrees, then the 
-        # total number of frames will be cut in half.
-        # For small rotations, have at least 2 frames. It looks better than just 1.
-        total_frames = int(max(2,(angle/180 * max_frames)))
-        
-        #print "total_frames =", total_frames,", angle =",angle
-        
-        off *= (1.0/total_frames)
-        wxyz = wxyz1
-        
-        # Disable standard view actions on toolbars/menus while animating.
-        # This is a safety feature to keep the user from clicking another view 
-        # animation action while this one is still running.
-        self.win.enableViews(False)
-
-        # Main animation loop.
-        for f in range(1, total_frames):
-            wxyz += off
-            self.quat = Q(norm(wxyz))
-            self.gl_update_duration()
-            
-        # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
-        self.quat = Q(q2) 
-        self.gl_update_duration()
-        
-        # Enable standard view actions on toolbars/menus.
-        self.win.enableViews(True)
+        self.animateView(q2, self.scale, self.pov, self.zoomFactor, animate=True)
+        return
         
     # animateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
     # which traces the same path as slerp but works much faster.
     # The advantages to this approach are explained in detail here:
     # http://number-none.com/product/Hacking%20Quaternions/
     def animateView(self, q2, s2, p2, z2, animate=True):
-        "Animate current view to quat (viewpoint) q2, scale s2, pov p2, and zoom factor z2"
+        '''Animate from the current view to the destination view defined by
+        quat q2, scale s2, pov p2, and zoom factor z2.
+        If animate is False *or* the user pref "Animate between views" is not selected, 
+        then do not animate;  just snap to the destination view.
+        '''
         
-        # Check User Preference "General | Standard Views: Animate"
+        # The <animate> argument is only needed by self._setInitialViewFromPart()
+        # when initializing the view for a newly opened part.  One idea that
+        # would eliminate the need for <animate> is to temporarily set 
+        # animateStandardViews_prefs_key to False in self._setInitialViewFromPart()
+        # and restore its value after setting the view.  I'll run it by Bruce just
+        # to make sure I'm not missing something.  Mark 060124.
+        
+        # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
             self.quat = Q(q2)
             self.pov = V(p2[0], p2[1], p2[2])
@@ -550,78 +513,82 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.scale = s2
             self.gl_update()
             return
-            
-        wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z)
+        
+        # Make copies of the current view parameters.
+        q1 = Q(self.quat)
         s1 = self.scale
-        pov1 = V(self.pov[0], self.pov[1], self.pov[2])
+        p1 = V(self.pov[0], self.pov[1], self.pov[2])
         z1 = self.zoomFactor
         
+        # Compute the normal vector for current and destination view rotation.
+        wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z) 
         wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
-        pov2 = V(p2[0], p2[1], p2[2])
         
         # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
         # Long paths can be prevented by negating one end (if the dot product is negative).
         if dot(wxyz1, wxyz2) < 0: 
             wxyz2 = V(-q2.w, -q2.x, -q2.y, -q2.z)
         
-        off = wxyz2 -wxyz1
-
-        # The maximum number of frames is based on how long it 
-        # takes to repaint one frame.
+        # Compute the maximum number of frames for the maximum possible 
+        # rotation (180 degrees) based on how long it takes to repaint one frame.
         max_frames = max(1, MAX_ANIMATION_TIME/self._repaint_duration)
         
-        # Just like rotateView(), we need to make the rotation speed consistent for any 
-        # arbitrary destination quat, pov, scale and zoomFactor.
+        # Compute the deltas for the quat, pov, scale and zoomFactor.
+        deltaq = q2 - q1
+        deltap = vlen(p2 - p1)
+        deltas = abs(s2 - s1)
+        deltaz = abs(z2 - z1)
         
-        deltaq = q2 - self.quat
-        angle = deltaq.angle * 180/pi # in degrees
-        if angle > 180:
-            angle = 360 - angle
-
-        deltap = vlen(p2 - self.pov)
-        deltas = abs(s2 - self.scale)
-        deltaz = abs(z2 - self.zoomFactor)
-        
-        if angle + deltap + deltas + deltaz == 0: 
-            # No change in view.  Fixes bugs 1350 and 1170. mark 060124.
+        # Do nothing if there is no change b/w the current view to the new view.
+        # Fixes bugs 1350 and 1170. mark 060124.
+        if deltaq.angle + deltap + deltas + deltaz == 0: # deltaq.angle is always positive.
             return
         
-        # Make the rotation speed consistent for any arbitrary destination quat.
-        # For example, if the angle to the destination quat is 90 degrees, then the 
-        # total number of frames will be cut in half.
-        qf = int(angle/180 * max_frames)
-        pf = int(deltap * .2) # .2 based on guess/testing. mark 060123
-        sf = int(deltas * .05) # .05 based on guess/testing. mark 060123
-        zf = int(deltaz * .05) # Not tested. mark 060123
-        total_frames = int(min(max_frames,max(3, qf, pf, sf, zf)))
+        # Compute the rotation angle (in degrees) b/w the current and destination view.
+        rot_angle = deltaq.angle * 180/pi # rotation delta (in degrees)
+        if rot_angle > 180:
+            rot_angle = 360 - rot_angle # go the short way
         
-        #print "total_frames =", total_frames, "maxf=",max_frames,"qf=",qf,", pf=",pf,", sf=",sf,", zf=",zf
+        # Compute the total number of frames to use for the animation sequence
+        # for each delta.
+        rot_frames = int(rot_angle/180 * max_frames)
+        pov_frames = int(deltap * .2) # .2 based on guess/testing. mark 060123
+        scale_frames = int(deltas * .05) # .05 based on guess/testing. mark 060123
+        zoom_frames = int(deltaz * .05) # Not tested. mark 060123
         
-        off *= (1.0/total_frames)
-        wxyz = wxyz1
+        # In an effort to keep animation speeds consistent, determine
+        # the best number of frames to use for the animation loop
+        total_frames = int( \
+            min(max_frames, \
+            max(3, rot_frames, pov_frames, scale_frames, zoom_frames)))
         
+        #print "total_frames =", total_frames
+        
+        # Compute the increments for each view parameter to use in the animation loop.
+        rot_inc = (wxyz2 - wxyz1) / total_frames
         scale_inc = (s2 - s1) / total_frames
         zoom_inc = (z2 - z1) / total_frames
-        
-        pov_inc = pov2 - pov1
-        pov_inc *= (1.0/total_frames)
-        pov = pov1
+        pov_inc = (p2 - p1) / total_frames
         
         # Disable standard view actions on toolbars/menus while animating.
         # This is a safety feature to keep the user from clicking another view 
         # animation action while this one is still running.
         self.win.enableViews(False)
         
-        # Main animation loop.
-        for f in range(1, total_frames):
-            wxyz += off
-            self.quat = Q(norm(wxyz))
+        # Main animation loop, which doesn't draw the final frame of the loop.  
+        # See comments below for explanation.
+        for frame in range(1, total_frames): # Notice no +1 here.
+            wxyz1 += rot_inc
+            self.quat = Q(norm(wxyz1))
             self.pov += pov_inc
             self.zoomFactor += zoom_inc
             self.scale += scale_inc
             self.gl_update_duration()
-            
-        # Due to the possibility of roundoff error, let's "snap" to the final viewpoint.
+        
+        # The animation loop did not draw the last frame on purpose.  Instead,
+        # we snap to the destination view.  This also eliminates the possibility
+        # of any roundoff error in the increment values, which might result in a 
+        # slightly wrong final viewpoint.
         self.quat = Q(q2)
         self.pov = V(p2[0], p2[1], p2[2])
         self.zoomFactor = z2
