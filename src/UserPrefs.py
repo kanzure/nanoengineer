@@ -179,6 +179,9 @@ class UserPrefs(UserPrefsDialog):
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
         self.selection_behavior_btngrp.setButton(env.prefs[selectionBehavior_prefs_key])
         self.animate_views_checkbox.setChecked(env.prefs[animateStandardViews_prefs_key])
+        
+        speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
+        self.animation_speed_slider.setValue(speed) 
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
@@ -511,6 +514,16 @@ class UserPrefs(UserPrefsDialog):
         '''
         # set the pref
         env.prefs[animateStandardViews_prefs_key] = val
+        
+    def change_view_animation_speed(self):
+        '''Sets the view animation speed between .25 (fast) and 3.0 (slow) seconds.
+        '''
+        # To change the range, edit the maxValue and minValue attr for the slider.
+        # For example, if you want the fastest animation time to be .1 seconds,
+        # change maxValue to -10.  If you want the slowest time to be 4.0 seconds,
+        # change minValue to -400.  mark 060124.
+        env.prefs[animateMaximumTime_prefs_key] = \
+            self.animation_speed_slider.value() / -100.0
         
     ########## End of slot methods for "General" page widgets ###########
     

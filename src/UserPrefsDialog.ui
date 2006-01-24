@@ -68,324 +68,508 @@
                 <attribute name="title">
                     <string>General</string>
                 </attribute>
-                <grid>
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>unnamed</cstring>
+                        <cstring>layout54</cstring>
                     </property>
-                    <spacer row="2" column="0">
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>11</y>
+                            <width>506</width>
+                            <height>119</height>
+                        </rect>
+                    </property>
+                    <hbox>
                         <property name="name">
-                            <cstring>spacer23</cstring>
+                            <cstring>unnamed</cstring>
                         </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>30</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
-                        <property name="name">
-                            <cstring>layout53</cstring>
-                        </property>
-                        <hbox>
+                        <widget class="QGroupBox">
                             <property name="name">
-                                <cstring>unnamed</cstring>
+                                <cstring>groupBox7_2</cstring>
                             </property>
-                            <widget class="QButtonGroup">
+                            <property name="title">
+                                <string>Compass and Axes</string>
+                            </property>
+                            <vbox>
                                 <property name="name">
-                                    <cstring>default_projection_btngrp</cstring>
+                                    <cstring>unnamed</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>Default Projection</string>
-                                </property>
-                                <property name="exclusive">
-                                    <bool>true</bool>
-                                </property>
-                                <grid>
+                                <widget class="QCheckBox">
                                     <property name="name">
-                                        <cstring>unnamed</cstring>
+                                        <cstring>display_compass_checkbox</cstring>
                                     </property>
-                                    <widget class="QRadioButton" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>radioButton12</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Perspective</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>radioButton13</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Orthographic</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <widget class="QButtonGroup">
-                                <property name="name">
-                                    <cstring>selection_behavior_btngrp</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Selection Behavior</string>
-                                </property>
-                                <property name="selectedId" stdset="0">
-                                    <number>-1</number>
-                                </property>
-                                <vbox>
+                                    <property name="text">
+                                        <string>Display Compass</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox">
                                     <property name="name">
-                                        <cstring>unnamed</cstring>
+                                        <cstring>display_origin_axis_checkbox</cstring>
                                     </property>
-                                    <widget class="QRadioButton">
-                                        <property name="name">
-                                            <cstring>alpha7_behavior_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Alpha 7</string>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>0</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton">
-                                        <property name="name">
-                                            <cstring>alpha6_behavior_rbtn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Alpha 6</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="buttonGroupId">
-                                            <number>1</number>
-                                        </property>
-                                    </widget>
-                                </vbox>
-                            </widget>
-                            <widget class="QGroupBox">
-                                <property name="name">
-                                    <cstring>groupBox8</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>View Animation</string>
-                                </property>
-                                <grid>
+                                    <property name="text">
+                                        <string>Display Origin Axis</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox">
                                     <property name="name">
-                                        <cstring>unnamed</cstring>
+                                        <cstring>display_pov_axis_checkbox</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>high_quality_graphics_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>High quality graphics</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>animate_views_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Animate between views</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer25</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget" row="0" column="0">
-                        <property name="name">
-                            <cstring>layout54</cstring>
-                        </property>
-                        <hbox>
+                                    <property name="text">
+                                        <string>Display Point of View Axis</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QButtonGroup">
                             <property name="name">
-                                <cstring>unnamed</cstring>
+                                <cstring>compass_position_btngrp</cstring>
                             </property>
-                            <widget class="QGroupBox">
+                            <property name="title">
+                                <string>Compass Position</string>
+                            </property>
+                            <property name="exclusive">
+                                <bool>true</bool>
+                            </property>
+                            <grid>
                                 <property name="name">
-                                    <cstring>groupBox7_2</cstring>
+                                    <cstring>unnamed</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>Compass and Axes</string>
-                                </property>
-                                <vbox>
+                                <widget class="QRadioButton" row="0" column="1">
                                     <property name="name">
-                                        <cstring>unnamed</cstring>
+                                        <cstring>upper_right_btn</cstring>
                                     </property>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_compass_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Compass</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_origin_axis_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Origin Axis</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_pov_axis_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Point of View Axis</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                </vbox>
-                            </widget>
-                            <widget class="QButtonGroup">
-                                <property name="name">
-                                    <cstring>compass_position_btngrp</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Compass Position</string>
-                                </property>
-                                <property name="exclusive">
-                                    <bool>true</bool>
-                                </property>
-                                <grid>
+                                    <property name="text">
+                                        <string>Upper Right</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton" row="0" column="0">
                                     <property name="name">
-                                        <cstring>unnamed</cstring>
+                                        <cstring>upper_left_btn</cstring>
                                     </property>
-                                    <widget class="QRadioButton" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>upper_right_btn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Upper Right</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>upper_left_btn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Upper Left</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>lower_left_btn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Lower Left</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>lower_right_btn</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Lower Right</string>
-                                        </property>
-                                    </widget>
-                                    <spacer row="1" column="0">
-                                        <property name="name">
-                                            <cstring>spacer8</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Vertical</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>20</width>
-                                                <height>16</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <spacer row="1" column="1">
-                                        <property name="name">
-                                            <cstring>spacer8_2</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Vertical</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>20</width>
-                                                <height>16</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                </grid>
-                            </widget>
-                            <spacer>
+                                    <property name="text">
+                                        <string>Upper Left</string>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton" row="2" column="0">
+                                    <property name="name">
+                                        <cstring>lower_left_btn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Lower Left</string>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton" row="2" column="1">
+                                    <property name="name">
+                                        <cstring>lower_right_btn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Lower Right</string>
+                                    </property>
+                                </widget>
+                                <spacer row="1" column="0">
+                                    <property name="name">
+                                        <cstring>spacer8</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Vertical</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>16</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                                <spacer row="1" column="1">
+                                    <property name="name">
+                                        <cstring>spacer8_2</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Vertical</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>16</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </grid>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer48</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>16</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout130</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>12</x>
+                            <y>137</y>
+                            <width>506</width>
+                            <height>173</height>
+                        </rect>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout123</cstring>
+                            </property>
+                            <vbox>
                                 <property name="name">
-                                    <cstring>spacer48</cstring>
+                                    <cstring>unnamed</cstring>
                                 </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout122</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QButtonGroup">
+                                            <property name="name">
+                                                <cstring>default_projection_btngrp</cstring>
+                                            </property>
+                                            <property name="title">
+                                                <string>Default Projection</string>
+                                            </property>
+                                            <property name="exclusive">
+                                                <bool>true</bool>
+                                            </property>
+                                            <grid>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QRadioButton" row="0" column="0">
+                                                    <property name="name">
+                                                        <cstring>radioButton12</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Perspective</string>
+                                                    </property>
+                                                    <property name="checked">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QRadioButton" row="1" column="0">
+                                                    <property name="name">
+                                                        <cstring>radioButton13</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Orthographic</string>
+                                                    </property>
+                                                </widget>
+                                            </grid>
+                                        </widget>
+                                        <widget class="QButtonGroup">
+                                            <property name="name">
+                                                <cstring>selection_behavior_btngrp</cstring>
+                                            </property>
+                                            <property name="title">
+                                                <string>Selection Behavior</string>
+                                            </property>
+                                            <property name="selectedId" stdset="0">
+                                                <number>-1</number>
+                                            </property>
+                                            <vbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QRadioButton">
+                                                    <property name="name">
+                                                        <cstring>alpha7_behavior_rbtn</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Alpha 7</string>
+                                                    </property>
+                                                    <property name="buttonGroupId">
+                                                        <number>0</number>
+                                                    </property>
+                                                </widget>
+                                                <widget class="QRadioButton">
+                                                    <property name="name">
+                                                        <cstring>alpha6_behavior_rbtn</cstring>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Alpha 6</string>
+                                                    </property>
+                                                    <property name="checked">
+                                                        <bool>false</bool>
+                                                    </property>
+                                                    <property name="buttonGroupId">
+                                                        <number>1</number>
+                                                    </property>
+                                                </widget>
+                                            </vbox>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer23</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Vertical</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout129</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
                                 </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>16</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                </grid>
+                                <widget class="QGroupBox">
+                                    <property name="name">
+                                        <cstring>groupBox8</cstring>
+                                    </property>
+                                    <property name="title">
+                                        <string>View Animation</string>
+                                    </property>
+                                    <grid>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QCheckBox" row="1" column="0">
+                                            <property name="name">
+                                                <cstring>animate_views_checkbox</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Animate between views</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLayoutWidget" row="2" column="0">
+                                            <property name="name">
+                                                <cstring>layout128</cstring>
+                                            </property>
+                                            <hbox>
+                                                <property name="name">
+                                                    <cstring>unnamed</cstring>
+                                                </property>
+                                                <widget class="QLayoutWidget">
+                                                    <property name="name">
+                                                        <cstring>layout127</cstring>
+                                                    </property>
+                                                    <vbox>
+                                                        <property name="name">
+                                                            <cstring>unnamed</cstring>
+                                                        </property>
+                                                        <spacer>
+                                                            <property name="name">
+                                                                <cstring>spacer110</cstring>
+                                                            </property>
+                                                            <property name="orientation">
+                                                                <enum>Horizontal</enum>
+                                                            </property>
+                                                            <property name="sizeType">
+                                                                <enum>Minimum</enum>
+                                                            </property>
+                                                            <property name="sizeHint">
+                                                                <size>
+                                                                    <width>40</width>
+                                                                    <height>20</height>
+                                                                </size>
+                                                            </property>
+                                                        </spacer>
+                                                        <widget class="QLabel">
+                                                            <property name="name">
+                                                                <cstring>textLabel1_5</cstring>
+                                                            </property>
+                                                            <property name="sizePolicy">
+                                                                <sizepolicy>
+                                                                    <hsizetype>1</hsizetype>
+                                                                    <vsizetype>5</vsizetype>
+                                                                    <horstretch>0</horstretch>
+                                                                    <verstretch>0</verstretch>
+                                                                </sizepolicy>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Speed :</string>
+                                                            </property>
+                                                            <property name="scaledContents">
+                                                                <bool>false</bool>
+                                                            </property>
+                                                            <property name="alignment">
+                                                                <set>AlignVCenter</set>
+                                                            </property>
+                                                        </widget>
+                                                    </vbox>
+                                                </widget>
+                                                <widget class="QLayoutWidget">
+                                                    <property name="name">
+                                                        <cstring>layout118</cstring>
+                                                    </property>
+                                                    <vbox>
+                                                        <property name="name">
+                                                            <cstring>unnamed</cstring>
+                                                        </property>
+                                                        <widget class="QLayoutWidget">
+                                                            <property name="name">
+                                                                <cstring>layout117</cstring>
+                                                            </property>
+                                                            <hbox>
+                                                                <property name="name">
+                                                                    <cstring>unnamed</cstring>
+                                                                </property>
+                                                                <widget class="QLabel">
+                                                                    <property name="name">
+                                                                        <cstring>textLabel2_3</cstring>
+                                                                    </property>
+                                                                    <property name="text">
+                                                                        <string>Slow</string>
+                                                                    </property>
+                                                                </widget>
+                                                                <spacer>
+                                                                    <property name="name">
+                                                                        <cstring>spacer107</cstring>
+                                                                    </property>
+                                                                    <property name="orientation">
+                                                                        <enum>Horizontal</enum>
+                                                                    </property>
+                                                                    <property name="sizeType">
+                                                                        <enum>Expanding</enum>
+                                                                    </property>
+                                                                    <property name="sizeHint">
+                                                                        <size>
+                                                                            <width>16</width>
+                                                                            <height>20</height>
+                                                                        </size>
+                                                                    </property>
+                                                                </spacer>
+                                                                <widget class="QLabel">
+                                                                    <property name="name">
+                                                                        <cstring>textLabel3_4</cstring>
+                                                                    </property>
+                                                                    <property name="text">
+                                                                        <string>Fast</string>
+                                                                    </property>
+                                                                </widget>
+                                                            </hbox>
+                                                        </widget>
+                                                        <widget class="QSlider">
+                                                            <property name="name">
+                                                                <cstring>animation_speed_slider</cstring>
+                                                            </property>
+                                                            <property name="minValue">
+                                                                <number>-300</number>
+                                                            </property>
+                                                            <property name="maxValue">
+                                                                <number>-25</number>
+                                                            </property>
+                                                            <property name="orientation">
+                                                                <enum>Horizontal</enum>
+                                                            </property>
+                                                        </widget>
+                                                    </vbox>
+                                                </widget>
+                                            </hbox>
+                                        </widget>
+                                        <widget class="QCheckBox" row="0" column="0">
+                                            <property name="name">
+                                                <cstring>high_quality_graphics_checkbox</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>High quality graphics</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                        </widget>
+                                    </grid>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer109</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Vertical</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </vbox>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer25</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>23</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -3715,6 +3899,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>save_current_win_pos_and_size()</slot>
     </connection>
+    <connection>
+        <sender>animation_speed_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_view_animation_speed()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -3832,6 +4022,7 @@
     <slot>change_high_quality_graphics()</slot>
     <slot>change_always_save_win_pos_and_size()</slot>
     <slot>save_current_win_pos_and_size()</slot>
+    <slot>change_view_animation_speed()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

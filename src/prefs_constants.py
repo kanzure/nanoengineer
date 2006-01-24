@@ -63,6 +63,7 @@ displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
 selectionBehavior_prefs_key = 'A7/Selection Behavior'
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
+animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -190,6 +191,7 @@ prefs_table = (
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
     ('selection_behavior', 'int', selectionBehavior_prefs_key, A7_SELECTION_BEHAVIOR), # Mark 051122.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
+    ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
 
     # Atom preferences - colors (other than element colors, handled separately)
     

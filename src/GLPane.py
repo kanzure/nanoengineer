@@ -111,7 +111,6 @@ for q in pquats:
 allQuats = quats100 + quats110 + quats111
 
 MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
-MAX_ANIMATION_TIME = 1.5 # in seconds
 
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.
@@ -531,7 +530,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         # Compute the maximum number of frames for the maximum possible 
         # rotation (180 degrees) based on how long it takes to repaint one frame.
-        max_frames = max(1, MAX_ANIMATION_TIME/self._repaint_duration)
+        max_frames = max(1, env.prefs[animateMaximumTime_prefs_key]/self._repaint_duration)
         
         # Compute the deltas for the quat, pov, scale and zoomFactor.
         deltaq = q2 - q1
