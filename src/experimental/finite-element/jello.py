@@ -9,29 +9,109 @@ import time
 import Numeric
 from math import cos, sin
 
-MASS = 1.0e-7
-DT = 1.0e-3
-STIFFNESS = 1.0e-5
-VISCOSITY = 1.0e-7
+GOT_HELP = True
+try:
+    import jello_help
+except ImportError:
+    GOT_HELP = False
 
-class ForceTerm:
-    def __init__(self, index1, index2, grid):
-        self.index1 = index1
-        self.index2 = index2
-        self.grid = grid
-    def compute(self, forces):
-        i1, i2 = self.index1, self.index2
-        g = self.grid
-        u1, u2 = g.u[i1], g.u[i2]
-        o1, o2 = g.u_old[i1], g.u_old[i2]
-        Dx, Dy = u2[0] - u1[0], u2[1] - u1[1]
-        Px, Py = o2[0] - o1[0], o2[1] - o1[1]
-        fx = STIFFNESS * Dx + VISCOSITY * (Dx - Px) / DT
-        fy = STIFFNESS * Dy + VISCOSITY * (Dy - Py) / DT
-        f1x, f1y = forces[i1]
-        f2x, f2y = forces[i2]
-        forces[i1] = (f1x + fx, f1y + fy)
-        forces[i2] = (f2x - fx, f2y - fy)
+"""I think this is the correct way to
+scale stiffness and viscosity.
+"""
+N = 4
+MASS = 1.0e-3 / N**2
+DT = 1.0e-3
+STIFFNESS = 1.0e-6 * N
+VISCOSITY = 1.0e-6 * N
+DTM = (DT ** 2) / MASS
+
+A = 1.0e-4
+
+def addvec(u, v):
+    return (u[0] + v[0], u[1] + v[1])
+def subvec(u, v):
+    return (u[0] - v[0], u[1] - v[1])
+def scalevec(u, k):
+    return (u[0] * k, u[1] * k)
+
+if GOT_HELP:
+    class Computronium:
+        pass
+else:
+    # Keep the old, current and new versions of u
+    # in here, along with x.
+    class Computronium:
+        def __init__(self, owner):
+            self.owner = owner
+            # replace all these with Numeric arrays? Use Pyrex?
+            self.u = u = N**2 * [ (0.0, 0.0) ]
+            self.u_old = N**2 * [ (0.0, 0.0) ]
+            self.u_new = N**2 * [ (0.0, 0.0) ]
+            self.x = x = [ ]  # nominal positions
+            self.forceTerms = [ ]
+            for i in range(N):
+                for j in range(N):
+                    x.append((1. * j / N,
+                              1. * i / N))
+            # set up the force terms
+            for i in range(N):
+                for j in range(N - 1):
+                    self.forceTerms.append((i * N + j,
+                                            i * N + j + 1))
+            for i in range(N - 1):
+                for j in range(N):
+                    self.forceTerms.append((i * N + j,
+                                            (i + 1) * N + j))
+            self.simTime = 0.0
+
+        def internalForces(self):
+            forces = self.zeroForces()
+            u, o = self.u, self.u_old
+            for i1, i2 in self.forceTerms:
+                D = subvec(u[i2], u[i1]) # relative displacement
+                P = subvec(o[i2], o[i1]) # previous relative displacement
+                f = addvec(scalevec(D, STIFFNESS),
+                           scalevec(subvec(D, P), VISCOSITY / DT))
+                forces[i1] = addvec(forces[i1], f)
+                forces[i2] = subvec(forces[i2], f)
+            self.applyForces(forces)
+
+        def verletMomentum(self):
+            self_u, self_uold, self_unew = self.u, self.u_old, self.u_new
+            for i in range(N**2):
+                    self_unew[i] = subvec(scalevec(self_u[i], 2),
+                                          self_uold[i])
+
+        def applyForces(self, f):
+            self_unew = self.u_new
+            index = 0
+            for i in range(N**2):
+                unew = self_unew[i]
+                fi = f[i]
+                self_unew[i] = (unew[0] + DTM * fi[0],
+                                unew[1] + DTM * fi[1])
+                if self_unew[i][0]**2 > 100.0 or self_unew[i][1]**2 > 100.0:
+                    self.owner.quit()
+
+        def zeroForces(self):
+            return N**2 * [ (0.0, 0.0) ]
+
+        def positions(self):
+            # x is nominal position
+            # u is displacement
+            p = [ ]
+            for i in range(N**2):
+                xvec = self.x[i]
+                uvec = self.u[i]
+                p.append((xvec[0] + uvec[0],
+                          xvec[1] + uvec[1]))
+            return p
+
+        def rotate(self):
+            tmp = self.u_old
+            self.u_old = self.u
+            self.u = self.u_new
+            self.u_new = tmp
 
 class Jello(JelloGui):
 
@@ -41,35 +121,12 @@ class Jello(JelloGui):
         QColor(Qt.green), QColor(Qt.blue)
         )
 
-    def __init__(self, side=5):
+    def __init__(self):
         JelloGui.__init__(self, parent=None, name=None, modal=0, fl=0)
         size = self.frame1.size()
         self.width, self.height = size.width(), size.height()
-        self.forceTerms = [ ]
+        self.comp = Computronium(self)
 
-        self.side = side
-        self.u_old = [ ]  # displacement
-        self.u_new = [ ]  # displacement
-        self.u = u = [ ]  # displacement
-        self.x = x = [ ]  # nominal positions
-        for i in range(side):
-            for j in range(side):
-                xi, yi = 1. * i / side, 1. * j / side
-                self.u_old.append((0., 0.))
-                self.u_new.append((0., 0.))
-                u.append((0., 0.))
-                x.append((xi, yi))
-        # set up the force terms
-        for i in range(side):
-            for j in range(side - 1):
-                index1 = i * side + j
-                index2 = i * side + j + 1
-                self.forceTerms.append(ForceTerm(index1, index2, self))
-        for i in range(side - 1):
-            for j in range(side):
-                index1 = i * side + j
-                index2 = (i + 1) * side + j
-                self.forceTerms.append(ForceTerm(index1, index2, self))
         self.simTime = 0.0
 
         self.timer = QTimer(self)
@@ -77,9 +134,17 @@ class Jello(JelloGui):
         self.lastTime = time.time()
         self.timer.start(self.ANIMATION_DELAY)
 
-
+        self.firstPush = self.comp.zeroForces()
+        self.firstPush[0] = (A, -A)
+        self.firstPush[N-1] = (A, A)
+        self.secondPush = self.comp.zeroForces()
+        self.secondPush[-1] = (-A, A)
+        self.secondPush[N*(N-1)] = (-A, -A)
 
     def pushButton1_clicked(self):
+        self.quit()
+
+    def quit(self):
         self.app.quit()
 
     def timeout(self):
@@ -90,74 +155,49 @@ class Jello(JelloGui):
         # On each step we do verlet, using u_old and u to compute
         # u_new. Then we move each particle from u to u_new. Then
         # we move u to u_old, and u_new to u.
-        for i in range(1):
+        for i in range(100):
             self.equationsOfMotion()
-            tmp = self.u_old
-            self.u_old = self.u
-            self.u = self.u_new
-            self.u_new = tmp
         self.paintEvent(None)
 
     def paintEvent(self, e):
         """Draw a colorful collection of lines and circles.
         """
         p = QPainter()
-        n, w, h = self.side, self.width, self.height
-        self_x, self_u = self.x, self.u
+        w, h = self.width, self.height
+        w3, h3 = w / 3, h / 3
+        w50 = w / 50
         p.begin(self.frame1)
         p.eraseRect(0, 0, w, h)
         p.setPen(QPen(Qt.black))
         p.setBrush(QBrush(Qt.blue))
-        w3, h3 = w / 3, h / 3
-        index = 0
-        for i in range(n):
-            for j in range(n):
-                xvec = self_x[index]
-                uvec = self_u[index]
-                #x = w3 * (xvec[0] + uvec[0] + 1)
-                x = h3 * (xvec[0] + uvec[0] + 1)
-                y = h3 * (xvec[1] + uvec[1] + 1)
-                p.drawEllipse(x, y, w/50, w/50)
-                index += 1
-        p.flush()
+        i = 0
+        for x, y in self.comp.positions():
+            if x**2 + y**2 > 5.0:
+                self.app.quit()
+                p.end()
+                return
+            x = h3 * (x + 1)
+            y = h3 * (y + 1)
+            i += 1
+            p.drawEllipse(x, y, w50, w50)
         p.end()
 
     def equationsOfMotion(self):
-        A = 3.0e-6
-        n = self.side
         t = self.simTime
-        self.simTime += DT
-        DTM = (DT ** 2) / MASS
-        # zero the forces
-        forces = (n * n) * [ (0.0, 0.0) ]
-        # apply external forces
         forceTime = 0.1
+        comp = self.comp
+        comp.verletMomentum()
+        self.simTime += DT
         if t > 0 and t < forceTime:
-            forces[0] = (A, -A)
-            forces[n*(n-1)] = (A, A)
+            comp.applyForces(self.firstPush)
         elif t > 2.0 and t < 2.0 + forceTime:
-            forces[-1] = (-A, A)
-            forces[n-1] = (-A, -A)
-            pass
-        # compute internal forces  (opportunity for speed-up)
-        for ft in self.forceTerms:
-            ft.compute(forces)
-        self_u, self_uold, self_unew = self.u, self.u_old, self.u_new
-        # iterate Verlet   (opportunity for speed-up)
-        index = 0
-        for i in range(n):
-            for j in range(n):
-                uvec = self_u[index]
-                uold = self_uold[index]
-                unew = (2*uvec[0] - uold[0], 2*uvec[1] - uold[1])
-                fi = forces[index]
-                self_unew[index] = (unew[0] + DTM * fi[0],
-                                    unew[1] + DTM * fi[1])
-                index += 1
+            comp.applyForces(self.secondPush)
+        comp.internalForces()
+        comp.rotate()
 
 def main():
     app = QApplication(sys.argv)
-    cr = Jello(4)
+    cr = Jello()
     cr.app = app
     app.setMainWidget(cr)
     cr.show()
