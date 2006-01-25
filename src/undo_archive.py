@@ -472,7 +472,7 @@ class checkpoint_metainfo:
         except:
             self.view = "initial view not yet set - stub, will fail if you undo to this point" ######@@@@@@
         else:
-            self.view = current_view(glpane, assy) # Csys object (for now)
+            self.view = current_view_for_Undo(glpane, assy) # Csys object (for now), with an attribute pointing out the current Part
         self.time = time.time()
         #e cpu time?
         #e glpane.redraw_counter? (sp?)
@@ -485,15 +485,21 @@ class checkpoint_metainfo:
         "restore the view & current part from self (called at end of an Undo or Redo command)"
             # also selection? _modified? window_caption (using some new method on assy that knows it needs to do that)?
         glpane = assy.o
-        set_view(glpane, self.view) # doesn't animate, for now -- if it does, do we show structure change before, during, or after?
-        #e also current part ####@@@@
+        set_view_for_Undo(glpane, assy, self.view)
+            # doesn't animate, for now -- if it does, do we show structure change before, during, or after?
+            #e sets current selgroup; doesn't do update_parts; does it (or caller) need to?? ####@@@@
         #e caller should do whatever updates are needed due to this (e.g. gl_update)
     def restore_assy_change_counter(self, assy):
         #e ... and not say it doesn't if the only change is from a kind that is not normally saved.
         assy.reset_changed_for_undo( self.assy_change_counter) # never does env.change_counter_checkpoint() or the other one
     pass
 
-def current_view(glpane, assy): #e shares code with saveNamedView
+def current_view_for_Undo(glpane, assy): #e shares code with saveNamedView
+    """Return the current view in this glpane which is showing this assy,
+    with additional attributes saved along with the view by Undo (i.e. the index of the current selection group).
+    (The assy arg is used for multiple purposes specific to Undo.)
+    WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
+    """
     from Utility import Csys
     oldc = assy._change_counter
     
@@ -501,13 +507,20 @@ def current_view(glpane, assy): #e shares code with saveNamedView
     
     newc = assy._change_counter
     assert oldc == newc
+    
+    csys.current_selgroup_index = assy.current_selgroup_index() # storing this on the csys is a kluge, but should be safe
+    
     return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to Csys
 
-def set_view(glpane, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
+def set_view_for_Undo(glpane, assy, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
+    """Restore the view (and the current Part) to what was saved by current_view_for_Undo.
+    WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
+    """
     ## compare to Csys.set_view (which passes animate = True) -- not sure if we want to animate in this case,
     # but if we do, we might have to do that at a higher level in the call chain
     self = glpane
     if type(csys) == type(""):
+        current_selgroup_index = 0
         from VQT import V,Q
         #####@@@@@ code copied from GLPane.__init__, should be shared somehow, or at least comment GLPane and warn it's copied
         #e also might not be the correct view, it's just the hardcoded default view... but i guess it's correct.
@@ -520,7 +533,13 @@ def set_view(glpane, csys): # shares code with Csys.set_view; might be very simi
         # zoom factor
         self.zoomFactor = 1.0
     else:
+        current_selgroup_index = csys.current_selgroup_index
         self.animateView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
+            # if we want this to animate, we probably have to move that higher in the call chain and do it after everything else
+    sg = assy.selgroup_at_index(current_selgroup_index)
+    assy.set_current_selgroup(sg)
+        #e how might that interact with setting the selection? Hopefully, not much, since selection (if any) should be inside sg.
+    #e should we update_parts?
     return
 
 # ==

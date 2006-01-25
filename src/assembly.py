@@ -571,6 +571,33 @@ class assembly(GenericDiffTracker_API_Mixin):
                 assert sg.part.topnode is sg, "part %r topnode is %r should be %r" % (sg.part, sg.part.topnode, sg)
             return None
         return sg.part
+
+    # ==
+    
+    def current_selgroup_index(self): #bruce 060125 so Undo can store "current part" w/o doing update_parts [guess; wisdom unreviewed]
+        """Return the index of the current selgroup, where 0 means self.tree and 1, 2, etc refer to
+        the clipboard items in their current positional order. [Note that this won't be useful for out-of-order redo.]
+        """
+        sg = self.current_selgroup()
+        if sg is self.tree:
+            return 0
+        try:
+            return self.shelf.members.index(sg) + 1
+        except:
+            print_compact_traceback("bug in current_selgroup_index, returning 0: ")
+            return 0
+        pass
+
+    def selgroup_at_index(self, i): #bruce 060125 for Undo
+        "Return the selection group at index i (0 means self.tree), suitable for passing to set_current_selgroup."
+        if i == 0:
+            return self.tree
+        try:
+            return self.shelf.members[i-1]
+        except:
+            print_compact_traceback("bug in selgroup_at_index(%d), returning self.tree: " % (i,) )
+            return self.tree
+        pass
     
     # == changing the current selection group
 
