@@ -130,8 +130,8 @@ class Jig(Node):
         for atom in self.atoms:
             if sel.picks_atom(atom):
                 return True
-        # Tell user reason why not.  Not exactly the case for all jigs, but good enough.  Mark 060124.
-        msg = "Can't copy %s unless all its atoms are selected" % (self.name)
+        # Tell user reason why not.  Mark 060125.
+        msg = "Didn't copy %s since none of its atoms were copied." % (self.name)
         env.history.message(orangemsg(msg))
         return False
 
