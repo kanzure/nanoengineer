@@ -58,7 +58,7 @@ class ops_select_Mixin:
         self.topnode.apply2all(addSelectedJig)
         return selJigs
         
-    def getMovables(self): # Should be renamed to getSelectedMovables().  mark 060121.
+    def getSelectedMovables(self): # Renamed from getMovables().  mark 060124.
         '''Returns the list of all selected nodes that are movable.
         '''
         selected_movables = []

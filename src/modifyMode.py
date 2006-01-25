@@ -195,7 +195,7 @@ class modifyMode(basicMode):
         self.rotDelta = 0 # delta for constrained rotations.
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
         
-        if not self.o.assy.getMovables(): return
+        if not self.o.assy.getSelectedMovables(): return
         
         # Move section
         wX = event.pos().x()
@@ -247,7 +247,7 @@ class modifyMode(basicMode):
         # Call. 
         if not self.picking: return
         
-        if not self.o.assy.getMovables(): return
+        if not self.o.assy.getSelectedMovables(): return
         
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
@@ -350,7 +350,7 @@ class modifyMode(basicMode):
     def leftCntlDown(self, event):
         """Setup a trackball action on each selected part.
         """
-        if not self.o.assy.getMovables(): return
+        if not self.o.assy.getSelectedMovables(): return
         
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
@@ -364,7 +364,7 @@ class modifyMode(basicMode):
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
         
-        if not self.o.assy.getMovables(): return
+        if not self.o.assy.getSelectedMovables(): return
 
         self.o.setCursor(self.w.RotateMolCursor)
         
@@ -386,7 +386,7 @@ class modifyMode(basicMode):
         """ Set up for sliding or rotating the selected part
         unlike select zoom/rotate, can have combined motion
         """
-        movables = self.o.assy.getMovables()
+        movables = self.o.assy.getSelectedMovables()
         if not movables: return
         
         self.o.SaveMouse(event)
@@ -406,7 +406,7 @@ class modifyMode(basicMode):
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
 
-        movables = self.o.assy.getMovables()
+        movables = self.o.assy.getSelectedMovables()
         if not movables: return
         
         self.o.setCursor(self.w.MoveRotateMolCursor)
@@ -547,7 +547,7 @@ class modifyMode(basicMode):
         
     def moveTheta(self, rotype, theta):
         "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
-        if not self.o.assy.getMovables(): 
+        if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
@@ -571,7 +571,7 @@ class modifyMode(basicMode):
         
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
-        if not self.o.assy.getMovables(): 
+        if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
@@ -582,7 +582,7 @@ class modifyMode(basicMode):
 
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
-        if not self.o.assy.getMovables(): 
+        if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or jigs selected."))
             return
         
@@ -595,7 +595,7 @@ class modifyMode(basicMode):
         '''Move selected chunk(s), jig(s) to absolute X, Y, and Z by computing the bbox center
         of everything as if they were one big chunk, then move everything as a unit.
         '''
-        movables = self.o.assy.getMovables()
+        movables = self.o.assy.getSelectedMovables()
         if not movables: 
             env.history.message(redmsg("No chunks or jigs selected."))
             return

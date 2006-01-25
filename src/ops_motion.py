@@ -25,7 +25,7 @@ class ops_motion_Mixin:
     
     def movesel(self, offset):
         "move selected chunks and jigs in space"
-        movables = self.getMovables()
+        movables = self.getSelectedMovables()
         
         for m in movables:
             self.changed() #Not check if this can be combined into one call
@@ -38,7 +38,7 @@ class ops_motion_Mixin:
         # Find the common center of all selected chunks to fix bug 594 
         comCenter = V(0.0, 0.0, 0.0)
             
-        movables = self.getMovables()
+        movables = self.getSelectedMovables()
         numMovables = len(movables)
         
         if numMovables:
