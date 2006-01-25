@@ -120,7 +120,7 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unk
             elapsedtime = win._duration
             win._duration = time.time() - win.stime
             if elapsedtime == win._duration: continue
-            elapmsg = "Elasped Time: " + hhmmss_str(int(win._duration))
+            elapmsg = "Elapsed Time: " + hhmmss_str(int(win._duration))
             # Need to display the duration somewhere.  History msg?
             env.history.statusbar_msg(elapmsg)
                 #e if this is a non-modal background task, that statusbar_msg
