@@ -39,4 +39,4 @@ comp.so: comp.o
 	$(CC) -shared -o comp.so comp.o $(LDFLAGS)
 
 clean:
-	rm -f *.pyc *~ *.o jelloGui.py *.so
+	rm -f *.pyc *~ *.o jelloGui.py *.so comp.c
