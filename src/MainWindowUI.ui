@@ -1263,6 +1263,9 @@
         <property name="toolTip">
             <string>Select None</string>
         </property>
+        <property name="accel">
+            <string>Ctrl+N</string>
+        </property>
     </action>
     <action>
         <property name="name">

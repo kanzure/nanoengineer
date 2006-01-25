@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jan 22 17:12:55 2006
+# Created: Wed Jan 25 12:45:09 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7443,6 +7443,7 @@ class MainWindow(QMainWindow):
         self.selectNoneAction.setText(self.__tr("None"))
         self.selectNoneAction.setMenuText(self.__tr("&None"))
         self.selectNoneAction.setToolTip(self.__tr("Select None"))
+        self.selectNoneAction.setAccel(self.__tr("Ctrl+N"))
         self.selectInvertAction.setText(self.__tr("Invert"))
         self.selectInvertAction.setMenuText(self.__tr("&Invert"))
         self.selectInvertAction.setToolTip(self.__tr("Select Invert"))
