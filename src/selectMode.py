@@ -306,13 +306,22 @@ class selectMode(basicMode):
         
                 
     def Draw(self):
-        # bruce comment 040922: code is almost identical with modifyMode.Draw;
-        # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
-        basicMode.Draw(self)   
-        #self.griddraw()
-        if self.sellist: self.pickdraw()
-        self.o.assy.draw(self.o)
-
+        # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
+        if TEST_PYREX_OPENGL:
+            try:
+                sys.path.append("./experimental/pyrex-opengl")
+                import quux
+                quux.test()
+                #self.w.win_update()
+            except ImportError:
+                env.history.message(redmsg("Can't import Pyrex OpenGL, rebuild it"))
+        else:
+            # bruce comment 040922: code is almost identical with modifyMode.Draw;
+            # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
+            basicMode.Draw(self)   
+            #self.griddraw()
+            if self.sellist: self.pickdraw()
+            self.o.assy.draw(self.o)
 
     def makeMenus(self): # menu item names modified by bruce 041217
 
@@ -446,17 +455,7 @@ class selectAtomsMode(selectMode):
             
             self.update_hybridComboBox(self.w)
             self.w.selectAtomsDashboard.show()
-            # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
-            if TEST_PYREX_OPENGL:
-                try:
-                    sys.path.append("./experimental/pyrex-opengl")
-                    import quux
-                    env.history.message("Running unit tests for Pyrex OpenGL extension")
-                    quux.test()
-                    env.history.message("Pyrex OpenGL unit tests finished")
-                except ImportError:
-                    env.history.message(redmsg("Can't import Pyrex OpenGL, rebuild it"))
-            
+
         def restore_gui(self):
             self.w.disconnect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
             self.w.selectAtomsDashboard.hide()
