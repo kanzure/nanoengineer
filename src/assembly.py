@@ -90,6 +90,10 @@ from debug import print_compact_stack
 
 debug_assy_changes = 0 #bruce 050429
 
+if 1: #bruce 060124 debug code; safe but dispensable ######@@@@@@
+    import undo_archive
+    debug_assy_changes = debug_assy_changes or undo_archive.debug_undo2
+
 from part import Part # (this must come after the SELWHAT constants, in constants.py)
 
 assy_number = 0 # count assembly objects [bruce 050429]
@@ -676,9 +680,6 @@ class assembly(GenericDiffTracker_API_Mixin):
                              not attr.startswith('_')
                              and callable(getattr(Part,attr)), # note: this tries to get self.part before it's ready...
                           dir(Part) ) #approximation!
-##    if platform.atom_debug:
-##        print "part_methods = %r" % (part_methods,)
-##        print "dir(Part) = ",dir(Part)
     #####@@@@@ for both of the following:
     part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
     part_attrs_review = ['ppa2','ppa3','ppm']
@@ -735,24 +736,11 @@ class assembly(GenericDiffTracker_API_Mixin):
                 meth = getattr(self.part, attr)
                 return meth(*args,**kws)
             return deleg
-        ###@@@ obs after this??
-        #bruce 060123 - i guess it is obs after this, and it bit me with infrecur, so try zapping it:
-##        try:
-##            print "assy wrong getattr to part",attr #######@@@@@@@
-##            #e learn how to extend part_methods, or the set of methods to split
-##            meth = getattr(self.part, attr)
-##            if callable(meth):
-##                # guess it's a method we should delegate
-##                print "assy delegating to part method -- bug, need to extend part_methods:",attr
-##                return meth
-##            # else fall thru
-##        except AttributeError:
-##            raise AttributeError, attr
         raise AttributeError, attr
 
     # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
     
-    def has_changed(self): # bruce 050107
+    def has_changed(self):
         """Report whether this assembly (or something it contains)
         has been changed since it was last saved or loaded from a file.
         See self.changed() docstring and comments for more info.
@@ -763,7 +751,7 @@ class assembly(GenericDiffTracker_API_Mixin):
         """
         return self._modified
     
-    def changed(self): # bruce 050107
+    def changed(self):
         """Record the fact that this assembly (or something it contains)
         has been changed, in the sense that saving it into a file would
         produce meaningfully different file contents than if that had been
@@ -788,60 +776,37 @@ class assembly(GenericDiffTracker_API_Mixin):
         if self._suspend_noticing_changes:
             return #bruce 060121 -- this changes effective implem of begin/end_suspend_noticing_changes; should be ok
         
-##        self._change_counter += 1 #bruce 060121
-
-        self._change_counter = env.change_counter_for_changed_objects() #bruce 060123
+        newc = env.change_counter_for_changed_objects() #bruce 060123
+        
+        if debug_assy_changes:
+            oldc = self._change_counter
+            print
+            self.modflag_asserts()
+            if oldc == newc:
+                print "debug_assy_changes: self._change_counter remains", oldc
+            else:
+                print_compact_stack("debug_assy_changes: self._change_counter %d -> %d: " % (oldc, newc) )
+            pass
+        
+        self._change_counter = newc
             ###e should optimize by feeding new value from changed children (mainly Nodes) only when needed
             ##e will also change this in some other routine which is run for changes that are undoable but won't set _modified flag
 
-##        if platform.atom_debug:
-##            print_compact_stack("change %d: " % self._change_counter)
-
-##        env.in_op("(assy.changed)") #bruce 050908, for Undo -- will this call be too slow?? [might not be needed; 060121]
-        
         if not self._modified:
             self._modified = 1
             # Feel free to add more side effects here, inside this 'if'
             # statement, even if they are slow! They will only run the first
-            # time you modify this assembly, since its _modified flag was most
-            # recently reset [i.e. since it was saved].
-            # [For Beta, they might run more often (once per undoable user-
-            #  event), so we'll review them for speed at that time. For now,
-            #  only saving this assembly to file (or loading or clearing it)
-            #  is permitted to reset this flag to 0.]
+            # time you modify this assembly since it was last saved, opened, or closed
+            # (i.e. since the last call of reset_changed).
 
-            # Emit a history message reminding user about unsaved changes.
-            #bruce 050429: along with fixing bug 413 about when this msg comes out,
-            # I'm improving its wording (see comments in same bug report, and/or me/Ninad email).
-#            try:
-#                junk, basename = os.path.split(self.filename)
-#                assert basename # it's normal for this to fail, when there is no file yet
-#                msg = "The file %r now has unsaved changes." % basename
-#            except:
-#                msg = "The part now has unsaved changes." # there is no file yet, so we can't say "the file". #e improve?
-#            env.history.message( msg)
-
-            # Many programs denote a file change by adding an asterisk to the end of the filename in 
-            # the window caption.  I'd like to try this for awhile and see how we like it.
-            # Mark 050715.
-            self.w.update_mainwindow_caption(Changed = True)
+            # A long time ago, this is where we'd emit a history message about unsaved changes.
+            # Now we denote a file change by adding an asterisk (or whatever the user prefers)
+            # to the end of the filename in the window caption.
+            self.w.update_mainwindow_caption_properly()
             if debug_assy_changes:
                 import time
                 print time.asctime(), self, self.name
-                print_compact_stack("atom_debug: emitting message: part now has unsaved changes")
-
-            ## [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
-##            # Regenerate the movie ID.
-##            # This will probably not make Alpha.  It is intended to be used in the future
-##            # as a way to validate movie files.  assy.movieID is handed off to the simulator
-##            # as an argument (-b) where it writes the number in the movie (.dpb) file header.
-##            # (see writemovie() in runSim.py [note: it might be renamed -- bruce 050325])
-##            # The number is then compared to assy.movieID when the movie file is opened
-##            # at a later time. This check will be done in movie._checkMovieFile().
-##            # Mark - 050116
-##            import random
-##            self.movieID = random.randint(0,4000000000) # 4B is good enough
-            
+                print_compact_stack("atom_debug: part now has unsaved changes")
             pass
         
         # If you think you need to add a side-effect *here* (which runs every
@@ -850,14 +815,15 @@ class assembly(GenericDiffTracker_API_Mixin):
         # way to get the same effect (like recording a "modtime" or "event counter").
         
         self.modflag_asserts()
+        
         return # from assembly.changed()
 
-    def modflag_asserts(self): #bruce 060123
+    def modflag_asserts(self): #bruce 060123 ####@@@@ PROBABLY WRONG if you undo back to a prior save-point before the last one
         if platform.atom_debug:
             #bruce 060123 guess -- _change_counter being even reports whether assy is saved, could serve to recompute self._modified
-            if not ((not self._modified) == (self._change_counter % 2 == 0)):
+            if self._change_counter and (not ((not self._modified) == (self._change_counter % 2 == 0))):
                 print_compact_stack(
-                    "atom_debug: bug? ((not self._modified) == (self._change_counter % 2 == 0)), selfmod %r, selfcc %r: " % \
+                    "atom_debug: bug? ((not self._modified) == (self._change_counter %% 2 == 0)), selfmod %r, selfcc %r: " % \
                       (self._modified, self._change_counter)
                 )
         return
@@ -922,7 +888,18 @@ class assembly(GenericDiffTracker_API_Mixin):
         # or fulfill a subs to do that?? [bruce question 060123]
 
         self._change_counter_when_reset_changed = self._change_counter = env.change_counter_checkpoint() #bruce 060123 for Undo
-            ##k not sure it's right to call change_counter_checkpoint and not subsequently call change_counter_for_changed_objects
+            ##k not sure it's right to call change_counter_checkpoint and not subsequently call change_counter_for_changed_objects,
+            # but i bet it's ok... more problematic is calling change_counter_checkpoint at all! #######@@@@@@@
+            # the issue is, this is not actually a change to our data, so why are we changing self._change_counter??
+            # OTOH, if just before saving we always changed our data just for fun, the effect would be the same, right?
+            # Well, not sure -- what about when we Undo before... if we use this as a vers, maybe no diffs will link at it...
+            # but why would they not? this is not running inside undo, but from an op that does changes like anything else does
+            # (namely file save) (open or close is yet another issue since assy is replaced during the cmd ###@@@).
+            # so i'm guessing it's ok. let's leave it in and find out. hmm, it might make it *look* like file->save did a change
+            # and should be undoable -- but undoing it will have no effect. Really in order to make sure we know that diff
+            # is empty, it would be better not to do this, or somehow to know there was no real change.
+            # plan: zap the final '= env...' and revise modflag_asserts accordingly. worry about real changes for sure
+            # changing counter even if they wouldn't... call checkpoint here even if not using value?!?!?!? #####@@@@@ 060124 230pm
         return
 
     def reset_changed_for_undo(self, change_counter ): #bruce 060123 guess; needs cleanup
@@ -1003,6 +980,10 @@ class assembly(GenericDiffTracker_API_Mixin):
 
     def undo_checkpoint_after_command(self, *args, **kws):
         return self.undo_manager.undo_checkpoint_after_command(*args, **kws)
+
+    def current_command_info(self, *args, **kws):
+        #e (will this always go into undo system, or go into some more general current command object in env, instead?)
+        return self.undo_manager.current_command_info(*args, **kws)
     
     pass # end of class assembly
 

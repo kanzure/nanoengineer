@@ -93,7 +93,8 @@ from debug import print_compact_traceback
 import env #k not yet needed
 from Utility import Group 
 
-debug_undo2 = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
+debug_undo2 = False
+    ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
 
 # Since it's easiest, we store all or part of a checkpoint in a real mmp file on disk;
 # this might be useful for debugging so we'll keep it around during development,
@@ -232,10 +233,8 @@ def _undo_readmmp_kluge(assy, mmpstate): # modified from _readmmp, used to resto
 # assy methods, here so reload works
 
 def assy_become_state(self, state): #bruce 060117 kluge for non-modular undo; should be redesigned to be more sensible
-    "replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint"
+    "[self is an assy] replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint"
     # the actual format is a complete kluge, depends on readmpp code, should be changed, esp for atom posns
-
-    
     # == now compare to files_mmp.readmmp
     ## grouplist = _readmmp(assy, filename)
     from undo_archive import _undo_readmmp_kluge
@@ -256,7 +255,7 @@ def assy_become_state(self, state): #bruce 060117 kluge for non-modular undo; sh
     return
 
 def assy_clear(self): #bruce 060117 draft
-    "become empty of undoable state (as if just initialized)"
+    "[self is an assy] become empty of undoable state (as if just initialized)"
     self.tree.destroy() # not sure if these work very well yet; maybe tolerable until we modularize our state-holding objects
     self.shelf.destroy()
     self.root = None # memory leak?
@@ -306,8 +305,7 @@ class Checkpoint:
         # in the future there might be a larger set of varid_ver pairs based on the data changes, but for now there's
         # one main one used for the entire undoable state, with .ver also usable for ordering checkpoints; this will be retained;
         # cp.varid will be the same for any two checkpoints that need to be compared (AFAIK).
-        ######@@@@@@ self.varid = 'varid_stub_' + (assy_debug_name or "") #e will come from assy itself
-        self.varid = 'assy' ######@@@@@@
+        self.varid = make_assy_varid(assy_debug_name)
         global _cp_counter
         _cp_counter += 1
         self.cp_counter = _cp_counter ###k not yet used; might help sort Redos, but more likely we'll use some metainfo
@@ -324,17 +322,20 @@ class Checkpoint:
     def __repr__(self):
         self.update_ver_kluge()
         if self.complete:
-            return "<Checkpoint varid=%r, ver=%r, state id is %#x>" % (self.varid, self.ver, id(self.state))
+            return "<Checkpoint %r varid=%r, ver=%r, state id is %#x>" % (self.cp_counter, self.varid, self.ver, id(self.state))
         else:
             #e no point yet in hasattr(self, 'state') distinction, since always false as of 060118
             assert not hasattr(self, 'state')
-            return "<Checkpoint varid=%r, ver=%r, incomplete state>" % (self.varid, self.ver)
+            return "<Checkpoint %r varid=%r, ver=%r, incomplete state>" % (self.cp_counter, self.varid, self.ver)
         pass
     def varid_ver(self): ###@@@ this and the attrs it returns will be WRONG when there's >1 varid_ver pair
         """Assuming there is one varid for entire checkpoint, return its varid_ver pair.
         Hopefully this API and implem will need revision for A7 since assumption will no longer be true.
         """
         self.update_ver_kluge()
+        if self.ver is None:
+            if platform.atom_debug:
+                print "atom_debug: warning, bug?? self.ver is None in varid_ver() for",self ###@@@
         return self.varid, self.ver
     def update_ver_kluge(self):
         try:
@@ -358,6 +359,7 @@ class SimpleDiff:
     [Note: error of using cp.state too early, for some checkpoint cp, are detected by that attr not existing yet.]
     """
     default_opts = dict(op_name = "")
+    suppress_storing_undo_redo_ops = False
     def __init__(self, cp0, cp1, direction = 1, **options):
         """direction +1 means forwards in time (apply diff for redo), -1 means backwards (apply diff for undo),
         though either way we have to keep enough info for both redo and undo;
@@ -370,7 +372,7 @@ class SimpleDiff:
         self.opts = dict(self.default_opts)
         self.opts.update(options) # self.opts is for extracting actual option values to use (could be done lazily)
         self.op_name = self.opts['op_name']
-        self.key = id(self) ######@@@@@@
+        self.key = id(self) #e might be better to not be recycled, but this should be ok for now
     def finalize(self, assy): ####@@@@ 060123 notyetcalled; soon, *this* is what should call fill_checkpoint on self.cps[1]!
         """Caller, which is still making this diff by doing model changes meant to be recorded in it, has decided it's done,
         once those changes are actually recorded in it (and/or directly in its end-checkpoint).
@@ -394,9 +396,6 @@ class SimpleDiff:
     def varid_vers(self):#####@@@@@ need to merge self with more diffs, to do this??
         "list of varid_ver pairs for indexing"
         return [self.cps[0].varid_ver()] 
-##    def last_cp(self): #####@@@@@k what is this used for?
-##        "...Hopefully this API and implem will need revision for A7 ..."
-##        return self.cps[1]
     def apply_to(self, assy):#####@@@@@ also change current-state varid_vers records; do we need to merge self with more diffs, too?
         "apply this diff-operation to the given model objects"
         cp = self.cps[1]
@@ -412,6 +411,8 @@ class SimpleDiff:
         cp.metainfo.restore_assy_change_counter(assy)
     def optype(self):
         return {1: "Redo", -1: "Undo"}[self.direction]
+    def __repr__(self):
+        return "<SimpleDiff key %r type %r from %r to %r>" % (self.key, self.optype(), self.cps[0], self.cps[1])
     pass
 
 # ==
@@ -489,7 +490,7 @@ class checkpoint_metainfo:
         #e caller should do whatever updates are needed due to this (e.g. gl_update)
     def restore_assy_change_counter(self, assy):
         #e ... and not say it doesn't if the only change is from a kind that is not normally saved.
-        assy.reset_changed_for_undo( self.assy_change_counter) # might do env.change_counter_checkpoint() ???
+        assy.reset_changed_for_undo( self.assy_change_counter) # never does env.change_counter_checkpoint() or the other one
     pass
 
 def current_view(glpane, assy): #e shares code with saveNamedView
@@ -502,10 +503,24 @@ def current_view(glpane, assy): #e shares code with saveNamedView
     assert oldc == newc
     return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to Csys
 
-def set_view(glpane, csys): # shares code with Csys.set_view
+def set_view(glpane, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
     ## compare to Csys.set_view (which passes animate = True) -- not sure if we want to animate in this case,
     # but if we do, we might have to do that at a higher level in the call chain
-    glpane.animateView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
+    self = glpane
+    if type(csys) == type(""):
+        from VQT import V,Q
+        #####@@@@@ code copied from GLPane.__init__, should be shared somehow, or at least comment GLPane and warn it's copied
+        #e also might not be the correct view, it's just the hardcoded default view... but i guess it's correct.
+        # rotation
+        self.quat = Q(1, 0, 0, 0)
+        # point of view (i.e. negative of center of view)
+        self.pov = V(0.0, 0.0, 0.0)
+        # half-height of window in Angstroms (gets reset by certain view-changing operations [bruce 050615 comment])
+        self.scale = 10.0
+        # zoom factor
+        self.zoomFactor = 1.0
+    else:
+        self.animateView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
     return
 
 # ==
@@ -526,7 +541,6 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     current_diff = None
     def __init__(self, assy):
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
-##        self.subs = [] # list of functions to run after we might have changed the set of immediately applicable undo/redo ops
         self.stored_ops = {} # map from (varid, ver) pairs to lists of diff-ops that implement undo or redo from them;
             # when we support out of order undo in future, this will list each diff in multiple places
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
@@ -550,43 +564,26 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         """
         assert self.next_cp is None
         self.next_cp = make_empty_checkpoint(self.assy) # note: we never know cptype yet, tho we might know what we hope it is...
-        redo_diff = SimpleDiff(self.last_cp, self.next_cp) # this is a slot for the actual diff, whose content is not yet known
-        # assume it's too early for indexing this, or needing to -- let that be done by some sort of end_cmd #######@@@@@@@
-##        undo_diff = redo_diff.reverse_order()
-##        self.store_op(redo_diff)
-##        self.store_op(undo_diff)
-        self.current_diff = redo_diff # this attr is where change-trackers would find it to tell it what changed (once we have any)
-        ## self.notify_observers() - done by caller if desired (since different callers might do it differently, later, not at all)
+        self.current_diff = SimpleDiff(self.last_cp, self.next_cp) # this is a slot for the actual diff, whose content is not yet known
+            # this attr is where change-trackers would find it to tell it what changed (once we have any)
+            # assume it's too early for indexing this, or needing to -- that's done when it's finalized
         return
-    ## as of 060123 the next two look obs: but to decide, figure out how often we cp... only at undo points, or wherever i'm curious?
-    #####obsQ? #####@@@@@
-##    def _setup_Null_next_cp(self):
-##        assert self.next_cp is None
-##        self.next_cp = None
-##        self.current_diff = None
+##    def changed(self): #e call from begin_cmd_checkpoint? no, from the next cmd's if a change happened!
+##        """[semi-private -- call this if you know some change happened but self.next_cp might not be set yet;
+##        ensures that is set and self.current_diff are set]
+##        """
+##        assert self.next_cp is not None
+##        assert self.current_diff is not None # IT MIGHT BE BETTER to let this always exist, and be evidently empty or not,
+##            # so trackers needn't check whether it exists.
+##            # for now [060118 452p] we'll assume that if begin_cmd happens, then it will in fact change something,
+##            # so the next Undo should always go back to the point of that begin_cmd (so it knows what diff or cp to put in menu item).
+##            # A bg problem or danger with current willynilly cp-mods is that menu item diffops might not get updated
+##            # when the current or next cp does... need to think about that.
+##            # WHERE I AM 060118 456pm -- working out all this kind of stuff; in middle of 3-4 revisions to it.
+##            # In danger of forgetting somethig...
+##            # including, need to make *only the simplest test* work, ad commit, so cadders can start to try it out and
+##            # prioritize complaints about how it handles view changes (incl what view to use to show an undo), current part changes, etc.
 ##        return
-    def changed(self): #######@@@@@@@ call from begin_cmd_checkpoint? no, from the next cmd's if a change happened!
-        """[semi-private -- call this if you know some change happened but self.next_cp might not be set yet;
-        ensures that is set and self.current_diff are set]
-        """
-##        if self.next_cp is None:
-##            self._setup_next_cp()
-        assert self.next_cp is not None
-        assert self.current_diff is not None # IT MIGHT BE BETTER to let this always exist, and be evidently empty or not,
-            # so trackers needn't check whether it exists.
-            # for now [060118 452p] we'll assume that if begin_cmd happens, then it will in fact change something,
-            # so the next Undo should always go back to the point of that begin_cmd (so it knows what diff or cp to put in menu item).
-            # A bg problem or danger with current willynilly cp-mods is that menu item diffops might not get updated
-            # when the current or next cp does... need to think about that.
-            # WHERE I AM 060118 456pm -- working out all this kind of stuff; in middle of 3-4 revisions to it.
-            # In danger of forgetting somethig...
-            # including, need to make *only the simplest test* work, ad commit, so cadders can start to try it out and
-            # prioritize complaints about how it handles view changes (incl what view to use to show an undo), current part changes, etc.
-        return
-##    def subscribe_to_checkpoints(self, func):
-##        "Do func after every change to the set of undo ops or their validity (ie after a checkpoint or after doing an undo/redo op)"
-##        #e not yet needed: feature to let this be removed, or do so when func returns true or raises an exception
-##        self.subs.append(func)
     def checkpoint(self, cptype = None ):#####@@@@@ revise calls [this is where i am 060118 343pm]    [called from undo_manager]    
         """When this is called, self.last_cp should be complete, and self.next_cp should be incomplete,
         with its state defined as equalling the current state, i.e. as a diff (which is collecting current changes) from last_cp,
@@ -611,6 +608,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 print "checkpoint type %r with no change in state" % cptype, self.assy._change_counter
             state = self.last_cp.state
             self.current_diff.empty = True
+            self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
+                # I'm not sure this is right, but as long as varid_vers are the same, it seems to make sense... #####@@@@@
         else:
             if debug_undo2:
                 print "checkpoint %r at change %d, last cp was at %d" % (cptype, \
@@ -622,14 +621,15 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # though it's likely to finalize and compress changes in some manner, or grab changed parts of the state.
             # It will also be revised if we compute diffs to save space, even for changes not tracked incrementally.
             #e also store other metainfo, like time of completion, cmdname of caller, history serno, etc (here or in fill_checkpoint)
-        redo_diff = self.current_diff
-        undo_diff = redo_diff.reverse_order()
-        self.store_op(redo_diff)
-        self.store_op(undo_diff)
-        # note, we stored those whether or not this was a begin or end checkpoint;
-        # figuring out which ones to offer, merging them, etc, might take care of that, or we might change this policy
-        # and only store them in certain cases, probably if this diff is begin-to-end or the like;
-        # and any empty diff always gets merged with followon ones, or not offered if there are none. ######@@@@@@
+        if not self.current_diff.suppress_storing_undo_redo_ops:
+            redo_diff = self.current_diff
+            undo_diff = redo_diff.reverse_order()
+            self.store_op(redo_diff)
+            self.store_op(undo_diff)
+            # note, we stored those whether or not this was a begin or end checkpoint;
+            # figuring out which ones to offer, merging them, etc, might take care of that, or we might change this policy
+            # and only store them in certain cases, probably if this diff is begin-to-end or the like;
+            # and any empty diff always gets merged with followon ones, or not offered if there are none. ######@@@@@@
         
         # Shift checkpoint variables        
         self.last_cp = self.next_cp
@@ -638,16 +638,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.last_cp_arrival_reason = cptype # affects semantics of Undo/Redo user-level ops
             # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
         self._setup_next_cp() # sets self.next_cp and self.current_diff
-##        self.notify_observers()
         return
-##    def notify_observers(self): #k still needed?
-##        for func in self.subs:
-##            try:
-##                func()
-##            except:
-##                print_compact_traceback()
-##            pass
-##        return
     def do_op(self, op): ###@@@ where i am 345pm some day bfr 060123 - figure out what this does if op.prior is not current, etc;
                 # how it relates to whether assy changed since last_cp set; etc.
         """assuming caller has decided it's safe, good, etc, in the case of out-of-order undo,
@@ -660,6 +651,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         otherwise [nim as of 060118] make a new checkpoint, ver, and diff to stand for the new state, though some state-subset
         varid_vers (from inside the diff) will usually be reused. (Always, in all cases I know how to code yet; maybe not for list ops.)        
         """
+        self.current_diff.suppress_storing_undo_redo_ops = True
         # in present implem [060118], we assume without checking that this op is not being applied out-of-order,
         # and therefore that it always changes the model state between the same checkpoints that the diff was made between
         # (or that it can ignore and/or discard any way in which the current state disagrees with the diff's start-checkpoint-state).
@@ -667,7 +659,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # note: actually affects more than just assy, perhaps (ie glpane view state...)
             #e when diffs are tracked, worry about this one being tracked
             #e apply_to itself should also track how this affects varid_vers pairs #####@@@@@
-        #060123 202p following is wrong since this very command (eg inside some menu item) is going to do its own end-checkpoint.
+        #060123 202p following [later removed] is wrong since this very command (eg inside some menu item)
+        # is going to do its own end-checkpoint.
         # the diffs done by the above apply_to are going to end up in the current diff...
         # what we need to do here is quite unrelated to self.last_cp -- know the varid_vers pairs, used in making undo/redo menuitems.
         # (and i bet last_cp_arrival_reason is similarly wrongheaded
@@ -679,16 +672,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         #   (including having same effect on varid_vers as that would have)
         # - when it makes those while applying a diff, then at least the direct ones inside the diff can have them set to old vals
         #   (tho if updates to restore consistency also run, not sure they fit in -- but in single-varid system that's moot)
-##        self.last_cp = op.last_cp()
-##        self.last_cp_arrival_reason = op.optype()
-##        self._setup_Null_next_cp()
-##            # let it be set up for real if/when a change actually happens (gets tracked, nim),
-##            # or is planned to immediately happen (begin_cmd), or is recognized as having happened (nim).
-##        ## self._setup_next_cp()
-##        self.notify_observers() #k not sure whether this will be too soon or redundant... ###@@@
         return
     def state_version(self):
-        assy_varid = 'assy' ### WRONG
+        assy_varid = make_assy_varid(self.assy._debug_name)
         assy_ver = self.assy._change_counter # note: this is about totally current state, not any diff or checkpoint;
             # it will be wrong while we're applying an old diff and didn't yet update assy._change_counter at the end
         return {assy_varid: assy_ver} # only one varid for now (one global undo stack)
@@ -705,11 +691,22 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             if not lis and debug_undo2 and (self.last_cp is not self.initial_cp):
                 print "why no stored ops for this? (claims to not be initial cp)",var, ver # had to get here somehow...
             for op in lis: #e optim by storing a dict so we can use update here? doesn't matter for now
-                res[op.key] = op ######@@@@@@ implem op.key
+                res[op.key] = op
         # this includes anything that *might* apply... filter it... not needed for now with only one varid in the system. ###@@@
+        if debug_undo2:
+            print "\nfind_undoredos dump of found ops, before merging:"
+            for op in res.values():
+                print op
+            print "end of oplist\n"
+        # Need to filter out obsolete redos (not sure about undos, but I guess not) ... actually some UIs might want to offer them,
+        # so i'd rather let caller do that (plus it has the separated undo/redo lists).
+        # But then to save time, let caller discard what it filters out, and let it do the merging only on what's left --
+        # i.e. change docstring and API so caller merges, not this routine (not sure of this yet) #####@@@@@.
         ######@@@@@@ need to merge
-        ######@@@@@@ need to store_op at end-checkpoint! right now we store at all cps... will that be ok? probably good...
-        ## (or begin, if end missed -- do that by auto-end? what about recursion? let recursion also end, then begin anew... maybe merge)
+        ##k need to store_op at end-checkpoint! right now we store at all cps... will that be ok? probably good...
+        ## (or begin, if end missed -- do that by auto-end? what about recursion?
+        #   let recursion also end, then begin anew... maybe merge... see more extensive comments mentioning word "cyberspace",
+        #   maybe in a notesfile or in code)
         return res.values()
     def store_op(self, op):
         for varver in op.varid_vers():
@@ -718,5 +715,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
     pass
 
+def make_assy_varid(assy_debug_name):
+    "make the varid for changes to the entire assy, for use when we want a single undo stack for all its Parts"
+    ## return 'varid_stub_' + (assy_debug_name or "") #e will come from assy itself
+    return 'assy' # stub, but should work
 
 # end

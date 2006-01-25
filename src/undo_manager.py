@@ -85,8 +85,12 @@ class AssyUndoManager(UndoManager):
     def menu_cmd_checkpoint(self):
         self.archive.checkpoint( cptype = 'user_explicit' )
 
-    def undo_checkpoint_before_command(self, cmdname = ""): #e should it be renamed begin_cmd_checkpoint()??
-        auto_checkpointing = debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False) # recheck the pref every time
+    def undo_checkpoint_before_command(self, cmdname = ""):
+        #e should this be renamed begin_cmd_checkpoint() or begin_command_checkpoint() like I sometimes think it's called?
+        # recheck the pref every time
+        auto_checkpointing = debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False,
+                                        prefs_key = 'A7/undo/auto-checkpointing',
+                                        non_debug = True) 
         if not auto_checkpointing:
             return False
         # (everything before this point must be kept fast)
@@ -110,6 +114,15 @@ class AssyUndoManager(UndoManager):
                 # need to re-call it when they end, for sure; not sure this is happening now. ##k
             pass
         return
+
+    def current_command_info(self, *args, **kws):
+        assert not args
+        pass ## self.somewhere.update(kws), e.g. name = "CmdName" for undo menu item
+            ######@@@@@@ somewhere in... what? a checkpoint? a diff? something larger? (yes, it owns diffs, in 1 or more segments)
+            # it has 1 or more segs, each with a chain of alternating cps and diffs.
+            # someday even a graph if different layers have different internal cps. maybe just bag of diffs
+            # and overall effect on varidvers, per segment. and yes it's more general than just for undo; eg affects history.
+        return
     
     def undo_redo_ops(self):
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
@@ -120,6 +133,16 @@ class AssyUndoManager(UndoManager):
         for op in ops:
             optype = op.optype()
             d1[optype].append(op) # sort ops by type
+        # remove obsolete redo ops
+        if redos:
+            lis = [ (redo.cps[1].cp_counter, redo) for redo in redos ]
+            lis.sort()
+            only_redo = lis[-1][1]
+            redos = [only_redo]
+            for obs_redo in lis[:-1]:
+                if undo_archive.debug_undo2:
+                    print "obsolete redo:",obs_redo
+                pass #e discard it permanently? ####@@@@
         return undos, redos
     
     def undo_cmds_menuspec(self, widget): # 060117; biggest chgs are name of doit/do_op, and state_version

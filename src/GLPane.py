@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 GLPane.py -- Atom's main model view, based on Qt's OpenGL widget.
 
@@ -215,7 +215,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # also be part-specific and/or saved in the mmp file? [bruce 050418]
 
         # clipping planes, as percentage of distance from the eye
-        self.near = 0.25 # After testing, this is much, much better.  Mark 060116.
+        self.near = 0.25 # After testing, this is much, much better.  Mark 060116. [Prior value was 0.66 -- bruce 060124 comment]
         self.far = 12.0  ##2.0, Huaicai: make this bigger, so models will be
                                ## more likely sitting within the view volume
         # start in perspective mode
@@ -955,8 +955,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def mouseDoubleClickEvent(self, event):
         self.debug_event(event, 'mouseDoubleClickEvent')
         ## but = event.stateAfter()
-        #k I'm guessing this event comes in place of a mousePressEvent; test
-        #this [bruce 040917]
+        #k I'm guessing this event comes in place of a mousePressEvent;
+        # need to test this, and especially whether a releaseEvent then comes
+        # [bruce 040917 & 060124]
         #print "Double clicked: ", but
         
         but = self.fix_event(event, 'press', self.mode)
@@ -967,6 +968,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if but & rightButton:
             self.mode.rightDouble(event)
 
+    __pressEvent = None #bruce 060124 for Undo
+    __flag_and_begin_retval = None
+    
     def mousePressEvent(self, event):
         """Dispatches mouse press events depending on shift and
         control key state.
@@ -980,8 +984,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             return
         ## but = event.stateAfter()
         but = self.fix_event(event, 'press', self.mode)
+
+        # (I hope fix_event makes sure at most one button flag remains; if not,
+        #  following if/if/if should be given some elifs -- bruce 060124 comment)
         
         #print "Button pressed: ", but
+
+        if but & (leftButton|midButton|rightButton):
+            # Do undo_checkpoint_before_command if possible.
+            #
+            #bruce 060124 for Undo; will need cleanup of begin-end matching with help of fix_event;
+            # also, should make redraw close the begin if no releaseEvent came by then (but don't
+            #  forget about recursive event processing) ###@@@
+            if self.__pressEvent is not None and platform.atom_debug:
+                # this happens whenever I put up a context menu in GLPane, so don't print it unless atom_debug ###@@@
+                print "atom_debug: bug: pressEvent didn't get release:", self.__pressEvent
+            self.__pressEvent = event
+            self.__flag_and_begin_retval = None
+            if self.assy:
+                begin_retval = self.assy.undo_checkpoint_before_command("(press)")
+                    # this command name should be replaced sometime during the command
+                self.__flag_and_begin_retval = True, begin_retval
+            pass
         
         if but & leftButton:
             if but & shiftButton:
@@ -1015,7 +1039,23 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         but = self.fix_event(event, 'release', self.mode)
         
         #print "Button released: ", but
+
+        # Do undo_checkpoint_after_command, if there's a prior undo_checkpoint_before_command to match. [bruce 060124 for Undo]
         
+        if self.__pressEvent is not None: ####@@@@ and if no buttons are still pressed, according to fix_event?
+            self.__pressEvent = None
+            if self.__flag_and_begin_retval:
+                flagjunk, begin_retval = self.__flag_and_begin_retval
+                self.__flag_and_begin_retval = None
+                if self.assy:
+                    #k should always be true, and same assy as before
+                    # (even for file-closing cmds? I bet not, but:
+                    #  - unlikely as effect of a mouse-click or drag in GLPane;
+                    #  - probably no harm from these checkpoints getting into different assys
+                    #  But even so, when solution is developed (elsewhere, for toolbuttons), bring it here
+                    #  or (better) put it into these checkpoint methods. ####@@@@)
+                    self.assy.undo_checkpoint_after_command( begin_retval)
+                    
         if but & leftButton:
             if but & shiftButton:
                 self.mode.leftShiftUp(event)

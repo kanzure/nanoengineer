@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 debug_prefs.py
 
@@ -15,36 +15,56 @@ __author__ = "bruce" # 050614
 from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
 
+import env
+
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
-def debug_pref(name, dtype): #bruce 050725 revised this
+def debug_pref(name, dtype, **options ): #bruce 050725 revised this; bruce 060124 added **options
     """Public function for declaring and registering a debug pref and querying its value.
        Example call: chem.py rev 1.151 (might not  be present in later versions).
        Details: If debug_prefs[name] is known (so far in this session),
     return its current value, and perhaps record the fact that it was used.
        If it's not known, record its existence in the list of active debug prefs
     (visible in a submenu of the debug menu [#e and/or sometimes on the dock])
-    and set it to have datatype dtype, with an initial value of dtype's default value.
+    and set it to have datatype dtype, with an initial value of dtype's default value,
+    or as determined from prefs db if prefs_key option is passed and if this pref has been stored there.
+    (Treat dtype's default value as prefs db default value, in that case.)
     (And then record usage and return value, just as in the other case.)
-       Possibly, arrange to store changes to its value in user prefs,
-    and to use user-prefs value rather than default value when creating it.
+       If prefs_key is passed, also arrange to store changes to its value in user prefs db.
+    The prefs_key option can be True (meaning use the name as the key, after a hardcoded prefix),
+    or a string (the actual prefs key).
+       If non_debug option is true, pref is available even to users who don't set ATOM-DEBUG.
     """
     try:
         dp = debug_prefs[name]
     except KeyError:
-        debug_prefs[name] = dp = DebugPref(name, dtype)
+        debug_prefs[name] = dp = DebugPref(name, dtype, **options)
     return dp.current_value()
 
 class Pref: #e might be merged with the DataType (aka PrefDataType) objects
-    "Pref objects record all you need to know about a currently active preference lvalue [#e but persistence is NIM]"
-    #e for now, just within a session
-    def __init__(self, name, dtype):
+    "Pref objects record all you need to know about a currently active preference lvalue [with optional persistence as of 060124]"
+    prefs_key = None
+    print_changes = False
+    even_if_not_atom_debug = False # should this be True here and False in DebugPref subclass? decide when it matters.
+    def __init__(self, name, dtype, prefs_key = False, non_debug = False): #bruce 060124 added prefs_key & non_debug options
         #e for now, name is used locally (for UI, etc, and maybe for prefs db);
         # whether/how to find this obj using name is up to the caller
         self.name = name
+        assert name and type(name) == type("") #bruce 060124 added assert (don't know if this was already an implicit requirement)
         self.dtype = dtype # a DataType object
-        self.value = dtype.default_value()
+        self.value = dtype.default_value() # might be changed below
+        if prefs_key: #bruce 060124 new feature
+            if prefs_key is True:
+                prefs_key = "_debug_pref_key:" + name #e should prefix depend on release-version??
+            assert type(prefs_key) == type(""), "prefs_key must be True or a string"
+            assert prefs_key # implied by the other asserts/ifs
+            self.prefs_key = prefs_key
+            self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
+        if non_debug:
+            self.even_if_not_atom_debug = True # show up in debug_prefs submenu even when ATOM-DEBUG is not set
+        return
     def current_value(self):
+        #e should we look it up in env.prefs (for usage tracking) if self.prefs_key?? [no need to decide this until it matters]
         return self.value
     def changer_menuspec(self):
         """return a menu_spec suitable for including in some larger menu (as item or submenu is up to us)
@@ -55,13 +75,22 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             assert self.dtype.legal_value(newval), "illegal value for %r: %r" % (self, newval)
                 ###e change to ask dtype, since most of them won't have a list of values!!! this method is specific to Choice.
             self.value = newval
-            print "changed %r to %r" % (self, newval) ###e should only print for debug prefs!
+            extra = ""
+            if self.prefs_key:
+                env.prefs[self.prefs_key] = newval
+                extra = " (also in prefs db)"
+            if self.print_changes:
+                print "changed %r to %r%s" % (self, newval, extra)
         return self.dtype.changer_menuspec(self.name, newval_receiver_func, self.current_value())
     def __repr__(self):
-        return "<Pref %r at %#x>" % (self.name, id(self))
+        extra = ""
+        if self.prefs_key:
+            extra = " (prefs_key %r)" % self.prefs_key
+        return "<Pref %r at %#x%s>" % (self.name, id(self), extra)
     pass
 
 class DebugPref(Pref):
+    print_changes = True
     pass
 
 # == datatypes
@@ -383,26 +412,35 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 
 # ==
 
-def debug_prefs_menuspec():
+#bruce 060124 changes: always called, but gets passed platform.atom_debug as an arg to filter the prefs,
+# and has new API to return a list of menu items (perhaps empty) rather than exactly one.
+
+def debug_prefs_menuspec( atom_debug):
     "Return a single menu item (as a menu_spec tuple) usable to see and edit settings of all active debug prefs."
     import platform
-    if platform.atom_debug: #bruce 050808
+    if platform.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
         testcolor = debug_pref("atom_debug test color", ColorType(green))
     text = "debug prefs submenu"
     submenu = []
     items = debug_prefs.items()
     items.sort()
     for name, pref in items:
-        submenu.append( pref.changer_menuspec() )
+        if pref.even_if_not_atom_debug or atom_debug:
+            submenu.append( pref.changer_menuspec() )
     if submenu:
-        return ( text, submenu)
-    return ( text, noop, "disabled" )
+        return [ ( text, submenu) ]
+    else:
+        if atom_debug:
+            return [ ( text, noop, "disabled" ) ]
+        else:
+            return []
+    pass
 
 # == test code
 
 if __name__ == '__main__':
     spinsign = debug_pref("spinsign",Choice([1,-1]))
     testcolor = debug_pref("test color", ColorType(green))
-    print debug_prefs_menuspec()
+    print debug_prefs_menuspec(True)
     
 # end

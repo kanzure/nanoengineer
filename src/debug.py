@@ -637,9 +637,10 @@ class DebugMenuMixin:
             res.extend( [
                 ('Mac OS 10.4 QToolButton workaround', self._debug_toggle_QToolButton_workaround, checked and 'checked' or None ),
             ] )
-            
-        if platform.atom_debug:
-            res.append( debug_prefs_menuspec() ) #bruce 050614 (submenu)
+        
+        #bruce 060124 changes: always call debug_prefs_menuspec, but pass platform.atom_debug to filter the prefs,
+        # and change API to return a list of menu items (perhaps empty) rather than exactly one
+        res.extend( debug_prefs_menuspec( platform.atom_debug ) ) #bruce 050614 (submenu)
 
         if 1: #bruce 050823
             some = registered_commands_menuspec( self)
