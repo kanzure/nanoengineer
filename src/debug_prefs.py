@@ -45,7 +45,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
     "Pref objects record all you need to know about a currently active preference lvalue [with optional persistence as of 060124]"
     prefs_key = None
     print_changes = False
-    even_if_not_atom_debug = False # should this be True here and False in DebugPref subclass? decide when it matters.
+    non_debug = False # should this be True here and False in DebugPref subclass? decide when it matters.
     def __init__(self, name, dtype, prefs_key = False, non_debug = False): #bruce 060124 added prefs_key & non_debug options
         #e for now, name is used locally (for UI, etc, and maybe for prefs db);
         # whether/how to find this obj using name is up to the caller
@@ -61,7 +61,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             self.prefs_key = prefs_key
             self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
         if non_debug:
-            self.even_if_not_atom_debug = True # show up in debug_prefs submenu even when ATOM-DEBUG is not set
+            self.non_debug = True # show up in debug_prefs submenu even when ATOM-DEBUG is not set
         return
     def current_value(self):
         #e should we look it up in env.prefs (for usage tracking) if self.prefs_key?? [no need to decide this until it matters]
@@ -416,7 +416,10 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 # and has new API to return a list of menu items (perhaps empty) rather than exactly one.
 
 def debug_prefs_menuspec( atom_debug):
-    "Return a single menu item (as a menu_spec tuple) usable to see and edit settings of all active debug prefs."
+    """Return a list of zero or more menu items or submenus (as menu_spec tuples or lists)
+    usable to see and edit settings of all active debug prefs (for atom_debug true)
+    or all the ones that have their non_debug flag set (for atom_debug false).
+    """
     import platform
     if platform.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
         testcolor = debug_pref("atom_debug test color", ColorType(green))
@@ -425,7 +428,7 @@ def debug_prefs_menuspec( atom_debug):
     items = debug_prefs.items()
     items.sort()
     for name, pref in items:
-        if pref.even_if_not_atom_debug or atom_debug:
+        if pref.non_debug or atom_debug:
             submenu.append( pref.changer_menuspec() )
     if submenu:
         return [ ( text, submenu) ]

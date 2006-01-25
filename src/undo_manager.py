@@ -65,6 +65,8 @@ class AssyUndoManager(UndoManager):
             win = assy.w
             win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # set up incorrectly (for Mac) as "Ctrl+Y"
         self.connect_or_disconnect_menu_signals(True)
+        self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
+            # (fixes bug in which the pref didn't show up until the first undoable change was made) [060125]
         return
         
     def deinit(self):
@@ -85,12 +87,19 @@ class AssyUndoManager(UndoManager):
     def menu_cmd_checkpoint(self):
         self.archive.checkpoint( cptype = 'user_explicit' )
 
+    def auto_checkpoint_pref(self):
+        return debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False,
+                        prefs_key = 'A7/undo/auto-checkpointing',
+                        non_debug = True)
+        
     def undo_checkpoint_before_command(self, cmdname = ""):
+        """###doc
+        [returns a value which should be passed to undo_checkpoint_after_command;
+         we make no guarantees at all about what type of value that is, whether it's boolean true, etc]
+        """
         #e should this be renamed begin_cmd_checkpoint() or begin_command_checkpoint() like I sometimes think it's called?
         # recheck the pref every time
-        auto_checkpointing = debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False,
-                                        prefs_key = 'A7/undo/auto-checkpointing',
-                                        non_debug = True) 
+        auto_checkpointing = self.auto_checkpoint_pref()
         if not auto_checkpointing:
             return False
         # (everything before this point must be kept fast)
