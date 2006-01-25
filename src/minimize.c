@@ -127,10 +127,8 @@ makeConfiguration(struct functionDefinition *fd)
     struct configuration *ret;
 
     ret = (struct configuration *)allocate(sizeof(struct configuration));
-    NULLPTRR(ret, NULL);
     ret->functionValue = 0.0;
     ret->coordinate = (double *)allocate(sizeof(double) * fd->dimension);
-    NULLPTRR(ret->coordinate, NULL);
     ret->gradient = NULL;
     ret->parameter = 0.0;
     ret->functionDefinition = fd;
@@ -244,13 +242,13 @@ evaluateGradientFromPotential(struct configuration *p)
 	fd->gradient_delta = 1e-8;
     }
     for (i=0; i<fd->dimension; i++) {
-	pPlusDelta = makeConfiguration(fd); BAIL();
+	pPlusDelta = makeConfiguration(fd);
 	for (j=0; j<fd->dimension; j++) {
 	    pPlusDelta->coordinate[j] = p->coordinate[j];
 	}
 	pPlusDelta->coordinate[i] += fd->gradient_delta / 2.0;
 
-	pMinusDelta = makeConfiguration(fd); BAIL();
+	pMinusDelta = makeConfiguration(fd);
 	for (j=0; j<fd->dimension; j++) {
 	    pMinusDelta->coordinate[j] = p->coordinate[j];
 	}
@@ -269,13 +267,13 @@ evaluateGradient(struct configuration *p)
     int i;
     double gradientCoordinate;
 
-    BAIL();  // Interrupted?
+    NULLPTR(p);
     fd = p->functionDefinition;
+    NULLPTR(fd);
     if (p->gradient == NULL) {
 	p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
-	NULLPTR(p->gradient);
 	if (fd->dfunc == NULL) {
-	    evaluateGradientFromPotential(p); BAIL();
+	    evaluateGradientFromPotential(p);
 	} else {
 	    (*fd->dfunc)(p);
 	}
@@ -299,8 +297,8 @@ gradientOffset(struct configuration *p, double q)
     struct configuration *r;
     int i;
 
-    r = makeConfiguration(fd); BAILR(NULL);
-    evaluateGradient(p); BAILR(NULL);
+    r = makeConfiguration(fd);
+    evaluateGradient(p); BAILR(p);
     for (i=fd->dimension-1; i>=0; i--) {
 	r->coordinate[i] = p->coordinate[i] + q * p->gradient[i];
     }
@@ -347,7 +345,7 @@ bracketMinimum(struct configuration **ap,
     }
     nx = b->parameter + GOLDEN_RATIO * (b->parameter - a->parameter);
     c = gradientOffset(p, nx); BAIL();
-    while (evaluate(b) > evaluate(c)) {
+    while (evaluate(b) > evaluate(c) && !Interrupted && !EXCEPTION) {
 
 	// u is the extreme point for a parabola passing through a, b, and c:
 	r = (b->parameter - a->parameter) * (evaluate(b) - evaluate(c));
@@ -424,6 +422,17 @@ bracketMinimum(struct configuration **ap,
 	SetConfiguration(&c, u);
 	SetConfiguration(&u, NULL);
     }
+    if (Interrupted || EXCEPTION) {
+        // We haven't succeeded in bracketing, so we leave the results
+        // as all NULL's.  Caller needs to check for this.
+        SetConfiguration(&a, NULL);
+        SetConfiguration(&b, NULL);
+        SetConfiguration(&c, NULL);
+        SetConfiguration(&u, NULL);
+        Leave(bracketMinimum, 0);
+        return;
+    }
+        
     // success: (a, b, c) brackets
     *ap = a;
     *bp = b;
@@ -482,7 +491,7 @@ brent(struct configuration *parent,
     d = 0.0;
     e = 0.0;
     Leave(brent_beforeLoop, 0);
-    for (iteration=1; iteration<=LINEAR_ITERATION_LIMIT; iteration++) {
+    for (iteration=1; iteration<=LINEAR_ITERATION_LIMIT && !Interrupted && !EXCEPTION; iteration++) {
 	xm = 0.5 * (a->parameter + b->parameter); // midpoint of bracketing interval
 	tol = tolerance * fabs(x->parameter) + TOLERANCE_AT_ZERO ;
 	DPRINT3(D_MINIMIZE, "brent: x: %e xm: %e |x-xm|: %e\n",
@@ -590,7 +599,11 @@ brent(struct configuration *parent,
 		}
 	}
     }
-    message(parent->functionDefinition, "reached iteration limit in linearMinimize\n");
+    // For either an interrupt or an exception, x should always be the
+    // best value found so far, so we can safely return it.
+    if (!Interrupted && !EXCEPTION) {
+        message(parent->functionDefinition, "reached iteration limit in linearMinimize\n");
+    }
     // too many iterations without getting close enough
     SetConfiguration(&a, NULL);
     SetConfiguration(&b, NULL);
@@ -622,9 +635,9 @@ linearMinimize(struct configuration *p,
 
     Enter();
     bracketMinimum(&a, &b, &c, p);
-    NULLPTRR(a, NULL);
-    NULLPTRR(b, NULL);
-    NULLPTRR(c, NULL);
+    NULLPTRR(a, p);
+    NULLPTRR(b, p);
+    NULLPTRR(c, p);
     if (DEBUG(D_MINIMIZE)) {
         message(p->functionDefinition, "bmin: a %e[%e] b %e[%e] c %e[%e]",
                 evaluate(a), a->parameter,
@@ -692,31 +705,32 @@ minimize_one_tolerance(struct configuration *initial_p,
 
     Enter();
     NULLPTRR(initial_p, NULL);
-    NULLPTRR(iteration, NULL);
+    NULLPTRR(iteration, initial_p);
     fd = initial_p->functionDefinition;
-    NULLPTRR(fd, NULL);
+    NULLPTRR(fd, initial_p);
     if (fd->termination == NULL) {
         fd->termination = defaultTermination;
     }
     SetConfiguration(&p, initial_p);
-    BAILR(NULL);
     fp = evaluate(p);
-    BAILR(NULL);
-    for ((*iteration)=0; (*iteration) < iterationLimit; (*iteration)++) {
+    BAILR(initial_p);
+    for ((*iteration)=0; (*iteration) < iterationLimit && !Interrupted; (*iteration)++) {
 	SetConfiguration(&q, NULL);
-	BAILR(NULL);
 	q = linearMinimize(p, tolerance, minimization_algorithm);
-	BAILR(NULL);
+        // If linearMinimize made some progress, but threw an
+        // exception, then we want the best result, which is q.  If it
+        // threw an exception and returned NULL, the best we can do
+        // at this point is p.  Beyond this point, we can bail with q.
+	BAILR(q == NULL ? p : q);
         if ((fd->termination)(fd, p, q, tolerance)) {
 	    SetConfiguration(&p, NULL);
-	    BAILR(NULL);
 	    Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
 	    return q;
 	}
 	evaluateGradient(p); // should have been evaluated by linearMinimize already
-	BAILR(NULL);
+	BAILR(q);
 	evaluateGradient(q);
-	BAILR(NULL);
+	BAILR(q);
 	if (minimization_algorithm != SteepestDescent) {
 	    dgg = gg = 0.0;
 	    if (minimization_algorithm == PolakRibiereConjugateGradient) {
@@ -739,7 +753,6 @@ minimize_one_tolerance(struct configuration *initial_p,
 		// is zero, so we must be done.
 		DPRINT(D_MINIMIZE, "gg==0 in minimize_one_tolerance\n");
 		SetConfiguration(&p, NULL);
-		BAILR(NULL);
 		Leave(minimize_one_tolerance, 1);
 		return q;
 	    }
@@ -750,13 +763,8 @@ minimize_one_tolerance(struct configuration *initial_p,
 	    }
 	}
 	fp = evaluate(q); // previous value of function
-	BAILR(NULL);
+	BAILR(q);
 	SetConfiguration(&p, q);
-	BAILR(NULL);
-	if (Interrupted) {
-	    message(fd, "minimization interrupted");
-	    break;  // wware 060110  don't handle this with BAIL
-	}
     }
     if (Interrupted) {
         message(fd, "minimization interrupted");
@@ -764,7 +772,6 @@ minimize_one_tolerance(struct configuration *initial_p,
         message(fd, "reached iteration limit");
     }
     SetConfiguration(&p, NULL);
-    BAILR(NULL);
     Leave(minimize_one_tolerance, 1);
     return q;
 }
@@ -777,20 +784,23 @@ minimize(struct configuration *initial_p,
          int *iteration,
          int iterationLimit)
 {
-    struct functionDefinition *fd = initial_p->functionDefinition;
+    struct functionDefinition *fd;
     struct configuration *intermediate;
     struct configuration *final = NULL;
     int coarse_iter;
     int fine_iter;
 
     Enter();
+    NULLPTRR(initial_p, NULL);
+    fd = initial_p->functionDefinition;
+    NULLPTRR(fd, initial_p);
+    NULLPTRR(iteration, initial_p);
     intermediate = minimize_one_tolerance(initial_p,
 					  &coarse_iter,
 					  iterationLimit * 0.8,
 					  fd->coarse_tolerance,
 					  SteepestDescent);
-    BAILR(NULL);
-    if (fd->fine_tolerance < fd->coarse_tolerance) {
+    if (fd->fine_tolerance < fd->coarse_tolerance && !Interrupted && !EXCEPTION) {
 	DPRINT1(D_MINIMIZE, "cutover to fine tolerance at %d\n", coarse_iter);
 	message(fd, "cutover to fine tolerance at %d", coarse_iter);
 	final = minimize_one_tolerance(intermediate,
@@ -798,16 +808,16 @@ minimize(struct configuration *initial_p,
 				       iterationLimit - coarse_iter,
 				       fd->fine_tolerance,
 				       PolakRibiereConjugateGradient);
-	BAILR(NULL);
     } else {
 	SetConfiguration(&final, intermediate);
-	BAILR(NULL);
     }
     SetConfiguration(&intermediate, NULL);
-    BAILR(NULL);
     *iteration = coarse_iter + fine_iter;
     Leave(minimize, (final == initial_p) ? 0 :1);
-    return final;
+    // final probably shouldn't ever be NULL, but it's conceivable in
+    // some exception processing cases.  If that happens, then we
+    // haven't made any progress, so return initial_p.
+    return final == NULL ? initial_p : final;
 }
 
 #ifdef TEST

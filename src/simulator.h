@@ -94,16 +94,24 @@ extern char *py_exc_str;
 extern void set_py_exc_str(const char *filename, const char *funcname,
 			   const char *format, ...);
 
+//#define RANDOM_FAILURES 0.0001
+#ifdef RANDOM_FAILURES
+#define RFAIL (((double)random())/((double)RAND_MAX) < RANDOM_FAILURES) ||
+#else
+#define RFAIL
+#endif
+
 #define NULLPTR(p)  \
-  if ((p) == NULL) { SAY("NULLPTR\n"); \
+  if (RFAIL (p) == NULL) { SAY("NULLPTR\n"); \
   set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return; }
 #define NULLPTRR(p,x)  \
-  if ((p) == NULL) { SAY("NULLPTRR\n"); \
+  if (RFAIL (p) == NULL) { SAY("NULLPTRR\n"); \
   set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return (x); }
+#define EXCEPTION (py_exc_str != NULL)
 #define BAIL()  \
-  if (py_exc_str != NULL) { SAY("BAIL\n"); return; }
+  if (EXCEPTION) { SAY("BAIL\n"); return; }
 #define BAILR(x)  \
-  if (py_exc_str != NULL) { SAY("BAILR\n"); return x; }
+  if (EXCEPTION) { SAY("BAILR\n"); return x; }
 
 /*
  * Local Variables:

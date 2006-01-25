@@ -161,6 +161,7 @@ minimizeStructure(struct part *part)
     double rms_force;
     double max_force;
 
+    NULLPTR(part);
     Part = part;
 
     initializeFunctionDefinition(&minimizeStructureFunctions,
@@ -183,13 +184,11 @@ minimizeStructure(struct part *part)
     }
 
     final = minimize(initial, &iter, NumFrames * 100);
-    // wware 060109  python exception handling
-    BAIL();
 
     if (final != NULL) {
 	// wware 060109  python exception handling
-	evaluateGradient(final); BAIL();
-	findRMSandMaxForce(final, &rms_force, &max_force); BAIL();
+	evaluateGradient(final);
+	findRMSandMaxForce(final, &rms_force, &max_force);
 
 	writeMinimizeMovieFrame(OutputFile, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,
 				Iteration, "final structure", minimizeStructureFunctions.message);

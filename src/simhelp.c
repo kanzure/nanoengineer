@@ -354,6 +354,9 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     }
 
     fclose(OutputFile);
+    if (py_exc_str != NULL) {
+        ERROR(py_exc_str);
+    }
     done("");
     if (TraceFile != NULL) {
         fclose(TraceFile);
@@ -362,7 +365,6 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     if (callback_exception) {
 	return NULL;
     } else if (py_exc_str != NULL) {
-	// wware 060109  python exception handling
 	PyErr_SetString(PyExc_RuntimeError, py_exc_str);
 	return NULL;
     } else if (Interrupted) {
