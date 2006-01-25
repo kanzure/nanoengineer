@@ -1992,6 +1992,14 @@ class Csys(DataNode):
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )
         
+    def will_copy_if_selected(self, sel):
+        "Copying a named view NIY.  Maybe A8.  [overrides Node method]"
+        # Tell user reason why not.  Mark 060124.
+        msg = "Copying named views not implemented yet.  %s not copied." % (self.name)
+        from HistoryWidget import orangemsg
+        env.history.message(orangemsg(msg))
+        return False
+        
     pass # end of class Csys
 
 
