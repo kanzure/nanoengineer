@@ -33,7 +33,7 @@ endif
 all: $(TARGET)
 
 clean:
-	rm -rf *~ *.o quux.c $(TARGET) build *.def PyrexOpenGLGui.py *.pyc libpython23.a
+	rm -rf *~ *.o quux.c $(TARGET) build *.def *.pyc libpython23.a
 
 quux.c: quux.pyx quux_help.c
 	$(PYREXC) quux.pyx
