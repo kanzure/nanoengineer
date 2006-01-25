@@ -1974,18 +1974,19 @@ class Csys(DataNode):
         from HistoryWidget import greenmsg
         cmd = greenmsg("Change View: ")
         msg = 'View changed to "%s".' % (self.name)
-        env.history.message( cmd + self.name )
+        env.history.message( cmd + msg )
         
-    def __CM_Set_View_to_Current_View(self): #mark 060122
+    def __CM_Set_to_Current_View(self): #mark 060122
         self.set_to_current_view()
     
-    def set_view_to_current_view(self): #mark 060122
+    def set_to_current_view(self): #mark 060122
         '''Set self to current view.
         '''
         self.scale = self.assy.o.scale
         self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
         self.zoomFactor = self.assy.o.zoomFactor
         self.quat = Q(self.assy.o.quat)
+        self.assy.changed()
         
         from HistoryWidget import greenmsg
         cmd = greenmsg("Set View: ")
