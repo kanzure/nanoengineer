@@ -548,7 +548,7 @@ class modifyMode(basicMode):
     def moveTheta(self, rotype, theta):
         "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
         if not self.o.assy.getSelectedMovables(): 
-            env.history.message(redmsg("No chunks or jigs selected."))
+            env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
         if rotype == 'Rotate X':
@@ -572,7 +572,7 @@ class modifyMode(basicMode):
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
         if not self.o.assy.getSelectedMovables(): 
-            env.history.message(redmsg("No chunks or jigs selected."))
+            env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
         offset = get_move_xyz(self.w, 1)
@@ -583,7 +583,7 @@ class modifyMode(basicMode):
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
         if not self.o.assy.getSelectedMovables(): 
-            env.history.message(redmsg("No chunks or jigs selected."))
+            env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
         offset = get_move_xyz(self.w, 0)
@@ -597,7 +597,7 @@ class modifyMode(basicMode):
         '''
         movables = self.o.assy.getSelectedMovables()
         if not movables: 
-            env.history.message(redmsg("No chunks or jigs selected."))
+            env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
         ## Compute bbox for selected chunk(s).
