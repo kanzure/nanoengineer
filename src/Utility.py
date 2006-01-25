@@ -1890,7 +1890,11 @@ def genViewNum(string):
     return string + str(ViewNum)
     
 class Csys(DataNode):
-    """ Information for coordinate system"""
+    """The Csys is used to store all the parameters needed to save and restore a view.
+    It is used in two distinct ways:
+        1) as a Named View created by the user and visible as a node in the model tree
+        2) internal use for storing the LastView and HomeView for every part
+    """
     
     sym = "View"
 
@@ -1926,7 +1930,7 @@ class Csys(DataNode):
         # if the names are still used when files_mmp reads the mmp file again). For Beta we plan
         # to make them useful and safe, and then make them showable again.
         "[overrides Node method]"
-        return True
+        return True # changed retval to True to support Named Views.  mark 060124.
 
     def writemmp(self, mapping):
         v = (self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.scale,
@@ -1959,24 +1963,34 @@ class Csys(DataNode):
         return "<csys " + self.name + ">"
 
         
-    def __CM_Set_View(self): #mark 060122
-        self.set_view()
+    def __CM_Change_View(self): #mark 060122
+        self.change_view()
         
-    def set_view(self): #mark 060122
-        '''Set the view to self.
+    def change_view(self): #mark 060122
+        '''Change the view to self.
         '''
         self.assy.o.animateView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
         
-    def __CM_Save_to_Current_View(self): #mark 060122
-        self.save_to_current_view()
+        from HistoryWidget import greenmsg
+        cmd = greenmsg("Change View: ")
+        msg = 'View changed to "%s".' % (self.name)
+        env.history.message( cmd + self.name )
+        
+    def __CM_Set_View_to_Current_View(self): #mark 060122
+        self.set_to_current_view()
     
-    def save_to_current_view(self): #mark 060122
-        '''Save the current view to self.
+    def set_view_to_current_view(self): #mark 060122
+        '''Set self to current view.
         '''
         self.scale = self.assy.o.scale
         self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
         self.zoomFactor = self.assy.o.zoomFactor
         self.quat = Q(self.assy.o.quat)
+        
+        from HistoryWidget import greenmsg
+        cmd = greenmsg("Set View: ")
+        msg = 'View "%s" now set to the current view.' % (self.name)
+        env.history.message( cmd + msg )
         
     pass # end of class Csys
 
