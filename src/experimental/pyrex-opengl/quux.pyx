@@ -1,6 +1,8 @@
 import Numeric
 import types
 import unittest
+import random
+import OpenGL.GL
 
 cdef extern from "Numeric/arrayobject.h":
     struct PyArray_Descr:
@@ -34,7 +36,6 @@ cdef extern from "quux_help.c":
 
 def glColor3f(r, g, b):
     _glColor3f(r, g, b)
-
 
 def shapeRendererInit():
     return _shapeRendererInit()
@@ -102,7 +103,45 @@ def approximatelyEqual(x, y):
 class Tests(unittest.TestCase):
 
     def testColor(self):
-        glColor3f(1,2,3)
+        glColor3f(0.1, 0.2, 0.3)
+
+    def testManyColors(self):
+        OpenGL.GL.glClearColor(0.4, 0.4, 0.4, 0.0)  # gray
+        OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
+        OpenGL.GL.glPushMatrix()
+        OpenGL.GL.glDisable(OpenGL.GL.GL_LIGHTING)
+
+        glColor3f(1.0, 0.0, 0.0)  # red
+        OpenGL.GL.glBegin(OpenGL.GL.GL_POLYGON)
+        OpenGL.GL.glVertex2f(0, 0)
+        OpenGL.GL.glVertex2f(5, 0)
+        OpenGL.GL.glVertex2f(5, 5)
+        OpenGL.GL.glEnd()
+
+        glColor3f(1.0, 1.0, 0.0)  # yellow
+        OpenGL.GL.glBegin(OpenGL.GL.GL_POLYGON)
+        OpenGL.GL.glVertex2f(0, 0)
+        OpenGL.GL.glVertex2f(0, 5)
+        OpenGL.GL.glVertex2f(-5, 5)
+        OpenGL.GL.glEnd()
+
+        glColor3f(0.0, 1.0, 0.0)  # green
+        OpenGL.GL.glBegin(OpenGL.GL.GL_POLYGON)
+        OpenGL.GL.glVertex2f(0, 0)
+        OpenGL.GL.glVertex2f(-5, 0)
+        OpenGL.GL.glVertex2f(-5, -5)
+        OpenGL.GL.glEnd()
+
+        glColor3f(0.0, 0.0, 1.0)  # blue
+        OpenGL.GL.glBegin(OpenGL.GL.GL_POLYGON)
+        OpenGL.GL.glVertex2f(0, 0)
+        OpenGL.GL.glVertex2f(0, -5)
+        OpenGL.GL.glVertex2f(5, -5)
+        OpenGL.GL.glEnd()
+
+        OpenGL.GL.glFlush()
+        OpenGL.GL.glPopMatrix()
 
     def testHackNumericArray(self):
         a = Numeric.array((Numeric.array((1, 2), 'f'),
@@ -199,5 +238,3 @@ def test():
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
     runner.run(suite)
-
-
