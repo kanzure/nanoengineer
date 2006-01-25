@@ -130,7 +130,10 @@ class Jig(Node):
         for atom in self.atoms:
             if sel.picks_atom(atom):
                 return True
-        return False #e need to give a reason why not??
+        # Tell user reason why not.  Not exactly the case for all jigs, but good enough.  Mark 060124.
+        msg = "Can't copy %s unless all its atoms are selected" % (self.name)
+        env.history.message(orangemsg(msg))
+        return False
 
     def will_partly_copy_due_to_selatoms(self, sel):
         "[overrides Node method]"
