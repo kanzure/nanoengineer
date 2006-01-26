@@ -1157,7 +1157,7 @@ class depositMode(basicMode):
         """
 
         if 1: #bruce 060124 undo-debugging code; should be safe for all users ####@@@@
-            self.o.assy.current_command_info(name = "BuildClick") #e cmdname should be set more precisely later, instead
+            self.o.assy.current_command_info(cmdname = "BuildClick") #e cmdname should be set more precisely later, instead
         
         # mark 051214 revised docstring
         # bruce 050124 warning: update_selatom now copies lots of logic from here;

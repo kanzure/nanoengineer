@@ -352,27 +352,33 @@ class SimpleDiff:
     (in that order, when applied);
     also considered to be an operation for applying that diff in that direction.
     Also knows whether that direction corresponds to Undo or Redo,
-    and knows some metainfo such as op_name (of cmd that created it; not yet properly set ###e),
-    and (in future) times diff was created and last applied, and more.
+    and might know some command_info about the command that adds changes to this diff
+    (we assume only one command does that, i.e. this is a low-level unmerged diff and commands are fully tracked/checkpointed),
+    and (maybe, in future) times diff was created and last applied, and more.
        Neither checkpoint needs to have its state filled in yet, except for our apply_to method.
     Depending on how and when this is used they might also need their varid_ver pairs for indexing.
     [Note: error of using cp.state too early, for some checkpoint cp, are detected by that attr not existing yet.]
     """
-    default_opts = dict(op_name = "")
+    default_opts = dict()
+    default_command_info = dict(cmdname = "operation")
     suppress_storing_undo_redo_ops = False
     def __init__(self, cp0, cp1, direction = 1, **options):
         """direction +1 means forwards in time (apply diff for redo), -1 means backwards (apply diff for undo),
         though either way we have to keep enough info for both redo and undo;
-        options include op_name.
+        as of 060126 there are no public options, but one private one for use by self.reverse_order().
         """
-        ###e op_name (not yet passed or maybe not yet used I think??)
         self.cps = cp0, cp1
         self.direction = direction
         self.options = options # self.options is for use when making variants of self, like reverse_order
         self.opts = dict(self.default_opts)
-        self.opts.update(options) # self.opts is for extracting actual option values to use (could be done lazily)
-        self.op_name = self.opts['op_name']
+        self.opts.update(options) # self.opts is for extracting actual option values to use (could be done lazily) [not yet used]
         self.key = id(self) #e might be better to not be recycled, but this should be ok for now
+        # self.command_info: make (or privately be passed) a public mutable dict of command metainfo,
+        # with keys such as cmd_name (#e and history sernos? no, those should be in checkpoint metainfo),
+        # shared between self and self.reverse_order() [060126]
+        self.command_info = self.options.get('_command_info_dict', dict(self.default_command_info) )
+        self.options['_command_info_dict'] = self.command_info # be sure to pass the same shared dict to self.reverse_order()
+        return
     def finalize(self, assy): ####@@@@ 060123 notyetcalled; soon, *this* is what should call fill_checkpoint on self.cps[1]!
         """Caller, which is still making this diff by doing model changes meant to be recorded in it, has decided it's done,
         once those changes are actually recorded in it (and/or directly in its end-checkpoint).
@@ -389,14 +395,14 @@ class SimpleDiff:
         return self.__class__(self.cps[1], self.cps[0], - self.direction, **self.options)
     def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this??
         main = self.optype() # "Undo" or "Redo"
-        op_name = self.op_name
+        op_name = self.command_info['cmdname']
         if op_name:
             main = "%s %s" % (main, op_name)
         return main
     def varid_vers(self):#####@@@@@ need to merge self with more diffs, to do this??
         "list of varid_ver pairs for indexing"
         return [self.cps[0].varid_ver()] 
-    def apply_to(self, assy):#####@@@@@ also change current-state varid_vers records; do we need to merge self with more diffs, too?
+    def apply_to(self, assy):###@@@ do we need to merge self with more diffs, too?
         "apply this diff-operation to the given model objects"
         cp = self.cps[1]
         assert cp.complete
@@ -408,7 +414,8 @@ class SimpleDiff:
             # POSSIBLE KLUGE: with current implem, applying a chain of several diffs can be done by applying the last one.
             # The current code might perhaps do this when the skipped diffs are empty or have been merged -- don't know.
             # This will need fixing once we're merging any nonempty diffs. ####@@@@ [060123]
-        cp.metainfo.restore_assy_change_counter(assy)
+        cp.metainfo.restore_assy_change_counter(assy) # change current-state varid_vers records
+        return
     def optype(self):
         return {1: "Redo", -1: "Undo"}[self.direction]
     def __repr__(self):
@@ -620,7 +627,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
-        if self.last_cp.assy_change_counter == self.assy._change_counter:
+        if self.last_cp.assy_change_counter == self.assy._change_counter: ###@@@ when assy has several, combine them into a ver tuple?
             # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
             # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
             if debug_undo2:
@@ -658,6 +665,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
         self._setup_next_cp() # sets self.next_cp and self.current_diff
         return
+    def current_command_info(self, *args, **kws):
+        assert not args
+        self.current_diff.command_info.update(kws) # recognized keys include cmd_name
+            ######@@@@@@ somewhere in... what? a checkpoint? a diff? something larger? (yes, it owns diffs, in 1 or more segments)
+            # it has 1 or more segs, each with a chain of alternating cps and diffs.
+            # someday even a graph if different layers have different internal cps. maybe just bag of diffs
+            # and overall effect on varidvers, per segment. and yes it's more general than just for undo; eg affects history.
+        return
     def do_op(self, op): ###@@@ where i am 345pm some day bfr 060123 - figure out what this does if op.prior is not current, etc;
                 # how it relates to whether assy changed since last_cp set; etc.
         """assuming caller has decided it's safe, good, etc, in the case of out-of-order undo,
@@ -670,7 +685,19 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         otherwise [nim as of 060118] make a new checkpoint, ver, and diff to stand for the new state, though some state-subset
         varid_vers (from inside the diff) will usually be reused. (Always, in all cases I know how to code yet; maybe not for list ops.)        
         """
+        # self.current_diff is accumulating changes that occur now,
+        # including the ones we're about to do by applying self to assy.
+        # Make sure it is not itself later stored (redundantly) as a diff that can be undone or redone.
+        # (If it was stored, then whenever we undid a change, we'd have two copies of the same change stored as potential Undos.)
         self.current_diff.suppress_storing_undo_redo_ops = True
+
+        # Some code (find_undoredos) might depend on self.assy._change_counter being a valid
+        # representative of self.assy's state version;
+        # during op.apply_to(assy) that becomes false (as changes occur in assy), but apply_to corrects this at the end
+        # by restoring self.assy._change_counter to the correct old value from the end of the diff.
+
+        # The remaining comments might be current, but they need clarification. [060126 comment]
+        
         # in present implem [060118], we assume without checking that this op is not being applied out-of-order,
         # and therefore that it always changes the model state between the same checkpoints that the diff was made between
         # (or that it can ignore and/or discard any way in which the current state disagrees with the diff's start-checkpoint-state).
@@ -700,6 +727,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     def find_undoredos(self):
         #e also pass state_version? for now rely on self.last_cp or some new state-pointer...
         "Return a list of undo and/or redo operations that apply to the current state; return merged ops if necessary."
+        if 1:
+            # try to track down some of the bugs... if this is run when untracked changes occurred (and no checkpoint),
+            # it would miss everything. If this sometimes happens routinely when undo stack *should* be empty but isn't,
+            # it could explain dificulty in reproducing some bugs. [060216]
+            if self.last_cp.assy_change_counter != self.assy._change_counter:
+                print "WARNING: find_undoredos sees self.last_cp.assy_change_counter != self.assy._change_counter", \
+                      self.last_cp.assy_change_counter, self.assy._change_counter
+            pass
         state_version = self.state_version()
         ## state_version = dict([self.last_cp.varid_ver()]) ###@@@ extend to more pairs
         # that's a dict from varid to ver for current state;

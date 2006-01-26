@@ -103,11 +103,13 @@ class AssyUndoManager(UndoManager):
         if not auto_checkpointing:
             return False
         # (everything before this point must be kept fast)
-        cmdname = cmdname or "command"
+        cmdname2 = cmdname or "command"
         if undo_archive.debug_undo2:
-            env.history.message("debug_undo2: begin_cmd_checkpoint for %r" % (cmdname,))
+            env.history.message("debug_undo2: begin_cmd_checkpoint for %r" % (cmdname2,))
         # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
         self.archive.checkpoint( cptype = 'begin_cmd' )
+        if cmdname:
+            self.archive.current_command_info(cmdname = cmdname) #060126
         return True # this code should be passed to the matching undo_checkpoint_after_command (#e could make it fancier)
 
     def undo_checkpoint_after_command(self, begin_retval):
@@ -125,13 +127,7 @@ class AssyUndoManager(UndoManager):
         return
 
     def current_command_info(self, *args, **kws):
-        assert not args
-        pass ## self.somewhere.update(kws), e.g. name = "CmdName" for undo menu item
-            ######@@@@@@ somewhere in... what? a checkpoint? a diff? something larger? (yes, it owns diffs, in 1 or more segments)
-            # it has 1 or more segs, each with a chain of alternating cps and diffs.
-            # someday even a graph if different layers have different internal cps. maybe just bag of diffs
-            # and overall effect on varidvers, per segment. and yes it's more general than just for undo; eg affects history.
-        return
+        self.archive.current_command_info(*args, **kws)
     
     def undo_redo_ops(self):
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
@@ -154,8 +150,10 @@ class AssyUndoManager(UndoManager):
                 pass #e discard it permanently? ####@@@@
         return undos, redos
     
-    def undo_cmds_menuspec(self, widget): # 060117; biggest chgs are name of doit/do_op, and state_version
-        "return a menu_spec for undo-related commands (to be shown in the given widget, tho i don't know why the widget could matter)"
+    def undo_cmds_menuspec(self, widget):
+        """return a menu_spec for including undo-related commands in a popup menu
+        (to be shown in the given widget, tho i don't know why the widget could matter)
+        """
         del widget
         archive = self.archive
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
@@ -199,7 +197,8 @@ class AssyUndoManager(UndoManager):
                 action.setEnabled(True)
                 assert len(ops) == 1 #e there will always be just one for now
                 op = ops[0]
-                action.setMenuText("%s to checkpoint" % optype + extra)
+                text = op.menu_desc() #060126
+                action.setMenuText(text + extra)
                 #e tooltip
                 self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
             else:
@@ -221,20 +220,28 @@ class AssyUndoManager(UndoManager):
         '''
     # main menu items (their slots in MWsemantics forward to assy which forwards to here)
     def editUndo(self):
-        env.history.message(orangemsg("Undo: (prototype implementation)")) #e or repeat the text from the menu item?
+        ## env.history.message(orangemsg("Undo: (prototype)"))
         self.do_main_menu_op('Undo')
 
     def editRedo(self):
-        env.history.message(orangemsg("Redo: (prototype implementation)"))
+        ## env.history.message(orangemsg("Redo: (prototype)"))
         self.do_main_menu_op('Redo')
 
     def do_main_menu_op(self, optype):
         "optype should be Undo or Redo"
-        op = self._current_main_menu_ops.get(optype)
-        if op:
-            self.archive.do_op(op)
-        else:
-            print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
+        try:
+            op = self._current_main_menu_ops.get(optype)
+            if op:
+                undo_xxx = op.menu_desc()
+                env.history.message("%s" % undo_xxx) #e add history sernos #e say Undoing rather than Undo in case more msgs??
+                self.archive.do_op(op)
+            else:
+                print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
+                env.history.message(redmsg("Nothing to %s (and it's a bug that this message was printed)" % optype))
+            pass
+        except:
+            print_compact_traceback()
+            env.history.message(redmsg("Bug in %s; see traceback in console" % optype))
         return
     
     pass # end of class AssyUndoManager
