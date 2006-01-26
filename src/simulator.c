@@ -28,6 +28,9 @@ usage()
    --direct-evaluate\n\
                     call potential and gradient functions directly instead of using\n\
                     any form of interpolation of approximation.  (VERY SLOW!)\n\
+   --interpolate\n\
+                    use interpolation tables for potential and gradient functions\n\
+                    [[current default is --direct-evaluate, should change to --interpolate]]\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
    -m, --minimize\n\
@@ -109,6 +112,7 @@ set_py_exc_str(const char *filename, const char *funcname,
 #define OPT_INCREMENT         LONG_OPT (4)
 #define OPT_LIMIT             LONG_OPT (5)
 #define OPT_DIRECT_EVALUATE   LONG_OPT (6)
+#define OPT_INTERPOLATE       LONG_OPT (7)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -118,6 +122,7 @@ static const struct option option_vec[] = {
     { "increment", required_argument, NULL, OPT_INCREMENT},
     { "limit", required_argument, NULL, OPT_LIMIT},
     { "direct-evaluate", no_argument, NULL, OPT_DIRECT_EVALUATE},
+    { "interpolate", no_argument, NULL, OPT_INTERPOLATE},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -206,7 +211,10 @@ main(int argc, char **argv)
 	    printPotentialLimit = atof(optarg);
 	    break;
         case OPT_DIRECT_EVALUATE:
-            DirectEvaluate = !DirectEvaluate;
+            DirectEvaluate = 1;
+	    break;
+        case OPT_INTERPOLATE:
+            DirectEvaluate = 0;
 	    break;
 	case 'n':
 	    // ignored

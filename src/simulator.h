@@ -94,6 +94,8 @@ extern char *py_exc_str;
 extern void set_py_exc_str(const char *filename, const char *funcname,
 			   const char *format, ...);
 
+// define this to test the exception handling in pyrex sim.  Each null
+// pointer check will occasionally fail.
 //#define RANDOM_FAILURES 0.0001
 #ifdef RANDOM_FAILURES
 #define RFAIL (((double)random())/((double)RAND_MAX) < RANDOM_FAILURES) ||
