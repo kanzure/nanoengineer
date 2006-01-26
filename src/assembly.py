@@ -236,8 +236,11 @@ class assembly(GenericDiffTracker_API_Mixin):
         return # from assembly.__init__
 
     def deinit(self): # make sure assys don't fight over control of main menus, etc [bruce 060122]
-        assert self.w
-        self.undo_manager.deinit()
+        ###e should this be extended into a full destroy method, and renamed? guess: yes. [bruce 060126]
+        assert self.w # true for now, but not a fundamental requirement
+        if self.w:
+            self.undo_manager.deinit()
+            #e more? forget self.w?? maybe someday, in case someone uses it now who should be using env.mainwindow()
         return
     
     #bruce 051031: keep counter of selection commands in assy (the model object), not Part,

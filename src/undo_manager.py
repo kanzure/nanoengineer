@@ -71,8 +71,12 @@ class AssyUndoManager(UndoManager):
         return
         
     def deinit(self):
-        self.connect_or_disconnect_menu_signals(False) 
-        #e more?
+        self.connect_or_disconnect_menu_signals(False)
+        # and effectively destroy self... [060126 precaution; not thought through]
+        self.archive.destroy()
+        self._current_main_menu_ops = {}
+        self.assy = self.menus = None
+        #e more??
         return
     
     def connect_or_disconnect_menu_signals(self, connectQ): # this is a noop as of 060126
@@ -206,16 +210,17 @@ class AssyUndoManager(UndoManager):
                 action.setEnabled(True)
                 assert len(ops) == 1 #e there will always be just one for now
                 op = ops[0]
-                text = op.menu_desc() #060126
-                action.setMenuText(text + extra)
-                ####e set tooltip too, for toolbutton
+                text = op.menu_desc() + extra #060126
+                action.setMenuText(text)
+                fix_tooltip(action, text) # replace description, leave (accelkeys) alone (they contain unicode chars on Mac)
                 self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
             else:
                 action.setEnabled(False)
                 ## action.setText("Can't %s" % optype) # someday we might have to say "can't undo Cmdxxx" for certain cmds
                 ## action.setMenuText("Nothing to %s" % optype)
-                action.setMenuText("%s" % optype + extra) # for 061117 commit, look like it used to look, for the time being
-                #e tooltip
+                text = "%s" % optype + extra
+                action.setMenuText(text) # for 061117 commit, look like it used to look, for the time being
+                fix_tooltip(action, text)
                 self._current_main_menu_ops[optype] = None
             pass
         return
@@ -254,6 +259,26 @@ class AssyUndoManager(UndoManager):
         return
     
     pass # end of class AssyUndoManager
+
+# ==
+
+#e refile
+def fix_tooltip(qaction, text): #060126
+    """Assuming qaction's tooltip looks like "command name (accel keys)" and might contain unicode in accel keys
+    (as often happens on Mac due to symbols for Shift and Command modifier keys),
+    replace command name with text, leave accel keys unchange (saving result into actual tooltip).
+    """
+    whole = unicode(qaction.toolTip()) # str() on this might have an exception
+    try:
+        sep = u' ('
+        parts = whole.split(sep, 1) #e is it safe to assume the whitespace is a single blank? should generalize...
+        parts[0] = text
+        whole = sep.join(parts)
+        # print "formed tooltip",`whole` # printing whole might have an exception, but printing `whole` is ok
+        qaction.setToolTip(whole) # no need for __tr, I think?
+    except:
+        print_compact_traceback("exception in fix_tooltip(%r, %r): " % (qaction, text) )
+    return
 
 # == debugging code - invoke undo/redo from debug menu (only) in initial test implem
 

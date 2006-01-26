@@ -583,6 +583,13 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self._setup_next_cp() # don't know cptype yet (I hope it's 'begin_cmd'; should we say that to the call? #k)
         ## self.notify_observers() # current API doesn't permit this to do anything during __init__, since subs is untouched then
         return
+    def destroy(self): #060126 precaution #####@@@@@ call from um.deinit? and make it zap stored ops?
+        "free storage, make doing of our ops illegal (noop with bug warning; or maybe just exception)"
+        self.next_cp = self.last_cp = self.initial_cp = None
+        self.assy = None
+        self.stored_ops = {}
+        self.current_diff = None
+        return
     def _setup_next_cp(self):
         """[private method, mainly for begin_cmd_checkpoint:]
         self.last_cp is set; make (incomplete) self.next_cp, and self.current_diff to go between them.
