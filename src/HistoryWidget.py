@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 HistoryWidget.py provides a Qt "megawidget" supporting our history/status area.
 
@@ -345,7 +345,14 @@ class HistoryWidget:
            If norepeat_id is supplied (assumed not to co-occur with transient_id),
         print the first message normally (out of several in a row with the same norepeat_id)
         but discard the others.
+           If quote_html is True, replace the html-active chars '<', '>', '&' in msg
+        with forms that will print as themselves. Note that this is not compatible with text
+        returned by functions such as greenmsg; for that, you have to use quote_html(text) on appropriate
+        portions of the message text. See also message_no_html.
+           When quote_html is combined with transient_id, (I hope) it only affects the
+        message printed to the history widget, not to the statusbar.
         """
+        # (quote_html is implemented as one of the **options, not directly in this method. [bruce 060126])
         # first emit a saved_up message, if necessary
         if self.saved_transient_id and self.saved_transient_id != transient_id:
             self.widget_msg( self.saved_msg, self.saved_options)
@@ -386,9 +393,12 @@ class HistoryWidget:
             self.widget_msg( msg, options)
         return
 
-    def message_no_html(self, msg, **kws): #bruce 050727
-        msg = quote_html(msg)
-        self.message( msg, **kws)
+    def message_no_html(self, msg, **kws): #bruce 050727; revised 060126 (should now be more correct when combined with transient_id)
+        ## msg = quote_html(msg)
+        ## self.message( msg, **kws)
+        opts = dict(quote_html = True) # different default than message, but still permit explicit caller option to override
+        opts.update(kws)
+        return self.message( msg, **opts)
     
     def flush_saved_transients(self):
         """make sure a saved-up transient message, if there is one,
@@ -434,6 +444,10 @@ class HistoryWidget:
     def widget_msg(self, msg, options):
         #e improved timestamp?
         #e use html for color etc? [some callers put this directly in the msg, for now]
+        _quote_html = options.pop('quote_html', False) #bruce 060126 new feature, improving on message_no_html interface ##k
+        if _quote_html:
+            msg = quote_html(msg)
+        # any other options are warned about below
         self._print_msg(msg)
         if options:
             msg2 = "fyi: bug: widget_msg got unsupported options: %r" % options
