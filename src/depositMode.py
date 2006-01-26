@@ -1287,6 +1287,15 @@ class depositMode(basicMode):
         # not clear this would be good, so *this* is what I won't do for now.
         self.o.gl_update()
         
+    def leftDouble(self, event): # mark 060126.
+        '''Selects all atoms connected to the double-clicked atom.
+        '''
+        # If the selection behavior is set to Non-standard mode, more than one atom may
+        # be selected.  In that case, double-clicking an atom does nothing. 
+        # This is a bug if we intend to support non-standard selection behavior. mark 060126.
+        if len(self.o.assy.selatoms_list()) == 1:
+            self.o.assy.selectConnected()
+        
 
 # == Deposit methods
         
