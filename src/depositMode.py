@@ -1293,7 +1293,7 @@ class depositMode(basicMode):
         # If the selection behavior is set to Non-standard mode, more than one atom may
         # be selected.  In that case, double-clicking an atom does nothing. 
         # This is a bug if we intend to support non-standard selection behavior. mark 060126.
-        if len(self.o.assy.selatoms_list()) == 1:
+        if len(self.o.assy.selatoms_list()) == 1 and self.dragatom_clicked:
             self.o.assy.selectConnected()
         
 
