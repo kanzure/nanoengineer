@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Jan 24 17:11:44 2006
+# Created: Wed Jan 25 23:24:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,12 +34,11 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab = QTabWidget(self,"prefs_tab")
 
         self.tab = QWidget(self.prefs_tab,"tab")
+        tabLayout = QGridLayout(self.tab,1,1,11,6,"tabLayout")
 
-        LayoutWidget = QWidget(self.tab,"layout54")
-        LayoutWidget.setGeometry(QRect(11,11,506,119))
-        layout54 = QHBoxLayout(LayoutWidget,11,6,"layout54")
+        layout54 = QHBoxLayout(None,0,6,"layout54")
 
-        self.groupBox7_2 = QGroupBox(LayoutWidget,"groupBox7_2")
+        self.groupBox7_2 = QGroupBox(self.tab,"groupBox7_2")
         self.groupBox7_2.setColumnLayout(0,Qt.Vertical)
         self.groupBox7_2.layout().setSpacing(6)
         self.groupBox7_2.layout().setMargin(11)
@@ -59,7 +58,7 @@ class UserPrefsDialog(QDialog):
         groupBox7_2Layout.addWidget(self.display_pov_axis_checkbox)
         layout54.addWidget(self.groupBox7_2)
 
-        self.compass_position_btngrp = QButtonGroup(LayoutWidget,"compass_position_btngrp")
+        self.compass_position_btngrp = QButtonGroup(self.tab,"compass_position_btngrp")
         self.compass_position_btngrp.setExclusive(1)
         self.compass_position_btngrp.setColumnLayout(0,Qt.Vertical)
         self.compass_position_btngrp.layout().setSpacing(6)
@@ -91,15 +90,15 @@ class UserPrefsDialog(QDialog):
         spacer48 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout54.addItem(spacer48)
 
-        LayoutWidget_2 = QWidget(self.tab,"layout130")
-        LayoutWidget_2.setGeometry(QRect(12,137,506,173))
-        layout130 = QHBoxLayout(LayoutWidget_2,11,6,"layout130")
+        tabLayout.addLayout(layout54,0,0)
+
+        layout130 = QHBoxLayout(None,0,6,"layout130")
 
         layout123 = QVBoxLayout(None,0,6,"layout123")
 
         layout122 = QHBoxLayout(None,0,6,"layout122")
 
-        self.default_projection_btngrp = QButtonGroup(LayoutWidget_2,"default_projection_btngrp")
+        self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
         self.default_projection_btngrp.setExclusive(1)
         self.default_projection_btngrp.setColumnLayout(0,Qt.Vertical)
         self.default_projection_btngrp.layout().setSpacing(6)
@@ -117,22 +116,24 @@ class UserPrefsDialog(QDialog):
         default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
         layout122.addWidget(self.default_projection_btngrp)
 
-        self.selection_behavior_btngrp = QButtonGroup(LayoutWidget_2,"selection_behavior_btngrp")
+        self.selection_behavior_btngrp = QButtonGroup(self.tab,"selection_behavior_btngrp")
         self.selection_behavior_btngrp.setProperty("selectedId",QVariant(-1))
         self.selection_behavior_btngrp.setColumnLayout(0,Qt.Vertical)
         self.selection_behavior_btngrp.layout().setSpacing(6)
         self.selection_behavior_btngrp.layout().setMargin(11)
-        selection_behavior_btngrpLayout = QVBoxLayout(self.selection_behavior_btngrp.layout())
+        selection_behavior_btngrpLayout = QGridLayout(self.selection_behavior_btngrp.layout())
         selection_behavior_btngrpLayout.setAlignment(Qt.AlignTop)
 
         self.alpha7_behavior_rbtn = QRadioButton(self.selection_behavior_btngrp,"alpha7_behavior_rbtn")
         self.selection_behavior_btngrp.insert( self.alpha7_behavior_rbtn,0)
-        selection_behavior_btngrpLayout.addWidget(self.alpha7_behavior_rbtn)
+
+        selection_behavior_btngrpLayout.addWidget(self.alpha7_behavior_rbtn,1,0)
 
         self.alpha6_behavior_rbtn = QRadioButton(self.selection_behavior_btngrp,"alpha6_behavior_rbtn")
         self.alpha6_behavior_rbtn.setChecked(0)
         self.selection_behavior_btngrp.insert( self.alpha6_behavior_rbtn,1)
-        selection_behavior_btngrpLayout.addWidget(self.alpha6_behavior_rbtn)
+
+        selection_behavior_btngrpLayout.addWidget(self.alpha6_behavior_rbtn,0,0)
         layout122.addWidget(self.selection_behavior_btngrp)
         layout123.addLayout(layout122)
         spacer23 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
@@ -141,7 +142,7 @@ class UserPrefsDialog(QDialog):
 
         layout129 = QVBoxLayout(None,0,6,"layout129")
 
-        self.groupBox8 = QGroupBox(LayoutWidget_2,"groupBox8")
+        self.groupBox8 = QGroupBox(self.tab,"groupBox8")
         self.groupBox8.setColumnLayout(0,Qt.Vertical)
         self.groupBox8.layout().setSpacing(6)
         self.groupBox8.layout().setMargin(11)
@@ -198,6 +199,8 @@ class UserPrefsDialog(QDialog):
         layout130.addLayout(layout129)
         spacer25 = QSpacerItem(23,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout130.addItem(spacer25)
+
+        tabLayout.addLayout(layout130,1,0)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -1228,8 +1231,8 @@ class UserPrefsDialog(QDialog):
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.selection_behavior_btngrp.setTitle(self.__tr("Selection Behavior"))
-        self.alpha7_behavior_rbtn.setText(self.__tr("Alpha 7"))
-        self.alpha6_behavior_rbtn.setText(self.__tr("Alpha 6"))
+        self.alpha7_behavior_rbtn.setText(self.__tr("Non-standard"))
+        self.alpha6_behavior_rbtn.setText(self.__tr("Standard"))
         self.groupBox8.setTitle(self.__tr("View Animation"))
         self.animate_views_checkbox.setText(self.__tr("Animate between views"))
         self.textLabel1_5.setText(self.__tr("Speed :"))
