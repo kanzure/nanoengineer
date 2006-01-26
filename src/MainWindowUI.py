@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Jan 25 14:12:32 2006
+# Created: Wed Jan 25 22:03:58 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7467,6 +7467,7 @@ class MainWindow(QMainWindow):
         self.modifyHydrogenateAction.setText(self.__tr("Hydrogenate"))
         self.modifyHydrogenateAction.setMenuText(self.__tr("&Hydrogenate"))
         self.modifyHydrogenateAction.setToolTip(self.__tr("Hydrogenate"))
+        self.modifyHydrogenateAction.setAccel(self.__tr("Ctrl+H"))
         self.modifyPassivateAction.setText(self.__tr("Passivate"))
         self.modifyPassivateAction.setMenuText(self.__tr("&Passivate"))
         self.modifyPassivateAction.setToolTip(self.__tr("Passivate (Ctrl+P)"))
@@ -7583,6 +7584,7 @@ class MainWindow(QMainWindow):
         self.fileInsertAction.setMenuText(self.__tr("Inser&t..."))
         self.modifyDehydrogenateAction.setText(self.__tr("Dehydrogenate"))
         self.modifyDehydrogenateAction.setMenuText(self.__tr("&Dehydrogenate"))
+        self.modifyDehydrogenateAction.setAccel(self.__tr("Ctrl+Shift+H"))
         self.toggleGridsTbarAction.setText(self.__tr("Grids"))
         self.toggleGridsTbarAction.setMenuText(self.__tr("Grids"))
         self.dispCPKAction.setText(self.__tr("CPK"))
