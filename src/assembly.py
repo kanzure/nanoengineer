@@ -841,17 +841,18 @@ class assembly(GenericDiffTracker_API_Mixin):
         # that would probably be too slow -- we'll need to figure out a different
         # way to get the same effect (like recording a "modtime" or "event counter").
         
-        self.modflag_asserts()
+        self.modflag_asserts() #e should speed-optimize this eventually
         
         return # from assembly.changed()
 
-    def modflag_asserts(self): #bruce 060123 ####@@@@ PROBABLY WRONG if you undo back to a prior save-point before the last one
-        if platform.atom_debug:
-            #bruce 060123 guess -- _change_counter being even reports whether assy is saved, could serve to recompute self._modified
-            if self._change_counter and (not ((not self._modified) == (self._change_counter % 2 == 0))):
+    def modflag_asserts(self): #bruce 060123; revised 060125
+        "check invariants related to self._modified"
+        if 1: ###@@@ maybe should be: if platform.atom_debug:
+            hopetrue = ( (not self._modified) == (self._change_counter == self._change_counter_when_reset_changed) )
+            if not hopetrue:
                 print_compact_stack(
-                    "atom_debug: bug? ((not self._modified) == (self._change_counter %% 2 == 0)), selfmod %r, selfcc %r: " % \
-                      (self._modified, self._change_counter)
+                    "bug? (%r.modflag_asserts() failed; %r %r %r): " % \
+                      (self, self._modified, self._change_counter, self._change_counter_when_reset_changed)
                 )
         return
 
@@ -898,7 +899,7 @@ class assembly(GenericDiffTracker_API_Mixin):
         self._modified = oldmod
         return
 
-    _change_counter_when_reset_changed = -2 #bruce 060123 for Undo; value is even to match the effect of code in reset_changed()
+    _change_counter_when_reset_changed = -1 #bruce 060123 for Undo; as of 060125 it should no longer matter whether the value is even
     
     def reset_changed(self): # bruce 050107
         """[private method] #doc this... see self.changed() docstring...
@@ -914,7 +915,8 @@ class assembly(GenericDiffTracker_API_Mixin):
         #e should this call self.w.update_mainwindow_caption(Changed = False),
         # or fulfill a subs to do that?? [bruce question 060123]
 
-        self._change_counter_when_reset_changed = self._change_counter = env.change_counter_checkpoint() #bruce 060123 for Undo
+        self._change_counter_when_reset_changed = self._change_counter #bruce 060125 (eve) revised this; related to bugs 1387, 1388??
+            ## = env.change_counter_checkpoint() #bruce 060123 for Undo
             ##k not sure it's right to call change_counter_checkpoint and not subsequently call change_counter_for_changed_objects,
             # but i bet it's ok... more problematic is calling change_counter_checkpoint at all! #######@@@@@@@
             # the issue is, this is not actually a change to our data, so why are we changing self._change_counter??
