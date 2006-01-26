@@ -303,12 +303,20 @@ class depositMode(basicMode):
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
         self.dragatom = None
-        self.dragatom_clicked = False # it is either clicked or dragged. mark 060125.
         self.pivot = None
         self.pivax = None
         self.baggage = []
         self.nonbaggage = []
         self.line = None
+        self.dragatom_clicked = False 
+            # dragatom_clicked is used to determine if a lit up atom was picked (clicked)
+            # or not picked (dragged). It must be set to False here so that a newly 
+            # deposited atom doesn't pick itself right away.
+            # dragatom_clicked is set to True in setupDragAtom() and setupDragChunk()
+            # before it gets dragged (if it does at all). If it is dragged, it is set to False
+            # in leftDrag() and leftShiftDrag().
+            # leftUp() and leftShiftUp() then check it to determine whether the atom 
+            # gets picked or not. mark 060125.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
