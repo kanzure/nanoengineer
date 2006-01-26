@@ -47,8 +47,10 @@ SQUARE_GRID = 0
 SiC_GRID = 1
 
 # Selection Behavior Options
-A7_SELECTION_BEHAVIOR = 0
-A6_SELECTION_BEHAVIOR = 1
+# I suggestion changing their names to STD_SELECTION_BEHAVIOR and 
+# NONSTD_SELECTION_BEHAVIOR.  mark 060125.
+A6_SELECTION_BEHAVIOR = 1 # Changed to "Standard" in the User Prefs dialog. mark 060125.
+A7_SELECTION_BEHAVIOR = 0 # Changed to "Non-standard" in the User Prefs dialog. mark 060125.
 
 # ==
 
@@ -189,7 +191,7 @@ prefs_table = (
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
-    ('selection_behavior', 'int', selectionBehavior_prefs_key, A7_SELECTION_BEHAVIOR), # Mark 051122.
+    ('selection_behavior', 'int', selectionBehavior_prefs_key, A6_SELECTION_BEHAVIOR), # Mark 060125.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
 
