@@ -1266,8 +1266,10 @@ class depositMode(basicMode):
         
         # If the atom was clicked (not dragged), clear the selection and pick it.  mark 060125.
         if self.dragatom and self.dragatom_clicked:
-            self.o.assy.unpickatoms()
-            self.o.assy.unpickparts()
+            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
+            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                self.o.assy.unpickatoms()
+                self.o.assy.unpickparts()
             self.dragatom.pick()
             env.history.message(self.dragatom.getinfo())
         
