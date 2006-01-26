@@ -303,12 +303,13 @@ class depositMode(basicMode):
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
         self.dragatom = None
+        self.dragatom_clicked = False # it is either clicked or dragged. mark 060125.
         self.pivot = None
         self.pivax = None
         self.baggage = []
         self.nonbaggage = []
         self.line = None
-    
+        
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
     # bruce comment 041124 -- init_gui was also being used to update the gui
@@ -598,7 +599,7 @@ class depositMode(basicMode):
     
     def keyPress(self,key):
         
-        # I little thing that allows you to add the "lit up" object to the selection by clicking the spacebar.
+        # A little thing that allows you to add the "lit up" object to the selection by clicking the spacebar.
         # It is good for seeing how selection and highlighting might work together. Mark 051216.
         #if key == Qt.Key_Space:
         #    a = self.o.selobj
@@ -1246,6 +1247,7 @@ class depositMode(basicMode):
                 msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
             else:
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
+                self.dragatom_clicked = False # atom was dragged. mark 060125.
             this_drag_id = (self.dragobj_start, self.__class__.leftDrag)
             env.history.message(msg, transient_id = this_drag_id)
         
@@ -1253,6 +1255,14 @@ class depositMode(basicMode):
 
 
     def leftUp(self, event):
+        
+        # If the atom was clicked (not dragged), clear the selection and pick it.  mark 060125.
+        if self.dragatom and self.dragatom_clicked:
+            self.o.assy.unpickatoms()
+            self.o.assy.unpickparts()
+            self.dragatom.pick()
+            env.history.message(self.dragatom.getinfo())
+        
         env.history.flush_saved_transients() # flush any transient message it saved up
         self.baggage = []
         self.dragatom = None 
@@ -1486,6 +1496,7 @@ class depositMode(basicMode):
                 msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
             else:
                 msg = "dragged %s by atom %r to %s" % (a.molecule.name, a, self.posn_str(a))
+                self.dragatom_clicked = False # atom was dragged. mark 060125.
             this_drag_id = (self.dragobj_start, self.__class__.leftShiftDrag)
             env.history.message(msg, transient_id = this_drag_id)
         
@@ -1505,6 +1516,7 @@ class depositMode(basicMode):
         translate the chunk in the plane of the screen.
         '''
         self.initDragObject(a)
+        self.dragatom_clicked = True # mark 060125.
         
         if a.realNeighbors(): # probably part of larger molecule
                     ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
@@ -1590,6 +1602,7 @@ class depositMode(basicMode):
         '''Setup dragging of real atom 'a'.
         '''
         self.initDragObject(a)
+        self.dragatom_clicked = True # mark 060125.
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
 
@@ -1682,6 +1695,12 @@ class depositMode(basicMode):
         env.history.flush_saved_transients()
             # flush any transient message it saved up
         if not self.dragatom: return
+        
+        # If the atom was clicked (not dragged), pick it.  mark 060125.
+        if self.dragatom_clicked:
+            self.dragatom.pick()
+            env.history.message(self.dragatom.getinfo())
+            
         self.baggage = []
         self.line = None
         if self.dragatom.is_singlet():
