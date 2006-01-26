@@ -1417,7 +1417,7 @@
             <string>Hydrogenate</string>
         </property>
         <property name="accel">
-            <string>Ctrl+H</string>
+            <string>Ctrl+Shift+H</string>
         </property>
     </action>
     <action>
@@ -2213,9 +2213,6 @@
         </property>
         <property name="menuText">
             <string>&amp;Dehydrogenate</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+Shift+H</string>
         </property>
     </action>
     <action>
