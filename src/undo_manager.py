@@ -67,6 +67,7 @@ class AssyUndoManager(UndoManager):
         self.connect_or_disconnect_menu_signals(True)
         self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
             # (fixes bug in which the pref didn't show up until the first undoable change was made) [060125]
+        self.remake_UI_menuitems() # try to fix bug 1387 [060126]
         return
         
     def deinit(self):
@@ -74,18 +75,29 @@ class AssyUndoManager(UndoManager):
         #e more?
         return
     
-    def connect_or_disconnect_menu_signals(self, connectQ):
+    def connect_or_disconnect_menu_signals(self, connectQ): # this is a noop as of 060126
         win = self.assy.w
         if connectQ:
             method = win.connect
         else:
             method = win.disconnect
         for menu in self.menus:
-            method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
+            # this is useless, since we have to keep them always up to date for sake of accel keys and toolbuttons [060126]
+            ## method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
+            pass
         return
     
     def menu_cmd_checkpoint(self):
-        self.archive.checkpoint( cptype = 'user_explicit' )
+        self.checkpoint( cptype = 'user_explicit' )
+
+    def checkpoint(self, *args, **kws):
+        res = self.archive.checkpoint( *args, **kws )
+        # I hope this is safe even if auto-checkpointing is disabled; or maybe it's never called then [060126]
+        self.remake_UI_menuitems() # needed here for toolbuttons and accel keys; not called for initial cp during self.archive init
+            # (though for menu items themselves, the aboutToShow signal would be sufficient)
+            #e relevant bugs: 1387, since toolbuttons need to get updated from the beginning
+            # (this might not be called then, not sure) [060126] ####@@@@
+        return res # maybe no retval, this is just a precaution
 
     def auto_checkpoint_pref(self):
         return debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False,
@@ -107,7 +119,7 @@ class AssyUndoManager(UndoManager):
         if undo_archive.debug_undo2:
             env.history.message("debug_undo2: begin_cmd_checkpoint for %r" % (cmdname2,))
         # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
-        self.archive.checkpoint( cptype = 'begin_cmd' )
+        self.checkpoint( cptype = 'begin_cmd' )
         if cmdname:
             self.archive.current_command_info(cmdname = cmdname) #060126
         return True # this code should be passed to the matching undo_checkpoint_after_command (#e could make it fancier)
@@ -119,10 +131,7 @@ class AssyUndoManager(UndoManager):
             if undo_archive.debug_undo2:
                 env.history.message("  debug_undo2: end_cmd_checkpoint")
             # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
-            self.archive.checkpoint( cptype = 'end_cmd' )
-            self.remake_UI_menuitems() # redundant; needed since cmd-Z accel key is not preceded by it, like looking at menu is!
-                ######@@@@@@ THIS MIGHT BE INADEQUATE AS A WORKAROUND when we do an Undo or Redo itself -- or it might be ok --
-                # need to re-call it when they end, for sure; not sure this is happening now. ##k
+            self.checkpoint( cptype = 'end_cmd' )
             pass
         return
 
@@ -199,7 +208,7 @@ class AssyUndoManager(UndoManager):
                 op = ops[0]
                 text = op.menu_desc() #060126
                 action.setMenuText(text + extra)
-                #e tooltip
+                ####e set tooltip too, for toolbutton
                 self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
             else:
                 action.setEnabled(False)
