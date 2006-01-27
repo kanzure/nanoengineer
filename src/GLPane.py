@@ -340,19 +340,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # after setAssy() has been called, for example, when opening
         # an mmp file. 
         
-        # We could eliminate the need for animateView()'s <animate> argument
-        # by temporarily setting animateStandardViews_prefs_key to False here,
-        # and restoring its value after calling setViewFromCsys().  
-        # I'll run it by Bruce just to make sure I'm not missing something.  
-        # BTW, the reason we need animation=False here is that an opened part
-        # will animate from it's default view (csys) to the last view (csys) without
-        # it. Mark 060124.
-        
-        self.setViewFromCsys( part.lastCsys, animate = False)
-
-    def setViewFromCsys(self, csys, animate = True):
-        "Set the initial or current view used by this GLPane to the one stored in the given Csys object."
-        self.animateView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
+        self.snapToCsys( part.lastCsys)
     
     def _saveLastViewIntoPart(self, part):
         """Save the current view used by this GLPane into part.lastCsys,
@@ -422,11 +410,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     #  Also revised them for assembly/part split, i.e. per-part csys attributes.]
     
     def setViewHome(self):
-        "Change current view to our model's home view (for glpane's current part), and gl_update."
-        self.setViewFromCsys( self.part.homeCsys)
+        "Change view to our model's home view (for glpane's current part)."
+        self.animateToCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self):
-        "Change current view so that our model's bbox fits in our window, and gl_update."
+        "Reorient view so that the entire model fits in the glpane."
         #Recalculate center and bounding box for the current part
         part = self.part
         part.computeBoundingBox()
@@ -439,15 +427,15 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # [bruce 050616 comment]
             scale /= aspect
         pov = V(-part.center[0], -part.center[1], -part.center[2]) 
-        self.animateView(self.quat, scale, pov, 1.0)
+        self.animateToView(self.quat, scale, pov, 1.0)
 
     def setViewHomeToCurrent(self):
-        "Save our current view as home view of glpane's current part, and mark part as changed."
+        "Set the Home view to the current view."
         self.saveViewInCsys( self.part.homeCsys)
         self.part.changed() # Mark [041215]
         
     def setViewRecenter(self):
-        "Recenter our current view around the origin of modeling space in our current part, and gl_update."
+        "Recenter the current view around the origin of modeling space."
         part = self.part
         part.computeBoundingBox()
         scale = (part.bbox.scale() * .75) + (vlen(part.center) * .5)
@@ -455,7 +443,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if aspect < 1.0:
             scale /= aspect
         pov = V(0,0,0)
-        self.animateView(self.quat, scale, pov, 1.0)
+        self.animateToView(self.quat, scale, pov, 1.0)
         
     def setViewProjection(self, projection): # Added by Mark 050918.
         '''Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
@@ -478,39 +466,59 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             
         self.ortho = projection
         self.gl_update()
+        
+    def snapToCsys(self, csys):
+        '''Snap to the destination view defined by csys.
+        '''
+        self.snapToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor)
 
-
+    def snapToView(self, q2, s2, p2, z2, update_duration = False):
+        '''Snap to the destination view defined by
+        quat q2, scale s2, pov p2, and zoom factor z2.
+        '''
+        self.quat = Q(q2)
+        self.pov = V(p2[0], p2[1], p2[2])
+        self.zoomFactor = z2
+        self.scale = s2
+        
+        if update_duration:
+            self.gl_update_duration()
+        else:
+            self.gl_update()
+    
     def rotateView(self, q2): 
         "Rotate current view to quat (viewpoint) q2"
         
-        self.animateView(q2, self.scale, self.pov, self.zoomFactor, animate=True)
+        self.animateToView(q2, self.scale, self.pov, self.zoomFactor, animate=True)
         return
         
-    # animateView() uses "Normalized Linear Interpolation" and not "Spherical Linear Interpolation" (AKA slerp), 
+    def animateToCsys(self, csys, animate = True):
+        '''Animate to the destination view defined by csys.
+        If animate is False *or* the user pref "Animate between views" is not selected, 
+        then do not animate;  just snap to the destination view.
+        '''
+        # Determine whether to snap (don't animate) to the destination view.
+        if not animate or not env.prefs[animateStandardViews_prefs_key]:
+            self.snapToViewUsingCsys(q2, s2, p2, z2)
+            return
+            
+        self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
+        
+    # animateToView() uses "Normalized Linear Interpolation" 
+    # and not "Spherical Linear Interpolation" (AKA slerp), 
     # which traces the same path as slerp but works much faster.
     # The advantages to this approach are explained in detail here:
     # http://number-none.com/product/Hacking%20Quaternions/
-    def animateView(self, q2, s2, p2, z2, animate=True):
+    def animateToView(self, q2, s2, p2, z2, animate=True):
         '''Animate from the current view to the destination view defined by
         quat q2, scale s2, pov p2, and zoom factor z2.
         If animate is False *or* the user pref "Animate between views" is not selected, 
         then do not animate;  just snap to the destination view.
         '''
         
-        # The <animate> argument is only needed by self._setInitialViewFromPart()
-        # when initializing the view for a newly opened part.  One idea that
-        # would eliminate the need for <animate> is to temporarily set 
-        # animateStandardViews_prefs_key to False in self._setInitialViewFromPart()
-        # and restore its value after setting the view.  I'll run it by Bruce just
-        # to make sure I'm not missing something.  Mark 060124.
-        
         # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
-            self.quat = Q(q2)
-            self.pov = V(p2[0], p2[1], p2[2])
-            self.zoomFactor = z2
-            self.scale = s2
-            self.gl_update()
+            self.snapToView(q2, s2, p2, z2)
             return
         
         # Make copies of the current view parameters.
@@ -520,7 +528,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         z1 = self.zoomFactor
         
         # Compute the normal vector for current and destination view rotation.
-        wxyz1 = V(self.quat.w, self.quat.x, self.quat.y, self.quat.z) 
+        wxyz1 = V(q1.w, q1.x, q1.y, q1.z)
         wxyz2 = V(q2.w, q2.x, q2.y, q2.z)
         
         # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
@@ -548,15 +556,15 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if rot_angle > 180:
             rot_angle = 360 - rot_angle # go the short way
         
-        # Compute the total number of frames to use for the animation sequence
-        # for each delta.
+        # For each delta, compute the total number of frames each would 
+        # require (by itself) for the animation sequence.
         rot_frames = int(rot_angle/180 * max_frames)
         pov_frames = int(deltap * .2) # .2 based on guess/testing. mark 060123
         scale_frames = int(deltas * .05) # .05 based on guess/testing. mark 060123
         zoom_frames = int(deltaz * .05) # Not tested. mark 060123
         
-        # In an effort to keep animation speeds consistent, determine
-        # the best number of frames to use for the animation loop
+        # Using the data above, this formula computes the ideal number of frames
+        # to use for the animation loop.  It attempts to keep animation speeds consistent.
         total_frames = int( \
             min(max_frames, \
             max(3, rot_frames, pov_frames, scale_frames, zoom_frames)))
@@ -583,16 +591,26 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.zoomFactor += zoom_inc
             self.scale += scale_inc
             self.gl_update_duration()
+            # Very desirable to adjust total_frames inside the loop to maintain
+            # animation speed consistency. mark 060127.
         
         # The animation loop did not draw the last frame on purpose.  Instead,
         # we snap to the destination view.  This also eliminates the possibility
         # of any roundoff error in the increment values, which might result in a 
         # slightly wrong final viewpoint.
-        self.quat = Q(q2)
-        self.pov = V(p2[0], p2[1], p2[2])
-        self.zoomFactor = z2
-        self.scale = s2
-        self.gl_update_duration()
+        self.snapToView(q2, s2, p2, z2, update_duration = True)
+            # snapToView() must call gl_update_duration() and not gl_update(), 
+            # or we'll have an issue if total_frames ever ends up = 1. In that case,
+            # self._repaint_duration would never get set again because gl_update_duration()
+            # would never get called again. BTW,  gl_update_duration()  (as of 060127)
+            # is only called in the main animation loop above or when a new part is loaded.
+            # gl_update_duration() should be called at other times, too (i.e. when 
+            # the display mode changes or something significant happens to the 
+            # model or display mode that would impact the rendering duration),
+            # or better yet, the number of frames should be adjusted in the 
+            # main animation loop as it plays.  This is left as something for me to do
+            # later (probably after A7). This verbose comment is left as a reminder
+            # to myself about all this.  mark 060127.
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
@@ -1252,8 +1270,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             return self.zoomFactor    
             
     def gl_update_duration(self, new_part=False):
-        '''Redraw GLPane and update the repaint duration variable used by rotateView() and 
-        animateView() to compute the number of animation steps. 
+        '''Redraw GLPane and update the repaint duration variable used 
+        animateToView() to compute the number of animation steps. 
         Redraws the GLPane twice if <new_part> is True and only saves the repaint 
         duration of the second redraw.  This is needed in the case of drawing a newly opened part,
         which takes much longer to draw the first time than the second (or thereafter).
@@ -1277,6 +1295,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         #if new_part:
         #    print "repaint duration = ", self._repaint_duration
+        #print "repaint duration = ", self._repaint_duration
         
         return
         
