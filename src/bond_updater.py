@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 bond_updater.py
 
@@ -60,11 +60,16 @@ def update_bonds_after_each_event( _changed_structure_atoms):
     (#e Or we might decide to extend it to break them itself.)
     """
     bonds_to_fix = {}
+    mols_changed = {} #bruce 060126, so atom._changed_structure() doesn't need to call atom.changed() directly
+    
     for atm in _changed_structure_atoms.itervalues():
         #e ignore killed atoms -- though at the moment they don't even show up in this list (which is bad but tolerable)
         # for singlets, just look at their base atoms [as of 050707 just look at all bonds of all unkilled atoms]
         #e when info must be recorded for later, do this per-chunk or per-part.
         ##k Do we move existing such info when atoms moved or were killed??
+        
+        mol = atm.molecule # might be None or nullMol; check later
+        mols_changed[id(mol)] = mol
         
         atype = atm.atomtype # make sure this is defined; also it will tell us the permitted bond orders for any bond on this atom
         for bond in atm.bonds:
@@ -102,6 +107,10 @@ def update_bonds_after_each_event( _changed_structure_atoms):
         # For certainty-increases, should we first figure out the rest before seeing what to change them to? (guess: no, but not sure)
         # (above cmts are obs, see paper notes about the alg)
 
+    for mol in mols_changed.itervalues():
+        if mol is not None:
+            mol.changed() # should be safe for nullMol (but not for None)
+    
     if not bonds_to_fix:
         return # optim [will be wrong once we have atom valence checks below]
 
