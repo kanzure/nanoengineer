@@ -30,12 +30,16 @@ ifeq ($(WWDEBUG),1)
 CFLAGS+=-DWWDEBUG
 endif
 
-all:
+all: newversion simulator $(PYREXTARGET)
+
+trace_all:
 	make clean
 	make empty-trace-prefix
 	make trace-prefix
 	make clean
 	make simulator $(PYREXTARGET)
+
+.PHONY: all trace_all lall newversion noopt empty-trace-prefix trace-prefix extensions pyx install install-linux clean dist_clean depends
 
 lall: all glviewer
 
@@ -73,6 +77,25 @@ bonds.h: parmlist.py stretch.parms
 bends.h: bend.perl bending.parms
 	./bend.perl < bending.parms > bends.h
 
+newversion:
+	rm -f version.c
+
+version.c:
+	echo > version.c
+	echo "char tracePrefix[] = \"\\" >> version.c
+	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >> version.c
+	echo "# CFLAGS=$(CFLAGS)" | sed 's#$$#\\n\\#' >> version.c
+	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >> version.c
+	echo "\";" >> version.c
+	echo >> version.c
+	if [ -d CVS ]; then \
+		echo "char simulatorSourceVersions[] = \"\\" >> version.c ;\
+		cvs ls -l | sed -e '/^[\?d]/d' -e 's/^/# /' -e 's#$$#\\n\\#' >> version.c ;\
+		echo "\";" >> version.c ;\
+	else \
+		echo "char simulatorSrcVersions[] = \"# Source file version information not available\\n\";" >> version.c ;\
+	fi
+
 PYREXOBJS=\
 	allocate.o \
 	dynamics.o \
@@ -90,7 +113,7 @@ PYREXOBJS=\
 	readmmp.o \
 	readxyz.o \
 	structcompare.o \
-	traceprefix.o \
+	version.o \
 	writemovie.o
 
 SIMOBJS=$(PYREXOBJS) simulator.o
@@ -147,6 +170,7 @@ install-linux: install extensions
 
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
+	rm -f version.c traceprefix.c
 	rm -f simulator moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
