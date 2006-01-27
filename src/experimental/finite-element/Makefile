@@ -19,7 +19,8 @@ LDFLAGS=-L/usr/lib/python2.3/config -lm -lpython2.3
 else
 # Unix
 PYREXC=pyrexc
-CFLAGS=-g -Wall -I/usr/include/python2.3
+#CFLAGS=-g -Wall -I/usr/include/python2.3
+CFLAGS=-O3 -Wall -I/usr/include/python2.3
 LDFLAGS=-L/usr/lib/python2.3/config -lm -lpython2.3
 endif
 CC=gcc

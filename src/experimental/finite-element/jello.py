@@ -5,7 +5,8 @@ import sys
 import random
 import time
 import types
-from math import cos, sin
+import string
+from math import cos, sin, sqrt
 
 GOT_PYREX = True
 try:
@@ -18,15 +19,17 @@ print "GOT_PYREX", GOT_PYREX
 scale stiffness and viscosity.
 """
 N = 4
-MASS = 1.0e-5 / N**2
-DT = 1.0e-3
+RADIUS = 15 / N**.5
+MASS = 3.0e-6 / N**2
+DT = 3.0e-3
 STIFFNESS = 1.0e-8 * N
-VISCOSITY = 1.0e-8 * N
+VISCOSITY = 3.0e-9 * N
 DTM = (DT ** 2) / MASS
+ANIMATION_DELAY = 50   # milliseconds
+TIME_STEP = 0.2
+MAXTIME = 1.0e20
 
-# At some point, DT becomes a tuple with a bad internal state.
-
-A = 1.0e-6
+A = 3.0e-8
 
 def addvec(u, v):
     return (u[0] + v[0], u[1] + v[1])
@@ -40,18 +43,17 @@ def scalevec(u, k):
 class Computronium:
     def __init__(self, owner):
         self.owner = owner
-        # replace all these with Numeric arrays? Use Pyrex?
-        self.u = u = N**2 * [ (0.0, 0.0) ]
-        self.u_old = N**2 * [ (0.0, 0.0) ]
-        self.u_new = N**2 * [ (0.0, 0.0) ]
-        self.x = x = [ ]  # nominal positions
-        for i in range(N):
-            for j in range(N):
-                x.append((1. * j / N,
-                          1. * i / N))
         if GOT_PYREX:
-            comp._setup(self, N)
+            comp._setup(N)
         else:
+            self.u = u = N**2 * [ (0.0, 0.0) ]
+            self.u_old = N**2 * [ (0.0, 0.0) ]
+            self.u_new = N**2 * [ (0.0, 0.0) ]
+            self.x = x = [ ]  # nominal positions
+            for i in range(N):
+                for j in range(N):
+                    x.append((1. * j / N,
+                              1. * i / N))
             self.forceTerms = [ ]
             # set up the force terms
             for i in range(N):
@@ -103,18 +105,23 @@ class Computronium:
     def zeroForces(self):
         return N**2 * [ (0.0, 0.0) ]
 
-    def positions(self):
+    def draw(self, cb, h, w):
+        if GOT_PYREX:
+            return comp._draw(cb, h, w)
         # x is nominal position
         # u is displacement
         p = [ ]
+        a = 0.6
+        b = .5 * (1 - a)
         for i in range(N**2):
             xvec = self.x[i]
             uvec = self.u[i]
-            p.append((xvec[0] + uvec[0],
-                      xvec[1] + uvec[1]))
-        return p
+            cb((h * (a * (xvec[0] + uvec[0]) + b),
+                w * (a * (xvec[1] + uvec[1]) + b)))
 
     def rotate(self):
+        if GOT_PYREX:
+            return comp._rotate()
         tmp = self.u_old
         self.u_old = self.u
         self.u = self.u_new
@@ -123,7 +130,6 @@ class Computronium:
 
 class Jello(JelloGui):
 
-    ANIMATION_DELAY = 20   # milliseconds
     COLOR_CHOICES = (
         QColor(Qt.red), QColor(Qt.yellow),
         QColor(Qt.green), QColor(Qt.blue)
@@ -140,14 +146,14 @@ class Jello(JelloGui):
         self.timer = QTimer(self)
         self.connect(self.timer, SIGNAL('timeout()'), self.timeout)
         self.lastTime = time.time()
-        self.timer.start(self.ANIMATION_DELAY)
+        self.timer.start(ANIMATION_DELAY)
 
-        self.firstPush = self.comp.zeroForces()
-        self.firstPush[0] = (A, -A)
-        self.firstPush[N-1] = (A, A)
-        self.secondPush = self.comp.zeroForces()
-        self.secondPush[N*(N-1)] = (-A, -A)
-        self.secondPush[N**2-1] = (-A, A)
+        self.push = self.comp.zeroForces()
+        for i in range(N/2):
+            f = A * (.5*N - i) / (.5*N)
+            self.push[i] = (-f, f)
+            self.push[N*N-1 - i] = (f, -f)
+        self.painter = QPainter()
 
     def pushButton1_clicked(self):
         self.quit()
@@ -162,54 +168,46 @@ class Jello(JelloGui):
             import traceback
             traceback.print_exc()
             self.quit()
-        self.timer.start(self.ANIMATION_DELAY)
+        if self.simTime > MAXTIME:
+            self.app.quit()
 
     def oneFrame(self):
         # On each step we do verlet, using u_old and u to compute
         # u_new. Then we move each particle from u to u_new. Then
         # we move u to u_old, and u_new to u.
-        for i in range(20):
+        for i in range(int(TIME_STEP / DT)):
             self.equationsOfMotion()
         self.paintEvent(None)
 
     def paintEvent(self, e):
-        """Draw a colorful collection of lines and circles.
-        """
-        p = QPainter()
+        p = self.painter
         w, h = self.width, self.height
-        w3, h3 = w / 3, h / 3
-        radius = 10
         p.begin(self.frame1)
         p.eraseRect(0, 0, w, h)
         p.setPen(QPen(Qt.black))
         p.setBrush(QBrush(Qt.blue))
-        i = 0
-        for x, y in self.comp.positions():
-            if x**2 + y**2 > 5.0:
-                self.app.quit()
-                p.end()
-                return
-            x = h3 * (x + 1)
-            y = h3 * (y + 1)
-            i += 1
-            p.drawEllipse(x, y, radius, radius)
+        def draw(x, y, de=p.drawEllipse, r=RADIUS):
+            de(x, y, r, r)
+        #self.comp.draw(draw, w, h)
+        self.comp.draw(draw, h, h)
         p.end()
 
     def equationsOfMotion(self):
-        #print "move"
-        t = self.simTime
-        forceTime = 0.1
         comp = self.comp
-        comp.verletMomentum()
+        t = self.simTime
         self.simTime += DT
-        if t > 0 and t < forceTime:
-            comp.applyForces(self.firstPush)
-        elif t > 2.0 and t < 2.0 + forceTime:
-            comp.applyForces(self.secondPush)
+        pushTime = 1.0
+        comp.verletMomentum()
         comp.internalForces()
+        if t < pushTime:
+            comp.applyForces(self.push)
         comp.rotate()
 
-def main():
+def main(n, maxTime=1.0e20):
+    global N, RADIUS, MAXTIME
+    N = n
+    RADIUS = 15 / n**.5
+    MAXTIME = maxTime
     app = QApplication(sys.argv)
     cr = Jello()
     cr.app = app
@@ -219,8 +217,12 @@ def main():
     app.exec_loop()
 
 if __name__ == "__main__":
-    if "profile" in sys.argv[1:]:
+    if False:
         import profile
-        profile.run('main()')
-    else:
-        main()
+        profile.run('main(4, maxTime=30.0)')
+        sys.exit(0)
+    try:
+        n = string.atoi(sys.argv[1])
+    except:
+        n = 10
+    main(n)

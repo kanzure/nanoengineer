@@ -5,12 +5,11 @@
  * cproto -I/usr/include/python2.3 comphelp.c 2>/dev/null
  */
 
-extern PyObject * setup(PyObject *computronium, int n);
+extern PyObject * setup(int n);
 extern PyObject * internalForces(double stiffness, double viscosityOverDt, double dtm);
 extern PyObject * verletMomentum(void);
 extern PyObject * applyForces(PyObject *forces, double dtm);
 
-static PyObject *comp;
 static int N;
 
 #define _ASSERT(cond) \
@@ -38,12 +37,34 @@ static int N;
 #define SAY_OBJ(x)
 #endif
 
-PyObject * setup(PyObject *computronium, int n)
+static double *u, *u_old, *u_new, *x;
+
+PyObject * setup(int n)
 {
-    CHECKTYPE(Instance, computronium);
-    comp = computronium;
+    int i;
     ASSERT(n > 1);
     N = n;
+    u = (double *) malloc(2 * N * N * sizeof(double));
+    ASSERT(u != NULL);
+    u_old = (double *) malloc(2 * N * N * sizeof(double));
+    ASSERT(u_old != NULL);
+    u_new = (double *) malloc(2 * N * N * sizeof(double));
+    ASSERT(u_new != NULL);
+    x = (double *) malloc(2 * N * N * sizeof(double));
+    ASSERT(x != NULL);
+    for (i = 0; i < N * N; i++) {
+	int row, col;
+	u[2 * i] = 0.0;
+	u[2 * i + 1] = 0.0;
+	u_old[2 * i] = 0.0;
+	u_old[2 * i + 1] = 0.0;
+	u_new[2 * i] = 0.0;
+	u_new[2 * i + 1] = 0.0;
+	row = i / N;
+	col = i % N;
+	x[2 * i] = 1.0 * col / N;
+	x[2 * i + 1] = 1.0 * row / N;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -77,25 +98,12 @@ static double *getArray(PyObject *parray)
 PyObject * _c_applyForces(double *forces, double dtm)
 {
     int k;
-    PyObject *u_new;
-    double *vnew;
 
     if (forces == NULL) return NULL;
-    u_new = PyObject_GetAttr(comp, PyString_FromString("u_new"));
-    vnew = getArray(u_new);
-    if (vnew == NULL) return NULL;
-    u_new = PyList_New(N * N);
-    ASSERT(u_new != NULL);
     for (k = 0; k < N * N; k++) {
-	PyObject *vn;
-	vn = Py_BuildValue("(dd)",
-			   vnew[2*k] + dtm * forces[2*k],
-			   vnew[2*k+1] + dtm * forces[2*k+1]);
-	//CHECK_2_TUPLE(vn);
-	EXPECTZERO(PyList_SetItem(u_new, k, vn));
+	u_new[2 * k] += dtm * forces[2 * k];
+	u_new[2 * k + 1] += dtm * forces[2 * k + 1];
     }
-    free(vnew);
-    EXPECTZERO(PyObject_SetAttr(comp, PyString_FromString("u_new"), u_new));
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -103,135 +111,77 @@ PyObject * _c_applyForces(double *forces, double dtm)
 
 PyObject * internalForces(double stiffness, double viscosityOverDt, double dtm)
 {
-    int i, j, k, i2, j2;
-    double *v, *vold, *f;
-    PyObject *u, *u_old, *retval;
+    int i, j;
 
-    CHECKTYPE(Instance, comp);
-    u = PyObject_GetAttr(comp, PyString_FromString("u"));
-    v = getArray(u);
-    if (v == NULL) return NULL;
-    u_old = PyObject_GetAttr(comp, PyString_FromString("u_old"));
-    vold = getArray(u_old);
-    if (vold == NULL) return NULL;
-
-    f = (double *) malloc(2 * N * N * sizeof(double));
-    ASSERT(f != NULL);
-    for (k = 0; k < 2*N*N; k++) {
-	f[k] = 0.0;
-    }
-
-#if 0
-    printf("v\n");
-    for (i = 0; i < N; i++) {
-	for (j = 0; j < N; j++) {
-	    int k = i * N + j;
-	    printf("[%10.4g %10.4g] ", v[2*k], v[2*k+1]);
-	}
-	printf("\n");
-    }
-#endif
     for (i = 0; i < N; i++) {
 	for (j = 0; j < N; j++) {
 	    double Dx, Dy, Px, Py, fx, fy;
 	    int k2, k = i * N + j;
 	    if (i > 0) {
 		k2 = (i - 1) * N + j;
-		Dx = v[2*k2] - v[2*k];
-		Dy = v[2*k2+1] - v[2*k+1];
-		Px = vold[2*k2] - vold[2*k];
-		Py = vold[2*k2+1] - vold[2*k+1];
+		Dx = u[2*k2] - u[2*k];
+		Dy = u[2*k2+1] - u[2*k+1];
+		Px = u_old[2*k2] - u_old[2*k];
+		Py = u_old[2*k2+1] - u_old[2*k+1];
 		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
 		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
-		f[2*k] += fx;
-		f[2*k+1] += fy;
-		f[2*k2] -= fx;
-		f[2*k2+1] -= fy;
+		u_new[2*k] += dtm * fx;
+		u_new[2*k+1] += dtm * fy;
+		u_new[2*k2] -= dtm * fx;
+		u_new[2*k2+1] -= dtm * fy;
 	    }
 	    if (i < N - 1) {
 		k2 = (i + 1) * N + j;
-		Dx = v[2*k2] - v[2*k];
-		Dy = v[2*k2+1] - v[2*k+1];
-		Px = vold[2*k2] - vold[2*k];
-		Py = vold[2*k2+1] - vold[2*k+1];
+		Dx = u[2*k2] - u[2*k];
+		Dy = u[2*k2+1] - u[2*k+1];
+		Px = u_old[2*k2] - u_old[2*k];
+		Py = u_old[2*k2+1] - u_old[2*k+1];
 		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
 		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
-		f[2*k] += fx;
-		f[2*k+1] += fy;
-		f[2*k2] -= fx;
-		f[2*k2+1] -= fy;
+		u_new[2*k] += dtm * fx;
+		u_new[2*k+1] += dtm * fy;
+		u_new[2*k2] -= dtm * fx;
+		u_new[2*k2+1] -= dtm * fy;
 	    }
 	    if (i > 0) {
 		k2 = i * N + (j - 1);
-		Dx = v[2*k2] - v[2*k];
-		Dy = v[2*k2+1] - v[2*k+1];
-		Px = vold[2*k2] - vold[2*k];
-		Py = vold[2*k2+1] - vold[2*k+1];
+		Dx = u[2*k2] - u[2*k];
+		Dy = u[2*k2+1] - u[2*k+1];
+		Px = u_old[2*k2] - u_old[2*k];
+		Py = u_old[2*k2+1] - u_old[2*k+1];
 		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
 		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
-		f[2*k] += fx;
-		f[2*k+1] += fy;
-		f[2*k2] -= fx;
-		f[2*k2+1] -= fy;
+		u_new[2*k] += dtm * fx;
+		u_new[2*k+1] += dtm * fy;
+		u_new[2*k2] -= dtm * fx;
+		u_new[2*k2+1] -= dtm * fy;
 	    }
 	    if (j < N - 1) {
 		k2 = i * N + (j + 1);
-		Dx = v[2*k2] - v[2*k];
-		Dy = v[2*k2+1] - v[2*k+1];
-		Px = vold[2*k2] - vold[2*k];
-		Py = vold[2*k2+1] - vold[2*k+1];
+		Dx = u[2*k2] - u[2*k];
+		Dy = u[2*k2+1] - u[2*k+1];
+		Px = u_old[2*k2] - u_old[2*k];
+		Py = u_old[2*k2+1] - u_old[2*k+1];
 		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
 		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
-		f[2*k] += fx;
-		f[2*k+1] += fy;
-		f[2*k2] -= fx;
-		f[2*k2+1] -= fy;
+		u_new[2*k] += dtm * fx;
+		u_new[2*k+1] += dtm * fy;
+		u_new[2*k2] -= dtm * fx;
+		u_new[2*k2+1] -= dtm * fy;
 	    }
 	}
     }
-#if 0
-    printf("Forces\n");
-    for (i = 0; i < N; i++) {
-	for (j = 0; j < N; j++) {
-	    int k = i * N + j;
-	    printf("[%10.4g %10.4g] ", f[2*k], f[2*k+1]);
-	}
-	printf("\n");
-    }
-#endif
-    retval = _c_applyForces(f, dtm);
-    free(v);
-    free(vold);
-    free(f);
-    return retval;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 PyObject *verletMomentum(void)
 {
     int k;
-    PyObject *u_new, *u, *u_old;
-    double *v, *vold;
-
-    u = PyObject_GetAttr(comp, PyString_FromString("u"));
-    v = getArray(u);
-    if (v == NULL) return NULL;
-    u_old = PyObject_GetAttr(comp, PyString_FromString("u_old"));
-    vold = getArray(u_old);
-    if (vold == NULL) return NULL;
-    u_new = PyList_New(N * N);
-    ASSERT(u_new != NULL);
-
     for (k = 0; k < N * N; k++) {
-	PyObject *vnew;
-	vnew = Py_BuildValue("(dd)",
-			     2 * v[2*k] - vold[2*k],
-			     2 * v[2*k+1] - vold[2*k+1]);
-	CHECK_2_TUPLE(vnew);
-	EXPECTZERO(PyList_SetItem(u_new, k, vnew));
+	u_new[2 * k] = 2 * u[2 * k] - u_old[2 * k];
+	u_new[2 * k + 1] = 2 * u[2 * k + 1] - u_old[2 * k + 1];
     }
-    free(v);
-    free(vold);
-    EXPECTZERO(PyObject_SetAttr(comp, PyString_FromString("u_new"), u_new));
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -246,4 +196,37 @@ PyObject * applyForces(PyObject *forces, double dtm)
     retval = _c_applyForces(f, dtm);
     free(f);
     return retval;
+}
+
+PyObject * draw(PyObject *drawCallback, int w, int h)
+{
+    int i;
+    double a, b;
+    a = 0.6;
+    b = 0.5 * (1.0 - a);
+    ASSERT(drawCallback != NULL);
+    ASSERT(PyCallable_Check(drawCallback));
+    for (i = 0; i < N * N; i++) {
+	PyObject *pValue;
+	PyObject *args =
+	    Py_BuildValue("(dd)",
+			  w * (a * (x[2 * i] + u[2 * i]) + b),
+			  h * (a * (x[2 * i + 1] + u[2 * i + 1]) + b));
+	pValue = PyObject_CallObject(drawCallback, args);
+	ASSERT(!PyErr_Occurred());
+	Py_DECREF(args);
+	Py_XDECREF(pValue);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+PyObject *rotate(void)
+{
+    double *tmp = u_old;
+    u_old = u;
+    u = u_new;
+    u_new = tmp;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
