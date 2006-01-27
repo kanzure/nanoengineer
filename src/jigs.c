@@ -65,6 +65,9 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     double motorq, dragTorque = 0.0;
     double dtheta, sumRsquared;
 
+    NULLPTR(position);
+    NULLPTR(new_position);
+
     // Avoid problems where speed is zero. This disables motors which
     // rotate no more than once every ~20 minutes.
     if (jig->j.rmotor.speed < 1.0e-3) {
@@ -125,6 +128,26 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	dragTorque += fmag * rlen;
 	mass = jig->atoms[k]->type->mass * 1e-27;
 	vmulc(f, Dt * Dt * fmag / (mass * rlen));
+	vadd(new_position[a1], f);
+    }
+
+    // spring to keep atoms at roughly the same
+    // distance from the center of the motor - no
+    // damper needed because spring only works in the
+    // radial direction
+    for (k = 0, dtheta = 0.0; k < jig->num_atoms; k++) {
+	const double SpringConstant = 20.0;
+	struct xyz f;
+	a1 = jig->atoms[k]->index;
+	// compute a spring force, based on delta-distance
+	// start with unit vector in spoke direction
+	vmul2c(f, jig->j.rmotor.atomSpoke[k], 1.0 / jig->j.rmotor.atomRadius[k]);
+	// multiply by correct force magnitude
+	vmulc(f, SpringConstant *
+	      (jig->j.rmotor.initialAtomRadius[k] - jig->j.rmotor.atomRadius[k]));
+	// Verlet
+	mass = jig->atoms[k]->type->mass * 1e-27;
+	vmulc(f, Dt * Dt / mass);
 	vadd(new_position[a1], f);
     }
 

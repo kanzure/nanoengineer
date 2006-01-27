@@ -92,6 +92,9 @@ struct jig
       struct xyz *atomSpoke; // formerly ator
 
       // For each atom in motor, length of atomSpoke.
+      double *initialAtomRadius; // formerly radius
+      
+      // For each atom in motor, length of atomSpoke.
       double *atomRadius; // formerly radius
       
     } rmotor;

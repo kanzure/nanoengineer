@@ -834,12 +834,16 @@ makeRotaryMotor(struct part *p, char *name,
     
     j->j.rmotor.atomSpoke = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.atomRadius = (double *)allocate(sizeof(double) * atomListLength);
+    j->j.rmotor.initialAtomRadius = (double *)allocate(sizeof(double) * atomListLength);
     for (i = 0; i < j->num_atoms; i++) {
+	struct xyz r;
 	k = j->atoms[i]->index;
 	/* for each atom connected to the motor */
 	mass = j->atoms[i]->type->mass * 1e-27;
-	vsetc(j->j.rmotor.atomSpoke[i], 0.0);
-	j->j.rmotor.atomRadius[i] = 0.0;
+	r = vdif(p->positions[k], j->j.rmotor.center);
+	j->j.rmotor.atomSpoke[k] = r;
+	j->j.rmotor.initialAtomRadius[i] = vlen(r);
+	j->j.rmotor.atomRadius[i] = vlen(r);
     }
 }
 
