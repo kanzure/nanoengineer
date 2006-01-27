@@ -32,7 +32,11 @@ ifeq ($(WWDEBUG),1)
 CFLAGS+=-DWWDEBUG
 endif
 
-all: simulator
+all:
+	make clean
+	make empty-trace-prefix
+	make trace-prefix
+	make simulator pyx
 
 lall: all glviewer
 
@@ -83,6 +87,7 @@ printers.o: simulator.h
 readmmp.o: simulator.h
 readxyz.o: simulator.h
 simulator.o: simulator.h
+traceprefix.o: traceprefix.c
 writemovie.o: simulator.h
 
 # -std-c99 gets us isnormal()
@@ -117,11 +122,27 @@ SIMOBJS=\
 	readmmp.o \
 	readxyz.o \
 	structcompare.o \
+	traceprefix.o \
 	writemovie.o \
 	simulator.o
 
 noopt:
 	make CFLAGS=-g simulator
+
+empty-trace-prefix:
+	echo "char tracePrefix[] = \"\\" > traceprefix.c
+	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >>traceprefix.c
+	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >>traceprefix.c
+	echo "\";" >>traceprefix.c
+
+trace-prefix:
+	echo "char tracePrefix[] = \"\\" > _traceprefix.c
+	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >>_traceprefix.c
+	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >>_traceprefix.c
+	make simulator | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
+	make extensions | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
+	echo "\";" >>_traceprefix.c
+	mv -f _traceprefix.c traceprefix.c
 
 simulator: $(SIMOBJS)
 	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
@@ -158,7 +179,7 @@ install-linux: install extensions
 
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
-	rm -f simulator moldisp molsim physeng sim.so sim.c
+	rm -f simulator moldisp molsim physeng sim.so sim.c traceprefix.c _traceprefix.c
 	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
 	rm -f tests/*/*.altout

@@ -298,13 +298,16 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     // since it depends on parameters set by the client code after that init method runs
 
     if (TraceFileName != NULL) {
+	extern char tracePrefix[];
 	TraceFile = fopen(TraceFileName, "w");
 	if (TraceFile == NULL) {
 	    snprintf(buf, 1024, "can't open tracefile for writing: %s", TraceFileName);
 	    PyErr_SetString(PyExc_IOError, buf);
 	    return NULL;
 	}
-	fprintf(TraceFile, "# %s\n", "run from pyrex interface"); // like printing the commandLine
+	// tell where and how the pyrex sim was built
+	// "run from pyrex interface" is like printing the commandLine
+	fprintf(TraceFile, "%s# run from pyrex interface\n", tracePrefix);
     }
 
     // this has to happen after opening the trace file and setting up
