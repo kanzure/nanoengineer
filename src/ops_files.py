@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 ops_files.py provides fileSlotsMixin for MWsemantics,
 with file slot methods and related helper methods.
@@ -207,6 +207,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 fix_assy_and_glpane_views_after_readmmp( self.assy, self.glpane)
             else: ###PDB or other file format        
                 self.setViewFitToWindow()
+
+            self.assy.clear_undo_stack() #bruce 060126, fix bug 1398
 
             self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
@@ -542,6 +544,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.__clear() # leaves glpane.mode as nullmode, as of 050911
                 self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
                 self.assy.reset_changed() #bruce 050429, part of fixing bug 413
+                self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
                 self.win_update()
         return
 

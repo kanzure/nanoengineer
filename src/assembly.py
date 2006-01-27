@@ -1016,6 +1016,9 @@ class assembly(GenericDiffTracker_API_Mixin):
     def current_command_info(self, *args, **kws):
         #e (will this always go into undo system, or go into some more general current command object in env, instead?)
         return self.undo_manager.current_command_info(*args, **kws)
+
+    def clear_undo_stack(self, *args, **kws):
+        return self.undo_manager.clear_undo_stack(*args, **kws)
     
     pass # end of class assembly
 

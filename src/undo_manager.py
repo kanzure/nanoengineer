@@ -91,6 +91,9 @@ class AssyUndoManager(UndoManager):
             pass
         return
     
+    def clear_undo_stack(self, *args, **kws):
+        return self.archive.clear_undo_stack(*args, **kws)
+    
     def menu_cmd_checkpoint(self):
         self.checkpoint( cptype = 'user_explicit' )
 
@@ -123,7 +126,7 @@ class AssyUndoManager(UndoManager):
         if undo_archive.debug_undo2:
             env.history.message("debug_undo2: begin_cmd_checkpoint for %r" % (cmdname2,))
         # this will get fancier, use cmdname, worry about being fast when no diffs, merging ops, redundant calls in one cmd, etc:
-        self.checkpoint( cptype = 'begin_cmd' )
+        self.checkpoint( cptype = 'begin_cmd', cmdname_for_debug = cmdname )
         if cmdname:
             self.archive.current_command_info(cmdname = cmdname) #060126
         return True # this code should be passed to the matching undo_checkpoint_after_command (#e could make it fancier)

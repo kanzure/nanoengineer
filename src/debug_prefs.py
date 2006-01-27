@@ -86,6 +86,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             if self.print_changes:
                 msg = "changed %r to %r%s" % (self, newval, extra)
                 print msg
+                msg = "changed %s to %r%s" % (self, newval, extra) # shorter version (uses %s) for history [bruce 060126]
                 env.history.message(msg, quote_html = True, color = 'gray') #bruce 060126 new feature
         return self.dtype.changer_menuspec(self.name, newval_receiver_func, self.current_value())
     def __repr__(self):
@@ -93,6 +94,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         if self.prefs_key:
             extra = " (prefs_key %r)" % self.prefs_key
         return "<Pref %r at %#x%s>" % (self.name, id(self), extra)
+    def __str__(self):
+        return "<Pref %r>" % (self.name,)
     pass
 
 class DebugPref(Pref):
