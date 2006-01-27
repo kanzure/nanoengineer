@@ -968,28 +968,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if but & rightButton:
             self.mode.rightDouble(event)
 
+        return
+
     __pressEvent = None #bruce 060124 for Undo
     __flag_and_begin_retval = None
-    
-    def mousePressEvent(self, event):
-        """Dispatches mouse press events depending on shift and
-        control key state.
-        """
-        ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
-        ## as current, otherwise, the first event will get wrong coordinates
-        self.makeCurrent()
-        
-        self.begin_select_cmd() #bruce 051031
-        if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
-            return
-        ## but = event.stateAfter()
-        but = self.fix_event(event, 'press', self.mode)
 
-        # (I hope fix_event makes sure at most one button flag remains; if not,
-        #  following if/if/if should be given some elifs -- bruce 060124 comment)
-        
-        #print "Button pressed: ", but
-
+    def checkpoint_before_drag(self, event, but): #bruce 060124; split out of caller, 060126 (#e should call from dblclick to fix bugs)
         if but & (leftButton|midButton|rightButton):
             # Do undo_checkpoint_before_command if possible.
             #
@@ -1002,10 +986,39 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.__pressEvent = event
             self.__flag_and_begin_retval = None
             if self.assy:
-                begin_retval = self.assy.undo_checkpoint_before_command("(press)")
+                begin_retval = self.assy.undo_checkpoint_before_command("(mouse)") # text was "(press)" before 060126 eve
                     # this command name should be replaced sometime during the command
                 self.__flag_and_begin_retval = True, begin_retval
             pass
+        return
+    
+    def mousePressEvent(self, event):
+        """Dispatches mouse press events depending on shift and
+        control key state.
+        """
+        ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
+        ## as current, otherwise, the first event will get wrong coordinates
+        self.makeCurrent()
+        
+        self.begin_select_cmd() #bruce 051031
+        if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
+            #e would using fix_event here help to avoid those "release without press" messages,
+            # or fix bugs from mouse motion? or should we set some other flag to skip subsequent
+            # drag/release events until the next press? [bruce 060126 questions]
+            return
+        ## but = event.stateAfter()
+        but = self.fix_event(event, 'press', self.mode)
+
+        # (I hope fix_event makes sure at most one button flag remains; if not,
+        #  following if/if/if should be given some elifs. ###k
+        #  Note that same applies to mouseReleaseEvent; mouseMoveEvent already does if/elif.
+        #  It'd be better to normalize it all in fix_event, though, in case user changes buttons
+        #  without releasing them all, during the drag. Some old bug reports are about that. #e
+        #  [bruce 060124-26 comment])
+        
+        #print "Button pressed: ", but
+
+        self.checkpoint_before_drag(event, but)
         
         if but & leftButton:
             if but & shiftButton:
@@ -1031,17 +1044,58 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             else:
                 self.mode.rightDown(event)         
 
+        return
+    
     def mouseReleaseEvent(self, event):
         """Only used to detect the end of a freehand selection curve.
         """
         self.debug_event(event, 'mouseReleaseEvent')
         ## but = event.state()
         but = self.fix_event(event, 'release', self.mode)
-        
         #print "Button released: ", but
-
-        # Do undo_checkpoint_after_command, if there's a prior undo_checkpoint_before_command to match. [bruce 060124 for Undo]
         
+        try:
+            if but & leftButton:
+                if but & shiftButton:
+                    self.mode.leftShiftUp(event)
+                elif but & cntlButton:
+                    self.mode.leftCntlUp(event)
+                else:
+                    self.mode.leftUp(event)
+
+            if but & midButton:
+                if but & shiftButton:
+                    self.mode.middleShiftUp(event)
+                elif but & cntlButton:
+                    self.mode.middleCntlUp(event)
+                else:
+                    self.mode.middleUp(event)
+
+            if but & rightButton:
+                if but & shiftButton:
+                     self.mode.rightShiftUp(event)
+                elif but & cntlButton:
+                    self.mode.rightCntlUp(event)
+                else:
+                    self.mode.rightUp(event)
+        except:
+            print_compact_traceback("exception in mode's mouseReleaseEvent handler (bug, ignored): ") #bruce 060126
+        
+        self.checkpoint_after_drag(event) #bruce 060126 moved this later, to fix bug 1384, and split it out, for clarity
+        return
+
+    def checkpoint_after_drag(self, event): #bruce 060124; split out of caller, 060126 (and called it later, to fix bug 1384)
+        """Do undo_checkpoint_after_command, if a prior press event did an undo_checkpoint_before_command to match.
+        This should only be called *after* calling the mode-specific event handler for this event!
+        """
+        # (What if there's recursive event processing inside the event handler... when it's entered it'll end us, then begin us...
+        #  so an end-checkpoint is still appropriate; not clear it should be passed same begin-retval -- most likely,
+        #  the __attrs here should all be moved into env and used globally by all event handlers. I'll solve that when I get to
+        #  the other forms of recursive event processing. #####@@@@@
+        #  So for now, I'll assume recursive event processing never happens in the event handler
+        #  (called just before this method is called) -- then the simplest
+        #  scheme for this code is to do it all entirely after the mode's event handler (as done in this routine),
+        #  rather than checking __attrs before the handlers and using the values afterwards. [bruce 060126])
         if self.__pressEvent is not None: ####@@@@ and if no buttons are still pressed, according to fix_event?
             self.__pressEvent = None
             if self.__flag_and_begin_retval:
@@ -1055,31 +1109,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     #  But even so, when solution is developed (elsewhere, for toolbuttons), bring it here
                     #  or (better) put it into these checkpoint methods. ####@@@@)
                     self.assy.undo_checkpoint_after_command( begin_retval)
-                    
-        if but & leftButton:
-            if but & shiftButton:
-                self.mode.leftShiftUp(event)
-            elif but & cntlButton:
-                self.mode.leftCntlUp(event)
-            else:
-                self.mode.leftUp(event)
-
-        if but & midButton:
-            if but & shiftButton:
-                self.mode.middleShiftUp(event)
-            elif but & cntlButton:
-                self.mode.middleCntlUp(event)
-            else:
-                self.mode.middleUp(event)
-
-        if but & rightButton:
-            if but & shiftButton:
-                 self.mode.rightShiftUp(event)
-            elif but & cntlButton:
-                self.mode.rightCntlUp(event)
-            else:
-                self.mode.rightUp(event)         
-
+        return
 
     def mouseMoveEvent(self, event):
         """Dispatches mouse motion events depending on shift and
@@ -1118,10 +1148,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         else:
             self.mode.bareMotion(event)
+        return
 
     def wheelEvent(self, event):
         self.debug_event(event, 'wheelEvent')
         self.mode.Wheel(event)
+        return
         
     def mousepoints(self, event, just_beyond = 0.0):
         """Returns a pair (tuple) of points (Numeric arrays of x,y,z)
