@@ -171,7 +171,7 @@ install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
 	fi
-	cp simulator ~/bin/simulator
+	cp -f simulator ~/bin/simulator
 	cp simulator $(EXE_DIRECTORY) 
 
 install-linux: install extensions
