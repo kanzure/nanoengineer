@@ -67,7 +67,7 @@ void traceHeader(struct part *part)
         write_traceline("#\n");
         write_traceline("# Energy Minimization.\n");
         write_traceline("#\n");
-        write_traceline("# iteration    RMS force (nN)      maximum force (nN)\n");
+        write_traceline("# iteration    RMS force (pN)      maximum force (pN)\n");
         write_traceline("#\n");
         return;
     }

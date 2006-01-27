@@ -205,7 +205,7 @@ minimizeStructure(struct part *part)
 
     SetConfiguration(&initial, NULL);
     SetConfiguration(&final, NULL);
-    done("Minimize evals: %d, %d; final forces: rms %f nN, high %f nN",
+    done("Minimize evals: %d, %d; final forces: rms %f pN, high %f pN",
          minimizeStructureFunctions.gradientEvaluationCount,
          minimizeStructureFunctions.functionEvaluationCount,
          rms_force,
