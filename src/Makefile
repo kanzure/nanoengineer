@@ -5,9 +5,8 @@ ifeq ($(OS),Windows_NT)
 CC = "C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-I"C:/Dev-Cpp/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
+PYREXTARGET=sim.dll
 STDC99=
-WARNWIN32="echo Please build this with Makefile.win32, not Makefile"
-HALTWIN32="exit 1"
 else
 # non-Windows
 CC=gcc
@@ -15,9 +14,8 @@ CFLAGS=-g -Wmissing-prototypes -Wall
 # Note: these CFLAGS are probably not used to build the files for Pyrex, 
 # only for the standalone simulator executable. [bruce 051230 guess]
 LDFLAGS=-L/usr/lib -lm
+PYREXTARGET=sim.so
 STDC99=-std=c99
-WARNWIN32=
-HALTWIN32=
 endif
 
 EXE_DIRECTORY=../../cad/bin
@@ -36,7 +34,8 @@ all:
 	make clean
 	make empty-trace-prefix
 	make trace-prefix
-	make simulator pyx
+	make clean
+	make simulator $(PYREXTARGET)
 
 lall: all glviewer
 
@@ -45,56 +44,25 @@ SUFFIXES: .c .h .o ;
 .c.o:
 	$(CC) -c $(CFLAGS) -o $@ $(@:.o=.c)
 
-SIMINCLUDES=\
-	allocate.h \
-	debug.h \
-	dynamics.h \
-	globals.h \
-	hashtable.h \
-	interpolate.h \
-	jigs.h \
-	lin-alg.h \
-	minimize.h \
-	minstructure.h \
-	newtables.h \
-	part.h \
-	potential.h \
-	printers.h \
-	readmmp.h \
-	readxyz.h \
-	structcompare.h \
-	writemovie.h
-
 #bruce 051230 added dependency on Makefile to some rules (not all, and not as many are
 # affected as I'd hoped);
 # this is desirable since Makefile defines CFLAGS (and full remake doesn't take very long);
 # feel free to do this in a cleaner way, or not at all if it causes problems.
 
-simulator.h: $(SIMINCLUDES) Makefile
-
-allocate.o: allocate.h Makefile
-globals.o: simulator.h
-hashtable.o: allocate.h hashtable.h Makefile
-interpolate.o: simulator.h
-jigs.o: simulator.h
-lin-alg.o: lin-alg.h Makefile
-minimize.o: allocate.h minimize.h debug.h Makefile
-minstructure.o: simulator.h
-newtables.o: simulator.h bonds.h bends.h
-part.o: simulator.h
-potential.o: simulator.h
-printers.o: simulator.h
-readmmp.o: simulator.h
-readxyz.o: simulator.h
-simulator.o: simulator.h
-traceprefix.o: traceprefix.c
-writemovie.o: simulator.h
-
 # -std-c99 gets us isnormal()
 structcompare.o: structcompare.c simulator.h
 	$(CC) -c $(STDC99) $(CFLAGS) -o structcompare.o structcompare.c
 
-# Rules for sim.o and sim.c are obsolete.  wware 060101 [rev 1.48]
+# We need sim.c rule to build for Windows
+sim.c: simhelp.c sim.pyx
+	python c:/Python23/Scripts/pyrexc.py sim.pyx
+
+libpython23.a: libpython23.a.gz
+	gunzip < libpython23.a.gz > libpython23.a
+
+sim.dll: sim.c $(PYREXOBJS) libpython23.a
+	gcc -shared -I"C:/Python23/include" -o sim.dll sim.c $(PYREXOBJS) \
+		-Wl,--output-def,sim.def -L. -lpython23
 
 tables.c: gentab.py
 	python gentab.py > tables.c
@@ -105,7 +73,7 @@ bonds.h: parmlist.py stretch.parms
 bends.h: bend.perl bending.parms
 	./bend.perl < bending.parms > bends.h
 
-SIMOBJS=\
+PYREXOBJS=\
 	allocate.o \
 	dynamics.o \
 	globals.o \
@@ -123,8 +91,9 @@ SIMOBJS=\
 	readxyz.o \
 	structcompare.o \
 	traceprefix.o \
-	writemovie.o \
-	simulator.o
+	writemovie.o
+
+SIMOBJS=$(PYREXOBJS) simulator.o
 
 noopt:
 	make CFLAGS=-g simulator
@@ -140,7 +109,7 @@ trace-prefix:
 	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >>_traceprefix.c
 	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >>_traceprefix.c
 	make simulator | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
-	make extensions | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
+	make $(PYREXTARGET) | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
 	echo "\";" >>_traceprefix.c
 	mv -f _traceprefix.c traceprefix.c
 
@@ -159,13 +128,12 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-# wware 060101  sim.c dependency no longer needed, simhelp.c dependency in setup.py
 extensions: Makefile
-	$(WARNWIN32)
-	$(HALTWIN32)
+
+sim.so: Makefile
 	python setup.py build_ext --inplace
 
-pyx: extensions
+pyx: $(PYREXTARGET)
 
 install: simulator
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
@@ -179,8 +147,8 @@ install-linux: install extensions
 
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
-	rm -f simulator moldisp molsim physeng sim.so sim.c traceprefix.c _traceprefix.c
-	rm -f *.o *.so *~ fmc.mmp dumpstruct.xyz *.pyc
+	rm -f simulator moldisp molsim physeng sim.so sim.c
+	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
 	rm -f tests/*/*.altout
 	rm -f tests/*/*.diff
@@ -196,3 +164,93 @@ TAGS:
 
 doxy:
 	doxygen Doxyfile
+
+depends:
+	head -`egrep -n "^# BEGIN" Makefile | sed 's/:.*//'` Makefile > tmp.mk
+	makedepend -f tmp.mk -Y. *.[ch]
+	mv -f tmp.mk Makefile
+	rm tmp.mk.bak
+
+# BEGIN DEPENDENCIES
+# DO NOT DELETE
+
+allocate.o: allocate.h
+dynamics.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+dynamics.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+dynamics.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+dynamics.o: writemovie.h globals.h
+globals.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+globals.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+globals.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+globals.o: writemovie.h globals.h
+glviewer.o: allocate.h
+hashtable.o: allocate.h hashtable.h
+interpolate.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
+interpolate.o: minimize.h structcompare.h part.h newtables.h interpolate.h
+interpolate.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
+interpolate.o: minstructure.h writemovie.h globals.h
+jigs.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+jigs.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
+jigs.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
+jigs.o: globals.h
+lin-alg.o: lin-alg.h
+minimize.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+minimize.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+minimize.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+minimize.o: writemovie.h globals.h
+minstructure.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
+minstructure.o: minimize.h structcompare.h part.h newtables.h interpolate.h
+minstructure.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
+minstructure.o: minstructure.h writemovie.h globals.h
+newtables.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+newtables.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+newtables.o: readxyz.h printers.h dynamics.h jigs.h potential.h
+newtables.o: minstructure.h writemovie.h globals.h bonds.h bends.h
+part.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+part.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
+part.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
+part.o: globals.h
+potential.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+potential.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+potential.o: readxyz.h printers.h dynamics.h jigs.h potential.h
+potential.o: minstructure.h writemovie.h globals.h
+printers.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+printers.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+printers.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+printers.o: writemovie.h globals.h
+readers.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+readers.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+readers.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+readers.o: writemovie.h globals.h
+readmmp.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+readmmp.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+readmmp.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+readmmp.o: writemovie.h globals.h
+readxyz.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+readxyz.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+readxyz.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+readxyz.o: writemovie.h globals.h
+simhelp.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+simhelp.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+simhelp.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+simhelp.o: writemovie.h globals.h
+simulator.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+simulator.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+simulator.o: readxyz.h printers.h dynamics.h jigs.h potential.h
+simulator.o: minstructure.h writemovie.h globals.h
+simulator.o: debug.h lin-alg.h allocate.h hashtable.h minimize.h
+simulator.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+simulator.o: readxyz.h printers.h dynamics.h jigs.h potential.h
+simulator.o: minstructure.h writemovie.h globals.h
+structcompare.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
+structcompare.o: minimize.h structcompare.h part.h newtables.h interpolate.h
+structcompare.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
+structcompare.o: minstructure.h writemovie.h globals.h
+tables.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+tables.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+tables.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+tables.o: writemovie.h globals.h
+writemovie.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+writemovie.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+writemovie.o: readxyz.h printers.h dynamics.h jigs.h potential.h
+writemovie.o: minstructure.h writemovie.h globals.h
