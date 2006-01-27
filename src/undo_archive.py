@@ -543,7 +543,7 @@ def set_view_for_Undo(glpane, assy, csys): # shares code with Csys.set_view; mig
         self.zoomFactor = 1.0
     else:
         current_selgroup_index = csys.current_selgroup_index
-        self.animateView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
+        self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
             # if we want this to animate, we probably have to move that higher in the call chain and do it after everything else
     sg = assy.selgroup_at_index(current_selgroup_index)
     assy.set_current_selgroup(sg)

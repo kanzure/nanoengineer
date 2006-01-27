@@ -1969,7 +1969,7 @@ class Csys(DataNode):
     def change_view(self): #mark 060122
         '''Change the view to self.
         '''
-        self.assy.o.animateView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
+        self.assy.o.animateToView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
         
         from HistoryWidget import greenmsg
         cmd = greenmsg("Change View: ")
