@@ -25,11 +25,16 @@ static int N;
 #define EXPECTZERO(expr)   { int retval = (expr); ASSERT(retval==0); }
 
 #if 0
+#define SAY_STR(x)  fprintf(stderr, "%s(%d)  %s == \"%s\"\n",\
+                            __FUNCTION__, __LINE__, #x, x)
 #define SAY_INT(x)  fprintf(stderr, "%s(%d)  %s == %d\n", __FUNCTION__, __LINE__, #x, x)
+#define SAY_DBL(x)  fprintf(stderr, "%s(%d)  %s == %g\n", __FUNCTION__, __LINE__, #x, x)
 #define SAY_OBJ(x)  fprintf(stderr, "%s(%d)  %s == <<", __FUNCTION__, __LINE__, #x); \
 	    PyObject_Print(x, stderr, 0); fprintf(stderr, ">>\n")
 #else
+#define SAY_STR(x)
 #define SAY_INT(x)
+#define SAY_DBL(x)
 #define SAY_OBJ(x)
 #endif
 
@@ -69,16 +74,40 @@ static double *getArray(PyObject *parray)
     return v;
 }
 
+PyObject * _c_applyForces(double *forces, double dtm)
+{
+    int k;
+    PyObject *u_new;
+    double *vnew;
+
+    if (forces == NULL) return NULL;
+    u_new = PyObject_GetAttr(comp, PyString_FromString("u_new"));
+    vnew = getArray(u_new);
+    if (vnew == NULL) return NULL;
+    u_new = PyList_New(N * N);
+    ASSERT(u_new != NULL);
+    for (k = 0; k < N * N; k++) {
+	PyObject *vn;
+	vn = Py_BuildValue("(dd)",
+			   vnew[2*k] + dtm * forces[2*k],
+			   vnew[2*k+1] + dtm * forces[2*k+1]);
+	//CHECK_2_TUPLE(vn);
+	EXPECTZERO(PyList_SetItem(u_new, k, vn));
+    }
+    free(vnew);
+    EXPECTZERO(PyObject_SetAttr(comp, PyString_FromString("u_new"), u_new));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 
 PyObject * internalForces(double stiffness, double viscosityOverDt, double dtm)
 {
-    int i, j, k, i2, j2, arraysize;
+    int i, j, k, i2, j2;
     double *v, *vold, *f;
-    PyObject *forces, *u, *u_old;
+    PyObject *u, *u_old, *retval;
 
     CHECKTYPE(Instance, comp);
-    arraysize = 2 * N * N * sizeof(double);
-
     u = PyObject_GetAttr(comp, PyString_FromString("u"));
     v = getArray(u);
     if (v == NULL) return NULL;
@@ -92,48 +121,89 @@ PyObject * internalForces(double stiffness, double viscosityOverDt, double dtm)
 	f[k] = 0.0;
     }
 
+#if 0
+    printf("v\n");
     for (i = 0; i < N; i++) {
 	for (j = 0; j < N; j++) {
 	    int k = i * N + j;
-	    for (i2 = i - 1; i2 <= i + 1; i2 += 2) {
-		for (j2 = j - 1; j2 <= j + 1; j2 += 2) {
-		    if (0 <= i2 && i2 < N && 0 <= j2 && j2 < N) {
-			double Dx, Dy, Px, Py, fx, fy;
-			int k2 = i2 * N + j2;
-			Dx = v[2*k2] - v[2*k];
-			Dy = v[2*k2+1] - v[2*k+1];
-			Px = vold[2*k2] - vold[2*k];
-			Py = vold[2*k2+1] - vold[2*k+1];
-			fx = stiffness * Dx + viscosityOverDt * (Px - Dx);
-			fy = stiffness * Dy + viscosityOverDt * (Py - Dy);
-			f[2*k] += fx;
-			f[2*k+1] += fy;
-			f[2*k2] -= fx;
-			f[2*k2+1] -= fy;
-		    }
-		}
+	    printf("[%10.4g %10.4g] ", v[2*k], v[2*k+1]);
+	}
+	printf("\n");
+    }
+#endif
+    for (i = 0; i < N; i++) {
+	for (j = 0; j < N; j++) {
+	    double Dx, Dy, Px, Py, fx, fy;
+	    int k2, k = i * N + j;
+	    if (i > 0) {
+		k2 = (i - 1) * N + j;
+		Dx = v[2*k2] - v[2*k];
+		Dy = v[2*k2+1] - v[2*k+1];
+		Px = vold[2*k2] - vold[2*k];
+		Py = vold[2*k2+1] - vold[2*k+1];
+		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
+		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
+		f[2*k] += fx;
+		f[2*k+1] += fy;
+		f[2*k2] -= fx;
+		f[2*k2+1] -= fy;
+	    }
+	    if (i < N - 1) {
+		k2 = (i + 1) * N + j;
+		Dx = v[2*k2] - v[2*k];
+		Dy = v[2*k2+1] - v[2*k+1];
+		Px = vold[2*k2] - vold[2*k];
+		Py = vold[2*k2+1] - vold[2*k+1];
+		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
+		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
+		f[2*k] += fx;
+		f[2*k+1] += fy;
+		f[2*k2] -= fx;
+		f[2*k2+1] -= fy;
+	    }
+	    if (i > 0) {
+		k2 = i * N + (j - 1);
+		Dx = v[2*k2] - v[2*k];
+		Dy = v[2*k2+1] - v[2*k+1];
+		Px = vold[2*k2] - vold[2*k];
+		Py = vold[2*k2+1] - vold[2*k+1];
+		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
+		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
+		f[2*k] += fx;
+		f[2*k+1] += fy;
+		f[2*k2] -= fx;
+		f[2*k2+1] -= fy;
+	    }
+	    if (j < N - 1) {
+		k2 = i * N + (j + 1);
+		Dx = v[2*k2] - v[2*k];
+		Dy = v[2*k2+1] - v[2*k+1];
+		Px = vold[2*k2] - vold[2*k];
+		Py = vold[2*k2+1] - vold[2*k+1];
+		fx = stiffness * Dx + viscosityOverDt * (Dx - Px);
+		fy = stiffness * Dy + viscosityOverDt * (Dy - Py);
+		f[2*k] += fx;
+		f[2*k+1] += fy;
+		f[2*k2] -= fx;
+		f[2*k2+1] -= fy;
 	    }
 	}
     }
-    free(v);
-    free(vold);
-
-    forces = PyList_New(N * N);
-    ASSERT(forces != NULL);
+#if 0
+    printf("Forces\n");
     for (i = 0; i < N; i++) {
 	for (j = 0; j < N; j++) {
 	    int k = i * N + j;
-	    PyObject *ftpl = PyTuple_New(2);
-	    ASSERT(ftpl != NULL);
-	    EXPECTZERO(PyTuple_SetItem(ftpl, 0, PyFloat_FromDouble(f[2*k])));
-	    EXPECTZERO(PyTuple_SetItem(ftpl, 1, PyFloat_FromDouble(f[2*k+1])));
-	    EXPECTZERO(PyList_SetItem(forces, k, ftpl));
+	    printf("[%10.4g %10.4g] ", f[2*k], f[2*k+1]);
 	}
+	printf("\n");
     }
+#endif
+    retval = _c_applyForces(f, dtm);
+    free(v);
+    free(vold);
     free(f);
-    applyForces(forces, dtm);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return retval;
 }
 
 PyObject *verletMomentum(void)
@@ -168,29 +238,12 @@ PyObject *verletMomentum(void)
 
 PyObject * applyForces(PyObject *forces, double dtm)
 {
-    int k;
-    PyObject *u_new;
-    double *vnew, *f;
+    PyObject *retval;
+    double *f;
 
-    u_new = PyObject_GetAttr(comp, PyString_FromString("u_new"));
-    vnew = getArray(u_new);
-    if (vnew == NULL) return NULL;
     f = getArray(forces);
     if (f == NULL) return NULL;
-    u_new = PyList_New(N * N);
-    ASSERT(u_new != NULL);
-
-    for (k = 0; k < N * N; k++) {
-	PyObject *vn;
-	vn = Py_BuildValue("(dd)",
-			   vnew[2*k] + dtm * f[2*k],
-			   vnew[2*k+1] + dtm * f[2*k+1]);
-	CHECK_2_TUPLE(vn);
-	EXPECTZERO(PyList_SetItem(u_new, k, vn));
-    }
+    retval = _c_applyForces(f, dtm);
     free(f);
-    free(vnew);
-    EXPECTZERO(PyObject_SetAttr(comp, PyString_FromString("u_new"), u_new));
-    Py_INCREF(Py_None);
-    return Py_None;
+    return retval;
 }

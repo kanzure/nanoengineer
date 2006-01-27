@@ -17,11 +17,11 @@ print "GOT_PYREX", GOT_PYREX
 """I think this is the correct way to
 scale stiffness and viscosity.
 """
-N = 3
+N = 4
 MASS = 1.0e-5 / N**2
-DT = 1.0e-4
-STIFFNESS = 1.0e-6 * N
-VISCOSITY = 1.0e-6 * N
+DT = 1.0e-3
+STIFFNESS = 1.0e-8 * N
+VISCOSITY = 1.0e-8 * N
 DTM = (DT ** 2) / MASS
 
 # At some point, DT becomes a tuple with a bad internal state.
@@ -168,7 +168,7 @@ class Jello(JelloGui):
         # On each step we do verlet, using u_old and u to compute
         # u_new. Then we move each particle from u to u_new. Then
         # we move u to u_old, and u_new to u.
-        for i in range(10):
+        for i in range(20):
             self.equationsOfMotion()
         self.paintEvent(None)
 
