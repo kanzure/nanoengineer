@@ -93,7 +93,7 @@ class ProgressBar( ProgressBarDialog ):
                 elapsedtime = self._duration
                 self._duration = time.time() - self.stime
                 if elapsedtime == self._duration: continue
-                elapmsg = "Elasped Time: " + hhmmss_str(int(self._duration))
+                elapmsg = "Elapsed Time: " + hhmmss_str(int(self._duration))
                 self.msgLabel2.setText(elapmsg) 
             
             if self.abort: # User hit abort button

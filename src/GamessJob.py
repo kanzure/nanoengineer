@@ -180,7 +180,7 @@ class GamessJob(SimJob):
             msgLabel = self.progressDialog.getMsgLabel()
             duration = time.time() - self.stime
             from platform import hhmmss_str
-            elapmsg = "Elasped Time: " + hhmmss_str(int(duration))
+            elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
             msgLabel.setText(elapmsg)
             
             ####bytes = self.process.readStdout()
@@ -441,7 +441,7 @@ class JobProgressDialog(QDialog):
                 
                 duration = time.time() - stime
                 from platform import hhmmss_str
-                elapmsg = "Elasped Time: " + hhmmss_str(int(duration))
+                elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
                 self.msgLabel2.setText(elapmsg) 
         
                 time.sleep(0.01)

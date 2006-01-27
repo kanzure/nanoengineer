@@ -206,7 +206,7 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
             elapsedtime = win._duration
             win._duration = time.time() - win.stime
             if elapsedtime == win._duration: continue
-            elapmsg = "Elasped Time: " + hhmmss_str(int(win._duration))
+            elapmsg = "Elapsed Time: " + hhmmss_str(int(win._duration))
             env.history.statusbar_msg(elapmsg)
                 
         if responseCode == 4: # 5 == Sim is Idle (Done)
