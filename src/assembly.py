@@ -106,8 +106,12 @@ class assembly(GenericDiffTracker_API_Mixin):
 
     # default values of some instance variables
     _change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
+    undo_manager = None #bruce 060127
     
-    def __init__(self, win, name = None):
+    def __init__(self, win, name = None, own_window_UI = False):
+
+        self.own_window_UI = own_window_UI
+        
         # ignore changes to this assembly during __init__, and after it,
         # until the client code first calls our reset_changed method.
         # [bruce 050429 revised that behavior and this comment, re bug 413]
@@ -127,7 +131,13 @@ class assembly(GenericDiffTracker_API_Mixin):
         assy_number += 1
         self._debug_name = self.name + "-%d" % assy_number
 
-        if self.w: # i.e. not when called from ThumbView to make its "dummy assembly"
+        if own_window_UI:
+            #bruce 060127 added own_window_UI flag to help fix bug 1403
+            # (this is false when called from ThumbView to make its "dummy assembly" (which passes self.w of None),
+            # or from MMKit for Library assy (which passes self.w of main window, same as main assy).
+            # Another way would be to test (self.w.assy is self), but w.assy could not yet be set up at this time,
+            # so any fix like that is more unclear than just having our __init__-caller pass us this flag.
+            assert self.w
             global _assy_owning_win
             if _assy_owning_win is not None:
                 _assy_owning_win.deinit() # make sure assys don't fight over control of main menus, etc [bruce 060122]
@@ -230,15 +240,14 @@ class assembly(GenericDiffTracker_API_Mixin):
         assert self.tree.part.homeCsys
         assert self.tree.part.lastCsys
 
-        if self.w:
+        if self.undo_manager:
             self.undo_manager.init1()
         
         return # from assembly.__init__
 
     def deinit(self): # make sure assys don't fight over control of main menus, etc [bruce 060122]
         ###e should this be extended into a full destroy method, and renamed? guess: yes. [bruce 060126]
-        assert self.w # true for now, but not a fundamental requirement
-        if self.w:
+        if self.undo_manager:
             self.undo_manager.deinit()
             #e more? forget self.w?? maybe someday, in case someone uses it now who should be using env.mainwindow()
         return
@@ -832,7 +841,7 @@ class assembly(GenericDiffTracker_API_Mixin):
             # A long time ago, this is where we'd emit a history message about unsaved changes.
             # Now we denote a file change by adding an asterisk (or whatever the user prefers)
             # to the end of the filename in the window caption.
-            self.w.update_mainwindow_caption_properly()
+            self.w.update_mainwindow_caption_properly() #e should this depend on self.own_window_UI? [bruce 060127 question] ####@@@@
             if debug_assy_changes:
                 import time
                 print time.asctime(), self, self.name

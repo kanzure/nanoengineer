@@ -138,7 +138,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             self.setName("nanoENGINEER-1") # Mark 11-05-2004
 
         # start with empty window 
-        self.assy = assembly(self, "Untitled")
+        self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
+            #bruce 060127 added own_window_UI flag to help fix bug 1403
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
         

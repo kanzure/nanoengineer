@@ -578,9 +578,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # even though its name-mangled name was thereby changed. It should really be given a normal name.
         # Some comments in other files still call it MWsemantics.__clear.
         
-        # assyList refs deleted by josh 10/4
-        self.assy = assembly(self, "Untitled")
-#        self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.name + "]"))
+        self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
+            #bruce 060127 added own_window_UI flag to help fix bug 1403
         self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy) # leaves glpane.mode as nullmode, as of 050911
         self.assy.mt = self.mt
