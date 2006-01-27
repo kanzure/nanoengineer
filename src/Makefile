@@ -90,11 +90,20 @@ version.c:
 	echo >> version.c
 	if [ -d CVS ]; then \
 		echo "char simulatorSourceVersions[] = \"\\" >> version.c ;\
-		cvs ls -l | sed -e '/^[\?d]/d' -e 's/^/# /' -e 's#$$#\\n\\#' >> version.c ;\
+		cat CVS/Entries | sed -e 's#/[^/]*/[^/]*/$$##' -e 's#/# #g' -e 's/^/# /' -e 's#$$#\\n\\#' >> version.c ;\
 		echo "\";" >> version.c ;\
 	else \
-		echo "char simulatorSrcVersions[] = \"# Source file version information not available\\n\";" >> version.c ;\
+		echo "char simulatorSourceVersions[] = \"# Source file version information not available\\n\";" >> version.c ;\
 	fi
+
+# "cvs ls" is not available on all platforms.
+#	if [ -d CVS ]; then \
+#		echo "char simulatorSourceVersions[] = \"\\" >> version.c ;\
+#		cvs ls -l | sed -e '/^[\?d]/d' -e 's/^/# /' -e 's#$$#\\n\\#' >> version.c ;\
+#		echo "\";" >> version.c ;\
+#	else \
+#		echo "char simulatorSrcVersions[] = \"# Source file version information not available\\n\";" >> version.c ;\
+#	fi
 
 PYREXOBJS=\
 	allocate.o \
