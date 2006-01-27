@@ -1288,7 +1288,9 @@ class depositMode(basicMode):
         self.o.gl_update()
         
     def leftDouble(self, event): # mark 060126.
-        '''Selects all atoms connected to the double-clicked atom.
+        '''Double click event handler for the left mouse button. 
+        If an atom was double-clicked, select all the atoms reachable through 
+        any sequence of bonds to that atom. Otherwise, do nothing.
         '''
         # If the selection behavior is set to Non-standard mode, more than one atom may
         # be selected.  In that case, double-clicking an atom does nothing. 
