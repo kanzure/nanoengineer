@@ -351,8 +351,11 @@ class HistoryWidget:
         portions of the message text. See also message_no_html.
            When quote_html is combined with transient_id, (I hope) it only affects the
         message printed to the history widget, not to the statusbar.
+           If color is provided, it should be one of a fixed list of supported colors (see code for details),
+        and it's applied after quote_html, and (I hope) only in the widget, not in the statusbar
+        (so it should be compatible with transient_id).
         """
-        # (quote_html is implemented as one of the **options, not directly in this method. [bruce 060126])
+        # (quote_html and color are implemented as one of the **options, not directly in this method. [bruce 060126])
         # first emit a saved_up message, if necessary
         if self.saved_transient_id and self.saved_transient_id != transient_id:
             self.widget_msg( self.saved_msg, self.saved_options)
@@ -447,7 +450,14 @@ class HistoryWidget:
         _quote_html = options.pop('quote_html', False) #bruce 060126 new feature, improving on message_no_html interface ##k
         if _quote_html:
             msg = quote_html(msg)
-        # any other options are warned about below
+        _color = options.pop('color', None)
+        if _color:
+            #bruce 060126 new feature; for now only permits 4 fixed color name strings;
+            # should someday permit any color name (in any format) or object (of any kind) #e
+            funcs = {'green':greenmsg, 'orange':orangemsg, 'red':redmsg, 'gray':_graymsg}
+            func = funcs[_color] # any colorname not in this dict is an exception (ok for now)
+            msg = func(msg)
+        # any unrecognized options are warned about below
         self._print_msg(msg)
         if options:
             msg2 = "fyi: bug: widget_msg got unsupported options: %r" % options

@@ -74,13 +74,19 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         def newval_receiver_func(newval):
             assert self.dtype.legal_value(newval), "illegal value for %r: %r" % (self, newval)
                 ###e change to ask dtype, since most of them won't have a list of values!!! this method is specific to Choice.
+            if self.value == newval: #bruce 060126
+                if self.print_changes:
+                    print "redundant change:", 
+                ##return??
             self.value = newval
             extra = ""
             if self.prefs_key:
                 env.prefs[self.prefs_key] = newval
                 extra = " (also in prefs db)"
             if self.print_changes:
-                print "changed %r to %r%s" % (self, newval, extra)
+                msg = "changed %r to %r%s" % (self, newval, extra)
+                print msg
+                env.history.message(msg, quote_html = True, color = 'gray') #bruce 060126 new feature
         return self.dtype.changer_menuspec(self.name, newval_receiver_func, self.current_value())
     def __repr__(self):
         extra = ""
