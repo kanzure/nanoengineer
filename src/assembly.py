@@ -378,6 +378,11 @@ class assembly(GenericDiffTracker_API_Mixin):
         creating new parts if necessary. [See also checkparts method.] 
         For now [050308], also break inter-Part bonds; later this might be done separately.
         """
+        #bruce 060127: as of now, I'll be calling update_parts
+        # before every undo checkpoint (begin and end both), so that all resulting changes
+        # (and the effect of calling assy.changed, now often done by post_event_updates as of yesterday)
+        # get into the same undo diff.) [similar comment is in post_event_updates]
+        #
         ###@@@ revise the following comment, it's just notes during development:
         # this is a simple brute-force scan, which might be good enough, and if so might be the simplest method that could work.
         # so if it works and seems ok to use whenever nodes change parts, then take care of entirely new nodes somehow (mol init),
@@ -1017,9 +1022,13 @@ class assembly(GenericDiffTracker_API_Mixin):
         self.undo_manager.editRedo()
 
     def undo_checkpoint_before_command(self, *args, **kws):
+        self.update_parts() #bruce 060128, precaution related to fixing bug 1406
         return self.undo_manager.undo_checkpoint_before_command(*args, **kws)
 
     def undo_checkpoint_after_command(self, *args, **kws):
+        self.update_parts() #bruce 060128, to fix bug 1406
+            #e [or should undo_manager use a callback, to do it even from
+            #   initial and clear checkpoints, and recursive-event ones??]
         return self.undo_manager.undo_checkpoint_after_command(*args, **kws)
 
     def current_command_info(self, *args, **kws):

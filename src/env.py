@@ -202,7 +202,7 @@ _changed_bond_types = {} # dict for bonds whose bond-type gets changed (need not
 
 # the beginnings of a general change-handling scheme [bruce 050627]
 
-def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots of places, not just update_parts like now; #doc is obs
+def post_event_updates( warn_if_needed = False ):
     """[public function]
        This should be called at the end of every user event which might have changed
     anything in any loaded model which defers some updates to this function.
@@ -214,6 +214,15 @@ def post_event_updates( warn_if_needed = False ): #####@@@@@ call this from lots
     a debug-only warning to be emitted if the call was necessary. (This function is designed
     to be very fast when called more times than necessary.)
     """
+    #bruce 060127: Note: as of long before now, nothing actually calls this with warn_if_needed = True;
+    # the only calls are from GLPane.paintGL and assembly.update_parts.
+    # FYI: As of 060127 I'll be calling update_parts (which always calls this method)
+    # before every undo checkpoint (begin and end both), so that all resulting changes
+    # from both of them (and the effect of calling assy.changed, now often done by this method as of yesterday)
+    # get into the same undo diff.) [similar comment is in update_parts]
+    #
+    #obs? ####@@@@ call this from lots of places, not just update_parts like now; #doc is obs
+    #
     #bruce 051011: some older experimental undo code I probably won't use:
 ##    for class1, classmethodname in _change_recording_classes:
 ##        try:
