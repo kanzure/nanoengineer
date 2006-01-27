@@ -273,6 +273,9 @@ def fix_tooltip(qaction, text): #060126
     """
     whole = unicode(qaction.toolTip()) # str() on this might have an exception
     try:
+        if 1: #bruce 060127 kluge to fix bug 1405; ok for now since only fake command names contain parens
+            text = text.replace('(','[')
+            text = text.replace(')',']')
         sep = u' ('
         parts = whole.split(sep, 1) #e is it safe to assume the whitespace is a single blank? should generalize...
         parts[0] = text
