@@ -95,7 +95,7 @@ class ops_connected_Mixin:
         any sequence of bonds to the atoms in atomlist
         '''
         marked = {} # maps id(atom) -> atom, for processed atoms
-        todo = atomlist
+        todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
         # from elements import Singlet
         for atom in todo:
             marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
