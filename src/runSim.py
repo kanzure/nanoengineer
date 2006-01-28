@@ -90,6 +90,7 @@ class SimRunner:
     def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator"):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
         self.win = assy.w  # might be used only for self.win.progressbar.launch
@@ -98,6 +99,11 @@ class SimRunner:
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
+        prefer_dylib_sim = debug_pref("force use of pyrex sim", Choice_boolean_False,
+                                      prefs_key = 'use-pyrex-sim', non_debug = True)
+        if prefer_dylib_sim:
+            # if true, override environment variable, wware 060127
+            use_dylib_sim = True
         self.use_dylib_sim = use_dylib_sim #bruce 051230
         self.cmdname = cmdname
         if use_dylib_sim:
