@@ -168,13 +168,16 @@ sim.so: Makefile
 pyx: $(PYREXTARGET)
 
 install: simulator
+	if [ ! -d $$HOME/bin ] ; then \
+		mkdir $$HOME/bin ;\
+	fi
+	cp -f simulator $$HOME/bin
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
 	fi
-	cp -f simulator ~/bin/simulator
 	cp simulator $(EXE_DIRECTORY) 
 
-install-linux: install extensions
+install-linux: install $(PYREXTARGET)
 	cp sim.so $(EXE_DIRECTORY)
 
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
