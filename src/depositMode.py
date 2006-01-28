@@ -317,6 +317,8 @@ class depositMode(basicMode):
             # in leftDrag() and leftShiftDrag().
             # leftUp() and leftShiftUp() then check it to determine whether the atom 
             # gets picked or not. mark 060125.
+        self.obj_doubleclicked = None
+            # used by leftDouble() to determine the object that was double clicked.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -1292,12 +1294,10 @@ class depositMode(basicMode):
         If an atom was double-clicked, select all the atoms reachable through 
         any sequence of bonds to that atom. Otherwise, do nothing.
         '''
-        # If the selection behavior is set to Non-standard mode, more than one atom may
-        # be selected.  In that case, double-clicking an atom does nothing. 
-        # This is a bug if we intend to support non-standard selection behavior. mark 060126.
-        if len(self.o.assy.selatoms_list()) == 1 and self.dragatom_clicked:
-            self.o.assy.selectConnected()
-        
+        if isinstance(self.obj_doubleclicked, Atom):
+            atomlist = []
+            atomlist.append(self.obj_doubleclicked)
+            self.o.assy.selectConnected(atomlist)
 
 # == Deposit methods
         
@@ -1624,6 +1624,7 @@ class depositMode(basicMode):
         '''
         self.initDragObject(a)
         self.dragatom_clicked = True # mark 060125.
+        self.obj_doubleclicked = a # mark 060128.
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
 
