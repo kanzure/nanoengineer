@@ -23,9 +23,11 @@ import env
 class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
     
-    def selectConnected(self):
+    #mark 060128 made this more general by adding the atomlist arg.
+    def selectConnected(self, atomlist=None):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
+        If <atomlist> is supplied, use it instead of the currently selected atoms.
         """ ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
         
         cmd = greenmsg("Select Connected: ")
@@ -35,8 +37,11 @@ class ops_connected_Mixin:
             env.history.message(cmd + msg)
             return
         
+        if not atomlist:
+            atomlist = self.selatoms.values()
+            
         alreadySelected = len(self.selatoms.values())
-        self.marksingle()
+        self.marksingle(atomlist)
         totalSelected = len(self.selatoms.values())
         
         from platform import fix_plurals
@@ -84,10 +89,13 @@ class ops_connected_Mixin:
     #bruce 050629 fixing bug 714 by rewriting this to make it non-recursive
     # (tho it's still non-interruptable), and fixing some other bug by making it
     # use its own dict for intermediate state, rather than atom.picked (so it works with Selection Filter).
-    def marksingle(self):
-        "select all atoms connected by a sequence of bonds to an already selected one"
+    #mark 060128 made this more general by adding the atomlist arg.
+    def marksingle(self, atomlist):
+        '''select all the atoms reachable through
+        any sequence of bonds to the atoms in atomlist
+        '''
         marked = {} # maps id(atom) -> atom, for processed atoms
-        todo = self.selatoms.values() # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
+        todo = atomlist
         # from elements import Singlet
         for atom in todo:
             marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
