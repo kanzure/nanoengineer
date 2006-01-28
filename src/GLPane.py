@@ -414,7 +414,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.animateToCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self):
-        "Reorient view so that the entire model fits in the glpane."
+        "Change view so that the entire model fits in the glpane."
         #Recalculate center and bounding box for the current part
         part = self.part
         part.computeBoundingBox()
@@ -471,11 +471,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         '''Snap to the destination view defined by csys.
         '''
         self.snapToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor)
+        
+    def animateToCsys(self, csys, animate = True):
+        '''Animate to the destination view defined by csys.
+        If animate is False *or* the user pref "Animate between views" is not selected, 
+        then do not animate;  just snap to the destination view.
+        '''
+        
+        # Determine whether to snap (don't animate) to the destination view.
+        if not animate or not env.prefs[animateStandardViews_prefs_key]:
+            self.snapToCsys(csys)
+            return
+            
+        self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
 
     def snapToView(self, q2, s2, p2, z2, update_duration = False):
         '''Snap to the destination view defined by
         quat q2, scale s2, pov p2, and zoom factor z2.
         '''
+        
+        # Caller could easily pass these args in the wrong order.  Let's typecheck them.
+        typecheckViewArgs(q2, s2, p2, z2)
+        
         self.quat = Q(q2)
         self.pov = V(p2[0], p2[1], p2[2])
         self.zoomFactor = z2
@@ -491,19 +508,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         self.animateToView(q2, self.scale, self.pov, self.zoomFactor, animate=True)
         return
-        
-    def animateToCsys(self, csys, animate = True):
-        '''Animate to the destination view defined by csys.
-        If animate is False *or* the user pref "Animate between views" is not selected, 
-        then do not animate;  just snap to the destination view.
-        '''
-        # Determine whether to snap (don't animate) to the destination view.
-        if not animate or not env.prefs[animateStandardViews_prefs_key]:
-            self.snapToViewUsingCsys(q2, s2, p2, z2)
-            return
-            
-        self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
-        
+
     # animateToView() uses "Normalized Linear Interpolation" 
     # and not "Spherical Linear Interpolation" (AKA slerp), 
     # which traces the same path as slerp but works much faster.
@@ -515,6 +520,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         If animate is False *or* the user pref "Animate between views" is not selected, 
         then do not animate;  just snap to the destination view.
         '''
+        
+        # Caller could easily pass these args in the wrong order.  Let's typecheck them.
+        typecheckViewArgs(q2, s2, p2, z2)
         
         # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
@@ -1284,8 +1292,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             return self.zoomFactor    
             
     def gl_update_duration(self, new_part=False):
-        '''Redraw GLPane and update the repaint duration variable used 
-        animateToView() to compute the number of animation steps. 
+        '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>
+        used by animateToView() to compute the proper number of animation frames.
         Redraws the GLPane twice if <new_part> is True and only saves the repaint 
         duration of the second redraw.  This is needed in the case of drawing a newly opened part,
         which takes much longer to draw the first time than the second (or thereafter).
@@ -2148,5 +2156,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return
 
     pass # end of class GLPane
+
+# Bruce, is this OK to stay in this file?  mark 060128. 
+def typecheckViewArgs(q2, s2, p2, z2):
+    '''Typecheck the view arguments quat q2, scale s2, pov p2, and zoom factor z2
+    used by GLPane.snapToView() and GLPane.animateToView().
+    '''
+    assert isinstance(q2, Q)
+    assert isinstance(s2, float)
+    assert len(p2) == 3
+    assert isinstance(p2[0], float)
+    assert isinstance(p2[1], float)
+    assert isinstance(p2[2], float)
+    assert isinstance(z2, float)
 
 # end
