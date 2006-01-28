@@ -544,9 +544,10 @@ debug_begin_ops = False #bruce 051018 changed from platform.atom_debug
 
 class op_run:
     "Track one run of one operation or suboperation, as reported to env.begin_op and env.end_op in nested pairs"
-    def __init__(self, op_type = None):
+    def __init__(self, op_type = None, in_event_loop = False): #bruce 060127 adding in_event_loop for Undo
         "[this gets all the args passed to env.begin_op()]"
         self.op_type = op_type
+        self.in_event_loop = in_event_loop
         global _op_id
         _op_id += 1
         self.op_id = _op_id
@@ -573,12 +574,55 @@ class op_run:
         return "| " * len(op_tracker.stack)
     pass
 
+_in_event_loop = True #bruce 060127; also keep a copy of this in env; probably that will become the only copy #e
+env._in_event_loop = _in_event_loop
+
 def _op_tracker_stack_changed( tracker ): #bruce 050908 for Undo
     "[private] called when op_tracker's begin/end stack is created, and after every time it changes"
     #e we might modify some sort of env.prefs object, or env.history (to filter out history messages)...
     #e and we might figure out when outer-level ops happen, as part of undo system
     #e and we might install something to receive reports about possible missing begin_op or end_op calls
-    pass
+    #
+    #bruce 060127 new code:
+    new_in_event_loop = True # when nothing is on this op_run stack, we're in Qt's event loop
+    if tracker.stack:
+        new_in_event_loop = tracker.stack[-1].in_event_loop
+    global _in_event_loop
+    changed = False
+    if _in_event_loop != new_in_event_loop:
+        # time for a checkpoint
+##        if _in_event_loop:
+##            print "begin command segment"
+##        else:
+##            print "end command segment"
+        changed = True
+        beginflag = _in_event_loop
+    _in_event_loop = new_in_event_loop
+    env._in_event_loop = _in_event_loop
+    if changed:
+        for sub in env.command_segment_subscribers[:]: # this global list might be changed during this loop
+            unsub = False
+            try:
+                #e ideally we should prevent any calls into op_tracker here...
+                unsub = sub( beginflag, tracker ) # (we can't always pass tracker.stack[-1] -- it might not exist!)
+            except:
+                print_compact_traceback("bug in some element of env.command_segment_subscribers: ")
+                #e discard it?? nah. (we'd do so by unsub = True)
+                ''' note: during Quit, we got this, when we tried to update the menu items no longer present (enable a QAction);
+                this could be related to the crashes on Quit reported recently;
+                so we should try to get the assy to unsubscribe (clear and deinit) when we're about to quit. [bruce 060127]
+                  bug in some element of env.command_segment_subscribers: exceptions.RuntimeError:
+                  underlying C/C++ object has been deleted
+                  [changes.py:607] [undo_manager.py:115] [undo_manager.py:154] [undo_manager.py:128] [undo_manager.py:238]
+                '''
+            if unsub:
+                try:
+                    env.command_segment_subscribers.remove(sub)
+                except ValueError:
+                    pass
+                pass
+            pass
+    return
 
 op_tracker = begin_end_matcher( op_run, _op_tracker_stack_changed )
 
@@ -594,7 +638,7 @@ env.end_op = env_end_op
 global_mc = None
 _in_op_recursing = False
 
-def env_in_op(*args, **kws):
+def env_in_op(*args, **kws): # (disabled, separately, bruce 060127)
     """
     This gets called by various code which might indicate that an operation is ongoing,
     to detect ops in legacy code which don't yet call env.begin_op when they start.
@@ -618,7 +662,7 @@ def env_in_op(*args, **kws):
             _in_op_recursing = False
     return
 
-def env_after_op():
+def env_after_op(): # (disabled, separately, bruce 060127)
     """This gets called at the start of GLPane repaint events
     [#e or at other times not usually inside user-event handling methods],
     which don't occur during an "op" unless there is recursive Qt event processing.
@@ -634,13 +678,14 @@ def env_after_op():
         env_end_op(mc)
     return
 
-env.in_op = env_in_op
-env.after_op = env_after_op
+# disable these, bruce 060127
+##env.in_op = env_in_op
+##env.after_op = env_after_op
 
 def env_begin_recursive_event_processing():
     "call this just before calling qApp.processEvents()"
     env_in_op('(env_begin_recursive_event_processing)')
-    return env_begin_op('(recursive_event_processing)')
+    return env_begin_op('(recursive_event_processing)', in_event_loop = True) #bruce 060127 added in_event_loop = True
 
 def env_end_recursive_event_processing(mc):
     "call this just after calling qApp.processEvents()"

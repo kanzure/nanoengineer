@@ -513,6 +513,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         #bruce 090507 comment: this slot method should be moved back to MWsemantics.py.
         shouldEventBeAccepted = self.prepareToClose()
         if shouldEventBeAccepted:
+            self.cleanUpBeforeExiting() #bruce 060127 added this re bug 1412 (defined in MWsemantics)
             ce.accept()
             ##self.periodicTable.close()
         else:
@@ -576,7 +577,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def __clear(self): #bruce 050911 revised this: leaves glpane.mode as nullmode
         #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
         # even though its name-mangled name was thereby changed. It should really be given a normal name.
-        # Some comments in other files still call it MWsemantics.__clear.
+        # Some comments in other files still call it MWsemantics.__clear. [See also the 060127 kluge below.]
         
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
             #bruce 060127 added own_window_UI flag to help fix bug 1403
@@ -588,7 +589,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.mt.resetAssy_and_clear() 
         
         self.deleteMMKit() #mark 051215.  Fixes bug 1222 (was bug 961, item #4).
+        return
 
+    _MWsemantics__clear = __clear #bruce 060127 kluge so it can be called as __clear from inside class MWsemantics itself.
     
     def _updateRecentFileList(self, fileName):
         '''Add the <fileName> into the recent file list '''

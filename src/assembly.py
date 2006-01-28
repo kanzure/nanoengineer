@@ -1022,13 +1022,13 @@ class assembly(GenericDiffTracker_API_Mixin):
         self.undo_manager.editRedo()
 
     def undo_checkpoint_before_command(self, *args, **kws):
-        self.update_parts() #bruce 060128, precaution related to fixing bug 1406
+        ## moved into undo_manager: self.update_parts() #bruce 060127, precaution related to fixing bug 1406
         return self.undo_manager.undo_checkpoint_before_command(*args, **kws)
 
     def undo_checkpoint_after_command(self, *args, **kws):
-        self.update_parts() #bruce 060128, to fix bug 1406
-            #e [or should undo_manager use a callback, to do it even from
-            #   initial and clear checkpoints, and recursive-event ones??]
+        ## moved into undo_manager: self.update_parts() #bruce 060127, to fix bug 1406
+##            #e [or should undo_manager use a callback, to do it even from
+##            #   initial and clear checkpoints, and recursive-event ones??]
         return self.undo_manager.undo_checkpoint_after_command(*args, **kws)
 
     def current_command_info(self, *args, **kws):

@@ -43,6 +43,7 @@ class UndoManager:
 
 class AssyUndoManager(UndoManager):
     "An UndoManager specialized for handling the state held by an assy (an instance of class assembly)."
+    active = False
     def __init__(self, assy, menus = ()): # called from assy.__init__
         "Do what can be done early in assy.__init__; that must also (subsequently) call self.init1()"
         # assy owns the state whose changes we'll be managing...
@@ -68,9 +69,12 @@ class AssyUndoManager(UndoManager):
         self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
             # (fixes bug in which the pref didn't show up until the first undoable change was made) [060125]
         self.remake_UI_menuitems() # try to fix bug 1387 [060126]
+        self.active = True
+        env.command_segment_subscribers.append( self._in_event_loop_changed )
         return
         
     def deinit(self):
+        self.active = False
         self.connect_or_disconnect_menu_signals(False)
         # and effectively destroy self... [060126 precaution; not thought through]
         self.archive.destroy()
@@ -90,20 +94,41 @@ class AssyUndoManager(UndoManager):
             ## method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
             pass
         return
-    
+
     def clear_undo_stack(self, *args, **kws):
         return self.archive.clear_undo_stack(*args, **kws)
     
     def menu_cmd_checkpoint(self):
         self.checkpoint( cptype = 'user_explicit' )
 
+    __begin_retval = None ###k this will be used when we're created by a cmd like file open... i guess grabbing pref then is best...
+    
+    def _in_event_loop_changed(self, beginflag, tracker): # 060127
+        "[this bound method will be added to env.command_segment_subscribers so as to be told when ..."
+        # this makes "report all checkpoints" useless -- too many null ones.
+        # maybe i should make it only report if state changes or cmdname passed...
+        if not self.active:
+            self.__begin_retval = False #k probably doesn't matter
+            return True # unsubscribe
+        # print beginflag, len(tracker.stack) # typical: True 1; False 0
+        if beginflag:
+            self.__begin_retval = self.undo_checkpoint_before_command()
+                ###e grab cmdname guess from top op_run i.e. from begin_op? yes for debugging; doesn't matter in the end though.
+        else:
+            if self.__begin_retval is None:
+                # print "self.__begin_retval is None" # not a bug, will be normal ... happens with file open (as expected)
+                self.__begin_retval = self.auto_checkpoint_pref()
+            self.undo_checkpoint_after_command( self.__begin_retval )
+            self.__begin_retval = False # should not matter
+        return
+    
     def checkpoint(self, *args, **kws):
+        # Note, as of 060127 this is called *much* more frequently than before (for every signal->slot to a python slot);
+        # we might need to optimize it when state hasn't changed. ###@@@
         res = self.archive.checkpoint( *args, **kws )
         # I hope this is safe even if auto-checkpointing is disabled; or maybe it's never called then [060126]
         self.remake_UI_menuitems() # needed here for toolbuttons and accel keys; not called for initial cp during self.archive init
             # (though for menu items themselves, the aboutToShow signal would be sufficient)
-            #e relevant bugs: 1387, since toolbuttons need to get updated from the beginning
-            # (this might not be called then, not sure) [060126] ####@@@@
         return res # maybe no retval, this is just a precaution
 
     def auto_checkpoint_pref(self):
@@ -194,7 +219,7 @@ class AssyUndoManager(UndoManager):
             res.append(( "Nothing we can Redo", noop, 'disabled' ))
         return res
 
-    def remake_UI_menuitems(self):
+    def remake_UI_menuitems(self): #e this should also be called again if any undo-related preferences change ###@@@
         #e see also: void QPopupMenu::aboutToShow () [signal], for how to know when to run this (when Edit menu is about to show);
         # to find the menu, no easy way (only way: monitor QAction::addedTo in a custom QAction subclass - not worth the trouble),
         # so just hardcode it as edit menu for now. We'll need to connect & disconnect this when created/finished,
@@ -213,6 +238,7 @@ class AssyUndoManager(UndoManager):
                 action.setEnabled(True)
                 assert len(ops) == 1 #e there will always be just one for now
                 op = ops[0]
+                op = self.wrap_op_with_merging_flags(op) #060127
                 text = op.menu_desc() + extra #060126
                 action.setMenuText(text)
                 fix_tooltip(action, text) # replace description, leave (accelkeys) alone (they contain unicode chars on Mac)
@@ -235,6 +261,18 @@ class AssyUndoManager(UndoManager):
         self.setViewRightAction.setStatusTip(self.__tr("Right View"))
         self.helpMouseControlsAction.setWhatsThis(self.__tr("Displays help for mouse controls"))
         '''
+
+    def wrap_op_with_merging_flags(self, op, flags = None): #e will also accept merging-flag or -pref arguments
+        """Return a higher-level op based on the given op, but with the appropriate diff-merging flags wrapped around it.
+        Applying this higher-level op will (in general) apply op, then apply more diffs which should be merged with it
+        according to those merging flags (though in an optimized way, e.g. first collect and merge the LL diffs, then apply
+        all at once). The higher-level op might also have a different menu_desc, etc.
+           In principle, caller could pass flag args, and call us more than one with different flag args for the same op;
+        in making the wrapped op we don't modify the passed op.
+        """
+        #e first we supply our own defaults for flags
+        return self.archive.wrap_op_with_merging_flags(op, flags = flags)
+    
     # main menu items (their slots in MWsemantics forward to assy which forwards to here)
     def editUndo(self):
         ## env.history.message(orangemsg("Undo: (prototype)"))

@@ -385,8 +385,17 @@ class wrappedslot:
 ##                pass
 ##            else:
 ##                print "sender",se
-        cp_fn = None # None, or a true thing enabling us to call undo_checkpoint_after_command
-        if 1: #060121
+        ## cp_fn = None # None, or a true thing enabling us to call undo_checkpoint_after_command
+        if 1: #060127
+            in_event_loop = env._in_event_loop
+            mc = env.begin_op("(wr)") # should always change env._in_event_loop to False (or leave it False)
+            assert not env._in_event_loop
+        if in_event_loop: #060121, revised 060127 and cond changed from 1 to in_event_loop
+            #e if necessary we could find out whether innermost op_run in changes.py's stack still *wants* a cmdname to be guessed...
+            # this would be especially important if it turns out this runs in inner calls and guesses it wrong,
+            # overwriting a correct guess from somewhere else...
+            # also don't we need to make sure that the cmd_seg we're guessing for is the right one, somehow???
+            # doesn't that mean the same as, this begin_op is the one that changed the boundary? (ie call came from event loop?)
             sender = self.__sender
             ##print "sender",sender # or could grab its icon for insertion into history
             from whatsthis import _actions
@@ -414,8 +423,13 @@ class wrappedslot:
                             print_compact_traceback("atom_debug: fyi: normal exception: ")
                         pass # this is normal during init... or at least I thought it would be -- I never actually saw it yet.
                     else:
-                        begin_retval = assy.undo_checkpoint_before_command(fn)
-                        cp_fn = fn, begin_retval #e this should include a retval from that method, but must also always be true
+##                        begin_retval = assy.undo_checkpoint_before_command(fn)
+##                        cp_fn = fn, begin_retval #e this should include a retval from that method, but must also always be true
+                        if 1: #060127
+                            # note, ideally this assy and the one that subscribes to command_segment changes
+                            # should be found in the same way (ie that one should sub to this too) -- could this just iterate over
+                            # same list and call it differently, with a different flag?? ##e
+                            assy.current_command_info(cmdname = fn) #e cmdname might be set more precisely by the slot we're wrapping
                 if 0: print " featurename =", fn
                     # This works! prints correct names for toolbuttons and main menu items.
                     # Doesn't work for glpane cmenu items, but I bet it will when we fix them to have proper WhatsThis text.
@@ -424,19 +438,23 @@ class wrappedslot:
                     # identity of the bound method they call as a slot! Not sure if this is possible. If not, we have to set
                     # command names from inside the methods that implement them (not the end of the world), or grab them from
                     # history text (doable).
-        return cp_fn, env.begin_op("(wr)") #060123 revised retval
+        ## return cp_fn, mc  #060123 revised retval
+        return mc
     def error(self):
         "called when an exception occurs during our slot method call"
-        pass ### mark the op_run as having an error
-    def end(self, fn_mc):
-        cp_fn, mc = fn_mc
+        ###e mark the op_run as having an error, or at least print something
+        if platform.atom_debug:
+            print "atom_debug: unmatched begin_op??"
+        return
+    def end(self, mc):
+        ## cp_fn, mc = fn_mc
         env.end_op(mc)
-        if 1: #060123
-            if cp_fn:
-                fn, begin_retval = cp_fn
-                win = env.mainwindow()
-                assy = win.assy
-                assy.undo_checkpoint_after_command( begin_retval)
+##        if 1: #060123
+##            if cp_fn:
+##                fn, begin_retval = cp_fn
+##                win = env.mainwindow()
+##                assy = win.assy
+##                assy.undo_checkpoint_after_command( begin_retval)
         return
     pass
 

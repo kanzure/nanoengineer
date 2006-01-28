@@ -404,7 +404,7 @@ class SimpleDiff:
     def varid_vers(self):#####@@@@@ need to merge self with more diffs, to do this??
         "list of varid_ver pairs for indexing"
         return [self.cps[0].varid_ver()] 
-    def apply_to(self, assy):###@@@ do we need to merge self with more diffs, too?
+    def apply_to(self, assy):###@@@ do we need to merge self with more diffs, too? [see class MergingDiff]
         "apply this diff-operation to the given model objects"
         cp = self.cps[1]
         assert cp.complete
@@ -421,7 +421,7 @@ class SimpleDiff:
     def optype(self):
         return {1: "Redo", -1: "Undo"}[self.direction]
     def __repr__(self):
-        return "<SimpleDiff key %r type %r from %r to %r>" % (self.key, self.optype(), self.cps[0], self.cps[1])
+        return "<%s key %r type %r from %r to %r>" % (self.__class__.__name__, self.key, self.optype(), self.cps[0], self.cps[1])
     pass # end of class SimpleDiff
 
 # ==
@@ -553,6 +553,25 @@ def set_view_for_Undo(glpane, assy, csys): # shares code with Csys.set_view; mig
 
 # ==
 
+from idlelib.Delegator import Delegator
+# print "Delegator",Delegator,type(Delegator),`Delegator`
+
+class MergingDiff(Delegator):
+    "A higher-level diff, consisting of a diff with some merging options which cause more diffs to be applied with it"
+    def __init__(self, diff, flags = None, archive = None):
+        Delegator.__init__(self, diff) # diff is now self.delegate; all its attrs should be constant since they get set on self too
+        self.flags = flags
+        self.archive = archive # this ref is non-cyclic, since this kind of diff doesn't get stored anywhere for a long time
+    def apply_to(self, assy):
+        res = self.delegate.apply_to(assy)
+        # print "now we should apply the diffs we would merge with",self #####@@@@@
+        return res
+    # def __del__(self):
+    #     print "bye!" # this proves it's readily being deleted...
+    pass
+
+# ==
+
 class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_older # TODO: maybe assy.changed will tell us...
     """#docstring is in older code... maintains a series (or graph) of checkpoints and diffs connecting them....
      At most times, we have one complete ('filled') checkpoint, and a subsequent incomplete one (subject to being modified
@@ -634,9 +653,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             pass
         return
     
-    def pref_report_checkpoints(self):
+    def pref_report_checkpoints(self): #bruce 060127 revised meaning and menutext, same prefs key
+        "whether to report all checkpoints which see any changes from the prior one"
         from debug_prefs import debug_pref, Choice_boolean_False
-        res = debug_pref("undo/report all checkpoints", Choice_boolean_False, prefs_key = True)
+        res = debug_pref("undo/report changed checkpoints", Choice_boolean_False,
+                         prefs_key = "_debug_pref_key:" + "undo/report all checkpoints")
         return res
 
     def debug_histmessage(self, msg):
@@ -652,6 +673,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         and then shift next_cp into last_cp and a newly created checkpoint into next_cp, recreating a situation like the initial one.
            In other words, make sure the current model state gets stored as a possible point to undo or redo to.
         """
+        self.assy.update_parts() # make sure assy has already processed changes (and assy.changed has been called if it will be)
+            #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
+            # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
+            # was only for begin and end cp's (but was active even if undo autocp pref was off).
         assert cptype
         assert self.next_cp is not None
         assert self.current_diff is not None
@@ -680,7 +705,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # It will also be revised if we compute diffs to save space, even for changes not tracked incrementally.
             #e also store other metainfo, like time of completion, cmdname of caller, history serno, etc (here or in fill_checkpoint)
 
-        if self.pref_report_checkpoints():
+        if not self.current_diff.empty and self.pref_report_checkpoints():
             if cptype == 'end_cmd':
                 cmdname = self.current_diff.cmdname()
             else:
@@ -817,6 +842,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             ops = self.stored_ops.setdefault(varver, [])
             ops.append(op)
         return
+    
+    def wrap_op_with_merging_flags(self, op, flags = None):
+        "[see docstring in undo_manager]"
+        return MergingDiff(op, flags = flags, archive = self) # stub
     
     pass # end of class AssyUndoArchive
 

@@ -102,6 +102,10 @@ after_op = end_op
 begin_recursive_event_processing = begin_op
 end_recursive_event_processing = end_op
 
+command_segment_subscribers = [] #bruce 060127 for Undo
+
+_in_event_loop = True #bruce 060127
+
 # end of stubs to be replaced by changes module
 
 def call_qApp_processEvents(*args): #bruce 050908

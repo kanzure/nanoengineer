@@ -670,10 +670,24 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def keyPressEvent(self, e):
         #e future: also track these to match releases with presses, to fix
         # dialogs intercepting keyRelease? Maybe easier if they just pass it on.
-        self.mode.keyPressEvent( atom_event(e) )
+        mc = env.begin_op("(keypress)") #bruce 060127
+            # Note: we have to wrap press and release separately; later, we might pass them tags
+            # to help the diffs connect up for merging
+            # (same as in drags and maybe as in commands doing recursive event processing).
+            # [bruce 060127]
+        try:
+            self.mode.keyPressEvent( atom_event(e) )
+        finally:
+            env.end_op(mc)
+        return
         
     def keyReleaseEvent(self, e):
-        self.mode.keyReleaseEvent( atom_event(e) )
+        mc = env.begin_op("(keyrelease)") #bruce 060127
+        try:
+            self.mode.keyReleaseEvent( atom_event(e) )
+        finally:
+            env.end_op(mc)
+        return
 
     def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
         

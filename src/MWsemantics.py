@@ -328,6 +328,17 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             print_compact_traceback("deprecated code warning: win.history should be env.history: ")
             return env.history
         raise AttributeError, attr
+
+    def cleanUpBeforeExiting(self): #bruce 060127 added this re bug 1412 (Python crashes on exit, newly common)
+        try:
+            env.history.message(greenmsg("Exiting program."))
+            ## this seems to take too long, and is probably not needed: self.__clear()
+            self.assy.deinit()
+                # in particular, stop trying to update Undo/Redo actions all the time
+                # (which might cause crashes once their associated widgets are deallocated)
+        except:
+            print_compact_traceback( "exception (ignored) in cleanUpBeforeExiting: " )
+        return
     
     def postinit_item(self, item): #bruce 050504
         try:
