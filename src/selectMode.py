@@ -533,8 +533,26 @@ class selectAtomsMode(selectMode):
            
         def rightCntlDown(self, event):          
             basicMode.rightCntlDown(self, event)
-            self.o.setCursor(self.w.SelectAtomsCursor)         
+            self.o.setCursor(self.w.SelectAtomsCursor)
             
+        def leftDouble(self, event): # mark 060128.
+            '''Double click event handler for the left mouse button. 
+            If an atom was double-clicked, select all the atoms reachable through 
+            any sequence of bonds to that atom. Otherwise, do nothing.
+            '''
+            # Since we cannot determine which atom was most recently selected
+            # in Select Atoms mode (unless there is a way I'm not aware of), the 
+            # best we can do for now is support this when only one atom is double
+            # clicked. This works well for Standard selection behavior, which is the most
+            # common case. mark 060128.
+            # Also, there is currently no leftShiftDouble() event handler.  When we
+            # can determine which atom was most recently selected, we should
+            # add this event handler. mark 060128.
+            if len(self.o.assy.selatoms.values()) == 1:
+                self.o.assy.selectConnected(self.o.assy.selatoms.values())
+                    # The only reason this currently works is that the first click of the
+                    # double click clears the selection and picks the atom under the
+                    # cursor.  This does not work when holding down the Shift key.
         
         def update_hybridComboBox(self, win, text = None): 
             '''Based on the same named function in depositMode.py.
