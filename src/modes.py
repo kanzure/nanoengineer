@@ -1164,6 +1164,8 @@ class basicMode(anyMode):
     def keyPress(self,key): # several modes extend this method, some might replace it
         if key == Qt.Key_Delete:
             self.w.killDo()
+        if key == Qt.Key_Escape: # Select None. mark 060129.
+                self.o.assy.selectNone()
         # Zoom in (Ctrl/Cmd+.) & out (Ctrl/Cmd+,) for Eric.  Right now, this will work with or without
         # the Ctrl/Cmd key pressed.  We'll fix this later, at the same time we address the issue of
         # more than one modifier key being pressed (see Bruce's notes below). Mark 050923.
