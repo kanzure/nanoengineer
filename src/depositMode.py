@@ -1185,11 +1185,7 @@ class depositMode(basicMode):
         
         if a:
             if a.element is Singlet: # a singlet is "lit up"
-                self.deposit_from_MMKit(a)
-                # Commenting out deposit_from_MMKit() and uncommenting setupDragSinglet()
-                # will allow you to drag a singlet around, but it won't bond to anything.
-                # You will not be able to deposit anything on a singlet, either.  Mark 051214.
-                # self.setupDragSinglet(a)
+                self.setupDragSinglet(a)
             else: # a real atom is "lit up"
                 self.setupDragAtom(a)
 
@@ -1278,6 +1274,29 @@ class depositMode(basicMode):
             self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
             self.dragatom.pick()
             env.history.message(self.dragatom.getinfo())
+        
+        # If dragatom is a singlet.  Do one of the following:
+        # 1. deposit an object on the singlet (if it is still highlighted)
+        # 2. bond the singlet to another singlet (if a different singlet is highlighted)
+        # 3. Nothing, except erase the white rubberband line (if nothing is selected).
+        # mark 060129.
+        if self.dragatom and self.dragatom.is_singlet():
+            self.line = None # required to erase white rubberband line on next gl_update.
+            # bruce 051209 brought update_selatom inside this conditional, to fix an old bug; 
+            # need to reset it in other case???###@@@
+            self.update_selatom(event, singOnly = True)
+                # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. 
+                # [bruce 050705 comment]
+            if self.o.selatom:
+                if self.o.selatom is self.dragatom:
+                    # Deposit object (atom, chunk or library part) from MMKit on singlet.
+                    self.deposit_from_MMKit(self.dragatom)
+                else:
+                    # Bond singlets.
+                    dragatom = self.dragatom
+                    selatom = self.o.selatom
+                    if selatom.is_singlet(): #bruce 041119, just for safety
+                        self.dragged_singlet_over_singlet(dragatom, selatom)
         
         env.history.flush_saved_transients() # flush any transient message it saved up
         self.baggage = []
