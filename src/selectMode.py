@@ -404,6 +404,9 @@ class selectMolsMode(selectMode):
         
         def keyPress(self,key):
             basicMode.keyPress(self, key)
+            if key == Qt.Key_Escape:
+                # Select None. Should this be moved to basicMode.keyPress()? mark 060129.
+                self.o.assy.selectNone()
             if key == Qt.Key_Shift:
 #                print "selectMode.py: keyPress(): Cursor set to SelectMolsAddCursor"
                 self.o.setCursor(self.w.SelectMolsAddCursor)
@@ -509,6 +512,9 @@ class selectAtomsMode(selectMode):
             from MWsemantics import eCCBtab2
             
             basicMode.keyPress(self, key)
+            if key == Qt.Key_Escape:
+                # Select None. Should this be moved to basicMode.keyPress()? mark 060129.
+                self.o.assy.selectNone()
             if key == Qt.Key_Shift:
                 self.o.setCursor(self.w.SelectAtomsAddCursor)
             if key == Qt.Key_Control:

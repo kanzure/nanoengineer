@@ -1931,6 +1931,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # MWsemantics.killDo, regardless of focus.
             self.win.killDo()
             ## part of killDo: self.win.win_update()
+        if key == Qt.Key_Escape: # mark 060129. Select None.
+            self.assy.selectNone()
         # bruce 041220: I tried passing other key events to the superclass,
         # QListView.keyPressEvent, but I didn't find any that had any effect
         # (e.g. arrow keys, letters) so I took that out.

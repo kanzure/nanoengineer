@@ -617,6 +617,10 @@ class depositMode(basicMode):
         #        a.pick()
         #        env.history.message(a.getinfo())
         
+        if key == Qt.Key_Escape:
+            # Select None. Should this be moved to basicMode.keyPress()? mark 060129.
+            self.o.assy.selectNone()
+            
         # bruce comment 041220:
         # doesn't call basicMode method, so Delete key is not active. Good??
         # bruce 050128: no, not good. And it shows selection anyway... so do it below.
@@ -1295,9 +1299,7 @@ class depositMode(basicMode):
         any sequence of bonds to that atom. Otherwise, do nothing.
         '''
         if isinstance(self.obj_doubleclicked, Atom):
-            atomlist = []
-            atomlist.append(self.obj_doubleclicked)
-            self.o.assy.selectConnected(atomlist)
+            self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
 
 # == Deposit methods
         
