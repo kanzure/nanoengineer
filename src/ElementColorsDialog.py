@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ElementColorsDialog.ui'
 #
-# Created: Tue Nov 22 17:57:49 2005
+# Created: Sat Jan 28 17:20:12 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -100,14 +100,15 @@ class ElementColorsDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-        ElementColorsDialogLayout = QVBoxLayout(self,2,4,"ElementColorsDialogLayout")
+        ElementColorsDialogLayout = QGridLayout(self,1,1,2,4,"ElementColorsDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
         self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Minimum,0,0,self.elementFrame.sizePolicy().hasHeightForWidth()))
         self.elementFrame.setMinimumSize(QSize(0,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
-        ElementColorsDialogLayout.addWidget(self.elementFrame)
+
+        ElementColorsDialogLayout.addWidget(self.elementFrame,0,0)
 
         layout12 = QGridLayout(None,1,1,0,6,"layout12")
 
@@ -189,7 +190,10 @@ class ElementColorsDialog(QDialog):
         self.greenSlider.setTickInterval(25)
 
         layout12.addWidget(self.greenSlider,1,1)
-        ElementColorsDialogLayout.addLayout(layout12)
+
+        ElementColorsDialogLayout.addLayout(layout12,1,0)
+        spacer4_2_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        ElementColorsDialogLayout.addItem(spacer4_2_2,6,0)
 
         self.elementButtonGroup = QButtonGroup(self,"elementButtonGroup")
         self.elementButtonGroup.setMinimumSize(QSize(0,126))
@@ -335,43 +339,63 @@ class ElementColorsDialog(QDialog):
         self.elementButtonGroup.insert( self.toolButton32,32)
 
         elementButtonGroupLayout.addWidget(self.toolButton32,3,1)
-        ElementColorsDialogLayout.addWidget(self.elementButtonGroup)
-        spacer4_2_2_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Fixed)
-        ElementColorsDialogLayout.addItem(spacer4_2_2_2)
+
+        ElementColorsDialogLayout.addWidget(self.elementButtonGroup,3,0)
 
         layout12_2 = QGridLayout(None,1,1,0,6,"layout12_2")
 
         self.saveColorsPB = QPushButton(self,"saveColorsPB")
+        self.saveColorsPB.setAutoDefault(0)
 
         layout12_2.addWidget(self.saveColorsPB,0,1)
 
         self.defaultButton = QPushButton(self,"defaultButton")
+        self.defaultButton.setAutoDefault(0)
 
         layout12_2.addWidget(self.defaultButton,1,0)
 
         self.loadColorsPB = QPushButton(self,"loadColorsPB")
+        self.loadColorsPB.setAutoDefault(0)
 
         layout12_2.addWidget(self.loadColorsPB,0,0)
 
         self.cancelButton = QPushButton(self,"cancelButton")
+        self.cancelButton.setAutoDefault(0)
 
         layout12_2.addWidget(self.cancelButton,2,1)
 
         self.alterButton = QPushButton(self,"alterButton")
+        self.alterButton.setAutoDefault(0)
 
         layout12_2.addWidget(self.alterButton,1,1)
 
         self.okButton = QPushButton(self,"okButton")
-        self.okButton.setDefault(1)
+        self.okButton.setAutoDefault(0)
+        self.okButton.setDefault(0)
 
         layout12_2.addWidget(self.okButton,2,0)
-        ElementColorsDialogLayout.addLayout(layout12_2)
-        spacer4_2_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Fixed)
-        ElementColorsDialogLayout.addItem(spacer4_2_2)
+
+        ElementColorsDialogLayout.addLayout(layout12_2,5,0)
+        spacer4_2_2_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        ElementColorsDialogLayout.addItem(spacer4_2_2_2,4,0)
+
+        layout7 = QHBoxLayout(None,0,6,"layout7")
+        spacer3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout7.addItem(spacer3)
+
+        self.previewPB = QPushButton(self,"previewPB")
+        self.previewPB.setAutoDefault(0)
+        layout7.addWidget(self.previewPB)
+
+        self.restorePB = QPushButton(self,"restorePB")
+        self.restorePB.setAutoDefault(0)
+        layout7.addWidget(self.restorePB)
+
+        ElementColorsDialogLayout.addLayout(layout7,2,0)
 
         self.languageChange()
 
-        self.resize(QSize(230,517).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(230,544).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
@@ -381,6 +405,8 @@ class ElementColorsDialog(QDialog):
         self.connect(self.defaultButton,SIGNAL("clicked()"),self.loadDefaultProp)
         self.connect(self.alterButton,SIGNAL("clicked()"),self.loadAlterProp)
         self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
+        self.connect(self.previewPB,SIGNAL("clicked()"),self.preview_color_change)
+        self.connect(self.restorePB,SIGNAL("clicked()"),self.restore_current_color)
 
         self.setTabOrder(self.loadColorsPB,self.saveColorsPB)
         self.setTabOrder(self.saveColorsPB,self.defaultButton)
@@ -447,6 +473,8 @@ class ElementColorsDialog(QDialog):
         QToolTip.add(self.alterButton,self.__tr("Set element colors to the alternate color set"))
         QWhatsThis.add(self.alterButton,self.__tr("Set element colors to the alternate color set."))
         self.okButton.setText(self.__tr("Ok"))
+        self.previewPB.setText(self.__tr("Preview"))
+        self.restorePB.setText(self.__tr("Restore"))
 
 
     def setElementInfo(self,a0):
@@ -490,6 +518,12 @@ class ElementColorsDialog(QDialog):
 
     def changeDisplayMode(self,a0):
         print "ElementColorsDialog.changeDisplayMode(int): Not implemented yet"
+
+    def preview_color_change(self):
+        print "ElementColorsDialog.preview_color_change(): Not implemented yet"
+
+    def restore_current_color(self):
+        print "ElementColorsDialog.restore_current_color(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("ElementColorsDialog",s,c)

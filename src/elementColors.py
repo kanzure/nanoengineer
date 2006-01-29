@@ -13,6 +13,7 @@ from ThumbView import ElementView
 
 from HistoryWidget import redmsg # Mark 050311
 from VQT import V
+from widgets import RGBf_to_QColor
 import env
 
 class elementColors(ElementColorsDialog):
@@ -90,22 +91,24 @@ class elementColors(ElementColorsDialog):
         '''Called as a slot from an element button push. '''
         self.setDisplay(value)
         
-        
     def setDisplay(self, value):
         self.elementButtonGroup.setButton(value)
         self.updateElemGraphDisplay()
+        self.original_color = self.color
         
-        r =  int(self.color[0]*255 + 0.5)
-        g = int(self.color[1]*255 + 0.5)
-        b = int(self.color[2]*255 + 0.5)
+        element_color = RGBf_to_QColor(self.color)
+        self.update_sliders_and_spinboxes(element_color)
+        self.restorePB.setEnabled(0) # Disable Restore button.
+        
+    def update_sliders_and_spinboxes(self, color):
         
         #self.disConnectChangingControls()
-        self.redSlider.setValue(r)
-        self.greenSlider.setValue(g)
-        self.blueSlider.setValue(b)
-        self.redSpinBox.setValue(r)
-        self.greenSpinBox.setValue(g)
-        self.blueSpinBox.setValue(b)
+        self.redSlider.setValue(color.red())
+        self.greenSlider.setValue(color.green())
+        self.blueSlider.setValue(color.blue())
+        self.redSpinBox.setValue(color.red())
+        self.greenSpinBox.setValue(color.green())
+        self.blueSpinBox.setValue(color.blue())
         #self.reconnectChangingControls()
 
         
@@ -118,12 +121,6 @@ class elementColors(ElementColorsDialog):
         elm = self.elemTable.getElement(elemNum)
         self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(elm, self.displayMode)
-        
-        if 0:
-            r =  int(self.color[0]*255 + 0.5)
-            g = int(self.color[1]*255 + 0.5)
-            b = int(self.color[2]*255 + 0.5)
-            self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
  
     
     def updateElemColorDisplay(self):
@@ -134,13 +131,8 @@ class elementColors(ElementColorsDialog):
         elm = self.elemTable.getElement(elemNum)
         self.elemGLPane.updateColorDisplay(elm, self.displayMode)
         
-        if 0:
-            r =  int(self.color[0]*255 + 0.5)
-            g = int(self.color[1]*255 + 0.5)
-            b = int(self.color[2]*255 + 0.5)
-            self.elemColorLabel.setPaletteBackgroundColor(QColor(r, g, b)) 
- 
-
+        self.restorePB.setEnabled(1) # Enable Restore button.
+        
     def read_element_rgb_table(self):
         """Open file browser to select a file to read from, read the data,
         update elements color in the selector dialog and also the display models """
@@ -259,6 +251,19 @@ class elementColors(ElementColorsDialog):
         self.updateElemColorDisplay()
         self.isElementModified = True
         self.greenSlider.blockSignals(False)
+        
+    def preview_color_change(self): # mark 060129.
+        '''Slot for Preview button.  Applies color changes for the current element in the GLPane,
+        allowing the user to preview the color changes in the model before saving.
+        '''
+        self.w.glpane.gl_update()
+        
+    def restore_current_color(self): # mark 060129.
+        '''Slot for the Restore button.  Restores the current element color to the 
+        original (previous) color before any color change was made.
+        '''
+        self.update_sliders_and_spinboxes(RGBf_to_QColor(self.original_color))
+        self.w.glpane.gl_update()
         
     def ok(self):
         #if self.isElementModified and not self.isFileSaved:

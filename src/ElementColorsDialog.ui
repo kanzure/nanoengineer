@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>517</height>
+            <height>544</height>
         </rect>
     </property>
     <property name="palette">
@@ -268,7 +268,7 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -278,7 +278,7 @@
         <property name="spacing">
             <number>4</number>
         </property>
-        <widget class="QFrame">
+        <widget class="QFrame" row="0" column="0">
             <property name="name">
                 <cstring>elementFrame</cstring>
             </property>
@@ -303,7 +303,7 @@
                 <enum>Raised</enum>
             </property>
         </widget>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="1" column="0">
             <property name="name">
                 <cstring>layout12</cstring>
             </property>
@@ -549,7 +549,24 @@
                 </widget>
             </grid>
         </widget>
-        <widget class="QButtonGroup">
+        <spacer row="6" column="0">
+            <property name="name">
+                <cstring>spacer4_2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QButtonGroup" row="3" column="0">
             <property name="name">
                 <cstring>elementButtonGroup</cstring>
             </property>
@@ -1023,7 +1040,110 @@
                 </widget>
             </grid>
         </widget>
-        <spacer>
+        <widget class="QLayoutWidget" row="5" column="0">
+            <property name="name">
+                <cstring>layout12</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton" row="0" column="1">
+                    <property name="name">
+                        <cstring>saveColorsPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save Colors ...</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Save the current element color settings to a file</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Save the current color settings for elements in a text file.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="0">
+                    <property name="name">
+                        <cstring>defaultButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Restore Defaults</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Restore current element colors to the default colors.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Restore current element colors to the default colors.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="0" column="0">
+                    <property name="name">
+                        <cstring>loadColorsPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Load Colors ...</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Load element colors from file</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Load element colors from an external text file.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="1">
+                    <property name="name">
+                        <cstring>cancelButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="1">
+                    <property name="name">
+                        <cstring>alterButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Set To Alternate</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Set element colors to the alternate color set</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Set element colors to the alternate color set.</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="0">
+                    <property name="name">
+                        <cstring>okButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Ok</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <spacer row="4" column="0">
             <property name="name">
                 <cstring>spacer4_2_2_2</cstring>
             </property>
@@ -1040,109 +1160,56 @@
                 </size>
             </property>
         </spacer>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="2" column="0">
             <property name="name">
-                <cstring>layout12</cstring>
+                <cstring>layout7</cstring>
             </property>
-            <grid>
+            <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QPushButton" row="0" column="1">
+                <spacer>
                     <property name="name">
-                        <cstring>saveColorsPB</cstring>
+                        <cstring>spacer3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>previewPB</cstring>
                     </property>
                     <property name="text">
-                        <string>Save Colors ...</string>
+                        <string>Preview</string>
                     </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Save the current element color settings to a file</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Save the current color settings for elements in a text file.</string>
+                    <property name="autoDefault">
+                        <bool>false</bool>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="1" column="0">
+                <widget class="QPushButton">
                     <property name="name">
-                        <cstring>defaultButton</cstring>
+                        <cstring>restorePB</cstring>
                     </property>
                     <property name="text">
-                        <string>Restore Defaults</string>
+                        <string>Restore</string>
                     </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Restore current element colors to the default colors.</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Restore current element colors to the default colors.</string>
+                    <property name="autoDefault">
+                        <bool>false</bool>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="0" column="0">
-                    <property name="name">
-                        <cstring>loadColorsPB</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Load Colors ...</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Load element colors from file</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Load element colors from an external text file.</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="2" column="1">
-                    <property name="name">
-                        <cstring>cancelButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Cancel</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="1" column="1">
-                    <property name="name">
-                        <cstring>alterButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Set To Alternate</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Set element colors to the alternate color set</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Set element colors to the alternate color set.</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="2" column="0">
-                    <property name="name">
-                        <cstring>okButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Ok</string>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </grid>
+            </hbox>
         </widget>
-        <spacer>
-            <property name="name">
-                <cstring>spacer4_2_2</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Fixed</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>16</height>
-                </size>
-            </property>
-        </spacer>
-    </vbox>
+    </grid>
 </widget>
 <images>
     <image name="image0">
@@ -1192,6 +1259,18 @@
         <receiver>ElementColorsDialog</receiver>
         <slot>setElementInfo(int)</slot>
     </connection>
+    <connection>
+        <sender>previewPB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>preview_color_change()</slot>
+    </connection>
+    <connection>
+        <sender>restorePB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>restore_current_color()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>loadColorsPB</tabstop>
@@ -1216,6 +1295,8 @@
     <slot>loadDefaultProp()</slot>
     <slot>loadAlterProp()</slot>
     <slot>changeDisplayMode(int)</slot>
+    <slot>preview_color_change()</slot>
+    <slot>restore_current_color()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
