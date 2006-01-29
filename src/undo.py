@@ -46,6 +46,8 @@ from debug import register_debug_menu_command, register_debug_menu_command_maker
 from qt import SIGNAL, QObject, QWidget #k ok to do these imports at toplevel? I hope so, since we need them in several places.
 import qt
 from constants import genKey, noop
+import platform # for atom_debug [bruce 060128, suggested by Mark;
+    # if this works, we should simplify some defs which worry if it's too early for this]
 
 # ==
 
