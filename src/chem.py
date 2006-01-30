@@ -1203,6 +1203,12 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
     def baggageNeighbors(self): #bruce 051209
         baggage, other = self.baggage_and_other_neighbors()
         return baggage
+        
+    def deleteBaggage(self): #mark 060129.
+        '''Deletes any monovalent atoms connected to self.  
+        '''
+        for a in self.baggageNeighbors():
+            a.kill()
 
     def mvElement(self, elt, atomtype = None): #bruce 050511 added atomtype arg
         """[Public low-level method:]
