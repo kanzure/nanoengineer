@@ -142,19 +142,36 @@ def objectBrowser(obj, maxdepth=5, exclude=None, outf=sys.stderr,
         else:
             r = repr(type(v))
         return "%s at %x" % (r, id(v))
-    def extendq(obj, already, maxdepth):
-        ido = id(obj)
-        try:
-            if maxdepth > already[ido]:
+    def handleMany(lst, indent, already=already, maxdepth=maxdepth,
+                   exclude=exclude, outf=outf, trepr=trepr):
+        def extendq(obj):
+            ido = id(obj)
+            try:
+                if maxdepth > already[ido]:
+                    already[ido] = maxdepth
+                    return True
+                return False
+            except:
                 already[ido] = maxdepth
                 return True
-            return False
-        except:
-            already[ido] = maxdepth
-            return True
+        for v, as2 in lst:
+            if type(v) in (types.ListType, types.TupleType):
+                outf.write(indent + as2 + ": " + trepr(v))
+                if len(v) == 0:
+                    outf.write(" (empty)")
+            elif type(v) == types.StringType:
+                outf.write(indent + as2 + ": " + repr(v))
+            else:
+                outf.write(indent + as2 + ": " + trepr(v))
+            outf.write("\n")
+        for v, as2 in lst:
+            if extendq(v):
+                objectBrowser(v, maxdepth - 1, exclude, outf,
+                              as2, already, indent + "\t")
     if not attrstr:
         outf.write("BEGIN objectBrowser(%s)\n" % repr(obj))
-    if type(obj) == types.InstanceType:
+    if type(obj) in (types.InstanceType, types.ClassType,
+                     types.ModuleType, types.FunctionType):
         keys = filter(lambda x: not x.startswith("__"), dir(obj))
         lst = [ ]
         for k in keys:
@@ -163,24 +180,14 @@ def objectBrowser(obj, maxdepth=5, exclude=None, outf=sys.stderr,
                 if attrstr: as2 = attrstr + "." + k
                 else: as2 = k
                 lst.append((v, as2))
-        for v, as2 in lst:
-            outf.write(indent + as2 + ": " + trepr(v) + "\n")
-        for v, as2 in lst:
-            if extendq(v, already, maxdepth):
-                objectBrowser(v, maxdepth - 1, exclude, outf,
-                              as2, already, indent + "\t")
-    elif type(obj) == types.ListType:
+        handleMany(lst, indent)
+    elif type(obj) in (types.ListType, types.TupleType):
         lst = [ ]
         for i in range(len(obj)):
             v = obj[i]
             as2 = "%s[%d]" % (attrstr, i)
             lst.append((v, as2))
-        for v, as2 in lst:
-            outf.write(indent + as2 + ": " + trepr(v) + "\n")
-        for v, as2 in lst:
-            if extendq(v, already, maxdepth):
-                objectBrowser(v, maxdepth - 1, exclude, outf,
-                              as2, already, indent + "\t")
+        handleMany(lst, indent)
     if not attrstr:
         outf.write("END objectBrowser(%s)\n" % repr(obj))
 
