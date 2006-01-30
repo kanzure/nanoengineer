@@ -54,24 +54,13 @@ ifeq ($(WWDEBUG),1)
 CFLAGS+=-DWWDEBUG
 endif
 
-all:
-	make newversion
-	make $(SIMTARGET)
+all: $(PYREXTARGET)
 
-pyx:
-	make newversion
-	make $(PYREXTARGET)
+pyx: all
 
-trace_all:
-	make clean
-	make empty-trace-prefix
-	make trace-prefix
-	make clean
-	make $(SIMTARGET) $(PYREXTARGET)
+.PHONY: all lall newversion noopt pyx install install-linux clean dist_clean depend depends
 
-.PHONY: all trace_all lall newversion noopt empty-trace-prefix trace-prefix pyx install install-linux clean dist_clean depends
-
-lall: all glviewer
+lall: simulator all glviewer
 
 SUFFIXES: .c .h .o ;
 
@@ -110,27 +99,12 @@ bends.h: bend.perl bending.parms
 newversion:
 	rm -f version.c
 
-version.c:
+version.c: newversion
 	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" \
 		| grep -v "^running " > version.c
 
 noopt:
 	make CFLAGS=-g $(SIMTARGET)
-
-empty-trace-prefix:
-	echo "char tracePrefix[] = \"\\" > traceprefix.c
-	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >>traceprefix.c
-	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >>traceprefix.c
-	echo "\";" >>traceprefix.c
-
-trace-prefix:
-	echo "char tracePrefix[] = \"\\" > _traceprefix.c
-	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >>_traceprefix.c
-	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >>_traceprefix.c
-	make $(SIMTARGET) | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
-	make $(PYREXTARGET) | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
-	echo "\";" >>_traceprefix.c
-	mv -f _traceprefix.c traceprefix.c
 
 $(SIMTARGET): $(SIMOBJS)
 	$(CC) -o $(SIMTARGET) $(LDFLAGS) $(SIMOBJS)
@@ -163,7 +137,6 @@ install: $(SIMTARGET)
 install-linux: install $(PYREXTARGET)
 	cp sim.so $(EXE_DIRECTORY)
 
-## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
 	rm -f version.c traceprefix.c
 	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
@@ -184,11 +157,13 @@ TAGS:
 doxy:
 	doxygen Doxyfile
 
-depends:
+depend:
 	head -`egrep -n "^# BEGIN" Makefile | sed 's/:.*//'` Makefile > tmp.mk
 	makedepend -f tmp.mk -Y. *.[ch]
 	mv -f tmp.mk Makefile
 	rm tmp.mk.bak
+
+depends: depend
 
 # BEGIN DEPENDENCIES
 # DO NOT DELETE
