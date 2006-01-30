@@ -1777,7 +1777,6 @@ class depositMode(basicMode):
         env.history.message("%s: %s" % (self.msg_modename, status))
         return
 
-    ## delete with cntl-left mouse ###e should we delete the baggage too??
     def leftCntlUp(self, event):
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
@@ -1791,7 +1790,8 @@ class depositMode(basicMode):
             if a.picked:  # If the atom is picked, unpick it.
                 a.unpick()
             else: # If the atom is not picked, delete it.
-                env.history.message("deleting %r" % a) #bruce 041208
+                a.deleteBaggage()
+                env.history.message("deleted %r" % a) #bruce 041208
                 a.kill()
                 self.o.selatom = None #bruce 041130 precaution
                 self.o.assy.changed()
