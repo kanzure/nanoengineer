@@ -7,6 +7,7 @@ CFLAGS=-I"C:/Dev-Cpp/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
 PYREXTARGET=sim.dll
 STDC99=
+SIMTARGET=simulator.exe
 else
 # non-Windows
 CC=gcc
@@ -16,7 +17,30 @@ CFLAGS=-g -Wmissing-prototypes -Wall
 LDFLAGS=-L/usr/lib -lm
 PYREXTARGET=sim.so
 STDC99=-std=c99
+SIMTARGET=simulator
 endif
+
+PYREXOBJS=\
+	allocate.o \
+	dynamics.o \
+	globals.o \
+	hashtable.o \
+	interpolate.o \
+	jigs.o \
+	lin-alg.o \
+	minimize.o \
+	minstructure.o \
+	newtables.o \
+	part.o \
+	potential.o \
+	printers.o \
+	readmmp.o \
+	readxyz.o \
+	structcompare.o \
+	version.o \
+	writemovie.o
+
+SIMOBJS=$(PYREXOBJS) simulator.o
 
 EXE_DIRECTORY=../../cad/bin
 #EXE_DIRECTORY=~/bin
@@ -30,19 +54,12 @@ ifeq ($(WWDEBUG),1)
 CFLAGS+=-DWWDEBUG
 endif
 
-# Just typing "make" will build the first target, which is traditionally
-# the standlone simulator.
-standalone:
+all:
 	make newversion
-	make simulator
+	make $(SIMTARGET)
 
 pyx:
 	make newversion
-	make $(PYREXTARGET)
-
-all:
-	make newversion
-	make simulator
 	make $(PYREXTARGET)
 
 trace_all:
@@ -50,7 +67,7 @@ trace_all:
 	make empty-trace-prefix
 	make trace-prefix
 	make clean
-	make simulator $(PYREXTARGET)
+	make $(SIMTARGET) $(PYREXTARGET)
 
 .PHONY: all trace_all lall newversion noopt empty-trace-prefix trace-prefix pyx install install-linux clean dist_clean depends
 
@@ -94,55 +111,11 @@ newversion:
 	rm -f version.c
 
 version.c:
-	echo > version.c
-	echo "char tracePrefix[] = \"\\" >> version.c
-	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >> version.c
-	echo "# CFLAGS=$(CFLAGS)" | sed 's#$$#\\n\\#' >> version.c
-	python setup.py build_ext --getCflags
-	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >> version.c
-	echo "\";" >> version.c
-	echo >> version.c
-	if [ -d CVS ]; then \
-		echo "char simulatorSourceVersions[] = \"\\" >> version.c ;\
-		cat CVS/Entries | sed -e 's#/[^/]*/[^/]*/$$##' -e 's#/# #g' -e 's/^/# /' -e 's#$$#\\n\\#' >> version.c ;\
-		echo "\";" >> version.c ;\
-	else \
-		echo "char simulatorSourceVersions[] = \"# Source file version information not available\\n\";" >> version.c ;\
-	fi
-
-# "cvs ls" is not available on all platforms.
-#	if [ -d CVS ]; then \
-#		echo "char simulatorSourceVersions[] = \"\\" >> version.c ;\
-#		cvs ls -l | sed -e '/^[\?d]/d' -e 's/^/# /' -e 's#$$#\\n\\#' >> version.c ;\
-#		echo "\";" >> version.c ;\
-#	else \
-#		echo "char simulatorSrcVersions[] = \"# Source file version information not available\\n\";" >> version.c ;\
-#	fi
-
-PYREXOBJS=\
-	allocate.o \
-	dynamics.o \
-	globals.o \
-	hashtable.o \
-	interpolate.o \
-	jigs.o \
-	lin-alg.o \
-	minimize.o \
-	minstructure.o \
-	newtables.o \
-	part.o \
-	potential.o \
-	printers.o \
-	readmmp.o \
-	readxyz.o \
-	structcompare.o \
-	version.o \
-	writemovie.o
-
-SIMOBJS=$(PYREXOBJS) simulator.o
+	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" \
+		| grep -v "^running " > version.c
 
 noopt:
-	make CFLAGS=-g simulator
+	make CFLAGS=-g $(SIMTARGET)
 
 empty-trace-prefix:
 	echo "char tracePrefix[] = \"\\" > traceprefix.c
@@ -154,13 +127,13 @@ trace-prefix:
 	echo "char tracePrefix[] = \"\\" > _traceprefix.c
 	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >>_traceprefix.c
 	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >>_traceprefix.c
-	make simulator | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
+	make $(SIMTARGET) | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
 	make $(PYREXTARGET) | sed 's/^/# /' | sed 's#$$#\\n\\#' >>_traceprefix.c
 	echo "\";" >>_traceprefix.c
 	mv -f _traceprefix.c traceprefix.c
 
-simulator: $(SIMOBJS)
-	$(CC) -o simulator $(LDFLAGS) $(SIMOBJS)
+$(SIMTARGET): $(SIMOBJS)
+	$(CC) -o $(SIMTARGET) $(LDFLAGS) $(SIMOBJS)
 
 testminimize: minimize.c allocate.o
 	$(CC) -o testminimize.o $(CFLAGS) -DTEST -c minimize.c
@@ -174,18 +147,18 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-$(PYREXTARGET): Makefile version.c
+sim.so: Makefile version.c
 	python setup.py build_ext --inplace
 
-install: simulator
+install: $(SIMTARGET)
 	if [ ! -d $$HOME/bin ] ; then \
 		mkdir $$HOME/bin ;\
 	fi
-	cp -f simulator $$HOME/bin
+	cp -f $(SIMTARGET) $$HOME/bin
 	if [ ! -d $(EXE_DIRECTORY) ] ; then \
 		mkdir $(EXE_DIRECTORY) ;\
 	fi
-	cp simulator $(EXE_DIRECTORY) 
+	cp $(SIMTARGET) $(EXE_DIRECTORY) 
 
 install-linux: install $(PYREXTARGET)
 	cp sim.so $(EXE_DIRECTORY)
@@ -193,7 +166,7 @@ install-linux: install $(PYREXTARGET)
 ## should make clean also remove tables.c, bonds.h, bends.h?? [bruce 051230 question]
 clean:
 	rm -f version.c traceprefix.c
-	rm -f simulator moldisp molsim physeng sim.so sim.c
+	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
 	rm -f tests/*/*.altout
