@@ -17,7 +17,6 @@ import os
 import sys
 import getopt
 from shutil import *
-from debug import *
 
 PYLIBPATH = os.path.split(getopt.__file__)[0]
 
@@ -31,108 +30,98 @@ class NanoBuildBase:
     """
     def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
         self.currentPath = os.getcwd() # Current working directory
-        self.rootPath = rootDir # this is the sub-directory where the executable and temporary files are stored.
+        self.rootPath = rootDir # sub-directory where the executable and temporary files are stored
 	self.appName = appname # Application name, e.g., 'nanoENGINEER-1'
         self.iconFile = iconfile # The icon file name
         self.version = version # version number, e.g. '0.0'
         self.releaseNo = relNo # release number, e.g. '7'
         self.status = stat # release status, e.g. 'a', 'b', which mean 'Alpha', 'Beta' respectly.
-        self.cvsTag = tag # cvs tag name that you want to use to build the package, without it, it will just use the current version in cvs repository.
-        self.sourceDirectory = None # For debug: if you want local sources instead of real cvs checkouts, specify a directory containing cad and sim trees.
+        self.cvsTag = tag # cvs tag name that you want to use to build the package, without it,
+        # it will just use the current version in cvs repository.
+        self.sourceDirectory = None # For debug: if you want local sources instead of real
+        # cvs checkouts, specify a directory containing cad and sim trees.
 
         self.atomPath = os.path.join(self.rootPath, 'atom')
-        self._setupBuildSourcePath()
+        self.setupBuildSourcePath()
 
-    def _setupBuildSourcePath(self):
+    def setupBuildSourcePath(self):
         self.buildSourcePath = os.path.join(self.rootPath, self.appName)
 
-    def _createDirectories(self):
+    def createDirectories(self):
         """Create directories structure, return true if success"""
-        try:
-            if os.path.isdir(self.rootPath):
-                self.clean(self.rootPath, cleanAll = True)
-            else:
-                os.mkdir(self.rootPath)
+        if os.path.isdir(self.rootPath):
+            self.clean(self.rootPath, cleanAll = True)
+        else:
+            os.mkdir(self.rootPath)
 
-            self._createMiddleDirectories()
+        self.createMiddleDirectories()
 
-            os.mkdir(self.atomPath)
-            os.mkdir(self.buildSourcePath)
+        os.mkdir(self.atomPath)
+        os.mkdir(self.buildSourcePath)
 
-        except:
-            print_compact_traceback( "Directory building failed.")
-            return False
-        return True
-
-    def _createMiddleDirectories(self):
+    def createMiddleDirectories(self):
         # need these for a mac osx build
         pass
 
-    def _prepareSources(self):
+    def prepareSources(self):
         """Checkout source code from cvs for the release """
-        try:
-            os.chdir(self.atomPath)
-            if self.sourceDirectory:
-                # we would only do this when experimenting anyway, so we don't
-                # need the restriction on cad/doc here
-                system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
-                system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
-            elif not self.cvsTag:
-                if system('cvs -Q checkout -l cad/doc'): raise Exception, "cvs checkout failed."
-                if system('cvs -Q checkout -P cad/src cad/images sim cad/partlib'):
-                    raise Exception, "cvs checkout failed."
-            else:
-                if system('cvs -Q checkout -r %s -l cad/doc' % self.cvsTag):
-                    raise Exception, "cvs checkout cad/doc failed."
-                if system('cvs -Q checkout -r %s -R cad/src cad/images sim cad/partlib' % self.cvsTag):
-                    raise Exception, "cvs checkout cad/src failed."
-            
-            # Remove all those 'CVS' directories and their entries.
-            self._removeCVSFiles('cad')
-            self._removeCVSFiles('sim')
-           
-            self.buildTarball() # For Linux only.
-           
-            os.chdir('sim/src')
-            if system('make'): raise Exception, "Simulator building failed."
-        except:
-            print_compact_traceback("In _prepareSources(): ")
-            return False
+        os.chdir(self.atomPath)
+        if self.sourceDirectory:
+            # we would only do this when experimenting anyway, so we don't
+            # need the restriction on cad/doc here
+            system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
+            system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
+        elif not self.cvsTag:
+            if system('cvs -Q checkout -l cad/doc'): raise Exception, "cvs checkout failed."
+            if system('cvs -Q checkout -P cad/src cad/images sim cad/partlib'):
+                raise Exception, "cvs checkout failed."
+        else:
+            if system('cvs -Q checkout -r %s -l cad/doc' % self.cvsTag):
+                raise Exception, "cvs checkout cad/doc failed."
+            if system('cvs -Q checkout -r %s -R cad/src cad/images sim cad/partlib' % self.cvsTag):
+                raise Exception, "cvs checkout cad/src failed."
+
+        # Remove all those 'CVS' directories and their entries.
+        self.removeCVSFiles('cad')
+        self.removeCVSFiles('sim')
+
+        self.buildTarball() # For Linux only.
+
+        os.chdir('sim/src')
+        if system('make'): raise Exception, "Simulator building failed."
         print "----------Sources have been checked out and made.\n"
-        return True
 
     def buildTarball(self):
         # only needed for Linux
         pass
 
-    def _buildSource4Distribution(self):
-        """Pack source together for distribution (all platforms)."""
-        try:
-            os.chdir(os.path.join(self.atomPath,'cad'))
-            copytree('doc', os.path.join(self.buildSourcePath, 'doc'))
-            copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
-            copytree('images', os.path.join(self.buildSourcePath, 'images'))
+    def buildSourceForDistribution(self):
+        """Freeze Python code into an executable. Where necessary, compile
+        and link C code."""
+        os.chdir(os.path.join(self.atomPath,'cad'))
+        copytree('doc', os.path.join(self.buildSourcePath, 'doc'))
+        copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
+        copytree('images', os.path.join(self.buildSourcePath, 'images'))
 
-            binPath = os.path.join(self.buildSourcePath, 'bin')
-            os.mkdir(binPath)
-            os.chdir(self.currentPath)
-            self._copyOtherSources(binPath)
-            os.chdir(os.path.join(self.atomPath,'cad/src'))
-            self._freezePythonExecutable()
-            os.chdir(self.currentPath)
-            print "------All python modules are packaged together."
-            return True
-        except:
-            print_compact_traceback("In _buildSource4Distribution(): ")
-            return False
+        binPath = os.path.join(self.buildSourcePath, 'bin')
+        os.mkdir(binPath)
+        os.chdir(self.currentPath)
+        self.copyOtherSources(binPath)
+        os.chdir(os.path.join(self.atomPath,'cad/src'))
+        self.freezePythonExecutable()
+        os.chdir(self.currentPath)
+        print "------All python modules are packaged together."
 
-    def _copyOtherSources(self, binPath):
+    def copyOtherSources(self, binPath):
+        """This will typically include gnuplot, the standalone simulator executable, an
+        icon file, release notes and other text files.
+        """
         pass
 
-    def _freezePythonExecutable(self):
+    def freezePythonExecutable(self):
         pass
 
-    def _removeCVSFiles(self, rootDir):
+    def removeCVSFiles(self, rootDir):
         """Remove all CVS files and the directory for any cvs checkout directory under <root>. """
         for root, dirs, files in os.walk(rootDir):
             for name in dirs:
@@ -155,37 +144,29 @@ class NanoBuildBase:
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
 
-    def _buildForPlatform(self):
+    def makePlatformPackage(self):
         # different for each platform
         raise Exception, "this must be overloaded"
 
     def build(self):
         '''Main build method.'''
-        if not self._createDirectories(): return
-        if not self._prepareSources():  return
-        if not self._buildSource4Distribution(): return
-        
-        try:
-            self._buildForPlatform()
-            return True
-        except:
-            print_compact_traceback("In method build():")
-            return False
+        self.createDirectories()
+        self.prepareSources()
+        self.buildSourceForDistribution()
+        self.makePlatformPackage()
 
 ###################################################
 
 class NanoBuildWin32(NanoBuildBase):
-    def _prepareSources(self):
+    def prepareSources(self):
         """Checkout source code from cvs for the release """
 	print "\n------------------------------------------------------\nPreparing Sources"
-        ret = os.spawnv(os.P_NOWAIT, 'C:\Huaicai\putty\pageant.exe', ['C:\Huaicai\putty\pageant.exe', 'C:\Huaicai\Documents\dsa_private.ppk'])
+        ret = os.spawnv(os.P_NOWAIT, 'C:\Huaicai\putty\pageant.exe',
+                        ['C:\Huaicai\putty\pageant.exe', 'C:\Huaicai\Documents\dsa_private.ppk'])
         if ret <= 0: raise Exception, "start pageant.exe with key file dsa_privaate.ppk failed."
-        if NanoBuildBase._prepareSources(self):
-	    return True
-	else:
-	    print "Preparing sources failed."
-	    return False
-    def _copyOtherSources(self, binPath):
+        NanoBuildBase.prepareSources(self)
+
+    def copyOtherSources(self, binPath):
 	print "\n------------------------------------------------------\nCopying other files"
         copy('wgnuplot.exe', binPath)
         copy(os.path.join(self.atomPath, 'sim/src/simulator.exe'), binPath)
@@ -196,7 +177,8 @@ class NanoBuildWin32(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), self.buildSourcePath)
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), self.rootPath)
         copy(os.path.join(self.atomPath,'cad/src/LICENSE-Win32'), self.rootPath)
-    def _removeGPLFiles(self):
+
+    def removeGPLFiles(self):
         """Remove non gpl files (Windows only)"""
         print "\n------------------------------------------------------\nRemoving GPL Files"
         srcPath = os.path.join(self.atomPath,'cad/src/')
@@ -207,55 +189,52 @@ class NanoBuildWin32(NanoBuildBase):
                     print "File removed: ", entry
                     os.remove(file)
 	print "Done"
-    def _freezePythonExecutable(self):
+
+    def freezePythonExecutable(self):
 	print "\n------------------------------------------------------\nFreezing Python Executable"
-        self._removeGPLFiles()
+        self.removeGPLFiles()
         ret = system('python setup.py py2exe --includes=sip,dbhash --excludes=OpenGL -d' +
                      os.path.join(self.buildSourcePath, 'program'))
-    def _createIssFile(self, issFile, appName, version, releaseNo, sourceDir, status):
+
+    def createIssFile(self, issFile, appName, version, releaseNo, sourceDir, status):
         """Create the iss file (script) to build package on Windows.  The iss script
 	contains all the instructions for the installation package.
 	"""
 	print "\n------------------------------------------------------\nCreating Inno Setup configuration script"
-        try:
-            isf = open(issFile, 'w')
-            isf.write("; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES! \n\n")
-            isf.write("[Setup]\n")
-            isf.write("AppName=%s\n" % appName)
-            appnamever = appName + " v" + version + "." + releaseNo
-            if not status:
-                    isf.write("AppVerName=%s v%s.%s\n" % (appName, version, releaseNo))
-                    isf.write("DefaultDirName={pf}\\" + appnamever + "\n")
-                    isf.write("DefaultGroupName="+ appnamever + "\n")
-            else:
-                    isf.write("AppVerName=%s v%s.%s %s\n" % (appName, version, releaseNo, status))
-                    isf.write("DefaultDirName={pf}\\" + appnamever + " " + status + "\n")
-                    isf.write("DefaultGroupName="+ appnamever + " " + status + "\n")
-            isf.write("UninstallDisplayIcon={app}\\uninst.ico\n")
-            isf.write("Compression=lzma\n")
-            isf.write("SolidCompression=yes\n")
-            isf.write("UsePreviousAppDir=no\n")
-            isf.write("DirExistsWarning=yes\n")
-            isf.write("InfoBeforeFile=README.txt")
-            isf.write("\n[Files]\n")
-            isf.write('Source: "%s\\*"; DestDir: "{app}"; Flags: recursesubdirs\n' % sourceDir)
-            isf.write('Source: "README.txt"; DestDir: "{app}"; Flags: isreadme\n')
-            isf.write("\n[Icons]\n")
-            isf.write(('Name: "{group}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
-                       'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
-            isf.write(('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
-                       'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
-            isf.write('Name: "{group}\\Uninstall %s"; Filename: "{uninstallexe}"\n' % appName)
-            isf.write("\n[Languages]\n")
-            isf.write('Name: "en"; MessagesFile: "compiler:Default.isl"; LicenseFile: "LICENSE-Win32"\n')
-            isf.close()
-            print "Done"
-            return True
-        except:
-            print_compact_traceback("In _createIssFile(): ")
-            return False
+        isf = open(issFile, 'w')
+        isf.write("; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES! \n\n")
+        isf.write("[Setup]\n")
+        isf.write("AppName=%s\n" % appName)
+        appnamever = appName + " v" + version + "." + releaseNo
+        if not status:
+                isf.write("AppVerName=%s v%s.%s\n" % (appName, version, releaseNo))
+                isf.write("DefaultDirName={pf}\\" + appnamever + "\n")
+                isf.write("DefaultGroupName="+ appnamever + "\n")
+        else:
+                isf.write("AppVerName=%s v%s.%s %s\n" % (appName, version, releaseNo, status))
+                isf.write("DefaultDirName={pf}\\" + appnamever + " " + status + "\n")
+                isf.write("DefaultGroupName="+ appnamever + " " + status + "\n")
+        isf.write("UninstallDisplayIcon={app}\\uninst.ico\n")
+        isf.write("Compression=lzma\n")
+        isf.write("SolidCompression=yes\n")
+        isf.write("UsePreviousAppDir=no\n")
+        isf.write("DirExistsWarning=yes\n")
+        isf.write("InfoBeforeFile=README.txt")
+        isf.write("\n[Files]\n")
+        isf.write('Source: "%s\\*"; DestDir: "{app}"; Flags: recursesubdirs\n' % sourceDir)
+        isf.write('Source: "README.txt"; DestDir: "{app}"; Flags: isreadme\n')
+        isf.write("\n[Icons]\n")
+        isf.write(('Name: "{group}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
+                   'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
+        isf.write(('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
+                   'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
+        isf.write('Name: "{group}\\Uninstall %s"; Filename: "{uninstallexe}"\n' % appName)
+        isf.write("\n[Languages]\n")
+        isf.write('Name: "en"; MessagesFile: "compiler:Default.isl"; LicenseFile: "LICENSE-Win32"\n')
+        isf.close()
+        print "Done"
 
-    def _addModule2Zip(self, archFile, module):
+    def _addModuleToZip(self, archFile, module):
         """First, rename *.zip file, and then create a directory,
         unzip *.zip into that directory, copy module into that directory (Windows only)"""
 	print "\n------------------------------------------------------\nAdding Module to ZIP File"
@@ -271,33 +250,25 @@ class NanoBuildWin32(NanoBuildBase):
             unz.extract(tmpZipFile, archFile)
             copytree(module, os.path.join(archFile, module))
             os.remove(tmpZipFile)
-        except:
+        except Exception, e:
             print "Add %s into %s failed." %(module, archFile)
-            print_compact_traceback("In addModule2Zip method: ")
-            return False
-	print "Done"
-        return True
+            raise e
 
     def _addDLLs(self):
         """Add all the required dlls into <program> (Windows only) """
 	print "\n------------------------------------------------------\nAdding DLLs"
-        try:
-            copy('glut32.dll', os.path.join(self.buildSourcePath, 'program'))
-	    print "glut32.dll"
-            copy('msvcr71.dll', os.path.join(self.buildSourcePath, 'program'))
-	    print "msvcr71.dll"
-	    print "Done"
-            return True
-        except:
-            print_compact_traceback("In _addDLLs(): ")
-            return False
+        copy('glut32.dll', os.path.join(self.buildSourcePath, 'program'))
+        print "glut32.dll"
+        copy('msvcr71.dll', os.path.join(self.buildSourcePath, 'program'))
+        print "msvcr71.dll"
+        print "Done"
 
-    def _buildForPlatform(self):
-        if not self._addModule2Zip('program/library.zip', 'OpenGL'):    return
-        if not self._addDLLs(): return
+    def makePlatformPackage(self):
+        self._addModuleToZip('program/library.zip', 'OpenGL')
+        self._addDLLs()
         issFile = os.path.join(self.rootPath, 'setup.iss')
         print "self.status: ", self.status
-        self._createIssFile(issFile, self.appName, self.version, self.releaseNo,
+        self.createIssFile(issFile, self.appName, self.version, self.releaseNo,
                             self.buildSourcePath, self.status)
         outputFile = PMMT + '-w32'
 	# Run Inno Setup command to build the install package for Windows (only).
@@ -316,14 +287,14 @@ class NanoBuildWin32(NanoBuildBase):
 ########################################################
 
 class NanoBuildLinux(NanoBuildBase):
-    def _setupBuildSourcePath(self):
+    def setupBuildSourcePath(self):
         self.buildSourcePath = os.path.join(self.rootPath, PMMT)
     def buildTarball(self):
         os.chdir(self.atomPath)
         tarName = PMMT + '.tar.gz'
         if system('tar -czvf %s *' % tarName): raise Exception, "Tar making failed."
         print "\nThe tar file: %s has been successfully created.\n" % tarName
-    def _copyOtherSources(self, binPath):
+    def copyOtherSources(self, binPath):
         copy('/usr/bin/gnuplot', binPath)
         copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
         #copy rungms script
@@ -332,7 +303,7 @@ class NanoBuildLinux(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
-    def _freezePythonExecutable(self):
+    def freezePythonExecutable(self):
         # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
         cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
                os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
@@ -340,27 +311,26 @@ class NanoBuildLinux(NanoBuildBase):
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
                  os.path.join(self.buildSourcePath, 'program/OpenGL'))
-    def _createSpecFile(self, specFile, appName, version, releaseNo, sourceDir):
+    def createSpecFile(self, specFile, appName, version, releaseNo, sourceDir):
         """Create the spec file to build rpm package on Linux. Here is some
         information about what goes inside a RPM spec file:
         http://www.rpm.org/max-rpm/s1-rpm-build-creating-spec-file.html
         http://www.rpm.org/max-rpm/s1-rpm-inside-scripts.html
         """
-        try:
-            spf = open(specFile, 'w')
-            spf.write("AutoReqProv: 0 \n\nSummary: A CAD software package for a nanoengineer to " +
-                      "design and simulate nano-components and nano-machines.\n")
-            spf.write("Name: %s\n" % appName)
-            spf.write("Version: %s\n" % version)
-            spf.write("Release: %s\n" % releaseNo)
-            otherStuff = """License: GPL
+        spf = open(specFile, 'w')
+        spf.write("AutoReqProv: 0 \n\nSummary: A CAD software package for a nanoengineer to " +
+                  "design and simulate nano-components and nano-machines.\n")
+        spf.write("Name: %s\n" % appName)
+        spf.write("Version: %s\n" % version)
+        spf.write("Release: %s\n" % releaseNo)
+        otherStuff = """License: GPL
 Group: Applications/CAD
 Source: project.tgz
 URL: http://nanoengineer-1.net/mediawiki/index.php
 Distribution: nanoENGINEER-1
 Vendor: Nanorex, Inc.
 Packager: Nanorex, Inc.
-Requires: libMesaglut3
+#Requires: libMesaglut3
 
 %description
 nanoENGINEER-1 includes a molecular design module that combines
@@ -404,18 +374,15 @@ fi
 %files
 %defattr(755, root, root, 755)
 """
-            spf.write(otherStuff)
-            spf.write(sourceDir + "\n")
-            spf.close()
-            print "----RPM building specification file has been written."
-            return True
-        except:
-            print_compact_traceback("In _createSpecFile(): ")
-            return False
-    def _buildForPlatform(self):  # linux
+        spf.write(otherStuff)
+        spf.write(sourceDir + "\n")
+        spf.close()
+        print "----RPM building specification file has been written."
+
+    def makePlatformPackage(self):  # linux
         specFile = os.path.join(self.rootPath, 'setup.spec')
         destDir = os.path.join('/usr/local', PMMT)
-        if not self._createSpecFile(specFile, self.appName, self.version, self.releaseNo, destDir): return
+        self.createSpecFile(specFile, self.appName, self.version, self.releaseNo, destDir)
         """Before run rpmbuilder, mv self.buildSource to /usr/local,
         cp spec file into /usr/src/RPM/SPECS/,
         and then run: rpmbuild -bb specFile
@@ -441,82 +408,73 @@ fi
 ########################################################
 
 class NanoBuildMacOSX(NanoBuildBase):
-    def _createMiddleDirectories(self):
+    def createMiddleDirectories(self):
         os.mkdir(self.installRootPath)
         os.mkdir(self.diskImagePath)
         os.mkdir(self.resourcePath)
 
-    def _buildSource4Distribution(self):
+    def buildSourceForDistribution(self):
         """Pack source together for distribution (all platforms)."""
-        try:
-            os.chdir(self.currentPath)
-            copy('background.jpg', self.resourcePath)
-            copy('libaquaterm.1.0.0.dylib', self.buildSourcePath)
-            copy('setup.py', os.path.join(self.atomPath,'cad/src'))
-            os.chdir(os.path.join(self.atomPath,'cad/src'))
-            os.rename('atom.py', self.appName + '.py')
-            ret = system('python setup.py py2app --includes=sip --excludes=OpenGL --iconfile %s  -d %s' %
-                         (self.iconFile, self.buildSourcePath))
-            os.chdir(os.path.join(self.atomPath,'cad'))
-            appname = self.appName + '.app'
-            copytree('doc', os.path.join(self.buildSourcePath, appname,  'Contents/doc'))
-            copytree('images', os.path.join(self.buildSourcePath, appname,  'Contents/images'))
-            copytree('partlib', os.path.join(self.buildSourcePath, appname, 'Contents/partlib'))
-            os.chdir(self.currentPath)
-            os.mkdir(os.path.join(self.buildSourcePath, appname,  'Contents/bin'))
-            copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, appname,
-                                                                 'Contents/bin/AquaTerm.app'))
-            copy(os.path.join(self.atomPath, 'sim/src/simulator'),
-                 os.path.join(self.buildSourcePath, appname, 'Contents/bin'))
-            copy('/usr/local/bin/gnuplot', os.path.join(self.buildSourcePath, appname, 'Contents/bin'))
-            #Copy rungms script into 'bin' directory
-            copy(os.path.join(self.atomPath,'cad/src/rungms'),
-                 os.path.join(self.buildSourcePath, appname, 'Contents/bin'))
-            #Copy OpenGL package into buildSource/program
-            copytree('site-packages',
-                     os.path.join(self.buildSourcePath, appname,
-                                  'Contents/Resources/Python/site-packages'))
-            copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'),
-                 self.buildSourcePath)
-            copyfile(os.path.join(self.atomPath,'cad/src/README.txt'),
-                     os.path.join(self.buildSourcePath, 'ReadMe.txt'))
-            copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'),
-                 self.buildSourcePath)
+        os.chdir(self.currentPath)
+        copy('background.jpg', self.resourcePath)
+        copy('libaquaterm.1.0.0.dylib', self.buildSourcePath)
+        copy('setup.py', os.path.join(self.atomPath,'cad/src'))
+        os.chdir(os.path.join(self.atomPath,'cad/src'))
+        os.rename('atom.py', self.appName + '.py')
+        ret = system('python setup.py py2app --includes=sip --excludes=OpenGL --iconfile %s  -d %s' %
+                     (self.iconFile, self.buildSourcePath))
+        os.chdir(os.path.join(self.atomPath,'cad'))
+        appname = self.appName + '.app'
+        copytree('doc', os.path.join(self.buildSourcePath, appname,  'Contents/doc'))
+        copytree('images', os.path.join(self.buildSourcePath, appname,  'Contents/images'))
+        copytree('partlib', os.path.join(self.buildSourcePath, appname, 'Contents/partlib'))
+        os.chdir(self.currentPath)
+        os.mkdir(os.path.join(self.buildSourcePath, appname,  'Contents/bin'))
+        copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, appname,
+                                                             'Contents/bin/AquaTerm.app'))
+        copy(os.path.join(self.atomPath, 'sim/src/simulator'),
+             os.path.join(self.buildSourcePath, appname, 'Contents/bin'))
+        copy('/usr/local/bin/gnuplot', os.path.join(self.buildSourcePath, appname, 'Contents/bin'))
+        #Copy rungms script into 'bin' directory
+        copy(os.path.join(self.atomPath,'cad/src/rungms'),
+             os.path.join(self.buildSourcePath, appname, 'Contents/bin'))
+        #Copy OpenGL package into buildSource/program
+        copytree('site-packages',
+                 os.path.join(self.buildSourcePath, appname,
+                              'Contents/Resources/Python/site-packages'))
+        copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'),
+             self.buildSourcePath)
+        copyfile(os.path.join(self.atomPath,'cad/src/README.txt'),
+                 os.path.join(self.buildSourcePath, 'ReadMe.txt'))
+        copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'),
+             self.buildSourcePath)
 
-            copyfile(os.path.join(self.atomPath,'cad/src/README.txt'),
-                     os.path.join(self.resourcePath, 'ReadMe.txt'))
-            copyfile(os.path.join(self.atomPath,'cad/src/LICENSE'),
-                     os.path.join(self.resourcePath, 'License'))
-            print "------All python modules are packaged tegether."
-            return True
-        except:
-            print_compact_traceback("In _buildSource4Distribution(): ")
-            return False
-    def _setupBuildSourcePath(self):
+        copyfile(os.path.join(self.atomPath,'cad/src/README.txt'),
+                 os.path.join(self.resourcePath, 'ReadMe.txt'))
+        copyfile(os.path.join(self.atomPath,'cad/src/LICENSE'),
+                 os.path.join(self.resourcePath, 'License'))
+        print "------All python modules are packaged tegether."
+
+    def setupBuildSourcePath(self):
         self.installRootPath = os.path.join(self.rootPath, 'installRoot')
         self.buildSourcePath = os.path.join(self.installRootPath, PMMT)
         self.diskImagePath = os.path.join(self.rootPath, 'diskImage')
         self.resourcePath = os.path.join(self.rootPath, 'resources')
-    def _createWelcomeFile(self, welcomeFile):
+    def createWelcomeFile(self, welcomeFile):
         """Write the welcome file for Mac package installer """
-        try:
-             wf = open(welcomeFile, 'w')
-             message = (("Welcome to %s v%s.%s %s. You will be guided through the steps " +
-                         "necessary to install this software. By default, this software " +
-                         "will be installed into /Applications directory with all files " +
-                         "under its own sub-directory. So, just relax.\n") %
-                        (self.appName, self.version, self.releaseNo, self.status))
-             wf.write(message)
-             wf.close()
-             print "----Welcome file has been written."
-             return True
-        except:
-            print_compact_traceback("In _createWelcomeFile(): ")
-            return False
+        wf = open(welcomeFile, 'w')
+        message = (("Welcome to %s v%s.%s %s. You will be guided through the steps " +
+                    "necessary to install this software. By default, this software " +
+                    "will be installed into /Applications directory with all files " +
+                    "under its own sub-directory. So, just relax.\n") %
+                   (self.appName, self.version, self.releaseNo, self.status))
+        wf.write(message)
+        wf.close()
+        print "----Welcome file has been written."
+
     def _writePostFlightFile(self, pfFile):
         """Write the postflight file Mac Package Installer """
-        try:
-            fix_message = """#!/bin/bash
+        fix_message = """#!/bin/bash
 echo on
 echo $2
 cd /
@@ -532,41 +490,37 @@ if [ ! -d "lib" ]; then \\
      mkdir lib; \\
 fi
 """
-	    pf  = open(pfFile, 'w')
-            pf.write(fix_message)
-            instPath = os.path.basename(self.buildSourcePath)
-            pf.write("mv $2/%s/libaquaterm.1.0.0.dylib /usr/local/lib\n\n" % instPath)             
-            pf.write('exit 0\n')
-            pf.close()
-            from stat import S_IREAD, S_IEXEC, S_IROTH, S_IXOTH  
-            os.chmod(pfFile, S_IREAD | S_IEXEC | S_IROTH | S_IXOTH)
-            print "----Postflight file has been written."
-            return True
-        except:
-            print_compact_traceback("In _createPostflightFile(): ")
-            return False
-    def _createPlistFile(self, plistFile,  appName, majorVer, minorVer,  releaseNo):
+        pf  = open(pfFile, 'w')
+        pf.write(fix_message)
+        instPath = os.path.basename(self.buildSourcePath)
+        pf.write("mv $2/%s/libaquaterm.1.0.0.dylib /usr/local/lib\n\n" % instPath)             
+        pf.write('exit 0\n')
+        pf.close()
+        from stat import S_IREAD, S_IEXEC, S_IROTH, S_IXOTH  
+        os.chmod(pfFile, S_IREAD | S_IEXEC | S_IROTH | S_IXOTH)
+        print "----Postflight file has been written."
+
+    def createPlistFile(self, plistFile,  appName, majorVer, minorVer,  releaseNo):
         """ Write InfoPlist file to build package of PackageMaker (Mac OS X)."""
-        try:
-            plf = open(plistFile, 'w')
-            titleDoc = """<?xml version="1.0" encoding="UTF-8"?>
+        plf = open(plistFile, 'w')
+        titleDoc = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
         <key>CFBundleGetInfoString</key>
       """
-            plf.write(titleDoc)
-            plf.write('<string>' + appName + ' Version ' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
-            nextDoc = "\t<key>CFBundleIdentifier</key>\n\t<string>www.nanorex.com</string>\n\t<key>CFBundleName</key>\n"
-            plf.write(nextDoc)
-            plf.write('\t<string>' + appName + '-' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
-            plf.write('\t<key>CFBundleShortVersionString</key>\n')
-            plf.write('\t<string>' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
-            plf.write('\t<key>IFMajorVersion</key>\n')
-            plf.write('\t<integer>' + majorVer + '</integer>\n')
-            plf.write('\t<key>IFMinorVersion</key>\n')
-            plf.write('\t<integer>' + minorVer + '</integer>\n')
-            tailDoc = """        <key>IFPkgFlagAllowBackRev</key>
+        plf.write(titleDoc)
+        plf.write('<string>' + appName + ' Version ' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
+        nextDoc = "\t<key>CFBundleIdentifier</key>\n\t<string>www.nanorex.com</string>\n\t<key>CFBundleName</key>\n"
+        plf.write(nextDoc)
+        plf.write('\t<string>' + appName + '-' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
+        plf.write('\t<key>CFBundleShortVersionString</key>\n')
+        plf.write('\t<string>' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
+        plf.write('\t<key>IFMajorVersion</key>\n')
+        plf.write('\t<integer>' + majorVer + '</integer>\n')
+        plf.write('\t<key>IFMinorVersion</key>\n')
+        plf.write('\t<integer>' + minorVer + '</integer>\n')
+        tailDoc = """        <key>IFPkgFlagAllowBackRev</key>
         <false/>
         <key>IFPkgFlagAuthorizationAction</key>
         <string>RootAuthorization</string>
@@ -588,21 +542,18 @@ fi
         <real>0.10000000149011612</real>
 </dict>
 </plist>"""
-            plf.write(tailDoc)
-            plf.close()
-            print "----PackageMaker info property list file has been written."
-            return True
-        except:
-            print_compact_traceback("In _createPlistFile(): ")
-            return False
-    def _buildForPlatform(self):
+        plf.write(tailDoc)
+        plf.close()
+        print "----PackageMaker info property list file has been written."
+
+    def makePlatformPackage(self):
         welcomeFile = os.path.join(self.resourcePath, 'Welcome.txt')
-        if not self._createWelcomeFile(welcomeFile): return
+        self.createWelcomeFile(welcomeFile)
         postflightFile = os.path.join(self.resourcePath, 'postflight')
-        if not self._writePostFlightFile(postflightFile): return
+        self._writePostFlightFile(postflightFile)
         plistFile = os.path.join(self.rootPath, 'Info.plist')
         words = self.version.split('.')
-        if not self._createPlistFile(plistFile, self.appName, words[0], words[1], self.releaseNo): return
+        self.createPlistFile(plistFile, self.appName, words[0], words[1], self.releaseNo)
         pkgName = os.path.join(self.diskImagePath, PMMT + '.pkg')
         descrip = os.path.join(self.currentPath, 'Description.plist')
 	# Run PackageMaker to build the final installation package
