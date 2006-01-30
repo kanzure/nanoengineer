@@ -3,44 +3,58 @@
 
 // Make a table for interpolating func(x) by doing
 //
-//   i=(int)(x-start)/scale;
-//   value=t1[i]+x*t2[i];
+//   k = (int)(x-start)/scale;
+//   y = (a[k] * x + b[k]) * x  + c[k];
+//   y' = 2 * a[k] * x + b[k];
 //
 static void
-fillInterpolationTable(struct interpolationTable *t, double func(double, void *), double start, double scale, void *parameters)
+fillInterpolationTable(struct interpolationTable *t,
+                       double func(double, void *),
+                       double dfunc(double, void *),
+                       double start,
+                       double scale,
+                       void *parameters)
 {
-    int i;
-    double v1, v2, r1, r2, q;
-    double v3, r5, r15, v5, v15;
+  // code to shift points to minimize distance to actual function is
+  // in version 1.26 and earlier.
+  int k;
+  double x1;  // x position of left edge of interpolation interval
+  double y1;  // func(x1)
+  double y1p; // dfunc(x1)   derivitive of func at x1
+  double x2;  // x position of right edge of interpolation interval
+  double y2;  // func(x2)
+  double y2p; // dfunc(x2)   derivitive of func at x2
 
-    t->start = start;
-    t->scale = scale;
+  t->start = start;
+  t->scale = scale;
     
-    r2=start;
-    v2=func(r2, parameters);
+  x2 = start;
+  y2 = func(x2, parameters);
+  y2p = dfunc(x2, parameters) / 1000000.0;
 	
-    for (i=0; i<TABLEN; i++) {
-	r1 = r2;
-	v1 = v2;
-	r2 = start + (double)((i + 1) * scale);
-	v2 = func(r2, parameters);
-	/* shift points to minimize excursions above/below func */
-	if (i < TABLEN - 1) {
-          r5 = (r1 + r2) / 2.0; // halfway between r1 and r2
-          v5 = func(r5, parameters);
+  for (k=0; k<TABLEN; k++) {
+    x1 = x2;
+    y1 = y2;
+    y1p = y2p;
 
-          r15 = r2 + r2 - r5; // halfway past r2
-          v15 = func(r15, parameters);
+    x2 = start + (double)((k + 1) * scale);
+    y2 = func(x2, parameters);
+    y2p = dfunc(x2, parameters) / 1000000.0;
 
-          v3 = func(r2 + r2 - r1, parameters); // one unit past r2
+    // y = Ax^2 + Bx + C
+    // y' = 2Ax + B
+    //
+    // y1p = 2 A x1 + B
+    // y2p = 2 A x2 + B
+    // y1p - y2p = 2 A (x1 - x2)
+    t->a[k] = (y1p - y2p) / (2.0 * (x1 - x2));
 
-          v2 = v2 + 0.25 * (v5 - (func(r1, parameters) + v2) / 2.0) + 0.25 * (v15 - (v2 + v3) / 2.0);
-	}
-		
-	q = (v2 - v1) / (r2 - r1); // slope
-	t->t1[i] = v1 - q*r1;
-	t->t2[i] = q;
-    }
+    // B = y2p - 2 A x2
+    t->b[k] = y2p - 2.0 * t->a[k] * x2; // note, x2 should always be > 0
+
+    // C = y2 - (A x2 + B) x2
+    t->c[k] = y2 - (t->a[k] * x2 + t->b[k]) * x2;
+  }
 }
 
 /** stiffnesses are in N/m, so forces come out in pN (i.e. Dx N) */
@@ -174,8 +188,9 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
 {
   double start = t->start;
   double scale = t->scale;
-  double *t1 = t->t1;
-  double *t2 = t->t2;
+  double *a = t->a;
+  double *b = t->b;
+  double *c = t->c;
   int k;
   double x;
   double potential = 0.0;
@@ -183,7 +198,7 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
   k = (int)(r0 - start) / scale;
   while ((searchLimit-k)*searchIncrement > 0) {
     x = k * scale + start;
-    potential = t1[k] + x * t2[k] - minPotential;
+    potential = (a[k] * x + b[k]) * x + c[k] - minPotential;
     if (potential > ExcessiveEnergyLevel) {
       return k;
     }
@@ -217,11 +232,13 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
                          gradientLippincottMorse(rmax, stretch)
                          );
 
-  fillInterpolationTable(&stretch->potentialLippincottMorse, potentialLippincottMorse, rmin, scale, stretch);
-  fillInterpolationTable(&stretch->gradientLippincottMorse, gradientLippincottMorse, rmin, scale, stretch);
-  stretch->maxPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->potentialLippincottMorse,
+  fillInterpolationTable(&stretch->LippincottMorse,
+                         potentialLippincottMorse,
+                         gradientLippincottMorse,
+                         rmin, scale, stretch);
+  stretch->maxPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->LippincottMorse,
                                                             stretch->r0, 1, TABLEN, 0.0, stretch->bondName);
-  stretch->minPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->potentialLippincottMorse,
+  stretch->minPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->LippincottMorse,
                                                             stretch->r0, -1, 0, 0.0, stretch->bondName);
   
 }
@@ -279,9 +296,11 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   vdw->vInfinity = 0.0;
   vdw->vInfinity = potentialBuckingham(end, vdw);
   
-  fillInterpolationTable(&vdw->potentialBuckingham, potentialBuckingham, start, scale, vdw);
-  fillInterpolationTable(&vdw->gradientBuckingham, gradientBuckingham, start, scale, vdw);
-  vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->potentialBuckingham,
+  fillInterpolationTable(&vdw->Buckingham,
+                         potentialBuckingham,
+                         gradientBuckingham,
+                         start, scale, vdw);
+  vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->Buckingham,
                                                         vdw->rvdW, -1, 0,
                                                         potentialBuckingham(vdw->rvdW, vdw),
                                                         vdw->vdwName);
@@ -365,7 +384,7 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
       + stretch->potentialExtensionC * r * 2.0
       + stretch->potentialExtensionD * r * r * 3.0;
     extension_gradient *= DR;
-    printf("%e %e %e %e %e %e %e %e\n",
+    printf("%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n",
            r,                      // 1
            interpolated_potential, // 2
            interpolated_gradient, // 3
@@ -435,7 +454,7 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
     interpolated_gradient = vanDerWaalsGradient(NULL, NULL, vdw, r);
     direct_potential = potentialBuckingham(r, vdw);
     direct_gradient = gradientBuckingham(r, vdw);
-    printf("%e %e %e %e %e %e\n",
+    printf("%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n",
            r,                      // 1
            interpolated_potential, // 2
            interpolated_gradient, // 3

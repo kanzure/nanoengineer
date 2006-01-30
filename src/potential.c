@@ -50,26 +50,28 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   double potential;
 
   /* interpolation */
-  double *t1;
-  double *t2;
+  double *a;
+  double *b;
+  double *c;
   double start;
   double scale;
 
   struct interpolationTable *iTable;
 
   // table lookup equivalent to: potential = potentialLippincottMorse(rSquared);
-  iTable = &stretchType->potentialLippincottMorse;
+  iTable = &stretchType->LippincottMorse;
   start = iTable->start;
   scale = iTable->scale;
-  t1 = iTable->t1;
-  t2 = iTable->t2;
+  a = iTable->a;
+  b = iTable->b;
+  c = iTable->c;
   k = (int)(r - start) / scale;
   if (k < 0) {
     if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
       fprintf(stderr, "stretch: low --");
       printStretch(stderr, p, stretch);
     }
-    potential = t1[0] + r * t2[0];
+    potential = (a[0] * r + b[0]) * r + c[0];
   } else if (k >= TABLEN) {
     if (ToMinimize) { // extend past end of table using a polynomial
       // XXX switch the following to use Horner's method:
@@ -90,7 +92,7 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   } else if (DirectEvaluate) {
     potential = potentialLippincottMorse(r, stretchType);
   } else {
-    potential = t1[k] + r * t2[k];
+    potential = (a[k] * r + b[k]) * r + c[k];
   }
   return potential;
 }
@@ -103,8 +105,8 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
   double gradient;
 
   /* interpolation */
-  double *t1;
-  double *t2;
+  double *a;
+  double *b;
   double start;
   double scale;
 
@@ -112,11 +114,11 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
 
     // table lookup equivalent to: gradient = gradientLippincottMorse(r);
     // Note:  this points uphill, toward higher potential values.
-    iTable = &stretchType->gradientLippincottMorse;
+    iTable = &stretchType->LippincottMorse;
     start = iTable->start;
     scale = iTable->scale;
-    t1 = iTable->t1;
-    t2 = iTable->t2;
+    a = iTable->b;
+    b = iTable->b;
     k = (int)(r - start) / scale;
     if (!ToMinimize &&
         !ExcessiveEnergyWarning &&
@@ -131,7 +133,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
         fprintf(stderr, "stretch: low --");
         printStretch(stderr, p, stretch);
       }
-      gradient = t1[0] + r * t2[0];
+      gradient = 10.0 * (2.0 * a[0] * r + b[0]);
     } else if (k >= TABLEN) {
       if (ToMinimize) { // extend past end of table using a polynomial
         // XXX switch the following to use Horner's method:
@@ -151,7 +153,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     } else if (DirectEvaluate) {
       gradient = gradientLippincottMorse(r, stretchType);
     } else {
-      gradient = t1[k] + r * t2[k];
+      gradient = 1000.0 * (2.0 * a[k] * r + b[k]);
     }
     return gradient;
 }
@@ -162,18 +164,20 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
 {
   double potential;
   int k;
-  double *t1;
-  double *t2;
+  double *a;
+  double *b;
+  double *c;
   double start;
   double scale;
   struct interpolationTable *iTable;
   
   /* table setup  */
-  iTable = &parameters->potentialBuckingham;
+  iTable = &parameters->Buckingham;
   start = iTable->start;
   scale = iTable->scale;
-  t1 = iTable->t1;
-  t2 = iTable->t2;
+  a = iTable->a;
+  b = iTable->b;
+  c = iTable->c;
 
   k=(int)(r - start) / scale;
   if (k < 0) {
@@ -181,14 +185,13 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
-    k=0;
-    potential = t1[k] + r * t2[k];
+    potential = (a[0] * r + b[0]) * r + c[0];
   } else if (k>=TABLEN) {
     potential = 0.0;
   } else if (DirectEvaluate) {
     potential = potentialBuckingham(r, parameters);
   } else {
-    potential = t1[k] + r * t2[k];
+    potential = (a[k] * r + b[k]) * r + c[k];
   }
   return potential;
 }
@@ -199,18 +202,18 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
 {
   double gradient;
   int k;
-  double *t1;
-  double *t2;
+  double *a;
+  double *b;
   double start;
   double scale;
   struct interpolationTable *iTable;
       
   /* table setup  */
-  iTable = &parameters->gradientBuckingham;
+  iTable = &parameters->Buckingham;
   start = iTable->start;
   scale = iTable->scale;
-  t1 = iTable->t1;
-  t2 = iTable->t2;
+  a = iTable->a;
+  b = iTable->b;
 					
   k=(int)(r - start) / scale;
 
@@ -227,14 +230,13 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
-    k=0;
-    gradient = t1[k] + r * t2[k];
+    gradient = 2.0 * a[0] * r + b[0];
   } else if (DirectEvaluate) {
     gradient = gradientBuckingham(r, parameters);
   } else if (k>=TABLEN) {
     gradient = 0.0;
   } else {
-    gradient = t1[k] + r * t2[k];
+    gradient = 2.0 * a[k] * r + b[k];
   }
   return gradient;
 }

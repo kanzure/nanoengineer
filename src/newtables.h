@@ -4,10 +4,14 @@
 
 
 struct interpolationTable {
-    double start;
-    double scale;
-    double t1[TABLEN];
-    double t2[TABLEN];
+  double start;
+  double scale;
+  // y = ax^2 + bx + c
+  // y = (ax + b)x + c
+  // y' = 2ax + b
+  double a[TABLEN];
+  double b[TABLEN];
+  double c[TABLEN];
 };
 
 struct bondStretch 
@@ -45,8 +49,7 @@ struct bondStretch
   int isGeneric; // set to non-zero if the above are based on a heuristic
   int warned; // set to non-zero if a warning about using this entry has been printed
   
-  struct interpolationTable potentialLippincottMorse;
-  struct interpolationTable gradientLippincottMorse;
+  struct interpolationTable LippincottMorse;
 };
 
 struct vanDerWaalsParameters
@@ -67,8 +70,7 @@ struct vanDerWaalsParameters
   // at less than this index, a warning will be emitted.
   int minPhysicalTableIndex;
 
-  struct interpolationTable potentialBuckingham;
-  struct interpolationTable gradientBuckingham;
+  struct interpolationTable Buckingham;
 };
 
 struct deTableEntry
