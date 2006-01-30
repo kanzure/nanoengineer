@@ -288,7 +288,10 @@ isBondedToSame(struct atom *a1, struct atom *a2)
     struct bond *b1;
     struct bond *b2;
     struct atom *ac;
-    
+
+    if (a1 == a2) {
+        return 1;
+    }
     for (i=0; i<a1->num_bonds; i++) {
 	b1 = a1->bonds[i];
 	ac = (b1->a1 == a1) ? b1->a2 : b1->a1;
