@@ -308,7 +308,7 @@ class NanoBuildLinux(NanoBuildBase):
     def copyOtherSources(self, binPath):
         copy('/usr/bin/gnuplot', binPath)
         copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src/', self.pyrexTargetName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexTargetName()), binPath)
         copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
@@ -419,14 +419,6 @@ fi
 
 ########################################################
 
-#
-# For other platforms, the freezePythonExecutable step happens after
-# the copyOtherSource step.
-#
-MOVE_FRZ_PY = True
-
-#class NanoBuildMacOSX(NanoBuildBase):
-
 class NanoBuildMacOSX(NanoBuildLinux):
     def createMiddleDirectories(self):
         os.mkdir(self.installRootPath)
@@ -437,7 +429,7 @@ class NanoBuildMacOSX(NanoBuildLinux):
         """Pack source together for distribution (all platforms)."""
         self.buildSimulator()
         #
-        #
+        # copytree doc images partlib
         os.chdir(os.path.join(self.atomPath,'cad'))
         appname = self.appName + '.app'
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
@@ -451,11 +443,10 @@ class NanoBuildMacOSX(NanoBuildLinux):
         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
         #
         #
-        if not MOVE_FRZ_PY: self.freezePythonExecutable()
         binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
         self.copyOtherSources(binPath)
-        if MOVE_FRZ_PY: self.freezePythonExecutable()
+        self.freezePythonExecutable()
         print "------All python modules are packaged tegether."
 
 
@@ -476,7 +467,7 @@ class NanoBuildMacOSX(NanoBuildLinux):
     def linux_copyOtherSources(self, binPath):
         copy('/usr/bin/gnuplot', binPath)
         copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src/', self.pyrexTargetName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexTargetName()), binPath)
         copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
@@ -489,6 +480,7 @@ class NanoBuildMacOSX(NanoBuildLinux):
         copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, appname,
                                                              'Contents/bin/AquaTerm.app'))
         copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexTargetName()), binPath)
         copy('/usr/local/bin/gnuplot', binPath)
         #Copy rungms script into 'bin' directory
         copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
