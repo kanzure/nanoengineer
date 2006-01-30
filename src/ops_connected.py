@@ -32,25 +32,24 @@ class ops_connected_Mixin:
         
         cmd = greenmsg("Select Connected: ")
         
-        if not self.selatoms:
+        if atomlist is None and not self.selatoms:
             msg = redmsg("No atoms selected")
             env.history.message(cmd + msg)
             return
         
-        if not atomlist:
+        if atomlist is None: # test for None since atomlist can be an empty list.
             atomlist = self.selatoms.values()
             
         alreadySelected = len(self.selatoms.values())
         self.marksingle(atomlist)
         totalSelected = len(self.selatoms.values())
         
-        from platform import fix_plurals
-        info = fix_plurals( "%d connected atom(s) selected." % totalSelected)
-        env.history.message( cmd + info)
+        newAtomsSelected = totalSelected - alreadySelected
         
-        if totalSelected > alreadySelected:
-            ## Otherwise, that just means no new atoms selected, so no update necessary    
-            #self.w.win_update()
+        if newAtomsSelected > 0:
+            from platform import fix_plurals
+            info = fix_plurals( "%d connected atom(s) selected." % newAtomsSelected)
+            env.history.message( cmd + info)
             self.o.gl_update()
         
     def selectDoubly(self):
