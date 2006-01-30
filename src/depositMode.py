@@ -319,6 +319,12 @@ class depositMode(basicMode):
             # gets picked or not. mark 060125.
         self.obj_doubleclicked = None
             # used by leftDouble() to determine the object that was double clicked.
+        self.delete_mode = False
+            # Set to True when the Ctrl key is pressed.
+            # When delete_mode = True, atoms and bonds under the cursor will
+            # highlight in darkred to indicate that they will be deleted if clicked.
+            # When delete_mode = False, atoms and bonds under the cursor will
+            # highlight in their normal highlight color.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -608,24 +614,20 @@ class depositMode(basicMode):
     # event methods
     
     def keyPress(self,key):
-        
-        # A little thing that allows you to add the "lit up" object to the selection by clicking the spacebar.
-        # It is good for seeing how selection and highlighting might work together. Mark 051216.
-        #if key == Qt.Key_Space:
-        #    a = self.o.selobj
-        #    if a:
-        #        a.pick()
-        #        env.history.message(a.getinfo())
-        
-        if key == Qt.Key_Escape:
-            # Select None. Should this be moved to basicMode.keyPress()? mark 060129.
-            self.o.assy.selectNone()
-            
         # bruce comment 041220:
         # doesn't call basicMode method, so Delete key is not active. Good??
         # bruce 050128: no, not good. And it shows selection anyway... so do it below.
         if key == Qt.Key_Control:
-            self.o.setCursor(self.w.DeleteCursor)
+            self.o.setCursor(self.w.SelectAtomsSubtractCursor)
+                # Same cursor as Selet Atoms mode when Control is pressed.
+            self.delete_mode = True 
+            if self.o.selobj:
+                # If something is under the cursor, repaint to update the correct 
+                # highlight color (darkred).
+                self.o.gl_update()
+        if key == Qt.Key_Shift:
+            self.o.setCursor(self.w.SelectAtomsAddCursor)
+                # Same cursor as Selet Atoms mode when Shift is pressed.
         for sym, code, num in elemKeyTab:
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
@@ -646,9 +648,12 @@ class depositMode(basicMode):
         basicMode.keyRelease(self, key)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.DepositAtomCursor)
-
-    def rightCntlDown(self, event):          
-            basicMode.rightCntlDown(self, event)
+            self.delete_mode = False 
+            if self.o.selobj:
+                # If something is under the cursor, repaint to update its correct 
+                # (normal) highlight color.
+                self.o.gl_update()
+        if key == Qt.Key_Shift:
             self.o.setCursor(self.w.DepositAtomCursor)
 
     def getCoords(self, event):
@@ -705,7 +710,12 @@ class depositMode(basicMode):
             if selobj.is_singlet():
                 return HICOLOR_singlet ###@@@ this one is not yet in prefs db
             else:
-                return env.prefs.get( atomHighlightColor_prefs_key) ## was HICOLOR_real_atom before bruce 050805
+                if self.delete_mode and not selobj.picked: # Picked atoms are not deleted.
+                    return darkred  
+                        # Highlight the atom in darkred if the control key is pressed and it is not picked.
+                        # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
+                else:
+                    return env.prefs.get( atomHighlightColor_prefs_key) ## was HICOLOR_real_atom before bruce 050805
         elif isinstance(selobj, Bond):
             #bruce 050822 experiment: debug_pref to control whether to highlight bonds
             # (when False they'll still obscure other things -- need to see if this works for Mark ####@@@@)
@@ -722,7 +732,10 @@ class depositMode(basicMode):
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
                 return HICOLOR_singlet_bond
             else:
-                return env.prefs.get( bondHighlightColor_prefs_key) ## was HICOLOR_real_bond before bruce 050805
+                if self.delete_mode: 
+                    return darkred # Highlight the bond in darkred if the control key is pressed.
+                else:
+                    return env.prefs.get( bondHighlightColor_prefs_key) ## was HICOLOR_real_bond before bruce 050805
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             return None # (jigs aren't yet able to draw themselves with a highlight-color)
         else:
@@ -1263,24 +1276,34 @@ class depositMode(basicMode):
         
         self.o.gl_update()
 
+    def leftShiftUp(self, event):
+        self.leftUp(event, 'Shift')
 
-    def leftUp(self, event):
+    def leftUp(self, event, modkey=None):
+        env.history.flush_saved_transients() # flush any transient message it saved up
+        if not self.dragatom: return
         
-        # If the atom was clicked (not dragged), clear the selection and pick it.  mark 060125.
-        if self.dragatom and self.dragatom_clicked:
-            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
-            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
-                self.o.assy.unpickatoms()
+        # If dragatom is an atom, do one of the following:
+        # 1. If no modifier key was pressed, clear the selection and pick it.
+        # 2. If Shift was pressed, pick it, adding it to the selection.
+        # 3. If Ctrl was pressed and atom is picked, unpick it.
+        # 4. If Ctrl was pressed and atom is not picked, delete it.
+        if self.dragatom_clicked:
+            if modkey == None: # no Shift or Ctrl modifier key.
+                # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
+                if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                    self.o.assy.unpickatoms() # Clear selection.
+            
             self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
             self.dragatom.pick()
             env.history.message(self.dragatom.getinfo())
         
-        # If dragatom is a singlet.  Do one of the following:
-        # 1. deposit an object on the singlet (if it is still highlighted)
-        # 2. bond the singlet to another singlet (if a different singlet is highlighted)
-        # 3. Nothing, except erase the white rubberband line (if nothing is selected).
+        # If dragatom is a singlet, do one of the following:
+        # 1. If it is still highlighted, deposit an object on it
+        # 2. If a different singlet is highlighted, bond to it.
+        # 3. If nothing is highlighted, do nothing.
         # mark 060129.
-        if self.dragatom and self.dragatom.is_singlet():
+        if self.dragatom.is_singlet():
             self.line = None # required to erase white rubberband line on next gl_update.
             # bruce 051209 brought update_selatom inside this conditional, to fix an old bug; 
             # need to reset it in other case???###@@@
@@ -1289,19 +1312,19 @@ class depositMode(basicMode):
                 # [bruce 050705 comment]
             if self.o.selatom:
                 if self.o.selatom is self.dragatom:
-                    # Deposit object (atom, chunk or library part) from MMKit on singlet.
+                    # Deposit object (atom, chunk or library part) from MMKit on singlet (dragatom).
                     self.deposit_from_MMKit(self.dragatom)
                 else:
-                    # Bond singlets.
+                    # Bond the highlighted singlet (selatom) to this singlet (dragatom)
                     dragatom = self.dragatom
                     selatom = self.o.selatom
                     if selatom.is_singlet(): #bruce 041119, just for safety
                         self.dragged_singlet_over_singlet(dragatom, selatom)
         
-        env.history.flush_saved_transients() # flush any transient message it saved up
+        
         self.baggage = []
-        self.dragatom = None 
-        self.o.selatom = None
+        self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
+        self.o.selatom = None #bruce 041208 for safety in case it's killed
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
         # set it again; all this seems ok for now, so I'll leave it alone.
@@ -1734,32 +1757,6 @@ class depositMode(basicMode):
         self.line = [a.posn(), px] # This updates the endpoints of the white rubberband line.
 
 
-    def leftShiftUp(self, event):
-        env.history.flush_saved_transients()
-            # flush any transient message it saved up
-        if not self.dragatom: return
-        
-        # If the atom was clicked (not dragged), pick it.  mark 060125.
-        if self.dragatom_clicked:
-            self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
-            self.dragatom.pick()
-            env.history.message(self.dragatom.getinfo())
-            
-        self.baggage = []
-        self.line = None
-        if self.dragatom.is_singlet():
-            #bruce 051209 brought update_selatom inside this conditional, to fix an old bug; need to reset it in other case???###@@@
-            self.update_selatom(event, singOnly = True)
-                # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-            if self.o.selatom and self.o.selatom is not self.dragatom:
-                dragatom = self.dragatom
-                selatom = self.o.selatom
-                if selatom.is_singlet(): #bruce 041119, just for safety
-                    self.dragged_singlet_over_singlet(dragatom, selatom)
-        self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
-        self.o.selatom = None #bruce 041208 for safety in case it's killed
-        self.o.gl_update()
-
     def dragged_singlet_over_singlet(self, dragatom, selatom):
         #bruce 050429: it'd be nice to highlight the involved bonds and atoms, too...
         # incl any existing bond between same atoms. (by overdraw, for speed, or by more lines) ####@@@@ tryit
@@ -1781,7 +1778,7 @@ class depositMode(basicMode):
         return
 
     ## delete with cntl-left mouse ###e should we delete the baggage too??
-    def leftCntlDown(self, event):
+    def leftCntlUp(self, event):
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
@@ -1789,11 +1786,15 @@ class depositMode(basicMode):
         selobj = self.o.selobj # only used if selatom is None
         if a is not None:
             # this may change hybridization someday
-            if a.element is Singlet: return
-            env.history.message("deleting %r" % a) #bruce 041208
-            a.kill()
-            self.o.selatom = None #bruce 041130 precaution
-            self.o.assy.changed()
+            if a.element is Singlet: # If a singlet, do nothing.
+                return
+            if a.picked:  # If the atom is picked, unpick it.
+                a.unpick()
+            else: # If the atom is not picked, delete it.
+                env.history.message("deleting %r" % a) #bruce 041208
+                a.kill()
+                self.o.selatom = None #bruce 041130 precaution
+                self.o.assy.changed()
         elif isinstance( selobj, Bond) and not selobj.is_open_bond(): #bruce 050727 new feature
             env.history.message_no_html("breaking bond %s" % selobj)
                 ###e %r doesn't show bond type, but %s doesn't work in history since it contains "<-->" which looks like HTML.
@@ -1803,12 +1804,6 @@ class depositMode(basicMode):
             self.o.assy.changed() #k needed?
             
         self.w.win_update()
-
-# removed by bruce 041217:
-##    def middleDouble(self, event):
-##        """ End deposit mode
-##	"""
-##	self.Done()
 
     ###################################################################
     #   Cutting and pasting                                           #
