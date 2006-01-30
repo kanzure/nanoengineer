@@ -18,9 +18,9 @@ A more direct way is to ask your shell to do
 For up to date info about how to do this (especially for Windows), see the wiki.
 
 Running this makes some output files and subdirectories, and prints lots of output.
-I think it only recompiles what needs to be recompiled (based on modtimes), but I'm not sure.
-(I've had a hard time finding any documentation about the internal workings of distutils,
-though it's easy to find basic instructions about how to use it.)
+I think it only recompiles what needs to be recompiled (based on modtimes), but I\'m not sure.
+(I\'ve had a hard time finding any documentation about the internal workings of distutils,
+though it\'s easy to find basic instructions about how to use it.)
 
 This is based on the Pyrex example file Pyrex-0.9.3/Demos/Setup.py.
 '''
@@ -51,6 +51,34 @@ if sys.platform == "darwin":
     extra_compile_args = [ "-O" ]
 else:
     extra_compile_args = [ ]
+
+import Pyrex.Distutils.build_ext
+class local_build_ext(Pyrex.Distutils.build_ext):
+    user_options = (Pyrex.Distutils.build_ext.user_options +
+                    [("getCflags", "G", "get CFLAGS, add to version.c")])
+    def __init__(self, dist):
+        Pyrex.Distutils.build_ext.__init__(self, dist)
+        self.distn = dist
+        self.getCflags = False
+    def run(self):
+        if not self.getCflags:
+            Pyrex.Distutils.build_ext.run(self)
+            return
+        # Pieces of the distutils.command.build_ext.run() method
+        from distutils.ccompiler import new_compiler
+        from distutils.sysconfig import customize_compiler
+        compiler = new_compiler(compiler=None,
+                                verbose=self.verbose,
+                                dry_run=self.dry_run,
+                                force=self.force)
+        customize_compiler(compiler)
+        outf = open("version.c", "a")
+        outf.write("# Pyrex: " +
+                   " ".join(compiler.compiler_so +
+                            self.distn.ext_modules[0].extra_compile_args) +
+                   "\\n\\\n")
+        outf.close()
+build_ext = local_build_ext
 
 setup(name = 'Simulator',
       ext_modules=[Extension("sim", ["sim.pyx",

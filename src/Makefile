@@ -30,7 +30,20 @@ ifeq ($(WWDEBUG),1)
 CFLAGS+=-DWWDEBUG
 endif
 
-all: newversion simulator $(PYREXTARGET)
+# Just typing "make" will build the first target, which is traditionally
+# the standlone simulator.
+standalone:
+	make newversion
+	make simulator
+
+pyx:
+	make newversion
+	make $(PYREXTARGET)
+
+all:
+	make newversion
+	make simulator
+	make $(PYREXTARGET)
 
 trace_all:
 	make clean
@@ -39,7 +52,7 @@ trace_all:
 	make clean
 	make simulator $(PYREXTARGET)
 
-.PHONY: all trace_all lall newversion noopt empty-trace-prefix trace-prefix extensions pyx install install-linux clean dist_clean depends
+.PHONY: all trace_all lall newversion noopt empty-trace-prefix trace-prefix pyx install install-linux clean dist_clean depends
 
 lall: all glviewer
 
@@ -85,6 +98,7 @@ version.c:
 	echo "char tracePrefix[] = \"\\" >> version.c
 	echo "# Simulator built:" `date` | sed 's#$$#\\n\\#' >> version.c
 	echo "# CFLAGS=$(CFLAGS)" | sed 's#$$#\\n\\#' >> version.c
+	python setup.py build_ext --getCflags
 	echo "# Platform:" `uname -a` | sed 's#$$#\\n\\#' >> version.c
 	echo "\";" >> version.c
 	echo >> version.c
@@ -160,12 +174,8 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-extensions: Makefile
-
-sim.so: Makefile
+$(PYREXTARGET): Makefile version.c
 	python setup.py build_ext --inplace
-
-pyx: $(PYREXTARGET)
 
 install: simulator
 	if [ ! -d $$HOME/bin ] ; then \
