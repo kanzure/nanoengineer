@@ -73,7 +73,7 @@ class local_build_ext(Pyrex.Distutils.build_ext):
                                 force=self.force)
         customize_compiler(compiler)
         outf = open("version.c", "a")
-        outf.write("# Pyrex: " +
+        outf.write("# Distutils: " +
                    " ".join(compiler.compiler_so +
                             self.distn.ext_modules[0].extra_compile_args) +
                    "\\n\\\n")
