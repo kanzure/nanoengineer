@@ -26,6 +26,11 @@ def system(cmd):
     if ret != 0: raise Exception, cmd
     return ret
 
+class AbstractMethod(Exception):
+    """Indicates that something must be overloaded because it isn't usefully
+    defined in the context where it's being used."""
+    pass
+
 class NanoBuildBase:
     """This is the base class for creating a installation package.
     It works for Linux, Mac OS X, and WinXP.
@@ -131,10 +136,10 @@ class NanoBuildBase:
         """This will typically include gnuplot, the standalone simulator executable, an
         icon file, release notes and other text files.
         """
-        pass
+        raise AbstractMethod
 
     def freezePythonExecutable(self):
-        pass
+        raise AbstractMethod
 
     def removeCVSFiles(self, rootDir):
         """Remove all CVS files and the directory for any cvs checkout directory under <root>. """
@@ -160,8 +165,10 @@ class NanoBuildBase:
                 os.rmdir(os.path.join(root, name))
 
     def makePlatformPackage(self):
-        # different for each platform
-        raise Exception, "this must be overloaded"
+        """Packages are different for different platforms. Linux wants an RPM.
+        The Mac wants a DMG. Windows wants something else. Build the package.
+        """
+        raise AbstractMethod
 
 ###################################################
 
@@ -419,7 +426,7 @@ fi
 
 ########################################################
 
-class NanoBuildMacOSX(NanoBuildLinux):
+class NanoBuildMacOSX(NanoBuildBase):
     def createMiddleDirectories(self):
         os.mkdir(self.installRootPath)
         os.mkdir(self.diskImagePath)
@@ -429,13 +436,6 @@ class NanoBuildMacOSX(NanoBuildLinux):
         """Pack source together for distribution (all platforms)."""
         self.buildSimulator()
         #
-        # copytree doc images partlib
-        os.chdir(os.path.join(self.atomPath,'cad'))
-        appname = self.appName + '.app'
-        copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
-        copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
-        copytree('partlib', os.path.join(self.buildSourcePath, appname, 'Contents/partlib'))
-        #
         #
         os.chdir(self.currentPath)
         copy('background.jpg', self.resourcePath)
@@ -443,10 +443,19 @@ class NanoBuildMacOSX(NanoBuildLinux):
         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
         #
         #
+        self.freezePythonExecutable()
+        #
+        #
+        os.chdir(os.path.join(self.atomPath,'cad'))
+        appname = self.appName + '.app'
+        copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
+        copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
+        copytree('partlib', os.path.join(self.buildSourcePath, appname, 'Contents/partlib'))
+        #
+        #
         binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
         self.copyOtherSources(binPath)
-        self.freezePythonExecutable()
         print "------All python modules are packaged tegether."
 
 
@@ -464,18 +473,9 @@ class NanoBuildMacOSX(NanoBuildLinux):
     #     NanoBuildLinux.copyOtherSources(self, binPath)
     #     ...stuff...
     #
-    def linux_copyOtherSources(self, binPath):
-        copy('/usr/bin/gnuplot', binPath)
-        copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexTargetName()), binPath)
-        copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
-        copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
-        copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
-        copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
-        copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
-
 
     def copyOtherSources(self, binPath):
+        appname = self.appName + '.app'
         os.chdir(self.currentPath)
         copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, appname,
                                                              'Contents/bin/AquaTerm.app'))
