@@ -692,6 +692,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 ##            if self.__dict__.has_key(attr):
 ##                print "fyi: _recompute_atpos sees %r already existing" % attr
         #
+        #bruce 060129 for Undo: should we make atlist always be in order of atom keys?? ######@@@@@@
+        # [undecided -- to preserve keys requires even more! like, store them explicitly?] [see also writemmp and the method it uses]
+        # [note that we'll be going to storing only changed atoms anyway... maybe easiest to skip directly to that coding stage]
+        
         atlist = self.atoms.values()
         self.atlist = array(atlist, PyObject)
         # we let atlist (as opposed to self.atlist) remain a Python list;
@@ -1588,24 +1592,17 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #bruce 050308 comment: Node.pick has ensured that we're in the current selection group,
             # so it's correct to append to selmols, *unless* we recompute it now and get a version
             # which already contains self. So, we'll maintain it iff it already exists.
-            # I'll write this code to run even if my other assy/part changes aren't committed yet.
-            # This needs a later re-review! same with unpick #####@@@@@
-            try:
-                import part # see if the code that defines this was committed yet
-            except:
-                # that code wasn't committed yet
-                self.assy.selmols.append(self)
-            else:
-                # let the Part figure out how best to do this
-                ## self.assy.part.selmols_append(self) ## WRONG
-                if self.part:
-                    self.part.selmols_append(self)
+            # Let the Part figure out how best to do this.
+            # [bruce 060130 cleaned this up, should be equivalent]
+            if self.part:
+                self.part.selmols_append(self)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here,
             # since self.draw uses self.picked outside of its display list,
             # so I'm removing that! This might speed up some things.
             ## self.havelist = 0
             # bruce 041227 moved history message from here to one caller, pick_at_event
-
+        return
+    
     def unpick(self):
         """unselect the molecule.
         """
@@ -1614,19 +1611,14 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # bruce 050308 comment: following probably needs no change for assy/part.
             # But we'll let the Part do it, so it needn't remake selmols if not made.
             # But in case the code for assy.part is not yet committed, check that first:
-            try:
-                import part # see comments in pick method
-            except:
-                if self in self.assy.selmols:
-                    self.assy.selmols.remove(self)
-            else:
-                ## self.assy.part.selmols_remove(self) ## WRONG
-                if self.part:
-                    self.part.selmols_remove(self)
+            # [bruce 060130 cleaned this up, should be equivalent]            
+            if self.part:
+                self.part.selmols_remove(self)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here
             # (see comment in self.pick).
             ## self.havelist = 0
-
+        return
+    
     def kill(self):
         """(Public method)
         Kill a molecule: unpick it, break its external bonds, kill its atoms

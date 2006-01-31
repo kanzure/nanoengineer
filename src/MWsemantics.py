@@ -322,12 +322,13 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.win_update() # bruce 041222
         undo.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
         return
-    
-    def __getattr__(self, attr): #bruce 050913 report deprecated uses of win.history
-        if attr == 'history':
-            print_compact_traceback("deprecated code warning: win.history should be env.history: ")
-            return env.history
-        raise AttributeError, attr
+
+    #bruce 060127 removing this since I think it's no longer needed (and a text search suppports this theory).
+##    def __getattr__(self, attr): #bruce 050913 report deprecated uses of win.history
+##        if attr == 'history':
+##            print_compact_traceback("deprecated code warning: win.history should be env.history: ")
+##            return env.history
+##        raise AttributeError, attr
 
     def cleanUpBeforeExiting(self): #bruce 060127 added this re bug 1412 (Python crashes on exit, newly common)
         try:

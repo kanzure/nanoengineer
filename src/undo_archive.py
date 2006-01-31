@@ -117,6 +117,47 @@ def checkpoint_kluge_filename():
         _checkpoint_kluge_filename = compute_checkpoint_kluge_filename()
     return _checkpoint_kluge_filename
 
+class writemmp_mapping_for_Undo( writemmp_mapping):
+    "A specialized mapping which can store data in more ways. Maybe it'll also have methods to help with reading it out..."
+    def __init__(self, *args, **options):
+        opts = dict(for_undo = True) # revised default values
+        opts.update(options) # passed options can still override those
+        writemmp_mapping.__init__( self, *args, **opts)
+        # The following inits are in superclass. In general,
+        # this code is unclear for now on the role of the flag in the superclass vs the existence of this subclass;
+        # the superclass needs the flag so existing writemmp methods can always test it easily,
+        # but if we reserved it for use by this subclass, then the following attrs could be inited here,
+        # and it'll probably turn out that the code that tests the flag then runs methods defined here, anyway.
+        ## self.aux_list = []
+        ## self.aux_dict = {}
+        return
+    def write_component(self, location, value):
+        """Serialize value & store it in self (sharing the serializations of any class objects it contains,
+        but NOT of shared Python lists/dicts (why not?? dangerous if caller wants to reuse one for cur state??);
+        also define it as current value of the given location (any data-like object usable as a key).
+        This API will probably be revised.
+        """
+        if 0:
+            print "can't yet serialize something of type %r, at %r" % ( type(value) , location ) ####@@@@
+        # basic alg: store dict of object ids to their keys/policies, computed first time we hit them,
+        # and another dict or list of data of the form "obj key, attr A, value V" where V is encoded value, objs -> wrapped keys.
+
+        # The encoder is a simple recursive one which doesn't worry about shared subobjects.
+        # The objects should provide some methods for cooperating with this, or external code can register those;
+        # if neither happens, it's an error or some default policy is used (e.g. assume it's a permanent object, and debug warning).
+
+        # The policies registered outside of classes can be hardcoded into this class, writemmp_mapping_for_Undo.
+
+        # Classes wanting to cooperate can inherit a mixin that does so in a standard way, e.g. letting them declare per-attr
+        # what needs storing, with general or special methods. (Ignore tracking for now, just do serialization.)
+        # These decls need to have some way to classify changes to each attr as structural, selection, or view...
+
+        # This scheme will end up being moved into another mixin class inherited by this one, or whose instance we own;
+        # the code for all this belongs in undo_mixin.py, probably. (Or some different new file.)
+        
+        return
+    
+    pass # end of class writemmp_mapping_for_Undo
 
 def mmp_state_from_assy(assy, initial = False): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
@@ -139,11 +180,12 @@ def mmp_state_from_assy(assy, initial = False): #bruce 060117 prototype-kluge
     
     fp = open( checkpoint_kluge_filename(), "w")
 
-    mapping = writemmp_mapping(assy) ###e should pass options
+    mapping = writemmp_mapping_for_Undo( assy) #bruce 060130 using this subclass (it sets mapping.for_undo = True)
     mapping.set_fp(fp)
 
     try:
         mapping.write_header()
+        mapping.write("# (This file was written to encode internal state for Undo; it might not be readable separately.)\n")
         assy.construct_viewdata().writemmp(mapping)
         assy.tree.writemmp(mapping)
         
@@ -153,6 +195,19 @@ def mmp_state_from_assy(assy, initial = False): #bruce 060117 prototype-kluge
         addshelf = True
         if addshelf:
             assy.shelf.writemmp(mapping)
+
+        if 1: #060130 also write out mode, current_movie, selection, etc
+            # this code is added just for Undo (not analogous to anything in mmp file writing code),
+            # and doesn't use the pseudo-file kluge in an essential way
+            # (though it might write fake mmprecords to it if that's convenient,
+            #  to cause what it writes to be reread in the same order)
+            part = assy.part
+            glpane = assy.o
+            from ops_select import selection_from_part
+            ##k following might also want an initial arg for the object this is relative to -- or maybe toplevel obj is implied?
+            mapping.write_component('movie', assy.current_movie) ####k component name -> objref and (if first time seen) objdef
+            mapping.write_component('mode', glpane.mode) ####k
+            mapping.write_component('selection', selection_from_part(part) )
         
         mapping.write("end molecular machine part " + assy.name + "\n")
     except:

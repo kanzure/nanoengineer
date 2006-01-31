@@ -993,6 +993,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return
 
     def mouseDoubleClickEvent(self, event):
+        self.makeCurrent() #bruce 060129 precaution, presumably needed for same reasons as in mousePressEvent
+        self.begin_select_cmd() #bruce 060129 bugfix (needed now that this can select atoms in depositMode)
+        
         self.debug_event(event, 'mouseDoubleClickEvent')
         ## but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent;

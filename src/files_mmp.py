@@ -1205,6 +1205,16 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.min = options.get('min', False) # even more simple, just for minimize?
         if self.min:
             self.sim = True
+        self.for_undo = options.get('for_undo', False)
+        if self.for_undo:
+            # Writemmp methods should work differently in several ways when we're using self to record "undo state";
+            # they can also store info into the following attributes to help the corresponding reading methods.
+            # (We might revise this to use a mapping subclass, but for now, I'm guessing the init arg support might be useful.)
+            # (Later we're likely to split this into more than one flag, to support writing binary mmp files,
+            #  differential mmp files, and/or files containing more info such as selection.)
+            # [bruce 060130]
+            self.aux_list = []
+            self.aux_dict = {}
         self.forwarded_nodes_after_opengroup = {}
         self.forwarded_nodes_after_child = {}
         pass

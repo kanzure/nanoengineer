@@ -105,7 +105,15 @@ class assembly(GenericDiffTracker_API_Mixin):
     """
 
     # default values of some instance variables
+
+    # count changes that affect mmp file (includes all structural changes and many display changes);
+    # but (for all these change counters) changes occurring between checkpoints might count as only one change
     _change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
+
+    # count other kinds of changes, not saved but perhaps undoable [bruce 060129; perhaps not yet fully implemented ###@@@]
+    _selection_change_counter = 0
+    _view_change_counter = 0 # also includes changing current part, glpane display mode
+    
     undo_manager = None #bruce 060127
     
     def __init__(self, win, name = None, own_window_UI = False):
@@ -782,6 +790,20 @@ class assembly(GenericDiffTracker_API_Mixin):
             return deleg
         raise AttributeError, attr
 
+    # == tracking undoable changes that aren't saved
+
+    def changed_selection(self): #bruce 060129; this will need revision if we make it part-specific ###@@@ not yet called enough
+        if self._suspend_noticing_changes:
+            return
+        self._selection_change_counter = env.change_counter_for_changed_objects()
+        return
+
+    def changed_view(self): #bruce 060129 ###@@@ not yet called enough
+        if self._suspend_noticing_changes:
+            return
+        self._view_change_counter = env.change_counter_for_changed_objects()
+        return
+    
     # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
     
     def has_changed(self):
