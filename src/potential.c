@@ -117,7 +117,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     iTable = &stretchType->LippincottMorse;
     start = iTable->start;
     scale = iTable->scale;
-    a = iTable->b;
+    a = iTable->a;
     b = iTable->b;
     k = (int)(r - start) / scale;
     if (!ToMinimize &&
@@ -133,7 +133,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
         fprintf(stderr, "stretch: low --");
         printStretch(stderr, p, stretch);
       }
-      gradient = 10.0 * (2.0 * a[0] * r + b[0]);
+      gradient = 1e6 * (2.0 * a[0] * r + b[0]);
     } else if (k >= TABLEN) {
       if (ToMinimize) { // extend past end of table using a polynomial
         // XXX switch the following to use Horner's method:
@@ -153,7 +153,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     } else if (DirectEvaluate) {
       gradient = gradientLippincottMorse(r, stretchType);
     } else {
-      gradient = 1000.0 * (2.0 * a[k] * r + b[k]);
+      gradient = 1e6 * (2.0 * a[k] * r + b[k]);
     }
     return gradient;
 }
@@ -185,13 +185,13 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
-    potential = (a[0] * r + b[0]) * r + c[0];
+    potential = 1e6 * (a[0] * r + b[0]) * r + c[0];
   } else if (k>=TABLEN) {
     potential = 0.0;
   } else if (DirectEvaluate) {
     potential = potentialBuckingham(r, parameters);
   } else {
-    potential = (a[k] * r + b[k]) * r + c[k];
+    potential = 1e6 * (a[k] * r + b[k]) * r + c[k];
   }
   return potential;
 }

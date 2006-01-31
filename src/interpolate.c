@@ -54,6 +54,7 @@ fillInterpolationTable(struct interpolationTable *t,
 
     // C = y2 - (A x2 + B) x2
     t->c[k] = y2 - (t->a[k] * x2 + t->b[k]) * x2;
+    //fprintf(stderr, "%d %e %e %e ... %e %e %e\n", k, t->a[k], t->b[k], t->c[k], x2, y2, y2p);
   }
 }
 
@@ -209,6 +210,30 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
   return searchLimit;
 }
 
+#if 0
+static double
+potentialQuadratic(double r, void *p)
+{
+  struct bondStretch *stretch = (struct bondStretch *)p;
+  double dr = r - stretch->r0;
+  return stretch->ks * dr * dr;
+}
+
+static double
+gradientQuadratic(double r, void *p)
+{
+  double r1 = r - DELTA_R / 2.0;
+  double r2 = r + DELTA_R / 2.0;
+  double y1 = potentialQuadratic(r1, p);
+  double y2 = potentialQuadratic(r2, p);
+  // y1, y2 are in attoJoules (1e-18 J)
+  // DELTA_R is in pm (1e-12 m), so:
+  // (y2-y1)/DELTA_R is attoJoules / pm (1e-6 J / m)
+  // 1e6*(y2-y1) is in 1e-12 J/m, or pN
+
+  return 1e6 * (y2 - y1) / DELTA_R;
+}
+#endif
 
 // Initialize the function interpolation tables for each stretch
 void
@@ -231,7 +256,6 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
                          potentialLippincottMorse(rmax, stretch),
                          gradientLippincottMorse(rmax, stretch)
                          );
-
   fillInterpolationTable(&stretch->LippincottMorse,
                          potentialLippincottMorse,
                          gradientLippincottMorse,

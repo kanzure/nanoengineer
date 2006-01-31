@@ -64,7 +64,7 @@ pyx: $(PYREXTARGET)
 
 .PHONY: all lall newversion noopt pyx install install-linux clean dist_clean depend depends
 
-lall: simulator all glviewer
+lall: all pyx glviewer
 
 SUFFIXES: .c .h .o ;
 
@@ -142,7 +142,7 @@ install-linux: install $(PYREXTARGET)
 	cp sim.so $(EXE_DIRECTORY)
 
 clean:
-	rm -f version.c traceprefix.c
+	rm -f version.c
 	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
