@@ -26,6 +26,12 @@ def system(cmd):
     if ret != 0: raise Exception, cmd
     return ret
 
+def oneLiner(cmd):
+    def strip(x):
+        return x.rstrip()
+    lines = map(strip, os.popen(cmd).readlines())
+    return repr(lines)
+
 class AbstractMethod(Exception):
     """Indicates that something must be overloaded because it isn't usefully
     defined in the context where it's being used."""
@@ -77,7 +83,10 @@ class NanoBuildBase:
         # need these for a mac osx build
         pass
 
-    def pyrexTargetName(self):
+    def standaloneSimulatorName(self):
+        return "simulator"
+
+    def pyrexSimulatorName(self):
         return "sim.so"
 
     def prepareSources(self):
@@ -107,6 +116,10 @@ class NanoBuildBase:
         os.chdir(os.path.join(self.atomPath, 'sim/src'))
         system('make')
         system('make pyx')
+        if False:
+            # verify they got built
+            print oneLiner("pwd") + " " + oneLiner("ls sim*")
+            raise Exception
         print "----------Sources have been checked out and made.\n"
 
     def buildTarball(self):
@@ -184,7 +197,8 @@ class NanoBuildWin32(NanoBuildBase):
     def copyOtherSources(self, binPath):
         print "\n------------------------------------------------------\nCopying other files"
         copy('wgnuplot.exe', binPath)
-        copy(os.path.join(self.atomPath, 'sim/src/simulator.exe'), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), binPath)
         copy(self.iconFile, self.buildSourcePath)
         copy('uninst.ico', self.buildSourcePath)
         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
@@ -205,7 +219,10 @@ class NanoBuildWin32(NanoBuildBase):
                     os.remove(file)
         print "Done"
 
-    def pyrexTargetName(self):
+    def standaloneSimulatorName(self):
+        return "simulator.exe"
+
+    def pyrexSimulatorName(self):
         return "sim.dll"
 
     def freezePythonExecutable(self):
@@ -314,8 +331,8 @@ class NanoBuildLinux(NanoBuildBase):
         print "\nThe tar file: %s has been successfully created.\n" % tarName
     def copyOtherSources(self, binPath):
         copy('/usr/bin/gnuplot', binPath)
-        copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexTargetName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), binPath)
         copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
@@ -479,8 +496,8 @@ class NanoBuildMacOSX(NanoBuildBase):
         os.chdir(self.currentPath)
         copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, appname,
                                                              'Contents/bin/AquaTerm.app'))
-        copy(os.path.join(self.atomPath, 'sim/src/simulator'), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexTargetName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), binPath)
         copy('/usr/local/bin/gnuplot', binPath)
         #Copy rungms script into 'bin' directory
         copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
@@ -548,9 +565,9 @@ fi
     def createPlistFile(self, plistFile,  appName, majorVer, minorVer,  releaseNo):
         """ Write InfoPlist file to build package of PackageMaker (Mac OS X)."""
         plf = open(plistFile, 'w')
-        titleDoc = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
+        titleDoc = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
 <dict>
         <key>CFBundleGetInfoString</key>
       """
