@@ -29,8 +29,43 @@ __author__ = ["Will", "Bruce"]
 
 from qt import *
 import env
+import webbrowser
 from debug import print_compact_traceback
 from HistoryWidget import redmsg
+
+if len(webbrowser._tryorder) == 0:
+    # Sometimes webbrowser.py does not find a web browser. Also, its list
+    # of web browsers is somewhat antiquated. Give it some help.
+    def register(pathname, key):
+        webbrowser._tryorder += [ key ]
+        webbrowser.register(key, None,
+                            webbrowser.GenericBrowser("%s '%%s'" % pathname))
+    # Candidates are in order of decreasing desirability. Browser
+    # names for different platforms can be mixed in this list. Where a
+    # browser is not normally found on the system path (like IE on
+    # Windows), give its full pathname. There is a working default for
+    # Windows and Mac, apparently the only problem is when Linux has
+    # neither "mozilla" nor "netscape".
+    for candidate in [
+        'firefox',
+        'opera',
+        'netscape',
+        'konqueror',
+        # 'c:/Program Files/Internet Explorer/iexplore.exe'
+        ]:
+        import os.path
+        if os.path.exists(candidate):
+            # handle candidates with full pathnames
+            register(candidate, candidate)
+            continue
+        for dir in os.environ['PATH'].split(':'):
+            pathname = os.path.join(dir, candidate)
+            if os.path.exists(pathname):
+                register(pathname, candidate)
+                continue
+    # We should now have at least one browser available
+    if len(webbrowser._tryorder) == 0:
+        raise Exception, "Cannot find a web browser for wiki help"
 
 def open_wiki_help_page( featurename, actually_open = True ):
     ###e this function is misnamed, since it opens a context help dialog whose link might open a wiki help page
@@ -93,7 +128,6 @@ def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split th
     env.history.message("%s: opening " % whosdoingthis + url) # see module docstring re "wiki help" vs. "web help"
         # print this in case user wants to open it manually or debug the url prefix preference
     try:
-        import webbrowser
         webbrowser.open( url)
         worked = True
     except:
@@ -187,7 +221,6 @@ class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bru
                     close_dialog = clicked_func(name) #e might generalize to let clicked_func return new html to show, etc...
                 else:
                     #bruce 051216 let this just be default clicked_func (for testing) -- let provided clicked_func do this itself
-                    import webbrowser
                     webbrowser.open(name) ###e should this be moved into clicked_func?
                     close_dialog = True
                 if close_dialog:
