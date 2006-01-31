@@ -56,9 +56,11 @@ ifeq ($(WWDEBUG),1)
 CFLAGS+=-DWWDEBUG
 endif
 
-all: $(PYREXTARGET)
+# It's important not to change these two targets.
+all: $(SIMTARGET)
 
-pyx: all
+# It's important not to change these two targets.
+pyx: $(PYREXTARGET)
 
 .PHONY: all lall newversion noopt pyx install install-linux clean dist_clean depend depends
 
