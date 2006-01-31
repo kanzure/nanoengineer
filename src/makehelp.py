@@ -51,17 +51,16 @@ def cString(name, s, prefix=""):
 
 ######################################
 
-NOTAVAILABLE = """
-char simulatorSourceVersions[] = "\\
-# Source file version info not available.\\n";
-"""
+NOTAVAILABLE = "Source file version info not available."
 
 now = datetime.fromtimestamp(time.
                              mktime(datetime.
                                     utcnow().timetuple())).ctime()
 s = ("Simulator built: " + now + " (UTC)\n" +
+     "Python version: " + sys.version + "\n" +
      "CFLAGS = " + sys.argv[1] + "\n" +
-     "LDFLAGS = " + sys.argv[2])
+     "LDFLAGS = " + sys.argv[2] + "\n" +
+     "uname -a = " + sys.argv[3])
 if DISTUTILS_FLAGS != None:
     s += "\nDistutils: " + " ".join(DISTUTILS_FLAGS)
 print cString("tracePrefix", s, "# ")
@@ -78,4 +77,4 @@ if os.path.exists("CVS"):
     s = cString("simulatorSourceVersions", s, "# ")
     print s
 else:
-    print NOTAVAILABLE
+    print cString("simulatorSourceVersions", NOTAVAILABLE, "# ")

@@ -20,6 +20,8 @@ STDC99=-std=c99
 SIMTARGET=simulator
 endif
 
+UNAME_A=$$(uname -a)
+
 PYREXOBJS=\
 	allocate.o \
 	dynamics.o \
@@ -100,7 +102,7 @@ newversion:
 	rm -f version.c
 
 version.c: newversion
-	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" \
+	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
 		| grep -v "^running " > version.c
 
 noopt:
