@@ -288,7 +288,7 @@ isBondedToSame(struct atom *a1, struct atom *a2)
     struct bond *b1;
     struct bond *b2;
     struct atom *ac;
-
+    
     if (a1 == a2) {
         return 1;
     }
@@ -816,7 +816,7 @@ makeRotaryMotor(struct part *p, char *name,
                 int atomListLength, int *atomList)
 {
     int i, k;
-    double mass;
+    double mass, maxtorque;
     struct jig *j = newJig(p);
     
     j->type = RotaryMotor;
@@ -829,25 +829,43 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.stall = stall * (1e-9/Dx) * (1e-9/Dx);
     // convert from gigahertz to radians per second
     j->j.rmotor.speed = speed * 2.0e9 * Pi;
-    j->j.rmotor.theta = 0.0;
     j->j.rmotor.center = *center;
     j->j.rmotor.axis = uvec(*axis);
     // axis now has a length of one
     jigAtomList(p, j, atomListLength, atomList);
     
-    j->j.rmotor.atomSpoke = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
-    j->j.rmotor.atomRadius = (double *)allocate(sizeof(double) * atomListLength);
-    j->j.rmotor.initialAtomRadius = (double *)allocate(sizeof(double) * atomListLength);
+    j->j.rmotor.u = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.v = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.w = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.rPrevious = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.momentOfInertia = 0.0;
     for (i = 0; i < j->num_atoms; i++) {
-	struct xyz r;
+	struct xyz r, v;
+	double lenv;
 	k = j->atoms[i]->index;
 	/* for each atom connected to the motor */
 	mass = j->atoms[i]->type->mass * 1e-27;
+	
+	/* u, v, and w can be used to compute the new anchor position from
+	 * theta. The new position is u + v cos(theta) + w sin(theta). u is
+	 * parallel to the motor axis, v and w are perpendicular to the axis
+	 * and perpendicular to each other and the same length.
+	 */
 	r = vdif(p->positions[k], j->j.rmotor.center);
-	j->j.rmotor.atomSpoke[k] = r;
-	j->j.rmotor.initialAtomRadius[i] = vlen(r);
-	j->j.rmotor.atomRadius[i] = vlen(r);
+	vmul2c(j->j.rmotor.u[i], j->j.rmotor.axis, vdot(r, j->j.rmotor.axis));
+	v = r;
+	vsub(v, j->j.rmotor.u[i]);
+	lenv = vlen(v);
+	j->j.rmotor.v[i] = v;
+	j->j.rmotor.w[i] = vx(j->j.rmotor.axis, v);
+	j->j.rmotor.momentOfInertia += mass * lenv * lenv;
+	vsetc(j->j.rmotor.rPrevious[i], 0.0);
     }
+    
+    // Add a flywheel with ten times the moment of inertia of the atoms
+    j->j.rmotor.momentOfInertia *= 11.0;
+    j->j.rmotor.theta = 0.0;
+    j->j.rmotor.omega = 0.0;
 }
 
 // Create a linear motor jig in this part, given the name of the jig,
