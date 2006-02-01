@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
 # most imports in this file should be done here, or inside functions in startup_funcs
 
-from qt import QApplication, SIGNAL ## bruce 050902 removed QRect, QDesktopWidget
+from qt import QApplication, QSplashScreen, SIGNAL ## bruce 050902 removed QRect, QDesktopWidget
 
 ## from constants import *
     #bruce 050902 removing import of constants since I doubt it's still needed here.
@@ -94,8 +94,21 @@ if __name__ == '__main__':
     QApplication.setColorSpec(QApplication.CustomColor)
     app = QApplication(sys.argv)
     app.connect(app, SIGNAL("lastWindowClosed ()"), app.quit)
-
-    foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
+    
+    # If the splash image is found in cad/images, put up a splashscreen. 
+    # If you don't want the splashscreen, just rename the splash image.
+    # mark 060131.
+    from Utility import imagename_to_pixmap
+    pixmap = imagename_to_pixmap( "splash.png" ) # rename it if you don't want it.
+    if pixmap.isNull():
+        foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
+    else:
+        splash = QSplashScreen(pixmap) # create the splashscreen
+        splash.show()
+        SPLASH_TIME = 3.0 # set to 3.0 seconds for A7 release. mark 060131.
+        import time
+        splash_start = time.time()
+        foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
@@ -109,8 +122,15 @@ if __name__ == '__main__':
     
     foo._init_after_geometry_is_set()
     
-    foo.show() # show the main window
-
+    if pixmap.isNull():
+        foo.show() # no splashscreen. show the main window
+    else:
+        # If the SPLASH_TIME duration has not expired, sleep for a moment.
+        while time.time() - splash_start < SPLASH_TIME:
+            time.sleep(0.5)
+        foo.show() # show the main window
+        splash.finish( foo ) # Take away the splashscreen
+        
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
         meth = atom_debug_post_main_show 
