@@ -69,10 +69,29 @@ addBondToAtom(struct part *p, struct bond *b, struct atom *a)
 static void
 addBondsToAtoms(struct part *p)
 {
-    int i;
+    int i, badness = 0;
     struct bond *b;
     struct atom *a;
     
+    /*
+     * I've seen a few different bugs with null pointers here. We
+     * should at least get a warning of some kind.
+     */
+    for (i=0; i<p->num_bonds; i++) {
+	b = p->bonds[i];
+	if (b->a1 == NULL) {
+	    ERROR1("Bond %d missing first atom\n", i);
+	    badness = 1;
+	}
+	if (b->a2 == NULL) {
+	    ERROR1("Bond %d missing second atom\n", i);
+	    badness = 1;
+	}
+    }
+    if (badness) {
+	// raise Python extension instead?
+	exit(1);
+    }
     for (i=0; i<p->num_bonds; i++) {
 	b = p->bonds[i];
 	b->a1->num_bonds++;
