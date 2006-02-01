@@ -816,7 +816,7 @@ makeRotaryMotor(struct part *p, char *name,
                 int atomListLength, int *atomList)
 {
     int i, k;
-    double mass, maxtorque;
+    double mass;
     struct jig *j = newJig(p);
     
     j->type = RotaryMotor;
