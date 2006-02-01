@@ -159,7 +159,8 @@ def objectBrowser(obj, maxdepth=5, exclude=None, outf=sys.stderr,
                 outf.write(indent + as2 + ": " + trepr(v))
                 if len(v) == 0:
                     outf.write(" (empty)")
-            elif type(v) == types.StringType:
+            elif type(v) in (types.StringType, types.IntType,
+                             types.FloatType, types.ComplexType):
                 outf.write(indent + as2 + ": " + repr(v))
             else:
                 outf.write(indent + as2 + ": " + trepr(v))
