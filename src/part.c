@@ -1,6 +1,9 @@
 
 #include "simulator.h"
 
+#define CHECK_VALID_BOND(b) { \
+    NULLPTR(b); NULLPTR((b)->a1); NULLPTR((b)->a2); }
+
 // This is the default value for the p->parseError() function.
 // p->parseError() is called by routines in this file while a part is
 // being constructed.  It generally points to a routine that can emit
@@ -69,31 +72,18 @@ addBondToAtom(struct part *p, struct bond *b, struct atom *a)
 static void
 addBondsToAtoms(struct part *p)
 {
-    int i, badness = 0;
+    int i;
     struct bond *b;
     struct atom *a;
     
-    /*
-     * I've seen a few different bugs with null pointers here. We
-     * should at least get a warning of some kind.
-     */
+    NULLPTR(p);
     for (i=0; i<p->num_bonds; i++) {
+	/*
+	 * I've seen a few different bugs with null pointers here. We
+	 * should try to get a warning of some kind.
+	 */
 	b = p->bonds[i];
-	if (b->a1 == NULL) {
-	    ERROR1("Bond %d missing first atom\n", i);
-	    badness = 1;
-	}
-	if (b->a2 == NULL) {
-	    ERROR1("Bond %d missing second atom\n", i);
-	    badness = 1;
-	}
-    }
-    if (badness) {
-	// raise Python extension instead?
-	exit(1);
-    }
-    for (i=0; i<p->num_bonds; i++) {
-	b = p->bonds[i];
+	CHECK_VALID_BOND(b);
 	b->a1->num_bonds++;
 	b->a2->num_bonds++;
     }
@@ -160,6 +150,7 @@ generateStretches(struct part *p)
     p->num_stretches = p->num_bonds;
     p->stretches = (struct stretch *)allocate(sizeof(struct stretch) * p->num_stretches);
     for (i=0; i<p->num_bonds; i++) {
+	CHECK_VALID_BOND(p->bonds[i]);
 	// XXX skip stretch if both ends are grounded
 	p->stretches[i].a1 = p->bonds[i]->a1;
 	p->stretches[i].a2 = p->bonds[i]->a2;
@@ -183,7 +174,8 @@ makeBend(struct part *p, int bend_number, struct atom *a, int bond1, int bond2)
     b->ac = a;
     b->b1 = a->bonds[bond1];
     b->b2 = a->bonds[bond2];
-    
+
+    CHECK_VALID_BOND(b->b1);
     if (b->b1->a1 == a) {
 	b->a1 = b->b1->a2;
 	b->dir1 = 1;
@@ -195,6 +187,7 @@ makeBend(struct part *p, int bend_number, struct atom *a, int bond1, int bond2)
 	fprintf(stderr, "neither end of bond on center!");
     }
     
+    CHECK_VALID_BOND(b->b2);
     if (b->b2->a1 == a) {
 	b->a2 = b->b2->a2;
 	b->dir2 = 1;
@@ -372,6 +365,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 		    for (i=0; i<p->num_vanDerWaals; i++) {
 			vdw = p->vanDerWaals[i];
 			if (vdw != NULL) {
+			    CHECK_VALID_BOND(vdw);
 			    if (vdw->a1 == a1 && vdw->a2 == a2) {
 				seen[i] = 1;
 				found = 1;
@@ -398,6 +392,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 	    actual_count++;
 	    if (!seen[i]) {
 		notseen_count++;
+		CHECK_VALID_BOND(vdw);
 		p1 = positions[vdw->a1->index];
 		p2 = positions[vdw->a2->index];
 		distance = vlen(vdif(p1, p2));
@@ -662,6 +657,7 @@ makeBond(struct part *p, int atomID1, int atomID2, char order)
     p->bonds[p->num_bonds - 1] = b;
     b->a1 = translateAtomID(p, atomID1);
     b->a2 = translateAtomID(p, atomID2);
+    CHECK_VALID_BOND(b);
     // XXX should we reject unknown bond orders here?
     b->order = order;
     b->valid = -1;
@@ -681,6 +677,7 @@ makeVanDerWaals(struct part *p, int atomID1, int atomID2)
     p->vanDerWaals[p->num_static_vanDerWaals - 1] = v;
     v->a1 = translateAtomID(p, atomID1);
     v->a2 = translateAtomID(p, atomID2);
+    CHECK_VALID_BOND(v);
     v->parameters = getVanDerWaalsTable(v->a1->type->protons, v->a2->type->protons);
 }
 
@@ -1007,6 +1004,7 @@ printAtom(FILE *f, struct part *p, struct atom *a)
 	fprintf(f, " ");
 	b = a->bonds[i];
 	fprintf(f, "%c", printableBondOrder(b));
+	CHECK_VALID_BOND(b);
 	if (b->a1 == a) {
 	    printAtomShort(f, b->a2);
 	} else if (b->a2 == a) {
@@ -1024,6 +1022,7 @@ void
 printBond(FILE *f, struct part *p, struct bond *b)
 {
     fprintf(f, " bond ");
+    CHECK_VALID_BOND(b);
     printAtomShort(f, b->a1);
     fprintf(f, "%c", printableBondOrder(b));
     printAtomShort(f, b->a2);
@@ -1097,6 +1096,7 @@ printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v)
     
     if (v != NULL) {
 	fprintf(f, " vanDerWaals ");
+	CHECK_VALID_BOND(v);
 	printAtomShort(f, v->a1);
 	fprintf(f, " ");
 	printAtomShort(f, v->a2);
@@ -1122,6 +1122,7 @@ printStretch(FILE *f, struct part *p, struct stretch *s)
     struct xyz p1;
     struct xyz p2;
     
+    CHECK_VALID_BOND(s);
     fprintf(f, " stretch ");
     printAtomShort(f, s->a1);
     fprintf(f, ", ");
@@ -1151,6 +1152,7 @@ printBend(FILE *f, struct part *p, struct bend *b)
     struct xyz pc;
     struct xyz p2;
     
+    CHECK_VALID_BOND(b);
     fprintf(f, " bend ");
     printAtomShort(f, b->a1);
     fprintf(f, ", ");
