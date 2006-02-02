@@ -1714,6 +1714,7 @@ class depositMode(basicMode):
         self.obj_doubleclicked = a
         self.baggage = [] # precaution.  mark 060202.
         self.nonbaggage = [] # precaution.  mark 060202.
+        #all_nonbaggage = [] # NIY. mark 060202.
         
         selatoms = self.o.assy.selatoms_list()
         
@@ -1723,7 +1724,7 @@ class depositMode(basicMode):
         for at in selatoms[:]:
             baggage, nonbaggage = at.baggage_and_other_neighbors()
             self.baggage += baggage # the baggage we'll keep.
-            all_nonbaggage += nonbaggage
+            #all_nonbaggage += nonbaggage
         
         # dragatoms contains all the selected atoms minus atoms that are also 
         # baggage. It is critical that dragatoms does not contain any baggage 
@@ -1737,7 +1738,6 @@ class depositMode(basicMode):
         # the nonbaggage atom.  This is not implemented yet, but will be needed
         # to get dragAtoms() to work properly.  I'm commenting it out for now.
         # mark 060202.
-        #all_nonbaggage = []
         #for at in all_nonbaggage[:]:
         #    if not at in self.dragatoms:
         #        self.nonbaggage.append(at)
