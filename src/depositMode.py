@@ -308,6 +308,8 @@ class depositMode(basicMode):
     def reset_drag_vars(self):
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
+        self.drag_multiple_atoms = False
+            # set to True when we are dragging a movable unit of 2 or more atoms.
         self.dragatom = None
             # dragatom is the atom dragged by the cursor.
         self.dragatoms = []
@@ -1222,9 +1224,12 @@ class depositMode(basicMode):
             if a.element is Singlet: # a singlet is "lit up"
                 self.setupDragSinglet(a)
             else: # a real atom is "lit up"
-                if a.picked:
+                if a.picked and len(self.o.assy.selatoms_list()) > 1: 
+                    # now called when two or more atoms are selected.  mark 060202.
+                    self.drag_multiple_atoms = True #& Should this be moved to setupDragAtoms()?
                     self.setupDragAtoms(a)
                 else:
+                    self.drag_multiple_atoms = False #& Should this be moved to setupDragAtom()?
                     self.setupDragAtom(a)
                     
         elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # a bond is "lit up"
@@ -1282,7 +1287,7 @@ class depositMode(basicMode):
         if a.element is Singlet:
             self.dragSinglet(a,event)
         else:
-            if a.picked:
+            if self.drag_multiple_atoms:
                 self.dragAtoms(a, event)
             else:
                 self.dragAtom(a, event)
@@ -1309,6 +1314,8 @@ class depositMode(basicMode):
         env.history.flush_saved_transients() # flush any transient message it saved up
         if not self.dragatom: return
         
+        a = self.dragatom
+        
         # If dragatom is an atom, do one of the following:
         # 1. If no modifier key was pressed, clear the selection and pick it.
         # 2. If Shift was pressed, pick it, adding it to the selection.
@@ -1321,15 +1328,15 @@ class depositMode(basicMode):
                     self.o.assy.unpickatoms() # Clear selection.
             
             self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
-            self.dragatom.pick()
-            env.history.message(self.dragatom.getinfo())
+            a.pick()
+            env.history.message(a.getinfo())
         
         # If dragatom is a singlet, do one of the following:
         # 1. If it is still highlighted, deposit an object on it
         # 2. If a different singlet is highlighted, bond to it.
         # 3. If nothing is highlighted, do nothing.
         # mark 060129.
-        if self.dragatom.is_singlet():
+        if a.is_singlet():
             self.line = None # required to erase white rubberband line on next gl_update.
             # bruce 051209 brought update_selatom inside this conditional, to fix an old bug; 
             # need to reset it in other case???###@@@
@@ -1337,12 +1344,12 @@ class depositMode(basicMode):
                 # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. 
                 # [bruce 050705 comment]
             if self.o.selatom:
-                if self.o.selatom is self.dragatom:
-                    # Deposit object (atom, chunk or library part) from MMKit on singlet (dragatom).
-                    self.deposit_from_MMKit(self.dragatom)
+                if self.o.selatom is a:
+                    # Deposit object (atom, chunk or library part) from MMKit on singlet (a=dragatom).
+                    self.deposit_from_MMKit(a)
                 else:
                     # Bond the highlighted singlet (selatom) to this singlet (dragatom)
-                    dragatom = self.dragatom
+                    dragatom = a
                     selatom = self.o.selatom
                     if selatom.is_singlet(): #bruce 041119, just for safety
                         self.dragged_singlet_over_singlet(dragatom, selatom)
@@ -1716,6 +1723,7 @@ class depositMode(basicMode):
         for at in selatoms[:]:
             baggage, nonbaggage = at.baggage_and_other_neighbors()
             self.baggage += baggage # the baggage we'll keep.
+            all_nonbaggage += nonbaggage
         
         # dragatoms contains all the selected atoms minus atoms that are also 
         # baggage. It is critical that dragatoms does not contain any baggage 
@@ -1723,6 +1731,21 @@ class depositMode(basicMode):
         for at in selatoms[:]:
             if not at in self.baggage: # no baggage atoms in dragatoms.
                 self.dragatoms.append(at)
+        
+        # Accumulate all the nonbaggage bonded to the selected atoms.
+        # We also need to keep a record of what selected atom belongs to
+        # the nonbaggage atom.  This is not implemented yet, but will be needed
+        # to get dragAtoms() to work properly.  I'm commenting it out for now.
+        # mark 060202.
+        #all_nonbaggage = []
+        #for at in all_nonbaggage[:]:
+        #    if not at in self.dragatoms:
+        #        self.nonbaggage.append(at)
+        
+        # Debugging print statements.  mark 060202.
+        #print "dragatoms = ", self.dragatoms
+        #print "baggage = ", self.baggage    
+        #print "nonbaggage = ", self.nonbaggage
 
     def dragAtom(self, a, event):
         """Drag an atom <a>, which is never a singlet.
@@ -1768,13 +1791,13 @@ class depositMode(basicMode):
     def dragAtoms(self, a, event):
         """Drag the atom <a> and all picked atoms.
         """
-        # dragAtoms() behaves differently than dragAtom() in that
-        # nonbaggage atoms and their own baggage are not used
-        # or moved in any way.  This is also the case for a single
-        # picked atom that is dragged.  To compare the difference in
-        # behavior, pick a single atom and then drag it.  Compare this
-        # to dragging an unpicked atom. IMHO, this is a feature and not
-        # a bug.  mark 060201.
+        # dragAtoms() behaves differently than dragAtom() in that nonbaggage atoms 
+        # and their own baggage are not used or moved in any way. I used to think this 
+        # was a feature and not a bug, but I'm pretty sure I was wrong about that since
+        # other programs behave like dragAtom() when dragging two or more atoms.
+        # The current implementation is still better than nothing and might be OK for A7.
+        # I'm guessing we'll want to change it, though.  If so, I have a good idea how to 
+        # code it, but it will take a day to get it working properly. mark 060201.
         
         # Note: <a> gets moved in one of the two 'for' loops below.  
         # If <a> is a baggage atom, it will be in the baggage list.  
