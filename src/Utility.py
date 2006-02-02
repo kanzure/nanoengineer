@@ -41,6 +41,7 @@ def imagename_to_pixmap(imagename): #bruce 050108
     return a QPixmap created from that file. Cache these
     (in our own Python directory, not Qt's QPixmapCache)
     so that at most one QPixmap is made from each file.
+    If the imagename does not exist, a Null pixmap is returned.
     """
     global _pixmap_image_path, _pixmaps
     try:
@@ -64,7 +65,7 @@ def imagename_to_pixmap(imagename): #bruce 050108
         iconpath = os.path.join( _pixmap_image_path, imagename)
         icon = QPixmap(iconpath)
             # missing file prints a warning but doesn't cause an exception,
-            # just makes a null icon [i think #k]
+            # just makes a null icon [confirmed by mark 060202]
         _pixmaps[imagename] = icon
         return icon
     pass
