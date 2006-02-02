@@ -968,6 +968,12 @@ class assembly(GenericDiffTracker_API_Mixin):
             # is empty, it would be better not to do this, or somehow to know there was no real change.
             # plan: zap the final '= env...' and revise modflag_asserts accordingly. worry about real changes for sure
             # changing counter even if they wouldn't... call checkpoint here even if not using value?!?!?!? #####@@@@@ 060124 230pm
+        #bruce 060201 update for bug 1425: if you call self.changed() right after this, you'll asfail unless we
+        # call env.change_counter_checkpoint() now (discarding result is ok), for a good reason -- once we "used up"
+        # the current value of _change_counter in _change_counter_when_reset_changed, we better use a different value
+        # for the next real change (so it looks like a change)! This would be needed (to make sure checkpoints notice the change)
+        # even if the asserts were not being done. So the following now seems correct and required:
+        env.change_counter_checkpoint() #bruce 060201 fix bug 1425
         return
 
     def reset_changed_for_undo(self, change_counter ): #bruce 060123 guess; needs cleanup
