@@ -311,19 +311,22 @@ class depositMode(basicMode):
         self.dragatom = None
             # dragatom is the atom dragged by the cursor.
         self.dragatoms = []
-            # dragatoms contains all the selected atoms (minus any baggage atoms)
-            # that are dragged around as a group.  It has an important relationship
-            # to baggage. See setupDragAtoms() for more information about this.
+            # dragatoms is constructed in setupDragAtoms() and contains all 
+            # the selected atoms (except selected baggage atoms) 
+            # that are dragged around as a group in dragAtoms().
+            # Selected atoms that are baggage are placed in self.baggage
+            # along with non-selected baggage atoms connected to dragatoms.
+            # See setupDragAtoms() for more information.
         self.pivot = None
         self.pivax = None
         self.baggage = []
             # baggage contains singlets and/or monovalent atoms (i.e. H, O(sp2), F, Cl, Br)
             # which are connected to a dragged atom and get dragged around with it.
+            # Also, no atom which has baggage can also be baggage.
         self.nonbaggage = []
-            # nonbaggage contains atoms that are not baggage atoms (baggage atom types)
-            # which are connected to a dragged atom but are not dragged around it.
-            # Their own baggage atoms are moved when a single atom is dragged in
-            # dragAtom().
+            # nonbaggage contains atoms which are bonded to a dragged atom but 
+            # are not dragged around with it. Their own baggage atoms are moved when a 
+            # single atom is dragged in dragAtom().
         self.line = None
             # endpoints of the white line drawn between the cursor and an open bond when 
             # dragging a singlet.
@@ -365,7 +368,7 @@ class depositMode(basicMode):
             # (the possible orders of calling all these mode entering/exiting
             #  methods is badly in need of documentation, if not cleanup...
             #  [says bruce 050121, who is to blame for this])
-        self.o.setCursor(self.w.DepositAtomCursor)
+        self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
         # load default cursor
         self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
 
@@ -666,14 +669,14 @@ class depositMode(basicMode):
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
         if key == Qt.Key_Control:
-            self.o.setCursor(self.w.DepositAtomCursor)
+            self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
             self.delete_mode = False 
             if self.o.selobj:
                 # If something is under the cursor, repaint to update its correct 
                 # (normal) highlight color.
                 self.o.gl_update()
         if key == Qt.Key_Shift:
-            self.o.setCursor(self.w.DepositAtomCursor)
+            self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
@@ -1275,9 +1278,7 @@ class depositMode(basicMode):
         a = self.dragatom
         apos0 = a.posn()
         
-        # This is setup to support dragging a singlet with leftDrag.
-        # To try it out, uncomment setupDragSinglet() in leftDown.
-        # For now, <a> can't be a singlet.  Mark 051214.
+        # Drag something.
         if a.element is Singlet:
             self.dragSinglet(a,event)
         else:
@@ -1595,7 +1596,7 @@ class depositMode(basicMode):
         
         
     def setupDragChunk(self, a):
-        '''Setup dragging of a chunk by one of it's atoms, atom <a>.
+        '''Setup dragging of a chunk by one of its atoms, atom <a>.
         If the chunk is not bonded to any chunks, drag it around loosely, which means
         the chunk follows atom <a> around.
         If the chunk is bonded to 1 other chunk, the chunk will pivot around the
@@ -1694,6 +1695,8 @@ class depositMode(basicMode):
         self.initDragObject(a)
         self.dragatom_clicked = True # mark 060125.
         self.obj_doubleclicked = a # mark 060128.
+        self.baggage = [] # precaution.  mark 060202.
+        self.nonbaggage = [] # precaution.  mark 060202.
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
     def setupDragAtoms(self, a):
@@ -1702,11 +1705,14 @@ class depositMode(basicMode):
         self.initDragObject(a)
         self.dragatom_clicked = True
         self.obj_doubleclicked = a
+        self.baggage = [] # precaution.  mark 060202.
+        self.nonbaggage = [] # precaution.  mark 060202.
         
         selatoms = self.o.assy.selatoms_list()
         
-        # Get all the baggage from the selected atoms, which can include
+        # Accumulate all the baggage from the selected atoms, which can include
         # selected atoms if a selected atom is another selected atom's baggage.
+        # BTW, it is not possible for an atom to end up in self.baggage twice.
         for at in selatoms[:]:
             baggage, nonbaggage = at.baggage_and_other_neighbors()
             self.baggage += baggage # the baggage we'll keep.
@@ -1735,16 +1741,19 @@ class depositMode(basicMode):
             # non-baggage bond and apply it to <a>'s baggage
         
         for at in n:
+            # Since adjBaggage() doesn't change at.posn(), I switched the order for readability.
+            # It is now more obvious that <old> and <new> have no impact on at.adjBaggage(). 
+            # mark 060202.
             at.adjBaggage(a, px) # Adjust the baggage of nonbaggage atoms.
             old += at.posn()-apo
             new += at.posn()-px
         
         # Handle baggage differently if <a> has nonbaggage atoms.
-        if n: # If <a> has nonbaggage atoms, move and rotate it's baggage atoms.
+        if n: # If <a> has nonbaggage atoms, move and rotate its baggage atoms.
             q=Q(old,new)
             for at in self.baggage:
                 at.setposn(q.rot(at.posn()-apo)+px)
-        else: # If <a> has no nonbaggage atoms, just move the baggage atom (no rotation).
+        else: # If <a> has no nonbaggage atoms, just move each baggage atom (no rotation).
             for at in self.baggage:
                 at.setposn(at.posn()+delta)
         # [Josh wrote, about the following "a.setposn(px)":]
@@ -1759,7 +1768,7 @@ class depositMode(basicMode):
     def dragAtoms(self, a, event):
         """Drag the atom <a> and all picked atoms.
         """
-        # dragAtoms() behaves differently that dragAtom() in that
+        # dragAtoms() behaves differently than dragAtom() in that
         # nonbaggage atoms and their own baggage are not used
         # or moved in any way.  This is also the case for a single
         # picked atom that is dragged.  To compare the difference in
@@ -1767,8 +1776,8 @@ class depositMode(basicMode):
         # to dragging an unpicked atom. IMHO, this is a feature and not
         # a bug.  mark 060201.
         
-        # <a> gets moved in one of the two 'for' loops below.  
-        # If <a> is a baggage atom type, it will be in the baggage list.  
+        # Note: <a> gets moved in one of the two 'for' loops below.  
+        # If <a> is a baggage atom, it will be in the baggage list.  
         # Otherwise, it will be in dragatoms. mark 060201.
         
         px = self.dragto(a.posn(), event)
