@@ -1170,12 +1170,16 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         ## which will have the flash problem.
         MMKitWin.update_dialog(self.Element)
         
-        if sys.platform == 'linux2': 
-            MMKitWin.show()
+        if sys.platform == 'linux2':
+            if self.isVisible(): 
+                # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
+                MMKitWin.show()
             MMKitWin.move(pos[0], pos[1])
         else:
             MMKitWin.move(pos[0], pos[1])
-            MMKitWin.show()
+            if self.isVisible(): 
+                # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
+                MMKitWin.show()
         return MMKitWin
     
     def MMKitShowPage(self, pagename):
