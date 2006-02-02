@@ -281,7 +281,13 @@ class depositMode(basicMode):
         # self.makeCurrent() is called before any OpenGL call.
         #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         basicMode.Enter(self)
-        self.o.assy.unpickatoms()
+        #self.o.assy.unpickatoms() 
+            # Leave atoms picked. It is very useful to be able to make rect/lasso
+            # selections in Select Atoms mode and then move them around
+            # in Build mode. I'd like to implement a keypress in Build mode
+            # that would switch the user to Select Atoms mode to do a
+            # quick rect/lasso selection and switch back when the key is released. 
+            # This is very desirable for A7. mark 060201.
         self.o.assy.unpickparts()
         self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
         self.saveDisp = self.o.display
@@ -303,11 +309,24 @@ class depositMode(basicMode):
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
         self.dragatom = None
+            # dragatom is the atom dragged by the cursor.
+        self.dragatoms = []
+            # dragatoms contains all the selected atoms (minus any baggage atoms)
+            # that are dragged around as a group.  It has an important relationship
+            # to baggage. See setupDragAtoms() for more information about this.
         self.pivot = None
         self.pivax = None
         self.baggage = []
+            # baggage contains singlets and/or monovalent atoms (i.e. H, O(sp2), F, Cl, Br)
+            # which are connected to a dragged atom and get dragged around with it.
         self.nonbaggage = []
+            # nonbaggage contains atoms that are not baggage atoms (baggage atom types)
+            # which are connected to a dragged atom but are not dragged around it.
+            # Their own baggage atoms are moved when a single atom is dragged in
+            # dragAtom().
         self.line = None
+            # endpoints of the white line drawn between the cursor and an open bond when 
+            # dragging a singlet.
         self.dragatom_clicked = False 
             # dragatom_clicked is used to determine if a lit up atom was picked (clicked)
             # or not picked (dragged). It must be set to False here so that a newly 
@@ -1200,8 +1219,11 @@ class depositMode(basicMode):
             if a.element is Singlet: # a singlet is "lit up"
                 self.setupDragSinglet(a)
             else: # a real atom is "lit up"
-                self.setupDragAtom(a)
-
+                if a.picked:
+                    self.setupDragAtoms(a)
+                else:
+                    self.setupDragAtom(a)
+                    
         elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # a bond is "lit up"
             self.clicked_on_bond(self.o.selobj)
 
@@ -1255,11 +1277,14 @@ class depositMode(basicMode):
         
         # This is setup to support dragging a singlet with leftDrag.
         # To try it out, uncomment setupDragSinglet() in leftDown.
-        # For now, 'a' can't be a singlet.  Mark 051214.
+        # For now, <a> can't be a singlet.  Mark 051214.
         if a.element is Singlet:
             self.dragSinglet(a,event)
         else:
-            self.dragAtom(a, event)
+            if a.picked:
+                self.dragAtoms(a, event)
+            else:
+                self.dragAtom(a, event)
             
         #bruce 041130 added status bar message with new coordinates
         apos1 = a.posn()
@@ -1439,7 +1464,7 @@ class depositMode(basicMode):
             a = atom_or_pos
             if a.element is Singlet:
                 if self.pastable: # bond clipboard object to the singlet
-                    a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed
+                    a0 = a.singlet_neighbor() # do this before <a> (the singlet) is killed
                     chunk, desc = self.pasteBond(a)
                     if chunk:
                         ## status = "replaced open bond on %r with %s (%s)" % (a0, chunk.name, desc)
@@ -1478,7 +1503,7 @@ class depositMode(basicMode):
         if isinstance(atom_or_pos, Atom):
             a = atom_or_pos
             if a.element is Singlet: # bond an atom of type atype to the singlet
-                a0 = a.singlet_neighbor() # do this before 'a' (the singlet) is killed!
+                a0 = a.singlet_neighbor() # do this before <a> (the singlet) is killed!
                 # (revised by bruce 050511)
                 # if 1: # during devel, at least
                 if platform.atom_debug: # Need this for A6 package builder to work.  Mark 050811.
@@ -1570,9 +1595,9 @@ class depositMode(basicMode):
         
         
     def setupDragChunk(self, a):
-        '''Setup dragging of a chunk by one of it's atoms, atom 'a'.
+        '''Setup dragging of a chunk by one of it's atoms, atom <a>.
         If the chunk is not bonded to any chunks, drag it around loosely, which means
-        the chunk follows atom 'a' around.
+        the chunk follows atom <a> around.
         If the chunk is bonded to 1 other chunk, the chunk will pivot around the
         bond to the neighoring chunk.
         If the chunk is bonded to 2 chunks, the chunk will pivot around an axis
@@ -1587,7 +1612,7 @@ class depositMode(basicMode):
                     ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
             e=a.molecule.externs # externs are number of bonds to other chunks.
             
-            if len(e)==0: # no bonds to other chunks, so just drag it around "loosely" (follow 'a')
+            if len(e)==0: # no bonds to other chunks, so just drag it around "loosely" (follow <a>)
                 self.pivot = None
                 self.pivax = True #k might have bugs if realNeighbors in other mols??
                 #bruce 041130 tried using this case for 1-atom mol as well,
@@ -1638,7 +1663,7 @@ class depositMode(basicMode):
         self.dragobj_start = _count
             
     def dragChunk(self, a, event):
-        """Drag a chunk around by atom 'a'.
+        """Drag a chunk around by atom <a>.
         """
         m = a.molecule
         px = self.dragto(a.posn(), event)
@@ -1664,34 +1689,62 @@ class depositMode(basicMode):
 
       
     def setupDragAtom(self, a):
-        '''Setup dragging of real atom 'a'.
+        '''Setup dragging of real atom <a>.
         '''
         self.initDragObject(a)
         self.dragatom_clicked = True # mark 060125.
         self.obj_doubleclicked = a # mark 060128.
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
+    def setupDragAtoms(self, a):
+        '''Setup dragging of real atom <a> and all other currently selected atoms.
+        '''
+        self.initDragObject(a)
+        self.dragatom_clicked = True
+        self.obj_doubleclicked = a
+        
+        selatoms = self.o.assy.selatoms_list()
+        
+        # Get all the baggage from the selected atoms, which can include
+        # selected atoms if a selected atom is another selected atom's baggage.
+        for at in selatoms[:]:
+            baggage, nonbaggage = at.baggage_and_other_neighbors()
+            self.baggage += baggage # the baggage we'll keep.
+        
+        # dragatoms contains all the selected atoms minus atoms that are also 
+        # baggage. It is critical that dragatoms does not contain any baggage 
+        # atoms or they will be moved twice in dragAtoms(), so we removed them here.
+        for at in selatoms[:]:
+            if not at in self.baggage: # no baggage atoms in dragatoms.
+                self.dragatoms.append(at)
 
     def dragAtom(self, a, event):
-        """Drag an atom (not a singlet).
+        """Drag an atom <a>, which is never a singlet.
         """
         px = self.dragto(a.posn(), event)
         apo = a.posn()
-        # find the delta quat for the average non-baggage bond and apply
-        # it to the baggage
+        delta = px - apo # xyz delta between new and current position of <a>.
+        
         n = self.nonbaggage
+            # n = real atoms bonded to <a> that are not singlets or monovalent atoms.
+            # they need to have their own baggage adjusted below.
+        
         old = V(0,0,0)
         new = V(0,0,0)
+            # old and new are used to compute the delta quat for the average 
+            # non-baggage bond and apply it to <a>'s baggage
+        
         for at in n:
+            at.adjBaggage(a, px) # Adjust the baggage of nonbaggage atoms.
             old += at.posn()-apo
             new += at.posn()-px
-            at.adjBaggage(a, px)
-        delta = px - apo
-        if n:
+        
+        # Handle baggage differently if <a> has nonbaggage atoms.
+        if n: # If <a> has nonbaggage atoms, move and rotate it's baggage atoms.
             q=Q(old,new)
             for at in self.baggage:
                 at.setposn(q.rot(at.posn()-apo)+px)
-        else: 
+        else: # If <a> has no nonbaggage atoms, just move the baggage atom (no rotation).
             for at in self.baggage:
                 at.setposn(at.posn()+delta)
         # [Josh wrote, about the following "a.setposn(px)":]
@@ -1701,11 +1754,37 @@ class depositMode(basicMode):
         # [bruce 041108 writes:]
         # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
         # in the loop before it, or adjBaggage (which compares a.posn() to
-        # px) would think atom a was not moving.
+        # px) would think atom <a> was not moving.
+        
+    def dragAtoms(self, a, event):
+        """Drag the atom <a> and all picked atoms.
+        """
+        # dragAtoms() behaves differently that dragAtom() in that
+        # nonbaggage atoms and their own baggage are not used
+        # or moved in any way.  This is also the case for a single
+        # picked atom that is dragged.  To compare the difference in
+        # behavior, pick a single atom and then drag it.  Compare this
+        # to dragging an unpicked atom. IMHO, this is a feature and not
+        # a bug.  mark 060201.
+        
+        # <a> gets moved in one of the two 'for' loops below.  
+        # If <a> is a baggage atom type, it will be in the baggage list.  
+        # Otherwise, it will be in dragatoms. mark 060201.
+        
+        px = self.dragto(a.posn(), event)
+        apo = a.posn()
+        delta = px - apo # xyz delta between new and current position of <a>.
 
+        # Move dragatoms.
+        for at in self.dragatoms[:]:
+            at.setposn(at.posn()+delta)
+        
+        # Move baggage.
+        for at in self.baggage[:]:
+            at.setposn(at.posn()+delta)
       
     def setupDragSinglet(self, a):
-        '''Setup dragging of singlet 'a'.
+        '''Setup dragging of singlet <a>.
         '''
         self.initDragObject(a)
         
