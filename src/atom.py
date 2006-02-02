@@ -99,16 +99,16 @@ if __name__ == '__main__':
     # If you don't want the splashscreen, just rename the splash image.
     # mark 060131.
     from Utility import imagename_to_pixmap
-    pixmap = imagename_to_pixmap( "splash.png" ) # rename it if you don't want it.
-    if pixmap.isNull():
-        foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
-    else:
-        splash = QSplashScreen(pixmap) # create the splashscreen
+    splash_pixmap = imagename_to_pixmap( "splash.png" ) # rename it if you don't want it.
+    if not splash_pixmap.isNull():
+        splash = QSplashScreen(splash_pixmap) # create the splashscreen
         splash.show()
-        SPLASH_TIME = 3.0 # set to 3.0 seconds for A7 release. mark 060131.
+        SPLASH_TIME = 3.0 
+            # Will add user pref to change SPLASH_TIME for A7. mark 060131.
         import time
         splash_start = time.time()
-        foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
+    
+    foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
@@ -122,14 +122,22 @@ if __name__ == '__main__':
     
     foo._init_after_geometry_is_set()
     
-    if pixmap.isNull():
-        foo.show() # no splashscreen. show the main window
-    else:
+    if not splash_pixmap.isNull():
         # If the SPLASH_TIME duration has not expired, sleep for a moment.
         while time.time() - splash_start < SPLASH_TIME:
-            time.sleep(0.5)
-        foo.show() # show the main window
+            time.sleep(0.1)
         splash.finish( foo ) # Take away the splashscreen
+        
+    foo.show() # show the main window
+    
+    # This addresses two problems when nE-1 starts in Build (DEPOSIT) mode.
+    # 1. The MMKit can cover the splashscreen (bug #1439).
+    # 2. The MMKit appears 1-3 seconds before the main window.
+    # Both situations now resolved.  mark 060202
+    # Should this be moved to startup_funcs.post_main_show()? I chose to leave
+    # it here since the splashscreen code it refers to is in this file.  mark 060202.
+    if foo.glpane.mode.modename == 'DEPOSIT':
+        foo.glpane.mode.MMKit.show()
         
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
