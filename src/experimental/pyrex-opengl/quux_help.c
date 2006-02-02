@@ -2,13 +2,17 @@
 #include <gl.h>
 #include <glu.h>
 #else
+#ifdef _WIN32
+#include <windows.h> /* Even MinGW includes this */
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
 #include "Python.h"
 #include "bradg.h"
 
-extern PyObject *_getTestResult(void);
+// extern PyObject *_getTestResult(void);
+PyObject *_getTestResult(void) { return NULL; }
 
 static PyObject *
 _glColor3f(float r, float g, float b)
@@ -138,11 +142,13 @@ static PyObject *_shapeRendererDrawCylinders(int count,
 					     PyArrayObject *pos1,
 					     PyArrayObject *pos2,
 					     PyArrayObject *radius,
+					     PyArrayObject *capped,
 					     PyArrayObject *color)
 {
     float pos1_data[count][3];
     float pos2_data[count][3];
     float radius_data[count];
+    int capped_data[count];
     float color_data[count][4];
 
     if (pos1->nd != 2) {
@@ -183,6 +189,16 @@ static PyObject *_shapeRendererDrawCylinders(int count,
     }
     memmove(radius_data, radius->data, count * sizeof(float));
 
+    if (capped->nd != 1) {
+	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: capped");
+	return NULL;
+    }
+    if (capped->dimensions[0] != count) {
+	PyErr_SetString(PyExc_ValueError, "wrong dimension: capped");
+	return NULL;
+    }
+    memmove(capped_data, capped->data, count * sizeof(int));
+
     if (color->nd != 2) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions");
 	return NULL;
@@ -197,6 +213,6 @@ static PyObject *_shapeRendererDrawCylinders(int count,
     }
     memmove(color_data, color->data, 4 * count * sizeof(float));
 
-    shapeRendererDrawCylinders(count, pos1_data, pos2_data, radius_data, color_data);
+    shapeRendererDrawCylinders(count, pos1_data, pos2_data, radius_data, capped_data, color_data);
     return _getTestResult();
 }

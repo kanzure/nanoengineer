@@ -29,7 +29,7 @@ cdef extern from "quux_help.c":
                               ArrayType radius, ArrayType color)
     _shapeRendererDrawCylinders(int count, ArrayType pos1,
                                 ArrayType pos2, ArrayType radius,
-                                ArrayType color)
+                                ArrayType capped, ArrayType color)
     _checkArray(ArrayType a)
 
 ####################################
@@ -82,8 +82,8 @@ def shapeRendererSetLODScale(s):
 def shapeRendererDrawSpheres(count, center, radius, color):
     return _shapeRendererDrawSpheres(count, center, radius, color)
 
-def shapeRendererDrawCylinders(count, pos1, pos2, radius, color):
-    return _shapeRendererDrawCylinders(count, pos1, pos2, radius, color);
+def shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color):
+    return _shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color);
 
 ####################################
 
@@ -224,10 +224,11 @@ class Tests(unittest.TestCase):
                               Numeric.array((2, 5, 7), 'f'),
                               Numeric.array((2, 8, 6), 'f')), 'f')
         radius = Numeric.array((0.2, 0.4, 0.6), 'f')
+        capped = Numeric.array((1, 0, 1), 'i')
         color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
                                Numeric.array((0, 0, 1, 0.5), 'f'),
                                Numeric.array((0, 1, 0, 0.5), 'f')), 'f')
-        result = shapeRendererDrawCylinders(3, pos1, pos2, radius, color)
+        result = shapeRendererDrawCylinders(3, pos1, pos2, radius, capped, color)
         assert approximatelyEqual(result, (
             ((0., 0., 0.), (0., 0., 1.), (0., 1., 0.)),
             ((2., 5., 6.), (2., 5., 7.), (2., 8., 6.)),
