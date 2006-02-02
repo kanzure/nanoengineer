@@ -70,12 +70,7 @@ def webbrowser_open(url):
     # We should now have at least one browser available
     if len(webbrowser._tryorder) == 0:
         env.history.message(redmsg("Wiki Help cannot find a web browser"))
-    try:
-        # If no browser were found, we would see the traceback from bug 1167
-        webbrowser.open(url)
-    except webbrowser.Error:
-        # unless we catch it
-        pass
+    webbrowser.open(url)
 
 def open_wiki_help_page( featurename, actually_open = True ):
     ###e this function is misnamed, since it opens a context help dialog whose link might open a wiki help page
