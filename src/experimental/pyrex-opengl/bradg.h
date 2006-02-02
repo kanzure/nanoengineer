@@ -1,17 +1,24 @@
-/*
- * Brad's stuff
- */
+#ifndef _bradg_h_
+#define _bradg_h_
 
-extern void shapeRendererInit(void);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern void shapeRendererSetFrustum(float frustum[6]);
-extern void shapeRendererSetViewport(int viewport[4]);
-extern void shapeRendererSetModelView(float modelview[6]);
-extern void shapeRendererUpdateLODEval(void);
-extern void shapeRendererSetLODScale(float s);
+void shapeRendererInit();
+void shapeRendererSetFrustum(float frustum[6]);
+void shapeRendererSetOrtho(float ortho[6]);
+void shapeRendererSetViewport(int viewport[4]);
+void shapeRendererSetModelView(float modelview[6]);
+void shapeRendererUpdateLODEval();
+void shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4]);
+void shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4]);
+void shapeRendererSetLODScale(float s);
+void shapeRendererSetUseLOD(int useLOD);
+void shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess);
 
-extern void shapeRendererDrawSpheres(int count, float center[][3],
-				     float radius[], float color[][4]);
-extern void shapeRendererDrawCylinders(int count, float pos1[][3],
-				       float pos2[][3], float radius[],
-				       float color[][4]);
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _bradg_h_ */
