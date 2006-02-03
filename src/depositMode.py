@@ -188,6 +188,12 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
     w.depositAtomDashboard.autobondCB.setChecked(1)
     
+    w.depositAtomDashboard.waterCB = QCheckBox("Water", w.depositAtomDashboard)
+    w.depositAtomDashboard.waterCB.setChecked(1)
+    
+    w.depositAtomDashboard.hiliteCB = QCheckBox("Highlight", w.depositAtomDashboard)
+    w.depositAtomDashboard.hiliteCB.setChecked(1)
+    
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
     w.depositAtomDashboard.setLabel("Build")
@@ -429,6 +435,13 @@ class depositMode(basicMode):
                        SIGNAL("toggled(bool)"), self.setBonda)
         change_connect(self.w.depositAtomDashboard.bondgBtn,
                        SIGNAL("toggled(bool)"), self.setBondg)
+        
+        # Slots for the Water and Highlight checkboxes. mark 060202.    
+        change_connect(self.w.depositAtomDashboard.waterCB,
+                        SIGNAL("toggled(bool)"),self.setWater)
+        change_connect(self.w.depositAtomDashboard.hiliteCB,
+                        SIGNAL("toggled(bool)"),self.setHighlight)
+                        
         return
 
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
@@ -1356,7 +1369,7 @@ class depositMode(basicMode):
         
         
         self.baggage = []
-        self.dragatom = None #bruce 041130 fix bug 230 (1 of 2 redundant fixes)
+        self.dragatom = None #bruce 041130 fix bug 230
         self.o.selatom = None #bruce 041208 for safety in case it's killed
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
@@ -1702,8 +1715,8 @@ class depositMode(basicMode):
         self.initDragObject(a)
         self.dragatom_clicked = True # mark 060125.
         self.obj_doubleclicked = a # mark 060128.
-        self.baggage = [] # precaution.  mark 060202.
-        self.nonbaggage = [] # precaution.  mark 060202.
+        self.baggage = []
+        self.nonbaggage = []
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
     def setupDragAtoms(self, a):
@@ -1712,8 +1725,8 @@ class depositMode(basicMode):
         self.initDragObject(a)
         self.dragatom_clicked = True
         self.obj_doubleclicked = a
-        self.baggage = [] # precaution.  mark 060202.
-        self.nonbaggage = [] # precaution.  mark 060202.
+        self.baggage = []
+        self.nonbaggage = []
         #all_nonbaggage = [] # NIY. mark 060202.
         
         selatoms = self.o.assy.selatoms_list()
@@ -1734,8 +1747,8 @@ class depositMode(basicMode):
                 self.dragatoms.append(at)
         
         # Accumulate all the nonbaggage bonded to the selected atoms.
-        # We also need to keep a record of what selected atom belongs to
-        # the nonbaggage atom.  This is not implemented yet, but will be needed
+        # We also need to keep a record of which selected atom belongs to
+        # each nonbaggage atom.  This is not implemented yet, but will be needed
         # to get dragAtoms() to work properly.  I'm commenting it out for now.
         # mark 060202.
         #for at in all_nonbaggage[:]:
@@ -2110,6 +2123,21 @@ class depositMode(basicMode):
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one
         return
+        
+    def setWater(self, on):
+        if on:
+            msg = "Water surface displayed"
+        else:
+            msg = "Water surface hidden. Atom under water still not pickable."
+        env.history.message(msg)
+        self.o.gl_update()
+        
+    def setHighlight(self, on):
+        if on:
+            msg = "Highlighting turned on."
+        else:
+            msg = "Highlighting turned off (NOT IMPLEMENTED YET)."
+        env.history.message(msg)
     
     def Draw(self):
         """ Draw 
@@ -2146,6 +2174,9 @@ class depositMode(basicMode):
         """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
         """
+        if not self.w.depositAtomDashboard.waterCB.isChecked():
+            return
+            
         glDisable(GL_LIGHTING)
         glColor4fv(self.gridColor + (0.6,))
             ##e bruce 050615 comment: if this equalled bgcolor, some bugs would go away;
