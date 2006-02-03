@@ -129,6 +129,8 @@ class MeasureDistance(MeasurementJig):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
         drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
@@ -174,6 +176,8 @@ class MeasureAngle(MeasurementJig):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
         drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
@@ -227,6 +231,8 @@ class MeasureDihedral(MeasurementJig):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
         drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())

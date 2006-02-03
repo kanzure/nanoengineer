@@ -70,6 +70,8 @@ class Gamess(Jig):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
     # Write "gamess" record to POV-Ray file in the format:

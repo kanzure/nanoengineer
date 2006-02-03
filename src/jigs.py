@@ -606,6 +606,8 @@ class Anchor(Jig):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
     # Write "anchor" record to POV-Ray file in the format:
@@ -747,6 +749,8 @@ class Stat( Jig_onChunk_by1atom ):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
     # Write "stat" record to POV-Ray file in the format:
@@ -807,6 +811,8 @@ class Thermo(Jig_onChunk_by1atom):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
             
     # Write "thermo" record to POV-Ray file in the format:
@@ -870,6 +876,8 @@ class AtomSet(Jig):
             chunk = a.molecule
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
         
     def _getinfo(self):
