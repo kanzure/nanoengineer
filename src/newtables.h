@@ -6,12 +6,14 @@
 struct interpolationTable {
   double start;
   double scale;
-  // y = ax^2 + bx + c
-  // y = (ax + b)x + c
-  // y' = 2ax + b
+  // y = ax^3 + bx^2 + cx + d    or...
+  // y = ((ax + b)x + c)x + d
+  // y' = 3ax^2 + 2bx + c        or...
+  // y' = (3ax + 2b)x + c
   double a[TABLEN];
   double b[TABLEN];
   double c[TABLEN];
+  double d[TABLEN];
 };
 
 struct bondStretch 

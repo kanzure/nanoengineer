@@ -1,11 +1,78 @@
 
 #include "simulator.h"
 
+/*
+
+We're doing cubic polynomial interpolation for the potential function.
+We want the gradient to be exactly the derivative of the cubic
+interpolation function, not an interpolation of the actual gradient
+function.  So, the gradient is a quadratic interpolation.
+
+We slice the function into a number of equally spaced regions, each of
+which is represented by one entry in the interpolation table.  We want
+both the potential and gradient to be continuous where we cross from
+one table entry to another.  At each endpoint of each interval, we
+have values for the potential and the gradient, giving us four degrees
+of freedom that we have to match.  This is why we have chosen cubic
+interpolation, so we have four unknowns to match the four degrees of
+freedom.
+
+The potential and gradient functions at each endpoint (x1, and x2) are
+represented by the following four equations:
+
+y1  == A x1^3 + B x1^2 + C x1 + D
+y2  == A x2^3 + B x2^2 + C x2 + D
+y1p == 3 A x1^2 + 2 B x1 + C
+y2p == 3 A x2^2 + 2 B x2 + C
+
+We solve these for the unknowns A, B, C, and D, yeilding:
+
+A = (2 y1 -
+     x1 y1p +
+     x2 y1p -
+     2 y2 -
+     x1 y2p +
+     x2 y2p)
+    / (x2 - x1)^3
+
+B = (-3 x1 y1 -
+     3 x2 y1 + 
+     x1^2 y1p +
+     x1 x2 y1p -
+     2 x2^2 y1p +
+     3 x1 y2 +
+     3 x2 y2 + 
+     2 x1^2 y2p -
+     x1 x2 y2p -
+     x2^2 y2p)
+    / (x2 - x1)^3
+
+C = (6 x1 x2 y1 -
+     2 x1^2 x2 y1p + 
+     x1 x2^2 y1p +
+     x2^3 y1p -
+     6 x1 x2 y2 -
+     x1^3 y2p - 
+     x1^2 x2 y2p +
+     2 x1 x2^2 y2p)
+    / (x2 - x1)^3
+
+D = (-3 x1 x2^2 y1 +
+     x2^3 y1 +
+     x1^2 x2^2 y1p -
+     x1 x2^3 y1p -
+     x1^3 y2 +
+     3 x1^2 x2 y2 +
+     x1^3 x2 y2p -
+     x1^2 x2^2 y2p)
+    / (x2 - x1)^3
+*/
+
 // Make a table for interpolating func(x) by doing
 //
 //   k = (int)(x-start)/scale;
-//   y = (a[k] * x + b[k]) * x  + c[k];
-//   y' = 2 * a[k] * x + b[k];
+//   y = ((a[k] * x + b[k]) * x  + c[k]) * x + d[k];
+//   y' = (3 * a[k] * x + 2 * b[k]) * x + c[k];
 //
 static void
 fillInterpolationTable(struct interpolationTable *t,
@@ -24,13 +91,15 @@ fillInterpolationTable(struct interpolationTable *t,
   double x2;  // x position of right edge of interpolation interval
   double y2;  // func(x2)
   double y2p; // dfunc(x2)   derivitive of func at x2
+  double dx;
+  double denom;
 
   t->start = start;
   t->scale = scale;
     
   x2 = start;
   y2 = func(x2, parameters);
-  y2p = dfunc(x2, parameters) / 1000000.0;
+  y2p = dfunc(x2, parameters);
 	
   for (k=0; k<TABLEN; k++) {
     x1 = x2;
@@ -39,22 +108,54 @@ fillInterpolationTable(struct interpolationTable *t,
 
     x2 = start + (double)((k + 1) * scale);
     y2 = func(x2, parameters);
-    y2p = dfunc(x2, parameters) / 1000000.0;
+    y2p = dfunc(x2, parameters);
 
-    // y = Ax^2 + Bx + C
-    // y' = 2Ax + B
-    //
-    // y1p = 2 A x1 + B
-    // y2p = 2 A x2 + B
-    // y1p - y2p = 2 A (x1 - x2)
-    t->a[k] = (y1p - y2p) / (2.0 * (x1 - x2));
+     // Seems like these two lines should be invariant in the loop,
+     // but there may be slight differences, so leave them in the
+     // loop.
+    dx = x2 - x1;
+    denom = dx * dx * dx;
+    
+    t->a[k] = (2 * y1 -
+               x1 * y1p +
+               x2 * y1p -
+               2 * y2 -
+               x1 * y2p +
+               x2 * y2p)
+      / denom;
 
-    // B = y2p - 2 A x2
-    t->b[k] = y2p - 2.0 * t->a[k] * x2; // note, x2 should always be > 0
+    t->b[k] = (-3 * x1 * y1 -
+               3 * x2 * y1 + 
+               x1 * x1 * y1p +
+               x1 * x2 * y1p -
+               2 * x2 * x2 * y1p +
+               3 * x1 * y2 +
+               3 * x2 * y2 + 
+               2 * x1 * x1 * y2p -
+               x1 * x2 * y2p -
+               x2 * x2 * y2p)
+      / denom;
 
-    // C = y2 - (A x2 + B) x2
-    t->c[k] = y2 - (t->a[k] * x2 + t->b[k]) * x2;
-    //fprintf(stderr, "%d %e %e %e ... %e %e %e\n", k, t->a[k], t->b[k], t->c[k], x2, y2, y2p);
+    t->c[k] = (6 * x1 * x2 * y1 -
+               2 * x1 * x1 * x2 * y1p + 
+               x1 * x2 * x2 * y1p +
+               x2 * x2 * x2 * y1p -
+               6 * x1 * x2 * y2 -
+               x1 * x1 * x1 * y2p - 
+               x1 * x1 * x2 * y2p +
+               2 * x1 * x2 * x2 * y2p)
+      / denom;
+ 
+
+    t->d[k] = (-3 * x1 * x2 * x2 * y1 +
+               x2 * x2 * x2 * y1 +
+               x1 * x1 * x2 * x2 * y1p -
+               x1 * x2 * x2 * x2 * y1p -
+               x1 * x1 * x1 * y2 +
+               3 * x1 * x1 * x2 * y2 +
+               x1 * x1 * x1 * x2 * y2p -
+               x1 * x1 * x2 * x2 * y2p)
+      / denom;
   }
 }
 
@@ -86,8 +187,8 @@ potentialLippincottMorse(double r, void *p)
 
 // numerically differentiate the potential for force
 //
-// the result is in yoctoJoules per picometer = picoNewtons
-// yJ / pm = 1e-24 J / 1e-12 m = 1e-12 J / m = pN
+// the result is in attoJoules per picometer = microNewtons
+// aJ / pm = 1e-18 J / 1e-12 m = 1e-6 J / m = uN
 #define DELTA_R 0.01
 double
 gradientLippincottMorse(double r, void *p)
@@ -99,10 +200,9 @@ gradientLippincottMorse(double r, void *p)
   double y2 = (r2 >= stretch->r0) ? lippincott(r2, stretch) : morse(r2, stretch);
   // y1, y2 are in attoJoules (1e-18 J)
   // DELTA_R is in pm (1e-12 m), so:
-  // (y2-y1)/DELTA_R is attoJoules / pm (1e-6 J / m)
-  // 1e6*(y2-y1) is in 1e-12 J/m, or pN
+  // (y2-y1)/DELTA_R is attoJoules / pm (1e-6 J / m), or uN
 
-  return 1e6 * (y2 - y1) / DELTA_R;
+  return (y2 - y1) / DELTA_R;
 }
 
 static void
@@ -116,7 +216,7 @@ findPotentialExtension(struct bondStretch *s, double r0, double pr0, double gr0,
   double d2r1 = 0.01;
   double denom;
 
-  gr1 /= DR;
+  gr1 /= 1e6;
   
   // we are solving the following simultaneous equations:
   //
@@ -192,14 +292,15 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
   double *a = t->a;
   double *b = t->b;
   double *c = t->c;
+  double *d = t->d;
   int k;
-  double x;
+  double r;
   double potential = 0.0;
   
   k = (int)(r0 - start) / scale;
   while ((searchLimit-k)*searchIncrement > 0) {
-    x = k * scale + start;
-    potential = (a[k] * x + b[k]) * x + c[k] - minPotential;
+    r = k * scale + start;
+    potential = ((a[k] * r + b[k]) * r + c[k]) * r + d[k] - minPotential;
     if (potential > ExcessiveEnergyLevel) {
       return k;
     }
@@ -226,12 +327,8 @@ gradientQuadratic(double r, void *p)
   double r2 = r + DELTA_R / 2.0;
   double y1 = potentialQuadratic(r1, p);
   double y2 = potentialQuadratic(r2, p);
-  // y1, y2 are in attoJoules (1e-18 J)
-  // DELTA_R is in pm (1e-12 m), so:
-  // (y2-y1)/DELTA_R is attoJoules / pm (1e-6 J / m)
-  // 1e6*(y2-y1) is in 1e-12 J/m, or pN
 
-  return 1e6 * (y2 - y1) / DELTA_R;
+  return (y2 - y1) / DELTA_R;
 }
 #endif
 
@@ -281,11 +378,8 @@ potentialBuckingham(double r, void *p)
     - vdw->vInfinity;
 }
 
-// the result is in yoctoJoules per picometer = picoNewtons
-// yJ / pm = 1e-24 J / 1e-12 m = 1e-12 J / m = pN
-//
-// NOTE: gradient is divided by r since we end up multiplying it by
-// the radius vector to get the force.
+// the result is in attoJoules per picometer = microNewtons
+// aJ / pm = 1e-18 J / 1e-12 m = 1e-6 J / m = uN
 double
 gradientBuckingham(double r, void *p)
 {
@@ -294,9 +388,9 @@ gradientBuckingham(double r, void *p)
 
   // rvdW in pm (1e-12 m)
   // evdW in zJ (1e-21 J)
-  y= -1e3 * vdw->evdW * (2.48e5 * exp(-12.5 * (r / vdw->rvdW)) * (-12.5 /vdw->rvdW)
+  y= 1e-3 * vdw->evdW * (2.48e5 * exp(-12.5 * (r / vdw->rvdW)) * (-12.5 /vdw->rvdW)
                          - 1.924 * pow (1.0 /vdw->rvdW, -6.0) * (-6.0) * pow(r, -7.0));
-  return y / r;
+  return y;
 }
 
 void
@@ -397,18 +491,18 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
     dip = interpolated_potential - lip;
     interpolated_gradient = stretchGradient(NULL, NULL, stretch, r);
     direct_potential = potentialLippincottMorse(r, stretch);
-    direct_gradient = gradientLippincottMorse(r, stretch);
+    direct_gradient = gradientLippincottMorse(r, stretch) * 1e6;
     extension_potential =
-      + stretch->potentialExtensionA
-      + stretch->potentialExtensionB * r
-      + stretch->potentialExtensionC * r * r
-      + stretch->potentialExtensionD * r * r * r;
+      ((stretch->potentialExtensionD * r +
+        stretch->potentialExtensionC) * r +
+       stretch->potentialExtensionB) * r +
+      stretch->potentialExtensionA;
     extension_gradient =
-      + stretch->potentialExtensionB
-      + stretch->potentialExtensionC * r * 2.0
-      + stretch->potentialExtensionD * r * r * 3.0;
-    extension_gradient *= DR;
-    printf("%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n",
+      (stretch->potentialExtensionD * r * 3.0 +
+       stretch->potentialExtensionC * 2.0) * r +
+      stretch->potentialExtensionB;
+    extension_gradient *= 1e6;
+    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e\n",
            r,                      // 1
            interpolated_potential, // 2
            interpolated_gradient, // 3
@@ -477,8 +571,8 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
     dip = interpolated_potential - lip;
     interpolated_gradient = vanDerWaalsGradient(NULL, NULL, vdw, r);
     direct_potential = potentialBuckingham(r, vdw);
-    direct_gradient = gradientBuckingham(r, vdw);
-    printf("%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n",
+    direct_gradient = gradientBuckingham(r, vdw) * 1e6;
+    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e\n",
            r,                      // 1
            interpolated_potential, // 2
            interpolated_gradient, // 3

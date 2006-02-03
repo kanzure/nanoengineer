@@ -1,5 +1,31 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 
+// SI prefixes:
+//
+// 1e+24 Y  yotta
+// 1e+21 Z  zetta
+// 1e+18 E  exa
+// 1e+15 P  peta
+// 1e+11 T  tera
+// 1e+9  G  giga
+// 1e+6  M  mega
+// 1e+3  k  kilo
+// 1e+2  h  hecto
+// 1e+1  da deca
+//
+// 1e-1  d  deci
+// 1e-2  c  centi
+// 1e-3  m  milli
+// 1e-6  u  micro
+// 1e-9  n  nano
+// 1e-12 p  pico
+// 1e-15 f  femto
+// 1e-18 a  atto
+// 1e-21 z  zepto
+// 1e-24 y  yocto
+
+// one Angstrom is 0.1 nm or 1e-10 m
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -58,9 +84,6 @@
 #endif
 
 #define PICOSEC (1e-12)
-
-// scaling factor for radius in extension gradient calculations
-#define DR 1e6
 
 /* van der Waals forces */
 

@@ -85,7 +85,7 @@ reinit_globals(void)
     PrintFrameNums = 1;
     OutputFormat = 1;
     KeyRecordInterval = 32;
-    DirectEvaluate = 1;  // XXX should default to 0 eventually
+    DirectEvaluate = 0;
     ExcessiveEnergyLevel = 0.1; // attoJoules
     IDKey = "";
     InputFileName = NULL;

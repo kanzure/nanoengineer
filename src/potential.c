@@ -1,6 +1,8 @@
 
 #include "simulator.h"
 
+#define ALMOST_ZERO 0.0001
+
 // incremented each time either the potential or gradient is
 // calculated.  Used to match values in bond->valid to determine the
 // need to recalculate bond->inverseLength and bond->rUnit.
@@ -53,6 +55,7 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   double *a;
   double *b;
   double *c;
+  double *d;
   double start;
   double scale;
 
@@ -65,23 +68,21 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   a = iTable->a;
   b = iTable->b;
   c = iTable->c;
+  d = iTable->d;
   k = (int)(r - start) / scale;
   if (k < 0) {
     if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
       fprintf(stderr, "stretch: low --");
       printStretch(stderr, p, stretch);
     }
-    potential = (a[0] * r + b[0]) * r + c[0];
+    potential = ((a[0] * r + b[0]) * r + c[0]) * r + d[0];
   } else if (k >= TABLEN) {
     if (ToMinimize) { // extend past end of table using a polynomial
-      // XXX switch the following to use Horner's method:
-      potential = stretchType->potentialExtensionA
-        + stretchType->potentialExtensionB * r
-        + stretchType->potentialExtensionC * r * r
-        + stretchType->potentialExtensionD * r * r * r;
-      //potential = stretchType->potentialExtensionStiffness * r * r
-      //          + stretchType->potentialExtensionIntercept;
-      //potential = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
+      potential =
+        ((stretchType->potentialExtensionD * r +
+          stretchType->potentialExtensionC) * r +
+         stretchType->potentialExtensionB) * r +
+        stretchType->potentialExtensionA;
     } else {
       potential=0.0;
       if (DEBUG(D_TABLE_BOUNDS) && stretch) {
@@ -92,7 +93,7 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   } else if (DirectEvaluate) {
     potential = potentialLippincottMorse(r, stretchType);
   } else {
-    potential = (a[k] * r + b[k]) * r + c[k];
+    potential = ((a[k] * r + b[k]) * r + c[k]) * r + d[k];
   }
   return potential;
 }
@@ -102,11 +103,12 @@ double
 stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double r)
 {
   int k;
-  double gradient;
+  double gradient; // in uN, converted to pN on return
 
   /* interpolation */
   double *a;
   double *b;
+  double *c;
   double start;
   double scale;
 
@@ -119,6 +121,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     scale = iTable->scale;
     a = iTable->a;
     b = iTable->b;
+    c = iTable->c;
     k = (int)(r - start) / scale;
     if (!ToMinimize &&
         !ExcessiveEnergyWarning &&
@@ -133,16 +136,13 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
         fprintf(stderr, "stretch: low --");
         printStretch(stderr, p, stretch);
       }
-      gradient = 1e6 * (2.0 * a[0] * r + b[0]);
+      gradient = (3.0 * a[0] * r + 2.0 * b[0]) * r + c[0];
     } else if (k >= TABLEN) {
       if (ToMinimize) { // extend past end of table using a polynomial
-        // XXX switch the following to use Horner's method:
-        gradient = stretchType->potentialExtensionB
-          + stretchType->potentialExtensionC * r * 2.0
-          + stretchType->potentialExtensionD * r * r * 3.0;
-        gradient *= DR ;
-        //gradient = 2.0 * stretchType->potentialExtensionStiffness * r;
-        //gradient = t1[TABLEN-1]+ ((TABLEN-1) * scale + start) * t2[TABLEN-1];
+        gradient =
+          (stretchType->potentialExtensionD * r * 3.0 +
+           stretchType->potentialExtensionC * 2.0) * r +
+          stretchType->potentialExtensionB;
       } else {
         gradient=0.0;
         if (DEBUG(D_TABLE_BOUNDS) && stretch) {
@@ -153,9 +153,9 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
     } else if (DirectEvaluate) {
       gradient = gradientLippincottMorse(r, stretchType);
     } else {
-      gradient = 1e6 * (2.0 * a[k] * r + b[k]);
+      gradient = (3.0 * a[k] * r + 2.0 * b[k]) * r + c[k];
     }
-    return gradient;
+    return gradient * 1e6;
 }
 
 // result in aJ (1e-18 J)
@@ -167,6 +167,7 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
   double *a;
   double *b;
   double *c;
+  double *d;
   double start;
   double scale;
   struct interpolationTable *iTable;
@@ -178,6 +179,7 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
   a = iTable->a;
   b = iTable->b;
   c = iTable->c;
+  d = iTable->d;
 
   k=(int)(r - start) / scale;
   if (k < 0) {
@@ -185,25 +187,26 @@ vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaals
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
-    potential = 1e6 * (a[0] * r + b[0]) * r + c[0];
+    potential = ((a[0] * r + b[0]) * r + c[0]) * r + d[0];
   } else if (k>=TABLEN) {
     potential = 0.0;
   } else if (DirectEvaluate) {
     potential = potentialBuckingham(r, parameters);
   } else {
-    potential = 1e6 * (a[k] * r + b[k]) * r + c[k];
+    potential = ((a[k] * r + b[k]) * r + c[k]) * r + d[k];
   }
   return potential;
 }
 
-// result in pN (1e-12 J/m), but divided by the radius vector
+// result in pN (1e-12 J/m)
 double
 vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double r)
 {
-  double gradient;
+  double gradient; // in uN, converted to pN at return
   int k;
   double *a;
   double *b;
+  double *c;
   double start;
   double scale;
   struct interpolationTable *iTable;
@@ -214,6 +217,7 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
   scale = iTable->scale;
   a = iTable->a;
   b = iTable->b;
+  c = iTable->c;
 					
   k=(int)(r - start) / scale;
 
@@ -230,15 +234,15 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
       fprintf(stderr, "vdW: off table low -- r=%.2f \n",  r);
       printVanDerWaals(stderr, p, vdw);
     }
-    gradient = 2.0 * a[0] * r + b[0];
+    gradient = (3.0 * a[0] * r + 2.0 * b[0]) * r + c[0];
   } else if (DirectEvaluate) {
     gradient = gradientBuckingham(r, parameters);
   } else if (k>=TABLEN) {
     gradient = 0.0;
   } else {
-    gradient = 2.0 * a[k] * r + b[k];
+    gradient = (3.0 * a[k] * r + 2.0 * b[k]) * r + c[k];
   }
-  return gradient;
+  return gradient * 1e6;
 }
 
 // result in aJ (1e-18 J)
@@ -530,19 +534,23 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       vsub2(rv, position[vdw->a1->index], position[vdw->a2->index]);
       rSquared = vdot(rv, rv);
       r = sqrt(rSquared);
+
+      if (r > ALMOST_ZERO) {
+        gradient = vanDerWaalsGradient(p, vdw, vdw->parameters, r) / r;
     
-      gradient = vanDerWaalsGradient(p, vdw, vdw->parameters, r);
-    
-      vmul2c(f, rv, gradient);
-      vadd(force[vdw->a1->index], f);
-      vsub(force[vdw->a2->index], f);
-      if (DEBUG(D_STRESS_MOVIE)) { // -D12
-        writeSimpleStressVector(position, vdw->a1->index, vdw->a2->index, -1, -gradient, 10.0, 100.0);
+        vmul2c(f, rv, gradient);
+        vsub(force[vdw->a1->index], f);
+        vadd(force[vdw->a2->index], f);
+      } else {
+        gradient = 0.0;
       }
-      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-        writeSimpleForceVector(position, vdw->a1->index, &f, 4, 1.0); // cyan
-        vmulc(f, -1.0);
+      if (DEBUG(D_STRESS_MOVIE)) { // -D12
+        writeSimpleStressVector(position, vdw->a1->index, vdw->a2->index, -1, gradient, 10.0, 100.0);
+      }
+      if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL) && r > ALMOST_ZERO) { // -D5
         writeSimpleForceVector(position, vdw->a2->index, &f, 4, 1.0); // cyan
+        vmulc(f, -1.0);
+        writeSimpleForceVector(position, vdw->a1->index, &f, 4, 1.0); // cyan
       }
     }
   }
