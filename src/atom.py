@@ -60,7 +60,7 @@ if __name__ != '__main__':
 import startup_funcs # this has no side effects, it only defines a few functions
     # bruce 050902 moved some code from this file into new module startup_funcs
 
-import sys, os # all other imports should be added lower down
+import sys, os, time # all other imports should be added lower down
 
 if __name__ == '__main__':
     # This condition surrounds most code in this file, but it occurs twice,
@@ -103,9 +103,8 @@ if __name__ == '__main__':
     if not splash_pixmap.isNull():
         splash = QSplashScreen(splash_pixmap) # create the splashscreen
         splash.show()
-        SPLASH_TIME = 3.0 
-            # Will add user pref to change SPLASH_TIME for A7. mark 060131.
-        import time
+        MINIMUM_SPLASH_TIME = 3.0 
+            # I intend to add a user pref for MINIMUM_SPLASH_TIME for A7. mark 060131.
         splash_start = time.time()
     
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
@@ -123,20 +122,21 @@ if __name__ == '__main__':
     foo._init_after_geometry_is_set()
     
     if not splash_pixmap.isNull():
-        # If the SPLASH_TIME duration has not expired, sleep for a moment.
-        while time.time() - splash_start < SPLASH_TIME:
+        # If the MINIMUM_SPLASH_TIME duration has not expired, sleep for a moment.
+        while time.time() - splash_start < MINIMUM_SPLASH_TIME:
             time.sleep(0.1)
         splash.finish( foo ) # Take away the splashscreen
         
     foo.show() # show the main window
     
-    # This addresses two problems when nE-1 starts in Build (DEPOSIT) mode.
-    # 1. The MMKit can cover the splashscreen (bug #1439).
-    # 2. The MMKit appears 1-3 seconds before the main window.
-    # Both situations now resolved.  mark 060202
-    # Should this be moved to startup_funcs.post_main_show()? I chose to leave
-    # it here since the splashscreen code it refers to is in this file.  mark 060202.
     if foo.glpane.mode.modename == 'DEPOSIT':
+        # Two problems are addressed here when nE-1 starts in Build (DEPOSIT) mode.
+        # 1. The MMKit can cover the splashscreen (bug #1439).
+        #   BTW, the other part of bug fix 1439 is in MWsemantics.modifyMMKit()
+        # 2. The MMKit appears 1-3 seconds before the main window.
+        # Both situations now resolved.  mark 060202
+        # Should this be moved to startup_funcs.post_main_show()? I chose to leave
+        # it here since the splashscreen code it refers to is in this file.  mark 060202.
         foo.glpane.mode.MMKit.show()
         
     try:
