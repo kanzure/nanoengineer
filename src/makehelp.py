@@ -69,8 +69,8 @@ if os.path.exists("CVS"):
     files = [ ]
     inf = open("CVS/Entries")
     for f in inf.readlines():
-        f = f.split("/")
         if f[0] != "D":
+            f = f.split("/")
             files.append(f[1] + ": " + f[2])
     inf.close()
     s = "\n".join(files)
