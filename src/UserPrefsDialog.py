@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Jan 25 23:24:16 2006
+# Created: Fri Feb 3 14:35:14 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -502,8 +502,6 @@ class UserPrefsDialog(QDialog):
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
         TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
-        spacer8_4 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_3.addItem(spacer8_4,0,1)
 
         layout66 = QVBoxLayout(None,0,6,"layout66")
 
@@ -592,6 +590,34 @@ class UserPrefsDialog(QDialog):
         layout66.addItem(spacer8_3)
 
         TabPageLayout_3.addLayout(layout66,0,0)
+
+        layout59_2 = QVBoxLayout(None,0,6,"layout59_2")
+
+        self.groupBox11_2 = QGroupBox(self.TabPage_3,"groupBox11_2")
+        self.groupBox11_2.setColumnLayout(0,Qt.Vertical)
+        self.groupBox11_2.layout().setSpacing(6)
+        self.groupBox11_2.layout().setMargin(11)
+        groupBox11_2Layout = QGridLayout(self.groupBox11_2.layout())
+        groupBox11_2Layout.setAlignment(Qt.AlignTop)
+
+        self.highlighting_checkbox = QCheckBox(self.groupBox11_2,"highlighting_checkbox")
+
+        groupBox11_2Layout.addWidget(self.highlighting_checkbox,2,0)
+
+        self.autobond_checkbox = QCheckBox(self.groupBox11_2,"autobond_checkbox")
+
+        groupBox11_2Layout.addWidget(self.autobond_checkbox,0,0)
+
+        self.water_checkbox = QCheckBox(self.groupBox11_2,"water_checkbox")
+
+        groupBox11_2Layout.addWidget(self.water_checkbox,1,0)
+        layout59_2.addWidget(self.groupBox11_2)
+        spacer52 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout59_2.addItem(spacer52)
+
+        TabPageLayout_3.addLayout(layout59_2,0,1)
+        spacer8_4 = QSpacerItem(70,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_3.addItem(spacer8_4,0,2)
         self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
@@ -1155,6 +1181,9 @@ class UserPrefsDialog(QDialog):
         self.connect(self.always_save_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_always_save_win_pos_and_size)
         self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
+        self.connect(self.autobond_checkbox,SIGNAL("clicked()"),self.set_buildmode_autobond)
+        self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
+        self.connect(self.highlighting_checkbox,SIGNAL("clicked()"),self.set_buildmode_highlighting)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1312,6 +1341,10 @@ class UserPrefsDialog(QDialog):
         self.fill_type_combox.insertItem(self.__tr("Solid"))
         self.fill_type_combox.insertItem(self.__tr("Blue Sky"))
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
+        self.groupBox11_2.setTitle(self.__tr("Build Mode Defaults"))
+        self.highlighting_checkbox.setText(self.__tr("Highligting"))
+        self.autobond_checkbox.setText(self.__tr("Autobond"))
+        self.water_checkbox.setText(self.__tr("Water"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
         self.groupBox8_2.setTitle(self.__tr("Directional Light Properties"))
         self.light_label.setText(self.__tr("Light :"))
@@ -1541,6 +1574,15 @@ class UserPrefsDialog(QDialog):
 
     def change_view_animation_speed(self):
         print "UserPrefsDialog.change_view_animation_speed(): Not implemented yet"
+
+    def set_buildmode_autobond(self):
+        print "UserPrefsDialog.set_buildmode_autobond(): Not implemented yet"
+
+    def set_buildmode_water(self):
+        print "UserPrefsDialog.set_buildmode_water(): Not implemented yet"
+
+    def set_buildmode_highlighting(self):
+        print "UserPrefsDialog.set_buildmode_highlighting(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

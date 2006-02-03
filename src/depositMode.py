@@ -186,13 +186,13 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.addSeparator()
     
     w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
-    w.depositAtomDashboard.autobondCB.setChecked(1)
+    w.depositAtomDashboard.autobondCB.setChecked(env.prefs[buildModeAutobondEnabled_prefs_key])
     
     w.depositAtomDashboard.waterCB = QCheckBox("Water", w.depositAtomDashboard)
-    w.depositAtomDashboard.waterCB.setChecked(1)
+    w.depositAtomDashboard.waterCB.setChecked(env.prefs[buildModeWaterEnabled_prefs_key])
     
-    w.depositAtomDashboard.hiliteCB = QCheckBox("Highlight", w.depositAtomDashboard)
-    w.depositAtomDashboard.hiliteCB.setChecked(1)
+    w.depositAtomDashboard.hiliteCB = QCheckBox("Highlighting", w.depositAtomDashboard)
+    w.depositAtomDashboard.hiliteCB.setChecked(env.prefs[buildModeHighlightingEnabled_prefs_key])
     
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
@@ -277,6 +277,11 @@ class depositMode(basicMode):
     def __init__(self, glpane):
         basicMode.__init__(self, glpane)
         self.pastables_list = [] #k not needed here?
+        self.water_enabled = env.prefs.get( buildModeWaterEnabled_prefs_key) # mark 060203.
+            # if True, only atoms and bonds above the water surface can be 
+            # highlighted and selected.
+            # if False, all atoms and bonds can be highlighted and selected, and the water 
+            # surface is not displayed.
 
     # methods related to entering this mode
     
@@ -858,7 +863,7 @@ class depositMode(basicMode):
                 print_compact_traceback( "gluProject( cov[0], cov[1], cov[2] ) exception ignored, for cov == %r: " % (cov,) )
                 cov_depth = 2 # too deep to matter (depths range from 0 to 1, 0 is nearest to screen)
             water_depth = cov_depth
-            if wZ >= water_depth:
+            if self.water_enabled and wZ >= water_depth:
                 #print "behind water: %r >= %r" % (wZ , water_depth)
                 new_selobj = None
                     # btw, in constrast to this condition for a new selobj, an existing one will
@@ -907,7 +912,7 @@ class depositMode(basicMode):
         else:
             known = self.update_selobj(event) # this might do gl_update (but the paintGL triggered by that only happens later!),
                 # and (when it does) might not know the correct obj...
-                # so it returns True iff it did know the correct obj (or None) to store into glpane.selobj, False if not.
+                # so it returns True if it did know the correct obj (or None) to store into glpane.selobj, False if not.
         assert known in [False,True]
         # If not known, use None or use the prior one? This is up to the caller
         # since the best policy varies. Default is resort_to_prior = True since some callers need this
@@ -2125,14 +2130,24 @@ class depositMode(basicMode):
         return
         
     def setWater(self, on):
+        '''Turn water surface on/off.
+        if <on> is True, only atoms and bonds above the water surface can be highlighted and selected.
+        if <on> is False, all atoms and bonds can be highlighted and selected, and the water surface is not displayed.
+        '''
         if on:
-            msg = "Water surface displayed"
+            self.water_enabled = True
+            msg = "Water surface enabled."
         else:
-            msg = "Water surface hidden. Atom under water still not pickable."
+            self.water_enabled = False
+            msg = "Water surface disabled."
         env.history.message(msg)
         self.o.gl_update()
         
     def setHighlight(self, on):
+        '''Turn hover highlighting on/off.
+        if <on> is True, atoms and bonds are highlighted as the cursor passes over them.
+        if <on> is False, atoms and bonds are not highlighted until they are selected (with LMB click).
+        '''
         if on:
             msg = "Highlighting turned on."
         else:

@@ -93,6 +93,9 @@ cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
 # of the superclass basicMode (modes.py).
 startupMode_prefs_key = 'A7/Startup Mode'
 defaultMode_prefs_key = 'A7/Default Mode'
+buildModeAutobondEnabled_prefs_key = 'A7/Build Mode Autobond Enabled' # mark 060203.
+buildModeWaterEnabled_prefs_key = 'A7/Build Mode Water Enabled' # mark 060203.
+buildModeHighlightingEnabled_prefs_key = 'A7/Build Mode Highlighting Enabled' # mark 060203.
 
 # Lighting prefs [most added by mark 051124 or later]
 ## old_glpane_lights_prefs_key = "glpane lighting" #bruce 051206 moved this here from GLPane;
@@ -228,6 +231,9 @@ prefs_table = (
     
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
     ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
+    ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
+    ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, True ), # mark 060203.
+    ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
     
     # Lighting preferences [added to this table by mark 051124]
     # If any default light colors are changed here, you must also change the color of 

@@ -1515,23 +1515,6 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer row="0" column="1">
-                        <property name="name">
-                            <cstring>spacer8_4</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
                     <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
                             <cstring>layout66</cstring>
@@ -1857,6 +1840,87 @@
                             </spacer>
                         </vbox>
                     </widget>
+                    <widget class="QLayoutWidget" row="0" column="1">
+                        <property name="name">
+                            <cstring>layout59</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox11_2</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Build Mode Defaults</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox" row="2" column="0">
+                                        <property name="name">
+                                            <cstring>highlighting_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Highligting</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>autobond_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Autobond</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>water_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Water</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer52</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>40</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </vbox>
+                    </widget>
+                    <spacer row="0" column="2">
+                        <property name="name">
+                            <cstring>spacer8_4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>70</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -3894,6 +3958,24 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>change_view_animation_speed()</slot>
     </connection>
+    <connection>
+        <sender>autobond_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_autobond()</slot>
+    </connection>
+    <connection>
+        <sender>water_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_water()</slot>
+    </connection>
+    <connection>
+        <sender>highlighting_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_highlighting()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -4012,6 +4094,9 @@
     <slot>change_always_save_win_pos_and_size()</slot>
     <slot>save_current_win_pos_and_size()</slot>
     <slot>change_view_animation_speed()</slot>
+    <slot>set_buildmode_autobond()</slot>
+    <slot>set_buildmode_water()</slot>
+    <slot>set_buildmode_highlighting()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -228,6 +228,12 @@ class UserPrefs(UserPrefsDialog):
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
+        
+        # Build Mode Defaults.  mark 060203.
+        self.autobond_checkbox.setChecked(env.prefs[ buildModeAutobondEnabled_prefs_key ])
+        self.water_checkbox.setChecked(env.prefs[ buildModeWaterEnabled_prefs_key ])
+        self.highlighting_checkbox.setChecked(env.prefs[ buildModeHighlightingEnabled_prefs_key ])
+        
 
 # Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
     def _setup_lighting_page(self, lights=None): #mark 051124
@@ -741,6 +747,25 @@ class UserPrefs(UserPrefsDialog):
         # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
         if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()
+
+    def set_buildmode_autobond(self): # mark 060203
+        '''Autobond default setting for Build mode. This only affects whether it is enabled/disabled 
+        when starting the application and entering Build mode for the first time.
+        '''
+        env.prefs[buildModeAutobondEnabled_prefs_key] = self.autobond_checkbox.isChecked()
+            
+    def set_buildmode_water(self): # mark 060203
+        '''Water default setting for Build mode. This only affects whether it is enabled/disabled 
+        when starting the application and entering Build mode for the first time.
+        '''
+        env.prefs[buildModeWaterEnabled_prefs_key] = self.water_checkbox.isChecked()
+        
+    def set_buildmode_highlighting(self): # mark 060203
+        '''Highlighting default setting for Build mode. This only affects whether it is enabled/disabled 
+        when starting the application and entering Build mode for the first time.
+        '''
+        env.prefs[buildModeHighlightingEnabled_prefs_key] = self.highlighting_checkbox.isChecked()
+        
         
     ########## End of slot methods for "Modes" page widgets ###########
     
