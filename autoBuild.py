@@ -20,10 +20,14 @@ from shutil import *
 
 PYLIBPATH = os.path.split(getopt.__file__)[0]
 
+class NonZeroReturn(Exception):
+    pass
+
 def system(cmd):
     print cmd
     ret = os.system(cmd)
-    if ret != 0: raise Exception, cmd
+    if ret != 0:
+        raise NonZeroReturn, cmd
     return ret
 
 def oneLiner(cmd):
@@ -228,8 +232,12 @@ class NanoBuildWin32(NanoBuildBase):
     def freezePythonExecutable(self):
         print "\n------------------------------------------------------\nFreezing Python Executable"
         self.removeGPLFiles()
-        system('python setup.py py2exe --includes=sip,dbhash --excludes=OpenGL -d' +
-               os.path.join(self.buildSourcePath, 'program'))
+        try:
+            system('python setup.py py2exe --includes=sip,dbhash --excludes=OpenGL -d' +
+                   os.path.join(self.buildSourcePath, 'program'))
+        except NonZeroReturn:
+            # this happens, is it a problem?
+            pass
 
     def createIssFile(self, issFile, appName, version, releaseNo, sourceDir, status):
         """Create the iss file (script) to build package on Windows.  The iss script
