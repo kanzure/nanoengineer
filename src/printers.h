@@ -1,4 +1,6 @@
 
+extern void traceFileVersion(void);
+
 extern void traceHeader(struct part *part);
 
 extern void traceJigHeader(struct part *part);

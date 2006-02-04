@@ -56,14 +56,25 @@ NOTAVAILABLE = "Source file version info not available."
 now = datetime.fromtimestamp(time.
                              mktime(datetime.
                                     utcnow().timetuple())).ctime()
-s = ("Simulator built: " + now + " (UTC)\n" +
-     "Python version: " + sys.version + "\n" +
-     "CFLAGS = " + sys.argv[1] + "\n" +
-     "LDFLAGS = " + sys.argv[2] + "\n" +
-     "uname -a = " + sys.argv[3])
+print cString("tracePrefix", 
+              "Simulator built: " + now + " (UTC)\n" +
+              "uname -a: " + sys.argv[3] + "\n",
+              "# ")
+
+print cString("tracePrefixStandalone",
+              "CFLAGS: " + sys.argv[1] + "\n" +
+              "LDFLAGS: " + sys.argv[2] + "\n",
+              "# ")
+              
 if DISTUTILS_FLAGS != None:
-    s += "\nDistutils: " + " ".join(DISTUTILS_FLAGS)
-print cString("tracePrefix", s, "# ")
+    distutils = " ".join(DISTUTILS_FLAGS)
+else:
+    distutils = "None"
+
+print cString("tracePrefixPyrex",
+              "Python version: " + sys.version.replace("\n", " ") + "\n" +
+              "Distutils: " + distutils + "\n",
+              "# ")
 
 if os.path.exists("CVS"):
     files = [ ]
@@ -73,8 +84,6 @@ if os.path.exists("CVS"):
             f = f.split("/")
             files.append(f[1] + ": " + f[2])
     inf.close()
-    s = "\n".join(files)
-    s = cString("simulatorSourceVersions", s, "# ")
-    print s
+    print cString("simulatorSourceVersions", "\n".join(files), "# ")
 else:
     print cString("simulatorSourceVersions", NOTAVAILABLE, "# ")

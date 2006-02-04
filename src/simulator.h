@@ -138,6 +138,11 @@ extern void set_py_exc_str(const char *filename, const char *funcname,
 #define BAILR(x)  \
   if (EXCEPTION) { SAY("BAILR\n"); return x; }
 
+// these are defined in the generated file version.c:
+extern char tracePrefix[];
+extern char tracePrefixStandalone[];
+extern char tracePrefixPyrex[];
+
 /*
  * Local Variables:
  * c-basic-offset: 4

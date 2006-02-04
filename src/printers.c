@@ -33,6 +33,13 @@ countOutputColumns(struct jig *j)
     }
 }
 
+void
+traceFileVersion()
+{
+    write_traceline("# nanoENGINEER-1.com Simulator Trace File, Version 050310\n");
+    write_traceline("#\n");
+}
+
 void traceHeader(struct part *part)
 {
     int i, ncols;
@@ -41,9 +48,6 @@ void traceHeader(struct part *part)
     time_t tm;
     tm = time(NULL);
     ptr = localtime(&tm);
-    
-    write_traceline("# nanoENGINEER-1.com Simulator Trace File, Version 050310\n");
-    write_traceline("#\n");
 
     if (CommandLine != NULL && CommandLine[0] != '\0') {
         write_traceline("# Command Line: %s\n", CommandLine);
@@ -65,7 +69,7 @@ void traceHeader(struct part *part)
     }
     if (ToMinimize) {
         write_traceline("#\n");
-        write_traceline("# Energy Minimization.\n");
+        write_traceline("# Run type: Energy Minimization.\n");
         write_traceline("#\n");
         write_traceline("# iteration    RMS force (pN)      maximum force (pN)\n");
         write_traceline("#\n");
@@ -73,14 +77,14 @@ void traceHeader(struct part *part)
     }
 
     write_traceline("# \n");
-    write_traceline("# Dynamics run.\n");
+    write_traceline("# Run type: Dynamics.\n");
     write_traceline("# \n");
     write_traceline("# Number of Frames: %d\n", NumFrames);
     write_traceline("# Steps per Frame: %d\n", IterPerFrame);
     write_traceline("# Temperature: %.1f\n", Temperature);
 
     if (part == NULL) {
-        write_traceline("# Hmmmm, no part supplied.\n");
+        write_traceline("# Warning: no part supplied.\n");
         return;
     }
 
@@ -93,8 +97,10 @@ void traceHeader(struct part *part)
     for (i=0; i<part->num_jigs; i++) {
         ncols += countOutputColumns(part->jigs[i]);
     }
-        
-    write_traceline("# %d column%s:\n", ncols + 1, ncols == 0 ? "" : "s");
+
+    // Column count does not include the time column.  Cad uses this
+    // to configure plotting interface.
+    write_traceline("# %d columns:\n", ncols);
     
     for (i=0; i<part->num_jigs; i++) {
         j = part->jigs[i];

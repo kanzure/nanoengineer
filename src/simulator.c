@@ -179,7 +179,6 @@ main(int argc, char **argv)
     double printPotentialLimit = 200; // pm
     char *fileNameTemplate = NULL;
     char *outputFilename = NULL;
-    extern char tracePrefix[];
 	
     reinit_globals();
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
@@ -343,9 +342,11 @@ main(int argc, char **argv)
             exit(1);
         }
     }
-    initializeBondTable();
+    traceFileVersion(); // call this before any other writes to trace file.
     // tell where and how the simulator was built
-    fprintf(TraceFile, "%s# %s\n", tracePrefix, CommandLine);
+    fprintf(TraceFile, "%s%s", tracePrefix, tracePrefixStandalone);
+
+    initializeBondTable();
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
 
