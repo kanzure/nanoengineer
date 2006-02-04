@@ -24,10 +24,11 @@ class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
     
     #mark 060128 made this more general by adding the atomlist arg.
-    def selectConnected(self, atomlist=None):
+    def selectConnected(self, atomlist=None, select_atoms=True):
         """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         If <atomlist> is supplied, use it instead of the currently selected atoms.
+        If <select_atoms> is False, unselect the connected atoms.
         """ ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
         
         cmd = greenmsg("Select Connected: ")
@@ -41,16 +42,21 @@ class ops_connected_Mixin:
             atomlist = self.selatoms.values()
             
         alreadySelected = len(self.selatoms.values())
-        self.marksingle(atomlist)
+        self.marksingle(atomlist, select_atoms)
         totalSelected = len(self.selatoms.values())
         
         newAtomsSelected = totalSelected - alreadySelected
         
+        from platform import fix_plurals
         if newAtomsSelected > 0:
-            from platform import fix_plurals
             info = fix_plurals( "%d connected atom(s) selected." % newAtomsSelected)
+        else:
+            info = fix_plurals( "%d atom(s) unselected." % abs(newAtomsSelected))
+            
+        if newAtomsSelected != 0:
             env.history.message( cmd + info)
             self.o.gl_update()
+            
         
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -89,9 +95,10 @@ class ops_connected_Mixin:
     # (tho it's still non-interruptable), and fixing some other bug by making it
     # use its own dict for intermediate state, rather than atom.picked (so it works with Selection Filter).
     #mark 060128 made this more general by adding the atomlist arg.
-    def marksingle(self, atomlist):
-        '''select all the atoms reachable through
-        any sequence of bonds to the atoms in atomlist
+    def marksingle(self, atomlist, select_atoms=True):
+        '''Select all the atoms reachable through any sequence of bonds to the atoms in atomlist.
+        If <select_atoms> is False, unselect all the atoms reachable through any sequence of bonds to 
+        the atoms in atomlist.
         '''
         marked = {} # maps id(atom) -> atom, for processed atoms
         todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
@@ -115,7 +122,10 @@ class ops_connected_Mixin:
                         newtodo.append(at2)
             todo = newtodo
         for atom in marked.itervalues():
-            atom.pick()
+            if select_atoms:
+                atom.pick()
+            else:
+                atom.unpick()
             # note: this doesn't actually select it unless it's not a singlet and its element passes the Selection Filter.
         return
     
