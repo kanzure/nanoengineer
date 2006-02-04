@@ -1839,21 +1839,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.redmsg( "drop refused by %r" % node_name(targetnode) )
             return
 
-        ## no longer needed [030516]
-##        #bruce 050202 last minute change:
-##        # first guess if a bug will happen...
-##        #bruce 050216 comment: note that this belongs in the subclass, not here. ###@@@
-##        try:
-##            s1 = targetnode.find_selection_group()
-##            s2 = nodes[0].find_selection_group()
-##            shouldwarn = (s1 != s2)
-##            n1 = node_name(s1) # destination
-##            n2 = node_name(s2) # source
-##            if shouldwarn and 0: #bruce 050203 removing this since I think I fixed the bugs it warns about (mostly anyway, not 371)
-##                msgw = "alpha warning: drag between clipboard items and the part often causes bugs; doing it anyway, from %r to %r" % (n2,n1)
-##                self.redmsg( msgw)
-##        except:
-##            pass
+        oldpart = nodes[0].part #bruce 060203
+        
+        if drag_type == 'move':
+            #bruce 060203 see if this helps implement NFR/bug 932 (which says, don't pick moved nodes or open their drop target);
+            # do this first to make sure they're not picked when we move them... which might change current part [unverified claim].
+            for node1 in nodes:
+                node1.unpick()
         
         copiednodes = targetnode.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
         #bruce 050203: copiednodes is a list of copied nodes made by drop_on (toplevel only, when groups are copied).
@@ -1861,45 +1853,49 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         #bruce 050203 cause moved nodes to remain picked;
         # for copied nodes, we want the copies not originals to be picked.
+        #bruce 060203 no longer pick moved nodes if moved into a different part, but still pick copies,
+        # or nodes moved into the same part (or entire parts moved as a whole, only possible w/in clipboard).
         if drag_type == 'move':
-            self.unpick_all()
-            # pick the moved nodes
-            #bruce 050216: don't do this if they were moved into the clipboard.
-            # Note that this behavior should be subclass-specific, as should any knowledge of "the clipboard" at all!
-            # This needs review and cleanup -- maybe all this selection behavior needs to ask nodes what to do.
-            # bruce 030516: it's now safe (and good) to do this even for nodes dragged into the clipboard --
-            # provided there was only one node created there! This should be true, since they'll be grouped.
-            # *BUT* how do we find that node (the group made to hold them)? Or, just pick the moved ones inside it?
-            if not targetnode.in_clipboard():
+            # this case rewritten by bruce 060203 re bug/NFR 932 (whose full fix also involved other files)
+            self.unpick_all() # probably redundant now
+            # pick the moved nodes, iff they are still in the same part.
+            # run update_parts to help us; this covers case of moving an entire part w/in the clipboard,
+            # in which it should remain picked.
+            # (Someday it might be useful to look at nodes[0].find_selection_group() instead...)
+            self.assy.update_parts()
+                # FYI: drop_on sometimes does update_parts, but not always, so do it here to be safe. Optim this later.
+                # Note: knowing anything about parts, and maybe even knowing self.assy, violates modularity
+                # (re supposed generality of TreeWidget as opposed to modelTree); fix this later.
+                # (I guess just about this entire method violates modularity, and probably so does much else in this file.
+                #  As an older comment said:
+                #  Note that this behavior should be subclass-specific, as should any knowledge of "the clipboard" at all!
+                #  This needs review and cleanup -- maybe all this selection behavior needs to ask nodes what to do.)
+            newpart = nodes[0].part
+            if oldpart is newpart:
                 for node1 in nodes:
                     node1.pick()
-            else:
-                # 050316
-##                if platform.atom_debug:
-##                    print "atom_debug: fyi: copiednodes might be [] or [newgroup], it's:",copiednodes # it's []
-                for node1 in nodes:
-                    node1.pick() # I think these are now guaranteed to be in one selection group...
-                    # if not, we would not want to do this, or we'd want to suppress history messages from it.
-                # in future we might also pick the group created to hold them, if any -- not sure. maybe best not to.
             pass
         else:
             self.unpick_all()
-            # obs comment:
-            # pick the copies (even if they are in the clipboard? for now, yes.)
-            # note, the rule about selection limited to only one clipboard item
-            # makes only the last one end up picked, and a warning come out!
-            # We should probably make the clipboard consolidate dropped nodes
-            # (for move or copy) into one Group.
-            #
-            # [later: As of a few days before 050216, it does that for 'move'
-            #  but not yet for 'copy', though both need it just as much.
-            #  So I no longer pick the copies if in the clipboard.
-            #  I also wonder if I should instead pick the originals then, or always??
-            #  Not for now.]
-            # [050316: this should be reconsidered now that picking in clipboard is safer...] #####@@@@@
-            if not targetnode.in_clipboard():
-                for node1 in copiednodes:
+            # Pre-060203 code: we pick the copies iff they remain in the main part.
+            # The reason we don't pick them otherwise is:
+            # - NFR 932 thinks we shouldn't, in some cases (tho it probably doesn't think that
+            #   if they are and remain in one clipboard part)
+            # - there's a bug in drop_on which can put them in more than one clipboard item,
+            #   but the selection is confined to one clipboard item.
+            # With a little work we could improve this (in the cases not affected by that bug).
+            # [comment revised, bruce 060203]
+##            if not targetnode.in_clipboard():
+##                for node1 in copiednodes:
+##                    node1.pick()
+            #bruce 060203 revising this to use similar scheme to move case (but not when copies get split up):
+            # pick the copies if they're in the same part as the originals.
+            # (I believe this will either pick all copies or none of them.)
+            self.assy.update_parts()
+            for node1 in copiednodes:
+                if node1.part is oldpart:
                     node1.pick()
+            pass
             
         ## print "did it!"
         # ... too common for a history message, i guess...
@@ -1907,9 +1903,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
             #e should be more specific about what happened to them... ask the target node itself??
         msg = fix_plurals(msg)
         self.statusbar_msg( msg)
-        ## bruce 050203: mt_update is not enough, in case selection changed
-        ## (which can happen as a side effect of nodes moving under new dads in the tree)
-        ## self.mt_update()
+        #bruce 050203: mt_update is not enough, in case selection changed
+        # (which can happen as a side effect of nodes moving under new dads in the tree)
         self.win.win_update()
         return
     

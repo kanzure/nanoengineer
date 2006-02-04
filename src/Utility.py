@@ -533,7 +533,9 @@ class Node( GenericDiffTracker_API_Mixin):
         if not isinstance(self, Group):
             nodes = nodes[::-1] # reverse order if self is a leaf node
         else:
-            self.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
+            #bruce 060203 removing this, to implement one aspect of NFR 932:
+            ## self.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
+            pass
         if drag_type == 'move':
             for node in nodes[:]:
                 node.moveto(self) ###k guess/stub; works
