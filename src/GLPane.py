@@ -287,7 +287,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         return # from GLPane.__init__        
 
-    # self.part maintainance [bruce 050419]
+    # self.part maintenance [bruce 050419]
     
     def set_part(self, part):
         """change our current part to the one given, and take on that part's view;
