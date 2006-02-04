@@ -48,9 +48,9 @@ if sys.platform == "darwin":
     # and then link newtables.o here by using the extra_objects distutils keyword,
     # which was used for most .o files in a prior cvs revision of this file.
     # [change by Will, commented by Bruce, 051230.]
-    extra_compile_args = [ "-O" ]
+    extra_compile_args = [ "-DDISTUTILS", "-O" ]
 else:
-    extra_compile_args = [ ]
+    extra_compile_args = [ "-DDISTUTILS" ]
 
 setup(name = 'Simulator',
       ext_modules=[Extension("sim", ["sim.pyx",
@@ -70,9 +70,8 @@ setup(name = 'Simulator',
                                      "readmmp.c",
                                      "readxyz.c",
                                      "structcompare.c",
-                                     "version.c",
                                      "writemovie.c"],
-                             depends = ["simhelp.c"],
+                             depends = ["simhelp.c", "version.h"],
                              extra_compile_args = extra_compile_args
                              ),
                    ],

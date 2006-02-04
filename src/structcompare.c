@@ -1,6 +1,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 static int atomCount;
 static int allowScaling; // non-zero if a scale difference will be allowed
 

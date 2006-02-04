@@ -2,6 +2,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 /* creating atoms, bonds, etc */
 
 /** uses global Nexatom, atom, element, positions, old_positions, Dt, Dx, Boltz, and

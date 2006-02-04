@@ -40,28 +40,35 @@ if sys.platform != "win32":
           cmdclass = {'build_ext': local_build_ext})
     sys.argv = sys_argv
 
-def cString(name, s, prefix=""):
+def hString(name, s, prefix=""):
     import string
-    retval = "char " + name + "[] = \"\\\n" + prefix
+    retval = "#define " + name + " \\\n\"" + prefix
     # replace double-quote with escaped-double-quote
     s = string.replace(s, "\"", "\\\"")
     # replace line terminations with end-of-last-line plus start-of-next-line
-    s = string.replace(s, "\n", ("\\n\\\n") + prefix)
-    return retval + s + "\\n\";\n"
+    s = string.replace(s, "\n", ("\\n\"\\\n\"") + prefix)
+    return retval + s + "\\n\"\n"
+
+#def cString(name, s, prefix=""):
+#    import string
+#    retval = "char " + name + "[] = \"\\\n" + prefix
+#    # replace double-quote with escaped-double-quote
+#    s = string.replace(s, "\"", "\\\"")
+#    # replace line terminations with end-of-last-line plus start-of-next-line
+#    s = string.replace(s, "\n", ("\\n\\\n") + prefix)
+#    return retval + s + "\\n\";\n"
 
 ######################################
-
-NOTAVAILABLE = "Source file version info not available."
 
 now = datetime.fromtimestamp(time.
                              mktime(datetime.
                                     utcnow().timetuple())).ctime()
-print cString("tracePrefix", 
+print hString("TRACE_PREFIX", 
               "Simulator built: " + now + " (UTC)\n" +
               "uname -a: " + sys.argv[3] + "\n",
               "# ")
 
-print cString("tracePrefixStandalone",
+print hString("TRACE_PREFIX_NON_DISTUTILS",
               "CFLAGS: " + sys.argv[1] + "\n" +
               "LDFLAGS: " + sys.argv[2] + "\n",
               "# ")
@@ -71,19 +78,7 @@ if DISTUTILS_FLAGS != None:
 else:
     distutils = "None"
 
-print cString("tracePrefixPyrex",
-              "Python version: " + sys.version.replace("\n", " ") + "\n" +
-              "Distutils: " + distutils + "\n",
+print hString("TRACE_PREFIX_DISTUTILS",
+              "Python " + sys.version.replace("\n", " ") + "\n" +
+              distutils + "\n",
               "# ")
-
-if os.path.exists("CVS"):
-    files = [ ]
-    inf = open("CVS/Entries")
-    for f in inf.readlines():
-        if f[0] != "D":
-            f = f.split("/")
-            files.append(f[1] + ": " + f[2])
-    inf.close()
-    print cString("simulatorSourceVersions", "\n".join(files), "# ")
-else:
-    print cString("simulatorSourceVersions", NOTAVAILABLE, "# ")

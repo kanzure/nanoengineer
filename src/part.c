@@ -4,6 +4,8 @@
 #define CHECK_VALID_BOND(b) { \
     NULLPTR(b); NULLPTR((b)->a1); NULLPTR((b)->a2); }
 
+static char const rcsid[] = "$Id$";
+
 // This is the default value for the p->parseError() function.
 // p->parseError() is called by routines in this file while a part is
 // being constructed.  It generally points to a routine that can emit

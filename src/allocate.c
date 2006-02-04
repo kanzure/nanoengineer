@@ -3,6 +3,8 @@
 #include <string.h>
 #include "allocate.h"
 
+static char const rcsid[] = "$Id$";
+
 void *
 allocate(int size)
 {

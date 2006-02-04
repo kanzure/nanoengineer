@@ -6,6 +6,7 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
 
 struct atomtype element[]={
     /* mass  rvdw   evdw nbonds symbol */

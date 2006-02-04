@@ -3,6 +3,8 @@
 
 #define ALMOST_ZERO 0.0001
 
+static char const rcsid[] = "$Id$";
+
 // incremented each time either the potential or gradient is
 // calculated.  Used to match values in bond->valid to determine the
 // need to recalculate bond->inverseLength and bond->rUnit.

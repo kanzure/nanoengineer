@@ -26,6 +26,17 @@ char __author__[] = "Will";
 #include "Python.h"
 #include "Numeric/arrayobject.h"
 #include "simulator.h"
+#include "version.h"
+
+static char const rcsid[] = "$Id$";
+/* rcsid strings for several *.h files */
+static char const rcsid2[] = MULTIPLE_RCSID_STRING;
+
+#ifdef DISTUTILS
+static char tracePrefix[] = TRACE_PREFIX TRACE_PREFIX_DISTUTILS;
+#else
+static char tracePrefix[] = TRACE_PREFIX TRACE_PREFIX_NON_DISTUTILS;
+#endif
 
 PyObject * initsimhelp(void);
 PyObject * dumpPart(void);
@@ -305,8 +316,8 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	    return NULL;
 	}
         traceFileVersion(); // call this before any other writes to trace file.
-	// tell where and how the pyrex sim was built
-	fprintf(TraceFile, "%s%s", tracePrefix, tracePrefixPyrex);
+	// tell where and how the pyrex sim was built, whether with or without distutils.
+	fprintf(TraceFile, "%s", tracePrefix);
         CommandLine = "run from pyrex interface";
     }
 

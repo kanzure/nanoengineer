@@ -21,6 +21,8 @@ This method is called "Linear Probing" in Knuth Vol 3 p. 518.
 /* maximum fraction of full buckets in table */
 #define RESIDENCY 0.8  
 
+static char const rcsid[] = "$Id$";
+
 static int
 hash_string(char *s)
 {

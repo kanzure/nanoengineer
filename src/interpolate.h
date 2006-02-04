@@ -1,3 +1,7 @@
+#ifndef INTERPOLATE_H_INCLUDED
+#define INTERPOLATE_H_INCLUDED
+
+#define RCSID_INTERPOLATE_H  "$Id$"
 
 extern double potentialLippincottMorse(double r, void *p);
 
@@ -13,3 +17,5 @@ extern void initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw,
 
 extern void printPotentialAndGradientFunctions(char *name, double initial, double increment, double limit);
 extern void printBendStretch(void);
+
+#endif

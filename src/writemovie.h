@@ -1,3 +1,8 @@
+#ifndef WRITEMOVIE_H_INCLUDED
+#define WRITEMOVIE_H_INCLUDED
+
+#define RCSID_WRITEMOVIE_H  "$Id$"
+
 extern void initializeDeltaBuffers(struct part *part);
 
 extern void writeOutputHeader(FILE *f, struct part *part);
@@ -15,3 +20,5 @@ extern void writeSimpleMovieFrame(struct part *part, struct xyz *positions, stru
 extern void writeDynamicsMovieFrame(FILE *f, int n, struct part *part, struct xyz *pos);
 
 extern int writeMinimizeMovieFrame(FILE *f, struct part *part, int final, struct xyz *pos, double rms, double max_force, int frameNumber, char *callLocation, char *message);
+
+#endif

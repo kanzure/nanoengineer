@@ -1,3 +1,7 @@
+#ifndef PART_H_INCLUDED
+#define PART_H_INCLUDED
+
+#define RCSID_PART_H  "$Id$"
 
 #define VDW_HASH 127
 #define VDW_SIZE (VDW_HASH+1)
@@ -280,6 +284,8 @@ extern void printStretch(FILE *f, struct part *p, struct stretch *s);
 extern void printBend(FILE *f, struct part *p, struct bend *b);
 
 extern void printPart(FILE *f, struct part *p);
+
+#endif
 
 /*
  * Local Variables:

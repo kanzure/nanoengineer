@@ -6,6 +6,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 // Some of the routines in this file are based on routines found in
 // "Numerical Recipes in C, Second Edition", by William H. Press, Saul
 // A. Teukolsky, William T. Vetterling, and Brian P. Flannery,

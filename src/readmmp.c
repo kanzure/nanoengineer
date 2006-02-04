@@ -2,6 +2,8 @@
 #include <limits.h>
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 struct mmpStream 
 {
   FILE *f;

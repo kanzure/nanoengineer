@@ -1,3 +1,7 @@
+#ifndef STRUCTCOMPARE_H_INCLUDED
+#define STRUCTCOMPARE_H_INCLUDED
+
+#define RCSID_STRUCTCOMPARE_H  "$Id$"
 
 extern int doStructureCompare(int numberOfAtoms,
                               struct xyz *basePositions,
@@ -8,3 +12,4 @@ extern int doStructureCompare(int numberOfAtoms,
                               double maxScale);
 
 
+#endif

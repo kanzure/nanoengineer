@@ -1,6 +1,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 // reads atom positions from an XYZ file into Positions[]
 // returns the number of atoms read, or -1 for an error.
 struct xyz *

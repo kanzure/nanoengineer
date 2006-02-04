@@ -1,5 +1,7 @@
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 /*
   inputs:
   OldPositions[*]

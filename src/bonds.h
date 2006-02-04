@@ -1,3 +1,8 @@
+#ifndef BONDS_H_INCLUDED
+#define BONDS_H_INCLUDED
+
+#define RCSID_BONDS_H  "$Id$"
+
 //                        ks      r0       de    beta  inflectionR bondName
   addInitialBondStretch( 274.70, 204.54, 0.3145, 2.0898, 238.29, "Cl-1-Cl");
   addInitialBondStretch( 502.46, 128.72, 0.7163, 1.8728, 166.19, "H-1-Cl");
@@ -63,3 +68,5 @@
   addInitialBondStretch(1278.37, 123.15, 0.8346, 2.7674, 148.60, "N-2-N");
   addInitialBondStretch(1320.74, 120.56, 0.7920, 2.8876, 144.96, "N-2-O");
   addInitialBondStretch(1167.02, 127.01, 1.1232, 2.2793, 157.87, "C-2-N");
+
+#endif

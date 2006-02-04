@@ -32,6 +32,8 @@
 
 #include "allocate.h"
 
+static char const rcsid[] = "$Id$";
+
 struct ObjectLine
 {
   float x1, y1, z1; // endpoint1

@@ -1,6 +1,8 @@
 #ifndef GLOBALS_H_INCLUDED
 #define GLOBALS_H_INCLUDED
 
+#define RCSID_GLOBALS_H  "$Id$"
+
 extern int debug_flags;
 
 extern int Interrupted;

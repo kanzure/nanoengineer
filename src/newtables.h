@@ -1,3 +1,7 @@
+#ifndef NEWTABLES_H_INCLUDED
+#define NEWTABLES_H_INCLUDED
+
+#define RCSID_NEWTABLES_H  "$Id$"
 
 /** table length for bond stretch/bending functions */
 #define TABLEN 150
@@ -126,3 +130,5 @@ extern struct bendData *getBendData(int element_center,
 extern struct vanDerWaalsParameters *getVanDerWaalsTable(int element1, int element2);
 
 extern struct atomType *getAtomTypeByName(char *symbol);
+
+#endif

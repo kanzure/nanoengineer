@@ -12,6 +12,8 @@ typedef long long int_64;
 typedef __int64 int_64;
 #endif
 
+static char const rcsid[] = "$Id$";
+
 // arrays of 3 times part->num_atoms
 static int *ixyz = NULL;
 static int *previxyz = NULL;

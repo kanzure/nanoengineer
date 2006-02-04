@@ -1,3 +1,7 @@
+#ifndef PRINTERS_H_INCLUDED
+#define PRINTERS_H_INCLUDED
+
+#define RCSID_PRINTERS_H  "$Id$"
 
 extern void traceFileVersion(void);
 
@@ -11,3 +15,5 @@ extern void printError(const char *file, int line, int error_type,
 		       int doPerror, const char *format, ...);
 
 extern void done(const char *format, ...);
+
+#endif

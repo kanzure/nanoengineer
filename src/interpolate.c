@@ -1,6 +1,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 /*
 
 We're doing cubic polynomial interpolation for the potential function.

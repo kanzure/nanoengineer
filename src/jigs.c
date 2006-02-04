@@ -1,6 +1,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 /** kT @ 300K is 4.14 zJ -- RMS V of carbon is 1117 m/s
     or 645 m/s each dimension, or 0.645 pm/fs  */
 

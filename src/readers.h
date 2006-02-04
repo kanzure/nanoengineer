@@ -1,3 +1,8 @@
+#ifndef READERS_H_INCLUDED
+#define READERS_H_INCLUDED
+
+#define RCSID_READERS_H  "$Id$"
+
 extern void makatom(int elem, struct xyz posn);
 
 extern void makbond(int a, int b, char ord);
@@ -19,3 +24,5 @@ extern void maklmot2(int i);
 extern void filred(char *filnam);
 
 extern struct xyz *readXYZ(char *filename, int *natoms);
+
+#endif

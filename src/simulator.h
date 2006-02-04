@@ -1,3 +1,29 @@
+#ifndef SIMULATOR_H_INCLUDED
+#define SIMULATOR_H_INCLUDED
+
+#define RCSID_SIMULATOR_H  "$Id$"
+
+#define MULTIPLE_RCSID_STRING \
+    RCSID_SIMULATOR_H \
+    RCSID_DEBUG_H \
+    RCSID_LIN_ALG_H \
+    RCSID_ALLOCATE_H \
+    RCSID_HASHTABLE_H \
+    RCSID_MINIMIZE_H \
+    RCSID_STRUCTCOMPARE_H \
+    RCSID_PART_H \
+    RCSID_NEWTABLES_H \
+    RCSID_INTERPOLATE_H \
+    RCSID_READMMP_H \
+    RCSID_READXYZ_H \
+    RCSID_PRINTERS_H \
+    RCSID_DYNAMICS_H \
+    RCSID_JIGS_H \
+    RCSID_POTENTIAL_H \
+    RCSID_MINSTRUCTURE_H \
+    RCSID_WRITEMOVIE_H \
+    RCSID_GLOBALS_H
+
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 
 // SI prefixes:
@@ -138,10 +164,7 @@ extern void set_py_exc_str(const char *filename, const char *funcname,
 #define BAILR(x)  \
   if (EXCEPTION) { SAY("BAILR\n"); return x; }
 
-// these are defined in the generated file version.c:
-extern char tracePrefix[];
-extern char tracePrefixStandalone[];
-extern char tracePrefixPyrex[];
+#endif
 
 /*
  * Local Variables:

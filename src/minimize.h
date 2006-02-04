@@ -1,3 +1,7 @@
+#ifndef MINIMIZE_H_INCLUDED
+#define MINIMIZE_H_INCLUDED
+
+#define RCSID_MINIMIZE_H  "$Id$"
 
 struct configuration 
 {
@@ -140,3 +144,4 @@ extern struct configuration *gradientOffset(struct configuration *p, double q);
 
 extern struct configuration *minimize(struct configuration *p, int *iteration, int iterationLimit);
 
+#endif

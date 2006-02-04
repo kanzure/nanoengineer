@@ -1,3 +1,7 @@
+#ifndef DEBUG_H_INCLUDED
+#define DEBUG_H_INCLUDED
+
+#define RCSID_DEBUG_H  "$Id$"
 
 #if 0
 #define DBGPRINTF(fmt) fprintf(stderr, fmt)
@@ -54,3 +58,5 @@ extern int debug_flags;
 #define ERROR_ERRNO1(fmt,a) (printError(__FILE__, __LINE__, TYPE_ERROR, 1, fmt, a))
 #define WARNING_ERRNO(fmt) (printError(__FILE__, __LINE__, TYPE_WARNING, 1, fmt))
 #define WARNING_ERRNO1(fmt,a) (printError(__FILE__, __LINE__, TYPE_WARNING, 1, fmt, a))
+
+#endif

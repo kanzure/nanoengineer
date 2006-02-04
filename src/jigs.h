@@ -1,3 +1,7 @@
+#ifndef JIGS_H_INCLUDED
+#define JIGS_H_INCLUDED
+
+#define RCSID_JIGS_H  "$Id$"
 
 extern struct xyz gxyz(double v);
 
@@ -21,3 +25,4 @@ extern void jigAngle(struct jig *jig, struct xyz *new_position);
 
 extern void jigRadius(struct jig *jig, struct xyz *new_position);
 
+#endif

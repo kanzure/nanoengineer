@@ -1,6 +1,14 @@
 // Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
 #include <getopt.h>
 #include "simulator.h"
+#include "version.h"
+
+static char const rcsid[] = "$Id$";
+
+/* rcsid strings for several *.h files */
+static char const rcsid2[] = MULTIPLE_RCSID_STRING;
+
+static char tracePrefix[] = TRACE_PREFIX TRACE_PREFIX_NON_DISTUTILS;
 
 static void
 SIGTERMhandler(int sig) 
@@ -343,8 +351,9 @@ main(int argc, char **argv)
         }
     }
     traceFileVersion(); // call this before any other writes to trace file.
-    // tell where and how the simulator was built
-    fprintf(TraceFile, "%s%s", tracePrefix, tracePrefixStandalone);
+    // tell where and how the simulator was built. We never build the
+    // standalone simulator with distutils.
+    fprintf(TraceFile, "%s", tracePrefix);
 
     initializeBondTable();
 

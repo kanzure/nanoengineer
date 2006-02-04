@@ -1,3 +1,7 @@
+#ifndef LIN_ALG_H_INCLUDED
+#define LIN_ALG_H_INCLUDED
+
+#define RCSID_LIN_ALG_H  "$Id$"
 
 /* a 3-vector */
 struct xyz {
@@ -88,3 +92,5 @@ extern void matrixInverseTransform(struct xyz *out, double *m, struct xyz *in);
 #define v2x(dest,src1,src2)  dest.x = src1.y * src2.z - src1.z * src2.y;\
 	dest.y = src1.z * src2.x - src1.x * src2.z;\
 	dest.z = src1.x * src2.y - src1.y * src2.x;
+
+#endif

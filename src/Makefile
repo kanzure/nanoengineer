@@ -39,7 +39,6 @@ PYREXOBJS=\
 	readmmp.o \
 	readxyz.o \
 	structcompare.o \
-	version.o \
 	writemovie.o
 
 SIMOBJS=$(PYREXOBJS) simulator.o
@@ -62,7 +61,7 @@ all: $(SIMTARGET)
 # It's important not to change these two targets.
 pyx: $(PYREXTARGET)
 
-.PHONY: all lall newversion noopt pyx install install-linux clean dist_clean depend depends
+.PHONY: all lall noopt pyx install install-linux clean dist_clean depend depends
 
 lall: all pyx glviewer
 
@@ -100,17 +99,14 @@ bonds.h: parmlist.py stretch.parms
 bends.h: bend.perl bending.parms
 	./bend.perl < bending.parms > bends.h
 
-newversion:
-	rm -f version.c
-
-version.c: newversion
+version.h:
 	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
-		| grep -v "^running " > version.c
+		| grep -v "^running " > version.h
 
 noopt:
 	make CFLAGS=-g $(SIMTARGET)
 
-$(SIMTARGET): $(SIMOBJS)
+$(SIMTARGET): $(SIMOBJS) version.h
 	$(CC) -o $(SIMTARGET) $(LDFLAGS) $(SIMOBJS)
 
 testminimize: minimize.c allocate.o
@@ -125,7 +121,7 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-sim.so: Makefile version.c
+sim.so: Makefile version.h
 	python setup.py build_ext --inplace
 
 install: $(SIMTARGET)
@@ -142,7 +138,7 @@ install-linux: install $(PYREXTARGET)
 	cp sim.so $(EXE_DIRECTORY)
 
 clean:
-	rm -f version.c
+	rm -f version.h
 	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
 	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
 	rm -rf html gmon.out build
@@ -161,7 +157,7 @@ TAGS:
 doxy:
 	doxygen Doxyfile
 
-depend:
+depend: version.h
 	head -`egrep -n "^# BEGIN" Makefile | sed 's/:.*//'` Makefile > tmp.mk
 	makedepend -f tmp.mk -Y. *.[ch]
 	mv -f tmp.mk Makefile
@@ -231,11 +227,11 @@ readxyz.o: writemovie.h globals.h
 simhelp.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simhelp.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simhelp.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-simhelp.o: writemovie.h globals.h
+simhelp.o: writemovie.h globals.h version.h
 simulator.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simulator.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simulator.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-simulator.o: minstructure.h writemovie.h globals.h
+simulator.o: minstructure.h writemovie.h globals.h version.h
 simulator.o: debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simulator.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simulator.o: readxyz.h printers.h dynamics.h jigs.h potential.h

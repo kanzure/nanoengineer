@@ -1,3 +1,8 @@
+#ifndef BENDS_H_INCLUDED
+#define BENDS_H_INCLUDED
+
+#define RCSID_BENDS_H  "$Id$"
+
 addInitialBendData("B-1-B.sp3-1-B", 0.700012504471, 2.2007102735);
 addInitialBendData("B-1-B.sp3-1-C", 0.718400377961, 2.1453193106);
 addInitialBendData("B-1-B.sp3-1-Cl", 0.809100395717, 2.12768324993);
@@ -778,3 +783,5 @@ addInitialBendData("O-1-Si.sp3-1-Si", 0.616668210088, 1.88326596345);
 addInitialBendData("Si-1-Si.sp3-1-P", 0.513855704075, 1.88852987492);
 addInitialBendData("Si-1-Si.sp3-1-S", 0.526167986423, 1.82795797307);
 addInitialBendData("Si-1-Si.sp3-1-Si", 0.459433346504, 1.97086310291);
+
+#endif

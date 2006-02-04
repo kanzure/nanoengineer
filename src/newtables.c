@@ -1,6 +1,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 static struct bondStretch *
 getBondStretchEntry(int element1, int element2, char bondOrder);
 
@@ -273,6 +275,9 @@ initializeBondTable(void)
 
   vanDerWaalsHashtable = hashtable_new(40);
 }
+
+static const char bends_rcsid[] = RCSID_BENDS_H;
+static const char bonds_rcsid[] = RCSID_BONDS_H;
 
 static void
 clearBondWarnings(char *bondName, void *entry)

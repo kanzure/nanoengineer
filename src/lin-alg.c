@@ -12,6 +12,8 @@
 
 #include "lin-alg.h"
 
+static char const rcsid[] = "$Id$";
+
 struct xyz vcon(double x) {
 	struct xyz u;
 	vsetc(u,x);

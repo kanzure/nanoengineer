@@ -13,6 +13,8 @@
 //
 // That could be done if sim.pyx can have cpp macros in it...
 
+static char const rcsid[] = "$Id$";
+
 int debug_flags;
 
 int Interrupted; /* set to 1 when a SIGTERM is received */

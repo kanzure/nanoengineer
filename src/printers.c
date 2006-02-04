@@ -12,6 +12,8 @@
 
 #include "simulator.h"
 
+static char const rcsid[] = "$Id$";
+
 static char __line[2000], *__p;
 
 static int

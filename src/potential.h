@@ -1,3 +1,8 @@
+#ifndef POTENTIAL_H_INCLUDED
+#define POTENTIAL_H_INCLUDED
+
+#define RCSID_POTENTIAL_H  "$Id$"
+
 extern double stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared);
 
 extern double stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *stretchType, double rSquared);
@@ -10,3 +15,4 @@ extern double calculatePotential(struct part *p, struct xyz *position);
 
 extern void calculateGradient(struct part *p, struct xyz *position, struct xyz *force);
 
+#endif
