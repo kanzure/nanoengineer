@@ -1,7 +1,6 @@
 import sys
 import time
 import os.path
-from datetime import datetime
 
 if sys.platform == "darwin":
     extra_compile_args = [ "-O" ]
@@ -60,11 +59,7 @@ def hString(name, s, prefix=""):
 
 ######################################
 
-now = datetime.fromtimestamp(time.
-                             mktime(datetime.
-                                    utcnow().timetuple())).ctime()
 print hString("TRACE_PREFIX", 
-              "Simulator built: " + now + " (UTC)\n" +
               "uname -a: " + sys.argv[3] + "\n",
               "# ")
 
