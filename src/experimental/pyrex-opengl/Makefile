@@ -64,7 +64,7 @@ quux.so: quux.pyx quux_help.c
 
 # Unix, Mac - don't use distutils
 __quux.so: quux.o bradg.o glextensions.o vector.o
-	$(CC) -shared -o quux.so quux.o bradg.o glextensions.o vector.o $(LDFLAGS)
+	$(CXX) -shared -o quux.so quux.o bradg.o glextensions.o vector.o $(LDFLAGS)
 
 PyrexOpenGLGui.py: PyrexOpenGLGui.ui
 	pyuic PyrexOpenGLGui.ui > PyrexOpenGLGui.py
@@ -74,7 +74,7 @@ libpython23.a: libpython23.a.gz
 
 # Windows can't use distutils (avoid MSVC, use Dev-Cpp)
 quux.dll: quux.o bradg.o glextensions.o vector.o libpython23.a
-	$(CC) -shared -o quux.dll quux.o bradg.o glextensions.o vector.o $(LDFLAGS)
+	$(CXX) -shared -o quux.dll quux.o bradg.o glextensions.o vector.o $(LDFLAGS)
 
 test: $(TARGET)
 	$(PYTHON) -c "import quux; quux.test()"
