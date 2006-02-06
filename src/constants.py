@@ -164,6 +164,10 @@ SELWHAT_ATOMS = 0
 SELWHAT_CHUNKS = 2
 SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in messages
 
+# mark 060206 adding named constants for selection shapes.
+SELSHAPE_LASSO = 0
+SELSHAPE_RECT = 1
+
 # Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
 
 from prefs_constants import * #e when it's practical after A6, this import should be removed
