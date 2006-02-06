@@ -1041,7 +1041,7 @@ class CookieShape(shape):
                             #print "Post processing: Change full to half bond: ", ph, values[idex]
                         else:
                             values.remove(b)
-                            print "Erase half bond:", ph, b
+                            # print "Erase half bond:", ph, b # commented out.  Mark 060205.
                     bonds[ph] = values        
                     if len(values) == 0:
                         del bonds[ph]
