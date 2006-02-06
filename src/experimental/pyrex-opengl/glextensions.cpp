@@ -40,6 +40,9 @@ bool GLContext::hasExtension(const unsigned char *exts, char *ext)
 {
     static char extStringSpace[512];
 
+    if(exts == NULL || ext == NULL)
+        return false;
+
     if(strcmp((char *)exts + strlen((char *)exts) - strlen(ext), ext) == 0) {
 	return true;
     }
@@ -131,11 +134,15 @@ GLContext::GLContext(void)
     char *version;
 
     version = (char *)glGetString(GL_VERSION);
-    if (version == NULL) {
-	fprintf(stderr, "glGetString(GL_VERSION) returned NULL\n");
-	exit(1);
-    }
-    sscanf(version, "%d.%d", &VersionMajor, &VersionMinor);
+
+    if(version == NULL) {
+        // 20060206 - grantham
+        // Potentially report failure to caller requesting "new"
+        // App can check version numbers, I suppose.
+        VersionMajor = 0;
+        VersionMinor = 0;
+    } else
+        sscanf(version, "%d.%d", &VersionMajor, &VersionMinor);
 
     if(hasGLExtension("GL_ATI_texture_float")) {
 	has_GL_ARB_fragment_program = true;
