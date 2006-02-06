@@ -438,12 +438,13 @@ class modifyMode(basicMode):
         #  for Select and Move mode only -- but I'm not sure. I think we once wanted it
         #  to get back into the same one of Select Atoms or Select Chunks that the
         #  user was last in, but I'm not changing that now. [bruce 041217])
-        
+    
     def Draw(self):
         # bruce comment 040922: code is almost identical with selectMode.Draw
         basicMode.Draw(self)
         # self.griddraw()
-        if self.sellist: self.pickdraw()
+        # if self.selCurve_List: self.pickdraw() # Fixes bug 1452. mark 060206.
+            # Selection rect/lasso not supported in Move Chunks (or Fuse Chunk) mode. mark 060206.
         if self.o.assy: self.o.assy.draw(self.o)
 
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes an unreported bug analogous to 971]
