@@ -1,6 +1,6 @@
 UNAME := $(shell uname)
 
-ifeq ($(OS),Windows_NT)
+ifeq (XX$(OS),XXWindows_NT)
 #---------------------------------------- Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CXX="C:/Dev-Cpp/bin/g++.exe"
@@ -9,6 +9,7 @@ CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
 CXXFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
 LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib" \
 	-lpython23 -lopengl32
+PYTHON=c:/Python23/python
 PYREXC=c:/Python23/python c:/Python23/Scripts/pyrexc.py
 TARGET=quux.dll
 #---------------------------------------- End of Windows stuff
@@ -27,6 +28,7 @@ PYREXC=pyrexc
 CFLAGS=-I/usr/X11R6/include -I/usr/include/python2.3
 LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
 endif
+PYTHON=python
 CC=gcc
 TARGET=quux.so
 #---------------------------------------- End of Unix/Mac stuff
@@ -47,7 +49,7 @@ vector.o: vector.c vector.h
 
 # Unix, Mac can use distutils
 quux.so: quux.pyx quux_help.c
-	c:/Python23/python setup.py build_ext --inplace
+	$(PYTHON) setup.py build_ext --inplace
 
 # Unix, Mac - don't use distutils
 __quux.so: quux.o bradg.o glextensions.o vector.o
@@ -64,4 +66,4 @@ quux.dll: quux.o bradg.o glextensions.o vector.o libpython23.a
 	$(CC) -shared -o quux.dll quux.o bradg.o glextensions.o vector.o $(LDFLAGS)
 
 test: $(TARGET)
-	c:/Python23/python -c "import quux; quux.test()"
+	$(PYTHON) -c "import quux; quux.test()"

@@ -20,7 +20,7 @@ else:
     extra_link_args = [ "-L/usr/X11R6/lib", "-lGL" ]
 
 setup(name = 'quux',
-      ext_modules=[Extension("quux", ["quux.pyx", "bradg.c"],
+      ext_modules=[Extension("quux", ["quux.pyx", "bradg.cpp"],
                              depends = ["quux_help.c"],
                              extra_compile_args = extra_compile_args,
                              extra_link_args = extra_link_args
