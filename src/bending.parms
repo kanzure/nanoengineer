@@ -1,3 +1,7 @@
+#
+# $Id$
+#
+
 B-B-B theta0= 2.2007102735 Ktheta= 0.700012504471 CenterHybridization= sp3
 B-B-C theta0= 2.1453193106 Ktheta= 0.718400377961 CenterHybridization= sp3
 B-B-Cl theta0= 2.12768324993 Ktheta= 0.809100395717 CenterHybridization= sp3
@@ -89,10 +93,10 @@ C-B-P theta0= 2.07584933259 Ktheta= 0.875685553339 CenterHybridization= sp3
 C-B-S theta0= 2.06079106098 Ktheta= 0.817011739463 CenterHybridization= sp3
 C-B-Si theta0= 2.14532197216 Ktheta= 0.64138209458 CenterHybridization= sp3
 C-C-B theta0= 2.05819885886 Ktheta= 0.830773483937 CenterHybridization= sp3
-C-C-C theta0= 1.98040380342 Ktheta= 1.36982667133 CenterHybridization= sp3
+# C-C-C theta0= 1.98040380342 Ktheta= 1.36982667133 CenterHybridization= sp3
 C-C-Cl theta0= 1.96475214999 Ktheta= 1.35812532321 CenterHybridization= sp3
 C-C-F theta0= 1.92960776182 Ktheta= 1.31083836857 CenterHybridization= sp3
-C-C-H theta0= 1.94310923098 Ktheta= 0.856064485878 CenterHybridization= sp3
+# C-C-H theta0= 1.94310923098 Ktheta= 0.856064485878 CenterHybridization= sp3
 C-C-N theta0= 1.9518795897 Ktheta= 1.37536495588 CenterHybridization= sp3
 C-C-O theta0= 1.89368054515 Ktheta= 1.26908231603 CenterHybridization= sp3
 C-C-P theta0= 1.95384491894 Ktheta= 1.2253376843 CenterHybridization= sp3
@@ -322,7 +326,7 @@ H-C-B theta0= 2.01977212408 Ktheta= 0.728408986094 CenterHybridization= sp3
 H-C-C theta0= 1.94310924487 Ktheta= 0.85606452239 CenterHybridization= sp3
 H-C-Cl theta0= 1.90825583436 Ktheta= 0.868841235925 CenterHybridization= sp3
 H-C-F theta0= 1.90297810674 Ktheta= 1.00422459837 CenterHybridization= sp3
-H-C-H theta0= 1.92228191185 Ktheta= 0.70668004423 CenterHybridization= sp3
+# H-C-H theta0= 1.92228191185 Ktheta= 0.70668004423 CenterHybridization= sp3
 H-C-N theta0= 1.9199842731 Ktheta= 1.00417647722 CenterHybridization= sp3
 H-C-O theta0= 1.85803923433 Ktheta= 0.981303281536 CenterHybridization= sp3
 H-C-P theta0= 1.88721787969 Ktheta= 0.766412114536 CenterHybridization= sp3
@@ -778,3 +782,11 @@ Si-Si-O theta0= 1.88326596345 Ktheta= 0.616668210088 CenterHybridization= sp3
 Si-Si-P theta0= 1.88852987492 Ktheta= 0.513855704075 CenterHybridization= sp3
 Si-Si-S theta0= 1.82795797307 Ktheta= 0.526167986423 CenterHybridization= sp3
 Si-Si-Si theta0= 1.97086310291 Ktheta= 0.459433346504 CenterHybridization= sp3
+
+H-C-H  theta0= 1.9111430651 Ktheta= 0.660042366063 CenterHybridization= sp3
+H-Al-H theta0= 2.0943951000 Ktheta= 0.446055200791 CenterHybridization= sp2
+C-C-H  theta0= 1.9401169758 Ktheta= 0.802391739207 CenterHybridization= sp3
+C-C-C  theta0= 1.9710141223 Ktheta= 1.133257706451 CenterHybridization= sp3
+C-C-Al theta0= 2.0410185246 Ktheta= 0.530955634590 CenterHybridization= sp3
+C-Al-H theta0= 2.0874977997 Ktheta= 0.484004251315 CenterHybridization= sp2
+C-Al-C theta0= 2.1291820322 Ktheta= 0.595394598401 CenterHybridization= sp2
