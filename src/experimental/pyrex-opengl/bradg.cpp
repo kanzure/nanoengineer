@@ -1850,19 +1850,22 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
 
 static ShapeRenderer g_renderer;
 static GLContext *g_gl;
+static bool g_initialized = false;
 
 extern "C" {
 
 PyObject * shapeRendererInit()
 {
-    g_gl = new GLContext;
-    bool succeeded = g_renderer.init(g_gl);
+    if(!g_initialized) {
+        g_gl = new GLContext;
+        bool succeeded = g_renderer.init(g_gl);
 
-    printf("HOLY CRAP\n");
+        if(!succeeded) {
+            PyErr_SetString(PyExc_RuntimeError, "OpenGL init did not succeeed");
+            return NULL;
+        }
 
-    if(!succeeded) {
-	PyErr_SetString(PyExc_RuntimeError, "OpenGL init did not succeeed");
-	return NULL;
+        g_initialized = true;
     }
     Py_INCREF(Py_None);
     return Py_None;
