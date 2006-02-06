@@ -131,6 +131,10 @@ GLContext::GLContext(void)
     char *version;
 
     version = (char *)glGetString(GL_VERSION);
+    if (version == NULL) {
+	fprintf(stderr, "glGetString(GL_VERSION) returned NULL\n");
+	exit(1);
+    }
     sscanf(version, "%d.%d", &VersionMajor, &VersionMinor);
 
     if(hasGLExtension("GL_ATI_texture_float")) {

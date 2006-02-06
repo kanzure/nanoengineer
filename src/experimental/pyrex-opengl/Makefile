@@ -31,10 +31,8 @@ else
 PYREXC=pyrexc
 # It turns out I need /usr/X11R6/(include,lib) to get the stuff for
 # OpenGL. This is NOT a dependency on X11 proper.
-CFLAGS=-I/usr/X11R6/include -I/usr/include/python$(PYDVER) \
-	-I/usr/X11R6/include/GL
-CPPFLAGS=-I/usr/X11R6/include -I/usr/include/python$(PYDVER) \
-	-I/usr/X11R6/include/GL
+CFLAGS=-g -Wall -I/usr/X11R6/include -I/usr/include/python$(PYDVER)
+CPPFLAGS=-g -Wall -I/usr/X11R6/include -I/usr/include/python$(PYDVER)
 LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python$(PYDVER)/config -lm -lGL \
 	-lpython$(PYDVER)
 endif

@@ -12,7 +12,8 @@
 #include "bradg.h"
 
 // extern PyObject *_getTestResult(void);
-PyObject *_getTestResult(void) { return NULL; }
+// PyObject *_getTestResult(void) { return NULL; }
+PyObject *_getTestResult(void) { Py_INCREF(Py_None); return Py_None; }
 
 static PyObject *
 _glColor3f(float r, float g, float b)
@@ -50,8 +51,7 @@ _checkArray(PyArrayObject *a)
 
 static PyObject *_shapeRendererInit()
 {
-    shapeRendererInit();
-    return _getTestResult();
+    return shapeRendererInit();
 }
 
 static PyObject *_shapeRendererSetFrustum(float frustum[6])
@@ -131,11 +131,10 @@ static PyObject *_shapeRendererDrawSpheres(int count,
     }
     memmove(color_data, color->data, 4 * count * sizeof(float));
 
-    shapeRendererDrawSpheres(count,
-			     center_data,
-			     radius_data,
-			     color_data);
-    return _getTestResult();
+    return shapeRendererDrawSpheres(count,
+				    center_data,
+				    radius_data,
+				    color_data);
 }
 
 static PyObject *_shapeRendererDrawCylinders(int count,
@@ -213,6 +212,7 @@ static PyObject *_shapeRendererDrawCylinders(int count,
     }
     memmove(color_data, color->data, 4 * count * sizeof(float));
 
-    shapeRendererDrawCylinders(count, pos1_data, pos2_data, radius_data, capped_data, color_data);
-    return _getTestResult();
+    return shapeRendererDrawCylinders(count,
+				      pos1_data, pos2_data,
+				      radius_data, capped_data, color_data);
 }

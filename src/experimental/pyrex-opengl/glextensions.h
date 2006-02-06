@@ -41,8 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/Xlib.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include <glext.h>
-#include <glxext.h>
+#include <GL/glext.h>
+#include <GL/glxext.h>
 #endif
 
 #if !defined(GL_ARB_occlusion_query)

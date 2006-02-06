@@ -26,6 +26,8 @@
 
 #include <GL/gl.h>
 
+#include "Python.h"
+
 #include "bradg.h"
 #include "vector.h"
 #include "glextensions.h"
@@ -1851,15 +1853,19 @@ static GLContext *g_gl;
 
 extern "C" {
 
-void shapeRendererInit()
+PyObject * shapeRendererInit()
 {
     g_gl = new GLContext;
     bool succeeded = g_renderer.init(g_gl);
 
+    printf("HOLY CRAP\n");
+
     if(!succeeded) {
-        printf("raise exception now\n");
-        // raise python exception
+	PyErr_SetString(PyExc_RuntimeError, "OpenGL init did not succeeed");
+	return NULL;
     }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 void shapeRendererSetFrustum(float frustum[6])
@@ -1887,24 +1893,28 @@ void shapeRendererUpdateLODEval()
     g_renderer.lodeval.update();
 }
 
-void shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4])
+PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4])
 {
     bool succeeded = g_renderer.drawSpheres(count, center, radius, color);
 
     if(!succeeded) {
-        printf("raise exception now\n");
-        // raise python exception
+	PyErr_SetString(PyExc_RuntimeError, "OpenGL drawSpheres did not succeeed");
+	return NULL;
     }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-void shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4])
+PyObject * shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4])
 {
     bool succeeded = g_renderer.drawCylinders(count, pos1, pos2, radius, capped, color);
 
     if(!succeeded) {
-        printf("raise exception now\n");
-        // raise python exception
+	PyErr_SetString(PyExc_RuntimeError, "OpenGL drawCylinders did not succeeed");
+	return NULL;
     }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 void shapeRendererSetLODScale(float s)
