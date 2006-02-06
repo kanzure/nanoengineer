@@ -341,7 +341,7 @@ class selectMode(basicMode):
                 
             eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
             
-            if self.selShape: # prepare a rectangle selection
+            if self.selShape == SELSHAPE_RECT : # prepare a rectangle selection
                 self.o.shape.pickrect(self.o.selArea_List[0], selCurve_AreaPt, -self.o.pov, selSense, \
                             eye=(not self.o.ortho) and eyeball)
             else: # prepare a lasso selection
