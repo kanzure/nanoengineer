@@ -86,7 +86,7 @@ sim.c: simhelp.c sim.pyx
 libpython23.a: libpython23.a.gz
 	gunzip < libpython23.a.gz > libpython23.a
 
-sim.dll: sim.c $(PYREXOBJS) libpython23.a
+sim.dll: sim.c $(PYREXOBJS) libpython23.a version.h
 	gcc -shared -I"C:/Python23/include" -o sim.dll sim.c $(PYREXOBJS) \
 		-Wl,--output-def,sim.def -L. -lpython23
 
