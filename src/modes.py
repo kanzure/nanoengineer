@@ -197,7 +197,7 @@ class basicMode(anyMode):
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
                              'userSetMode', '_exitMode', 'Abandon', '_cleanup']
             # not 'modifyTransmute', 'keyPress', they are normal to override;
-            # not 'pickdraw', 'Wheel', they are none of my business;
+            # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
             # [bruce 040924]
         for attr in weird_to_override:
@@ -225,7 +225,7 @@ class basicMode(anyMode):
         ### i suspect they ought to be mode-specific... not sure.
 
         #self.sellist = []
-        #self.selLassRect = 0
+        #self.selShape = 0
             #& These selection attrs have been moved to selectMode and cookieMode 
             #& where they belong.  I intend to remove these soon (from here). mark 060205.
 
@@ -1213,7 +1213,7 @@ class basicMode(anyMode):
         glpane = self.o
         return glpane.makemenu(lis)
 
-    def pickdraw(self):
+    def draw_selection_curve(self):
         """Draw the (possibly unfinished) freehand selection curve.
         """
         color = logicColor(self.selSense)
@@ -1221,7 +1221,8 @@ class basicMode(anyMode):
         pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
             drawer.drawline(color,pp[0],pp[1])
-        if self.selLassRect:  # Draw the selection rectangle.
+            
+        if self.selShape == SELSHAPE_RECT:  # Draw the selection rectangle.
             drawer.drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
                                  self.o.up, self.o.right, color)
 

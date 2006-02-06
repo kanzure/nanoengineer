@@ -23,13 +23,9 @@ class cookieMode(basicMode):
         # <selCurve_List> contains a list of points used to draw the selection curve.  
         # The points lay in the plane parallel to the screen, just beyond the front clipping 
         # plane, so that they are always  inside the clipping volume.
-    selLassRect = 0
-        # <selLassRect> determines whether the current selection curve is a rectangle 
-        # or lasso, where:
-        # True/1 = selection rectangle
-        # False/0 = selection lasso
-        #& I'd like to change <selLassRect> to something better.  May need to be done in multiple
-        #& files.  mark 060205.
+    defaultSelShape = SELSHAPE_RECT
+        # <defaultSelShape> determines whether the current *default* selection curve is a rectangle 
+        # or lasso.
     
     MAX_LATTICE_CELL = 25
     
@@ -266,7 +262,7 @@ class cookieMode(basicMode):
         
         if not self.selectionShape in ['DEFAULT', 'LASSO']: return
         if self.selectionShape == 'LASSO':
-            self.selLassRect = False
+            self.defaultSelShape = SELSHAPE_LASSO
         
         self.selSense = sense    
         p1, p2 = self._getPoints(event)
@@ -298,13 +294,20 @@ class cookieMode(basicMode):
         self.selCurve_List += [p1]
         self.o.selArea_List += [p2]
         
-        netdist = vlen(p1 - self.selCurve_List[0])
+        chord_length = vlen(p1 - self.selCurve_List[0])
         self.pickLineLength += vlen(p1 - self.selCurve_List[-2])
         if self.selectionShape == 'DEFAULT':
-            self.selLassRect = self.pickLineLength < 2*netdist
+            if self.pickLineLength < 2*chord_length:
+            # Update the shape of the selection_curve.
+            # The value of <defaultSelShape> can change back and forth between lasso and rectangle
+            # as the user continues defining the selection curve.
+                self.defaultSelShape = SELSHAPE_RECT
+            else:
+                self.defaultSelShape = SELSHAPE_LASSO
+            
         
         env.history.statusbar_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
-        self.pickdraw()
+        self.draw_selection_curve()
         
     
     def leftUp(self, event):
@@ -339,12 +342,12 @@ class cookieMode(basicMode):
                     self.selCurve_List = [p1]; self.selCurve_List += [p1]; self.selCurve_List += [p1]
                     self.o.selArea_List = [p2]; self.o.selArea_List += [p2]
                     if self.selectionShape == 'RECT_CORNER':    
-                            self.selLassRect = True
+                            self.defaultSelShape = SELSHAPE_RECT
                     #Disable view changes when begin curve drawing 
                     self.ctrlPanel.enableViewChanges(False)
                 else: #The end click release
                     self.o.selArea_List[-1] = p2
-                    if self.selLassRect:
+                    if self.defaultSelShape == SELSHAPE_RECT:
                         self._traditionalSelect() 
                     else:
                         self._centerBasedSelect()
@@ -426,17 +429,17 @@ class cookieMode(basicMode):
                 env.history.statusbar_msg("Double click to end selection; Press <Esc> key to cancel selection.")
             else:
                 env.history.statusbar_msg("Left click to end selection; Press <Esc> key to cancel selection.")
-            self.pickdraw()
+            self.draw_selection_curve()
             ######self.o.gl_update()
    
     def _afterCookieSelection(self):
         """Restore some variable states after the each curve selection """
         if self.selCurve_List:
-            self.pickdraw(True)
+            self.draw_selection_curve(True)
             
             self.cookieDrawBegins = False
             self.Rubber = False
-            self.selLassRect = False
+            self.defaultSelShape = SELSHAPE_LASSO
             self.selCurve_List = []
             self.o.selArea_List = []
             
@@ -463,7 +466,7 @@ class cookieMode(basicMode):
             self.ctrlPanel.enableViewChanges(False)
             
         # took out kill-all-previous-curves code -- Josh
-        if self.selLassRect:
+        if self.defaultSelShape == SELSHAPE_RECT:
             self.o.shape.pickrect(self.o.selArea_List[0], self.o.selArea_List[-2], 
                     self.o.pov, self.selSense, self.currentLayer,
                                   Slab(-self.o.pov, self.o.out, self.thickness))
@@ -619,7 +622,7 @@ class cookieMode(basicMode):
             
             return rgb    
  
-    def pickdraw(self, lastDraw = False):
+    def draw_selection_curve(self, lastDraw = False):
         """Draw the selection curve."""
         color = logicColor(self.selSense)
         color = self._getXorColor(color)
@@ -667,7 +670,7 @@ class cookieMode(basicMode):
                 for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
                     drawer.drawline(color,pp[0],pp[1])
                 
-                if self.selLassRect:  # Draw the rectangle window
+                if self.defaultSelShape == SELSHAPE_RECT:  # Draw the rectangle window
                     if not lastDraw:
                         drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
                                      self.o.up, self.o.right, color)
@@ -683,7 +686,7 @@ class cookieMode(basicMode):
         if self.gridShow:    
             self.griddraw()
         if self.selCurve_List: ## XOR color operation doesn't request paintGL() call.
-            self.pickdraw()
+            self.draw_selection_curve()
         if self.o.shape: self.o.shape.draw(self.o, self.layerColors)
         if self.showFullModel:
             self.o.assy.draw(self.o)

@@ -145,12 +145,9 @@ class selectMode(basicMode):
         # <selArea_List> contains a list of points that define the selection area.  The points lay in 
         # the plane parallel to the screen and pass through the center of the view.  The list
         # is used by pickrect() and pickline() to make the selection.
-    selLassRect = True
-        # <selLassRect> determines whether the current selection curve is a rectangle or lasso, where:
-        # True/1 = selection rectangle
-        # False/0 = selection lasso
-        #& I'd like to change <selLassRect> to <selection_shape>.  Needs to be done in multiple
-        #& files.  Phase 2 change. mark 060205.
+    selShape = SELSHAPE_RECT
+        # <selShape> the current selection shape.
+
 
     #def __init__(self, glpane):
     #    """The initial function is called only once for the whole program """
@@ -274,11 +271,15 @@ class selectMode(basicMode):
         chord_length = vlen(selCurve_pt - self.selCurve_StartPt)
             # <chord_length> is the distance between the (first and last/current) endpoints of the 
             # selection curve.
-        self.selLassRect = self.selCurve_length < 2*chord_length
+        
+        if self.selCurve_length < 2*chord_length:
             # Update the shape of the selection_curve.
-            # The value of <selLassRect> can change back and forth between 0 and 1
-            # (lasso and rectangle) as the user continues defining the selection curve.
-
+            # The value of <selShape> can change back and forth between lasso and rectangle
+            # as the user continues defining the selection curve.
+            self.selShape = SELSHAPE_RECT
+        else:
+            self.selShape = SELSHAPE_LASSO
+            
         self.selCurve_PrevPt = selCurve_pt
         
         self.o.gl_update()
@@ -340,7 +341,7 @@ class selectMode(basicMode):
                 
             eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
             
-            if self.selLassRect: # prepare a rectangle selection
+            if self.selShape: # prepare a rectangle selection
                 self.o.shape.pickrect(self.o.selArea_List[0], selCurve_AreaPt, -self.o.pov, selSense, \
                             eye=(not self.o.ortho) and eyeball)
             else: # prepare a lasso selection
@@ -392,7 +393,7 @@ class selectMode(basicMode):
             # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
             basicMode.Draw(self)   
             #self.griddraw()
-            if self.selCurve_List: self.pickdraw()
+            if self.selCurve_List: self.draw_selection_curve()
             self.o.assy.draw(self.o)
 
     def makeMenus(self): # menu item names modified by bruce 041217
