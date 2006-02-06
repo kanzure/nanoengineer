@@ -14,7 +14,7 @@ void shapeRendererUpdateLODEval();
 PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4]);
 PyObject * shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4]);
 void shapeRendererSetLODScale(float s);
-void shapeRendererSetUseLOD(int useLOD);
+void shapeRendererSetUseLOD(int useLODBool);
 void shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess);
 
 #ifdef __cplusplus

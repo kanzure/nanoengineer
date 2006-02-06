@@ -21,10 +21,13 @@ cdef extern from "quux_help.c":
     _glColor3f(float,float,float)
     _shapeRendererInit()
     _shapeRendererSetFrustum(float frustum[6])
+    _shapeRendererSetOrtho(float ortho[6])
     _shapeRendererSetViewport(int viewport[4])
     _shapeRendererSetModelView(float modelview[6])
     _shapeRendererUpdateLODEval()
     _shapeRendererSetLODScale(float s)
+    _shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess)
+    _shapeRendererSetUseLOD(int useLODBool)
     _shapeRendererDrawSpheres(int count, ArrayType center,
                               ArrayType radius, ArrayType color)
     _shapeRendererDrawCylinders(int count, ArrayType pos1,
@@ -50,6 +53,17 @@ def shapeRendererSetFrustum(ArrayType frustum):
     nelems = frustum.dimensions[0]
     assert nelems == 6
     return _shapeRendererSetFrustum(<float *>frustum.data)
+
+def shapeRendererSetOrtho(ArrayType ortho):
+    if chr(ortho.descr.type) != "f":
+        raise TypeError("Float array required")
+    if ortho.nd != 1:
+        raise ValueError("1 dimensional array required")
+    cdef int nrows, ncols
+    cdef float *elems
+    nelems = ortho.dimensions[0]
+    assert nelems == 6
+    return _shapeRendererSetOrtho(<float *>ortho.data)
 
 def shapeRendererSetViewport(ArrayType viewport):
     if chr(viewport.descr.type) != "i":
@@ -78,6 +92,12 @@ def shapeRendererUpdateLODEval():
 
 def shapeRendererSetLODScale(s):
     return _shapeRendererSetLODScale(s)
+
+def shapeRendererSetUseLOD(usebool):
+    return _shapeRendererSetUseLOD(usebool)
+
+def shapeRendererSetMaterialParameters(whiteness, brightness, shininess):
+    return _shapeRendererSetMaterialParameters(whiteness, brightness, shininess)
 
 def shapeRendererDrawSpheres(count, center, radius, color):
     return _shapeRendererDrawSpheres(count, center, radius, color)

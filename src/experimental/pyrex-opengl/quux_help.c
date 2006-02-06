@@ -60,6 +60,12 @@ static PyObject *_shapeRendererSetFrustum(float frustum[6])
     return _getTestResult();
 }
 
+static PyObject *_shapeRendererSetOrtho(float ortho[6])
+{
+    shapeRendererSetOrtho(ortho);
+    return _getTestResult();
+}
+
 static PyObject *_shapeRendererSetViewport(int viewport[4])
 {
     shapeRendererSetViewport(viewport);
@@ -81,6 +87,18 @@ static PyObject *_shapeRendererUpdateLODEval(void)
 static PyObject *_shapeRendererSetLODScale(float s)
 {
     shapeRendererSetLODScale(s);
+    return _getTestResult();
+}
+
+static PyObject *_shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess)
+{
+    shapeRendererSetMaterialParameters(whiteness, brightness, shininess);
+    return _getTestResult();
+}
+
+static PyObject *_shapeRendererSetUseLOD(int useBool)
+{
+    shapeRendererSetUseLOD(useBool);
     return _getTestResult();
 }
 
