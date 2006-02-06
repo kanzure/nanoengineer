@@ -1363,21 +1363,8 @@ class depositMode(basicMode):
         
         self.leftDown_modkey = modkey # needed so leftDouble() knows if the Control key is pressed.
         
-        if self.w.depositAtomDashboard.highlightingCB.isChecked():
-            self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-        # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
-        # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
-        # Therefore, the present value might be out of date -- but it does correspond to whatever
-        # highlighting is on the screen, so whatever it is should not be a surprise to the user,
-        # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
-        # motion before pressing the mouse. [bruce 050705 comment]
-            a = self.o.selatom # a "lit up" atom or singlet
-            
-        else: # No hover highlighting
-            a = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
-            # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
-            # This means that bonds can never be selected when highlighting is turned off.
-        
+        a = self.get_obj_under_cursor(event) # mark 060206.
+
         self.modified = 1
         self.o.assy.changed()
         
@@ -1399,6 +1386,7 @@ class depositMode(basicMode):
             self.setupClickedBond(self.o.selobj)
 
         elif self.o.selobj is not None: # something else other than an atom, singlet or bond is 'lit up"
+            # self.o.selobj can only be an atom or a bond as of now.  mark 060206.
             pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
 
         else: # nothing is "lit up"
@@ -1573,6 +1561,26 @@ class depositMode(basicMode):
             self.o.assy.changed() #k needed?
             
             self.w.win_update()
+    
+    # get_obj_under_cursor(), get_atom_under_cursor() and get_singlet_under_cursor()
+    # should probably be merged into one method with a selection filter arg.  mark 060206.
+    def get_obj_under_cursor(self, event):
+        '''Return the object under the cursor.  If nothing is under the cursor, return None.
+        '''
+        if self.w.depositAtomDashboard.highlightingCB.isChecked():
+            self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
+        # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
+        # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
+        # Therefore, the present value might be out of date -- but it does correspond to whatever
+        # highlighting is on the screen, so whatever it is should not be a surprise to the user,
+        # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
+        # motion before pressing the mouse. [bruce 050705 comment]
+            a = self.o.selatom # a "lit up" atom or singlet
+        else: # No hover highlighting
+            a = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
+            # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
+            # This means that bonds can never be selected when highlighting is turned off.
+        return a
             
     def get_atom_under_cursor(self, event):
         '''If the object under the cursor is a real atom, return it.  Otherwise, return None.
@@ -2118,36 +2126,7 @@ class depositMode(basicMode):
         # we ignore flag, which says whether it's ok, warning, or error
         env.history.message("%s: %s" % (self.msg_modename, status))
         return
-        
-        
 
-    def leftCntlUpORIG(self, event):
-        env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
-        self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-        a = self.o.selatom
-        selobj = self.o.selobj # only used if selatom is None
-        if a is not None:
-            # this may change hybridization someday
-            if a.element is Singlet: # If a singlet, do nothing.
-                return
-            if a.picked:  # If the atom is picked, unpick it.
-                a.unpick()
-            else: # If the atom is not picked, delete it.
-                a.deleteBaggage()
-                env.history.message("deleted %r" % a) #bruce 041208
-                a.kill()
-                self.o.selatom = None #bruce 041130 precaution
-                self.o.assy.changed()
-        elif isinstance( selobj, Bond) and not selobj.is_open_bond(): #bruce 050727 new feature
-            env.history.message_no_html("breaking bond %s" % selobj)
-                ###e %r doesn't show bond type, but %s doesn't work in history since it contains "<-->" which looks like HTML.
-                ###e Should fix with a utility to quote HTML-active chars, to call here on the message.
-            self.o.selobj = None # without this, the bond remains highlighted even after it's broken (visible if it's toolong)
-            selobj.bust() # this fails to preserve the bond type on the open bonds -- not sure if that's bad, but probably it is
-            self.o.assy.changed() #k needed?
-            
-        self.w.win_update()
 
     ###################################################################
     #   Cutting and pasting                                           #
