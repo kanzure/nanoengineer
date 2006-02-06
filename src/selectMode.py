@@ -137,18 +137,14 @@ class selectMode(basicMode):
 
     jigSelectionEnabled = True
     
-    sellist = []
-        # <sellist> contains a list of points used to draw the selection curve.  The points lay in the 
+    selCurve_List = []
+        # <selCurve_List> contains a list of points used to draw the selection curve.  The points lay in the 
         # plane parallel to the screen, just beyond the front clipping plane, so that they are always
         #  inside the clipping volume.
-        #& <sellist> poorly named; change it to something better.  Needs to be done in multiple
-        #& files.  Phase 2 change. mark 060205.
-    backlist = []
-        # <backlist> contains a list of points that define the selection area.  The points lay in 
+    selArea_List = []
+        # <selArea_List> contains a list of points that define the selection area.  The points lay in 
         # the plane parallel to the screen and pass through the center of the view.  The list
         # is used by pickrect() and pickline() to make the selection.
-        #& <backlist> poorly named; change it to something better.  Needs to be done in multiple
-        #& files.  Phase 2 change. mark 060205.
     selLassRect = True
         # <selLassRect> determines whether the current selection curve is a rectangle or lasso, where:
         # True/1 = selection rectangle
@@ -174,11 +170,19 @@ class selectMode(basicMode):
 # Important Terms: [mark 060205]
 #
 # "selection curve": the collection of line segments drawn by the cursor when defining
-# the selection area.  These line segments will become the selection lasso when (and if) 
+# the selection area.  These line segments become the selection lasso when (and if) 
 # the selection rectangle disappears. When the selection rectangle is still displayed,
 # the selection curve consists of those line segment that are drawn between opposite 
 # corners of the selection rectangle. The line segments that define/draw the 
 # rectangle itself are not part of the selection curve, however.
+# Also, it is worth noting that the line segments of the selection curve are also drawn 
+# just beyond the front clipping plane. The variable <selCurve_List> contains the list
+# of points that draw the line segments of the selection curve.
+#
+# "selection area": determined by the selection curve, it is the area that defines what
+# is picked (or unpicked).  The variable <selArea_List> contains the list of points that
+# define the selection area used to pick/unpick objects. The points in <selArea_List> 
+# lay in the plane parallel to the screen and pass through the center of the view.
 #
 # "selection rectangle": the rectangular selection determined by the first and last points 
 # of a selection curve.  These two points define the opposite corners of the rectangle.
@@ -221,12 +225,12 @@ class selectMode(basicMode):
             # mousepoints() returns a pair (tuple) of points (Numeric arrays of x,y,z)
             # that lie under the mouse pointer, just beyond the near clipping plane
             # <selCurve_pt> and in the plane of the center of view <selCurve_AreaPt>.
-        self.sellist = [selCurve_pt]
-            # <sellist> contains the list of points used to draw the selection curve.  The points lay in the 
+        self.selCurve_List = [selCurve_pt]
+            # <selCurve_List> contains the list of points used to draw the selection curve.  The points lay in the 
             # plane parallel to the screen, just beyond the front clipping plane, so that they are always
             #  inside the clipping volume.
-        self.o.backlist = [selCurve_AreaPt]
-            # <backlist> contains the list of points that define the selection area.  The points lay in 
+        self.o.selArea_List = [selCurve_AreaPt]
+            # <selArea_List> contains the list of points that define the selection area.  The points lay in 
             # the plane parallel to the screen and pass through the center of the view.  The list
             # is used by pickrect() and pickline() to make the selection.
         self.selCurve_StartPt = self.selCurve_PrevPt = selCurve_pt
@@ -261,8 +265,8 @@ class selectMode(basicMode):
         selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
             # The next point of the selection curve, where <selCurve_pt> is the point just beyond
             # the near clipping plane and <selCurve_AreaPt> is in the plane of the center of view.
-        self.sellist += [selCurve_pt]
-        self.o.backlist += [selCurve_AreaPt]
+        self.selCurve_List += [selCurve_pt]
+        self.o.selArea_List += [selCurve_AreaPt]
         
         self.selCurve_length += vlen(selCurve_pt - self.selCurve_PrevPt)
             # add length of new line segment to <selCurve_length>.
@@ -321,15 +325,15 @@ class selectMode(basicMode):
             # Huaicai 1/29/05: to fix zoom messing up selection bug
             # In window zoom mode, even for a big selection window, the 
             # selCurve_length/scale could still be < 0.03, so we need clean 
-            # sellist[] to release the rubber band selection window. One 
+            # selCurve_List[] to release the rubber band selection window. One 
             # problem is its a single pick not as user expect as area pick 
         
         else:
             
-            self.sellist += [selCurve_pt] # Add the last point.
-            self.sellist += [self.sellist[0]] # Close the selection curve.
-            self.o.backlist += [selCurve_AreaPt] # Add the last point.
-            self.o.backlist += [self.o.backlist[0]] # Close the selection area.
+            self.selCurve_List += [selCurve_pt] # Add the last point.
+            self.selCurve_List += [self.selCurve_List[0]] # Close the selection curve.
+            self.o.selArea_List += [selCurve_AreaPt] # Add the last point.
+            self.o.selArea_List += [self.o.selArea_List[0]] # Close the selection area.
             
             self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
                 # Create the selection shape object.
@@ -337,18 +341,18 @@ class selectMode(basicMode):
             eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
             
             if self.selLassRect: # prepare a rectangle selection
-                self.o.shape.pickrect(self.o.backlist[0], selCurve_AreaPt, -self.o.pov, selSense, \
+                self.o.shape.pickrect(self.o.selArea_List[0], selCurve_AreaPt, -self.o.pov, selSense, \
                             eye=(not self.o.ortho) and eyeball)
             else: # prepare a lasso selection
-                self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense, \
+                self.o.shape.pickline(self.o.selArea_List, -self.o.pov, selSense, \
                             eye=(not self.o.ortho) and eyeball)
         
             self.o.shape.select(self.o.assy) # do the actual selection.
                 
             self.o.shape = None
                 
-        self.sellist = []
-            # (for debugging purposes, it's sometimes useful to not reset sellist here,
+        self.selCurve_List = []
+            # (for debugging purposes, it's sometimes useful to not reset selCurve_List here,
             #  so you can see it at the same time as the selection it caused.)
 
         self.w.win_update()
@@ -388,7 +392,7 @@ class selectMode(basicMode):
             # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
             basicMode.Draw(self)   
             #self.griddraw()
-            if self.sellist: self.pickdraw()
+            if self.selCurve_List: self.pickdraw()
             self.o.assy.draw(self.o)
 
     def makeMenus(self): # menu item names modified by bruce 041217

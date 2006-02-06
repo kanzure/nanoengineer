@@ -18,14 +18,14 @@ class cookieMode(basicMode):
     gridColor = 222/255.0, 148/255.0, 0/255.0
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
-    sellist = []
-        # <sellist> contains a list of points used to draw the selection curve.  The points lay in the 
-        # plane parallel to the screen, just beyond the front clipping plane, so that they are always
-        #  inside the clipping volume.
-        #& <sellist> poorly named; change it to something better.  May need to be done in multiple
-        #& files.  mark 060205.
+    
+    selCurve_List = []
+        # <selCurve_List> contains a list of points used to draw the selection curve.  
+        # The points lay in the plane parallel to the screen, just beyond the front clipping 
+        # plane, so that they are always  inside the clipping volume.
     selLassRect = 0
-        # <selLassRect> determines whether the current selection curve is a rectangle or lasso, where:
+        # <selLassRect> determines whether the current selection curve is a rectangle 
+        # or lasso, where:
         # True/1 = selection rectangle
         # False/0 = selection lasso
         #& I'd like to change <selLassRect> to something better.  May need to be done in multiple
@@ -195,7 +195,7 @@ class cookieMode(basicMode):
     def restore_patches(self):
         self.o.ortho = self.savedOrtho
         self.o.shape = None
-        self.sellist = []
+        self.selCurve_List = []
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])
     
     
@@ -271,8 +271,8 @@ class cookieMode(basicMode):
         self.selSense = sense    
         p1, p2 = self._getPoints(event)
         
-        self.sellist = [p1]
-        self.o.backlist = [p2]
+        self.selCurve_List = [p1]
+        self.o.selArea_List = [p2]
         
         
     def leftDrag(self, event):
@@ -295,11 +295,11 @@ class cookieMode(basicMode):
         
         p1, p2 = self._getPoints(event)
 
-        self.sellist += [p1]
-        self.o.backlist += [p2]
+        self.selCurve_List += [p1]
+        self.o.selArea_List += [p2]
         
-        netdist = vlen(p1 - self.sellist[0])
-        self.pickLineLength += vlen(p1 - self.sellist[-2])
+        netdist = vlen(p1 - self.selCurve_List[0])
+        self.pickLineLength += vlen(p1 - self.selCurve_List[-2])
         if self.selectionShape == 'DEFAULT':
             self.selLassRect = self.pickLineLength < 2*netdist
         
@@ -334,35 +334,35 @@ class cookieMode(basicMode):
         if not self.pickLineLength > 0: 
             #Rect_corner/circular selection
             if not self.selectionShape in ['DEFAULT', 'LASSO']: 
-                if not (self.sellist and self.o.backlist): #The first click release
+                if not (self.selCurve_List and self.o.selArea_List): #The first click release
                     self.selSense = sense
-                    self.sellist = [p1]; self.sellist += [p1]; self.sellist += [p1]
-                    self.o.backlist = [p2]; self.o.backlist += [p2]
+                    self.selCurve_List = [p1]; self.selCurve_List += [p1]; self.selCurve_List += [p1]
+                    self.o.selArea_List = [p2]; self.o.selArea_List += [p2]
                     if self.selectionShape == 'RECT_CORNER':    
                             self.selLassRect = True
                     #Disable view changes when begin curve drawing 
                     self.ctrlPanel.enableViewChanges(False)
                 else: #The end click release
-                    self.o.backlist[-1] = p2
+                    self.o.selArea_List[-1] = p2
                     if self.selLassRect:
                         self._traditionalSelect() 
                     else:
                         self._centerBasedSelect()
             elif self.selectionShape == 'DEFAULT':  ##Rubber-band selection
-                self.sellist += [p1]
-                self.o.backlist += [p2]
+                self.selCurve_List += [p1]
+                self.o.selArea_List += [p2]
                 if not self.Rubber:
                     self.Rubber = True
                     self.rubberWithoutMoving = True
                     #Disable view changes when begin curve drawing        
                     self.ctrlPanel.enableViewChanges(False)
             else: #This means single click/release without dragging for Lasso
-                self.sellist = []
-                self.o.backlist = []
+                self.selCurve_List = []
+                self.o.selArea_List = []
                 self.cookieDrawBegins = False
         else: #Default(excluding rubber band)/Lasso selection
-            self.sellist += [p1]
-            self.o.backlist += [p2]
+            self.selCurve_List += [p1]
+            self.o.selArea_List += [p2]
             self._traditionalSelect()    
     
     def _anyMiddleUp(self):
@@ -413,14 +413,14 @@ class cookieMode(basicMode):
         if self.freeView or not self.cookieDrawBegins: return
         
         if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']: 
-            if not self.sellist: return
+            if not self.selCurve_List: return
             p1, p2 = self._getPoints(event)
             try: 
-                if self.Rubber: self.pickLinePrev = self.sellist[-1]
-                else:  self.sellist[-2] = self.sellist[-1]
-                self.sellist[-1] = p1
+                if self.Rubber: self.pickLinePrev = self.selCurve_List[-1]
+                else:  self.selCurve_List[-2] = self.selCurve_List[-1]
+                self.selCurve_List[-1] = p1
             except:
-                print self.sellist
+                print self.selCurve_List
             if self.Rubber:
                 self.rubberWithoutMoving = False
                 env.history.statusbar_msg("Double click to end selection; Press <Esc> key to cancel selection.")
@@ -431,14 +431,14 @@ class cookieMode(basicMode):
    
     def _afterCookieSelection(self):
         """Restore some variable states after the each curve selection """
-        if self.sellist:
+        if self.selCurve_List:
             self.pickdraw(True)
             
             self.cookieDrawBegins = False
             self.Rubber = False
             self.selLassRect = False
-            self.sellist = []
-            self.o.backlist = []
+            self.selCurve_List = []
+            self.o.selArea_List = []
             
             env.history.statusbar_msg("   ")
             # Restore the cursor when the selection is done.
@@ -453,8 +453,8 @@ class cookieMode(basicMode):
      
     def _traditionalSelect(self):
         """The original curve selection"""
-        self.sellist += [self.sellist[0]]
-        self.o.backlist += [self.o.backlist[0]]
+        self.selCurve_List += [self.selCurve_List[0]]
+        self.o.selArea_List += [self.o.selArea_List[0]]
         
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
@@ -464,11 +464,11 @@ class cookieMode(basicMode):
             
         # took out kill-all-previous-curves code -- Josh
         if self.selLassRect:
-            self.o.shape.pickrect(self.o.backlist[0], self.o.backlist[-2], 
+            self.o.shape.pickrect(self.o.selArea_List[0], self.o.selArea_List[-2], 
                     self.o.pov, self.selSense, self.currentLayer,
                                   Slab(-self.o.pov, self.o.out, self.thickness))
         else:
-            self.o.shape.pickline(self.o.backlist, -self.o.pov, self.selSense,
+            self.o.shape.pickline(self.o.selArea_List, -self.o.pov, self.selSense,
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
@@ -484,8 +484,8 @@ class cookieMode(basicMode):
                 self.ctrlPanel.latticeCBox.setEnabled(False)
                 self.ctrlPanel.enableViewChanges(False)
                  
-        p1 = self.o.backlist[1]
-        p0 = self.o.backlist[0]
+        p1 = self.o.selArea_List[1]
+        p0 = self.o.selArea_List[0]
         pt = p1 - p0
         if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
             hw = dot(self.o.right, pt)*self.o.right
@@ -520,7 +520,7 @@ class cookieMode(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
                                   
         elif self.selectionShape == 'CIRCLE':
-            self.o.shape.pickCircle(self.o.backlist, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
+            self.o.shape.pickCircle(self.o.selArea_List, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
                 self.ctrlPanel.addLayerButton.setEnabled(True)
@@ -625,53 +625,53 @@ class cookieMode(basicMode):
         color = self._getXorColor(color)
         
         if not self.selectionShape == 'DEFAULT':
-            if self.sellist:
+            if self.selCurve_List:
                  if self.selectionShape == 'LASSO':
                      if not lastDraw:
-                        for pp in zip(self.sellist[:-2],self.sellist[1:-1]): 
+                        for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]): 
                             drawer.drawline(color, pp[0], pp[1])
-                     for pp in zip(self.sellist[:-1],self.sellist[1:]):
+                     for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
                             drawer.drawline(color, pp[0], pp[1])
                  elif self.selectionShape == 'RECT_CORNER':
                      if not lastDraw:
-                        drawer.drawrectangle(self.sellist[0], self.sellist[-2],
+                        drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
                                  self.o.up, self.o.right, color)
-                     drawer.drawrectangle(self.sellist[0], self.sellist[-1],
+                     drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-1],
                                  self.o.up, self.o.right, color)
                  else:
                     xor_white = self._getXorColor(white)
                     if not lastDraw:
-                        drawer.drawline(xor_white, self.sellist[0], self.sellist[1], True)
-                    drawer.drawline(xor_white, self.sellist[0], self.sellist[2], True)
+                        drawer.drawline(xor_white, self.selCurve_List[0], self.selCurve_List[1], True)
+                    drawer.drawline(xor_white, self.selCurve_List[0], self.selCurve_List[2], True)
                     if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
-                        self._centerRectDiamDraw(color, self.sellist, self.selectionShape, lastDraw)
+                        self._centerRectDiamDraw(color, self.selCurve_List, self.selectionShape, lastDraw)
                     elif self.selectionShape == 'CIRCLE':
-                        self._centerCircleDraw(color, self.sellist, lastDraw)
+                        self._centerCircleDraw(color, self.selCurve_List, lastDraw)
                         ###A work around for bug 727
-                        ######self._centerEquiPolyDraw(color, 60, self.sellist, lastDraw)
+                        ######self._centerEquiPolyDraw(color, 60, self.selCurve_List, lastDraw)
                     elif self.selectionShape == 'HEXAGON':
-                        self._centerEquiPolyDraw(color, 6, self.sellist, lastDraw)
+                        self._centerEquiPolyDraw(color, 6, self.selCurve_List, lastDraw)
                     elif self.selectionShape == 'SQUARE':
-                        self._centerEquiPolyDraw(color, 4, self.sellist, lastDraw)
+                        self._centerEquiPolyDraw(color, 4, self.selCurve_List, lastDraw)
                     elif self.selectionShape == 'TRIANGLE':
-                        self._centerEquiPolyDraw(color, 3, self.sellist, lastDraw)   
+                        self._centerEquiPolyDraw(color, 3, self.selCurve_List, lastDraw)   
         else: #Default selection shape
             if self.Rubber:
                 if not lastDraw:
-                    drawer.drawline(color, self.sellist[-2], self.pickLinePrev)
-                drawer.drawline(color, self.sellist[-2], self.sellist[-1])
+                    drawer.drawline(color, self.selCurve_List[-2], self.pickLinePrev)
+                drawer.drawline(color, self.selCurve_List[-2], self.selCurve_List[-1])
             else:
                 if not lastDraw:
-                    for pp in zip(self.sellist[:-2],self.sellist[1:-1]): 
+                    for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]): 
                         drawer.drawline(color, pp[0], pp[1])
-                for pp in zip(self.sellist[:-1],self.sellist[1:]):
+                for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
                     drawer.drawline(color,pp[0],pp[1])
                 
                 if self.selLassRect:  # Draw the rectangle window
                     if not lastDraw:
-                        drawer.drawrectangle(self.sellist[0], self.sellist[-2],
+                        drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
                                      self.o.up, self.o.right, color)
-                    drawer.drawrectangle(self.sellist[0], self.sellist[-1],
+                    drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-1],
                                      self.o.up, self.o.right, color)
         
         glFlush()
@@ -682,7 +682,7 @@ class cookieMode(basicMode):
         basicMode.Draw(self)
         if self.gridShow:    
             self.griddraw()
-        if self.sellist: ## XOR color operation doesn't request paintGL() call.
+        if self.selCurve_List: ## XOR color operation doesn't request paintGL() call.
             self.pickdraw()
         if self.o.shape: self.o.shape.draw(self.o, self.layerColors)
         if self.showFullModel:
@@ -820,7 +820,7 @@ class cookieMode(basicMode):
         if newShape != self.selectionShape:
             #Cancel current selection if any. Otherwise, it may cause
             #bugs like 587
-            if self.sellist: ##
+            if self.selCurve_List: ##
                 env.history.message(redmsg("Current cookie selection was cancelled because of selection shape change. "))
                 self._cancelSelection()
             self.selectionShape = newShape

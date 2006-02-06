@@ -1218,7 +1218,7 @@ class basicMode(anyMode):
         """
         color = logicColor(self.selSense)
         
-        pl = zip(self.sellist[:-1],self.sellist[1:])
+        pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
             drawer.drawline(color,pp[0],pp[1])
         if self.selLassRect:  # Draw the selection rectangle.
@@ -1227,7 +1227,7 @@ class basicMode(anyMode):
 
         if platform.atom_debug and 0: # (keep awhile, might be useful)
             # debug code bruce 041214: also draw back of selection curve
-            pl = zip(self.o.backlist[:-1],self.o.backlist[1:])
+            pl = zip(self.o.selArea_List[:-1],self.o.selArea_List[1:])
             for pp in pl:
                 drawer.drawline(color,pp[0],pp[1])
 
