@@ -13,17 +13,15 @@ import env
 # This is a convenient way to embed Pyrex/OpenGL unit tests into the cad code.
 TEST_PYREX_OPENGL = False
 
+# Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
+# the <logic> values used in pickrect() and pickline() in shapes.py.  mark 060205.
+SUBTRACT_FROM_SELECTION = 0
+ADD_TO_SELECTION = 1
+START_NEW_SELECTION = 2
+
 def do_what_MainWindowUI_should_do(w):
     '''This creates the Select Atoms (not the Select Chunks) dashboard .
     '''
-    
-    # This dashboard needs to be redesigned.  Working on the tooltips and What's This descriptions
-    # made me realize how poorly the UI is laid out.  Ideas for improvements include:
-    # - totally removing the "Element Selector".  It isn't necessary and confuses the UI.
-    # - add a "Transmute" icon/button to the dashboard
-    # - add "Force to Keep Bonds" checkbox or toggle button on dashboard.
-    # - adding a more sophisticated filter that can allow the user to filter more than one atom.
-    # Mark 050810.
      
     w.selectAtomsDashboard.clear()
 
@@ -45,10 +43,6 @@ def do_what_MainWindowUI_should_do(w):
     
     w.selectAtomsDashboard.addSeparator()
 
-
-    # This was an experiment to see how easy it would be to move the Transmute button and checkbox
-    # from the Element Selector to the dashboard.  Very easy.  I'll wait to discuss with Bruce during A7.
-    # Mark 050810.
     transmute2Label = QLabel(w.selectAtomsDashboard, "Transmute_to:")
     transmute2Label.setText("Transmute to: ")
     w.transmute2ComboBox = QComboBox(0,w.selectAtomsDashboard, "transmute2ComboBox")
@@ -142,6 +136,25 @@ class selectMode(basicMode):
     savedOrtho = 0
 
     jigSelectionEnabled = True
+    
+    sellist = []
+        # <sellist> contains a list of points used to draw the selection curve.  The points lay in the 
+        # plane parallel to the screen, just beyond the front clipping plane, so that they are always
+        #  inside the clipping volume.
+        #& <sellist> poorly named; change it to something better.  Needs to be done in multiple
+        #& files.  Phase 2 change. mark 060205.
+    backlist = []
+        # <backlist> contains a list of points that define the selection area.  The points lay in 
+        # the plane parallel to the screen and pass through the center of the view.  The list
+        # is used by pickrect() and pickline() to make the selection.
+        #& <backlist> poorly named; change it to something better.  Needs to be done in multiple
+        #& files.  Phase 2 change. mark 060205.
+    selLassRect = True
+        # <selLassRect> determines whether the current selection curve is a rectangle or lasso, where:
+        # True/1 = selection rectangle
+        # False/0 = selection lasso
+        #& I'd like to change <selLassRect> to <selection_shape>.  Needs to be done in multiple
+        #& files.  Phase 2 change. mark 060205.
 
     #def __init__(self, glpane):
     #    """The initial function is called only once for the whole program """
@@ -155,147 +168,202 @@ class selectMode(basicMode):
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
+        
+# == LMB event handling methods ====================================
+
+# Important Terms: [mark 060205]
+#
+# "selection curve": the collection of line segments drawn by the cursor when defining
+# the selection area.  These line segments will become the selection lasso when (and if) 
+# the selection rectangle disappears. When the selection rectangle is still displayed,
+# the selection curve consists of those line segment that are drawn between opposite 
+# corners of the selection rectangle. The line segments that define/draw the 
+# rectangle itself are not part of the selection curve, however.
+#
+# "selection rectangle": the rectangular selection determined by the first and last points 
+# of a selection curve.  These two points define the opposite corners of the rectangle.
+#
+# "selection lasso": the lasso selection defined by all the points (and line segements)
+# in the selection curve.
+            
+# == LMB down-click (button press) methods
    
     def leftDown(self, event):
-        self.StartPick(event, 2) # new selection (replace)
-    
+        self.start_selection_curve(event, START_NEW_SELECTION)
+
     def leftCntlDown(self, event):
-        self.StartPick(event, 0) # subtract from selection
+        self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
 
     def leftShiftDown(self, event):
-        self.StartPick(event, 1) # add to selection
+        self.start_selection_curve(event, ADD_TO_SELECTION)
 
 
-    def StartPick(self, event, sense):
-        """Start a selection curve
+    def start_selection_curve(self, event, sense):
+        """Start a new selection rectangle/lasso.
         """
         self.selSense = sense
-        self.picking = 1
-        self.o.SaveMouse(event)
-        self.o.prevvec = None
+            # <selSense> is the type of selection, where:       
+            # 0 = substract from the current selection
+            # 1 = add to the current selection
+            # 2 = start a new selection
+        self.picking = True
+            # <picking> is used to let continue_selection_curve() and end_selection_curve() know 
+            # if we are in the process of defining/drawing a selection curve or not, where:
+            # True = in the process of defining selection curve
+            # False = finished/not defining selection curve
+        #self.o.SaveMouse(event) 
+            # Extracts mouse position from event and saves it in the GLPane attr "MousePos".
+            #& Don't believe this is used. Mark 060205.
+        #self.o.normal = self.o.lineOfSight 
+            # Save the current lineOfSight vector. Use unknown.
+            #& Don't believe this is used. Mark 060205.
+        selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, just_beyond = 0.01)
+            # mousepoints() returns a pair (tuple) of points (Numeric arrays of x,y,z)
+            # that lie under the mouse pointer, just beyond the near clipping plane
+            # <selCurve_pt> and in the plane of the center of view <selCurve_AreaPt>.
+        self.sellist = [selCurve_pt]
+            # <sellist> contains the list of points used to draw the selection curve.  The points lay in the 
+            # plane parallel to the screen, just beyond the front clipping plane, so that they are always
+            #  inside the clipping volume.
+        self.o.backlist = [selCurve_AreaPt]
+            # <backlist> contains the list of points that define the selection area.  The points lay in 
+            # the plane parallel to the screen and pass through the center of the view.  The list
+            # is used by pickrect() and pickline() to make the selection.
+        self.selCurve_StartPt = self.selCurve_PrevPt = selCurve_pt
+            # <selCurve_StartPt> is the first point of the selection curve.  It is used by 
+            # continue_selection_curve() to compute the net distance between it and the current 
+            # mouse position.
+            # <selCurve_PrevPt> is the previous point of the selection curve.  It is used by 
+            # continue_selection_curve() to compute the distance between the current mouse 
+            # position and the previous one.
+            # Both <selCurve_StartPt> and <selCurve_PrevPt> are used by 
+            # basicMode.drawpick().
+        self.selCurve_length = 0.0
+            # <selCurve_length> is the current length (sum) of all the selection curve segments.
 
-        p1, p2 = self.o.mousepoints(event, 0.01)
-        self.o.normal = self.o.lineOfSight
-        self.sellist = [p1]
-        self.o.backlist = [p2]
-        self.pickLineStart = self.pickLinePrev = p1
-        self.pickLineLength = 0.0
+# == LMB drag methods
 
-    
     def leftDrag(self, event):
-        self.ContinPick(event, 2)
+        self.continue_selection_curve(event, START_NEW_SELECTION)
     
     def leftCntlDrag(self, event):
-        self.ContinPick(event, 0)
+        self.continue_selection_curve(event, SUBTRACT_FROM_SELECTION)
     
     def leftShiftDrag(self, event):
-        self.ContinPick(event, 1)
+        self.continue_selection_curve(event, ADD_TO_SELECTION)
 
-    def ContinPick(self, event, sense):
-        """Add another segment to a selection curve
+    def continue_selection_curve(self, event, sense):
+        """Add another line segment to the current selection curve.
         """
         if not self.picking: return
-        self.selSense = sense
-        p1, p2 = self.o.mousepoints(event, 0.01)
+        
+        #self.selSense = sense #& Not needed.  Confirmed by mark 060205. Remove in Phase 2.
+        selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
+            # The next point of the selection curve, where <selCurve_pt> is the point just beyond
+            # the near clipping plane and <selCurve_AreaPt> is in the plane of the center of view.
+        self.sellist += [selCurve_pt]
+        self.o.backlist += [selCurve_AreaPt]
+        
+        self.selCurve_length += vlen(selCurve_pt - self.selCurve_PrevPt)
+            # add length of new line segment to <selCurve_length>.
+            
+        chord_length = vlen(selCurve_pt - self.selCurve_StartPt)
+            # <chord_length> is the distance between the (first and last/current) endpoints of the 
+            # selection curve.
+        self.selLassRect = self.selCurve_length < 2*chord_length
+            # Update the shape of the selection_curve.
+            # The value of <selLassRect> can change back and forth between 0 and 1
+            # (lasso and rectangle) as the user continues defining the selection curve.
 
-        self.sellist += [p1]
-        self.o.backlist += [p2]
-        netdist = vlen(p1-self.pickLineStart)
-
-        self.pickLineLength += vlen(p1-self.pickLinePrev)
-        self.selLassRect = self.pickLineLength < 2*netdist
-
-        self.pickLinePrev = p1
+        self.selCurve_PrevPt = selCurve_pt
+        
         self.o.gl_update()
+        
+# == LMB up-click (button release) methods
 
     def leftUp(self, event):
         if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
-            self.EndPick(event, 1) # Alpha 7 behavior (maps LMB > Shift+LMB).  Mark 051122.
+            self.end_selection_curve(event, ADD_TO_SELECTION) # Alpha 7 behavior (maps LMB > Shift+LMB).  Mark 051122.
         else:
-            self.EndPick(event, 2)
+            self.end_selection_curve(event, START_NEW_SELECTION)
     
     def leftCntlUp(self, event):
-        self.EndPick(event, 0)
+        self.end_selection_curve(event, SUBTRACT_FROM_SELECTION)
     
     def leftShiftUp(self, event):
-        self.EndPick(event, 1)
+        self.end_selection_curve(event, ADD_TO_SELECTION)
 
-    def EndPick(self, event, selSense):
-        """Close a selection curve and do the selection
+    def end_selection_curve(self, event, selSense):
+        """Close the selection curve and do the selection.
         """
         if not self.picking: return
         self.picking = False
 
-        p1, p2 = self.o.mousepoints(event, 0.01)
+        selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
 
-        if self.pickLineLength/self.o.scale < 0.03:
+        if self.selCurve_length/self.o.scale < 0.03:
             # didn't move much, call it a click
             has_jig_selected = False
+            
             if self.jigSelectionEnabled and self.jigGLSelect(event, selSense):
                 has_jig_selected = True
+            
             if not has_jig_selected:
-                if selSense == 0: self.o.assy.unpick_at_event(event)
-                if selSense == 1: self.o.assy.pick_at_event(event)
-                if selSense == 2: self.o.assy.onlypick_at_event(event)
+                if selSense == SUBTRACT_FROM_SELECTION: 
+                    self.o.assy.unpick_at_event(event)
+                elif selSense == ADD_TO_SELECTION: 
+                    self.o.assy.pick_at_event(event)
+                elif selSense == START_NEW_SELECTION: 
+                    self.o.assy.onlypick_at_event(event)
+                else:
+                    print 'Error in end_selection_curve(): Invalid selSense=', selSense
 
-            ###Huaicai 1/29/05: to fix zoom messing up selection bug
-            ###In window zoom mode, even for a big selection window, the 
-            ###pickLineLength/scale could still be < 0.03, so we need clean 
-            ### sellist[] to release the rubber band selection window. One 
-            ###problem is its a single pick not as user expect as area pick 
-#            self.sellist = []
-#            self.w.win_update()
-#            return
+            # Huaicai 1/29/05: to fix zoom messing up selection bug
+            # In window zoom mode, even for a big selection window, the 
+            # selCurve_length/scale could still be < 0.03, so we need clean 
+            # sellist[] to release the rubber band selection window. One 
+            # problem is its a single pick not as user expect as area pick 
         
-        # Realized that the 3 lines above were the same as the last 2 lines of this method,
-        # so I created this else statement and included everything (except the last 2 lines).
-        # This seems better and may be necessary for fixing bug 86 (see more comments below).
-        # Mark 050710
         else:
             
-            self.sellist += [p1]
-            self.sellist += [self.sellist[0]]
-            self.o.backlist += [p2]
-            self.o.backlist += [self.o.backlist[0]]
+            self.sellist += [selCurve_pt] # Add the last point.
+            self.sellist += [self.sellist[0]] # Close the selection curve.
+            self.o.backlist += [selCurve_AreaPt] # Add the last point.
+            self.o.backlist += [self.o.backlist[0]] # Close the selection area.
+            
             self.o.shape=SelectionShape(self.o.right, self.o.up, self.o.lineOfSight)
-            eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov        
-            if self.selLassRect:
-                self.o.shape.pickrect(self.o.backlist[0], p2, -self.o.pov, selSense,  eye=(not self.o.ortho) and eyeball)
-            else:
-                self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense,
-                             eye=(not self.o.ortho) and eyeball)
+                # Create the selection shape object.
+                
+            eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
+            
+            if self.selLassRect: # prepare a rectangle selection
+                self.o.shape.pickrect(self.o.backlist[0], selCurve_AreaPt, -self.o.pov, selSense, \
+                            eye=(not self.o.ortho) and eyeball)
+            else: # prepare a lasso selection
+                self.o.shape.pickline(self.o.backlist, -self.o.pov, selSense, \
+                            eye=(not self.o.ortho) and eyeball)
         
-            self.o.shape.select(self.o.assy)
+            self.o.shape.select(self.o.assy) # do the actual selection.
+                
             self.o.shape = None
-
-        # end else
                 
         self.sellist = []
-            # (for debug, it's sometimes useful to not reset sellist here,
+            # (for debugging purposes, it's sometimes useful to not reset sellist here,
             #  so you can see it at the same time as the selection it caused.)
 
-        # This section was added to fix bug 86 and others like it.  I am attempting to 
-        # enable/disable menu and toolbar (action) items based on how many atoms 
-        # are selected.  I have local code (menu_control.py) that works, but I need to 
-        # discuss this with Bruce, after A6. This code works for updating menus/toolbars 
-        # when selecting atoms in the glpane with the mouse, but not for the "Select" 
-        # actions (i.e. Select All) while in Select Atoms mode. There is also something 
-        # to be said about leaving "illegal" action widgets enabled, esp for novice users 
-        # that can benefit from informative history msgs when attempting to do something
-        # they shouldn't.
-        # Mark 050710
-#        from menu_control import update_menus
-#        update_menus(self.w)
-        
         self.w.win_update()
+        
+# == LMB double click method
 
     def leftDouble(self, event):
-        """Select the part containing the atom the cursor is on.
-        """
+        '''Select the part containing the atom the cursor is on.
+        '''
         self.move() # go into move mode
         # bruce 040923: we use to inline the same code as is in this method
         # bruce 041217: I am guessing we still intend to leave this in,
         # here and in Move mode (to get back).
+        
+# == end of LMB event handlers.
 
     
     def setJigSelectionEnabled(self):
@@ -393,7 +461,6 @@ class selectMolsMode(selectMode):
             
         def init_gui(self):
             selectMode.init_gui(self)
-#            print "selectMode.py: init_gui(): Cursor set to SelectMolsCursor"
             self.o.setCursor(self.w.SelectMolsCursor)
             self.w.OldCursor = QCursor(self.o.cursor())
             self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Chunks" tools icon
@@ -405,16 +472,13 @@ class selectMolsMode(selectMode):
         def keyPress(self,key):
             basicMode.keyPress(self, key)
             if key == Qt.Key_Shift:
-#                print "selectMode.py: keyPress(): Cursor set to SelectMolsAddCursor"
                 self.o.setCursor(self.w.SelectMolsAddCursor)
             if key == Qt.Key_Control:
-#                print "selectMode.py: keyPress(): Cursor set to SelectMolsSubtractCursor"
                 self.o.setCursor(self.w.SelectMolsSubtractCursor)
                 
         def keyRelease(self,key):
             basicMode.keyRelease(self, key)
             if key == Qt.Key_Shift or key == Qt.Key_Control:
-#                print "selectMode.py: keyRelease(): Cursor set to SelectMolsCursor"
                 self.o.setCursor(self.w.SelectMolsCursor)
                 
         def rightShiftDown(self, event):

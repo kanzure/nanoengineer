@@ -223,9 +223,11 @@ class basicMode(anyMode):
 
         ###e bruce 040922: what are these selection things doing here?
         ### i suspect they ought to be mode-specific... not sure.
-            
-        self.sellist = []
-        self.selLassRect = 0
+
+        #self.sellist = []
+        #self.selLassRect = 0
+            #& These selection attrs have been moved to selectMode and cookieMode 
+            #& where they belong.  I intend to remove these soon (from here). mark 060205.
 
         self.setup_menus_in_init()
 
@@ -1217,10 +1219,10 @@ class basicMode(anyMode):
         color = logicColor(self.selSense)
         
         pl = zip(self.sellist[:-1],self.sellist[1:])
-        for pp in pl: # Draw the selection curve
+        for pp in pl: # Draw the selection curve (lasso).
             drawer.drawline(color,pp[0],pp[1])
-        if self.selLassRect:  # Draw the rubber band window
-            drawer.drawrectangle(self.pickLineStart, self.pickLinePrev,
+        if self.selLassRect:  # Draw the selection rectangle.
+            drawer.drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
                                  self.o.up, self.o.right, color)
 
         if platform.atom_debug and 0: # (keep awhile, might be useful)

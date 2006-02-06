@@ -18,6 +18,18 @@ class cookieMode(basicMode):
     gridColor = 222/255.0, 148/255.0, 0/255.0
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
+    sellist = []
+        # <sellist> contains a list of points used to draw the selection curve.  The points lay in the 
+        # plane parallel to the screen, just beyond the front clipping plane, so that they are always
+        #  inside the clipping volume.
+        #& <sellist> poorly named; change it to something better.  May need to be done in multiple
+        #& files.  mark 060205.
+    selLassRect = 0
+        # <selLassRect> determines whether the current selection curve is a rectangle or lasso, where:
+        # True/1 = selection rectangle
+        # False/0 = selection lasso
+        #& I'd like to change <selLassRect> to something better.  May need to be done in multiple
+        #& files.  mark 060205.
     
     MAX_LATTICE_CELL = 25
     
