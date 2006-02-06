@@ -90,11 +90,18 @@ sub printbond {
     print "addInitialBendData(\"$e1-$b1-$ec.$CenterHybridization-$b2-$e2\", $ktheta, $theta0);\n";
 }
 
+
 while (<STDIN>) {
     # remove leading space, and trailing newline
     chomp;
     s/^\s+//;
 
+    if (/^# (\$Id:.*)/) {
+	print "\n";
+	print "#define RCSID_BENDS_H  \"Generated from: $1\"\n";
+	print "\n";
+	next;
+    }
     # ignore comments and blank lines
     if (/^#/) {
 	next;

@@ -1,7 +1,5 @@
-#ifndef BENDS_H_INCLUDED
-#define BENDS_H_INCLUDED
 
-#define RCSID_BENDS_H  "$Id$"
+#define RCSID_BENDS_H  "Generated from: $Id$"
 
 addInitialBendData("B-1-B.sp3-1-B", 0.700012504471, 2.2007102735);
 addInitialBendData("B-1-B.sp3-1-C", 0.718400377961, 2.1453193106);
@@ -94,10 +92,8 @@ addInitialBendData("C-1-B.sp3-1-P", 0.875685553339, 2.07584933259);
 addInitialBendData("C-1-B.sp3-1-S", 0.817011739463, 2.06079106098);
 addInitialBendData("C-1-B.sp3-1-Si", 0.64138209458, 2.14532197216);
 addInitialBendData("B-1-C.sp3-1-C", 0.830773483937, 2.05819885886);
-addInitialBendData("C-1-C.sp3-1-C", 1.36982667133, 1.98040380342);
 addInitialBendData("C-1-C.sp3-1-Cl", 1.35812532321, 1.96475214999);
 addInitialBendData("C-1-C.sp3-1-F", 1.31083836857, 1.92960776182);
-addInitialBendData("H-1-C.sp3-1-C", 0.856064485878, 1.94310923098);
 addInitialBendData("C-1-C.sp3-1-N", 1.37536495588, 1.9518795897);
 addInitialBendData("C-1-C.sp3-1-O", 1.26908231603, 1.89368054515);
 addInitialBendData("C-1-C.sp3-1-P", 1.2253376843, 1.95384491894);
@@ -327,7 +323,6 @@ addInitialBendData("H-1-C.sp3-1-B", 0.728408986094, 2.01977212408);
 addInitialBendData("H-1-C.sp3-1-C", 0.85606452239, 1.94310924487);
 addInitialBendData("H-1-C.sp3-1-Cl", 0.868841235925, 1.90825583436);
 addInitialBendData("H-1-C.sp3-1-F", 1.00422459837, 1.90297810674);
-addInitialBendData("H-1-C.sp3-1-H", 0.70668004423, 1.92228191185);
 addInitialBendData("H-1-C.sp3-1-N", 1.00417647722, 1.9199842731);
 addInitialBendData("H-1-C.sp3-1-O", 0.981303281536, 1.85803923433);
 addInitialBendData("H-1-C.sp3-1-P", 0.766412114536, 1.88721787969);
@@ -783,5 +778,10 @@ addInitialBendData("O-1-Si.sp3-1-Si", 0.616668210088, 1.88326596345);
 addInitialBendData("Si-1-Si.sp3-1-P", 0.513855704075, 1.88852987492);
 addInitialBendData("Si-1-Si.sp3-1-S", 0.526167986423, 1.82795797307);
 addInitialBendData("Si-1-Si.sp3-1-Si", 0.459433346504, 1.97086310291);
-
-#endif
+addInitialBendData("H-1-C.sp3-1-H", 0.660042366063, 1.9111430651);
+addInitialBendData("H-1-Al.sp2-1-H", 0.446055200791, 2.0943951000);
+addInitialBendData("H-1-C.sp3-1-C", 0.802391739207, 1.9401169758);
+addInitialBendData("C-1-C.sp3-1-C", 1.133257706451, 1.9710141223);
+addInitialBendData("C-1-C.sp3-1-Al", 0.530955634590, 2.0410185246);
+addInitialBendData("H-1-Al.sp2-1-C", 0.484004251315, 2.0874977997);
+addInitialBendData("C-1-Al.sp2-1-C", 0.595394598401, 2.1291820322);
