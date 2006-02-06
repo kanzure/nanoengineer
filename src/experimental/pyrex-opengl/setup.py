@@ -16,11 +16,14 @@ if sys.platform == "darwin":
         "-L/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries",
         "-lGL" ]
 else:
-    extra_compile_args = [ ]
+    extra_compile_args = [
+        # "-I/usr/share/doc/nvidia-7676/GL",   # Will's box
+        "-I/usr/X11R6/include/GL",
+        ]
     extra_link_args = [ "-L/usr/X11R6/lib", "-lGL" ]
 
 setup(name = 'quux',
-      ext_modules=[Extension("quux", ["quux.pyx", "bradg.cpp"],
+      ext_modules=[Extension("quux", ["quux.pyx", "bradg.cpp", "vector.c"],
                              depends = ["quux_help.c"],
                              extra_compile_args = extra_compile_args,
                              extra_link_args = extra_link_args

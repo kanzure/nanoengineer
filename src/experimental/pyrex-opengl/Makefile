@@ -1,38 +1,51 @@
 UNAME := $(shell uname)
+# dotted python version (2.3, 2.4)
+PYDVER := $(shell python -c "import sys; print sys.version[:3]")
+# un-dotted python version (23, 24)
+PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
 ifeq (XX$(OS),XXWindows_NT)
 #---------------------------------------- Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CXX="C:/Dev-Cpp/bin/g++.exe"
 CFLAGS=-g -Wmissing-prototypes
-CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
-CXXFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
+CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
+CXXFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
 LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib" \
-	-lpython23 -lopengl32
-PYTHON=c:/Python23/python
-PYREXC=c:/Python23/python c:/Python23/Scripts/pyrexc.py
+	-lpython$(PYVER) -lopengl32
+PYTHON=c:/Python$(PYVER)/python
+PYREXC=c:/Python$(PYVER)/python c:/Python$(PYVER)/Scripts/pyrexc.py
 TARGET=quux.dll
 #---------------------------------------- End of Windows stuff
 else
 #---------------------------------------- Start Unix/Mac stuff
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-PYREXC=/Library/Python/2.3/Pyrex-0.9.3.1/bin/pyrexc
-CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers -I/usr/include/python2.3
-LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
+PYREXC=/Library/Python/$(PYDVER)/Pyrex-0.9.3.1/bin/pyrexc
+CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers \
+	-I/usr/include/python$(PYDVER)
+LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python$(PYDVER)/config -lm -lGL \
+	-lpython$(PYDVER)
 else
 #---------------------------------------- Unix
 PYREXC=pyrexc
 # It turns out I need /usr/X11R6/(include,lib) to get the stuff for
 # OpenGL. This is NOT a dependency on X11 proper.
-CFLAGS=-I/usr/X11R6/include -I/usr/include/python2.3
-LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python2.3/config -lm -lGL -lpython2.3
+CFLAGS=-I/usr/X11R6/include -I/usr/include/python$(PYDVER) \
+	-I/usr/X11R6/include/GL
+CPPFLAGS=-I/usr/X11R6/include -I/usr/include/python$(PYDVER) \
+	-I/usr/X11R6/include/GL
+LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python$(PYDVER)/config -lm -lGL \
+	-lpython$(PYDVER)
 endif
 PYTHON=python
 CC=gcc
 TARGET=quux.so
 #---------------------------------------- End of Unix/Mac stuff
 endif
+
+# Should libpython23.a be replaced everywhere by libpython$(PYVER)??
+# I think it should but it's an easy thing to do later.
 
 all: $(TARGET)
 
