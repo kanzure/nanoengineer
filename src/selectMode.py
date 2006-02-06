@@ -382,10 +382,31 @@ class selectMode(basicMode):
         # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
         if TEST_PYREX_OPENGL:
             try:
+                #self.w.win_update()
                 sys.path.append("./experimental/pyrex-opengl")
                 import quux
-                quux.test()
-                #self.w.win_update()
+                # quux.test()
+                quux.shapeRendererInit()
+                quux.shapeRendererSetUseLOD(0)
+                center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
+                                        Numeric.array((0, 0, 1), 'f'),
+                                        Numeric.array((0, 1, 0), 'f'),
+                                        Numeric.array((0, 1, 1), 'f'),
+                                        Numeric.array((1, 0, 0), 'f'),
+                                        Numeric.array((1, 0, 1), 'f'),
+                                        Numeric.array((1, 1, 0), 'f'),
+                                        Numeric.array((1, 1, 1), 'f')), 'f')
+                radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
+                                        1.2, 1.4, 1.6, 1.8), 'f')
+                color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
+                                       Numeric.array((0, 0, 1, 0.5), 'f'),
+                                       Numeric.array((0, 1, 0, 0.5), 'f'),
+                                       Numeric.array((0, 1, 1, 0.5), 'f'),
+                                       Numeric.array((1, 0, 0, 0.5), 'f'),
+                                       Numeric.array((1, 0, 1, 0.5), 'f'),
+                                       Numeric.array((1, 1, 0, 0.5), 'f'),
+                                       Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
+                result = quux.shapeRendererDrawSpheres(8, center, radius, color)
             except ImportError:
                 env.history.message(redmsg("Can't import Pyrex OpenGL, rebuild it"))
         else:
