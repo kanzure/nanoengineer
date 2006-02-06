@@ -603,7 +603,11 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     a->vdwBucket = NULL;
     a->vdwPrev = NULL;
     a->vdwNext = NULL;
-    a->hybridization = sp3;
+    if (a->type->group == 3) {
+        a->hybridization = sp2;
+    } else {
+        a->hybridization = sp3;
+    }
     
     mass = a->type->mass * 1e-27;
     a->inverseMass = Dt * Dt / mass;
