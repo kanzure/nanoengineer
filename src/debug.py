@@ -135,7 +135,7 @@ def linenum():
 # ==
 class ObjectDescender:
     def __init__(self, maxdepth=5, outf=sys.stderr):
-        self.already = { }
+        self.already = [ ]
         self.maxdepth = maxdepth
         self.outf = outf
 
@@ -145,13 +145,16 @@ class ObjectDescender:
         return True
 
     def trepr(self, v):
-        if type(v) == types.InstanceType:
+        if v == None:
+            return "None"
+        elif type(v) == types.InstanceType:
             r = v.__class__.__name__
         else:
             r = repr(type(v))
         return "%s at %x" % (r, id(v))
     def prefix(self, depth, pn):
         return ((depth * "\t") + ".".join(pn) + ": ")
+        #return (".".join(pn) + ": ")
 
     def hackList(self, x, depth, pn):
         if self.showThis(pn[-1], x):
@@ -176,29 +179,23 @@ class ObjectDescender:
             self.hackOther(v, depth, pn)
 
     def descend(self, obj, depth=0, pathname=[ ]):
-        self.handleLeaf(obj, depth, pathname)
-        def novel(obj, depth=depth, already=self.already):
-            ido = id(obj)
-            if not already.has_key(ido):
-                already[ido] = depth
-                return True
-            elif depth < already[ido]:
-                already[ido] = depth
-                return True
-            return False
+        if obj in self.already:
+            return
+        self.already.append(obj)
+        if depth == 0:
+            self.handleLeaf(obj, depth, pathname)
         if depth >= self.maxdepth:
             return
-        if (type(obj) in (types.InstanceType, types.ClassType,
-                          types.ModuleType, types.FunctionType) or
-            hasattr(obj, "__dict__")):
+        if type(obj) in (types.InstanceType, types.ClassType,
+                         types.ModuleType, types.FunctionType):
             keys = filter(lambda x: not x.startswith("__"), dir(obj))
-            #keys = dir(obj)
             lst = [ ]
             for k in keys:
                 if not self.exclude(k):
                     x = getattr(obj, k)
-                    if novel(x):
-                        lst.append((x, pathname + [ k ]))
+                    lst.append((x, pathname + [ k ]))
+            for v, pn in lst:
+                self.handleLeaf(v, depth+1, pn)
             for v, pn in lst:
                 self.descend(v, depth+1, pn)
         elif type(obj) in (types.ListType, types.TupleType):
@@ -210,13 +207,12 @@ class ObjectDescender:
                 lastitem = ""
             for i in range(len(obj)):
                 x = obj[i]
-                if novel(x):
-                    lst.append((x,
-                                pathname + [ lastitem + ("[%d]" % i) ]))
+                y = pathname + [ lastitem + ("[%d]" % i) ]
+                lst.append((x, y))
+            for v, pn in lst:
+                self.handleLeaf(v, depth+1, pn)
             for v, pn in lst:
                 self.descend(v, depth+1, pn)
-        else:
-            self.hackPrimitive(obj, depth, pathname)
 
 def objectBrowse(obj, maxdepth=5, exclude=None):
     if exclude == None:
