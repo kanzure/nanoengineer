@@ -14,7 +14,11 @@ import env
 TEST_PYREX_OPENGL = False
 
 # Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
-# the <logic> values used in pickrect() and pickline() in shapes.py.  mark 060205.
+# the <logic> values used in pickrect() and pickline() in shapes.py.  
+# These should probably be moved to constants.py and used in shapes.py, but be
+# careful since classes/methods in shapes.py support standard selection *and*
+# cookie cutter selection, which differ.
+# mark 060205.
 SUBTRACT_FROM_SELECTION = 0
 ADD_TO_SELECTION = 1
 START_NEW_SELECTION = 2
@@ -245,15 +249,15 @@ class selectMode(basicMode):
 # == LMB drag methods
 
     def leftDrag(self, event):
-        self.continue_selection_curve(event, START_NEW_SELECTION)
+        self.continue_selection_curve(event)
     
     def leftCntlDrag(self, event):
-        self.continue_selection_curve(event, SUBTRACT_FROM_SELECTION)
+        self.continue_selection_curve(event)
     
     def leftShiftDrag(self, event):
-        self.continue_selection_curve(event, ADD_TO_SELECTION)
+        self.continue_selection_curve(event)
 
-    def continue_selection_curve(self, event, sense):
+    def continue_selection_curve(self, event):
         """Add another line segment to the current selection curve.
         """
         if not self.picking: return
@@ -287,18 +291,15 @@ class selectMode(basicMode):
 # == LMB up-click (button release) methods
 
     def leftUp(self, event):
-        if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
-            self.end_selection_curve(event, ADD_TO_SELECTION) # Alpha 7 behavior (maps LMB > Shift+LMB).  Mark 051122.
-        else:
-            self.end_selection_curve(event, START_NEW_SELECTION)
+        self.end_selection_curve(event)
     
     def leftCntlUp(self, event):
-        self.end_selection_curve(event, SUBTRACT_FROM_SELECTION)
+        self.end_selection_curve(event)
     
     def leftShiftUp(self, event):
-        self.end_selection_curve(event, ADD_TO_SELECTION)
+        self.end_selection_curve(event)
 
-    def end_selection_curve(self, event, selSense):
+    def end_selection_curve(self, event):
         """Close the selection curve and do the selection.
         """
         if not self.picking: return
@@ -310,18 +311,18 @@ class selectMode(basicMode):
             # didn't move much, call it a click
             has_jig_selected = False
             
-            if self.jigSelectionEnabled and self.jigGLSelect(event, selSense):
+            if self.jigSelectionEnabled and self.jigGLSelect(event, self.selSense):
                 has_jig_selected = True
             
             if not has_jig_selected:
-                if selSense == SUBTRACT_FROM_SELECTION: 
+                if self.selSense == SUBTRACT_FROM_SELECTION: 
                     self.o.assy.unpick_at_event(event)
-                elif selSense == ADD_TO_SELECTION: 
+                elif self.selSense == ADD_TO_SELECTION: 
                     self.o.assy.pick_at_event(event)
-                elif selSense == START_NEW_SELECTION: 
+                elif self.selSense == START_NEW_SELECTION: 
                     self.o.assy.onlypick_at_event(event)
                 else:
-                    print 'Error in end_selection_curve(): Invalid selSense=', selSense
+                    print 'Error in end_selection_curve(): Invalid selSense=', self.selSense
 
             # Huaicai 1/29/05: to fix zoom messing up selection bug
             # In window zoom mode, even for a big selection window, the 
@@ -342,10 +343,10 @@ class selectMode(basicMode):
             eyeball = (-self.o.quat).rot(V(0,0,6*self.o.scale)) - self.o.pov
             
             if self.selShape == SELSHAPE_RECT : # prepare a rectangle selection
-                self.o.shape.pickrect(self.o.selArea_List[0], selCurve_AreaPt, -self.o.pov, selSense, \
+                self.o.shape.pickrect(self.o.selArea_List[0], selCurve_AreaPt, -self.o.pov, self.selSense, \
                             eye=(not self.o.ortho) and eyeball)
             else: # prepare a lasso selection
-                self.o.shape.pickline(self.o.selArea_List, -self.o.pov, selSense, \
+                self.o.shape.pickline(self.o.selArea_List, -self.o.pov, self.selSense, \
                             eye=(not self.o.ortho) and eyeball)
         
             self.o.shape.select(self.o.assy) # do the actual selection.
