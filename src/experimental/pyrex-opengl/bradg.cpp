@@ -20,11 +20,20 @@
 #include <math.h>
 #include <string.h>
 
-#ifdef _WIN32
+#ifdef _WIN32 /*------------------------------------------------------------*/
+
 #include <windows.h>
-#endif
+#include <GL/gl.h>
+
+#elif MACOSX /*-------------------------------------------------------------*/
+
+#include <gl.h>
+
+#else /* Presumably Linux */ /*---------------------------------------------*/
 
 #include <GL/gl.h>
+
+#endif /*-------------------------------------------------------------------*/
 
 #include "Python.h"
 
@@ -108,8 +117,8 @@ struct DataObject : DataBufferBase {
 };
 
 DataObject::DataObject(GLContext *gl) :
-    m_gl(gl),
-    DataBufferBase(0)
+    DataBufferBase(0),
+    m_gl(gl)
 {
     m_gl->GenBuffersARB(1, &m_buffer);
 }
@@ -292,6 +301,7 @@ struct BigEnoughBuffer {
     size_t m_blocksize;
     BigEnoughBuffer<T>() :
         m_p(NULL),
+        m_count(0),
         m_size(0),
         m_blocksize(16384),
         m_count(0)
@@ -1508,8 +1518,8 @@ class ShapeRenderer
 public:
 
     ShapeRenderer() :
-        m_useLOD(true),
         m_lodScale(1.0f),
+        m_useLOD(true),
         m_materialWhiteness(1.0f),
         m_materialBrightness(1.0f),
         m_materialShininess(20.0f)
@@ -1614,10 +1624,10 @@ bool ShapeRenderer::init(GLContext *gl)
     float sphereTransitions[] = {14, 28};
     sphereLODs.makeTable(sphereShapePtrs, sphereTransitions, 3);
 
+    int sphereLOD = 1;
     if(getenv("SPHERE_LOD"))
-        m_forcedSphere = sphereShapes + atoi(getenv("SPHERE_LOD"));
-    else
-        m_forcedSphere = sphereShapes + 0;
+        sphereLOD = atoi(getenv("SPHERE_LOD"));
+    m_forcedSphere = sphereShapes + sphereLOD;
 
 
     // Cylinder -------------------------------------------------------------
@@ -1677,7 +1687,7 @@ bool ShapeRenderer::init(GLContext *gl)
     cylinderClosedLODs.makeTable(cylinderClosedShapePtrs,
         cylinderTransitions, 4);
 
-    int cylLOD = 0;
+    int cylLOD = 1;
     if(getenv("CYLINDER_LOD") != NULL)
         cylLOD = atoi(getenv("CYLINDER_LOD"));
 
