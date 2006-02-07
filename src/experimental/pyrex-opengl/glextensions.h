@@ -32,18 +32,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _glextensions_h_
 #define _glextensions_h_
 
-#if defined(_WIN32)
+#ifdef _WIN32 /*------------------------------------------------------------*/
+
 #include <windows.h>
 #include <GL/gl.h>
 #include "glext.h"
-#else
+
+#elif MACOSX /*-------------------------------------------------------------*/
+
+/* MacOS window handling? */
+#include <GL/gl.h>
+#include "glext.h"
+
+#else /* Presumably Linux */ /*---------------------------------------------*/
+
 #define GLX_GLXEXT_PROTOTYPES
 #include <X11/Xlib.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
 #include <GL/glxext.h>
-#endif
+
+#endif /*-------------------------------------------------------------------*/
 
 #if !defined(GL_ARB_occlusion_query)
 #define GL_ARB_occlusion_query 1
@@ -338,9 +348,9 @@ private:
     static bool hasExtension(const unsigned char *exts, char *ext);
     #if defined(_WIN32)
 	PROC wsiGetProcAddress(const char *procName);
-    #else /* !defined(_WIN32) */
+    #elif !defined(MACOSX) /* Presumably X Window System */
 	__GLXextFuncPtr wsiGetProcAddress(const char *procName);
-    #endif /* defined(_WIN32) */
+    #endif
 };
 
 

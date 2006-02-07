@@ -111,7 +111,7 @@ PROC GLContext::wsiGetProcAddress(const char *procName)
     return proc;
 }
 
-#else /* !defined(_WIN32) */
+#elif !defined(MACOSX) /* Presumably X Window System - */
 
 __GLXextFuncPtr GLContext::wsiGetProcAddress(const char *procName)
 {
@@ -127,7 +127,7 @@ __GLXextFuncPtr GLContext::wsiGetProcAddress(const char *procName)
     return proc;
 }
 
-#endif /* defined(_WIN32) */
+#endif 
 
 GLContext::GLContext(void)
 {
@@ -152,6 +152,15 @@ GLContext::GLContext(void)
     if(hasGLExtension("GL_NV_occlusion_query")) {
 	has_GL_NV_occlusion_query = true;
 
+#if defined(MACOSX)
+        GenOcclusionQueriesNV = glGenOcclusionQueriesNV;
+        DeleteOcclusionQueriesNV = glDeleteOcclusionQueriesNV;
+        IsOcclusionQueryNV = glIsOcclusionQueryNV;
+        BeginOcclusionQueryNV = glBeginOcclusionQueryNV;
+        EndOcclusionQueryNV = glEndOcclusionQueryNV;
+        GetOcclusionQueryivNV = glGetOcclusionQueryivNV;
+        GetOcclusionQueryuivNV = glGetOcclusionQueryuivNV;
+#else
         GenOcclusionQueriesNV = (GL_GENOCCLUSIONQUERIESNVPROC)
             wsiGetProcAddress("glGenOcclusionQueriesNV");
         DeleteOcclusionQueriesNV = (GL_DELETEOCCLUSIONQUERIESNVPROC)
@@ -166,12 +175,22 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetOcclusionQueryivNV");
         GetOcclusionQueryuivNV = (GL_GETOCCLUSIONQUERYUIVNVPROC)
             wsiGetProcAddress("glGetOcclusionQueryuivNV");
+#endif
     } else
 	has_GL_NV_occlusion_query = false;
 
     if(hasGLExtension("GL_ARB_occlusion_query")) {
 	has_GL_ARB_occlusion_query = true;
 
+#if defined(MACOSX)
+        GenQueriesARB = glGenQueriesARB;
+        DeleteQueriesARB = glDeleteQueriesARB;
+        IsQueryARB = glIsQueryARB;
+        BeginQueryARB = glBeginQueryARB;
+        EndQueryARB = glEndQueryARB;
+        GetQueryObjectivARB = glGetQueryObjectivARB;
+        GetQueryObjectuivARB = glGetQueryObjectuivARB;
+#else
         GenQueriesARB = (GL_GENQUERIESARBPROC)
             wsiGetProcAddress("glGenQueriesARB");
         DeleteQueriesARB = (GL_DELETEQUERIESARBPROC)
@@ -186,12 +205,27 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetQueryObjectivARB");
         GetQueryObjectuivARB = (GL_GETQUERYOBJECTUIVARBPROC)
             wsiGetProcAddress("glGetQueryObjectuivARB");
+#endif
     } else
 	has_GL_ARB_occlusion_query = false;
 
     if(hasGLExtension("GL_ATI_vertex_array_object")) {
 	has_GL_ATI_vertex_array_object = true;
 
+#if defined(MACOSX)
+        NewObjectBufferATI = glNewObjectBufferATI;
+        IsObjectBufferATI = glIsObjectBufferATI;
+        UpdateObjectBufferATI = glUpdateObjectBufferATI;
+        GetObjectBufferfvATI = glGetObjectBufferfvATI;
+        GetObjectBufferivATI = glGetObjectBufferivATI;
+        DeleteObjectBufferATI = glDeleteObjectBufferATI;
+        ArrayObjectATI = glArrayObjectATI;
+        GetArrayObjectfvATI = glGetArrayObjectfvATI;
+        GetArrayObjectivATI = glGetArrayObjectivATI;
+        VariantArrayObjectATI = glVariantArrayObjectATI;
+        GetVariantArrayObjectfvATI = glGetVariantArrayObjectfvATI;
+        GetVariantArrayObjectivATI = glGetVariantArrayObjectivATI;
+#else
         NewObjectBufferATI = (GL_NEWOBJECTBUFFERATIPROC)
             wsiGetProcAddress("glNewObjectBufferATI");
         IsObjectBufferATI = (GL_ISOBJECTBUFFERATIPROC)
@@ -216,24 +250,44 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetVariantArrayObjectfvATI");
         GetVariantArrayObjectivATI = (GL_GETVARIANTARRAYOBJECTIVATIPROC)
             wsiGetProcAddress("glGetVariantArrayObjectivATI");
+#endif
     } else
 	has_GL_ATI_vertex_array_object = false;
 
     if(hasGLExtension("GL_ATI_element_array")) {
 	has_GL_ATI_element_array = true;
 
+#if defined(MACOSX)
+        ElementPointerATI = glElementPointerATI;
+        DrawElementArrayATI = glDrawElementArrayATI;
+        DrawRangeElementArrayATI = glDrawRangeElementArrayATI;
+#else
         ElementPointerATI = (GL_ELEMENTPOINTERATIPROC)
             wsiGetProcAddress("glElementPointerATI");
         DrawElementArrayATI = (GL_DRAWELEMENTARRAYATIPROC)
             wsiGetProcAddress("glDrawElementArrayATI");
         DrawRangeElementArrayATI = (GL_DRAWRANGEELEMENTARRAYATIPROC)
             wsiGetProcAddress("glDrawRangeElementArrayATI");
+#endif
     } else
 	has_GL_ATI_element_array = false;
 
     if(hasGLExtension("GL_ARB_vertex_buffer_object")) {
 	has_GL_ARB_vertex_buffer_object = true;
 
+#if defined(MACOSX)
+        BindBufferARB = glBindBufferARB;
+        DeleteBuffersARB = glDeleteBuffersARB;
+        GenBuffersARB = glGenBuffersARB;
+        IsBufferARB = glIsBufferARB;
+        BufferDataARB = glBufferDataARB;
+        BufferSubDataARB = glBufferSubDataARB;
+        GetBufferSubDataARB = glGetBufferSubDataARB;
+        MapBufferARB = glMapBufferARB;
+        UnmapBufferARB = glUnmapBufferARB;
+        GetBufferParameterivARB = glGetBufferParameterivARB;
+        GetBufferPointervARB = glGetBufferPointervARB;
+#else
         BindBufferARB = (GL_BINDBUFFERARBPROC)
             wsiGetProcAddress("glBindBufferARB");
         DeleteBuffersARB = (GL_DELETEBUFFERSARBPROC)
@@ -256,12 +310,34 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetBufferParameterivARB");
         GetBufferPointervARB = (GL_GETBUFFERPOINTERVARBPROC)
             wsiGetProcAddress("glGetBufferPointervARB");
+#endif
     } else
 	has_GL_ARB_vertex_buffer_object = false;
 
     if(hasGLExtension("GL_ARB_fragment_program")) {
 	has_GL_ARB_fragment_program = true;
 
+#if defined(MACOSX)
+        ProgramStringARB = glProgramStringARB;
+        BindProgramARB = glBindProgramARB;
+        DeleteProgramsARB = glDeleteProgramsARB;
+        GenProgramsARB = glGenProgramsARB;
+        ProgramEnvParameter4dARB = glProgramEnvParameter4dARB;
+        ProgramEnvParameter4dvARB = glProgramEnvParameter4dvARB;
+        ProgramEnvParameter4fARB = glProgramEnvParameter4fARB;
+        ProgramEnvParameter4fvARB = glProgramEnvParameter4fvARB;
+        ProgramLocalParameter4dARB = glProgramLocalParameter4dARB;
+        ProgramLocalParameter4dvARB = glProgramLocalParameter4dvARB;
+        ProgramLocalParameter4fARB = glProgramLocalParameter4fARB;
+        ProgramLocalParameter4fvARB = glProgramLocalParameter4fvARB;
+        GetProgramEnvParameterdvARB = glGetProgramEnvParameterdvARB;
+        GetProgramEnvParameterfvARB = glGetProgramEnvParameterfvARB;
+        GetProgramLocalParameterdvARB = glGetProgramLocalParameterdvARB;
+        GetProgramLocalParameterfvARB = glGetProgramLocalParameterfvARB;
+        GetProgramivARB = glGetProgramivARB;
+        GetProgramStringARB = glGetProgramStringARB;
+        IsProgramARB = glIsProgramARB;
+#else
         ProgramStringARB = (GL_PROGRAMSTRINGARBPROC)
             wsiGetProcAddress("glProgramStringARB");
         BindProgramARB = (GL_BINDPROGRAMARBPROC)
@@ -300,10 +376,17 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetProgramStringARB");
         IsProgramARB = (GL_ISPROGRAMARBPROC)
             wsiGetProcAddress("glIsProgramARB");
+#endif
     } else
 	has_GL_ARB_fragment_program = true;
 
     if(VersionMinor >= 3) {
+#if defined(MACOSX)
+        ActiveTexture = glActiveTexture;
+        ClientActiveTexture = glClientActiveTexture;
+        MultiTexCoord2f = glMultiTexCoord2f;
+        MultiTexCoord2fv = glMultiTexCoord2fv;
+#else
         ActiveTexture = (GL_ACTIVETEXTUREPROC)
             wsiGetProcAddress("glActiveTexture");
         ClientActiveTexture = (GL_CLIENTACTIVETEXTUREPROC)
@@ -324,6 +407,7 @@ GLContext::GLContext(void)
             MultiTexCoord2fv = (GL_MULTITEXCOORD2FVPROC)
                 wsiGetProcAddress("glMultiTexCoord2fvARB");
         }
+#endif
     }
 }
 
