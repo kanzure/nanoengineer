@@ -303,8 +303,7 @@ struct BigEnoughBuffer {
         m_p(NULL),
         m_count(0),
         m_size(0),
-        m_blocksize(16384),
-        m_count(0)
+        m_blocksize(16384)
         {};
     T *make_big_enough(size_t count);
     operator T*(void) { return m_p; }
