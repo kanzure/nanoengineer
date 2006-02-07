@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Run the cad program on the Mac
+pythonw `pwd`/atom.py
