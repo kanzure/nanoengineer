@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif MACOSX /*-------------------------------------------------------------*/
 
 /* MacOS window handling? */
-#include <GL/gl.h>
+#include <gl.h>
 #include "glext.h"
 
 #else /* Presumably Linux */ /*---------------------------------------------*/
