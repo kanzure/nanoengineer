@@ -208,7 +208,7 @@ class ObjectDescender:
 
 def objectBrowse(obj, maxdepth=5, exclude=None):
     if exclude == None:
-        def exclude(attrname): return False
+        def exclude(attrname, obj): return False
     class Descend(ObjectDescender):
         def exclude(self, attrname):
             return exclude(attrname)
