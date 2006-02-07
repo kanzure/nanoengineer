@@ -65,7 +65,16 @@ class MeasurementJig(Jig):
         # use atom positions to compute center, where text should go
         pos1 = self.atoms[0].posn()
         pos2 = self.atoms[-1].posn()
-        drawtext(text, self.color, (pos1 + pos2) / 2, self.font_size, self.assy.o)
+        pos = (pos1 + pos2) / 2
+        if self.picked:
+            # move the text toward the user, and make it huge
+            # somehow, this fails to guarantee that the highlighted text will
+            # appear in front of the non-highlighted text, which makes no sense,
+            # but the hugeness helps, along with being red
+            pos += -10 * self.assy.o.lineOfSight
+            drawtext(text, self.color, pos, 3 * self.font_size, self.assy.o)
+        else:
+            drawtext(text, self.color, pos, self.font_size, self.assy.o)
     
     # move into base class, wware 051103
     def set_cntl(self):
