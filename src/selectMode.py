@@ -530,6 +530,12 @@ class selectAtomsMode(selectMode):
      
         def Enter(self): 
             basicMode.Enter(self)
+            
+            self.saveDisp = self.o.display 
+            self.o.setDisplay(diTUBES)
+                # depositMode and selectAtomsMode should always have the same display mode.
+                # We should provide a user pref for the display mode, which will be done for A7.  mark 060207.
+            
             self.o.assy.selectAtoms()
             self.w.elemFilterComboBox.setCurrentItem(0) ## Disable filter by default
             # Reinitialize previously picked atoms (ppas).
@@ -550,7 +556,10 @@ class selectAtomsMode(selectMode):
         def restore_gui(self):
             self.w.disconnect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
             self.w.selectAtomsDashboard.hide()
-         
+            
+        def restore_patches(self): # necessary for depositMode, a subclass of this mode. mark 060207.
+            self.o.setDisplay(self.saveDisp)
+            self.o.selatom = None # may be required for depositMode.  Not sure.  mark 060207.
         
         def getDstElement(self):
             '''Return the destination element user wants to transmute to. '''

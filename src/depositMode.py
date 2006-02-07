@@ -12,7 +12,8 @@ $Id$
 __author__ = "Josh"
 
 from Numeric import *
-from modes import *
+#from modes import *
+from selectMode import *
 from VQT import *
 from chem import *
 import drawer
@@ -262,7 +263,7 @@ def update_hybridComboBox(win, text = None): #bruce 050606
         win.hybridComboBox.hide()
     return
         
-class depositMode(basicMode):
+class depositMode(selectAtomsMode):
     """ This class is used to manually add atoms to create any structure.
        Users know it as "Build mode".
     """
@@ -275,7 +276,7 @@ class depositMode(basicMode):
     default_mode_status_text = "Mode: Build"
 
     def __init__(self, glpane):
-        basicMode.__init__(self, glpane)
+        selectAtomsMode.__init__(self, glpane)
         self.pastables_list = [] #k not needed here?
         self.water_enabled = env.prefs.get( buildModeWaterEnabled_prefs_key) # mark 060203.
             # if True, only atoms and bonds above the water surface can be 
@@ -291,7 +292,7 @@ class depositMode(basicMode):
         # be called by Draw() and then by paintGL(), so it will make sure 
         # self.makeCurrent() is called before any OpenGL call.
         #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        basicMode.Enter(self)
+        selectAtomsMode.Enter(self)
         #self.o.assy.unpickatoms() 
             # Leave atoms picked. It is very useful to be able to make rect/lasso
             # selections in Select Atoms mode and then move them around
@@ -301,8 +302,8 @@ class depositMode(basicMode):
             # This is very desirable for A7. mark 060201.
         self.o.assy.unpickparts()
         self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
-        self.saveDisp = self.o.display
-        self.o.setDisplay(diTUBES)
+#        self.saveDisp = self.o.display # Get display mode from selectAtomsMode. mark 060207.
+#        self.o.setDisplay(diTUBES)
         self.new = None # bruce 041124 suspects this is never used
         self.modified = 0 # bruce 040923 new code
         self.pastable = None #k would it be nicer to preserve it from the past??
@@ -329,6 +330,14 @@ class depositMode(basicMode):
     def reset_drag_vars(self):
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
+        self.cursor_over_when_LMB_pressed = None
+            # <cursor_over_when_LMB_pressed> keeps track of what the cursor was over 
+            # when the LMB was pressed, which can be one of:
+            #   'Empty Space'
+            #   'Picked Atom'
+            #   'Unpicked Atom'
+            #   'Singlet'
+            #   'Bond'
         self.drag_multiple_atoms = False
             # set to True when we are dragging a movable unit of 2 or more atoms.
         self.dragatom = None
@@ -651,10 +660,10 @@ class depositMode(basicMode):
         
         self.MMKit.close() # Close the MMKit when leaving Build mode.
 
-
-    def restore_patches(self):
-        self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
-        self.o.selatom = None
+# Now uses superclass method selectAtomsMode.restore_patches(). mark 060207.
+#    def restore_patches(self):
+#        self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
+#        self.o.selatom = None
 
     def clear(self):
         self.new = None
@@ -689,11 +698,11 @@ class depositMode(basicMode):
                 self.w.hybridComboBox.setCurrentItem(hybridId)
                 self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
         
-        basicMode.keyPress(self,key) # bruce 050128
+        selectAtomsMode.keyPress(self,key) # bruce 050128
         return
 
     def keyRelease(self,key):
-        basicMode.keyRelease(self, key)
+        selectAtomsMode.keyRelease(self, key)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
             self.delete_mode = False 
@@ -1364,34 +1373,50 @@ class depositMode(basicMode):
         self.leftDown_modkey = modkey # needed so leftDouble() knows if the Control key is pressed.
         
         a = self.get_obj_under_cursor(event) # mark 060206.
+            # <a> can be None and yet we still selected something (i.e. a bond), which is determined by self.o.selobj.
+            
+        if not a and not self.o.selobj: # Cursor over empty space.
+            self.cursor_over_when_LMB_pressed = 'Empty Space'
+            if modkey is None:
+                self.start_selection_curve(event, START_NEW_SELECTION)
+            if modkey == 'Shift':
+                self.start_selection_curve(event, ADD_TO_SELECTION)
+            if modkey == 'Control':
+                self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
+            return
 
         self.modified = 1
         self.o.assy.changed()
         
         if a:
-            if a.element is Singlet: # a singlet is "lit up"
+            if a.element is Singlet: # Cursor over a singlet
+                self.cursor_over_when_LMB_pressed = 'Singlet'
                 self.setupDragSinglet(a)
-            else: # a real atom is "lit up"
+            else: # Cursor over a real atom
                 if a.picked and len(self.o.assy.selatoms_list()) > 1:
                     # now called when two or more atoms are selected.  mark 060202.
+                    self.cursor_over_when_LMB_pressed = 'Picked Atom'
                     self.drag_multiple_atoms = True
                     self.setupDragAtoms(a)
                 else:
+                    if a.picked:
+                        self.cursor_over_when_LMB_pressed = 'Picked Atom'
+                    else:
+                        self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
                     self.drag_multiple_atoms = False
                     self.setupDragAtom(a)
         
-        elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # a bond is "lit up"
+        elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # Cursor over a bond.
             # self.o.selobj not updated by findAtomUnderMouse(), so bonds cannot be picked
             # when highlighting is turned off.
+            self.cursor_over_when_LMB_pressed = 'Bond'
             self.setupClickedBond(self.o.selobj)
 
-        elif self.o.selobj is not None: # something else other than an atom, singlet or bond is 'lit up"
-            # self.o.selobj can only be an atom or a bond as of now.  mark 060206.
-            pass #bruce 050702 change: don't deposit new atoms when user clicks on a bond
-
-        else: # nothing is "lit up"
-            if modkey is None: # Deposit something if no modkey is pressed.
-                self.deposit_from_MMKit(self.getCoords(event))
+        else: # Cursor is over something else other than an atom, singlet or bond. 
+            # The program never executes lines in this else statement since
+            # get_obj_under_cursor() only returns atoms and singlets, and
+            # self.o.selobj can only be an atom/singlet or a bond as of now.  mark 060206.
+            pass
 
         self.w.win_update()
         return
@@ -1407,6 +1432,11 @@ class depositMode(basicMode):
     def leftDrag(self, event):
         '''Drag around <dragatom>, which is either an atom or a singlet.
         '''
+        
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            self.continue_selection_curve(event)
+            return
+            
         if not self.dragatom: return
         
         a = self.dragatom
@@ -1456,6 +1486,10 @@ class depositMode(basicMode):
             self.ignore_next_leftUp_event = False
             return
             
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            self.end_selection_curve(event)
+            return
+            
         if self.dragatom and self.dragatom_clicked:
             if self.obj_doubleclicked is not None:
                 result = self.unpick_or_delete_atom(event)
@@ -1469,6 +1503,10 @@ class depositMode(basicMode):
         
         if self.ignore_next_leftUp_event: # This event is the second leftUp of a double click, so ignore it.
             self.ignore_next_leftUp_event = False
+            return
+        
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            self.end_selection_curve(event)
             return
         
         if self.bond_clicked: # Change the bond type.
@@ -1532,6 +1570,11 @@ class depositMode(basicMode):
         any sequence of bonds to that atom.
         If the Control modkey is pressed, unselect all the atoms.
         '''
+        
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            self.deposit_from_MMKit(self.getCoords(event))
+            self.o.gl_update()
+            return
         
         if self.leftDown_modkey == 'Control':
             select_atoms = False
@@ -2352,7 +2395,7 @@ class depositMode(basicMode):
     def Draw(self):
         """ Draw 
         """
-        basicMode.Draw(self)
+        selectAtomsMode.Draw(self)
         if self.line:
             drawline(white, self.line[0], self.line[1])
             ####@@@@ if this is for a higher-order bond, draw differently
@@ -2360,14 +2403,15 @@ class depositMode(basicMode):
         #bruce 050610 moved self.surface() call elsewhere
         return
 
-    def Draw_after_highlighting(self): #bruce 050610
+    def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
+        # added pickCheckOnly arg.  mark 060207.
         """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
         Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
-        basicMode.Draw_after_highlighting(self) #Draw possible other translucent objects. [huaicai 9/28/05]
+        selectAtomsMode.Draw_after_highlighting(self, pickCheckOnly) #Draw possible other translucent objects. [huaicai 9/28/05]
         
         glDepthMask(GL_FALSE)
             # disable writing the depth buffer, so bareMotion selobj check measures depths behind it,
