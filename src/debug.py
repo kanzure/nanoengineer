@@ -28,7 +28,7 @@ Created by bruce.
 bruce 050913 used env.history in some places.
 '''
 
-import sys, os, time
+import sys, os, time, types
 from constants import debugButtons, noop
 from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key, mainwindow_geometry_prefs_key_prefix
 import env
@@ -122,77 +122,6 @@ else:
     def privateMethod(friends=None):
         return
 
-# wware 060107  handy function for digging into data structures
-def objectBrowser(obj, maxdepth=5, exclude=None, outf=sys.stderr,
-                           attrstr="", already={ }, indent=""):
-    """Recursively descend into objects, lists, and tuples, showing how
-    to get to the things inside them, and the types or classes of those
-    things. If an object has already been shown once, don't show it again
-    unless the recursion depth would allow for more information about it.
-    """
-    import types
-    if maxdepth == 0:
-        return
-    if exclude == None:
-        def exclude(attrname):
-            return False
-    def trepr(v):
-        if type(v) == types.InstanceType:
-            r = v.__class__.__name__
-        else:
-            r = repr(type(v))
-        return "%s at %x" % (r, id(v))
-    def handleMany(lst, indent, already=already, maxdepth=maxdepth,
-                   exclude=exclude, outf=outf, trepr=trepr):
-        def extendq(obj):
-            ido = id(obj)
-            try:
-                if maxdepth > already[ido]:
-                    already[ido] = maxdepth
-                    return True
-                return False
-            except:
-                already[ido] = maxdepth
-                return True
-        for v, as2 in lst:
-            if type(v) in (types.ListType, types.TupleType):
-                outf.write(indent + as2 + ": " + trepr(v))
-                if len(v) == 0:
-                    outf.write(" (empty)")
-            elif type(v) in (types.StringType, types.IntType,
-                             types.FloatType, types.ComplexType):
-                outf.write(indent + as2 + ": " + repr(v))
-            else:
-                outf.write(indent + as2 + ": " + trepr(v))
-            outf.write("\n")
-        for v, as2 in lst:
-            if extendq(v):
-                objectBrowser(v, maxdepth - 1, exclude, outf,
-                              as2, already, indent + "\t")
-    if not attrstr:
-        outf.write("BEGIN objectBrowser(%s)\n" % repr(obj))
-    if type(obj) in (types.InstanceType, types.ClassType,
-                     types.ModuleType, types.FunctionType):
-        keys = filter(lambda x: not x.startswith("__"), dir(obj))
-        lst = [ ]
-        for k in keys:
-            if not exclude(k):
-                v = getattr(obj, k)
-                if attrstr: as2 = attrstr + "." + k
-                else: as2 = k
-                lst.append((v, as2))
-        handleMany(lst, indent)
-    elif type(obj) in (types.ListType, types.TupleType):
-        lst = [ ]
-        for i in range(len(obj)):
-            v = obj[i]
-            as2 = "%s[%d]" % (attrstr, i)
-            lst.append((v, as2))
-        handleMany(lst, indent)
-    if not attrstr:
-        outf.write("END objectBrowser(%s)\n" % repr(obj))
-
-
 # ==
 # Generally useful line number function, wware 051205
 def linenum():
@@ -202,6 +131,113 @@ def linenum():
         tb = sys.exc_info()[2]
         f = tb.tb_frame.f_back
         print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+
+# ==
+class ObjectDescender:
+    def __init__(self, maxdepth=5, outf=sys.stderr):
+        self.already = { }
+        self.maxdepth = maxdepth
+        self.outf = outf
+
+    def exclude(self, name):
+        return False
+    def showThis(self, attrname, obj):
+        return True
+
+    def trepr(self, v):
+        if type(v) == types.InstanceType:
+            r = v.__class__.__name__
+        else:
+            r = repr(type(v))
+        return "%s at %x" % (r, id(v))
+    def prefix(self, depth, pn):
+        return ((depth * "\t") + ".".join(pn) + ": ")
+
+    def hackList(self, x, depth, pn):
+        if self.showThis(pn[-1], x):
+            self.outf.write(self.prefix(depth, pn) + self.trepr(x))
+            if len(x) == 0:
+                self.outf.write(" (empty)")
+            self.outf.write("\n")
+    def hackPrimitive(self, x, depth, pn):
+        if self.showThis(pn[-1], x):
+            self.outf.write(self.prefix(depth, pn) + repr(x) + "\n")
+    def hackOther(self, x, depth, pn):
+        if self.showThis(pn[-1], x):
+            self.outf.write(self.prefix(depth, pn) + self.trepr(x) + "\n")
+
+    def handleLeaf(self, v, depth, pn):
+        if type(v) in (types.ListType, types.TupleType):
+            self.hackList(v, depth, pn)
+        elif type(v) in (types.StringType, types.IntType,
+                         types.FloatType, types.ComplexType):
+            self.hackPrimitive(v, depth, pn)
+        else:
+            self.hackOther(v, depth, pn)
+
+    def descend(self, obj, depth=0, pathname=[ ]):
+        self.handleLeaf(obj, depth, pathname)
+        def novel(obj, depth=depth, already=self.already):
+            ido = id(obj)
+            if not already.has_key(ido):
+                already[ido] = depth
+                return True
+            elif depth < already[ido]:
+                already[ido] = depth
+                return True
+            return False
+        if depth >= self.maxdepth:
+            return
+        if (type(obj) in (types.InstanceType, types.ClassType,
+                          types.ModuleType, types.FunctionType) or
+            hasattr(obj, "__dict__")):
+            keys = filter(lambda x: not x.startswith("__"), dir(obj))
+            #keys = dir(obj)
+            lst = [ ]
+            for k in keys:
+                if not self.exclude(k):
+                    x = getattr(obj, k)
+                    if novel(x):
+                        lst.append((x, pathname + [ k ]))
+            for v, pn in lst:
+                self.descend(v, depth+1, pn)
+        elif type(obj) in (types.ListType, types.TupleType):
+            lst = [ ]
+            if len(pathname) > 0:
+                lastitem = pathname[-1]
+                pathname = pathname[:-1]
+            else:
+                lastitem = ""
+            for i in range(len(obj)):
+                x = obj[i]
+                if novel(x):
+                    lst.append((x,
+                                pathname + [ lastitem + ("[%d]" % i) ]))
+            for v, pn in lst:
+                self.descend(v, depth+1, pn)
+        else:
+            self.hackPrimitive(obj, depth, pathname)
+
+def objectBrowse(obj, maxdepth=5, exclude=None):
+    if exclude == None:
+        def _exclude(attrname): return False
+    else:
+        _exclude = exclude
+    class Descend(ObjectDescender):
+        def exclude(self, attrname):
+            return _exclude(attrname)
+    od = ObjectDescender()
+    od.descend(obj, pathname=['foo'])
+
+def findChild(obj, test):
+    class Finder(ObjectDescender):
+        def showThis(self, n, x):
+            return test(n, x)
+        def prefix(self, depth, pn):
+            # no indentation
+            return (".".join(pn) + ": ")
+    f = Finder()
+    f.descend(obj, pathname=['foo'])
 
 # ==
 
