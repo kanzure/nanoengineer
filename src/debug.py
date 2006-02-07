@@ -134,49 +134,38 @@ def linenum():
 
 # ==
 class ObjectDescender:
-    def __init__(self, maxdepth=5, outf=sys.stderr):
+    def __init__(self, maxdepth, outf=sys.stderr):
         self.already = [ ]
         self.maxdepth = maxdepth
         self.outf = outf
 
-    def exclude(self, name):
+    def exclude(self, attrname, obj):
         return False
     def showThis(self, attrname, obj):
         return True
 
-    def trepr(self, v):
-        if v == None:
-            return "None"
-        elif type(v) == types.InstanceType:
-            r = v.__class__.__name__
-        else:
-            r = repr(type(v))
-        return "%s at %x" % (r, id(v))
     def prefix(self, depth, pn):
         return ((depth * "\t") + ".".join(pn) + ": ")
-        #return (".".join(pn) + ": ")
-
-    def hackList(self, x, depth, pn):
-        if self.showThis(pn[-1], x):
-            self.outf.write(self.prefix(depth, pn) + self.trepr(x))
-            if len(x) == 0:
-                self.outf.write(" (empty)")
-            self.outf.write("\n")
-    def hackPrimitive(self, x, depth, pn):
-        if self.showThis(pn[-1], x):
-            self.outf.write(self.prefix(depth, pn) + repr(x) + "\n")
-    def hackOther(self, x, depth, pn):
-        if self.showThis(pn[-1], x):
-            self.outf.write(self.prefix(depth, pn) + self.trepr(x) + "\n")
 
     def handleLeaf(self, v, depth, pn):
+        def trepr(v):
+            if v == None:
+                return "None"
+            elif type(v) == types.InstanceType:
+                r = v.__class__.__name__
+            else:
+                r = repr(type(v))
+            return "%s at %x" % (r, id(v))
         if type(v) in (types.ListType, types.TupleType):
-            self.hackList(v, depth, pn)
+            self.outf.write(self.prefix(depth, pn) + trepr(v))
+            if len(v) == 0:
+                self.outf.write(" (empty)")
+            self.outf.write("\n")
         elif type(v) in (types.StringType, types.IntType,
                          types.FloatType, types.ComplexType):
-            self.hackPrimitive(v, depth, pn)
+            self.outf.write(self.prefix(depth, pn) + repr(v) + "\n")
         else:
-            self.hackOther(v, depth, pn)
+            self.outf.write(self.prefix(depth, pn) + trepr(v) + "\n")
 
     def descend(self, obj, depth=0, pathname=[ ]):
         if obj in self.already:
@@ -191,12 +180,13 @@ class ObjectDescender:
             keys = filter(lambda x: not x.startswith("__"), dir(obj))
             lst = [ ]
             for k in keys:
-                if not self.exclude(k):
-                    x = getattr(obj, k)
-                    lst.append((x, pathname + [ k ]))
-            for v, pn in lst:
-                self.handleLeaf(v, depth+1, pn)
-            for v, pn in lst:
+                x = getattr(obj, k)
+                if not self.exclude(k, x):
+                    lst.append((k, x, pathname + [ k ]))
+            for k, v, pn in lst:
+                if self.showThis(k, v):
+                    self.handleLeaf(v, depth+1, pn)
+            for k, v, pn in lst:
                 self.descend(v, depth+1, pn)
         elif type(obj) in (types.ListType, types.TupleType):
             lst = [ ]
@@ -207,33 +197,34 @@ class ObjectDescender:
                 lastitem = ""
             for i in range(len(obj)):
                 x = obj[i]
-                y = pathname + [ lastitem + ("[%d]" % i) ]
-                lst.append((x, y))
-            for v, pn in lst:
-                self.handleLeaf(v, depth+1, pn)
-            for v, pn in lst:
+                if not self.exclude(i, x):
+                    y = pathname + [ lastitem + ("[%d]" % i) ]
+                    lst.append((i, x, y))
+            for i, v, pn in lst:
+                if self.showThis(i, v):
+                    self.handleLeaf(v, depth+1, pn)
+            for i, v, pn in lst:
                 self.descend(v, depth+1, pn)
 
 def objectBrowse(obj, maxdepth=5, exclude=None):
     if exclude == None:
-        def _exclude(attrname): return False
-    else:
-        _exclude = exclude
+        def exclude(attrname): return False
     class Descend(ObjectDescender):
         def exclude(self, attrname):
-            return _exclude(attrname)
-    od = ObjectDescender()
-    od.descend(obj, pathname=['foo'])
+            return exclude(attrname)
+    od = ObjectDescender(maxdepth=maxdepth)
+    od.descend(obj, pathname=['arg'])
 
-def findChild(obj, test):
+def findChild(obj, test, maxdepth=8):
+    # Drill down deeper because we're being more selective
     class Finder(ObjectDescender):
         def showThis(self, n, x):
             return test(n, x)
         def prefix(self, depth, pn):
             # no indentation
             return (".".join(pn) + ": ")
-    f = Finder()
-    f.descend(obj, pathname=['foo'])
+    f = Finder(maxdepth=maxdepth)
+    f.descend(obj, pathname=['arg'])
 
 # ==
 
