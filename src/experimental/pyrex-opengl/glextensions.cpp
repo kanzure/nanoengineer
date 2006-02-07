@@ -57,7 +57,7 @@ bool GLContext::hasGLExtension(char *ext)
     return hasExtension(glGetString(GL_EXTENSIONS), ext);
 }
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(MACOSX)
 
 /*
  * GLUT doesn't expose a Display*, which we need in order to check
