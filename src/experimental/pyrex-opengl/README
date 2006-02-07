@@ -1,0 +1,63 @@
+Mon Feb  6 22:21:28 PST 2006 - grantham
+----------------------------------------
+How to test today's code:
+
+    Assuming Python 2.3 or 2.4 installed
+
+    Assuming OpenGL 1.1 or better installed
+
+    On Windows:
+
+        Install Dev-Cpp 4.9.9.2 (from http://www.bloodshed.net/devcpp.html)
+            If you are using "Cygwin" for anything, you may need to put
+            /cygdrive/c/Dev-Cpp/Bin (or c:/Dev-Cpp/Bin, but not tested)
+            in your $PATH before any Cygwin directories.
+            (PATH=/cygdrive/c/Dev-Cpp/Bin:$PATH)
+
+        Install Pyrex 0.9.3.1 (from http://nz.cosc.canterbury.ac.nz/%7Egreg/python/Pyrex/Pyrex-0.9.3.1.tar.gz)
+            You can also try the win32 version of the Pyrex installer,
+            but I had some trouble making that work and eventually
+            just downloaded the source and ran the python install
+            script.  (It's possible my trouble was because I had been using
+            the wrong Python version for a short time.)
+
+        % cd experimental/pyrex-opengl
+        % make          # should build the DLL directly.
+        % cd ../../
+
+        Edit selectMode.py, set TEST_PYREX_OPENGL to "True".
+
+        % python atom.py
+
+        When you enable atom selection, you should immediately see some
+        colored spheres.
+
+        I just followed this procedure on my laptop, so I'm reasonably
+        confident about it.
+
+    On Linux:
+
+        Tested under Gentoo Linux with pyrex-0.9.3, pyopengl-2.0.0.44,
+        dev-python/numeric-23.7, PyQt-3.14.1-r1,
+        dev-python/imaging-1.1.4, and python-2.4.2 merged.  (Those are
+        the ebuilds that that resulted on my system from the command:
+        "emerge python numeric pyrex PyQt pyopengl dev-python/imaging")
+
+        % cd experimental/pyrex-opengl
+        % make          # should build the DSO directly.
+        % cd ../../
+
+        Edit selectMode.py, set TEST_PYREX_OPENGL to "True".
+
+        % python atom.py
+
+        When you enable atom selection, you should immediately see some
+        colored spheres.
+
+        I just followed this procedure on my laptop, so I'm somewhat
+        confident about it.  But I ran it from "coLinux", which is a
+        Linux kernel running side-by-side with Windows, and I ran
+        ne-1 to the Cygwin/X server.  (www.colinux.org)  It actually
+        ran pretty well.
+
+
