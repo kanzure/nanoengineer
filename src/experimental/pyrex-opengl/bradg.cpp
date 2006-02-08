@@ -1581,6 +1581,8 @@ bool ShapeRenderer::init(GLContext *gl)
     // gl->has_GL_ARB_vertex_buffer_object = false;
 
     if(gl->has_GL_ARB_vertex_buffer_object) {
+
+        printf("XXX grantham - Using Vertex Buffer Object!  Yay!\n"); // XXX
         
         obj = new DataObject(gl);
         obj->fill(GL_ARRAY_BUFFER_ARB, sizeof(sphereVertices), sphereVertices);
@@ -1591,6 +1593,8 @@ bool ShapeRenderer::init(GLContext *gl)
         sphereElementData->m_data = obj; 
 
     } else {
+
+        printf("XXX grantham - Using Vertex Arrays!  Boo!\n"); // XXX
         
         sphereVertexData->m_data = new DataArray(sphereVertices);
         sphereElementData->m_data = new DataArray(sphereElements);
