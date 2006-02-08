@@ -1141,23 +1141,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def fillInToolTip(self):
         """Step through the nodes for this tree, and fill in the QToolTip for
         the QListViewItems in the viewport of the QlistView for the tree."""
-        class MyToolTip(QToolTip):
-            # wware 051101 bug 1067 - maybeTip method must be overloaded
-            # I think this will also fix bug 1077 but I can't reproduce it
-            # to find out.
-            def maybeTip(self, qpoint):
-                # used only in very infrequent cases where the GUI is unsure
-                # of something about mouse movement, so it's OK to do nothing
-                pass
         if self.__tooltipInvalid:
             self.__tooltipInvalid = False
-            vp = self.viewport()
             try:
-                self.__tooltip.remove(vp)
+                self.__tooltip.remove(self)
                 del self.__tooltip
             except AttributeError:
                 pass
-            self.__tooltip = MyToolTip(vp)
+            self.__tooltip = QToolTip(self)   # wware 060208 fix bug 1459
             # wware 051206 fixing bug 1070
             self.tooltip_nodeItems(self.__tooltip)
 
