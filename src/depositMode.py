@@ -262,7 +262,8 @@ def update_hybridComboBox(win, text = None): #bruce 050606
     else:
         win.hybridComboBox.hide()
     return
-        
+
+
 class depositMode(selectAtomsMode):
     """ This class is used to manually add atoms to create any structure.
        Users know it as "Build mode".
@@ -1370,19 +1371,15 @@ class depositMode(selectAtomsMode):
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         
-        self.leftDown_modkey = modkey # needed so leftDouble() knows if the Control key is pressed.
+        self.LMB_modkey = modkey 
+            # needed by leftDouble() and select_2d_region() to know which mod key is currently pressed.
         
         a = self.get_obj_under_cursor(event) # mark 060206.
             # <a> can be None and yet we still selected something (i.e. a bond), which is determined by self.o.selobj.
             
         if not a and not self.o.selobj: # Cursor over empty space.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
-            if modkey is None:
-                self.start_selection_curve(event, START_NEW_SELECTION)
-            if modkey == 'Shift':
-                self.start_selection_curve(event, ADD_TO_SELECTION)
-            if modkey == 'Control':
-                self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
+            self.select_2d_region(event)
             return
 
         self.modified = 1
@@ -1390,9 +1387,18 @@ class depositMode(selectAtomsMode):
         
         if a:
             if a.element is Singlet: # Cursor over a singlet
-                self.cursor_over_when_LMB_pressed = 'Singlet'
-                self.setupDragSinglet(a)
+                if modkey is None:
+                    self.cursor_over_when_LMB_pressed = 'Singlet'
+                    self.setupDragSinglet(a)
+                else: # If the 'Shift' or 'Control' mod keys are pressed, simulate empty space.
+                    self.cursor_over_when_LMB_pressed = 'Empty Space'
+                    self.select_2d_region(event)
             else: # Cursor over a real atom
+                if not a.picked and modkey is None:
+                    self.o.assy.unpickatoms()
+                    a.pick()
+                if not a.picked and modkey is 'Shift':
+                    a.pick()
                 if a.picked and len(self.o.assy.selatoms_list()) > 1:
                     # now called when two or more atoms are selected.  mark 060202.
                     self.cursor_over_when_LMB_pressed = 'Picked Atom'
@@ -1426,13 +1432,21 @@ class depositMode(selectAtomsMode):
     def leftShiftDrag(self, event):
         self.leftDrag(event)
         
-#    def leftCntlDrag(self, event):
-#        self.leftDrag(event)
+    def leftCntlDrag(self, event):
+        self.leftDrag(event)
         
     def leftDrag(self, event):
         '''Drag around <dragatom>, which is either an atom or a singlet.
         '''
         
+        if self.bond_clicked:
+            # If a LMB+Drag event has happened after selecting a bond in left*Down(),
+            # do a 2D region selection as if the bond were absent.
+            self.cursor_over_when_LMB_pressed = 'Empty Space'
+            self.select_2d_region(event)
+            self.bond_clicked = None
+            return
+            
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.continue_selection_curve(event)
             return
@@ -1524,7 +1538,7 @@ class depositMode(selectAtomsMode):
         # 3. If Ctrl was pressed and atom is picked, unpick it.
         # 4. If Ctrl was pressed and atom is not picked, delete it.
         if self.dragatom_clicked:
-            if modkey == None: # no Shift or Ctrl modifier key.
+            if modkey is None: # no Shift or Ctrl modifier key.
                 # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
                 if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
                     self.o.assy.unpickatoms() # Clear selection.
@@ -1571,12 +1585,12 @@ class depositMode(selectAtomsMode):
         If the Control modkey is pressed, unselect all the atoms.
         '''
         
-        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+        if self.LMB_modkey is None and self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.deposit_from_MMKit(self.getCoords(event))
-            self.o.gl_update()
+            self.w.win_update()
             return
         
-        if self.leftDown_modkey == 'Control':
+        if self.LMB_modkey == 'Control':
             select_atoms = False
         else:
             select_atoms = True
@@ -1588,6 +1602,17 @@ class depositMode(selectAtomsMode):
 
 # == end of LMB event handler methods
 
+    def select_2d_region(self, event):
+        '''Start 2D selection of a region.
+        '''
+        if self.LMB_modkey is None:
+            self.start_selection_curve(event, START_NEW_SELECTION)
+        if self.LMB_modkey == 'Shift':
+            self.start_selection_curve(event, ADD_TO_SELECTION)
+        if self.LMB_modkey == 'Control':
+            self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
+        return
+            
 
     def break_bond(self, event):
         '''If the object under the cursor is a bond, break it.
@@ -2164,7 +2189,7 @@ class depositMode(selectAtomsMode):
             # for any other error, let subr print a bug report,
             # since we think we caught them all before calling it
             print_error_details = 1
-        flag, status = bond_at_singlets(s1, s2, \
+        flag, status = bond_at_singlets(s1, s2, move = False, \
                          print_error_details = print_error_details, increase_bond_order = True)
         # we ignore flag, which says whether it's ok, warning, or error
         env.history.message("%s: %s" % (self.msg_modename, status))
