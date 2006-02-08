@@ -149,6 +149,7 @@ GLContext::GLContext(void)
     } else
 	has_GL_ARB_fragment_program = false;
 
+#if !defined(MACOSX) /* Turns out these aren't defined, at least on Will's Mac */
     if(hasGLExtension("GL_NV_occlusion_query")) {
 	has_GL_NV_occlusion_query = true;
 
@@ -177,6 +178,7 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetOcclusionQueryuivNV");
 #endif
     } else
+#endif /* ! MACOSX */
 	has_GL_NV_occlusion_query = false;
 
     if(hasGLExtension("GL_ARB_occlusion_query")) {
@@ -209,6 +211,8 @@ GLContext::GLContext(void)
     } else
 	has_GL_ARB_occlusion_query = false;
 
+#if !defined(MACOSX) /* Turns out these aren't defined, at least on Will's Mac */
+
     if(hasGLExtension("GL_ATI_vertex_array_object")) {
 	has_GL_ATI_vertex_array_object = true;
 
@@ -218,7 +222,7 @@ GLContext::GLContext(void)
         UpdateObjectBufferATI = glUpdateObjectBufferATI;
         GetObjectBufferfvATI = glGetObjectBufferfvATI;
         GetObjectBufferivATI = glGetObjectBufferivATI;
-        DeleteObjectBufferATI = glDeleteObjectBufferATI;
+        /* DeleteObjectBufferATI = glDeleteObjectBufferATI; */
         ArrayObjectATI = glArrayObjectATI;
         GetArrayObjectfvATI = glGetArrayObjectfvATI;
         GetArrayObjectivATI = glGetArrayObjectivATI;
@@ -252,8 +256,10 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glGetVariantArrayObjectivATI");
 #endif
     } else
+#endif /* ! MACOSX */
 	has_GL_ATI_vertex_array_object = false;
 
+#if !defined(MACOSX) /* Turns out these aren't defined, at least on Will's Mac */
     if(hasGLExtension("GL_ATI_element_array")) {
 	has_GL_ATI_element_array = true;
 
@@ -270,6 +276,7 @@ GLContext::GLContext(void)
             wsiGetProcAddress("glDrawRangeElementArrayATI");
 #endif
     } else
+#endif /* ! MACOSX */
 	has_GL_ATI_element_array = false;
 
     if(hasGLExtension("GL_ARB_vertex_buffer_object")) {
