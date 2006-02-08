@@ -15,7 +15,7 @@ import env
 # Set to 1 to see a small array of eight spheres.
 # Set to 2 to see the Large-Bearing model, but this is most effective if
 #  the Large-Bearing has already been loaded normally into rotate mode
-TEST_PYREX_OPENGL = 2
+TEST_PYREX_OPENGL = 0
 
 # Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
 # the <logic> values used in pickrect() and pickline() in shapes.py.  
