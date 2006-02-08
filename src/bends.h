@@ -785,3 +785,4 @@ addInitialBendData("C-1-C.sp3-1-C", 1.133257706451, 1.9710141223);
 addInitialBendData("C-1-C.sp3-1-Al", 0.530955634590, 2.0410185246);
 addInitialBendData("H-1-Al.sp2-1-C", 0.484004251315, 2.0874977997);
 addInitialBendData("C-1-Al.sp2-1-C", 0.595394598401, 2.1291820322);
+addInitialBendData("H-1-C.sp3-1-Al", 0.449066985878, 1.9868657768);

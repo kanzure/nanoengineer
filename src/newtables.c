@@ -37,6 +37,7 @@ newBendData(char *bendName, double kb, double theta0, int generic)
 {
   struct bendData *bend;
 
+  // typical kb values around 1e6 yJ/rad^2
   bend = allocate(sizeof(struct bendData));
   bend->bendName = copy_string(bendName);
   bend->kb = kb;
@@ -104,7 +105,7 @@ addBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
   return stretch;
 }
 
-// kb in yoctoJoules / radian^2
+// kb in yoctoJoules / radian^2 (1e-24 J/rad^2)
 static struct bendData *
 addBendData(char *bendName, double kb, double theta0, int generic)
 {
@@ -133,13 +134,14 @@ addInitialBondStretch(double ks,
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
 
-// kb in aJ / rad^2
+// kb in aJ / rad^2 (1e-18 J/rad^2)
 // theta0 in radians
 static void
 addInitialBendData(char *bendName, double kb, double theta0)
 {
   struct bendData *bend;
 
+  // typical kb values around 1 aJ/rad^2
   bend = newBendData(bendName, kb*1e6, theta0, 0);
   hashtable_put(bendDataHashtable, bendName, bend);
 }
@@ -491,7 +493,7 @@ generateGenericBendData(char *bendName,
     break;
   }
   
-  // kb in zeptoJoules / radian^2
+  // kb in zeptoJoules / radian^2 (1e-21 J/rad^2)
 
   return addBendData(bendName, kb*1000.0, theta0, 1);
 }

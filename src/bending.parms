@@ -790,3 +790,4 @@ C-C-C  theta0= 1.9710141223 Ktheta= 1.133257706451 CenterHybridization= sp3
 C-C-Al theta0= 2.0410185246 Ktheta= 0.530955634590 CenterHybridization= sp3
 C-Al-H theta0= 2.0874977997 Ktheta= 0.484004251315 CenterHybridization= sp2
 C-Al-C theta0= 2.1291820322 Ktheta= 0.595394598401 CenterHybridization= sp2
+Al-C-H theta0= 1.9868657768 Ktheta= 0.449066985878 CenterHybridization= sp3
