@@ -250,13 +250,13 @@ class NanoBuildWin32(NanoBuildBase):
         isf.write("AppName=%s\n" % appName)
         appnamever = appName + " v" + version + "." + releaseNo
         if not status:
-                isf.write("AppVerName=%s v%s.%s\n" % (appName, version, releaseNo))
-                isf.write("DefaultDirName={pf}\\" + appnamever + "\n")
-                isf.write("DefaultGroupName="+ appnamever + "\n")
+            isf.write("AppVerName=%s v%s.%s\n" % (appName, version, releaseNo))
+            isf.write("DefaultDirName={pf}\\" + appnamever + "\n")
+            isf.write("DefaultGroupName="+ appnamever + "\n")
         else:
-                isf.write("AppVerName=%s v%s.%s %s\n" % (appName, version, releaseNo, status))
-                isf.write("DefaultDirName={pf}\\" + appnamever + " " + status + "\n")
-                isf.write("DefaultGroupName="+ appnamever + " " + status + "\n")
+            isf.write("AppVerName=%s v%s.%s %s\n" % (appName, version, releaseNo, status))
+            isf.write("DefaultDirName={pf}\\" + appnamever + " " + status + "\n")
+            isf.write("DefaultGroupName="+ appnamever + " " + status + "\n")
         isf.write("UninstallDisplayIcon={app}\\uninst.ico\n")
         isf.write("Compression=lzma\n")
         isf.write("SolidCompression=yes\n")
@@ -284,18 +284,16 @@ class NanoBuildWin32(NanoBuildBase):
         import zipfile, unzip
         os.chdir(self.currentPath)
         archFile = os.path.normpath(os.path.join(self.buildSourcePath, archFile))
-        try:
-            tmpZipFile = os.path.join(self.buildSourcePath, 'program/temp1234.zip')
-            print "zip file, tempfile: ", archFile, tmpZipFile
-            os.rename(archFile, tmpZipFile)
-            os.mkdir(archFile)
-            unz = unzip.unzip()
-            unz.extract(tmpZipFile, archFile)
-            copytree(module, os.path.join(archFile, module))
-            os.remove(tmpZipFile)
-        except Exception, e:
-            print "Add %s into %s failed." %(module, archFile)
-            raise e
+        tmpZipFile = os.path.join(self.buildSourcePath, 'program/temp1234.zip')
+        print "archFile", archFile
+        print "tmpZipFile", tmpZipFile
+        print "dir", os.listdir(".")
+        os.rename(archFile, tmpZipFile)
+        os.mkdir(archFile)
+        unz = unzip.unzip()
+        unz.extract(tmpZipFile, archFile)
+        copytree(module, os.path.join(archFile, module))
+        os.remove(tmpZipFile)
 
     def _addDLLs(self):
         """Add all the required dlls into <program> (Windows only) """
