@@ -287,6 +287,7 @@ class NanoBuildWin32(NanoBuildBase):
         tmpZipFile = os.path.join(self.buildSourcePath, 'program/temp1234.zip')
         print "archFile", archFile
         print "tmpZipFile", tmpZipFile
+        print "pwd", oneLiner("pwd")[0]
         print "dir", os.listdir(".")
         os.rename(archFile, tmpZipFile)
         os.mkdir(archFile)
