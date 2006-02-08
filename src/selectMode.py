@@ -9,9 +9,13 @@ from modes import *
 from chunk import molecule
 import env
 
-# wware 060124  Do not commit this file with this flag set to True.
+# wware 060124  Do not commit this file with this flag set to other than 0.
 # This is a convenient way to embed Pyrex/OpenGL unit tests into the cad code.
-TEST_PYREX_OPENGL = False
+# grantham 060207:
+# Set to 1 to see a small array of eight spheres.
+# Set to 2 to see the Large-Bearing model, but this is most effective if
+#  the Large-Bearing has already been loaded normally into rotate mode
+TEST_PYREX_OPENGL = 2
 
 # Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
 # the <logic> values used in pickrect() and pickline() in shapes.py.  
@@ -389,27 +393,40 @@ class selectMode(basicMode):
                 # quux.test()
                 quux.shapeRendererInit()
                 quux.shapeRendererSetUseLOD(0)
-                center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
-                                        Numeric.array((0, 0, 1), 'f'),
-                                        Numeric.array((0, 1, 0), 'f'),
-                                        Numeric.array((0, 1, 1), 'f'),
-                                        Numeric.array((1, 0, 0), 'f'),
-                                        Numeric.array((1, 0, 1), 'f'),
-                                        Numeric.array((1, 1, 0), 'f'),
-                                        Numeric.array((1, 1, 1), 'f')), 'f')
-                radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
-                                        1.2, 1.4, 1.6, 1.8), 'f')
-                color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
-                                       Numeric.array((0, 0, 1, 0.5), 'f'),
-                                       Numeric.array((0, 1, 0, 0.5), 'f'),
-                                       Numeric.array((0, 1, 1, 0.5), 'f'),
-                                       Numeric.array((1, 0, 0, 0.5), 'f'),
-                                       Numeric.array((1, 0, 1, 0.5), 'f'),
-                                       Numeric.array((1, 1, 0, 0.5), 'f'),
-                                       Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
-                result = quux.shapeRendererDrawSpheres(8, center, radius, color)
+                if TEST_PYREX_OPENGL == 1:
+                    center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
+                                            Numeric.array((0, 0, 1), 'f'),
+                                            Numeric.array((0, 1, 0), 'f'),
+                                            Numeric.array((0, 1, 1), 'f'),
+                                            Numeric.array((1, 0, 0), 'f'),
+                                            Numeric.array((1, 0, 1), 'f'),
+                                            Numeric.array((1, 1, 0), 'f'),
+                                            Numeric.array((1, 1, 1), 'f')), 'f')
+                    radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
+                                            1.2, 1.4, 1.6, 1.8), 'f')
+                    color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
+                                           Numeric.array((0, 0, 1, 0.5), 'f'),
+                                           Numeric.array((0, 1, 0, 0.5), 'f'),
+                                           Numeric.array((0, 1, 1, 0.5), 'f'),
+                                           Numeric.array((1, 0, 0, 0.5), 'f'),
+                                           Numeric.array((1, 0, 1, 0.5), 'f'),
+                                           Numeric.array((1, 1, 0, 0.5), 'f'),
+                                           Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
+                    result = quux.shapeRendererDrawSpheres(8, center, radius, color)
+                elif TEST_PYREX_OPENGL == 2:
+                    # grantham - I'm pretty sure the actual compilation, init, etc happens once
+                    from bearing_data import sphereCenters, sphereRadii
+                    from bearing_data import sphereColors, cylinderPos1
+                    from bearing_data import cylinderPos2, cylinderRadii
+                    from bearing_data import cylinderCapped, cylinderColors
+                    glPushMatrix()
+                    glTranslate(-0.001500, -0.000501, 151.873627)
+                    result = quux.shapeRendererDrawSpheres(1848, sphereCenters, sphereRadii, sphereColors)
+                    result = quux.shapeRendererDrawCylinders(5290, cylinderPos1, cylinderPos2, cylinderRadii, cylinderCapped, cylinderColors)
+                    glPopMatrix()
+
             except ImportError:
-                env.history.message(redmsg("Can't import Pyrex OpenGL, rebuild it"))
+                env.history.message(redmsg("Can't import Pyrex OpenGL or maybe bearing_data.py, rebuild it"))
         else:
             # bruce comment 040922: code is almost identical with modifyMode.Draw;
             # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
