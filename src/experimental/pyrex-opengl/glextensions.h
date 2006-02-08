@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* MacOS window handling? */
 #include <gl.h>
+#define GL_GLEXT_PROTOTYPES
 #include "glext.h"
 
 #else /* Presumably Linux */ /*---------------------------------------------*/
@@ -114,7 +115,7 @@ typedef void (APIENTRY * GL_GETPROGRAMENVPARAMETERDVARBPROC) (GLenum target, GLu
 typedef void (APIENTRY * GL_GETPROGRAMENVPARAMETERFVARBPROC) (GLenum target, GLuint index, GLfloat *params);
 typedef void (APIENTRY * GL_GETPROGRAMLOCALPARAMETERDVARBPROC) (GLenum target, GLuint index, GLdouble *params);
 typedef void (APIENTRY * GL_GETPROGRAMLOCALPARAMETERFVARBPROC) (GLenum target, GLuint index, GLfloat *params);
-typedef void (APIENTRY * GL_GETPROGRAMIVARBPROC) (GLenum target, GLenum pname, int *params);
+typedef void (APIENTRY * GL_GETPROGRAMIVARBPROC) (GLenum target, GLenum pname, GLint *params);
 typedef void (APIENTRY * GL_GETPROGRAMSTRINGARBPROC) (GLenum target, GLenum pname, void *string);
 typedef GLboolean (APIENTRY * GL_ISPROGRAMARBPROC) (GLuint program);
 
