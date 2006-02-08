@@ -700,13 +700,13 @@ class TreeView(QListView):
             if len(name) > 12:
                 item = _node_items[node]
                 try:
-                    #qrect = self.itemRect(item)
                     vp = self.viewport()
                     if not isinstance(vp, QWidget):
                         sys.stderr.write("QScrollView.viewport() should return a QWidget\n")
                         sys.stderr.write("Instead it returned " + repr(vp) + "\n")
                         return
-                    qrect = vp.itemRect(item)
+                    # qrect = vp.itemRect(item) ? ?
+                    qrect = self.itemRect(item)
                     tooltip.add(vp, qrect, node.name)
                 except RuntimeError:
                     qrect = None
