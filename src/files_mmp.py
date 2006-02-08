@@ -161,7 +161,9 @@ gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\
 
 # ESP Image record format:
 # espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
-esppat = re.compile("espimage \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
+## esppat = re.compile("espimage \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
+#bruce 060207 generalize pattern so espwindow is also accepted (to help fix bug 1357); safe forever, but can be removed after A7
+esppat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
 # atomset (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 atmsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
@@ -510,7 +512,13 @@ class _readmmp_state:
         espImage.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espImage)
         self.prevespimage = espImage # added for interpreting "info espimage" records. mark 060108.
-        
+        return
+
+    _read_espwindow = _read_espimage
+        #bruce 060207 help fix bug 1357 (read older mmprecord for ESP Image, for compatibility with older bug report attachments)
+        # (the fix also required a change to esppat)
+        # (this can be removed after A7 is released, but for now it's convenient to have it so old bug reports remain useful)
+    
     # Read the MMP record for a Ground (Anchor) as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 

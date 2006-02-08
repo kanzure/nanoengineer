@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 jigs_planes.py -- Classes for Plane jigs, including RectGadget, GridPlane and ESPImage.
 
@@ -314,7 +314,8 @@ class ESPImage(RectGadget):
         self.edge_offset = 1.0 
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
         self.opacity = 0.6
-        self.image_obj = None # Flag if texture image is ready or not
+        self.image_obj = None # helper object for texture image, or None if no texture is ready [bruce 060207 revised comment]
+        self.tex_name = None # OpenGL texture name for image_obj, if we have one [bruce 060207 for fixing bug 1059]
         self.espimage_file = '' # ESP Image (png) filename
         self.highlightChecked = False # Flag if highlight is turned on or off
         self.xaxis_orient = 0 # ESP Image X Axis orientation
@@ -343,14 +344,20 @@ class ESPImage(RectGadget):
     def _loadTexture(self):
         '''Load texture data from current image object '''
         ix, iy, image = self.image_obj.getTextureData() 
-    
-        # Create Texture
-        glBindTexture(GL_TEXTURE_2D, glGenTextures(1))   # 2d texture (x and y size)
+
+        # allocate texture object if never yet done [bruce 060207 revised all related code, to fix bug 1059]
+        if self.tex_name is None:
+            self.tex_name = glGenTextures(1)
+            # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
+            # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
+        
+        # initialize texture data
+        glBindTexture(GL_TEXTURE_2D, self.tex_name)   # 2d texture (x and y size)
     
         glPixelStorei(GL_UNPACK_ALIGNMENT,1)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
     
-        self._initTextureEnv()
+        ## self._initTextureEnv() #bruce 060207 do this in draw method, not here
         self.assy.o.gl_update()
         
     
@@ -464,9 +471,14 @@ class ESPImage(RectGadget):
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
-        
-        if self.image_obj: textureReady = True
-        else: textureReady = False
+
+        #bruce 060207 extensively revised texture code re fixing bug 1059
+        if self.tex_name is not None and self.image_obj: # self.image_obj condition is needed, for clear_esp_image() to work
+            textureReady = True
+            glBindTexture(GL_TEXTURE_2D, self.tex_name) # maybe this belongs in draw_plane instead? Put it there later. ##e
+            self._initTextureEnv() # sets texture params the way we want them
+        else:
+            textureReady = False
         drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
         
         hw = self.width/2.0
@@ -619,17 +631,25 @@ class ESPImage(RectGadget):
     def load_espimage_file(self, choose_new_image = False, parent = None):
         '''Load the ESP (.png) image file pointed to by self.espimage_file.
         If the file does not exist, or if choose_new_image is True, the
-        user will be prompted to load a new image.
-        
-        Returns the name of the image file loaded or None if no image was loaded.
+        user will be prompted to choose a new image, and if the file chooser dialog is not
+        cancelled, the new image will be loaded and its pathname stored in self.espimage_file.
+        Return value is None if user cancels the file chooser, but is self.espimage_file
+        (which has just been reloaded, and a history message emitted, whether or not
+        it was newly chosen) in all other cases.
+           If self.espimage_file is changed (to a different value), this marks assy as changed.
         '''
+        #bruce 060207 revised docstring. I suspect this routine has several distinct
+        # purposes which should not be so intimately mixed (i.e. it should be several
+        # routines). Nothing presently uses the return value.
+
+        old_espimage_file = self.espimage_file
         
         if not parent:
             parent = self.assy.w
         
         cmd = greenmsg("Load ESP Image: ")
         
-        print "load_espimage_file(): espimage_file = ", self.espimage_file
+        ## print "load_espimage_file(): espimage_file = ", self.espimage_file
 
         if choose_new_image or not self.espimage_file:
             choose_new_image = True
@@ -639,6 +659,7 @@ class ESPImage(RectGadget):
             choose_new_image = True
             QMessageBox.warning( parent, "Choose ESP Image", \
                     msg, QMessageBox.Ok, QMessageBox.Cancel)
+            #bruce 060207 question: shouldn't we check here whether they said ok or cancel?? Looks like a bug. ####@@@@
         
         if choose_new_image: 
             cwd = self.assy.get_cwd()
@@ -651,6 +672,8 @@ class ESPImage(RectGadget):
                 return None
                 
             self.espimage_file = str(fn)
+            if old_espimage_file != self.espimage_file:
+                self.changed() #bruce 060207 fix of perhaps-previously-unreported bug
         
         self._create_PIL_image_obj_from_espimage_file()
         self._loadTexture()
@@ -658,7 +681,6 @@ class ESPImage(RectGadget):
         # Bug fix 1041-1.  Mark 051003
         msg = "ESP image loaded: [" + self.espimage_file + "]"
         env.history.message(cmd + msg)
-        
         return self.espimage_file
     
     
