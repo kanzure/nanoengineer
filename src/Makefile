@@ -93,11 +93,11 @@ sim.dll: sim.c $(PYREXOBJS) libpython23.a version.h
 tables.c: gentab.py
 	python gentab.py > tables.c
 
-bonds.h: parmlist.py stretch.parms
-	python parmlist.py stretch.parms > bonds.h
+bonds.gen: stretch.py stretch.parms
+	python stretch.py stretch.parms > bonds.gen
 
-bends.h: bend.perl bending.parms
-	./bend.perl < bending.parms > bends.h
+bends.gen: bend.py bending.parms
+	python bend.py bending.parms > bends.gen
 
 version.h:
 	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
@@ -148,7 +148,7 @@ clean:
 	rm -f tests/*/*.dpb
 
 dist_clean: clean
-	rm -f TAGS bonds.h bends.h
+	rm -f TAGS bonds.gen bends.gen
 
 TAGS:
 	etags *.c *.h
@@ -199,7 +199,7 @@ minstructure.o: minstructure.h writemovie.h globals.h
 newtables.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 newtables.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 newtables.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-newtables.o: minstructure.h writemovie.h globals.h bonds.h bends.h
+newtables.o: minstructure.h writemovie.h globals.h bonds.gen bends.gen
 part.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 part.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
 part.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
@@ -224,6 +224,10 @@ readxyz.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 readxyz.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 readxyz.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
 readxyz.o: writemovie.h globals.h
+sim.o: simhelp.c simulator.h debug.h lin-alg.h allocate.h hashtable.h
+sim.o: minimize.h structcompare.h part.h newtables.h interpolate.h readmmp.h
+sim.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+sim.o: writemovie.h globals.h version.h
 simhelp.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simhelp.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simhelp.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h

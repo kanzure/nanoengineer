@@ -13,7 +13,7 @@ struct atomType periodicTable[MAX_ELEMENT+1];
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
 static struct bondStretch *
-newBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int generic)
+newBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality)
 {
   struct bondStretch *stretch;
 
@@ -24,7 +24,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
   stretch->de = de;
   stretch->beta = beta;
   stretch->inflectionR = inflectionR;
-  stretch->isGeneric = generic;
+  stretch->parameterQuality = quality;
   stretch->warned = 0;
   stretch->maxPhysicalTableIndex = -1; // flag to indicate interpolator not initialized
   return stretch;
@@ -33,7 +33,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
 // kb in yJ / rad^2 (yoctoJoules per radian squared, or 1e-24 J/rad^2)
 // theta0 in radians
 static struct bendData *
-newBendData(char *bendName, double kb, double theta0, int generic)
+newBendData(char *bendName, double kb, double theta0, int quality)
 {
   struct bendData *bend;
 
@@ -43,7 +43,7 @@ newBendData(char *bendName, double kb, double theta0, int generic)
   bend->kb = kb;
   bend->theta0 = theta0;
   bend->cosTheta0 = cos(theta0);
-  bend->isGeneric = generic;
+  bend->parameterQuality = quality;
   bend->warned = 0;
   return bend;
 }
@@ -96,22 +96,22 @@ static struct hashtable *vanDerWaalsHashtable;
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
 static struct bondStretch *
-addBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int generic)
+addBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality)
 {
   struct bondStretch *stretch;
 
-  stretch = newBondStretch(bondName, ks, r0, de, beta, inflectionR, generic);
+  stretch = newBondStretch(bondName, ks, r0, de, beta, inflectionR, quality);
   hashtable_put(bondStretchHashtable, bondName, stretch);
   return stretch;
 }
 
 // kb in yoctoJoules / radian^2 (1e-24 J/rad^2)
 static struct bendData *
-addBendData(char *bendName, double kb, double theta0, int generic)
+addBendData(char *bendName, double kb, double theta0, int quality)
 {
   struct bendData *bend;
 
-  bend = newBendData(bendName, kb, theta0, generic);
+  bend = newBendData(bendName, kb, theta0, quality);
   hashtable_put(bendDataHashtable, bendName, bend);
   return bend;
 }
@@ -126,23 +126,24 @@ addInitialBondStretch(double ks,
                       double de,
                       double beta,
                       double inflectionR,
+                      int quality,
                       char *bondName)
 {
   struct bondStretch *stretch;
 
-  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, 0);
+  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality);
   hashtable_put(bondStretchHashtable, bondName, stretch);
 }
 
 // kb in aJ / rad^2 (1e-18 J/rad^2)
 // theta0 in radians
 static void
-addInitialBendData(char *bendName, double kb, double theta0)
+addInitialBendData(double kb, double theta0, int quality, char *bendName)
 {
   struct bendData *bend;
 
   // typical kb values around 1 aJ/rad^2
-  bend = newBendData(bendName, kb*1e6, theta0, 0);
+  bend = newBendData(bendName, kb*1e6, theta0, quality);
   hashtable_put(bendDataHashtable, bendName, bend);
 }
 
@@ -257,7 +258,7 @@ initializeBondTable(void)
 
   bondStretchHashtable = hashtable_new(40);
 
-#include "bonds.h"
+#include "bonds.gen"
   
   deHashtable = hashtable_new(10);
 
@@ -273,7 +274,7 @@ initializeBondTable(void)
 
   bendDataHashtable = hashtable_new(40);
 
-#include "bends.h"
+#include "bends.gen"
 
   vanDerWaalsHashtable = hashtable_new(40);
 }
@@ -378,7 +379,7 @@ interpolateGenericBondStretch(char *bondName, int element1, int element2, float 
   de = (order - 1.0) * singleStretch->de + (2.0 - order) * doubleStretch->de ;
 
   beta = sqrt(ks / (2.0 * de));
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), 1);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), QUALITY_INTERPOLATED);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters
@@ -387,9 +388,11 @@ static struct bondStretch *
 generateGenericBondStretch(char *bondName, int element1, int element2, char bondOrder)
 {
   double ks, r0, de, beta;
+  int quality = QUALITY_GUESSED;
 
   switch (bondOrder) {
   default: // XXX Falls through to single bond case.  WRONG!!!!
+    quality = QUALITY_INACCURATE;
   case '1':
     ks = 0.0;
     de = getDe(bondName);
@@ -411,6 +414,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
   case 'g':
     return interpolateGenericBondStretch(bondName, element1, element2, 1.3333333333333);
   case '2':
+    quality = QUALITY_INACCURATE;
     ks = 0.0;
     de = getDe(bondName);
     beta = 0.0;
@@ -428,6 +432,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     }
     break;
   case '3':
+    quality = QUALITY_INACCURATE;
     ks = 0.0;
     de = getDe(bondName);
     beta = 0.0;
@@ -445,7 +450,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     }
   }
   
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), 1);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), quality);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters
@@ -531,13 +536,13 @@ getBondStretch(int element1, int element2, char bondOrder)
   char bondName[10]; // expand if atom types become longer than 2 chars
 
   entry = getBondStretchEntry(element1, element2, bondOrder);
-  if (entry->isGeneric && !entry->warned) {
+  if (entry->parameterQuality < QualityWarningLevel && !entry->warned) {
     if (!ComputedParameterWarning) {
-      WARNING("Using a computed parameter, see the trace output for details");
+      WARNING("Using a reduced quality parameter, see the trace output for details");
       ComputedParameterWarning = 1;
     }
     generateBondName(bondName, element1, element2, bondOrder);
-    INFO1("Using computed parameters for %s stretch", bondName);
+    INFO2("Using quality %d parameters for %s stretch", entry->parameterQuality, bondName);
     INFO4("Computed ks: %e, r0: %e, de: %e, beta: %e",
           entry->ks,
           entry->r0,
@@ -570,12 +575,12 @@ getBendData(int element_center,
   if (bend == NULL) {
     bend = generateGenericBendData(bendName, element_center, centerHybridization, element1, bondOrder1, element2, bondOrder2);
   }
-  if (bend->isGeneric && !bend->warned) {
+  if (bend->parameterQuality < QualityWarningLevel && !bend->warned) {
     if (!ComputedParameterWarning) {
-      WARNING("Using a computed parameter, see the trace output for details");
+      WARNING("Using a reduced quality parameter, see the trace output for details");
       ComputedParameterWarning = 1;
     }
-    INFO1("Using computed parameters for %s bend", bendName);
+    INFO2("Using quality %d parameters for %s bend", bend->parameterQuality, bendName);
     INFO2("Computed kb: %e, theta0: %e", bend->kb, bend->theta0);
     bend->warned = 1;
   }

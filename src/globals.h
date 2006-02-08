@@ -31,6 +31,7 @@ extern char *InputFileName;
 extern char *OutputFileName;
 extern char *TraceFileName;
 extern char *BaseFileName;
+extern int QualityWarningLevel;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;

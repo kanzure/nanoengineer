@@ -42,6 +42,7 @@ char *InputFileName;
 char *OutputFileName;
 char *TraceFileName;
 char *BaseFileName;
+int QualityWarningLevel;
 
 FILE *OutputFile;
 FILE *TraceFile;
@@ -94,6 +95,7 @@ reinit_globals(void)
     OutputFileName = NULL;
     TraceFileName = NULL;
     BaseFileName = NULL;
+    QualityWarningLevel = 5;
 
     OutputFile = NULL;
     TraceFile = NULL;

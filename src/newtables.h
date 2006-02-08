@@ -6,6 +6,10 @@
 /** table length for bond stretch/bending functions */
 #define TABLEN 150
 
+#define QUALITY_INTERPOLATED 4
+#define QUALITY_GUESSED      3
+#define QUALITY_INACCURATE   0
+
 
 struct interpolationTable {
   double start;
@@ -52,7 +56,7 @@ struct bondStretch
   double potentialExtensionC;
   double potentialExtensionD;
   
-  int isGeneric; // set to non-zero if the above are based on a heuristic
+  int parameterQuality; // how sure are we of these parameters
   int warned; // set to non-zero if a warning about using this entry has been printed
   
   struct interpolationTable LippincottMorse;
@@ -91,7 +95,7 @@ struct bendData
   double theta0;
   double cosTheta0;
 
-  int isGeneric; // set to non-zero if the above are based on a heuristic
+  int parameterQuality; // how sure are we of these parameters
   int warned; // set to non-zero if a warning about using this entry has been printed
 };
 
