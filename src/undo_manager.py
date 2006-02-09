@@ -13,7 +13,7 @@ $Id$
 __author__ = 'bruce'
 
 
-from debug import register_debug_menu_command_maker
+from debug import register_debug_menu_command_maker, print_compact_traceback
 import platform
 
 from undo_archive import AssyUndoArchive #060117 revised
