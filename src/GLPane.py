@@ -1198,18 +1198,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.mode.Wheel(event)
         return
 
-    def rightUpClose(self, pos):
-        """Works like mousepoints, but maps an arbitrary model-space point
-        to its projection right behind the clipping plane, and then maps it
-        back to model space.
-        """
-        x, y = pos[0], pos[1]
-        p1 = A(gluUnProject(x, y, 0.0))
-        p2 = A(gluUnProject(x, y, 1.0))
-        los = self.lineOfSight
-        k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
-        p2 = p1 + k*(p2-p1)
-        return A(gluProject(p1[0], p1[1], p1[2]))
+    def selectedJigTextPosition(self):
+        return A(gluUnProject(5, 5, 0))
 
     def mousepoints(self, event, just_beyond = 0.0):
         """Returns a pair (tuple) of points (Numeric arrays of x,y,z)
