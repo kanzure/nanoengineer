@@ -315,10 +315,21 @@ class Atom(InvalMixin, GenericDiffTracker_API_Mixin):
         # array element, even though this was part of a longer array, so it
         # always got two refs to the same mutable data (which compared equal)! 
         if self.xyz != 'no':
-            return + self.xyz
+            res = + self.xyz
         else:
-            return + self.molecule.curpos[self.index]
-
+            res = + self.molecule.curpos[self.index]
+        try:
+            #bruce 060208: try to protect callers against almost-overflowing values stored by buggy code
+            # (see e.g. bugs 1445, 1459)
+            res * 1000
+        except:
+            # note: print_compact_traceback is not informative -- the call stack might be, tho it's long.
+            print_compact_stack("bug: atom position overflow for %r; setting position to 0,0,0: " % self)
+            ##e history message too? only if we can prevent lots of them from coming out at once.
+            res = V(0,0,0) ##e is there any better choice of position for this purpose? e.g. a small random one, so it's unique?
+            self.setposn(res) # I hope this is safe here... we need the invals it does.
+        return res
+    
     def sim_posn(self): #bruce 060111
         """Return our posn, as the simulator should see it -- same as posn except for Singlets,
         which should pretend to be H and correct their distance from base atom accordingly.
