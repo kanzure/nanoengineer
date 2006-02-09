@@ -66,7 +66,7 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
  * This seems to damp out vibrations for a wide range of angular loads
  * and motor parameters.
  */
-#define DAMPING_COEFFICIENT  1.0e-11
+#define DAMPING_COEFFICIENT  1.0e4
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
@@ -84,6 +84,12 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     omega = jig->j.rmotor.omega;
     // Bosch model
     motorq = jig->j.rmotor.stall * (1. - omega / jig->j.rmotor.speed);
+    // don't let the torque get too big
+    if (motorq > 2.0 * jig->j.rmotor.stall) {
+	motorq = 2.0 * jig->j.rmotor.stall;
+    } else if (motorq < -2.0 * jig->j.rmotor.stall) {
+	motorq = -2.0 * jig->j.rmotor.stall;
+    }
 
     cos_theta = cos(jig->j.rmotor.theta);
     sin_theta = sin(jig->j.rmotor.theta);
@@ -105,7 +111,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	rprev = r;
 	vmul2c(f, r, -SPRING_STIFFNESS);
 	vsub(r, jig->j.rmotor.rPrevious[k]);
-	vmul2c(tmp, r, -DAMPING_COEFFICIENT / Dt);
+	vmul2c(tmp, r, -DAMPING_COEFFICIENT);
 	vadd(f, tmp);
 	jig->j.rmotor.rPrevious[k] = rprev;
 
