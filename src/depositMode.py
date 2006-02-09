@@ -317,12 +317,8 @@ class depositMode(selectAtomsMode):
 ##            # so let's force it to happen -- i hope this is ok! Maybe not.
 ##            # seems to have no effect... probably init_gui happens after it;
 ##            # at least it does in _enterMode. ####@@@@
-        self.delete_mode = False
-            # Set to True when the Ctrl key is pressed.
-            # When delete_mode = True, atoms and bonds under the cursor will
-            # highlight in darkred to indicate that they will be deleted if clicked.
-            # When delete_mode = False, atoms and bonds under the cursor will
-            # highlight in their normal highlight color.
+        self.LMB_modkey = None
+            # The current mod key that is pressed.  It is either None, 'Shift', or 'Control'
         self.ignore_next_leftUp_event = False
             # Set to True in leftDouble() and checked by the left*Up() event handlers
             # to determine whether they should ignore the (second) left*Up event
@@ -678,7 +674,7 @@ class depositMode(selectAtomsMode):
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.SelectAtomsSubtractCursor)
                 # Same cursor as Selet Atoms mode when Control is pressed.
-            self.delete_mode = True 
+            self.LMB_modkey = 'Control' 
             if self.o.selobj:
                 # If something is under the cursor, repaint to update the correct 
                 # highlight color (darkred).
@@ -686,6 +682,7 @@ class depositMode(selectAtomsMode):
         if key == Qt.Key_Shift:
             self.o.setCursor(self.w.SelectAtomsAddCursor)
                 # Same cursor as Selet Atoms mode when Shift is pressed.
+            self.LMB_modkey = 'Shift'
         for sym, code, num in elemKeyTab:
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
@@ -706,13 +703,14 @@ class depositMode(selectAtomsMode):
         selectAtomsMode.keyRelease(self, key)
         if key == Qt.Key_Control:
             self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
-            self.delete_mode = False 
+            self.LMB_modkey = None 
             if self.o.selobj:
                 # If something is under the cursor, repaint to update its correct 
                 # (normal) highlight color.
                 self.o.gl_update()
         if key == Qt.Key_Shift:
             self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
+            self.LMB_modkey = None
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
@@ -771,7 +769,7 @@ class depositMode(selectAtomsMode):
             if selobj.is_singlet():
                 return HICOLOR_singlet ###@@@ this one is not yet in prefs db
             else:
-                if self.delete_mode and not selobj.picked: # Picked atoms are not deleted.
+                if self.LMB_modkey == 'Control' and not selobj.picked: # Picked atoms are not deleted.
                     return darkred  
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
                         # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
@@ -793,7 +791,7 @@ class depositMode(selectAtomsMode):
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
                 return HICOLOR_singlet_bond
             else:
-                if self.delete_mode: 
+                if self.LMB_modkey == 'Control': 
                     return darkred # Highlight the bond in darkred if the control key is pressed.
                 else:
                     return env.prefs.get( bondHighlightColor_prefs_key) ## was HICOLOR_real_bond before bruce 050805
@@ -1371,8 +1369,11 @@ class depositMode(selectAtomsMode):
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         
-        self.LMB_modkey = modkey 
+        #self.LMB_modkey = modkey #& already set in keypress() and keyrelease().  mark 060209.
             # needed by leftDouble() and select_2d_region() to know which mod key is currently pressed.
+            
+        self.LMB_press_event = QMouseEvent(event) # Save this event.  
+            # We need it later when we change our mind and start selecting a 2D region in leftDrag().
         
         a = self.get_obj_under_cursor(event) # mark 060206.
             # <a> can be None and yet we still selected something (i.e. a bond), which is determined by self.o.selobj.
@@ -1447,7 +1448,7 @@ class depositMode(selectAtomsMode):
             # do a 2D region selection as if the bond were absent. This takes care of 
             # both Shift and Control mod key cases.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
-            self.select_2d_region(event)
+            self.select_2d_region(self.LMB_press_event)
             self.bond_clicked = None
             return
             
@@ -1455,11 +1456,11 @@ class depositMode(selectAtomsMode):
             self.continue_selection_curve(event)
             return
             
-        if self.delete_mode: # delete_mode set in keypress() and keyrelease()
+        if self.LMB_modkey is not None: # LMB_modkey set in keypress() and keyrelease()
             # If a Control+LMB+Drag event has happened after the cursor was over an atom 
             # during leftCntlDown(), do a 2D region selection as if the atom were absent.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
-            self.select_2d_region(event)
+            self.select_2d_region(self.LMB_press_event)
             return
             
         if not self.dragatom: return
