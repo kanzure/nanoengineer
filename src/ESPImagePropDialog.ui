@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>291</width>
-            <height>592</height>
+            <height>605</height>
         </rect>
     </property>
     <property name="caption">
@@ -166,150 +166,201 @@
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QToolButton" row="2" column="6">
+                <widget class="QLayoutWidget" row="0" column="0">
                     <property name="name">
-                        <cstring>choose_file_btn</cstring>
+                        <cstring>layout15</cstring>
                     </property>
-                    <property name="text">
-                        <string>...</string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>calculate_esp_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Calculate ESP</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_6</cstring>
+                            </property>
+                            <property name="text">
+                                <string>xaxisOrient :</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>xaxis_spinbox</cstring>
+                            </property>
+                            <property name="maxValue">
+                                <number>1</number>
+                            </property>
+                            <property name="minValue">
+                                <number>-1</number>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <widget class="QToolButton" row="3" column="4">
+                <widget class="QLayoutWidget" row="1" column="0">
                     <property name="name">
-                        <cstring>mirror_btn</cstring>
+                        <cstring>layout17</cstring>
                     </property>
-                    <property name="text">
-                        <string>Mirror</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Flip image horizontally (left to right).</string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>load_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Load</string>
+                            </property>
+                        </widget>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>clear_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Clear</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_6_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>yaxisOrient :</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>yaxis_spinbox</cstring>
+                            </property>
+                            <property name="maxValue">
+                                <number>1</number>
+                            </property>
+                            <property name="minValue">
+                                <number>-1</number>
+                            </property>
+                            <property name="value">
+                                <number>0</number>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <spacer row="3" column="5" rowspan="1" colspan="2">
+                <widget class="QLayoutWidget" row="2" column="0">
                     <property name="name">
-                        <cstring>spacer29</cstring>
+                        <cstring>layout18</cstring>
                     </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QToolButton" row="3" column="0">
-                    <property name="name">
-                        <cstring>rotate_ccw_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>+90</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Rotate  90 degrees counter clock-wisely.</string>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>png_fname_linedit</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>7</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="readOnly">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>choose_file_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="iconSet">
+                                <iconset>image1</iconset>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-                <widget class="QLineEdit" row="2" column="0" rowspan="1" colspan="6">
+                <widget class="QLayoutWidget" row="3" column="0">
                     <property name="name">
-                        <cstring>png_fname_linedit</cstring>
+                        <cstring>layout19</cstring>
                     </property>
-                    <property name="readOnly">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="3" column="1" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>rotate_cw_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>-90</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Rotate  90 degrees clock-wisely.</string>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="3" column="3">
-                    <property name="name">
-                        <cstring>flip_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Flip</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Flip the image vertically (top to bottom).</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="0" column="0" rowspan="1" colspan="4">
-                    <property name="name">
-                        <cstring>calculate_esp_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Calculate ESP</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="1" column="2" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>clear_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Clear</string>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="1" column="0" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>load_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Load</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="0" column="4" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>textLabel1_6</cstring>
-                    </property>
-                    <property name="text">
-                        <string>xaxisOrient :</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="1" column="4" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>textLabel1_6_2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>yaxisOrient :</string>
-                    </property>
-                </widget>
-                <widget class="QSpinBox" row="0" column="6">
-                    <property name="name">
-                        <cstring>xaxis_spinbox</cstring>
-                    </property>
-                    <property name="maxValue">
-                        <number>1</number>
-                    </property>
-                    <property name="minValue">
-                        <number>-1</number>
-                    </property>
-                </widget>
-                <widget class="QSpinBox" row="1" column="6">
-                    <property name="name">
-                        <cstring>yaxis_spinbox</cstring>
-                    </property>
-                    <property name="maxValue">
-                        <number>1</number>
-                    </property>
-                    <property name="minValue">
-                        <number>-1</number>
-                    </property>
-                    <property name="value">
-                        <number>0</number>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>rotate_ccw_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>+90</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Rotate  90 degrees counter clock-wisely.</string>
+                            </property>
+                        </widget>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>rotate_cw_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>-90</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Rotate  90 degrees clock-wisely.</string>
+                            </property>
+                        </widget>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>flip_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Flip</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Flip the image vertically (top to bottom).</string>
+                            </property>
+                        </widget>
+                        <widget class="QToolButton">
+                            <property name="name">
+                                <cstring>mirror_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Mirror</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Flip image horizontally (left to right).</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer29</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
                 </widget>
             </grid>
         </widget>
@@ -865,6 +916,9 @@
 <images>
     <image name="image0">
         <data format="PNG" length="305">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000f849444154789cad54cb0ec220101c8c077fa4479a1e4df43ffc0bffcbffa08947c21e89f1e8ddbbd183019765a9af4ed2a4406798ee2c0033c3f0c166e8eeff0a2efe1590587e4b703ee6f7edd055eb4d87cec7fc7c229e906bc8eb37250200bdb500804054381d7d34d52f273149e273fbe3e1395eef8a75a051c3deda82941088b2e8e57456dd4f869248dc4520ca9b04a22a1855509280579d9c8f8553892a65bea326c6c7cdb69127841334d2f5b6aac2187d34aa43e7a34a90e9f3398ea286fc83de5a045f8acaf4e5a695e014893b6bb58c2a2849b2c165fa6f05b59691eb095a6046262c0b2d49da6d931256057f01179cfd827d00ba5894460adaa42b0000000049454e44ae426082</data>
+    </image>
+    <image name="image1">
+        <data format="PNG" length="772">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002cb49444154789cb594cd4b545118c67fe78e7f84a0a8612d9c5520b410d786312e5ad914b8901a17b618b01c3227072402c1b0487166a268204584409dc646372156e02a18d0851fa30b6d1908f75ee79e13a7c57c30e34ce30774e0e5702e9ce779dedfbdf7155a6bfec7324e3f1042848510ba42852fa4acb52e2940cfcfcf6b40033abe3baec766ef17ce40f8f49d4a55515829a5a5947a6e6eaeaa4135b38ac2966569d334b5699adab22c3d333353d1a05a37426b4d8e9f2f8f27168bd1d5d555cc1d21040b0b0bf4f4f40010df1d2f41bab9b1c5a0f76dfe18c90beb50f82ec2108c3cf80840341ac5e3f19c7eb11886413c1ea7b7b71780b1d9fbb86fb494191484839377b876bd196118eca5f6f8fc3ec1c68fdf4c4d4dd1d9d95966e072b9585e5ec6e7f39519789a074a51bcfb1a4018068621305c06bba934215fb6838989093a3a3aca0c6a6a6a585959a1bfbfbf80c8d33c90fd8eb5d67d00db3fb75152a2a4423a8a2bee4662df870985efe2f7fb71bbdd2c2d2d61db36b66d635916c7c7c7b4b5b5b1baba5a625afc83445ef83fa13259d13f52221d859292267713b16f4f094d7b090402b4b6b69248240a06a6697274745459389f7a27b587721ca4f307e9c89c51b68b4677131fd687084d7b090683b4b7b7934c26b16d9b4c26f3cfc40091f1c02232a3908e83722452aaeceec802a68696463eac0f3132ed657474f46ce17ceaf4d63e32934391db654695616a6c6900c0b66d4e4e4eaa260688bc0e7ee1517794fdcd348ecca69552e238b20c13c0dadada9928d05af769ad051079fd2cc9e3ee28079bd90e9423cb30055ede667272f26ce18a06234906bd6f496f1e64d31761aa6bae0320954a95dc17e71df4c5f3e461e8260dd7ea10352e0cc3e070e790974fe2c0a91fe43cabb88337a12483f7deb1ba98466524b54db5f89fdfba5ce26a1df48f74507fb51e974b70b8f78b57c389f2797cd1a274e017e6f2a5139fb5fe02aaf16ee3c80453400000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
