@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 selectMode.py -- the default mode for Atom's main model view.
 
@@ -9,13 +9,8 @@ from modes import *
 from chunk import molecule
 import env
 
-# wware 060124  Do not commit this file with this flag set to other than 0.
-# This is a convenient way to embed Pyrex/OpenGL unit tests into the cad code.
-# grantham 060207:
-# Set to 1 to see a small array of eight spheres.
-# Set to 2 to see the Large-Bearing model, but this is most effective if
-#  the Large-Bearing has already been loaded normally into rotate mode
-TEST_PYREX_OPENGL = 0
+## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
+
 
 # Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
 # the <logic> values used in pickrect() and pickline() in shapes.py.  
@@ -384,7 +379,18 @@ class selectMode(basicMode):
         
                 
     def Draw(self):
-        # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
+        if 1:
+            # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
+            # grantham 060207:
+            # Set to 1 to see a small array of eight spheres.
+            # Set to 2 to see the Large-Bearing model, but this is most effective if
+            #  the Large-Bearing has already been loaded normally into rotate mode
+            #bruce 060209 set this from a debug_pref menu item, not a hardcoded flag
+            from debug_prefs import debug_pref, Choice
+            TEST_PYREX_OPENGL = debug_pref("TEST_PYREX_OPENGL", Choice([0,1,2]), non_debug = True)
+                #e should remove non_debug = True before release!
+            # uncomment this line to set it in the old way:
+            ## TEST_PYREX_OPENGL = 1
         if TEST_PYREX_OPENGL:
             try:
                 #self.w.win_update()
