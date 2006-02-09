@@ -70,23 +70,6 @@ class MeasurementJig(Jig):
     # unify text-drawing to base class, wware 051103
     def _drawtext(self, text):
         # use atom positions to compute center, where text should go
-        pos1 = self.atoms[0].posn()
-        pos2 = self.atoms[-1].posn()
-        pos = (pos1 + pos2) / 2
-        if self.picked:
-            # move the text toward the user, and make it huge
-            # somehow, this fails to guarantee that the highlighted text will
-            # appear in front of the non-highlighted text, which makes no sense,
-            # but the hugeness helps, along with being red
-            # self.assy.o is the GLPane
-            drawtext(text, self.color, self.assy.o.rightUpClose(pos),
-                     3 * self.font_size, self.assy.o)
-        else:
-            drawtext(text, self.color, pos, self.font_size, self.assy.o)
-    
-    # unify text-drawing to base class, wware 051103
-    def _drawtext(self, text):
-        # use atom positions to compute center, where text should go
         if self.picked:
             # move the text to the lower left corner, and make it big
             # self.assy.o is the GLPane
