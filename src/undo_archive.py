@@ -90,7 +90,8 @@ from files_mmp import writemmp_mapping, reset_grouplist, _readmmp_state
 import time, os
 import platform
 from debug import print_compact_traceback
-import env #k not yet needed
+from debug_prefs import debug_pref, Choice_boolean_False
+import env
 from Utility import Group 
 
 debug_undo2 = False
@@ -227,6 +228,8 @@ def mmp_state_from_assy(assy, initial = False): #bruce 060117 prototype-kluge
 def _undo_readmmp_kluge(assy, mmpstate): # modified from _readmmp, used to restore assy state to prior internally-saved state
     "[arg type matches whatever mmp_state_from_assy returns]"
     junk, data = mmpstate
+        # mmpstate can be None if exception (bug) was caught while checkpoint was made,
+        # but it's not yet worth protecting from that here [bruce 060208]
     del mmpstate
     assert junk == 'mmp_state'
     # data is a string of mmp file bytes, or maybe a list of lines
@@ -501,8 +504,23 @@ def current_state(assy, initial = False):
     """Return a data-like representation of complete current state of the given assy;
     initial flag means it might be too early (in assy.__init__) to measure this
     so just return an "empty state".
+       On exception while attempting to represent current state, print debug error message
+    and return None (which is never used as return value on success).
     """
-    data = mmp_state_from_assy(assy, initial = initial)
+    try:
+        #060208 added try/except and this debug_pref
+        pkey = "simulate one undo checkpoint bug"
+        if debug_pref("simulate undo checkpoint bugs while set", Choice_boolean_False, prefs_key = pkey):
+            env.prefs[pkey] = False # this doesn't work, thus the menu item text "while set" ####@@@@ 
+            assert 0, "simulate one undo checkpoint bug"
+        data = mmp_state_from_assy(assy, initial = initial)
+    except:
+        print_compact_traceback("bug while determining state for undo checkpoint; subsequent undos might crash: ")
+            ###@@@ need to improve situation in callers so crash warning is not needed (mark checkpoint as not undoable-to)
+            # in the meantime, it might not be safe to print a history msg now (or it might - not sure); I think i'll try:
+        from HistoryWidget import redmsg # not sure this is ok to do when this module is imported, tho probably it is
+        env.history.message(redmsg("Bug: Internal error while storing Undo checkpoint; it might not be safe to Undo to this point."))
+        data = None
     return data
 
 def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp method calls
@@ -710,7 +728,6 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def pref_report_checkpoints(self): #bruce 060127 revised meaning and menutext, same prefs key
         "whether to report all checkpoints which see any changes from the prior one"
-        from debug_prefs import debug_pref, Choice_boolean_False
         res = debug_pref("undo/report changed checkpoints", Choice_boolean_False,
                          prefs_key = "_debug_pref_key:" + "undo/report all checkpoints")
         return res
