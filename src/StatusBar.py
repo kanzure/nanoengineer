@@ -15,6 +15,7 @@ import os, time
 from qt import QProgressBar, QFrame, QToolButton, QIconSet, QLabel, SIGNAL, QMessageBox
 from platform import hhmmss_str #bruce 060106 moved that function there
 import env
+from HistoryWidget import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
 
 def do_what_MainWindowUI_should_do(win):
     """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
