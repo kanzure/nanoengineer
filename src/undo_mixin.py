@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 undo_mixin.py
 
@@ -54,6 +54,8 @@ class StateMixin: ####@@@@ might be obs and/or WRONG [051013]
     pass
 
 _ILLEGAL_UM_KEY = "_ILLEGAL_UM_KEY" # must not be a legitimate value of _um_key; type doesn't matter provided it's ok as a dict key
+
+# note: as of 060208 the following is (and has for a long time) been mixed into Atom, Bond, Node, Part, and assembly classes.
 
 class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, names need cleanup - details in docstring #####@@@@@
     """Mixin to help classes handle their undoable state using the Undo Protocol.

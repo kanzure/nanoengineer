@@ -879,7 +879,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return disp
 
     def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
-        """Do glPushMatrix(), and then trasform from world coords to this chunk's private coords.
+        """Do glPushMatrix(), and then transform from world coords to this chunk's private coords.
         See also self.popMatrix().
         Warning: this is partially inlined in self.draw().
         """
