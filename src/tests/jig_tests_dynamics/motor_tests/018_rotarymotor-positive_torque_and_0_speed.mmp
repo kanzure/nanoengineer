@@ -1,0 +1,48 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (1.909100) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (rotarymotor-positive torque and 0 speed)
+info opengroup open = True
+mol (Chunk-C309) tub
+atom 1 (6) (-1271, -37, 47) def
+atom 2 (0) (-1756, 10, -550) def
+bond1 1
+atom 3 (0) (-1697, -38, 690) def
+bond1 1
+atom 4 (6) (-290, 1170, 48) def
+bond1 1
+atom 5 (0) (-433, 1633, -551) def
+bond1 4
+atom 6 (0) (-380, 1587, 690) def
+bond1 4
+atom 7 (6) (1159, 611, -33) def
+bond1 4
+atom 8 (0) (1569, 835, 580) def
+bond1 7
+atom 9 (0) (1517, 883, -661) def
+bond1 7
+atom 10 (6) (-427, -1343, -45) def
+bond1 1
+atom 11 (0) (-617, -1740, -678) def
+bond1 10
+atom 12 (0) (-565, -1796, 563) def
+bond1 10
+atom 13 (6) (1075, -940, -89) def
+bond1 7 10
+atom 14 (0) (1453, -1251, 506) def
+bond1 13
+atom 15 (0) (1404, -1205, -736) def
+bond1 13
+rmotor (Rotary Motor.45) (127, 127, 127) 0.50 0.00 (49, -107, -14) (-42, 38, -998) 4.00 0.50 0.10
+shaft 1 4 7 10 13
+thermo (Thermo-76) (153, 0, 51) 1 15 4
+egroup (rotarymotor-positive torque and 0 speed)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part rotarymotor-positive torque and 0 speed
