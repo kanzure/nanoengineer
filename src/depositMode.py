@@ -1439,9 +1439,13 @@ class depositMode(selectAtomsMode):
         '''Drag around <dragatom>, which is either an atom or a singlet.
         '''
         
+        # Do not change the order of the following conditionals unless you know
+        # what you're doing.  mark 060208.
+        
         if self.bond_clicked:
             # If a LMB+Drag event has happened after selecting a bond in left*Down(),
-            # do a 2D region selection as if the bond were absent.
+            # do a 2D region selection as if the bond were absent. This takes care of 
+            # both Shift and Control mod key cases.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             self.select_2d_region(event)
             self.bond_clicked = None
@@ -1449,6 +1453,13 @@ class depositMode(selectAtomsMode):
             
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.continue_selection_curve(event)
+            return
+            
+        if self.delete_mode: # delete_mode set in keypress() and keyrelease()
+            # If a Control+LMB+Drag event has happened after the cursor was over an atom 
+            # during leftCntlDown(), do a 2D region selection as if the atom were absent.
+            self.cursor_over_when_LMB_pressed = 'Empty Space'
+            self.select_2d_region(event)
             return
             
         if not self.dragatom: return
