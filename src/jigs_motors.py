@@ -326,23 +326,25 @@ class RotaryMotor(Motor):
     #  with a spoke to each atom
     def _draw(self, glpane, dispdef):
         glPushMatrix()
-
-        glTranslatef( self.center[0], self.center[1], self.center[2])
-        q = self.quat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
-        
-        orig_center = V(0.0, 0.0, 0.0)        
-        
-        bCenter = orig_center - (self.length / 2.0) * self.axis
-        tCenter = orig_center + (self.length / 2.0) * self.axis
-        drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
-        for a in self.atoms:
-            drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
-        rotby = self.getrotation() #bruce 050518
-            # if exception in getrotation, just don't draw the rotation sign
-            # (safest now that people might believe what it shows about amount of rotation)
-        drawRotateSign((0,0,0), bCenter, tCenter, self.radius, rotation = rotby)
-        
+        try:
+            glTranslatef( self.center[0], self.center[1], self.center[2])
+            q = self.quat
+            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+            
+            orig_center = V(0.0, 0.0, 0.0)        
+            
+            bCenter = orig_center - (self.length / 2.0) * self.axis
+            tCenter = orig_center + (self.length / 2.0) * self.axis
+            drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
+            for a in self.atoms:
+                drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
+            rotby = self.getrotation() #bruce 050518
+                # if exception in getrotation, just don't draw the rotation sign
+                # (safest now that people might believe what it shows about amount of rotation)
+            drawRotateSign((0,0,0), bCenter, tCenter, self.radius, rotation = rotby)
+        except:
+            #bruce 060208 protect OpenGL stack from exception seen in bug 1445
+            print_compact_traceback("exception in RotaryMotor._draw, continuing: ")
         glPopMatrix()
         return
     
@@ -449,17 +451,19 @@ class LinearMotor(Motor):
     # with a thin cylinder to each atom 
     def _draw(self, glpane, dispdef):
         glPushMatrix()
-
-        glTranslatef( self.center[0], self.center[1], self.center[2])
-        q = self.quat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
-        
-        orig_center = V(0.0, 0.0, 0.0)
-        drawbrick(self.color, orig_center, self.axis, self.length, self.width, self.width)
-        drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
-        for a in self.atoms[:]:
-            drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
-        
+        try:
+            glTranslatef( self.center[0], self.center[1], self.center[2])
+            q = self.quat
+            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+            
+            orig_center = V(0.0, 0.0, 0.0)
+            drawbrick(self.color, orig_center, self.axis, self.length, self.width, self.width)
+            drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
+            for a in self.atoms[:]:
+                drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
+        except:
+            #bruce 060208 protect OpenGL stack from exception analogous to that seen for RotaryMotor in bug 1445
+            print_compact_traceback("exception in LinearMotor._draw, continuing: ")
         glPopMatrix()
             
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
