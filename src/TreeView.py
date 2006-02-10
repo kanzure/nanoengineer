@@ -702,7 +702,7 @@ class TreeView(QListView):
                 try:
                     vp = self.viewport()
                     if not isinstance(vp, QWidget):
-                        sys.stderr.write("QScrollView.viewport() should return a QWidget\n")
+                        sys.stderr.write("QScrollView.viewport() should return a QWidget (bug 1457)\n")
                         sys.stderr.write("Instead it returned " + repr(vp) + "\n")
                         return
                     # qrect = vp.itemRect(item) ? ?
