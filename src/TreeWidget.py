@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 TreeWidget.py -- adds event handling and standard event bindings to TreeView.py.
 
@@ -556,13 +556,17 @@ class TreeWidget(TreeView, DebugMenuMixin):
         selwhat_from_mode = None # most modes don't care
         if isinstance( mode, selectMolsMode):
             selwhat_from_mode = SELWHAT_CHUNKS
-        elif isinstance( mode, selectAtomsMode):
+        elif isinstance( mode, selectAtomsMode) and mode.modename == selectAtomsMode.modename:
+            #bruce 060210 added modename condition to fix bug when current mode is Build (now a subclass of Select Atoms)
             selwhat_from_mode = SELWHAT_ATOMS
         change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this
         # 0c. What does current selection itself think it needs to be?
         # (If its desires are inconsistent, complain and fix them.)
         if assy.selatoms and assy.selmols:
-            print "bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
+            if platform.atom_debug:
+                #bruce 060210 made this debug-only, since what it reports is not too bad, and it happens routinely now in Build mode
+                # if atoms are selected and you then select a chunk in MT
+                print "atom_debug: bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
             new_selwhat_influences = ( selwhat_from_mode, selwhat) # old mode has first say in this case, if it wants it
             #e (We could rewrite this (equivalently) to just use the other case with selwhat_from_sel = None.)
         else:
@@ -1154,6 +1158,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             vp = self.viewport()
             if not isinstance(vp, QWidget):
                 sys.stderr.write("QScrollView.viewport() should return a QWidget\n")
+                    #wware circa 060210; bruce adds: same message is in TreeView.py, and also mentions bug 1457
                 sys.stderr.write("Instead it returned " + repr(vp) + "\n")
                 return
             try:
