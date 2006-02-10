@@ -41,6 +41,8 @@ PYREXOBJS=\
 	structcompare.o \
 	writemovie.o
 
+PYREXSRCS=$(PYREXOBJS:.o=.c)
+
 SIMOBJS=$(PYREXOBJS) simulator.o
 
 EXE_DIRECTORY=../../cad/bin
@@ -121,7 +123,9 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-sim.so: Makefile version.h
+# don't add dependencies here, add them to setup.py "depends" list
+# unless they require independent rebuilding
+sim.so: Makefile version.h bends.gen bonds.gen
 	python setup.py build_ext --inplace
 
 install: $(SIMTARGET)
