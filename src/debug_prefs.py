@@ -60,11 +60,17 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             assert prefs_key # implied by the other asserts/ifs
             self.prefs_key = prefs_key
             self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
+            # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
+            # or use it only via self.current_value() [bruce 060209 bugfix]
         if non_debug:
             self.non_debug = True # show up in debug_prefs submenu even when ATOM-DEBUG is not set
         return
     def current_value(self):
-        #e should we look it up in env.prefs (for usage tracking) if self.prefs_key?? [no need to decide this until it matters]
+        if self.prefs_key:
+            # we have to look it up in env.prefs instead of relying on self.value,
+            # in case it was independently changed in prefs db by other code [bruce 060209 bugfix]
+            # (might also help with usage tracking)
+            self.value = env.prefs[self.prefs_key] #k probably we could just return this and ignore self.value in this case
         return self.value
     def changer_menuspec(self):
         """return a menu_spec suitable for including in some larger menu (as item or submenu is up to us)
@@ -74,7 +80,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         def newval_receiver_func(newval):
             assert self.dtype.legal_value(newval), "illegal value for %r: %r" % (self, newval)
                 ###e change to ask dtype, since most of them won't have a list of values!!! this method is specific to Choice.
-            if self.value == newval: #bruce 060126
+            if self.current_value() == newval: #bruce 060126; revised 060209 to use self.current_value() rather than self.value
                 if self.print_changes:
                     print "redundant change:", 
                 ##return??
@@ -82,6 +88,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             extra = ""
             if self.prefs_key:
                 env.prefs[self.prefs_key] = newval
+                # note: when value is looked up, this is the assignment that counts (it overrides self.value) [as of 060209 bugfix]
                 extra = " (also in prefs db)"
             if self.print_changes:
                 msg = "changed %r to %r%s" % (self, newval, extra)
