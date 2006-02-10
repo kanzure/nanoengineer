@@ -96,7 +96,8 @@ class Jig(Node):
         
         return
 
-    def _um_initargs(self): #bruce 051013
+    def _um_initargs(self):
+        #bruce 051013 [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
         """Return args and kws suitable for __init__.
         [Overrides an undo-related superclass method; see its docstring for details.]
         """

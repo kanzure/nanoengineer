@@ -29,7 +29,7 @@ import platform
 import env #bruce 050901
 from constants import genKey
 from state_utils import copy_val
-from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051005
+from undo_mixin import UndoStateMixin #bruce 051005
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
@@ -97,7 +97,7 @@ def node_name(node): # use in error or debug messages for safety, rather than no
         return "<node has no .name>"
     pass
 
-class Node( GenericDiffTracker_API_Mixin):
+class Node( UndoStateMixin):
     """
     This is the basic object, inherited by groups, molecules, jigs,
     and some more specialized subclasses. The methods of Node are designed
@@ -133,8 +133,15 @@ class Node( GenericDiffTracker_API_Mixin):
         #e could someday use these to help make mmp writing and reading more uniform,
         # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
 
-    extra_undoable_attrs = ('dad',) #bruce 051013; subclasses extend this
-        ###@@@ #e need to add any more?? picked? guess: no. part: probably not, since set by posn in tree. assy? no.
+    extra_undoable_attrs = ('dad', 'picked', 'part') # the undoable attrs besides whatever's included in copyable_attrs
+        # subclasses need to extend this
+        #bruce 060209 revised this
+        #e (but would "everything in __dict__" make more sense?) ###k
+        ##e prior_part?
+
+#bruce 060209 commented this out (it can be removed in a couple months):
+##    extra_undoable_attrs = ('dad',) #bruce 051013; subclasses extend this
+##        ###@@@ #e need to add any more?? picked? guess: no. part: probably not, since set by posn in tree. assy? no.
 
     def __init__(self, assy, name, dad = None):
         #bruce 050216 fixed inconsistent arg order, made name required
@@ -199,14 +206,15 @@ class Node( GenericDiffTracker_API_Mixin):
         return self.__class__.featurename # intended to be a per-subclass constant... so enforce this until we need otherwise
     
     def _um_initargs(self): #bruce 051013 [in class Node]
+        # [as of 060209 this is probably well-defined and correct (for most subclasses), but not presently used]
         """Return args and kws suitable for __init__.
         [Overrides an undo-related superclass method; see its docstring for details.]
         """
         return (self.assy, self.name), {}
             # self.dad (like most inter-object links) is best handled separately
 
-    def _um_existence_permitted(self): #bruce 051005
-        """[overrides GenericDiffTracker_API_Mixin method]
+    def _um_existence_permitted(self): #bruce 051005 [###@@@ as of 060209 it seems likely this should go away, but I'm not sure]
+        """[overrides UndoStateMixin method]
         Return True iff it looks like we should be considered to exist in self.assy's model of undoable state.
         Returning False does not imply anything's wrong, or that we should be or should have been killed/destroyed/deleted/etc --
         just that changes in us should be invisible to Undo.
@@ -214,8 +222,8 @@ class Node( GenericDiffTracker_API_Mixin):
         return self.assy is not None and self.part is not None and self.dad is not None
             ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
 
-    def _um_undoable_attrs(self): #bruce 051011, revised 051013
-        """[overrides GenericDiffTracker_API_Mixin method; see its docstring]
+    def _um_undoable_attrs(self): #bruce 051011, revised 051013; reviewed 060209
+        """[overrides UndoStateMixin method; see its docstring]
         """
         return self.copyable_attrs + self.extra_undoable_attrs
 
@@ -1204,7 +1212,7 @@ class Group(Node):
         # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
         # [bruce 051201]
     
-    extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013
+    extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013; reviewed 060209
 
     def __init__(self, name, assy, dad, list = []): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
@@ -1215,6 +1223,7 @@ class Group(Node):
             self.addchild(ob)
 
     def _um_initargs(self): #bruce 051013 [in class Group]
+        # [as of 060209 this is probably well-defined and correct (for most subclasses), but not presently used]
         "[Overrides Node._um_initargs; see its docstring.]"
         return (self.name, self.assy), {} # note reversed arg order from Node version
             # dad and members (like most inter-object links) are best handled separately

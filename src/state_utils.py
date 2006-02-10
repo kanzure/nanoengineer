@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 state_utils.py
 
@@ -14,13 +14,43 @@ __author__ = 'bruce'
 
 # == public definitions
 
+class _eq_id_mixin_: ##e use more (GLPane?); renamed from _getattr_efficient_eq_id_mixin_
+    """For efficiency, any objects defining __getattr__ which might frequently be compared
+    with == or != or coerced to a boolean, should have definitions for __eq__ and __ne__ and __nonzero__
+    (and any others we forgot??), even if those are semantically equivalent to Python's behavior when they don't.
+    Otherwise Python has to call __getattr__ on each comparison of these objects, just to check whether
+    they have one of those special method definitions (potentially as a value returned by __getattr__).
+       This mixin class provides definitions for those methods. It's ok for a class to override some of these.
+    It can override both __eq__ and __ne__, or __eq__ alone, but should not normally override __ne__ alone,
+    since our definition of __ne__ is defined as inverse of object's __eq__.
+       These definitions are suitable for objects meant as containers for "named" mutable state
+    (for which different objects are never equal, even if their *current* state is equal, since their future
+    state might not be). They are not suitable for data-like objects. This is why the name contains _eq_id_
+    rather than _eq_data_. For datalike objects, there is no shortcut to defining each of these methods in
+    a customized way (and that should definitely be done, for efficiency, under same conditions in which use
+    of this mixin is recommended). We might still decide to make an _eq_data_mixin_(?) class for them, for some other reason.
+    """
+    #bruce 060209
+    def __eq__(self, other):
+        return self is other
+    def __ne__(self, other):
+        ## return not (self == other) # presumably this uses self.__eq__ -- would direct use be faster?
+        return not self.__eq__(other)
+    def __nonzero__(self): ###k I did not verify in Python docs that __nonzero__ is the correct name for this! [bruce 060209]
+        ## return self is not None # of course it isn't!
+        return True
+    def __hash__(self): #####k guess at name; guess at need for this due to __eq__, but it did make our objects ok as dict keys again
+        return id(self) #####k guess at legal value
+    pass
+
 def copy_val(obj):
     """Copy obj, leaving no shared mutable components between copy and original,
     assuming (and verifying) that obj is a type we consider (in nE-1) to be a
     "standard data-like type", and using our standard copy semantics for such types.
     (These standards are not presently documented except in the code of this module.)
        #e In the future, additional args will define our actions on non-data-like Python objects
-    (e.g. Atom, Bond, Node), and we might even merge the behaviors of this function
+    (e.g. Atom, Bond, Node), for example by providing an encoding filter for use on them which might
+    raise an exception if they were illegal to pass, and we might even merge the behaviors of this function
     and the ops_copy.Copier class; for now, all unrecognized types or classes are errors
     if encountered in our recursive scan of obj (at any depth).
        We don't handle or check for self-reference in obj -- that would always be an error;
@@ -86,7 +116,7 @@ class copy_run: # might have called it Copier, but that conflicts with the ops_c
         except AttributeError:
             pass
         else:
-            return method( self.copy_val)
+            return method( self.copy_val) # (passing copy_val wouldn't be needed if we knew obj only contained primitive types)
         # Special case for QColor; if this set gets extended we can use some sort of table and registration mechanism.
         # We do it by name so this code doesn't need to import QColor.
         if obj.__class__.__name__ == 'qt.QColor':
@@ -106,6 +136,57 @@ def _copy_QColor(obj):
     assert obj.__class__ is QColor
     return QColor(obj)
 
+# ==
+
+class scanner: #bruce 060209, a work in progress (not yet called or correct)
+    def __init__(self, start_objs):
+        self.todo = start_objs #e put in list, so ok if contains dups?
+        self.seen_objs = {} # maps id(obj) to obj, for objs seen before... ### don't we need to store them more permanently?
+        ## or do we reuse this scanner object multiple times? and, seen before is one thing, seen in this scan is another...
+        self.encoded_objs = {} # maps id(obj) to encoded_obj, only for objs that should be encoded when present in value-diffs
+    def explore_all(self, starting_todo):
+        # objs in self.todo are the ones we still need to scan - each is being seen for the first time (already checked if seen before)
+        ##e we'll have several levels of todo ((structure, selection, view) x (provisional)), scan them in order...
+        todo = list(starting_todo)
+        ###e maybe scan it as vals instead? or as one val... but no diffs?? hmm? what do ppl want as roots - most flex is vals.
+        while self.todo:
+            self.newtodo = [] # used in explore
+            todo = self.todo
+            self.todo = 333
+            for obj in todo:
+                self.explore(obj) # explore obj for more objs, store diffs/vals found in obj somewhere, append unseen objs to newtodo
+                encoded = self.new_encoding(obj) ###e WRONG, no, don't redo if seen in prior scan (I think)
+                if encoded is not obj:
+                    self.encoded_objs[id(obj)] = encoded
+                # self.seen_objs[id(obj)] = obj # just this scan... actually didn't this happen earlier when we first encountered obj? YES
+                continue #??
+            self.todo = self.newtodo
+        return
+    def explore(self, obj):
+        ###e seen it ever? seen it this scan? needs encoding? (figure that out first, in case it refs itself in some attr)
+        # if it's new: store that stuff, then:
+        # figure out its type, and thus its attr-policy-map (or ask it)
+        objid # for this, take time to find a nice key (small int); might just have a map from id(obj) to that
+        for attr, val in obj.__dict__.iteritems():
+            # figure policy of this attr, and dict to store valdiffs in if we're doing that, also whether it's structure or sel etc
+            this_attrs_diffs
+            # and of course whether to proceed
+            oldval = this_attrs_last_seen_state[objid] ##e encoded??? (always copied) # we have this for *every* attrval... so store it below!
+            #e if we don't have an oldval...
+            if val != oldval:
+                # val differs, needs two things:
+                # - exploring for new objs
+                # - storing as a diff
+                ##### what about scanning objs that are not found as diffs, but might have diffs inside them?
+                # do we depend on change tracking to report them to us? or, rescan some or all attrs every time? ###e
+                encoded = self.explore_copy_encode_val(val) # stores new stuff on newtodo, i guess... hmm, same method should also copy/encode val
+                ###e check again for != in case encoding made it equal??? (rethink when we need some encoding someday? we don't yet)
+                this_attrs_diffs[objid] = oldval
+                this_attrs_last_seen_state[objid] = encoded # not val? also val? hmm... consider need seply for copy, encode, in val ####e
+            continue
+        return
+    pass
+    
 # == test code
 
 def _test():

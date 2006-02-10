@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 
 '''
 inval.py -- simple invalidation/update system for attributes within an object
@@ -169,7 +169,7 @@ class InvalMixin:
     # If the correct value of self.xxx depends on anything else, then any code
     # that changes those other things needs to either declare ... or call ... ###@@@.
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class InvalMixin; doesn't inherit _eq_id_mixin_ -- should it? ##e [060209]
         """ Called to compute certain attrs which have not been recomputed since
         the other attrs they depend on were initialized or changed. Code which
         might change the value that these attrs should have (i.e. which might make

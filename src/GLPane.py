@@ -762,7 +762,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
     # return space vectors corresponding to various directions
     # relative to the screen
-    def __getattr__(self, name):
+    def __getattr__(self, name): # in class GLPane
         if name == 'lineOfSight':
             return self.quat.unrot(V(0,0,-1))
         elif name == 'right':

@@ -40,7 +40,8 @@ class RectGadget(Jig):
         if not READ_FROM_MMP:
             self.__init_quat_center(list)        
 
-    def _um_initargs(self): #bruce 051013
+    def _um_initargs(self):
+        #bruce 051013 [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
         """Return args and kws suitable for __init__.
         [Overrides Jig._um_initargs; see its docstring.]
         """
@@ -77,7 +78,7 @@ class RectGadget(Jig):
         return BBox(abs_pos)
 
     
-    def __getattr__(self, name):
+    def __getattr__(self, name): # in class RectGadget
         if name == 'bbox':
             return self.__computeBBox()
         elif name == 'planeNorm':
@@ -87,7 +88,7 @@ class RectGadget(Jig):
         elif name == 'up':
             return self.quat.rot(V(0.0, 1.0, 0.0))
         else:
-            raise AttributeError, 'Grid Plane has no "%s"' % name
+            raise AttributeError, 'RectGadget has no "%s"' % name #bruce 060209 revised text
 
         
     def getaxis(self):

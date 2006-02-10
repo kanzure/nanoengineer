@@ -84,7 +84,7 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 import platform
 import env
-from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051013
+from undo_mixin import UndoStateMixin #bruce 051013
 from debug import print_compact_stack
 
 
@@ -100,7 +100,7 @@ assy_number = 0 # count assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
-class assembly(GenericDiffTracker_API_Mixin):
+class assembly( UndoStateMixin):
     """#doc
     """
 
@@ -741,7 +741,7 @@ class assembly(GenericDiffTracker_API_Mixin):
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
     part_attrs_all = part_attrs + part_attrs_temporary + part_attrs_review
     
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class assembly
         if attr.startswith('_'): # common case, be fast
             raise AttributeError, attr
         elif attr == 'part':

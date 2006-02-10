@@ -85,8 +85,9 @@ from platform import *
 import platform # not redundant with "from platform import *" -- we need both
 import preferences
 import env #bruce 050911
+from undo_mixin import UndoStateMixin
 
-class anyMode:
+class anyMode( UndoStateMixin): #bruce 060209 added mixin class
     "abstract superclass for all mode objects"
     
     # default values for mode-object attributes.  external code
@@ -131,7 +132,7 @@ class nullMode(anyMode):
         if platform.atom_debug:
             print "fyi: atom_debug: nullMode noop method called -- probably ok; ignored"
         return None #e print a warning?
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class nullMode (not inherited by other mode classes)
         if not attr.startswith('_'):
             if platform.atom_debug:
                 print "fyi: atom_debug: nullMode.__getattr__(%r) -- probably ok; returned noop method" % attr

@@ -245,11 +245,11 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             self.vec=V(x[0], x[1], x[2], x[3])
         return # from Q.__init__
 
-    def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val
+    def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val (in class Q)
         # ignores copyfunc
         return self.__class__(self)
     
-    def __getattr__(self, name):
+    def __getattr__(self, name): # in class Q
         if name == 'w':
             return self.vec[0]
         elif name in ('x', 'i'):
@@ -289,6 +289,19 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             return mat
         else:
             raise AttributeError, 'No "%s" in Quaternion' % name
+
+    #bruce 060209 defining __eq__ and __ne__ for efficient state comparisons given presence of __getattr__ (desirable for Undo)
+    # (I don't think it needs a __nonzero__ method, and if it had one I don't know if Q(1,0,0,0) should be False or True.)
+    
+    def __eq__(self, other):
+        try:
+            return self.__class is other.__class__ and self.vec == other.vec
+        except:
+            return False
+        pass
+
+    def __ne__(self, other):
+        return not (self == other)
         
     def __getitem__(self, num):
         return self.vec[num]

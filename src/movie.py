@@ -253,7 +253,7 @@ class Movie:
 ##            self.why_not_playable = "moviefile overwritten by a more recent simulation" #e or get more detail from an arg?
         return
     
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class Movie
         if attr == 'history':
             #bruce 050913 revised this; I suspect it's not needed and could be removed
             print_compact_traceback("deprecated code warning: something accessed Movie.history attribute: ")

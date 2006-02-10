@@ -510,9 +510,9 @@ def current_state(assy, initial = False):
     try:
         #060208 added try/except and this debug_pref
         pkey = "simulate one undo checkpoint bug"
-        if debug_pref("simulate undo checkpoint bugs while set", Choice_boolean_False, prefs_key = pkey):
-            env.prefs[pkey] = False # this doesn't work, thus the menu item text "while set" ####@@@@ 
-            assert 0, "simulate one undo checkpoint bug"
+        if debug_pref("simulate bug in next undo checkpoint", Choice_boolean_False, prefs_key = pkey):
+            env.prefs[pkey] = False
+            assert 0, "this simulates a bug in this undo checkpoint"
         data = mmp_state_from_assy(assy, initial = initial)
     except:
         print_compact_traceback("bug while determining state for undo checkpoint; subsequent undos might crash: ")

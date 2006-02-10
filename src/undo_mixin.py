@@ -14,6 +14,7 @@ __author__ = 'bruce'
 import state_utils
 
 class StateMixin: ####@@@@ might be obs and/or WRONG [051013]
+    # note: see also _s_deepcopy, defined on some data-like classes, which this is *not* [bruce 060209 comment]
     """Mixin for classes with standard state-related attribute declarations.
     Provides helper methods which make use of those decls.
        Naming conventions:
@@ -55,13 +56,44 @@ class StateMixin: ####@@@@ might be obs and/or WRONG [051013]
 
 _ILLEGAL_UM_KEY = "_ILLEGAL_UM_KEY" # must not be a legitimate value of _um_key; type doesn't matter provided it's ok as a dict key
 
-# note: as of 060208 the following is (and has for a long time) been mixed into Atom, Bond, Node, Part, and assembly classes.
+# Note: as of 060208 UndoStateMixin is (and has for a long time) been mixed into
+# the classes Atom, Bond, Node, Part, and assembly.
+# Those classes, plus VQT, modes, and maybe movie, and some classes used in movie and mode attrvals,
+# will be the ones scanned for undoable state. Any of those defining __getattr__, or having attrs that
+# should not be scanned normally, will need some sort of mixin or other customization for Undo.
+# We'll define those mixins here. Right now there's only one, but that's likely to change.
 
-class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, names need cleanup - details in docstring #####@@@@@
-    """Mixin to help classes handle their undoable state using the Undo Protocol.
+# There is a def __eq__ and def __ne__ in Bond, ####k ok with this, delete it
+# and def __getattr__ in these eq_id classes: GLPane ###k, ThumbView, and some of the classes with UndoStateMixin,
+# [and some class in py files named] modelTree (?), modes(?), movie(?)
+# and these _eq_data_ classes: VQT, Selection (is this really datalike? probably yes ##e).
+# I also had to check anything with InvalMixin (Atom, molecule, Part) -- all covered above.
+
+# classes whose mixin/attr policy is not yet clear:   ###@@@ THIS IS WHERE I AM 060209 514p
+# VQT, GLPane, ThumbView, anyMode, assembly, part,
+# movie, its subobjects like atomlist or whatever and moviefile
+# Selection
+# (would be nice to "debugwarn but handle" these, when python objects, by using __dict__) 
+
+
+
+# what do classes mix in, to tell us how to treat them if we encounter them in an undo checkpoint scan?
+# - if they are containers of state, name is id, then one mixin, StateContainerMixin (more or less like the StateMixin prototype, above)
+# - if they are like data, defining __eq__, then StateDataMixin (maybe)
+# - if they are proxy for container of state, StateProxyMixin (maybe) (no examples yet, but there might be when UI is customizable)s
+
+# For efficiency, any objects with __getattr__ and residing in undoable-state attribute values
+# should inherit _getattr_efficient_eq_mixin_ , including those mixing in this class, and more.
+
+class UndoStateMixin( StateMixin, state_utils._eq_id_mixin_ ):
+    # like StateContainerMixin (renaming of StateMixin???) but specifically for Undo
+    #bruce 060209 renamed this UndoStateMixin from GenericDiffTracker_API_Mixin (but new name is tentative)
+    ### docstring needs revision, names need cleanup - details in docstring #####@@@@@
+    """[obsolete docstring]
+    Mixin to help classes handle their undoable state using the Undo Protocol.
     We handle the undo-prep protocol for the attrs stored in self._um_undoable_attrs; [###@@@ actually nothing uses that value yet!]
     value unsharing code for attrs in XXX or with decl
-    _um_xxx means GenericDiffTracker_API_Mixin-specific method or attr;
+    _um_xxx means UndoStateMixin-specific method or attr;
     _undo_xxx means part of the Undo protocol (which this mixin helps you meet, but it's not the only way).
 
     ###doc needs revision, names need cleanup; the idea is that for one object with several kinds of attrs handled differently,
@@ -72,6 +104,9 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
     and to pass out the parts (in the right order) to difftype-specific mixins....
     #####@@@@@
     """
+    
+    # OLD STUFF after this point -- mostly obs at the moment, but some or most of it might be revived
+    # for change-tracking [bruce 060209 comment]  
     _um_key = _ILLEGAL_UM_KEY # default key for possible use before _um_init gets called ###@@@ no, _um_set_key ??
     _um_flagdict = _um_preinit_flagdict = {} # a shared "garbage dict" for catching changes tracked before our first checkpoint (#k??)
 ## was: before _um_init gets called
@@ -84,7 +119,21 @@ class GenericDiffTracker_API_Mixin(StateMixin): ### docstring needs revision, na
         # for these attrs, client object promises to track changes by hand, so copying/diffing values is not always needed
     # methods to be overridden in subclasses
     def _um_undoable_attrs(self):
-        """Return a sequence of attribute names in self whose changes should be undone by GenericDiffTracker_API_Mixin
+        ####@@@@@ 060209: must decide whether the default is () or __dict__.keys(), or if this only feeds in to answer;
+        # note that subclasses like to say "return superclass.attr_for_use_by_this + (more,guys,)", so it's nice if default FOR ATTR is ()...
+        # the other day i was thinking it's more like we'd want to take them out of dict keys, than add them in..
+        # can we start with a list, take out any that have dfltval on class but are nt in list,then add in any in dict?
+        # thatis, figure you're listing "the ones to include of the ones defined on class", not "of the ones in init"... dangerous
+        # since otherwise it doesn't matter if you move a dflt assignment from class to init.
+        # ... maybe we declare the ins and the outs both, and others use per-class dflt policy,
+        # which might be "treat as in (or out), but debug-warn". *OR*, a special name meaning "this is default policy" could be put in
+        # one or the other list, or not. e.g. '$other' ?
+        # ... do we want each of several mixin classes to inherit from this and contribute their own lists of in and out attrs for scanning?
+        # if so, they need to use __um_xxx methods/attrs to do that... which is possible... case in point: GLPane and modeMixin.
+        # For now, if that's the only case, save the general facility for later. ####@@@@
+        #  Problem: this API is inefficient since it's per object (and in theory per-checkpoint). Hmm. Flag to tell system it's per-object,
+        # otherwise it trusts 1st value to work for everyone in one class??
+        """Return a sequence of attribute names in self whose changes should be undone by UndoStateMixin
         (not including names used internally by the mixin class, such as _um_exists).
         The returned value should not change over the lifetime of this object, but it can depend on args passed to __init__
         provided those args are fully processed before __init__ calls _um_init (since _um_init calls this method).

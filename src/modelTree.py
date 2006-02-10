@@ -34,7 +34,7 @@ debug_preftree = 0 # bruce 050602 experiment; requires new (not yet committed) f
 
 class statsclass:
     "class for holding and totalling counts of whatever you want, in named attributes"
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class statsclass
         if not attr.startswith('_'):
             return 0 # no need to set it
         raise AttributeError, attr

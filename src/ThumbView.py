@@ -1,4 +1,4 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 ThumbView.py
 
@@ -193,7 +193,7 @@ class ThumbView(QGLWidget):
         self.drawModel()
    
     
-    def __getattr__(self, name):
+    def __getattr__(self, name): # in class ThumbView
         if name == 'lineOfSight':
             return self.quat.unrot(V(0,0,-1))
         elif name == 'right':
@@ -207,7 +207,7 @@ class ThumbView(QGLWidget):
         elif name == 'out':
             return self.quat.unrot(V(0,0,1))
         else:
-            raise AttributeError, 'GLPane has no "%s"' % name
+            raise AttributeError, 'ThumbView has no "%s"' % name #bruce 060209 revised text
     
         
    

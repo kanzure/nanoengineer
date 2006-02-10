@@ -64,7 +64,7 @@ from bond_constants import *
 
 from elements import Singlet
 import env
-from undo_mixin import GenericDiffTracker_API_Mixin #bruce 051013
+from undo_mixin import UndoStateMixin #bruce 051013
 
 # ==
 
@@ -285,7 +285,7 @@ def bond_v6(bond):
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond(GenericDiffTracker_API_Mixin):
+class Bond( UndoStateMixin):
     """A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
     representing a bond between them if it also occurs in atom.bonds
@@ -621,7 +621,7 @@ class Bond(GenericDiffTracker_API_Mixin):
     atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
     _saved_geom = None
     
-    def __getattr__(self, attr): # bond.__getattr__ #bruce 041104; totally revised 050516
+    def __getattr__(self, attr): # Bond.__getattr__ #bruce 041104; totally revised 050516
         """Return attributes related to bond geometry, recomputing them if they
         are not stored or if the stored ones are no longer valid.
            For all other attr names, raise an AttributeError (quickly, for __xxx__ names).
@@ -821,6 +821,11 @@ class Bond(GenericDiffTracker_API_Mixin):
     # there isn't one. Surely the whole thing should be removed unless it can be made clearly correct... #####@@@@@
     # Would it be just as good, and provably ok (given the assumption that only bonds on the same atom are compared),
     # if the key was just the sum of the atom keys?? I think so!
+    #
+    #bruce 060209 comment: these now override different defs in UndoStateMixin. This is wrong in theory (since the undo system
+    # assumes those defs will be used), but I can't yet think of bugs it will cause, and it's probably also still necessary
+    # due to how the atom-bonding code works. Wait, I bet the debug print in here would print if it could ever make a difference,
+    # which means, I could probably take them out... ok, I'll try that soon, but not exactly now. #######@@@@@@@
     
     def __eq__(self, ob):
         if (self is not ob) and ob.key == self.key:

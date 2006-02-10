@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 ops_select.py -- operations and internal methods for changing what's selected
 and maintaining other selection-related state. (Not well-organized.)
@@ -564,7 +564,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         items = res.items()
         items.sort() # sort by atom key; might not be needed
         return [atom for key, atom in items]
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class Selection
         if attr == 'selmols':
             # compute from self.topnodes -- can't assume selection state of self.part
             # is same as during our init, or even know whether it was relevant then.

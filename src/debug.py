@@ -735,24 +735,20 @@ class DebugMenuMixin:
         import platform
         platform.atom_debug = 0
     
-    def debug_event(self, event, funcname, permit_debug_menu_popup = 0):
+    def debug_event(self, event, funcname, permit_debug_menu_popup = 0): #bruce 040916
         """[the main public method for subclasses]
            Debugging method -- no effect on normal users.  Does two
            things -- if a global flag is set, prints info about the
            event; if a certain modifier key combination is pressed,
            and if caller passed permit_debug_menu_popup = 1, puts up
            an undocumented debugging menu, and returns 1 to caller.
-           As of 040916, the debug menu is put up by
-           Shift-Option-Command-click on the Mac, and for other OS's I
-           predict it either never happens or happens only for some
-           similar set of 3 modifier keys.
-           -- bruce 040916
+              Modifier keys to bring it up:
+           Mac: Shift-Option-Command-click
+           Linux: <cntrl><shift><alt><left click>
+           Windows: probably same as linux
         """
         # In constants.py: debugButtons = cntlButton | shiftButton | altButton
         # On the mac, this really means command-shift-alt [alt == option].
-        # On Linux, reports Josh (050118), "I get the debug menu with
-        # <cntrl><shift><alt><left click>" [in the glpane, one of our callers].
-        
         if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
             ## print "\n* * * fyi: got debug click, will try to put up a debug menu...\n" # bruce 050316 removing this
             self.do_debug_menu(event)
