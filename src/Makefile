@@ -123,9 +123,7 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-# don't add dependencies here, add them to setup.py "depends" list
-# unless they require independent rebuilding
-sim.so: Makefile version.h bends.gen bonds.gen
+sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen
 	python setup.py build_ext --inplace
 
 install: $(SIMTARGET)
