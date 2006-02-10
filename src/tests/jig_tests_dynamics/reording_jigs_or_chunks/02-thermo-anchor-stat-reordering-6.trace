@@ -1,0 +1,30 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ../../simulator -i100 -f1 -x -oreording_jigs_or_chunks/02-thermo-anchor-stat-reordering-6.xyz -qreording_jigs_or_chunks/02-thermo-anchor-stat-reordering-6.trace /tmp/foo.mmp 
+# Date and Time: Thu Feb  9 22:49:32 2006
+# Input File: /tmp/foo.mmp
+# Output File: reording_jigs_or_chunks/02-thermo-anchor-stat-reordering-6.xyz
+# Trace File: reording_jigs_or_chunks/02-thermo-anchor-stat-reordering-6.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 2
+# 
+# 3 columns:
+# Thermo.21: temperature (K)
+# Stat-33: energy added (zJ)
+# Anchor.19: torque (nn-nm)
+#
+#     Time       T.meter         T.stat          Anchor          
+#  picosec       Thermo.21       Stat-33         Anchor.19      
+#
+    0.0100           262.01           -0.00            0.00
+# Done: 

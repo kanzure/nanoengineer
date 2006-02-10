@@ -1,0 +1,33 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ../../simulator -i100 -f1 -x -oenabled_disabled_jigs/006_one_rotarymotor_enabled_and_other_disabled.xyz -qenabled_disabled_jigs/006_one_rotarymotor_enabled_and_other_disabled.trace /tmp/foo.mmp 
+# Date and Time: Thu Feb  9 22:49:28 2006
+# Input File: /tmp/foo.mmp
+# Output File: enabled_disabled_jigs/006_one_rotarymotor_enabled_and_other_disabled.xyz
+# Trace File: enabled_disabled_jigs/006_one_rotarymotor_enabled_and_other_disabled.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 20
+# 
+# 6 columns:
+# Distance-40: distance (angstroms)
+# Distance-41: distance (angstroms)
+# Angle-42: angle (degrees)
+# Thermo-43: temperature (K)
+# Rotary Motor-81: speed (GHz)
+# Rotary Motor-81: torque (nn-nm)
+#
+#     Time       Distance        Distance        Angle           T.meter         speed           torque          
+#  picosec       Distance-40     Distance-41     Angle-42        Thermo-43       Rotary Motor-81                
+#
+    0.0100          11.9830         11.9915        90.58491          446.02          -1.012           1.200
+# Done: 

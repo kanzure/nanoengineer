@@ -1,0 +1,34 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ../../simulator -i100 -f1 -x -oreording_jigs_or_chunks/05-thermo-lmotor-anchor-measurement_jigs_reordering-3.xyz -qreording_jigs_or_chunks/05-thermo-lmotor-anchor-measurement_jigs_reordering-3.trace /tmp/foo.mmp 
+# Date and Time: Thu Feb  9 22:49:33 2006
+# Input File: /tmp/foo.mmp
+# Output File: reording_jigs_or_chunks/05-thermo-lmotor-anchor-measurement_jigs_reordering-3.xyz
+# Trace File: reording_jigs_or_chunks/05-thermo-lmotor-anchor-measurement_jigs_reordering-3.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 23
+# 
+# 7 columns:
+# Thermo-2: temperature (K)
+# Linear Motor-3: displacement (angstroms)
+# Distance-1-3: distance (angstroms)
+# Angle-4-1-2: angle (degrees)
+# Dihedral-1-2-3-4: dihedral (degrees)
+# Anchor-4: torque (nn-nm)
+# Thermo-4: temperature (K)
+#
+#     Time       T.meter         Lmotor          Distance        Angle           Dihedral        Anchor          T.meter         
+#  picosec       Thermo-2        Linear Motor-3  Distance-1-3    Angle-4-1-2     Dihedral-1-2-3- Anchor-4        Thermo-4       
+#
+    0.0100           392.22         -0.0110          9.9409        95.97407        -9.14651            0.00          330.99
+# Done: 
