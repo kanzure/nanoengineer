@@ -82,6 +82,8 @@ def find_hotspot_for_pasting(obj):
     else:
         return True, obj.hotspot or obj.singlets[0]
     pass
+    
+HIDE_PASTE_WIDGETS_FOR_A7 = True #& Should this be a user pref for A7? mark 060211.
 
 def do_what_MainWindowUI_should_do(w):
 
@@ -96,7 +98,8 @@ def do_what_MainWindowUI_should_do(w):
     # (before this change it had width 100 and minimumWidth 0):
     w.pasteComboBox.setMinimumWidth(160) # barely holds "(clipboard is empty)"
 
-    w.depositAtomDashboard.addSeparator()
+    if not HIDE_PASTE_WIDGETS_FOR_A7:
+        w.depositAtomDashboard.addSeparator()
 
     w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard, "elemChangeComboBox")
 
@@ -113,7 +116,8 @@ def do_what_MainWindowUI_should_do(w):
 #    w.modifySetElementAction.addTo(w.depositAtomDashboard) # Element Selector.  Obsolete as of 050726.
     w.modifyMMKitAction.addTo(w.depositAtomDashboard) # Molecular Modeling Toolkit.  Mark 050726
 
-    w.depositAtomDashboard.addSeparator()
+    if not HIDE_PASTE_WIDGETS_FOR_A7:
+        w.depositAtomDashboard.addSeparator()
 
     bg = QButtonGroup(w.depositAtomDashboard)
     bg.setExclusive(1)
@@ -154,35 +158,48 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.depositBtn.setAutoRaise(1)
     QToolTip.add(w.depositAtomDashboard.depositBtn, qApp.translate("MainWindow","Deposit", None))
     
+    w.depositAtomDashboard.buildBtn = QToolButton(bg2, "")
+    w.depositAtomDashboard.buildBtn.setPixmap(imagename_to_pixmap('buildmode.png'))
+    w.depositAtomDashboard.buildBtn.setToggleButton(1)
+    w.depositAtomDashboard.buildBtn.setAutoRaise(1)
+    w.depositAtomDashboard.buildBtn.setOn(1)
+    QToolTip.add(w.depositAtomDashboard.buildBtn, qApp.translate("MainWindow","Build Mode", None))
+    
+    w.depositAtomDashboard.atomBtn = QToolButton(bg2, "")
+    w.depositAtomDashboard.atomBtn.setPixmap(imagename_to_pixmap('atom.png'))
+    w.depositAtomDashboard.atomBtn.setToggleButton(1)
+    w.depositAtomDashboard.atomBtn.setAutoRaise(1)
+    QToolTip.add(w.depositAtomDashboard.atomBtn, qApp.translate("MainWindow","Change Atom Mode", None))
+    
     w.depositAtomDashboard.bond1Btn = QToolButton(bg2, "")
     w.depositAtomDashboard.bond1Btn.setPixmap(imagename_to_pixmap('bond1.png'))
     w.depositAtomDashboard.bond1Btn.setToggleButton(1)
     w.depositAtomDashboard.bond1Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond1Btn, qApp.translate("MainWindow","Single bond", None))
+    QToolTip.add(w.depositAtomDashboard.bond1Btn, qApp.translate("MainWindow","Single Bond Mode", None))
     
     w.depositAtomDashboard.bond2Btn = QToolButton(bg2, "")
     w.depositAtomDashboard.bond2Btn.setPixmap(imagename_to_pixmap('bond2.png'))
     w.depositAtomDashboard.bond2Btn.setToggleButton(1)
     w.depositAtomDashboard.bond2Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond2Btn, qApp.translate("MainWindow","Double bond", None))
+    QToolTip.add(w.depositAtomDashboard.bond2Btn, qApp.translate("MainWindow","Double Bond Mode", None))
     
     w.depositAtomDashboard.bond3Btn = QToolButton(bg2, "")
     w.depositAtomDashboard.bond3Btn.setPixmap(imagename_to_pixmap('bond3.png'))
     w.depositAtomDashboard.bond3Btn.setToggleButton(1)
     w.depositAtomDashboard.bond3Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond3Btn, qApp.translate("MainWindow","Triple bond", None))
+    QToolTip.add(w.depositAtomDashboard.bond3Btn, qApp.translate("MainWindow","Triple Bond Mode", None))
     
     w.depositAtomDashboard.bondaBtn = QToolButton(bg2, "")
     w.depositAtomDashboard.bondaBtn.setPixmap(imagename_to_pixmap('bonda.png'))
     w.depositAtomDashboard.bondaBtn.setToggleButton(1)
     w.depositAtomDashboard.bondaBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondaBtn, qApp.translate("MainWindow","Aromatic bond", None))
+    QToolTip.add(w.depositAtomDashboard.bondaBtn, qApp.translate("MainWindow","Aromatic Bond Mode", None))
     
     w.depositAtomDashboard.bondgBtn = QToolButton(bg2, "")
     w.depositAtomDashboard.bondgBtn.setPixmap(imagename_to_pixmap('bondg.png'))
     w.depositAtomDashboard.bondgBtn.setToggleButton(1)
     w.depositAtomDashboard.bondgBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic bond", None))
+    QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic Bond Mode", None))
 
     w.depositAtomDashboard.addSeparator()
     
@@ -232,6 +249,14 @@ def do_what_MainWindowUI_should_do(w):
     #w.elemChangeComboBox.insertItem("Xenon")
     w.connect(w.elemChangeComboBox,SIGNAL("activated(int)"),w.elemChange)
     
+    if HIDE_PASTE_WIDGETS_FOR_A7:
+        w.pasteComboBox.hide()
+        w.elemChangeComboBox.hide()
+        w.hybridComboBox.hide()
+        bg.hide()
+        w.depositAtomDashboard.pasteBtn.hide()
+        w.depositAtomDashboard.depositBtn.hide()
+    
     from whatsthis import create_whats_this_descriptions_for_depositMode
     create_whats_this_descriptions_for_depositMode(w)
 
@@ -258,7 +283,10 @@ def update_hybridComboBox(win, text = None): #bruce 050606
             win.hybridComboBox.insertItem( atype.name)
             if atype.name == text:
                 win.hybridComboBox.setCurrentItem( win.hybridComboBox.count() - 1 ) #k sticky as more added?
-        win.hybridComboBox.show()
+        if HIDE_PASTE_WIDGETS_FOR_A7:
+            win.hybridComboBox.hide()
+        else:
+            win.hybridComboBox.show()
     else:
         win.hybridComboBox.hide()
     return
@@ -317,7 +345,7 @@ class depositMode(selectAtomsMode):
 ##            # so let's force it to happen -- i hope this is ok! Maybe not.
 ##            # seems to have no effect... probably init_gui happens after it;
 ##            # at least it does in _enterMode. ####@@@@
-        self.LMB_modkey = None
+        #self.modkey = None #& moved to superclass.  mark 060209.
             # The current mod key that is pressed.  It is either None, 'Shift', or 'Control'
         self.ignore_next_leftUp_event = False
             # Set to True in leftDouble() and checked by the left*Up() event handlers
@@ -671,19 +699,8 @@ class depositMode(selectAtomsMode):
         # bruce comment 041220:
         # doesn't call basicMode method, so Delete key is not active. Good??
         # bruce 050128: no, not good. And it shows selection anyway... so do it below.
-        if key == Qt.Key_Control:
-            self.o.setCursor(self.w.SelectAtomsSubtractCursor)
-                # Same cursor as Selet Atoms mode when Control is pressed.
-            self.LMB_modkey = 'Control' 
-            if self.o.selobj:
-                # If something is under the cursor, repaint to update the correct 
-                # highlight color (darkred).
-                self.o.gl_update()
-        if key == Qt.Key_Shift:
-            self.o.setCursor(self.w.SelectAtomsAddCursor)
-                # Same cursor as Selet Atoms mode when Shift is pressed.
-            self.LMB_modkey = 'Shift'
-        for sym, code, num in elemKeyTab:
+        
+        for sym, code, num in elemKeyTab: # Set the atom type in the MMKit and combobox.
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
         
@@ -697,20 +714,22 @@ class depositMode(selectAtomsMode):
                 self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
         
         selectAtomsMode.keyPress(self,key) # bruce 050128
+        
+        if self.o.selobj and self.modkey == 'Delete':
+            # If something is under the cursor and we just came out of "delete" mode, 
+            # repaint to update its correct (normal) highlight color.
+            #& print "depositMode.keyRelease: updating GLPane"
+            self.o.gl_update()
+        
         return
 
     def keyRelease(self,key):
         selectAtomsMode.keyRelease(self, key)
-        if key == Qt.Key_Control:
-            self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
-            self.LMB_modkey = None 
-            if self.o.selobj:
-                # If something is under the cursor, repaint to update its correct 
-                # (normal) highlight color.
-                self.o.gl_update()
-        if key == Qt.Key_Shift:
-            self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
-            self.LMB_modkey = None
+        if self.o.selobj and self.prev_modkey == 'Delete':
+            # If something is under the cursor and we just came out of "delete" mode, 
+            # repaint to update its correct (normal) highlight color.
+            #& print "depositMode.keyRelease: updating GLPane"
+            self.o.gl_update()
 
     def getCoords(self, event):
         """ Retrieve the object coordinates of the point on the screen
@@ -769,7 +788,7 @@ class depositMode(selectAtomsMode):
             if selobj.is_singlet():
                 return HICOLOR_singlet ###@@@ this one is not yet in prefs db
             else:
-                if self.LMB_modkey == 'Control' and not selobj.picked: # Picked atoms are not deleted.
+                if self.modkey == 'Delete':
                     return darkred  
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
                         # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
@@ -791,7 +810,7 @@ class depositMode(selectAtomsMode):
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
                 return HICOLOR_singlet_bond
             else:
-                if self.LMB_modkey == 'Control': 
+                if self.modkey == 'Delete': 
                     return darkred # Highlight the bond in darkred if the control key is pressed.
                 else:
                     return env.prefs.get( bondHighlightColor_prefs_key) ## was HICOLOR_real_bond before bruce 050805
@@ -829,6 +848,8 @@ class depositMode(selectAtomsMode):
         # (repaint sets new selobj, maybe highlights it).
         # [some code copied from modifyMode]
         glpane = self.o
+        glpane.grabKeyboard() 
+            # fixes an undocumented bug when depositing a clipboard or library part with modkey pressed. mark 060211.
         wX = event.pos().x()
         wY = glpane.height - event.pos().y()
         selobj = orig_selobj = glpane.selobj
@@ -1289,7 +1310,7 @@ class depositMode(selectAtomsMode):
             Shift+LMB+Drag: change the bond to a new bond type determined by the dashboard.
         '''
         # Adding picked atoms to the selection is handled by leftUp(). mark 060203
-        self.leftDown(event, modkey='Shift')
+        self.leftDown(event)
     
     def leftCntlDown(self, event):
         '''Process a Control + Left Mouse Button (Control+LMB) down/press event.  What happens is
@@ -1319,9 +1340,9 @@ class depositMode(selectAtomsMode):
             Control+LMB+Drag: do nothing.
         '''
         # Removing picked atoms from the selection is handled by leftUp(). mark 060203
-        self.leftDown(event, modkey='Control')
+        self.leftDown(event)
         
-    def leftDown(self, event, modkey=None):
+    def leftDown(self, event):
         """Process a Left Mouse Button (LMB) down/press event.  What happens is
         dependant on what is currently under the cursor and what is under the cursor when 
         releasing the LMB.  In general, this is what happens for each of the following situations:
@@ -1369,8 +1390,9 @@ class depositMode(selectAtomsMode):
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         
-        #self.LMB_modkey = modkey #& already set in keypress() and keyrelease().  mark 060209.
-            # needed by leftDouble() and select_2d_region() to know which mod key is currently pressed.
+        self.current_modkey = self.modkey
+            #& self.current_modkey is very important, but NIY.  If the user let's go of the modkey during a
+            # 2d region selection, unexpected things may happen. mark 060209.
             
         self.LMB_press_event = QMouseEvent(event) # Save this event.  
             # We need it later when we change our mind and start selecting a 2D region in leftDrag().
@@ -1388,17 +1410,17 @@ class depositMode(selectAtomsMode):
         
         if a:
             if a.element is Singlet: # Cursor over a singlet
-                if modkey is None:
+                if self.modkey != 'Delete':
                     self.cursor_over_when_LMB_pressed = 'Singlet'
                     self.setupDragSinglet(a)
                 else: # If the 'Shift' or 'Control' mod keys are pressed, simulate empty space.
                     self.cursor_over_when_LMB_pressed = 'Empty Space'
                     self.select_2d_region(event)
             else: # Cursor over a real atom
-                if not a.picked and modkey is None:
+                if not a.picked and self.modkey is None:
                     self.o.assy.unpickatoms()
                     a.pick()
-                if not a.picked and modkey is 'Shift':
+                if not a.picked and self.modkey is 'Shift':
                     a.pick()
                 if a.picked and len(self.o.assy.selatoms_list()) > 1:
                     # now called when two or more atoms are selected.  mark 060202.
@@ -1456,7 +1478,7 @@ class depositMode(selectAtomsMode):
             self.continue_selection_curve(event)
             return
             
-        if self.LMB_modkey is not None: # LMB_modkey set in keypress() and keyrelease()
+        if self.modkey is not None: #& What happens if the user lets go of Shift or Control?
             # If a Control+LMB+Drag event has happened after the cursor was over an atom 
             # during leftCntlDown(), do a 2D region selection as if the atom were absent.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
@@ -1495,36 +1517,12 @@ class depositMode(selectAtomsMode):
 # == LMB up-click (button release) methods
         
     def leftShiftUp(self, event):
-        self.leftUp(event, 'Shift')
-        
+        self.leftUp(event)
+    
     def leftCntlUp(self, event):
-        '''
-        Cursor on an Atom:
-            if the atom is already picked, unpick it.
-            if the atom is not already picked, delete it (and any of its baggage).
-            
-        Cursor on a Bond:
-            break the bond.
-        '''
-        env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
-        
-        if self.ignore_next_leftUp_event:
-            self.ignore_next_leftUp_event = False
-            return
-            
-        if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            self.end_selection_curve(event)
-            return
-            
-        if self.dragatom and self.dragatom_clicked:
-            if self.obj_doubleclicked is not None:
-                result = self.unpick_or_delete_atom(event)
-                env.history.message_no_html(result)
-        
-        if self.bond_clicked:
-            self.break_bond(event)
-
-    def leftUp(self, event, modkey=None):
+        self.leftUp(event)
+    
+    def leftUp(self, event):
         env.history.flush_saved_transients() # flush any transient message it saved up
         
         if self.ignore_next_leftUp_event: # This event is the second leftUp of a double click, so ignore it.
@@ -1534,9 +1532,13 @@ class depositMode(selectAtomsMode):
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.end_selection_curve(event)
             return
-        
-        if self.bond_clicked: # Change the bond type.
-            self.change_bondtype(self.bond_clicked)
+            
+        self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
+            #& Should this go further to the top? mark
+            
+        if self.bond_clicked: 
+            # Select or unselect the bond's atoms, or delete the bond, based on the current modkey.
+            self.modkeyBond(self.bond_clicked, event)
             return
             
         if not self.dragatom: # No atom or singlet was dragged (or clicked); return.
@@ -1544,36 +1546,13 @@ class depositMode(selectAtomsMode):
         
         a = self.dragatom
         
-        # If dragatom <a> is a real atom, do one of the following:
-        # 1. If no modifier key was pressed, clear the selection and pick it.
-        # 2. If Shift was pressed, pick it, adding it to the selection.
-        # 3. If Ctrl was pressed and atom is picked, unpick it.
-        # 4. If Ctrl was pressed and atom is not picked, delete it.
         if self.dragatom_clicked:
-            if modkey is None: # no Shift or Ctrl modifier key.
-                # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
-                if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
-                    self.o.assy.unpickatoms() # Clear selection.
-
-            self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
-            a.pick()
-            env.history.message(a.getinfo())
+            # Select, unselect or delete the atom based on the current modkey.
+            self.modkeyAtom(a, event)
         
-        # If dragatom <a> is a singlet, do one of the following:
-        # 1. If it is still highlighted, deposit an object on it
-        # 2. If a different singlet is highlighted, bond to it.
-        # 3. If nothing is highlighted, do nothing.
-        # mark 060129.
         if a.is_singlet():
-            self.line = None # required to erase white rubberband line on next gl_update.
-            s = self.get_singlet_under_cursor(event)
-            if s:
-                if s is a: # If the same singlet is highlighted...
-                    # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <a>.
-                    self.deposit_from_MMKit(a)
-                else: # A different singlet is highlighted...
-                    # ... so bond the highlighted singlet <s> to the first singlet <a>
-                    self.bond_singlets(a, s)
+            # Finish singlet operation.
+            self.modkeySinglet(a, event)
         
         self.baggage = []
         self.dragatom = None #bruce 041130 fix bug 230
@@ -1586,7 +1565,7 @@ class depositMode(selectAtomsMode):
         # In future we can consider first simulating a update_selatom at the
         # current location (to set selatom again, if appropriate), but it's
         # not clear this would be good, so *this* is what I won't do for now.
-        self.o.gl_update()
+        #self.o.gl_update() #& Now handled in modkey*() methods. mark 060210.
         
 # == LMB double-click method
         
@@ -1597,32 +1576,166 @@ class depositMode(selectAtomsMode):
         If the Control modkey is pressed, unselect all the atoms.
         '''
         
-        if self.LMB_modkey is None and self.cursor_over_when_LMB_pressed == 'Empty Space':
-            self.deposit_from_MMKit(self.getCoords(event))
-            self.w.win_update()
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
             return
         
-        if self.LMB_modkey == 'Control':
-            select_atoms = False
-        else:
-            select_atoms = True
-            
         if isinstance(self.obj_doubleclicked, Atom):
-            self.o.assy.selectConnected( [ self.obj_doubleclicked ], select_atoms )
+            if self.modkey == 'Control':
+                op = 'Unselect'
+                atomlist = [ self.obj_doubleclicked ]
+            elif self.modkey == 'Delete':
+                op = 'Delete'
+                atomlist = self.neighbors_of_last_deleted_atom
+            else:
+                op = 'Select'
+                atomlist = [ self.obj_doubleclicked ]
+            
+            #print "-------------\nop=", op
+            #print "atomlist=",atomlist
+            self.o.assy.selectConnected( atomlist, op )
+            
+        if isinstance(self.obj_doubleclicked, Bond):
+            if self.modkey == 'Control':
+                op = 'Unselect'
+                atomlist = [ self.obj_doubleclicked.atom1 ]
+            elif self.modkey == 'Delete':
+                op = 'Delete'
+                atomlist = [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ]
+            else:
+                op = 'Select'
+                atomlist = [ self.obj_doubleclicked.atom1 ]
+            
+            #print "-------------\nop=", op
+            #print "atomlist=",atomlist
+            if self.w.depositAtomDashboard.buildBtn.isOn() or self.w.depositAtomDashboard.atomBtn.isOn():
+                self.o.assy.selectConnected( atomlist, op )
+            else:
+                self.change_bondtype(self.bond_clicked)
             
         self.ignore_next_leftUp_event = True
 
 # == end of LMB event handler methods
 
+    def modkeyBond(self, b, event):
+        '''Select or unselect the bond <b>'s atoms, or delete bond <b>, based on the current modkey.
+        - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
+        - If Shift modkey is pressed, pick <b>'s two atoms, adding them to the current selection.
+        - If Ctrl modkey is pressed,  unpick <b>'s two atoms, removing them from the current selection.
+        - If Delete (Shift+Control) modkey is pressed, delete bond <b>.
+        '''
+        #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
+        #& mark 060210.
+        if self.modkey is None:
+            # Maintain selection behavior consistency between Standard and Non-standard.
+            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                self.o.assy.unpickatoms() # Clear selection.
+            b.atom1.pick()
+            b.atom2.pick()
+            #& Bond class needs a getinfo() method to be called here. mark 060209.
+                
+        elif self.modkey == 'Shift':
+            b.atom1.pick()
+            b.atom2.pick()
+            #& Bond class needs a getinfo() method to be called here. mark 060209.
+            
+        elif self.modkey == 'Control':
+            b.atom1.unpick()
+            b.atom2.unpick()
+            #env.history.message("unpicked %r and %r" % (self.bond_clicked.atom1, self.bond_clicked.atom2))
+            #& Not necessary to print history msg.  mark 060210.
+                
+        elif self.modkey == 'Delete':
+            self.break_bond(event)
+            
+        else:
+            print "Error in modkeyBond(): Invalid self.modkey=", self.modkey
+            #& Use debug method.  mark 060210.
+            return
+            
+        self.o.gl_update()
+        
+
+    def modkeyAtom(self, a, event):
+        '''Select, unselect or delete the atom <a> based on the current modkey.
+        - If no modkey is pressed, clear the selection and pick atom <a>.
+        - If Shift modkey is pressed, pick <a>, adding it to the current selection.
+        - If Ctrl modkey is pressed,  unpick <a>, removing it from the current selection.
+        - If Delete (Shift+Control) modkey is pressed, delete atom <a>.
+        '''
+        nochange = False
+        
+        if self.modkey is None:
+            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
+            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                self.o.assy.unpickatoms() # Clear selection.
+            if a.picked:
+                nochange = True
+            else:
+                a.pick()
+            env.history.message(a.getinfo())
+
+        elif self.modkey == 'Shift':
+            if a.picked: 
+                nochange = True
+            else:
+                a.pick()
+            env.history.message(a.getinfo())
+                
+        elif self.modkey == 'Control':
+            if a.picked:
+                a.unpick()
+                env.history.message("unpicked %r" % a)
+            else: # Already unpicked.
+                nochange = True
+            
+        elif self.modkey == 'Delete':
+            result = self.delete_atom_and_baggage(event)
+            env.history.message_no_html(result)
+            return # delete_atom_and_baggage() calls win_update.
+                
+        else:
+            print "Error in modkeyAtom(): Invalid self.modkey=", self.modkey
+            #& Use debug method.  mark 060210.
+            return
+            
+        if nochange: return
+        self.o.gl_update()
+
+    def modkeySinglet(self, s1, event):
+        '''Finish operation on singlet <s1> based on where the cursor is when the LMB was released:
+        - If the cursor is still on <s1>, deposit an object from the MMKit on it
+        - If the cursor is over a different singlet, bond <s1> to it.
+        - If the cursor is over empty space, do nothing.
+        '''
+        if not s1.is_singlet(): return
+        
+        self.line = None # required to erase white rubberband line on next gl_update.
+        
+        s2 = self.get_singlet_under_cursor(event)
+        if s2:
+            if s2 is s1: # If the same singlet is highlighted...
+                # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
+                self.deposit_from_MMKit(s1) 
+                    # does its own win_update().
+            else: # A different singlet is highlighted...
+                # ... so bond the highlighted singlet <s2> to the first singlet <s1>
+                self.bond_singlets(s1, s2)
+                self.o.gl_update()
+        else: # cursor on empty space
+            self.o.gl_update() # get rid of white rubber band line.
+
     def select_2d_region(self, event):
         '''Start 2D selection of a region.
         '''
-        if self.LMB_modkey is None:
+        if self.modkey is None:
             self.start_selection_curve(event, START_NEW_SELECTION)
-        if self.LMB_modkey == 'Shift':
+        if self.modkey == 'Shift':
             self.start_selection_curve(event, ADD_TO_SELECTION)
-        if self.LMB_modkey == 'Control':
+        if self.modkey == 'Control':
             self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
+        #& if self.modkey == 'Delete': # To be implemented soon.  mark 060211.
+        #&     self.start_selection_curve(event, DELETE_SELECTION)
         return
             
 
@@ -1690,7 +1803,7 @@ class depositMode(selectAtomsMode):
         return s
 
 
-    def unpick_or_delete_atom(self, event):
+    def unpick_or_delete_atom_OBS(self, event): #& obsolete.  mark 060209.
         '''If the object under the cursor is an atom and it is picked, unpick it.
         If it is not picked, delete it.  Return the result of what happened.
         '''
@@ -1709,6 +1822,24 @@ class depositMode(selectAtomsMode):
             a.kill()
             self.o.selatom = None #bruce 041130 precaution
             self.o.assy.changed()
+        self.w.win_update()
+        return result
+        
+    def delete_atom_and_baggage(self, event):
+        '''If the object under the cursor is an atom, delete it and any baggage.  
+        Return the result of what happened.
+        '''
+        a = self.get_atom_under_cursor(event)
+
+        if a is None:
+            return None
+        
+        a.deleteBaggage()
+        result = "deleted %r" % a
+        self.neighbors_of_last_deleted_atom = a.realNeighbors()
+        a.kill()
+        self.o.selatom = None #bruce 041130 precaution
+        self.o.assy.changed()
         self.w.win_update()
         return result
             
@@ -1754,6 +1885,11 @@ class depositMode(selectAtomsMode):
         If 'atom_or_pos' is a position, then it will deposit the object at that coordinate.
         '''
         
+        if self.modkey is None: # no Shift or Ctrl modifier key.
+            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
+            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                self.o.assy.unpickatoms() # Clear selection.
+        
         if self.w.depositState == 'Atoms':
             deposited_stuff, status = self.deposit_from_Atoms_page(atom_or_pos) # deposited_stuff is a chunk
             
@@ -1766,6 +1902,8 @@ class depositMode(selectAtomsMode):
             # Not sure if subrs still print redundant history messages besides the one
             # newly returned here (status).
             deposited_stuff, status = self.deposit_from_Library_page(atom_or_pos)
+            if deposited_stuff and self.pickit():
+                deposited_stuff[0].pickatoms()
             
         else:
             print "Error. depositState unknown:", self.w.depositState
@@ -1781,6 +1919,9 @@ class depositMode(selectAtomsMode):
 ##        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
 ##        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it, added a different one]
         if deposited_stuff:
+            self.w.win_update() 
+                #& should we differentiate b/w win_update (when deposited_stuff is a new chunk added) vs. 
+                #& gl_update (when deposited_stuff is added to existing chunk).  Discuss with Bruce. mark 060210.
             status = self.ensure_visible( deposited_stuff, status) #bruce 041207
             env.history.message(status)
         else:
@@ -1893,6 +2034,7 @@ class depositMode(selectAtomsMode):
                         #e this might need to take over the generation of the following status msg...
                 ## a1, desc = self.attach(el, a)
                 if a1 is not None:
+                    if self.pickit(): a1.pick()
                     self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
                     status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                     chunk = a1.molecule #bruce 041207
@@ -1906,7 +2048,7 @@ class depositMode(selectAtomsMode):
                 a = self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
                 self.initDragObject(a)
                 self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
-                
+                if self.pickit(): self.o.selatom.pick()
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
                 chunk = self.o.selatom.molecule #bruce 041207
         
@@ -2012,13 +2154,14 @@ class depositMode(selectAtomsMode):
         '''Setup for a clicked bond <b>.
         '''
         self.bond_clicked = b
+        self.obj_doubleclicked = b
         
     def setupDragAtom(self, a):
         '''Setup dragging of real atom <a>.
         '''
         self.initDragObject(a)
-        self.dragatom_clicked = True # mark 060125.
-        self.obj_doubleclicked = a # mark 060128.
+        self.dragatom_clicked = True
+        self.obj_doubleclicked = a
         self.baggage = []
         self.nonbaggage = []
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
@@ -2136,6 +2279,7 @@ class depositMode(selectAtomsMode):
         '''Setup dragging of singlet <a>.
         '''
         self.initDragObject(a)
+        #& self.obj_doubleclicked = a # for trans-deposit implem (soon). mark 060211.
         
         pivatom = a.neighbors()[0]
         self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209
@@ -2240,6 +2384,8 @@ class depositMode(selectAtomsMode):
         # used to cause bug 312, but this is now fixed in getattr every time the
         # hotspot is retrieved (since it can become invalid in many other ways too),
         # so there's no need to explicitly forget it here.
+        if self.pickit():
+            numol.pickatoms()
         self.o.assy.addmol(numol) # do this last, in case it computes bbox
         return numol, "copy of %r" % pastable.name
         
@@ -2275,6 +2421,8 @@ class depositMode(selectAtomsMode):
 ##        else:
 ##            cursor_spot = numol.center
         numol.move(pos - cursor_spot)
+        if self.pickit():
+            numol.pickatoms()
         self.o.assy.addmol(numol) 
         return numol, "copy of %r" % pastable.name
 

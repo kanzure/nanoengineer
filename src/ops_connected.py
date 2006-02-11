@@ -24,14 +24,28 @@ class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
     
     #mark 060128 made this more general by adding the atomlist arg.
-    def selectConnected(self, atomlist=None, select_atoms=True):
-        """Select any atom that can be reached from any currently
+    def selectConnected(self, atomlist=None, op='Select'):
+        """Select, unselect or delete any atom that can be reached from any currently
         selected atom through a sequence of bonds.
+        
         If <atomlist> is supplied, use it instead of the currently selected atoms.
-        If <select_atoms> is False, unselect the connected atoms.
+        
+        <op> is an operator flag, where:
+        'Select' = select all the atoms reachable through any sequence of bonds to the atoms in atomlist.
+        'Unselect' = unselect all the atoms reachable through any sequence of bonds to the atoms in atomlist.
+        'Delete' = delete all the atoms reachable through any sequence of bonds to the atoms in atomlist.
         """ ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
         
-        cmd = greenmsg("Select Connected: ")
+        if op == 'Select': # Default
+            cmd = greenmsg("Select Connected: ")
+        elif op == 'Unselect':
+            cmd = greenmsg("Unselect Connected: ")
+        elif op == 'Delete':
+            cmd = greenmsg("Delete Connected: ")
+        else:
+            print "Error in selectConnected(): Invalid op =", op
+            #& I know there is a debug method that I should be using here.  Bruce, can you remind me?  mark 060210.
+            return
         
         if atomlist is None and not self.selatoms:
             msg = redmsg("No atoms selected")
@@ -41,21 +55,19 @@ class ops_connected_Mixin:
         if atomlist is None: # test for None since atomlist can be an empty list.
             atomlist = self.selatoms.values()
             
-        alreadySelected = len(self.selatoms.values())
-        self.marksingle(atomlist, select_atoms)
-        totalSelected = len(self.selatoms.values())
-        
-        newAtomsSelected = totalSelected - alreadySelected
+        natoms = self.marksingle(atomlist, op)
+        if not natoms: return
         
         from platform import fix_plurals
-        if newAtomsSelected > 0:
-            info = fix_plurals( "%d connected atom(s) selected." % newAtomsSelected)
-        else:
-            info = fix_plurals( "%d atom(s) unselected." % abs(newAtomsSelected))
+        if op == 'Unselect':
+            info = fix_plurals( "%d atom(s) unselected." % natoms)
+        elif op == 'Delete':
+            info = fix_plurals( "%d connected atom(s) deleted." % natoms)
+        else: # Default
+            info = fix_plurals( "%d connected atom(s) selected." % natoms)
             
-        if newAtomsSelected != 0:
-            env.history.message( cmd + info)
-            self.o.gl_update()
+        env.history.message( cmd + info)
+        self.o.gl_update()
             
         
     def selectDoubly(self):
@@ -95,10 +107,15 @@ class ops_connected_Mixin:
     # (tho it's still non-interruptable), and fixing some other bug by making it
     # use its own dict for intermediate state, rather than atom.picked (so it works with Selection Filter).
     #mark 060128 made this more general by adding the atomlist arg.
-    def marksingle(self, atomlist, select_atoms=True):
-        '''Select all the atoms reachable through any sequence of bonds to the atoms in atomlist.
-        If <select_atoms> is False, unselect all the atoms reachable through any sequence of bonds to 
-        the atoms in atomlist.
+    def marksingle(self, atomlist, op='Select'):
+        '''Select, unselect or delete all the atoms reachable through any sequence of bonds to the atoms 
+        in <atomlist> based on the operator flag <op>, where:
+        
+        'Select' = select all the atoms reachable through any sequence of bonds to the atoms in atomlist.
+        'Unselect' = unselect all the atoms reachable through any sequence of bonds to the atoms in atomlist.
+        'Delete' = delete all the atoms reachable through any sequence of bonds to the atoms in atomlist.
+        
+        Returns the number of newly selected, unselected or deleted atoms.
         '''
         marked = {} # maps id(atom) -> atom, for processed atoms
         todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
@@ -121,13 +138,24 @@ class ops_connected_Mixin:
                         marked[id(at2)] = at2
                         newtodo.append(at2)
             todo = newtodo
+        
+        n = 0
+        
         for atom in marked.itervalues():
-            if select_atoms:
-                atom.pick()
+            if op == 'Unselect':
+                if atom.picked:
+                    n += 1
+                    atom.unpick()
+            elif op == 'Delete':
+                n += 1
+                if atom:
+                    atom.kill()
             else:
-                atom.unpick()
+                if not atom.picked:
+                    n += 1
+                    atom.pick()
             # note: this doesn't actually select it unless it's not a singlet and its element passes the Selection Filter.
-        return
+        return n
     
     pass # end of class ops_connected_Mixin
 

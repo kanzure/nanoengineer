@@ -12,12 +12,13 @@ import env
 ## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
 
 
-# Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
-# the <logic> values used in pickrect() and pickline() in shapes.py.  
-# These should probably be moved to constants.py and used in shapes.py, but be
-# careful since classes/methods in shapes.py support standard selection *and*
-# cookie cutter selection, which differ.
-# mark 060205.
+#& Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
+#& the <logic> values used in pickrect() and pickline() in shapes.py.  
+#& These should probably be moved to constants.py and used in shapes.py, but be
+#& careful since classes/methods in shapes.py support standard selection *and*
+#& cookie cutter selection, which differ.
+#& While fixing all this, change these from ints to strings.
+#& mark 060205.
 SUBTRACT_FROM_SELECTION = 0
 ADD_TO_SELECTION = 1
 START_NEW_SELECTION = 2
@@ -370,6 +371,22 @@ class selectMode(basicMode):
         
 # == end of LMB event handlers.
 
+    def pickit(self):
+        '''Returns True or False based on the current modkey state.  
+        If modkey is None (no modkey is pressed), it will unpick all atoms.
+        '''
+        if self.modkey is None:
+            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
+            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                self.o.assy.unpickatoms() # Clear selection.
+            return True
+        if self.modkey == 'Shift':
+            return True
+        if self.modkey == 'Control':
+            return False
+        else: # Delete
+            return False
+
     
     def setJigSelectionEnabled(self):
         self.jigSelectionEnabled = not self.jigSelectionEnabled
@@ -550,9 +567,14 @@ class selectAtomsMode(selectMode):
         #    selectMode.__init__(self, glpane)
         #    self.w.filterCheckBox.setChecked(0)
             
-     
         def Enter(self): 
             basicMode.Enter(self)
+            self.modkey = None
+                # The current mod key that is pressed.  It is either None, 'Shift', 'Control' or 'Delete' 
+                # where 'Delete' is Shift+Control pressed together. 
+            self.prev_modkey = None
+                # The previous mod key that was pressed.  It is either None, 'Shift', 'Control' or 'Delete' 
+                # where 'Delete' is Shift+Control pressed together. 
             
             self.saveDisp = self.o.display 
             self.o.setDisplay(diTUBES)
@@ -626,29 +648,104 @@ class selectAtomsMode(selectMode):
             #    self.w.filterCheckBox.setChecked(False)
             #else:
             #    self.w.filterCheckBox.setChecked(True)
+            
+        def update_cursor(self, modkey):
+            '''Update the mouse cursor based on <modkey>.
+            '''
+            #print "update_cursor(): modkey=",modkey
+            if modkey is None:
+                self.o.setCursor(self.w.SelectAtomsCursor)
+            elif modkey == 'Shift':
+                self.o.setCursor(self.w.SelectAtomsAddCursor)
+            elif modkey == 'Control':
+                self.o.setCursor(self.w.SelectAtomsSubtractCursor)
+            elif modkey == 'Delete':
+                self.o.setCursor(self.w.DeleteCursor)
+            else:
+                print "Error in update_cursor(): Invalid modkey=", modkey
+            return
+            
+        def update_modkeyPress(self, key):
+            if key != Qt.Key_Shift and key != Qt.Key_Control:
+                return
                 
+            if key == Qt.Key_Control: # Control mod key
+                if self.modkey is None:
+                    self.modkey = 'Control' 
+                elif self.modkey == 'Shift':
+                    self.modkey = 'Delete'
+                    if self.o.selobj:
+                        # If something is under the cursor, repaint to update the correct 
+                        # highlight color (darkred).
+                        self.o.gl_update()
+                else:
+                    print "Error in keyPress(): invalid modkey=", self.modkey
+        
+            if key == Qt.Key_Shift: # Shift mod key
+                if self.modkey is None:
+                    self.modkey = 'Shift' 
+                elif self.modkey == 'Control':
+                    self.modkey = 'Delete'
+                else:
+                    print "Error in keyPress(): invalid modkey=", self.modkey
+                    
+            self.prev_modkey = self.modkey
+                    
+            self.update_cursor(self.modkey)
+            
                 
         def keyPress(self,key):
             from MWsemantics import eCCBtab2
             
             basicMode.keyPress(self, key)
-            if key == Qt.Key_Shift:
-                self.o.setCursor(self.w.SelectAtomsAddCursor)
-            if key == Qt.Key_Control:
-                self.o.setCursor(self.w.SelectAtomsSubtractCursor)
-            # Shortcut keys for atom type in selection filter.  Bug/NFR 649. Mark 050711.
-            for sym, code, num in elemKeyTab:
-                if key == code:
-                    line = eCCBtab2[num] + 1
-                    self.w.elemFilterComboBox.setCurrentItem(line)
-                    #self.elemChange(line)
-                    
-                              
+            self.update_modkeyPress(key)
+
+            if self.o.mode.modename in ['SELECTATOMS']: 
+                # Add the mode name to this list to support filtering using keypresses to select element type.
+                for sym, code, num in elemKeyTab:
+                    if key == code:
+                        line = eCCBtab2[num] + 1
+                        self.w.elemFilterComboBox.setCurrentItem(line)
+                        #self.elemChange(line)
+
+                
+        def update_modkeyRelease(self, key):
+            if key != Qt.Key_Shift and key != Qt.Key_Control:
+                return
+                
+            if key == Qt.Key_Control: # Control mod key
+                if self.modkey == 'Control':
+                    self.modkey = None 
+                elif self.modkey == 'Delete':
+                    self.modkey = 'Shift'
+                    if self.o.selobj:
+                        # We just came out of "delete" mode. If something is under the cursor, 
+                        # repaint to update its correct (normal) highlight color.
+                        self.o.gl_update()
+                else:
+                    print "Error in keyRelease(): invalid modkey=", self.modkey
+                    #& Is there a debug method I should use here instead?  mark 060210.
+        
+            if key == Qt.Key_Shift: # Shift mod key
+                if self.modkey == 'Shift':
+                    self.modkey = None 
+                elif self.modkey == 'Delete':
+                    self.modkey = 'Control'
+                    if self.o.selobj:
+                        # We just came out of "delete" mode. If something is under the cursor, 
+                        # repaint to update its correct (normal) highlight color.
+                        self.o.gl_update()
+                else:
+                    print "Error in keyRelease(): invalid modkey=", self.modkey
+                    #& Is there a debug method I should use here instead?  mark 060210.
+            
+            self.update_cursor(self.modkey)
+                
+                
         def keyRelease(self,key):
             basicMode.keyRelease(self, key)
-            if key == Qt.Key_Shift or key == Qt.Key_Control:
-                self.o.setCursor(self.w.SelectAtomsCursor)
-       
+            self.update_modkeyRelease(key)
+            
        
         def rightShiftDown(self, event):
             basicMode.rightShiftDown(self, event)
@@ -657,7 +754,8 @@ class selectAtomsMode(selectMode):
         def rightCntlDown(self, event):          
             basicMode.rightCntlDown(self, event)
             self.o.setCursor(self.w.SelectAtomsCursor)
-            
+        
+
         def leftDouble(self, event): # mark 060128.
             '''Double click event handler for the left mouse button. 
             If an atom was double-clicked, select all the atoms reachable through 
@@ -673,9 +771,14 @@ class selectAtomsMode(selectMode):
             # add this event handler. mark 060128.
             if len(self.o.assy.selatoms.values()) == 1:
                 self.o.assy.selectConnected(self.o.assy.selatoms.values())
-                    # The only reason this currently works is that the first click of the
-                    # double click clears the selection and picks the atom under the
-                    # cursor.  This does not work when holding down the Shift key.
+                    #& The only reason this currently works is that the first click of the
+                    #& double click clears the selection and picks the atom under the
+                    #& cursor.  This does not work when holding down the Shift key.
+                    #&
+                    #& depositMode's leftDouble method supports all modkey combos.
+                    #& Discuss with Bruce the challenges and pros-cons of supporting
+                    #& leftDouble functionality for all modkeys here.
+                    #& mark 060211.
         
         def update_hybridComboBox(self, win, text = None): 
             '''Based on the same named function in depositMode.py.
