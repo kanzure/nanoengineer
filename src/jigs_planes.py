@@ -316,6 +316,8 @@ class ESPImage(RectGadget):
         # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
         self.opacity = 0.6
         self.image_obj = None # helper object for texture image, or None if no texture is ready [bruce 060207 revised comment]
+        self.image_mods = image_mod_record() # accumulated modifications to the file's image [bruce 060210 bugfix]
+            ###e need to use self.image_mods in writepov, too, perhaps via a temporary image file
         self.tex_name = None # OpenGL texture name for image_obj, if we have one [bruce 060207 for fixing bug 1059]
         self.espimage_file = '' # ESP Image (png) filename
         self.highlightChecked = False # Flag if highlight is turned on or off
@@ -341,7 +343,9 @@ class ESPImage(RectGadget):
         
         if self.espimage_file:
             self.image_obj = nEImageOps(self.espimage_file)
-        
+            self.image_mods.do_to( self.image_obj) #bruce 060210 bugfix: stored image_mods in mmp file, so we can reuse them here
+        return
+         
     def _loadTexture(self):
         '''Load texture data from current image object '''
         ix, iy, image = self.image_obj.getTextureData() 
@@ -511,6 +515,11 @@ class ESPImage(RectGadget):
         # Write espimage "info" record.
         line = "info espimage espimage_file = " + self.espimage_file + "\n"
         mapping.write(line)
+        #bruce 060210 bugfix: write image_mods if we have any
+        if self.image_mods:
+            line = "info espimage image_mods = %s\n" % (self.image_mods,)
+            mapping.write(line)
+        return
  
     def mmp_record_jigspecific_midpart(self):
         color = map(int,A(self.fill_color)*255)
@@ -534,14 +543,28 @@ class ESPImage(RectGadget):
             if platform.atom_debug:
                 print "atom_debug: fyi: info espimage with unrecognized key %r (not an error)" % (key,)
             return
-        
-        if val:
-            if os.path.exists(val):
-                self.espimage_file = val
-                self.load_espimage_file()
+        if key[0] == 'espimage_file':
+            if val:
+                if os.path.exists(val):
+                    self.espimage_file = val
+                    self.image_mods.reset() # also might be done in load_espimage_file, but needed here even if it's not
+                    self.load_espimage_file()
+                else:
+                    msg = redmsg("info espimage espimage_file = " + val + ". File does not exist.  No image loaded.")
+                    env.history.message(msg)
+            #e I think it's a bug to go on to interpret image_mods if the file doesn't exist. Not sure how to fix that.
+            # [bruce 060210]
+            pass
+        elif key[0] == 'image_mods': #bruce 060210
+            try:
+                self.image_mods.set_to_str(val)
+            except ValueError:
+                print "mmp syntax error in esp image modifications:", val
             else:
-                msg = redmsg("info espimage espimage_file = " + val + ". File does not exist.  No image loaded.")
-                env.history.message(msg)
+                if self.image_obj:
+                    self.image_mods.do_to( self.image_obj)
+                    self._loadTexture()
+            pass
         return
 
     def get_sim_parms(self):
@@ -625,7 +648,7 @@ class ESPImage(RectGadget):
 
         
     def __CM_Load_ESP_Image(self):
-        '''Method for "Calculate ESP" context menu'''
+        '''Method for "Load ESP Image" context menu'''
         self.load_espimage_file()
    
         
@@ -675,6 +698,11 @@ class ESPImage(RectGadget):
             self.espimage_file = str(fn)
             if old_espimage_file != self.espimage_file:
                 self.changed() #bruce 060207 fix of perhaps-previously-unreported bug
+            pass
+        
+        if self.image_mods:
+            self.image_mods.reset()
+            self.changed()
         
         self._create_PIL_image_obj_from_espimage_file()
         self._loadTexture()
@@ -688,26 +716,80 @@ class ESPImage(RectGadget):
     def clear_esp_image(self):
         '''Clears the image in the ESP Image.'''
         self.image_obj = None
+        # don't self.image_mods.reset(); but when we load again, that might clear it
         self.assy.o.gl_update()
 
-        
-    def flip_esp_image(self):
+    def flip_esp_image(self): # slot method
         if self.image_obj:
             self.image_obj.flip()
+            self.image_mods.flip() #bruce 060210
+            self.changed() #bruce 060210
             self._loadTexture()
-    
     
     def mirror_esp_image(self):
         if self.image_obj:
             self.image_obj.mirror()
+            self.image_mods.mirror() #bruce 060210
+            self.changed() #bruce 060210
             self._loadTexture()
-
             
     def rotate_esp_image(self, deg):
         if self.image_obj:
             self.image_obj.rotate(deg)
+            self.image_mods.rotate(deg) #bruce 060210
+            self.changed() #bruce 060210
             self._loadTexture()
-    
+
     pass # end of class ESPImage       
+
+class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
+    "record the mirror/flip/rotate history of an image in a short canonical form, and be able to write/read/do this"
+    def __init__(self, mirror = False, ccwdeg = 0):
+        "whether to mirror it, and (then) how much to rotate it counterclockwise, in degrees"
+            #k haven't verified it's ccw and not cw, in terms of how it's used, but this code should work either way
+        self.mirrorQ = not not mirror
+        self.rot = ccwdeg % 360
+    def reset(self):
+        "reset self to default values"
+        self.mirrorQ = False
+        self.rot = 0
+    def __str__(self):
+        return "%s %s" % (self.mirrorQ, self.rot)
+    def set_to_str(self, str1):
+        "set self to the values encoded in the given string, which should have been produced by str(self); debug print on syntax error"
+        try:
+            mir, rot = str1.split() # e.g. "False", "180"
+            ## mir = bool(mir) # wrong -- bool("False") is True!!!
+            # mir should be "True" or "False" (unrecognized mirs are treated as False)
+            mir = (mir == 'True')
+            rot = float(rot)
+        except:
+            raise ValueError, "syntax error in %r" % (str1,) # (note: no guarantee str1 is even a string, in principle)
+        else:
+            self.mirrorQ = mir
+            self.rot = rot
+        return
+    def mirror(self):
+        "left-right mirroring"
+        self.mirrorQ = not self.mirrorQ
+        self.rot = (- self.rot) % 360
+    def flip(self):
+        "vertical flip (top-bottom mirroring)"
+        self.rotate(90)
+        self.mirror()
+        self.rotate(-90)
+    def rotate(self, deg):
+        self.rot = (self.rot + deg) % 360
+    def do_to(self, similar):
+        "do your mods to another object that also has mirror/flip/rotate methods"
+        if self.mirrorQ:
+            similar.mirror()
+        if self.rot:
+            similar.rotate(self.rot)
+        return
+    def __nonzero__(self):
+        # this must return an int; i think a boolean should be ok
+        return not not (self.mirrorQ or self.rot) # only correct since we always canonicalize rot by % 360
+    pass # end of class image_mod_record
 
 #end
