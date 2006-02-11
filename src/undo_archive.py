@@ -437,9 +437,15 @@ class SimpleDiff:
         self.command_info = self.options.get('_command_info_dict', dict(self.default_command_info) )
         self.options['_command_info_dict'] = self.command_info # be sure to pass the same shared dict to self.reverse_order()
         return
-    def finalize(self, assy): ####@@@@ 060123 notyetcalled; soon, *this* is what should call fill_checkpoint on self.cps[1]!
-        """Caller, which is still making this diff by doing model changes meant to be recorded in it, has decided it's done,
-        once those changes are actually recorded in it (and/or directly in its end-checkpoint).
+    def finalize(self, assy):
+        ####@@@@ 060123 notyetcalled; soon, *this* is what should call fill_checkpoint on self.cps[1]!
+        # let's finish this, 060210, so it can be tested, then done differently in BetterDiff
+        """Caller, which has been letting model changes occur which are meant to be recorded in this diff,
+        has decided it's time to finalize this diff by associating current model state with self.cps[1]
+        and recording further changes in a new diff, which we(?) will create and return (or maybe caller will do that
+        after we're done, not sure; hopefully caller will, and it'll also cause changetracking to go there --
+        or maybe it needs to have already done that??).
+           But first we'll store whatever we need to about the current model state, in self and/or self.cps.
         So, analyze the low-level change records to make compact diffs or checkpoint saved state,
         and record whatever else needs to be recorded... also make up new vers for whatever varids we think changed
         (the choice of coarseness of which is a UI issue) and record those in this diff and also in whatever model-related place
@@ -449,6 +455,7 @@ class SimpleDiff:
         #e figure out what changed in model, using scan of it, tracking data already in us, etc
         #####@@@@@ call fill_checkpoint
         #e make up vers for varids changed
+        # *this* is what should call fill_checkpoint on self.cps[1]!
     def reverse_order(self):#####@@@@@ what if merged??
         return self.__class__(self.cps[1], self.cps[0], - self.direction, **self.options)
     def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this??
@@ -462,10 +469,11 @@ class SimpleDiff:
     def varid_vers(self):#####@@@@@ need to merge self with more diffs, to do this??
         "list of varid_ver pairs for indexing"
         return [self.cps[0].varid_ver()] 
-    def apply_to(self, assy):###@@@ do we need to merge self with more diffs, too? [see class MergingDiff]
+    def apply_to(self, archive):###@@@ do we need to merge self with more diffs, too? [see class MergingDiff]
         "apply this diff-operation to the given model objects"
         cp = self.cps[1]
         assert cp.complete
+        assy = archive.assy
         assy.become_state(cp.state) # note: in present implem this might effectively redundantly do some of restore_view() [060123]
         cp.metainfo.restore_view(assy)
             # note: this means Undo restores view from beginning of undone command,
@@ -481,6 +489,95 @@ class SimpleDiff:
     def __repr__(self):
         return "<%s key %r type %r from %r to %r>" % (self.__class__.__name__, self.key, self.optype(), self.cps[0], self.cps[1])
     pass # end of class SimpleDiff
+
+# ==
+
+class SharedDiffopData:
+    """Hold replacement values for various attrs of various objects (objects are known to us only by their keys),
+    and be able to swap them with the attrvals in the objects, in alternate "directions"
+    """
+    def __init__(self):
+        self.attrdiffs = {} # maps attrnames to dicts from objkey to replacement-val, for use in self.direction
+        self.rev_attrdiffs = {} # ditto, for use in opposite direction, if we have them; typically built up while attrdiffs is applied
+        self.direction = -1 # the direction we can next be applied in (or 0 if we can be applied in either direction??)
+    def _swap(self):
+        assert self.direction # otherwise we'd literally swap them
+        self.attrdiffs = self.rev_attrdiffs # assume this is done after these were built up (should this attr be missing otherwise?)
+        self.rev_attrdiffs = {}
+        self.direction = - self.direction
+    def store(self, objkey, attr, val):
+        "this is mainly just example code, in reality we'd do some of this outside a loop, inline the rest"
+        key2val = self.attrdiffs.get(attr, {})
+        key2val[objkey] = val
+    def apply_to(self, archive, direction):
+        """Change the archive model objects by storing into them the attrvals we have recorded for them
+        (for a subset of obj,attr pairs), and pulling out the values we're overwriting
+        so we'll have enough info to undo this change later..
+        """
+        if self.direction:
+            assert self.direction == direction #k does this belong in caller? is it redundant with varid_vers?
+        obj_from_key = archive.obj_from_key # for efficiency, let this be a public dict in archive ###@@@
+        objs_touched = {} # by any attrs... for merging diffs, it might be better for caller to pass this and do the update,
+         #e  but then if our attrs come in layers, caller has to scan the diffs to merge one layer at a time, maybe... not sure;
+         # maybe it only has to do that for update, ie track objs touched in each layer.
+        #e we're not bothering to distinguish which attrs were touched, for now; later we might divide attrs into layers,
+        # do layers in order, update after each layer, just objs touched in that layer.
+        # Or, we might tell certain objs which attrs were touched (ie let them handle the touching, not setattr).
+        for attr, key2val in self.attrdiffs.items():
+            dflt = None # might be specific to attr; might be gotten out of obj.__class__??
+            key2old = {} # replaces key2val
+            for key, val in key2val.iteritems():
+                obj = obj_from_key[key]
+                # put val in obj at attr, but record the old val first, also update obj later
+                #e in future we might ask obj if it wants us to do this in a special way
+                oldval = getattr(obj, attr, dflt)
+                setattr(obj, attr, val)
+                objs_touched[key] = obj
+                # we don't need to copy val, since we're not keeping it (we already owned it, now obj does),
+                # or oldval, since obj no longer has it!
+                ##e assume we don't need to encode/decode them either
+                key2old[key] = oldval
+            # store key2old, zap key2val
+            self.rev_attrdiffs[attr] = key2old
+            del self.attrdiffs[attr]
+        assert not self.attrdiffs
+        for obj in objs_touched.values():
+            archive.update_touched_obj(obj) #e need to use a special order?? #e "touched" is putting it mildly
+        #e were varid-vers part of the ordinary attrs that got modified just now??
+        self._swap()
+        return
+    pass
+
+class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away ####@@@@ use this
+    """A more efficient diff, which only records differences between its checkpoints,
+    and also implements its own finalize method
+    """
+    def __init__(self, cp0, cp1 = None, direction = 1, **options):
+        if cp1 is None:
+            pass ####@@@@ cp1 is new checkpoint
+        SimpleDiff.__init__(self, cp0, cp1, direction, **options) ###e need to be passed cp1?? yes, privately...
+        # similarly to self.command_info, we need a private shared place to store the diff data for one or the other direction,
+        # and to know which direction it's in
+        self.shared_diffop_data = self.options.get('_shared_diffop_data', None)
+        if self.shared_diffop_data is None:
+            self.shared_diffop_data = SharedDiffopData()
+        self.options['_shared_diffop_data'] = self.shared_diffop_data
+    def apply_to(self, archive):
+        "apply this diff-operation to the model objects owned by archive"
+        cp = self.cps[1]
+        assert cp.complete
+        #e assert cps[0] is where we start?
+        self.shared_diffop_data.apply_to( archive, self.direction)
+        assy = archive.assy
+        ## assy.become_state(cp.state) # note: in present implem this might effectively redundantly do some of restore_view() [060123]
+        cp.metainfo.restore_view(assy)
+            # note: this means Undo restores view from beginning of undone command,
+            # and Redo restores view from end of redone command.
+            #e (Also worry about this when undoing or redoing a chain of commands.)
+        cp.metainfo.restore_assy_change_counter(assy) # change current-state varid_vers records
+        return
+    pass
+
 
 # ==
 
@@ -635,8 +732,8 @@ class MergingDiff(Delegator):
         Delegator.__init__(self, diff) # diff is now self.delegate; all its attrs should be constant since they get set on self too
         self.flags = flags
         self.archive = archive # this ref is non-cyclic, since this kind of diff doesn't get stored anywhere for a long time
-    def apply_to(self, assy):
-        res = self.delegate.apply_to(assy)
+    def apply_to(self, archive):
+        res = self.delegate.apply_to(archive)
         # print "now we should apply the diffs we would merge with",self #####@@@@@
         return res
     # def __del__(self):
@@ -756,21 +853,41 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
-        if self.last_cp.assy_change_counter == self.assy._change_counter: ###@@@ when assy has several, combine them into a ver tuple?
-            # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
-            # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
-            if debug_undo2:
-                print "checkpoint type %r with no change in state" % cptype, self.assy._change_counter
-            state = self.last_cp.state
-            self.current_diff.empty = True
-            self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
-                # I'm not sure this is right, but as long as varid_vers are the same, it seems to make sense... #####@@@@@
+        self.use_diff = False # until it won't crash
+        if self.use_diff:
+            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
+            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
+            # (nim or stub)
+            # can't yet optimize by using any change-counter, so at first this will get even slower...
+            # later we can have enough different kinds of change counter to cover every possible change, and restore this.
+            if 0: # if no change, for sure
+                pass #e use same-state optim like below
+            else:
+                ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
+                state_diff = current_state(self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs )
+                    #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
+                    # then we'd have option of copying it or leaving a copy behind, every so often...
+                    # and have a state to store here? nah.
+                    #  note: state_diff is actually a backwards diff, ie has enough info for undo but not for redo
+                self.current_diff.empty = False ###e change to some test on state we just got back
+                state
+                # or fill_checkpoint or equiv, here
         else:
-            if debug_undo2:
-                print "checkpoint %r at change %d, last cp was at %d" % (cptype, \
-                                self.assy._change_counter, self.last_cp.assy_change_counter)
-            state = current_state(self.assy)
-            self.current_diff.empty = False # used in constructing undo menu items ####@@@@ DOIT!
+            if self.last_cp.assy_change_counter == self.assy._change_counter: ###@@@ when assy has several, combine them into a ver tuple?
+                # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
+                # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
+                if debug_undo2:
+                    print "checkpoint type %r with no change in state" % cptype, self.assy._change_counter
+                state = self.last_cp.state
+                self.current_diff.empty = True
+                self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
+                    # I'm not sure this is right, but as long as varid_vers are the same, it seems to make sense... #####@@@@@
+            else:
+                if debug_undo2:
+                    print "checkpoint %r at change %d, last cp was at %d" % (cptype, \
+                                    self.assy._change_counter, self.last_cp.assy_change_counter)
+                state = current_state(self.assy)
+                self.current_diff.empty = False # used in constructing undo menu items ####@@@@ DOIT!
         fill_checkpoint(self.next_cp, state, self.assy) # stores self.assy._change_counter onto it -- do that here, for clarity?
             #e This will be revised once we incrementally track some changes - it won't redundantly grab unchanged state,
             # though it's likely to finalize and compress changes in some manner, or grab changed parts of the state.
@@ -837,7 +954,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
         # Some code (find_undoredos) might depend on self.assy._change_counter being a valid
         # representative of self.assy's state version;
-        # during op.apply_to(assy) that becomes false (as changes occur in assy), but apply_to corrects this at the end
+        # during op.apply_to( archive) that becomes false (as changes occur in archive.assy), but apply_to corrects this at the end
         # by restoring self.assy._change_counter to the correct old value from the end of the diff.
 
         # The remaining comments might be current, but they need clarification. [060126 comment]
@@ -845,7 +962,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # in present implem [060118], we assume without checking that this op is not being applied out-of-order,
         # and therefore that it always changes the model state between the same checkpoints that the diff was made between
         # (or that it can ignore and/or discard any way in which the current state disagrees with the diff's start-checkpoint-state).
-        op.apply_to(self.assy) # also restores view to what it was when that change was made [as of 060123]
+        op.apply_to( self) # also restores view to what it was when that change was made [as of 060123]
             # note: actually affects more than just assy, perhaps (ie glpane view state...)
             #e when diffs are tracked, worry about this one being tracked
             #e apply_to itself should also track how this affects varid_vers pairs #####@@@@@
