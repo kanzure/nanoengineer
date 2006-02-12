@@ -156,6 +156,41 @@ class ops_connected_Mixin:
                     atom.pick()
             # note: this doesn't actually select it unless it's not a singlet and its element passes the Selection Filter.
         return n
+        
+        
+    def getConnectedSinglets(self, atomlist):
+        '''Return a list of singlets reachable from all the atoms in atomlist.
+        '''
+        marked = {} # maps id(atom) -> atom, for processed atoms
+        todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
+        # from elements import Singlet
+        for atom in todo:
+            marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
+        while todo:
+            newtodo = []
+            for atom in todo:
+                assert id(atom) in marked
+                #e could optim by skipping singlets, here or before appending them.
+                #e in fact, we could skip all univalent atoms here, but (for non-singlets)
+                # only if they were not initially picked, so nevermind that optim for now.
+                for b in atom.bonds:
+                    at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
+                    if id(at1) not in marked: #e could also check for singlets here...
+                        marked[id(at1)] = at1
+                        newtodo.append(at1)
+                    if id(at2) not in marked:
+                        marked[id(at2)] = at2
+                        newtodo.append(at2)
+            todo = newtodo
+        
+        slist = []
+        
+        for atom in marked.itervalues():
+            if atom.is_singlet():
+                slist.append(atom)
+                
+        return slist
+
     
     pass # end of class ops_connected_Mixin
 
