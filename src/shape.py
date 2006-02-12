@@ -154,7 +154,7 @@ def fill(mat,p,dir):
 
 class simple_shape_2d: 
     "common code for selection curve and selection rectangle"
-    def __init__(self, shp, ptlist, origin, logic, opts):
+    def __init__(self, shp, ptlist, origin, selSense, opts):
         """ptlist is a list of 3d points describing a selection
         (in a subclass-specific manner).
         origin is the center of view, and shp.normal gives the direction
@@ -168,7 +168,7 @@ class simple_shape_2d:
         # store other args
         self.ptlist = ptlist
         self.org = origin + 0.0
-        self.logic = logic
+        self.selSense = selSense
         self.slab = opts.get('slab', None) # how thick in what direction
         self.eyeball = opts.get('eye', None) # for projecting if not in ortho mode
         
@@ -258,13 +258,13 @@ class simple_shape_2d:
 
 class rectangle(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
     "selection rectangle"
-    def __init__(self, shp, pt1, pt2, origin, logic, **opts):
-        simple_shape_2d.__init__( self, shp, [pt1, pt2], origin, logic, opts)        
+    def __init__(self, shp, pt1, pt2, origin, selSense, **opts):
+        simple_shape_2d.__init__( self, shp, [pt1, pt2], origin, selSense, opts)        
     def isin(self, pt):
         return self.isin_bbox(pt)
     def draw(self):
         """Draw the rectangle"""
-        color = logicColor(self.logic)
+        color = get_selCurve_color(self.selSense)
         drawrectangle(self.ptlist[0], self.ptlist[1], self.right, self.up, color)
     pass
 
@@ -273,14 +273,14 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
     """Represents a single closed curve in 3-space, projected to a
     specified plane.
     """
-    def __init__(self, shp, ptlist, origin, logic, **opts):
+    def __init__(self, shp, ptlist, origin, selSense, **opts):
         """ptlist is a list of 3d points describing a selection.
         origin is the center of view, and normal gives the direction
         of the line of light. Form a structure for telling whether
         arbitrary points fall inside the curve from the point of view.
         """
         # bruce 041214 rewrote some of this method
-        simple_shape_2d.__init__( self, shp, ptlist, origin, logic, opts)
+        simple_shape_2d.__init__( self, shp, ptlist, origin, selSense, opts)
         
         # bounding rectangle, in integers (scaled 8 to the angstrom)
         ibbhi = array(map(int,ceil(8*self.bboxhi)+2))
@@ -360,7 +360,7 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         [bruce 041214 adds comment: the code looks like it
         only draws one projection.]
         """
-        color = logicColor(self.logic)
+        color = get_selCurve_color(self.selSense)
         pl = zip(self.ptlist[:-1],self.ptlist[1:])
         for p in pl:
             drawline(color,p[0],p[1])
@@ -378,13 +378,13 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
 
 class Circle(simple_shape_2d):
     """Represents the area of a circle ortho projection intersecting with a slab. """
-    def __init__(self, shp, ptlist, origin, logic, **opts):
+    def __init__(self, shp, ptlist, origin, selSense, **opts):
         """<Param> ptlist: the circle center and a point on the perimeter """
-        simple_shape_2d.__init__( self, shp, ptlist, origin, logic, opts)
+        simple_shape_2d.__init__( self, shp, ptlist, origin, selSense, opts)
             
     def draw(self):
         """the profile circle draw"""
-        color =  logicColor(self.logic)
+        color =  get_selCurve_color(self.selSense)
         drawCircle(color, self.ptlist[0], self.rad, self.slab.normal)
         
     def isin(self, pt):
@@ -428,18 +428,18 @@ class shape:
         self.up = up
         self.normal = normal
     
-    def pickline(self, ptlist, origin, logic, **xx):
+    def pickline(self, ptlist, origin, selSense, **xx):
             """Add a new curve to the shape.
-            Args define the curve (see curve) and the logic operator
+            Args define the curve (see curve) and the selSense operator
             for the curve telling whether it adds or removes material.
             """
-            c = curve(self, ptlist, origin, logic, **xx)
+            c = curve(self, ptlist, origin, selSense, **xx)
             #self.curves += [c]
             #self.bbox.merge(c.bbox)
             return c
             
-    def pickrect(self, pt1, pt2, org, logic, **xx):
-            c = rectangle(self, pt1, pt2, org, logic, **xx)
+    def pickrect(self, pt1, pt2, org, selSense, **xx):
+            c = rectangle(self, pt1, pt2, org, selSense, **xx)
             #self.curves += [c]
             #self.bbox.merge(c.bbox)
             return c
@@ -451,11 +451,11 @@ class shape:
     
 class SelectionShape(shape):
         """This is used to construct shape for atoms/chunks selection. A curve or rectangle will be created, which is used as an area selection of all the atoms/chunks """
-        def pickline(self, ptlist, origin, logic, **xx):
-            self.curve = shape.pickline(self, ptlist, origin, logic, **xx)
+        def pickline(self, ptlist, origin, selSense, **xx):
+            self.curve = shape.pickline(self, ptlist, origin, selSense, **xx)
    
-        def pickrect(self, pt1, pt2, org, logic, **xx):
-            self.curve = shape.pickrect(self, pt1, pt2, org, logic, **xx)
+        def pickrect(self, pt1, pt2, org, selSense, **xx):
+            self.curve = shape.pickrect(self, pt1, pt2, org, selSense, **xx)
             
         def select(self, assy):
             """Loop thru all the atoms that are visible and select any
@@ -465,10 +465,10 @@ class SelectionShape(shape):
             # also added .hidden check to the last of 3 cases. Left everything else
             # as I found it. This code ought to be cleaned up to make it clear that
             # it uses the same way of finding the selection-set of atoms, for all
-            # three logic cases in each of select and partselect. If anyone adds
+            # three selSense cases in each of select and partselect. If anyone adds
             # back any differences, this needs to be explained and justified in a
             # comment; lacking that, any such differences should be considered bugs.
-            # (BTW I don't know whether it's valid to care about logic of only the
+            # (BTW I don't know whether it's valid to care about selSense of only the
             # first curve in the shape, as this code does.)
             
             # Huaicai 04/23/05: For selection, every shape only has one curve, so 
@@ -479,22 +479,23 @@ class SelectionShape(shape):
             if assy.selwhat:
                 self._chunksSelect(assy)
             else:
-                if self.curve.logic == 2: # New selection curve. Consistent with Select Chunks behavior.
+                if self.curve.selSense == START_NEW_SELECTION: 
+                    # New selection curve. Consistent with Select Chunks behavior.
                     assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
                 self._atomsSelect(assy)   
         
         
         def _atomsSelect(self, assy):
-            """Select all atoms inside the shape according to its selection logic."""    
+            """Select all atoms inside the shape according to its selection selSense."""    
             c=self.curve
-            if c.logic == 1:
+            if c.selSense == ADD_TO_SELECTION:
                 for mol in assy.molecules:
                     if mol.hidden: continue
                     disp = mol.get_dispdef()
                     for a in mol.atoms.itervalues():
                         if c.isin(a.posn()) and a.visible(disp):
                             a.pick()
-            elif c.logic == 2:
+            elif c.selSense == START_NEW_SELECTION:
                 for mol in assy.molecules:
                     if mol.hidden: continue
                     disp = mol.get_dispdef()
@@ -503,27 +504,42 @@ class SelectionShape(shape):
                             a.pick()
                         else:
                             a.unpick()
-            else:
+            elif c.selSense == SUBTRACT_FROM_SELECTION:
                 for a in assy.selatoms.values():
                     if a.molecule.hidden: continue #bruce 041214
                     if c.isin(a.posn()) and a.visible():
                         a.unpick()
+            elif c.selSense == DELETE_SELECTION:
+                todo = []
+                for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(disp):
+                            if a.is_singlet(): continue
+                            todo.append(a)
+                for a in todo[:]:
+                    a.kill()
+            else:
+                print "Error in shape._atomsSelect(): Invalid selSense=", c.selSense
+                #& debug method. mark 060211.
 
         def _chunksSelect(self, assy):
             """Loop thru all the atoms that are visible and select any
             that are 'in' the shape, ignoring the thickness parameter.
             pick the parts that contain them
             """
+
         #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
         # also added .hidden check to the last of 3 cases. Same in self.select().
             c=self.curve
-            if c.logic == 2:
+            if c.selSense == START_NEW_SELECTION:
                 # drag selection: unselect any selected molecule not in the area, 
                 # modified by Huaicai to fix the selection bug 10/05/04
                 for m in assy.selmols[:]:
                     m.unpick()
                             
-            if c.logic == 1 or c.logic == 2 : # shift drag selection
+            if c.selSense == ADD_TO_SELECTION or c.selSense == START_NEW_SELECTION:
                 for mol in assy.molecules:
                     if mol.hidden: continue
                     disp = mol.get_dispdef()
@@ -532,7 +548,7 @@ class SelectionShape(shape):
                                 a.molecule.pick()
                                 break
     
-            if c.logic == 0:  # Ctrl drag slection --everything selected inside dragging area unselected
+            if c.selSense == SUBTRACT_FROM_SELECTION:
                 for m in assy.selmols[:]:
                     if m.hidden: continue #bruce 041214
                     disp = m.get_dispdef()
@@ -598,10 +614,11 @@ class CookieShape(shape):
     
     def isin(self, pt, curves=None):
         """returns 1 if pt is properly enclosed by the curves.
-        curve.logic = 1 ==> include if inside
-        curve.logic = 0 ==> remove if inside
-        curve.logic = 2 ==> remove if outside
+        curve.selSense = 1 ==> include if inside
+        curve.selSense = 0 ==> remove if inside
+        curve.selSense = 2 ==> remove if outside
         """
+        #& To do: docstring needs to be updated.  mark 060211.
         # bruce 041214 comment: this might be a good place to exclude points
         # which are too close to the screen to be drawn. Not sure if this
         # place would be sufficient (other methods call c.isin too).
@@ -609,34 +626,37 @@ class CookieShape(shape):
         val = 0
         if not curves: curves = self.curves
         for c in curves:
-            if c.logic == 1: val = val or c.isin(pt)
-            elif c.logic == 2: val = val and c.isin(pt)
-            elif c.logic == 0: val = val and not c.isin(pt)
+            if c.selSense == ADD_TO_SELECTION: 
+                val = val or c.isin(pt)
+            elif c.selSense == OUTSIDE_SUBTRACT_FROM_SELECTION:
+                val = val and c.isin(pt)
+            elif c.selSense == SUBTRACT_FROM_SELECTION:
+                val = val and not c.isin(pt)
         return val
     
-    def pickCircle(self, ptlist, origin, logic, layer, slabC):
+    def pickCircle(self, ptlist, origin, selSense, layer, slabC):
         """Add a new circle to the shape. """
-        c = Circle(self, ptlist, origin, logic, slab=slabC)
+        c = Circle(self, ptlist, origin, selSense, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
     
-    def pickline(self, ptlist, origin, logic, layer, slabC):
+    def pickline(self, ptlist, origin, selSense, layer, slabC):
         """Add a new curve to the shape.
-        Args define the curve (see curve) and the logic operator
+        Args define the curve (see curve) and the selSense operator
         for the curve telling whether it adds or removes material.
         """
-        c = shape.pickline(self, ptlist, origin, logic, slab=slabC)
+        c = shape.pickline(self, ptlist, origin, selSense, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
         
-    def pickrect(self, pt1, pt2, org, logic, layer, slabC):
+    def pickrect(self, pt1, pt2, org, selSense, layer, slabC):
         """Add a new rectangle to the shape.
-        Args define the rectangle and the logic operator
+        Args define the rectangle and the selSense operator
         for the curve telling whether it adds or removes material.
         """
-        c = shape.pickrect(self, pt1, pt2, org, logic, slab=slabC)
+        c = shape.pickrect(self, pt1, pt2, org, selSense, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
@@ -772,7 +792,7 @@ class CookieShape(shape):
             hedrons = self.hedroPosDict[layer]
         else: hedrons = {}
         
-        if c.logic == 0: ##Remove if inside
+        if c.selSense == SUBTRACT_FROM_SELECTION:
             markedAtoms = self.markedAtoms
             if not self.bondLayers or not self.bondLayers.has_key(layer):   return
             else:
@@ -788,7 +808,8 @@ class CookieShape(shape):
                 self. _removeMarkedAtoms(bonds, markedAtoms, 
                                                                             carbons, hedrons)
         
-        elif c.logic == 2: ##Remove if outside
+        elif c.selSense == OUTSIDE_SUBTRACT_FROM_SELECTION:
+            #& This differs from the standard selection scheme for Shift+Drag. mark 060211.
             if not self.bondLayers or not self.bondLayers.has_key(layer):       return
             bonds = self.bondLayers[layer]
             newBonds = {}; newCarbons = {}; newHedrons = {}; 
@@ -815,7 +836,7 @@ class CookieShape(shape):
                 self._logic2Bond(carbons, bonds, hedrons, insideAtoms, newStorage)
             bonds, carbons, hedrons = newStorage
             
-        elif c.logic == 1: ##Include if inside
+        elif c.selSense == ADD_TO_SELECTION:
             if self.bondLayers.has_key(layer):
                 bonds = self.bondLayers[layer]
             else:

@@ -136,11 +136,6 @@ ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wr
 globalParms = {}
 globalParms['WorkingDirectory'] = "."
 
-def logicColor(logic):
-    if logic==0: return orange
-    if logic==1: return navy
-    if logic==2: return yellow
-
 elemKeyTab =  [('H', Qt.Key_H, 1),
                ('B', Qt.Key_B, 5),
                ('C', Qt.Key_C, 6),
@@ -167,6 +162,49 @@ SELWHAT_NAMES = {SELWHAT_ATOMS: "Atoms", SELWHAT_CHUNKS: "Chunks"} # for use in 
 # mark 060206 adding named constants for selection shapes.
 SELSHAPE_LASSO = 'LASSO'
 SELSHAPE_RECT = 'RECTANGLE'
+
+# mark 060206 adding named constants for selection logic.  
+#& To do: Change these from ints to strings. mark 060211.
+SUBTRACT_FROM_SELECTION = 'Subtract Inside'
+OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside' # used in cookieMode only.
+ADD_TO_SELECTION = 'Add'
+START_NEW_SELECTION = 'New'
+DELETE_SELECTION = 'Delete'
+#& Keep these around for a little while for reference until I'm sure I converted everything properly.  mark 060212.
+#SUBTRACT_FROM_SELECTION = 0
+#ADD_TO_SELECTION = 1
+#START_NEW_SELECTION = 2
+#DELETE_SELECTION = 3
+
+def get_selCurve_color(selSense, bgcolor=white):
+    '''Returns line color of the selection curve. 
+    Returns <black> for light colored backgrounds (and Sky Blue).
+    Returns <white> for dark colored backgrounds.
+    Returns <red> if <selSense> is DELETE_SELECTION mode.
+    '''
+    
+    if selSense == DELETE_SELECTION: 
+        return red
+    
+    get_selCurve_color = black
+    
+    from VQT import vlen, A
+    color_diff = vlen(A(get_selCurve_color)-A(bgcolor))
+    
+    if color_diff < 0.5:
+        return white
+    else:
+        return black
+            
+def get_selCurve_color_ORIG(selSense, bgcolor=white):
+    #& Decided it was better to keep the color the same for all selSense types except 
+    #& DELETE_SELECTION.
+    #& Keep this here in case we want to reinstate line color based on selSense.  mark 060212. 
+    if selSense == SUBTRACT_FROM_SELECTION: return gray # was orange
+    if selSense == ADD_TO_SELECTION: return gray # was navy
+    if selSense == START_NEW_SELECTION: return gray # was yellow
+    if selSense == OUTSIDE_SUBTRACT_FROM_SELECTION: return gray # was yellow
+    if selSense == DELETE_SELECTION: return red
 
 # Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
 

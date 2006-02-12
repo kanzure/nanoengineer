@@ -1217,7 +1217,7 @@ class basicMode(anyMode):
     def draw_selection_curve(self):
         """Draw the (possibly unfinished) freehand selection curve.
         """
-        color = logicColor(self.selSense)
+        color = get_selCurve_color(self.selSense, self.backgroundColor)
         
         pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
@@ -1324,10 +1324,10 @@ class basicMode(anyMode):
                 obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
                 if isinstance(obj, Jig):
-                    if selSense == 0: #Ctrl key, unpick picked
+                    if selSense == SUBTRACT_FROM_SELECTION: #Ctrl key, unpick picked
                         if obj.picked:  
                             obj.unpick()
-                    elif selSense == 1: #Shift key, Add pick
+                    elif selSense == ADD_TO_SELECTION: #Shift key, Add pick
                         if not obj.picked: 
                             obj.pick()
                     else:               #Without key press, exclusive pick

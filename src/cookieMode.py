@@ -236,13 +236,13 @@ class cookieMode(basicMode):
         self.o.setCursor(self.w.CookieAddCursor)
     
     def leftDown(self, event):
-        self.StartDraw(event, 1) # add to selection
+        self.StartDraw(event, ADD_TO_SELECTION) # add to selection
     
     def leftShiftDown(self, event):
-        self.StartDraw(event, 2) # new selection (replace)
+        self.StartDraw(event, OUTSIDE_SUBTRACT_FROM_SELECTION) # new selection (replace)
 
     def leftCntlDown(self, event):
-        self.StartDraw(event, 0) # subtract from selection
+        self.StartDraw(event, SUBTRACT_FROM_SELECTION) # subtract from selection
 
     def StartDraw(self, event, sense):
         """Start a selection curve
@@ -311,13 +311,13 @@ class cookieMode(basicMode):
         
     
     def leftUp(self, event):
-        self.EndDraw(event, 1)
+        self.EndDraw(event, ADD_TO_SELECTION)
     
     def leftShiftUp(self, event):
-        self.EndDraw(event, 2)
+        self.EndDraw(event, OUTSIDE_SUBTRACT_FROM_SELECTION)
     
     def leftCntlUp(self, event):
-        self.EndDraw(event, 0)
+        self.EndDraw(event, SUBTRACT_FROM_SELECTION)
 
     def leftDouble(self, event):
         """End rubber selection """
@@ -606,8 +606,8 @@ class cookieMode(basicMode):
 
         
     def _getXorColor(self, color):
-        """Get color for <color>.  When the color is XORed with background color, it will get <color>. If background color is close to <color>
-        , we'll use white color. 
+        """Get color for <color>.  When the color is XORed with background color, it will get <color>. 
+        If background color is close to <color>, we'll use white color.
         """
         bg = self.backgroundColor
         diff = vlen(A(color)-A(bg))
@@ -624,8 +624,10 @@ class cookieMode(basicMode):
  
     def draw_selection_curve(self, lastDraw = False):
         """Draw the selection curve."""
-        color = logicColor(self.selSense)
-        color = self._getXorColor(color)
+        color = get_selCurve_color(self.selSense, self.backgroundColor)
+        color = self._getXorColor(color) 
+            #& Needed since drawrectangle() in rectangle instance calls get_selCurve_color(), but can't supply bgcolor.
+            #& This should be fixed.  Later.  mark 060212.
         
         if not self.selectionShape == 'DEFAULT':
             if self.selCurve_List:

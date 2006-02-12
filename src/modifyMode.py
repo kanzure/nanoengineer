@@ -319,9 +319,9 @@ class modifyMode(basicMode):
 
     def leftUp(self, event):
         if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
-            self.EndPick(event, 1) # Fixes bug 1015. Mark 051124.
+            self.EndPick(event, ADD_TO_SELECTION) # Fixes bug 1015. Mark 051124.
         else:
-            self.EndPick(event, 2)
+            self.EndPick(event, START_NEW_SELECTION)
         
     def EndPick(self, event, selSense):
         """Pick if click
@@ -341,9 +341,12 @@ class modifyMode(basicMode):
             if self.jigSelectionEnabled and self.jigGLSelect(event, selSense):
                 has_jig_selected = True
             if not has_jig_selected:
-                if selSense == 0: self.o.assy.unpick_at_event(event)
-                if selSense == 1: self.o.assy.pick_at_event(event)
-                if selSense == 2: self.o.assy.onlypick_at_event(event)
+                if selSense == SUBTRACT_FROM_SELECTION: 
+                    self.o.assy.unpick_at_event(event)
+                if selSense == ADD_TO_SELECTION: 
+                    self.o.assy.pick_or_delete_at_event(event, op='Pick')
+                if selSense == START_NEW_SELECTION: 
+                    self.o.assy.onlypick_at_event(event)
                 
             self.w.win_update()
      
@@ -380,7 +383,7 @@ class modifyMode(basicMode):
         self.o.gl_update()
 
     def leftCntlUp(self, event):
-        self.EndPick(event, 0)
+        self.EndPick(event, SUBTRACT_FROM_SELECTION)
     
     def leftShiftDown(self, event):
         """ Set up for sliding or rotating the selected part
@@ -428,7 +431,7 @@ class modifyMode(basicMode):
     
     
     def leftShiftUp(self, event):
-        self.EndPick(event, 1)
+        self.EndPick(event, ADD_TO_SELECTION)
 
 
     def leftDouble(self, event):

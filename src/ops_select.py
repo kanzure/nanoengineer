@@ -340,15 +340,14 @@ class ops_select_Mixin:
     # for Node subclasses, with common semantics different than these have.
     # I removed some no-longer-used related methods.
     
-    def pick_at_event(self, event): #renamed from pick; modified
-        """Make whatever visible atom or chunk (depending on self.selwhat)
-        is under the mouse at event get selected,
-        in addition to whatever already was selected.
+    def pick_or_delete_at_event(self, event, op='Pick'): #renamed from pick; modified
+        # renamed from pick_at_event(). mark 060212.
+        """If <op> is 'Pick' (default), pick whatever visible atom or chunk (depending on 
+        self.selwhat) is under the mouse, adding it to the current selection. 
         You are not allowed to select a singlet.
-        Print a message about what you just selected (if it was an atom).
-        
-        If the selection behavior is set to "Alpha 7 behavior" and no atom is selected,
-        everything in the part is unselected.
+        If <op> is 'Delete', delete the atom or chunk instead, leaving the selection
+        unchanged for any atoms/chunks in the current selection not deleted.
+        Print a message about what you just selected (if it was an atom) or deleted.
         """
         # [bruce 041227 moved the getinfo status messages here, from the atom
         # and molecule pick methods, since doing them there was too verbose
@@ -362,12 +361,20 @@ class ops_select_Mixin:
                     self.selmols = []
                     # bruce 041214 added that, since pickpart used to do it and
                     # calls of that now come here; in theory it's never needed.
-                atm.molecule.pick()
-                env.history.message(atm.molecule.getinfo())
+                if op == 'Pick':
+                    atm.molecule.pick()
+                    env.history.message(atm.molecule.getinfo())
+                elif op == 'Delete':
+                    env.history.message("Deleted " + atm.molecule.name)
+                    atom.molecule.kill()
             else:
                 assert self.selwhat == SELWHAT_ATOMS
-                atm.pick()
-                env.history.message(atm.getinfo())
+                if op == 'Pick':
+                    atm.pick()
+                    env.history.message(atm.getinfo())
+                elif op == 'Delete':
+                    env.history.message("Deleted " + str(atm) )
+                    atm.kill()
         
         # Added 'Alpha 7' selection behavior.  This code unselects everything
         # if no atom/chunk was selected.  Mark 050924.
@@ -389,7 +396,7 @@ class ops_select_Mixin:
             assert self.selwhat == SELWHAT_ATOMS
             self.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
             self.unpickatoms()
-        self.pick_at_event(event)
+        self.pick_or_delete_at_event(event, op='Pick')
     
     def unpick_at_event(self, event): #renamed from unpick; modified
         """Make whatever visible atom or chunk (depending on self.selwhat)

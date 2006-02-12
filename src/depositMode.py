@@ -38,6 +38,8 @@ HICOLOR_singlet_bond = white ## ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_b
 
 _count = 0
 
+DRAG_STICKINESS_LIMIT = 0.06 #& Make it a user pref.  Mark 060212.
+
 #bruce 050121 split out hotspot helper functions, for slightly more general use
 
 def is_pastable(obj): #e refile and clean up
@@ -400,6 +402,8 @@ class depositMode(selectAtomsMode):
             # used by leftDouble() to determine the object that was double clicked.
         self.bond_clicked = None
             # bond that was clicked by LMB during leftDown.
+        self.drag_stickiness_limit_exceeded = False
+            # used in leftDrag() to determine if the drag stickiness limit was exceeded.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -1396,7 +1400,10 @@ class depositMode(selectAtomsMode):
             
         self.LMB_press_event = QMouseEvent(event) # Save this event.  
             # We need it later when we change our mind and start selecting a 2D region in leftDrag().
-        
+            
+        self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
+            # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().
+            
         a = self.get_obj_under_cursor(event) # mark 060206.
             # <a> can be None and yet we still selected something (i.e. a bond), which is determined by self.o.selobj.
             
@@ -1487,6 +1494,12 @@ class depositMode(selectAtomsMode):
             
         if not self.dragatom: return
         
+        # We are dragging around a singlet or a real atom.
+        
+        # Check how far the mouse has been dragged.
+        if self.mouse_within_stickiness_limit(event):
+            return
+
         a = self.dragatom
         apos0 = a.posn()
         
@@ -1546,6 +1559,10 @@ class depositMode(selectAtomsMode):
         
         a = self.dragatom
         
+        if self.selCurve_length/self.o.scale < 0.03:
+            # didn't move much, call it a click
+            event = self.LMB_press_event
+        
         if self.dragatom_clicked:
             # Select, unselect or delete the atom based on the current modkey.
             self.modkeyAtom(a, event)
@@ -1581,19 +1598,30 @@ class depositMode(selectAtomsMode):
             return
         
         if isinstance(self.obj_doubleclicked, Atom):
-            if self.modkey == 'Control':
-                op = 'Unselect'
-                atomlist = [ self.obj_doubleclicked ]
-            elif self.modkey == 'Delete':
-                op = 'Delete'
-                atomlist = self.neighbors_of_last_deleted_atom
-            else:
-                op = 'Select'
-                atomlist = [ self.obj_doubleclicked ]
+            if self.obj_doubleclicked.is_singlet():
+                modkey = self.modkey # save the modkey state
+                if self.modkey is None:
+                    self.modkey = 'Shift'
+                    # needed for trans-deposit selection consistency when no modifier key is pressed.
+                for s in self.singlet_list[:]:
+                    if s is not self.obj_doubleclicked:
+                        #& singlets from deposited obj will autobond with singlets in singlet_list[].
+                        #& this is a known bug; to be fixed after talking with Bruce.  mark 060212.
+                        self.deposit_from_MMKit(s)
+                self.modkey = modkey # restore the modkey state to real state.
             
-            #print "-------------\nop=", op
-            #print "atomlist=",atomlist
-            self.o.assy.selectConnected( atomlist, op )
+            else: # real atom
+                if self.modkey == 'Control':
+                    op = 'Unselect'
+                    atomlist = [ self.obj_doubleclicked ]
+                elif self.modkey == 'Delete':
+                    op = 'Delete'
+                    atomlist = self.neighbors_of_last_deleted_atom
+                else:
+                    op = 'Select'
+                    atomlist = [ self.obj_doubleclicked ]
+            
+                self.o.assy.selectConnected( atomlist, op )
             
         if isinstance(self.obj_doubleclicked, Bond):
             if self.modkey == 'Control':
@@ -1616,6 +1644,21 @@ class depositMode(selectAtomsMode):
         self.ignore_next_leftUp_event = True
 
 # == end of LMB event handler methods
+
+    def mouse_within_stickiness_limit(self, event):
+        '''Returns True if the mouse hasn't exceeded the distance determined by the "stickiness limit".
+        Returns False if the mouse has exceeded the limit.
+        '''
+        if self.drag_stickiness_limit_exceeded:
+            return False
+        
+        LMB_drag_pt, junk = self.o.mousepoints(event, 0.01)
+        self.drag_distance = vlen(LMB_drag_pt - self.LMB_press_pt)
+        if self.drag_distance/self.o.scale < DRAG_STICKINESS_LIMIT:
+            return True
+        else:
+            self.drag_stickiness_limit_exceeded = True
+            return False
 
     def modkeyBond(self, b, event):
         '''Select or unselect the bond <b>'s atoms, or delete bond <b>, based on the current modkey.
@@ -1734,8 +1777,8 @@ class depositMode(selectAtomsMode):
             self.start_selection_curve(event, ADD_TO_SELECTION)
         if self.modkey == 'Control':
             self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
-        #& if self.modkey == 'Delete': # To be implemented soon.  mark 060211.
-        #&     self.start_selection_curve(event, DELETE_SELECTION)
+        if self.modkey == 'Delete': # To be implemented soon.  mark 060211.
+             self.start_selection_curve(event, DELETE_SELECTION)
         return
             
 
@@ -2279,7 +2322,11 @@ class depositMode(selectAtomsMode):
         '''Setup dragging of singlet <a>.
         '''
         self.initDragObject(a)
-        #& self.obj_doubleclicked = a # for trans-deposit implem (soon). mark 060211.
+        self.obj_doubleclicked = a # for trans-deposit implem (soon). mark 060211.
+        
+        self.singlet_list = self.o.assy.getConnectedSinglets([a])
+            # get list of all singlets that we can reach from any sequence of bonds to <a>.
+            # used in doubleLeft() if the user clicks on 
         
         pivatom = a.neighbors()[0]
         self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209

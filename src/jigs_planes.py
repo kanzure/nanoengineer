@@ -399,7 +399,7 @@ class ESPImage(RectGadget):
         self.cntl = ESPImageProp(self, self.assy.o)
 
     
-    def _createShape(self, selSense = 2):
+    def _createShape(self, selSense = START_NEW_SELECTION):
         ''' '''
         hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
         
@@ -409,6 +409,7 @@ class ESPImage(RectGadget):
         for p in pos:   
             p3d += [self.quat.rot(p) + self.center]
         
+        # selSense used to highlight (not select) atoms inside the jig's volume.
         shape.pickrect(p3d[0], p3d[1], self.center, selSense, slab=slab)
 
         return shape
@@ -416,10 +417,12 @@ class ESPImage(RectGadget):
         
     def pickSelected(self, pick):
         '''Select atoms inside the ESP Image bounding box. Actually this works for chunk too.'''
-        if not pick: sense = 0
-        else: sense = 2
         
-        shape = self._createShape(sense)
+        # selSense is used to highlight (not select) atoms inside the jig's volume.
+        if not pick: selSense = SUBTRACT_FROM_SELECTION
+        else: selSense = START_NEW_SELECTION
+        
+        shape = self._createShape(selSense)
         shape.select(self.assy)
 
         

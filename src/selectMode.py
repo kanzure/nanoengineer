@@ -11,18 +11,6 @@ import env
 
 ## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
 
-
-#& Values for selSense. DO NOT CHANGE THESE VALUES. They correspond to
-#& the <logic> values used in pickrect() and pickline() in shapes.py.  
-#& These should probably be moved to constants.py and used in shapes.py, but be
-#& careful since classes/methods in shapes.py support standard selection *and*
-#& cookie cutter selection, which differ.
-#& While fixing all this, change these from ints to strings.
-#& mark 060205.
-SUBTRACT_FROM_SELECTION = 0
-ADD_TO_SELECTION = 1
-START_NEW_SELECTION = 2
-
 def do_what_MainWindowUI_should_do(w):
     '''This creates the Select Atoms (not the Select Chunks) dashboard .
     '''
@@ -318,9 +306,11 @@ class selectMode(basicMode):
                 if self.selSense == SUBTRACT_FROM_SELECTION: 
                     self.o.assy.unpick_at_event(event)
                 elif self.selSense == ADD_TO_SELECTION: 
-                    self.o.assy.pick_at_event(event)
+                    self.o.assy.pick_or_delete_at_event(event, op='Pick')
                 elif self.selSense == START_NEW_SELECTION: 
                     self.o.assy.onlypick_at_event(event)
+                elif self.selSense == DELETE_SELECTION: 
+                    self.o.assy.pick_or_delete_at_event(event, op='Delete')
                 else:
                     print 'Error in end_selection_curve(): Invalid selSense=', self.selSense
 
@@ -652,6 +642,7 @@ class selectAtomsMode(selectMode):
         def update_cursor(self, modkey):
             '''Update the mouse cursor based on <modkey>.
             '''
+            #& selectMolsMode could use a method like this. mark 060212.
             #print "update_cursor(): modkey=",modkey
             if modkey is None:
                 self.o.setCursor(self.w.SelectAtomsCursor)
@@ -666,6 +657,7 @@ class selectAtomsMode(selectMode):
             return
             
         def update_modkeyPress(self, key):
+            #& Move to selectMode superclass. mark 060212.
             if key != Qt.Key_Shift and key != Qt.Key_Control:
                 return
                 
@@ -697,6 +689,8 @@ class selectAtomsMode(selectMode):
         def keyPress(self,key):
             from MWsemantics import eCCBtab2
             
+            #& selectMode superclass needs its own keyPress().  Move update_modkeyPress() into it. mark 060212.
+            
             basicMode.keyPress(self, key)
             self.update_modkeyPress(key)
 
@@ -710,6 +704,8 @@ class selectAtomsMode(selectMode):
 
                 
         def update_modkeyRelease(self, key):
+            #& Move to selectMode superclass. mark 060212.
+            
             if key != Qt.Key_Shift and key != Qt.Key_Control:
                 return
                 
@@ -743,6 +739,7 @@ class selectAtomsMode(selectMode):
                 
                 
         def keyRelease(self,key):
+            #& selectMode superclass needs its own keyPress().  Move update_modkeyRelease() into it. mark 060212.
             basicMode.keyRelease(self, key)
             self.update_modkeyRelease(key)
             
@@ -775,7 +772,7 @@ class selectAtomsMode(selectMode):
                     #& double click clears the selection and picks the atom under the
                     #& cursor.  This does not work when holding down the Shift key.
                     #&
-                    #& depositMode's leftDouble method supports all modkey combos.
+                    #& depositMode's leftDouble() method supports all modkey combos.
                     #& Discuss with Bruce the challenges and pros-cons of supporting
                     #& leftDouble functionality for all modkeys here.
                     #& mark 060211.
