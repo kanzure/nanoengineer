@@ -1760,206 +1760,215 @@ class Tests(baseClass):
         JigTest(dir="temperature_tests", test="003_thermostat_test")
 
 
-if False:
-    # a clever way to run only one test, when you're having trouble with a
-    # test and need to debug it, and don't care about all the others
-    for nm in dir(Tests):
-        if nm.startswith("test_") and nm != "test_singlebond_stretch_HS_BH2":
-            try: delattr(Tests, nm)
-            except AttributeError: pass
+
+class Main(unittest.TextTestRunner):
+    def main(self, args):
+        options = None
+        # Process command line arguments
+        def generate(x):
+            """update md5sums files according to current simulator
+            behavior
+            """
+            global GENERATE
+            GENERATE = True
+        def md5check(x):
+            """perform MD5 checksum comparisons; useful for simulator
+            development
+            """
+            global MD5_CHECKS
+            if sys.platform != "linux2":
+                raise SystemExit("MD5 checks supported only on Linux")
+            MD5_CHECKS = True
+        def lengths_angles(x):
+            """perform structure comparisons with known-good structures
+            computed by QM minimizations, comparing bond lengths and bond
+            angles
+            """
+            global STRUCTURE_COMPARISON_TYPE
+            STRUCTURE_COMPARISON_TYPE = LENGTH_ANGLE_TEST
+        def structcompare(x):
+            """perform structure comparisons with known-good structures
+            computed by QM minimizations, using code in structcompare.c
+            """
+            global STRUCTURE_COMPARISON_TYPE
+            STRUCTURE_COMPARISON_TYPE = STRUCTCOMPARE_C_TEST
+        def time_limit(x):
+            """do as many tests as possible in this many seconds
+            """
+            assert x[:1] == "="
+            global TIME_LIMIT
+            TIME_LIMIT = string.atof(x[1:])
+        def pyrex(x):
+            """Perform the Pyrex tests
+            """
+            for nm in dir(Tests):
+                if nm.startswith("test_") and not nm.startswith("test_pyrex"):
+                    try: delattr(Tests, nm)
+                    except AttributeError: pass
+        def loose(x):
+            """Loosen tolerances on length and angle comparisons.
+            """
+            global LOOSE_TOLERANCES
+            LOOSE_TOLERANCES = True
+        def test_dir(x):
+            """which directory should we test
+            """
+            assert x[:1] == "="
+            x = x[1:]
+            assert x in ("minimize", "dynamics", "rigid_organics",
+                         "amino_acids", "floppy_organics",
+                         "heteroatom_organics")
+            global TEST_DIR
+            TEST_DIR = x
+        def list_everything(x):
+            """Instead of just showing the first failure for each test
+            case, show every non-compliant energy term
+            """
+            global LIST_EVERYTHING
+            LIST_EVERYTHING = True
+
+        def debug(x):
+            """debug this script
+            """
+            global DEBUG
+            if x[:1] == "=":
+                DEBUG = string.atoi(x[1:])
+            else:
+                DEBUG = 1
+        def time_only(x):
+            """measure the time each test takes, ignore any results
+            """
+            global TIME_ONLY, Tests
+            TIME_ONLY = True
+        def keep(x):
+            """when a test is finished, don't delete its temporary
+            directory (useful for debug)
+            """
+            global KEEP_RESULTS
+            KEEP_RESULTS = True
+        def todo_tasks(x):
+            """reminders of what work still needs doing
+            """
+            global SHOW_TODO, MD5_CHECKS
+            SHOW_TODO = True
+            # catch all the TODOs everywhere
+            MD5_CHECKS = True
+        def verbose_failures(x):
+            """print non-abbreviated assertion statements (useful for
+            debug)
+            """
+            global VERBOSE_FAILURES
+            VERBOSE_FAILURES = True
+
+        def help(x):
+            """print help information
+            """
+            print __doc__
+            for opt in options:
+                print opt.__name__ + "\n            " + opt.__doc__
+            sys.exit(0)
+
+        options = (md5check,
+                   lengths_angles,
+                   structcompare,
+                   time_limit,
+                   pyrex,
+                   loose,
+                   test_dir,
+                   list_everything,
+                   generate,
+                   debug,
+                   time_only,
+                   keep,
+                   todo_tasks,
+                   verbose_failures,
+                   help)
+
+        # Default behavior is to do all the tests, including the slow ones,
+        # with loose tolerances, so things pass
+        defaultArgs = ("lengths_angles", "loose")
+
+        if len(args) < 1:
+            args = defaultArgs
+
+        for arg in args:
+            found = False
+            for opt in options:
+                nm = opt.__name__
+                if arg.startswith(nm):
+                    found = True
+                    arg = arg[len(nm):]
+                    opt(arg)
+                    break
+            if not found:
+                print "Don't understand command line arg:", arg
+                print "Try typing:   python tests.py help"
+                sys.exit(1)
+
+        # For failures, don't usually bother with complete tracebacks,
+        # it's more information than we need.
+        def addFailure(self, test, err):
+            self.failures.append((test, traceback.format_exception(*err)[-1]))
+        if not VERBOSE_FAILURES:
+            unittest.TestResult.addFailure = addFailure
+        if LOOSE_TOLERANCES:
+            global LENGTH_TOLERANCE, ANGLE_TOLERANCE
+            LENGTH_TOLERANCE = 0.15    # angstroms
+            ANGLE_TOLERANCE = 15       # degrees
+
+        casenames = self.getCasenames()
+        self.run(unittest.TestSuite(map(Tests, casenames)))
+
+        if TIME_ONLY:
+            lst = [ ]
+            for name in testTimes.keys():
+                t = testTimes[name]
+                lst.append([t, name])
+            lst.sort()
+            import pprint
+            pprint.pprint(map(lambda x: x[1], lst))
+        else:
+            print len(casenames) - testsSkipped, "tests really done,",
+            print testsSkipped, "tests skipped"
+
+    def getCasenames(self):
+        # Start with tests that appear both as entries in RANKED_BY_RUNTIME
+        # and _also_ as test cases in Tests.
+        casenames = filter(lambda x: hasattr(Tests, x), RANKED_BY_RUNTIME)
+
+        if TIME_ONLY or GENERATE:
+            # Add any test cases in Tests that did not appear in RANKED_BY_RUNTIME.
+            for attr in dir(Tests):
+                if attr.startswith("test_") and attr not in casenames:
+                    casenames.append(attr)
+        elif TEST_DIR != None:
+            # filter the results to only what we want
+            def filt(name):
+                return name.startswith("test_" + TEST_DIR)
+            casenames = filter(filt, casenames)
+
+        return casenames
+
+"""
+If you want some special selection of cases, you can do it like this:
+
+import sys
+import tests
+
+class Main(tests.Main):
+    def getCasenames(self):
+        return [
+            'test_motors_011_rotarymotor_0_torque_and_0_speed',
+            'test_motors_016_rotarymotor_negative_torque_and_0_speed',
+            'test_motors_018_rotarymotor_positive_torque_and_0_speed',
+            'test_motors_021_rotarymotor_dyno_jig_test_to_same_chunk',
+            ]
+
+Main().main(sys.argv[1:])
+"""
 
 ###########################################
 
 
 if __name__ == "__main__":
-
-    # Process command line arguments
-    def generate(x):
-        """update md5sums files according to current simulator
-        behavior
-        """
-        global GENERATE
-        GENERATE = True
-    def md5check(x):
-        """perform MD5 checksum comparisons; useful for simulator
-        development
-        """
-        global MD5_CHECKS
-        if sys.platform != "linux2":
-            raise SystemExit("MD5 checks supported only on Linux")
-        MD5_CHECKS = True
-    def lengths_angles(x):
-        """perform structure comparisons with known-good structures
-        computed by QM minimizations, comparing bond lengths and bond
-        angles
-        """
-        global STRUCTURE_COMPARISON_TYPE
-        STRUCTURE_COMPARISON_TYPE = LENGTH_ANGLE_TEST
-    def structcompare(x):
-        """perform structure comparisons with known-good structures
-        computed by QM minimizations, using code in structcompare.c
-        """
-        global STRUCTURE_COMPARISON_TYPE
-        STRUCTURE_COMPARISON_TYPE = STRUCTCOMPARE_C_TEST
-    def time_limit(x):
-        """do as many tests as possible in this many seconds
-        """
-        assert x[:1] == "="
-        global TIME_LIMIT
-        TIME_LIMIT = string.atof(x[1:])
-    def pyrex(x):
-        """Perform the Pyrex tests
-        """
-        for nm in dir(Tests):
-            if nm.startswith("test_") and not nm.startswith("test_pyrex"):
-                try: delattr(Tests, nm)
-                except AttributeError: pass
-    def loose(x):
-        """Loosen tolerances on length and angle comparisons.
-        """
-        global LOOSE_TOLERANCES
-        LOOSE_TOLERANCES = True
-    def test_dir(x):
-        """which directory should we test
-        """
-        assert x[:1] == "="
-        x = x[1:]
-        assert x in ("minimize", "dynamics", "rigid_organics",
-                     "amino_acids", "floppy_organics",
-                     "heteroatom_organics")
-        global TEST_DIR
-        TEST_DIR = x
-    def list_everything(x):
-        """Instead of just showing the first failure for each test
-        case, show every non-compliant energy term
-        """
-        global LIST_EVERYTHING
-        LIST_EVERYTHING = True
-
-    def debug(x):
-        """debug this script
-        """
-        global DEBUG
-        if x[:1] == "=":
-            DEBUG = string.atoi(x[1:])
-        else:
-            DEBUG = 1
-    def time_only(x):
-        """measure the time each test takes, ignore any results
-        """
-        global TIME_ONLY, Tests
-        TIME_ONLY = True
-    def keep(x):
-        """when a test is finished, don't delete its temporary
-        directory (useful for debug)
-        """
-        global KEEP_RESULTS
-        KEEP_RESULTS = True
-    def todo_tasks(x):
-        """reminders of what work still needs doing
-        """
-        global SHOW_TODO, MD5_CHECKS
-        SHOW_TODO = True
-        # catch all the TODOs everywhere
-        MD5_CHECKS = True
-    def verbose_failures(x):
-        """print non-abbreviated assertion statements (useful for
-        debug)
-        """
-        global VERBOSE_FAILURES
-        VERBOSE_FAILURES = True
-
-    def help(x):
-        """print help information
-        """
-        print __doc__
-        global options
-        for opt in options:
-            print opt.__name__ + "\n        " + opt.__doc__
-        sys.exit(0)
-
-    options = (md5check,
-               lengths_angles,
-               structcompare,
-               time_limit,
-               pyrex,
-               loose,
-               test_dir,
-               list_everything,
-               generate,
-               debug,
-               time_only,
-               keep,
-               todo_tasks,
-               verbose_failures,
-               help)
-
-    # Default behavior is to do all the tests, including the slow ones,
-    # with loose tolerances, so things pass
-    defaultArgs = ("lengths_angles", "loose")
-
-    args = sys.argv[1:]
-    if len(args) < 1:
-        args = defaultArgs
-
-    for arg in args:
-        found = False
-        for opt in options:
-            nm = opt.__name__
-            if arg.startswith(nm):
-                found = True
-                arg = arg[len(nm):]
-                opt(arg)
-                break
-        if not found:
-            print "Don't understand command line arg:", arg
-            print "Try typing:   python tests.py help"
-            sys.exit(1)
-
-    # For failures, don't usually bother with complete tracebacks,
-    # it's more information than we need.
-    def addFailure(self, test, err):
-        self.failures.append((test, traceback.format_exception(*err)[-1]))
-    if not VERBOSE_FAILURES:
-        unittest.TestResult.addFailure = addFailure
-    if LOOSE_TOLERANCES:
-        LENGTH_TOLERANCE = 0.15    # angstroms
-        ANGLE_TOLERANCE = 15       # degrees
-    if TEST_DIR != None:
-        attrs = dir(Tests)
-        for attr in attrs:
-            if attr.startswith("test_") and \
-               not attr.startswith("test_" + TEST_DIR):
-                def passAutomatically(self):
-                    pass
-                setattr(Tests, attr, passAutomatically)
-
-    casenames = [ ]
-    if TIME_ONLY or GENERATE:
-        # Anything that looks like a test case, run it and find out
-        # its execution time. Sort them from quickest to slowest, and
-        # manually cut-and-past that ordering into RANKED_BY_RUNTIME.
-        for attr in dir(Tests):
-            if attr.startswith("test_"):
-                casenames.append(attr)
-    else:
-        # Only use the entries in RANKED_BY_RUNTIME that are real
-        # test cases.
-        for attr in RANKED_BY_RUNTIME:
-            if hasattr(Tests, attr):
-                casenames.append(attr)
-    suite = unittest.TestSuite(map(Tests, casenames))
-    runner = unittest.TextTestRunner()
-    runner.run(suite)
-
-    if TIME_ONLY:
-        lst = [ ]
-        for name in testTimes.keys():
-            t = testTimes[name]
-            lst.append([t, name])
-        lst.sort()
-        import pprint
-        pprint.pprint(map(lambda x: x[1], lst))
-    else:
-        print len(casenames) - testsSkipped, "tests really done,",
-        print testsSkipped, "tests skipped"
+    Main().main(sys.argv[1:])
