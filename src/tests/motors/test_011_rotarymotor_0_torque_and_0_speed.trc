@@ -13,7 +13,7 @@
 # Info: Using quality 1 parameters for X-1-C.sp3-1-C bend
 # Info: Computed kb: 1.622653e+06, theta0: 1.910600e+00
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_011_rotarymotor_0_torque_and_0_speed.trc test_011_rotarymotor_0_torque_and_0_speed.mmp 
-# Date and Time: Mon Feb 13 14:16:36 2006
+# Date and Time: Mon Feb 13 18:45:32 2006
 # Input File: test_011_rotarymotor_0_torque_and_0_speed.mmp
 # Output File: test_011_rotarymotor_0_torque_and_0_speed.xyz
 # Trace File: test_011_rotarymotor_0_torque_and_0_speed.trc
@@ -33,20 +33,5 @@
 #     Time       speed           torque          T.meter         
 #  picosec       Rotary Motor.45                 Thermo-76      
 #
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-# Warning: excessive energy on X-1-C bond at iteration 4
-    0.0100              nan             nan             nan
+    0.0100            0.047           0.000          264.78
 # Done: 

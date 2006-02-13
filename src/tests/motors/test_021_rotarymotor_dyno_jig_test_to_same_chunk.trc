@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_021_rotarymotor_dyno_jig_test_to_same_chunk.trc test_021_rotarymotor_dyno_jig_test_to_same_chunk.mmp 
-# Date and Time: Mon Feb 13 14:16:37 2006
+# Date and Time: Mon Feb 13 18:45:32 2006
 # Input File: test_021_rotarymotor_dyno_jig_test_to_same_chunk.mmp
 # Output File: test_021_rotarymotor_dyno_jig_test_to_same_chunk.xyz
 # Trace File: test_021_rotarymotor_dyno_jig_test_to_same_chunk.trc
@@ -29,23 +29,5 @@
 #     Time       T.meter         Distance        speed           torque          speed           torque          
 #  picosec       Thermo-89       Distance-90     Rotary Motor--0                 Rotary Motor-18                
 #
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-C bond at iteration 4
-# Warning: excessive energy on C-1-O bond at iteration 4
-# Warning: excessive energy on C-1-O bond at iteration 4
-# Warning: excessive energy on C-1-O bond at iteration 4
-# Warning: excessive energy on C-1-O bond at iteration 4
-# Warning: excessive energy on C-1-O bond at iteration 4
-# Warning: excessive energy on C-1-O bond at iteration 4
-# Warning: excessive energy on H-1-C bond at iteration 4
-# Warning: excessive energy on H-1-C bond at iteration 4
-# Warning: excessive energy on H-1-C bond at iteration 4
-# Warning: excessive energy on H-1-C bond at iteration 4
-# Warning: excessive energy on H-1-C bond at iteration 4
-# Warning: excessive energy on H-1-C bond at iteration 4
-    0.0100              nan             nan             nan             nan             nan             nan
+    0.0100           263.84         11.9535          10.388           0.000           0.356           0.054
 # Done: 
