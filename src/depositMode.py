@@ -946,6 +946,8 @@ class depositMode(selectAtomsMode):
 
     def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): #bruce 050610 rewrote this
         "keep selatom up-to-date, as atom under mouse; ###@@@ correctness after rewrite not yet proven, due to delay until paintGL"
+        #& update_selatom() really needs a better docstring. mark 060213.
+        
         # bruce 050124 split this out of bareMotion so options can vary
         glpane = self.o
         if event is None:
@@ -959,10 +961,27 @@ class depositMode(selectAtomsMode):
         # If not known, use None or use the prior one? This is up to the caller
         # since the best policy varies. Default is resort_to_prior = True since some callers need this
         # and I did not yet scan them all and fix them. ####@@@@ do that
+        
         selobj = glpane.selobj
-        ## print "known %r, selobj %r" % (known, selobj)
+        #& Big problem happens here when dragging a singlet to another singlet the first time.
+        #& <known> is True after calling self.update_selobj(), but <selobj> is None. <selobj> should be
+        #& the singlet we released the LMB on. <selobj> is being set to None somewhere just before
+        #& update_selatom() is called by get_singlet_under_cursor().  Can't find it, but it's late.
+        #& Cannot reproduce bug consistently (only about 50% of the time).  
+        #& mark 060212.
+        
+        #print "known %r, selobj %r, selatom %r" % (known, selobj, glpane.selatom) 
+            # Uncomment this print stmt to see the bug. mark 060212.
+        
+        if known and selobj is None: 
+            #& Workaround for the bug mentioned above.  The real bug is probably in update_selobj(). 
+            #& This works fine in tests.  See no problems with it, so leaving it in. mark 060213.
+            selobj = glpane.selatom
+            
         if not known:
-            if resort_to_prior:
+            if resort_to_prior: 
+                #& <resort_to_prior> doesn't appear to do anything useful. I thought it should help since 
+                #& selobj was the correct obj (singlet) last time through here. Nope. mark 060213.
                 pass # stored one is what this says to use, and is what we'll use
                 ## print "resort_to_prior using",glpane.selobj
                     # [this is rare, I guess since paintGL usually has time to run after bareMotion before clicks]
@@ -985,6 +1004,7 @@ class depositMode(selectAtomsMode):
         if glpane.selatom is not oldselatom:
             # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
             glpane.gl_update() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
+        
         return
     
     def OLD_OBS_update_selatom(self, event, singOnly = False, msg_about_click = False): # no longer used as of 050610
@@ -1548,8 +1568,8 @@ class depositMode(selectAtomsMode):
             
         self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
             #& Should this go further to the top? mark
-            
-        if self.bond_clicked: 
+        
+        if self.bond_clicked:
             # Select or unselect the bond's atoms, or delete the bond, based on the current modkey.
             self.modkeyBond(self.bond_clicked, event)
             return
@@ -1612,34 +1632,19 @@ class depositMode(selectAtomsMode):
             
             else: # real atom
                 if self.modkey == 'Control':
-                    op = 'Unselect'
-                    atomlist = [ self.obj_doubleclicked ]
+                    self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
                 elif self.modkey == 'Delete':
-                    op = 'Delete'
-                    atomlist = self.neighbors_of_last_deleted_atom
+                    self.o.assy.deleteConnected( self.neighbors_of_last_deleted_atom )
                 else:
-                    op = 'Select'
-                    atomlist = [ self.obj_doubleclicked ]
-            
-                self.o.assy.selectConnected( atomlist, op )
+                    self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
             
         if isinstance(self.obj_doubleclicked, Bond):
             if self.modkey == 'Control':
-                op = 'Unselect'
-                atomlist = [ self.obj_doubleclicked.atom1 ]
+                self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
             elif self.modkey == 'Delete':
-                op = 'Delete'
-                atomlist = [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ]
+                self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
             else:
-                op = 'Select'
-                atomlist = [ self.obj_doubleclicked.atom1 ]
-            
-            #print "-------------\nop=", op
-            #print "atomlist=",atomlist
-            if self.w.depositAtomDashboard.buildBtn.isOn() or self.w.depositAtomDashboard.atomBtn.isOn():
-                self.o.assy.selectConnected( atomlist, op )
-            else:
-                self.change_bondtype(self.bond_clicked)
+                self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
             
         self.ignore_next_leftUp_event = True
 
@@ -1667,15 +1672,19 @@ class depositMode(selectAtomsMode):
         - If Ctrl modkey is pressed,  unpick <b>'s two atoms, removing them from the current selection.
         - If Delete (Shift+Control) modkey is pressed, delete bond <b>.
         '''
+            
         #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
         #& mark 060210.
         if self.modkey is None:
-            # Maintain selection behavior consistency between Standard and Non-standard.
-            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
-                self.o.assy.unpickatoms() # Clear selection.
-            b.atom1.pick()
-            b.atom2.pick()
-            #& Bond class needs a getinfo() method to be called here. mark 060209.
+            if self.w.depositAtomDashboard.buildBtn.isOn() or self.w.depositAtomDashboard.atomBtn.isOn(): 
+                # Maintain selection behavior consistency between Standard and Non-standard.
+                if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
+                    self.o.assy.unpickatoms() # Clear selection.
+                b.atom1.pick()
+                b.atom2.pick()
+                #& Bond class needs a getinfo() method to be called here. mark 060209.
+            else:
+                self.change_bondtype(self.bond_clicked)
                 
         elif self.modkey == 'Shift':
             b.atom1.pick()
@@ -1692,8 +1701,7 @@ class depositMode(selectAtomsMode):
             self.break_bond(event)
             
         else:
-            print "Error in modkeyBond(): Invalid self.modkey=", self.modkey
-            #& Use debug method.  mark 060210.
+            print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
             return
             
         self.o.gl_update()
@@ -1738,8 +1746,7 @@ class depositMode(selectAtomsMode):
             return # delete_atom_and_baggage() calls win_update.
                 
         else:
-            print "Error in modkeyAtom(): Invalid self.modkey=", self.modkey
-            #& Use debug method.  mark 060210.
+            print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
             return
             
         if nochange: return
@@ -1756,6 +1763,7 @@ class depositMode(selectAtomsMode):
         self.line = None # required to erase white rubberband line on next gl_update.
         
         s2 = self.get_singlet_under_cursor(event)
+
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
                 # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
@@ -1777,7 +1785,7 @@ class depositMode(selectAtomsMode):
             self.start_selection_curve(event, ADD_TO_SELECTION)
         if self.modkey == 'Control':
             self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
-        if self.modkey == 'Delete': # To be implemented soon.  mark 060211.
+        if self.modkey == 'Delete':
              self.start_selection_curve(event, DELETE_SELECTION)
         return
             
@@ -1822,7 +1830,7 @@ class depositMode(selectAtomsMode):
         '''If the object under the cursor is a real atom, return it.  Otherwise, return None.
         '''
         if self.w.depositAtomDashboard.highlightingCB.isChecked():
-            self.update_selatom(event)
+            self.update_selatom(event) 
             # would be nice if there was an argument for update_selatom to return a real atom only.
             a = self.o.selatom
         else: # No hover highlighting
@@ -1838,35 +1846,14 @@ class depositMode(selectAtomsMode):
         if self.w.depositAtomDashboard.highlightingCB.isChecked():
             self.update_selatom(event, singOnly = True)
             s = self.o.selatom
+                #& Sometimes <s> is None when it should be a singlet.
+                #& See update_selatom() for more info about this bug. mark 060213.
         else: # No hover highlighting
             s = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
             # would be nice if there was an argument for findAtomUnderMouse to return a singlet only.
         if s and not s.is_singlet():
             return None
         return s
-
-
-    def unpick_or_delete_atom_OBS(self, event): #& obsolete.  mark 060209.
-        '''If the object under the cursor is an atom and it is picked, unpick it.
-        If it is not picked, delete it.  Return the result of what happened.
-        '''
-        a = self.get_atom_under_cursor(event)
-
-        if a is None:
-            return None
-        
-        if a.picked:
-            a.unpick()
-            result = "unpicked %r" % a
-        else:
-            # If the atom is not picked, delete it.
-            a.deleteBaggage()
-            result = "deleted %r" % a
-            a.kill()
-            self.o.selatom = None #bruce 041130 precaution
-            self.o.assy.changed()
-        self.w.win_update()
-        return result
         
     def delete_atom_and_baggage(self, event):
         '''If the object under the cursor is an atom, delete it and any baggage.  
@@ -1949,7 +1936,7 @@ class depositMode(selectAtomsMode):
                 deposited_stuff[0].pickatoms()
             
         else:
-            print "Error. depositState unknown:", self.w.depositState
+            print_compact_stack('Invalid depositState = "' + str(self.w.depositState) + '" ')
             return
             
         self.o.selatom = None ##k could this be moved earlier, or does one of those submethods use it? [bruce 051227 question]
