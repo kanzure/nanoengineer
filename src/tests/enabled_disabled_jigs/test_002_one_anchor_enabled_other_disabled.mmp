@@ -1,0 +1,15 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (002_one_anchor_enabled_other_disabled)
+info opengroup open = True
+mol (Chunk-H18) tub
+atom 1 (1) (-183, 14, 0) -
+ground (Anchor-4) (0, 0, 0) 1
+forward_ref (161962984) # ground (Anchor-5)
+mol (Chunk-H18-frag6) tub
+atom 2 (1) (560, 14, 0) -
+bond1 1
+thermo (Thermo-10) (153, 0, 51) 1 1 1
+thermo (Thermo-11) (153, 0, 51) 2 2 2
+egroup (002_one_anchor_enabled_other_disabled)
+end molecular machine part 002_one_anchor_enabled_other_disabled

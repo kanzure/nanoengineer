@@ -1,0 +1,26 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (007 one linearmotor enabled and other disabled)
+info opengroup open = True
+mol (Chunk-Si551) -
+atom 1 (14) (0, 0, 0) -
+atom 2 (1) (819, 819, 819) -
+bond1 1
+atom 3 (1) (-819, 819, -819) -
+bond1 1
+atom 4 (1) (-819, -819, 819) -
+bond1 1
+atom 5 (1) (819, -819, -819) -
+bond1 1
+lmotor (Linear Motor-89) (127, 127, 127) 0.900000 0.100000 (0, 0, 0) (0, 0, -1000) 10.00 1.00 0.20
+shaft 1
+forward_ref (406769096) # lmotor (Linear Motor-90)
+mol (Chunk-Si551-copy1) -
+atom 6 (18) (20000, 0, 0) -
+mol (Chunk-Si551-copy2) -
+atom 7 (18) (0, 20000, 0) -
+ground (Anchor-95) (0, 0, 0) 7 6
+mdistance (Distance-96) (0, 0, 0) (Helvetica) 10 7 1
+mdistance (Distance-97) (0, 0, 0) (Helvetica) 10 1 6
+egroup (007 one linearmotor enabled and other disabled)
+end molecular machine part 007 one linearmotor enabled and other disabled

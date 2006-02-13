@@ -1,0 +1,78 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (04-thermo-lmotor-anchor-stat reordering-8)
+info opengroup open = True
+forward_ref (240190288) # stat (Stat-87)
+mol (chunk1) tub
+atom 1 (1) (-773, -1934, -1202) -
+atom 2 (1) (-797, 16, 2241) -
+atom 3 (1) (-815, 53, -2329) -
+atom 4 (1) (-764, -1953, 1082) -
+group (Group35)
+info opengroup open = True
+forward_ref (240189648) # lmotor (Linear Motor-83)
+forward_ref (240191048) # thermo (Thermo-25)
+forward_ref (240189808) # ground (Anchor-86)
+group (Group34)
+info opengroup open = True
+mol (chunk3) tub
+atom 5 (6) (31, -1296, -839) -
+bond1 1
+atom 6 (8) (1253, -1983, -1261) -
+bond1 5
+atom 7 (8) (1229, 53, 2334) -
+atom 8 (8) (1209, 92, -2437) -
+atom 9 (8) (1263, -2001, 1124) -
+atom 10 (6) (2, 62, -1609) -
+bond1 5 8 3
+atom 11 (6) (15, 37, 1515) -
+bond1 7 2
+atom 12 (6) (38, -1309, 723) -
+bond1 11 5 9 4
+atom 13 (8) (1175, 2148, -1227) -
+atom 14 (8) (1185, 2129, 1158) -
+atom 15 (6) (-19, 1409, -817) -
+bond1 10 13
+atom 16 (6) (-13, 1396, 745) -
+bond1 11 15 14
+atom 17 (6) (2452, -1250, -848) -
+bond1 6
+atom 18 (1) (3278, -1858, -1218) -
+bond1 17
+atom 19 (1) (3254, 92, 2225) -
+atom 20 (1) (3236, 129, -2344) -
+atom 21 (1) (3287, -1876, 1066) -
+atom 22 (6) (2423, 108, -1619) -
+bond1 17 20 8
+atom 23 (6) (2436, 83, 1506) -
+bond1 19 7
+atom 24 (6) (2458, -1263, 713) -
+bond1 17 21 23 9
+atom 25 (1) (3203, 2098, -1186) -
+atom 26 (1) (3212, 2080, 1099) -
+atom 27 (6) (2401, 1454, -826) -
+bond1 22 25 13
+atom 28 (6) (2407, 1442, 735) -
+bond1 23 26 27 14
+stat (Stat-87) (0, 0, 153) (300) 5 28 10
+info leaf forwarded = 240190288
+lmotor (Linear Motor-83) (127, 127, 127) 0.600000 0.100000 (9, 50, -47) (-999, -18, 3) 5.00 0.50 0.10
+shaft 5 10 11 15 16 12
+info leaf forwarded = 240189648
+thermo (Thermo-25) (153, 0, 51) 5 28 14
+info leaf forwarded = 240191048
+ground (Anchor-86) (0, 0, 0) 12
+info leaf forwarded = 240189808
+mol (chunk2) tub
+atom 29 (1) (-848, 2021, -1170) -
+bond1 15
+atom 30 (1) (-839, 2004, 1114) -
+bond1 16
+egroup (Group34)
+egroup (Group35)
+egroup (04-thermo-lmotor-anchor-stat reordering-8)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 04-thermo-lmotor-anchor-stat reordering-8

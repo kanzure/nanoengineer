@@ -1,0 +1,83 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (03-thermo-rmotor-anchor-stat reordering-1)
+info opengroup open = True
+mol (chunk 1) -
+atom 1 (6) (-1, 1519, 1246) -
+atom 2 (6) (-1307, 756, 1259) -
+bond1 1
+atom 3 (6) (-1297, -756, 1267) -
+bond1 2
+atom 4 (6) (15, -1505, 1262) -
+bond1 3
+atom 5 (6) (1320, -741, 1251) -
+bond1 4
+atom 6 (6) (1312, 770, 1243) -
+bond1 1 5
+atom 7 (6) (1303, 760, -1299) -
+atom 8 (6) (-16, 1511, -1295) -
+bond1 7
+atom 9 (6) (-1328, 745, -1283) -
+bond1 8
+atom 10 (6) (-1319, -773, -1275) -
+bond1 9
+atom 11 (6) (0, -1524, -1279) -
+bond1 10
+atom 12 (6) (1312, -758, -1291) -
+bond1 7 11
+atom 13 (1) (0, 2183, 2155) -
+bond1 1
+atom 14 (1) (-1872, 1087, 2174) -
+bond1 2
+atom 15 (1) (-1860, -1083, 2185) -
+bond1 3
+atom 16 (1) (24, -2159, 2178) -
+bond1 4
+atom 17 (1) (1897, -1063, 2163) -
+bond1 5
+atom 18 (1) (1885, 1108, 2151) -
+bond1 6
+atom 19 (1) (-26, 2135, -2179) -
+bond1 8
+atom 20 (1) (1840, 1072, -2185) -
+bond1 7
+atom 21 (1) (1852, -1074, -2174) -
+bond1 12
+atom 22 (1) (-1879, 1051, -2163) -
+bond1 9
+atom 23 (1) (-1867, -1094, -2151) -
+bond1 10
+atom 24 (1) (-1, -2157, -2156) -
+bond1 11
+mol (chunk 2) -
+atom 25 (6) (-2082, 1185, -6) -
+bond1 2 9
+atom 26 (6) (-14, 2394, -25) -
+bond1 1 8
+atom 27 (6) (-2067, -1208, 6) -
+bond1 3 10
+atom 28 (6) (13, -2394, 0) -
+bond1 4 11
+atom 29 (6) (2080, -1186, -18) -
+bond1 5 12
+atom 30 (6) (2067, 1208, -30) -
+bond1 6 7
+atom 31 (16) (-1742, 2982, 178) -
+bond1 25 26
+atom 32 (16) (-3453, -18, 208) -
+bond1 25 27
+atom 33 (16) (-1710, -3000, 205) -
+bond1 27 28
+atom 34 (16) (1744, -2981, 185) -
+bond1 28 29
+atom 35 (16) (3454, 19, 167) -
+bond1 29 30
+atom 36 (16) (1710, 3000, 157) -
+bond1 26 30
+thermo (Thermo-42) (153, 0, 51) 1 24 6
+ground (Anchor-44) (0, 0, 0) 8
+rmotor (Rotary Motor--chunk2) (85, 170, 255) 1.00 1.50 (0, 0, -12) (-5, -3, -999) 5.00 0.50 0.10
+shaft 25 26 27 28 29 30
+stat (Stat- -chunk 2) (0, 0, 153) (240) 25 36 26
+egroup (03-thermo-rmotor-anchor-stat reordering-1)
+end molecular machine part 03-thermo-rmotor-anchor-stat reordering-1

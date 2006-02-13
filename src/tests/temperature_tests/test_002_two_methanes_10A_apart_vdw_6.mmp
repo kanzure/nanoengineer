@@ -1,0 +1,29 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (002_two_methanes_10A_apart_vdw_6)
+info opengroup open = True
+mol (Chunk-C17287) -
+atom 1 (6) (-257, -12, 0) -
+atom 2 (1) (370, 615, 627) -
+bond1 1
+atom 3 (1) (-885, 615, -627) -
+bond1 1
+atom 4 (1) (-885, -639, 627) -
+bond1 1
+atom 5 (1) (370, -639, -627) -
+bond1 1
+thermo (Thermo-46) (153, 0, 51) 1 5 1
+mol (Chunk-C17297) -
+atom 6 (6) (9804, 137, 0) -
+atom 7 (1) (10428, 761, 624) -
+bond1 6
+atom 8 (1) (9179, 761, -624) -
+bond1 6
+atom 9 (1) (9179, -487, 624) -
+bond1 6
+atom 10 (1) (10428, -487, -624) -
+bond1 6
+thermo (Thermo-48) (153, 0, 51) 6 10 6
+mdistance (Distance-49) (0, 0, 0) (Helvetica) 10 1 6
+egroup (002_two_methanes_10A_apart_vdw_6)
+end molecular machine part 002_two_methanes_10A_apart_vdw_6

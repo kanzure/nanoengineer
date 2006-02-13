@@ -1,0 +1,21 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (005 disabled measure distance jig)
+info opengroup open = True
+mol (Chunk-H64) tub
+atom 1 (1) (-2834, 208, 0) -
+atom 2 (1) (-2214, 208, 0) -
+bond1 1
+mol (Chunk-H67) tub
+atom 3 (1) (2849, 189, 0) -
+atom 4 (1) (3469, 189, 0) -
+bond1 3
+mol (Chunk-H70) tub
+atom 5 (1) (-267, 2823, 0) -
+atom 6 (1) (352, 2823, 0) -
+bond1 5
+mangle (Angle-23) (0, 0, 0) (Helvetica) 10 3 5 2
+mdihedral (Dihedral-24) (0, 0, 0) (Helvetica) 10 1 2 5 6
+mdistance (Distance-25) (0, 0, 0) (Helvetica) 10 4 6
+egroup (005 disabled measure distance jig)
+end molecular machine part 005 disabled measure distance jig

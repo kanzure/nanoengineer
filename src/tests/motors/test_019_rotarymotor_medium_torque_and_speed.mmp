@@ -1,0 +1,38 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (rotarymotor-medium torque and speed)
+info opengroup open = True
+mol (Chunk-C309) tub
+atom 1 (6) (-1268, -54, 99) -
+atom 2 (0) (-1771, 102, -464) -
+bond1 1
+atom 3 (0) (-1675, -175, 743) -
+bond1 1
+atom 4 (6) (-285, 1135, 294) -
+bond1 1
+atom 5 (0) (-445, 1700, -204) -
+bond1 4
+atom 6 (0) (-354, 1426, 1004) -
+bond1 4
+atom 7 (6) (1160, 605, 67) -
+bond1 4
+atom 8 (0) (1588, 713, 698) -
+bond1 7
+atom 9 (0) (1499, 991, -510) -
+bond1 7
+atom 10 (6) (-431, -1317, -259) -
+bond1 1
+atom 11 (0) (-641, -1591, -949) -
+bond1 10
+atom 12 (0) (-552, -1875, 258) -
+bond1 10
+atom 13 (6) (1070, -909, -273) -
+bond1 7 10
+atom 14 (0) (1465, -1324, 242) -
+bond1 13
+atom 15 (0) (1379, -1048, -967) -
+bond1 13
+rmotor (Rotary Motor.45) (127, 127, 127) 0.30 0.40 (49, -108, -14) (-72, 223, -972) 4.00 0.50 0.10
+shaft 1 4 7 10 13
+egroup (rotarymotor-medium torque and speed)
+end molecular machine part rotarymotor-medium torque and speed

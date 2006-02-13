@@ -1,0 +1,13 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (004_one_thermostat_enabled_other_disabled)
+info opengroup open = True
+mol (Chunk-H18) tub
+atom 1 (1) (-183, 14, 0) -
+atom 2 (1) (560, 14, 0) -
+bond1 1
+thermo (Thermo-1) (153, 0, 51) 1 2 1
+stat (Stat-1- 10K) (0, 0, 153) (10) 1 2 1
+forward_ref (226651232) # stat (Stat-2-500K)
+egroup (004_one_thermostat_enabled_other_disabled)
+end molecular machine part 004_one_thermostat_enabled_other_disabled

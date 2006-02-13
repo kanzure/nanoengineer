@@ -1,0 +1,50 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (005 rotorymotor against anchor 3)
+info opengroup open = True
+mol (Chunk-Si131) -
+atom 1 (14) (-50, 6016, 0) -
+atom 2 (1) (808, 6875, 858) -
+bond1 1
+atom 3 (1) (-909, 6875, -858) -
+bond1 1
+atom 4 (1) (-909, 5157, 858) -
+bond1 1
+atom 5 (1) (808, 5157, -858) -
+bond1 1
+mol (Chunk-Si131-copy1) -
+atom 6 (14) (-50, -5948, 0) -
+atom 7 (1) (808, -5090, 858) -
+bond1 6
+atom 8 (1) (-909, -5090, -858) -
+bond1 6
+atom 9 (1) (-909, -6807, 858) -
+bond1 6
+atom 10 (1) (808, -6807, -858) -
+bond1 6
+mol (Chunk-C151) -
+atom 11 (6) (5999, 0, 0) -
+atom 12 (1) (6627, 627, 627) -
+bond1 11
+atom 13 (1) (5371, 627, -627) -
+bond1 11
+atom 14 (1) (5371, -627, 627) -
+bond1 11
+atom 15 (1) (6627, -627, -627) -
+bond1 11
+mol (Chunk-C151-copy2) -
+atom 16 (1) (-5371, 627, 627) -
+atom 17 (1) (-6627, 627, -627) -
+atom 18 (1) (-6627, -627, 627) -
+atom 19 (1) (-5371, -627, -627) -
+atom 20 (6) (-5999, 0, 0) -
+bond1 16 17 18 19
+rmotor (Rotary Motor-37) (127, 127, 127) 0.50 1.00 (-25, 16, 0) (0, 0, -1000) 10.00 2.00 0.50
+shaft 1 6 11 20
+mdistance (Distance-40) (0, 0, 0) (Helvetica) 10 1 6
+mdistance (Distance-41) (0, 0, 0) (Helvetica) 10 20 11
+mangle (Angle-42) (0, 0, 0) (Helvetica) 10 1 20 6
+thermo (Thermo-43) (153, 0, 51) 1 5 1
+ground (Anchor-15) (0, 0, 0) 20 1 11 6
+egroup (005 rotorymotor against anchor 3)
+end molecular machine part 005 rotorymotor against anchor 3

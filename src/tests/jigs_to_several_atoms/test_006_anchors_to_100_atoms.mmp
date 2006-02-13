@@ -1,0 +1,421 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (003 anchors to 100 atoms)
+info opengroup open = True
+group (Linear motor 50 atoms)
+info opengroup open = True
+forward_ref (682437328) # thermo (Thermo-45)
+egroup (Linear motor 50 atoms)
+mol (Chunk-5-frag46) def
+atom 1 (6) (-828, 82, 369) def
+atom 2 (8) (331, -758, 52) def
+bond1 1
+atom 3 (6) (1518, 14, -327) def
+bond1 2
+atom 4 (8) (2690, -787, 37) def
+bond1 3
+atom 5 (6) (3878, 24, 325) def
+bond1 4
+atom 6 (8) (5051, -811, 47) def
+bond1 5
+atom 7 (6) (6243, -31, -301) def
+bond1 6
+atom 8 (8) (7410, -840, 65) def
+bond1 7
+atom 9 (6) (8597, -35, 373) def
+bond1 8
+atom 10 (8) (9770, -862, 72) def
+bond1 9
+atom 11 (6) (10957, -74, -275) def
+bond1 10
+atom 12 (8) (12130, -884, 69) def
+bond1 11
+atom 13 (1) (-804, 323, 1430) def
+bond1 1
+atom 14 (1) (-826, 959, -277) def
+bond1 1
+atom 15 (1) (1533, 951, 231) def
+bond1 3
+atom 16 (1) (1513, 153, -1407) def
+bond1 3
+atom 17 (1) (3876, 282, 1383) def
+bond1 5
+atom 18 (1) (3890, 892, -334) def
+bond1 5
+atom 19 (1) (6250, 893, 274) def
+bond1 7
+atom 20 (1) (6253, 126, -1378) def
+bond1 7
+atom 21 (1) (8595, 194, 1437) def
+bond1 9
+atom 22 (1) (8608, 849, -262) def
+bond1 9
+atom 23 (1) (10966, 843, 313) def
+bond1 11
+atom 24 (1) (10957, 98, -1350) def
+bond1 11
+atom 25 (6) (-59599, -1934, 232) def
+atom 26 (8) (-58135, -2008, 233) def
+bond1 25
+atom 27 (6) (-57474, -701, 217) def
+bond1 26
+atom 28 (8) (-56037, -985, 227) def
+bond1 27
+atom 29 (6) (-55201, 216, 207) def
+bond1 28
+atom 30 (8) (-53815, -257, 234) def
+bond1 29
+atom 31 (6) (-52832, 821, 347) def
+bond1 30
+atom 32 (8) (-51517, 191, 205) def
+bond1 31
+atom 33 (6) (-50432, 1154, 2) def
+bond1 32
+atom 34 (8) (-49181, 421, 220) def
+bond1 33
+atom 35 (6) (-48034, 1297, 469) def
+bond1 34
+atom 36 (8) (-46832, 498, 212) def
+bond1 35
+atom 37 (6) (-45644, 1313, -54) def
+bond1 36
+atom 38 (8) (-44479, 469, 224) def
+bond1 37
+atom 39 (6) (-43269, 1238, 531) def
+bond1 38
+atom 40 (8) (-42125, 379, 210) def
+bond1 39
+atom 41 (6) (-40907, 1135, -101) def
+bond1 40
+atom 42 (8) (-39770, 264, 212) def
+bond1 41
+atom 43 (6) (-38552, 1006, 552) def
+bond1 42
+atom 44 (8) (-37414, 146, 211) def
+bond1 43
+atom 45 (6) (-36197, 899, -107) def
+bond1 44
+atom 46 (8) (-35057, 33, 213) def
+bond1 45
+atom 47 (6) (-33845, 781, 565) def
+bond1 46
+atom 48 (8) (-32699, -63, 211) def
+bond1 47
+atom 49 (6) (-31493, 706, -110) def
+bond1 48
+atom 50 (8) (-30341, -144, 204) def
+bond1 49
+atom 51 (6) (-29138, 618, 552) def
+bond1 50
+atom 52 (8) (-27982, -213, 203) def
+bond1 51
+atom 53 (6) (-26782, 568, -111) def
+bond1 52
+atom 54 (8) (-25623, -274, 199) def
+bond1 53
+atom 55 (6) (-24425, 497, 548) def
+bond1 54
+atom 56 (8) (-23263, -327, 199) def
+bond1 55
+atom 57 (6) (-22068, 463, -111) def
+bond1 56
+atom 58 (8) (-20904, -376, 191) def
+bond1 57
+atom 59 (6) (-19707, 399, 531) def
+bond1 58
+atom 60 (8) (-18545, -425, 183) def
+bond1 59
+atom 61 (6) (-17350, 364, -130) def
+bond1 60
+atom 62 (8) (-16185, -471, 178) def
+bond1 61
+atom 63 (6) (-14991, 307, 523) def
+bond1 62
+atom 64 (8) (-13826, -516, 183) def
+bond1 63
+atom 65 (6) (-12628, 275, -115) def
+bond1 64
+atom 66 (8) (-11466, -564, 194) def
+bond1 65
+atom 67 (6) (-10273, 209, 554) def
+bond1 66
+atom 68 (8) (-9106, -605, 200) def
+bond1 67
+atom 69 (6) (-7914, 194, -100) def
+bond1 68
+atom 70 (8) (-6747, -645, 187) def
+bond1 69
+atom 71 (6) (-5546, 131, 515) def
+bond1 70
+atom 72 (8) (-4387, -690, 149) def
+bond1 71
+atom 73 (6) (-3206, 102, -207) def
+bond1 72
+atom 74 (8) (-2028, -716, 96) def
+bond1 73 1
+atom 75 (1) (-59912, -1402, 1129) def
+bond1 25
+atom 76 (1) (-59968, -2957, 240) def
+bond1 25
+atom 77 (1) (-59912, -1416, -671) def
+bond1 25
+atom 78 (1) (-57737, -155, 1122) def
+bond1 27
+atom 79 (1) (-57729, -181, -704) def
+bond1 27
+atom 80 (1) (-55397, 803, 1103) def
+bond1 29
+atom 81 (1) (-55374, 756, -722) def
+bond1 29
+atom 82 (1) (-52905, 1265, 1339) def
+bond1 31
+atom 83 (1) (-52982, 1530, -465) def
+bond1 31
+atom 84 (1) (-50517, 1953, 738) def
+bond1 33
+atom 85 (1) (-50459, 1502, -1029) def
+bond1 33
+atom 86 (1) (-48040, 1593, 1517) def
+bond1 35
+atom 87 (1) (-48065, 2138, -223) def
+bond1 35
+atom 88 (1) (-45638, 2172, 617) def
+bond1 37
+atom 89 (1) (-45635, 1584, -1108) def
+bond1 37
+atom 90 (1) (-43255, 1455, 1597) def
+bond1 39
+atom 91 (1) (-43241, 2129, -96) def
+bond1 39
+atom 92 (1) (-40865, 2026, 525) def
+bond1 41
+atom 93 (1) (-40895, 1352, -1168) def
+bond1 41
+atom 94 (1) (-38542, 1188, 1625) def
+bond1 43
+atom 95 (1) (-38507, 1918, -44) def
+bond1 43
+atom 96 (1) (-36155, 1796, 511) def
+bond1 45
+atom 97 (1) (-36186, 1108, -1176) def
+bond1 45
+atom 98 (1) (-33838, 946, 1641) def
+bond1 47
+atom 99 (1) (-33808, 1702, -16) def
+bond1 47
+atom 100 (1) (-31460, 1602, 510) def
+bond1 49
+atom 101 (1) (-31489, 918, -1178) def
+bond1 49
+atom 102 (1) (-29132, 789, 1627) def
+bond1 51
+atom 103 (1) (-29111, 1537, -34) def
+bond1 51
+atom 104 (1) (-26758, 1460, 516) def
+bond1 53
+atom 105 (1) (-26777, 787, -1177) def
+bond1 53
+atom 106 (1) (-24421, 667, 1623) def
+bond1 55
+atom 107 (1) (-24404, 1415, -38) def
+bond1 55
+atom 108 (1) (-22047, 1350, 521) def
+bond1 57
+atom 109 (1) (-22067, 688, -1176) def
+bond1 57
+atom 110 (1) (-19699, 576, 1605) def
+bond1 59
+atom 111 (1) (-19690, 1314, -60) def
+bond1 59
+atom 112 (1) (-17331, 1255, 498) def
+bond1 61
+atom 113 (1) (-17348, 585, -1196) def
+bond1 61
+atom 114 (1) (-14990, 487, 1596) def
+bond1 63
+atom 115 (1) (-14972, 1220, -71) def
+bond1 63
+atom 116 (1) (-12613, 1160, 521) def
+bond1 65
+atom 117 (1) (-12618, 505, -1179) def
+bond1 65
+atom 118 (1) (-10273, 369, 1630) def
+bond1 67
+atom 119 (1) (-10255, 1134, -23) def
+bond1 67
+atom 120 (1) (-7896, 1071, 546) def
+bond1 69
+atom 121 (1) (-7916, 436, -1162) def
+bond1 69
+atom 122 (1) (-5525, 303, 1590) def
+bond1 71
+atom 123 (1) (-5539, 1049, -72) def
+bond1 71
+atom 124 (1) (-3181, 1007, 399) def
+bond1 73
+atom 125 (1) (-3228, 298, -1278) def
+bond1 73
+mol (Chunk-5-frag46-frag53) def
+atom 126 (6) (13319, -78, 369) def
+bond1 12
+atom 127 (8) (14490, -904, 59) def
+bond1 126
+atom 128 (6) (15674, -115, -299) def
+bond1 127
+atom 129 (8) (16850, -918, 52) def
+bond1 128
+atom 130 (6) (18034, -105, 352) def
+bond1 129
+atom 131 (8) (19210, -925, 46) def
+bond1 130
+atom 132 (6) (20390, -131, -311) def
+bond1 131
+atom 133 (8) (21571, -925, 45) def
+bond1 132
+atom 134 (6) (22747, -105, 353) def
+bond1 133
+atom 135 (8) (23931, -912, 39) def
+bond1 134
+atom 136 (6) (25100, -104, -323) def
+bond1 135
+atom 137 (8) (26291, -884, 32) def
+bond1 136
+atom 138 (6) (27458, -48, 336) def
+bond1 137
+atom 139 (8) (28651, -840, 19) def
+bond1 138
+atom 140 (6) (29808, -18, -349) def
+bond1 139
+atom 141 (8) (31010, -776, 14) def
+bond1 140
+atom 142 (6) (32159, 79, 328) def
+bond1 141
+atom 143 (8) (33368, -692, 21) def
+bond1 142
+atom 144 (6) (34518, 150, -322) def
+bond1 143
+atom 145 (8) (35725, -603, 28) def
+bond1 144
+atom 146 (6) (36871, 254, 345) def
+bond1 145
+atom 147 (8) (38081, -512, 34) def
+bond1 146
+atom 148 (6) (39234, 334, -289) def
+bond1 147
+atom 149 (8) (40436, -446, 14) def
+bond1 148
+atom 150 (6) (41611, 387, 286) def
+bond1 149
+atom 151 (8) (42790, -440, 18) def
+bond1 150
+atom 152 (6) (43998, 346, -249) def
+bond1 151
+atom 153 (8) (45139, -535, 11) def
+bond1 152
+atom 154 (6) (46392, 191, 233) def
+bond1 153
+atom 155 (8) (47474, -775, 32) def
+bond1 154
+atom 156 (6) (48792, -151, -104) def
+bond1 155
+atom 157 (8) (49771, -1234, 3) def
+bond1 156
+atom 158 (6) (51159, -766, 19) def
+bond1 157
+atom 159 (8) (51990, -1971, 8) def
+bond1 158
+atom 160 (6) (53428, -1692, 8) def
+bond1 159
+atom 161 (8) (54086, -2999, 8) def
+bond1 160
+atom 162 (6) (55549, -2923, 5) def
+bond1 161
+atom 163 (8) (56017, -4307, 6) def
+bond1 162
+atom 164 (1) (13325, 150, 1433) def
+bond1 126
+atom 165 (1) (13323, 807, -266) def
+bond1 126
+atom 166 (1) (15681, 807, 280) def
+bond1 128
+atom 167 (1) (15671, 47, -1375) def
+bond1 128
+atom 168 (1) (18037, 126, 1416) def
+bond1 130
+atom 169 (1) (18035, 779, -285) def
+bond1 130
+atom 170 (1) (20390, 793, 266) def
+bond1 132
+atom 171 (1) (20390, 28, -1387) def
+bond1 132
+atom 172 (1) (22749, 116, 1418) def
+bond1 134
+atom 173 (1) (22740, 784, -276) def
+bond1 134
+atom 174 (1) (25091, 821, 251) def
+bond1 136
+atom 175 (1) (25095, 51, -1400) def
+bond1 136
+atom 176 (1) (27460, 172, 1402) def
+bond1 138
+atom 177 (1) (27438, 841, -293) def
+bond1 138
+atom 178 (1) (29784, 913, 216) def
+bond1 140
+atom 179 (1) (29802, 127, -1428) def
+bond1 140
+atom 180 (1) (32148, 300, 1394) def
+bond1 142
+atom 181 (1) (32130, 968, -301) def
+bond1 142
+atom 182 (1) (34482, 1067, 267) def
+bond1 144
+atom 183 (1) (34515, 323, -1396) def
+bond1 144
+atom 184 (1) (36860, 470, 1412) def
+bond1 146
+atom 185 (1) (36839, 1146, -280) def
+bond1 146
+atom 186 (1) (39215, 1226, 337) def
+bond1 148
+atom 187 (1) (39218, 551, -1356) def
+bond1 148
+atom 188 (1) (41609, 661, 1340) def
+bond1 150
+atom 189 (1) (41611, 1243, -388) def
+bond1 150
+atom 190 (1) (44036, 1195, 433) def
+bond1 152
+atom 191 (1) (44006, 628, -1300) def
+bond1 152
+atom 192 (1) (46418, 537, 1265) def
+bond1 154
+atom 193 (1) (46483, 990, -501) def
+bond1 154
+atom 194 (1) (48945, 552, 712) def
+bond1 156
+atom 195 (1) (48867, 298, -1093) def
+bond1 156
+atom 196 (1) (51338, -217, 943) def
+bond1 158
+atom 197 (1) (51354, -189, -882) def
+bond1 158
+atom 198 (1) (53689, -1160, 922) def
+bond1 160
+atom 199 (1) (53689, -1159, -904) def
+bond1 160
+atom 200 (1) (55886, -2432, 917) def
+bond1 162
+atom 201 (1) (55883, -2435, -909) def
+bond1 162
+atom 202 (1) (56984, -4324, 4) def
+bond1 163
+thermo (Thermo-45) (153, 0, 51) 126 202 134
+info leaf forwarded = 682437328
+ground (Anchor-77) (0, 0, 0) 1 2 3 4 5 6 7 8 9 10 11 12 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163
+egroup (003 anchors to 100 atoms)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 003 anchors to 100 atoms
