@@ -1587,14 +1587,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def pickatoms(self): # mark 060211.  Could use a complementary unpickatoms() method.
         '''Pick the atoms of self not already picked. Return the number of newly picked atoms.
         '''
-        #& Bruce, should I check to see if we're in Select Atoms/Build mode before doing this?  
-        #& As of 060211, only depositMode methods call this. No problems encountered in tests so far. 
-        #& mark 060211.
+        self.assy.permit_pick_atoms()
         npicked = 0
         for a in self.atoms.itervalues():
-            if not a.is_singlet() and not a.picked:
-                a.pick()
-                npicked += 1
+            if not a.is_singlet():
+                if not a.picked:
+                    a.pick()
+                if a.picked: 
+                    # Just in case it didn't get picked due to a selection filter.
+                    npicked += 1
         return npicked
         
     def pick(self):
