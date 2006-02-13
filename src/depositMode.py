@@ -1645,11 +1645,8 @@ class depositMode(selectAtomsMode):
                 # needed for trans-deposit selection consistency when no modifier key is pressed.
             self.suppress_updates = True
             nobjs=0
-            for s in singlet_list[:]: # singlet_list built in 
-                if s is not self.obj_doubleclicked:
-                    #& when trans-depositing atoms from the MMKit, singlets from deposited atoms will 
-                    #& autobond with singlets in singlet_list[].
-                    #& this is a known bug; to be fixed after talking with Bruce.  mark 060212.
+            for s in singlet_list[:]: # singlet_list built in setupDragSinglet()
+                if not s.killed(): # takes care of self.obj_doubleclicked, too.
                     self.deposit_from_MMKit(s)
                     nobjs += 1
             self.suppress_updates = False
