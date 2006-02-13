@@ -129,6 +129,9 @@ class selectMode(basicMode):
 
     jigSelectionEnabled = True
     
+    selCurve_length = 0.0
+        # <selCurve_length> is the current length (sum) of all the selection curve segments.
+    
     selCurve_List = []
         # <selCurve_List> contains a list of points used to draw the selection curve.  The points lay in the 
         # plane parallel to the screen, just beyond the front clipping plane, so that they are always
@@ -195,10 +198,7 @@ class selectMode(basicMode):
         """Start a new selection rectangle/lasso.
         """
         self.selSense = sense
-            # <selSense> is the type of selection, where:       
-            # 0 = substract from the current selection
-            # 1 = add to the current selection
-            # 2 = start a new selection
+            # <selSense> is the type of selection.
         self.picking = True
             # <picking> is used to let continue_selection_curve() and end_selection_curve() know 
             # if we are in the process of defining/drawing a selection curve or not, where:
@@ -719,8 +719,7 @@ class selectAtomsMode(selectMode):
                         # repaint to update its correct (normal) highlight color.
                         self.o.gl_update()
                 else:
-                    print "Error in keyRelease(): invalid modkey=", self.modkey
-                    #& Is there a debug method I should use here instead?  mark 060210.
+                    print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
         
             if key == Qt.Key_Shift: # Shift mod key
                 if self.modkey == 'Shift':
@@ -732,8 +731,7 @@ class selectAtomsMode(selectMode):
                         # repaint to update its correct (normal) highlight color.
                         self.o.gl_update()
                 else:
-                    print "Error in keyRelease(): invalid modkey=", self.modkey
-                    #& Is there a debug method I should use here instead?  mark 060210.
+                    print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
             
             self.update_cursor(self.modkey)
                 
