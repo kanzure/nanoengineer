@@ -83,7 +83,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 
     omega = jig->j.rmotor.omega;
     // Bosch model
-    if (jig->j.rmotor.stall == 0.0 || jig->j.rmotor.speed == 0.0) {
+    if (jig->j.rmotor.speed == 0.0) {
 	motorq = 0.0;
     } else {
 	motorq = jig->j.rmotor.stall * (1. - omega / jig->j.rmotor.speed);
