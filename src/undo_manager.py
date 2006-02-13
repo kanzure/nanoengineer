@@ -13,7 +13,7 @@ $Id$
 __author__ = 'bruce'
 
 
-from debug import register_debug_menu_command_maker, print_compact_traceback
+from debug import register_debug_menu_command_maker, print_compact_traceback, print_compact_stack
 import platform
 
 from undo_archive import AssyUndoArchive #060117 revised
@@ -236,7 +236,9 @@ class AssyUndoManager(UndoManager):
                 extra = " (%s)" % str(time.time()) # show when it's updated in the menu text (remove when works) ####@@@@
             if ops:
                 action.setEnabled(True)
-                assert len(ops) == 1 #e there will always be just one for now
+                if not ( len(ops) == 1): #e there should always be just one for now
+                    #060212 changed to debug msg, since this assert failed (due to process_events?? undoing esp image delete)
+                    print_compact_stack("bug: more than one %s op found: " % optype)
                 op = ops[0]
                 op = self.wrap_op_with_merging_flags(op) #060127
                 text = op.menu_desc() + extra #060126
