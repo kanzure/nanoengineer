@@ -24,28 +24,13 @@ class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
     
     #mark 060128 made this more general by adding the atomlist arg.
-    def selectConnected(self, atomlist=None, op='Select'):
-        """Select, unselect or delete any atom that can be reached from any currently
+    def selectConnected(self, atomlist=None):
+        """Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
-        
         If <atomlist> is supplied, use it instead of the currently selected atoms.
-        
-        <op> is an operator flag, where:
-        'Select' = select all the atoms reachable through any sequence of bonds to the atoms in atomlist.
-        'Unselect' = unselect all the atoms reachable through any sequence of bonds to the atoms in atomlist.
-        'Delete' = delete all the atoms reachable through any sequence of bonds to the atoms in atomlist.
         """ ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
         
-        if op == 'Select': # Default
-            cmd = greenmsg("Select Connected: ")
-        elif op == 'Unselect':
-            cmd = greenmsg("Unselect Connected: ")
-        elif op == 'Delete':
-            cmd = greenmsg("Delete Connected: ")
-        else:
-            print "Error in selectConnected(): Invalid op =", op
-            #& I know there is a debug method that I should be using here.  Bruce, can you remind me?  mark 060210.
-            return
+        cmd = greenmsg("Select Connected: ")
         
         if atomlist is None and not self.selatoms:
             msg = redmsg("No atoms selected")
@@ -55,17 +40,79 @@ class ops_connected_Mixin:
         if atomlist is None: # test for None since atomlist can be an empty list.
             atomlist = self.selatoms.values()
             
-        natoms = self.marksingle(atomlist, op)
-        if not natoms: return
+        catoms = self.getConnectedAtoms(atomlist)
+        if not len(catoms): return
+        
+        natoms = 0
+        for atom in catoms[:]:
+            if not atom.picked:
+                atom.pick()
+                if atom.picked:
+                    # Just in case a selection filter was applied to this atom.
+                    natoms += 1 
         
         from platform import fix_plurals
-        if op == 'Unselect':
-            info = fix_plurals( "%d atom(s) unselected." % natoms)
-        elif op == 'Delete':
-            info = fix_plurals( "%d connected atom(s) deleted." % natoms)
-        else: # Default
-            info = fix_plurals( "%d connected atom(s) selected." % natoms)
+        info = fix_plurals( "%d connected atom(s) selected." % natoms)
+        env.history.message( cmd + info)
+        self.o.gl_update()
+        
+    def unselectConnected(self, atomlist=None):
+        """Unselect any atom that can be reached from any currently
+        selected atom through a sequence of bonds.
+        If <atomlist> is supplied, use it instead of the currently selected atoms.
+        """
+        cmd = greenmsg("Unselect Connected: ")
+        
+        if atomlist is None and not self.selatoms:
+            msg = redmsg("No atoms selected")
+            env.history.message(cmd + msg)
+            return
+        
+        if atomlist is None: # test for None since atomlist can be an empty list.
+            atomlist = self.selatoms.values()
             
+        catoms = self.getConnectedAtoms(atomlist)
+        if not len(catoms): return
+        
+        natoms = 0
+        for atom in catoms[:]:
+            if atom.picked:
+                atom.unpick()
+                if not atom.picked:
+                    # Just in case a selection filter was applied to this atom.
+                    natoms += 1 
+        
+        from platform import fix_plurals
+        info = fix_plurals( "%d atom(s) unselected." % natoms)
+        env.history.message( cmd + info)
+        self.o.gl_update()
+        
+    def deleteConnected(self, atomlist=None):
+        """Delete any atom that can be reached from any currently
+        selected atom through a sequence of bonds.
+        If <atomlist> is supplied, use it instead of the currently selected atoms.
+        """
+        
+        cmd = greenmsg("Delete Connected: ")
+        
+        if atomlist is None and not self.selatoms:
+            msg = redmsg("No atoms selected")
+            env.history.message(cmd + msg)
+            return
+        
+        if atomlist is None: # test for None since atomlist can be an empty list.
+            atomlist = self.selatoms.values()
+            
+        catoms = self.getConnectedAtoms(atomlist)
+        if not len(catoms): return
+        
+        natoms = 0
+        for atom in catoms[:]:
+            natoms += 1
+            atom.kill()
+        
+        from platform import fix_plurals
+        info = fix_plurals( "%d connected atom(s) deleted." % natoms)
         env.history.message( cmd + info)
         self.o.gl_update()
             
@@ -107,7 +154,7 @@ class ops_connected_Mixin:
     # (tho it's still non-interruptable), and fixing some other bug by making it
     # use its own dict for intermediate state, rather than atom.picked (so it works with Selection Filter).
     #mark 060128 made this more general by adding the atomlist arg.
-    def marksingle(self, atomlist, op='Select'):
+    def marksingle_OBS(self, atomlist, op='Select'): # obsolete and not used as of 060212. mark
         '''Select, unselect or delete all the atoms reachable through any sequence of bonds to the atoms 
         in <atomlist> based on the operator flag <op>, where:
         
@@ -157,7 +204,44 @@ class ops_connected_Mixin:
             # note: this doesn't actually select it unless it's not a singlet and its element passes the Selection Filter.
         return n
         
+
+    def getConnectedAtoms(self, atomlist, singlet_ok = False):
+        '''Return a list of atoms reachable from all the atoms in atomlist.
+        Normally never returns singlets. Optional arg <singlet_ok> permits returning singlets.
+        '''
+        marked = {} # maps id(atom) -> atom, for processed atoms
+        todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
+        # from elements import Singlet
+        for atom in todo:
+            marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
+        while todo:
+            newtodo = []
+            for atom in todo:
+                assert id(atom) in marked
+                #e could optim by skipping singlets, here or before appending them.
+                #e in fact, we could skip all univalent atoms here, but (for non-singlets)
+                # only if they were not initially picked, so nevermind that optim for now.
+                for b in atom.bonds:
+                    at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
+                    if id(at1) not in marked: #e could also check for singlets here...
+                        marked[id(at1)] = at1
+                        newtodo.append(at1)
+                    if id(at2) not in marked:
+                        marked[id(at2)] = at2
+                        newtodo.append(at2)
+            todo = newtodo
         
+        alist = []
+        
+        for atom in marked.itervalues():
+            if singlet_ok:
+                alist.append(atom)
+            elif not atom.is_singlet():
+                alist.append(atom)
+                
+        return alist
+        
+
     def getConnectedSinglets(self, atomlist):
         '''Return a list of singlets reachable from all the atoms in atomlist.
         '''
