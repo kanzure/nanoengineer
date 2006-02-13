@@ -1,0 +1,30 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_02_thermo_anchor_stat_reordering_8.trc test_02_thermo_anchor_stat_reordering_8.mmp 
+# Date and Time: Mon Feb 13 13:50:33 2006
+# Input File: test_02_thermo_anchor_stat_reordering_8.mmp
+# Output File: test_02_thermo_anchor_stat_reordering_8.xyz
+# Trace File: test_02_thermo_anchor_stat_reordering_8.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 2
+# 
+# 3 columns:
+# Anchor.19: torque (nn-nm)
+# Stat-33: energy added (zJ)
+# Thermo.21: temperature (K)
+#
+#     Time       Anchor          T.stat          T.meter         
+#  picosec       Anchor.19       Stat-33         Thermo.21      
+#
+    0.0100             0.00           -0.01          249.12
+# Done: 

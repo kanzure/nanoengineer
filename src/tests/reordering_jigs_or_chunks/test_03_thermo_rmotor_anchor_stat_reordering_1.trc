@@ -1,0 +1,32 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_03_thermo_rmotor_anchor_stat_reordering_1.trc test_03_thermo_rmotor_anchor_stat_reordering_1.mmp 
+# Date and Time: Mon Feb 13 13:50:33 2006
+# Input File: test_03_thermo_rmotor_anchor_stat_reordering_1.mmp
+# Output File: test_03_thermo_rmotor_anchor_stat_reordering_1.xyz
+# Trace File: test_03_thermo_rmotor_anchor_stat_reordering_1.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 36
+# 
+# 5 columns:
+# Thermo-42: temperature (K)
+# Anchor-44: torque (nn-nm)
+# Rotary Motor--chunk2: speed (GHz)
+# Rotary Motor--chunk2: torque (nn-nm)
+# Stat- -chunk 2: energy added (zJ)
+#
+#     Time       T.meter         Anchor          speed           torque          T.stat          
+#  picosec       Thermo-42       Anchor-44       Rotary Motor--c                 Stat- -chunk 2 
+#
+    0.0100           255.12            0.00           2.062          -0.372           -0.01
+# Done: 

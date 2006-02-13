@@ -1,0 +1,34 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_05_thermo_lmotor_anchor_measurement_jigs_reordering_5.trc test_05_thermo_lmotor_anchor_measurement_jigs_reordering_5.mmp 
+# Date and Time: Mon Feb 13 13:50:36 2006
+# Input File: test_05_thermo_lmotor_anchor_measurement_jigs_reordering_5.mmp
+# Output File: test_05_thermo_lmotor_anchor_measurement_jigs_reordering_5.xyz
+# Trace File: test_05_thermo_lmotor_anchor_measurement_jigs_reordering_5.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 23
+# 
+# 7 columns:
+# Linear Motor-3: displacement (angstroms)
+# Distance-1-3: distance (angstroms)
+# Anchor-4: torque (nn-nm)
+# Thermo-4: temperature (K)
+# Angle-4-1-2: angle (degrees)
+# Dihedral-1-2-3-4: dihedral (degrees)
+# Thermo-2: temperature (K)
+#
+#     Time       Lmotor          Distance        Anchor          T.meter         Angle           Dihedral        T.meter         
+#  picosec       Linear Motor-3  Distance-1-3    Anchor-4        Thermo-4        Angle-4-1-2     Dihedral-1-2-3- Thermo-2       
+#
+    0.0100          -0.0110          9.9409            0.00          330.99        95.97407        -9.14651          392.22
+# Done: 

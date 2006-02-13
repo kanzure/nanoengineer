@@ -1,0 +1,29 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_004_one_thermostat_enabled_other_disabled.trc test_004_one_thermostat_enabled_other_disabled.mmp 
+# Date and Time: Mon Feb 13 13:49:46 2006
+# Input File: test_004_one_thermostat_enabled_other_disabled.mmp
+# Output File: test_004_one_thermostat_enabled_other_disabled.xyz
+# Trace File: test_004_one_thermostat_enabled_other_disabled.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 2
+# 
+# 2 columns:
+# Thermo-1: temperature (K)
+# Stat-1- 10K: energy added (zJ)
+#
+#     Time       T.meter         T.stat          
+#  picosec       Thermo-1        Stat-1- 10K    
+#
+    0.0100           204.57           -0.02
+# Done: 

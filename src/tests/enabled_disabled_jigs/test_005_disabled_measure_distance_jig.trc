@@ -1,0 +1,30 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_005_disabled_measure_distance_jig.trc test_005_disabled_measure_distance_jig.mmp 
+# Date and Time: Mon Feb 13 13:49:46 2006
+# Input File: test_005_disabled_measure_distance_jig.mmp
+# Output File: test_005_disabled_measure_distance_jig.xyz
+# Trace File: test_005_disabled_measure_distance_jig.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 6
+# 
+# 3 columns:
+# Angle-23: angle (degrees)
+# Dihedral-24: dihedral (degrees)
+# Distance-25: distance (angstroms)
+#
+#     Time       Angle           Dihedral        Distance        
+#  picosec       Angle-23        Dihedral-24     Distance-25    
+#
+    0.0100         83.67256      -167.61926          3.8336
+# Done: 

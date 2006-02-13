@@ -1,0 +1,30 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_001_two_methanes_9A_apart_vdw_5.trc test_001_two_methanes_9A_apart_vdw_5.mmp 
+# Date and Time: Mon Feb 13 13:50:55 2006
+# Input File: test_001_two_methanes_9A_apart_vdw_5.mmp
+# Output File: test_001_two_methanes_9A_apart_vdw_5.xyz
+# Trace File: test_001_two_methanes_9A_apart_vdw_5.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 10
+# 
+# 3 columns:
+# Thermo-46: temperature (K)
+# Thermo-48: temperature (K)
+# Distance-49: distance (angstroms)
+#
+#     Time       T.meter         T.meter         Distance        
+#  picosec       Thermo-46       Thermo-48       Distance-49    
+#
+    0.0100           420.17          207.14          9.0390
+# Done: 

@@ -1,0 +1,30 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_006_linearmotor_negative_force_and_0_stiffness.trc test_006_linearmotor_negative_force_and_0_stiffness.mmp 
+# Date and Time: Mon Feb 13 13:50:29 2006
+# Input File: test_006_linearmotor_negative_force_and_0_stiffness.mmp
+# Output File: test_006_linearmotor_negative_force_and_0_stiffness.xyz
+# Trace File: test_006_linearmotor_negative_force_and_0_stiffness.trc
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 43
+# 
+# 3 columns:
+# Linear Motor-87: displacement (angstroms)
+# Thermo-89: temperature (K)
+# Distance-90: distance (angstroms)
+#
+#     Time       Lmotor          T.meter         Distance        
+#  picosec       Linear Motor-87 Thermo-89       Distance-90    
+#
+    0.0100          -0.0013          269.69         11.9527
+# Done: 
