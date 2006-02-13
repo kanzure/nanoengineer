@@ -1,0 +1,39 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 -x -otests/motors/022_rotary_motor_small_bearing_test.xyzcmp -qtests/motors/022_rotary_motor_small_bearing_test.trace /tmp/foo.mmp 
+# Date and Time: Mon Feb 13 10:39:38 2006
+# Input File: /tmp/foo.mmp
+# Output File: tests/motors/022_rotary_motor_small_bearing_test.xyzcmp
+# Trace File: tests/motors/022_rotary_motor_small_bearing_test.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 209
+# 
+# 12 columns:
+# Rotary Motor-165: speed (GHz)
+# Rotary Motor-165: torque (nn-nm)
+# Anchor-166: torque (nn-nm)
+# Thermo-167: temperature (K)
+# Thermo-168: temperature (K)
+# Stat-169: energy added (zJ)
+# Anchor-172: torque (nn-nm)
+# Distance-174: distance (angstroms)
+# Anchor-175: torque (nn-nm)
+# Distance-176: distance (angstroms)
+# Angle-177: angle (degrees)
+# Distance-178: distance (angstroms)
+#
+#     Time       speed           torque          Anchor          T.meter         T.meter         T.stat          Anchor          Distance        Anchor          Distance        Angle           Distance        
+#  picosec       Rotary Motor-16                 Anchor-166      Thermo-167      Thermo-168      Stat-169        Anchor-172      Distance-174    Anchor-175      Distance-176    Angle-177       Distance-178   
+#
+    0.0100            2.357           0.316            1.19          256.79          474.69            0.16            0.00         24.9612            0.00         25.0379         0.06376         24.9824
+# Done: 

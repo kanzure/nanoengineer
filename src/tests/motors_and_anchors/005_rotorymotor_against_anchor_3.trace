@@ -1,0 +1,34 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 -x -otests/motors_and_anchors/005_rotorymotor_against_anchor_3.xyzcmp -qtests/motors_and_anchors/005_rotorymotor_against_anchor_3.trace /tmp/foo.mmp 
+# Date and Time: Mon Feb 13 10:39:40 2006
+# Input File: /tmp/foo.mmp
+# Output File: tests/motors_and_anchors/005_rotorymotor_against_anchor_3.xyzcmp
+# Trace File: tests/motors_and_anchors/005_rotorymotor_against_anchor_3.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 20
+# 
+# 7 columns:
+# Rotary Motor-37: speed (GHz)
+# Rotary Motor-37: torque (nn-nm)
+# Distance-40: distance (angstroms)
+# Distance-41: distance (angstroms)
+# Angle-42: angle (degrees)
+# Thermo-43: temperature (K)
+# Anchor-15: torque (nn-nm)
+#
+#     Time       speed           torque          Distance        Distance        Angle           T.meter         Anchor          
+#  picosec       Rotary Motor-37                 Distance-40     Distance-41     Angle-42        Thermo-43       Anchor-15      
+#
+    0.0100            0.791           0.106         11.9640         11.9980        90.31609          423.07            1.58
+# Done: 

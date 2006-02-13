@@ -1,0 +1,32 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ./simulator -i100 -f1 -x -otests/motors/030_rotarymotor_and_linear_motor_attached_to_same_atoms.xyzcmp -qtests/motors/030_rotarymotor_and_linear_motor_attached_to_same_atoms.trace /tmp/foo.mmp 
+# Date and Time: Mon Feb 13 10:39:39 2006
+# Input File: /tmp/foo.mmp
+# Output File: tests/motors/030_rotarymotor_and_linear_motor_attached_to_same_atoms.xyzcmp
+# Trace File: tests/motors/030_rotarymotor_and_linear_motor_attached_to_same_atoms.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 30
+# 
+# 5 columns:
+# Thermo-85: temperature (K)
+# Stat-87: energy added (zJ)
+# Linear Motor-181: displacement (angstroms)
+# Rotary Motor-182: speed (GHz)
+# Rotary Motor-182: torque (nn-nm)
+#
+#     Time       T.meter         T.stat          Lmotor          speed           torque          
+#  picosec       Thermo-85       Stat-87         Linear Motor-18 Rotary Motor-18                
+#
+    0.0100           250.54            0.10          0.0015          -1.494          -1.600
+# Done: 
