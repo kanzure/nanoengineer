@@ -181,8 +181,9 @@ def createWhatsThis(self):
         editDeleteText =  "<u><b>Delete</b></u>     (DEL)</b></p><br> "\
                        "<p><img source=\"editDelete\"><br> "\
                        "Deletes the selected object(s).  "\
-                       "For this Alpha release, deleted objects are permanantly lost.</p>"
-
+                       "For this Alpha release, deleted objects may be permanently lost, or they might be recoverable using Undo.</p>"
+            #bruce 060212 revised above text (and fixed spelling error); should be revised again before A7 release
+        
         QMimeSourceFactory.defaultFactory().setPixmap( "editDelete",
                                                        self.editDeleteAction.iconSet().pixmap() )
 
