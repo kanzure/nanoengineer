@@ -16,7 +16,8 @@ from chem import *
 from Utility import *
 from HistoryWidget import redmsg, greenmsg
 from debug import print_compact_stack, print_compact_traceback
-import env #bruce 050901
+from debug_prefs import debug_pref, Choice_boolean_False
+import env
 from jigs import Jig
 from ImageUtils import nEImageOps
 
@@ -51,8 +52,7 @@ class RectGadget(Jig):
         """Override the version from Jig. Removed adding jig to atoms"""
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
-            #e remove them? would need to prevent recursive kill.
-        self.atoms = list(atomlist) # bruce 050316: copy the list
+        self.atoms = list(atomlist) # bruce 050316 (in super method): copy the list
         
         
     def __init_quat_center(self, list):
@@ -191,8 +191,10 @@ class RectGadget(Jig):
         
 class GridPlane(RectGadget):
     ''' '''
-    mutable_attrs = ('grid_color', )
-    copyable_attrs = RectGadget.copyable_attrs + ('line_type', 'grid_type', 'x_spacing', 'y_spacing') + mutable_attrs
+    #bruce 060212 include superclass mutables (might fix some bugs); see analogous ESPImage comments for more info
+    own_mutable_attrs = ('grid_color', )
+    mutable_attrs = own_mutable_attrs + RectGadget.mutable_attrs
+    copyable_attrs = RectGadget.copyable_attrs + ('line_type', 'grid_type', 'x_spacing', 'y_spacing') + own_mutable_attrs
     
     sym = "Grid Plane"
     icon_names = ["gridplane.png", "gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
@@ -288,13 +290,20 @@ def povStrVec(va):
 
 class ESPImage(RectGadget):
     ''' '''
-    mutable_attrs = ('fill_color', )
-    copyable_attrs = RectGadget.copyable_attrs + ('resolution', 'opacity', 'show_esp_bbox', 'image_offset', 'edge_offset') + mutable_attrs
+    #bruce 060212 use separate own_mutable_attrs and mutable_attrs to work around design flaws in attrlist inheritance scheme
+    # (also including superclass mutable_attrs center,quat -- might fix some bugs -- and adding image_mods)
+    own_mutable_attrs = ('fill_color', 'image_mods', )
+    mutable_attrs = RectGadget.mutable_attrs + own_mutable_attrs
+    copyable_attrs = RectGadget.copyable_attrs + own_mutable_attrs + \
+                     ('resolution', 'opacity', 'show_esp_bbox', 'image_offset', 'edge_offset',
+                      'espimage_file', 'highlightChecked', 'xaxis_orient', 'yaxis_orient', 'multiplicity')
+        #bruce 060212 added 'espimage_file', 'highlightChecked', 'xaxis_orient', 'yaxis_orient', 'multiplicity'
+        # (not sure adding 'multiplicity' is correct)
     
     sym = "ESP Image"
     icon_names = ["espimage.png", "espimage-hide.png"]
     mmp_record_name = "espimage"
-    featurename = "ESP Image" #Renamed. mark 060108
+    featurename = "ESP Image" #Renamed from ESP Window. mark 060108
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
@@ -321,20 +330,32 @@ class ESPImage(RectGadget):
         self.tex_name = None # OpenGL texture name for image_obj, if we have one [bruce 060207 for fixing bug 1059]
         self.espimage_file = '' # ESP Image (png) filename
         self.highlightChecked = False # Flag if highlight is turned on or off
-        self.xaxis_orient = 0 # ESP Image X Axis orientation
+            ###e does this need storing in mmp file? same Q for xaxis_orient, etc. [bruce 060212 comment]
+        self.xaxis_orient = 0 # ESP Image X Axis orientation [bruce comment 060212: this is used by external code in files_nh.py]
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
         self.multiplicity = 1 # Multiplicity of atoms within this jig's bbox volume
        
         self.pickCheckOnly=False #This is used to notify drawing code if it's just for picking purpose
         
         
-    def _initTextureEnv(self):
+    def _initTextureEnv(self): # called during draw method
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+            # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        if debug_pref("smoother textures", Choice_boolean_False, prefs_key = True):
+            #bruce 060212 new feature (only visible in debug version so far);
+            # ideally it'd be controllable per-jig for side-by-side comparison;
+            # also, changing its menu item ought to gl_update but doesn't ##e
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            if self.have_mipmaps:
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+            else:
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        else:
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
 
 
@@ -360,7 +381,15 @@ class ESPImage(RectGadget):
         glBindTexture(GL_TEXTURE_2D, self.tex_name)   # 2d texture (x and y size)
     
         glPixelStorei(GL_UNPACK_ALIGNMENT,1)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+        self.have_mipmaps = False
+        if debug_pref("smoother tiny textures", Choice_boolean_False, prefs_key = True):
+            #bruce 060212 new feature; only takes effect when image is reloaded for some reason (like "load image" button)
+	    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
+            self.have_mipmaps = True
+	else:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+                # 0 is mipmap level, GL_RGBA is internal format, ix, iy is size, 0 is borderwidth,
+                # and (GL_RGBA, GL_UNSIGNED_BYTE, image) describe the external image data. [bruce 060212 comment]
     
         ## self._initTextureEnv() #bruce 060207 do this in draw method, not here
         self.assy.o.gl_update()
@@ -433,7 +462,7 @@ class ESPImage(RectGadget):
 
 
     def highlightAtomChunks(self):
-        '''hightlight atoms '''
+        '''highlight atoms '''
         if not self.highlightChecked: return 
         
         atomChunks = self.findObjsInside()
@@ -447,7 +476,7 @@ class ESPImage(RectGadget):
     
     def edit(self):
         '''Force into 'Select Atom' mode before open the dialog '''
-        from constants import SELWHAT_ATOMS
+        ## from constants import SELWHAT_ATOMS
         
         self.assy.o.setMode('SELECTATOMS')        
         Jig.edit(self)
@@ -611,7 +640,7 @@ class ESPImage(RectGadget):
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         tmp_espimage_file = os.path.join(nhdir, "%s.png" % (self.name))
         
-        # Destination (permanant) file name of ESP image file.
+        # Destination (permanent) file name of ESP image file.
         from NanoHiveUtils import get_nh_espimage_filename
         espimage_file = get_nh_espimage_filename(self.assy, self.name)
         
@@ -629,7 +658,7 @@ class ESPImage(RectGadget):
         msg = "ESP calculation on [%s] finished." % (self.name)
         env.history.message( cmd + msg ) 
         
-        # Move tmp file to permanant location.  Make sure the tmp file is there.
+        # Move tmp file to permanent location.  Make sure the tmp file is there.
         if os.path.exists(tmp_espimage_file):
             import shutil
             shutil.move(tmp_espimage_file, espimage_file)
@@ -692,10 +721,10 @@ class ESPImage(RectGadget):
             cwd = self.assy.get_cwd()
     
             fn = QFileDialog.getOpenFileName(cwd, \
-                    "Portable Network Graphics (*.png);;", parent )
+                    "Portable Network Graphics (*.png);;All Files (*.*);;", parent ) #bruce 060212 added All Files option
                 
             if not fn:
-                env.history.message("Cancelled.")
+                env.history.message(cmd + "Cancelled.") #bruce 060212 bugfix: included cmd
                 return None
                 
             self.espimage_file = str(fn)
@@ -709,10 +738,15 @@ class ESPImage(RectGadget):
         
         self._create_PIL_image_obj_from_espimage_file()
         self._loadTexture()
+            #bruce 060212 comment: this does gl_update, but when we're called from dialog's open file button,
+            # the glpane doesn't show the new texture until the dialog is closed (which is a bug, IMHO),
+            # even if we call env.call_qApp_processEvents() before returning from this method (load_espimage_file).
+            # I don't know why.
         
         # Bug fix 1041-1.  Mark 051003
         msg = "ESP image loaded: [" + self.espimage_file + "]"
         env.history.message(cmd + msg)
+        
         return self.espimage_file
     
     
@@ -791,8 +825,11 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
             similar.rotate(self.rot)
         return
     def __nonzero__(self):
-        # this must return an int; i think a boolean should be ok
+        # Python requires this to return an int; i think a boolean should be ok
         return not not (self.mirrorQ or self.rot) # only correct since we always canonicalize rot by % 360
+    def _s_deepcopy(self, copyfunc):
+        # ignores copyfunc
+        return self.__class__(self.mirrorQ, self.rot)
     pass # end of class image_mod_record
 
 #end
