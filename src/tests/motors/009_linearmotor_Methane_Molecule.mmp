@@ -1,0 +1,35 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.707107, 0.000000, -0.707107, 0.000000) (24.807623) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (009 linearmotor-Methane Molecule)
+info opengroup open = True
+mol (Chunk-C41) def
+atom 1 (6) (212, 48, 0) def
+atom 2 (1) (839, 676, 627) def
+bond1 1
+atom 3 (1) (-415, 676, -627) def
+bond1 1
+atom 4 (1) (-415, -579, 627) def
+bond1 1
+atom 5 (1) (839, -579, -627) def
+bond1 1
+lmotor (Linear Motor-7) (127, 127, 127) 1.000000 0.100000 (212, 48, 0) (0, 0, -1000) 10.00 0.50 0.10
+shaft 1
+thermo (Thermo-11) (153, 0, 51) 1 5 1
+mol (ref-1) def
+atom 6 (10) (212, 18048, 0) def
+mdistance (Distance-14) (0, 0, 0) (Helvetica) 10 1 6
+mol (ref-2) def
+atom 7 (10) (0, 0, -18000) def
+mdistance (Distance-15) (0, 0, 0) (Helvetica) 10 1 7
+ground (Anchor-17) (0, 0, 0) 6 7
+egroup (009 linearmotor-Methane Molecule)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 009 linearmotor-Methane Molecule

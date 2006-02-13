@@ -1,0 +1,26 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.153805) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (01-thermo-anchor-reordering-1)
+info opengroup open = True
+forward_ref (773509728) # thermo (Thermo.21)
+forward_ref (773509488) # ground (Anchor.19)
+mol (2-anchor) tub
+atom 1 (1) (1737, 71, 0) def
+ground (Anchor.19) (0, 0, 0) 1
+info leaf forwarded = 773509488
+mol (1-Thermo) tub
+atom 2 (1) (993, 69, 0) def
+bond1 1
+thermo (Thermo.21) (153, 0, 51) 2 2 2
+info leaf forwarded = 773509728
+egroup (01-thermo-anchor-reordering-1)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 01-thermo-anchor-reordering-1
