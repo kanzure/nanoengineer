@@ -38,7 +38,9 @@ HICOLOR_singlet_bond = white ## ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_b
 
 _count = 0
 
-DRAG_STICKINESS_LIMIT = 0.06 #& Make it a user pref.  Mark 060212.
+DRAG_STICKINESS_LIMIT = 0.03 # in Angstroms with respect to the front clipping plane.
+    #& To do: Change to pixel units and make it a user pref.  Also consider a different var/pref
+    #& for singlet vs. atom drag stickiness limits. Mark 060213.
 
 #bruce 050121 split out hotspot helper functions, for slightly more general use
 
@@ -857,6 +859,7 @@ class depositMode(selectAtomsMode):
         #glpane.grabKeyboard() #& commented out since it was causing bug 1491. mark 060213.
             #& adding grabKeyboard fixed an undocumented bug when depositing an object with a modkey pressed. 
             #& The resulting selection of the deposited obj is always as if no modkey was pressed. mark 060211.
+            
         wX = event.pos().x()
         wY = glpane.height - event.pos().y()
         selobj = orig_selobj = glpane.selobj
@@ -916,6 +919,7 @@ class depositMode(selectAtomsMode):
             else:
                 # depth is in front of water
                 new_selobj_unknown = True
+                
         if new_selobj_unknown:
             # Only the next paintGL call can figure out the selobj (in general),
             # so set glpane.glselect_wanted to the command to do that and the necessary info for doing it.
@@ -947,10 +951,14 @@ class depositMode(selectAtomsMode):
         ## self.update_selatom(event, msg_about_click = True)
         return not new_selobj_unknown # from update_selobj
 
-    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): #bruce 050610 rewrote this
-        "keep selatom up-to-date, as atom under mouse; ###@@@ correctness after rewrite not yet proven, due to delay until paintGL"
-        #& update_selatom() really needs a better docstring. mark 060213.
-        
+    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): 
+        #bruce 050610 rewrote this
+        '''Keep selatom up-to-date, as atom under mouse based on <event>; 
+        When <singOnly> is True, only keep singlets up-to-date.
+        When <msg_about_click> is True, print a message on the statusbar about the LMB press.
+        <resort_to_prior> is disabled. #& Talk to Bruce to confirm this.
+        ###@@@ correctness after rewrite not yet proven, due to delay until paintGL
+        '''
         # bruce 050124 split this out of bareMotion so options can vary
         glpane = self.o
         if event is None:
@@ -966,25 +974,10 @@ class depositMode(selectAtomsMode):
         # and I did not yet scan them all and fix them. ####@@@@ do that
         
         selobj = glpane.selobj
-        #& Big problem happens here when dragging a singlet to another singlet the first time.
-        #& <known> is True after calling self.update_selobj(), but <selobj> is None. <selobj> should be
-        #& the singlet we released the LMB on. <selobj> is being set to None somewhere just before
-        #& update_selatom() is called by get_singlet_under_cursor().  Can't find it, but it's late.
-        #& Cannot reproduce bug consistently (only about 50% of the time).  
-        #& mark 060212.
-        
-        #print "known %r, selobj %r, selatom %r" % (known, selobj, glpane.selatom) 
-            # Uncomment this print stmt to see the bug. mark 060212.
-        
-        if known and selobj is None: 
-            #& Workaround for the bug mentioned above.  The real bug is probably in update_selobj(). 
-            #& This works fine in tests.  See no problems with it, so leaving it in. mark 060213.
-            selobj = glpane.selatom
+        ## print "known %r, selobj %r" % (known, selobj) 
             
         if not known:
             if resort_to_prior: 
-                #& <resort_to_prior> doesn't appear to do anything useful. I thought it should help since 
-                #& selobj was the correct obj (singlet) last time through here. Nope. mark 060213.
                 pass # stored one is what this says to use, and is what we'll use
                 ## print "resort_to_prior using",glpane.selobj
                     # [this is rare, I guess since paintGL usually has time to run after bareMotion before clicks]
@@ -1520,7 +1513,7 @@ class depositMode(selectAtomsMode):
         # We are dragging around a singlet or a real atom.
         
         # Check how far the mouse has been dragged.
-        if self.mouse_within_stickiness_limit(event):
+        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             return
 
         a = self.dragatom
@@ -1582,8 +1575,7 @@ class depositMode(selectAtomsMode):
         
         a = self.dragatom
         
-        if self.selCurve_length/self.o.scale < 0.03:
-            # didn't move much, call it a click
+        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             event = self.LMB_press_event
         
         if self.dragatom_clicked:
@@ -1670,20 +1662,24 @@ class depositMode(selectAtomsMode):
             else:
                 object_type = "library part(s)"
                     
-            info = fix_plurals( "%d %s deposited." % (nobjs, object_type) )
+            info = fix_plurals( "%d %s deposited." % (nobjs+1, object_type) ) 
+                # +1 to resolve bug 1502. mark 060213.
             env.history.message(info)
             self.w.win_update()
 
-    def mouse_within_stickiness_limit(self, event):
-        '''Returns True if the mouse hasn't exceeded the distance determined by the "stickiness limit".
-        Returns False if the mouse has exceeded the limit.
+    def mouse_within_stickiness_limit(self, event, drag_stickiness_limit):
+        '''Check if mouse has been dragged beyond <drag_stickiness_limit> while holding down the LMB.
+        Returns True if the mouse has not exceeded <drag_stickiness_limit>.
+        Returns False if the mouse has exceeded <drag_stickiness_limit>.
+        <drag_stickiness_limit> is measured in Angstroms. #& will be changed to pixels. mark 060213
         '''
+        #& Intend to add arg for pixels
         if self.drag_stickiness_limit_exceeded:
             return False
         
         LMB_drag_pt, junk = self.o.mousepoints(event, 0.01)
         self.drag_distance = vlen(LMB_drag_pt - self.LMB_press_pt)
-        if self.drag_distance/self.o.scale < DRAG_STICKINESS_LIMIT:
+        if self.drag_distance/self.o.scale < drag_stickiness_limit:
             return True
         else:
             self.drag_stickiness_limit_exceeded = True
