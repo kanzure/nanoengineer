@@ -404,6 +404,8 @@ class depositMode(selectAtomsMode):
             # bond that was clicked by LMB during leftDown.
         self.drag_stickiness_limit_exceeded = False
             # used in leftDrag() to determine if the drag stickiness limit was exceeded.
+        self.suppress_updates = False
+            # used to suppress multiple win_updates and history msgs when trans-depositing.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -852,8 +854,9 @@ class depositMode(selectAtomsMode):
         # (repaint sets new selobj, maybe highlights it).
         # [some code copied from modifyMode]
         glpane = self.o
-        glpane.grabKeyboard() 
-            # fixes an undocumented bug when depositing a clipboard or library part with modkey pressed. mark 060211.
+        #glpane.grabKeyboard() #& commented out since it was causing bug 1491. mark 060213.
+            #& adding grabKeyboard fixed an undocumented bug when depositing an object with a modkey pressed. 
+            #& The resulting selection of the deposited obj is always as if no modkey was pressed. mark 060211.
         wX = event.pos().x()
         wY = glpane.height - event.pos().y()
         selobj = orig_selobj = glpane.selobj
@@ -1608,9 +1611,6 @@ class depositMode(selectAtomsMode):
         
     def leftDouble(self, event): # mark 060126.
         '''Double click event handler for the left mouse button. 
-        If an atom was double-clicked, select all the atoms reachable through 
-        any sequence of bonds to that atom.
-        If the Control modkey is pressed, unselect all the atoms.
         '''
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
@@ -1619,17 +1619,8 @@ class depositMode(selectAtomsMode):
         
         if isinstance(self.obj_doubleclicked, Atom):
             if self.obj_doubleclicked.is_singlet():
-                modkey = self.modkey # save the modkey state
-                if self.modkey is None:
-                    self.modkey = 'Shift'
-                    # needed for trans-deposit selection consistency when no modifier key is pressed.
-                for s in self.singlet_list[:]:
-                    if s is not self.obj_doubleclicked:
-                        #& singlets from deposited obj will autobond with singlets in singlet_list[].
-                        #& this is a known bug; to be fixed after talking with Bruce.  mark 060212.
-                        self.deposit_from_MMKit(s)
-                self.modkey = modkey # restore the modkey state to real state.
-            
+                self.transdeposit_from_MMKit(self.singlet_list)
+                
             else: # real atom
                 if self.modkey == 'Control':
                     self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
@@ -1649,6 +1640,39 @@ class depositMode(selectAtomsMode):
         self.ignore_next_leftUp_event = True
 
 # == end of LMB event handler methods
+
+
+    def transdeposit_from_MMKit(self, singlet_list):
+        '''Trans-deposit the current object in the MMKit on all singlets in <singlet_list>.
+        '''
+        if not singlet_list: return
+        
+        modkey = self.modkey # save the modkey state
+        if self.modkey is None:
+            self.modkey = 'Shift'
+                # needed for trans-deposit selection consistency when no modifier key is pressed.
+            self.suppress_updates = True
+            nobjs=0
+            for s in singlet_list[:]: # singlet_list built in 
+                if s is not self.obj_doubleclicked:
+                    #& when trans-depositing atoms from the MMKit, singlets from deposited atoms will 
+                    #& autobond with singlets in singlet_list[].
+                    #& this is a known bug; to be fixed after talking with Bruce.  mark 060212.
+                    self.deposit_from_MMKit(s)
+                    nobjs += 1
+            self.suppress_updates = False
+            self.modkey = modkey # restore the modkey state to real state.
+                
+            if self.w.depositState == 'Atoms':
+                object_type = "atom(s)"
+            elif self.w.depositState == 'Clipboard':
+                object_type = "clipboard node(s)"
+            else:
+                object_type = "library part(s)"
+                    
+            info = fix_plurals( "%d %s deposited." % (nobjs, object_type) )
+            env.history.message(info)
+            self.w.win_update()
 
     def mouse_within_stickiness_limit(self, event):
         '''Returns True if the mouse hasn't exceeded the distance determined by the "stickiness limit".
@@ -1948,6 +1972,9 @@ class depositMode(selectAtomsMode):
 ##        # We now have bug 229 again when we deposit a library part while in "invisible" display mode.
 ##        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
 ##        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it, added a different one]
+
+        if self.suppress_updates: return
+        
         if deposited_stuff:
             self.w.win_update() 
                 #& should we differentiate b/w win_update (when deposited_stuff is a new chunk added) vs. 
