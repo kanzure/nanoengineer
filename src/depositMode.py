@@ -408,6 +408,8 @@ class depositMode(selectAtomsMode):
             # used in leftDrag() to determine if the drag stickiness limit was exceeded.
         self.suppress_updates = False
             # used to suppress multiple win_updates and history msgs when trans-depositing.
+        self.only_highlight_singlets = False
+            # set to True in setupDragSinglet(). Only singlets get highlighted when dragging a singlet.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -796,6 +798,8 @@ class depositMode(selectAtomsMode):
             if selobj.is_singlet():
                 return HICOLOR_singlet ###@@@ this one is not yet in prefs db
             else:
+                if self.only_highlight_singlets:
+                    return None
                 if self.modkey == 'Delete':
                     return darkred  
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
@@ -818,6 +822,8 @@ class depositMode(selectAtomsMode):
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
                 return HICOLOR_singlet_bond
             else:
+                if self.only_highlight_singlets:
+                    return None
                 if self.modkey == 'Delete': 
                     return darkred # Highlight the bond in darkred if the control key is pressed.
                 else:
@@ -1792,6 +1798,8 @@ class depositMode(selectAtomsMode):
                 self.o.gl_update()
         else: # cursor on empty space
             self.o.gl_update() # get rid of white rubber band line.
+            
+        self.only_highlight_singlets = False
 
     def select_2d_region(self, event):
         '''Start 2D selection of a region.
@@ -2330,6 +2338,7 @@ class depositMode(selectAtomsMode):
         '''
         self.initDragObject(a)
         self.obj_doubleclicked = a # for trans-deposit implem (soon). mark 060211.
+        self.only_highlight_singlets = True
         
         self.singlet_list = self.o.assy.getConnectedSinglets([a])
             # get list of all singlets that we can reach from any sequence of bonds to <a>.
