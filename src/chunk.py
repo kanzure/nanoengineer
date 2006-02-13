@@ -1593,9 +1593,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if not a.is_singlet():
                 if not a.picked:
                     a.pick()
-                if a.picked: 
-                    # Just in case it didn't get picked due to a selection filter.
-                    npicked += 1
+                    if a.picked: 
+                        # Just in case it didn't get picked due to a selection filter.
+                        npicked += 1
         return npicked
         
     def pick(self):
