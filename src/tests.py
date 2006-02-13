@@ -23,6 +23,7 @@ import Numeric
 import math
 import md5
 import os
+import os.path
 import random
 import re
 import shutil
@@ -65,6 +66,10 @@ class Unimplemented(AssertionError):
 def todo(str):
     if SHOW_TODO:
         raise Unimplemented(str)
+
+def readlines(filename):
+    return map(lambda x: x.rstrip(),
+               open(filename).readlines())
 
 testTimes = { }
 testsSkipped = 0
@@ -306,6 +311,53 @@ class MmpFile:
             z += random.normalvariate(0.0, A)
             self[i] = (x, y, z)
 
+def simplifiedMMP(mmp_in, mmp_out):
+    # translate from a complete MMP file to one the simulator can
+    # understand
+    groups = [ ]
+    lines = readlines(mmp_in)
+    outf = open(mmp_out, "w")
+    while True:
+        L = lines.pop(0)
+        if L.startswith("group "):
+            lines.insert(0, L)
+            break
+        outf.write(L + "\n")
+    # identify groups and put them into the groups list
+    gotFirstGoodGroup = False
+    while True:
+        nextGroup = [ ]
+        # we are either at the start of a group, or something that's
+        # not a group
+        L = lines.pop(0)
+        if L.startswith("end1"):
+            # throw this line away, and look for more groups
+            L = lines.pop(0)
+        if not L.startswith("group ("):
+            lines.insert(0, L)
+            break
+        goodGroup = not (L.startswith("group (View") or
+                         L.startswith("group (Clipboard"))
+        if goodGroup and not gotFirstGoodGroup:
+            while True:
+                if L.endswith(" def"):
+                    L = L[:-4] + " -"
+                outf.write(L + "\n")
+                L = lines.pop(0)
+                if L.startswith("egroup "):
+                    outf.write(L + "\n")
+                    break
+            gotFirstGoodGroup = True
+        else:
+            while True:
+                L = lines.pop(0)
+                if L.startswith("egroup "):
+                    break
+    # whatever comes after the last group is still in 'lines'
+    for L in lines:
+        outf.write(L + "\n")
+    outf.close()
+
 class LengthAngleComparison:
     def __init__(self, mmpFilename):
         self.bondLengthTerms = bondLengthTerms = { }
@@ -456,7 +508,8 @@ class TimedTest:
 
     def start(self):
         global testsSkipped
-        if not TIME_ONLY and time.time() > testStartTime + TIME_LIMIT:
+        if (not TIME_ONLY and not GENERATE and
+            time.time() > testStartTime + TIME_LIMIT):
             testsSkipped += 1
             raise EarlyTermination
 
@@ -500,11 +553,11 @@ class SandboxTest(TimedTest):
         self.shortname = test  # C2H4
         self.testname = testname = "test_" + test # test_C2H4
         # midname = tests/rigid_organics/test_C2H4
-        self.midname = midname = os.sep.join(["tests", dir, testname])
+        self.midname = midname = os.path.join("tests", dir, testname)
         # methodname = test_rigid_organics_C2H4
         self.methodname = methodname = "_".join(["test", dir, test])
         # basename = .../sim/src/tests/rigid_organics/test_C2H4
-        self.basename = os.sep.join([os.getcwd(), midname])
+        self.basename = os.path.join(os.getcwd(), midname)
         self.expectedExitStatus = expectedExitStatus
 
         try:
@@ -537,21 +590,36 @@ class SandboxTest(TimedTest):
             shutil.copy(simulatorCmd, tmpdir)
             # We always have a .mmp file
             shutil.copy(self.basename + ".mmp", tmpdir)
-            for ext in self.inputs:
-                shutil.copy(self.basename + "." + ext, tmpdir)
+            if not GENERATE:
+                for ext in self.inputs:
+                    shutil.copy(self.basename + "." + ext, tmpdir)
             # Go into the tmp directory and run the simulator.
             os.chdir(tmpdir)
             exitStatus = self.runCommand(self.simopts)
-            if exitStatus != self.expectedExitStatus:
-                inf = open("stderr")
-                sys.stderr.write(inf.read())
-                inf.close()
-                str = ("simulator exit status was %d, expected %d" %
-                       (exitStatus, self.expectedExitStatus))
-                raise AssertionError(str)
+            if self.expectedExitStatus != None:
+                if exitStatus != self.expectedExitStatus:
+                    inf = open("stderr")
+                    sys.stderr.write(inf.read())
+                    inf.close()
+                    str = ("simulator exit status was %d, expected %d" %
+                           (exitStatus, self.expectedExitStatus))
+                    raise AssertionError(str)
             if GENERATE:
-                self.generateMd5Sums()
+                self.generateOutputFiles()
             else:
+                if DEBUG > 0:
+                    print os.listdir(".")
+                if DEBUG > 2:
+                    print ("******** " + self.basename + " ********")
+                    for f in os.listdir("."):
+                        if f != simulatorCmd:
+                            # assume everything else is a text file
+                            print "---- " + f + " ----"
+                            sys.stdout.write(open(f).read())
+                try:
+                    self.finish()
+                except EarlyTermination:
+                    return
                 self.checkOutputFiles()
             return
         finally:
@@ -596,19 +664,6 @@ class SandboxTest(TimedTest):
         return simProcess.exitStatus()
 
     def checkOutputFiles(self):
-        if DEBUG > 0:
-            print os.listdir(".")
-        if DEBUG > 2:
-            print ("******** " + self.basename + " ********")
-            for f in os.listdir("."):
-                if f != simulatorCmd:
-                    # assume everything else is a text file
-                    print "---- " + f + " ----"
-                    sys.stdout.write(open(f).read())
-        try:
-            self.finish()
-        except EarlyTermination:
-            return
         if MD5_CHECKS:
             self.checkMd5Sums()
         else:
@@ -623,7 +678,7 @@ class SandboxTest(TimedTest):
 
     # Generate MD5 checksums for all output files, store in
     # tests/rigid_organics/test_C4H8.md5sums (for example)
-    def generateMd5Sums(self):
+    def generateOutputFiles(self):
         outf = open(self.basename + ".md5sums", "w")
         outf.write("stdout %s\n" % self.md5sum("stdout"))
         outf.write("stderr %s\n" % self.md5sum("stderr"))
@@ -717,6 +772,53 @@ class PyrexTest(TimedTest):
                     LENGTH_TOLERANCE, ANGLE_TOLERANCE)
 
 
+class JigTest(SandboxTest):
+
+    DEFAULT_INPUTS = ("trc", "xyzcmp")
+    DEFAULT_SIMOPTS = ("-i100", "-f1", "--dump-as-text", "--trace-file", "FOO.trc", "FOO.mmp")
+    DEFAULT_OUTPUTS = ("trc", "xyz")
+
+    def generateOutputFiles(self):
+        shutil.copy(self.testname + ".trc", self.basename + ".trc")
+        shutil.copy(self.testname + ".xyz", self.basename + ".xyzcmp")
+
+    def runInSandbox(self):
+        if GENERATE:
+            # If the simplified MMP doesn't already exist, generate it now
+            mmpfile = self.midname + ".mmp"
+            if not os.path.exists(mmpfile):
+                mmp_orig = os.path.join("tests", self.dirname, self.shortname + ".mmp")
+                simplifiedMMP(mmp_orig, mmpfile)
+        SandboxTest.runInSandbox(self)
+
+    def checkOutputFiles(self):
+        # Given a trace file with several frames, and columns for various
+        # jigs, make sure the jigs all have roughly the same numbers as they
+        # had during a known-good run.
+        def lastLineOfReadings(f):
+            lines = readlines(f)
+            n = None
+            for i in range(len(lines)):
+                if lines[i].startswith("# Done:"):
+                    n = i - 1
+                    break
+            if n == None: return None
+            return map(string.atof, lines[n].split())
+        good = lastLineOfReadings(self.basename + ".trc")
+        iffy = lastLineOfReadings(self.testname + ".trc")
+        assert len(iffy) == len(good)
+        for x, y in map(None, good, iffy):
+            assert x == x, "not-a-number values in reference results"
+            assert y == y, "not-a-number values in test results"
+            # give a little wiggle room here
+            if y == 0:
+                assert x == 0, "trace file data doesn't match"
+            elif y > 0:
+                assert 0.99 * y <= x <= 1.01 * y, "trace file data doesn't match"
+            else:
+                assert 0.99 * y >= x >= 1.01 * y, "trace file data doesn't match"
+        self.structureComparisonBondlengthsBondangles()
+
 ####################################################
 
 # Re-generate this with "python tests.py time_only"
@@ -727,213 +829,308 @@ RANKED_BY_RUNTIME = [
     'test_minimize_0004',
     'test_minimize_0006',
     'test_minimize_0007',
-    'test_framecallback',
+    'test_callWrongSimulatorObject',
     'test_badCallback3',
     'test_badCallback2',
-    'test_pyrex_minH2',
     'test_badCallback1',
-    'test_amino_acids_phe_l_aminoacid',
-    'test_minimize_0013',
-    'test_minimize_h2',
+    'test_framecallback',
+    'test_pyrex_minH2',
+    'test_enabled_disabled_jigs_002_one_anchor_enabled_other_disabled',
+    'test_enabled_disabled_jigs_004_one_thermostat_enabled_other_disabled',
+    'test_enabled_disabled_jigs_003_one_thermometer_enabled_other_disabled',
     'test_floppy_organics_CH4',
-    'test_singlebond_stretch_H_H',
-    'test_singlebond_stretch_H_Cl',
-    'test_singlebond_stretch_Cl_F',
-    'test_singlebond_stretch_H_SH',
-    'test_singlebond_stretch_F_OH',
+    'test_enabled_disabled_jigs_007_one_linearmotor_enabled_and_other_disabled',
+    'test_minimize_h2',
+    'test_minimize_0013',
+    'test_motors_011_rotarymotor_0_torque_and_0_speed',
+    'test_motors_016_rotarymotor_negative_torque_and_0_speed',
+    'test_motors_018_rotarymotor_positive_torque_and_0_speed',
+    'test_motors_021_rotarymotor_dyno_jig_test_to_same_chunk',
+    'test_motors_009_linearmotor_Methane_Molecule',
+    'test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_2',
+    'test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_4',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_2',
     'test_singlebond_stretch_F_F',
-    'test_singlebond_stretch_H_OH',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_3',
+    'test_singlebond_stretch_H_H',
+    'test_reordering_jigs_or_chunks_03_thermo_anchor_reordering',
     'test_singlebond_stretch_Cl_Cl',
-    'test_singlebond_stretch_H_BH2',
+    'test_singlebond_stretch_Cl_F',
+    'test_singlebond_stretch_H_Cl',
     'test_singlebond_stretch_H_F',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_1',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_7',
     'test_singlebond_stretch_Cl_SH',
-    'test_singlebond_stretch_Cl_CH3',
-    'test_singlebond_stretch_F_NH2',
-    'test_singlebond_stretch_Cl_OH',
-    'test_singlebond_stretch_F_PH2',
+    'test_motors_028_bug1306_test2',
+    'test_temperature_tests_003_thermostat_test_5',
+    'test_temperature_tests_003_thermostat_test',
+    'test_singlebond_stretch_H_BH2',
     'test_singlebond_stretch_F_SH',
-    'test_singlebond_stretch_Cl_AlH2',
-    'test_singlebond_stretch_Cl_PH2',
-    'test_singlebond_stretch_H_NH2',
-    'test_singlebond_stretch_Cl_SiH3',
-    'test_singlebond_stretch_Cl_NH2',
-    'test_singlebond_stretch_H_SiH3',
-    'test_singlebond_stretch_F_CH3',
+    'test_singlebond_stretch_H_OH',
+    'test_enabled_disabled_jigs_006_one_rotarymotor_enabled_and_other_disabled',
     'test_singlebond_stretch_H_PH2',
-    'test_singlebond_stretch_H_AlH2',
-    'test_callWrongSimulatorObject',
-    'test_singlebond_stretch_F_SiH3',
-    'test_singlebond_stretch_HS_OH',
-    'test_singlebond_stretch_F_AlH2',
-    'test_singlebond_stretch_F_BH2',
-    'test_singlebond_stretch_HS_SH',
-    'test_singlebond_stretch_Cl_BH2',
-    'test_singlebond_stretch_HS_PH2',
-    'test_singlebond_stretch_HO_AlH2',
-    'test_singlebond_stretch_H2P_PH2',
+    'test_singlebond_stretch_Cl_OH',
+    'test_singlebond_stretch_H_SH',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_5',
+    'test_singlebond_stretch_F_PH2',
     'test_rigid_organics_CH4',
-    'test_singlebond_stretch_HO_PH2',
+    'test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_3',
+    'test_singlebond_stretch_Cl_CH3',
+    'test_temperature_tests_003_thermostat_test_2',
+    'test_temperature_tests_003_thermostat_test_3',
+    'test_singlebond_stretch_F_NH2',
+    'test_motors_026_two_linearmotors_applying_equal_and_opposite_forces',
+    'test_singlebond_stretch_HS_OH',
+    'test_singlebond_stretch_HS_SH',
+    'test_singlebond_stretch_Cl_PH2',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_6',
+    'test_motors_025_two_linearmotors_applying_equal_forces_normal_to_each_other',
+    'test_singlebond_stretch_F_SiH3',
+    'test_singlebond_stretch_HS_PH2',
+    'test_temperature_tests_002_two_methanes_10A_apart_vdw_6',
+    'test_temperature_tests_001_two_methanes_9A_apart_vdw_5',
+    'test_motors_and_anchors_005_rotorymotor_against_anchor_3',
+    'test_singlebond_stretch_H2P_PH2',
     'test_minimize_0010',
+    'test_motors_013_rotarymotor_0_torque_and_positive_speed',
+    'test_motors_014_rotarymotor_negative_torque_and_negative_speed',
+    'test_singlebond_stretch_Cl_BH2',
+    'test_singlebond_stretch_HO_PH2',
+    'test_motors_015_rotarymotor_negative_torque_and_positive_speed',
+    'test_motors_019_rotarymotor_medium_torque_and_speed',
     'test_singlebond_stretch_H2P_SiH3',
-    'test_singlebond_stretch_H2P_AlH2',
-    'test_singlebond_stretch_HS_CH3',
-    'test_singlebond_stretch_H2B_PH2',
-    'test_singlebond_stretch_H_CH3',
     'test_singlebond_stretch_H3Si_SiH3',
-    'test_heteroatom_organics_CH3AlH2',
-    'test_singlebond_stretch_HO_SiH3',
-    'test_singlebond_stretch_H2B_AlH2',
-    'test_singlebond_stretch_H2Al_CH3',
-    'test_singlebond_stretch_H2N_SiH3',
+    'test_motors_020_rotarymotor_high_torque_and_speed',
+    'test_singlebond_stretch_HS_CH3',
     'test_singlebond_stretch_H3C_SiH3',
+    'test_singlebond_stretch_HO_SiH3',
+    'test_motors_010_linearmotor_box_of_helium',
+    'test_singlebond_stretch_H_AlH2',
     'test_singlebond_stretch_H2Al_SiH3',
-    'test_singlebond_stretch_H2Al_AlH2',
-    'test_rigid_organics_C3H6',
-    'test_singlebond_stretch_H2B_BH2',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_5',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_6',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_3',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_2',
+    'test_singlebond_stretch_H2N_SiH3',
+    'test_singlebond_stretch_F_AlH2',
     'test_frameAndTraceCallback',
     'test_heteroatom_organics_CH3OH',
-    'test_singlebond_stretch_H3C_CH3',
-    'test_singlebond_stretch_H2B_SiH3',
+    'test_motors_030_rotarymotor_and_linear_motor_attached_to_same_atoms',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_5',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_2',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_1',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_7',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_8',
     'test_heteroatom_organics_C3H6S',
-    'test_heteroatom_organics_CH3BH2',
-    'test_heteroatom_organics_C3H6O',
-    'test_singlebond_stretch_HO_NH2',
-    'test_singlebond_stretch_HO_CH3',
-    'test_heteroatom_organics_CH3OCH3',
-    'test_singlebond_stretch_H2P_CH3',
     'test_singlebond_stretch_H2B_CH3',
-    'test_heteroatom_organics_C3H6NH',
-    'test_rigid_organics_C8H8',
-    'test_singlebond_stretch_HO_OH',
-    'test_floppy_organics_C2H6',
-    'test_singlebond_stretch_H2N_NH2',
-    'test_rigid_organics_C4H8',
-    'test_singlebond_stretch_H2N_PH2',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_3',
+    'test_heteroatom_organics_CH3AlH2',
+    'test_singlebond_stretch_H2B_BH2',
+    'test_singlebond_stretch_H2B_SiH3',
+    'test_rigid_organics_C3H6',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_2',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_6',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_7',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_3',
+    'test_heteroatom_organics_CH3BH2',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_4',
+    'test_motors_002_linearmotor_0_force_and_negative_stiffness',
+    'test_singlebond_stretch_HO_NH2',
+    'test_motors_006_linearmotor_negative_force_and_0_stiffness',
+    'test_motors_007_linearmotor_positive_force_and_0_stiffness',
+    'test_motors_004_linearmotor_negative_force_and_negative_stiffness',
+    'test_singlebond_stretch_H2P_CH3',
+    'test_heteroatom_organics_CH3OCH3',
+    'test_singlebond_stretch_HO_CH3',
     'test_heteroatom_organics_C3H6BH',
-    'test_heteroatom_organics_CH3NH2',
-    'test_heteroatom_organics_C3H6PH',
-    'test_heteroatom_organics_CH3SH',
+    'test_rigid_organics_C8H8',
     'test_floppy_organics_C4H8',
+    'test_motors_023_rotarymotor_two_planet_gears',
+    'test_singlebond_stretch_H2Al_CH3',
+    'test_jigs_to_several_atoms_003_linearmotor_to_50_atoms',
+    'test_motors_and_anchors_004_rotorymotor_against_anchor_2',
+    'test_motors_and_anchors_003_rotorymotor_against_anchor_1',
+    'test_singlebond_stretch_H2B_PH2',
+    'test_heteroatom_organics_C3H6NH',
+    'test_rigid_organics_C4H8',
+    'test_singlebond_stretch_H2N_NH2',
     'test_heteroatom_organics_C3H6AlH',
-    'test_rigid_organics_C2H6',
+    'test_singlebond_stretch_H2N_PH2',
+    'test_motors_024_linearmotor_two_dodecahedranes',
+    'test_motors_and_anchors_002_linearmotor_pulling_against_anchor_2',
+    'test_motors_and_anchors_001_linearmotor_pulling_against_anchor_1',
+    'test_heteroatom_organics_CH3AlHCH3',
+    'test_heteroatom_organics_C3H6PH',
+    'test_dpbFileShouldBeBinary',
     'test_pyrex_dynamics',
-    'test_singlebond_stretch_H2N_CH3',
-    'test_minimize_0009',
-    'test_heteroatom_organics_C5H10S',
-    'test_singlebond_stretch_HS_SiH3',
-    'test_heteroatom_organics_C3H6SiH2',
     'test_traceCallbackWithMotor',
+    'test_minimize_0009',
+    'test_heteroatom_organics_CH3SH',
+    'test_heteroatom_organics_C5H10S',
+    'test_enabled_disabled_jigs_001_disabled_anchors',
+    'test_enabled_disabled_jigs_005_disabled_measure_distance_jig',
+    'test_jigs_to_several_atoms_005_anchors_to_50_atoms',
+    'test_dpbFileShouldBeBinaryAfterMinimize',
+    'test_jigs_to_several_atoms_006_anchors_to_100_atoms',
+    'test_floppy_organics_C6H12b',
+    'test_singlebond_stretch_F_CH3',
+    'test_jigs_to_several_atoms_001_rotarymotor_to_50_atoms',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_8',
+    'test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_4',
+    'test_singlebond_stretch_F_OH',
+    'test_temperature_tests_003_thermostat_test_1',
+    'test_singlebond_stretch_Cl_NH2',
+    'test_singlebond_stretch_H_SiH3',
+    'test_singlebond_stretch_Cl_SiH3',
+    'test_singlebond_stretch_H_CH3',
+    'test_singlebond_stretch_H_NH2',
+    'test_temperature_tests_003_thermostat_test_4',
+    'test_motors_017_rotarymotor_positive_torque_and_negative_speed',
+    'test_motors_012_rotarymotor_0_torque_and_negative_speed',
+    'test_jigs_to_several_atoms_004_linearmotor_to_100_atoms',
+    'test_heteroatom_organics_ADAMframe_S_Cs',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_8',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_7',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_1',
+    'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_4',
+    'test_singlebond_stretch_Cl_AlH2',
+    'test_singlebond_stretch_H3C_CH3',
+    'test_singlebond_stretch_F_BH2',
+    'test_singlebond_stretch_HS_AlH2',
     'test_rigid_organics_C3H8',
     'test_rigid_organics_C10H12',
-    'test_dpbFileShouldBeBinary',
-    'test_rigid_organics_C6H10',
-    'test_heteroatom_organics_C5H10O',
-    'test_singlebond_stretch_HS_NH2',
-    'test_dpbFileShouldBeBinaryAfterMinimize',
-    'test_floppy_organics_C6H12a',
-    'test_heteroatom_organics_ADAMframe_S_Cs',
-    'test_singlebond_stretch_HO_BH2',
-    'test_heteroatom_organics_CH3PHCH3',
-    'test_singlebond_stretch_HS_BH2',
-    'test_heteroatom_organics_C5H10PH',
-    'test_heteroatom_organics_N_ADAM_C3v',
-    'test_floppy_organics_C6H12b',
-    'test_heteroatom_organics_ADAMframe_NH_Cs',
-    'test_heteroatom_organics_CH3PH2',
-    'test_heteroatom_organics_ADAMframe_O_Cs',
-    'test_heteroatom_organics_ADAMframe_PH_Cs',
-    'test_heteroatom_organics_C4H8S',
-    'test_heteroatom_organics_C4H8PH',
-    'test_heteroatom_organics_ADAM_Cl_c3v',
-    'test_heteroatom_organics_C5H10NH',
     'test_singlebond_stretch_H2N_AlH2',
-    'test_heteroatom_organics_CH3SiH3',
-    'test_rigid_organics_C10H14',
-    'test_heteroatom_organics_CH3NHCH3',
-    'test_dynamics_0002',
-    'test_heteroatom_organics_P_ADAM_C3v',
-    'test_heteroatom_organics_B_ADAM_C3v',
+    'test_singlebond_stretch_H2Al_AlH2',
+    'test_singlebond_stretch_H2N_CH3',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_6',
+    'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_4',
+    'test_heteroatom_organics_C3H6O',
+    'test_heteroatom_organics_ADAMframe_NH_Cs',
+    'test_heteroatom_organics_N_ADAM_C3v',
+    'test_heteroatom_organics_ADAM_F_c3v',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_5',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_1',
+    'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_8',
+    'test_heteroatom_organics_ADAMframe_O_Cs',
+    'test_rigid_organics_C6H10',
+    'test_singlebond_stretch_H2B_AlH2',
+    'test_singlebond_stretch_HO_AlH2',
+    'test_motors_008_linearmotor_positive_force_and_positive_stiffness',
+    'test_motors_003_linearmotor_0_force_and_positive_stiffness',
+    'test_motors_001_linearmotor_0_force_and_0_stiffness',
+    'test_motors_005_linearmotor_negative_force_and_positive_stiffness',
+    'test_heteroatom_organics_ADAM_Cl_c3v',
+    'test_floppy_organics_C2H6',
+    'test_heteroatom_organics_C5H10O',
     'test_minimize_0012',
-    'test_singlebond_stretch_HS_AlH2',
-    'test_floppy_organics_C4H10a',
-    'test_floppy_organics_C4H10c',
-    'test_floppy_organics_C3H8',
-    'test_heteroatom_organics_CH3SiH2CH3',
-    'test_heteroatom_organics_ADAMframe_SiH2_c2v',
-    'test_heteroatom_organics_C4H8AlH',
-    'test_heteroatom_organics_ADAM_SH_Cs',
-    'test_heteroatom_organics_C_CH3_3_OH',
-    'test_heteroatom_organics_C_CH3_3_SiH3',
-    'test_heteroatom_organics_SiH_ADAM_C3v',
-    'test_heteroatom_organics_C4H8SiH2',
-    'test_floppy_organics_C5H12a',
+    'test_heteroatom_organics_ADAMframe_PH_Cs',
+    'test_floppy_organics_C6H12a',
+    'test_heteroatom_organics_CH3PHCH3',
+    'test_heteroatom_organics_C5H10PH',
     'test_pyrex_minimize0001',
+    'test_singlebond_stretch_HO_OH',
+    'test_heteroatom_organics_CH3SiH2CH3',
+    'test_motors_029_bug_1331',
+    'test_heteroatom_organics_C4H8AlH',
+    'test_rigid_organics_C10H14',
+    'test_singlebond_stretch_H2P_AlH2',
+    'test_heteroatom_organics_C4H8S',
+    'test_motors_027_two_rotarymotors_applying_equal_and_opposite_torque',
+    'test_heteroatom_organics_B_ADAM_C3v',
+    'test_floppy_organics_C4H10c',
+    'test_heteroatom_organics_CH3NH2',
+    'test_heteroatom_organics_P_ADAM_C3v',
+    'test_heteroatom_organics_C5H10NH',
+    'test_heteroatom_organics_CH3PH2',
+    'test_heteroatom_organics_CH3NHCH3',
+    'test_heteroatom_organics_C3H6SiH2',
+    'test_heteroatom_organics_ADAMframe_BH_Cs',
+    'test_floppy_organics_C4H10a',
+    'test_heteroatom_organics_ADAMframe_SiH2_c2v',
+    'test_heteroatom_organics_ADAM_SH_Cs',
+    'test_singlebond_stretch_HO_BH2',
+    'test_rigid_organics_C2H6',
+    'test_heteroatom_organics_SiH_ADAM_C3v',
+    'test_heteroatom_organics_Al_ADAM_C3v',
+    'test_heteroatom_organics_C_CH3_3_SiH3',
     'test_minimize_0005',
-    'test_heteroatom_organics_ADAMframe_AlH_Cs',
+    'test_floppy_organics_C7H14c',
+    'test_floppy_organics_C4H10b',
+    'test_heteroatom_organics_C4H8PH',
+    'test_jigs_to_several_atoms_002_rotarymotor_to_100_atoms',
+    'test_jigs_to_several_atoms_007_rotarymotor_and_anchors_to_100_atoms',
+    'test_heteroatom_organics_C_CH3_3_BH2',
+    'test_heteroatom_organics_CH3SiH3',
+    'test_heteroatom_organics_C4H8O',
+    'test_heteroatom_organics_C_CH3_3_OH',
+    'test_rigid_organics_C14H20',
+    'test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_1',
+    'test_heteroatom_organics_C_CH3_3_SH',
+    'test_amino_acids_phe_l_aminoacid',
+    'test_heteroatom_organics_C_CH3_3_AlH2',
+    'test_dynamics_0002',
+    'test_singlebond_stretch_HS_NH2',
+    'test_singlebond_stretch_HS_SiH3',
+    'test_heteroatom_organics_C4H8NH',
+    'test_heteroatom_organics_C4H8SiH2',
+    'test_heteroatom_organics_C_CH3_3_NH2',
+    'test_minimize_0001',
+    'test_floppy_organics_C5H12b',
     'test_heteroatom_organics_C5H10SiH2',
     'test_heteroatom_organics_C4H8BH',
-    'test_heteroatom_organics_CH3SCH3',
-    'test_heteroatom_organics_Al_ADAM_C3v',
     'test_minimize_0011',
-    'test_rigid_organics_C14H20',
-    'test_singlebond_stretch_H2B_NH2',
-    'test_floppy_organics_C5H12b',
-    'test_heteroatom_organics_C_CH3_3_SH',
-    'test_minimize_0001',
-    'test_heteroatom_organics_C_CH3_3_BH2',
-    'test_heteroatom_organics_C_CH3_3_AlH2',
-    'test_heteroatom_organics_C_CH3_3_NH2',
-    'test_heteroatom_organics_C5H10BH',
-    'test_heteroatom_organics_C5H10AlH',
-    'test_heteroatom_organics_ADAMframe_BH_Cs',
-    'test_floppy_organics_C7H14a',
-    'test_heteroatom_organics_ADAM_BH2',
-    'test_heteroatom_organics_C_CH3_3_PH2',
     'test_heteroatom_organics_ADAM_OH_Cs',
+    'test_heteroatom_organics_CH3SCH3',
+    'test_heteroatom_organics_C5H10AlH',
     'test_floppy_organics_C5H12d',
-    'test_floppy_organics_C6H14b',
-    'test_minimize_0008',
-    'test_heteroatom_organics_CH3AlHCH3',
-    'test_floppy_organics_C5H12e',
+    'test_heteroatom_organics_C_CH3_3_PH2',
+    'test_floppy_organics_C3H8',
     'test_floppy_organics_C5H10',
-    'test_heteroatom_organics_C4H8O',
-    'test_amino_acids_gly_l_aminoacid',
+    'test_floppy_organics_C6H14b',
+    'test_floppy_organics_C5H12e',
+    'test_singlebond_stretch_HS_BH2',
+    'test_heteroatom_organics_ADAMframe_AlH_Cs',
+    'test_heteroatom_organics_C5H10BH',
     'test_rigid_organics_C8H14',
-    'test_floppy_organics_C6H14a',
-    'test_heteroatom_organics_ADAM_PH2_Cs',
-    'test_heteroatom_organics_ADAM_F_c3v',
-    'test_heteroatom_organics_CH3BHCH3',
-    'test_floppy_organics_C7H14b',
-    'test_floppy_organics_C6H14d',
-    'test_amino_acids_thr_l_aminoacid',
     'test_heteroatom_organics_ADAM_NH2_Cs',
+    'test_motors_022_rotary_motor_small_bearing_test',
+    'test_floppy_organics_C6H14a',
+    'test_heteroatom_organics_ADAM_BH2',
+    'test_floppy_organics_C6H14d',
+    'test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_5',
+    'test_floppy_organics_C7H14a',
+    'test_singlebond_stretch_H2B_NH2',
     'test_floppy_organics_C6H14c',
+    'test_minimize_0008',
+    'test_heteroatom_organics_ADAM_PH2_Cs',
     'test_floppy_organics_C5H12c',
-    'test_heteroatom_organics_C4H8NH',
-    'test_floppy_organics_C6H14e',
+    'test_floppy_organics_C7H14b',
+    'test_floppy_organics_C5H12a',
+    'test_amino_acids_ser_l_aminoacid',
     'test_heteroatom_organics_ADAM_AlH2_Cs',
     'test_amino_acids_ala_l_aminoacid',
-    'test_amino_acids_his_l_aminoacid',
-    'test_floppy_organics_C4H10b',
-    'test_rigid_organics_C14H24',
-    'test_amino_acids_cys_l_aminoacid',
-    'test_amino_acids_ile_l_aminoacid',
-    'test_heteroatom_organics_ADAM_SiH3_C3v',
-    'test_floppy_organics_C6H14f',
-    'test_dynamicsStepStuff',
-    'test_amino_acids_pro_l_aminoacid',
-    'test_floppy_organics_C7H14c',
-    'test_amino_acids_ser_l_aminoacid',
+    'test_floppy_organics_C6H14e',
     'test_amino_acids_asp_l_aminoacid',
+    'test_heteroatom_organics_CH3BHCH3',
+    'test_heteroatom_organics_ADAM_SiH3_C3v',
+    'test_amino_acids_ile_l_aminoacid',
+    'test_amino_acids_pro_l_aminoacid',
+    'test_rigid_organics_C14H24',
+    'test_floppy_organics_C6H14f',
+    'test_amino_acids_thr_l_aminoacid',
+    'test_amino_acids_gly_l_aminoacid',
     'test_amino_acids_val_l_aminoacid',
-    'test_amino_acids_leu_l_aminoacid',
-    'test_amino_acids_met_l_aminoacid',
-    'test_amino_acids_asn_l_aminoacid',
+    'test_amino_acids_cys_l_aminoacid',
     'test_amino_acids_gln_l_aminoacid',
-    'test_amino_acids_lys_l_aminoacid',
-    'test_amino_acids_glu_l_aminoacid',
+    'test_amino_acids_asn_l_aminoacid',
+    'test_amino_acids_met_l_aminoacid',
     'test_amino_acids_arg_l_aminoacid',
-    'test_amino_acids_tyr_l_aminoacid'
+    'test_amino_acids_glu_l_aminoacid',
+    'test_amino_acids_leu_l_aminoacid',
+    'test_amino_acids_lys_l_aminoacid',
+    'test_amino_acids_tyr_l_aminoacid',
+    'test_amino_acids_his_l_aminoacid',
+    'test_dynamicsStepStuff'
     ]
 
 try:
@@ -1370,6 +1567,199 @@ class Tests(baseClass):
                 assert not sim.isFileAscii("tests/dynamics/test_0002.dpb")
         Foo("test_pyrex_dynamics")
 
+    # Jig tests
+    def test_enabled_disabled_jigs_001_disabled_anchors(self):
+        JigTest(dir="enabled_disabled_jigs", test="001_disabled_anchors")
+    def test_enabled_disabled_jigs_002_one_anchor_enabled_other_disabled(self):
+        JigTest(dir="enabled_disabled_jigs", test="002_one_anchor_enabled_other_disabled")
+    def test_enabled_disabled_jigs_003_one_thermometer_enabled_other_disabled(self):
+        JigTest(dir="enabled_disabled_jigs", test="003_one_thermometer_enabled_other_disabled")
+    def test_enabled_disabled_jigs_004_one_thermostat_enabled_other_disabled(self):
+        JigTest(dir="enabled_disabled_jigs", test="004_one_thermostat_enabled_other_disabled")
+    def test_enabled_disabled_jigs_005_disabled_measure_distance_jig(self):
+        JigTest(dir="enabled_disabled_jigs", test="005_disabled_measure_distance_jig")
+    def test_enabled_disabled_jigs_006_one_rotarymotor_enabled_and_other_disabled(self):
+        JigTest(dir="enabled_disabled_jigs", test="006_one_rotarymotor_enabled_and_other_disabled")
+    def test_enabled_disabled_jigs_007_one_linearmotor_enabled_and_other_disabled(self):
+        JigTest(dir="enabled_disabled_jigs", test="007_one_linearmotor_enabled_and_other_disabled")
+    def test_jigs_to_several_atoms_001_rotarymotor_to_50_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="001_rotarymotor_to_50_atoms")
+    def test_jigs_to_several_atoms_002_rotarymotor_to_100_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="002_rotarymotor_to_100_atoms")
+    def test_jigs_to_several_atoms_003_linearmotor_to_50_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="003_linearmotor_to_50_atoms")
+    def test_jigs_to_several_atoms_004_linearmotor_to_100_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="004_linearmotor_to_100_atoms")
+    def test_jigs_to_several_atoms_005_anchors_to_50_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="005_anchors_to_50_atoms")
+    def test_jigs_to_several_atoms_006_anchors_to_100_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="006_anchors_to_100_atoms")
+    def test_jigs_to_several_atoms_007_rotarymotor_and_anchors_to_100_atoms(self):
+        JigTest(dir="jigs_to_several_atoms", test="007_rotarymotor_and_anchors_to_100_atoms")
+    def test_motors_001_linearmotor_0_force_and_0_stiffness(self):
+        JigTest(dir="motors", test="001_linearmotor_0_force_and_0_stiffness")
+    def test_motors_002_linearmotor_0_force_and_negative_stiffness(self):
+        JigTest(dir="motors", test="002_linearmotor_0_force_and_negative_stiffness")
+    def test_motors_003_linearmotor_0_force_and_positive_stiffness(self):
+        JigTest(dir="motors", test="003_linearmotor_0_force_and_positive_stiffness")
+    def test_motors_004_linearmotor_negative_force_and_negative_stiffness(self):
+        JigTest(dir="motors", test="004_linearmotor_negative_force_and_negative_stiffness")
+    def test_motors_005_linearmotor_negative_force_and_positive_stiffness(self):
+        JigTest(dir="motors", test="005_linearmotor_negative_force_and_positive_stiffness")
+    def test_motors_006_linearmotor_negative_force_and_0_stiffness(self):
+        JigTest(dir="motors", test="006_linearmotor_negative_force_and_0_stiffness")
+    def test_motors_007_linearmotor_positive_force_and_0_stiffness(self):
+        JigTest(dir="motors", test="007_linearmotor_positive_force_and_0_stiffness")
+    def test_motors_008_linearmotor_positive_force_and_positive_stiffness(self):
+        JigTest(dir="motors", test="008_linearmotor_positive_force_and_positive_stiffness")
+    def test_motors_009_linearmotor_Methane_Molecule(self):
+        JigTest(dir="motors", test="009_linearmotor_Methane_Molecule")
+    def test_motors_010_linearmotor_box_of_helium(self):
+        JigTest(dir="motors", test="010_linearmotor_box_of_helium")
+    def test_motors_011_rotarymotor_0_torque_and_0_speed(self):
+        JigTest(dir="motors", test="011_rotarymotor_0_torque_and_0_speed")
+    def test_motors_012_rotarymotor_0_torque_and_negative_speed(self):
+        JigTest(dir="motors", test="012_rotarymotor_0_torque_and_negative_speed")
+    def test_motors_013_rotarymotor_0_torque_and_positive_speed(self):
+        JigTest(dir="motors", test="013_rotarymotor_0_torque_and_positive_speed")
+    def test_motors_014_rotarymotor_negative_torque_and_negative_speed(self):
+        JigTest(dir="motors", test="014_rotarymotor_negative_torque_and_negative_speed")
+    def test_motors_015_rotarymotor_negative_torque_and_positive_speed(self):
+        JigTest(dir="motors", test="015_rotarymotor_negative_torque_and_positive_speed")
+    def test_motors_016_rotarymotor_negative_torque_and_0_speed(self):
+        JigTest(dir="motors", test="016_rotarymotor_negative_torque_and_0_speed")
+    def test_motors_017_rotarymotor_positive_torque_and_negative_speed(self):
+        JigTest(dir="motors", test="017_rotarymotor_positive_torque_and_negative_speed")
+    def test_motors_018_rotarymotor_positive_torque_and_0_speed(self):
+        JigTest(dir="motors", test="018_rotarymotor_positive_torque_and_0_speed")
+    def test_motors_019_rotarymotor_medium_torque_and_speed(self):
+        JigTest(dir="motors", test="019_rotarymotor_medium_torque_and_speed")
+    def test_motors_020_rotarymotor_high_torque_and_speed(self):
+        JigTest(dir="motors", test="020_rotarymotor_high_torque_and_speed")
+    def test_motors_021_rotarymotor_dyno_jig_test_to_same_chunk(self):
+        JigTest(dir="motors", test="021_rotarymotor_dyno_jig_test_to_same_chunk")
+    def test_motors_022_rotary_motor_small_bearing_test(self):
+        JigTest(dir="motors", test="022_rotary_motor_small_bearing_test")
+    def test_motors_023_rotarymotor_two_planet_gears(self):
+        JigTest(dir="motors", test="023_rotarymotor_two_planet_gears")
+    def test_motors_024_linearmotor_two_dodecahedranes(self):
+        JigTest(dir="motors", test="024_linearmotor_two_dodecahedranes")
+    def test_motors_025_two_linearmotors_applying_equal_forces_normal_to_each_other(self):
+        JigTest(dir="motors", test="025_two_linearmotors_applying_equal_forces_normal_to_each_other")
+    def test_motors_026_two_linearmotors_applying_equal_and_opposite_forces(self):
+        JigTest(dir="motors", test="026_two_linearmotors_applying_equal_and_opposite_forces")
+    def test_motors_027_two_rotarymotors_applying_equal_and_opposite_torque(self):
+        JigTest(dir="motors", test="027_two_rotarymotors_applying_equal_and_opposite_torque")
+    def test_motors_028_bug1306_test2(self):
+        JigTest(dir="motors", test="028_bug1306_test2")
+    def test_motors_029_bug_1331(self):
+        JigTest(dir="motors", test="029_bug_1331")
+    def test_motors_030_rotarymotor_and_linear_motor_attached_to_same_atoms(self):
+        JigTest(dir="motors", test="030_rotarymotor_and_linear_motor_attached_to_same_atoms")
+    def test_motors_and_anchors_001_linearmotor_pulling_against_anchor_1(self):
+        JigTest(dir="motors_and_anchors", test="001_linearmotor_pulling_against_anchor_1")
+    def test_motors_and_anchors_002_linearmotor_pulling_against_anchor_2(self):
+        JigTest(dir="motors_and_anchors", test="002_linearmotor_pulling_against_anchor_2")
+    def test_motors_and_anchors_003_rotorymotor_against_anchor_1(self):
+        JigTest(dir="motors_and_anchors", test="003_rotorymotor_against_anchor_1")
+    def test_motors_and_anchors_004_rotorymotor_against_anchor_2(self):
+        JigTest(dir="motors_and_anchors", test="004_rotorymotor_against_anchor_2")
+    def test_motors_and_anchors_005_rotorymotor_against_anchor_3(self):
+        JigTest(dir="motors_and_anchors", test="005_rotorymotor_against_anchor_3")
+    def test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_1(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="01_thermo_anchor_reordering_1")
+    def test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_2(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="01_thermo_anchor_reordering_2")
+    def test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_3(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="01_thermo_anchor_reordering_3")
+    def test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_4(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="01_thermo_anchor_reordering_4")
+    def test_reordering_jigs_or_chunks_01_thermo_anchor_reordering_5(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="01_thermo_anchor_reordering_5")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_1(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_1")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_2(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_2")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_3(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_3")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_4(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_4")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_5(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_5")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_6(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_6")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_7(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_7")
+    def test_reordering_jigs_or_chunks_02_thermo_anchor_stat_reordering_8(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="02_thermo_anchor_stat_reordering_8")
+    def test_reordering_jigs_or_chunks_03_thermo_anchor_reordering(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_anchor_reordering")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_1(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_1")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_2(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_2")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_3(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_3")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_4(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_4")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_5(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_5")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_6(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_6")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_7(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_7")
+    def test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_8(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="03_thermo_rmotor_anchor_stat_reordering_8")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_1(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_1")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_2(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_2")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_3(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_3")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_4(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_4")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_5(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_5")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_6(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_6")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_7(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_7")
+    def test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_8(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="04_thermo_lmotor_anchor_stat_reordering_8")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_1(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_1")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_2(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_2")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_3(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_3")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_4(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_4")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_5(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_5")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_6(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_6")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_7(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_7")
+    def test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_8(self):
+        JigTest(dir="reordering_jigs_or_chunks", test="05_thermo_lmotor_anchor_measurement_jigs_reordering_8")
+    def test_temperature_tests_001_two_methanes_9A_apart_vdw_5(self):
+        JigTest(dir="temperature_tests", test="001_two_methanes_9A_apart_vdw_5")
+    def test_temperature_tests_002_two_methanes_10A_apart_vdw_6(self):
+        JigTest(dir="temperature_tests", test="002_two_methanes_10A_apart_vdw_6")
+    def test_temperature_tests_003_thermostat_test_1(self):
+        JigTest(dir="temperature_tests", test="003_thermostat_test_1")
+    def test_temperature_tests_003_thermostat_test_2(self):
+        JigTest(dir="temperature_tests", test="003_thermostat_test_2")
+    def test_temperature_tests_003_thermostat_test_3(self):
+        JigTest(dir="temperature_tests", test="003_thermostat_test_3")
+    def test_temperature_tests_003_thermostat_test_4(self):
+        JigTest(dir="temperature_tests", test="003_thermostat_test_4")
+    def test_temperature_tests_003_thermostat_test_5(self):
+        JigTest(dir="temperature_tests", test="003_thermostat_test_5")
+    def test_temperature_tests_003_thermostat_test(self):
+        JigTest(dir="temperature_tests", test="003_thermostat_test")
+
+
 if False:
     # a clever way to run only one test, when you're having trouble with a
     # test and need to debug it, and don't care about all the others
@@ -1545,7 +1935,7 @@ if __name__ == "__main__":
                 setattr(Tests, attr, passAutomatically)
 
     casenames = [ ]
-    if TIME_ONLY:
+    if TIME_ONLY or GENERATE:
         # Anything that looks like a test case, run it and find out
         # its execution time. Sort them from quickest to slowest, and
         # manually cut-and-past that ordering into RANKED_BY_RUNTIME.
