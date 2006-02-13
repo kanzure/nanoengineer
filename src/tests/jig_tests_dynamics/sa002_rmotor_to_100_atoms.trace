@@ -1,0 +1,30 @@
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# 
+# CFLAGS: -g -Wmissing-prototypes -Wall
+# LDFLAGS: -L/usr/lib -lm
+# 
+# Command Line: ../../simulator -i100 -f1 -x -ojigs_to_several_atoms_tests/002_rotarymotor_to_100_atoms.xyz -qjigs_to_several_atoms_tests/002_rotarymotor_to_100_atoms.trace /tmp/foo.mmp 
+# Date and Time: Thu Feb  9 22:49:28 2006
+# Input File: /tmp/foo.mmp
+# Output File: jigs_to_several_atoms_tests/002_rotarymotor_to_100_atoms.xyz
+# Trace File: jigs_to_several_atoms_tests/002_rotarymotor_to_100_atoms.trace
+# 
+# Run type: Dynamics.
+# 
+# Number of Frames: 1
+# Steps per Frame: 100
+# Temperature: 300.0
+# Number of Atoms: 350
+# 
+# 3 columns:
+# Rotary Motor-90: speed (GHz)
+# Rotary Motor-90: torque (nn-nm)
+# Thermo-91: temperature (K)
+#
+#     Time       speed           torque          T.meter         
+#  picosec       Rotary Motor-90                 Thermo-91      
+#
+    0.0100           -0.086           1.056          320.54
+# Done: 
