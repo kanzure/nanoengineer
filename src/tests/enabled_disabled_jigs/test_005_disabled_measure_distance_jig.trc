@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_005_disabled_measure_distance_jig.trc test_005_disabled_measure_distance_jig.mmp 
-# Date and Time: Mon Feb 13 13:49:46 2006
+# Date and Time: Mon Feb 13 23:41:13 2006
 # Input File: test_005_disabled_measure_distance_jig.mmp
 # Output File: test_005_disabled_measure_distance_jig.xyz
 # Trace File: test_005_disabled_measure_distance_jig.trc

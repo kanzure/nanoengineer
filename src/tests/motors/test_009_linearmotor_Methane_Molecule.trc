@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_009_linearmotor_Methane_Molecule.trc test_009_linearmotor_Methane_Molecule.mmp 
-# Date and Time: Mon Feb 13 13:50:29 2006
+# Date and Time: Mon Feb 13 23:41:13 2006
 # Input File: test_009_linearmotor_Methane_Molecule.mmp
 # Output File: test_009_linearmotor_Methane_Molecule.xyz
 # Trace File: test_009_linearmotor_Methane_Molecule.trc

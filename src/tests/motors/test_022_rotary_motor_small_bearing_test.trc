@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_022_rotary_motor_small_bearing_test.trc test_022_rotary_motor_small_bearing_test.mmp 
-# Date and Time: Mon Feb 13 13:50:30 2006
+# Date and Time: Mon Feb 13 23:41:14 2006
 # Input File: test_022_rotary_motor_small_bearing_test.mmp
 # Output File: test_022_rotary_motor_small_bearing_test.xyz
 # Trace File: test_022_rotary_motor_small_bearing_test.trc

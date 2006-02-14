@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_021_rotarymotor_dyno_jig_test_to_same_chunk.trc test_021_rotarymotor_dyno_jig_test_to_same_chunk.mmp 
-# Date and Time: Mon Feb 13 23:12:58 2006
+# Date and Time: Mon Feb 13 23:41:14 2006
 # Input File: test_021_rotarymotor_dyno_jig_test_to_same_chunk.mmp
 # Output File: test_021_rotarymotor_dyno_jig_test_to_same_chunk.xyz
 # Trace File: test_021_rotarymotor_dyno_jig_test_to_same_chunk.trc

@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_025_two_linearmotors_applying_equal_forces_normal_to_each_other.trc test_025_two_linearmotors_applying_equal_forces_normal_to_each_other.mmp 
-# Date and Time: Mon Feb 13 13:50:31 2006
+# Date and Time: Mon Feb 13 23:41:15 2006
 # Input File: test_025_two_linearmotors_applying_equal_forces_normal_to_each_other.mmp
 # Output File: test_025_two_linearmotors_applying_equal_forces_normal_to_each_other.xyz
 # Trace File: test_025_two_linearmotors_applying_equal_forces_normal_to_each_other.trc

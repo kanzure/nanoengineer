@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_027_two_rotarymotors_applying_equal_and_opposite_torque.trc test_027_two_rotarymotors_applying_equal_and_opposite_torque.mmp 
-# Date and Time: Mon Feb 13 13:50:31 2006
+# Date and Time: Mon Feb 13 23:41:15 2006
 # Input File: test_027_two_rotarymotors_applying_equal_and_opposite_torque.mmp
 # Output File: test_027_two_rotarymotors_applying_equal_and_opposite_torque.xyz
 # Trace File: test_027_two_rotarymotors_applying_equal_and_opposite_torque.trc
@@ -28,5 +28,5 @@
 #     Time       speed           torque          T.meter         speed           torque          
 #  picosec       Rotary Motor-34                 Thermo-36       Rotary Motor-37                
 #
-    0.0100            1.562          -0.040          281.77          -0.091           2.000
+    0.0100            1.561          -0.040          281.77           1.561          -0.040
 # Done: 

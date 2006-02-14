@@ -11,7 +11,7 @@
 # Info: Using quality 1 parameters for X-1-C.sp3-1-C bend
 # Info: Computed kb: 1.622653e+06, theta0: 1.910600e+00
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_024_linearmotor_two_dodecahedranes.trc test_024_linearmotor_two_dodecahedranes.mmp 
-# Date and Time: Mon Feb 13 13:50:31 2006
+# Date and Time: Mon Feb 13 23:41:15 2006
 # Input File: test_024_linearmotor_two_dodecahedranes.mmp
 # Output File: test_024_linearmotor_two_dodecahedranes.xyz
 # Trace File: test_024_linearmotor_two_dodecahedranes.trc

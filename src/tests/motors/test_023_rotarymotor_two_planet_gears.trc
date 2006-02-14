@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_023_rotarymotor_two_planet_gears.trc test_023_rotarymotor_two_planet_gears.mmp 
-# Date and Time: Mon Feb 13 13:50:30 2006
+# Date and Time: Mon Feb 13 23:41:15 2006
 # Input File: test_023_rotarymotor_two_planet_gears.mmp
 # Output File: test_023_rotarymotor_two_planet_gears.xyz
 # Trace File: test_023_rotarymotor_two_planet_gears.trc

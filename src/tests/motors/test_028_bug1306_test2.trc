@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_028_bug1306_test2.trc test_028_bug1306_test2.mmp 
-# Date and Time: Mon Feb 13 13:50:31 2006
+# Date and Time: Mon Feb 13 23:41:16 2006
 # Input File: test_028_bug1306_test2.mmp
 # Output File: test_028_bug1306_test2.xyz
 # Trace File: test_028_bug1306_test2.trc

@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_030_rotarymotor_and_linear_motor_attached_to_same_atoms.trc test_030_rotarymotor_and_linear_motor_attached_to_same_atoms.mmp 
-# Date and Time: Mon Feb 13 13:50:31 2006
+# Date and Time: Mon Feb 13 23:41:16 2006
 # Input File: test_030_rotarymotor_and_linear_motor_attached_to_same_atoms.mmp
 # Output File: test_030_rotarymotor_and_linear_motor_attached_to_same_atoms.xyz
 # Trace File: test_030_rotarymotor_and_linear_motor_attached_to_same_atoms.trc
@@ -28,5 +28,5 @@
 #     Time       T.meter         T.stat          Lmotor          speed           torque          
 #  picosec       Thermo-85       Stat-87         Linear Motor-18 Rotary Motor-18                
 #
-    0.0100           250.54            0.10          0.0015          -1.494          -1.600
+    0.0100           250.54            0.10          0.0015           1.013          -0.018
 # Done: 

@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_007_linearmotor_positive_force_and_0_stiffness.trc test_007_linearmotor_positive_force_and_0_stiffness.mmp 
-# Date and Time: Mon Feb 13 13:50:29 2006
+# Date and Time: Mon Feb 13 23:41:13 2006
 # Input File: test_007_linearmotor_positive_force_and_0_stiffness.mmp
 # Output File: test_007_linearmotor_positive_force_and_0_stiffness.xyz
 # Trace File: test_007_linearmotor_positive_force_and_0_stiffness.trc
