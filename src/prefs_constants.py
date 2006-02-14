@@ -162,10 +162,14 @@ _abandoned_prefs_keys = [
 # computed default values; some of these names are also directly used by external code
 # which is not yet fully revised to get the values from the prefs db.
 
-_default_HICOLOR_real_atom = ave_colors( 0.8, orange, black)
-HICOLOR_singlet = LEDon ## pink [not yet in prefs db]
 
-_default_HICOLOR_real_bond = ave_colors( 0.8, blue, black)
+#_default_HICOLOR_real_atom = ave_colors( 0.8, orange, black)
+#_default_HICOLOR_real_bond = ave_colors( 0.8, blue, black)
+#HICOLOR_singlet = LEDon ## pink [not yet in prefs db]
+
+_default_HICOLOR_real_atom = yellow
+_default_HICOLOR_real_bond = yellow
+HICOLOR_singlet = yellow
 
 _default_toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red; 050805 even for lines mode
 _default_toolong_hicolor = ave_colors( 0.8, magenta, black) ## not yet in prefs db
