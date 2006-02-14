@@ -718,6 +718,8 @@ class selectAtomsMode(selectMode):
                         # We just came out of "delete" mode. If something is under the cursor, 
                         # repaint to update its correct (normal) highlight color.
                         self.o.gl_update()
+                elif self.modkey == None:
+                    pass
                 else:
                     print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
         
@@ -730,6 +732,8 @@ class selectAtomsMode(selectMode):
                         # We just came out of "delete" mode. If something is under the cursor, 
                         # repaint to update its correct (normal) highlight color.
                         self.o.gl_update()
+                elif self.modkey == None:
+                    pass
                 else:
                     print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
             
