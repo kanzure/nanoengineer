@@ -848,7 +848,8 @@ makeRotaryMotor(struct part *p, char *name,
     // Example uses 2 GHz -> 12.5664e9 radians/second
 
     // convert nN-nm to pN-pm
-    j->j.rmotor.stall = stall * (1e-9/Dx) * (1e-9/Dx);
+    // torque's sign is meaningless, force it positive
+    j->j.rmotor.stall = fabs(stall) * (1e-9/Dx) * (1e-9/Dx);
     // convert from gigahertz to radians per second
     j->j.rmotor.speed = speed * 2.0e9 * Pi;
     j->j.rmotor.center = *center;

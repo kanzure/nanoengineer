@@ -1,4 +1,4 @@
-
+#define WWDEBUG
 #include "simulator.h"
 
 static char const rcsid[] = "$Id$";
@@ -79,15 +79,22 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     double omega, domega_dt, mass;
     double motorq, dragTorque = 0.0;
     double theta, cos_theta, sin_theta;
+    double m;
+    const double minspeed = 1.0;  // radians per second, very slow
     struct xyz anchor;
 
     omega = jig->j.rmotor.omega;
     // Bosch model
-    if (jig->j.rmotor.speed == 0.0) {
-	motorq = 0.0;
+    if (fabs(jig->j.rmotor.speed) < minspeed) {
+	if (jig->j.rmotor.speed >= 0) {
+	    m = jig->j.rmotor.stall / minspeed;
+	} else {
+	    m = -jig->j.rmotor.stall / minspeed;
+	}
     } else {
-	motorq = jig->j.rmotor.stall * (1. - omega / jig->j.rmotor.speed);
+	m = jig->j.rmotor.stall / jig->j.rmotor.speed;
     }
+    motorq = m * (jig->j.rmotor.speed - omega);
     // don't let the torque get too big
     if (motorq > 2.0 * jig->j.rmotor.stall) {
 	motorq = 2.0 * jig->j.rmotor.stall;
