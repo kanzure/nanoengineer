@@ -339,7 +339,7 @@ class Tests(unittest.TestCase):
         d = Dynamics("tests/dynamics/test_0001.mmp")
         d.go(trace_callback=tracecallback)
         # Make sure there is motor information being printed
-        assert len(tracefile[18].split()) == 3, \
+        assert len(tracefile[-5].split()) == 3, \
                "Motor info not appearing in trace file:" + tracefile[18]
 
     def test_dpbFileShouldBeBinary(self):
