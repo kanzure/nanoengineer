@@ -799,7 +799,10 @@ class depositMode(selectAtomsMode):
                 return HICOLOR_singlet ###@@@ this one is not yet in prefs db
             else:
                 if self.only_highlight_singlets:
-                    return None
+                    if selobj.singNeighbors():
+                        return env.prefs.get( atomHighlightColor_prefs_key)
+                    else:
+                        return None
                 if self.modkey == 'Delete':
                     return darkred  
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
@@ -1426,8 +1429,10 @@ class depositMode(selectAtomsMode):
         self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
             # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().
             
-        a = self.get_obj_under_cursor(event) # mark 060206.
+        a = self.get_atom_under_cursor(event)
             # <a> can be None and yet we still selected something (i.e. a bond), which is determined by self.o.selobj.
+            # Be aware that get_atom_under_cursor() only returns atoms and singlets. It calls
+            # update_selatom(), which updates self.o.selobj, which can be a bond.
             
         if not a and not self.o.selobj: # Cursor over empty space.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
@@ -1831,60 +1836,60 @@ class depositMode(selectAtomsMode):
             
             self.w.win_update()
     
-    # get_obj_under_cursor(), get_atom_under_cursor() and get_singlet_under_cursor()
-    # should probably be merged into one method with a selection filter arg.  mark 060206.
-    def get_obj_under_cursor(self, event):
-        '''Return the object under the cursor.  If nothing is under the cursor, return None.
+    def get_atom_under_cursor(self, event):
+        '''Return the atom or singlet under the cursor.  
+        Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
         '''
         if self.w.depositAtomDashboard.highlightingCB.isChecked():
             self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
+            # update_selatom() updates self.o.selatom and self.o.selobj.
+            # self.o.selatom is either a real atom or a singlet.
+            # self.o.selobj can be a bond, and is used in leftUp() to determine if a bond was selected.
+            
         # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
         # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
         # Therefore, the present value might be out of date -- but it does correspond to whatever
         # highlighting is on the screen, so whatever it is should not be a surprise to the user,
         # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
         # motion before pressing the mouse. [bruce 050705 comment]
-            a = self.o.selatom # a "lit up" atom or singlet
+        
+            a = self.o.selatom # a "highlighted" atom or singlet
+            
+            #& try this sometime: if a is None and selobj is not None, return selobj (a bond). 
+            #& might work!  mark 060213.
+            
         else: # No hover highlighting
             a = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
             # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
             # This means that bonds can never be selected when highlighting is turned off.
         return a
             
-    def get_atom_under_cursor(self, event):
+    def get_real_atom_under_cursor(self, event):
         '''If the object under the cursor is a real atom, return it.  Otherwise, return None.
         '''
-        if self.w.depositAtomDashboard.highlightingCB.isChecked():
-            self.update_selatom(event) 
-            # would be nice if there was an argument for update_selatom to return a real atom only.
-            a = self.o.selatom
-        else: # No hover highlighting
-            a = self.o.assy.findAtomUnderMouse(event, self.water_enabled) # Only returns atoms w/o singlet_ok flag.
-        if a and a.is_singlet():
-            # if <a> is a singlet, return None
-            return None
-        return a # <a> is either a real atom or None.
+        a = self.get_atom_under_cursor(event)
+        if isinstance(a, Atom):
+            if not a.is_singlet():
+                return a
+        return None
         
     def get_singlet_under_cursor(self, event):
-        '''If the object under the cursor is a singlet, return it.  Otherwise, return None.
+        '''If the object under the cursor is a singlet, return it.  If the object under the cursor is a
+        real atom with one or more singlets, return one of its singlets. Otherwise, return None.
         '''
-        if self.w.depositAtomDashboard.highlightingCB.isChecked():
-            self.update_selatom(event, singOnly = True)
-            s = self.o.selatom
-                #& Sometimes <s> is None when it should be a singlet.
-                #& See update_selatom() for more info about this bug. mark 060213.
-        else: # No hover highlighting
-            s = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
-            # would be nice if there was an argument for findAtomUnderMouse to return a singlet only.
-        if s and not s.is_singlet():
-            return None
-        return s
+        a = self.get_atom_under_cursor(event)
+        if isinstance(a, Atom):
+            if a.is_singlet():
+                return a
+            if a.singNeighbors():
+                return a.singNeighbors()[0]
+        return None
         
     def delete_atom_and_baggage(self, event):
         '''If the object under the cursor is an atom, delete it and any baggage.  
         Return the result of what happened.
         '''
-        a = self.get_atom_under_cursor(event)
+        a = self.get_real_atom_under_cursor(event)
 
         if a is None:
             return None
