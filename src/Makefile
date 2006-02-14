@@ -123,7 +123,7 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen
+sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx
 	python setup.py build_ext --inplace
 
 install: $(SIMTARGET)
