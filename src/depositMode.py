@@ -9,10 +9,10 @@ $Id$
 
 - bruce 050913 used env.history in some places.
 """
-__author__ = "Josh"
+__author__ = "Mark" 
+    # Josh was the original author, but this has been largely rewritten by Mark. mark 060214.
 
 from Numeric import *
-#from modes import *
 from selectMode import *
 from VQT import *
 from chem import *
@@ -372,12 +372,12 @@ class depositMode(selectAtomsMode):
         self.dragatom = None
             # dragatom is the atom dragged by the cursor.
         self.dragatoms = []
-            # dragatoms is constructed in setupDragAtoms() and contains all 
+            # dragatoms is constructed in atomsSetup() and contains all 
             # the selected atoms (except selected baggage atoms) 
-            # that are dragged around as a group in dragAtoms().
+            # that are dragged around as a group in atomsDrag().
             # Selected atoms that are baggage are placed in self.baggage
             # along with non-selected baggage atoms connected to dragatoms.
-            # See setupDragAtoms() for more information.
+            # See atomsSetup() for more information.
         self.pivot = None
         self.pivax = None
         self.baggage = []
@@ -387,7 +387,7 @@ class depositMode(selectAtomsMode):
         self.nonbaggage = []
             # nonbaggage contains atoms which are bonded to a dragged atom but 
             # are not dragged around with it. Their own baggage atoms are moved when a 
-            # single atom is dragged in dragAtom().
+            # single atom is dragged in atomDrag().
         self.line = None
             # endpoints of the white line drawn between the cursor and an open bond when 
             # dragging a singlet.
@@ -395,9 +395,8 @@ class depositMode(selectAtomsMode):
             # dragatom_clicked is used to determine if a lit up atom was picked (clicked)
             # or not picked (dragged). It must be set to False here so that a newly 
             # deposited atom doesn't pick itself right away.
-            # dragatom_clicked is set to True in setupDragAtom() and setupDragChunk()
-            # before it gets dragged (if it does at all). If it is dragged, it is set to False
-            # in leftDrag() and leftShiftDrag().
+            # dragatom_clicked is set to True in atomSetup() before it gets dragged (if it does at all).
+            # If it is dragged, it is set to False in leftDrag() and leftShiftDrag().
             # leftUp() and leftShiftUp() then check it to determine whether the atom 
             # gets picked or not. mark 060125.
         self.obj_doubleclicked = None
@@ -409,7 +408,7 @@ class depositMode(selectAtomsMode):
         self.suppress_updates = False
             # used to suppress multiple win_updates and history msgs when trans-depositing.
         self.only_highlight_singlets = False
-            # set to True in setupDragSinglet(). Only singlets get highlighted when dragging a singlet.
+            # set to True in singletSetup(). Only singlets get highlighted when dragging a singlet.
         
     # init_gui does all the GUI display when entering this mode [mark 041004]
     
@@ -1446,7 +1445,7 @@ class depositMode(selectAtomsMode):
             if a.element is Singlet: # Cursor over a singlet
                 if self.modkey != 'Delete':
                     self.cursor_over_when_LMB_pressed = 'Singlet'
-                    self.setupDragSinglet(a)
+                    self.singletSetup(a)
                 else: # If the 'Shift' or 'Control' mod keys are pressed, simulate empty space.
                     self.cursor_over_when_LMB_pressed = 'Empty Space'
                     self.select_2d_region(event)
@@ -1460,20 +1459,20 @@ class depositMode(selectAtomsMode):
                     # now called when two or more atoms are selected.  mark 060202.
                     self.cursor_over_when_LMB_pressed = 'Picked Atom'
                     self.drag_multiple_atoms = True
-                    self.setupDragAtoms(a)
+                    self.atomsSetup(a)
                 else:
                     if a.picked:
                         self.cursor_over_when_LMB_pressed = 'Picked Atom'
                     else:
                         self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
                     self.drag_multiple_atoms = False
-                    self.setupDragAtom(a)
+                    self.atomSetup(a)
         
         elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # Cursor over a bond.
             # self.o.selobj not updated by findAtomUnderMouse(), so bonds cannot be picked
             # when highlighting is turned off.
             self.cursor_over_when_LMB_pressed = 'Bond'
-            self.setupClickedBond(self.o.selobj)
+            self.bondSetup(self.o.selobj)
 
         else: # Cursor is over something else other than an atom, singlet or bond. 
             # The program never executes lines in this else statement since
@@ -1532,12 +1531,12 @@ class depositMode(selectAtomsMode):
         
         # Drag something.
         if a.element is Singlet:
-            self.dragSinglet(a,event)
+            self.singletDrag(a,event)
         else:
             if self.drag_multiple_atoms:
-                self.dragAtoms(a, event)
+                self.atomsDrag(a, event)
             else:
-                self.dragAtom(a, event)
+                self.atomDrag(a, event)
             
         #bruce 041130 added status bar message with new coordinates
         apos1 = a.posn()
@@ -1578,7 +1577,7 @@ class depositMode(selectAtomsMode):
         
         if self.bond_clicked:
             # Select or unselect the bond's atoms, or delete the bond, based on the current modkey.
-            self.modkeyBond(self.bond_clicked, event)
+            self.bondClicked(self.bond_clicked, event)
             return
             
         if not self.dragatom: # No atom or singlet was dragged (or clicked); return.
@@ -1591,11 +1590,11 @@ class depositMode(selectAtomsMode):
         
         if self.dragatom_clicked:
             # Select, unselect or delete the atom based on the current modkey.
-            self.modkeyAtom(a, event)
+            self.atomClicked(a, event)
         
         if a.is_singlet():
             # Finish singlet operation.
-            self.modkeySinglet(a, event)
+            self.singletLeftUp(a, event)
         
         self.baggage = []
         self.dragatom = None #bruce 041130 fix bug 230
@@ -1656,7 +1655,7 @@ class depositMode(selectAtomsMode):
                 # needed for trans-deposit selection consistency when no modifier key is pressed.
             self.suppress_updates = True
             nobjs=0
-            for s in singlet_list[:]: # singlet_list built in setupDragSinglet()
+            for s in singlet_list[:]: # singlet_list built in singletSetup()
                 if not s.killed(): # takes care of self.obj_doubleclicked, too.
                     self.deposit_from_MMKit(s)
                     nobjs += 1
@@ -1693,12 +1692,14 @@ class depositMode(selectAtomsMode):
             self.drag_stickiness_limit_exceeded = True
             return False
 
-    def modkeyBond(self, b, event):
-        '''Select or unselect the bond <b>'s atoms, or delete bond <b>, based on the current modkey.
+    def bondClicked(self, b, event):
+        '''Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
+        based on the current modkey.
         - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
-        - If Shift modkey is pressed, pick <b>'s two atoms, adding them to the current selection.
-        - If Ctrl modkey is pressed,  unpick <b>'s two atoms, removing them from the current selection.
-        - If Delete (Shift+Control) modkey is pressed, delete bond <b>.
+        - If Shift is pressed, pick <b>'s two atoms, adding them to the current selection.
+        - If Ctrl is pressed,  unpick <b>'s two atoms, removing them from the current selection.
+        - If Shift+Control (Delete) is pressed, delete bond <b>.
+        <event> is a LMB release event.
         '''
             
         #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
@@ -1712,7 +1713,7 @@ class depositMode(selectAtomsMode):
                 b.atom2.pick()
                 #& Bond class needs a getinfo() method to be called here. mark 060209.
             else:
-                self.change_bondtype(self.bond_clicked)
+                self.bond_change_type(self.bond_clicked)
                 
         elif self.modkey == 'Shift':
             b.atom1.pick()
@@ -1726,7 +1727,9 @@ class depositMode(selectAtomsMode):
             #& Not necessary to print history msg.  mark 060210.
                 
         elif self.modkey == 'Delete':
-            self.break_bond(event)
+            self.bond_delete(event) 
+                # <b> is the bond the cursor was over when the LMB was pressed.
+                # use <event> to delete bond <b> to ensure that the cursor is still over it.
             
         else:
             print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
@@ -1735,12 +1738,12 @@ class depositMode(selectAtomsMode):
         self.o.gl_update()
         
 
-    def modkeyAtom(self, a, event):
-        '''Select, unselect or delete the atom <a> based on the current modkey.
+    def atomClicked(self, a, event):
+        '''Real atom <a> was clicked, so select, unselect or delete it based on the current modkey.
         - If no modkey is pressed, clear the selection and pick atom <a>.
-        - If Shift modkey is pressed, pick <a>, adding it to the current selection.
-        - If Ctrl modkey is pressed,  unpick <a>, removing it from the current selection.
-        - If Delete (Shift+Control) modkey is pressed, delete atom <a>.
+        - If Shift is pressed, pick <a>, adding it to the current selection.
+        - If Ctrl is pressed,  unpick <a>, removing it from the current selection.
+        - If Shift+Control (Delete) is pressed, delete atom <a>.
         '''
         nochange = False
         
@@ -1780,11 +1783,12 @@ class depositMode(selectAtomsMode):
         if nochange: return
         self.o.gl_update()
 
-    def modkeySinglet(self, s1, event):
+    def singletLeftUp(self, s1, event):
         '''Finish operation on singlet <s1> based on where the cursor is when the LMB was released:
         - If the cursor is still on <s1>, deposit an object from the MMKit on it
         - If the cursor is over a different singlet, bond <s1> to it.
         - If the cursor is over empty space, do nothing.
+        <event> is a LMB release event.
         '''
         if not s1.is_singlet(): return
         
@@ -1820,8 +1824,8 @@ class depositMode(selectAtomsMode):
         return
             
 
-    def break_bond(self, event):
-        '''If the object under the cursor is a bond, break it.
+    def bond_delete(self, event):
+        '''If the object under the cursor is a bond, delete it.
         '''
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
@@ -1854,6 +1858,9 @@ class depositMode(selectAtomsMode):
         # motion before pressing the mouse. [bruce 050705 comment]
         
             a = self.o.selatom # a "highlighted" atom or singlet
+            
+            #if a is None and self.o.selobj:
+            #    a = self.o.selobj # a "highlighted" bond
             
             #& try this sometime: if a is None and selobj is not None, return selobj (a bond). 
             #& might work!  mark 060213.
@@ -1903,15 +1910,15 @@ class depositMode(selectAtomsMode):
         self.w.win_update()
         return result
             
-    def change_bondtype(self, bond): #bruce 050727
-        '''Change <bond> to new bondtype determined by the dashboard (if allowed).
+    def bond_change_type(self, b): #bruce 050727
+        '''Change bondtype of bond <b> to new bondtype determined by the dashboard (if allowed).
         '''
         # renamed from clicked_on_bond() mark 060204.
         v6 = self.bondclick_v6
         if v6 is not None:
             btype = btype_from_v6( v6)
             from bond_utils import apply_btype_to_bond
-            apply_btype_to_bond( btype, bond)
+            apply_btype_to_bond( btype, b)
                 # checks whether btype is ok, and if so, new; emits history message; does [#e or should do] needed invals/updates
             ###k not sure if that subr does gl_update when needed... this method does it, but not sure how #######@@@@@@@
         return
@@ -2109,7 +2116,7 @@ class depositMode(selectAtomsMode):
         else: # Deposit atom at the cursor position and prep it for dragging
                 cursorPos = atom_or_pos
                 a = self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
-                self.initDragObject(a)
+                self.objectSetup(a)
                 self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
                 if self.pickit(): self.o.selatom.pick()
                 status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
@@ -2117,9 +2124,8 @@ class depositMode(selectAtomsMode):
         
         return chunk, status
 
-        
-        
-    def setupDragChunk(self, a):
+
+    def chunkSetup(self, a): # Not used.  mark 060214.
         '''Setup dragging of a chunk by one of its atoms, atom <a>.
         If the chunk is not bonded to any chunks, drag it around loosely, which means
         the chunk follows atom <a> around.
@@ -2130,7 +2136,7 @@ class depositMode(selectAtomsMode):
         If the chunk is bonded to 3 or more chunks, drag it rigidly, which means
         translate the chunk in the plane of the screen.
         '''
-        self.initDragObject(a)
+        self.objectSetup(a)
         self.dragatom_clicked = True # mark 060125.
         
         if a.realNeighbors(): # probably part of larger molecule
@@ -2179,7 +2185,7 @@ class depositMode(selectAtomsMode):
             ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
             # fall thru
             
-    def initDragObject(self, a):
+    def objectSetup(self, a):
         self.dragatom = a
         # we need to store something unique about this event;
         # we'd use serno or time if it had one... instead this _count will do.
@@ -2187,8 +2193,8 @@ class depositMode(selectAtomsMode):
         _count = _count + 1
         self.dragobj_start = _count
             
-    def dragChunk(self, a, event):
-        """Drag a chunk around by atom <a>.
+    def chunkDrag(self, a, event): # not used.  mark 060214.
+        """Drag a chunk around by atom <a>. <event> is a drag event.
         """
         m = a.molecule
         px = self.dragto(a.posn(), event)
@@ -2213,26 +2219,27 @@ class depositMode(selectAtomsMode):
         self.o.gl_update()
 
     
-    def setupClickedBond(self, b):
-        '''Setup for a clicked bond <b>.
+    def bondSetup(self, b):
+        '''Setup for a click or double-click event for bond <b>. Bond dragging is not supported.
         '''
         self.bond_clicked = b
         self.obj_doubleclicked = b
         
-    def setupDragAtom(self, a):
-        '''Setup dragging of real atom <a>.
+    def atomSetup(self, a):
+        '''Setup for a click, double-click or drag event for real atom <a>.
         '''
-        self.initDragObject(a)
+        self.objectSetup(a)
         self.dragatom_clicked = True
         self.obj_doubleclicked = a
         self.baggage = []
         self.nonbaggage = []
         self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
-    def setupDragAtoms(self, a):
-        '''Setup dragging of real atom <a> and all other currently selected atoms.
+    def atomsSetup(self, a):
+        '''Setup for a click or double-click of real atom <a>, but also handles setup of dragging of 
+        real atom <a> and all other currently selected atoms.
         '''
-        self.initDragObject(a)
+        self.objectSetup(a)
         self.dragatom_clicked = True
         self.obj_doubleclicked = a
         self.baggage = []
@@ -2251,7 +2258,7 @@ class depositMode(selectAtomsMode):
         
         # dragatoms contains all the selected atoms minus atoms that are also 
         # baggage. It is critical that dragatoms does not contain any baggage 
-        # atoms or they will be moved twice in dragAtoms(), so we removed them here.
+        # atoms or they will be moved twice in atomsDrag(), so we removed them here.
         for at in selatoms[:]:
             if not at in self.baggage: # no baggage atoms in dragatoms.
                 self.dragatoms.append(at)
@@ -2259,7 +2266,7 @@ class depositMode(selectAtomsMode):
         # Accumulate all the nonbaggage bonded to the selected atoms.
         # We also need to keep a record of which selected atom belongs to
         # each nonbaggage atom.  This is not implemented yet, but will be needed
-        # to get dragAtoms() to work properly.  I'm commenting it out for now.
+        # to get atomsDrag() to work properly.  I'm commenting it out for now.
         # mark 060202.
         #for at in all_nonbaggage[:]:
         #    if not at in self.dragatoms:
@@ -2270,8 +2277,8 @@ class depositMode(selectAtomsMode):
         #print "baggage = ", self.baggage    
         #print "nonbaggage = ", self.nonbaggage
 
-    def dragAtom(self, a, event):
-        """Drag an atom <a>, which is never a singlet.
+    def atomDrag(self, a, event):
+        """Drag real atom <a>.  <event> is a drag event.
         """
         px = self.dragto(a.posn(), event)
         apo = a.posn()
@@ -2311,13 +2318,13 @@ class depositMode(selectAtomsMode):
         # in the loop before it, or adjBaggage (which compares a.posn() to
         # px) would think atom <a> was not moving.
         
-    def dragAtoms(self, a, event):
-        """Drag the atom <a> and all picked atoms.
+    def atomsDrag(self, a, event):
+        """Drag real atom <a> and all picked atoms.  <event> is a drag event.
         """
-        # dragAtoms() behaves differently than dragAtom() in that nonbaggage atoms 
+        # atomsDrag() behaves differently than atomDrag() in that nonbaggage atoms 
         # and their own baggage are not used or moved in any way. I used to think this 
         # was a feature and not a bug, but I'm pretty sure I was wrong about that since
-        # other programs behave like dragAtom() when dragging two or more atoms.
+        # other programs behave like atomDrag() when dragging two or more atoms.
         # The current implementation is still better than nothing and might be OK for A7.
         # I'm guessing we'll want to change it, though.  If so, I have a good idea how to 
         # code it, but it will take a day to get it working properly. mark 060201.
@@ -2338,10 +2345,10 @@ class depositMode(selectAtomsMode):
         for at in self.baggage[:]:
             at.setposn(at.posn()+delta)
       
-    def setupDragSinglet(self, a):
-        '''Setup dragging of singlet <a>.
+    def singletSetup(self, a):
+        '''Setup for a click, double-click or drag event for singlet <a>.
         '''
-        self.initDragObject(a)
+        self.objectSetup(a)
         self.obj_doubleclicked = a # for trans-deposit implem (soon). mark 060211.
         self.only_highlight_singlets = True
         
@@ -2372,8 +2379,8 @@ class depositMode(selectAtomsMode):
             self.pivax = None
 
 
-    def dragSinglet(self, a, event):
-        """Drag a singlet.
+    def singletDrag(self, a, event):
+        """Drag a singlet. <event> is a drag event.
         """
         if a.element is not Singlet: return
 
@@ -2421,7 +2428,7 @@ class depositMode(selectAtomsMode):
 
 
     ###################################################################
-    #   Cutting and pasting                                           #
+    #==   Cutting and pasting
     ###################################################################
     
     def pasteBond(self, sing):
