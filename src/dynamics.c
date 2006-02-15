@@ -113,23 +113,48 @@ oneDynamicsFrame(struct part *part,
 	    //FoundKE += atom[j].energ * ff;
 	}
 	
-	
-	/* now the jigs */
+	// Jigs are executed in the following order: motors,
+	// thermostats, grounds, measurements.  Motions from each
+	// motor are added together, then thermostats operate on the
+	// motor output.  Grounds override anything that moves atoms.
+	// Measurements happen after all things that could affect
+	// positions, including grounds.
+
+        // motors
+	for (j=0;j<part->num_jigs;j++) {	/* for each jig */
+	    jig = part->jigs[j];
+	    
+	    if (jig->type == RotaryMotor) {
+		jigMotor(jig, deltaTframe, positions, newPositions, force);
+            }
+            // LinearMotor handled in preforce above
+	}
+
+        // thermostats
+	for (j=0;j<part->num_jigs;j++) {	/* for each jig */
+	    jig = part->jigs[j];
+	    
+	    if (jig->type == Thermostat) {
+		jigThermostat(jig, deltaTframe, positions, newPositions);
+	    }
+	}
+
+        // grounds
+	for (j=0;j<part->num_jigs;j++) {	/* for each jig */
+	    jig = part->jigs[j];
+	    
+	    if (jig->type == Ground) {
+		jigGround(jig, deltaTframe, positions, newPositions, force);
+            }
+	}
+
+        // measurements
 	for (j=0;j<part->num_jigs;j++) {	/* for each jig */
 	    jig = part->jigs[j];
 	    
 	    switch (jig->type) {
-	    case Ground:
-		jigGround(jig, deltaTframe, positions, newPositions, force);
-		break;
-	    case RotaryMotor:
-		jigMotor(jig, deltaTframe, positions, newPositions, force);
-		break;
 	    case Thermometer:
 		jigThermometer(jig, deltaTframe, positions, newPositions);
-		break;
-	    case Thermostat:
-		jigThermostat(jig, deltaTframe, positions, newPositions);
 		break;
 	    case DihedralMeter:
 		jigDihedral(jig, newPositions);
@@ -140,8 +165,8 @@ oneDynamicsFrame(struct part *part,
 	    case RadiusMeter:
 		jigRadius(jig, newPositions);
 		break;
-	    case LinearMotor:
-		break; // handled in preforce above
+            default:
+		break;
 	    }
 	}
 	
