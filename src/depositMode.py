@@ -371,7 +371,7 @@ class depositMode(selectAtomsMode):
         self.drag_multiple_atoms = False
             # set to True when we are dragging a movable unit of 2 or more atoms.
         self.dragatom = None
-            # dragatom is the atom dragged by the cursor.
+            # dragatom is the atom or singlet dragged by the cursor.
         self.dragatoms = []
             # dragatoms is constructed in atomsSetup() and contains all 
             # the selected atoms (except selected baggage atoms) 
@@ -393,13 +393,14 @@ class depositMode(selectAtomsMode):
             # endpoints of the white line drawn between the cursor and an open bond when 
             # dragging a singlet.
         self.dragatom_clicked = False 
-            # dragatom_clicked is used to determine if a lit up atom was picked (clicked)
+            # dragatom_clicked is used to determine if a lit up atom or singlet was picked (clicked)
             # or not picked (dragged). It must be set to False here so that a newly 
             # deposited atom doesn't pick itself right away.
-            # dragatom_clicked is set to True in atomSetup() before it gets dragged (if it does at all).
+            # dragatom_clicked is set to True in atomSetup() and singletSetup() before it 
+            # gets dragged (if it does at all).
             # If it is dragged, it is set to False in leftDrag() and leftShiftDrag().
             # leftUp() and leftShiftUp() then check it to determine whether the atom 
-            # gets picked or not. mark 060125.
+            # or singlet gets picked or not. mark 060125.
         self.obj_doubleclicked = None
             # used by leftDouble() to determine the object that was double clicked.
         self.bond_clicked = None
@@ -447,9 +448,10 @@ class depositMode(selectAtomsMode):
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
         
-        self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
-        self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
+        # Zoom, Pan and Rotate tools re-enabled. mark 060215.
+        #self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
+        #self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
+        #self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
 
         self.dont_update_gui = False
         
@@ -689,9 +691,11 @@ class depositMode(selectAtomsMode):
         self.connect_or_disconnect_signals(False)
         
         self.w.depositAtomDashboard.hide() # Stow away dashboard
-        self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
-        self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        
+        # Zoom, Pan and Rotate tools re-enabled. mark 060215.
+        #self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
+        #self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
+        #self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
         
         self.MMKit.close() # Close the MMKit when leaving Build mode.
 
@@ -1533,7 +1537,7 @@ class depositMode(selectAtomsMode):
         if isinstance(self.obj_doubleclicked, Atom):
             if self.obj_doubleclicked.is_singlet():
                 return # Remove this line to reinstate trans-deposition on double-click.  mark 060215.
-                self.transdeposit_from_MMKit(self.singlet_list)
+                self.transdeposit_from_MMKit()
                 
             else: # real atom
                 if self.modkey == 'Control':
@@ -1553,36 +1557,40 @@ class depositMode(selectAtomsMode):
 
 # == end of LMB event handler methods
 
-
-    def transdeposit_from_MMKit(self, singlet_list):
-        '''Trans-deposit the current object in the MMKit on all singlets in <singlet_list>.
+    def transdeposit_from_MMKit(self):
+        '''Trans-deposit the current object in the MMKit on all singlets reachable through 
+        any sequence of bonds to the singlet <self.dragatom>.
         '''
-        if not singlet_list: return
+        if not self.dragatom.is_singlet(): 
+            return
         
+        singlet = self.dragatom
+        singlet_list = self.o.assy.getConnectedSinglets([singlet])
+        
+        self.o.assy.unpickatoms()
         modkey = self.modkey # save the modkey state
         if self.modkey is None:
             self.modkey = 'Shift'
-                # needed for trans-deposit selection consistency when no modifier key is pressed.
-            self.suppress_updates = True
-            nobjs=0
-            for s in singlet_list[:]: # singlet_list built in singletSetup()
-                if not s.killed(): # takes care of self.obj_doubleclicked, too.
-                    self.deposit_from_MMKit(s)
-                    nobjs += 1
-            self.suppress_updates = False
-            self.modkey = modkey # restore the modkey state to real state.
+                # needed to maintain selection consistency when no modifier key is pressed.
+        self.suppress_updates = True
+        nobjs=0
+        for s in singlet_list[:]: # singlet_list built in singletSetup()
+            if not s.killed(): # takes care of self.obj_doubleclicked, too.
+                self.deposit_from_MMKit(s)
+                nobjs += 1
+        self.suppress_updates = False
+        self.modkey = modkey # restore the modkey state to real state.
                 
-            if self.w.depositState == 'Atoms':
-                object_type = "atom(s)"
-            elif self.w.depositState == 'Clipboard':
-                object_type = "clipboard node(s)"
-            else:
-                object_type = "library part(s)"
+        if self.w.depositState == 'Atoms':
+            object_type = "atom(s)"
+        elif self.w.depositState == 'Clipboard':
+            object_type = "clipboard node(s)"
+        else:
+            object_type = "library part(s)"
                     
-            info = fix_plurals( "%d %s deposited." % (nobjs+1, object_type) ) 
-                # +1 to resolve bug 1502. mark 060213.
-            env.history.message(info)
-            self.w.win_update()
+        info = fix_plurals( "%d %s deposited." % (nobjs, object_type) ) 
+        env.history.message(info)
+        self.w.win_update()
 
     def mouse_within_stickiness_limit(self, event, drag_stickiness_limit):
         '''Check if mouse has been dragged beyond <drag_stickiness_limit> while holding down the LMB.
@@ -2710,6 +2718,11 @@ class depositMode(selectAtomsMode):
             item = None
         if item:
             self.Menu_spec.append(item)
+        
+        # Add the trans-deposit menu item.
+        if selatom is not None and selatom.is_singlet():
+            self.dragatom = selatom
+            self.Menu_spec.append(( 'Trans-deposit from MMKit', self.transdeposit_from_MMKit))
 
         # figure out Select This Chunk item text and whether to include it
         ##e (should we include it for internal bonds, too? not for now, maybe not ever. [bruce 050705])
