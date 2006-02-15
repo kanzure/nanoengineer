@@ -934,7 +934,7 @@ class basicMode(anyMode):
         
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
-        self.picking = 1
+        self.picking = True
 
     def middleDrag(self, event):
         # Huaicai 4/12/05: Originally 'self.picking=0 in both middle*Down
@@ -950,18 +950,49 @@ class basicMode(anyMode):
         self.o.gl_update()
  
     def middleUp(self, event):
-        self.picking = 0
+        self.picking = False
         self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
-    
+
     def middleShiftDown(self, event):
         self.w.OldCursor = QCursor(self.o.cursor())
         # save copy of current cursor in OldCursor
         self.o.setCursor(self.w.MoveCursor) # load MoveCursor in glpane
         
+        # Setup pan operation
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        
+        if wZ[0][0] >= GL_FAR_Z:
+            junk, self.movingPoint = self.o.mousepoints(event)
+        else:
+            self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
+            
+        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+        
         self.o.SaveMouse(event)
-        self.picking = 1
+        self.picking = True
+        
+    def middleShiftDown_OBS(self, event):
+        self.w.OldCursor = QCursor(self.o.cursor())
+        # save copy of current cursor in OldCursor
+        self.o.setCursor(self.w.MoveCursor) # load MoveCursor in glpane
+        
+        self.o.SaveMouse(event)
+        self.picking = False
     
     def middleShiftDrag(self, event):
+        """Move point of view so that objects appear to follow
+        the mouse on the screen.
+        """
+        p1, p2 = self.o.mousepoints(event)
+        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
+        if point == None: 
+            point = ptonline(self.movingPoint, p1, norm(p2-p1))
+        self.o.pov += point - self.movingPoint
+        self.o.gl_update()
+        
+    def middleShiftDrag_OBS(self, event):
         """Move point of view so that objects appear to follow
         the mouse on the screen.
         """

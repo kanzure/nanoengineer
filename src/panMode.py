@@ -65,39 +65,28 @@ class panMode(basicMode):
     # mouse and key events
     
     def leftDown(self, event):
-        """
-        """
-        self.o.SaveMouse(event)
-        self.picking = 0
-
+        'Event handler for LMB press event.'
+        
+        # Setup pan operation
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        
+        if wZ[0][0] >= GL_FAR_Z:
+            junk, self.movingPoint = self.o.mousepoints(event)
+        else:
+            self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
+            
+        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+        
     def leftDrag(self, event):
-        """Move point of view so that objects appear to follow
-        the mouse on the screen.
-        """
-        h=self.o.height+0.0
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-        #move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
-        
-        # bruce comment 040908, about josh code: 'move' is mouse
-        # motion in model coords. We want center of view, -self.pov,
-        # to move in opposite direction as mouse, so that after
-        # recentering view on that point, objects have moved with
-        # mouse.
-        
-        ### Huaicai 1/26/05: delta Xe, delta Ye  depend on Ze, here
-        ### Ze is just an estimate, so Xe and Ye are estimates too, but
-        ### they seems more accurate than before. To accurately 
-        ### calculate it, we need to find a depth value for a point on 
-        ### the model.
-        Ze = 2.0*self.o.near*self.o.far*self.o.scale/(self.o.near+self.o.far)
-        tY = (self.o.zoomFactor*Ze)*2.0/h
-        
-        move = self.o.quat.unrot(deltaMouse*tY)
-        self.o.pov += move
+        'Event handler for LMB drag event.'
+        p1, p2 = self.o.mousepoints(event)
+        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
+        if point == None: 
+            point = ptonline(self.movingPoint, p1, norm(p2-p1))
+        self.o.pov += point - self.movingPoint
         self.o.gl_update()
-        self.o.SaveMouse(event)
-        self.picking = 0
 
     def keyPress(self,key):
         # ESC - Exit pan mode.
