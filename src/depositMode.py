@@ -1530,10 +1530,9 @@ class depositMode(selectAtomsMode):
             
         self.ignore_next_leftUp_event = True
         
-        return # Remove this line to reinstate trans-deposition on double-click.  mark 060215.
-        
         if isinstance(self.obj_doubleclicked, Atom):
             if self.obj_doubleclicked.is_singlet():
+                return # Remove this line to reinstate trans-deposition on double-click.  mark 060215.
                 self.transdeposit_from_MMKit(self.singlet_list)
                 
             else: # real atom
