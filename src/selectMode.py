@@ -306,11 +306,11 @@ class selectMode(basicMode):
                 if self.selSense == SUBTRACT_FROM_SELECTION: 
                     self.o.assy.unpick_at_event(event)
                 elif self.selSense == ADD_TO_SELECTION: 
-                    self.o.assy.pick_or_delete_at_event(event, op='Pick')
+                    self.o.assy.pick_at_event(event)
                 elif self.selSense == START_NEW_SELECTION: 
                     self.o.assy.onlypick_at_event(event)
                 elif self.selSense == DELETE_SELECTION: 
-                    self.o.assy.pick_or_delete_at_event(event, op='Delete')
+                    self.o.assy.delete_at_event(event)
                 else:
                     print 'Error in end_selection_curve(): Invalid selSense=', self.selSense
 

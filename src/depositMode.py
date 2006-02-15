@@ -260,6 +260,7 @@ def do_what_MainWindowUI_should_do(w):
         bg.hide()
         w.depositAtomDashboard.pasteBtn.hide()
         w.depositAtomDashboard.depositBtn.hide()
+        w.depositAtomDashboard.atomBtn.hide() # Probably not supported for A7.  mark 060214.
     
     from whatsthis import create_whats_this_descriptions_for_depositMode
     create_whats_this_descriptions_for_depositMode(w)
@@ -1298,158 +1299,64 @@ class depositMode(selectAtomsMode):
 #   - LMB double-click method (only one)
 #       leftDouble()
 #
+# For more information about the LMB event handling scheme for Build mode, go to 
+# http://www.nanoengineer-1.net/ and click on the "Build Mode UI Specification" link.
+#
 # == LMB down-click (button press) methods
 
     def leftShiftDown(self, event):
-        '''Process a Shift + Left Mouse Button (Shift+LMB) down/press event.  What happens is
-        dependant on what is currently under the cursor and what is under the cursor when 
-        releasing the LMB.  In general, this is what happens for each of the following situations:
-            
-        Cursor on Empty Space:
-            Shift+LMB+click: Do nothing.
-            Shift+LMB+Drag: Do nothing.
-        
-        Cursor on an Unpicked Atom:
-            Shift+LMB click: pick the atom, adding it to the selection.
-            Shift+LMB+Drag: drag the atom around, along with any singlets or monovalent bonded to it.
-            Shift+LMB+Double click: picks the atom and all atoms reachable through any sequence of 
-                    bonds to it.
-
-        Cursor on a Picked Atom:
-            Shift+LMB click: Do nothing.
-            Shift+LMB+Drag: drag the atom and all other selected atoms around, along with any 
-                    singlets or monovalent bonded to them.
-            Shift+LMB+Double click: picks the atom and all atoms reachable through any sequence of 
-                    bonds to it.
-
-        Cursor on a Singlet:
-            Shift+LMB click: try to deposit and bond a new object (atom, clipboard chunk or library part) 
-                    to the singlet. If the new object does not have a hotspot, do nothing.
-            Shift+LMB+Drag: draw a white rubber band line between the singlet and the cursor position.
-                    - the bond(s) will also rotate/move as the mouse is dragged.
-                    - if the LMB button is released while the same singlet is highlighted, 
-                      deposit an object (atom, clipboard chunk or library part) bonded to the singlet.
-                    - if the LMB is released while highlighting a different singlet, bond the two singlets.
-                    - if the LMB is released in empty space, do not deposit an object. Leave the 
-                      bond in place (do not move it back to its original position).
-
-        Cursor on a Bond:
-            Shift+LMB click: change the bond to a new bond type determined by the dashboard.
-            Shift+LMB+Drag: change the bond to a new bond type determined by the dashboard.
-        '''
-        # Adding picked atoms to the selection is handled by leftUp(). mark 060203
+        '''Event handler for Shift+LMB press.'''
         self.leftDown(event)
     
     def leftCntlDown(self, event):
-        '''Process a Control + Left Mouse Button (Control+LMB) down/press event.  What happens is
-        dependant on what is currently under the cursor and what is under the cursor when 
-        releasing the LMB.  In general, this is what happens for each of the following situations:
-            
-        Cursor on Empty Space:
-            Control+LMB+click: Do nothing.
-            Control+LMB+Drag: Do nothing.
-        
-        Cursor on an Unpicked Atom:
-            Control+LMB click: delete the atom.
-            Control+LMB+Drag: do nothing.
-
-        Cursor on a Picked Atom:
-            Control+LMB click: unpick the atom.
-            Control+LMB+Drag: do nothing.
-            Control+LMB+Double click: unpicks the atom and unpicks any picked atoms reachable 
-                    through any sequence of bonds to it.
-
-        Cursor on a Singlet:
-            Control+LMB click: do nothing.
-            Control+LMB+Drag: do nothing.
-
-        Cursor on a Bond:
-            Control+LMB click: break the bond.
-            Control+LMB+Drag: do nothing.
-        '''
-        # Removing picked atoms from the selection is handled by leftUp(). mark 060203
+        '''Event handler for Control+LMB press.'''
         self.leftDown(event)
         
     def leftDown(self, event):
-        """Process a Left Mouse Button (LMB) down/press event.  What happens is
-        dependant on what is currently under the cursor and what is under the cursor when 
-        releasing the LMB.  In general, this is what happens for each of the following situations:
-            
-        Cursor on Empty Space:
-            LMB+click: deposit a new object (atom, clipboard chunk or library part).
-            LMB+Drag: On the LMB release, deposit a new object (atom, clipboard chunk 
-                    or library part).
-        
-        Cursor on an Unpicked Atom:
-            LMB click: pick the atom.
-            LMB+Drag: drag the atom around, along with any singlets or monovalent bonded to it.
-            LMB+Double click: picks the atom and all atoms reachable through any sequence of 
-                    bonds to it.
-
-        Cursor on a Picked Atom:
-            LMB click: pick the atom.
-            LMB+Drag: drag the atom and all other selected atoms around, along with any 
-                    singlets or monovalent bonded to them.
-            LMB+Double click: picks the atom and all atoms reachable through any sequence of 
-                    bonds to it.
-
-        Cursor on a Singlet:
-            LMB click: try to deposit and bond a new object (atom, clipboard chunk or library part) 
-                    to the singlet. If the new object does not have a hotspot, do nothing.
-            LMB+Drag: draw a white rubber band line between the singlet and the cursor position.
-                    - the bond(s) will also rotate/move as the mouse is dragged.
-                    - if the LMB button is released while the same singlet is highlighted, 
-                      deposit an object (atom, clipboard chunk or library part) bonded to the singlet.
-                    - if the LMB is released while highlighting a different singlet, bond the two singlets.
-                    - if the LMB is released in empty space, do not deposit an object. Leave the 
-                      bond in place (do not move it back to its original position).
-
-        Cursor on a Bond:
-            LMB click: change the bond to a new bond type determined by the dashboard.
-            LMB+Drag: change the bond to a new bond type determined by the dashboard.
-        """
+        '''Event handler for LMB press (with no modifier key).'''
 
         if 1: #bruce 060124 undo-debugging code; should be safe for all users ####@@@@
             self.o.assy.current_command_info(cmdname = "BuildClick") #e cmdname should be set more precisely later, instead
         
-        # mark 051214 revised docstring
         # bruce 050124 warning: update_selatom now copies lots of logic from here;
         # see its comments if you change this
+        #&d This comment is obsolete and marked for deletion. mark 060214.
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
         
         self.current_modkey = self.modkey
             #& self.current_modkey is very important, but NIY.  If the user let's go of the modkey during a
-            # 2d region selection, unexpected things may happen. mark 060209.
+            #& 2d region selection, unexpected things may happen. mark 060209.
             
         self.LMB_press_event = QMouseEvent(event) # Save this event.  
-            # We need it later when we change our mind and start selecting a 2D region in leftDrag().
+            # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
             
         self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
             # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().
             
-        a = self.get_atom_under_cursor(event)
-            # <a> can be None and yet we still selected something (i.e. a bond), which is determined by self.o.selobj.
-            # Be aware that get_atom_under_cursor() only returns atoms and singlets. It calls
-            # update_selatom(), which updates self.o.selobj, which can be a bond.
-            
-        if not a and not self.o.selobj: # Cursor over empty space.
+        obj = self.get_obj_under_cursor(event)
+            # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets and bonds (not jigs).
+            # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
+        
+        if not obj: # Cursor over empty space.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             self.select_2d_region(event)
             return
 
-        self.modified = 1
+        self.modified = 1 #& isn't this premature?  might trigger unnecessary updates. mark 060214.
         self.o.assy.changed()
         
-        if a:
-            if a.element is Singlet: # Cursor over a singlet
-                if self.modkey != 'Delete':
-                    self.cursor_over_when_LMB_pressed = 'Singlet'
-                    self.singletSetup(a)
-                else: # If the 'Shift' or 'Control' mod keys are pressed, simulate empty space.
+        if isinstance(obj, Atom):
+            if obj.element is Singlet: # Cursor over a singlet
+                s = obj
+                if self.modkey == 'Delete':
                     self.cursor_over_when_LMB_pressed = 'Empty Space'
                     self.select_2d_region(event)
+                else:
+                    self.cursor_over_when_LMB_pressed = 'Singlet'
+                    self.singletSetup(s)
             else: # Cursor over a real atom
+                a = obj
                 if not a.picked and self.modkey is None:
                     self.o.assy.unpickatoms()
                     a.pick()
@@ -1468,16 +1375,14 @@ class depositMode(selectAtomsMode):
                     self.drag_multiple_atoms = False
                     self.atomSetup(a)
         
-        elif isinstance(self.o.selobj, Bond) and not self.o.selobj.is_open_bond(): # Cursor over a bond.
-            # self.o.selobj not updated by findAtomUnderMouse(), so bonds cannot be picked
-            # when highlighting is turned off.
+        elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
+            # Bonds cannot be picked when highlighting is turned off.
             self.cursor_over_when_LMB_pressed = 'Bond'
-            self.bondSetup(self.o.selobj)
+            self.bondSetup(obj)
 
         else: # Cursor is over something else other than an atom, singlet or bond. 
             # The program never executes lines in this else statement since
-            # get_obj_under_cursor() only returns atoms and singlets, and
-            # self.o.selobj can only be an atom/singlet or a bond as of now.  mark 060206.
+            # get_obj_under_cursor() only returns atoms, singlets or bonds.
             pass
 
         self.w.win_update()
@@ -1486,14 +1391,15 @@ class depositMode(selectAtomsMode):
 # == LMB drag methods
 
     def leftShiftDrag(self, event):
+        '''Event handler for Shift+LMB+Drag.'''
         self.leftDrag(event)
         
     def leftCntlDrag(self, event):
+        '''Event handler for Control+LMB+Drag.'''
         self.leftDrag(event)
         
     def leftDrag(self, event):
-        '''Drag around <dragatom>, which is either an atom or a singlet.
-        '''
+        '''Event handler for LMB+Drag (with no modifier key).'''
         
         # Do not change the order of the following conditionals unless you know
         # what you're doing.  mark 060208.
@@ -1554,14 +1460,17 @@ class depositMode(selectAtomsMode):
         self.o.gl_update()
         
 # == LMB up-click (button release) methods
-        
+
     def leftShiftUp(self, event):
+        '''Event handler for Shift+LMB release.'''
         self.leftUp(event)
     
     def leftCntlUp(self, event):
+        '''Event handler for Control+LMB release.'''
         self.leftUp(event)
     
     def leftUp(self, event):
+        '''Event handler for LMB release (with no modifier key).'''
         env.history.flush_saved_transients() # flush any transient message it saved up
         
         if self.ignore_next_leftUp_event: # This event is the second leftUp of a double click, so ignore it.
@@ -1840,8 +1749,8 @@ class depositMode(selectAtomsMode):
             
             self.w.win_update()
     
-    def get_atom_under_cursor(self, event):
-        '''Return the atom or singlet under the cursor.  
+    def get_obj_under_cursor(self, event):
+        '''Return the object under the cursor.  Only atoms, singlets and bonds are returned.
         Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
         '''
         if self.w.depositAtomDashboard.highlightingCB.isChecked():
@@ -1859,8 +1768,8 @@ class depositMode(selectAtomsMode):
         
             a = self.o.selatom # a "highlighted" atom or singlet
             
-            #if a is None and self.o.selobj:
-            #    a = self.o.selobj # a "highlighted" bond
+            if a is None and self.o.selobj:
+                a = self.o.selobj # a "highlighted" bond
             
             #& try this sometime: if a is None and selobj is not None, return selobj (a bond). 
             #& might work!  mark 060213.
@@ -1874,7 +1783,7 @@ class depositMode(selectAtomsMode):
     def get_real_atom_under_cursor(self, event):
         '''If the object under the cursor is a real atom, return it.  Otherwise, return None.
         '''
-        a = self.get_atom_under_cursor(event)
+        a = self.get_obj_under_cursor(event)
         if isinstance(a, Atom):
             if not a.is_singlet():
                 return a
@@ -1884,7 +1793,7 @@ class depositMode(selectAtomsMode):
         '''If the object under the cursor is a singlet, return it.  If the object under the cursor is a
         real atom with one or more singlets, return one of its singlets. Otherwise, return None.
         '''
-        a = self.get_atom_under_cursor(event)
+        a = self.get_obj_under_cursor(event)
         if isinstance(a, Atom):
             if a.is_singlet():
                 return a

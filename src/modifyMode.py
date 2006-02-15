@@ -344,9 +344,11 @@ class modifyMode(basicMode):
                 if selSense == SUBTRACT_FROM_SELECTION: 
                     self.o.assy.unpick_at_event(event)
                 if selSense == ADD_TO_SELECTION: 
-                    self.o.assy.pick_or_delete_at_event(event, op='Pick')
+                    self.o.assy.pick_at_event(event)
                 if selSense == START_NEW_SELECTION: 
                     self.o.assy.onlypick_at_event(event)
+                if selSense == DELETE_SELECTION: 
+                    self.o.assy.delete_at_event(event)
                 
             self.w.win_update()
      
