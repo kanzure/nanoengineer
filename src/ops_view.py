@@ -70,12 +70,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             self.glpane.mode.Done()
             return
         
-        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
-        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
-            self.glpane.prevMode = self.glpane.mode.modename
-            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
-            self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
-
+        self.save_current_mode_attrs()
         self.glpane.setMode('ZOOM')
         
         # This should be placed in zoomMode.Enter or init_gui, but it always appears 
@@ -93,12 +88,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             self.glpane.mode.Done()
             return
             
-        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
-        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
-            self.glpane.prevMode = self.glpane.mode.modename
-            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
-            self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
-
+        self.save_current_mode_attrs()
         self.glpane.setMode('PAN')
         env.history.message("You may hit the Esc key to exit Pan Tool.")
 
@@ -113,14 +103,19 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             self.glpane.mode.Done()
             return
             
-        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode". 
-        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
-            self.glpane.prevMode = self.glpane.mode.modename
-            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
-            self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
-
+        self.save_current_mode_attrs()
         self.glpane.setMode('ROTATE')
         env.history.message("You may hit the Esc key to exit Rotate Tool.")
+        
+    def save_current_mode_attrs(self):
+        '''Save some current mode attrs before entering Zoom, Pan or Rotate mode.
+        '''
+        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode".
+        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
+            self.glpane.prevMode = self.glpane.mode.modename
+            self.glpane.prevModeDisplay = self.glpane.display  # Added to fix bug 1489. mark 060215.
+            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
+            self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):

@@ -22,8 +22,9 @@ class rotateMode(basicMode):
     def Enter(self):
         basicMode.Enter(self)
         # Set background color to the previous mode's bg color
-        bg = self.backgroundColor = self.o.prevModeColor
-        gradient = self.backgroundGradient = self.o.prevModeGradient
+        self.backgroundColor = self.o.prevModeColor
+        self.backgroundGradient = self.o.prevModeGradient
+        self.o.setDisplay(self.o.prevModeDisplay)  # Fixes bug 1489. mark 060215.
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
@@ -65,18 +66,16 @@ class rotateMode(basicMode):
     # mouse and key events
     
     def leftDown(self, event):
-        """
-        """
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
-        self.picking = 0
+        self.picking = False
 
     def leftDrag(self, event):
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1])
         self.o.quat += q 
         self.o.gl_update()
-        self.picking = 0
+        self.picking = False
 
     def keyPress(self,key):
         # ESC - Exit pan mode.
