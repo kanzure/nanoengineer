@@ -140,17 +140,18 @@ install-linux: install $(PYREXTARGET)
 	cp sim.so $(EXE_DIRECTORY)
 
 clean:
-	rm -f version.h
+	rm -f version.h bonds.gen bends.gen
 	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
+	rm -f glviewer
 	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
-	rm -rf html gmon.out build
+	rm -rf html gmon.out build obj
 	rm -f tests/*/*.altout
 	rm -f tests/*/*.diff
 	rm -f tests/*/*.xyz
 	rm -f tests/*/*.dpb
 
 dist_clean: clean
-	rm -f TAGS bonds.gen bends.gen
+	rm -f TAGS
 
 TAGS:
 	etags *.c *.h
