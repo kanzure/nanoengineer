@@ -1,0 +1,13 @@
+The idea is to create Pyrex base classes for atoms, bonds, and atom
+sets that make some operations much more efficient, primarily graphics
+operations and undo/redo operations. An additional benefit is that we
+can start to define atoms, bonds and atom sets in a way that isn't
+dependent upon Qt or OpenGL or other GUI-related stuff, so that
+somebody can import them into a Python script without having all the
+GUI stuff installed. This should not conflict with formulating them in
+a way that makes graphics operations efficient. With a little luck we
+will find that they are efficient with different kinds of graphics
+systems (e.g. Gtk, WxWindows).
+
+
+
