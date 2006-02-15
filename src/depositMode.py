@@ -1527,6 +1527,10 @@ class depositMode(selectAtomsMode):
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
             return
+            
+        self.ignore_next_leftUp_event = True
+        
+        return # Remove this line to reinstate trans-deposition on double-click.  mark 060215.
         
         if isinstance(self.obj_doubleclicked, Atom):
             if self.obj_doubleclicked.is_singlet():
@@ -1547,8 +1551,6 @@ class depositMode(selectAtomsMode):
                 self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
             else:
                 self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
-            
-        self.ignore_next_leftUp_event = True
 
 # == end of LMB event handler methods
 
