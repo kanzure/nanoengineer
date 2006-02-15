@@ -340,41 +340,34 @@ class ops_select_Mixin:
     # for Node subclasses, with common semantics different than these have.
     # I removed some no-longer-used related methods.
     
-    def pick_or_delete_at_event(self, event, op='Pick'): #renamed from pick; modified
+    def pick_at_event(self, event): #renamed from pick; modified
         # renamed from pick_at_event(). mark 060212.
-        """If <op> is 'Pick' (default), pick whatever visible atom or chunk (depending on 
+        """Pick whatever visible atom or chunk (depending on 
         self.selwhat) is under the mouse, adding it to the current selection. 
         You are not allowed to select a singlet.
-        If <op> is 'Delete', delete the atom or chunk instead, leaving the selection
-        unchanged for any atoms/chunks in the current selection not deleted.
-        Print a message about what you just selected (if it was an atom) or deleted.
+        Print a message about what you just selected (if it was an atom).
         """
         # [bruce 041227 moved the getinfo status messages here, from the atom
         # and molecule pick methods, since doing them there was too verbose
         # when many items were selected at the same time. Original message
         # code was by [mark 2004-10-14].]
         self.begin_select_cmd() #bruce 051031
-        atm = self.findAtomUnderMouse(event)
+        if self.o.mode.modename == 'DEPOSIT':
+            atm = self.findAtomUnderMouse(event, water_cutoff = True)
+        else:
+            atm = self.findAtomUnderMouse(event)
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
                 if not self.selmols:
                     self.selmols = []
                     # bruce 041214 added that, since pickpart used to do it and
                     # calls of that now come here; in theory it's never needed.
-                if op == 'Pick':
-                    atm.molecule.pick()
-                    env.history.message(atm.molecule.getinfo())
-                elif op == 'Delete':
-                    env.history.message("Deleted " + atm.molecule.name)
-                    atom.molecule.kill()
+                atm.molecule.pick()
+                env.history.message(atm.molecule.getinfo())
             else:
                 assert self.selwhat == SELWHAT_ATOMS
-                if op == 'Pick':
-                    atm.pick()
-                    env.history.message(atm.getinfo())
-                elif op == 'Delete':
-                    env.history.message("Deleted " + str(atm) )
-                    atm.kill()
+                atm.pick()
+                env.history.message(atm.getinfo())
         
         # Added 'Alpha 7' selection behavior.  This code unselects everything
         # if no atom/chunk was selected.  Mark 050924.
@@ -382,6 +375,31 @@ class ops_select_Mixin:
             if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
                 self.unpickparts()
                 self.unpickatoms()
+        return
+        
+    def delete_at_event(self, event):
+        """Delete whatever visible atom or chunk (depending on self.selwhat) 
+        is under the mouse. You are not allowed to delete a singlet.
+        This leaves the selection unchanged for any atoms/chunks in the current 
+        selection not deleted. Print a message about what you just deleted.
+        """
+        self.begin_select_cmd()
+        if self.o.mode.modename == 'DEPOSIT':
+            atm = self.findAtomUnderMouse(event, water_cutoff = True)
+        else:
+            atm = self.findAtomUnderMouse(event)
+        if atm:
+            if self.selwhat == SELWHAT_CHUNKS:
+                if not self.selmols:
+                    self.selmols = []
+                    # bruce 041214 added that, since pickpart used to do it and
+                    # calls of that now come here; in theory it's never needed.
+                env.history.message("Deleted " + atm.molecule.name)
+                atom.molecule.kill()
+            else:
+                assert self.selwhat == SELWHAT_ATOMS
+                env.history.message("Deleted " + str(atm) )
+                atm.kill()
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified
@@ -396,7 +414,7 @@ class ops_select_Mixin:
             assert self.selwhat == SELWHAT_ATOMS
             self.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
             self.unpickatoms()
-        self.pick_or_delete_at_event(event, op='Pick')
+        self.pick_at_event(event)
     
     def unpick_at_event(self, event): #renamed from unpick; modified
         """Make whatever visible atom or chunk (depending on self.selwhat)
@@ -404,7 +422,10 @@ class ops_select_Mixin:
         but don't change whatever else is selected.
         """
         self.begin_select_cmd() #bruce 051031
-        atm = self.findAtomUnderMouse(event)
+        if self.o.mode.modename == 'DEPOSIT':
+            atm = self.findAtomUnderMouse(event, water_cutoff = True)
+        else:
+            atm = self.findAtomUnderMouse(event)
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
                 atm.molecule.unpick()
