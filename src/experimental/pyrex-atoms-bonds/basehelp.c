@@ -1,10 +1,16 @@
 #include "Python.h"
 
 #if 0
-#define OBJ(x)  fprintf(stderr, "%s:%d %p\n", __FUNCTION__, __LINE__, x)
+#define MARK()  fprintf(stderr, "%s:%d\n", __FUNCTION__, __LINE__)
+#define PTR(x)  fprintf(stderr, "%s:%d %s=%p\n", __FUNCTION__, __LINE__, #x, x)
+#define INT(x)  fprintf(stderr, "%s:%d %s=%d\n", __FUNCTION__, __LINE__, #x, x)
 #else
-#define OBJ(x)
+#define MARK()
+#define PTR(x)
+#define INT(x)
 #endif
+
+#define MAX_NUM_NEIGHBORS 12  // ask Damian for the real number
 
 static char *problem = NULL;
 
@@ -26,108 +32,51 @@ static PyObject *checkForErrors(void)
  * performance tests for that.
  */
 
-struct intsetLink {
-    struct intsetLink *next;
-    int x;
-};
-
 struct intset {
-    // hash of the integer
-    struct intsetLink *hashtable[256];
+    int **pointers[512];
 };
-
-
-static inline int hash(int x)
-{
-    return ((x >> 16) ^ (x >> 8) ^ x) & 0xFF;
-}
-
-static inline struct intsetLink *seek(struct intsetLink *link, int x)
-{
-    while (1) {
-	if (link == NULL) return NULL;
-	if (link->x == x) return link;
-	link = link->next;
-    }
-}
-
-static inline void _remove(struct intsetLink **top, int x)
-{
-    struct intsetLink *previous, *current;
-    if (*top == NULL)
-	return;
-    if ((*top)->x == x) {
-	struct intsetLink *discard;
-	discard = *top;
-	*top = discard->next;
-	free(discard);
-	return;
-    }
-    previous = *top;
-    current = previous->next;
-    while (current != NULL) {
-	if (current->x == x) {
-	    previous->next = current->next;
-	    free(current);
-	    return;
-	}
-	previous = current;
-	current = previous->next;
-    }
-}
 
 static struct intset *intset_init(void)
 {
-    int i;
     struct intset *is;
     is = malloc(sizeof(struct intset));
     if (is == NULL) {
 	problem = "Out of memory";
 	return NULL;
     }
-    OBJ(is);
-    for (i = 0; i < 256; i++)
-	is->hashtable[i] = NULL;
+    PTR(is);
+    bzero(is->pointers, 512 * sizeof(int**));
     return is;
-}
-
-static PyObject *intset_add(struct intset *is, int x)
-{
-    int i;
-    struct intsetLink *link;
-    if (is == NULL) goto fail;
-    OBJ(is);
-    i = hash(x);
-    link = is->hashtable[i];
-    if (!seek(link, x)) {
-	struct intsetLink *newlink = malloc(sizeof(struct intsetLink));
-	if (newlink == NULL) goto fail;
-	newlink->next = link;
-	newlink->x = x;
-	is->hashtable[i] = newlink;
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
- fail:
-    PyErr_SetString(PyExc_RuntimeError, "ouch");
-    return NULL;
 }
 
 static PyObject *intset_contains(struct intset *is, int x)
 {
-    int i;
-    struct intsetLink *link;
+    int x0, x1, x2, x3;
+    int **block2, *block;
     if (is == NULL) goto fail;
-    OBJ(is);
-    i = hash(x);
-    link = is->hashtable[i];
-    if (seek(link, x)) {
-	Py_INCREF(Py_True);
-	return Py_True;
-    } else {
-	Py_INCREF(Py_False);
-	return Py_False;
-    }
+    PTR(is);
+    x0 = (x >> 22) & 0x1FF;
+    x1 = (x >> 13) & 0x1FF;
+    x2 = (x >> 5) & 0xFF;
+    x3 = x & 0x1F;
+    INT(x0);
+    INT(x1);
+    INT(x2);
+    INT(x3);
+    block2 = is->pointers[x0];
+    PTR(block2);
+    if (block2 == NULL) goto false;
+    block = block2[x1];
+    PTR(block);
+    if (block == NULL) goto false;
+    PTR(block[x2]);
+    if ((block[x2] & (1 << x3)) == 0) goto false;
+    Py_INCREF(Py_True);
+    return Py_True;
+ false:
+    MARK();
+    Py_INCREF(Py_False);
+    return Py_False;
  fail:
     PyErr_SetString(PyExc_RuntimeError, "ouch");
     return NULL;
@@ -135,11 +84,59 @@ static PyObject *intset_contains(struct intset *is, int x)
 
 static PyObject *intset_remove(struct intset *is, int x)
 {
-    int i;
+    int x0, x1, x2, x3;
+    int **block2, *block;
     if (is == NULL) goto fail;
-    OBJ(is);
-    i = hash(x);
-    _remove(&is->hashtable[i], x);
+    PTR(is);
+    x0 = (x >> 22) & 0x1FF;
+    x1 = (x >> 13) & 0x1FF;
+    x2 = (x >> 5) & 0xFF;
+    x3 = x & 0x1F;
+    block2 = is->pointers[x0];
+    if (block2 == NULL) goto done;
+    block = block2[x1];
+    if (block == NULL) goto done;
+    block[x2] &= ~(1 << x3);
+ done:
+    Py_INCREF(Py_None);
+    return Py_None;
+ fail:
+    PyErr_SetString(PyExc_RuntimeError, "ouch");
+    return NULL;
+}
+
+static PyObject *intset_add(struct intset *is, int x)
+{
+    int x0, x1, x2, x3;
+    int **block2, *block;
+    if (is == NULL) goto fail;
+    PTR(is);
+    x0 = (x >> 22) & 0x1FF;
+    x1 = (x >> 13) & 0x1FF;
+    x2 = (x >> 5) & 0xFF;
+    x3 = x & 0x1F;
+    INT(x0);
+    INT(x1);
+    INT(x2);
+    INT(x3);
+    block2 = is->pointers[x0];
+    PTR(block2);
+    if (block2 == NULL) {
+	block2 = is->pointers[x0] = (int**) malloc(512 * sizeof(int*));
+	if (block2 == NULL) goto fail;
+	bzero(block2, 512 * sizeof(int*));
+    }
+    PTR(block2);
+    block = block2[x1];
+    PTR(block);
+    if (block == NULL) {
+	block = block2[x1] = (int*) malloc(256 * sizeof(int));
+	if (block == NULL) goto fail;
+	bzero(block, 256 * sizeof(int));
+    }
+    PTR(block);
+    block[x2] |= 1 << x3;
+    PTR(block[x2]);
     Py_INCREF(Py_None);
     return Py_None;
  fail:
@@ -149,8 +146,19 @@ static PyObject *intset_remove(struct intset *is, int x)
 
 static PyObject *intset_del(struct intset *is)
 {
+    int i, j;
     if (is == NULL) goto fail;
-    OBJ(is);
+    PTR(is);
+    for (i = 0; i < 512; i++) {
+	if (is->pointers[i] != NULL) {
+	    for (j = 0; j < 512; j++) {
+		if ((is->pointers[i])[j] != NULL) {
+		    free((is->pointers[i])[j]);
+		}
+	    }
+	    free(is->pointers[i]);
+	}
+    }
     Py_INCREF(Py_None);
     return Py_None;
  fail:
@@ -163,6 +171,8 @@ static PyObject *intset_del(struct intset *is)
  */
 struct atombase {
     int positionIndex;
+    int numNeighbors;
+    int bondIndices[MAX_NUM_NEIGHBORS];
 };
 
 struct atombase *atombase_init(void)
@@ -173,14 +183,14 @@ struct atombase *atombase_init(void)
 	problem = "Out of memory";
 	return NULL;
     }
-    OBJ(ab);
+    PTR(ab);
     return ab;
 }
 
 void atombase_del(struct atombase* ab)
 {
     // nothing to do yet
-    OBJ(ab);
+    PTR(ab);
 }
 
 
@@ -199,6 +209,7 @@ void atombase_del(struct atombase* ab)
  * it needs to.
  */
 struct position {
+    int atomtype;
     double x, y, z;
 };
 struct chunkbase {
@@ -209,7 +220,6 @@ struct chunkbase {
 
 struct chunkbase * chunkbase_init(void)
 {
-    int i;
     struct chunkbase *cb;
     cb = malloc(sizeof(struct chunkbase));
     if (cb == NULL) {
@@ -223,23 +233,23 @@ struct chunkbase * chunkbase_init(void)
 	return NULL;
     }
     cb->numatoms = 0;
-    OBJ(cb);
+    PTR(cb);
     return cb;
 }
 
 void chunkbase_del(struct chunkbase *cb)
 {
-    OBJ(cb);
+    PTR(cb);
     if (cb && cb->positions)
 	free(cb->positions);
 }
 
 PyObject *chunkbase_addatom(struct chunkbase *cb, struct atombase *ab,
+			    int atomtype,
 			    double x, double y, double z)
 {
-    int i;
     if (cb == NULL) goto fail;
-    OBJ(cb);
+    PTR(cb);
     /* The first edge case is going from 999 atoms to 1000 atoms. */
     if (cb->numatoms + 1 >= cb->arraysize) {
 	cb->arraysize *= 2;
@@ -247,6 +257,7 @@ PyObject *chunkbase_addatom(struct chunkbase *cb, struct atombase *ab,
 				cb->arraysize * sizeof(struct position));
 	if (cb->positions == NULL) goto fail;
     }
+    cb->positions[cb->numatoms].atomtype = atomtype;
     cb->positions[cb->numatoms].x = x;
     cb->positions[cb->numatoms].y = y;
     cb->positions[cb->numatoms].z = z;

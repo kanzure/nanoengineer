@@ -17,7 +17,7 @@ cdef extern from "basehelp.c":
     intset_remove(intset*, int)
     intset_del(intset*)
     chunkbase *chunkbase_init()
-    chunkbase_addatom(chunkbase*, atombase*, double, double, double)
+    chunkbase_addatom(chunkbase*, atombase*, int, double, double, double)
     void chunkbase_del(chunkbase*)
     atombase *atombase_init()
     void atombase_del(atombase*)
@@ -61,8 +61,8 @@ cdef class __ChunkBase:
         checkForErrors()
     def __del__(self):
         chunkbase_del(self.x)
-    def addatom(self, __AtomBase atm, x, y, z):
-        chunkbase_addatom(self.x, atm.x, x, y, z)
+    def addatom(self, __AtomBase atm, tp, x, y, z):
+        chunkbase_addatom(self.x, atm.x, tp, x, y, z)
 
 class ChunkBase(__ChunkBase):
     # Maintain a normal Python list of atoms so that the
@@ -70,8 +70,8 @@ class ChunkBase(__ChunkBase):
     def __init__(self):
         __ChunkBase.__init__(self)
         self.atomlist = [ ]
-    def addatom(self, ab, x, y, z):
-        __ChunkBase.addatom(self, ab, x, y, z)
+    def addatom(self, ab, tp, x, y, z):
+        __ChunkBase.addatom(self, ab, tp, x, y, z)
         self.atomlist.append(ab)
 
 class Tests(unittest.TestCase):
@@ -98,14 +98,15 @@ class Tests(unittest.TestCase):
         assert not x.contains(10000)
         assert not x.contains(10001)
 
-    def test_zzz(self):
-        cb = ChunkBase()
-        for i in range(12000):
-            x = random.random()
-            y = random.random()
-            z = random.random()
-            ab = AtomBase()
-            cb.addatom(ab, x, y, z)
+##     def test_zzz(self):
+##         cb = ChunkBase()
+##         for i in range(12000):
+##             tp = random.randrange(10)
+##             x = random.random()
+##             y = random.random()
+##             z = random.random()
+##             ab = AtomBase()
+##             cb.addatom(ab, tp, x, y, z)
 
 def test():
     suite = unittest.makeSuite(Tests, 'test')
