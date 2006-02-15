@@ -674,8 +674,8 @@ def usage():
     """
 
 def main():
-    shortargs = 'ho:i:s:t:'
-    longargs = ['help', 'outdir=', 'iconfile=', 'sourcedir=', 'tag=']
+    shortargs = 'ho:i:s:t:v:'
+    longargs = ['help', 'outdir=', 'iconfile=', 'sourcedir=', 'tag=', 'version=']
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortargs, longargs)
