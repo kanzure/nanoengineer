@@ -20,14 +20,14 @@ from shutil import *
 
 PYLIBPATH = os.path.split(getopt.__file__)[0]
 
-class NonZeroReturn(Exception):
+class NonZeroExitStatus(Exception):
     pass
 
 def system(cmd):
     print cmd
     ret = os.system(cmd)
     if ret != 0:
-        raise NonZeroReturn, cmd
+        raise NonZeroExitStatus, cmd
     return ret
 
 def oneLiner(cmd):
@@ -235,9 +235,9 @@ class NanoBuildWin32(NanoBuildBase):
         try:
             system('python setup.py py2exe --includes=sip,dbhash --excludes=OpenGL -d' +
                    os.path.join(self.buildSourcePath, 'program'))
-        except NonZeroReturn:
-            # this happens, is it a problem?
-            pass
+        except NonZeroExitStatus:
+            # this happens, apparently not a problem
+            print "Warning, exit status for 'python setup.py py2exe' was not zero"
 
     def createIssFile(self, issFile, appName, version, releaseNo, sourceDir, status):
         """Create the iss file (script) to build package on Windows.  The iss script
@@ -626,8 +626,12 @@ fi
         pkgName = os.path.join(self.diskImagePath, PMMT + '.pkg')
         descrip = os.path.join(self.currentPath, 'Description.plist')
         # Run PackageMaker to build the final installation package
-        system('PackageMaker -build -p ' + pkgName + ' -f ' + self.installRootPath +
-               ' -r ' + self.resourcePath + ' -i ' + plistFile + ' -d ' + descrip)
+        try:
+            system('PackageMaker -build -p ' + pkgName + ' -f ' + self.installRootPath +
+                   ' -r ' + self.resourcePath + ' -i ' + plistFile + ' -d ' + descrip)
+        except NonZeroExitStatus:
+            # this happens, apparently not a problem
+            print "Warning, exit status for PackageMaker was not zero"
         imageFile = os.path.join(self.rootPath, PMMT + '.dmg')
         system('hdiutil create -srcfolder ' + self.diskImagePath +
                ' -format UDZO  ' + imageFile)
@@ -692,6 +696,7 @@ def main():
     status = None
     cvsTag = None
     sourceDirectory = None
+    specialVersion = None
     
     for o, a in opts:
         if o in ("-o", "--outdir"):
@@ -702,6 +707,8 @@ def main():
             cvsTag = a
         elif o in ("-s", "--sourcedir"):
             sourceDirectory = a
+        elif o in ("-v", "--version"):
+            specialVersion = a
         elif o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -727,7 +734,11 @@ def main():
     from version import Version
     global VERSION, PMMT
     VERSION = Version()
-    PMMT = "%s-%d.%d.%d" % (VERSION.product, VERSION.major, VERSION.minor, VERSION.tiny)
+    PMMT = VERSION.product + "-"
+    if specialVersion != None:
+        PMMT += specialVersion
+    else:
+        PMMT += "%d.%d.%d" % (VERSION.major, VERSION.minor, VERSION.tiny)
     sys.path = sp
     
     #answer = "maybe"
