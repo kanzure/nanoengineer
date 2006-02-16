@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-I/usr/include/python2.4 -Wall -g
-#CFLAGS=-I/usr/include/python2.4 -O3
+#CFLAGS=-I/usr/include/python2.4 -Wall -g
+CFLAGS=-I/usr/include/python2.4 -Wall -O3
 LDFLAGS=-L/usr/lib/python2.4/config -lm -lpython2.4
 
 all: bases.so
@@ -18,6 +18,3 @@ bases.so: bases.o
 
 test: bases.so
 	python -c "import bases; bases.test()"
-
-#gdb: bases.so
-#	echo 'run -c "import bases; bases.test()"' | gdb python
