@@ -70,7 +70,7 @@ animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
-bondpointHotspotColor_prefs_key = 'A7/Bondpoint Hotspot Color'
+bondpointHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
 #CPK atom radius (percentage), mark 051003
 cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage'
@@ -153,8 +153,7 @@ _abandoned_prefs_keys = [
     'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish' [mark 051205]
     'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess' [mark 051205]
     'A7/Material Brightness', # never released, superceded by 'A7/Material Specular Brightness' [mark 051205]
-    "glpane lighting", # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
-    'A6/Atom Hotspot Color' # misnamed since a hotspot is associated with a bondpoint, not an atom [mark 060215]
+    "glpane lighting" # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
     ]
 
 #==

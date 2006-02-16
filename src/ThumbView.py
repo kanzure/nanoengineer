@@ -558,7 +558,7 @@ class ElementView(ThumbView):
     def drawSelected(self, obj):
         '''Override the parent version. Specific drawing code for the object. '''
         if isinstance(obj, atom) and (obj.element is Singlet):
-            obj.draw_in_abs_coords(self, env.prefs.get( bondpointHighlightColor_prefs_key))
+            obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
 
 
 class MMKitView(ThumbView):
@@ -614,7 +614,7 @@ class MMKitView(ThumbView):
     def drawSelected(self, obj):
         '''Override the parent version. Specific drawing code for the object. '''
         if isinstance(obj, atom) and (obj.element is Singlet):
-            obj.draw_in_abs_coords(self, env.prefs.get( bondpointHighlightColor_prefs_key))
+            obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
 
             
     def constructModel(self, elm, pos, dispMode):
@@ -738,4 +738,4 @@ class ChunkView(ThumbView):
     def drawSelected(self, obj):
         '''Override the parent version. Specific drawing code for the object. '''
         if isinstance(obj, atom) and (obj.element is Singlet):
-            obj.draw_in_abs_coords(self, env.prefs.get( bondpointHighlightColor_prefs_key))
+            obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])

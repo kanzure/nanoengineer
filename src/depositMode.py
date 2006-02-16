@@ -305,7 +305,7 @@ class depositMode(selectAtomsMode):
     def __init__(self, glpane):
         selectAtomsMode.__init__(self, glpane)
         self.pastables_list = [] #k not needed here?
-        self.water_enabled = env.prefs.get( buildModeWaterEnabled_prefs_key) # mark 060203.
+        self.water_enabled = env.prefs[buildModeWaterEnabled_prefs_key] # mark 060203.
             # if True, only atoms and bonds above the water surface can be 
             # highlighted and selected.
             # if False, all atoms and bonds can be highlighted and selected, and the water 
@@ -318,8 +318,6 @@ class depositMode(selectAtomsMode):
         selectAtomsMode.Enter(self)
         self.o.assy.unpickparts()
         self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
-        #self.new = None # bruce 041124 suspects this is never used
-        self.modified = 0 #& I suspect this isn't used anymore
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
         self.o.selatom = None
@@ -642,7 +640,6 @@ class depositMode(selectAtomsMode):
 
     def haveNontrivialState(self):
         return False
-        #return self.modified # bruce 040923 new code
 
     def StateDone(self):
         return None
@@ -654,8 +651,6 @@ class depositMode(selectAtomsMode):
         # to the assembly; we don't attempt that yet [bruce 040923,
         # verified with Josh]
         change_desc = "your changes are"
-            #e could use the count of changes in self.modified,
-            #to say "%d changes are", or "change is"...
         msg = "%s Cancel not implemented -- %s still there.\n\
         You can only leave this mode via Done." % \
               ( self.msg_modename, change_desc )
@@ -778,11 +773,11 @@ class depositMode(selectAtomsMode):
         
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
-                return env.prefs.get( bondpointHighlightColor_prefs_key)
+                return env.prefs[bondpointHighlightColor_prefs_key]
             else:
                 if self.only_highlight_singlets:
                     if selobj.singNeighbors():
-                        return env.prefs.get( atomHighlightColor_prefs_key)
+                        return env.prefs[atomHighlightColor_prefs_key]
                     else:
                         return None
                 if self.modkey == 'Delete':
@@ -790,7 +785,7 @@ class depositMode(selectAtomsMode):
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
                         # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
                 else:
-                    return env.prefs.get( atomHighlightColor_prefs_key) ## was HICOLOR_real_atom before bruce 050805
+                    return env.prefs[atomHighlightColor_prefs_key] ## was HICOLOR_real_atom before bruce 050805
         elif isinstance(selobj, Bond):
             #bruce 050822 experiment: debug_pref to control whether to highlight bonds
             # (when False they'll still obscure other things -- need to see if this works for Mark ####@@@@)
@@ -814,7 +809,7 @@ class depositMode(selectAtomsMode):
                 if self.modkey == 'Delete': 
                     return darkred # Highlight the bond in darkred if the control key is pressed.
                 else:
-                    return env.prefs.get( bondHighlightColor_prefs_key) ## was HICOLOR_real_bond before bruce 050805
+                    return env.prefs[bondHighlightColor_prefs_key] ## was HICOLOR_real_bond before bruce 050805
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             return None # (jigs aren't yet able to draw themselves with a highlight-color)
         else:
@@ -1327,7 +1322,6 @@ class depositMode(selectAtomsMode):
             self.select_2d_region(event)
             return
 
-        self.modified = 1 #& I suspect this isn't used anymore. mark 060214.
         self.o.assy.changed()
         
         if isinstance(obj, Atom):
@@ -1516,8 +1510,8 @@ class depositMode(selectAtomsMode):
         
         if isinstance(self.obj_doubleclicked, Atom):
             if self.obj_doubleclicked.is_singlet():
-                return # Remove this line to reinstate trans-deposition on double-click.  mark 060215.
-                self.transdeposit_from_MMKit()
+                # Double-clicking on a singlet should do nothing.
+                return
                 
             else: # real atom
                 if self.modkey == 'Control':
@@ -1537,14 +1531,14 @@ class depositMode(selectAtomsMode):
 
 # == end of LMB event handler methods
 
-    def transdeposit_from_MMKit(self):
+    def transdeposit_from_MMKit(self, singlet):
         '''Trans-deposit the current object in the MMKit on all singlets reachable through 
-        any sequence of bonds to the singlet <self.dragatom>.
+        any sequence of bonds to the singlet <singlet>.
         '''
-        if not self.dragatom.is_singlet(): 
+
+        if not singlet.is_singlet(): 
             return
         
-        singlet = self.dragatom
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
         
         self.o.assy.unpickatoms()
@@ -2701,8 +2695,9 @@ class depositMode(selectAtomsMode):
         
         # Add the trans-deposit menu item.
         if selatom is not None and selatom.is_singlet():
-            self.dragatom = selatom
-            self.Menu_spec.append(( 'Trans-deposit from MMKit', self.transdeposit_from_MMKit))
+            #self.dragatom = selatom
+            #self.Menu_spec.append(( 'Trans-deposit from MMKit', self.transdeposit_from_MMKit))
+            self.Menu_spec.append(( 'Trans-deposit from MMKit', lambda dragatom=selatom: self.transdeposit_from_MMKit(dragatom) ))
 
         # figure out Select This Chunk item text and whether to include it
         ##e (should we include it for internal bonds, too? not for now, maybe not ever. [bruce 050705])

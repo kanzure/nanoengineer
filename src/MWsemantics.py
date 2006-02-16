@@ -655,9 +655,14 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.uprefs.showDialog(pagename='Modes')
     
     # pop up Element Color Selector dialog
-    def dispElementColorSettings(self, parent=None, modal=False):
-        """Allows user to change default colors of elements and save them to a file.
-        """
+    def dispElementColorSettings(self):
+        "Slot for 'Display > Element Color Settings...' menu item."
+        self.showElementColorSettings()
+        
+    def showElementColorSettings(self, parent=None, modal=False):
+        '''Opens the Element Color Setting dialog, allowing the user to change default 
+        colors of elements and bondpoints, and save them to a file.
+        '''
         global elementColorsWin
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
@@ -1170,12 +1175,16 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             if self.isVisible(): 
                 # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
                 MMKitWin.show()
+                self.setActiveWindow() # Fixes bug 1503.  mark 060216.
+                    # Required to give the keyboard input focus back to self (MainWindow).
             MMKitWin.move(pos[0], pos[1])
         else:
             MMKitWin.move(pos[0], pos[1])
             if self.isVisible(): 
                 # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
                 MMKitWin.show()
+                self.setActiveWindow() # Fixes bug 1503.  mark 060216.
+                    # Required to give the keyboard input focus back to self (MainWindow).
         return MMKitWin
     
     def MMKitShowPage(self, pagename):

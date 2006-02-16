@@ -395,7 +395,7 @@ class ops_select_Mixin:
                     # bruce 041214 added that, since pickpart used to do it and
                     # calls of that now come here; in theory it's never needed.
                 env.history.message("Deleted " + atm.molecule.name)
-                atom.molecule.kill()
+                atm.molecule.kill()
             else:
                 assert self.selwhat == SELWHAT_ATOMS
                 env.history.message("Deleted " + str(atm) )
