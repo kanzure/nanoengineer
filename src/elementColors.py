@@ -19,7 +19,7 @@ import env
 class elementColors(ElementColorsDialog):
     _displayList = (diTUBES, diCPK, diVDW)
     
-    def __init__(self, win):
+    def __init__(self, win, modal=False):
         ElementColorsDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)
         self.w = win
         self.fileName = None

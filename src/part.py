@@ -63,7 +63,7 @@ from ops_rechunk   import ops_rechunk_Mixin
 from ops_select    import ops_select_Mixin
 
 # number of atoms for detail level 0
-HUGE_MODEL = 20000
+HUGE_MODEL = 40000
 # number of atoms for detail level 1
 LARGE_MODEL = 5000
 
@@ -424,10 +424,15 @@ class Part( jigmakers_Mixin, InvalMixin, UndoStateMixin,
     _inputs_for_drawLevel = ['natoms']
     def _recompute_drawLevel(self):
         "This is used to control the detail level of sphere subdivision when drawing atoms."
-        num = self.natoms
-        self.drawLevel = 2
-        if num > LARGE_MODEL: self.drawLevel = 1
-        if num > HUGE_MODEL: self.drawLevel = 0
+        lod = env.prefs.get( levelOfDetail_prefs_key )
+        if lod < 3: # High (2), medium (1) or low (0).
+            self.drawLevel = lod
+        else: # Variable based on the number of atoms in the part.
+            num = self.natoms
+            self.drawLevel = 2
+            if num > LARGE_MODEL: self.drawLevel = 1
+            if num > HUGE_MODEL: self.drawLevel = 0
+        #print "Level of Detail=%r, drawLevel=%r" % (lod, self.drawLevel)
     
     def computeBoundingBox(self):
         """Compute the bounding box for this Part. This should be

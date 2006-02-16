@@ -69,11 +69,14 @@ animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
-freeValenceColor_prefs_key = 'A6/Free Valence Color'
-atomHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
+bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
+bondpointHotspotColor_prefs_key = 'A7/Bondpoint Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
 #CPK atom radius (percentage), mark 051003
 cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage'
+levelOfDetail_prefs_key = 'A7/Level Of Detail'
+
+freeValenceColor_prefs_key = 'A6/Free Valence Color' # Never used. Should it be abandoned? mark 060215.
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -151,6 +154,7 @@ _abandoned_prefs_keys = [
     'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess' [mark 051205]
     'A7/Material Brightness', # never released, superceded by 'A7/Material Specular Brightness' [mark 051205]
     "glpane lighting", # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
+    'A6/Atom Hotspot Color' # misnamed since a hotspot is associated with a bondpoint, not an atom [mark 060215]
     ]
 
 #==
@@ -162,14 +166,10 @@ _abandoned_prefs_keys = [
 # computed default values; some of these names are also directly used by external code
 # which is not yet fully revised to get the values from the prefs db.
 
-
-#_default_HICOLOR_real_atom = ave_colors( 0.8, orange, black)
-#_default_HICOLOR_real_bond = ave_colors( 0.8, blue, black)
-HICOLOR_singlet = LEDon ## pink [not yet in prefs db]
-
 _default_HICOLOR_real_atom = yellow
 _default_HICOLOR_real_bond = yellow
-#HICOLOR_singlet = yellow 
+_default_HICOLOR_bondpoint = LEDon ## pink
+
 
 _default_toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red; 050805 even for lines mode
 _default_toolong_hicolor = ave_colors( 0.8, magenta, black) ## not yet in prefs db
@@ -203,17 +203,21 @@ prefs_table = (
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
 
     # Atom preferences - colors (other than element colors, handled separately)
+
+    ('atom_highlight_color', 'color', atomHighlightColor_prefs_key, _default_HICOLOR_real_atom ),
+    ('bondpoint_highlight_color', 'color', bondpointHighlightColor_prefs_key, _default_HICOLOR_bondpoint),
+    ('bondpoint_hotspot_color', 'color', bondpointHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
     
-    ('atom_highlight_color',         'color', atomHighlightColor_prefs_key, _default_HICOLOR_real_atom ),
 ##    ('freevalence_color',            'color', freeValenceColor_prefs_key, red ), ###k red; ### use it --
 ##        ## freevalence_color is problematic, so not yet implemented -- it's treated internally as an "element color"
     ## ('openbond_highlight_color',  'color', xxx_prefs_key, HICOLOR_singlet ), ## pink [not yet in prefs db]
-    ('atom_hotspot_color',           'color', atomHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
-
+    
     # Atom preferences - other
     
     ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diVDW),
+    ('level_of_detail', 'int', levelOfDetail_prefs_key, 3), # 3 = Variable . mark 060215.
+    
 
     # Bond preferences - colors
     

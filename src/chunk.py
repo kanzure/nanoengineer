@@ -31,7 +31,7 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
     # and chunks can know when they need to inval that because something drawn into it
     # would draw differently due to a change in some graphics pref it used
-from prefs_constants import atomHotspotColor_prefs_key
+from prefs_constants import bondpointHotspotColor_prefs_key
 import env
 import drawer #bruce 051126
 
@@ -1157,7 +1157,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             try:
 ##                from debug_prefs import debug_pref, ColorType #bruce 050614 experimental code, will be revised/renamed
 ##                color = debug_pref("hotspot color", ColorType(green))
-                color = env.prefs[atomHotspotColor_prefs_key] #bruce 050808
+                color = env.prefs[bondpointHotspotColor_prefs_key] #bruce 050808
                 
                 level = self.assy.drawLevel #e or always use best level??
                 ## code copied from selatom.draw_as_selatom(glpane, disp, color, level)

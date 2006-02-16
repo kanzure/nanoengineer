@@ -228,6 +228,16 @@ class UserPrefs(UserPrefsDialog):
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
+            
+        # Bug 799 fix.  Mark 050731
+        self.default_display_btngrp.setButton( env.prefs[defaultDisplayMode_prefs_key] ) #bruce 050810 revised this
+            # bruce comments:
+            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
+            # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
+            #   match our internal display mode codes, and are set by buttongroup.insert in the pyuic output file,
+            #   but for some reason the buttons are inserted in a different order than they're shown.
+            # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
+            #   while the dialog is shown.
         
         # Build Mode Defaults.  mark 060203.
         self.autobond_checkbox.setChecked(env.prefs[ buildModeAutobondEnabled_prefs_key ])
@@ -333,19 +343,12 @@ class UserPrefs(UserPrefsDialog):
 
         #bruce 050805 new way (see comment in _setup_bonds_page):
         connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
+        connect_colorpref_to_colorframe( bondpointHighlightColor_prefs_key, self.bondpoint_hilite_color_frame)
+        connect_colorpref_to_colorframe( bondpointHotspotColor_prefs_key, self.hotspot_color_frame)
         ## not implemented:
         ##   connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
-        connect_colorpref_to_colorframe( atomHotspotColor_prefs_key, self.hotspot_color_frame)
-
-        # Bug 799 fix.  Mark 050731
-        self.default_display_btngrp.setButton( env.prefs[defaultDisplayMode_prefs_key] ) #bruce 050810 revised this
-            # bruce comments:
-            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
-            # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
-            #   match our internal display mode codes, and are set by buttongroup.insert in the pyuic output file,
-            #   but for some reason the buttons are inserted in a different order than they're shown.
-            # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
-            #   while the dialog is shown.
+            
+        self.level_of_detail_combox.setCurrentItem(env.prefs[ levelOfDetail_prefs_key ])
         
         # Set CPK Atom radius (percentage).  Mark 051003.
         self.cpk_atom_rad_spinbox.setValue(int (env.prefs[cpkAtomRadius_prefs_key] * 100.0))
@@ -534,6 +537,12 @@ class UserPrefs(UserPrefsDialog):
     ########## End of slot methods for "General" page widgets ###########
     
     ########## Slot methods for "Atoms" page widgets ################
+    
+    def change_element_colors(self):
+        '''Display the Element Color Settings Dialog.
+        '''
+        # Since the prefs dialog is modal, the element color settings dialog must be modal.
+        self.w.dispElementColorSettings(self, modal=True)
 
     def usual_change_color(self, prefs_key, caption = "choose"): #bruce 050805
         from prefs_widgets import colorpref_edit_dialog
@@ -541,40 +550,51 @@ class UserPrefs(UserPrefsDialog):
     
     def change_atom_hilite_color(self):
         '''Change the atom highlight color.'''
-        self.usual_change_color( atomHighlightColor_prefs_key)        
-            
+        self.usual_change_color( atomHighlightColor_prefs_key)
+    
+    def change_bondpoint_hilite_color(self):
+        '''Change the bondpoint highlight color.'''
+        self.usual_change_color( bondpointHighlightColor_prefs_key)    
+
+    def change_hotspot_color(self): #bruce 050808 implement new slot which Mark recently added to .ui file
+        '''Change the free valence hotspot color.'''
+        #e fyi, we might rename hotspot to something like "bonding point" someday...
+        self.usual_change_color( bondpointHotspotColor_prefs_key)
+
     def change_free_valence_color(self):
         '''Change the free valence color.'''
         ## self.usual_change_color( freeValenceColor_prefs_key) #[problematic]
         print '''Change the free valence color -- not yet implemented.''' ###@@@
         # fyi, i recommended implementing this preference in Element Colors Dialog, rather than here. [bruce 050808]
-
-    def change_hotspot_color(self): #bruce 050808 implement new slot which Mark recently added to .ui file
-        '''Change the free valence hotspot color.'''
-        #e fyi, we might rename hotspot to something like "bonding point" someday...
-        self.usual_change_color( atomHotspotColor_prefs_key)
     
     def reset_atom_colors(self):
         #bruce 050805 let's try it like this:
         env.prefs.restore_defaults([ #e this list should be defined in a more central place.
             atomHighlightColor_prefs_key,
+            bondpointHighlightColor_prefs_key,
+            bondpointHotspotColor_prefs_key
             ## freeValenceColor_prefs_key, #[problematic]
-            atomHotspotColor_prefs_key,
         ])
+    
+    def change_level_of_detail(self, level_of_detail):
+        '''Change the level of detail, where <level_of_detail> is a value between 0 and 3 where:
+            0 = low
+            1 = medium
+            2 = high
+            3 = variable (based on number of atoms in the part)
+        '''
+        if level_of_detail == env.prefs[levelOfDetail_prefs_key]:
+            print "Draw level unchanged:", level_of_detail
+            return
+        env.prefs[levelOfDetail_prefs_key] = level_of_detail
+        #& Bruce says we need to invalidate the display list in order for the new drawLevel to take effect.
+        #& The drawLevel is actually changed in Part._recompute_drawLevel().  mark 060215.
+        self.glpane.gl_update()
         
     def change_cpk_atom_radius(self, val):
         '''Change the CPK atom radius by % value <val>.
         '''
         env.prefs[cpkAtomRadius_prefs_key] = val * .01
-        self.glpane.gl_update()
-            
-    def set_default_display_mode(self, val): #bruce 050810 revised this to set the pref immediately
-        '''Set default display mode of GLpane.
-        '''
-        # set the pref
-        env.prefs[defaultDisplayMode_prefs_key] = val
-        # change the current display mode too
-        self.glpane.setDisplay(val, True)
         self.glpane.gl_update()
         
     ########## End of slot methods for "Atoms" page widgets ###########
@@ -747,6 +767,15 @@ class UserPrefs(UserPrefsDialog):
         # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
         if self.bg_mode == self.glpane.mode:
             self.glpane.gl_update()
+            
+    def set_default_display_mode(self, val): #bruce 050810 revised this to set the pref immediately
+        '''Set default display mode of GLpane.
+        '''
+        # set the pref
+        env.prefs[defaultDisplayMode_prefs_key] = val
+        # change the current display mode too
+        self.glpane.setDisplay(val, True)
+        self.glpane.gl_update()
 
     def set_buildmode_autobond(self): # mark 060203
         '''Autobond default setting for Build mode. This only affects whether it is enabled/disabled 

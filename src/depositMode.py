@@ -27,14 +27,7 @@ from HistoryWidget import orangemsg
 from bonds import bond_atoms
 from bond_constants import V_SINGLE
 
-from prefs_constants import HICOLOR_singlet
-    ##e should replace this with a prefs get or so [bruce 050805]
-
 import env
-
-HICOLOR_singlet_bond = white ## ave_colors( 0.5, HICOLOR_singlet, HICOLOR_real_bond)
-    # note: HICOLOR_singlet_bond is no longer used (unless there are bugs),
-    # since singlet-bond is part of singlet for selobj purposes [bruce 050708]
 
 _count = 0
 
@@ -322,24 +315,11 @@ class depositMode(selectAtomsMode):
     
     dont_update_gui = True
     def Enter(self):
-        #Huaicai 2/28: Move the following statement to surface(), which will
-        # be called by Draw() and then by paintGL(), so it will make sure 
-        # self.makeCurrent() is called before any OpenGL call.
-        #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         selectAtomsMode.Enter(self)
-        #self.o.assy.unpickatoms() 
-            # Leave atoms picked. It is very useful to be able to make rect/lasso
-            # selections in Select Atoms mode and then move them around
-            # in Build mode. I'd like to implement a keypress in Build mode
-            # that would switch the user to Select Atoms mode to do a
-            # quick rect/lasso selection and switch back when the key is released. 
-            # This is very desirable for A7. mark 060201.
         self.o.assy.unpickparts()
         self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
-#        self.saveDisp = self.o.display # Get display mode from selectAtomsMode. mark 060207.
-#        self.o.setDisplay(diTUBES)
-        self.new = None # bruce 041124 suspects this is never used
-        self.modified = 0 # bruce 040923 new code
+        #self.new = None # bruce 041124 suspects this is never used
+        self.modified = 0 #& I suspect this isn't used anymore
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
         self.o.selatom = None
@@ -350,8 +330,6 @@ class depositMode(selectAtomsMode):
 ##            # so let's force it to happen -- i hope this is ok! Maybe not.
 ##            # seems to have no effect... probably init_gui happens after it;
 ##            # at least it does in _enterMode. ####@@@@
-        #self.modkey = None #& moved to superclass.  mark 060209.
-            # The current mod key that is pressed.  It is either None, 'Shift', or 'Control'
         self.ignore_next_leftUp_event = False
             # Set to True in leftDouble() and checked by the left*Up() event handlers
             # to determine whether they should ignore the (second) left*Up event
@@ -800,7 +778,7 @@ class depositMode(selectAtomsMode):
         
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
-                return HICOLOR_singlet ###@@@ this one is not yet in prefs db
+                return env.prefs.get( bondpointHighlightColor_prefs_key)
             else:
                 if self.only_highlight_singlets:
                     if selobj.singNeighbors():
@@ -827,7 +805,9 @@ class depositMode(selectAtomsMode):
             ###@@@ use checkbox to control this; when false, return None
             if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
-                return HICOLOR_singlet_bond
+                #return HICOLOR_singlet_bond
+                print "Error: HICOLOR_singlet_bond no longer used"  # This can be removed soon. mark 060215.
+                return None # precaution.  
             else:
                 if self.only_highlight_singlets:
                     return None
@@ -1347,7 +1327,7 @@ class depositMode(selectAtomsMode):
             self.select_2d_region(event)
             return
 
-        self.modified = 1 #& isn't this premature?  might trigger unnecessary updates. mark 060214.
+        self.modified = 1 #& I suspect this isn't used anymore. mark 060214.
         self.o.assy.changed()
         
         if isinstance(obj, Atom):

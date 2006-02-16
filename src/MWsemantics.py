@@ -655,7 +655,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.uprefs.showDialog(pagename='Modes')
     
     # pop up Element Color Selector dialog
-    def dispElementColorSettings(self):
+    def dispElementColorSettings(self, parent=None, modal=False):
         """Allows user to change default colors of elements and save them to a file.
         """
         global elementColorsWin
@@ -664,8 +664,11 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # Make sure only a single element window is shown
         if elementColorsWin and elementColorsWin.isShown(): 
                     return 
+                    
+        if not parent: # added to allow the caller (i.e. Preferences dialog) to make it modal.
+            parent = self
         
-        elementColorsWin = elementColors(self)
+        elementColorsWin = elementColors(parent, modal)
         elementColorsWin.setDisplay(self.Element)
         # Sync the thumbview bg color with the current mode's bg color.  Mark 051216.
         elementColorsWin.elemGLPane.change_bg_color(

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\ElementColorsDialog.ui'
 #
-# Created: Sat Jan 28 17:20:12 2006
+# Created: Wed Feb 15 18:03:10 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -207,33 +207,12 @@ class ElementColorsDialog(QDialog):
         elementButtonGroupLayout = QGridLayout(self.elementButtonGroup.layout())
         elementButtonGroupLayout.setAlignment(Qt.AlignTop)
 
-        self.toolButton1 = QToolButton(self.elementButtonGroup,"toolButton1")
-        self.toolButton1.setMinimumSize(QSize(30,30))
-        self.toolButton1.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton1,1)
-
-        elementButtonGroupLayout.addWidget(self.toolButton1,0,4)
-
-        self.toolButton2 = QToolButton(self.elementButtonGroup,"toolButton2")
-        self.toolButton2.setMinimumSize(QSize(30,30))
-        self.toolButton2.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton2,2)
-
-        elementButtonGroupLayout.addWidget(self.toolButton2,0,5)
-
         self.toolButton6 = QToolButton(self.elementButtonGroup,"toolButton6")
         self.toolButton6.setMinimumSize(QSize(30,30))
         self.toolButton6.setToggleButton(1)
         self.elementButtonGroup.insert( self.toolButton6,6)
 
         elementButtonGroupLayout.addWidget(self.toolButton6,1,1)
-
-        self.toolButton7 = QToolButton(self.elementButtonGroup,"toolButton7")
-        self.toolButton7.setMinimumSize(QSize(30,30))
-        self.toolButton7.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton7,7)
-
-        elementButtonGroupLayout.addWidget(self.toolButton7,1,2)
 
         self.toolButton8 = QToolButton(self.elementButtonGroup,"toolButton8")
         self.toolButton8.setMinimumSize(QSize(30,30))
@@ -340,6 +319,34 @@ class ElementColorsDialog(QDialog):
 
         elementButtonGroupLayout.addWidget(self.toolButton32,3,1)
 
+        self.toolButton7 = QToolButton(self.elementButtonGroup,"toolButton7")
+        self.toolButton7.setMinimumSize(QSize(30,30))
+        self.toolButton7.setToggleButton(1)
+        self.elementButtonGroup.insert( self.toolButton7,7)
+
+        elementButtonGroupLayout.addWidget(self.toolButton7,1,2)
+
+        self.toolButton2 = QToolButton(self.elementButtonGroup,"toolButton2")
+        self.toolButton2.setMinimumSize(QSize(30,30))
+        self.toolButton2.setToggleButton(1)
+        self.elementButtonGroup.insert( self.toolButton2,2)
+
+        elementButtonGroupLayout.addWidget(self.toolButton2,0,5)
+
+        self.toolButton1 = QToolButton(self.elementButtonGroup,"toolButton1")
+        self.toolButton1.setMinimumSize(QSize(30,30))
+        self.toolButton1.setToggleButton(1)
+        self.elementButtonGroup.insert( self.toolButton1,1)
+
+        elementButtonGroupLayout.addWidget(self.toolButton1,0,4)
+
+        self.toolButton0 = QToolButton(self.elementButtonGroup,"toolButton0")
+        self.toolButton0.setMinimumSize(QSize(30,30))
+        self.toolButton0.setToggleButton(1)
+        self.elementButtonGroup.insert( self.toolButton0,0)
+
+        elementButtonGroupLayout.addWidget(self.toolButton0,0,3)
+
         ElementColorsDialogLayout.addWidget(self.elementButtonGroup,3,0)
 
         layout12_2 = QGridLayout(None,1,1,0,6,"layout12_2")
@@ -395,7 +402,7 @@ class ElementColorsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(230,544).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(230,548).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
@@ -421,14 +428,8 @@ class ElementColorsDialog(QDialog):
         self.textLabel2_2.setText(self.__tr("Green:"))
         self.textLabel2_3.setText(self.__tr("Blue:"))
         self.elementButtonGroup.setTitle(QString.null)
-        self.toolButton1.setText(self.__tr("H"))
-        QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
-        self.toolButton2.setText(self.__tr("He"))
-        QToolTip.add(self.toolButton2,self.__tr("Helium"))
         self.toolButton6.setText(self.__tr("C"))
         QToolTip.add(self.toolButton6,self.__tr("Carbon"))
-        self.toolButton7.setText(self.__tr("N"))
-        QToolTip.add(self.toolButton7,self.__tr("Nitrogen"))
         self.toolButton8.setText(self.__tr("O"))
         QToolTip.add(self.toolButton8,self.__tr("Oxygen"))
         self.toolButton10.setText(self.__tr("Ne"))
@@ -459,6 +460,14 @@ class ElementColorsDialog(QDialog):
         QToolTip.add(self.toolButton36,self.__tr("Krypton"))
         self.toolButton32.setText(self.__tr("Ge"))
         QToolTip.add(self.toolButton32,self.__tr("Germanium"))
+        self.toolButton7.setText(self.__tr("N"))
+        QToolTip.add(self.toolButton7,self.__tr("Nitrogen"))
+        self.toolButton2.setText(self.__tr("He"))
+        QToolTip.add(self.toolButton2,self.__tr("Helium"))
+        self.toolButton1.setText(self.__tr("H"))
+        QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
+        self.toolButton0.setText(self.__tr("X"))
+        QToolTip.add(self.toolButton0,self.__tr("Bondpoint"))
         self.saveColorsPB.setText(self.__tr("Save Colors ..."))
         QToolTip.add(self.saveColorsPB,self.__tr("Save the current element color settings to a file"))
         QWhatsThis.add(self.saveColorsPB,self.__tr("Save the current color settings for elements in a text file."))
