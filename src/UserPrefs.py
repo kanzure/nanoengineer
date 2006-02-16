@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 UserPrefs.py
 
@@ -347,8 +347,20 @@ class UserPrefs(UserPrefsDialog):
         connect_colorpref_to_colorframe( bondpointHotspotColor_prefs_key, self.hotspot_color_frame)
         ## not implemented:
         ##   connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
-            
-        self.level_of_detail_combox.setCurrentItem(env.prefs[ levelOfDetail_prefs_key ])
+
+        lod = env.prefs[ levelOfDetail_prefs_key ]
+        loditem = lod
+        if lod == -1: # 'variable'
+            # [bruce 060215 changed prefs value for 'variable' from 3 to -1, in case we have more LOD levels in the future]
+            loditem = 3
+        elif lod == 3:
+            # 3 is an illegal value now -- fix it
+            # (this case can be removed after a few days; in A7 3 or higher should be a legal value equivalent to 2) ###@@@
+            env.prefs[ levelOfDetail_prefs_key ] = -1
+            loditem = 3
+        elif lod > 3: # change this to compare to '2' for A7 (in a few days)
+            loditem = 2
+        self.level_of_detail_combox.setCurrentItem(loditem)
         
         # Set CPK Atom radius (percentage).  Mark 051003.
         self.cpk_atom_rad_spinbox.setValue(int (env.prefs[cpkAtomRadius_prefs_key] * 100.0))
@@ -576,20 +588,22 @@ class UserPrefs(UserPrefsDialog):
             ## freeValenceColor_prefs_key, #[problematic]
         ])
     
-    def change_level_of_detail(self, level_of_detail):
-        '''Change the level of detail, where <level_of_detail> is a value between 0 and 3 where:
+    def change_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
+        '''Change the level of detail, where <level_of_detail_item> is a value between 0 and 3 where:
             0 = low
             1 = medium
             2 = high
             3 = variable (based on number of atoms in the part)
+                [note: the prefs db value for 'variable' is -1, to allow for higher LOD levels in the future] 
         '''
-        if level_of_detail == env.prefs[levelOfDetail_prefs_key]:
-            print "Draw level unchanged:", level_of_detail
-            return
-        env.prefs[levelOfDetail_prefs_key] = level_of_detail
-        #& Bruce says we need to invalidate the display list in order for the new drawLevel to take effect.
-        #& The drawLevel is actually changed in Part._recompute_drawLevel().  mark 060215.
+        lod = level_of_detail_item
+        if level_of_detail_item == 3:
+            lod = -1
+        env.prefs[levelOfDetail_prefs_key] = lod
         self.glpane.gl_update()
+        # the redraw this causes will (as of tonight) always recompute the correct drawLevel (in Part._recompute_drawLevel),
+        # and chunks will invalidate their display lists as needed to accomodate the change. [bruce 060215]
+        return
         
     def change_cpk_atom_radius(self, val):
         '''Change the CPK atom radius by % value <val>.

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 
 """
 part.py
@@ -424,15 +424,25 @@ class Part( jigmakers_Mixin, InvalMixin, UndoStateMixin,
     _inputs_for_drawLevel = ['natoms']
     def _recompute_drawLevel(self):
         "This is used to control the detail level of sphere subdivision when drawing atoms."
-        lod = env.prefs.get( levelOfDetail_prefs_key )
-        if lod < 3: # High (2), medium (1) or low (0).
-            self.drawLevel = lod
-        else: # Variable based on the number of atoms in the part.
-            num = self.natoms
+        num = self.natoms # this must be accessed whether or not its value is needed, due to limitations in InvalMixin
+        lod = env.prefs[ levelOfDetail_prefs_key ] # added by mark, revised by bruce, 060215
+        lod = int(lod)
+        if lod == 3:
+            # illegal value for now; this case should be removed in a few days (before A7 release) [bruce 060215] ####@@@@
+            env.prefs[ levelOfDetail_prefs_key ] = lod = -1
+        if lod > 2:
+            # presume we're running old code (e.g. A7) using a prefs db written by newer code (e.g. A8)
+            lod = 2 # max LOD current code can handle
+        if lod < 0:
+            # -1 means "Variable based on the number of atoms in the part."
+            # [bruce 060215 changed that from 3, so we can expand number of levels of LOD in the future.]
             self.drawLevel = 2
             if num > LARGE_MODEL: self.drawLevel = 1
             if num > HUGE_MODEL: self.drawLevel = 0
-        #print "Level of Detail=%r, drawLevel=%r" % (lod, self.drawLevel)
+        else:
+            # High (2), medium (1) or low (0).
+            self.drawLevel = lod
+        return
     
     def computeBoundingBox(self):
         """Compute the bounding box for this Part. This should be
@@ -606,7 +616,12 @@ class Part( jigmakers_Mixin, InvalMixin, UndoStateMixin,
     
     # ==
     
-    def draw(self, glpane): #bruce 050617 renamed win arg to glpane, and made this method use it for the first time
+    def draw(self, glpane):
+        self.invalidate_attr('natoms') #bruce 060215, so that natoms and drawLevel are recomputed every time
+            # (needed to fix bugs caused by lack of inval of natoms when atoms die or are born;
+            #  also means no need for prefs change to inval drawLevel, provided it gl_updates)
+            # (could optim by only invalling drawLevel itself if the prefs value is not 'variable', I think,
+            #  but recomputing natoms should be fast compared to drawing, anyway)
         ###e bruce 050617: might revise this to draw "computed topnode for drawing" if that exists and is enabled and updated...
         #e and it might be that the glpane we're passed is modified or a proxy, and can tell us what to do about this.
         self.topnode.draw(glpane, glpane.display)

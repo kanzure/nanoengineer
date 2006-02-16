@@ -943,6 +943,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #  due to a special system used by self.changeapp() in place of self.track_change(),
         #  but it should be harmless.)
         self.track_use()
+
+        drawLevel = self.assy.drawLevel # this might recompute it
+            # (if that happens and grabs the pref value, I think this won't subscribe our display list to it,
+            #  since we're outside the begin/end for that, and that's good, since we include this in havelist
+            #  instead, which avoids some unneeded redrawing, e.g. if pref changed and changed back while
+            #  displaying a different Part. [bruce 060215])
         
         # put it in its place
         glPushMatrix()
@@ -986,7 +992,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
             eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
             matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
-            if self.havelist == (disp, eltprefs, matprefs): # value must agree with set of havelist, below
+            #bruce 060215 adding drawLevel to havelist
+            if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
                 glCallList(self.displist)
             else:
                 self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way #bruce 051209: now it's needed
@@ -1018,7 +1025,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     # This is the only place where havelist is set to anything true;
                     # the value it's set to must match the value it's compared with, above.
                     # [bruce 050415 revised what it's set to/compared with; details above]
-                    self.havelist = (disp, eltprefs, matprefs)
+                    self.havelist = (disp, eltprefs, matprefs, drawLevel)
                     assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
                     # always set the self.havelist flag, even if exception happened,
                     # so it doesn't keep happening with every redraw of this molecule.
@@ -1029,24 +1036,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
 
-#bruce 050610 zapping this, for testing (maybe permanently now that selobj highlighting is useable for this -- once it works ok)####@@@@
-##            # redraw selatom, if it's ours (over the same atom, drawn in the usual way)
-##            # (this keeps it from affecting the display list, so depositMode.bareMotion
-##            #  can change selatom without havelist=0, for a large speedup [bruce 041206])
-##            selatom = glpane.selatom
-##            if selatom is not None and selatom.molecule is self:
-##                try:
-##                    color = self._colorfunc(selatom)
-##                except: # no such attr [should not happen after 050524], or it's None [usual case], or it has a bug
-##                    color = self.color
-##                level = self.assy.drawLevel #e or always use best level??
-##                selatom.draw_as_selatom(glpane, disp, color, level)
-##                    # (fyi, this doesn't use color arg as of 041206)
-            pass
-
             if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
-                if 1: #bruce 050316 always do this; was "if platform.atom_debug:"
-                    self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
+                self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
 
         except:
             print_compact_traceback("exception in molecule.draw, continuing: ")
@@ -1059,7 +1050,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # and to invalidate it as needed -- since it's rare for atoms to override display modes.
         # Or we might even keep a list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-        drawLevel = self.assy.drawLevel
         bondcolor = self.color
         ColorSorter.start() # grantham 20051205
         for bon in self.externs:
@@ -1536,7 +1526,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     glpane.wants_gl_update_was_True() # sets it False and does gl_update
             pass
         return
-        
+
+    def natoms(self): #bruce 060215
+        "Return number of atoms (real atoms or bondpoints) in self."
+        return len(self.atoms)
+
     def getinfo(self):
         # Return information about the selected moledule for the msgbar [mark 2004-10-14]
         
@@ -1550,7 +1544,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             else: ele2Num[a.element.symbol] += 1 # Increment element
             
         # String construction for each element to be displayed.
-        natoms = len(self.atoms) # number of atoms in the chunk
+        natoms = self.natoms() # number of atoms in the chunk
         nsinglets = 0
         einfo = ""
      
@@ -1566,7 +1560,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             eleStr = "[Open bonds: " + str(nsinglets) + "]"
             einfo += eleStr
          
-        natoms -= nsinglets   # The real number of atoms in this chunk
+        natoms -= nsinglets   # The number of real atoms in this chunk
 
         minfo =  "Chunk Name: [" + str (self.name) + "]     Total Atoms: " + str(natoms) + " " + einfo
         
@@ -1580,7 +1574,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         and singlets to part stats.
         """
         stats.nchunks += 1
-        stats.natoms += len(self.atoms)
+        stats.natoms += self.natoms()
         for a in self.atoms.itervalues():
             if a.element.symbol == "X": stats.nsinglets +=1
     

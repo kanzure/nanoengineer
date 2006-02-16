@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 prefs_constants.py
 
@@ -216,7 +216,7 @@ prefs_table = (
     
     ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diVDW),
-    ('level_of_detail', 'int', levelOfDetail_prefs_key, 3), # 3 = Variable . mark 060215.
+    ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     
 
     # Bond preferences - colors
