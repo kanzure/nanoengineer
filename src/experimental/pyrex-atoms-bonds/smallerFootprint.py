@@ -6,10 +6,11 @@ import Numeric
 
 VERBOSE = 0
 stuff = [ ]
+N = 10**4
+#N = 1000
 
-# Verifying Bruce's suspicion that the 9/9/9/5 scheme was a memory
-# hog...
-
+## Verifying Bruce's suspicion that the 9/9/9/5 scheme was a memory
+## hog...
 #def waste(setsize):
 #    idealmem = int(setsize / 8.0)
 #    numleaves = (setsize + 16383) / 16384
@@ -20,10 +21,29 @@ stuff = [ ]
 #    totalmem = rootmem + middlemem + leafmem
 #    efficiency = (1.0 * idealmem) / totalmem
 #    return (totalmem, idealmem, efficiency)
-
 #for i in range(30):
 #    setsize = int(8 * 1.6**i)
 #    print setsize, waste(setsize)
+
+"""The present scheme uses a doubly linked list of node. Each node
+holds a block of 128 words, or 4096 bits, and represents the set
+membership states of 4096 consecutive integers. Each node has a 20-bit
+prefix for the upper 20 bits of the integers in its block.
+
+We search the blocks for some operations (add, remove, contains), and
+we assume that we'll be doing those operations in consecutive ranges
+most of the time. Therefore this scheme tries to be efficient when each
+search is close to the previous search. We do this by bubbling nodes to
+the top of the linked list when their blocks get searched, so that they
+will be found faster on the next linked list traversal.
+
+This will not be an efficient scheme for random searches, for two
+reasons. One is that we'll have to search the linked list in a
+non-optimal order. The other is that we'll waste time bubbling nodes
+toward the top when it doesn't help. To avoid the latter, we save the
+prefix for the previous search, and only bubble up if it matches the
+present prefix.
+"""
 
 class NodeStruct:
     def __init__(self, prefix):
@@ -34,32 +54,46 @@ class NodeStruct:
         self.size = (3 + 128) * 4
 
 class Set:
+
     def __init__(self):
         self.root = None
         self.population = 0
-        self.memUsage = 0
-        self.bubbleCounter = 10
+        self.prevPrefix = 0
 
     def __len__(self):
         return self.population
 
-    def idealMemUsage(self):
-        # assume 1 bit per element, ideally
-        return (self.population + 7) / 8
-
-    def efficiency(self):
-        return (1.0 * self.idealMemUsage()) / self.memUsage
-
-    def __del__(self):
-        if VERBOSE:
-            stuff.append(("Memory efficiency", self.efficiency()))
-
     def findNodeWithPrefix(self, p):
-        r = self.root
+        C = self.root
         while True:
-            if r == None: return None
-            if r.prefix == p: return r
-            r = r.next
+            if C == None:
+                return None
+            if C.prefix == p:
+                if self.prevPrefix == p:
+                    self.bubbleUp(C)
+                else:
+                    self.prevPrefix = p
+                return C
+            C = C.next
+
+    def bubbleUp(self, C):
+        # bubble this node up toward the top of the list, but only
+        # if we match the previous prefix
+        B = C.previous
+        # If C has no previous, then it's already at the top.
+        if B != None:
+            A = B.previous
+            D = C.next
+            if A != None:
+                A.next = C
+            else:
+                self.root = C
+            if D != None:
+                D.previous = B
+            B.next = D
+            B.previous = C
+            C.next = B
+            C.previous = A
 
     def add(self, x):
         x0, x1, x2 = (x >> 12) & 0xfffff, (x >> 5) & 0x7f, x & 0x1f
@@ -77,11 +111,6 @@ class Set:
         if (z & (1 << x2)) == 0:
             C.data[x1] = z | (1 << x2)
             self.population += 1
-
-    def addRange(self, m, n):
-        while m != n:
-            self.add(m)
-            m += 1
 
     def asArray(self):
         z = Numeric.zeros(self.population, 'u')
@@ -119,30 +148,38 @@ class Set:
         C = self.findNodeWithPrefix(x0)
         if C == None:
             return False
-        if C is not self.root:
-            self.bubbleUp(C)
-##             if self.bubbleCounter == 0:
-##                 self.bubbleUp(C)
-##                 self.bubbleCounter = 10
-##             else:
-##                 self.bubbleCounter -= 1
         # Set the bit in C's data
         z = C.data[x1]
         return (z & (1 << x2)) != 0
 
-    def bubbleUp(self, C):
-        B = C.previous
-        D = C.next
-        if B != None:
-            A = B.previous
-            if A != None:
-                A.next = C
-            B.next = D
-            B.previous = C
-        if D != None:
-            D.previous = B
-        C.next = B
-        C.previous = A
+################################################
+
+class SetWithTestMethods(Set):
+
+    ADD_ELEMENT_TIME = 11.0e-6
+    CONTAINS_ELEMENT_TIME = 11.0e-6
+    ASARRAY_ELEMENT_TIME = 2.2e-6
+
+    def __init__(self):
+        Set.__init__(self)
+        self.memUsage = 0
+
+    def __len__(self):
+        return self.population
+
+    def efficiency(self):
+        # assume 1 bit per element, ideally
+        idealMemUsage = (self.population + 7) / 8.0
+        return idealMemUsage / self.memUsage
+
+    def __del__(self):
+        if VERBOSE:
+            stuff.append(("Memory efficiency", self.efficiency()))
+
+    def addRange(self, m, n):
+        while m != n:
+            self.add(m)
+            m += 1
 
     def performanceTest(self, f, n=100):
         t1 = time.time()
@@ -152,40 +189,38 @@ class Set:
         return (t2 - t1) / n
 
     def add_performance(self):
-        n = 10**5
         def f():
-            self.addRange(0, n)
+            self.addRange(0, N)
         t = self.performanceTest(f, 1)
-        return t / n
+        return t / N
 
     def contains_performance(self):
-        n = 10**5
+        self.addRange(0, N)
         def f():
-            for i in range(n):
+            for i in range(N):
                 self.contains(i)
         t = self.performanceTest(f, 1)
-        return t / n
+        return t / N
 
     def asarray_performance(self):
-        n = 10**5
-        self.addRange(0, n)
+        self.addRange(0, N)
         t = self.performanceTest(self.asArray, 1)
-        return t / n
+        return t / N
 
 class Tests(unittest.TestCase):
 
-    def intsetsize(self):
-        len(self.x)
+    # FUNCTIONAL TESTS
 
-    def intsetcontains(self):
-        self.x.contains_performance(self.n)
-
-    def test_Set(self):
-        x = Set()
-        N = 2170   # must be even
-        for i in range(N):
+    def test_Functionality(self):
+        #
+        # Test general set functionality, make sure it does
+        # the right things.
+        #
+        x = SetWithTestMethods()
+        for i in range(2 * N):
             if (i & 1) == 0:
                 x.add(i)
+        assert len(x) == N
         assert not x.contains(-2)
         assert not x.contains(-1)
         assert x.contains(0)
@@ -193,52 +228,31 @@ class Tests(unittest.TestCase):
         assert x.contains(2)
         assert not x.contains(3)
         assert x.contains(4)
-        assert x.contains(N-4)
-        assert not x.contains(N-3)
-        assert x.contains(N-2)
-        assert not x.contains(N-1)
-        assert not x.contains(N)
-        assert not x.contains(N+1)
-        assert len(x) == N / 2
+        if (N % 2) == 0:
+            assert x.contains(N-4)
+            assert not x.contains(N-3)
+            assert x.contains(N-2)
+            assert not x.contains(N-1)
+            assert x.contains(N)
+            assert not x.contains(N+1)
+            assert x.contains(N+2)
+        else:
+            assert not x.contains(N-4)
+            assert x.contains(N-3)
+            assert not x.contains(N-2)
+            assert x.contains(N-1)
+            assert not x.contains(N)
+            assert x.contains(N+1)
+            assert not x.contains(N+2)
+        assert x.contains(2*N-4)
+        assert not x.contains(2*N-3)
+        assert x.contains(2*N-2)
+        assert not x.contains(2*N-1)
+        assert not x.contains(2*N)
+        assert not x.contains(2*N+1)
 
-    def test_SetContainsPerformance(self):
-        x = Set()
-        N = 10**4
-        x.addRange(0, N)
-        T = x.contains_performance()
-        expectedTime = 7.0e-6
-        if VERBOSE:
-            stuff.append(("test_SetContainsPerformance", T, expectedTime))
-        assert T <= expectedTime
-
-    def test_SetMemoryUsage(self):
-        x = Set()
-        x.add(1)
-        x.add(3)
-        x.add(1800)
-        if VERBOSE:
-            stuff.append(("memusage", x.memUsage))
-        assert x.memUsage < 530
-
-    def test_SetAddPerformance(self):
-        x = Set()
-        T = x.add_performance()
-        expectedTime = 10.0e-6
-        if VERBOSE:
-            stuff.append(("test_SetAddPerformance", T, expectedTime))
-        assert T <= expectedTime
-
-    def test_SetAsArrayPerformance(self):
-        x = Set()
-        T = x.asarray_performance()
-        expectedTime = 2.0e-6
-        if VERBOSE:
-            stuff.append(("test_SetAsArrayPerformance", T, expectedTime))
-        assert T <= expectedTime
-
-    def test_SetAsArray(self):
-        x = Set()
-        N = 10**4
+    def test_AsArray(self):
+        x = SetWithTestMethods()
         a = Numeric.array(range(N), Numeric.UInt32)
         x.addRange(0, N)
         assert len(x) == len(a)
@@ -246,6 +260,44 @@ class Tests(unittest.TestCase):
         xa = x.asArray()
         a = a - xa
         assert Numeric.vdot(a, a) == 0
+
+    # MEMORY TEST
+
+    def test_MemoryUsage(self):
+        #
+        # A very small set should occupy a small memory footprint.
+        # It works out to 524 bytes for very small sets.
+        #
+        x = SetWithTestMethods()
+        x.add(1)
+        x.add(3)
+        x.add(1800)
+        if VERBOSE:
+            stuff.append(("memusage", x.memUsage))
+        assert x.memUsage < 530
+
+    # PERFORMANCE TESTS
+
+    def test_AddPerformance(self):
+        x = SetWithTestMethods()
+        T = x.add_performance()
+        if VERBOSE:
+            stuff.append(("test_AddPerformance", T))
+        assert T <= x.ADD_ELEMENT_TIME
+
+    def test_ContainsPerformance(self):
+        x = SetWithTestMethods()
+        T = x.contains_performance()
+        if VERBOSE:
+            stuff.append(("test_ContainsPerformance", T))
+        assert T <= x.CONTAINS_ELEMENT_TIME
+
+    def test_AsArrayPerformance(self):
+        x = SetWithTestMethods()
+        T = x.asarray_performance()
+        if VERBOSE:
+            stuff.append(("test_AsArrayPerformance", T))
+        assert T <= x.ASARRAY_ELEMENT_TIME
 
 def test():
     suite = unittest.makeSuite(Tests, 'test')
