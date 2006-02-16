@@ -4,9 +4,9 @@ import time
 import unittest
 import Numeric
 
-VERBOSE = 0
-stuff = [ ]
-N = 10**4
+stuff = None
+#stuff = [ ]
+N = 10**5
 #N = 1000
 
 ## Verifying Bruce's suspicion that the 9/9/9/5 scheme was a memory
@@ -46,15 +46,32 @@ present prefix.
 """
 
 class NodeStruct:
+    """
+    /* (3 + 128) * 4 = 524 bytes */
+    struct node {
+        struct node *next, *previous;
+        int prefix;
+        unsigned int data[128];
+    };
+    """
     def __init__(self, prefix):
+        self.prefix = prefix
+        # next and previous initialized to NULL
         self.next = None
         self.previous = None
-        self.prefix = prefix
+        # all membership bits initially zero
         self.data = 128 * [ 0 ]
-        self.size = (3 + 128) * 4
 
 class Set:
 
+    """
+    /* 3 * 4 = 12 bytes */
+    struct set {
+        struct node *root;
+        unsigned int population;
+        int prevPrefix;
+    };
+    """
     def __init__(self):
         self.root = None
         self.population = 0
@@ -101,7 +118,6 @@ class Set:
         if C == None:
             # create a new node
             C = NodeStruct(x0)
-            self.memUsage += C.size
             if self.root != None:
                 self.root.previous = C
             C.next = self.root
@@ -162,7 +178,6 @@ class SetWithTestMethods(Set):
 
     def __init__(self):
         Set.__init__(self)
-        self.memUsage = 0
 
     def __len__(self):
         return self.population
@@ -170,11 +185,19 @@ class SetWithTestMethods(Set):
     def efficiency(self):
         # assume 1 bit per element, ideally
         idealMemUsage = (self.population + 7) / 8.0
-        return idealMemUsage / self.memUsage
+        return idealMemUsage / self.memUsage()
 
     def __del__(self):
-        if VERBOSE:
+        if stuff != None:
             stuff.append(("Memory efficiency", self.efficiency()))
+
+    def memUsage(self):
+        total = 3 * 4   # root, population, prevPrefix, all ints
+        r = self.root
+        while r != None:
+            total += (3 + 128) * 4
+            r = r.next
+        return total
 
     def addRange(self, m, n):
         while m != n:
@@ -266,36 +289,36 @@ class Tests(unittest.TestCase):
     def test_MemoryUsage(self):
         #
         # A very small set should occupy a small memory footprint.
-        # It works out to 524 bytes for very small sets.
+        # It works out to 536 bytes for very small sets.
         #
         x = SetWithTestMethods()
         x.add(1)
         x.add(3)
         x.add(1800)
-        if VERBOSE:
-            stuff.append(("memusage", x.memUsage))
-        assert x.memUsage < 530
+        if stuff != None:
+            stuff.append(("memusage", x.memUsage()))
+        assert x.memUsage() < 540
 
     # PERFORMANCE TESTS
 
     def test_AddPerformance(self):
         x = SetWithTestMethods()
         T = x.add_performance()
-        if VERBOSE:
+        if stuff != None:
             stuff.append(("test_AddPerformance", T))
         assert T <= x.ADD_ELEMENT_TIME
 
     def test_ContainsPerformance(self):
         x = SetWithTestMethods()
         T = x.contains_performance()
-        if VERBOSE:
+        if stuff != None:
             stuff.append(("test_ContainsPerformance", T))
         assert T <= x.CONTAINS_ELEMENT_TIME
 
     def test_AsArrayPerformance(self):
         x = SetWithTestMethods()
         T = x.asarray_performance()
-        if VERBOSE:
+        if stuff != None:
             stuff.append(("test_AsArrayPerformance", T))
         assert T <= x.ASARRAY_ELEMENT_TIME
 
@@ -306,6 +329,6 @@ def test():
 
 if __name__ == "__main__":
     test()
-    if VERBOSE:
+    if stuff != None:
         for x in stuff:
             print x
