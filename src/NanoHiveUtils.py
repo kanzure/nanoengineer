@@ -140,7 +140,7 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
             nh_socket = connect_to_nh() 
             duration = time.time() - start
             if duration > 4.0: # Give up after 4 seconds
-                exit_nh() # Only restore's the cursor
+                exit_nh(nh_socket, kill_nh) # Only restore's the cursor
                 return 5 # Couldn't connect to Nano-Hive socket.
         
     # 2. Write the MMP file that Nano-Hive will use for the sim run.
