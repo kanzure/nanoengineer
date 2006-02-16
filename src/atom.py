@@ -126,7 +126,7 @@ if __name__ == '__main__':
         while time.time() - splash_start < MINIMUM_SPLASH_TIME:
             time.sleep(0.1)
         splash.finish( foo ) # Take away the splashscreen
-        
+    
     foo.show() # show the main window
     
     if foo.glpane.mode.modename == 'DEPOSIT':
@@ -138,6 +138,8 @@ if __name__ == '__main__':
         # Should this be moved to startup_funcs.post_main_show()? I chose to leave
         # it here since the splashscreen code it refers to is in this file.  mark 060202.
         foo.glpane.mode.MMKit.show()
+        foo.setActiveWindow() # fixes bug 1503. mark 060216.
+            # Required to give the keyboard input focus back to foo (MainWindow). mark 060216.
         
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
@@ -148,7 +150,7 @@ if __name__ == '__main__':
         meth()
 
     startup_funcs.post_main_show(foo) # bruce 050902 added this
-
+    
     # now run the main Qt event loop --
     # perhaps with profiling, if user requested this via .atom-debug-rc.
     try:
