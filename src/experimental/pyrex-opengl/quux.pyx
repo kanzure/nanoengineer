@@ -16,10 +16,15 @@ cdef extern from "Numeric/arrayobject.h":
         cdef PyArray_Descr *descr
         cdef int flags
 
+# Changes here have to be reflected in bradg.h and vice versa
+IS_VBO_ENABLED = 1
+
 cdef extern from "quux_help.c":
     _getTestResult()
     _glColor3f(float,float,float)
     _shapeRendererInit()
+    _shapeRendererStartDrawing()
+    _shapeRendererFinishDrawing()
     _shapeRendererSetFrustum(float frustum[6])
     _shapeRendererSetOrtho(float ortho[6])
     _shapeRendererSetViewport(int viewport[4])
@@ -27,12 +32,16 @@ cdef extern from "quux_help.c":
     _shapeRendererUpdateLODEval()
     _shapeRendererSetLODScale(float s)
     _shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess)
-    _shapeRendererSetUseLOD(int useLODBool)
+    _shapeRendererSetUseDynamicLOD(int useLODBool)
+    _shapeRendererSetStaticLODLevels(int sphere, int cylinder)
     _shapeRendererDrawSpheres(int count, ArrayType center,
-                              ArrayType radius, ArrayType color)
+                              ArrayType radius, ArrayType color,
+                              ArrayType names)
     _shapeRendererDrawCylinders(int count, ArrayType pos1,
                                 ArrayType pos2, ArrayType radius,
-                                ArrayType capped, ArrayType color)
+                                ArrayType capped, ArrayType color,
+                                ArrayType names)
+    int _shapeRendererGetInteger(int what)
     _checkArray(ArrayType a)
 
 ####################################
@@ -42,6 +51,12 @@ def glColor3f(r, g, b):
 
 def shapeRendererInit():
     return _shapeRendererInit()
+
+def shapeRendererStartDrawing():
+    return _shapeRendererStartDrawing()
+
+def shapeRendererFinishDrawing():
+    return _shapeRendererFinishDrawing()
 
 def shapeRendererSetFrustum(ArrayType frustum):
     if chr(frustum.descr.type) != "f":
@@ -93,17 +108,23 @@ def shapeRendererUpdateLODEval():
 def shapeRendererSetLODScale(s):
     return _shapeRendererSetLODScale(s)
 
-def shapeRendererSetUseLOD(usebool):
-    return _shapeRendererSetUseLOD(usebool)
+def shapeRendererSetUseDynamicLOD(usebool):
+    return _shapeRendererSetUseDynamicLOD(usebool)
+
+def shapeRendererSetStaticLODLevels(sphere, cylinder):
+    return _shapeRendererSetStaticLODLevels(sphere, cylinder)
 
 def shapeRendererSetMaterialParameters(whiteness, brightness, shininess):
     return _shapeRendererSetMaterialParameters(whiteness, brightness, shininess)
 
-def shapeRendererDrawSpheres(count, center, radius, color):
-    return _shapeRendererDrawSpheres(count, center, radius, color)
+def shapeRendererDrawSpheres(count, center, radius, color, names = None):
+    return _shapeRendererDrawSpheres(count, center, radius, color, names)
 
-def shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color):
-    return _shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color);
+def shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color, names = None):
+    return _shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color, names)
+
+def shapeRendererGetInteger(what):
+    return _shapeRendererGetInteger(what)
 
 ####################################
 

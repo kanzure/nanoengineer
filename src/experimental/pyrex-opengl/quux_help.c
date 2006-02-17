@@ -54,6 +54,18 @@ static PyObject *_shapeRendererInit()
     return shapeRendererInit();
 }
 
+static PyObject *_shapeRendererStartDrawing()
+{
+    shapeRendererStartDrawing();
+    return _getTestResult();
+}
+
+static PyObject *_shapeRendererFinishDrawing()
+{
+    shapeRendererFinishDrawing();
+    return _getTestResult();
+}
+
 static PyObject *_shapeRendererSetFrustum(float frustum[6])
 {
     shapeRendererSetFrustum(frustum);
@@ -96,63 +108,85 @@ static PyObject *_shapeRendererSetMaterialParameters(float whiteness, float brig
     return _getTestResult();
 }
 
-static PyObject *_shapeRendererSetUseLOD(int useBool)
+static PyObject *_shapeRendererSetUseDynamicLOD(int useBool)
 {
-    shapeRendererSetUseLOD(useBool);
+    shapeRendererSetUseDynamicLOD(useBool);
     return _getTestResult();
+}
+
+static PyObject *_shapeRendererSetStaticLODLevels(int sphere, int cylinder)
+{
+    shapeRendererSetStaticLODLevels(sphere, cylinder);
+    return _getTestResult();
+}
+
+static int _shapeRendererGetInteger(int what)
+{
+    return shapeRendererGetInteger(what);
 }
 
 static PyObject *_shapeRendererDrawSpheres(int count,
 					   PyArrayObject *center,
 					   PyArrayObject *radius,
-					   PyArrayObject *color)
+					   PyArrayObject *color,
+                                           PyArrayObject *names)
 {
-    float center_data[count][3];
-    float radius_data[count];
-    float color_data[count][4];
+    unsigned int *namesp;
 
     if (center->nd != 2) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: center");
 	return NULL;
     }
-    if (center->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong number of atoms: center");
+    if (center->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: center");
 	return NULL;
     }
     if (center->dimensions[1] != 3) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of columns: center");
 	return NULL;
     }
-    memmove(center_data, center->data, 3 * count * sizeof(float));
 
     if (radius->nd != 1) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: radius");
 	return NULL;
     }
-    if (radius->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong dimension: radius");
+    if (radius->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: radius");
 	return NULL;
     }
-    memmove(radius_data, radius->data, count * sizeof(float));
 
     if (color->nd != 2) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions");
 	return NULL;
     }
-    if (color->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong number of atoms: color");
+    if (color->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: color");
 	return NULL;
     }
     if (color->dimensions[1] != 4) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of columns: color");
 	return NULL;
     }
-    memmove(color_data, color->data, 4 * count * sizeof(float));
+
+    if (names == Py_None) {
+        namesp = NULL;
+    } else {
+        if (names->nd != 1) {
+            PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: names");
+            return NULL;
+        }
+        if (names->dimensions[0] < count) {
+            PyErr_SetString(PyExc_ValueError, "too few for count: names");
+            return NULL;
+        }
+        namesp = (unsigned int *)names->data;
+    }
 
     return shapeRendererDrawSpheres(count,
-				    center_data,
-				    radius_data,
-				    color_data);
+				    (float(*)[3])center->data,
+				    (float*)radius->data,
+				    (float(*)[4])color->data,
+                                    namesp);
 }
 
 static PyObject *_shapeRendererDrawCylinders(int count,
@@ -160,77 +194,87 @@ static PyObject *_shapeRendererDrawCylinders(int count,
 					     PyArrayObject *pos2,
 					     PyArrayObject *radius,
 					     PyArrayObject *capped,
-					     PyArrayObject *color)
+					     PyArrayObject *color,
+                                             PyArrayObject *names)
 {
-    float pos1_data[count][3];
-    float pos2_data[count][3];
-    float radius_data[count];
-    int capped_data[count];
-    float color_data[count][4];
+    unsigned int *namesp;
 
     if (pos1->nd != 2) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: pos1");
 	return NULL;
     }
-    if (pos1->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong number of atoms: pos1");
+    if (pos1->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: pos1");
 	return NULL;
     }
     if (pos1->dimensions[1] != 3) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of columns: pos1");
 	return NULL;
     }
-    memmove(pos1_data, pos1->data, 3 * count * sizeof(float));
 
     if (pos2->nd != 2) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: pos2");
 	return NULL;
     }
-    if (pos2->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong number of atoms: pos2");
+    if (pos2->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: pos2");
 	return NULL;
     }
     if (pos2->dimensions[1] != 3) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of columns: pos2");
 	return NULL;
     }
-    memmove(pos2_data, pos2->data, 3 * count * sizeof(float));
 
     if (radius->nd != 1) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: radius");
 	return NULL;
     }
-    if (radius->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong dimension: radius");
+    if (radius->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: radius");
 	return NULL;
     }
-    memmove(radius_data, radius->data, count * sizeof(float));
 
     if (capped->nd != 1) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: capped");
 	return NULL;
     }
-    if (capped->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong dimension: capped");
+    if (capped->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: capped");
 	return NULL;
     }
-    memmove(capped_data, capped->data, count * sizeof(int));
 
     if (color->nd != 2) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions");
 	return NULL;
     }
-    if (color->dimensions[0] != count) {
-	PyErr_SetString(PyExc_ValueError, "wrong number of atoms: color");
+    if (color->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: color");
 	return NULL;
     }
     if (color->dimensions[1] != 4) {
 	PyErr_SetString(PyExc_ValueError, "wrong number of columns: color");
 	return NULL;
     }
-    memmove(color_data, color->data, 4 * count * sizeof(float));
+
+    if (names == Py_None) {
+        namesp = NULL;
+    } else {
+        if (names->nd != 1) {
+            PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: names");
+            return NULL;
+        }
+        if (names->dimensions[0] < count) {
+            PyErr_SetString(PyExc_ValueError, "too few for count: names");
+            return NULL;
+        }
+        namesp = (unsigned int *)names->data;
+    }
 
     return shapeRendererDrawCylinders(count,
-				      pos1_data, pos2_data,
-				      radius_data, capped_data, color_data);
+				      (float (*)[3])pos1->data,
+                                      (float (*)[3])pos2->data,
+				      (float *)radius->data,
+                                      (int *)capped->data,
+                                      (float (*)[4])color->data,
+                                      namesp);
 }

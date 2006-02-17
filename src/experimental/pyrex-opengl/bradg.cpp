@@ -35,7 +35,6 @@
 
 #endif /*-------------------------------------------------------------------*/
 
-#include "Python.h"
 
 #include "bradg.h"
 #include "vector.h"
@@ -140,20 +139,21 @@ void DataObject::fill(GLenum which, GLsizeiptrARB size, void *data)
 
 struct VertexData {
     DataBufferBase *m_data;
-    static VertexData *g_current;     // XXX should be keyed from m_gl
     VertexArrayInfo m_vertexArray;
     VertexArrayInfo m_normalArray; /* "size" assumed to be 3 */
     void unapply();
     void apply();
 };
 
-VertexData *VertexData::g_current = NULL;
+#define probe_gl_integerv(thing) \
+    ({ \
+    int buf; \
+    glGetIntegerv(thing, &buf); \
+    printf(#thing " = %d\n", buf); fflush(stdout); \
+    })
 
 void VertexData::apply()
 {
-    if(this == g_current)
-        return;
-
     m_data->bind(GL_ARRAY_BUFFER_ARB);
 
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -163,8 +163,6 @@ void VertexData::apply()
     glEnableClientState(GL_NORMAL_ARRAY);
     glNormalPointer(m_normalArray.m_type, m_normalArray.m_stride,
         (void *)(m_data->ptr() + m_normalArray.m_offset));
-
-    g_current = this;
 }
 
 void VertexData::unapply()
@@ -172,7 +170,6 @@ void VertexData::unapply()
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     m_data->unbind(GL_ARRAY_BUFFER_ARB);
-    g_current = NULL; // XXX should be keyed from gl
 }
 
 //--------------------------------------------------------------------------
@@ -186,32 +183,28 @@ void VertexData::unapply()
 struct ElementData {
     DataBufferBase *m_data;
     GLenum m_type;
-    static ElementData *g_current; // XXX should be keyed from m_gl
     virtual void apply();
     virtual void unapply();
     void issue(GLenum type, GLuint count, GLsizeiptrARB offset);
 };
 
-ElementData *ElementData::g_current = NULL;
-
 inline void ElementData::issue(GLenum primtype, GLuint count, GLsizeiptrARB offset)
 {
+    // probe_gl_integerv(GL_ARRAY_BUFFER_BINDING_ARB);
+    // probe_gl_integerv(GL_VERTEX_ARRAY_BUFFER_BINDING_ARB);
+    // probe_gl_integerv(GL_NORMAL_ARRAY_BUFFER_BINDING_ARB);
+    // probe_gl_integerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB);
     glDrawElements(primtype, count, m_type, (void *)(m_data->ptr() + offset));
 }
 
 void ElementData::unapply()
 {
     m_data->unbind(GL_ELEMENT_ARRAY_BUFFER_ARB);
-    g_current = NULL; // XXX should be keyed from context
 }
 
 void ElementData::apply()
 {
-    if(this == g_current)
-        return;
-
     m_data->bind(GL_ELEMENT_ARRAY_BUFFER_ARB);
-    g_current = this;
 }
 
 //--------------------------------------------------------------------------
@@ -220,7 +213,8 @@ void ElementData::apply()
 // A series of indexed OpenGL primitives represented by a vertex array and 
 // element array
 //
-// Application must call "prep" before calling "draw" - the intention is
+// Application must call "prep" or at least perform the same operations as
+// prep before calling "draw" - the intention is
 // to sort by "IndexedShape" pointer, then prep once (potentially does
 // expensive VBO bind) , draw many times, and then unprep once after
 // that.
@@ -1488,9 +1482,10 @@ void LODEvaluator::setViewport(int viewport[4])
 
 class ShapeRenderer
 {
+    VertexData *vertexData;
+    ElementData *elementData;
+
     IndexedShape *cylinderShapes;
-    VertexData *cylinderVertexData;
-    ElementData *cylinderElementData;
 
     LODTable cylinderOpenLODs;
     LODTable cylinderClosedLODs;
@@ -1498,8 +1493,6 @@ class ShapeRenderer
     IndexedShape *m_forcedOpenCylinder;
 
     IndexedShape *sphereShapes;
-    VertexData *sphereVertexData;
-    ElementData *sphereElementData;
     IndexedShape *m_forcedSphere;
 
     LODTable sphereLODs;
@@ -1514,7 +1507,11 @@ class ShapeRenderer
     void applyMaterial(float color[4]);
     GLContext *m_gl;
 
+    int m_VBOenabled;
+
 public:
+
+    int getInteger(int what);
 
     ShapeRenderer() :
         m_lodScale(1.0f),
@@ -1528,18 +1525,37 @@ public:
 
     bool init(GLContext *gl);
 
+    void startDrawing();
+    void finishDrawing();
+
     bool drawSpheres(int count, float center[][3], float radius[],
-        float color[][4]);
+        float color[][4], unsigned int *names);
     bool drawCylinders(int count, float pos1[][3], float pos2[][3],
-        float radius[], int capped[], float color[][4]);
+        float radius[], int capped[], float color[][4], unsigned int *names);
 
     void setLODScale(float s) { m_lodScale = s; }
-    void setUseLOD(bool use) { m_useLOD = use; }
+    void setUseDynamicLOD(bool use) { m_useLOD = use; }
+    void setStaticLODLevels(int sphereLOD, int cylinderLOD);
     float getLODScale(void) { return m_lodScale; }
 
     void setMaterialParameters(float whiteness,
         float brightness, float shininess);
 };
+
+int ShapeRenderer::getInteger(int what)
+{
+    int v = -1;
+
+    switch(what) {
+        case IS_VBO_ENABLED:
+            v = m_VBOenabled;
+            break;
+        default:
+            v = -1;
+    }
+    return v;
+}
+
 
 void ShapeRenderer::setMaterialParameters(float whiteness, float brightness, float shininess)
 {
@@ -1569,53 +1585,102 @@ bool ShapeRenderer::init(GLContext *gl)
     DataObject *obj;
     int i;
 
+    void *verticesMerged;
+    void *elementsMerged;
+    ptrdiff_t sphereVerticesOffset;
+    ptrdiff_t sphereElementsOffset;
+    size_t verticesMergedTotalSize;
+    ptrdiff_t cylinderVerticesOffset;
+    ptrdiff_t cylinderElementsOffset;
+    size_t elementsMergedTotalSize;
+
     m_gl = gl;
 
-    // Sphere ---------------------------------------------------------------
+    vertexData = new VertexData;
+    elementData = new ElementData;
+    elementData->m_type = GL_UNSIGNED_INT;
 
-    sphereVertexData = new VertexData;
-    sphereElementData = new ElementData;
-    sphereElementData->m_type = GL_UNSIGNED_INT;
+    verticesMerged = (void *)malloc(
+        sizeof(sphereVertices) + sizeof(cylinderVertices));
+    if(verticesMerged == NULL)
+        return false;
+    sphereVerticesOffset = 0;
+    cylinderVerticesOffset = sizeof(sphereVertices);
+    memcpy((unsigned char *)verticesMerged + sphereVerticesOffset,
+        sphereVertices, sizeof(sphereVertices));
+    memcpy((unsigned char *)verticesMerged + cylinderVerticesOffset,
+        cylinderVertices, sizeof(cylinderVertices));
+    verticesMergedTotalSize =
+        sizeof(sphereVertices) + sizeof(cylinderVertices);
+
+    elementsMerged = (void *)malloc(
+        sizeof(sphereElements) + sizeof(cylinderElements));
+    if(elementsMerged == NULL)
+        return false;
+    sphereElementsOffset = 0;
+    cylinderElementsOffset = sizeof(sphereElements);
+    memcpy((unsigned char *)elementsMerged + sphereElementsOffset,
+        sphereElements, sizeof(sphereElements));
+    memcpy((unsigned char *)elementsMerged + cylinderElementsOffset,
+        cylinderElements, sizeof(cylinderElements));
+    elementsMergedTotalSize =
+        sizeof(sphereElements) + sizeof(cylinderElements);
+
+    /* fix up cylinder elements since they expect to point to beginning of vertices */
+    int *newCylElem = (int *)elementsMerged +
+        sizeof(sphereElements) / sizeof(sphereElements[0]);
+    int difference = sizeof(sphereVertices) / sizeof(sphereVertices[0]);
+    for(i = 0; i < sizeof(cylinderElements) / sizeof(cylinderElements[0]); i++)
+        newCylElem[i] += difference;
 
     // XXX test
     // gl->has_GL_ARB_vertex_buffer_object = false;
 
+    // XXX fix for display list creation crash while integrated into
+    // ColorSorter.  Take this out when display listing is removed.
+    if(strncmp((char *)glGetString(GL_VENDOR), "ATI", 3) == 0) {
+        fprintf(stderr, "WARNING - ATI OpenGL, Disabling Vertex Buffer Object\n");
+        gl->has_GL_ARB_vertex_buffer_object = false;
+    }
+
     if(gl->has_GL_ARB_vertex_buffer_object) {
 
-        printf("XXX grantham - Using Vertex Buffer Object!  Yay!\n"); // XXX
+        m_VBOenabled = 1;
         
         obj = new DataObject(gl);
-        obj->fill(GL_ARRAY_BUFFER_ARB, sizeof(sphereVertices), sphereVertices);
-        sphereVertexData->m_data = obj; 
+        obj->fill(GL_ARRAY_BUFFER_ARB, verticesMergedTotalSize, verticesMerged);
+        vertexData->m_data = obj; 
 
         obj = new DataObject(gl);
-        obj->fill(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(sphereElements), sphereElements);
-        sphereElementData->m_data = obj; 
+        obj->fill(GL_ELEMENT_ARRAY_BUFFER_ARB, elementsMergedTotalSize, elementsMerged);
+        elementData->m_data = obj; 
 
     } else {
 
-        printf("XXX grantham - Using Vertex Arrays!  Boo!\n"); // XXX
+        m_VBOenabled = 0;
         
-        sphereVertexData->m_data = new DataArray(sphereVertices);
-        sphereElementData->m_data = new DataArray(sphereElements);
+        vertexData->m_data = new DataArray(verticesMerged);
+        elementData->m_data = new DataArray(elementsMerged);
     }
 
-    sphereVertexData->m_vertexArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, v));
-    sphereVertexData->m_normalArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, n));
+    vertexData->m_vertexArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, v));
+    vertexData->m_normalArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, n));
 
+    // Sphere ---------------------------------------------------------------
 
     int spherePrims = sizeof(sphereTrianglesOffsetCount) /
         sizeof(sphereTrianglesOffsetCount[0]);
 
     sphereShapes = new IndexedShape[spherePrims];
     for(i = 0; i < spherePrims; i++) {
-        sphereShapes[i].m_vertexData = sphereVertexData;
-        sphereShapes[i].m_elementData = sphereElementData;
+        sphereShapes[i].m_vertexData = vertexData;
+        sphereShapes[i].m_elementData = elementData;
 
-        if(!sphereShapes[i].add(GL_TRIANGLES,
+        bool success = sphereShapes[i].add(GL_TRIANGLES,
             sizeof(sphereElements[0]) * sphereTrianglesOffsetCount[i][0],
-            sphereTrianglesOffsetCount[i][1]))
+            sphereTrianglesOffsetCount[i][1]);
 
+        if(!success)
             return false;
     }
 
@@ -1632,48 +1697,22 @@ bool ShapeRenderer::init(GLContext *gl)
         sphereLOD = atoi(getenv("SPHERE_LOD"));
     m_forcedSphere = sphereShapes + sphereLOD;
 
-
     // Cylinder -------------------------------------------------------------
-
-    cylinderVertexData = new VertexData;
-    cylinderElementData = new ElementData;
-    cylinderElementData->m_type = GL_UNSIGNED_INT;
-
-    if(gl->has_GL_ARB_vertex_buffer_object) {
-        
-        obj = new DataObject(gl);
-        obj->fill(GL_ARRAY_BUFFER_ARB, sizeof(cylinderVertices),
-            cylinderVertices);
-        cylinderVertexData->m_data = obj; 
-
-        obj = new DataObject(gl);
-        obj->fill(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(cylinderElements),
-            cylinderElements);
-        cylinderElementData->m_data = obj; 
-
-    } else {
-        
-        cylinderVertexData->m_data = new DataArray(cylinderVertices);
-
-        cylinderElementData->m_data = new DataArray(cylinderElements);
-    }
-
-    cylinderVertexData->m_vertexArray.set(3, GL_FLOAT, sizeof(Vertex),
-        offsetof(Vertex, v));
-    cylinderVertexData->m_normalArray.set(3, GL_FLOAT, sizeof(Vertex),
-        offsetof(Vertex, n));
 
     int cylinderPrims = sizeof(cylinderTrianglesOffsetCount) /
         sizeof(cylinderTrianglesOffsetCount[0]);
 
     cylinderShapes = new IndexedShape[cylinderPrims];
     for(i = 0; i < cylinderPrims; i++) {
-        cylinderShapes[i].m_vertexData = cylinderVertexData;
-        cylinderShapes[i].m_elementData = cylinderElementData;
-        if(!cylinderShapes[i].add(GL_TRIANGLES,
-            sizeof(cylinderElements[0]) * cylinderTrianglesOffsetCount[i][0],
-            cylinderTrianglesOffsetCount[i][1]))
+        cylinderShapes[i].m_vertexData = vertexData;
+        cylinderShapes[i].m_elementData = elementData;
 
+        bool success = cylinderShapes[i].add(GL_TRIANGLES,
+            cylinderElementsOffset + 
+            sizeof(cylinderElements[0]) * cylinderTrianglesOffsetCount[i][0],
+            cylinderTrianglesOffsetCount[i][1]);
+
+        if(!success)
             return false;
     }
 
@@ -1700,8 +1739,26 @@ bool ShapeRenderer::init(GLContext *gl)
     return true;
 }
 
+void ShapeRenderer::setStaticLODLevels(int sphereLOD, int cylinderLOD)
+{
+    m_forcedSphere = sphereShapes + sphereLOD;
+    m_forcedOpenCylinder = cylinderShapes + cylinderLOD;
+    m_forcedClosedCylinder = cylinderShapes + 4 + cylinderLOD;
+}
 
-bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], float color[][4])
+void ShapeRenderer::startDrawing()
+{
+    vertexData->apply();
+    elementData->apply();
+}
+
+void ShapeRenderer::finishDrawing()
+{
+    elementData->unapply();
+    vertexData->unapply();
+}
+
+bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], float color[][4], unsigned int *names)
 {
     float lodvalue;
     int i, j;
@@ -1711,16 +1768,13 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, m_materialShininess);
 
-    // Set up vertex and element buffers
-    // and the arrays inside the buffers
-    sphereVertexData->apply();
-    sphereElementData->apply();
-
     /* This appears to be around 10% faster than draw unsorted on 2GHz + FireGL X1 for SRG-1c Tubes */
 
     if(!sortByColor(0, count, color, &uniqueColorCount, &colorSortedListHeads, &objectNext))
         /* allocation failed */
         return false;
+
+    glPushName(0);      // Dummy, overwritten by first object
 
     for(j = 0; j < uniqueColorCount; j++) {
         applyMaterial(colorSortedListHeads[j].m_color);
@@ -1731,6 +1785,8 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
                 glPushMatrix();
                 glTranslatef(center[i][0], center[i][1], center[i][2]);
                 glScalef(radius[i], radius[i], radius[i]);
+                if(names != NULL)
+                    glLoadName(names[i]);
 
                 if(m_useLOD) {
                     lodvalue = m_lodScale *
@@ -1757,10 +1813,7 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
         }
     }
 
-    // Reset to non-VBO, non-vertex-array mode so anything drawing
-    // outside this function can use Begin/End as desired.
-    sphereVertexData->unapply();
-    sphereElementData->unapply();
+    glPopName();
 
     return true;
 }
@@ -1784,7 +1837,7 @@ void applyCylinderMatrix(float pos1[3], float pos2[3], float radius)
     glScalef(radius, radius, cylLength);
 }
 
-bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4])
+bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4], unsigned int *names)
 {
     int i;
     float lodvalue;
@@ -1794,11 +1847,6 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, m_materialShininess);
 
-    // Set up vertex and element buffers
-    // and the arrays inside the buffers
-    cylinderVertexData->apply();
-    cylinderElementData->apply();
-
     /* This appears to be around 11% faster than draw unsorted on 2GHz + FireGL X1 for SRG-1c Tubes */
 
     int k;
@@ -1806,6 +1854,8 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
     if(!sortByColor(0, count, color, &uniqueColorCount, &colorSortedListHeads, &objectNext))
         /* allocation failed */
         return false;
+
+    glPushName(0);      // Dummy, overwritten by first object
 
     for(k = 0; k < uniqueColorCount; k++) {
         applyMaterial(colorSortedListHeads[k].m_color);
@@ -1815,6 +1865,8 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
             if(radius[i] != 0.0f) {
                 glPushMatrix();
                 applyCylinderMatrix(pos1[i], pos2[i], radius[i]);
+                if(names != NULL)
+                    glLoadName(names[i]);
 
                 if(m_useLOD) {
                     lodvalue = m_lodScale *
@@ -1853,10 +1905,7 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
         }
     }
 
-    // Reset to non-VBO, non-vertex-array mode so anything drawing
-    // outside this function can use Begin/End as desired.
-    cylinderVertexData->unapply();
-    cylinderElementData->unapply();
+    glPopName();
 
     return true;
 }
@@ -1865,6 +1914,8 @@ static ShapeRenderer g_renderer;
 static GLContext *g_gl;
 static bool g_initialized = false;
 
+#undef PRINT_GL_ERROR
+
 extern "C" {
 
 PyObject * shapeRendererInit()
@@ -1872,6 +1923,12 @@ PyObject * shapeRendererInit()
     if(!g_initialized) {
         g_gl = new GLContext;
         bool succeeded = g_renderer.init(g_gl);
+
+#if defined(PRINT_GL_ERROR)
+        GLenum error = glGetError();
+        if(error != GL_NO_ERROR)
+            printf("Error: %04X\n", error); fflush(stdout);
+#endif
 
         if(!succeeded) {
             PyErr_SetString(PyExc_RuntimeError, "OpenGL init did not succeeed");
@@ -1882,6 +1939,28 @@ PyObject * shapeRendererInit()
     }
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+void shapeRendererStartDrawing()
+{
+    g_renderer.startDrawing();
+#if defined(PRINT_GL_ERROR)
+        GLenum error = glGetError();
+        if(error != GL_NO_ERROR)
+            printf("Error: %04X\n", error); fflush(stdout);
+#endif
+
+}
+
+void shapeRendererFinishDrawing()
+{
+    g_renderer.finishDrawing();
+#if defined(PRINT_GL_ERROR)
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR)
+        printf("Error: %04X\n", error); fflush(stdout);
+#endif
+
 }
 
 void shapeRendererSetFrustum(float frustum[6])
@@ -1909,9 +1988,15 @@ void shapeRendererUpdateLODEval()
     g_renderer.lodeval.update();
 }
 
-PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4])
+PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4], unsigned int *names)
 {
-    bool succeeded = g_renderer.drawSpheres(count, center, radius, color);
+    bool succeeded = g_renderer.drawSpheres(count, center, radius, color, names);
+
+#if defined(PRINT_GL_ERROR)
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR)
+        printf("Error: %04X\n", error); fflush(stdout);
+#endif
 
     if(!succeeded) {
 	PyErr_SetString(PyExc_RuntimeError, "OpenGL drawSpheres did not succeeed");
@@ -1921,9 +2006,15 @@ PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[]
     return Py_None;
 }
 
-PyObject * shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4])
+PyObject * shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4], unsigned int *names)
 {
-    bool succeeded = g_renderer.drawCylinders(count, pos1, pos2, radius, capped, color);
+    bool succeeded = g_renderer.drawCylinders(count, pos1, pos2, radius, capped, color, names);
+
+#if defined(PRINT_GL_ERROR)
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR)
+        printf("Error: %04X\n", error); fflush(stdout);
+#endif
 
     if(!succeeded) {
 	PyErr_SetString(PyExc_RuntimeError, "OpenGL drawCylinders did not succeeed");
@@ -1938,14 +2029,24 @@ void shapeRendererSetLODScale(float s)
     g_renderer.setLODScale(s);
 }
 
-void shapeRendererSetUseLOD(int useLOD)
+void shapeRendererSetUseDynamicLOD(int useLOD)
 {
-    g_renderer.setUseLOD(useLOD ? true : false);
+    g_renderer.setUseDynamicLOD(useLOD ? true : false);
+}
+
+void shapeRendererSetStaticLODLevels(int sphereLOD, int cylinderLOD)
+{
+    g_renderer.setStaticLODLevels(sphereLOD, cylinderLOD);
 }
 
 void shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess)
 {
     g_renderer.setMaterialParameters(whiteness, brightness, shininess);
+}
+
+int shapeRendererGetInteger(int what)
+{
+    return g_renderer.getInteger(what);
 }
 
 };

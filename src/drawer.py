@@ -11,6 +11,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import OpenGL.GLUT as glut
 import math
+import sys
 from VQT import *
 from constants import DIAMOND_BOND_LENGTH, white
 import env #bruce 051126
@@ -19,6 +20,13 @@ from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_finish_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
 import debug #bruce 051212, for debug.print_compact_traceback
+
+# Experimental C++ renderer
+# Set this to True to use the new native C++ renderer
+TEST_PYREX_OPENGL = True
+if TEST_PYREX_OPENGL:
+    sys.path.append("./experimental/pyrex-opengl")
+    import quux
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -175,6 +183,7 @@ rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiC
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
+
     def __init__(self):
 ##	self.override_material_specular = None
 ##	    # set to 4-element sequence to override material specular component
@@ -184,6 +193,7 @@ class glprefs:
 ##	    # set to 4-element sequence to override light specular component
         import preferences #bruce 051126 KLUGE: make sure env.prefs exists (could use cleanup, but that's not trivial)
         self.update()
+
     def update(self): #bruce 051126 added this method
         """Update attributes from current drawing-related prefs stored in prefs db cache.
            This should be called at the start of each complete redraw, or whenever the user changes these global prefs values
@@ -214,7 +224,11 @@ class glprefs:
             self.specular_shininess = 20.0
             self.specular_whiteness = 1.0
             self.specular_brightness = 1.0
+        if TEST_PYREX_OPENGL:
+            quux.shapeRendererSetMaterialParameters(self.specular_whiteness,
+                self.specular_brightness, self.specular_shininess);
         return
+
     def materialprefs_summary(self): #bruce 051126
         """Return a Python data object summarizing our prefs which affect chunk display lists,
         so that memoized display lists should become invalid (due to changes in this object)
@@ -224,6 +238,7 @@ class glprefs:
         if self.enable_specular_highlights:
             res = res + ( self.specular_shininess, self.specular_whiteness, self.specular_brightness)
         return res
+
     pass # end of class glprefs
 
 _glprefs = glprefs()
@@ -452,9 +467,189 @@ def get_gl_info_string():
 	gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
     return gl_info_string
 
+def drawsphere_worker(params):
+    """Draw a sphere.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see above)"""
+
+    (pos, radius, detailLevel) = params
+    glPushMatrix()
+    glTranslatef(pos[0], pos[1], pos[2])
+    glScale(radius,radius,radius)
+    glCallList(sphereList[detailLevel])
+    glPopMatrix()
+    return
+
+def drawcylinder_worker(params):
+    """Draw a cylinder.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see above)"""
+
+    global CylList, CapList
+    (pos1, pos2, radius, capped) = params
+
+    glPushMatrix()
+    vec = pos2-pos1
+    axis = norm(vec)
+    glTranslatef(pos1[0], pos1[1], pos1[2])
+    
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+  
+    glScale(radius,radius,vlen(vec))
+    glCallList(CylList)
+    if capped: glCallList(CapList)
+
+    glPopMatrix()
+
+    return
+
+# 20060208 grantham - The following classes, ShapeList and
+# ColorSorter, should probably be in their own file.  But Bruce
+# cautions me against doing it on my own since I haven't done that
+# before and there are subtleties.
+
+class ShapeList:
+
+    """\
+    Records sphere and cylinder data and invokes it through the native C++
+    rendering system.
+    """
+
+    __author__ = "grantham@plunk.org"
+
+    def __init__(self):
+
+        self.memoized = False
+
+        self.sphere_colors = []
+        self.sphere_radii = []
+        self.sphere_centers = []
+        self.sphere_names = []
+
+        self.cylinder_colors = []
+        self.cylinder_radii = []
+        self.cylinder_pos1 = []
+        self.cylinder_pos2 = []
+        self.cylinder_cappings = []
+        self.cylinder_names = []
+
+
+    def _memoize(self):
+
+        """\
+        Internal function that creates Numeric arrays from the data stored
+        in add_sphere and add-cylinder.
+        """
+
+        self.memoized = True
+
+        # GL Names are uint32.  Numeric.array appears to have only
+        # int32.  Winging it...
+
+        self.sphere_colors_array = Numeric.array(self.sphere_colors, 'f')
+        self.sphere_radii_array = Numeric.array(self.sphere_radii, 'f')
+        self.sphere_centers_array = Numeric.array(self.sphere_centers, 'f')
+        self.sphere_names_array = Numeric.array(self.sphere_names, 'i')
+
+        self.cylinder_colors_array = Numeric.array(self.cylinder_colors, 'f')
+        self.cylinder_radii_array = Numeric.array(self.cylinder_radii, 'f')
+        self.cylinder_pos1_array = Numeric.array(self.cylinder_pos1, 'f')
+        self.cylinder_pos2_array = Numeric.array(self.cylinder_pos2, 'f')
+        self.cylinder_cappings_array = Numeric.array(self.cylinder_cappings, 'f')
+        self.cylinder_names_array = Numeric.array(self.cylinder_names, 'i')
+
+
+    def draw(self):
+
+        """\
+        Draw all the objects represented in this shape list.
+        """
+
+        # ICK - SLOW - Probably no big deal in a display list.
+
+        if len(self.sphere_radii) > 0:
+            if not self.memoized:
+                self._memoize()
+            quux.shapeRendererDrawSpheres(len(self.sphere_radii),
+                self.sphere_centers_array,
+                self.sphere_radii_array,
+                self.sphere_colors_array,
+                self.sphere_names_array)
+
+        if len(self.cylinder_radii) > 0:
+            if not self.memoized:
+                self._memoize()
+            quux.shapeRendererDrawCylinders(len(self.cylinder_radii),
+                self.cylinder_pos1_array,
+                self.cylinder_pos2_array,
+                self.cylinder_radii_array,
+                self.cylinder_cappings_array,
+                self.cylinder_colors_array,
+                self.cylinder_names_array)
+
+
+    def add_sphere(self, color4, pos, radius, name = 0):
+        """\
+        Add a sphere to this shape list.
+
+        "color4" must have 4 elements.  "name" is the GL selection name.
+        """
+
+        self.sphere_colors.append(color4)
+        self.sphere_centers.append(list(pos))
+        self.sphere_radii.append(radius)
+        self.sphere_names.append(name)
+        self.memoized = False
+
+
+    def add_cylinder(self, color4, pos1, pos2, radius, name = 0, capped=0):
+        """\
+        Add a cylinder to this shape list.
+
+        "color4" must have 4 elements.  "name" is the GL selection name.
+        """
+
+        self.cylinder_colors.append(color4)
+        self.cylinder_radii.append(radius)
+        self.cylinder_pos1.append(list(pos1))
+        self.cylinder_pos2.append(list(pos2))
+        self.cylinder_cappings.append(capped)
+        self.cylinder_names.append(name)
+        self.memoized = False
+
+    def petrify(self):
+        """\
+        Delete all but the cached Numeric arrays.
+
+        Call this when you're sure you don't have any more shapes to store
+        in the shape list and you want to release the python lists of data
+        back to the heap. 
+        """
+        if not self.memoized:
+            self._memoize()
+
+        del self.sphere_colors
+        del self.sphere_radii
+        del self.sphere_centers
+        del self.sphere_names
+
+        del self.cylinder_colors
+        del self.cylinder_radii
+        del self.cylinder_pos1
+        del self.cylinder_pos2
+        del self.cylinder_cappings
+        del self.cylinder_names
+
+
 class ColorSorter:
 
-    """
+    """\
     State Sorter specializing in color (Really any object that can be
     passed to apply_material, which on 20051204 is only color 4-tuples)
 
@@ -469,8 +664,15 @@ class ColorSorter:
     not, create a worker function from the old function except the call to
     apply_material.  Then create a wrapper which calls
     ColorSorter.schedule with the worker function and its params.
+
+    Also an app can call schedule_sphere and schedule_cylinder to
+    schedule a sphere or a cylinder.  Right now this is the only way
+    to directly access the native C++ rendering engine.
     """
     __author__ = "grantham@plunk.org"
+
+    # sys.path.append("./experimental/pyrex-opengl")
+    # import quux
 
     # For now, these are class globals.  As long as OpenGL drawing is
     # serialized and Sorting isn't nested, this is okay.  When/if
@@ -485,29 +687,31 @@ class ColorSorter:
                         # _printstats
     _immediate = 0      # Number of calls to _invoke_immediately since last
                         # _printstats
-    _glnames = []       # internal record of GL name stack
+    _gl_name_stack = [0]       # internal record of GL name stack
 
     def pushName(glname):
-        """Record the current pushed GL name.  This will probably mutate a little
-        into doing the GL name push as well, for clarity and encapsulation.
+        """\
+        Record the current pushed GL name.
         """
-        ColorSorter._glnames.append(glname)
+        ColorSorter._gl_name_stack.append(glname)
 
     pushName = staticmethod(pushName)
 
 
     def popName():
-        """Record a pop of the GL name.  This will probably mutate a little
-        into doing the GL pop as well, for clarity and encapsulation.
+        """\
+        Record a pop of the GL name.
         """
-        del ColorSorter._glnames[-1]
+        del ColorSorter._gl_name_stack[-1]
 
     popName = staticmethod(popName)
 
 
     def _printstats():
-        """Internal function for developers to call to print stats on number of
-        sorted and immediately-called objects"""
+        """\
+        Internal function for developers to call to print stats on number of
+        sorted and immediately-called objects.
+        """
         print "Since previous 'stats', %d sorted, %d immediate: " % (ColorSorter._sorted, ColorSorter._immediate)
         ColorSorter._sorted = 0
         ColorSorter._immediate = 0
@@ -516,27 +720,35 @@ class ColorSorter:
 
 
     def _add_to_sorter(color, func, params):
-        """Internal function that stores 'scheduled' operations for a later
-        sort, between a start/finish"""
+        """\
+        Internal function that stores 'scheduled' operations for a later
+        sort, between a start/finish
+        """
         ColorSorter._sorted += 1
         color = tuple(color)
         if not ColorSorter.sorted_by_color.has_key(color):
             ColorSorter.sorted_by_color[color] = []
-        if len(ColorSorter._glnames) > 0:
-            name = ColorSorter._glnames[-1]
-        else:
-            name = None
-        ColorSorter.sorted_by_color[color].append((func, params, name))
+        ColorSorter.sorted_by_color[color].append((func, params,
+            ColorSorter._gl_name_stack[-1]))
 
     _add_to_sorter = staticmethod(_add_to_sorter)
 
 
     def _invoke_immediately(color, func, params):
-        """Internal function that invokes 'scheduled' operations right now,
-        outside a start/finish."""
+        """\
+        Internal function that invokes 'scheduled' operations right now,
+        outside a start/finish.
+        """
         ColorSorter._immediate += 1
+        # 20060216 We know we can do this here because the stack is
+        # only ever one element deep.
+        glPushName(ColorSorter._gl_name_stack[-1])
+
         apply_material(color)
         func(params)
+
+        glPopName()
+
 
     _invoke_immediately = staticmethod(_invoke_immediately)
 
@@ -545,34 +757,93 @@ class ColorSorter:
     # param tuple
     schedule = _invoke_immediately
 
+    def schedule_sphere(color, pos, radius, detailLevel):
+        """\
+        Schedule a sphere for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        if TEST_PYREX_OPENGL and ColorSorter.sorting:
+            if len(color) == 3:
+                lcolor = color + [1.0]
+            ColorSorter._cur_shapelist.add_sphere(lcolor, pos, radius,
+                ColorSorter._gl_name_stack[-1])
+            # 20060208 grantham - I happen to know that one detailLevel
+            # is chosen for all spheres, I just record it over and
+            # over here, and use the last one for the render
+            if ColorSorter.sphereLevel > -1 and ColorSorter.sphereLevel != detailLevel:
+                raise ValueError, "different sphere LOD levels"
+            ColorSorter.sphereLevel = detailLevel
+        else: # Older sorted material rendering
+            ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
+    schedule_sphere = staticmethod(schedule_sphere)
+
+
+    def schedule_cylinder(color, pos1, pos2, radius, capped=0):
+        """\
+        Schedule a cylinder for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        if TEST_PYREX_OPENGL and ColorSorter.sorting:
+            if len(color) == 3:
+                lcolor = [color[0], color[1], color[2], 1.0]
+            ColorSorter._cur_shapelist.add_cylinder(lcolor, pos1, pos2, radius,
+                ColorSorter._gl_name_stack[-1], capped)
+        else:
+            ColorSorter.schedule(color, drawcylinder_worker, (pos1, pos2, radius, capped))
+
+    schedule_cylinder = staticmethod(schedule_cylinder)
+
+
     def start():
-        """Start sorting - objects provided to "schedule" will be stored
-        for a sort at the time "finish" is called."""
+        """\
+        Start sorting - objects provided to "schedule", "schedule_sphere", and
+        "schedule_cylinder" will be stored for a sort at the time "finish" is called.
+        """
         assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
-        ColorSorter.sorted_by_color = {}
-        ColorSorter.schedule = staticmethod(ColorSorter._add_to_sorter)
+        if TEST_PYREX_OPENGL and ColorSorter.sorting:
+            ColorSorter._cur_shapelist = ShapeList()
+            ColorSorter.sphereLevel = -1
+        else:
+            ColorSorter.sorted_by_color = {}
+            ColorSorter.schedule = staticmethod(ColorSorter._add_to_sorter)
 
     start = staticmethod(start)
 
 
     def finish():
-        """Finish sorting - objects recorded since "start" will
-        be sorted and invoked now."""
-        color_groups = len(ColorSorter.sorted_by_color)
-        objects_drawn = 0
-        for color, funcs in ColorSorter.sorted_by_color.iteritems():
-            apply_material(color)
-            for func, params, name in funcs:
-                objects_drawn += 1
-                if name is not None:
-                    glPushName(name)
-                func(params)
-                if name is not None:
-                    glPopName()
-        ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
-        ColorSorter.sorted_by_color = None
-        ColorSorter.sorting = False
+        """\
+        Finish sorting - objects recorded since "start" will
+        be sorted and invoked now.
+        """
+        if TEST_PYREX_OPENGL:
+            quux.shapeRendererInit()
+            # print "VBO %s enabled" % (('is not', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
+            quux.shapeRendererSetUseDynamicLOD(0)
+            quux.shapeRendererStartDrawing()
+            quux.shapeRendererSetStaticLODLevels(ColorSorter.sphereLevel, 1)
+            ColorSorter._cur_shapelist.draw()
+            quux.shapeRendererFinishDrawing()
+            ColorSorter.sorting = False
+
+            # So chunks can actually record their shapelist
+            # at some point if they want to
+            return ColorSorter._cur_shapelist      
+
+        else:
+            color_groups = len(ColorSorter.sorted_by_color)
+            objects_drawn = 0
+            glPushName(0)       # overwritten by first glLoadName
+            for color, funcs in ColorSorter.sorted_by_color.iteritems():
+                apply_material(color)
+                for func, params, name in funcs:
+                    objects_drawn += 1
+                    glLoadName(name)
+                    func(params)
+            glPopName()
+            ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
+            ColorSorter.sorted_by_color = None
+            ColorSorter.sorting = False
 
     finish = staticmethod(finish)
 
@@ -948,23 +1219,10 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     glPopMatrix()
     return
 
-def drawsphere_worker(params):
-    """Draw a sphere.  Receive parameters through a sequence so that this
-    function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see above)"""
-
-    (pos, radius, detailLevel) = params
-    glPushMatrix()
-    glTranslatef(pos[0], pos[1], pos[2])
-    glScale(radius,radius,radius)
-    glCallList(sphereList[detailLevel])
-    glPopMatrix()
-    return
-
 def drawsphere(color, pos, radius, detailLevel):
     """Schedule a sphere for rendering whenever ColorSorter thinks is
     appropriate."""
-    ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
+    ColorSorter.schedule_sphere(color, pos, radius, detailLevel)
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
     glColor3fv(color)
@@ -979,39 +1237,10 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
     glPolygonMode(GL_FRONT, GL_FILL)
     return
 
-def drawcylinder_worker(params):
-    """Draw a cylinder.  Receive parameters through a sequence so that this
-    function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see above)"""
-
-    global CylList, CapList
-    (pos1, pos2, radius, capped) = params
-
-    glPushMatrix()
-    vec = pos2-pos1
-    axis = norm(vec)
-    glTranslatef(pos1[0], pos1[1], pos1[2])
-    
-    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
-    ## display problem on some platforms
-    angle = -acos(axis[2])*180.0/pi
-    if (axis[2]*axis[2] >= 1.0):
-        glRotate(angle, 0.0, 1.0, 0.0)
-    else:
-        glRotate(angle, axis[1], -axis[0], 0.0)
-  
-    glScale(radius,radius,vlen(vec))
-    glCallList(CylList)
-    if capped: glCallList(CapList)
-
-    glPopMatrix()
-
-    return
-
 def drawcylinder(color, pos1, pos2, radius, capped=0):
     """Schedule a cylinder for rendering whenever ColorSorter thinks is
     appropriate."""
-    ColorSorter.schedule(color, drawcylinder_worker, (pos1, pos2, radius, capped))
+    ColorSorter.schedule_cylinder(color, pos1, pos2, radius, capped)
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     """Draw a line from pos1 to pos2 of the given color.

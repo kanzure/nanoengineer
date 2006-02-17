@@ -405,7 +405,7 @@ class selectMode(basicMode):
                 import quux
                 # quux.test()
                 quux.shapeRendererInit()
-                quux.shapeRendererSetUseLOD(0)
+                quux.shapeRendererSetUseDynamicLOD(0)
                 if TEST_PYREX_OPENGL == 1:
                     center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
                                             Numeric.array((0, 0, 1), 'f'),
