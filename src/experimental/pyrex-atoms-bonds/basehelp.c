@@ -1,25 +1,5 @@
-#include <sys/time.h>
 #include "Python.h"
 #include "Numeric/arrayobject.h"
-// Pick up PyArray_FromDimsAndData
-
-#if 0
-#define XX(z)   z
-#define MARK()  fprintf(stderr, "%s:%d\n", __FUNCTION__, __LINE__)
-#define HEX(x)  fprintf(stderr, "%s:%d %s=%p\n", __FUNCTION__, __LINE__, #x, x)
-#define INT(x)  fprintf(stderr, "%s:%d %s=%u\n", __FUNCTION__, __LINE__, #x, x)
-#define DBL(x)  fprintf(stderr, "%s:%d %s=%le\n", __FUNCTION__, __LINE__, #x, x)
-#define BEGIN() startingTime = now()
-#define END()   DBL(now() - startingTime)
-#else
-#define XX(z)
-#define MARK()
-#define HEX(x)
-#define INT(x)
-#define BEGIN()
-#define END()
-#endif
-
 
 /*
  * Time function for performance measurements, theoretically good to
@@ -34,46 +14,7 @@ static double now(void)
 	return 0.0;
 }
 
-#define MAX_NUM_NEIGHBORS 12  // ask Damian for the real number
-
 static char *problem = NULL;
-static double startingTime;
-
-/*
- * An alternative way to keep count of the size of an integer set would
- * be to associate with each 512-word block a counter. Increment the
- * counter when you add to the block, decrement when you remove from it.
- * But if you're adding something that's already there, or removing
- * something that isn't there, then you shouldn't increment/decrement;
- * only do so if you're flipping a bit.
- *
- * This adds a teeny amount of overhead on adds and removes, but will
- * greatly reduce the time to get the size of the integer set.
- */
-static const unsigned int _bitsums[256] = {
-    0,  1,  1,  2,  1,  2,  2,  3,  1,  2,  2,  3,  2,  3,  3,  4,
-    1,  2,  2,  3,  2,  3,  3,  4,  2,  3,  3,  4,  3,  4,  4,  5,
-    1,  2,  2,  3,  2,  3,  3,  4,  2,  3,  3,  4,  3,  4,  4,  5,
-    2,  3,  3,  4,  3,  4,  4,  5,  3,  4,  4,  5,  4,  5,  5,  6,
-    1,  2,  2,  3,  2,  3,  3,  4,  2,  3,  3,  4,  3,  4,  4,  5,
-    2,  3,  3,  4,  3,  4,  4,  5,  3,  4,  4,  5,  4,  5,  5,  6,
-    2,  3,  3,  4,  3,  4,  4,  5,  3,  4,  4,  5,  4,  5,  5,  6,
-    3,  4,  4,  5,  4,  5,  5,  6,  4,  5,  5,  6,  5,  6,  6,  7,
-    1,  2,  2,  3,  2,  3,  3,  4,  2,  3,  3,  4,  3,  4,  4,  5,
-    2,  3,  3,  4,  3,  4,  4,  5,  3,  4,  4,  5,  4,  5,  5,  6,
-    2,  3,  3,  4,  3,  4,  4,  5,  3,  4,  4,  5,  4,  5,  5,  6,
-    3,  4,  4,  5,  4,  5,  5,  6,  4,  5,  5,  6,  5,  6,  6,  7,
-    2,  3,  3,  4,  3,  4,  4,  5,  3,  4,  4,  5,  4,  5,  5,  6,
-    3,  4,  4,  5,  4,  5,  5,  6,  4,  5,  5,  6,  5,  6,  6,  7,
-    3,  4,  4,  5,  4,  5,  5,  6,  4,  5,  5,  6,  5,  6,  6,  7,
-    4,  5,  5,  6,  5,  6,  6,  7,  5,  6,  6,  7,  6,  7,  7,  8,
-};
-
-static inline unsigned int sum_of_bits(unsigned int x)
-{
-    return (_bitsums[(x >> 24) & 0xFF] + _bitsums[(x >> 16) & 0xFF] +
-	    _bitsums[(x >> 8) & 0xFF] + _bitsums[x & 0xFF]);
-}
 
 static PyObject *checkForErrors(void)
 {
@@ -85,141 +26,258 @@ static PyObject *checkForErrors(void)
     return Py_None;
 }
 
+/****************************************************************
+ * Set is an integer set which can be used for selections    *
+ * and similar things.                                          *
+ ****************************************************************/
 
-/*
- * IntSet is an integer set which can be used for selections
- * and similar things. I'm not sure it will necessarily beat
- * Python's list or dictionary for speed. Eventually I'll write
- * performance tests for that.
- */
-
-struct intset {
-    unsigned int **pointers[512];
+/* (3 + 128) * 4 = 524 bytes */
+struct node {
+    struct node *next;
+    int prefix;
+    unsigned int data[128];
 };
 
-static struct intset *intset_init(void)
+/* 3 * 4 = 12 bytes */
+struct set {
+    struct node *root;
+    unsigned int population;
+    int prevPrefix;
+};
+
+#if 0
+static void intset_print(struct set *ss)
 {
-    struct intset *is;
-    is = malloc(sizeof(struct intset));
-    if (is == NULL) {
+    struct node *r;
+    fprintf(stderr, "---- Begin Set %p ----\n", ss);
+    fprintf(stderr, "Population=%u, prevPrefix=%d\n", ss->population, ss->prevPrefix);
+    r = ss->root;
+    while (r != NULL) {
+	int i, j, sum;
+	fprintf(stderr, "Node %p, prefix=%d ", r, r->prefix);
+	fprintf(stderr, "previous=%p, next=%p ", r->previous, r->next);
+	sum = 0;
+	for (i = 0; i < 128; i++)
+	    for (j = 0; j < 32; j++)
+		if ((r->data[i] & (1 << j)) != 0)
+		    sum++;
+	fprintf(stderr, "bits=%d\n", sum);
+	r = r->next;
+    }
+    fprintf(stderr, "---- End Set %p ----\n", ss);
+}
+#endif
+
+static struct set *intset_init(void)
+{
+    struct set *ss;
+    ss = (struct set *) malloc(sizeof(struct set));
+    if (ss == NULL) {
 	problem = "Out of memory";
 	return NULL;
     }
-    bzero(is->pointers, 512 * sizeof(unsigned int**));
-    return is;
+    bzero(ss, sizeof(struct set));
+    return ss;
 }
 
-/*
- * We can use this function to figure out how much space to malloc for
- * a Numeric array.
- */
-static int _intset_size(struct intset *is)
+static struct node *_alloc_node(void)
 {
-    unsigned int x0, x1, x2, sum;
-    if (is == NULL) return -1;
-    sum = 0;
-    for (x0 = 0; x0 < 512; x0++) {
-	if (is->pointers[x0] != NULL) {
-	    for (x1 = 0; x1 < 512; x1++) {
-		if ((is->pointers[x0])[x1] != NULL) {
-		    for (x2 = 0; x2 < 512; x2++) {
-			sum += sum_of_bits(((is->pointers[x0])[x1])[x2]);
-		    }
-		}
-	    }
-	}
+    struct node *nd;
+    nd = (struct node*) malloc(sizeof(struct node));
+    if (nd == NULL) {
+	problem = "Out of memory";
+	return NULL;
     }
-    return sum;
+    bzero(nd, sizeof(struct node));
+    return nd;
 }
 
-static PyObject *intset_size(struct intset *is)
+static struct node *_find_node_with_prefix(struct set *ss,
+					   int prefix)
 {
-    unsigned int x = _intset_size(is);
-    if (x < 0) goto fail;
-    return Py_BuildValue("i", x);
+    struct node *A, *B = ss->root;
+    A = NULL;
+    while (1) {
+	if (B == NULL) return NULL;
+	if (B->prefix == prefix) {
+	    if (ss->prevPrefix != prefix) {
+		ss->prevPrefix = prefix;
+	    } else if (A != NULL) {
+		A->next = B->next;
+		B->next = ss->root;
+		ss->root = B;
+	    }
+	    return B;
+	}
+	A = B;
+	B = B->next;
+    }
+}
+
+static inline unsigned int *
+getword(struct set *ss, int x, int grow, int *bit)
+{
+    int x0, x1, x2;
+    struct node *C;
+    if (ss == NULL) return NULL;
+    x0 = (x >> 12) & 0xFFFFF;
+    C = _find_node_with_prefix(ss, x0);
+    if (grow && C == NULL) {
+	C = _alloc_node();
+	C->prefix = x0;
+	C->next = ss->root;
+	ss->root = C;
+    }
+    if (C == NULL)
+	return NULL;
+    /* Set the bit in C's data */
+    x1 = (x >> 5) & 0x7F;
+    x2 = x & 0x1F;
+    *bit = 1 << x2;
+    return &C->data[x1];
+}
+
+static int _intset_add(struct set *ss, int x)
+{
+    unsigned int *z;
+    int bit;
+    z = getword(ss, x, 1, &bit);
+    if (z == NULL) return -1;
+    if ((*z & bit) == 0) {
+	*z |= bit;
+	ss->population++;
+    }
+    return 0;
+}
+
+static PyObject *intset_add(struct set *ss, int x)
+{
+    if (_intset_add(ss, x) != 0) goto fail;
+    Py_INCREF(Py_None);
+    return Py_None;
  fail:
     PyErr_SetString(PyExc_RuntimeError, "ouch");
     return NULL;
 }
 
-static int _intset_contains(struct intset *is, int x)
+static PyObject *intset_remove(struct set *ss, int x)
 {
-    unsigned int x0, x1, x2, x3, **block2, *block;
-    if (is == NULL) return -1;
-    x0 = (x >> 23) & 0x1FF;
-    block2 = is->pointers[x0];
-    if (block2 == NULL) return 0;
-    x1 = (x >> 14) & 0x1FF;
-    block = block2[x1];
-    if (block == NULL) return 0;
-    x2 = (x >> 5) & 0x1FF;
-    x3 = x & 0x1F;
-    if ((block[x2] & (1 << x3)) == 0) return 0;
-    return 1;
-}
-
-static PyObject *intset_contains(struct intset *is, int x)
-{
-    int r = _intset_contains(is, x);
-    switch (r) {
-    case 1:
-	Py_INCREF(Py_True);
-	return Py_True;
-    case 0:
-	Py_INCREF(Py_False);
-	return Py_False;
-    case -1:
-    default:
-	PyErr_SetString(PyExc_RuntimeError, "ouch");
-	return NULL;
+    unsigned int *z;
+    int bit;
+    z = getword(ss, x, 0, &bit);
+    if (z != NULL && (*z & bit) != 0) {
+	*z &= ~bit;
+	ss->population--;
     }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static double intset_contains_performance_test(struct intset *is, int lim)
+static PyObject *intset_size(struct set *ss)
 {
-    volatile int dummy;  // avoid optimization
+    if (ss == NULL) goto fail;
+    return Py_BuildValue("i", ss->population);
+ fail:
+    PyErr_SetString(PyExc_RuntimeError, "ouch");
+    return NULL;
+}
+
+static int _intset_contains(struct set *ss, int x)
+{
+    unsigned int *z;
+    int bit;
+    z = getword(ss, x, 1, &bit);
+    if (z == NULL) return 0;
+    return (*z & bit) != 0;
+}
+
+static PyObject *intset_contains(struct set *ss, int x)
+{
+    return Py_BuildValue("i", _intset_contains(ss, x));
+}
+
+static double intset_contains_performance_test(struct set *ss, int n)
+{
     int i;
-    startingTime = now();
-    for (i = 0; i < lim; i++) {
-	dummy = _intset_contains(is, i);
+    double t;
+    t = now();
+    for (i = 0; i < n; i++) {
+	_intset_contains(ss, i);
     }
-    return (now() - startingTime) / lim;
+    return 1.0e9 * (now() - t) / n;
 }
 
-static PyObject *intset_asarray(struct intset *is)
+static int _partition(struct node *y[], int f, int l) {
+    int up,down;
+    struct node *temp;
+    struct node *piv = y[f];
+    up = f;
+    down = l;
+    do { 
+        while (y[up]->prefix <= piv->prefix && up < l) {
+            up++;
+        }
+        while (y[down]->prefix > piv->prefix) {
+            down--;
+        }
+        if (up < down ) {
+            temp = y[up];
+            y[up] = y[down];
+            y[down] = temp;
+        }
+    } while (down > up);
+    y[f] = y[down];
+    y[down] = piv;
+    return down;
+}
+
+static void _quicksort(struct node *x[], int first, int last) {
+    int pivIndex = 0;
+    if(first < last) {
+        pivIndex = _partition(x,first, last);
+        _quicksort(x,first,(pivIndex-1));
+        _quicksort(x,(pivIndex+1),last);
+    }
+}
+
+static PyObject *intset_asarray(struct set *ss)
 {
-    unsigned int x0, x1, x2, x3, size;
+    int i, size;
+    struct node *nd, **nodelist;
     unsigned int *data, *p;
     PyArrayObject *retval;
-    if (is == NULL) goto fail;
-    size = _intset_size(is);
-    if (size < 0) goto fail;
-    import_array();
+    if (ss == NULL) goto fail;
+    import_array(); /* VERY NECESSARY */
     retval = (PyArrayObject *)
-	PyArray_FromDims(1, (int*)&size, PyArray_UINT);
+	PyArray_FromDims(1, (int*)&ss->population, PyArray_UINT);
     data = p = (unsigned int*) retval->data;
-    for (x0 = 0; x0 < 512; x0++) {
-	if (is->pointers[x0] != NULL) {
-	    for (x1 = 0; x1 < 512; x1++) {
-		if ((is->pointers[x0])[x1] != NULL) {
-		    unsigned int k = (x0 << 23) | (x1 << 14);
-		    for (x2 = 0; x2 < 512; x2++) {
-			unsigned int z = ((is->pointers[x0])[x1])[x2];
-			for (x3 = 0; x3 < 32; x3++) {
-			    if ((z & (1 << x3)) != 0) {
-				*p++ = k;
-			    }
-			    k++;
-			}
-		    }
+    for (nd = ss->root, size = 0; nd != NULL; nd = nd->next, size++);
+    nodelist = (struct node **)
+	malloc(size * sizeof(struct node *));
+    if (nodelist == NULL) goto fail;
+    for (nd = ss->root, i = 0; i < size; nd = nd->next, i++) {
+	if (nd == NULL) goto fail;
+	nodelist[i] = nd;
+    }
+    _quicksort(nodelist, 0, size - 1);
+    for (i = 0; i < size; i++) {
+	int M, j, k;
+	nd = nodelist[i];
+	M = nd->prefix << 12;
+	for (j = 0; j < 128; j++) {
+	    unsigned int w = nd->data[j];
+	    for (k = 0; k < 32; k++) {
+		if ((w & (1 << k)) != 0) {
+		    *p++ = M + k;
 		}
 	    }
+	    M += 32;
 	}
     }
     /* If I've figured this out right, then p should be exactly at
      * the end of data.
      */
-    if (((int) (p - data)) != size) {
+    if (((int) (p - data)) != ss->population) {
 	PyErr_SetString(PyExc_RuntimeError, "array size mismatch");
 	return NULL;
     }
@@ -229,68 +287,18 @@ static PyObject *intset_asarray(struct intset *is)
     return NULL;
 }
 
-static PyObject *intset_remove(struct intset *is, int x)
+static double intset_asarray_performance_test(struct set *ss, int n)
 {
-    unsigned int x0, x1, x2, x3;
-    unsigned int **block2, *block;
-    if (is == NULL) goto fail;
-    x0 = (x >> 23) & 0x1FF;
-    block2 = is->pointers[x0];
-    if (block2 == NULL) goto done;
-    x1 = (x >> 14) & 0x1FF;
-    block = block2[x1];
-    if (block == NULL) goto done;
-    x2 = (x >> 5) & 0x1FF;
-    x3 = x & 0x1F;
-    block[x2] &= ~(1 << x3);
- done:
-    Py_INCREF(Py_None);
-    return Py_None;
- fail:
-    PyErr_SetString(PyExc_RuntimeError, "ouch");
-    return NULL;
+    PyObject *r;
+    double time1, time2;
+    time1 = now();
+    r = intset_asarray(ss);
+    time2 = now();
+    Py_DECREF(r);
+    return 1.0e9 * (time2 - time1) / n;
 }
 
-static int _intset_add(struct intset *is, int x)
-{
-    unsigned int x0, x1, x2, x3;
-    unsigned int **block2, *block;
-    if (is == NULL) goto fail;
-    x0 = (x >> 23) & 0x1FF;
-    block2 = is->pointers[x0];
-    if (block2 == NULL) {
-	block2 = is->pointers[x0] =
-	    (unsigned int**) malloc(512 * sizeof(unsigned int*));
-	if (block2 == NULL) goto fail;
-	bzero(block2, 512 * sizeof(unsigned int*));
-    }
-    x1 = (x >> 14) & 0x1FF;
-    block = block2[x1];
-    if (block == NULL) {
-	block = block2[x1] =
-	    (unsigned int*) malloc(512 * sizeof(unsigned int));
-	if (block == NULL) goto fail;
-	bzero(block, 512 * sizeof(unsigned int));
-    }
-    x2 = (x >> 5) & 0x1FF;
-    x3 = x & 0x1F;
-    block[x2] |= 1 << x3;
-    return 0;
- fail:
-    return -1;
-}
-
-static PyObject *intset_add(struct intset *is, int x)
-{
-    if (_intset_add(is, x) != 0) goto fail;
-    Py_INCREF(Py_None);
-    return Py_None;
- fail:
-    PyErr_SetString(PyExc_RuntimeError, "ouch");
-    return NULL;
-}
-
-static PyObject *intset_fromList(struct intset *is, PyObject *lst)
+static PyObject *intset_fromList(struct set *ss, PyObject *lst)
 {
     unsigned int i, n;
     if (!PyList_Check(lst)) goto fail;
@@ -298,7 +306,7 @@ static PyObject *intset_fromList(struct intset *is, PyObject *lst)
     for (i = 0; i < n; i++) {
 	PyObject *z = PyList_GetItem(lst, i);
 	if (!PyInt_Check(z)) goto fail;
-	if (_intset_add(is, PyInt_AsLong(z)) != 0) goto fail;
+	if (_intset_add(ss, PyInt_AsLong(z)) != 0) goto fail;
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -307,11 +315,11 @@ static PyObject *intset_fromList(struct intset *is, PyObject *lst)
     return NULL;
 }
 
-static PyObject *intset_addRange(struct intset *is, int m, int n)
+static PyObject *intset_addRange(struct set *ss, int m, int n)
 {
     unsigned int x;
     for (x = m; x < n; x++)
-	if (_intset_add(is, x) != 0)
+	if (_intset_add(ss, x) != 0)
 	    goto fail;
     Py_INCREF(Py_None);
     return Py_None;
@@ -320,26 +328,26 @@ static PyObject *intset_addRange(struct intset *is, int m, int n)
     return NULL;
 }
 
-static double intset_addRangePerformance(struct intset *is, int n)
+static double intset_add_performance(struct set *ss, int n)
 {
-    startingTime = now();
-    intset_addRange(is, 0, n);
-    return (now() - startingTime) / n;
+    unsigned int x;
+    double t;
+    t = now();
+    for (x = 0; x < n; x++)
+	_intset_add(ss, x);
+    return 1.0e9 * (now() - t) / n;
 }
 
-static PyObject *intset_del(struct intset *is)
+static PyObject *intset_del(struct set *ss)
 {
-    int i, j;
-    if (is == NULL) goto fail;
-    for (i = 0; i < 512; i++) {
-	if (is->pointers[i] != NULL) {
-	    for (j = 0; j < 512; j++) {
-		if ((is->pointers[i])[j] != NULL) {
-		    free((is->pointers[i])[j]);
-		}
-	    }
-	    free(is->pointers[i]);
-	}
+    struct node *p, *q;
+    if (ss == NULL) goto fail;
+    p = ss->root;
+    while (1) {
+	if (p == NULL) break;
+	q = p->next;
+	free(p);
+	p = q;
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -351,6 +359,9 @@ static PyObject *intset_del(struct intset *is)
 /*
  * AtomBase
  */
+
+#define MAX_NUM_NEIGHBORS 12  // ask Damian for the real number
+
 struct atombase {
     int positionIndex;
     int numNeighbors;

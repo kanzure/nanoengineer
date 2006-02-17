@@ -6,7 +6,7 @@ import Numeric
 
 stuff = None
 #stuff = [ ]
-N = 10**5
+N = 10**4
 #N = 1000
 
 ## Verifying Bruce's suspicion that the 9/9/9/5 scheme was a memory
@@ -49,16 +49,15 @@ class NodeStruct:
     """
     /* (3 + 128) * 4 = 524 bytes */
     struct node {
-        struct node *next, *previous;
+        struct node *next;
         int prefix;
         unsigned int data[128];
     };
     """
     def __init__(self, prefix):
         self.prefix = prefix
-        # next and previous initialized to NULL
+        # next initialized to NULL
         self.next = None
-        self.previous = None
         # all membership bits initially zero
         self.data = 128 * [ 0 ]
 
@@ -69,29 +68,30 @@ class Set:
     struct set {
         struct node *root;
         unsigned int population;
-        int prevPrefix;
     };
     """
     def __init__(self):
         self.root = None
         self.population = 0
-        self.prevPrefix = 0
 
     def __len__(self):
         return self.population
 
     def findNodeWithPrefix(self, p):
-        C = self.root
+        A = None
+        B = self.root
         while True:
-            if C == None:
+            if B == None:
                 return None
-            if C.prefix == p:
-                if self.prevPrefix == p:
-                    self.bubbleUp(C)
-                else:
-                    self.prevPrefix = p
-                return C
-            C = C.next
+            if B.prefix == p:
+                # bubble B up toward the top
+                if A != None:
+                    A.next = B
+                    B.next = self.root
+                    self.root = B
+                return B
+            A = B
+            B = B.next
 
     def bubbleUp(self, C):
         # bubble this node up toward the top of the list, but only
@@ -172,9 +172,9 @@ class Set:
 
 class SetWithTestMethods(Set):
 
-    ADD_ELEMENT_TIME = 11.0e-6
-    CONTAINS_ELEMENT_TIME = 11.0e-6
-    ASARRAY_ELEMENT_TIME = 2.2e-6
+    ADD_ELEMENT_TIME = 13.0e-6
+    CONTAINS_ELEMENT_TIME = 12.0e-6
+    ASARRAY_ELEMENT_TIME = 2.5e-6
 
     def __init__(self):
         Set.__init__(self)
@@ -187,12 +187,8 @@ class SetWithTestMethods(Set):
         idealMemUsage = (self.population + 7) / 8.0
         return idealMemUsage / self.memUsage()
 
-    def __del__(self):
-        if stuff != None:
-            stuff.append(("Memory efficiency", self.efficiency()))
-
     def memUsage(self):
-        total = 3 * 4   # root, population, prevPrefix, all ints
+        total = 2 * 4   # root, population, both ints
         r = self.root
         while r != None:
             total += (3 + 128) * 4
