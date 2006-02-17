@@ -41,12 +41,17 @@ def debug_pref(name, dtype, **options ): #bruce 050725 revised this; bruce 06012
         debug_prefs[name] = dp = DebugPref(name, dtype, **options)
     return dp.current_value()
 
+def debug_pref_object(name): #bruce 060213 experiment
+    # might be useful for adding subscribers, but, this implem has error if no one called debug_pref on name yet!
+    # basic logic of scheme for this needs revision.
+    return debug_prefs[name]
+
 class Pref: #e might be merged with the DataType (aka PrefDataType) objects
     "Pref objects record all you need to know about a currently active preference lvalue [with optional persistence as of 060124]"
     prefs_key = None
     print_changes = False
     non_debug = False # should this be True here and False in DebugPref subclass? decide when it matters.
-    def __init__(self, name, dtype, prefs_key = False, non_debug = False): #bruce 060124 added prefs_key & non_debug options
+    def __init__(self, name, dtype, prefs_key = False, non_debug = False, subs = ()): #bruce 060124 added prefs_key & non_debug options
         #e for now, name is used locally (for UI, etc, and maybe for prefs db);
         # whether/how to find this obj using name is up to the caller
         self.name = name
@@ -62,9 +67,20 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
             # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
             # or use it only via self.current_value() [bruce 060209 bugfix]
-        if non_debug:
-            self.non_debug = True # show up in debug_prefs submenu even when ATOM-DEBUG is not set
+        self.non_debug = non_debug # show up in debug_prefs submenu even when ATOM-DEBUG is not set?
+        self.subscribers = []
+        for sub in subs:
+            self.subscribe_to_changes(sub)
         return
+    def subscribe_to_changes(self, func): #bruce 060216, untested, maybe not yet called, but intended to remain as a feature ###@@@
+        """Call func with no arguments after every change to our value from the debug menu,
+        until func() first returns true or raises an exception (for which we'll print a traceback).
+           Note: Doesn't detect independent changes to env.prefs[prefs_key] -- for that, suggest using
+        env.pref's subscription system instead.
+        """
+        self.subscribers.append(func)
+    def unsubscribe(self, func):
+        self.subscribers.remove(func) # error if not subscribed now
     def current_value(self):
         if self.prefs_key:
             # we have to look it up in env.prefs instead of relying on self.value,
@@ -95,6 +111,17 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
                 print msg
                 msg = "changed %s to %r%s" % (self, newval, extra) # shorter version (uses %s) for history [bruce 060126]
                 env.history.message(msg, quote_html = True, color = 'gray') #bruce 060126 new feature
+            for sub in self.subscribers[:]:
+                #bruce 060213 new feature
+                try:
+                    unsub = sub()
+                except:
+                    print_compact_traceback("exception ignored in some subscriber to changes to %s: " % self)
+                    unsub = 1
+                if unsub:
+                    self.subscribers.remove(sub) # should work properly even if sub is present more than once
+                continue
+            return # from newval_receiver_func
         return self.dtype.changer_menuspec(self.name, newval_receiver_func, self.current_value())
     def __repr__(self):
         extra = ""

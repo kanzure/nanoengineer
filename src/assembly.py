@@ -1035,9 +1035,9 @@ class assembly( UndoStateMixin):
 
     # ==
 
-    def become_state(self, state): #bruce 060117 kluge 
+    def become_state(self, state, archive): #bruce 060117 kluge 
         from undo_archive import assy_become_state
-        return assy_become_state(self, state) # this subroutine will probably become a method of class assembly
+        return assy_become_state(self, state, archive) # this subroutine will probably become a method of class assembly
 
     def clear(self): #bruce 060117 kluge
         from undo_archive import assy_clear

@@ -231,7 +231,7 @@ class UndoStateMixin( StateMixin, state_utils._eq_id_mixin_ ):
         "This should be called sometime during the caller's __init__ method. [#doc when, if it matters]"
         assert not self._um_deinited, "reinit of deinited undoable object is not allowed: %r" % self
         self._um_archive = archive
-        self._um_key = archive.allocate_key(self, key)
+        self._um_key = archive.allocate_key(self, key) ###@@@ WARNING: on 060216 I rewrote that method anew, ignoring whatever old one this was meant to call (if it even ever existed)
             # allocate a unique key from the undo-archive we'll be using to store old state and diffs;
             # and (since we pass self) store in the archive a weak ref to self from that key;
             # or if provided key is not None, use that (after asserting it's not already in use).
