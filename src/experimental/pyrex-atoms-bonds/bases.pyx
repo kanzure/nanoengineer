@@ -4,60 +4,60 @@ cdef extern from "Numeric/arrayobject.h":
     object PyArray_FromDims(int nd, int *d, int type)
 
 cdef extern from "basehelp.c":
-    checkForErrors()
-    cdef struct intset:
+    #checkForErrors()
+    cdef struct atomset:
         pass
     cdef struct chunkbase:
         pass
     cdef struct atombase:
         int positionIndex
-    intset *intset_init()
-    intset_size(intset*)
-    intset_add(intset*, int)
-    intset_addRange(intset*, int, int)
-    intset_asarray(intset*)
-    intset_fromList(intset*, PyObject)
-    intset_contains(intset*, int)
-    intset_remove(intset*, int)
-    intset_del(intset*)
-    double intset_contains_performance_test(intset*, int)
-    double intset_add_performance(intset*, int)
-    double intset_asarray_performance_test(intset*, int)
+    atomset *atomset_init()
+    atomset_size(atomset*)
+    void atomset_del(atomset*)
+    atomset_contains(atomset*, int)
+    atomset_remove(atomset*, int)
+    atomset_set(atomset*, int, PyObject)
+    atomset_get(atomset*, int)
+    atomset_asarray(atomset*)
+    void atomset_quickfill(atomset*, int, int, int)
+    double atomset_contains_performance(atomset*, int)
+    double atomset_set_performance(atomset*, int)
+    double atomset_asarray_performance(atomset*, int)
     chunkbase *chunkbase_init()
     chunkbase_addatom(chunkbase*, atombase*, int, double, double, double)
     void chunkbase_del(chunkbase*)
     atombase *atombase_init()
     void atombase_del(atombase*)
 
-cdef class __IntegerSet:
-    cdef intset *x
+cdef class __AtomSet:
+    cdef atomset *x
     def __init__(self):
-        self.x = intset_init()
-        checkForErrors()
+        self.x = atomset_init()
+        #checkForErrors()
     def __del__(self):
-        intset_del(self.x)
+        atomset_del(self.x)
     def __len__(self):
-        return intset_size(self.x)
-    def fromList(self, lst):
-        intset_fromList(self.x, lst)
-    def add(self, n):
-        intset_add(self.x, n)
+        return atomset_size(self.x)
+    def __setitem__(self, n, obj):
+        atomset_set(self.x, n, obj)
+    def __getitem__(self, n):
+        return atomset_get(self.x, n)
+    def __delitem__(self, n):
+        atomset_remove(self.x, n)
     def asArray(self):
-        return intset_asarray(self.x)
-    def remove(self, n):
-        intset_remove(self.x, n)
+        return atomset_asarray(self.x)
     def contains(self, n):
-        return intset_contains(self.x, n)
-    def addRange(self, m, n):
-        intset_addRange(self.x, m, n)
+        return atomset_contains(self.x, n)
     def contains_performance(self, n):
-        return intset_contains_performance_test(self.x, n)
-    def add_performance(self, n):
-        return intset_add_performance(self.x, n)
+        return atomset_contains_performance(self.x, n)
+    def set_performance(self, n):
+        return atomset_set_performance(self.x, n)
     def asarray_performance(self, n):
-        return intset_asarray_performance_test(self.x, n)
+        return atomset_asarray_performance(self.x, n)
+    def quickFill(self, n, div=1):
+        atomset_quickfill(self.x, n, div, 0)
 
-class IntegerSet(__IntegerSet):
+class AtomSet(__AtomSet):
     # __del__ doesn't get used until you derive a non-cdef class
     pass
 
@@ -65,7 +65,7 @@ cdef class __AtomBase:
     cdef atombase *x
     def __init__(self):
         self.x = atombase_init()
-        checkForErrors()
+        #checkForErrors()
     def __del__(self):
         atombase_del(self.x)
 
@@ -79,7 +79,7 @@ cdef class __ChunkBase:
     cdef chunkbase *x
     def __init__(self):
         self.x = chunkbase_init()
-        checkForErrors()
+        #checkForErrors()
     def __del__(self):
         chunkbase_del(self.x)
     def addatom(self, __AtomBase atm, tp, x, y, z):

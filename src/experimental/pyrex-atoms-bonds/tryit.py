@@ -2,18 +2,29 @@ import time
 import unittest
 import random
 import Numeric
-from bases import IntegerSet, AtomBase, ChunkBase
+from bases import *
 
-stuff = [ ]
 N = int(10**6)
 #N = int(10**6)
 
+class PerformanceLog:
+    def __init__(self):
+        self.records = [ ]
+    def __setitem__(self, name, time):
+        self.records.append("%s: %.2f nanoseconds per element"
+                            % (name, time))
+    def dump(self):
+        print "Performance information"
+        for x in self.records:
+            print x
+
+PL = PerformanceLog()
+
 class Tests(unittest.TestCase):
 
-    def test_IntegerSetFunctionality(self):
-        x = IntegerSet()
-        for i in range(0,2*N,2):
-            x.add(i)
+    def test_AtomSetFunctionality(self):
+        x = AtomSet()
+        x.quickFill(N, 2)
         assert len(x) == N
 
         assert not x.contains(-2)
@@ -46,15 +57,16 @@ class Tests(unittest.TestCase):
         assert not x.contains(2*N)
         assert not x.contains(2*N+1)
 
-        x.remove(2*N-4)
-        x.remove(2*N-2)
+        del x[2*N-4]
+        del x[2*N-2]
+        assert len(x) == N - 2
         assert not x.contains(2*N-4)
         assert not x.contains(2*N-2)
 
-    def test_IntegerSetAsArrayMethod(self):
-        x = IntegerSet()
+    def test_AtomSetAsArrayMethod(self):
+        x = AtomSet()
         a = Numeric.array(range(N), Numeric.UInt32)
-        x.addRange(0, N)
+        x.quickFill(N)
         assert len(x) == len(a)
         assert len(x) == N
         xa = x.asArray()
@@ -62,25 +74,21 @@ class Tests(unittest.TestCase):
         a = a - xa
         assert Numeric.vdot(a, a) == 0
 
-    def reportPerformance(self, name, time):
-        stuff.append("%s() %g nanoseconds per element" % (name, time))
-
-    def test_IntegerSetContainsPerformance(self):
-        x = IntegerSet()
-        x.addRange(0, N)
+    def test_AtomSetContainsPerformance(self):
+        x = AtomSet()
         T = x.contains_performance(N)
-        self.reportPerformance("contains", T)
+        PL["contains()"] = T
 
-    def test_IntegerSetAddPerformance(self):
-        x = IntegerSet()
-        T = x.add_performance(N)
-        self.reportPerformance("add", T)
+    def test_AtomSetSetPerformance(self):
+        x = AtomSet()
+        T = x.set_performance(N)
+        PL["set()"] = T
 
-    def test_IntegerSetAsarrayPerformance(self):
-        x = IntegerSet()
-        x.addRange(0, N)
+    def test_AtomSetAsarrayPerformance(self):
+        x = AtomSet()
+        x.quickFill(N)
         T = x.asarray_performance(N)
-        self.reportPerformance("asarray", T)
+        PL["asarray()"] = T
 
     def test_chunkBase(self):
         cb = ChunkBase()
@@ -97,9 +105,7 @@ def test():
     suite = unittest.makeSuite(Tests, 'test')
     runner = unittest.TextTestRunner()
     runner.run(suite)
-    print "Performance numbers"
-    for x in stuff:
-        print x
+    PL.dump()
 
 if __name__ == "__main__":
     test()
