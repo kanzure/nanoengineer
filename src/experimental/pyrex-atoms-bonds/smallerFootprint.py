@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # Think about the set sizes for which this scheme is memory efficient.
 
 import time
