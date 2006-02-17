@@ -36,6 +36,7 @@ extern int debug_flags;
 #define D_MINIMIZE_FINAL_PRINT (1<<11)
 #define D_STRESS_MOVIE    (1<<12)
 #define D_VERIFY_VDW      (1<<13)
+#define D_MINIMIZE_PARAMETER_GUESS (1<<14)
 
 #define TYPE_ERROR 1
 #define TYPE_WARNING 2

@@ -33,6 +33,22 @@ findRMSandMaxForce(struct configuration *p, double *pRMS, double *pMaxForce)
     *pMaxForce = sqrt(max_forceSquared);
 }
 
+static FILE *minimizeCountFile;
+
+static void
+countMinimizeEvaulations(char which)
+{
+    if (minimizeCountFile == NULL) {
+        minimizeCountFile = fopen("/tmp/minimizecounts", "a");
+        if (minimizeCountFile == NULL) {
+            perror("/tmp/minimizecounts");
+            exit(1);
+        }
+    }
+    fputc(which, minimizeCountFile);
+    fflush(minimizeCountFile);
+}
+
 // This is the potential function which is being minimized.
 static void
 minimizeStructurePotential(struct configuration *p)
@@ -44,6 +60,9 @@ minimizeStructurePotential(struct configuration *p)
     if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D3
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, NULL, "potential %e %e", p->functionValue, p->parameter);
     }
+    if (DEBUG(D_MINIMIZE_PARAMETER_GUESS)) {
+        countMinimizeEvaulations('p');
+    }
 }
 
 static double
@@ -53,6 +72,10 @@ clamp(double min, double max, double value)
     if (value < min) return min;
     return value;
 }
+
+static double last_rms_force = 0.0;
+static double last_max_force = 0.0;
+static FILE *parameterGuessFile = NULL;
 
 // This is the gradient of the potential function which is being minimized.
 static void
@@ -83,11 +106,39 @@ minimizeStructureGradient(struct configuration *p)
     //  p->gradient[i] = -p->gradient[i];
     //}
     findRMSandMaxForce(p, &rms_force, &max_force);
-    p->functionDefinition->initial_parameter_guess = clamp(1e-20, 1e3, 10.0 / max_force);
+
+    // The initial parameter guess function is empirically determined.
+    // The regression tests were run with D_MINIMIZE_PARAMETER_GUESS
+    // enabled (compiled on in simulator.c).  Plots of the max_force
+    // vs minimum parameter value columns were examined with gnuplot.
+    // A functional form was determined which stayed within the main
+    // body of the data points.  Final determination was based on the
+    // evaluation counts also output with that debugging flag on.
+    // Given that max_force is non-negative, the current form doesn't
+    // need the upper range limit in the clamp.
+    p->functionDefinition->initial_parameter_guess = clamp(1e-20, 1e3,
+                                                           0.7 / (max_force + 1000.0) +
+                                                           0.1 / (max_force + 20.0));
+    
     writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++,
 			    "gradient", p->functionDefinition->message);
     if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
+    }
+    if (DEBUG(D_MINIMIZE_PARAMETER_GUESS)) {
+        countMinimizeEvaulations('g');
+        if (parameterGuessFile == NULL) {
+            parameterGuessFile = fopen("/tmp/parameterguesses", "a");
+            if (parameterGuessFile == NULL) {
+                perror("/tmp/parameterguesses");
+                exit(1);
+            }
+        } else {
+            fprintf(parameterGuessFile, "%e %e %e\n", last_rms_force, last_max_force, p->parameter);
+            fflush(parameterGuessFile);
+        }
+        last_rms_force = rms_force;
+        last_max_force = max_force;
     }
 }
 
