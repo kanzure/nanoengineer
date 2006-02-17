@@ -8,9 +8,9 @@ ifeq (XX$(OS),XXWindows_NT)
 #---------------------------------------- Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CXX="C:/Dev-Cpp/bin/g++.exe"
-CFLAGS=-g -Wmissing-prototypes
+CFLAGS=-g -Wall -Wmissing-prototypes
 CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
-CXXFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
+CXXFLAGS+=-Wall -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
 LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib" \
 	-lpython$(PYVER) -lopengl32
 PYTHON=c:/Python$(PYVER)/python

@@ -12,9 +12,9 @@ typedef enum {
     IS_VBO_ENABLED = 1,
 } ShapeRendererQuery;
 
-PyObject * shapeRendererInit();
-void shapeRendererFinishDrawing();
-void shapeRendererStartDrawing();
+PyObject * shapeRendererInit(void);
+void shapeRendererFinishDrawing(void);
+void shapeRendererStartDrawing(void);
 void shapeRendererSetFrustum(float frustum[6]);
 void shapeRendererSetOrtho(float ortho[6]);
 void shapeRendererSetViewport(int viewport[4]);

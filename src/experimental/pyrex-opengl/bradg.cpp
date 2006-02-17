@@ -400,6 +400,7 @@ bool sortByColor(int objectStart, int objectCount, float colors[][4], int *uniqu
             h->m_firstObject = i;
             count++;
         } else {
+            h = colorSortedListHeads + k;
             colorSortedListIndices[i] = h->m_firstObject;
             h->m_firstObject = i;
         }
@@ -1583,7 +1584,7 @@ void ShapeRenderer::applyMaterial(float color[4])
 bool ShapeRenderer::init(GLContext *gl)
 {
     DataObject *obj;
-    int i;
+    unsigned int u;
 
     void *verticesMerged;
     void *elementsMerged;
@@ -1630,8 +1631,8 @@ bool ShapeRenderer::init(GLContext *gl)
     int *newCylElem = (int *)elementsMerged +
         sizeof(sphereElements) / sizeof(sphereElements[0]);
     int difference = sizeof(sphereVertices) / sizeof(sphereVertices[0]);
-    for(i = 0; i < sizeof(cylinderElements) / sizeof(cylinderElements[0]); i++)
-        newCylElem[i] += difference;
+    for(u = 0; u < sizeof(cylinderElements) / sizeof(cylinderElements[0]); u++)
+        newCylElem[u] += difference;
 
     // XXX test
     // gl->has_GL_ARB_vertex_buffer_object = false;
@@ -1668,17 +1669,17 @@ bool ShapeRenderer::init(GLContext *gl)
 
     // Sphere ---------------------------------------------------------------
 
-    int spherePrims = sizeof(sphereTrianglesOffsetCount) /
+    unsigned int spherePrims = sizeof(sphereTrianglesOffsetCount) /
         sizeof(sphereTrianglesOffsetCount[0]);
 
     sphereShapes = new IndexedShape[spherePrims];
-    for(i = 0; i < spherePrims; i++) {
-        sphereShapes[i].m_vertexData = vertexData;
-        sphereShapes[i].m_elementData = elementData;
+    for(u = 0; u < spherePrims; u++) {
+        sphereShapes[u].m_vertexData = vertexData;
+        sphereShapes[u].m_elementData = elementData;
 
-        bool success = sphereShapes[i].add(GL_TRIANGLES,
-            sizeof(sphereElements[0]) * sphereTrianglesOffsetCount[i][0],
-            sphereTrianglesOffsetCount[i][1]);
+        bool success = sphereShapes[u].add(GL_TRIANGLES,
+            sizeof(sphereElements[0]) * sphereTrianglesOffsetCount[u][0],
+            sphereTrianglesOffsetCount[u][1]);
 
         if(!success)
             return false;
@@ -1699,18 +1700,18 @@ bool ShapeRenderer::init(GLContext *gl)
 
     // Cylinder -------------------------------------------------------------
 
-    int cylinderPrims = sizeof(cylinderTrianglesOffsetCount) /
+    unsigned int cylinderPrims = sizeof(cylinderTrianglesOffsetCount) /
         sizeof(cylinderTrianglesOffsetCount[0]);
 
     cylinderShapes = new IndexedShape[cylinderPrims];
-    for(i = 0; i < cylinderPrims; i++) {
-        cylinderShapes[i].m_vertexData = vertexData;
-        cylinderShapes[i].m_elementData = elementData;
+    for(u = 0; u < cylinderPrims; u++) {
+        cylinderShapes[u].m_vertexData = vertexData;
+        cylinderShapes[u].m_elementData = elementData;
 
-        bool success = cylinderShapes[i].add(GL_TRIANGLES,
+        bool success = cylinderShapes[u].add(GL_TRIANGLES,
             cylinderElementsOffset + 
-            sizeof(cylinderElements[0]) * cylinderTrianglesOffsetCount[i][0],
-            cylinderTrianglesOffsetCount[i][1]);
+            sizeof(cylinderElements[0]) * cylinderTrianglesOffsetCount[u][0],
+            cylinderTrianglesOffsetCount[u][1]);
 
         if(!success)
             return false;

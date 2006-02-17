@@ -49,18 +49,18 @@ _checkArray(PyArrayObject *a)
  * Wrappers for Brad's stuff
  */
 
-static PyObject *_shapeRendererInit()
+static PyObject *_shapeRendererInit(void)
 {
     return shapeRendererInit();
 }
 
-static PyObject *_shapeRendererStartDrawing()
+static PyObject *_shapeRendererStartDrawing(void)
 {
     shapeRendererStartDrawing();
     return _getTestResult();
 }
 
-static PyObject *_shapeRendererFinishDrawing()
+static PyObject *_shapeRendererFinishDrawing(void)
 {
     shapeRendererFinishDrawing();
     return _getTestResult();
