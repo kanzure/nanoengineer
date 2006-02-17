@@ -659,7 +659,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         "Slot for 'Display > Element Color Settings...' menu item."
         self.showElementColorSettings()
         
-    def showElementColorSettings(self, parent=None, modal=False):
+    def showElementColorSettings(self, parent=None):
         '''Opens the Element Color Setting dialog, allowing the user to change default 
         colors of elements and bondpoints, and save them to a file.
         '''
@@ -670,10 +670,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if elementColorsWin and elementColorsWin.isShown(): 
                     return 
                     
-        if not parent: # added to allow the caller (i.e. Preferences dialog) to make it modal.
+        if not parent: # added parent arg to allow the caller (i.e. Preferences dialog) to make it modal.
             parent = self
         
-        elementColorsWin = elementColors(parent, modal)
+        elementColorsWin = elementColors(parent)
         elementColorsWin.setDisplay(self.Element)
         # Sync the thumbview bg color with the current mode's bg color.  Mark 051216.
         elementColorsWin.elemGLPane.change_bg_color(

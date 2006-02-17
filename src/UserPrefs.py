@@ -554,7 +554,7 @@ class UserPrefs(UserPrefsDialog):
         '''Display the Element Color Settings Dialog.
         '''
         # Since the prefs dialog is modal, the element color settings dialog must be modal.
-        self.w.showElementColorSettings(self, modal=True)
+        self.w.showElementColorSettings(self)
 
     def usual_change_color(self, prefs_key, caption = "choose"): #bruce 050805
         from prefs_widgets import colorpref_edit_dialog
