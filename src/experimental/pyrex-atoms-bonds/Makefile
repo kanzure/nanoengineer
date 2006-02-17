@@ -18,9 +18,3 @@ bases.so: bases.o
 
 basehelp.o: basehelp.c
 	$(CC) -c -o basehelp.o -D__TEST__ basehelp.c $(CFLAGS) -pg
-
-_test: basehelp.o
-	$(CC) -o _test basehelp.o $(LDFLAGS) -pg
-
-test: bases.so
-	python -c "import bases; bases.test()"
