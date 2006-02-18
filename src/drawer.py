@@ -687,12 +687,13 @@ class ColorSorter:
                         # _printstats
     _immediate = 0      # Number of calls to _invoke_immediately since last
                         # _printstats
-    _gl_name_stack = [0]       # internal record of GL name stack
+    _gl_name_stack = [0]       # internal record of GL name stack; 0 is a sentinel
 
     def pushName(glname):
         """\
-        Record the current pushed GL name.
+        Record the current pushed GL name, which must not be 0.
         """
+        assert glname, "glname of 0 is illegal (used as sentinel)" #bruce 060217 added this assert
         ColorSorter._gl_name_stack.append(glname)
 
     pushName = staticmethod(pushName)
@@ -742,13 +743,18 @@ class ColorSorter:
         ColorSorter._immediate += 1
         # 20060216 We know we can do this here because the stack is
         # only ever one element deep.
-        glPushName(ColorSorter._gl_name_stack[-1])
+
+        #bruce 060217 guessing fix to bug 1527: don't push a name of 0, that's just a sentinel.
+        name = ColorSorter._gl_name_stack[-1]
+        if name:
+            glPushName(name)
 
         apply_material(color)
         func(params)
 
-        glPopName()
-
+        if name:
+            glPopName()
+        return
 
     _invoke_immediately = staticmethod(_invoke_immediately)
 
