@@ -179,6 +179,7 @@ class UserPrefs(UserPrefsDialog):
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
         self.selection_behavior_btngrp.setButton(env.prefs[selectionBehavior_prefs_key])
         self.animate_views_checkbox.setChecked(env.prefs[animateStandardViews_prefs_key])
+        self.watch_min_in_realtime_checkbox.setChecked(env.prefs[watchRealtimeMinimization_prefs_key])
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed) 
@@ -500,7 +501,11 @@ class UserPrefs(UserPrefsDialog):
         self.glpane.gl_update()
 
     def set_compass_position(self, val):
-        '''Set position of compass
+        '''Set position of compass, where <val> is:
+            0 = upper right
+            1 = upper left
+            2 = lower left
+            3 = lower right
         '''
         # set the pref
         env.prefs[compassPosition_prefs_key] = val
@@ -515,14 +520,16 @@ class UserPrefs(UserPrefsDialog):
         self.glpane.setViewProjection(projection)
         
     def set_selection_behavior(self, behavior):
-        '''Set selection behavior, where 0 = 'Alpha 7 behavior' and 1 = 'Alpha 6 behavior'
-        'Alpha 7 behavior' means:
-            Left mouse button (LMB): Adds to the current selection, keeping everything that was previously selected.
+        '''Set selection behavior, where 1 = 'Standard Behavior' and 0 = 'Non-standard Behavior'
+        
+        'Standard Behavior' means:
+            Left mouse button (LMB): Makes a new selection, unselecting everything that was previously selected. 
                A click in empty space unselects everything.
             Shift+LMB: adds to the current selection, keeping everything that was previously selected
             Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
-        'Alpha 6 behavior' means:
-            Left mouse button (LMB): Makes a new selection, unselecting everything that was previously selected. 
+            
+        'Non-standard Behavior' means:
+            Left mouse button (LMB): Adds to the current selection, keeping everything that was previously selected.
                A click in empty space unselects everything.
             Shift+LMB: adds to the current selection, keeping everything that was previously selected
             Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
@@ -545,6 +552,11 @@ class UserPrefs(UserPrefsDialog):
         # change minValue to -400.  mark 060124.
         env.prefs[animateMaximumTime_prefs_key] = \
             self.animation_speed_slider.value() / -100.0
+            
+    def set_realtime_minimization(self):
+        '''Slot for the Minimization "Watch in Realtime" checkbox.
+        '''
+        env.prefs[watchRealtimeMinimization_prefs_key] = self.watch_min_in_realtime_checkbox.isChecked()
         
     ########## End of slot methods for "General" page widgets ###########
     

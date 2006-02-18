@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Feb 15 22:53:18 2006
+# Created: Fri Feb 17 17:39:39 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,8 +35,10 @@ class UserPrefsDialog(QDialog):
 
         self.tab = QWidget(self.prefs_tab,"tab")
         tabLayout = QGridLayout(self.tab,1,1,11,6,"tabLayout")
+        spacer57_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        tabLayout.addItem(spacer57_2,0,1)
 
-        layout54 = QHBoxLayout(None,0,6,"layout54")
+        layout77 = QHBoxLayout(None,0,6,"layout77")
 
         self.groupBox7_2 = QGroupBox(self.tab,"groupBox7_2")
         self.groupBox7_2.setColumnLayout(0,Qt.Vertical)
@@ -56,47 +58,79 @@ class UserPrefsDialog(QDialog):
         self.display_pov_axis_checkbox = QCheckBox(self.groupBox7_2,"display_pov_axis_checkbox")
         self.display_pov_axis_checkbox.setChecked(1)
         groupBox7_2Layout.addWidget(self.display_pov_axis_checkbox)
-        layout54.addWidget(self.groupBox7_2)
+        layout77.addWidget(self.groupBox7_2)
 
-        self.compass_position_btngrp = QButtonGroup(self.tab,"compass_position_btngrp")
+        self.groupBox15 = QGroupBox(self.tab,"groupBox15")
+        self.groupBox15.setColumnLayout(0,Qt.Vertical)
+        self.groupBox15.layout().setSpacing(6)
+        self.groupBox15.layout().setMargin(11)
+        groupBox15Layout = QGridLayout(self.groupBox15.layout())
+        groupBox15Layout.setAlignment(Qt.AlignTop)
+
+        self.compass_position_btngrp = QButtonGroup(self.groupBox15,"compass_position_btngrp")
+        self.compass_position_btngrp.setPaletteBackgroundColor(QColor(178,231,229))
+        self.compass_position_btngrp.setFrameShape(QButtonGroup.Box)
+        self.compass_position_btngrp.setFrameShadow(QButtonGroup.Plain)
+        self.compass_position_btngrp.setLineWidth(1)
         self.compass_position_btngrp.setExclusive(1)
+        self.compass_position_btngrp.setRadioButtonExclusive(1)
         self.compass_position_btngrp.setColumnLayout(0,Qt.Vertical)
         self.compass_position_btngrp.layout().setSpacing(6)
         self.compass_position_btngrp.layout().setMargin(11)
         compass_position_btngrpLayout = QGridLayout(self.compass_position_btngrp.layout())
         compass_position_btngrpLayout.setAlignment(Qt.AlignTop)
 
-        self.upper_right_btn = QRadioButton(self.compass_position_btngrp,"upper_right_btn")
-        self.upper_right_btn.setChecked(1)
-
-        compass_position_btngrpLayout.addWidget(self.upper_right_btn,0,1)
-
         self.upper_left_btn = QRadioButton(self.compass_position_btngrp,"upper_left_btn")
+        self.compass_position_btngrp.insert( self.upper_left_btn,1)
 
         compass_position_btngrpLayout.addWidget(self.upper_left_btn,0,0)
+        spacer53 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        compass_position_btngrpLayout.addItem(spacer53,1,0)
 
         self.lower_left_btn = QRadioButton(self.compass_position_btngrp,"lower_left_btn")
+        self.compass_position_btngrp.insert( self.lower_left_btn,2)
 
         compass_position_btngrpLayout.addWidget(self.lower_left_btn,2,0)
+        spacer55 = QSpacerItem(30,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        compass_position_btngrpLayout.addItem(spacer55,1,1)
+
+        self.upper_right_btn = QRadioButton(self.compass_position_btngrp,"upper_right_btn")
+        self.upper_right_btn.setChecked(1)
+        self.compass_position_btngrp.insert( self.upper_right_btn,0)
+
+        compass_position_btngrpLayout.addWidget(self.upper_right_btn,0,2)
+        spacer54_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        compass_position_btngrpLayout.addItem(spacer54_2,1,2)
 
         self.lower_right_btn = QRadioButton(self.compass_position_btngrp,"lower_right_btn")
+        self.compass_position_btngrp.insert( self.lower_right_btn,3)
 
-        compass_position_btngrpLayout.addWidget(self.lower_right_btn,2,1)
-        spacer8 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        compass_position_btngrpLayout.addItem(spacer8,1,0)
-        spacer8_2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        compass_position_btngrpLayout.addItem(spacer8_2,1,1)
-        layout54.addWidget(self.compass_position_btngrp)
-        spacer48 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout54.addItem(spacer48)
+        compass_position_btngrpLayout.addWidget(self.lower_right_btn,2,2)
 
-        tabLayout.addLayout(layout54,0,0)
+        groupBox15Layout.addWidget(self.compass_position_btngrp,0,0)
+        layout77.addWidget(self.groupBox15)
 
-        layout130 = QHBoxLayout(None,0,6,"layout130")
+        layout73 = QVBoxLayout(None,0,6,"layout73")
 
-        layout123 = QVBoxLayout(None,0,6,"layout123")
+        self.groupBox14 = QGroupBox(self.tab,"groupBox14")
+        self.groupBox14.setColumnLayout(0,Qt.Vertical)
+        self.groupBox14.layout().setSpacing(6)
+        self.groupBox14.layout().setMargin(11)
+        groupBox14Layout = QVBoxLayout(self.groupBox14.layout())
+        groupBox14Layout.setAlignment(Qt.AlignTop)
 
-        layout122 = QHBoxLayout(None,0,6,"layout122")
+        self.watch_min_in_realtime_checkbox = QCheckBox(self.groupBox14,"watch_min_in_realtime_checkbox")
+        groupBox14Layout.addWidget(self.watch_min_in_realtime_checkbox)
+        layout73.addWidget(self.groupBox14)
+        spacer56_2 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout73.addItem(spacer56_2)
+        layout77.addLayout(layout73)
+
+        tabLayout.addLayout(layout77,0,0)
+
+        layout78 = QHBoxLayout(None,0,6,"layout78")
+
+        layout67 = QVBoxLayout(None,0,6,"layout67")
 
         self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
         self.default_projection_btngrp.setExclusive(1)
@@ -114,7 +148,7 @@ class UserPrefsDialog(QDialog):
         self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
 
         default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
-        layout122.addWidget(self.default_projection_btngrp)
+        layout67.addWidget(self.default_projection_btngrp)
 
         self.selection_behavior_btngrp = QButtonGroup(self.tab,"selection_behavior_btngrp")
         self.selection_behavior_btngrp.setProperty("selectedId",QVariant(-1))
@@ -134,11 +168,8 @@ class UserPrefsDialog(QDialog):
         self.selection_behavior_btngrp.insert( self.alpha6_behavior_rbtn,1)
 
         selection_behavior_btngrpLayout.addWidget(self.alpha6_behavior_rbtn,0,0)
-        layout122.addWidget(self.selection_behavior_btngrp)
-        layout123.addLayout(layout122)
-        spacer23 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout123.addItem(spacer23)
-        layout130.addLayout(layout123)
+        layout67.addWidget(self.selection_behavior_btngrp)
+        layout78.addLayout(layout67)
 
         layout129 = QVBoxLayout(None,0,6,"layout129")
 
@@ -196,11 +227,11 @@ class UserPrefsDialog(QDialog):
         layout129.addWidget(self.groupBox8)
         spacer109 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout129.addItem(spacer109)
-        layout130.addLayout(layout129)
-        spacer25 = QSpacerItem(23,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout130.addItem(spacer25)
+        layout78.addLayout(layout129)
+        spacer25 = QSpacerItem(164,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout78.addItem(spacer25)
 
-        tabLayout.addLayout(layout130,1,0)
+        tabLayout.addLayout(layout78,1,0)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -319,20 +350,20 @@ class UserPrefsDialog(QDialog):
 
         layout80_2.addWidget(self.textLabel1_7,1,0)
 
-        layout67 = QHBoxLayout(None,0,6,"layout67")
+        layout67_2 = QHBoxLayout(None,0,6,"layout67_2")
 
         self.cpk_atom_rad_spinbox = QSpinBox(self.TabPage,"cpk_atom_rad_spinbox")
         self.cpk_atom_rad_spinbox.setMaxValue(125)
         self.cpk_atom_rad_spinbox.setMinValue(50)
         self.cpk_atom_rad_spinbox.setValue(100)
-        layout67.addWidget(self.cpk_atom_rad_spinbox)
+        layout67_2.addWidget(self.cpk_atom_rad_spinbox)
 
         self.textLabel1_4 = QLabel(self.TabPage,"textLabel1_4")
-        layout67.addWidget(self.textLabel1_4)
+        layout67_2.addWidget(self.textLabel1_4)
         spacer38 = QSpacerItem(19,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout67.addItem(spacer38)
+        layout67_2.addItem(spacer38)
 
-        layout80_2.addLayout(layout67,0,1)
+        layout80_2.addLayout(layout67_2,0,1)
 
         self.level_of_detail_combox = QComboBox(0,self.TabPage,"level_of_detail_combox")
 
@@ -454,36 +485,36 @@ class UserPrefsDialog(QDialog):
 
         layout79_2 = QVBoxLayout(None,0,6,"layout79_2")
 
-        layout77 = QHBoxLayout(None,0,6,"layout77")
+        layout77_2 = QHBoxLayout(None,0,6,"layout77_2")
 
         self.textLabel1_3 = QLabel(self.TabPage_2,"textLabel1_3")
-        layout77.addWidget(self.textLabel1_3)
+        layout77_2.addWidget(self.textLabel1_3)
 
         self.cpk_cylinder_rad_spinbox = QSpinBox(self.TabPage_2,"cpk_cylinder_rad_spinbox")
         self.cpk_cylinder_rad_spinbox.setMaxValue(125)
         self.cpk_cylinder_rad_spinbox.setMinValue(50)
         self.cpk_cylinder_rad_spinbox.setValue(100)
-        layout77.addWidget(self.cpk_cylinder_rad_spinbox)
+        layout77_2.addWidget(self.cpk_cylinder_rad_spinbox)
 
         self.textLabel1_2_2 = QLabel(self.TabPage_2,"textLabel1_2_2")
-        layout77.addWidget(self.textLabel1_2_2)
+        layout77_2.addWidget(self.textLabel1_2_2)
         spacer22_2_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout77.addItem(spacer22_2_2)
-        layout79_2.addLayout(layout77)
+        layout77_2.addItem(spacer22_2_2)
+        layout79_2.addLayout(layout77_2)
 
-        layout78 = QHBoxLayout(None,0,6,"layout78")
+        layout78_2 = QHBoxLayout(None,0,6,"layout78_2")
 
         self.textLabel1 = QLabel(self.TabPage_2,"textLabel1")
-        layout78.addWidget(self.textLabel1)
+        layout78_2.addWidget(self.textLabel1)
 
         self.bond_line_thickness_spinbox = QSpinBox(self.TabPage_2,"bond_line_thickness_spinbox")
         self.bond_line_thickness_spinbox.setMaxValue(3)
         self.bond_line_thickness_spinbox.setMinValue(1)
-        layout78.addWidget(self.bond_line_thickness_spinbox)
+        layout78_2.addWidget(self.bond_line_thickness_spinbox)
 
         self.textLabel1_2 = QLabel(self.TabPage_2,"textLabel1_2")
-        layout78.addWidget(self.textLabel1_2)
-        layout79_2.addLayout(layout78)
+        layout78_2.addWidget(self.textLabel1_2)
+        layout79_2.addLayout(layout78_2)
 
         layout76 = QHBoxLayout(None,0,6,"layout76")
 
@@ -607,11 +638,11 @@ class UserPrefsDialog(QDialog):
         layout68_3.addWidget(self.bg1_color_lbl)
         layout69_2.addLayout(layout68_3)
 
-        layout67_2 = QVBoxLayout(None,0,6,"layout67_2")
+        layout67_3 = QVBoxLayout(None,0,6,"layout67_3")
 
         self.fill_type_combox = QComboBox(0,self.bg_groupbox,"fill_type_combox")
         self.fill_type_combox.setEnabled(1)
-        layout67_2.addWidget(self.fill_type_combox)
+        layout67_3.addWidget(self.fill_type_combox)
 
         layout37 = QHBoxLayout(None,0,6,"layout37")
 
@@ -624,8 +655,8 @@ class UserPrefsDialog(QDialog):
 
         self.choose_bg1_color_btn = QPushButton(self.bg_groupbox,"choose_bg1_color_btn")
         layout37.addWidget(self.choose_bg1_color_btn)
-        layout67_2.addLayout(layout37)
-        layout69_2.addLayout(layout67_2)
+        layout67_3.addLayout(layout37)
+        layout69_2.addLayout(layout67_3)
 
         bg_groupboxLayout.addMultiCellLayout(layout69_2,0,0,0,1)
 
@@ -937,9 +968,9 @@ class UserPrefsDialog(QDialog):
 
         groupBox9_2Layout.addLayout(layout50,0,1)
 
-        layout54_2 = QVBoxLayout(None,0,6,"layout54_2")
+        layout54 = QVBoxLayout(None,0,6,"layout54")
         spacer36 = QSpacerItem(100,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout54_2.addItem(spacer36)
+        layout54.addItem(spacer36)
 
         layout46 = QHBoxLayout(None,0,6,"layout46")
 
@@ -950,7 +981,7 @@ class UserPrefsDialog(QDialog):
 
         self.textLabel2_4 = QLabel(self.groupBox9_2,"textLabel2_4")
         layout46.addWidget(self.textLabel2_4)
-        layout54_2.addLayout(layout46)
+        layout54.addLayout(layout46)
 
         self.ms_finish_slider = QSlider(self.groupBox9_2,"ms_finish_slider")
         self.ms_finish_slider.setMinValue(0)
@@ -959,7 +990,7 @@ class UserPrefsDialog(QDialog):
         self.ms_finish_slider.setOrientation(QSlider.Horizontal)
         self.ms_finish_slider.setTickmarks(QSlider.NoMarks)
         self.ms_finish_slider.setTickInterval(5)
-        layout54_2.addWidget(self.ms_finish_slider)
+        layout54.addWidget(self.ms_finish_slider)
 
         layout46_2 = QHBoxLayout(None,0,6,"layout46_2")
 
@@ -970,7 +1001,7 @@ class UserPrefsDialog(QDialog):
 
         self.textLabel2_4_2 = QLabel(self.groupBox9_2,"textLabel2_4_2")
         layout46_2.addWidget(self.textLabel2_4_2)
-        layout54_2.addLayout(layout46_2)
+        layout54.addLayout(layout46_2)
 
         self.ms_shininess_slider = QSlider(self.groupBox9_2,"ms_shininess_slider")
         self.ms_shininess_slider.setMinValue(15)
@@ -979,7 +1010,7 @@ class UserPrefsDialog(QDialog):
         self.ms_shininess_slider.setOrientation(QSlider.Horizontal)
         self.ms_shininess_slider.setTickmarks(QSlider.NoMarks)
         self.ms_shininess_slider.setTickInterval(5)
-        layout54_2.addWidget(self.ms_shininess_slider)
+        layout54.addWidget(self.ms_shininess_slider)
 
         layout46_3 = QHBoxLayout(None,0,6,"layout46_3")
 
@@ -990,7 +1021,7 @@ class UserPrefsDialog(QDialog):
 
         self.textLabel2_4_3 = QLabel(self.groupBox9_2,"textLabel2_4_3")
         layout46_3.addWidget(self.textLabel2_4_3)
-        layout54_2.addLayout(layout46_3)
+        layout54.addLayout(layout46_3)
 
         self.ms_brightness_slider = QSlider(self.groupBox9_2,"ms_brightness_slider")
         self.ms_brightness_slider.setMinValue(0)
@@ -999,9 +1030,9 @@ class UserPrefsDialog(QDialog):
         self.ms_brightness_slider.setOrientation(QSlider.Horizontal)
         self.ms_brightness_slider.setTickmarks(QSlider.NoMarks)
         self.ms_brightness_slider.setTickInterval(5)
-        layout54_2.addWidget(self.ms_brightness_slider)
+        layout54.addWidget(self.ms_brightness_slider)
 
-        groupBox9_2Layout.addLayout(layout54_2,0,2)
+        groupBox9_2Layout.addLayout(layout54,0,2)
 
         TabPageLayout_4.addWidget(self.groupBox9_2,0,1)
         self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
@@ -1193,7 +1224,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(563,400).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(568,412).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animate_views_checkbox,SIGNAL("stateChanged(int)"),self.change_animate_standard_views)
@@ -1266,6 +1297,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
         self.connect(self.display_mode_combox,SIGNAL("activated(int)"),self.change_mode_default_display_mode)
+        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("clicked()"),self.set_realtime_minimization)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1333,11 +1365,14 @@ class UserPrefsDialog(QDialog):
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
         self.display_origin_axis_checkbox.setText(self.__tr("Display Origin Axis"))
         self.display_pov_axis_checkbox.setText(self.__tr("Display Point of View Axis"))
-        self.compass_position_btngrp.setTitle(self.__tr("Compass Position"))
-        self.upper_right_btn.setText(self.__tr("Upper Right"))
-        self.upper_left_btn.setText(self.__tr("Upper Left"))
-        self.lower_left_btn.setText(self.__tr("Lower Left"))
-        self.lower_right_btn.setText(self.__tr("Lower Right"))
+        self.groupBox15.setTitle(self.__tr("Compass Position"))
+        self.compass_position_btngrp.setTitle(QString.null)
+        self.upper_left_btn.setText(QString.null)
+        self.lower_left_btn.setText(QString.null)
+        self.upper_right_btn.setText(QString.null)
+        self.lower_right_btn.setText(QString.null)
+        self.groupBox14.setTitle(self.__tr("Minimization"))
+        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch In Realtime"))
         self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
@@ -1695,6 +1730,9 @@ class UserPrefsDialog(QDialog):
 
     def change_mode_default_display_mode(self):
         print "UserPrefsDialog.change_mode_default_display_mode(): Not implemented yet"
+
+    def set_realtime_minimization(self):
+        print "UserPrefsDialog.set_realtime_minimization(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

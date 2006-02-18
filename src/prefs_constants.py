@@ -66,6 +66,7 @@ defaultProjection_prefs_key = 'A7/Default Projection'
 selectionBehavior_prefs_key = 'A7/Selection Behavior'
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
+watchRealtimeMinimization_prefs_key = 'A7/Watch Realtime Minimization'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -200,6 +201,7 @@ prefs_table = (
     ('selection_behavior', 'int', selectionBehavior_prefs_key, A6_SELECTION_BEHAVIOR), # Mark 060125.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
+    ('watch_realtime_min', 'boolean', watchRealtimeMinimization_prefs_key, True), # Mark 060217.
 
     # Atom preferences - colors (other than element colors, handled separately)
 

@@ -99,12 +99,19 @@ class SimRunner:
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
-        prefer_dylib_sim = debug_pref("force use of pyrex sim", Choice_boolean_False,
-                                      prefs_key = 'use-pyrex-sim', non_debug = True)
+        
+        from prefs_constants import watchRealtimeMinimization_prefs_key
+        prefer_dylib_sim = env.prefs[watchRealtimeMinimization_prefs_key] # mark 060218.
+            # The debug menu should set the user pref watchRealtimeMinimization_prefs_key.  mark 060218.
+        
+        #prefer_dylib_sim = debug_pref("force use of pyrex sim", Choice_boolean_False,
+        #                              prefs_key = 'use-pyrex-sim', non_debug = True)
+        
         if prefer_dylib_sim:
             # if true, override environment variable, wware 060127
             use_dylib_sim = True
         self.use_dylib_sim = use_dylib_sim #bruce 051230
+            
         self.cmdname = cmdname
         if use_dylib_sim:
             env.history.message(greenmsg("this simulator run will use experimental pyrex interface if it can be imported properly"))
