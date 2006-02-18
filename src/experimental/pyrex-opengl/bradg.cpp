@@ -1775,8 +1775,6 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
         /* allocation failed */
         return false;
 
-    glPushName(0);      // Dummy, overwritten by first object
-
     for(j = 0; j < uniqueColorCount; j++) {
         applyMaterial(colorSortedListHeads[j].m_color);
 
@@ -1786,8 +1784,9 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
                 glPushMatrix();
                 glTranslatef(center[i][0], center[i][1], center[i][2]);
                 glScalef(radius[i], radius[i], radius[i]);
-                if(names != NULL)
-                    glLoadName(names[i]);
+
+                if((names != NULL) && (names[i] != 0))
+                    glPushName(names[i]);
 
                 if(m_useLOD) {
                     lodvalue = m_lodScale *
@@ -1807,14 +1806,15 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
                     m_forcedSphere->draw();
                 }
 
+                if((names != NULL) && (names[i] != 0))
+                    glPopName();
+
                 glPopMatrix();
             }
 
             i = objectNext[i];
         }
     }
-
-    glPopName();
 
     return true;
 }
@@ -1856,8 +1856,6 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
         /* allocation failed */
         return false;
 
-    glPushName(0);      // Dummy, overwritten by first object
-
     for(k = 0; k < uniqueColorCount; k++) {
         applyMaterial(colorSortedListHeads[k].m_color);
 
@@ -1866,8 +1864,9 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
             if(radius[i] != 0.0f) {
                 glPushMatrix();
                 applyCylinderMatrix(pos1[i], pos2[i], radius[i]);
-                if(names != NULL)
-                    glLoadName(names[i]);
+
+                if((names != NULL) && (names[i] != 0))
+                    glPushName(names[i]);
 
                 if(m_useLOD) {
                     lodvalue = m_lodScale *
@@ -1899,14 +1898,15 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
 
                 }
 
+                if((names != NULL) && (names[i] != 0))
+                    glPopName();
+
                 glPopMatrix();
             }
 
             i = objectNext[i];
         }
     }
-
-    glPopName();
 
     return true;
 }
