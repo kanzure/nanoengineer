@@ -1503,7 +1503,8 @@ class depositMode(selectAtomsMode):
         '''
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
+            if self.modkey is None: # Fixes bug 1503.  mark 060218.
+                self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
             return
             
         self.ignore_next_leftUp_event = True
