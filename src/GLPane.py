@@ -1636,6 +1636,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     ###e in fact, when nodes change projection or viewport for kids, and/or share their kids, they need to
                     # put their own names on the stack, so we'll know how to redraw the kids, or which ones are meant when shared.
                     obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                    if obj is None:
+                        print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1],names)
                     self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
             #e maybe we should now sort glselect_dict by "hit priority" (for depth-tiebreaking), or at least put self.selobj first.
             # (or this could be done lower down, where it's used.)
@@ -1848,6 +1850,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 method = obj.draw_in_abs_coords
             except AttributeError:
                 print "bug? ignored: %r has no draw_in_abs_coords method" % (obj,)
+                print "   items are:", items
             else:
                 try:
                     method(self, white) # draw depth info (color doesn't matter since we're not drawing pixels)
