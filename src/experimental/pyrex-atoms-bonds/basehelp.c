@@ -1,7 +1,7 @@
 #include "Python.h"
 #include "Numeric/arrayobject.h"
 
-// #define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #define XX(z)   z
@@ -18,6 +18,10 @@
 #define DBL(x)
 #define STR(x)
 #endif
+
+#define FREE(x)       MARK(); free(x)
+#define PYDECREF(x)   MARK(); Py_DECREF(x)
+#define PYXDECREF(x)  MARK(); Py_XDECREF(x)
 
 /*
  * Time function for performance measurements, theoretically good to
@@ -48,8 +52,10 @@ struct set {
  * give quicker searches.
  */
 
+// #define SUBKEYSIZE  2
 // #define SUBKEYSIZE  4
 #define SUBKEYSIZE  8
+// #define SUBKEYSIZE  16
 #define NUMENTRIES  (1 << SUBKEYSIZE)
 #define SUBTABLESIZE  (NUMENTRIES * sizeof(void *))
 #define SUBKEYMASK  (NUMENTRIES - 1)
@@ -114,7 +120,7 @@ struct set *atomset_init(void)
     }
     ss->root = (void**) malloc(NUMENTRIES * sizeof(void*));
     if (ss->root == NULL) {
-	free(ss);
+	FREE(ss);
 	PyErr_SetString(PyExc_MemoryError, "out of memory");
 	return NULL;
     }
@@ -128,27 +134,27 @@ static PyObject *atomset_size(struct set *ss)
     return Py_BuildValue("i", ss->population);
 }
 
-static void _atomset_cleanup(void **root, int bits)
+static void _atomset_cleanup(void **root, int layers)
 {
     int i;
-    if (bits == 0) {
+    if (layers == 0) {
 	for (i = 0; i < NUMENTRIES; i++) {
 	    PyObject *p = (PyObject *) root[i];
-	    Py_XDECREF(p);
+	    PYXDECREF(p);
 	}
-	return;
+    } else {
+	for (i = 0; i < NUMENTRIES; i++)
+	    if (root[i] != NULL) {
+		_atomset_cleanup((void**) root[i], layers - 1);
+		FREE(root[i]);
+	    }
     }
-    for (i = 0; i < NUMENTRIES; i++)
-	if (root[i] != NULL)
-	    _atomset_cleanup((void**) &root[i],
-			    bits - SUBKEYSIZE);
-    if (bits < NUMLAYERS)
-	free(root);
 }
 
 static void atomset_del(struct set *ss)
 {
-    _atomset_cleanup(ss->root, 32);
+    _atomset_cleanup(ss->root, NUMLAYERS-1);
+    FREE(ss->root);
 }
 
 static int _atomset_set(struct set *ss, unsigned int key, PyObject *obj)
@@ -156,7 +162,7 @@ static int _atomset_set(struct set *ss, unsigned int key, PyObject *obj)
     void **p = _findkey(ss, key, 1);
     if (p != NULL) {
 	if (*p != NULL) {
-	    Py_DECREF((PyObject *) *p);
+	    PYDECREF((PyObject *) *p);
 	    ss->population--;
 	}
 	Py_INCREF(obj);
@@ -201,7 +207,7 @@ static void _atomset_remove(struct set *ss, unsigned int key)
 {
     void **p = _findkey(ss, key, 0);
     if (p != NULL && *p != NULL) {
-	Py_DECREF((PyObject*) *p);
+	PYDECREF((PyObject*) *p);
 	ss->population--;
 	*p = NULL;
     }
@@ -309,7 +315,7 @@ static double atomset_asarray_performance(struct set *ss, int n)
     time1 = now();
     r = atomset_asarray(ss);
     time2 = now();
-    Py_DECREF(r);
+    PYDECREF(r);
     return 1.0e9 * (time2 - time1) / n;
 }
 
@@ -386,8 +392,9 @@ struct chunkbase * chunkbase_init(void)
 
 void chunkbase_del(struct chunkbase *cb)
 {
-    if (cb && cb->positions)
-	free(cb->positions);
+    if (cb && cb->positions) {
+	FREE(cb->positions);
+    }
 }
 
 PyObject *chunkbase_addatom(struct chunkbase *cb, struct atombase *ab,
