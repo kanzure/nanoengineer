@@ -251,6 +251,8 @@ def analyze_class(clas):####@@@@ IMPLEM calls to this
     # lis is a sequence of attrnames
     return state_utils.StateHolderInstanceClassification( clas, lis)
 
+## class x(attrlayer_scanner)
+
 # ==
 
 def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore assy state to prior internally-saved state
@@ -373,7 +375,7 @@ def assy_become_scanned_state(self, data, archive):
     "[self is an assy; data is returned by mmp_state_by_scan]"
     modified = {}
     # for faster access in inner loop:
-    obj4key = archive.obj4key ######@@@@@@ IMPLEM
+    obj4key = archive.obj4key
     copy = archive.copy_val
         # ideally, copy_val might depend on attr (and for some attrs is not needed at all),
         # i.e. we should grab one just for each attr farther inside this loop, and have a loop variant without it
@@ -580,7 +582,7 @@ class SharedDiffopData: ####@@@@ stub, apparently, as of 060216; see also the be
         """
         if self.direction:
             assert self.direction == direction #k does this belong in caller? is it redundant with varid_vers?
-        obj4key = archive.obj4key # for efficiency, let this be a public dict in archive ###@@@
+        obj4key = archive.obj4key # for efficiency, let this be a public dict in archive
         objs_touched = {} # by any attrs... for merging diffs, it might be better for caller to pass this and do the update,
          #e  but then if our attrs come in layers, caller has to scan the diffs to merge one layer at a time, maybe... not sure;
          # maybe it only has to do that for update, ie track objs touched in each layer.
@@ -806,7 +808,7 @@ class MergingDiff(Delegator):
 
 # ==
 
-_lastobjkey = 0
+# ==
 
 class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_older # TODO: maybe assy.changed will tell us...
     """#docstring is in older code... maintains a series (or graph) of checkpoints and diffs connecting them....
@@ -828,10 +830,13 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     copy_val = state_utils.copy_val_again #060216, might turn out to be a temporary kluge ###@@@
     
     def __init__(self, assy):
-        self.obj4key = {} ####@@@@ does this need to be the same as atom keys? not for now, but maybe yes someday... [060216]
-            # maps key to object. this is intentionally not weak-valued. It's public.
-        self._key4obj = {} # maps id(obj) -> key
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
+        
+        self.objkey_allocator = oka = state_utils.objkey_allocator()
+        self.obj4key = oka.obj4key # public attr, maps keys -> objects
+            ####@@@@ does this need to be the same as atom keys? not for now, but maybe yes someday... [060216]
+        self.key4obj_maybe_new = oka.key4obj_maybe_new # function to look up or allocate key for any obj
+        
         self.stored_ops = {} # map from (varid, ver) pairs to lists of diff-ops that implement undo or redo from them;
             # when we support out of order undo in future, this will list each diff in multiple places
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
@@ -850,51 +855,6 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self._setup_next_cp() # don't know cptype yet (I hope it's 'begin_cmd'; should we say that to the call? #k)
         ## self.notify_observers() # current API doesn't permit this to do anything during __init__, since subs is untouched then
         return
-
-    def allocate_key(self, key = None):
-        "Allocate the requested key (assertfail if it's not available), or a new one we make up, and store None for it."
-        if key is not None:
-            # this only makes sense if we allocated it before and then abandoned it (leaving a hole), which is NIM anyway,
-            # or possibly if we use md5 or sha1 strings or the like for keys (though we'd probably first have to test for prior decl).
-            # if that starts happening, remove the assert 0.
-            assert 0, "this feature should never be used in current code (though it ought to work if it was used correctly)"
-            assert not self.obj4key.haskey(key)
-        else:
-            # note: this code also occurs directly in key4obj_maybe_new, for speed
-            global _lastobjkey
-            _lastobjkey += 1
-            key = _lastobjkey
-            assert not self.obj4key.haskey(key) # different line number than identical assert above (intended)
-        self.obj4key[key] = None # placeholder; nothing is yet stored into self._key4obj, since we don't know obj!
-        return key
-
-    def key4obj(self, obj):
-        """What's the key for this object, if it has one? Return None if we didn't yet allocate one for it.
-        Ok to call on objects for which allocating a key would be illegal (in fact, on any Python values, I think #k).
-        """
-        return self._key4obj.get(id(obj)) #e future optim: store in the obj, for some objs? not sure it's worth the trouble,
-            # except maybe in addition to this, for use in inlined code customized to the classes. here, we don't need to know.
-            # Note: We know we're not using a recycled id since we have a ref to obj! (No need to test it -- having it prevents
-            # that obj's id from being recycled. If it left and came back, this is not valid, but then neither would the comparison be!)
-
-    def key4obj_maybe_new(self, obj):
-        """What's the key for this object, which we may not have ever seen before (in which case, make one up)?
-        Only legal to call when you know it's ok for this obj to have a key (since this method doesn't check that).
-        Optimized for when key already exists.
-        """
-        try:
-            return self._key4obj[id(obj)]
-        except KeyError:
-            pass
-        # this is the usual way to assign new keys to newly seen objects (maybe the only way)
-        # note: this is an inlined portion of self.allocate_key()
-        global _lastobjkey
-        _lastobjkey += 1
-        key = _lastobjkey
-        assert not self.obj4key.haskey(key)
-        self.obj4key[key] = obj
-        self._key4obj[id(obj)] = key
-        return key
     
     def destroy(self): #060126 precaution
         "free storage, make doing of our ops illegal (noop with bug warning; or maybe just exception)"
@@ -908,7 +868,22 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def __repr__(self):
         return "<AssyUndoArchive at %#x for %r>" % (id(self), self.assy)
-    
+
+    # ==
+
+    def attrlayer_constructors(self):
+        """Return the constructors to be used to create attrlayer_scanner instances for the attribute layers we'll need
+        for the next scan. 
+        """
+        #e Hmm, why don't we just run them and return those? Or create them in our own scan routine? Nevermind for now.
+        # It's true it needs to be this obj that does it. In future it might discover more layers as it runs, and insert them
+        # into the order somehow, but that's nim and not needed for quite awhile.
+        assert 0 # first figure out a better place to call it -- i bet it wants to pass args to those constructors...
+
+##        layers = [
+##            attrlayer_scanner( name = 'explore' , newobjfunc = bla )
+        
+    # ==
     def _setup_next_cp(self):
         """[private method, mainly for begin_cmd_checkpoint:]
         self.last_cp is set; make (incomplete) self.next_cp, and self.current_diff to go between them.

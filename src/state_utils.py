@@ -45,6 +45,63 @@ class _eq_id_mixin_: ##e use more (GLPane?); renamed from _getattr_efficient_eq_
 
 # ==
 
+class objkey_allocator:
+    """Use one of these to allocate small int keys for objects you're willing to keep forever.
+    We provide public dict attrs with our tables, and useful methods for whether we saw an object yet, etc.
+    """
+    def __init__(self):
+        self.obj4key = {}
+            # maps key to object. this is intentionally not weak-valued. It's public.
+        self._key4obj = {} # maps id(obj) -> key; semiprivate
+        self._lastobjkey = 0
+
+    def allocate_key(self, key = None): # not yet directly called; untested
+        "Allocate the requested key (assertfail if it's not available), or a new one we make up, and store None for it."
+        if key is not None:
+            # this only makes sense if we allocated it before and then abandoned it (leaving a hole), which is NIM anyway,
+            # or possibly if we use md5 or sha1 strings or the like for keys (though we'd probably first have to test for prior decl).
+            # if that starts happening, remove the assert 0.
+            assert 0, "this feature should never be used in current code (though it ought to work if it was used correctly)"
+            assert not self.obj4key.haskey(key)
+        else:
+            # note: this code also occurs directly in key4obj_maybe_new, for speed
+            self._lastobjkey += 1
+            key = self._lastobjkey
+            assert not self.obj4key.haskey(key) # different line number than identical assert above (intended)
+        self.obj4key[key] = None # placeholder; nothing is yet stored into self._key4obj, since we don't know obj!
+        return key
+
+    def key4obj(self, obj): # maybe not yet directly called; untested
+        """What's the key for this object, if it has one? Return None if we didn't yet allocate one for it.
+        Ok to call on objects for which allocating a key would be illegal (in fact, on any Python values, I think #k).
+        """
+        return self._key4obj.get(id(obj)) #e future optim: store in the obj, for some objs? not sure it's worth the trouble,
+            # except maybe in addition to this, for use in inlined code customized to the classes. here, we don't need to know.
+            # Note: We know we're not using a recycled id since we have a ref to obj! (No need to test it -- having it prevents
+            # that obj's id from being recycled. If it left and came back, this is not valid, but then neither would the comparison be!)
+
+    def key4obj_maybe_new(self, obj):
+        """What's the key for this object, which we may not have ever seen before (in which case, make one up)?
+        Only legal to call when you know it's ok for this obj to have a key (since this method doesn't check that).
+        Optimized for when key already exists.
+        """
+        try:
+            return self._key4obj[id(obj)]
+        except KeyError:
+            pass
+        # this is the usual way to assign new keys to newly seen objects (maybe the only way)
+        # note: this is an inlined portion of self.allocate_key()
+        self._lastobjkey += 1
+        key = self._lastobjkey
+        assert not self.obj4key.haskey(key)
+        self.obj4key[key] = obj
+        self._key4obj[id(obj)] = key
+        return key
+    
+    pass # end of class objkey_allocator
+
+# ==
+
 class Classification: #e want _eq_id_mixin_? probably not, since no getattr.
     """Classifications record policies and methods for inspecting/diffing/copying/etc all objects of one kind,
     or can be used as dict keys for storing those policies externally.
@@ -108,7 +165,7 @@ class StateHolderInstanceClassification(Classification):
     """###doc, implem - hmm, why do we use same obj for outside and inside? because, from outside, you might add to explore-list...
     """
     def __init__(self, clas, lis):
-        "Become a Classification for class clas, whose declared undoable_attrs are the attrnames in sequence lis."
+        "Become a Classification for class clas, whose declared state-holding attrs are the attrnames in sequence lis."
         self.attrs = dict([(attr, attr) for attr in lis]) #e might replace vals with their policies, now or later
         self.attrlist = tuple(lis)
     def copy(self, val, func): # from outside, when in vals, it might as well be atomic! WRONG, it might add self to todo list...
@@ -321,6 +378,9 @@ class attrlayer_scanner:
         assert not self.vals_scanned.haskey(key) ###@@@ remove when works
         self.vals_scanned[key] = valcopy
     pass
+
+## for explore layer, do we use a subclass?? well, does it have its own code? yes, for what to do on unrec objs...
+# but that could just be a lambda we pass in, which is to be preferred when just as simple.
 
 # note - we don't have attrs until we see objs... which means, the order of attrs is not known at first...
 # so how do we insert new attrs? does this chg order of old ones? or should classes be predeclared so this gets sorted out?
