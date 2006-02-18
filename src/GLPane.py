@@ -1630,6 +1630,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     # which proves that near/far are too far apart to give actual depth,
                     # in spite of the 1-pixel drawing window (presumably they're vertices
                     # taken from unclipped primitives, not clipped ones).
+                if 1:
+                    # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
+                    # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]
+                    if names and names[-1] == 0:
+                        print "%d(g) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
+                        names = names[:-1]
+##                        if names:
+##                            print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
                 if names:
                     # for now, len is always 0 or 1, i think; if not, best to use only the last element...
                     # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
@@ -1885,6 +1893,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             hicolor = self.selobj_hicolor( newpicked)
             if hicolor is None:
                 newpicked = None
+        else:
+            #bruce 060217 debug code re bug 1527. Not sure only happens on a bug, so using atom_debug.
+            # (But I couldn't yet cause this to be printed while testing that bug.)
+            if platform.atom_debug:
+                print "atom_debug: newpicked is None -- bug? items are:", items
         return newpicked # might be None in case of errors
 
     def check_target_depth(self, candidate): #bruce 050609; tolerance revised 050702

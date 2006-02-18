@@ -1351,6 +1351,14 @@ class basicMode(anyMode):
                 # which proves that near/far are too far apart to give actual depth,
                 # in spite of the 1-pixel drawing window (presumably they're vertices
                 # taken from unclipped primitives, not clipped ones).
+            if 1:
+                # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
+                # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]
+                if names and names[-1] == 0:
+                    print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
+                    names = names[:-1]
+##                    if names:
+##                        print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
             if names:
                 obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
