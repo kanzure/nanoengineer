@@ -80,7 +80,7 @@ def find_hotspot_for_pasting(obj):
         return True, obj.hotspot or obj.singlets[0]
     pass
     
-HIDE_PASTE_WIDGETS_FOR_A7 = True #& Should this be a user pref for A7? mark 060211.
+HIDE_PASTE_WIDGETS_FOR_A7 = True # mark 060211.
 
 def do_what_MainWindowUI_should_do(w):
 
@@ -203,11 +203,11 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
     w.depositAtomDashboard.autobondCB.setChecked(env.prefs[buildModeAutobondEnabled_prefs_key])
     
-    w.depositAtomDashboard.waterCB = QCheckBox("Water", w.depositAtomDashboard)
-    w.depositAtomDashboard.waterCB.setChecked(env.prefs[buildModeWaterEnabled_prefs_key])
-    
     w.depositAtomDashboard.highlightingCB = QCheckBox("Highlighting", w.depositAtomDashboard)
     w.depositAtomDashboard.highlightingCB.setChecked(env.prefs[buildModeHighlightingEnabled_prefs_key])
+    
+    w.depositAtomDashboard.waterCB = QCheckBox("Water", w.depositAtomDashboard)
+    w.depositAtomDashboard.waterCB.setChecked(env.prefs[buildModeWaterEnabled_prefs_key])
     
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
@@ -316,7 +316,6 @@ class depositMode(selectAtomsMode):
     dont_update_gui = True
     def Enter(self):
         selectAtomsMode.Enter(self)
-        self.o.assy.unpickparts()
         self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
@@ -844,9 +843,6 @@ class depositMode(selectAtomsMode):
         # (repaint sets new selobj, maybe highlights it).
         # [some code copied from modifyMode]
         glpane = self.o
-        #glpane.grabKeyboard() #& commented out since it was causing bug 1491. mark 060213.
-            #& adding grabKeyboard fixed an undocumented bug when depositing an object with a modkey pressed. 
-            #& The resulting selection of the deposited obj is always as if no modkey was pressed. mark 060211.
             
         wX = event.pos().x()
         wY = glpane.height - event.pos().y()
@@ -1297,15 +1293,9 @@ class depositMode(selectAtomsMode):
         if 1: #bruce 060124 undo-debugging code; should be safe for all users ####@@@@
             self.o.assy.current_command_info(cmdname = "BuildClick") #e cmdname should be set more precisely later, instead
         
-        # bruce 050124 warning: update_selatom now copies lots of logic from here;
-        # see its comments if you change this
-        #&d This comment is obsolete and marked for deletion. mark 060214.
+        self.o.assy.permit_pick_atoms() # Fixes bug 1413, 1477, 1478 and 1479.  Mark 060218.
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
-        
-        self.current_modkey = self.modkey
-            #& self.current_modkey is very important, but NIY.  If the user let's go of the modkey during a
-            #& 2d region selection, unexpected things may happen. mark 060209.
             
         self.LMB_press_event = QMouseEvent(event) # Save this event.  
             # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
@@ -1395,7 +1385,7 @@ class depositMode(selectAtomsMode):
             self.continue_selection_curve(event)
             return
             
-        if self.modkey is not None: #& What happens if the user lets go of Shift or Control?
+        if self.modkey is not None:
             # If a Control+LMB+Drag event has happened after the cursor was over an atom 
             # during leftCntlDown(), do a 2D region selection as if the atom were absent.
             self.cursor_over_when_LMB_pressed = 'Empty Space'
@@ -1458,9 +1448,6 @@ class depositMode(selectAtomsMode):
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.end_selection_curve(event)
             return
-            
-        self.o.assy.unpickparts() # Fixes bug 1400.  mark 060126.
-            #& Should this go further to the top? mark
         
         if self.bond_clicked:
             # Select or unselect the bond's atoms, or delete the bond, based on the current modkey.
@@ -1754,9 +1741,6 @@ class depositMode(selectAtomsMode):
             
             if a is None and self.o.selobj:
                 a = self.o.selobj # a "highlighted" bond
-            
-            #& try this sometime: if a is None and selobj is not None, return selobj (a bond). 
-            #& might work!  mark 060213.
             
         else: # No hover highlighting
             a = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
@@ -2940,7 +2924,8 @@ class depositMode(selectAtomsMode):
         "select the chunk containing the highlighted atom or singlet"
         # bruce 041217 guessed docstring from code
         if self.o.selatom:
-            self.o.assy.pickParts()
+            #self.o.assy.pickParts() #& Replaced by permit_pick_parts(). Marked for deletion.  mark 060218.
+            self.o.assy.permit_pick_parts()
             self.o.assy.unpickparts()
             self.o.selatom.molecule.pick()
             self.w.win_update()
