@@ -676,7 +676,7 @@ def createWhatsThis(self):
 
         selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)</b></p><br>"\
                        "<p><img source=\"selectContractAction\"><br> "\
-                       "Unselects any atom that has an open bond."\
+                       "Unselects any atom that has a bondpoint."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectContractAction",
@@ -718,7 +718,7 @@ def createWhatsThis(self):
 
         modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u> </b></p><br>"\
                        "<p><img source=\"modifyHydrogenateAction\"><br> "\
-                       "Adds hydrogen atoms to all the open bonds in the selection.</p>"
+                       "Adds hydrogen atoms to all the bondpoints in the selection.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "modifyHydrogenateAction",
                                                        self.modifyHydrogenateAction.iconSet().pixmap() )
@@ -874,17 +874,9 @@ def createWhatsThis(self):
 
         toolsDepositAtomActionText = "<u><b>Build Tool</b></u><!-- [[Feature:Build Mode]] --><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
-                       "<b>Build Tool</b> allows you to deposit individual atoms or add/move/delete "\
-                       "atoms from an existing chunk.  Build Tool can also be used to paste "\
-                       "copies of chunks from the clipboard into the part.</p>"\
-                       "<p><b><u>Mouse/Key Combinations</u></b></p>"\
-                       "<p><b>Left Click</b> - adds an atom or pastes a chunk from the clipboard. "\
-                       "New atoms can be connected to an existing chunk if an open bond is highlighted "\
-                       "during a left click.</p>"\
-                       "<p><b>Ctrl+Left Click</b> - deletes a highlighted atom or bond.</p>"\
-                       "<p><b>Shift+Left Drag</b> - moves an atom or open bond. An open bond will be "\
-                       "connected to another open bond if the mouse button is released over a different "\
-                       "open bond."\
+                       "<b>Build Mode</b> allows you to build structures by depositing objects "\
+                       "from the Molecular Modeling Kit, including atoms, clipboard objects and parts "\
+                       "from the nanoENGINEER-1 Library.</p>"\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsDepositAtomAction",
@@ -923,7 +915,7 @@ def createWhatsThis(self):
                        "<b>Fuse Chunks</b> can be used to interactively join two or more "\
                        "chunks by dragging chunks around and fusing them together.  "\
                        "Two types of fusing are supported:<br><br>"\
-                       "<b>Make Bonds</b> creates bonds between the existing open bonds) "\
+                       "<b>Make Bonds</b> creates bonds between the existing bondpoints) "\
                        "of two or more chunks.  Bonds are drawn (and undrawn) as chunks "\
                        "are moved together (and apart).<br><br>"\
                        "<b>Fuse Atoms</b> fuses overlapping atoms between chunks. Overlapping "\
@@ -1393,19 +1385,6 @@ def createWhatsThis(self):
        
         self.dispGridAction.setWhatsThis(dispGridText )           
 
-        #### Display Open Bonds ####
-
-        dispOpenBondsText = "<u><b>Display Singlets</b></u><br>"\
-                       "<p><img source=\"dispOpenBonds\"><br> "\
-                       "Toggles Singlets on and off."\
-                       "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispOpenBonds",
-                                                       self.dispOpenBondsAction.iconSet().pixmap() )
-       
-        self.dispOpenBondsAction.setWhatsThis(dispOpenBondsText )
-        
-
 def create_whats_this_descriptions_for_selectAtomsMode(w):
     "Create What's This descriptions for the Select Atoms mode dashboard widgets."
     
@@ -1553,17 +1532,53 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "Enables/disables <b>Autobonding</b><br> "\
                         "<br> When <b>enabled</b>, additional bonds are formed "\
                         "<b>automatically</b> with the deposited atom  if any "\
-                        "open bonds of neighboring atoms fall within the VdW radius, "\
+                        "bondpoints of neighboring atoms fall within the VdW radius, "\
                         "and the deposited atom has extra bonds available.<br>"\
                         "<br>When <b>disabled</b>, the deposited atom will form only one "\
-                        "bond <b>manually</b> with the open bond selected by the user."\
+                        "bond <b>manually</b> with the bondpoint selected by the user."\
                         "</p>"
 
     QWhatsThis.add ( w.depositAtomDashboard.autobondCB, autoBondText )
     
-    autoBondTipText = "Enables/disables Autobonding"
+    autoBondTipText = "Enables/disables 'Autobonding'"
 
     QToolTip.add(w.depositAtomDashboard.autobondCB, autoBondTipText)
+    
+    # Water checkbox
+    
+    waterText = "<u><b>Water</b></u><br> "\
+                        "Enables/disables the <b>Water Surface</b> selection filter<br> "\
+                        "<br>When <b>enabled</b>, a semi-transparent water surface is displayed."\
+                        "The water surface serves as a selection filter.  Only atoms and bonds above "\
+                        "the surface are highlighted and pickable.<br>"\
+                        "<br>The depth of the water surface can be changed by holding the Control/Command"\
+                        "key while pressing the middle mouse button/wheel and dragging the mouse up "\
+                        "and down."\
+                        "</p>"
+
+    QWhatsThis.add ( w.depositAtomDashboard.waterCB, waterText )
+    
+    waterTipText = "Enables/disables the 'Water Surface' selection filter"
+
+    QToolTip.add(w.depositAtomDashboard.waterCB, waterTipText)
+    
+    # Highlighting checkbox
+    
+    highlightingText = "<u><b>Highlighting</b></u><br> "\
+                        "Enables/disables <b>Hover Highlighting</b><br> "\
+                        "<br>When <b>enabled</b>, atoms and bonds under the cursor "\
+                        "are highlighted to indicate what would be selected if the user clicks "\
+                        "the left mouse button.<br>"\
+                        "<br>The highlighting color for atoms and bonds can be changed "\
+                        "by selecting <b>Edit > Preferences</b> and clicking on the <b>Atoms</b> "\
+                        "or <b>Bonds</b> tab."\
+                        "</p>"
+
+    QWhatsThis.add ( w.depositAtomDashboard.highlightingCB, highlightingText )
+    
+    highlightingTipText = "Enables/disables 'Hover Highlighting'"
+
+    QToolTip.add(w.depositAtomDashboard.highlightingCB, highlightingTipText)
     
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
