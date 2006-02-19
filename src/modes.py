@@ -100,6 +100,8 @@ class anyMode( UndoStateMixin): #bruce 060209 added mixin class
     backgroundGradient = True #bruce 050913 bugfix of Mark 050808 code (all mode objects must now have this attribute)
     # internal name of mode, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
+    displayMode = diDEFAULT # mark 060218.
+        # Every mode has its own displayMode, with the default set to diDEFAULT.
     modename = "(bug: missing modename 1)" 
     # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
     msg_modename = "(bug: unknown mode)"
@@ -245,6 +247,10 @@ class basicMode(anyMode):
         # New feature.  See docstring for set_backgroundGradient. Mark 050808
         self.bggradient_prefs_key = key = "A6/mode %s backgroundGradient" % self.modename
         self.backgroundGradient = prefs.get( key, self.backgroundGradient )
+        
+        # Display Mode for this mode
+        self.displayMode_prefs_key = key = "A7/mode %s displayMode" % self.modename
+        self.displayMode = prefs.get( key, self.displayMode)
 
         return
 
@@ -269,6 +275,16 @@ class basicMode(anyMode):
         prefs = self.prefs
         key = self.bggradient_prefs_key
         prefs[key] = gradient
+        return
+        
+    def set_displayMode(self, displayMode): # mark 060218
+        '''Stores the display mode prefs value for this mode in the prefs db.
+        displayMode is the display mode.
+        '''
+        self.displayMode = displayMode
+        prefs = self.prefs
+        key = self.displayMode_prefs_key
+        prefs[key] = displayMode
         return
         
     #bruce 050416 revised makeMenus-related methods to permit "dynamic context menus",
@@ -438,6 +454,7 @@ class basicMode(anyMode):
            [by bruce 040922; see head comment of this file for how
            this relates to previous code]           
         """
+        self.o.setDisplay(self.displayMode) # Set the display mode when entering this mode.
         self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
         self.picking = False
         # (this seems to be set and used in almost every mode)

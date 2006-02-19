@@ -204,12 +204,6 @@ class selectMode(basicMode):
             # if we are in the process of defining/drawing a selection curve or not, where:
             # True = in the process of defining selection curve
             # False = finished/not defining selection curve
-        #self.o.SaveMouse(event) 
-            # Extracts mouse position from event and saves it in the GLPane attr "MousePos".
-            #& Don't believe this is used. Mark 060205.
-        #self.o.normal = self.o.lineOfSight 
-            # Save the current lineOfSight vector. Use unknown.
-            #& Don't believe this is used. Mark 060205.
         selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, just_beyond = 0.01)
             # mousepoints() returns a pair (tuple) of points (Numeric arrays of x,y,z)
             # that lie under the mouse pointer, just beyond the near clipping plane
@@ -250,7 +244,6 @@ class selectMode(basicMode):
         """
         if not self.picking: return
         
-        #self.selSense = sense #& Not needed.  Confirmed by mark 060205. Remove in Phase 2.
         selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
             # The next point of the selection curve, where <selCurve_pt> is the point just beyond
             # the near clipping plane and <selCurve_AreaPt> is in the plane of the center of view.
@@ -559,17 +552,13 @@ class selectAtomsMode(selectMode):
             
         def Enter(self): 
             basicMode.Enter(self)
+            
             self.modkey = None
                 # The current mod key that is pressed.  It is either None, 'Shift', 'Control' or 'Delete' 
                 # where 'Delete' is Shift+Control pressed together. 
             self.prev_modkey = None
                 # The previous mod key that was pressed.  It is either None, 'Shift', 'Control' or 'Delete' 
                 # where 'Delete' is Shift+Control pressed together. 
-            
-            self.saveDisp = self.o.display 
-            self.o.setDisplay(diTUBES)
-                # depositMode and selectAtomsMode should always have the same display mode.
-                # We should provide a user pref for the display mode, which will be done for A7.  mark 060207.
             
             self.o.assy.selectAtoms()
             self.w.elemFilterComboBox.setCurrentItem(0) ## Disable filter by default
@@ -592,9 +581,8 @@ class selectAtomsMode(selectMode):
             self.w.disconnect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
             self.w.selectAtomsDashboard.hide()
             
-        def restore_patches(self): # necessary for depositMode, a subclass of this mode. mark 060207.
-            self.o.setDisplay(self.saveDisp)
-            self.o.selatom = None # may be required for depositMode.  Not sure.  mark 060207.
+        #def restore_patches(self): #& Don't this this is necessary for depositMode, a subclass of this mode. mark 060218.
+            #self.o.selatom = None #& Don't think this is required for depositMode.  Did some testing to dbl-ck. mark 060218.
         
         def getDstElement(self):
             '''Return the destination element user wants to transmute to. '''

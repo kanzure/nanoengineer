@@ -1843,7 +1843,7 @@
                                                             <bool>true</bool>
                                                         </property>
                                                         <property name="text">
-                                                            <string>Default Display Mode :</string>
+                                                            <string>Display Mode :</string>
                                                         </property>
                                                         <property name="alignment">
                                                             <set>AlignVCenter|AlignRight</set>
@@ -1907,7 +1907,22 @@
                                                     <widget class="QComboBox">
                                                         <item>
                                                             <property name="text">
+                                                                <string>Default</string>
+                                                            </property>
+                                                        </item>
+                                                        <item>
+                                                            <property name="text">
+                                                                <string>Invisible</string>
+                                                            </property>
+                                                        </item>
+                                                        <item>
+                                                            <property name="text">
                                                                 <string>VdW</string>
+                                                            </property>
+                                                        </item>
+                                                        <item>
+                                                            <property name="text">
+                                                                <string>Lines</string>
                                                             </property>
                                                         </item>
                                                         <item>
@@ -1918,11 +1933,6 @@
                                                         <item>
                                                             <property name="text">
                                                                 <string>Tubes</string>
-                                                            </property>
-                                                        </item>
-                                                        <item>
-                                                            <property name="text">
-                                                                <string>Lines</string>
                                                             </property>
                                                         </item>
                                                         <property name="name">
@@ -3891,16 +3901,34 @@
 </widget>
 <connections>
     <connection>
+        <sender>always_save_win_pos_and_size_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_always_save_win_pos_and_size()</slot>
+    </connection>
+    <connection>
         <sender>animate_views_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_animate_standard_views()</slot>
     </connection>
     <connection>
+        <sender>animation_speed_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_view_animation_speed()</slot>
+    </connection>
+    <connection>
         <sender>atom_hilite_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_atom_hilite_color()</slot>
+    </connection>
+    <connection>
+        <sender>autobond_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_autobond()</slot>
     </connection>
     <connection>
         <sender>bond_cpk_color_btn</sender>
@@ -3933,10 +3961,22 @@
         <slot>change_bond_vane_color()</slot>
     </connection>
     <connection>
+        <sender>bondpoint_hilite_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bondpoint_hilite_color()</slot>
+    </connection>
+    <connection>
         <sender>caption_fullpath_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>set_caption_fullpath()</slot>
+    </connection>
+    <connection>
+        <sender>change_element_colors_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_element_colors()</slot>
     </connection>
     <connection>
         <sender>choose_bg1_color_btn</sender>
@@ -3963,6 +4003,12 @@
         <slot>change_cpk_cylinder_radius()</slot>
     </connection>
     <connection>
+        <sender>default_display_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_default_display_mode()</slot>
+    </connection>
+    <connection>
         <sender>default_mode_combox</sender>
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -3979,6 +4025,12 @@
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>display_compass()</slot>
+    </connection>
+    <connection>
+        <sender>display_mode_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_display_mode()</slot>
     </connection>
     <connection>
         <sender>display_origin_axis_checkbox</sender>
@@ -4017,6 +4069,18 @@
         <slot>change_high_order_bond_display()</slot>
     </connection>
     <connection>
+        <sender>high_quality_graphics_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_high_quality_graphics()</slot>
+    </connection>
+    <connection>
+        <sender>highlighting_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_highlighting()</slot>
+    </connection>
+    <connection>
         <sender>history_height_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4029,16 +4093,22 @@
         <slot>change_hotspot_color()</slot>
     </connection>
     <connection>
-        <sender>light_ambient_slider</sender>
-        <signal>sliderReleased()</signal>
+        <sender>level_of_detail_combox</sender>
+        <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
+        <slot>change_level_of_detail()</slot>
     </connection>
     <connection>
         <sender>light_ambient_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_ambient_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_checkbox</sender>
@@ -4060,18 +4130,12 @@
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>valueChanged(int)</signal>
+        <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_lighting()</slot>
@@ -4081,6 +4145,12 @@
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -4119,16 +4189,52 @@
         <slot>change_material_brightness()</slot>
     </connection>
     <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>sliderPressed()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness_start()</slot>
+    </connection>
+    <connection>
         <sender>ms_finish_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_finish()</slot>
     </connection>
     <connection>
+        <sender>ms_finish_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_finish_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_finish_slider</sender>
+        <signal>sliderPressed()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_finish_start()</slot>
+    </connection>
+    <connection>
         <sender>ms_on_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>toggle_material_specularity()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>sliderPressed()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess_start()</slot>
     </connection>
     <connection>
         <sender>ms_shininess_slider</sender>
@@ -4179,6 +4285,12 @@
         <slot>restore_default_bgcolor()</slot>
     </connection>
     <connection>
+        <sender>save_current_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_current_win_pos_and_size()</slot>
+    </connection>
+    <connection>
         <sender>selection_behavior_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4203,118 +4315,16 @@
         <slot>change_startup_mode()</slot>
     </connection>
     <connection>
-        <sender>ms_finish_slider</sender>
-        <signal>sliderPressed()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_finish_start()</slot>
-    </connection>
-    <connection>
-        <sender>ms_finish_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_finish_stop()</slot>
-    </connection>
-    <connection>
-        <sender>ms_brightness_slider</sender>
-        <signal>sliderPressed()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness_start()</slot>
-    </connection>
-    <connection>
-        <sender>ms_brightness_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness_stop()</slot>
-    </connection>
-    <connection>
-        <sender>ms_shininess_slider</sender>
-        <signal>sliderPressed()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_shininess_start()</slot>
-    </connection>
-    <connection>
-        <sender>ms_shininess_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_shininess_stop()</slot>
-    </connection>
-    <connection>
-        <sender>high_quality_graphics_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_high_quality_graphics()</slot>
-    </connection>
-    <connection>
-        <sender>always_save_win_pos_and_size_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_always_save_win_pos_and_size()</slot>
-    </connection>
-    <connection>
-        <sender>save_current_btn</sender>
+        <sender>watch_min_in_realtime_checkbox</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>save_current_win_pos_and_size()</slot>
-    </connection>
-    <connection>
-        <sender>animation_speed_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_view_animation_speed()</slot>
-    </connection>
-    <connection>
-        <sender>autobond_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_autobond()</slot>
+        <slot>set_realtime_minimization()</slot>
     </connection>
     <connection>
         <sender>water_checkbox</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>set_buildmode_water()</slot>
-    </connection>
-    <connection>
-        <sender>highlighting_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_highlighting()</slot>
-    </connection>
-    <connection>
-        <sender>change_element_colors_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_element_colors()</slot>
-    </connection>
-    <connection>
-        <sender>bondpoint_hilite_color_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_bondpoint_hilite_color()</slot>
-    </connection>
-    <connection>
-        <sender>level_of_detail_combox</sender>
-        <signal>activated(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_level_of_detail()</slot>
-    </connection>
-    <connection>
-        <sender>default_display_btngrp</sender>
-        <signal>clicked(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_default_display_mode()</slot>
-    </connection>
-    <connection>
-        <sender>display_mode_combox</sender>
-        <signal>activated(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_mode_default_display_mode()</slot>
-    </connection>
-    <connection>
-        <sender>watch_min_in_realtime_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_realtime_minimization()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -4440,7 +4450,7 @@
     <slot>change_element_colors()</slot>
     <slot>change_bondpoint_hilite_color()</slot>
     <slot>change_level_of_detail()</slot>
-    <slot>change_mode_default_display_mode()</slot>
+    <slot>change_display_mode()</slot>
     <slot>set_realtime_minimization()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>

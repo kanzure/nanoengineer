@@ -18,6 +18,9 @@ class cookieMode(basicMode):
     gridColor = 222/255.0, 148/255.0, 0/255.0
     modename = 'COOKIE'
     default_mode_status_text = "Mode: Cookie Cutter"
+    displayMode = diTUBES 
+        # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.
+        # Cookie mode uses its own attr <cookieDisplayMode> to display Tubes (default) or Spheres.
     
     selCurve_List = []
         # <selCurve_List> contains a list of points used to draw the selection curve.  

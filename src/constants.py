@@ -80,7 +80,7 @@ dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
 dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 
 # display mode for new glpanes (#e should be a user preference) [bruce 041129]
-default_display_mode = diVDW # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
+default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
 
 TubeRadius = 0.3
 

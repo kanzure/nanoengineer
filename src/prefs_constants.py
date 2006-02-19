@@ -216,7 +216,7 @@ prefs_table = (
     # Atom preferences - other
     
     ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003
-    ('display_mode', 'int', defaultDisplayMode_prefs_key, diVDW),
+    ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diVDW to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     
 
@@ -241,7 +241,7 @@ prefs_table = (
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
     ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
     ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
-    ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, True ), # mark 060203.
+    ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
     
     # Lighting preferences [added to this table by mark 051124]

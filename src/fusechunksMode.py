@@ -129,8 +129,6 @@ class fusechunksMode(modifyMode):
 
     def Enter(self):
         modifyMode.Enter(self)
-        self.saveDisp = self.o.display
-        self.o.setDisplay(diTUBES)
         self.change_fuse_mode(self.w.fuse_mode_combox.currentText()) # Syncs the dashboard and glpane.
             
     def init_gui(self):
@@ -166,9 +164,6 @@ class fusechunksMode(modifyMode):
         change_connect(self.w.fuse_mode_combox, SIGNAL("activated(const QString&)"), self.change_fuse_mode)
         
         return
-
-    def restore_patches(self):
-        self.o.setDisplay(self.saveDisp)
         
     def tolerance_changed(self, val):
         self.tol = val * .01

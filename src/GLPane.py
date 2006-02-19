@@ -1270,6 +1270,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             # Used for all other purposes.
             header = "Current Display: " 
+            self.mode.set_displayMode(disp) # updates the prefs db.
             
         if disp == diDEFAULT:
             #disp = default_display_mode #bruce 041129 to fix bug 21
