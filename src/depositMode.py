@@ -923,44 +923,15 @@ class depositMode(selectAtomsMode):
         return stuff, "deposited library part" ####@@@@ should revise this message (stub is by bruce 051227)
 
 # == LMB event handling methods ====================================
-#
-# The following sections include all the LMB event handling methods for depositMode
-# The section is organized in the following order and includes the following methods:
-#
-#   - LMB down-click (button press) methods
-#       leftShiftDown()
-#       leftCntlDown()
-#       leftDown()
-#
-#   - LMB drag methods
-#       leftShiftDrag()
-#       leftDrag()
-# 
-#   - LMB up-click (button release) methods
-#       leftShiftUp()
-#       leftCntlUp()
-#       leftUp()
-#
-#   - LMB double-click method (only one)
-#       leftDouble()
-#
-# For more information about the LMB event handling scheme for Build mode, go to 
-# http://www.nanoengineer-1.net/ and click on the "Build Mode UI Specification" link.
-#
-# == LMB down-click (button press) methods
-
-# == LMB drag methods
-        
-# == LMB up-click (button release) methods
-        
-# == LMB double-click method
         
     def leftDouble(self, event): # mark 060126.
         '''Double click event handler for the left mouse button. 
         '''
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             if self.modkey is not 'Delete': # Fixes bug 1503.  mark 060218.
-                self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
+                deposited_obj = self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
+                if deposited_obj:
+                    self.set_cmdname('Deposit ' + deposited_obj)
             return
             
         selectAtomsMode.leftDouble(self, event)
@@ -986,19 +957,15 @@ class depositMode(selectAtomsMode):
         nobjs=0
         for s in singlet_list[:]: # singlet_list built in singletSetup()
             if not s.killed(): # takes care of self.obj_doubleclicked, too.
-                self.deposit_from_MMKit(s)
+                deposited_obj = self.deposit_from_MMKit(s)
                 nobjs += 1
         self.suppress_updates = False
         self.modkey = modkey # restore the modkey state to real state.
-                
-        if self.w.depositState == 'Atoms':
-            object_type = "atom(s)"
-        elif self.w.depositState == 'Clipboard':
-            object_type = "clipboard node(s)"
-        else:
-            object_type = "library part(s)"
-                    
-        info = fix_plurals( "%d %s deposited." % (nobjs, object_type) ) 
+        
+        self.set_cmdname('Transdeposit ' + deposited_obj)
+        deposited_obj += '(s)'
+        
+        info = fix_plurals( "%d %s deposited." % (nobjs, deposited_obj) ) 
         env.history.message(info)
         self.w.win_update()
 
@@ -1029,6 +996,7 @@ class depositMode(selectAtomsMode):
             btype = btype_from_v6( v6)
             from bond_utils import apply_btype_to_bond
             apply_btype_to_bond( btype, b)
+            self.set_cmdname('Change Bond')
                 # checks whether btype is ok, and if so, new; emits history message; does [#e or should do] needed invals/updates
             ###k not sure if that subr does gl_update when needed... this method does it, but not sure how #######@@@@@@@
         return
@@ -1042,6 +1010,8 @@ class depositMode(selectAtomsMode):
         If 'atom_or_pos' is a position, then it will deposit the object at that coordinate.
         '''
         
+        deposited_obj = None
+        
         if self.modkey is None: # no Shift or Ctrl modifier key.
             # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
             if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
@@ -1049,9 +1019,11 @@ class depositMode(selectAtomsMode):
         
         if self.w.depositState == 'Atoms':
             deposited_stuff, status = self.deposit_from_Atoms_page(atom_or_pos) # deposited_stuff is a chunk
+            deposited_obj = 'Atom'
             
         elif self.w.depositState == 'Clipboard':
             deposited_stuff, status = self.deposit_from_Clipboard_page(atom_or_pos) # deposited_stuff is a chunk
+            deposited_obj = 'Chunk'
                 
         elif self.w.depositState == 'Library':
             #bruce 051227 revised this case and its subrs as part of fix of reopened bug 229;
@@ -1059,6 +1031,7 @@ class depositMode(selectAtomsMode):
             # Not sure if subrs still print redundant history messages besides the one
             # newly returned here (status).
             deposited_stuff, status = self.deposit_from_Library_page(atom_or_pos)
+            deposited_obj = 'Part'
             if deposited_stuff and self.pickit():
                 deposited_stuff[0].pickatoms()
             
@@ -1076,7 +1049,8 @@ class depositMode(selectAtomsMode):
 ##        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
 ##        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it, added a different one]
 
-        if self.suppress_updates: return
+        if self.suppress_updates:
+            return deposited_obj
         
         if deposited_stuff:
             self.w.win_update() 
@@ -1086,7 +1060,8 @@ class depositMode(selectAtomsMode):
             env.history.message(status)
         else:
             env.history.message(orangemsg(status)) # nothing deposited
-        return
+        
+        return deposited_obj
             
     def deposit_from_Library_page(self, atom_or_pos): #mark circa 051200; retval revised by bruce 051227 re bug 229
         '''Deposit a copy of the selected part from the MMKit Library page.
@@ -1392,11 +1367,14 @@ class depositMode(selectAtomsMode):
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
                 # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
-                self.deposit_from_MMKit(s1) 
+                deposited_obj = self.deposit_from_MMKit(s1)
+                if deposited_obj:
+                    self.set_cmdname('Deposit ' + deposited_obj)
                     # does its own win_update().
             else: # A different singlet is highlighted...
                 # ... so bond the highlighted singlet <s2> to the first singlet <s1>
                 self.bond_singlets(s1, s2)
+                self.set_cmdname('Create Bond')
                 self.o.gl_update()
         else: # cursor on empty space
             self.o.gl_update() # get rid of white rubber band line.

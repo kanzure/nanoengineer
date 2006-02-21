@@ -700,6 +700,8 @@ class selectMode(basicMode):
         '''
         
         if not self.current_obj_clicked:
+            # Atom was dragged.  Nothing to do but return.
+            self.set_cmdname('Move Atom') #& Not taking. mark 060220.
             return
             
         nochange = False
@@ -712,6 +714,7 @@ class selectMode(basicMode):
                 nochange = True
             else:
                 a.pick()
+                self.set_cmdname('Select Atom')
             env.history.message(a.getinfo())
 
         elif self.modkey == 'Shift':
@@ -719,11 +722,13 @@ class selectMode(basicMode):
                 nochange = True
             else:
                 a.pick()
+                self.set_cmdname('Select Atom')
             env.history.message(a.getinfo())
                 
         elif self.modkey == 'Control':
             if a.picked:
                 a.unpick()
+                self.set_cmdname('Unselect Atom')
                 env.history.message("unpicked %r" % a)
             else: # Already unpicked.
                 nochange = True
@@ -731,6 +736,7 @@ class selectMode(basicMode):
         elif self.modkey == 'Shift+Control':
             result = self.delete_atom_and_baggage(event)
             env.history.message_no_html(result)
+            self.set_cmdname('Delete Atom')
             return # delete_atom_and_baggage() calls win_update.
                 
         else:
@@ -770,15 +776,18 @@ class selectMode(basicMode):
             self.o.assy.unpickatoms()
             b.atom1.pick()
             b.atom2.pick()
+            self.set_cmdname('Select Atoms')
                 
         elif self.modkey == 'Shift':
             b.atom1.pick()
             b.atom2.pick()
+            self.set_cmdname('Select Atoms')
             #& Bond class needs a getinfo() method to be called here. mark 060209.
             
         elif self.modkey == 'Control':
             b.atom1.unpick()
             b.atom2.unpick()
+            self.set_cmdname('Unselect Atoms')
             #env.history.message("unpicked %r and %r" % (self.bond_clicked.atom1, self.bond_clicked.atom2))
             #& Not necessary to print history msg.  mark 060210.
                 
@@ -805,6 +814,7 @@ class selectMode(basicMode):
                 ###e Should fix with a utility to quote HTML-active chars, to call here on the message.
             self.o.selobj = None # without this, the bond remains highlighted even after it's broken (visible if it's toolong)
             selobj.bust() # this fails to preserve the bond type on the open bonds -- not sure if that's bad, but probably it is
+            self.set_cmdname('Delete Bond')
             self.o.assy.changed() #k needed?
             
             self.w.win_update()
@@ -1496,11 +1506,7 @@ class selectAtomsMode(selectMode):
     def leftDown(self, event):
         '''Event handler for all LMB press events.'''
 
-        if 1: #bruce 060124 undo-debugging code; should be safe for all users ####@@@@
-            self.o.assy.current_command_info(cmdname = "BuildClick") #e cmdname should be set more precisely later, instead
-            #& Need to rename 'BuildClick' to something better.  I've read Bruce's email on this subject and
-            #& will add a helper method set_cmdname() in basicMode as he suggests.  I have some questions,
-            #& so I'll do this soon after discussing it with Bruce.  Mark 060220.
+        self.set_cmdname('BuildClick')
         
         self.o.assy.permit_pick_atoms() # Fixes bug 1413, 1477, 1478 and 1479.  Mark 060218.
         self.reset_drag_vars()
@@ -1526,7 +1532,8 @@ class selectAtomsMode(selectMode):
         
         if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
             self.singletLeftDown(obj, event)
-            return # no win_update() needed.
+                # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
+            return
             
         if isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
             self.atomLeftDown(obj, event)
@@ -1558,14 +1565,12 @@ class selectAtomsMode(selectMode):
         # Do not change the order of the following conditionals unless you know
         # what you're doing.  mark 060208.
         
-        obj = self.current_obj
-        
-        if isinstance(obj, Bond): # Important that this go first.
-            self.bondLeftDrag(event)
+        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             return
             
+        obj = self.current_obj
+        
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            #Should be same as if obj is None:
             self.emptySpaceLeftDrag(event)
             return
             
@@ -1577,14 +1582,15 @@ class selectAtomsMode(selectMode):
             
         if obj is None: # Nothing dragged (or clicked); return.
             return
-        
-        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
+            
+        if isinstance(obj, Bond): # Cursor was over a bond during LMB press event.
+            self.bondLeftDrag(event)
             return
             
-        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
+        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor was over a singlet during LMB press event.
             self.singletDrag(obj, event)
             
-        if isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
+        if isinstance(obj, Atom) and not obj.is_singlet(): # Cursor was over a real atom during LMB press event.
             self.atomDrag(obj, event)
         
         # No gl_update() needed. Already taken care of.
