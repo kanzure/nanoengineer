@@ -102,6 +102,10 @@ class anyMode( UndoStateMixin): #bruce 060209 added mixin class
     # only seen by users in "debug" error messages
     displayMode = diDEFAULT # mark 060218.
         # Every mode has its own displayMode, with the default set to diDEFAULT.
+    modkey = None
+        # The current mod key that is pressed.  It is either None, 'Shift', 'Control' or 'Shift+Control' 
+    prev_modkey = None
+        # The previous mod key that was pressed.  It is either None, 'Shift', 'Control' or 'Shift+Control' 
     modename = "(bug: missing modename 1)" 
     # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
     msg_modename = "(bug: unknown mode)"
@@ -457,7 +461,6 @@ class basicMode(anyMode):
         self.o.setDisplay(self.displayMode) # Set the display mode when entering this mode.
         self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
         self.picking = False
-        # (this seems to be set and used in almost every mode)
         return None
 
     def init_gui(self):
