@@ -1959,16 +1959,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # (e.g. arrow keys, letters) so I took that out.
         #bruce 060219/20: adding arrow key bindings as an experiment.
         elif key == Qt.Key_Up: # up arrow key
-            print key
             self.moveup()
         elif key == Qt.Key_Down: # down arrow key
-            print key
             self.movedown()
         elif key == Qt.Key_Left: # left arrow key
-            print key
             self.moveleft()
         elif key == Qt.Key_Right: # right arrow key
-            print key
             self.moveright()
         else:
             pass #e should we let the mode process it??
