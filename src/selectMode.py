@@ -915,6 +915,7 @@ class selectMode(basicMode):
                 # quux.test()
                 quux.shapeRendererInit()
                 quux.shapeRendererSetUseDynamicLOD(0)
+                quux.shapeRendererStartDrawing()
                 if TEST_PYREX_OPENGL == 1:
                     center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
                                             Numeric.array((0, 0, 1), 'f'),
@@ -946,6 +947,7 @@ class selectMode(basicMode):
                     result = quux.shapeRendererDrawSpheres(1848, sphereCenters, sphereRadii, sphereColors)
                     result = quux.shapeRendererDrawCylinders(5290, cylinderPos1, cylinderPos2, cylinderRadii, cylinderCapped, cylinderColors)
                     glPopMatrix()
+                quux.shapeRendererFinishDrawing()
 
             except ImportError:
                 env.history.message(redmsg("Can't import Pyrex OpenGL or maybe bearing_data.py, rebuild it"))
