@@ -59,7 +59,7 @@ glextensions.o: glextensions.cpp glextensions.h
 vector.o: vector.c vector.h
 
 # Unix, Mac can use distutils
-quux.so: quux.pyx quux_help.c bradg.cpp glextensions.cpp vector.cpp
+quux.so: quux.pyx quux_help.c bradg.cpp glextensions.cpp vector.c
 	$(PYTHON) setup.py build_ext --inplace
 
 # Unix, Mac - don't use distutils
