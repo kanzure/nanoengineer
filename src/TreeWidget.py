@@ -310,7 +310,24 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
         #e clean statusbar; dragobj if stored here
     pass # end of class drag_and_drop_handler
 
-# main widget class
+# ==
+
+def sib_index( lis, elt, offset): #bruce 060219; should refile, maybe Utility.py
+    """Assuming elt is in lis, return index of its sibling a specified distance
+    to the right (offset > 0) or left (offset < 0), but when running off the end,
+    just return the extreme element reached (rather than error, nothing, or wrapping).
+    """
+    index = lis.index(elt)
+    new = index + offset
+    if new < 0:
+        return 0
+    elif new >= len(lis):
+        return len(lis) - 1
+    else:
+        return new
+    pass
+
+# == main widget class
 
 class TreeWidget(TreeView, DebugMenuMixin):
     def __init__(self, parent, win, name = None, columns = ["node tree"], size = (200, 560)):
@@ -1935,15 +1952,128 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # MWsemantics.killDo, regardless of focus.
             self.win.killDo()
             ## part of killDo: self.win.win_update()
-        if key == Qt.Key_Escape: # mark 060129. Select None.
+        elif key == Qt.Key_Escape: # mark 060129. Select None.
             self.assy.selectNone()
         # bruce 041220: I tried passing other key events to the superclass,
         # QListView.keyPressEvent, but I didn't find any that had any effect
         # (e.g. arrow keys, letters) so I took that out.
+        #bruce 060219/20: adding arrow key bindings as an experiment.
+        elif key == Qt.Key_Up: # up arrow key
+            print key
+            self.moveup()
+        elif key == Qt.Key_Down: # down arrow key
+            print key
+            self.movedown()
+        elif key == Qt.Key_Left: # left arrow key
+            print key
+            self.moveleft()
+        elif key == Qt.Key_Right: # right arrow key
+            print key
+            self.moveright()
+        else:
+            pass #e should we let the mode process it??
         return
 
+    def moveup(self): #bruce 060219
+        "Move the selection up (not the nodes, just their selectedness)"
+        self.move_up_or_down(-1)
 
-    # in-place editing of item text
+    def movedown(self): #bruce 060219
+        "Move the selection down (not the nodes, just their selectedness)"
+        self.move_up_or_down(1)
+
+    def move_up_or_down(self, offset): #bruce 060219, revised 060220
+        """Move selection to different nodes (without changing structure of the nodes)
+        down (-1) or up (1) within sequence of all visible nodes.
+        """
+        #e Bug: what should we do if several nodes are moving down and they get into different selection groups?
+        # I might hope that someday that's permitted... for now, this is ignored, which sometimes makes one
+        # disappear and a history message show up,
+        #   Warning: deselected some items in untitled, to limit selection to one clipboard item or the part.
+        nodeset = self.topmost_selected_nodes()
+        if not nodeset:
+            return # avoids win_update
+        visibles = list(self.assy.tree.genvisibleleaves(include_parents = True)) + \
+                   list(self.assy.shelf.genvisibleleaves(include_parents = True))
+            #e more correctly, I should use the attr for listing our toplevel tree items... #e
+        if self.assy.shelf in visibles:
+            visibles.remove(self.assy.shelf) #e more correctly, remove unpickable nodes
+            ###BUG (undiagnosed, but probably same as old reported bug, see below):
+            # sometimes clipboard can look open in MT but .open = False! Then this code ignores everything in clipboard
+            # (still lets you pick inside it, but not use arrow keys there).
+            # Then if you manually close/open clipboard in MT, .open = True and this code works.
+            # Guess: some code somewhere sets shelf.open = False (when? why? good??) and doesn't mt_update (bug).
+            # Not so clear: does that mean it ought to be closed to start with?? ###@@@
+            #e Possible workaround: detect the treeitem children being present, and fix shelf.open to match reality.
+            # (Not sure if that could cause trouble.)
+            # Note: I think this is the same bug that makes the first click to close the shelf not work sometimes.
+            # That bug is reported, and maybe has a bug comment with some clues about the cause. ###e find out!
+        ##if not visibles:
+        ##    # should not happen (due to include_parents = True);
+        ##    # without that, might happen if selection is inside a closed Group (or closed shelf), if UI permits that;
+        ##    # but it might no longer be correct then (depending on what we do below), so commenting it out.
+        ##    return
+        for node in nodeset:
+            node.unpick()
+        for node in nodeset:
+            if node in visibles:
+                index = sib_index(visibles, node, offset)
+                visibles[index].pick() # might be same node as before, if it was at appropriate end of visibles
+                    #e we should probably make this visible in MT
+                    # (shouldn't require opening Groups, since new node was in visibles,
+                    #  but maybe do it for safety; might require scrolling MT)
+            else:
+                # not visible. ##e should we move it out to a visible place in the MT?? not done for now.
+                #e known bug: what happens now is that the icon for a closed group looks a bit different after this!
+                node.pick()
+        self.win.win_update()
+    
+    def moveleft(self): #bruce 060219
+        "Select the Group or Groups containing the selected node or nodes"
+        nodeset = self.topmost_selected_nodes()
+        if not nodeset:
+            return # avoids win_update
+        for node in nodeset:
+            if not node.is_top_of_selection_group():
+                node.dad.pick()
+        self.win.win_update()        
+
+    def moveright(self): #bruce 060219, revised 060220
+        """Select (only) the first element of each toplevel selected Group;
+        for toplevel selected leaf nodes, move them down [#untested].
+        """
+        nodeset = self.topmost_selected_nodes()
+        if not nodeset:
+            return # avoids win_update
+        downguys = [] # nodes (whose selectedness is) to be moved down instead of right
+        newguys = []
+        for node in nodeset:
+            if node.is_group() and node.members:
+                node.unpick() # (unpicks the members too)
+                newguys.append(node.members[0]) # pick this later, so as not to interfere with moving downguys down
+            elif not node.is_group():
+                downguys.append(node) # but leave it picked (kluge)
+            # and what about for an empty group? maybe also go down? try this for now...
+            else:
+                downguys.append(node)
+        # handle downguys.
+        # kluge: we left them (and only them) picked, above, so we don't have to pass them to move_up_or_down
+        # or teach it to accept a list of passed nodes.
+        if downguys:
+            self.move_up_or_down(1)
+        for node in newguys:
+            node.pick()
+            node.dad.open = True # need to make sure we can see what we just picked...
+                #e 1. Should a modkey control this, vs. not scanning into closed Groups?
+                #e Or worse, should it let you scan into them while leaving them closed??
+                #e (Which reminds me, we need to visually indicate selection inside unselected closed Groups.)
+                #e 2. Maybe we should remember we did this, and autoclose it if user just keeps scanning down (or up), out of it?
+                #e (When several nodes are moving, we'd autoclose when none of them were in an autoopened group anymore.)
+                #e Not sure if autoclose would be good; guess yes. (Or maybe it should be a user pref.)
+                # 3. Note that in theory this whole thing can occur inside a closed Group.
+        self.win.win_update()        
+
+    # == in-place editing of item text
 
     renaming_this_item = None
     

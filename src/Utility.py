@@ -182,6 +182,15 @@ class Node( UndoStateMixin):
             assert self.dad is dad
         return
 
+    def __repr__(self): #bruce 060220
+        "[subclasses can override this, and often do]"
+        classname = self.__class__.__name__
+        try:
+            name_msg = ", name = %r" % (self.name,)
+        except:
+            name_msg = " (exception in `self.name`)"
+        return "<%s at %#x%s>" % (classname, id(self), name_msg)
+    
     def setAssy(self, assy): #bruce 051227
         "Change self.assy from its current value to assy, cleanly removing self from the prior self.assy if that is not assy."
         if self.assy is not assy:
@@ -654,7 +663,30 @@ class Node( UndoStateMixin):
             # for a leaf node, add it to the dad node just after us
             self.addsibling( node, before = before_or_top)
         return
-        
+
+    def genvisibleleaves(self, include_parents = False): #bruce 060220
+        """Assuming self is visible in the MT (ignoring scrolling), return a generator which yields
+        the set of self and/or its children which have no visible children (i.e. which are leaf nodes,
+        or empty Group nodes (good??), or closed Group nodes).
+           By default, skip anything which has children we'll yield, but if include_parents is True,
+        include them anyway.
+        [Note that this uses .open which might be considered model-tree-specific
+        state -- if we ever let two MTs show the model hierarchy at once, this will need an argument
+        which is the openness-dict, or need to become an MT method.]
+        """
+        if self.is_group() and self.open and self.members:
+            if include_parents:
+                yield self
+                #e Do we want another option, for yielding parents before vs. after their kids?
+                # I don't yet know of a use for it ('before' is what we want for MT arrow keys,
+                # whether moving up or down, since for 'up' we reverse this entire sequence). 
+            for m in self.members:
+                for s in m.genvisibleleaves(include_parents = include_parents):
+                    yield s
+        else:
+            yield self
+        return
+    
     def pick(self):
         """select the object
         [extended in many subclasses, notably in Group]
