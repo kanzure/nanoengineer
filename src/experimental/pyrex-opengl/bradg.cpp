@@ -348,11 +348,13 @@ BigEnoughBuffer<int> colorSortedListIndices;
 int indices[200000];
 ColorSortedListHead heads[200000];
 
-bool sortByColor(int objectStart, int objectCount, float colors[][4], int *uniqueColorCount, ColorSortedListHead **listHeads, int **listIndices)
+template <class T>
+bool sortByColor(int objectStart, int objectCount, T *objects, int *uniqueColorCount, ColorSortedListHead **listHeads, int **listIndices)
 {
     int i;
+
     for(i = objectStart; i < objectStart + objectCount; i++) {
-        vec4fCopy(colors[i], heads[i].m_color);
+        vec4fCopy(objects[i].m_color, heads[i].m_color);
         heads[i].m_firstObject = i;
         indices[i] = -1;
     }
@@ -365,7 +367,12 @@ bool sortByColor(int objectStart, int objectCount, float colors[][4], int *uniqu
 
 #else
 
-bool sortByColor(int objectStart, int objectCount, float colors[][4], int *uniqueColorCount, ColorSortedListHead **listHeads, int **listIndices)
+struct Color {
+    float m_color[4];
+};
+
+template <class T>
+bool sortByColor(int objectStart, int objectCount, T *objects, int *uniqueColorCount, ColorSortedListHead **listHeads, int **listIndices)
 {
     int i, k;
     int count = 0;
@@ -383,10 +390,10 @@ bool sortByColor(int objectStart, int objectCount, float colors[][4], int *uniqu
     for(i = objectStart; i < objectStart + objectCount; i++) {
         for(k = 0; k < count; k++) {
             h = colorSortedListHeads + k; 
-            if(h->m_color[0] == colors[i][0] &&
-                h->m_color[1] == colors[i][1] &&
-                h->m_color[2] == colors[i][2] &&
-                h->m_color[3] == colors[i][3])
+            if(h->m_color[0] == objects[i].m_color[0] &&
+                h->m_color[1] == objects[i].m_color[1] &&
+                h->m_color[2] == objects[i].m_color[2] &&
+                h->m_color[3] == objects[i].m_color[3])
                 break;
         }
 
@@ -395,7 +402,7 @@ bool sortByColor(int objectStart, int objectCount, float colors[][4], int *uniqu
                 // allocation failed
                 return false;
             h = colorSortedListHeads + k;
-            vec4fCopy(colors[i], h->m_color);
+            vec4fCopy(objects[i].m_color, h->m_color);
             colorSortedListIndices[i] = -1;
             h->m_firstObject = i;
             count++;
@@ -1481,6 +1488,22 @@ void LODEvaluator::setViewport(int viewport[4])
 // evaluate LOD, and draw objects.
 //
 
+struct Sphere {
+    float m_color[4];
+    float m_nameUInt;
+    float m_center[3];
+    float m_radius;
+};
+
+struct Cylinder {
+    float m_color[4];
+    float m_nameUInt;
+    float m_cappedBool;
+    float m_pos1[3];
+    float m_pos2[3];
+    float m_radius;
+};
+
 class ShapeRenderer
 {
     VertexData *m_vertexData;
@@ -1528,6 +1551,9 @@ public:
 
     void startDrawing();
     void finishDrawing();
+
+    bool drawSpheres(int count, Sphere *spheres);
+    bool drawCylinders(int count, Cylinder *spheres);
 
     bool drawSpheres(int count, float center[][3], float radius[],
         float color[][4], unsigned int *names);
@@ -1761,6 +1787,72 @@ void ShapeRenderer::finishDrawing()
     m_vertexData->unapply();
 }
 
+bool ShapeRenderer::drawSpheres(int count, Sphere *spheres)
+{
+    float lodvalue;
+    int i, j;
+    int uniqueColorCount;
+    ColorSortedListHead *colorSortedListHeads;
+    int *objectNext;
+
+
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, m_materialShininess);
+
+    /* This appears to be around 10% faster than draw unsorted on 2GHz + FireGL X1 for SRG-1c Tubes */
+
+
+    if(!sortByColor(0, count, spheres, &uniqueColorCount, &colorSortedListHeads, &objectNext)) {
+        /* allocation failed */
+        return false;
+    }
+
+    for(j = 0; j < uniqueColorCount; j++) {
+        applyMaterial(colorSortedListHeads[j].m_color);
+
+        i = colorSortedListHeads[j].m_firstObject;
+        while(i != -1) {
+            Sphere *sph = spheres + i;
+            if(sph->m_radius != 0.0f) {
+                glPushMatrix();
+                glTranslatef(sph->m_center[0], sph->m_center[1], sph->m_center[2]);
+                glScalef(sph->m_radius, sph->m_radius, sph->m_radius);
+
+                unsigned int name = (int)sph->m_nameUInt;
+                if(name != 0)
+                    glPushName(name);
+
+                if(m_useLOD) {
+                    lodvalue = m_lodScale *
+                        lodeval.calcSphereLODValue(sph->m_center, sph->m_radius);
+                    IndexedShape *lod = sphereLODs.lookupLOD(lodvalue);
+
+#if 0 // LOD Vis
+                    static float lodcolors[][4] = {{1, 0, 0, 1}, {0, 1, 0, 1}, {0, 0, 1, 1}};
+                    static float black[] = {0, 0, 0, 1};
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, black);
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lodcolors[(lod - m_sphereShapes) % 3]);
+#endif
+
+                    lod->draw();
+                } else {
+                    m_forcedSphere->draw();
+                }
+
+                if(name != 0)
+                    glPopName();
+
+                glPopMatrix();
+            }
+
+            i = objectNext[i];
+        }
+    }
+
+
+    return true;
+}
+
 bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], float color[][4], unsigned int *names)
 {
     float lodvalue;
@@ -1775,7 +1867,7 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
     /* This appears to be around 10% faster than draw unsorted on 2GHz + FireGL X1 for SRG-1c Tubes */
 
 
-    if(!sortByColor(0, count, color, &uniqueColorCount, &colorSortedListHeads, &objectNext)) {
+    if(!sortByColor(0, count, (Color *)color, &uniqueColorCount, &colorSortedListHeads, &objectNext)) {
         /* allocation failed */
         return false;
     }
@@ -1844,6 +1936,81 @@ void applyCylinderMatrix(float pos1[3], float pos2[3], float radius)
     glScalef(radius, radius, cylLength);
 }
 
+bool ShapeRenderer::drawCylinders(int count, Cylinder *cylinders)
+{
+    int i;
+    float lodvalue;
+    int uniqueColorCount;
+    ColorSortedListHead *colorSortedListHeads;
+    int *objectNext;
+
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, m_materialShininess);
+
+    /* This appears to be around 11% faster than draw unsorted on 2GHz + FireGL X1 for SRG-1c Tubes */
+
+    int k;
+
+    if(!sortByColor(0, count, cylinders, &uniqueColorCount, &colorSortedListHeads, &objectNext))
+        /* allocation failed */
+        return false;
+
+    for(k = 0; k < uniqueColorCount; k++) {
+        applyMaterial(colorSortedListHeads[k].m_color);
+
+        i = colorSortedListHeads[k].m_firstObject;
+        while(i != -1) {
+            Cylinder *cyl = cylinders + i;
+            if(cyl->m_radius != 0.0f) {
+                glPushMatrix();
+                applyCylinderMatrix(cyl->m_pos1, cyl->m_pos2, cyl->m_radius);
+
+                unsigned int name = (int)cyl->m_nameUInt;
+                if(name != 0)
+                    glPushName(name);
+
+                if(m_useLOD) {
+                    lodvalue = m_lodScale *
+                        lodeval.calcCylinderLODValue(cyl->m_pos1, cyl->m_pos2,
+                        cyl->m_radius);
+
+                    IndexedShape *lod;
+                    if((int)cyl->m_cappedBool)
+                        lod = cylinderClosedLODs.lookupLOD(lodvalue);
+                    else
+                        lod = cylinderOpenLODs.lookupLOD(lodvalue);
+
+#if 0 // LOD Vis
+                    static float lodcolors[][4] = {{1, 0, 0, 1}, {0, 1, 0, 1}, {0, 0, 1, 1}};
+                    static float black[] = {0, 0, 0, 1};
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, black);
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lodcolors[(lod - m_cylinderShapes) % 3]);
+#endif
+
+                    lod->draw();
+
+                } else {
+
+                    if((int)cyl->m_cappedBool)
+                        m_forcedClosedCylinder->draw();
+                    else
+                        m_forcedOpenCylinder->draw();
+
+                }
+
+                if(name != 0)
+                    glPopName();
+
+                glPopMatrix();
+            }
+
+            i = objectNext[i];
+        }
+    }
+
+    return true;
+}
+
 bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4], unsigned int *names)
 {
     int i;
@@ -1858,7 +2025,7 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
 
     int k;
 
-    if(!sortByColor(0, count, color, &uniqueColorCount, &colorSortedListHeads, &objectNext))
+    if(!sortByColor(0, count, (Color *)color, &uniqueColorCount, &colorSortedListHeads, &objectNext))
         /* allocation failed */
         return false;
 
@@ -1995,6 +2162,24 @@ void shapeRendererUpdateLODEval()
     g_renderer.lodeval.update();
 }
 
+PyObject * shapeRendererDrawSpheresIlvd(int count, float *data)
+{
+    bool succeeded = g_renderer.drawSpheres(count, (struct Sphere *)data);
+
+#if defined(PRINT_GL_ERROR)
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR)
+        printf("Error: %04X\n", error); fflush(stdout);
+#endif
+
+    if(!succeeded) {
+	PyErr_SetString(PyExc_RuntimeError, "shapeRendererDrawSpheresIlvd did not succeeed");
+	return NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4], unsigned int *names)
 {
     bool succeeded = g_renderer.drawSpheres(count, center, radius, color, names);
@@ -2007,6 +2192,24 @@ PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[]
 
     if(!succeeded) {
 	PyErr_SetString(PyExc_RuntimeError, "OpenGL drawSpheres did not succeeed");
+	return NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+PyObject * shapeRendererDrawCylindersIlvd(int count, float *cylinders)
+{
+    bool succeeded = g_renderer.drawCylinders(count, (Cylinder *)cylinders);
+
+#if defined(PRINT_GL_ERROR)
+    GLenum error = glGetError();
+    if(error != GL_NO_ERROR)
+        printf("Error: %04X\n", error); fflush(stdout);
+#endif
+
+    if(!succeeded) {
+	PyErr_SetString(PyExc_RuntimeError, "shapeRendererDrawCylindersIlvd did not succeeed");
 	return NULL;
     }
     Py_INCREF(Py_None);

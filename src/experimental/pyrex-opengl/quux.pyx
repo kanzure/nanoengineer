@@ -34,9 +34,11 @@ cdef extern from "quux_help.c":
     _shapeRendererSetMaterialParameters(float whiteness, float brightness, float shininess)
     _shapeRendererSetUseDynamicLOD(int useLODBool)
     _shapeRendererSetStaticLODLevels(int sphere, int cylinder)
+    _shapeRendererDrawSpheresIlvd(int count, ArrayType spheres)
     _shapeRendererDrawSpheres(int count, ArrayType center,
                               ArrayType radius, ArrayType color,
                               ArrayType names)
+    _shapeRendererDrawCylindersIlvd(int count, ArrayType cylinders)
     _shapeRendererDrawCylinders(int count, ArrayType pos1,
                                 ArrayType pos2, ArrayType radius,
                                 ArrayType capped, ArrayType color,
@@ -117,8 +119,14 @@ def shapeRendererSetStaticLODLevels(sphere, cylinder):
 def shapeRendererSetMaterialParameters(whiteness, brightness, shininess):
     return _shapeRendererSetMaterialParameters(whiteness, brightness, shininess)
 
+def shapeRendererDrawSpheresIlvd(count, spheres):
+    return _shapeRendererDrawSpheresIlvd(count, spheres)
+
 def shapeRendererDrawSpheres(count, center, radius, color, names = None):
     return _shapeRendererDrawSpheres(count, center, radius, color, names)
+
+def shapeRendererDrawCylindersIlvd(count, cylinders):
+    return _shapeRendererDrawCylindersIlvd(count, cylinders)
 
 def shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color, names = None):
     return _shapeRendererDrawCylinders(count, pos1, pos2, radius, capped, color, names)

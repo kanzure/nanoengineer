@@ -22,6 +22,8 @@ void shapeRendererSetModelView(float modelview[6]);
 void shapeRendererUpdateLODEval();
 PyObject * shapeRendererDrawSpheres(int count, float center[][3], float radius[], float color[][4], unsigned int *names);
 PyObject * shapeRendererDrawCylinders(int count, float pos1[][3], float pos2[][3], float radius[], int capped[], float color[][4], unsigned int *names);
+PyObject * shapeRendererDrawSpheresIlvd(int count, float *spheres);
+PyObject * shapeRendererDrawCylindersIlvd(int count, float *cylinders);
 void shapeRendererSetLODScale(float s);
 void shapeRendererSetUseDynamicLOD(int useLOD);
 void shapeRendererSetStaticLODLevels(int sphereLOD, int cylinderLOD);

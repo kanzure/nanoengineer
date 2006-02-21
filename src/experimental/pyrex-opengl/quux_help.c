@@ -278,3 +278,43 @@ static PyObject *_shapeRendererDrawCylinders(int count,
                                       (float (*)[4])color->data,
                                       namesp);
 }
+
+static PyObject *_shapeRendererDrawSpheresIlvd(int count,
+					     PyArrayObject *sphs)
+{
+    if (sphs->nd != 2) {
+	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: sphs");
+	return NULL;
+    }
+    if (sphs->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: sphs");
+	return NULL;
+    }
+    if (sphs->dimensions[1] != 9) {
+	PyErr_SetString(PyExc_ValueError, "wrong number of columns: sphs");
+	return NULL;
+    }
+
+    return shapeRendererDrawSpheresIlvd(count,
+				      (float *)sphs->data);
+}
+
+static PyObject *_shapeRendererDrawCylindersIlvd(int count,
+					     PyArrayObject *cyls)
+{
+    if (cyls->nd != 2) {
+	PyErr_SetString(PyExc_ValueError, "wrong number of dimensions: cyls");
+	return NULL;
+    }
+    if (cyls->dimensions[0] < count) {
+	PyErr_SetString(PyExc_ValueError, "too few for count: cyls");
+	return NULL;
+    }
+    if (cyls->dimensions[1] != 13) {
+	PyErr_SetString(PyExc_ValueError, "wrong number of columns: cyls");
+	return NULL;
+    }
+
+    return shapeRendererDrawCylindersIlvd(count,
+				      (float *)cyls->data);
+}
