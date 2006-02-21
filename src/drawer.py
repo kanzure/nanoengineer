@@ -534,8 +534,18 @@ class ShapeList_inplace:
 
     def __init__(self):
 
+        #
+        # Lists of lists, each list containing a Numeric array and the
+        # number of objects in that array.  E.g. Each element in
+        # sphere is [l, n], where l is array((m, 9), 'f'), n is the
+        # number of valid 9 element slices in l that represent
+        # spheres, and m is equal to or more than n+1.
+        #
         self.spheres = []
         self.cylinders = []
+
+        # If this is true, disallow future adds.
+        self.petrified = False
 
 
     def draw(self):
@@ -556,6 +566,9 @@ class ShapeList_inplace:
 
         "color4" must have 4 elements.  "name" is the GL selection name.
         """
+
+        if self.petrified:
+            raise ValueError, "Tried to add a sphere to a petrified ShapeList_inplace"
 
         # struct Sphere {
         #     float m_color[4];
@@ -587,6 +600,9 @@ class ShapeList_inplace:
         "color4" must have 4 elements.  "name" is the GL selection name.
         """
 
+        if self.petrified:
+            raise ValueError, "Tried to add a cylinder to a petrified ShapeList_inplace"
+
         # struct Cylinder {
         #     float m_color[4];
         #     float m_nameUInt;
@@ -613,10 +629,6 @@ class ShapeList_inplace:
 
         self.cylinders[-1][1] += 1
 
-
-    def _raise_exc_on_add(self):
-        raise ValueError, "Tried to add a shape to a petrified shape list"
-
         
     def petrify(self):
         """\
@@ -628,6 +640,8 @@ class ShapeList_inplace:
         old block and reduce memory use.  After this point, shapes
         must not be added to this ShapeList.
         """
+
+        self.petrified = True
 
         if len(self.spheres) > 0:
             count = self.spheres[-1][1]
@@ -642,9 +656,6 @@ class ShapeList_inplace:
                 block = self.cylinders[-1][0]
                 newblock = Numeric.array(block[0:count], 'f')
                 self.cylinders[-1][0] = newblock
-
-        self.add_sphere = self._raise_exc_on_add
-        self.add_cylinder = self._raise_exc_on_add
 
 
 class ShapeList:
@@ -907,14 +918,16 @@ class ColorSorter:
         """
         if TEST_PYREX_OPENGL and ColorSorter.sorting:
             if len(color) == 3:
-                lcolor = color + [1.0]
+                lcolor = (color[0], color[1], color[2], 1.0)
+            else:
+                lcolor = color
             ColorSorter._cur_shapelist.add_sphere(lcolor, pos, radius,
                 ColorSorter._gl_name_stack[-1])
             # 20060208 grantham - I happen to know that one detailLevel
             # is chosen for all spheres, I just record it over and
             # over here, and use the last one for the render
             if ColorSorter.sphereLevel > -1 and ColorSorter.sphereLevel != detailLevel:
-                raise ValueError, "different sphere LOD levels"
+                raise ValueError, "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
         else: # Older sorted material rendering
             ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
@@ -928,7 +941,9 @@ class ColorSorter:
         """
         if TEST_PYREX_OPENGL and ColorSorter.sorting:
             if len(color) == 3:
-                lcolor = [color[0], color[1], color[2], 1.0]
+                lcolor = (color[0], color[1], color[2], 1.0)
+            else:
+                lcolor = color
             ColorSorter._cur_shapelist.add_cylinder(lcolor, pos1, pos2, radius,
                 ColorSorter._gl_name_stack[-1], capped)
         else:
@@ -972,8 +987,8 @@ class ColorSorter:
 
             # So chunks can actually record their shapelist
             # at some point if they want to
-            ColorSorter._cur_shapelist.petrify()
-            return ColorSorter._cur_shapelist      
+            # ColorSorter._cur_shapelist.petrify()
+            # return ColorSorter._cur_shapelist      
 
         else:
             color_groups = len(ColorSorter.sorted_by_color)
