@@ -23,7 +23,7 @@ import debug #bruce 051212, for debug.print_compact_traceback
 
 # Experimental C++ renderer
 # Set this to True to use the new native C++ renderer
-TEST_PYREX_OPENGL = False
+TEST_PYREX_OPENGL = True
 if TEST_PYREX_OPENGL:
     sys.path.append("./experimental/pyrex-opengl")
     import quux
@@ -509,16 +509,151 @@ def drawcylinder_worker(params):
 
     return
 
-# 20060208 grantham - The following classes, ShapeList and
+# 20060208 grantham - The following classes, ShapeList_inplace, ShapeList and
 # ColorSorter, should probably be in their own file.  But Bruce
 # cautions me against doing it on my own since I haven't done that
 # before and there are subtleties.
+
+class ShapeList_inplace:
+
+    """\
+    Records sphere and cylinder data and invokes it through the native C++
+    rendering system.
+
+    This has the benefit over ShapeList that shapes aren't first stored in
+    lots of Python lists, and then turned into lots of Numeric arrays.
+    Instead, it stores directly in a list of fixed-size Numeric arrays.
+    It shows some speedup, but not a lot.  And tons of memory is being
+    used.  I'm not sure where. -grantham
+    
+    """
+
+    __author__ = "grantham@plunk.org"
+
+    _blocking = 512     # balance between memory zeroing and drawing efficiency
+
+    def __init__(self):
+
+        self.spheres = []
+        self.cylinders = []
+
+
+    def draw(self):
+
+        """\
+        Draw all the objects represented in this shape list.
+        """
+
+        for (spheres, count) in self.spheres:
+            quux.shapeRendererDrawSpheresIlvd(count, spheres)
+        for (cylinders, count) in self.cylinders:
+            quux.shapeRendererDrawCylindersIlvd(count, cylinders)
+
+
+    def add_sphere(self, color4, pos, radius, name = 0):
+        """\
+        Add a sphere to this shape list.
+
+        "color4" must have 4 elements.  "name" is the GL selection name.
+        """
+
+        # struct Sphere {
+        #     float m_color[4];
+        #     float m_nameUInt;
+        #     float m_center[3];
+        #     float m_radius;
+        # };
+
+        if len(self.spheres) == 0 or self.spheres[-1][1] == ShapeList_inplace._blocking:
+            # size of struct Sphere in floats is 9
+            block = Numeric.zeros((ShapeList_inplace._blocking, 9), 'f')
+            self.spheres.append([block, 0])
+
+        (block, count) = self.spheres[-1]
+
+        block[count] = (\
+            color4[0], color4[1], color4[2], color4[3],
+            float(name),
+            pos[0], pos[1], pos[2],
+            radius)
+
+        self.spheres[-1][1] += 1
+        
+
+    def add_cylinder(self, color4, pos1, pos2, radius, name = 0, capped=0):
+        """\
+        Add a cylinder to this shape list.
+
+        "color4" must have 4 elements.  "name" is the GL selection name.
+        """
+
+        # struct Cylinder {
+        #     float m_color[4];
+        #     float m_nameUInt;
+        #     float m_cappedBool;
+        #     float m_pos1[3];
+        #     float m_pos2[3];
+        #     float m_radius; 
+        # };
+
+        if len(self.cylinders) == 0 or self.cylinders[-1][1] == ShapeList_inplace._blocking:
+            # size of struct Cylinder in floats is 13
+            block = Numeric.zeros((ShapeList_inplace._blocking, 13), 'f')
+            self.cylinders.append([block, 0])
+
+        (block, count) = self.cylinders[-1]
+
+        block[count] = (\
+            color4[0], color4[1], color4[2], color4[3],
+            float(name),
+            float(capped),
+            pos1[0], pos1[1], pos1[2],
+            pos2[0], pos2[1], pos2[2],
+            radius)
+
+        self.cylinders[-1][1] += 1
+
+
+    def _raise_exc_on_add(self):
+        raise ValueError, "Tried to add a shape to a petrified shape list"
+
+        
+    def petrify(self):
+        """\
+        Make this object
+
+        Since the last block of shapes might not be full, this
+        function copies them to a new block exactly big enough to hold
+        the shapes in that block.  The gc has a chance to release the
+        old block and reduce memory use.  After this point, shapes
+        must not be added to this ShapeList.
+        """
+
+        if len(self.spheres) > 0:
+            count = self.spheres[-1][1]
+            if count < ShapeList_inplace._blocking:
+                block = self.spheres[-1][0]
+                newblock = Numeric.array(block[0:count], 'f')
+                self.spheres[-1][0] = newblock
+
+        if len(self.cylinders) > 0:
+            count = self.cylinders[-1][1]
+            if count < ShapeList_inplace._blocking:
+                block = self.cylinders[-1][0]
+                newblock = Numeric.array(block[0:count], 'f')
+                self.cylinders[-1][0] = newblock
+
+        self.add_sphere = self._raise_exc_on_add
+        self.add_cylinder = self._raise_exc_on_add
+
 
 class ShapeList:
 
     """\
     Records sphere and cylinder data and invokes it through the native C++
     rendering system.
+
+    Probably better to use "ShapeList_inplace".
     """
 
     __author__ = "grantham@plunk.org"
@@ -623,13 +758,15 @@ class ShapeList:
         self.cylinder_names.append(name)
         self.memoized = False
 
+
     def petrify(self):
         """\
         Delete all but the cached Numeric arrays.
 
         Call this when you're sure you don't have any more shapes to store
         in the shape list and you want to release the python lists of data
-        back to the heap. 
+        back to the heap.  Additional shapes must not be added to this shape
+        list.
         """
         if not self.memoized:
             self._memoize()
@@ -808,7 +945,7 @@ class ColorSorter:
         assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
         if TEST_PYREX_OPENGL and ColorSorter.sorting:
-            ColorSorter._cur_shapelist = ShapeList()
+            ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
         else:
             ColorSorter.sorted_by_color = {}
@@ -835,6 +972,7 @@ class ColorSorter:
 
             # So chunks can actually record their shapelist
             # at some point if they want to
+            ColorSorter._cur_shapelist.petrify()
             return ColorSorter._cur_shapelist      
 
         else:
