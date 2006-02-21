@@ -159,6 +159,8 @@ class nullMode(anyMode):
         pass
     def bareMotion(self, e):
         pass
+    def set_displayMode(self, displayMode): #bruce 060220 added this to remove frequent debug print
+        pass
     pass ##e maybe needs to have some other specific methods?
 
 
