@@ -246,7 +246,10 @@ class UserPrefs(UserPrefsDialog):
         # Build Mode Defaults.  mark 060203.
         self.autobond_checkbox.setChecked(env.prefs[ buildModeAutobondEnabled_prefs_key ])
         self.water_checkbox.setChecked(env.prefs[ buildModeWaterEnabled_prefs_key ])
-        self.highlighting_checkbox.setChecked(env.prefs[ buildModeHighlightingEnabled_prefs_key ])
+        self.buildmode_highlighting_checkbox.setChecked(env.prefs[ buildModeHighlightingEnabled_prefs_key ])
+        
+        # Select Atoms Mode Defaults.  mark 060203.
+        self.selatomsmode_highlighting_checkbox.setChecked(env.prefs[ selectAtomsModeHighlightingEnabled_prefs_key ])
         
 
 # Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
@@ -842,10 +845,16 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[buildModeWaterEnabled_prefs_key] = self.water_checkbox.isChecked()
         
     def set_buildmode_highlighting(self): # mark 060203
-        '''Highlighting default setting for Build mode. This only affects whether it is enabled/disabled 
-        when starting the application and entering Build mode for the first time.
+        '''Set default setting for hover highlighting in Build mode. This only affects whether it is 
+        enabled/disabled when starting the application and entering Build mode for the first time.
         '''
-        env.prefs[buildModeHighlightingEnabled_prefs_key] = self.highlighting_checkbox.isChecked()
+        env.prefs[buildModeHighlightingEnabled_prefs_key] = self.buildmode_highlighting_checkbox.isChecked()
+        
+    def set_selatomsmode_highlighting(self): # mark 060203
+        '''Set default setting for hover highlighting in Select Atoms mode. This only affects whether it is
+        enabled/disabled when starting the application and entering Select Atoms mode for the first time.
+        '''
+        env.prefs[selectAtomsModeHighlightingEnabled_prefs_key] = self.selatomsmode_highlighting_checkbox.isChecked()
         
     ########## End of slot methods for "Modes" page widgets ###########
     

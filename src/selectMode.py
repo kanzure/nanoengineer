@@ -36,8 +36,9 @@ def do_what_MainWindowUI_should_do(w):
     
     w.elemFilterComboBox = QComboBox(0,w.selectAtomsDashboard, "elemFilterComboBox")
     
-    w.selectConnectedAction.addTo(w.selectAtomsDashboard)
-    w.selectDoublyAction.addTo(w.selectAtomsDashboard)
+    #w.selectConnectedAction.addTo(w.selectAtomsDashboard)
+    #w.selectDoublyAction.addTo(w.selectAtomsDashboard)
+        # Removed these now that select connected works on double-click. mark 060220.
     
     w.selectAtomsDashboard.addSeparator()
 
@@ -60,7 +61,7 @@ def do_what_MainWindowUI_should_do(w):
     
     w.selectAtomsDashboard.addSeparator()
     w.selectAtomsDashboard.highlightingCB = QCheckBox("Highlighting", w.selectAtomsDashboard)
-    w.selectAtomsDashboard.highlightingCB.setChecked(env.prefs[buildModeHighlightingEnabled_prefs_key])
+    w.selectAtomsDashboard.highlightingCB.setChecked(env.prefs[selectAtomsModeHighlightingEnabled_prefs_key])
 
     w.selectAtomsDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.selectAtomsDashboard)
@@ -1074,6 +1075,10 @@ class selectMolsMode(selectMode):
 class selectAtomsMode(selectMode):
     modename = 'SELECTATOMS'
     default_mode_status_text = "Mode: Select Atoms"
+    highlight_singlets = False 
+        # Don't highlight singlets in selectAtomsMode. Fixes bug 1540. mark 060220.
+    hover_highlighting_enabled = env.prefs[selectAtomsModeHighlightingEnabled_prefs_key]
+        # Fixes bug 1541.  mark 060220.
         
     eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
         
@@ -1234,9 +1239,11 @@ class selectAtomsMode(selectMode):
         
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
-                return env.prefs[bondpointHighlightColor_prefs_key]
+                if self.highlight_singlets: # added highlight_singlets to fix bug 1540. mark 060220.
+                    return env.prefs[bondpointHighlightColor_prefs_key]
             else:
                 if self.only_highlight_singlets:
+                    # Highlight this atom if it has bondpoints.
                     if selobj.singNeighbors():
                         return env.prefs[atomHighlightColor_prefs_key]
                     else:
@@ -1497,8 +1504,10 @@ class selectAtomsMode(selectMode):
         self.reset_drag_vars()
         env.history.statusbar_msg(" ") # get rid of obsolete msg from bareMotion [bruce 050124; imperfect #e]
             
-        self.LMB_press_event = QMouseEvent(event) # Save this event.  
+        self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
             # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
+            # Copying the event in this way is necessary because Qt will overwrite <event> later (in 
+            # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220.
             
         self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
             # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().

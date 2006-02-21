@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>568</width>
-            <height>412</height>
+            <height>424</height>
         </rect>
     </property>
     <property name="caption">
@@ -2105,7 +2105,7 @@
                     </widget>
                     <widget class="QLayoutWidget" row="0" column="1">
                         <property name="name">
-                            <cstring>layout74</cstring>
+                            <cstring>layout67</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -2179,14 +2179,6 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>highlighting_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Highligting</string>
-                                        </property>
-                                    </widget>
                                     <widget class="QCheckBox" row="0" column="0">
                                         <property name="name">
                                             <cstring>autobond_checkbox</cstring>
@@ -2195,7 +2187,7 @@
                                             <string>Autobond</string>
                                         </property>
                                     </widget>
-                                    <widget class="QCheckBox" row="1" column="0">
+                                    <widget class="QCheckBox" row="2" column="0">
                                         <property name="name">
                                             <cstring>water_checkbox</cstring>
                                         </property>
@@ -2203,25 +2195,37 @@
                                             <string>Water</string>
                                         </property>
                                     </widget>
+                                    <widget class="QCheckBox" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>buildmode_highlighting_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Highligting</string>
+                                        </property>
+                                    </widget>
                                 </grid>
                             </widget>
-                            <spacer>
+                            <widget class="QGroupBox">
                                 <property name="name">
-                                    <cstring>spacer52</cstring>
+                                    <cstring>groupBox16</cstring>
                                 </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
+                                <property name="title">
+                                    <string>Select Atoms Mode Defaults</string>
                                 </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>selatomsmode_highlighting_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Highligting</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
                         </vbox>
                     </widget>
                     <spacer row="0" column="2">
@@ -2236,7 +2240,7 @@
                         </property>
                         <property name="sizeHint">
                             <size>
-                                <width>40</width>
+                                <width>60</width>
                                 <height>20</height>
                             </size>
                         </property>
@@ -3967,6 +3971,12 @@
         <slot>change_bondpoint_hilite_color()</slot>
     </connection>
     <connection>
+        <sender>buildmode_highlighting_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_highlighting()</slot>
+    </connection>
+    <connection>
         <sender>caption_fullpath_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4075,12 +4085,6 @@
         <slot>change_high_quality_graphics()</slot>
     </connection>
     <connection>
-        <sender>highlighting_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_highlighting()</slot>
-    </connection>
-    <connection>
         <sender>history_height_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4100,15 +4104,15 @@
     </connection>
     <connection>
         <sender>light_ambient_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_ambient_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_ambient_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_checkbox</sender>
@@ -4130,18 +4134,12 @@
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>sliderReleased()</signal>
+        <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
@@ -4151,6 +4149,12 @@
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -4184,12 +4188,6 @@
     </connection>
     <connection>
         <sender>ms_brightness_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness()</slot>
-    </connection>
-    <connection>
-        <sender>ms_brightness_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_brightness_stop()</slot>
@@ -4201,10 +4199,10 @@
         <slot>change_material_brightness_start()</slot>
     </connection>
     <connection>
-        <sender>ms_finish_slider</sender>
+        <sender>ms_brightness_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_finish()</slot>
+        <slot>change_material_brightness()</slot>
     </connection>
     <connection>
         <sender>ms_finish_slider</sender>
@@ -4219,16 +4217,16 @@
         <slot>change_material_finish_start()</slot>
     </connection>
     <connection>
+        <sender>ms_finish_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_finish()</slot>
+    </connection>
+    <connection>
         <sender>ms_on_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>toggle_material_specularity()</slot>
-    </connection>
-    <connection>
-        <sender>ms_shininess_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_shininess_stop()</slot>
     </connection>
     <connection>
         <sender>ms_shininess_slider</sender>
@@ -4241,6 +4239,12 @@
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_shininess()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess_stop()</slot>
     </connection>
     <connection>
         <sender>nanohive_checkbox</sender>
@@ -4325,6 +4329,12 @@
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>set_buildmode_water()</slot>
+    </connection>
+    <connection>
+        <sender>selatomsmode_highlighting_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_selatomsmode_highlighting()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -4452,6 +4462,7 @@
     <slot>change_level_of_detail()</slot>
     <slot>change_display_mode()</slot>
     <slot>set_realtime_minimization()</slot>
+    <slot>set_selatomsmode_highlighting()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

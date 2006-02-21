@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sat Feb 18 17:14:31 2006
+# Created: Mon Feb 20 22:06:01 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -672,7 +672,7 @@ class UserPrefsDialog(QDialog):
 
         TabPageLayout_3.addLayout(layout69,0,0)
 
-        layout74 = QVBoxLayout(None,0,6,"layout74")
+        layout67_4 = QVBoxLayout(None,0,6,"layout67_4")
 
         self.default_display_btngrp = QButtonGroup(self.TabPage_3,"default_display_btngrp")
         self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
@@ -700,7 +700,7 @@ class UserPrefsDialog(QDialog):
         self.default_display_btngrp.insert( self.tubes_rbtn,5)
 
         default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
-        layout74.addWidget(self.default_display_btngrp)
+        layout67_4.addWidget(self.default_display_btngrp)
 
         self.buildmode_groupbox = QGroupBox(self.TabPage_3,"buildmode_groupbox")
         self.buildmode_groupbox.setColumnLayout(0,Qt.Vertical)
@@ -709,23 +709,33 @@ class UserPrefsDialog(QDialog):
         buildmode_groupboxLayout = QGridLayout(self.buildmode_groupbox.layout())
         buildmode_groupboxLayout.setAlignment(Qt.AlignTop)
 
-        self.highlighting_checkbox = QCheckBox(self.buildmode_groupbox,"highlighting_checkbox")
-
-        buildmode_groupboxLayout.addWidget(self.highlighting_checkbox,2,0)
-
         self.autobond_checkbox = QCheckBox(self.buildmode_groupbox,"autobond_checkbox")
 
         buildmode_groupboxLayout.addWidget(self.autobond_checkbox,0,0)
 
         self.water_checkbox = QCheckBox(self.buildmode_groupbox,"water_checkbox")
 
-        buildmode_groupboxLayout.addWidget(self.water_checkbox,1,0)
-        layout74.addWidget(self.buildmode_groupbox)
-        spacer52 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout74.addItem(spacer52)
+        buildmode_groupboxLayout.addWidget(self.water_checkbox,2,0)
 
-        TabPageLayout_3.addLayout(layout74,0,1)
-        spacer8_4 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        self.buildmode_highlighting_checkbox = QCheckBox(self.buildmode_groupbox,"buildmode_highlighting_checkbox")
+
+        buildmode_groupboxLayout.addWidget(self.buildmode_highlighting_checkbox,1,0)
+        layout67_4.addWidget(self.buildmode_groupbox)
+
+        self.groupBox16 = QGroupBox(self.TabPage_3,"groupBox16")
+        self.groupBox16.setColumnLayout(0,Qt.Vertical)
+        self.groupBox16.layout().setSpacing(6)
+        self.groupBox16.layout().setMargin(11)
+        groupBox16Layout = QGridLayout(self.groupBox16.layout())
+        groupBox16Layout.setAlignment(Qt.AlignTop)
+
+        self.selatomsmode_highlighting_checkbox = QCheckBox(self.groupBox16,"selatomsmode_highlighting_checkbox")
+
+        groupBox16Layout.addWidget(self.selatomsmode_highlighting_checkbox,0,0)
+        layout67_4.addWidget(self.groupBox16)
+
+        TabPageLayout_3.addLayout(layout67_4,0,1)
+        spacer8_4 = QSpacerItem(60,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout_3.addItem(spacer8_4,0,2)
         self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
@@ -1224,7 +1234,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(568,412).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(568,424).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.always_save_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_always_save_win_pos_and_size)
@@ -1238,6 +1248,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
+        self.connect(self.buildmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_buildmode_highlighting)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
@@ -1256,34 +1267,33 @@ class UserPrefsDialog(QDialog):
         self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
         self.connect(self.high_quality_graphics_checkbox,SIGNAL("toggled(bool)"),self.change_high_quality_graphics)
-        self.connect(self.highlighting_checkbox,SIGNAL("clicked()"),self.set_buildmode_highlighting)
         self.connect(self.history_height_spinbox,SIGNAL("valueChanged(int)"),self.set_history_height)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
-        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
         self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
         self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
-        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
-        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
-        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
+        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
         self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
+        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
         self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
-        self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
+        self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -1298,6 +1308,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("clicked()"),self.set_realtime_minimization)
         self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
+        self.connect(self.selatomsmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_selatomsmode_highlighting)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1479,9 +1490,11 @@ class UserPrefsDialog(QDialog):
         self.lines_rbtn.setText(self.__tr("Lines"))
         self.tubes_rbtn.setText(self.__tr("Tubes"))
         self.buildmode_groupbox.setTitle(self.__tr("Build Mode Defaults"))
-        self.highlighting_checkbox.setText(self.__tr("Highligting"))
         self.autobond_checkbox.setText(self.__tr("Autobond"))
         self.water_checkbox.setText(self.__tr("Water"))
+        self.buildmode_highlighting_checkbox.setText(self.__tr("Highligting"))
+        self.groupBox16.setTitle(self.__tr("Select Atoms Mode Defaults"))
+        self.selatomsmode_highlighting_checkbox.setText(self.__tr("Highligting"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
         self.groupBox8_2.setTitle(self.__tr("Directional Light Properties"))
         self.light_label.setText(self.__tr("Light :"))
@@ -1735,6 +1748,9 @@ class UserPrefsDialog(QDialog):
 
     def set_realtime_minimization(self):
         print "UserPrefsDialog.set_realtime_minimization(): Not implemented yet"
+
+    def set_selatomsmode_highlighting(self):
+        print "UserPrefsDialog.set_selatomsmode_highlighting(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

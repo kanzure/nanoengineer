@@ -295,6 +295,8 @@ class depositMode(selectAtomsMode):
     modename = 'DEPOSIT' 
     msg_modename = "Build mode" 
     default_mode_status_text = "Mode: Build"
+    highlight_singlets = True # Always highlight singlets in depositMode. Mark 060220.
+    hover_highlighting_enabled = env.prefs[buildModeHighlightingEnabled_prefs_key]
 
     def __init__(self, glpane):
         selectAtomsMode.__init__(self, glpane)
