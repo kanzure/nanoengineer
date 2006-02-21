@@ -545,17 +545,26 @@ class SelectionShape(shape):
                     disp = mol.get_dispdef()
                     for a in mol.atoms.itervalues():
                         if c.isin(a.posn()) and a.visible(disp):
-                                a.molecule.pick()
-                                break
+                            a.molecule.pick()
+                            break
     
             if c.selSense == SUBTRACT_FROM_SELECTION:
                 for m in assy.selmols[:]:
                     if m.hidden: continue #bruce 041214
                     disp = m.get_dispdef()
                     for a in m.atoms.itervalues():
-                            if c.isin(a.posn()) and a.visible(disp):
-                                    m.unpick()
-                                    break   
+                        if c.isin(a.posn()) and a.visible(disp):
+                            m.unpick()
+                            break   
+                                    
+            if c.selSense == DELETE_SELECTION: # mark 060220.
+                for mol in assy.molecules:
+                    if mol.hidden: continue
+                    disp = mol.get_dispdef()
+                    for a in mol.atoms.itervalues():
+                        if c.isin(a.posn()) and a.visible(disp):
+                            a.molecule.kill()
+                            break
         
         def findObjInside(self, assy):
             '''Find atoms/chunks that are inside the shape. '''
