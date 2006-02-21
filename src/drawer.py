@@ -23,7 +23,7 @@ import debug #bruce 051212, for debug.print_compact_traceback
 
 # Experimental C++ renderer
 # Set this to True to use the new native C++ renderer
-TEST_PYREX_OPENGL = True
+TEST_PYREX_OPENGL = False
 if TEST_PYREX_OPENGL:
     sys.path.append("./experimental/pyrex-opengl")
     import quux
