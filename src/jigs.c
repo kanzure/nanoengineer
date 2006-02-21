@@ -149,6 +149,23 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     jig->data2 = motorq / ((1e-9/Dx) * (1e-9/Dx));
 }
 
+double
+jigMinimizePotentialRotaryMotor(struct part *p, struct jig *jig,
+                                struct xyz *positions,
+                                double *pTheta)
+{
+    return 0.0;
+}
+
+void
+jigMinimizeGradientRotaryMotor(struct part *p, struct jig *jig,
+                               struct xyz *positions,
+                               struct xyz *force,
+                               double *pTheta,
+                               double *pGradient)
+{
+}
+
 void
 jigLinearMotor(struct jig *jig, struct xyz *position, struct xyz *new_position, struct xyz *force, double deltaTframe)
 {
@@ -188,6 +205,23 @@ jigLinearMotor(struct jig *jig, struct xyz *position, struct xyz *new_position, 
         ff = vdot(vsum(force[a1], f), jig->j.lmotor.axis) ;
         vmul2c(force[a1], jig->j.lmotor.axis, ff);
     }
+}
+
+double
+jigMinimizePotentialLinearMotor(struct part *p, struct jig *jig,
+                                struct xyz *positions,
+                                double *pDistance)
+{
+    return 0.0;
+}
+
+void
+jigMinimizeGradientLinearMotor(struct part *p, struct jig *jig,
+                               struct xyz *positions,
+                               struct xyz *force,
+                               double *pDistance,
+                               double *pGradient)
+{
 }
 
 void

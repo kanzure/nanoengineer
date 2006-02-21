@@ -53,8 +53,33 @@ countMinimizeEvaulations(char which)
 static void
 minimizeStructurePotential(struct configuration *p)
 {
+    int i;
+    struct jig *jig;
+    
     updateVanDerWaals(Part, p, (struct xyz *)p->coordinate);
     p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
+    for (i=0; i<Part->num_jigs; i++) {
+        jig = Part->jigs[i];
+        if (jig->degreesOfFreedom != 0) {
+            switch (jig->type) {
+            case RotaryMotor:
+                p->functionValue +=
+                    jigMinimizePotentialRotaryMotor(Part, jig,
+                                                    (struct xyz *)p->coordinate,
+                                                    p->coordinate + jig->coordinateIndex);
+                break;
+            case LinearMotor:
+                p->functionValue +=
+                    jigMinimizePotentialLinearMotor(Part, jig,
+                                                    (struct xyz *)p->coordinate,
+                                                    p->coordinate + jig->coordinateIndex);
+                break;
+            default:
+                ERROR2("jig type %d has unexpected %d degrees of freedom", jig->type, jig->degreesOfFreedom);
+                break;
+            }
+        }
+    }
     //writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter,
     //                        Iteration++, "potential", p->functionDefinition->message);
     if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D3
@@ -85,6 +110,7 @@ minimizeStructureGradient(struct configuration *p)
     double rms_force;
     double max_force;
     struct xyz *forces;
+    struct jig *jig;
 
     // wware 060109  python exception handling
     updateVanDerWaals(Part, p, (struct xyz *)p->coordinate); BAIL();
@@ -99,6 +125,31 @@ minimizeStructureGradient(struct configuration *p)
 	}
     } else {
 	calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
+    }
+
+    for (i=0; i<Part->num_jigs; i++) {
+        jig = Part->jigs[i];
+        if (jig->degreesOfFreedom != 0) {
+            switch (jig->type) {
+            case RotaryMotor:
+                jigMinimizeGradientRotaryMotor(Part, jig,
+                                               (struct xyz *)p->coordinate,
+                                               (struct xyz *)p->gradient,
+                                               p->coordinate + jig->coordinateIndex,
+                                               p->gradient + jig->coordinateIndex);
+                break;
+            case LinearMotor:
+                jigMinimizeGradientLinearMotor(Part, jig,
+                                               (struct xyz *)p->coordinate,
+                                               (struct xyz *)p->gradient,
+                                               p->coordinate + jig->coordinateIndex,
+                                               p->gradient + jig->coordinateIndex);
+                break;
+            default:
+                ERROR2("jig type %d has unexpected %d degrees of freedom", jig->type, jig->degreesOfFreedom);
+                break;
+            }
+        }
     }
 
     // dynamics wants gradient pointing downhill, we want it uphill
@@ -211,15 +262,26 @@ minimizeStructure(struct part *part)
     struct configuration *final;
     int i;
     int j;
+    int jigDegreesOfFreedom;
+    int coordinateCount;
     double rms_force;
     double max_force;
+    struct jig *jig;
 
     NULLPTR(part);
     Part = part;
 
+    jigDegreesOfFreedom = 0;
+    coordinateCount = part->num_atoms * 3;
+    for (i=0; i<Part->num_jigs; i++) {
+        jig = Part->jigs[i];
+        jig->coordinateIndex = coordinateCount + jigDegreesOfFreedom;
+        jigDegreesOfFreedom += jig->degreesOfFreedom;
+    }
+
     initializeFunctionDefinition(&minimizeStructureFunctions,
                                  minimizeStructurePotential,
-                                 part->num_atoms * 3,
+                                 coordinateCount + jigDegreesOfFreedom,
                                  1024);
     BAIL();
     

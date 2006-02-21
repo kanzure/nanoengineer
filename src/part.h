@@ -67,6 +67,15 @@ struct jig
     char *name;
     int num_atoms;
     struct atom **atoms;
+
+    // The minimizer will allocate this many coordinates to be
+    // minimized in addition to the atom positions.
+    int degreesOfFreedom;
+
+    // If degreesOfFreedom is non-zero during a minimize, this gives
+    // the offset into the coordinate array that those degrees of
+    // freedom are represented at.
+    int coordinateIndex;
     
     double data;
     double data2;

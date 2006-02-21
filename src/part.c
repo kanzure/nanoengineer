@@ -696,6 +696,18 @@ newJig(struct part *p)
     p->jigs = (struct jig **)accumulator(p->jigs, sizeof(struct jig *) * p->num_jigs, 0);
     j = (struct jig *)allocate(sizeof(struct jig));
     p->jigs[p->num_jigs - 1] = j;
+
+    j->name = NULL;
+    j->num_atoms = 0;
+    j->atoms = NULL;
+    j->degreesOfFreedom = 0;
+    j->coordinateIndex = 0;
+    j->data = 0.0;
+    j->data2 = 0.0;
+    j->xdata.x = 0.0;
+    j->xdata.y = 0.0;
+    j->xdata.z = 0.0;
+    
     return j;
 }
 
@@ -843,6 +855,7 @@ makeRotaryMotor(struct part *p, char *name,
     
     j->type = RotaryMotor;
     j->name = name;
+    j->degreesOfFreedom = 1; // the angle the motor has rotated by in radians
 
     // Example uses 1 nN-nm -> 1e6 pN-pm
     // Example uses 2 GHz -> 12.5664e9 radians/second
@@ -913,6 +926,8 @@ makeLinearMotor(struct part *p, char *name,
     
     j->type = LinearMotor;
     j->name = name;
+    j->degreesOfFreedom = 1; // distance motor has moved in pm.
+    
     j->j.lmotor.force = force;
     j->j.lmotor.stiffness = stiffness;
     j->j.lmotor.center = *center;
