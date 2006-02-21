@@ -826,8 +826,9 @@ class ColorSorter:
             quux.shapeRendererInit()
             # print "VBO %s enabled" % (('is not', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
             quux.shapeRendererSetUseDynamicLOD(0)
+            if ColorSorter.sphereLevel != -1:
+                quux.shapeRendererSetStaticLODLevels(ColorSorter.sphereLevel, 1)
             quux.shapeRendererStartDrawing()
-            quux.shapeRendererSetStaticLODLevels(ColorSorter.sphereLevel, 1)
             ColorSorter._cur_shapelist.draw()
             quux.shapeRendererFinishDrawing()
             ColorSorter.sorting = False
@@ -839,14 +840,15 @@ class ColorSorter:
         else:
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
-            glPushName(0)       # overwritten by first glLoadName
             for color, funcs in ColorSorter.sorted_by_color.iteritems():
                 apply_material(color)
                 for func, params, name in funcs:
                     objects_drawn += 1
-                    glLoadName(name)
+                    if name != 0:
+                        glPushName(name)
                     func(params)
-            glPopName()
+                    if name != 0:
+                        glPopName()
             ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
             ColorSorter.sorted_by_color = None
             ColorSorter.sorting = False
