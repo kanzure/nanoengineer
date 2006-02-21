@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 constants.py
 
@@ -148,6 +148,8 @@ elemKeyTab =  [('H', Qt.Key_H, 1),
                ('S', Qt.Key_S, 16),
                ('Cl', Qt.Key_L, 17)]
 
+# ==
+
 # values for assy.selwhat variable [moved here from assembly.py by bruce 050519]
 
 # bruce 050308 adding named constants for selwhat values;
@@ -205,6 +207,15 @@ def get_selCurve_color_ORIG(selSense, bgcolor=white):
     if selSense == START_NEW_SELECTION: return gray # was yellow
     if selSense == OUTSIDE_SUBTRACT_FROM_SELECTION: return gray # was yellow
     if selSense == DELETE_SELECTION: return red
+
+# ==
+
+#bruce 060220 add some possible values for _s_attr_xxx attribute declarations (needed by Undo)
+# (defining these in constants.py might be temporary)
+
+from state_constants import *
+
+# ==
 
 # Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
 
