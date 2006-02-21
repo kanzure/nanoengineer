@@ -1483,17 +1483,17 @@ void LODEvaluator::setViewport(int viewport[4])
 
 class ShapeRenderer
 {
-    VertexData *vertexData;
-    ElementData *elementData;
+    VertexData *m_vertexData;
+    ElementData *m_elementData;
 
-    IndexedShape *cylinderShapes;
+    IndexedShape *m_cylinderShapes;
 
     LODTable cylinderOpenLODs;
     LODTable cylinderClosedLODs;
     IndexedShape *m_forcedClosedCylinder;
     IndexedShape *m_forcedOpenCylinder;
 
-    IndexedShape *sphereShapes;
+    IndexedShape *m_sphereShapes;
     IndexedShape *m_forcedSphere;
 
     LODTable sphereLODs;
@@ -1597,9 +1597,9 @@ bool ShapeRenderer::init(GLContext *gl)
 
     m_gl = gl;
 
-    vertexData = new VertexData;
-    elementData = new ElementData;
-    elementData->m_type = GL_UNSIGNED_INT;
+    m_vertexData = new VertexData;
+    m_elementData = new ElementData;
+    m_elementData->m_type = GL_UNSIGNED_INT;
 
     verticesMerged = (void *)malloc(
         sizeof(sphereVertices) + sizeof(cylinderVertices));
@@ -1650,34 +1650,34 @@ bool ShapeRenderer::init(GLContext *gl)
         
         obj = new DataObject(gl);
         obj->fill(GL_ARRAY_BUFFER_ARB, verticesMergedTotalSize, verticesMerged);
-        vertexData->m_data = obj; 
+        m_vertexData->m_data = obj; 
 
         obj = new DataObject(gl);
         obj->fill(GL_ELEMENT_ARRAY_BUFFER_ARB, elementsMergedTotalSize, elementsMerged);
-        elementData->m_data = obj; 
+        m_elementData->m_data = obj; 
 
     } else {
 
         m_VBOenabled = 0;
         
-        vertexData->m_data = new DataArray(verticesMerged);
-        elementData->m_data = new DataArray(elementsMerged);
+        m_vertexData->m_data = new DataArray(verticesMerged);
+        m_elementData->m_data = new DataArray(elementsMerged);
     }
 
-    vertexData->m_vertexArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, v));
-    vertexData->m_normalArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, n));
+    m_vertexData->m_vertexArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, v));
+    m_vertexData->m_normalArray.set(3, GL_FLOAT, sizeof(Vertex), offsetof(Vertex, n));
 
     // Sphere ---------------------------------------------------------------
 
     unsigned int spherePrims = sizeof(sphereTrianglesOffsetCount) /
         sizeof(sphereTrianglesOffsetCount[0]);
 
-    sphereShapes = new IndexedShape[spherePrims];
+    m_sphereShapes = new IndexedShape[spherePrims];
     for(u = 0; u < spherePrims; u++) {
-        sphereShapes[u].m_vertexData = vertexData;
-        sphereShapes[u].m_elementData = elementData;
+        m_sphereShapes[u].m_vertexData = m_vertexData;
+        m_sphereShapes[u].m_elementData = m_elementData;
 
-        bool success = sphereShapes[u].add(GL_TRIANGLES,
+        bool success = m_sphereShapes[u].add(GL_TRIANGLES,
             sizeof(sphereElements[0]) * sphereTrianglesOffsetCount[u][0],
             sphereTrianglesOffsetCount[u][1]);
 
@@ -1688,27 +1688,27 @@ bool ShapeRenderer::init(GLContext *gl)
     // XXX Kind of sucks that the following is hardcoded, but the
     // above is not.
 
-    IndexedShape *sphereShapePtrs[] = {&sphereShapes[0], &sphereShapes[1],
-        &sphereShapes[2]};
+    IndexedShape *sphereShapePtrs[] = {&m_sphereShapes[0], &m_sphereShapes[1],
+        &m_sphereShapes[2]};
     float sphereTransitions[] = {14, 28};
     sphereLODs.makeTable(sphereShapePtrs, sphereTransitions, 3);
 
     int sphereLOD = 1;
     if(getenv("SPHERE_LOD"))
         sphereLOD = atoi(getenv("SPHERE_LOD"));
-    m_forcedSphere = sphereShapes + sphereLOD;
+    m_forcedSphere = m_sphereShapes + sphereLOD;
 
     // Cylinder -------------------------------------------------------------
 
     unsigned int cylinderPrims = sizeof(cylinderTrianglesOffsetCount) /
         sizeof(cylinderTrianglesOffsetCount[0]);
 
-    cylinderShapes = new IndexedShape[cylinderPrims];
+    m_cylinderShapes = new IndexedShape[cylinderPrims];
     for(u = 0; u < cylinderPrims; u++) {
-        cylinderShapes[u].m_vertexData = vertexData;
-        cylinderShapes[u].m_elementData = elementData;
+        m_cylinderShapes[u].m_vertexData = m_vertexData;
+        m_cylinderShapes[u].m_elementData = m_elementData;
 
-        bool success = cylinderShapes[u].add(GL_TRIANGLES,
+        bool success = m_cylinderShapes[u].add(GL_TRIANGLES,
             cylinderElementsOffset + 
             sizeof(cylinderElements[0]) * cylinderTrianglesOffsetCount[u][0],
             cylinderTrianglesOffsetCount[u][1]);
@@ -1720,13 +1720,13 @@ bool ShapeRenderer::init(GLContext *gl)
     // XXX Kind of sucks that the following is hardcoded, but the above
     // is not.
 
-    IndexedShape *cylinderOpenShapePtrs[] = {&cylinderShapes[0],
-        &cylinderShapes[1], &cylinderShapes[2], &cylinderShapes[3]};
+    IndexedShape *cylinderOpenShapePtrs[] = {&m_cylinderShapes[0],
+        &m_cylinderShapes[1], &m_cylinderShapes[2], &m_cylinderShapes[3]};
     float cylinderTransitions[] = {10, 14, 28};
     cylinderOpenLODs.makeTable(cylinderOpenShapePtrs, cylinderTransitions, 4);
 
-    IndexedShape *cylinderClosedShapePtrs[] = {&cylinderShapes[4],
-        &cylinderShapes[5], &cylinderShapes[6], &cylinderShapes[7]};
+    IndexedShape *cylinderClosedShapePtrs[] = {&m_cylinderShapes[4],
+        &m_cylinderShapes[5], &m_cylinderShapes[6], &m_cylinderShapes[7]};
     cylinderClosedLODs.makeTable(cylinderClosedShapePtrs,
         cylinderTransitions, 4);
 
@@ -1734,29 +1734,31 @@ bool ShapeRenderer::init(GLContext *gl)
     if(getenv("CYLINDER_LOD") != NULL)
         cylLOD = atoi(getenv("CYLINDER_LOD"));
 
-    m_forcedOpenCylinder = cylinderShapes + cylLOD;
-    m_forcedClosedCylinder = cylinderShapes + 4 + cylLOD;
+    m_forcedOpenCylinder = m_cylinderShapes + cylLOD;
+    m_forcedClosedCylinder = m_cylinderShapes + 4 + cylLOD;
 
     return true;
 }
 
 void ShapeRenderer::setStaticLODLevels(int sphereLOD, int cylinderLOD)
 {
-    m_forcedSphere = sphereShapes + sphereLOD;
-    m_forcedOpenCylinder = cylinderShapes + cylinderLOD;
-    m_forcedClosedCylinder = cylinderShapes + 4 + cylinderLOD;
+    if(sphereLOD < 0 || cylinderLOD < 0)
+        return; // XXX should trigger an exception here somehow
+    m_forcedSphere = m_sphereShapes + sphereLOD;
+    m_forcedOpenCylinder = m_cylinderShapes + cylinderLOD;
+    m_forcedClosedCylinder = m_cylinderShapes + 4 + cylinderLOD;
 }
 
 void ShapeRenderer::startDrawing()
 {
-    vertexData->apply();
-    elementData->apply();
+    m_vertexData->apply();
+    m_elementData->apply();
 }
 
 void ShapeRenderer::finishDrawing()
 {
-    elementData->unapply();
-    vertexData->unapply();
+    m_elementData->unapply();
+    m_vertexData->unapply();
 }
 
 bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], float color[][4], unsigned int *names)
@@ -1767,13 +1769,16 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
     ColorSortedListHead *colorSortedListHeads;
     int *objectNext;
 
+
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, m_materialShininess);
 
     /* This appears to be around 10% faster than draw unsorted on 2GHz + FireGL X1 for SRG-1c Tubes */
 
-    if(!sortByColor(0, count, color, &uniqueColorCount, &colorSortedListHeads, &objectNext))
+
+    if(!sortByColor(0, count, color, &uniqueColorCount, &colorSortedListHeads, &objectNext)) {
         /* allocation failed */
         return false;
+    }
 
     for(j = 0; j < uniqueColorCount; j++) {
         applyMaterial(colorSortedListHeads[j].m_color);
@@ -1798,7 +1803,7 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
                     static float black[] = {0, 0, 0, 1};
                     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, black);
                     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lodcolors[(lod - sphereShapes) % 3]);
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lodcolors[(lod - m_sphereShapes) % 3]);
 #endif
 
                     lod->draw();
@@ -1815,6 +1820,7 @@ bool ShapeRenderer::drawSpheres(int count, float center[][3], float radius[], fl
             i = objectNext[i];
         }
     }
+
 
     return true;
 }
@@ -1884,7 +1890,7 @@ bool ShapeRenderer::drawCylinders(int count, float pos1[][3], float pos2[][3], f
                     static float black[] = {0, 0, 0, 1};
                     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, black);
                     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lodcolors[(lod - cylinderShapes) % 3]);
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lodcolors[(lod - m_cylinderShapes) % 3]);
 #endif
 
                     lod->draw();
