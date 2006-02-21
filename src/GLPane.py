@@ -241,7 +241,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # just copied it from MWsemantics.
         self.setFocusPolicy(QWidget.StrongFocus)
 
-        self.singlet = None
+##        self.singlet = None #bruce 060220 zapping this, seems to be old and to no longer be used
         self.selatom = None # josh 10/11/04 supports depositMode
 
         # [bruce 050608]
@@ -684,6 +684,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # (same as in drags and maybe as in commands doing recursive event processing).
             # [bruce 060127]
         try:
+            if not self.in_drag:
+                #bruce 060220 new code; should make it unnecessary (and incorrect)
+                # for modes to track mod key press/release for cursor,
+                # once update_modkeys calls a cursor updating routine
+                but = e.stateAfter()
+                self.update_modkeys(but)
             self.mode.keyPressEvent( atom_event(e) )
         finally:
             env.end_op(mc)
@@ -692,6 +698,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def keyReleaseEvent(self, e):
         mc = env.begin_op("(keyrelease)") #bruce 060127
         try:
+            if not self.in_drag:
+                #bruce 060220 new code; see comment in keyPressEvent
+                but = e.stateAfter()
+                self.update_modkeys(but)
             self.mode.keyReleaseEvent( atom_event(e) )
         finally:
             env.end_op(mc)
@@ -982,8 +992,62 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glLoadIdentity()
         return
 
-    def fix_event(self, but, when, target): #bruce 050913 revised this from fix_buttons
-        return fix_event_helper(self, but, when, target)
+    #bruce 060220 changes related to supporting self.modkeys, self.in_drag.
+    # These changes are unfinished in the following ways: ###@@@
+    # - need to fix the known bugs in fix_event_helper, listed below
+    # - update_modkeys needs to call some sort of self.mode.updateCursor routine
+    # - then the modes which update the cursor for key press/release of modkeys need to stop doing that
+    #   and instead just define that updateCursor routine properly
+    # - ideally we'd capture mouseEnter and call both update_modkeys and the same updateCursor routine
+    # - (and once the cursor works for drags between widgets, we might as well fix the statusbar text for that too)
+    
+    modkeys = None
+    in_drag = False
+    
+    def fix_event(self, but, when, target): #bruce 060220 added support for self.modkeys
+        """[For most documentation, see fix_event_helper.
+            We also set self.modkeys to replace the obsolete mode.modkey variable.
+            This only works if we're called for all event types which want to look at that variable.]
+        """
+        but = fix_event_helper(self, but, when, target)
+            # fix_event_helper has several known bugs as of 060220, including:
+            # - target is not currently used, and it's not clear what it might be for
+            # - it's overly bothered by dialogs that capture press and not release;
+            # - maybe it can't be called for key events, but self.modkeys needs update then [might be fixed using in_drag #k];
+            # - not sure it's always ok when user moves from one widget to another during a drag;
+            # - confused if user releases two mouse buttons at different times to end a drag (thinks the first one ended it).
+            # All these can be fixed straightforwardly when they become important enough. [bruce 060220]
+        self.in_drag = but & (leftButton|midButton|rightButton) # you can also use this to see which mouse buttons are involved
+        self.update_modkeys(but)
+            # need to call this when drag starts; ok to call it during drag too,
+            # since retval is what came from fix_event
+        return but
+
+    def update_modkeys(self, but):
+        """Call this whenever you have some modifier key flags from an event (as returned from fix_event,
+        or found directly on the event as stateAfter in events not passed to fix_event).
+        Exception: don't call it during a drag, except on values returned from fix_event, or bugs will occur.
+        There is not yet a good way to follow this advice. This method and/or fix_event should provide one. ###e
+           This method updates self.modkeys, setting it to None, 'Shift', 'Control' or 'Shift+Control'.
+        (All uses of the obsolete mode.modkey variable should be replaced by this one.)
+        """
+        shift_control_flags = but & (shiftButton | cntlButton)
+        oldmodkeys = self.modkeys
+        if shift_control_flags == shiftButton:
+            self.modkeys = 'Shift'
+        elif shift_control_flags == cntlButton:
+            self.modkeys = 'Control'
+        elif shift_control_flags == (shiftButton | cntlButton):
+            self.modkeys = 'Shift+Control'
+        else:
+            self.modkeys = None
+        if self.modkeys != oldmodkeys:
+            pass
+            ## This would be a good place to tell the mode (self.mode) it might want to update the cursor,
+            ## based on all state it knows about, including self.modkeys and what mouse is over,
+            ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
+            ## where we need that even if modkeys didn't change. [bruce 060220]
+        return
 
     def begin_select_cmd(self):
         # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
@@ -1192,10 +1256,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             self.mode.bareMotion(event)
         return
-
+    
     def wheelEvent(self, event):
         self.debug_event(event, 'wheelEvent')
-        self.mode.Wheel(event)
+        if not self.in_drag:
+            but = event.state() # I think this event has no stateAfter() [bruce 060220]
+            self.update_modkeys(but) #bruce 060220
+        self.mode.Wheel(event) # mode bindings use modkeys from event; maybe this is ok?
+            # Or would it be better to ignore this completely during a drag? [bruce 060220 questions]
         return
 
     def selectedJigTextPosition(self):
@@ -1222,6 +1290,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         p2 = p1 + k*(p2-p1)
         return (p1, p2)
+
+    def eyeball(self): #bruce 060219 ##e should call this to replace equivalent formulae in other places
+        "Return the location of the eyeball in model coordinates."
+        return self.quat.unrot(V(0,0,self.vdist)) - self.pov # note: self.vdist is (usually??) 6 * self.scale
+        ##k need to review whether this is correct for tall aspect ratio GLPane
 
     def SaveMouse(self, event):
         """Extracts mouse position from event and saves it.
@@ -1975,7 +2048,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glLoadIdentity()
         glTranslatef( 0.0, 0.0, - vdist)
             # [bruce comment 050615]
-            # translate coords for drawing, away from eye (through sreen and beyond it) by vdist;
+            # translate coords for drawing, away from eye (through screen and beyond it) by vdist;
             # this places origin at desired position in eyespace for "center of view" (and for center of trackball rotation).
             
             # bruce 041214 comment: some code assumes vdist is always 6.0 * self.scale
@@ -2151,7 +2224,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             return []
         res = []
         for file in os.listdir( modes_dir):
-            if file.endswith('.py'):
+            if file.endswith('.py') and '-' not in file:
                 modename, ext = os.path.splitext(file)
                 modefile = os.path.join( modes_dir, file)
                 res.append(( modename, modefile ))
@@ -2180,8 +2253,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     pass # end of class GLPane
 
-# Bruce, is this OK to stay in this file?  mark 060128. 
-def typecheckViewArgs(q2, s2, p2, z2):
+def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     '''Typecheck the view arguments quat q2, scale s2, pov p2, and zoom factor z2
     used by GLPane.snapToView() and GLPane.animateToView().
     '''
@@ -2192,5 +2264,6 @@ def typecheckViewArgs(q2, s2, p2, z2):
     assert isinstance(p2[1], float)
     assert isinstance(p2[2], float)
     assert isinstance(z2, float)
+    return
 
 # end
