@@ -293,6 +293,11 @@ class basicMode(anyMode):
         prefs[key] = displayMode
         return
         
+    def set_cmdname(self, name): # mark 060220.
+        '''Helper method for setting the cmdname to be used by Undo/Redo.
+        '''
+        self.o.assy.current_command_info(cmdname = name)
+        
     #bruce 050416 revised makeMenus-related methods to permit "dynamic context menus",
     # then revised them again 050420 to fix bug 554 which this introduced.
 
