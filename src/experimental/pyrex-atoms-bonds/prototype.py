@@ -31,7 +31,6 @@ class Bond:
 class AtomSet:
     def __init__(self):
         self._dct = { }
-        self.pointer = 0
     def __setitem__(self, key, atom):
         if key != atom.key:
             raise KeyError
@@ -45,14 +44,17 @@ class AtomSet:
         self._dct[key].sets.remove(self)
         del self._dct[key]
     def __iter__(self):
-        return self
-    def next(self):
-        k = self.keys()
-        if self.pointer == len(k):
-            raise StopIteration
-        i = k[self.pointer]
-        self.pointer += 1
-        return self[i]
+        class MyIterator:
+            def __init__(self, lst):
+                self.lst = lst
+                self.pointer = 0
+            def next(self):
+                if self.pointer == len(self.lst):
+                    raise StopIteration
+                i = self.lst[self.pointer]
+                self.pointer += 1
+                return i
+        return MyIterator(self.values())
     def keys(self):
         return self._dct.keys()
     def add(self, atom):
