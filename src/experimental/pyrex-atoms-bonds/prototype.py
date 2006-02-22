@@ -64,6 +64,11 @@ class AtomSet:
     def clear(self):
         for k in self.keys():
             del self[k]
+    def map(self, func):
+        lst = [ ]
+        for k in self.keys():
+            lst.append(func(self[k]))
+        return lst
     def filter(self, predicate):
         other = AtomSet()
         for k in self.keys():
@@ -83,22 +88,15 @@ class AtomSet:
 
 def water():
     atominfo = Numeric.array(
-        ((1.0, -0.983, -0.008, 0.000),
-         (8.0, 0.017, -0.008, 0.000),
-         (1.0, 0.276, -0.974, 0.000)))
-    h1 = Atom()
-    h1.array = atominfo
-    h1.arrayIndex = 0
-    ox = Atom()
-    ox.array = atominfo
-    ox.arrayIndex = 1
-    h2 = Atom()
-    h2.array = atominfo
-    h2.arrayIndex = 2
+        ((1.0, -0.983, -0.008, 0.000),  # hydrogen
+         (8.0, 0.017, -0.008, 0.000),   # oxygen
+         (1.0, 0.276, -0.974, 0.000)))  # hydrogen
     atomset = AtomSet()
-    atomset.add(h1)
-    atomset.add(ox)
-    atomset.add(h2)
+    for i in range(len(atominfo)):
+        a = Atom()
+        a.array = atominfo
+        a.arrayIndex = i
+        atomset.add(a)
     return atomset
 
 class PerformanceLog:
@@ -233,6 +231,21 @@ class Tests(unittest.TestCase):
         atominfo = atomset.atomInfo()
         assert atominfo.tolist() == [
             [1.0, -0.983, -0.008, 0.000],
+            [1.0, 0.276, -0.974, 0.000]
+            ]
+
+    def test_atomset_map(self):
+        w = water()
+        def transmute(atom):
+            e, x, y, z = atom.array[atom.arrayIndex]
+            if e == 8:
+                # change oxygen to carbon
+                atom.array[atom.arrayIndex][0] = 6
+        w.map(transmute)
+        atominfo = w.atomInfo()
+        assert atominfo.tolist() == [
+            [1.0, -0.983, -0.008, 0.000],
+            [6.0, 0.017, -0.008, 0.000],   # carbon
             [1.0, 0.276, -0.974, 0.000]
             ]
 
