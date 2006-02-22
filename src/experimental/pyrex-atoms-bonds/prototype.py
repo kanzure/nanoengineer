@@ -22,10 +22,8 @@ class Atom:
     def __init__(self):
         self.key = genkey()
         self.sets = [ ]
-        # This is a Nx4 Numeric array. One column is the atom type,
-        # the remaining three are XYZ of the atom's position.
-        self.array = None
-        self.arrayIndex = None
+        self.array = None   # Numeric array
+        self.arrayIndex = None   # index into Numeric array
 
 class Bond:
     pass
@@ -33,6 +31,7 @@ class Bond:
 class AtomSet:
     def __init__(self):
         self._dct = { }
+        self.pointer = 0
     def __setitem__(self, key, atom):
         if key != atom.key:
             raise KeyError
@@ -45,6 +44,15 @@ class AtomSet:
     def __delitem__(self, key):
         self._dct[key].sets.remove(self)
         del self._dct[key]
+    def __iter__(self):
+        return self
+    def next(self):
+        k = self.keys()
+        if self.pointer == len(k):
+            raise StopIteration
+        i = k[self.pointer]
+        self.pointer += 1
+        return self[i]
     def keys(self):
         return self._dct.keys()
     def add(self, atom):
@@ -64,17 +72,13 @@ class AtomSet:
     def clear(self):
         for k in self.keys():
             del self[k]
-    def map(self, func):
-        lst = [ ]
-        for k in self.keys():
-            lst.append(func(self[k]))
-        return lst
     def filter(self, predicate):
         other = AtomSet()
         for k in self.keys():
             if predicate(self[k]):
                 other.add(self[k])
         return other
+    # should there also be methods for map and reduce?
     def atomInfo(self):
         ar = Numeric.zeros((len(self.keys()), 4), 'd')
         i = 0
@@ -241,7 +245,7 @@ class Tests(unittest.TestCase):
             if e == 8:
                 # change oxygen to carbon
                 atom.array[atom.arrayIndex][0] = 6
-        w.map(transmute)
+        map(transmute, w)
         atominfo = w.atomInfo()
         assert atominfo.tolist() == [
             [1.0, -0.983, -0.008, 0.000],
