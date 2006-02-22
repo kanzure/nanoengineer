@@ -1340,6 +1340,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # Used when the user presses "Default Display" or changes the "Default Display"
             # in the preferences dialog.  
             header = "Default Display: " 
+            self.mode.set_displayMode(diDEFAULT) # Fixes bug 1544. mark 060221.
         else:
             # Used for all other purposes.
             header = "Current Display: " 
