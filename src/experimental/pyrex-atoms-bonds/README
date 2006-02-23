@@ -9,5 +9,45 @@ a way that makes graphics operations efficient. With a little luck we
 will find that they are efficient with different kinds of graphics
 systems (e.g. Gtk, WxWindows).
 
+======================
 
+Will, FYI,
 
+(The following are all just ideas for discussion or to think about:)
+
+If you want to make realistic AtomBase objects in Python as a
+prototype for what can be later made in Pyrex, with our existing class
+Atom inheriting from it, and a lot of the Atom Python methods not
+having to be rewritten, then in order to make this work smoothly, we
+might want most of the AtomBase attributes to be a bit different from
+the Atom attributes they relate to.
+
+For example, Atoms have .element, an Elem or Element object (I forget
+the name), but AtomBase might prefer to have a small int which is the
+atomic number, say ._eltnum, (0 for singlet, same as some attribute of
+the existing .element object, maybe .eltnum), and then we'd make
+.element look up the Elem object from a table. But things like Undo
+(and mmp binary save methods) would treat the ._eltnum as the primary
+data, and its type being small int (or char or whatever) would make
+that more convenient, especially for fitting it into arrays.
+
+And a more important case is for the hybridization. Right now, Atom
+has .atomtype which is a Python object encoding both the element and
+its hybridization (thus partly redundant with .element), and knowing a
+lot about that combination. But, one of the legal states for .atomtype
+which we need to support is "unset" (i.e. getattr(Atom, 'atomtype')
+would raise an AttributeError exception then), since Atom has a
+__getattr__ method which notices that and computes a best-guess
+.atomtype in a nontrivial way from the current .element and number of
+bonds (etc). So there is nothing you can set .atomtype to (in
+high-level Python) which is equivalent to having it be unset.
+
+So for AtomBase we might want another small int, either ._atomtype or
+._hybridization depending on whether we want it to also imply the
+._element like we do in the high-level case. Then we'd say that
+._hybridization == 0 means .atomtype is unset, and ._hybridization in
+[1,2,3] means .atomtype is set to the sp, sp2, or sp3 form of
+.element, respectively. And Undo, Save, etc, would only save arrays or
+dicts of ._hybridization, which could be compressed even more (2 or 3
+bits each -- maybe 3 since there's one other hybridization we support
+so far, sp2g, or sp2(graphitic), and maybe more in the future).
