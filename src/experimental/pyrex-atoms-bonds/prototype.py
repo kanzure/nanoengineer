@@ -2,10 +2,15 @@
 
 import unittest
 import time
+import types
+import struct
 import Numeric
+import proto
 
 # This is a prototype of the desired API for Pyrex atoms, bonds, and
 # atom sets. See "Pyrex atoms and bonds" page on the wiki.
+
+DEBUG = False
 
 class FailureExpected(Exception):
     pass
@@ -18,19 +23,153 @@ def genkey():
     genkeyCount += 1
     return n
 
-class Atom:
+def pointer(x):
+    if type(x) not in (types.IntType, types.LongType):
+        x = id(x)
+    x = long(x)
+    if x < 0:
+        x += 1 << 32
+    return hex(x)[:-1]   # lose "L"
+
+"""
+http://docs.python.org/lib/module-struct.html
+
+#define MAX_NUM_NEIGHBORS 8  // ask Damian for the real number
+struct atom {
+    unsigned int key;
+    int atomtype;  // element and hybridization
+    PyArrayObject *positionArray;
+    unsigned int positionIndex;
+    unsigned int numNeighbors;
+    unsigned int bondIndices[MAX_NUM_NEIGHBORS];
+};
+
+struct bond {
+    unsigned int atom1index;
+    unsigned int atom2index;
+    unsigned int bondorder;
+};
+
+int followbond(int fromAtom, struct bond *b)
+{
+    if (b->atom1index == fromAtom || b->atom2index == fromAtom)
+        return b->atom1index + b->atom2index - fromAtom;
+    else return SOME_KINDA_ERROR_CODE;
+}
+"""
+
+class Struct:
+    def __init__(self, permitted):
+        self.__permitted = permitted
+        self.__values = { }
+    def __setattr__(self, attr, value):
+        if attr not in self.__permitted.keys():
+            raise AttributeError, attr
+        if type(value) != self.__permitted[attr]:
+            raise TypeError, value
+        self.__values[attr] = value
+    def __getattr__(self, attr):
+        if attr not in self.__permitted.keys():
+            raise AttributeError, attr
+        return self.__values[attr]
+
+
+
+ATOMFORMAT = "IiPII8I"
+BONDFORMAT = "III"
+
+class AtomBase:
     def __init__(self):
+        self.struct = struct.pack(ATOMFORMAT,
+                    0,  # key
+                    0,  # atomtype
+                    0,  # array
+                    0,  # arrayIndex
+                    0,  # number of neighbors
+                    0,  # neighbor 1
+                    0,  # neighbor 2
+                    0,  # neighbor 3
+                    0,  # neighbor 4
+                    0,  # neighbor 5
+                    0,  # neighbor 6
+                    0,  # neighbor 7
+                    0,  # neighbor 8
+                    )
+##         self.struct = Struct({
+##             "key": types.IntType,
+##             "atomtype": types.IntType,
+##             "array": types.IntType,
+##             "arrayIndex": types.IntType,
+##             "numNeighbors": types.IntType,
+##             "neighbor1": types.IntType,
+##             "neighbor2": types.IntType,
+##             "neighbor3": types.IntType,
+##             "neighbor4": types.IntType,
+##             "neighbor5": types.IntType,
+##             "neighbor6": types.IntType,
+##             "neighbor7": types.IntType,
+##             "neighbor8": types.IntType
+##             })
         self.key = genkey()
         self.sets = [ ]
-        self.array = None   # Numeric array
-        self.arrayIndex = None   # index into Numeric array
+    def dumpInfo(self, indent=0):
+        ind = indent * "    "
+        print ind + repr(self)
+        print ind + "key=" + repr(self.key)
+        print ind + "array=" + repr(self.array)
+        print ind + "arrayIndex=" + repr(self.arrayIndex)
+    def __repl(self, index, value):
+        z = list(struct.unpack(ATOMFORMAT, self.struct))
+        z[index] = value
+        self.struct = apply(struct.pack, tuple([ATOMFORMAT,] + z))
+    def __fetch(self, index):
+        z = struct.unpack(ATOMFORMAT, self.struct)
+        return z[index]
+    def __setattr__(self, attr, value):
+        if DEBUG: print "SET", attr, pointer(value)
+        if attr in ("struct", "sets"):
+            self.__dict__[attr] = value
+            return
+        if attr == "key":
+            self.__repl(0, value)
+            return
+        if attr == "array":
+            proto.xdecref(self.__fetch(2))
+            n = proto.pointer2int(value)
+            proto.incref(n)
+            self.__repl(2, n)
+            return
+        if attr == "arrayIndex":
+            self.__repl(3, value)
+            return
+        raise AttributeError, (self, attr, value)
+    def __getattr__(self, attr):
+        value = notfound = "not found"
+        if attr in ("struct", "sets"):
+            value = self.__dict__[attr]
+        elif attr == "key":
+            value = self.__fetch(0)
+        elif attr == "array":
+            z = struct.unpack(ATOMFORMAT, self.struct)
+            value = proto.int2pointer(self.__fetch(2))
+        elif attr == "arrayIndex":
+            value = self.__fetch(3)
+        if value is not notfound:
+            if DEBUG: print "GET", attr, value
+            return value
+        raise AttributeError, (self, attr)
 
-class Bond:
+class BondBase:
     pass
 
-class AtomSet:
+class AtomSetBase:
     def __init__(self):
         self._dct = { }
+    def dumpInfo(self, indent=0):
+        ind = indent * "    "
+        print ind + repr(self)
+        for v in self.values():
+            v.dumpInfo(indent+1)
     def __setitem__(self, key, atom):
         if key != atom.key:
             raise KeyError
@@ -75,7 +214,7 @@ class AtomSet:
         for k in self.keys():
             del self[k]
     def filter(self, predicate):
-        other = AtomSet()
+        other = AtomSetBase()
         for k in self.keys():
             if predicate(self[k]):
                 other.add(self[k])
@@ -97,9 +236,10 @@ def water():
         ((1.0, -0.983, -0.008, 0.000),  # hydrogen
          (8.0, 0.017, -0.008, 0.000),   # oxygen
          (1.0, 0.276, -0.974, 0.000)))  # hydrogen
-    atomset = AtomSet()
+    if DEBUG: print "atominfo", pointer(atominfo)
+    atomset = AtomSetBase()
     for i in range(len(atominfo)):
-        a = Atom()
+        a = AtomBase()
         a.array = atominfo
         a.arrayIndex = i
         atomset.add(a)
@@ -138,8 +278,8 @@ class Tests(unittest.TestCase):
         genkeyCount = 1
 
     def test_atomset_basic(self):
-        atom1 = Atom()
-        atomset = AtomSet()
+        atom1 = AtomBase()
+        atomset = AtomSetBase()
         atomset[atom1.key] = atom1
         try:
             atomset[atom1.key+1] = atom1  # this should fail
@@ -148,13 +288,13 @@ class Tests(unittest.TestCase):
             pass
 
     def test_atomset_keysSorted(self):
-        atomset = AtomSet()
+        atomset = AtomSetBase()
         # create them forwards
-        atom1 = Atom()
-        atom2 = Atom()
-        atom3 = Atom()
-        atom4 = Atom()
-        atom5 = Atom()
+        atom1 = AtomBase()
+        atom2 = AtomBase()
+        atom3 = AtomBase()
+        atom4 = AtomBase()
+        atom5 = AtomBase()
         # add them backwards
         atomset.add(atom5)
         atomset.add(atom4)
@@ -168,10 +308,10 @@ class Tests(unittest.TestCase):
             ]
 
     def test_atomset_gracefulRemoves(self):
-        atom1 = Atom()
-        atom2 = Atom()
-        atom3 = Atom()
-        atomset = AtomSet()
+        atom1 = AtomBase()
+        atom2 = AtomBase()
+        atom3 = AtomBase()
+        atomset = AtomSetBase()
         atomset.add(atom1)
         atomset.add(atom2)
         atomset.add(atom3)
@@ -186,27 +326,27 @@ class Tests(unittest.TestCase):
     def test_atomset_updateFromAnotherAtomlist(self):
         alst = [ ]
         for i in range(5):
-            alst.append(Atom())
-        atomset = AtomSet()
+            alst.append(AtomBase())
+        atomset = AtomSetBase()
         for a in alst:
             atomset.add(a)
         assert atomset.keys() == [ 1, 2, 3, 4, 5 ]
-        atomset2 = AtomSet()
+        atomset2 = AtomSetBase()
         atomset2.update(atomset)
         assert atomset2.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_atomset_updateFromDict(self):
         adct = { }
         for i in range(5):
-            a = Atom()
+            a = AtomBase()
             adct[a.key] = a
-        atomset = AtomSet()
+        atomset = AtomSetBase()
         atomset.update(adct)
         assert atomset.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_atomset_removeFromEmpty(self):
-        atomset = AtomSet()
-        a = Atom()
+        atomset = AtomSetBase()
+        a = AtomBase()
         try:
             atomset.remove(a)
             raise FailureExpected
@@ -219,9 +359,10 @@ class Tests(unittest.TestCase):
         h1 = w[1]
         ox = w[2]
         h2 = w[3]
-        atomset = AtomSet()
+        atomset = AtomSetBase()
         atomset.add(h1)
         atomset.add(h2)
+        if DEBUG: atomset.dumpInfo()
         atominfo2 = atomset.atomInfo()
         assert atominfo2.tolist() == [
             [1.0, -0.983, -0.008, 0.000],
@@ -258,6 +399,7 @@ class Tests(unittest.TestCase):
 
 def test():
     suite = unittest.makeSuite(Tests, 'test')
+    #suite = unittest.makeSuite(Tests, 'test_atomset_atomInfo')
     runner = unittest.TextTestRunner()
     runner.run(suite)
     PL.dump()
