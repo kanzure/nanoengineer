@@ -3,9 +3,7 @@
 import unittest
 import time
 import types
-import struct
 import Numeric
-import proto
 
 # This is a prototype of the desired API for Pyrex atoms, bonds, and
 # atom sets. See "Pyrex atoms and bonds" page on the wiki.
@@ -58,58 +56,28 @@ int followbond(int fromAtom, struct bond *b)
 }
 """
 
-class Struct:
-    def __init__(self, permitted):
-        self.__permitted = permitted
-        self.__values = { }
-    def __setattr__(self, attr, value):
-        if attr not in self.__permitted.keys():
-            raise AttributeError, attr
-        if type(value) != self.__permitted[attr]:
-            raise TypeError, value
-        self.__values[attr] = value
-    def __getattr__(self, attr):
-        if attr not in self.__permitted.keys():
-            raise AttributeError, attr
-        return self.__values[attr]
-
-
-
-ATOMFORMAT = "IiPII8I"
-BONDFORMAT = "III"
+def isSmallInteger(x):
+    return type(x) == types.IntType
+def isNumericArray(x):
+    return type(x) == Numeric.ArrayType
 
 class AtomBase:
+    STRUCTINFO = {
+        "key": isSmallInteger,
+        "atomtype": isSmallInteger,
+        "array": isNumericArray,
+        "arrayIndex": isSmallInteger,
+        "numNeighbors": isSmallInteger,
+        "neighbor1": isSmallInteger,
+        "neighbor2": isSmallInteger,
+        "neighbor3": isSmallInteger,
+        "neighbor4": isSmallInteger,
+        "neighbor5": isSmallInteger,
+        "neighbor6": isSmallInteger,
+        "neighbor7": isSmallInteger,
+        "neighbor8": isSmallInteger
+        }
     def __init__(self):
-        self.struct = struct.pack(ATOMFORMAT,
-                    0,  # key
-                    0,  # atomtype
-                    0,  # array
-                    0,  # arrayIndex
-                    0,  # number of neighbors
-                    0,  # neighbor 1
-                    0,  # neighbor 2
-                    0,  # neighbor 3
-                    0,  # neighbor 4
-                    0,  # neighbor 5
-                    0,  # neighbor 6
-                    0,  # neighbor 7
-                    0,  # neighbor 8
-                    )
-##         self.struct = Struct({
-##             "key": types.IntType,
-##             "atomtype": types.IntType,
-##             "array": types.IntType,
-##             "arrayIndex": types.IntType,
-##             "numNeighbors": types.IntType,
-##             "neighbor1": types.IntType,
-##             "neighbor2": types.IntType,
-##             "neighbor3": types.IntType,
-##             "neighbor4": types.IntType,
-##             "neighbor5": types.IntType,
-##             "neighbor6": types.IntType,
-##             "neighbor7": types.IntType,
-##             "neighbor8": types.IntType
-##             })
         self.key = genkey()
         self.sets = [ ]
     def dumpInfo(self, indent=0):
@@ -118,46 +86,20 @@ class AtomBase:
         print ind + "key=" + repr(self.key)
         print ind + "array=" + repr(self.array)
         print ind + "arrayIndex=" + repr(self.arrayIndex)
-    def __repl(self, index, value):
-        z = list(struct.unpack(ATOMFORMAT, self.struct))
-        z[index] = value
-        self.struct = apply(struct.pack, tuple([ATOMFORMAT,] + z))
-    def __fetch(self, index):
-        z = struct.unpack(ATOMFORMAT, self.struct)
-        return z[index]
+
     def __setattr__(self, attr, value):
         if DEBUG: print "SET", attr, pointer(value)
-        if attr in ("struct", "sets"):
-            self.__dict__[attr] = value
-            return
-        if attr == "key":
-            self.__repl(0, value)
-            return
-        if attr == "array":
-            proto.xdecref(self.__fetch(2))
-            n = proto.pointer2int(value)
-            proto.incref(n)
-            self.__repl(2, n)
-            return
-        if attr == "arrayIndex":
-            self.__repl(3, value)
-            return
-        raise AttributeError, (self, attr, value)
+        if attr in self.STRUCTINFO.keys():
+            assert self.STRUCTINFO[attr](value)
+        self.__dict__[attr] = value
     def __getattr__(self, attr):
-        value = notfound = "not found"
-        if attr in ("struct", "sets"):
-            value = self.__dict__[attr]
-        elif attr == "key":
-            value = self.__fetch(0)
-        elif attr == "array":
-            z = struct.unpack(ATOMFORMAT, self.struct)
-            value = proto.int2pointer(self.__fetch(2))
-        elif attr == "arrayIndex":
-            value = self.__fetch(3)
-        if value is not notfound:
-            if DEBUG: print "GET", attr, value
-            return value
-        raise AttributeError, (self, attr)
+        if attr == "__repr__":
+            raise AttributeError, attr
+        if attr in self.STRUCTINFO.keys():
+            assert self.STRUCTINFO[attr](value)
+        value = self.__dict__[attr]
+        if DEBUG: print "GET", attr, value
+        return value
 
 class BondBase:
     pass
