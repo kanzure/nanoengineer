@@ -248,9 +248,15 @@ class DirView(QListView):
         folderOpenIcon = QPixmap(folder_open_image)
         fileIcon = QPixmap(pix_file_image)
 
-        self.addColumn("Name")
-        #self.setGeometry(QRect(7,-1,191,231))
-        self.setMinimumSize(QSize(191,231))
+        self.addColumn("Name") 
+            # Calling addColumn() here causes DirView to change size after its parent (MMKit) is shown.
+            # I've not been successful figuring out how to control the height of the DirView (QListView) 
+            # after adding this column. See comments in MWsemantics._findGoodLocation() for more 
+            # information about how I compensate for this. Mark 060222.
+        #self.setGeometry(QRect(7,-1,191,150))
+        self.setMinimumSize(QSize(191,150)) 
+            # Trying to force height to be 150, but addColumn() overrides this.  To see the problem,
+            # simply comment out addColumn() above and enter Build mode. mark 060222.
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setTreeStepSize(20)
         

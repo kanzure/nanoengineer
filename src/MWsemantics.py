@@ -145,27 +145,33 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.update_mainwindow_caption()
+        
+        # hsplitter and vsplitter reimplemented. mark 060222.
+        # Create the horizontal-splitter between the model tree (left) and the glpane 
+        # and history widget (right)
+        hsplitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
-        # Create the vertical-splitter between history area (at bottom)
-        # and main area (mtree and glpane) [history is new as of 041223]
-        vsplitter = QSplitter(Qt.Vertical, self, "vContentsWindow")
-        
-        # Create the splitter between glpane and the model tree
-        splitter = QSplitter(Qt.Horizontal, vsplitter, "ContentsWindow")
-        
-        # Create the model tree widget
-        self.mt = self.modelTreeView = modelTree(splitter, self)
+        # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
+        self.mt = self.modelTreeView = modelTree(hsplitter, self, size = (225, 560))
         self.modelTreeView.setMinimumSize(0, 0)
         
+        # Create the vertical-splitter between the glpane (top) and the
+        # history widget (bottom) [history is new as of 041223]
+        vsplitter = QSplitter(Qt.Vertical, hsplitter)
+        
+        #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
+        #& mark 060222.
+        #& glframe = QFrame(vsplitter)
+        #& glframe.setFrameShape ( QFrame.Box ) 
+        #& flayout = QVBoxLayout(glframe,1,1,'flayout')
+        #& self.glpane = GLPane(self.assy, glframe, "glpane", self)
+        #& flayout.addWidget(self.glpane,1)
+        
         # Create the glpane - where all the action is!
-        self.glpane = GLPane(self.assy, splitter, "glpane", self)
+        self.glpane = GLPane(self.assy, vsplitter, "glpane", self)
             #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
             # we change it below, since doing so now would be too early for some modes permitted as startup mode
             # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
-
-        # Some final splitter setup
-        splitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)
-        splitter.setOpaqueResize(False)
 
         # Create the history area at the bottom
         from HistoryWidget import HistoryWidget
@@ -183,10 +189,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         
         env.history = self.history_object #bruce 050727, revised 050913
 
+        # Some final hsplitter setup...
+        hsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
+        hsplitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)
+        hsplitter.setOpaqueResize(False)
+        
         # ... and some final vsplitter setup [bruce 041223]
+        vsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
         vsplitter.setResizeMode(self.history_widget, QSplitter.KeepSize)
         vsplitter.setOpaqueResize(False)
-        self.setCentralWidget(vsplitter) # this was required (what exactly does it do?)
+        self.setCentralWidget(hsplitter) # This is required.
+            # This makes the hsplitter the central widget, spanning the height of the mainwindow.
+            # mark 060222.
 
 #bruce 060106: this is not used anymore, but don't remove the code or file entirely until after A7 goes out.
 ##        # Create a progress bar widget for use during time consuming operations,
@@ -1123,26 +1137,33 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         global MMKitWin
         
         if sys.platform == 'linux2': 
-            hist_height = 70
+            #hist_height = 70 # not needed with new layout. mark 060222.
             mmk_height = 559
             toolbar_height = 25
             status_bar_height = 29
         else:
             hist_geometry = self.history_widget.frameGeometry()
-            hist_height = hist_geometry.height()
+            #hist_height = hist_geometry.height() # not needed with new layout. mark 060222.
             
             ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()
             
             mmk_geometry = MMKitWin.frameGeometry()
-            mmk_height = mmk_geometry.height()
+            mmk_height = mmk_geometry.height() 
+                # <mmk_height> is wrong when firstShow is True.  This is due to a problem with the
+                # Library's QListView (DirView) widget.  See DirView.__init__() for more info on this.
+                # We compensate for <mmk_height> wrong value below. Mark 060222.
                         
             ## 26 is an estimate of the bottom toolbar height
             toolbar_height = self.depositAtomDashboard.frameGeometry().height()
-            
+
             status_bar_height = self.statusBar().frameGeometry().height()
             
-        y = self.geometry().y()-2 + self.geometry().height() - hist_height - mmk_height - toolbar_height - status_bar_height
-        if firstShow: y -= 10
+        y = self.geometry().y() + self.geometry().height() - mmk_height - toolbar_height - status_bar_height
+        if firstShow:
+            # This is to compensate for a strange bug related to the Library's QListView widget changing size
+            # after the MMKit is created but not yet shown.  This bug causes mmk_height of the
+            # MMKit be off by 84 pixels. See DirView.__init__() for more info on this. mark 060222.
+            y -= 84 
         if y < 0: y = 0
         x = self.geometry().x()
         
@@ -1185,6 +1206,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                 MMKitWin.show()
                 self.setActiveWindow() # Fixes bug 1503.  mark 060216.
                     # Required to give the keyboard input focus back to self (MainWindow).
+                MMKitWin.dirView.setMinimumSize(QSize(191,150))
         return MMKitWin
     
     def MMKitShowPage(self, pagename):
@@ -1194,6 +1216,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         global MMKitWin
         if MMKitWin:
             MMKitWin.setup_current_page(pagename)
+            
 
     def deleteMMKit(self):
         '''Deletes the MMKit.
