@@ -84,7 +84,7 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 import platform
 import env
-from undo_mixin import UndoStateMixin #bruce 051013
+from state_utils import StateMixin #bruce 060223
 from debug import print_compact_stack
 
 
@@ -100,7 +100,7 @@ assy_number = 0 # count assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
-class assembly( UndoStateMixin):
+class assembly( StateMixin):
     """#doc
     """
 
@@ -139,6 +139,7 @@ class assembly( UndoStateMixin):
         assy_number += 1
         self._debug_name = self.name + "-%d" % assy_number
 
+        want_undo_manager = False
         if own_window_UI:
             #bruce 060127 added own_window_UI flag to help fix bug 1403
             # (this is false when called from ThumbView to make its "dummy assembly" (which passes self.w of None),
@@ -150,17 +151,8 @@ class assembly( UndoStateMixin):
             if _assy_owning_win is not None:
                 _assy_owning_win.deinit() # make sure assys don't fight over control of main menus, etc [bruce 060122]
             _assy_owning_win = self
-            
-            #bruce 051005: create object for tracking changes in our model, before creating any
-            # model objects (ie nodes for tree and shelf). Since this is not initially used except
-            # to record changes as these objects are created, the fact that self is still incomplete 
-            # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
-            import undo_manager
-            menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
-            self.undo_manager = undo_manager.AssyUndoManager(self, menus) # be sure to call init1() on this within self.__init__!
-                # fyi: this sets self._u_archive for use by our model objects when they report changes
-                # (but its name and value are private to AssyUndoManager's API for our model objects,
-                #  which is why we don't set it here)
+
+            want_undo_manager = True #bruce 060223: don't actually make one until init of all state attrs is complete
         
         # the Clipboard... this is replaced by another one later (of a different class),
         # once or twice each time a file is opened. ####@@@@ should clean up
@@ -248,8 +240,27 @@ class assembly( UndoStateMixin):
         assert self.tree.part.homeCsys
         assert self.tree.part.lastCsys
 
-        if self.undo_manager:
-            self.undo_manager.init1()
+        if want_undo_manager:
+            #bruce 060223: we no longer do this until we're fully inited, since when undoing to initial checkpoint
+            # and doing some new op from there, the new op needs to see a fully initialized assy.
+            #obs older comment (can be mostly removed soon):
+            #bruce 051005: create object for tracking changes in our model, before creating any
+            # model objects (ie nodes for tree and shelf). Since this is not initially used except
+            # to record changes as these objects are created, the fact that self is still incomplete 
+            # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
+            import undo_manager
+            menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
+            self.undo_manager = undo_manager.AssyUndoManager(self, menus) # be sure to call init1() on this within self.__init__!
+                # fyi: this sets self._u_archive for use by our model objects when they report changes
+                # (but its name and value are private to AssyUndoManager's API for our model objects,
+                #  which is why we don't set it here)
+            self.undo_manager.init1() #k still exists and needed, but does it still need to be separate from __init__? [060223]
+            # Note: self.undo_manager won't start recording checkpoints until someone calls self.clear_undo_stack() at least once,
+            # which can't be done until some more initialization is done by our callers,
+            # in ways which currently differ for the first assembly created, and later ones.
+            # This is not even done by the end of MWsemantics.__init__, as of now.
+            # For details, search out the highest-level calls to clear_undo_stack. [bruce 060223]
+            pass
         
         return # from assembly.__init__
 
@@ -1035,36 +1046,42 @@ class assembly( UndoStateMixin):
 
     # ==
 
-    def become_state(self, state, archive): #bruce 060117 kluge 
+    def become_state(self, state, archive): #bruce 060117 kluge [will it still be needed?]
         from undo_archive import assy_become_state
         return assy_become_state(self, state, archive) # this subroutine will probably become a method of class assembly
 
-    def clear(self): #bruce 060117 kluge
+    def clear(self): #bruce 060117 kluge [will it still be needed?]
         from undo_archive import assy_clear
         return assy_clear(self) # this subroutine will probably become a method of class assembly
 
     def editUndo(self):
-        self.undo_manager.editUndo()
+        if self.undo_manager:
+            self.undo_manager.editUndo()
 
     def editRedo(self):
-        self.undo_manager.editRedo()
+        if self.undo_manager:
+            self.undo_manager.editRedo()
 
     def undo_checkpoint_before_command(self, *args, **kws):
         ## moved into undo_manager: self.update_parts() #bruce 060127, precaution related to fixing bug 1406
-        return self.undo_manager.undo_checkpoint_before_command(*args, **kws)
+        if self.undo_manager:
+            return self.undo_manager.undo_checkpoint_before_command(*args, **kws)
 
     def undo_checkpoint_after_command(self, *args, **kws):
         ## moved into undo_manager: self.update_parts() #bruce 060127, to fix bug 1406
 ##            #e [or should undo_manager use a callback, to do it even from
 ##            #   initial and clear checkpoints, and recursive-event ones??]
-        return self.undo_manager.undo_checkpoint_after_command(*args, **kws)
+        if self.undo_manager:
+            return self.undo_manager.undo_checkpoint_after_command(*args, **kws)
 
     def current_command_info(self, *args, **kws):
         #e (will this always go into undo system, or go into some more general current command object in env, instead?)
-        return self.undo_manager.current_command_info(*args, **kws)
+        if self.undo_manager:
+            return self.undo_manager.current_command_info(*args, **kws)
 
     def clear_undo_stack(self, *args, **kws):
-        return self.undo_manager.clear_undo_stack(*args, **kws)
+        if self.undo_manager:
+            return self.undo_manager.clear_undo_stack(*args, **kws)
     
     pass # end of class assembly
 

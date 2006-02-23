@@ -60,4 +60,9 @@ S_PARENTS = 'S_PARENTS' # like S_PARENT, but value might be a list or dict (etc)
 
 S_CACHED = 'S_CACHED' # for attributes which should be deleted (or otherwise invalidated) when other attributes' changes are undone.
 
+S_IGNORE = 'S_IGNORE' # state system should pretend this attr doesn't exist (i.e. never look at it or change it or delete it).
+    # (This is equivalent to providing no state declaration for the attr, unless we add a future "default decl" for all attrs
+    #  not declared individually, in which case this will let you exclude an attr from that.
+    #  It's also useful for subclasses wanting to override state decls inherited from a superclass.)
+
 # end

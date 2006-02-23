@@ -401,7 +401,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() # leaves mode as nullmode as of 050911
-        return
+
+        return # from GLPane.setAssy
 
     # == view toolbar helper methods
     

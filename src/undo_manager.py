@@ -43,9 +43,12 @@ class UndoManager:
 
 class AssyUndoManager(UndoManager):
     "An UndoManager specialized for handling the state held by an assy (an instance of class assembly)."
-    active = False
+    active = True #060223 changed this to True, since False mainly means it died, not that it's being inited [060223]
+    inited = False #060223
     def __init__(self, assy, menus = ()): # called from assy.__init__
-        "Do what can be done early in assy.__init__; that must also (subsequently) call self.init1()"
+        """Do what can be done early in assy.__init__; caller must also (subsequently) call init1
+        and either _initial_checkpoint or (preferred) clear_undo_stack.
+        """
         # assy owns the state whose changes we'll be managing...
         # [semiobs cmt:] should it have same undo-interface as eg chunks do??
         self._current_main_menu_ops = {}
@@ -53,11 +56,11 @@ class AssyUndoManager(UndoManager):
         self.menus = menus
         return
 
-    def init1(self):
-        "Do what we might do in __init__ except that it might be too early during assy.__init__ then"
+    def init1(self): #e might be merged into end of __init__
+        "Do what we might do in __init__ except that it might be too early during assy.__init__ then (see also _initial_checkpoint)"
         assy = self.assy
-        self.archive = AssyUndoArchive(assy) # does initial checkpoint
-        assy._u_archive = self.archive ####@@@@ still safe in 060117 stub code??
+        self.archive = AssyUndoArchive(assy)
+        assy._u_archive = self.archive ####@@@@ still safe in 060117 stub code?? [guess 060223: not needed anymore ###@@@]
             # [obs??] this is how model objects in assy find something to report changes to (typically in their __init__ methods);
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
 ##        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
@@ -65,14 +68,21 @@ class AssyUndoManager(UndoManager):
         if platform.is_macintosh(): 
             win = assy.w
             win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # set up incorrectly (for Mac) as "Ctrl+Y"
-        self.connect_or_disconnect_menu_signals(True)
         self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
             # (fixes bug in which the pref didn't show up until the first undoable change was made) [060125]
-        self.remake_UI_menuitems() # try to fix bug 1387 [060126]
-        self.active = True
-        env.command_segment_subscribers.append( self._in_event_loop_changed )
         return
-        
+    
+    def _initial_checkpoint(self): #bruce 060223; not much happens until this is called (order is __init__, init1, _initial_checkpoint)
+        "[private]"
+        self.archive.initial_checkpoint()
+        self.connect_or_disconnect_menu_signals(True)
+        self.remake_UI_menuitems() # try to fix bug 1387 [060126]
+        self.active = True # redundant
+        env.command_segment_subscribers.append( self._in_event_loop_changed )
+        self.inited = True
+        ## redundant call (bug); i hope this is the right one to remove: self.archive.initial_checkpoint()
+        return
+    
     def deinit(self):
         self.active = False
         self.connect_or_disconnect_menu_signals(False)
@@ -96,6 +106,8 @@ class AssyUndoManager(UndoManager):
         return
 
     def clear_undo_stack(self, *args, **kws):
+        if not self.inited:
+            self._initial_checkpoint() # have to do this here, not in archive.clear_undo_stack
         return self.archive.clear_undo_stack(*args, **kws)
     
     def menu_cmd_checkpoint(self):

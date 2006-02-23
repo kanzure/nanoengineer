@@ -53,7 +53,7 @@ from HistoryWidget import greenmsg, redmsg
 from inval import InvalMixin
 from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 import env #bruce 050901
-from undo_mixin import UndoStateMixin #bruce 051013
+from state_utils import StateMixin #bruce 060223
 
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
@@ -70,7 +70,7 @@ LARGE_MODEL = 5000
 debug_parts = False # set this to True in a debugger, to enable some print statements, etc
 
 
-class Part( jigmakers_Mixin, InvalMixin, UndoStateMixin,
+class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             ops_atoms_Mixin, ops_connected_Mixin, ops_copy_Mixin,
             ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin
            ):

@@ -7,13 +7,29 @@ Provide a mixin class, and related tools, to help state-storing objects work wit
 changes in it and providing methods to apply diffs it has recorded.
 
 $Id$
+
+060223 status:
+
+- Almost none of this is desired in current code, with the exception of
+UndoStateMixin (under a new name StateMixin, in a new file) providing state_utils._eq_id_mixin_.
+Plan: Move that functionality to StateMixin in state_utils, and also make a DataMixin,
+and their other function is to prevent debug warnings for unknown classes. [done]
+The classes in here are renamed _OBS and not used for now.
+
+- But, some of this code might be useful when we move to change-tracking for Atom and Bond,
+so leave it (at least for perusal) until then.
+
+- And, some of it might be *called* from current code. Rather than spend time making a noop stub
+for that, I should just strip that out. So I'll rename these classes and then fix things until they work. [done except testing]
+
+
 '''
 __author__ = 'bruce'
 
 
 import state_utils
 
-class StateMixin: ####@@@@ might be obs and/or WRONG [051013]
+class StateMixin_OBS: ### 060223 this one's old name StateMixin is taken over by a different class in state_utils
     # note: see also _s_deepcopy, defined on some data-like classes, which this is *not* [bruce 060209 comment]
     """Mixin for classes with standard state-related attribute declarations.
     Provides helper methods which make use of those decls.
@@ -85,7 +101,7 @@ _ILLEGAL_UM_KEY = "_ILLEGAL_UM_KEY" # must not be a legitimate value of _um_key;
 # For efficiency, any objects with __getattr__ and residing in undoable-state attribute values
 # should inherit _getattr_efficient_eq_mixin_ , including those mixing in this class, and more.
 
-class UndoStateMixin( StateMixin, state_utils._eq_id_mixin_ ):
+class UndoStateMixin_OBS( StateMixin_OBS, state_utils._eq_id_mixin_ ):
     # like StateContainerMixin (renaming of StateMixin???) but specifically for Undo
     #bruce 060209 renamed this UndoStateMixin from GenericDiffTracker_API_Mixin (but new name is tentative)
     ### docstring needs revision, names need cleanup - details in docstring #####@@@@@
@@ -498,101 +514,103 @@ and then to flush your internal diff-cache until we ask again."
         self._um_changed()
     _undo_apply_forward_diff = _undo_apply_backward_diff ## dangerous if subclass intends to override _undo_apply_backward_diff alone!
     _undo_apply_diff = _undo_apply_backward_diff #k maybe it doesn't need the direction, or prefers to get it inside an arg...
-    pass
+    pass # end of class UndoStateMixin_OBS
 
-# == changetracker strategies -- different ways of knowing when to report diffs, and what old and new values to compare
+### == changetracker strategies -- different ways of knowing when to report diffs, and what old and new values to compare
+##
+### Each undoable class (including superclasses) declares which one of these changetracker classes to use for each undoable attr;
+### there's one changetracker object (of one of these classes) per undoable attribute definition.
+### (Objects whose undo decls vary per-object act as if they were singleton classes wrt this system,
+###  rather than sharing these per-class. More precisely, they specify some object to hold this info,
+###  perhaps self or self.__class__ or something in between.)
+##
+##class undoable_attr_tracker:
+##    def __init__(self):
+##        pass
+####    def obj_getattr(self, key):
+####        "get our attr from the obj with the given key"
+####        #e could probably optimize, by effectively compiling this method body in __init__
+####        obj = self.model.obj(key)
+####        return getattr(obj, self.attr)
+##    pass
+##
+##class objset_tracker:
+##    """Track a set of objects of one class, whose state-diffs should be tracked and archived together... #doc
+##    """
+##    # add, remove methods...
+##    def checkpoint(self):
+##        # for each undoable attr that class declared, track it in the appropriate way; some of those attrs share flagdicts...
+##        pass
+##    pass
+##        
+##class full_diff_every_checkpoint(undoable_attr_tracker): # could use pre_change_track's scanner since it always has copy of all oldvals
+##    """Don't bother tracking changes as they happen; just always have a copy of the old value, and diff the values each time.
+##    One of these objects handles one attr, but the set of objects to scan can be shared among several of these objects... ###k how?
+##    """
+##    def __init__(self):
+##        pass
+##    def checkpoint(self):
+##        pass
+##    pass
+##
+##class pre_change_track(undoable_attr_tracker):
+##    "object has to tell us before changing the attribute, so we can copy the oldval at that time"
+##    def __init__(self):
+##        self.oldvals ###@@@ set by self.prep_to_track_until_checkpoint
+##        self.model
+##        self.attr
+##        #super init
+##        pass
+##    def will_change(self, key, obj): #e faster to not pass obj?
+##        """obj (with key) is warning us that obj.attr might change soon;
+##        it might warn repeatedly (though it doesn't have to except once per checkpoint),
+##        so be fast except for the first time before each checkpoint.
+##        """
+##        # only do anything if oldval not stored already
+##        oldvals = self.oldvals
+##        if not oldvals.has_key(key):
+##            val = getattr(obj, self.attr) #e could optimize; could let caller also copy_val...
+##            val = self.model.copy(val) # note, this might register and/or translate any objects it finds in val
+##            oldvals[key] = val # (stored value also tells us to scan obj at next checkpoint) #e could also store obj
+##    def checkpoint(self):
+##        # any object which might have changed in this attr has its oldval stored here.
+##        # [i suspect some code can be shared -- the diff is the same, it's just how to find the objs that differs - vals or flags.]
+##        model = self.model
+##        copy = model.copy #e might depend on self
+##        attr = self.attr
+##        #e optim: also store copy, obj methods, and attr (no xxx.yyy in loop body)
+##        for key, oldval in self.oldvals.items(): ###k swap out oldvals already if it might grow during loop
+##            obj = model.obj(key)
+##            newval = getattr(obj, attr)
+##            newval = copy(newval) # this could find and register new objects; should they be recursively scanned?? ###k
+##                ### that suggests we need a 2-pass checkpoint! but i'm not sure we really do...
+##                # (otoh it might be worse (oresmic) if describing of their attrs has to happen in layers... don't know if it does;
+##                #  it's effectively a copy/translate of all the new objs found; issue is can ref be made nonrecursively; guess yes,
+##                #  just requires assigning a key; but worry about refs from initargs... worst case: have lists of things to scan
+##                #  incl attrs and new objs, iterate scanning some lists and building up others until all are empty.)
+##                # pass 1: scan vals and find new objs (in any layer) (and scan them too while describing their state, etc)
+##                # pass 2: actually generate diffs (in layered order)
+##            diff = self.diff(oldval, newval) # is this bidirectional?? is it multipart, to be added somewhere, with nonempty reported?
+##                # is it primitive or a val-diff? is format attr-dependent?
+##            nim # store diff
+##        # now prep for next
+##        return
+##    pass
+##
+##class post_change_track(undoable_attr_tracker):
+##    """object has to tell us before or after changing the attribute (anytime before next checkpoint is ok);
+##    we always have our own copy of the state
+##    """
+##    def __init__(self):
+##        pass
+##    def checkpoint(self):
+##        # difference from others: we have a separate oldval dict (full) and flagdict (partial).
+##        for key, obj in self.flagdict.items():
+##            # obj needs diff in this attr... use same code as above (share the code)
+##            pass
+##        pass
+##    pass
 
-# Each undoable class (including superclasses) declares which one of these changetracker classes to use for each undoable attr;
-# there's one changetracker object (of one of these classes) per undoable attribute definition.
-# (Objects whose undo decls vary per-object act as if they were singleton classes wrt this system,
-#  rather than sharing these per-class. More precisely, they specify some object to hold this info,
-#  perhaps self or self.__class__ or something in between.)
-
-class undoable_attr_tracker:
-    def __init__(self):
-        pass
-##    def obj_getattr(self, key):
-##        "get our attr from the obj with the given key"
-##        #e could probably optimize, by effectively compiling this method body in __init__
-##        obj = self.model.obj(key)
-##        return getattr(obj, self.attr)
-    pass
-
-class objset_tracker:
-    """Track a set of objects of one class, whose state-diffs should be tracked and archived together... #doc
-    """
-    # add, remove methods...
-    def checkpoint(self):
-        # for each undoable attr that class declared, track it in the appropriate way; some of those attrs share flagdicts...
-        pass
-    pass
-        
-class full_diff_every_checkpoint(undoable_attr_tracker): # could use pre_change_track's scanner since it always has copy of all oldvals
-    """Don't bother tracking changes as they happen; just always have a copy of the old value, and diff the values each time.
-    One of these objects handles one attr, but the set of objects to scan can be shared among several of these objects... ###k how?
-    """
-    def __init__(self):
-        pass
-    def checkpoint(self):
-        pass
-    pass
-
-class pre_change_track(undoable_attr_tracker):
-    "object has to tell us before changing the attribute, so we can copy the oldval at that time"
-    def __init__(self):
-        self.oldvals ###@@@ set by self.prep_to_track_until_checkpoint
-        self.model
-        self.attr
-        #super init
-        pass
-    def will_change(self, key, obj): #e faster to not pass obj?
-        """obj (with key) is warning us that obj.attr might change soon;
-        it might warn repeatedly (though it doesn't have to except once per checkpoint),
-        so be fast except for the first time before each checkpoint.
-        """
-        # only do anything if oldval not stored already
-        oldvals = self.oldvals
-        if not oldvals.has_key(key):
-            val = getattr(obj, self.attr) #e could optimize; could let caller also copy_val...
-            val = self.model.copy(val) # note, this might register and/or translate any objects it finds in val
-            oldvals[key] = val # (stored value also tells us to scan obj at next checkpoint) #e could also store obj
-    def checkpoint(self):
-        # any object which might have changed in this attr has its oldval stored here.
-        # [i suspect some code can be shared -- the diff is the same, it's just how to find the objs that differs - vals or flags.]
-        model = self.model
-        copy = model.copy #e might depend on self
-        attr = self.attr
-        #e optim: also store copy, obj methods, and attr (no xxx.yyy in loop body)
-        for key, oldval in self.oldvals.items(): ###k swap out oldvals already if it might grow during loop
-            obj = model.obj(key)
-            newval = getattr(obj, attr)
-            newval = copy(newval) # this could find and register new objects; should they be recursively scanned?? ###k
-                ### that suggests we need a 2-pass checkpoint! but i'm not sure we really do...
-                # (otoh it might be worse (oresmic) if describing of their attrs has to happen in layers... don't know if it does;
-                #  it's effectively a copy/translate of all the new objs found; issue is can ref be made nonrecursively; guess yes,
-                #  just requires assigning a key; but worry about refs from initargs... worst case: have lists of things to scan
-                #  incl attrs and new objs, iterate scanning some lists and building up others until all are empty.)
-                # pass 1: scan vals and find new objs (in any layer) (and scan them too while describing their state, etc)
-                # pass 2: actually generate diffs (in layered order)
-            diff = self.diff(oldval, newval) # is this bidirectional?? is it multipart, to be added somewhere, with nonempty reported?
-                # is it primitive or a val-diff? is format attr-dependent?
-            nim # store diff
-        # now prep for next
-        return
-    pass
-
-class post_change_track(undoable_attr_tracker):
-    """object has to tell us before or after changing the attribute (anytime before next checkpoint is ok);
-    we always have our own copy of the state
-    """
-    def __init__(self):
-        pass
-    def checkpoint(self):
-        # difference from others: we have a separate oldval dict (full) and flagdict (partial).
-        for key, obj in self.flagdict.items():
-            # obj needs diff in this attr... use same code as above (share the code)
-            pass
-        pass
-    pass
+del state_utils
 
 # end

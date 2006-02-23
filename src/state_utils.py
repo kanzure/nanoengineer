@@ -213,6 +213,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         self.attrs_with_no_dflt = [] # public list of attrs with no declared or evident default value (might be turned into a tuple)
         self.attr_dflt_pairs = [] # public list of attr, dflt pairs, for attrs with a default value (has actual value, not a copy)
         self.dict_of_all_state_attrs = {}
+        self.warn = True # from decls seen so far, do we need to warn about this class (once, when we encounter it)?
         
         self._find_attr_decls(class1) # fills self.policies and some other instance variables derived from them
 
@@ -231,6 +232,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 attr_its_about = name[len('_s_attr_'):]
                 declval = getattr(class1, name)
                 self.policies[attr_its_about] = declval #k for class1, not in general
+                self.warn = False # enough to be legitimate state
                 #e check if per-instance? if callable? if legal?
                 if declval in STATE_ATTR_DECLS:
                     self.dict_of_all_state_attrs[attr_its_about] = None
@@ -244,6 +246,10 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                         self.attr_dflt_pairs.append( (attr_its_about, dflt) )
                     pass
                 pass
+            elif name.startswith('_s_deepcopy_'):
+                self.warn = False # enough to be legitimate data
+            elif name.startswith('_s_scan_children_'):
+                pass ## probably not: self.warn = False
             else:
                 print "warning: unrecognized _s_ attribute ignored:", name ##e
         return
@@ -693,6 +699,41 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
             print "atom_debug: collect_state got this snapshot:", snapshot
         return snapshot
     pass # end of class obj_classifier, if we didn't rename it by now
+
+# ==
+
+class StateMixin( _eq_id_mixin_ ):
+    """Convenience mixin for classes that contain state-attribute decls,
+    to help them follow the rules for __eq__,
+    to avoid debug warnings when they contain no attr decls yet,
+    and perhaps to provide convenience methods (none are yet defined).
+    """
+    _s_attr__StateMixin__fake = S_IGNORE
+        # decl for fake attr __fake (name-mangled to _StateMixin__fake to be private to this mixin class),
+        # to avoid warnings about classes with no declared state attrs without requiring them to be registered (which might be nim)
+        # (which is ok, since if you added this mixin to them, you must have thought about
+        #  whether they needed such decls)
+    pass
+
+class DataMixin:
+    """Convenience mixin for classes that act as "data" when present
+    in values of declared state-holding attributes. Provides method stubs
+    to remind you when you haven't declared a necessary method. (not sure this is good)
+    Makes sure state system treats this object as data (and doesn't warn about it).
+    """
+    def _s_deepcopy(self, copyfunc): # note: presence of this method makes sure this object is treated as data.
+        "#doc [doc available in other implems of this method, and/or its calls; implem must be compatible with __eq__]"
+        print "_s_deepcopy needs to be overridden in", self
+        print "  (implem must be compatible with __eq__)"
+        return self
+    def __eq__(self, other):
+        print "__eq__ needs to be overridden in", self ### don't put this mixin into Gamess til I test lack of __eq__ there
+        print "  (implem must be compatible with _s_deepcopy)"
+        return self is other
+    def __ne__(self, other):
+        return not (self == other)
+    #e same for __ne__?
+    pass
 
 # == test code
 

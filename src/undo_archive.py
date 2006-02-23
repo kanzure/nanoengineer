@@ -7,89 +7,17 @@ providing undo/redo ops which apply those diffs to the model state.
 
 $Id$
 
-060123 update:
-
-we'll let the main chain of cp's grow serially even as we do undo/redo and include changes from them;
-something else will record the varid_vers corresponding to current state, in ways that indicate if it's
-same as some past state and that should affect undo; this does not link to cp's directly
-but links to applicable diffs via stored_ops; not quite sure how it should work when diffs should be merged,
-but if each diff knows whether it should be merged on each end (and maybe its done-or-not status), it should be ok.
-
-- current bugs:
-  + [worked around, at least partially] not sure cmd-Z (as accel key rather than as menu selection)
-    will cause menu items to be remade, and enabled as they should be
-  + [fixed] undiagnosed bug, why no stored ops for this? (claims to not be initial cp) assy 9
-  - File "/Nanorex/Working/cad/src/undo_manager.py", line 167, in remake_UI_menuitems
-    assert len(ops) == 1 #e there will always be just one for now
-
-
-as of 060123 the following more complete status is a week or so out of date:
-
-not tested:
-- not well tested; some NFRs below will make testing easier, so do them first
-
-current bugs:
-- logic bug: checkpoint, mods, undo to checkpoint - does it go to *that* cp or the prior one? Now the prior one,
-  not what i expect... but if we make cps more often this might not be an issue.
-- ultimately we'll need checkpointing at begin and end of every command and every period of recursive event processing,
-  and a way to discard diffs with nothing in them (and merge their checkpoints) (so undo/redo won't be a noop).
-  We could approximate that if we had a good-enough "anything changed flag" or counter (updated by all kinds of changes),
-  [in fact assy._change_counter will do well enough for now -- 060123]
-  but we can do it just as well in a diff-tracking system so we might as well wait for that to exist... unless we don't have that
-  for a long period.
-  In the short run we can't afford so many checkpoints (since they're slow), so we'll have them only at begin_cmd points,
-  and make the "next begin_cmd" even though it's not filled in yet. make_checkpoint or its calling code will handle this.
-  [this is WRONG as of 060123 and anyway i renamed it make_empty_checkpoint]
-  
-before we implement auto-checkpointing, we must:
-+ pref to enable it, off by default (maybe a persistent debug_pref) [done, but not persistent for now]
-+ replace the /tmp/fff kluge, either with pure use of RAM [later] or a safe temporary file [did that for now]
-
-missing features:
-- autocheckpoint is nim; for testing could do it on just a few commands, at start of cmd, and supply metainfo too; see begin_op?
-- menu items too hard to reach:
-  - need to put them into intended positions in main menu, enable/disable actions, revise their text
-    (might as well also revise tooltip to include more info, like metainfo)
-  - print history message when we do those things
-- no metainfo in diffs, like history serno or time or type of diff or cmd that made it
-
-performance:
-- too slow
-- too much memory usage (no limit on stack length)
-
-missing state:
-- doesn't preserve choice of current part
-- doesn't save selection state, per-mode state, maybe other kinds of state (prefs, current movie and its data)
-- not sure about viewpoint state, might be sort of ok (untested)
-
-possible bugs:
-- undo to very start might not work (empty mmp file) (or might work by now)
-- if we undo before first save, it might mess with filename (not sure)
-- if we undo, proceed differently, and undo, it might have two potential redos (and asfail), or if not, something else
-  is different than I expect, like how it handles last_cp or ver for that when it goes back to one;
-  this is hard to test until auto-cp is there, since i keep forgetting to make them
-- not sure if redo is restoring viewpoint properly
-
-file ops interaction:
-  - no interaction with file save (not sure if it needs one)
-  - doesn't properly update assy._modified
-  - file open/close interaction not reviewed
-
-advanced:
-- out of order redo/undo, and its UI
-- prefs to save state on disk, save beyond session
+[060223: out of date status info from this docstring was mostly moved to undo_archive-doc.text,
+ not in cvs; can clean up and commit later #e]
 
 '''
 __author__ = 'bruce'
 
-#bruce 060117 newer simpler code, far less modular, and currently a prototype stub kluge...
-# will be sped up and cleaned up, and hopefully will be generalized along lines of older code (which is not all in cvs now)
-
-from files_mmp import writemmp_mapping, reset_grouplist, _readmmp_state
+from files_mmp import writemmp_mapping, reset_grouplist, _readmmp_state # temporarily needed, while mmp code used to save state
 
 import time, os
 import platform
-from debug import print_compact_traceback
+from debug import print_compact_traceback, print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False
 import env
 from Utility import Group 
@@ -98,6 +26,8 @@ from state_utils import objkey_allocator, obj_classifier
 
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
+
+use_non_mmp_state_scanning = False ####@@@@@ DO NOT COMMIT WITH True, until it's completed
 
 # Since it's easiest, we store all or part of a checkpoint in a real mmp file on disk;
 # this might be useful for debugging so we'll keep it around during development,
@@ -134,31 +64,31 @@ class writemmp_mapping_for_Undo( writemmp_mapping):
         ## self.aux_list = []
         ## self.aux_dict = {}
         return
-    def write_component(self, location, value):
-        """Serialize value & store it in self (sharing the serializations of any class objects it contains,
-        but NOT of shared Python lists/dicts (why not?? dangerous if caller wants to reuse one for cur state??);
-        also define it as current value of the given location (any data-like object usable as a key).
-        This API will probably be revised.
-        """
-        if 0:
-            print "can't yet serialize something of type %r, at %r" % ( type(value) , location ) ####@@@@
-        # basic alg: store dict of object ids to their keys/policies, computed first time we hit them,
-        # and another dict or list of data of the form "obj key, attr A, value V" where V is encoded value, objs -> wrapped keys.
-
-        # The encoder is a simple recursive one which doesn't worry about shared subobjects.
-        # The objects should provide some methods for cooperating with this, or external code can register those;
-        # if neither happens, it's an error or some default policy is used (e.g. assume it's a permanent object, and debug warning).
-
-        # The policies registered outside of classes can be hardcoded into this class, writemmp_mapping_for_Undo.
-
-        # Classes wanting to cooperate can inherit a mixin that does so in a standard way, e.g. letting them declare per-attr
-        # what needs storing, with general or special methods. (Ignore tracking for now, just do serialization.)
-        # These decls need to have some way to classify changes to each attr as structural, selection, or view...
-
-        # This scheme will end up being moved into another mixin class inherited by this one, or whose instance we own;
-        # the code for all this belongs in undo_mixin.py, probably. (Or some different new file.)
-        
-        return
+##    def write_component(self, location, value):
+##        """Serialize value & store it in self (sharing the serializations of any class objects it contains,
+##        but NOT of shared Python lists/dicts (why not?? dangerous if caller wants to reuse one for cur state??);
+##        also define it as current value of the given location (any data-like object usable as a key).
+##        This API will probably be revised.
+##        """
+##        if 0:
+##            print "can't yet serialize something of type %r, at %r" % ( type(value) , location ) ####@@@@
+##        # basic alg: store dict of object ids to their keys/policies, computed first time we hit them,
+##        # and another dict or list of data of the form "obj key, attr A, value V" where V is encoded value, objs -> wrapped keys.
+##
+##        # The encoder is a simple recursive one which doesn't worry about shared subobjects.
+##        # The objects should provide some methods for cooperating with this, or external code can register those;
+##        # if neither happens, it's an error or some default policy is used (e.g. assume it's a permanent object, and debug warning).
+##
+##        # The policies registered outside of classes can be hardcoded into this class, writemmp_mapping_for_Undo.
+##
+##        # Classes wanting to cooperate can inherit a mixin that does so in a standard way, e.g. letting them declare per-attr
+##        # what needs storing, with general or special methods. (Ignore tracking for now, just do serialization.)
+##        # These decls need to have some way to classify changes to each attr as structural, selection, or view...
+##
+##        # This scheme will end up being moved into another mixin class inherited by this one, or whose instance we own;
+##        # the code for all this belongs in undo_mixin.py, probably. (Or some different new file.)
+##        
+##        return
     
     pass # end of class writemmp_mapping_for_Undo
 
@@ -173,9 +103,10 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
 ##        assy.o.saveLastView()
 ##        assy.update_parts() ### better if we could assume this is done already; also worry about all other updates, like bonds
 
-    if initial:
-        # assy lacks enough attrs for write mmp to work, eg .o, .temperature
-        return ('mmp_state', "# stub for new assy -- too early") # kluge, stub, won't work for undo back to the start
+# hopefully not needed now, 060223
+##    if initial:
+##        # assy lacks enough attrs for write mmp to work, eg .o, .temperature
+##        return ('mmp_state', "# stub for new assy -- too early") # kluge, stub, won't work for undo back to the start
 
     # the following code is not reached (as of 060117)
     # unless the user explicitly asks for an undo checkpoint
@@ -202,18 +133,18 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
         if addshelf:
             assy.shelf.writemmp(mapping)
 
-        if 1: #060130 also write out mode, current_movie, selection, etc
-            # this code is added just for Undo (not analogous to anything in mmp file writing code),
-            # and doesn't use the pseudo-file kluge in an essential way
-            # (though it might write fake mmprecords to it if that's convenient,
-            #  to cause what it writes to be reread in the same order)
-            part = assy.part
-            glpane = assy.o
-            from ops_select import selection_from_part
-            ##k following might also want an initial arg for the object this is relative to -- or maybe toplevel obj is implied?
-            mapping.write_component('movie', assy.current_movie) ####k component name -> objref and (if first time seen) objdef
-            mapping.write_component('mode', glpane.mode) ####k
-            mapping.write_component('selection', selection_from_part(part) )
+##        if 1: #060130 also write out mode, current_movie, selection, etc
+##            # this code is added just for Undo (not analogous to anything in mmp file writing code),
+##            # and doesn't use the pseudo-file kluge in an essential way
+##            # (though it might write fake mmprecords to it if that's convenient,
+##            #  to cause what it writes to be reread in the same order)
+##            part = assy.part
+##            glpane = assy.o
+##            from ops_select import selection_from_part
+##            ##k following might also want an initial arg for the object this is relative to -- or maybe toplevel obj is implied?
+##            mapping.write_component('movie', assy.current_movie) ####k component name -> objref and (if first time seen) objdef
+##            mapping.write_component('mode', glpane.mode) ####k
+##            mapping.write_component('selection', selection_from_part(part) )
         
         mapping.write("end molecular machine part " + assy.name + "\n")
     except:
@@ -283,6 +214,7 @@ def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore a
 ##        state.format_error("nothing in file")
 ##        return None
         # this means it represented an empty assy (at least in our initial kluge implem of 060117)
+        print "bug: len(grouplist) == 0 in _undo_readmmp_kluge: this should no longer happen" ###@@@
         tree = Group("tree", assy, None, []) #k guess; caller will turn it into PartGroup I think, but is name "tree" ok?? ###@@@
         grouplist = [ viewdata, tree, shelf ]        
     elif len(grouplist) == 1:
@@ -818,9 +750,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     next_cp = None
     current_diff = None
-    format_options = dict(use_060213_format = False) ########@@@@@@@@ try True when enough funcs are implemed, or during devel
+    format_options = dict(use_060213_format = use_non_mmp_state_scanning)
 
     copy_val = state_utils.copy_val #060216, might turn out to be a temporary kluge; 060222 removed _again ###@@@
+
+    inited = False
     
     def __init__(self, assy):
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
@@ -829,13 +763,21 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.obj4key = oka.obj4key # public attr, maps keys -> objects
             ####@@@@ does this need to be the same as atom keys? not for now, but maybe yes someday... [060216]
 
-        self.obj_classifier = obj_classifier()####@@@@ call me, or more likely, some subr should grab me to scan the state (scanner)
+        self.obj_classifier = obj_classifier()
         
         self.stored_ops = {} # map from (varid, ver) pairs to lists of diff-ops that implement undo or redo from them;
             # when we support out of order undo in future, this will list each diff in multiple places
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
             # (Not sure if that system will be good enough for permitting enough out-of-order list-modification ops.)
-        cp = make_empty_checkpoint(self.assy, 'initial') # initial checkpoint
+
+        # rest of init is done later, by self.initial_checkpoint, when caller is more ready [060223]
+        ###e not sure were really inited enough to return... we'll see
+        return
+
+    def initial_checkpoint(self):
+        assert not self.inited
+        assy = self.assy
+        cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
         #e the next three lines are similar to some in self.checkpoint --
         # should we make self.set_last_cp() to do part of them? compare to do_op's effect on that, when we code that. [060118]
         fill_checkpoint(cp, current_state(self, assy, initial = True, **self.format_options), assy) ### it's a kluge to pass initial; revise to detect this in assy itself
@@ -846,6 +788,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             #e note, self.last_cp will be augmented by a desc of varid_vers pairs about cur state; 
             # but for out of order redo, we get to old varid_vers pairs but new cp's; maybe there's a map from one to the other...
             ###k was this part of UndoManager in old code scheme? i think it was grabbed out of actual model objects in UndoManager.
+        self.inited = True # should come before _setup_next_cp
         self._setup_next_cp() # don't know cptype yet (I hope it's 'begin_cmd'; should we say that to the call? #k)
         ## self.notify_observers() # current API doesn't permit this to do anything during __init__, since subs is untouched then
         return
@@ -865,24 +808,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     # ==
 
-    def attrlayer_constructors(self):
-        """Return the constructors to be used to create attrlayer_scanner instances for the attribute layers we'll need
-        for the next scan. 
-        """
-        #e Hmm, why don't we just run them and return those? Or create them in our own scan routine? Nevermind for now.
-        # It's true it needs to be this obj that does it. In future it might discover more layers as it runs, and insert them
-        # into the order somehow, but that's nim and not needed for quite awhile.
-        assert 0 # first figure out a better place to call it -- i bet it wants to pass args to those constructors...
-
-##        layers = [
-##            attrlayer_scanner( name = 'explore' , newobjfunc = bla )
-        
-    # ==
     def _setup_next_cp(self):
         """[private method, mainly for begin_cmd_checkpoint:]
         self.last_cp is set; make (incomplete) self.next_cp, and self.current_diff to go between them.
         Index it... actually we probably can't fully index it yet if that depends on its state-subset vers.... #####@@@@@
         """
+        assert self.inited
         assert self.next_cp is None
         self.next_cp = make_empty_checkpoint(self.assy) # note: we never know cptype yet, tho we might know what we hope it is...
         self.current_diff = SimpleDiff(self.last_cp, self.next_cp) # this is a slot for the actual diff, whose content is not yet known
@@ -891,6 +822,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
 
     def clear_undo_stack(self, *args, **kws): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack)
+        assert self.inited # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
         if self.current_diff: #k probably always true; definitely required for it to be safe to do what follows.
             self.current_diff.suppress_storing_undo_redo_ops = True
             #e It might be nice to also free storage for all prior checkpoints and diffs
@@ -928,6 +860,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         and then shift next_cp into last_cp and a newly created checkpoint into next_cp, recreating a situation like the initial one.
            In other words, make sure the current model state gets stored as a possible point to undo or redo to.
         """
+        if not self.inited:
+            if env.debug():
+                print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
+            return
+        
         self.assy.update_parts() # make sure assy has already processed changes (and assy.changed has been called if it will be)
             #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
             # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
@@ -1013,6 +950,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def current_command_info(self, *args, **kws): ##e should rename add_... to make clear it's not finding and returning it
         assert not args
+        if not self.inited:
+            if env.debug():
+                print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
+            return
         self.current_diff.command_info.update(kws) # recognized keys include cmd_name
             ######@@@@@@ somewhere in... what? a checkpoint? a diff? something larger? (yes, it owns diffs, in 1 or more segments)
             # it has 1 or more segs, each with a chain of alternating cps and diffs.
@@ -1032,6 +973,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         otherwise [nim as of 060118] make a new checkpoint, ver, and diff to stand for the new state, though some state-subset
         varid_vers (from inside the diff) will usually be reused. (Always, in all cases I know how to code yet; maybe not for list ops.)        
         """
+        assert self.inited
         # self.current_diff is accumulating changes that occur now,
         # including the ones we're about to do by applying self to assy.
         # Make sure it is not itself later stored (redundantly) as a diff that can be undone or redone.
@@ -1074,8 +1016,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return {assy_varid: assy_ver} # only one varid for now (one global undo stack)
     
     def find_undoredos(self):
-        #e also pass state_version? for now rely on self.last_cp or some new state-pointer...
         "Return a list of undo and/or redo operations that apply to the current state; return merged ops if necessary."
+        #e also pass state_version? for now rely on self.last_cp or some new state-pointer...
+        if not self.inited:
+            return []
+        
         if 1:
             # try to track down some of the bugs... if this is run when untracked changes occurred (and no checkpoint),
             # it would miss everything. If this sometimes happens routinely when undo stack *should* be empty but isn't,
@@ -1113,6 +1058,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return res.values()
     
     def store_op(self, op):
+        assert self.inited
         for varver in op.varid_vers():
             ops = self.stored_ops.setdefault(varver, [])
             ops.append(op)

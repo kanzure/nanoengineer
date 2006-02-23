@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 modes.py -- provides basicMode, the superclass for all modes, and
 modeMixin, for GLPane.
@@ -85,9 +85,9 @@ from platform import *
 import platform # not redundant with "from platform import *" -- we need both
 import preferences
 import env #bruce 050911
-from undo_mixin import UndoStateMixin
+from state_utils import StateMixin #bruce 060223
 
-class anyMode( UndoStateMixin): #bruce 060209 added mixin class
+class anyMode( StateMixin): #bruce 060223 renamed mixin class
     "abstract superclass for all mode objects"
     
     # default values for mode-object attributes.  external code

@@ -28,8 +28,7 @@ from debug import print_compact_stack, print_compact_traceback
 import platform
 import env #bruce 050901
 from constants import genKey
-from state_utils import copy_val
-from undo_mixin import UndoStateMixin #bruce 051005
+from state_utils import copy_val, StateMixin #bruce 060223
 
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
@@ -97,7 +96,7 @@ def node_name(node): # use in error or debug messages for safety, rather than no
         return "<node has no .name>"
     pass
 
-class Node( UndoStateMixin):
+class Node( StateMixin):
     """
     This is the basic object, inherited by groups, molecules, jigs,
     and some more specialized subclasses. The methods of Node are designed
@@ -962,7 +961,6 @@ class Node( UndoStateMixin):
         """Returns a new dictionary containing copied values of attributes
         listed in self.copyable_attrs.
         """
-        from state_utils import copy_val
         res = {}
         for attr in self.copyable_attrs:
             val = getattr(self, attr)

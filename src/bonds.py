@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
 (one of which might be a "singlet" to represent an "open bond" in the UI),
@@ -64,7 +64,7 @@ from bond_constants import *
 
 from elements import Singlet
 import env
-from undo_mixin import UndoStateMixin #bruce 051013
+from state_utils import StateMixin #bruce 060223
 
 # ==
 
@@ -285,7 +285,7 @@ def bond_v6(bond):
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond( UndoStateMixin):
+class Bond( StateMixin):
     """A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
     representing a bond between them if it also occurs in atom.bonds

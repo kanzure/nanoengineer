@@ -616,6 +616,13 @@ def just_after_mainwindow_super_init():
     return
 
 def just_before_mainwindow_init_returns():
+    # note, misnamed now -- called when its "init in spirit" returns, not its __init__ [060223 comment]
+    if 1:
+        #bruce 060223; logically this would be better to call directly from MWsemantics, but I don't want to modify that file right now
+        import env
+        win = env.mainwindow()
+        win.assy.clear_undo_stack() # necessary to tell it it's safe to make its initial checkpoint, and start recording more
+    #k is the following still active? [060223 question]
     if not _use_hcmi_hack: return
     _hcmi.debug_print_stats('mwsem init is returning')
     return
