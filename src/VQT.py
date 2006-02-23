@@ -292,12 +292,13 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
 
     #bruce 060209 defining __eq__ and __ne__ for efficient state comparisons given presence of __getattr__ (desirable for Undo)
     # (I don't think it needs a __nonzero__ method, and if it had one I don't know if Q(1,0,0,0) should be False or True.)
+    #bruce 060222 note that it also now needs __eq__ and maybe __ne__ to be compatible with its _s_deepcopy (they are). ###test
     
     def __eq__(self, other):
         try:
             return self.__class is other.__class__ and self.vec == other.vec
         except:
-            return False
+            return False # should not happen except for bugs (missing vec in self or other)
         pass
 
     def __ne__(self, other):
@@ -315,12 +316,10 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         self.vec[0] = cos(theta)
         self.__reset()
         return self
-        
 
     def __reset(self):
         if self.__dict__.has_key('matrix'):
             del self.__dict__['matrix']
-
 
     def __setattr__(self, name, value):
         #bruce comment 050518: possible bug (depends on usage, unknown): this doesn't call __reset

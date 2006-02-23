@@ -69,6 +69,16 @@ def mainwindow(): #bruce 051209
     assert win.assy.w is win # sanity check, and makes sure it's not too early for these things to have been set up
     return win
 
+def debug(): #bruce 060222
+    """Should debug checks be run, and debug messages be printed, and debug options offered in menus?
+    [This just returns the current value of platform.atom_debug, which is this code's conventional flag
+     for "general debugging messages and checks". Someday we might move that flag itself into env,
+     but that's harder since we'd have to edit lots of code that looks for it in platform,
+     or synchronize changes to two flags.]
+    """
+    import platform # don't do this at toplevel in this module, in case we don't want it imported so early
+    return platform.atom_debug
+
 # This module defines stub functions which are replaced with different implementations
 # by the changes module when it's imported.
 # So this module should not import the changes module, directly or indirectly.

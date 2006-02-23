@@ -784,8 +784,8 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
     def __init__(self, mirror = False, ccwdeg = 0):
         "whether to mirror it, and (then) how much to rotate it counterclockwise, in degrees"
             #k haven't verified it's ccw and not cw, in terms of how it's used, but this code should work either way
-        self.mirrorQ = not not mirror
-        self.rot = ccwdeg % 360
+        self.mirrorQ = not not mirror # boolean
+        self.rot = ccwdeg % 360 # float or int (I think)
     def reset(self):
         "reset self to default values"
         self.mirrorQ = False
@@ -827,9 +827,11 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
     def __nonzero__(self):
         # Python requires this to return an int; i think a boolean should be ok
         return not not (self.mirrorQ or self.rot) # only correct since we always canonicalize rot by % 360
-    def _s_deepcopy(self, copyfunc):
+    def _s_deepcopy(self, copyfunc): # (in class image_mod_record [bruce circa 060210])
         # ignores copyfunc
         return self.__class__(self.mirrorQ, self.rot)
+    def __eq__(self, other): #bruce 060222 for Undo; do we need __ne__ too? If so, I think we'll get a debug print. ###k test this
+        return self.__class__ is other.__class__ and (self.mirrorQ, self.rot) == (other.mirrorQ, other.rot)
     pass # end of class image_mod_record
 
 #end

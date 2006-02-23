@@ -6,15 +6,51 @@ General state-related utilities.
 
 $Id$
 '''
-__all__ = ['copy_val'] # __all__ must be the first symbol defined in the module.
-
-    #e was the old name (copy_obj) better than copy_val??
-
 __author__ = 'bruce'
+
+from state_constants import *
+import types
+import env
+
+### TODO:
+'''
+Where is _s_deepcopy (etc) documented? (In code and on wiki?)
+
+That should say:
+
+- When defining _s_deepcopy, consider:
+
+  - is it correct for any copyfunc argument? (esp in its assumption about what that returns, original or copy or transformed copy)
+  
+  - is its own return value __eq__ to the original? It should be, so you have to define __eq__ accordingly. [ __ne__ too?? ###k ]
+  
+  - should you define _s_scan_children to, to scan the same things copied? (Only if they are instance objects, and are "children".
+    See S_CHILDREN doc for what that means.)
+
+Did the above for VQT and jigs_planes, still no __eq__ or children for jig_Gamess -- I'll let that be a known bug I fix later,
+to test the behavior of my error detect/response code.
+Also, when I do fix it (requires analyzing jig_Gamess contents) I might as well turn it into using a mixin
+to give it a proper __eq__ based on declaring the state attrs! 
+####@@@@
+
+I might as well put state decls into the archived-state objects I'm creating, so they too could be compared by __eq__ and diffed!!!
+(Actually, that won't work for diff since it has to descend into their dictionaries in an intelligent way.
+ But it might work for __eq__.)
+
+This means my archived-state objects should really be objects, not just tuples or dicts.
+Let's change the code that collects one to make this true. Search for... attrdict?
+
+S_CHILDREN: we might need a decl that we have no children (so don't warn me about that), and a reg for external classes of the same.
+
+And certainly we need to go through the existing stateholder classes (e.g. Node) and add their attr/child decls.
+Maybe rather than accomodating copyable_attrs, we'll just replace it? Not sure, maybe later (a lot of things use it).
+
+Do any inapprop obs get a key (like data or foreign objs) in current code?? #####@@@@@
+'''
 
 # ==
 
-class _eq_id_mixin_: ##e use more (GLPane?); renamed from _getattr_efficient_eq_id_mixin_
+class _eq_id_mixin_: ##e use more? (GLPane?)
     """For efficiency, any objects defining __getattr__ which might frequently be compared
     with == or != or coerced to a boolean, should have definitions for __eq__ and __ne__ and __nonzero__
     (and any others we forgot??), even if those are semantically equivalent to Python's behavior when they don't.
@@ -45,9 +81,420 @@ class _eq_id_mixin_: ##e use more (GLPane?); renamed from _getattr_efficient_eq_
 
 # ==
 
+def transclose( toscan, collector ):
+    """General transitive closure routine using dictionaries for collections in its API,
+    where the keys can be whatever you want as long as they are unique (for desired equiv classes of objects)
+    and used consistently.
+       Details: Toscan should be a dictionary whose values are the starting point for the closure,
+    and collector(obj1, dict1) should take one such value obj1 (never passed to it before)
+    and for each obj it finds from obj1 (in whatever way it wants -- that defines the relation we're transitively closing),
+    store it as a new value in dict1 (with appropriate consistent key).
+       We don't modify toscan, and we return a new dictionary (with consistent keys) whose values
+    are all the objects we found. Collector will have been called exactly once on each object we return.
+    It must not modify toscan (since we use itervalues on it while calling collector),
+    at least when it was called on one of the values in toscan.
+    """
+    # We have three dicts at a time: objects we're finding (not being checked for newness yet),
+    # objects we're scanning to look for those, and objects seen (i.e. done with or being scanned).
+    # Keys are consistent in all these dicts (and should be as unique as objects need to be distinct),
+    # but what they actually are is entirely up to our args (but they must be consistent between the two args as well).
+    # [#doc: need to explain that better]
+    seen = dict(toscan)
+    while toscan:
+        found = {}
+        for obj in toscan.itervalues():
+            collector(obj, found) #e might the collector also want to know the key??
+        # now "subtract seen from found"
+        new = {}
+        for key, obj in found.iteritems():
+            if not seen.has_key(key):
+                new[key] = obj
+        seen.update(new)
+        toscan = new
+        continue
+    return seen
+
+# ==
+
+class Classification: #e want _eq_id_mixin_? probably not, since no getattr.
+    """Classifications record policies and methods for inspecting/diffing/copying/etc all objects of one kind,
+    or can be used as dict keys for storing those policies externally.
+    (By "one kind of object", we often mean the instances of one Python class, but not always.)
+    """
+    pass
+
+# possible future optim: some of these could be just attrholders, not instances, so their methods wouldn't require 'self'...
+# OTOH some of them do make use of self, and, we might put generic methods on the superclass.
+# ... ok, leave it like this for now, and plan to turn it into C code someday; or, use class methods.
+# (or just use these subclasses but define funcs outside and store them as attrs on the sole instances)
+
+###@@@ not yet clear if these simple ones end up being used...
+
+class AtomicClassification(Classification):
+    """Atomic (immutable, part-free) types can be scanned and copied trivially....
+    """
+##    def scan(self, val, func):
+##        "call func on nontrivial parts of val (what this means precisely is not yet defined)"
+##        pass
+    def copy(self, val, func):
+        "copy val, using func to copy its parts"
+        return val
+    pass
+
+class ListClassification(Classification):
+    "Classification for Lists (or maybe any similar kind of mutable sequences?)"
+##    def scan(self, val, func):
+##        "call func on all parts of val"
+##        for part in val:
+##            func(part)
+    def copy(self, val, func):
+        "copy val, using func for nontrivial parts"
+        return map( func, val) #e optimize by changing API to be same as map, then just using an attrholder, holding map?
+    pass
+
+def copy_list(val):
+    return map(copy_val, val)
+
+def scan_list(val, func):
+    for elt in val:
+        func(elt)
+    return
+
+class DictClassification(Classification):
+    def copy(self, val, func):
+        res = {} #e or use same type or class as val? not for now.
+        for key, val1 in val.iteritems():
+            # as an optim, strictly follow a convention that dict keys are immutable so don't need copying
+            res[key] = func(val1)
+        return res
+    pass
+
+def copy_dict(val):
+    res = {}
+    for key, val1 in val.iteritems():
+        res[key] = copy_val(val1)
+    return res
+
+def scan_dict(dict1, func):
+    for elt in dict1.itervalues(): # func must not harm dict1
+        func(elt)
+    return
+
+class TupleClassification(Classification):
+    def copy(self, val, func):
+        """simple version should be best for now
+        """
+        return tuple(map(func, val))
+            # not worth the runtime to save memory by not copying if all parts immutable; save that for the C version.
+    pass
+
+def copy_tuple(val):
+    return tuple(map(copy_val, val))
+
+scan_tuple = scan_list
+
+# Tuple of state attr decl values used for attrs which hold "defining state",
+# which means state that should (usually) be saved, compared, copied, tracked/changed by Undo, etc.
+# Should not include attrs recomputable from these, even if as an optim we sometimes track or save them too (I think).
+
+STATE_ATTR_DECLS = (S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS) # but not S_CACHE, S_JUNK(?), etc
+    #e refile in state_constants.py ? not sure, since it's not needed outside this module
+
+class InstanceClassification(Classification): #k used to be called StateHolderInstanceClassification; not yet sure of scope
+    # we might decide to have a helper func classify an instance and return one of several classes, or None-or-so...
+    # i mean some more atomic-like classification for classes that deserve one... [060221 late]
+    #k not sure if this gains anything from its superclass
+    """###doc, implem - hmm, why do we use same obj for outside and inside? because, from outside, you might add to explore-list...
+    """
+    def __init__(self, class1):
+        "Become a Classification for class class1 (applicable to its instances)"
+        self.policies = {} # maps attrname to policy for that attr #k format TBD, now a map from attrname to decl val
+        self.class1 = class1
+        self.attrs_with_no_dflt = [] # public list of attrs with no declared or evident default value (might be turned into a tuple)
+        self.attr_dflt_pairs = [] # public list of attr, dflt pairs, for attrs with a default value (has actual value, not a copy)
+        self.dict_of_all_state_attrs = {}
+        
+        self._find_attr_decls(class1) # fills self.policies and some other instance variables derived from them
+
+        self.attrs_with_no_dflt = tuple(self.attrs_with_no_dflt) # optimization, I presume; bad if we let new attrs get added later
+        self.attr_dflt_pairs = tuple(self.attr_dflt_pairs)
+        
+        self.S_CHILDREN_attrs = self.attrs_declared_as(S_CHILD) + self.attrs_declared_as(S_CHILDREN) #e sorted somehow? no need yet.
+        self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
+        return
+
+    def _find_attr_decls(self, class1):
+        "find _s_attr_xxx decls on class1, and process/store them"
+        hmm = filter(lambda x: x.startswith("_s_"), dir(class1))
+        for name in hmm:
+            if name.startswith('_s_attr_'):
+                attr_its_about = name[len('_s_attr_'):]
+                declval = getattr(class1, name)
+                self.policies[attr_its_about] = declval #k for class1, not in general
+                #e check if per-instance? if callable? if legal?
+                if declval in STATE_ATTR_DECLS:
+                    self.dict_of_all_state_attrs[attr_its_about] = None
+                    # figure out if this attr has a known default value... in future we'll need decls to guide/override this
+                    try:
+                        dflt = getattr(class1, attr_its_about)
+                    except AttributeError:
+                        # assume no default value unless one is declared (which is nim)
+                        self.attrs_with_no_dflt.append(attr_its_about)
+                    else:
+                        self.attr_dflt_pairs.append( (attr_its_about, dflt) )
+                    pass
+                pass
+            else:
+                print "warning: unrecognized _s_ attribute ignored:", name ##e
+        return
+
+    def attrs_declared_as(self, S_something):
+        #e if this is commonly called, we'll memoize it in __init__ for each S_something
+        res = []
+        for attr, decl in self.policies.iteritems():
+            if decl == S_something:
+                res.append(attr)
+        return res
+
+    def obj_is_data(self, obj):
+        "Should obj (one of our class's instances) be considered a data object?"
+        return self._objs_are_data ## or hasattr(obj, '_s_deepcopy'), if we let individual instances override their classes on this
+    
+    def copy(self, val, func): # from outside, when in vals, it might as well be atomic! WRONG, it might add self to todo list...
+        "Copy val, a (PyObject pointer to an) instance of our class"
+        return val
+    
+##    def delve(self, val): #e rename -- more than one way to delve, probably
+##        "Delve into val, an instance of our class"
+##        #e grab our declared attrs in some order... maybe also look in val.__dict__... btw is val already registered with a key?
+##        # might need another arg which is the archive for that
+
+    def scan_children( self, obj1, func):
+        try:
+            # (we might as well test this on obj1 itself, since not a lot slower than memoizing the same test on its class)
+            method = obj1._s_scan_children
+        except AttributeError:
+            for attr in self.S_CHILDREN_attrs:
+                val = getattr(obj1, attr, None)
+                scan_val(val, func) # don't optimize for val is None, since it's probably rare, and this is pretty quick anyway
+                #e we might optimize by inlining scan_val, though
+        else:
+            method(func)
+        return
+
+    pass # end of class InstanceClassification
+
+# == helper code  [##e all code in this module needs reordering]
+
+known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves
+
+known_type_scanners = {} # only needs entries for types whose instances might contain (or be) InstanceType objects,
+    # and which might need to be entered for finding "children" (declared with S_CHILD) -- for now we assume that means
+    # there's no need to scan inside bound method objects, though this policy might change.
+
+# not yet needed, but let the variable exist since there's one use of it I might as well leave active (since rarely run):
+copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes whose classes have certain names
+    # (This is mainly for use when we can't add methods to the classes themselves.
+    #  The copiers should verify the class is the expected one, and return the original object unchanged if not
+    #  (perhaps with a warning), or raise an exception if they "own" the classname.)
+
+# scanners_for_class_names would work the same way, but we don't need it yet.
+
+def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency
+    """Efficiently copy a general Python value (so that mutable components are not shared with the original),
+    passing Python instances unchanged, unless they define a _s_deepcopy method,
+    and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
+       (See a code comment for the reason we can't just use the standard Python copy module for this.)
+    """
+    typ = type(val)
+    copier = known_type_copiers.get(typ) # this is a fixed public dictionary
+    if copier is not None:
+        return copier(val) # we optimize by not storing any copier for atomic types.
+    return val
+
+def scan_val(val, func): 
+    """Efficiently scan a general Python value, and call func on all InstanceType objects encountered
+    (or in the future, on objects of certain other types, like registered new-style classes or extension classes).
+       No need to descend inside any values unless they might contain InstanceType objects. Note that some InstanceType
+    objects define the _s_scan_children method, but we *don't* descend into them here using that -- this is only done
+    by other code, such as whatever code func might end up delivering such objects to.
+       Special case: we never descend into bound method objects either (see comment on known_type_scanners
+    for why).
+       Return an arbitrary value which caller should not use (always None in the present implem).
+    """
+    typ = type(val)
+    scanner = known_type_scanners.get(typ) # this is a fixed public dictionary
+    if scanner is not None:
+        scanner(val, func) # we optimize by not storing any scanner for atomic types, or a few others.
+    return
+
+known_type_copiers[type([])] = copy_list
+known_type_copiers[type({})] = copy_dict
+known_type_copiers[type(())] = copy_tuple
+
+known_type_scanners[type([])] = scan_list
+known_type_scanners[type({})] = scan_dict
+known_type_scanners[type(())] = scan_tuple
+
+def copy_InstanceType(obj): #e pass copy_val as an optional arg?
+    # note: this shares some code with InstanceClassification  ###@@@DOIT
+    # not yet needed, since QColor is not InstanceType (but keep the code here for when it is needed):
+    ##copier = copiers_for_InstanceType_class_names.get(obj.__class__.__name__)
+    ##    # We do this by name so we don't need to import QColor (for example) unless we encounter one.
+    ##    # Similar code might be needed by anything that looks for _s_deepcopy (as a type test or to use it). ###@@@ DOIT, then remove cmt
+    ##    #e There's no way around checking this every time, though we might optimize
+    ##    # by storing specific classes which copy as selves into some dict;
+    ##    # it's not too important since we'll optimize Atom and Bond copying in other ways.
+    ##if copier is not None:
+    ##    return copier(obj, copy_val) # e.g. for QColor
+    try:
+        deepcopy_method = obj._s_deepcopy # note: not compatible with copy.deepcopy's __deepcopy__ method
+    except AttributeError:
+        return obj
+    res = deepcopy_method( copy_val)
+    if obj != res or (not (obj == res)):
+        # Bug in deepcopy_method, which will cause false positives in change-detection in Undo (since we'll return res anyway).
+        # (It's still better to return res than obj, since returning obj could cause Undo to completely miss changes.)
+        #
+        # Note: we require obj == res, but not res == obj (e.g. in case a fancy number turns into a plain one).
+        # Hopefully the fancy object could define some sort of __req__ method, but we'll try to not force it to for now;
+        # this has implications for how our diff-making archiver should test for differences. ###@@@doit
+        print "bug: obj != res or (not (obj == res)), where res is _s_deepcopy of obj; obj is %r and res is %r" % (obj, res)
+        #e also print history redmsg, once per class per session?
+    return res
+
+known_type_copiers[ types.InstanceType ] = copy_InstanceType
+
+def scan_InstanceType(obj, func):
+    func(obj)
+    #e future optim: could we change API so that apply could serve in place of scan_InstanceType?
+    # Probably not, but nevermind, we'll just do all this in C.
+    return None 
+
+known_type_scanners[ types.InstanceType ] = scan_InstanceType
+
+# ==
+
+def copy_Numeric_array(obj):
+    if obj.typecode() == PyObject:
+        if env.debug():
+            print "atom_debug: ran copy_Numeric_array, PyObject case" # remove when works once ###@@@
+        return array( map( copy_val, obj) )
+            ###e this is probably incorrect for multiple dimensions; doesn't matter for now.
+            # Note: We can't assume the typecode of the copied array should also be PyObject,
+            # since _s_deepcopy methods could return anything, so let it be inferred.
+            # In future we might decide to let this typecode be declared somehow...
+    if env.debug():
+        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ###@@@
+    return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
+
+def scan_Numeric_array(obj, func):
+    if obj.typecode() == PyObject:
+        if env.debug():
+            print "atom_debug: ran scan_Numeric_array, PyObject case" # remove when works once ###@@@
+        map( func, obj)
+        # is there a more efficient way?
+        ###e this is probably incorrect for multiple dimensions; doesn't matter for now.
+    if env.debug():
+        print "atom_debug: ran copy_Numeric_array, yes-or-non-PyObject case" # remove when works once for non- ###@@@
+    return
+
+try:
+    from Numeric import array, PyObject
+except:
+    if env.debug():
+        print "fyi: can't import array, PyObject from Numeric, so not registering its copy & scan functions"
+else:
+    numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
+    assert numeric_array_type != types.InstanceType
+    known_type_copiers[ numeric_array_type ] = copy_Numeric_array
+    known_type_scanners[ numeric_array_type ] = scan_Numeric_array
+    del numeric_array_type # but leave array, PyObject as module globals for use by the functions above, for efficiency
+    pass
+
+# ==
+
+def copy_QColor(obj):
+    from qt import QColor
+    assert obj.__class__ is QColor # might fail (in existing calls) if some other class has the same name
+    if env.debug():
+        print "atom_debug: ran copy_QColor" # remove when works once; will equality work right? ###@@@
+    return QColor(obj)
+
+try:
+    # this is the simplest way to handle QColor for now; if always importing qt from this module
+    # becomes a problem (e.g. if this module should work in environments where qt is not available),
+    # make other modules register QColor with us, or make sure it's ok if this import fails
+    # (it is in theory).
+    from qt import QColor
+except:
+    if env.debug():
+        print "fyi: can't import QColor from qt, so not registering its copy function"
+else:
+    QColor_type = type(QColor())
+        # note: this is the type of a QColor instance, not of the class!
+        # type(QColor) is <type 'sip.wrappertype'>, which we'll just treat as a constant,
+        # so we don't need to handle it specially.
+    assert QColor_type != types.InstanceType
+    ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
+    known_type_copiers[ QColor_type ] = copy_QColor
+    # no scanner for QColor is needed, since it contains no InstanceType objects.
+    del QColor, QColor_type
+    pass
+
+# ==
+
+##e Do we need a copier function for a Qt event? Probably not, since they're only safe
+# to store after making copies (see comments around QMouseEvent in selectMode.py circa 060220),
+# and (by convention) those copies are treated as immutable.
+
+# The reason we can't use the standard Python copy module's deepcopy function:
+# it doesn't give us enough control over what it does to instances of unrecognized classes.
+# For our own classes, we could do anything, but for other classes, we need them to be copied
+# as the identity (i.e. as unaggressively as possible), or perhaps signalled as errors or warnings,
+# but copy.deepcopy would copy everything inside them, i.e. copy them as aggressively as possible,
+# and there appears to be no way around this.
+#
+##>>> import copy
+##>>> class c:pass
+##... 
+##>>> c1 = c()
+##>>> c2 = c()
+##>>> print id(c1), id(c2)  
+##270288 269568
+##>>> c3 = copy.deepcopy(c1)
+##>>> print id(c3)
+##269968
+#
+# And what about the copy_reg module?... it's just a way of extending the Pickle module
+# (which we also can't use for this), so it's not relevant.
+#
+# Notes for the future: we might use copy.deepcopy in some circumstances where we had no fear of
+# encountering objects we didn't define;
+# or we might write our own C/Pyrex code to imitate copy_val and friends.
+
+# ==
+
+# state_utils-copy_val-outtake.py went here, defined:
+# class copy_run, etc
+# copy_val
+
+# ==
+
+# state_utils-scanner-outtake.py went here, defined
+# class attrlayer_scanner
+# class scanner
+# ##class Classifier: #partly obs? superseded by known_types?? [guess, 060221]
+# ##the_Classifier = Classifier()
+
+# ==
+
 class objkey_allocator:
     """Use one of these to allocate small int keys for objects you're willing to keep forever.
     We provide public dict attrs with our tables, and useful methods for whether we saw an object yet, etc.
+       Note: a main motivation for having these keys at all is speed and space when using them as dict keys in large dicts,
+    compared to python id() values. Other motivations are their uniqueness, and possible use in out-of-session encodings,
+    or in other non-live encodings of object references.
     """
     def __init__(self):
         self.obj4key = {}
@@ -62,12 +509,12 @@ class objkey_allocator:
             # or possibly if we use md5 or sha1 strings or the like for keys (though we'd probably first have to test for prior decl).
             # if that starts happening, remove the assert 0.
             assert 0, "this feature should never be used in current code (though it ought to work if it was used correctly)"
-            assert not self.obj4key.haskey(key)
+            assert not self.obj4key.has_key(key)
         else:
             # note: this code also occurs directly in key4obj_maybe_new, for speed
             self._lastobjkey += 1
             key = self._lastobjkey
-            assert not self.obj4key.haskey(key) # different line number than identical assert above (intended)
+            assert not self.obj4key.has_key(key) # different line number than identical assert above (intended)
         self.obj4key[key] = None # placeholder; nothing is yet stored into self._key4obj, since we don't know obj!
         return key
 
@@ -93,7 +540,7 @@ class objkey_allocator:
         # note: this is an inlined portion of self.allocate_key()
         self._lastobjkey += 1
         key = self._lastobjkey
-        assert not self.obj4key.haskey(key)
+        assert not self.obj4key.has_key(key)
         self.obj4key[key] = obj
         self._key4obj[id(obj)] = key
         return key
@@ -102,459 +549,156 @@ class objkey_allocator:
 
 # ==
 
-class Classification: #e want _eq_id_mixin_? probably not, since no getattr.
-    """Classifications record policies and methods for inspecting/diffing/copying/etc all objects of one kind,
-    or can be used as dict keys for storing those policies externally.
-    (By "one kind of object", we often mean the instances of one Python class, but not always.)
-    """
-    pass
-
-# possible future optim: some of these could be just attrholders, not instances, so their methods wouldn't require 'self'...
-# OTOH some of them do make use of self, and, we might put generic methods on the superclass.
-# ... ok, leave it like this for now, and plan to turn it into C code someday; or, use class methods.
-# (or just use these subclasses but define funcs outside and store them as attrs on the sole instances)
-
-class AtomicClassification(Classification):
-    """Atomic (immutable, part-free) types can be scanned and copied trivially....
-    """
-##    def scan(self, val, func):
-##        "call func on nontrivial parts of val (what this means precisely is not yet defined)"
-##        pass
-    def copy(self, val, func):
-        "copy val, using func to copy its parts"
-        return val
-    pass
-
-class ListClassification(Classification):
-    "Classification for Lists (or maybe any similar kind of mutable sequences?)"
-##    def scan(self, val, func):
-##        "call func on all parts of val"
-##        for part in val:
-##            func(part)
-    def copy(self, val, func):
-        "copy val, using func for nontrivial parts"
-        return map( func, val) #e optimize by changing API to be same as map, then just using an attrholder, holding map?
-    pass
-
-class DictClassification(Classification):
-    def copy(self, val, func):
-        res = {} #e or use same type or class as val? not for now.
-        for key, val1 in val.iteritems():
-            # as an optim, strictly follow a convention that dict keys are immutable so don't need copying
-            res[key] = func(val1)
+class StateSnapshot:
+    "A big pile of saved (copies of) attribute values -- for each known attr, a dict from objkey to value."
+    #e later we'll have one for whole state and one for differential state and decide if they're different classes, etc
+    def __init__(self, attrs = ()):
+        self.attrdicts = {} # maps attrnames to their dicts; each dict maps objkeys to values; public attribute for efficiency(??)
+        for attr in attrs:
+            self.make_attrdict(attr)
+    #e methods to apply the data and to help grab the data? see also assy_become_scanned_state, SharedDiffopData (in undo_archive)
+    #e future: methods to read and write the data, to diff it, etc, and state-decls to let it be compared...
+    #e will __eq__ just be eq on our attrdicts? or should attrdict missing or {} be the same? guess: same.
+    def make_attrdict(self, attr):
+        "Make an attrdict for attr. Assume we don't already have one."
+        assert self.attrdicts.get(attr) is None
+        self.attrdicts[attr] = {}
+    def size(self): ##e should this be a __len__ and/or a __nonzero__ method?
+        "return the total number of attribute values we're storing (over all objects and all attrnames)"
+        res = 0
+        for d in self.attrdicts:
+            res += len(d)
         return res
+    def __str__(self):
+        return "<%s at %#x, %d attrdicts, %d total values>" % (self.__class__.__name__, id(self), len(self.attrdicts), self.size())
     pass
 
-class TupleClassification(Classification):
-    def copy(self, val, func):
-        """simple version should be best for now
-        """
-        return tuple(map(func, val))
-##    def copy(self, val, func):
-##        """optimize by not copying unless you have to; use 'is' on copied parts to decide
-##        (assume func is identity whenever it can be)"
-##        """
-##        copies = map(func, val)
-##        for i in xrange(len(val)):
-##            if copies[i] is not val[i]: # hmm, is this too slow for that optim to be worthwhile? it does save memory...
-##                return tuple(copies)
-##        return val
-    pass
+# ==
 
-class StateHolderInstanceClassification(Classification):
-    """###doc, implem - hmm, why do we use same obj for outside and inside? because, from outside, you might add to explore-list...
+# Terminology/spelling note: in comments, we use "class" for python classes, "clas" for Classification objects.
+# In code, we can't use "class" as a variable name (since it's a Python keyword),
+# so we might use "clas" (but that's deprecated since we use it for Classification objects too),
+# or "class1", or something else.
+
+class obj_classifier: ####@@@@ make one of these and let it survive as long as the undo archive does.
+    """Classify objects seen, and save the results, and provide basic uses of the results for scanning.
+    Probably can't yet handle "new-style" classes. Doesn't handle extension types (presuming they're not InstanceTypes) [not sure].
     """
-    def __init__(self, clas, lis):
-        "Become a Classification for class clas, whose declared state-holding attrs are the attrnames in sequence lis."
-        self.attrs = dict([(attr, attr) for attr in lis]) #e might replace vals with their policies, now or later
-        self.attrlist = tuple(lis)
-    def copy(self, val, func): # from outside, when in vals, it might as well be atomic! WRONG, it might add self to todo list...
-        return val
-    pass
-
-# == helper code  [##e all code in this module needs reordering]
-
-from Numeric import array, PyObject
-
-numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
-
-
-# atomic_types = common types whose objects have no parts -- no need to scan, not mutable, no custom defs
-atomic_types = tuple( map(type, (1, 1L, 1.0, "x", u"x", None, True)) ) #e also complex (a python builtin type)? functions, etc?
-
-container_types = tuple( map(type, ( [], (), {} ))) # scan parts (and sometimes copy them) with specialized non-customizable code
-
-# For speed in initial classification of Python values (most of whose types are in atomic_types),
-# we keep the most basic info in a global dict (from type to a code), and let various functions access it inline.
-# The values are:
-# missing, for types we never saw before (eg extension types, internal types). Warn, then treat as opaque.
-# 0 if no special handling is required (atomic or opaque, use ==).
-# 1 if some callers will want to use inline special code (container_types).
-# 2 for anything else -- call classify(val) to look up (or create and memoize) Classification which tells you how to handle it.
-# For uniformity, you can call that on anything, even if known_types[type(val)] is 0 or 1. (NIM?)
-
-# or should we store the Classification itself, not 2? (tho often it's a func of __class__ -- so store a code to say use __class__?)
-
-known_types = {}
-known_classes = {}
-
-for typ in atomic_types:
-    known_types[typ] = 0
-
-for typ in container_types:
-    known_types[typ] = 1 # hmm, why not use different code for each?
-
-# typical code:
-#   code = known_types.get(type(val));
-#   if code == 0 or 1, fast inlined special case;
-#   else call classify(val) & use result in a general way.
-
-###e need to declare InstanceType! Should we have a Classifier for handling it (which says, look at __class__)?
-
-# should known_types store a classifier object?
-
-def classify(val):
-    "#doc"
-    typ = type(val)
-    code = known_types.get(typ)
-    if code is None:
-        print "fyi: classify sees type %r for first time; it ought to be declared; treating it as atomic" % typ
-        known_types[typ] = 0 # treat as atomic, to avoid bugs from delving into it
-        return AtomicClassification ### IMPLEM
-    else:
-        assert code == 2 # since using this on vals you don't have to use it on is NIM
+    def __init__(self):
+        self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications
+        self.dict_of_all_state_attrs = {} # maps attrnames to arbitrary values, for all state-holding attrnames ever declared to us
+        return
     
-
-# ==
-
-class copy_run: # might have called it Copier, but that conflicts with the ops_copy.py class; rename it again if it becomes public
-    "one instance exists to handle one copy-operation of some python value, of the kind we use in copyable attributes"
-    #e the reason it's an object is so it can store options given to the function copy_val, when we define those.
-    #e such options would affect what this does for python objects it doesn't always copy.
-    unknowns_pass_through = False
-    def __init__(self):
-        ##e might need args for how to map pyobjs, or use subclass for that...
-        #e ideal might be a func to copy them, which takes our own copy_val method...
-        pass ## not needed: self.memo = {} # maps id(obj) to obj for objs that might contain self-refs
-    def copy_val(self, obj):
-        t = type(obj)
-        if t in atomic_types:
-            return obj
-        #e memo check? not yet needed. if it is, see copy module (python library) source code for some subtleties.
-        copy = self.copy_val
-        if t is type([]):
-            return map( copy, obj )
-        if t is type(()):
-            #e note: we don't yet bother to optimize by avoiding the copy when the components are immutable,
-            # like copy.deepcopy does.
-            return tuple( map( copy, obj ) )
-        if t is type({}):
-            res = {}
-            for key0, val in obj.iteritems():
-                key = copy(key0) # might not be needed or even desirable; ok for now
-                if key0 is not key:
-                    if platform.atom_debug:#######@@@@@@@@
-                        print "warning: copy_val copied this dict key:",key # will happen for tuples... should look, then remove
-                val = copy(val)
-                res[key] = val #e want to detect overlaps as errors? to be efficient, could just compare lengths.
-            assert len(res) == len(obj) # for now
-            return res
-        #e Numeric array
-        if t is numeric_array_type:
-            if obj.typecode() == PyObject:
-                return array( map( copy, obj) )
-                # we don't know whether the copy typecode should be PyObject (eg if they get encoded),
-                # so let it be inferred for now... fix this when we see how this needs to be used,
-                # by requiring it to be declared, since it relates to the mapping of objects...
-                # or by some other means.
-            return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
-        # Handle data-like objects which declare themselves as such.
-        # Note: we have to use our own method name and API, since its API can't be made compatible
-        # with the __deepcopy__ method used by the copy module (since that doesn't call back to our own
-        # supplied copy function for copying parts, only to copy.deepcopy).
-        #e We might need to revise the method name, if we split the issues of how vs whether to deepcopy an object.
-        try:
-            method = obj._s_deepcopy
-            # This should be defined in any object which should *always* be treated as fully copied data.
-            # Presently this includes VQT.Q (quats), and maybe class gamessParms.
-        except AttributeError:
-            pass
-        else:
-            return method( self.copy_val) # (passing copy_val wouldn't be needed if we knew obj only contained primitive types)
-        # Special case for QColor; if this set gets extended we can use some sort of table and registration mechanism.
-        # We do it by name so this code doesn't need to import QColor.
-        if obj.__class__.__name__ == 'qt.QColor':
-            return _copy_QColor(obj) # extra arg for copyfunc is not needed
-        return copy_unknown_type(self, obj)
-    def copy_unknown_type(self, obj):
-        if self.unknowns_pass_through:
-            return obj
-        #e future: if we let clients customize handling of classes like Atom, Bond, Node,
-        # they might want to encode them, wrap them, copy them, or leave them as unchanged refs.
-        #
-        # Unknown or unexpected pyobjs will always be errors
-        # (whether or not they define copy methods of some other kind),
-        # though we might decide to make them print a warning rather than assertfailing,
-        # once this system has been working for long enough to catch the main bugs.
-        assert 0, "uncopyable by copy_val: %r" % (obj,)
-    pass
-
-class copy_run_unknowns_pass_through(copy_run):
-    unknowns_pass_through = True
-    pass
-
-def _copy_QColor(obj):
-    from qt import QColor
-    assert obj.__class__ is QColor
-    return QColor(obj)
-
-# ==
-
-# right now, copy_run only uses self to know which class it is, of the following. in future it might know more... not sure
-
-copy_val = copy_run().copy_val
-
-copy_val_again = copy_run_unknowns_pass_through().copy_val # temporary name
-
-def copy_val_OBS_FOR_DOCSTRING(obj):
-    """Copy obj, leaving no shared mutable components between copy and original,
-    assuming (and verifying) that obj is a type we consider (in nE-1) to be a
-    "standard data-like type", and using our standard copy semantics for such types.
-    (These standards are not presently documented except in the code of this module.)
-       #e In the future, additional args will define our actions on non-data-like Python objects
-    (e.g. Atom, Bond, Node), for example by providing an encoding filter for use on them which might
-    raise an exception if they were illegal to pass, and we might even merge the behaviors of this function
-    and the ops_copy.Copier class; for now, all unrecognized types or classes are errors
-    if encountered in our recursive scan of obj (at any depth).
-       We don't handle or check for self-reference in obj -- that would always be an error;
-    it would always cause infinite recursion in the present implem of this function.
-       We don't optimize for shared subobjects within obj. Each reference to one of those
-    is copied separately, whether it's mutable or immutable. This could be easily fixed if desired.
-    """
-##    return copy_run().copy_val(obj) # let's hope the helper gets deleted automatically if it saves any state (it doesn't now)
-    assert 0, "never called"
-    pass
-
-
-
-# ==
-
-class attrlayer_scanner:
-    def __init__(self):
-        pass
-    def scan(self, scanner):
-        self.scanner = scanner
-        self.archive = scanner.archive
-        self.start()
-        self.doit()
-        self.end()
-        del self.scanner
-        del self.archive
-        return
-    def start(self):
-        self.vals_grabbed = {} # maps key to a grabbed val (not yet scanned, copied, diffed) -- motivation: ordering all scanning by attr
-        self.vals_scanned = {} # maps key to a fully scanned val for this attr (diffed if we're ever going to)
-        self.copy_val = copy_run_gather_unknowns(func = self.scanner.see_and_return_obj).copy_val ######@@@@@@ IMPLEM
-        return
-    def doit(self):
-        "scan all vals"
-        vg = self.vals_grabbed
-        copy_val = self.copy_val
-        while vg:
-            key, val = vg.popitem()
-            valcopy = copy_val(val) # this puts new objs into scanner... is that what we want? maybe here first? ###
-            ### we want new objs to have attrs in old and this layer pushed into our own vg dict, or scanned immediately
-            # by finished layers... #####@@@@@ IMPLEM
-        assert 0, "done, now what?"#####@@@@@ IMPLEM
-    def end(self):
-        pass # not sure if caller is really done with our values... maybe there's more to our lifecycle
-    def scan_leftover(self, key, obj, attr, val):
-        "after we're done, some later layer finds obj (with key) with an attr in this layer, with val."
-        ###e use same copy_val, or a new one for use in this stage?
-        # ignore attr, obj for now
-        ###e when diffing, we'd first compare val here, unless we have to explore it... which i guess we do... subclasses re that?
-        valcopy = self.copy_val(val) ####@@@@ review where this puts found objs
-        # store key and valcopy
-        assert not self.vals_scanned.haskey(key) ###@@@ remove when works
-        self.vals_scanned[key] = valcopy
-    pass
-
-## for explore layer, do we use a subclass?? well, does it have its own code? yes, for what to do on unrec objs...
-# but that could just be a lambda we pass in, which is to be preferred when just as simple.
-
-# note - we don't have attrs until we see objs... which means, the order of attrs is not known at first...
-# so how do we insert new attrs? does this chg order of old ones? or should classes be predeclared so this gets sorted out?
-
-class scanner: #bruce 060209, a work in progress (not yet called or correct)
-    #e Ultimately, this might become methods of archive... not sure whether it's useful aside from undo... maybe it is (copy, mmpwrite)
-    def __init__(self, archive):
-        "depends on archive for certain methods for registering objects, etc..."
-        self.archive = archive
-    def start(self, start_val):
-        "prepare to scan, maybe do so; start_val can be anything (obj, list of objs, val, list of vals)" #k klugy protocode
-        self.seen_objs = {} # maps id(obj) to obj, for objs seen before in a single complete scan.
-            # for speed on repeatedly seeing them we use id(obj), and we have to keep a reference to avoid its recycling
-            # unless as future optim we can depend on archive keeping one (as we could if we always grabbed key).
-            # Not sure if we need obj and/or key otherwise.
-        self.objs_to_explore = {} # maps key to obj for objs we want to explore (delve inside) later in this scan
-            ###e we may have to split this by attr layer based on attr and stage in which we found them... don't know yet
-        ## self.copy_val = self.archive.copy_val_for_scan ######@@@@@@ implem - hmm, it explores...
-        ##e could optim the following by making some attrs preaccessed, i bet
-##        self.copy_val = copy_run_gather_unknowns(func = self.see_and_return_obj).copy_val ######@@@@@@ IMPLEM
-            #e actually, do this per-attr ###@@@
-##        #obs??
-##        self.todo = start_objs #e put in list, so ok if contains dups?
-##
-##        ### don't we need to store them more permanently? ####@@@@ key not id
-##        ## or do we reuse this scanner object multiple times? and, seen before is one thing, seen in this scan is another...
-##        self.encoded_objs = {} # maps id(obj) to encoded_obj, only for objs that should be encoded when present in value-diffs
-        self.vals_todo = [start_val] ###k??
-        # let's say that for any class to be explored inside, you have to predeclare it when you load it.
-        # that lets us process its attr decls now (if not earlier). in fact, archive can do that and store that...
-        # so ask it when we need to know order. And we do! We want order of all layers
-        # and ability to later sort class/attr pair into layers. ok to lump several attrs into one layer, i think,
-        # and for that set to not be known and not be done in order. attr only matters re copy policy.
-        # maybe best to put objs, not attrvals, on the todo list? the objs hold the attrs... then have a todo list per layer.
-        # only badness is no ability to just scan the obj's dict. (or a need to scan it *and* later use getattr.)
-        # otoh, maybe just declare that any attr with custom scanner/copyer needs its own layer. (most use generic scanner,
-        # many are in generic layer.)
-        self.attrlayers_todo = [x() for x in self.archive.attrlayer_constructors()] ###k guess [#e later: optim by reusing these?]
-        return
-    def doit(self): # explore_all
-        layers = self.attrlayers_todo
-        self.attrlayers_todo = 222
-        for layer in layers:
-            layer.scan(self)
-        
-##        while self.vals_todo:
-##            # process every element, then replace it with a new list...
-##            # hmm, this doesn't make sense, since process means copy, and we don't know where to save the copy.
-##            # so we need to process it as found, or, have more in our todo list, like attr key val (organized as per-attr lists).
-##            ######@@@@@ this is where i am 1130am 060216
-##            todo = self.vals_todo
-##            self.vals_todo = 333
-##            self.objs_to_explore = {}
-    def end(self):
-        del self.seen_objs
-        del self.objs_to_explore
-        pass
-    def see_and_return_obj(self, obj):
-        ## new, key = self.archive.objkey_newQ(obj) # see it, get or make key, say whether it's newly seen by archive... wait, not the point
-        try:
-            return self.seen_objs[id(obj)] # note, we're just assuming this returns obj! (for speed)
-        except KeyError:
-            pass
-        # first time we're seeing obj in this scan
-        self.seen_objs[id(obj)] = obj
-        key = self.archive.key4obj_maybe_new(obj) # do we want to know if archive never saw it before, too?
-            # who analyzes policy for it, archive or us? probably archive, so it can memoize policy per obj. ####@@@@
-        self.objs_to_explore[key] = obj ###e only do this if type is ok? or, check that later?
-        return obj
-##    def copyval_and_explore(self, val):
-##        assert 0
-    def explore_all(self, starting_todo):
-        # objs in self.todo are the ones we still need to scan - each is being seen for the first time (already checked if seen before)
-        ##e we'll have several levels of todo ((structure, selection, view) x (provisional)), scan them in order...
-        todo = list(starting_todo)
-        ###e maybe scan it as vals instead? or as one val... but no diffs?? hmm? what do ppl want as roots - most flex is vals.
-        while self.todo:
-            self.newtodo = [] # used in explore
-            todo = self.todo
-            self.todo = 333
-            for obj in todo:
-                self.explore(obj) # explore obj for more objs, store diffs/vals found in obj somewhere, append unseen objs to newtodo
-                encoded = self.new_encoding(obj) ###e WRONG, no, don't redo if seen in prior scan (I think)
-                if encoded is not obj:
-                    self.encoded_objs[id(obj)] = encoded
-                # self.seen_objs[id(obj)] = obj # just this scan... actually didn't this happen earlier when we first encountered obj? YES
-                continue #??
-            self.todo = self.newtodo
-        return
-    def explore(self, obj):
-        ###e seen it ever? seen it this scan? needs encoding? (figure that out first, in case it refs itself in some attr)
-        # if it's new: store that stuff, then:
-        # figure out its type, and thus its attr-policy-map (or ask it)
-        objid # for this, take time to find a nice key (small int); might just have a map from id(obj) to that
-        for attr, val in obj.__dict__.iteritems():
-            # figure policy of this attr, and dict to store valdiffs in if we're doing that, also whether it's structure or sel etc
-            this_attrs_diffs # a dict in which to store diffs for this attr
-            # and of course whether to proceed
-            oldval = this_attrs_last_seen_state[objid] ##e encoded??? (always copied) # we have this for *every* attrval... so store it below!
-            #e if we don't have an oldval...
-            if val != oldval:
-                # val differs, needs two things:
-                # - exploring for new objs
-                # - storing as a diff
-                ##### what about scanning objs that are not found as diffs, but might have diffs inside them?
-                # do we depend on change tracking to report them to us? or, rescan some or all attrs every time? ###e
-                encoded = self.explore_copy_encode_val(val) # stores new stuff on newtodo, i guess... hmm, same method should also copy/encode val
-                ###e check again for != in case encoding made it equal??? (rethink when we need some encoding someday? we don't yet)
-                this_attrs_diffs[objid] = oldval
-                this_attrs_last_seen_state[objid] = encoded # not val? also val? hmm... consider need seply for copy, encode, in val ####e
-            continue
-        return
-    def gather(self, obj, classification ):
-        #060215 - assume gathering is a separate phase, which does no diffing, and is not incremental except for optimized classes.
-        # might as well pretend to be efficient, so note that we already classified the object when we found it! not yet.
-        # Does obj have any attrs for us to explore? if so, it is an instance object, or decls them... or is in our table of exceptions
-        # fast way: look at its __class__
-        assert 0
-    def classify(self, obj):
-        #e should this be on archive, so it can keep keys? it can call up to arch as needed, and self has arch during loops needing it
-        return the_Classifier.classify(obj)
-    pass
-
-    
-class Classifier:
-    """Maintain an ability to classify arbitrary python values. Permit policies to be declared for classes
-    by special attribute names, or by explicit calls to our decl methods (passing the class or its name).
-    For classes declared by name, or defined in toplevel code (??), warn when first seeing new classes with same name.
-    """
-    def __init__(self):
-        self.classifications = {}
-    def classify(self, val):
-        """Classify arbitrary python values (but when they are instance objects, let them override that classification);
-        return classification;
-        warn once per new class for new classes with the same name as old ones.
+    def classify_instance(self, obj):
+        """Obj is known to be of types.InstanceType. Classify it (memoizing classifications per class when possible).
+        It might be a StateHolder, Data object, or neither.
         """
-        # use __class__ or type() to determine preliminary classification
+        class1 = obj.__class__
         try:
-            clas = val.__class__ # this exists even for ints, etc!
-        except AttributeError:
-            # commonest cases of this: extension objects, classes (not sure about functions, bound methods)
-            clas = type(val) # see if mutable -- not needed here... see if atomic -- needed so we can scan its parts
-            #e record the fact there was no __class__??
-        res = self.classifications.get(clas)
-        if res is None:
-            res = self.new_class(clas) # handle newly seen classes or types
-        ##e figure out if answer needs to be per-instance (nim, not yet needed)
-        return res
-##    def objkey(self, obj):
-##        """Return object key (for state-containing objects, assigned here if necessary) or None (for other objects);
-##        """
-##        pass
-    def new_class(self, clas):
-        """create, store and return classification for newly seen classes or types
-        (not worrying about per-instance classification even if they request that)
+            # easy case: we know that __class__ (and it doesn't need to be redone per-object, which anyway is nim)
+            # (this is probably fast enough that we don't need to bother storing a map from id(obj) or objkey directly to clas,
+            #  which might slow us down anyway by using more memory)
+            # (#e future optim, though: perhaps store clas inside the object, and also objkey, as special attrs)
+            return self._clas_for_class[class1]
+        except:
+            pass
+        # make a new Classification for this class
+        clas = self._clas_for_class[class1] = InstanceClassification(class1)
+        self.dict_of_all_state_attrs.update( clas.dict_of_all_state_attrs )
+        return clas
+
+    def collect_s_children(self, val):
+        """Collect all objects in val, and their s_children, defined as state-holding objects
+        found (recursively, on these same objects) in their attributes which were
+        declared S_CHILD or S_CHILDREN using the state attribute decl system... [#doc that more precisely]
+        return them as the values of a dictionary whose keys are their python id()s.
+           Note: this scans through "data objects" (defined as those which define an '_s_deepcopy' method)
+        only once, but doesn't include them in the return value. This is necessary (I think) because
+        copy_val copies such objects. (Whether it's optimal is not yet clear.)
+        """ 
+        #e optimize for hitting some children lots of times, by first storing on id(obj), only later looking up key (if ever).
+        saw = {}
+        def func(obj):
+            saw[id(obj)] = obj
+        scan_val(val, func)
+        # now we have some objects to classify and delve into.
+        # for each one, we call this (more or less) on val of each child attribute.
+        # but we need to do this in waves so we know when we're done. and not do any obj twice.
+        # (should we detect cycles of children, which is presumably an error? not trivial to detect, so no for now.)
+        # ... this is just transitive closure in two steps, obj to some vals, and those vals scanned (all together).
+        # So write the obj to "add more objs to a dict" func. then pass it to a transclose utility, which takes care
+        # of knowing which objs are seen for first time.
+        data_objs = {}
+        def obj_and_dict(obj1, dict1): #e rename
+            """pass me to transclose; I'll store objs into dict1 when I reach them from a child attribute of obj; all objs are
+            assumed to be instances of the kind acceptable to classify_instance.
+            """
+            # note, obj1 might be (what we consider) either a StateHolder or a Data object (or neither).
+            # Its clas will know what to do.
+            clas = self.classify_instance(obj1)
+            if clas.obj_is_data(obj1):
+                data_objs[id(obj1)] = obj1
+            def func(obj):
+                dict1[id(obj)] = obj
+            clas.scan_children( obj1, func)
+        allobjs = transclose( saw, obj_and_dict) #e rename both args
+        if env.debug(): ###e remove after debugging
+            print "atom_debug: collect_s_children had %d roots, from which it reached %d objs, of which %d were data" % \
+                  (len(saw), len(allobjs), len(data_objs))
+        # allobjs includes both state-holding and data-holding objects. Remove the latter.
+        for key in data_objs.iterkeys():
+            del allobjs[key]
+        return allobjs # from collect_s_children
+
+    def collect_state(self, objdict, keyknower):
+        """Given a dict from id(obj) to obj, which is already transclosed to include all objects of interest,
+        ensure all these objs have objkeys (allocating them from keyknower (an objkey_allocator instance) as needed),
+        and grab the values of all their state-holding attrs,
+        and return this in the form of a StateSnapshot object.
+        #e In future we'll provide a differential version too.
         """
-        res = Classification()
-        self.classifications[clas] = res
-        if self.debug:
-            print "new class or type:", clas, res
-        return res
-    pass
-
-the_Classifier = Classifier() # if we reload this module, start over (#e ideally we'd default to info declared in the older one)
-
-# i fear it's too slow.
-# - keep a global dict of types - most objs in it and are atomic and get skipped by all algs; inline the access.
-# unknown types are rare.. for them call a func.
-
+        key4obj = keyknower.key4obj_maybe_new # or our arg could just be this method
+        snapshot = StateSnapshot(self.dict_of_all_state_attrs.keys())
+            # make a place to keep all the values we're about to grab
+        attrdicts = snapshot.attrdicts
+        for obj in objdict.itervalues():
+            key = key4obj(obj)
+            clas = self.classify_instance(obj)
+            # hmm, use attrs in clas or use __dict__? Either one might be way too big... start with smaller one? nah. guess.
+            # also we might as well use getattr and be more flexible (not depending on __dict__ to exist). Ok, use getattr.
+            # Do we optim dflt values of attrs? We ought to... even when we're differential, we're not *always* differential.
+            ###e need to teach clas to know those, then.
+            for attr, dflt in clas.attr_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
+                val = getattr(obj, attr, dflt)
+                if val is not dflt: # it's important in general to use 'is' rather than '==' (I think), e.g. for different copies of {}
+                    # We might need to store a copy of val, or we might not if val == dflt and it's not mutable.
+                    # There's no efficient perfect test for this, and it's not worth the runtime to even guess it,
+                    # since for typical cases where val needn't be stored, val is dflt since instance didn't copy it.
+                    # (Not true if Undo stored the val back into the object, but it won't if it doesn't copy it out!)
+                    attrdicts[attr][key] = copy_val(val)
+            for attr in clas.attrs_with_no_dflt:
+                # (This kind of attr might be useful when you want full dicts for turning into Numeric arrays later. Not sure.)
+                # Does that mean the attr must always exist on obj? Or that we should "store its nonexistence"?
+                # For simplicity, I hope latter case can always be thought of as the attr having a default.
+                # I might need a third category of attrs to pull out of __dict__.get so we don't run __getattr__ for them... ##e
+                #val = getattr(obj, attr)
+                #valcopy = copy_val(val)
+                #attrdict = attrdicts[attr]
+                #attrdict[key] = valcopy
+                attrdicts[attr][key] = copy_val(getattr(obj, attr))
+                    # We do it all in one statement, for efficiency in case compiler is not smart enough to see that local vars
+                    # would not be used again; it might even save time due to lack of bytecodes to update linenumber
+                    # to report in exceptions! (Though that will make bugs harder to track down, if exceptions occur.)
+        if env.debug():
+            print "atom_debug: collect_state got this snapshot:", snapshot
+        return snapshot
+    pass # end of class obj_classifier, if we didn't rename it by now
 
 # == test code
 
 def _test():
     print "testing some simple cases of copy_val"
+    from Numeric import array
     map( _test1, [2,
                   3,
                   "string",

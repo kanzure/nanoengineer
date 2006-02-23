@@ -94,6 +94,7 @@ from debug_prefs import debug_pref, Choice_boolean_False
 import env
 from Utility import Group 
 import state_utils
+from state_utils import objkey_allocator, obj_classifier
 
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
@@ -161,7 +162,7 @@ class writemmp_mapping_for_Undo( writemmp_mapping):
     
     pass # end of class writemmp_mapping_for_Undo
 
-def mmp_state_from_assy(assy, initial = False, use_060213_format = False): #bruce 060117 prototype-kluge
+def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
     (or in nE-1 while it's using assy)
     (it might contain refs to permanent objects like elements or atomtypes, and/or contain Numeric arrays)
@@ -181,7 +182,7 @@ def mmp_state_from_assy(assy, initial = False, use_060213_format = False): #bruc
     # (via menu command or preference setting).
 
     if use_060213_format:
-        return ('scan_whole', mmp_state_by_scan(assy) ) # not yet differential, just a different state-scanner, more general
+        return ('scan_whole', mmp_state_by_scan(archive, assy) ) # not yet differential, just a different state-scanner, more general
     
     fp = open( checkpoint_kluge_filename(), "w")
 
@@ -229,29 +230,21 @@ def mmp_state_from_assy(assy, initial = False, use_060213_format = False): #bruc
     
     return mmpstate #e soon will modify to not use disk, and return a different kind of py object
 
-def mmp_state_by_scan(assy):    ####@@@@ IMPLEM mmp_state_by_scan
-    from state_utils import scanner
-    start_objs = [assy] # ???
-    scanner(start_objs) # need to tell it not to diff, or so... or diff with empty
-    # need to pass it our map from obj to key and vice versa
-    assert 0 # if not failed already
+def mmp_state_by_scan(archive, assy):
+    """[#doc better:]
+    Return a big object listing all the undoable data reachable from assy,
+    in some data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
+    suitable for mashing it back into assy, and whatever undoable objs it contains, at a later time.
+    """
+    scanner = archive.obj_classifier
+    start_objs = [assy] #k need any others?
+    state_holding_objs_dict = scanner.collect_s_children( start_objs)
+    #e figure out which ones are new or gone? not needed until we're differential, unless this is a good place
+    # to be sure the gone ones are properly killed (and don't use up much RAM). if that change anything
+    # we might have to redo the scan until nothing is killed, since subobjects might die due to this.
 
-def analyze_class(clas):####@@@@ IMPLEM calls to this
-    #e prob to become method
-    try:
-        lis = clas._um_undoable_attrs
-        #e nim: if unbound method, then remember we have to call it on each instance when handling this class
-        ###WRONG, the reason it's callable on Node is so it can be per-subclass, not per-instance.
-        # HMM, should it be a classmethod? we want to run it before any instances exist....
-        ####@@@@ one place where i am is deciding this, late aft 060216
-    except AttributeError:
-        # for now assume this means it has none; in future there can be individual decls too, perhaps, a list to exclude, etc
-        print "has no _um_undoable_attrs:",clas ####@@@@@
-        assert 0 # return None # no i mean a classification for this case
-    # lis is a sequence of attrnames
-    return state_utils.StateHolderInstanceClassification( clas, lis)
-
-## class x(attrlayer_scanner)
+    state = scanner.collect_state( state_holding_objs_dict, archive.objkey_allocator )
+    return state
 
 # ==
 
@@ -558,7 +551,9 @@ class SimpleDiff:
 
 # ==
 
-class SharedDiffopData: ####@@@@ stub, apparently, as of 060216; see also the become_state functions, which have similar code to apply_to
+class SharedDiffopData: ####@@@@ stub, apparently, as of 060216;
+    ###see also the become_state functions, which have similar code to apply_to;
+    ##060222 new code in state_utils superceding some of this...
     """Hold replacement values for various attrs of various objects (objects are known to us only by their keys),
     and be able to swap them with the attrvals in the objects, in alternate "directions"
     """
@@ -663,7 +658,7 @@ def make_empty_checkpoint(assy, cptype = None):
     cp.assy_change_counter = None # None means it's not yet known
     return cp
 
-def current_state(assy, **options):
+def current_state(archive, assy, **options):
     """Return a data-like representation of complete current state of the given assy;
     initial flag means it might be too early (in assy.__init__) to measure this
     so just return an "empty state".
@@ -676,7 +671,7 @@ def current_state(assy, **options):
         if debug_pref("simulate bug in next undo checkpoint", Choice_boolean_False, prefs_key = pkey):
             env.prefs[pkey] = False
             assert 0, "this simulates a bug in this undo checkpoint"
-        data = mmp_state_from_assy(assy, **options)
+        data = mmp_state_from_assy(archive, assy, **options)
     except:
         print_compact_traceback("bug while determining state for undo checkpoint %r; subsequent undos might crash: " % options )
             ###@@@ need to improve situation in callers so crash warning is not needed (mark checkpoint as not undoable-to)
@@ -808,8 +803,6 @@ class MergingDiff(Delegator):
 
 # ==
 
-# ==
-
 class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_older # TODO: maybe assy.changed will tell us...
     """#docstring is in older code... maintains a series (or graph) of checkpoints and diffs connecting them....
      At most times, we have one complete ('filled') checkpoint, and a subsequent incomplete one (subject to being modified
@@ -825,17 +818,18 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     next_cp = None
     current_diff = None
-    format_options = dict(use_060213_format = False) ########@@@@@@@@ try True when some funcs are implemed
+    format_options = dict(use_060213_format = False) ########@@@@@@@@ try True when enough funcs are implemed, or during devel
 
-    copy_val = state_utils.copy_val_again #060216, might turn out to be a temporary kluge ###@@@
+    copy_val = state_utils.copy_val #060216, might turn out to be a temporary kluge; 060222 removed _again ###@@@
     
     def __init__(self, assy):
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
         
-        self.objkey_allocator = oka = state_utils.objkey_allocator()
+        self.objkey_allocator = oka = objkey_allocator()
         self.obj4key = oka.obj4key # public attr, maps keys -> objects
             ####@@@@ does this need to be the same as atom keys? not for now, but maybe yes someday... [060216]
-        self.key4obj_maybe_new = oka.key4obj_maybe_new # function to look up or allocate key for any obj
+
+        self.obj_classifier = obj_classifier()####@@@@ call me, or more likely, some subr should grab me to scan the state (scanner)
         
         self.stored_ops = {} # map from (varid, ver) pairs to lists of diff-ops that implement undo or redo from them;
             # when we support out of order undo in future, this will list each diff in multiple places
@@ -844,7 +838,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         cp = make_empty_checkpoint(self.assy, 'initial') # initial checkpoint
         #e the next three lines are similar to some in self.checkpoint --
         # should we make self.set_last_cp() to do part of them? compare to do_op's effect on that, when we code that. [060118]
-        fill_checkpoint(cp, current_state(assy, initial = True, **self.format_options), assy) ### it's a kluge to pass initial; revise to detect this in assy itself
+        fill_checkpoint(cp, current_state(self, assy, initial = True, **self.format_options), assy) ### it's a kluge to pass initial; revise to detect this in assy itself
         if self.pref_report_checkpoints():
             self.debug_histmessage("(initial checkpoint: %r)" % cp)
         self.last_cp = self.initial_cp = cp
@@ -956,7 +950,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 pass #e use same-state optim like below
             else:
                 ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
-                state_diff = current_state(self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
+                state_diff = current_state(self, self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
                     #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
                     # then we'd have option of copying it or leaving a copy behind, every so often...
                     # and have a state to store here? nah.
@@ -978,7 +972,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 if debug_undo2:
                     print "checkpoint %r at change %d, last cp was at %d" % (cptype, \
                                     self.assy._change_counter, self.last_cp.assy_change_counter)
-                state = current_state(self.assy, **self.format_options)
+                state = current_state(self, self.assy, **self.format_options)
                 self.current_diff.empty = False # used in constructing undo menu items ####@@@@ DOIT!
         fill_checkpoint(self.next_cp, state, self.assy) # stores self.assy._change_counter onto it -- do that here, for clarity?
             #e This will be revised once we incrementally track some changes - it won't redundantly grab unchanged state,
