@@ -103,6 +103,10 @@ struct functionDefinition
   // gradient be initially multiplied by.  Try 1.0 as a wild guess.
   double initial_parameter_guess;
 
+  // When bracketing the minimum, the parameter value will not be
+  // allowed outside the range [-parameter_limit..parameter_limit].
+  double parameter_limit;
+
   // How many times have we called (*func)()?
   int functionEvaluationCount;
 

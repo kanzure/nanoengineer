@@ -1,5 +1,6 @@
 
 #include "simulator.h"
+#include <values.h>
 
 static char const rcsid[] = "$Id$";
 
@@ -102,6 +103,10 @@ static double last_rms_force = 0.0;
 static double last_max_force = 0.0;
 static FILE *parameterGuessFile = NULL;
 
+// A rotary motor should turn no farther than this during a single
+// linear minimization.
+#define MAX_RADIANS_PER_STEP 0.4
+
 // This is the gradient of the potential function which is being minimized.
 static void
 minimizeStructureGradient(struct configuration *p)
@@ -109,6 +114,9 @@ minimizeStructureGradient(struct configuration *p)
     int i;
     double rms_force;
     double max_force;
+    double parameterLimit;
+    double motorGradient;
+    double plimit;
     struct xyz *forces;
     struct jig *jig;
 
@@ -127,6 +135,7 @@ minimizeStructureGradient(struct configuration *p)
 	calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
     }
 
+    parameterLimit = MAXDOUBLE;
     for (i=0; i<Part->num_jigs; i++) {
         jig = Part->jigs[i];
         if (jig->degreesOfFreedom != 0) {
@@ -137,6 +146,14 @@ minimizeStructureGradient(struct configuration *p)
                                                (struct xyz *)p->gradient,
                                                p->coordinate + jig->coordinateIndex,
                                                p->gradient + jig->coordinateIndex);
+                motorGradient = fabs(*(p->gradient + jig->coordinateIndex));
+                if (motorGradient < 1e-8) {
+                    motorGradient = 1e-8;
+                }
+                plimit = MAX_RADIANS_PER_STEP / motorGradient;
+                if (plimit < parameterLimit) {
+                    parameterLimit = plimit;
+                }
                 break;
             case LinearMotor:
                 jigMinimizeGradientLinearMotor(Part, jig,
@@ -151,6 +168,7 @@ minimizeStructureGradient(struct configuration *p)
             }
         }
     }
+    p->functionDefinition->parameter_limit = parameterLimit;
 
     // dynamics wants gradient pointing downhill, we want it uphill
     //for (i=0; i<3*Part->num_atoms; i++) {

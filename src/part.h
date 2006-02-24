@@ -90,42 +90,34 @@ struct jig
 	struct {
 	    double stall;
 	    double speed;
+            double minimizeTorque;
 	    
 	    // A point on the motor axis
 	    struct xyz center;
 	    
 	    // Vector along motor axis (from center)
 	    struct xyz axis;
-	    
+
+	    // Position of each anchor relative to the motor.  u is
+	    // the location along the motor axis that each anchor
+	    // rotates around.  v and w are orthogonal to each other,
+	    // and to the motor axis.  Anchor position is:
+            //   center + u + v cos(theta) + w sin(theta)
 	    struct xyz *u, *v, *w;
 	    
+	    // Around axis.
+	    double momentOfInertia; // formerly moment
+
+            // variables below here are updated by the jig code.
+            
 	    // How far the motor has turned.
 	    double theta;
 	    
 	    double omega;
 	    
-	    // Around axis.
-	    double momentOfInertia; // formerly moment
-	    
 	    // For each atom in motor, the previous displacement of the atom
-	    // from its rotating anchor
+	    // from its rotating anchor, used for damping oscillations
 	    struct xyz *rPrevious;
-	    
-	    // For each atom in motor, the point along the axis that that
-	    // atom rotates around
-	    struct xyz *atomCenterOfRotation; // formerly atocent
-	    
-	    // For each atom in motor, vector from atomCenterOfRotation to
-	    // atom location.
-	    struct xyz *atomSpoke; // formerly ator
-	    
-	    // For each atom in motor, length of atomSpoke.
-	    double *atomRadius; // formerly radius
-	    
-	    // For each atom in motor, angle from axisY to atomSpoke, in
-	    // plane of atom's rotation.
-	    double *atomAngle; // formerly atang
-	    
 	} rmotor;
 	
 	struct {

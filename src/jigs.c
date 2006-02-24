@@ -154,9 +154,40 @@ jigMinimizePotentialRotaryMotor(struct part *p, struct jig *jig,
                                 struct xyz *positions,
                                 double *pTheta)
 {
-    return 0.0;
+    int k;
+    int a1;
+    // potential is in aJ (1e-18 J, 1e-18 N m)
+    // here, aJ radians
+    // torque is aN m
+    double potential = -jig->j.rmotor.minimizeTorque * *pTheta;
+    double cos_theta = cos(*pTheta);
+    double sin_theta = sin(*pTheta);
+    struct xyz tmp;
+    struct xyz r;
+    struct xyz anchor;
+
+    for (k = 0; k < jig->num_atoms; k++) {
+	a1 = jig->atoms[k]->index;
+	// get the position of this atom's anchor
+	anchor = jig->j.rmotor.center;
+	vadd(anchor, jig->j.rmotor.u[k]);
+	vmul2c(tmp, jig->j.rmotor.v[k], cos_theta);
+	vadd(anchor, tmp);
+	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
+	vadd(anchor, tmp);
+	// compute potential of the  spring term
+	r = positions[a1];
+	vsub(r, anchor);
+        // r in pm
+        // SPRING_STIFFNESS is in N/m
+        potential += 0.5 * SPRING_STIFFNESS * vdot(r, r) * 1e-6; 
+    }
+    
+    return potential;
 }
 
+// force is in pN (1e-12 J/m)
+// gradient is in pJ/radian
 void
 jigMinimizeGradientRotaryMotor(struct part *p, struct jig *jig,
                                struct xyz *positions,
@@ -164,6 +195,41 @@ jigMinimizeGradientRotaryMotor(struct part *p, struct jig *jig,
                                double *pTheta,
                                double *pGradient)
 {
+    int k;
+    int a1;
+    double gradient = jig->j.rmotor.minimizeTorque; // aN m
+    double cos_theta = cos(*pTheta);
+    double sin_theta = sin(*pTheta);
+    struct xyz tmp;
+    struct xyz r;
+    struct xyz f;
+    struct xyz anchor;
+
+    for (k = 0; k < jig->num_atoms; k++) {
+	a1 = jig->atoms[k]->index;
+	// get the position of this atom's anchor
+	anchor = jig->j.rmotor.center;
+	vadd(anchor, jig->j.rmotor.u[k]);
+	vmul2c(tmp, jig->j.rmotor.v[k], cos_theta);
+	vadd(anchor, tmp);
+	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
+	vadd(anchor, tmp);
+
+        // compute a force pushing on the atom due to a spring to the anchor position
+	r = positions[a1];
+	vsub(r, anchor);
+        // r in pm, SPRING_STIFFNESS in N/m, f in pN
+	vmul2c(f, r, -SPRING_STIFFNESS);
+        vadd(force[a1], f);
+
+	// compute the drag torque pulling back on the motor
+	r = vdif(positions[a1], jig->j.rmotor.center);
+        // r in pm, f in pN, tmp in yJ, multiply by 1e-6 to get aJ
+	tmp = vx(r, f);
+	gradient += vdot(tmp, jig->j.rmotor.axis) * 1e-6; // axis is unit vector
+    }
+
+    *pGradient = gradient;
 }
 
 void

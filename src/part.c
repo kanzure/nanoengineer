@@ -843,6 +843,8 @@ makeThermostat(struct part *p, char *name, double temperature, int firstAtomID, 
 // rotation perpendicular to the direction of the axis vector.
 //
 // (XXX need good description of behavior of stall and speed)
+// stall torque is in nN-nm
+// speed is in GHz
 void
 makeRotaryMotor(struct part *p, char *name,
                 double stall, double speed,
@@ -863,6 +865,11 @@ makeRotaryMotor(struct part *p, char *name,
     // convert nN-nm to pN-pm
     // torque's sign is meaningless, force it positive
     j->j.rmotor.stall = fabs(stall) * (1e-9/Dx) * (1e-9/Dx);
+
+    // this will do until we get a separate number in the mmp record
+    // minimizeTorque is in aN m (1e-18 N m, or 1e-9 N 1e-9 m, or nN nm)
+    j->j.rmotor.minimizeTorque = fabs(stall);
+    
     // convert from gigahertz to radians per second
     j->j.rmotor.speed = speed * 2.0e9 * Pi;
     j->j.rmotor.center = *center;

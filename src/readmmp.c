@@ -548,7 +548,8 @@ readMMP(char *filename)
     // rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>)
     // shaft atom...
     // rotary motor
-    // torque in nN*nm  speed in gigahertz */
+    // stall torque in nN*nm
+    // speed in gigahertz
     else if (!strcmp(tok, "rmotor")) {
       name = expectName(mmp);
       expectXYZInts(mmp, NULL); // ignore (rgb) triplet

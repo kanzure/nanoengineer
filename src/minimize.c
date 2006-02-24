@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <values.h>
 
 #include "simulator.h"
 
@@ -78,6 +79,7 @@ initializeFunctionDefinition(struct functionDefinition *fd,
     fd->gradient_delta = 1e-8;
     fd->dimension = dimension;
     fd->initial_parameter_guess = 1.0;
+    fd->parameter_limit = MAXDOUBLE;
     fd->functionEvaluationCount = 0;
     fd->gradientEvaluationCount = 0;
     if (messageBufferLength > 0) {
@@ -311,10 +313,23 @@ gradientOffset(struct configuration *p, double q)
     return r;
 }
 
+// return value, unless it is outside the range [-max..max], in which
+// case return +/- max
+static double
+signClamp(double value, double max)
+{
+    return (value > max) ? max : ((value < -max) ? -max : value);
+}
+
 // Given a configuration p, find three configurations (a, b, c) such
 // that f(b) < f(a) and f(b) < f(c), where a, b, and c are colinear in
 // configuration space, with b between a and c.  This assures that a
 // local minimum exists between a and c.
+//
+// If the function is monotonic to parameterLimit, we could exit with
+// b and c having the same parameter value (but being distinct
+// configuration objects).  It looks like this won't confuse brent(),
+// but it would be nice to be sure...
 static void
 bracketMinimum(struct configuration **ap,
                struct configuration **bp,
@@ -330,13 +345,18 @@ bracketMinimum(struct configuration **ap,
     double q;
     double denom;
     double ulimit;
+    double parameterLimit;
 
     Enter();
     SetConfiguration(&a, p);
     a->parameter = 0.0;
     evaluateGradient(p); // this lets (*dfunc)() set initial_parameter_guess
     BAIL();
-    b = gradientOffset(p, p->functionDefinition->initial_parameter_guess);
+    parameterLimit = fabs(p->functionDefinition->parameter_limit);
+    // when we step GOLDEN_RATIO beyond b, we don't want to exceed parameterLimit.
+    b = gradientOffset(p,
+                       signClamp(p->functionDefinition->initial_parameter_guess,
+                                 parameterLimit / (GOLDEN_RATIO + 1.0)));
     BAIL();
     if (evaluate(b) > evaluate(a)) {
 	// swap a and b, so b is downhill of a
@@ -365,11 +385,13 @@ bracketMinimum(struct configuration **ap,
 	nx = b->parameter -
 	    ((b->parameter - c->parameter) * q - (b->parameter - a->parameter) * r) /
 	    (2.0 * denom);
+        nx = signClamp(nx, parameterLimit);
 	SetConfiguration(&u, NULL);
 	u = gradientOffset(p, nx); BAIL();
 
 	// a, b, and c are in order, ulimit is far past c
 	ulimit = b->parameter + PARABOLIC_BRACKET_LIMIT * (c->parameter - b->parameter);
+        ulimit = signClamp(ulimit, parameterLimit);
 
 	if ((b->parameter-u->parameter) * (u->parameter-c->parameter) > 0.0) {
 	    // u is between b and c, also f(c) < f(b) and f(b) < f(a)
@@ -392,6 +414,7 @@ bracketMinimum(struct configuration **ap,
 	    // b, u, c monotonically decrease, u is useless.
 	    // try default golden ration extension for u:
 	    nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
+            nx = signClamp(nx, parameterLimit);
 	    SetConfiguration(&u, NULL);
 	    u = gradientOffset(p, nx);
 	} else if ((c->parameter-u->parameter) * (u->parameter-ulimit) > 0.0) {
@@ -402,6 +425,7 @@ bracketMinimum(struct configuration **ap,
 		SetConfiguration(&c, u);
 		SetConfiguration(&u, NULL);
 		nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
+                nx = signClamp(nx, parameterLimit);
 		u = gradientOffset(p, nx);
 	    }
 	} else if ((u->parameter-ulimit) * (ulimit-c->parameter) >= 0.0) {
@@ -416,6 +440,7 @@ bracketMinimum(struct configuration **ap,
 	    // since (a b c) are monotonic decreasing, u should be a
 	    // maximum, so we reject it.
 	    nx = c->parameter + GOLDEN_RATIO * (c->parameter - b->parameter);
+            nx = signClamp(nx, parameterLimit);
 	    SetConfiguration(&u, NULL);
 	    u = gradientOffset(p, nx);
 	}
@@ -446,7 +471,7 @@ bracketMinimum(struct configuration **ap,
 // Brent's method of inverse parabolic interpolation.
 // parent is only used to make new configurations along it's gradient line.
 // (a, b, c) bracket a minimum.  Returns a new configuration within
-// tolerance of the bracketed minimum.
+// tolerance of the actual minimum within the bracketing interval.
 static struct configuration *
 brent(struct configuration *parent,
       struct configuration *initial_a,
