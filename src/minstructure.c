@@ -1,6 +1,5 @@
 
 #include "simulator.h"
-#include <values.h>
 
 static char const rcsid[] = "$Id$";
 

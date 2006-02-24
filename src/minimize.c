@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <values.h>
 
 #include "simulator.h"
 

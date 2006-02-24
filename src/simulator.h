@@ -60,6 +60,15 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <string.h>
+#include <values.h>
+
+// for some reason, values.h on windows doesn't include this.  we put
+// it here until someone can find the right way to get it defined, or
+// until M$ decides to comply with standards instead of trying to
+// squash them.
+#ifndef MAXDOUBLE
+#define 	MAXDOUBLE   1.79769313486231570e+308
+#endif
 
 #include "debug.h"
 
