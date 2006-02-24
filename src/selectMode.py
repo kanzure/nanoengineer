@@ -483,7 +483,7 @@ class selectMode(basicMode):
         if not a.picked and self.modkey is None:
             self.o.assy.unpickatoms()
             a.pick()
-        if not a.picked and self.modkey is 'Shift':
+        if not a.picked and self.modkey == 'Shift':
             a.pick()
         if a.picked and len(self.o.assy.selatoms_list()) > 1:
             # now called when two or more atoms are selected.  mark 060202.
