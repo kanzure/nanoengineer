@@ -45,6 +45,16 @@ class MMKit(MMKitDialog):
         
         self.flayout = None
         
+        # Add icons to MMKit's tabs. mark 060223.
+        atoms_pm = imagename_to_pixmap("atom.png")
+        self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
+        
+        clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
+        self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm))
+        
+        library_pm = imagename_to_pixmap("library.png")
+        self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
+        
         self._setNewView('MMKitView')
         
         # Set current element in element button group.
@@ -113,7 +123,7 @@ class MMKit(MMKitDialog):
            element: element label info and element graphics info """
 
         elm = self.elemTable.getElement(elemNum)
-        if elm == self.elm and self.currentPageOpen('Atoms'): return
+        if elm == self.elm and self.currentPageOpen(AtomsPage): return
         
         ## The following statements are redundant in some situations.
         self.elementButtonGroup.setButton(elemNum)
@@ -225,28 +235,28 @@ class MMKit(MMKitDialog):
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         
     
-    def setup_current_page(self, pagename):
+    def setup_current_page(self, page):
         '''Slot method that is called whenever a user clicks on the 
         'Atoms', 'Clipboard' or 'Library' tab to change to that page.
         '''
         
         #print "setup_current_page: pagename=", pagename
         
-        if pagename == 'Atoms':  # Atoms page
+        if page == self.atomsPage:  # Atoms page
             self.w.depositState = 'Atoms'
             self.w.update_depositState_buttons()
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
         
-        elif pagename == 'Clipboard': # Clipboard page
+        elif page == self.clipboardPage: # Clipboard page
             self.w.depositState = 'Clipboard'
             self.w.update_depositState_buttons()
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
             self.browseButton.hide()
             
-        elif pagename == 'Library': # Library page
+        elif page == self.libraryPage: # Library page
             if self.rootDir:
                 self.elemGLPane.setDisplay(self.displayMode)
                 self._libPageView()
@@ -257,10 +267,9 @@ class MMKit(MMKitDialog):
             self.w.depositState = 'Library'
             self.w.update_depositState_buttons()
         else:
-            print 'Error: MMKit page unknown: ', pagename
+            print 'Error: MMKit page unknown: ', page
             
         self.elemGLPane.setFocus()
-        
         
     def chunkChanged(self, item):
         '''Slot method. Called when user changed the selected chunk. '''
@@ -295,22 +304,22 @@ class MMKit(MMKitDialog):
 
     def getPastablePart(self):
         '''Public method. Retrieve pastable part and hotspot if current tab page is in libary, otherwise, return None. '''
-        if self.currentPageOpen('Library'):
+        if self.currentPageOpen(LibraryPage):
             return self.newModel, self.elemGLPane.hotspotAtom
         return None, None
 
-    def currentPageOpen(self, pagename):
-        '''Returns True if 'pagename' is the current page open in the tab widget.
+    def currentPageOpen(self, page_id):
+        '''Returns True if <page_id> is the current page open in the tab widget, where:
+            0 = Atoms page
+            1 = Clipboard page
+            2 = Library page
         '''
         pageIndex = self.mmkit_tab.currentPageIndex()
-        
-        if pagename == 'Atoms' and pageIndex == AtomsPage:
+
+        if page_id == pageIndex:
             return True
-        elif pagename == 'Clipboard' and pageIndex == ClipboardPage:
-            return True
-        elif pagename == 'Library' and pageIndex == LibraryPage:
-            return True
-        return False
+        else:
+            return False
            
     def _libPageView(self, isFile=False):
         item = self.dirView.selectedItem()
@@ -351,8 +360,12 @@ class MMKit(MMKitDialog):
         if len(list): 
             itIndex = self.w.pasteComboBox.currentItem()
             self.chunkListBox.setSelected(itIndex, True)
+            clipboard_pm = imagename_to_pixmap("clipboard-full.png")
         else:
             self.elemGLPane.updateModel(None)
+            clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
+            
+        self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm))
             
     def _getPastableClipboardItems(self, assy):
         '''Find all current pastable chunks. '''
@@ -383,7 +396,7 @@ class MMKit(MMKitDialog):
         self.flayout.addWidget(self.elemGLPane,1)
         
         self.dirView = DirView(self.libraryPage)
-        libraryPageLayout = QVBoxLayout(self.libraryPage,11,6,"libraryPageLayout")
+        libraryPageLayout = QVBoxLayout(self.libraryPage,4,2,"libraryPageLayout")
         libraryPageLayout.addWidget(self.dirView)
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -399,7 +412,7 @@ class MMKit(MMKitDialog):
             self.rootDir = None
             from HistoryWidget import redmsg
             env.history.message(redmsg("The part library directory: %s doesn't exists." %libDir))
-        
+
             
     def browseDirectories(self):
        '''Slot method for the browse button of library page. '''
@@ -435,8 +448,8 @@ class MMKit(MMKitDialog):
         self.hide()
         
         # If the 'Library' page is open, change it to 'Atoms'.  Mark 051212.
-        if self.currentPageOpen('Library'):
-            self.setup_current_page('Atoms')
+        if self.currentPageOpen(LibraryPage):
+            self.setup_current_page(self.atomsPage)
                        
     pass # end of class MMKit
 

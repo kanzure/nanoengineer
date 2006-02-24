@@ -152,7 +152,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         hsplitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
         # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
-        self.mt = self.modelTreeView = modelTree(hsplitter, self, size = (225, 560))
+        self.mt = self.modelTreeView = modelTree(hsplitter, self)
         self.modelTreeView.setMinimumSize(0, 0)
         
         # Create the vertical-splitter between the glpane (top) and the
@@ -545,6 +545,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editCopy(self):
         self.assy.copy_sel()
         self.win_update()
+        global MMKitWin
+        if MMKitWin: 
+            MMKitWin.setup_current_page(MMKitWin.clipboardPage)
+                # Updates the MMKit clipboard page with the new clipboard object.  mark 060223. 
 
     def editPaste(self):
         if self.assy.shelf.members:
@@ -1162,8 +1166,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if firstShow:
             # This is to compensate for a strange bug related to the Library's QListView widget changing size
             # after the MMKit is created but not yet shown.  This bug causes mmk_height of the
-            # MMKit be off by 84 pixels. See DirView.__init__() for more info on this. mark 060222.
-            y -= 84 
+            # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value
+            # here.
+            # See DirView.__init__() for more info on this. mark 060222.
+            y -= 58
+            # Set the width of the Model Tree to the width of the MMKit. mark 060223.
+            self.mt.setGeometry(0,0,mmk_geometry.width(),560)
         if y < 0: y = 0
         x = self.geometry().x()
         

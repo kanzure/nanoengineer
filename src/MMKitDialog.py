@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
 #
-# Created: Thu Feb 23 02:06:17 2006
+# Created: Fri Feb 24 03:27:28 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,6 +45,7 @@ class MMKitDialog(QDialog):
             self.setName("MMKitDialog")
 
         self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
+        self.setMinimumSize(QSize(180,400))
         pal = QPalette()
         cg = QColorGroup()
         cg.setColor(QColorGroup.Foreground,Qt.black)
@@ -101,74 +102,60 @@ class MMKitDialog(QDialog):
         self.setPalette(pal)
         self.setIcon(self.image0)
 
-        MMKitDialogLayout = QGridLayout(self,1,1,2,2,"MMKitDialogLayout")
+        MMKitDialogLayout = QVBoxLayout(self,2,2,"MMKitDialogLayout")
 
         self.elementFrame = QFrame(self,"elementFrame")
-        self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
-        self.elementFrame.setMinimumSize(QSize(170,170))
+        self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
+        self.elementFrame.setMinimumSize(QSize(150,150))
         self.elementFrame.setFrameShape(QFrame.Box)
         self.elementFrame.setFrameShadow(QFrame.Raised)
-
-        MMKitDialogLayout.addWidget(self.elementFrame,0,0)
-
-        layout4 = QHBoxLayout(None,0,6,"layout4")
-        spacer4_2_3_3 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
-        layout4.addItem(spacer4_2_3_3)
-
-        self.browseButton = QPushButton(self,"browseButton")
-        self.browseButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.browseButton.sizePolicy().hasHeightForWidth()))
-        self.browseButton.setDefault(1)
-        layout4.addWidget(self.browseButton)
-
-        self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
-        self.closePTableButton.setDefault(1)
-        layout4.addWidget(self.closePTableButton)
-        spacer4_2_3 = QSpacerItem(16,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
-        layout4.addItem(spacer4_2_3)
-
-        MMKitDialogLayout.addLayout(layout4,4,0)
-        spacer4_2 = QSpacerItem(20,10,QSizePolicy.Minimum,QSizePolicy.MinimumExpanding)
-        MMKitDialogLayout.addItem(spacer4_2,3,0)
-        spacer4_2_3_2 = QSpacerItem(216,5,QSizePolicy.Minimum,QSizePolicy.Fixed)
-        MMKitDialogLayout.addItem(spacer4_2_3_2,1,0)
+        MMKitDialogLayout.addWidget(self.elementFrame)
+        spacer4_2_3_2 = QSpacerItem(20,5,QSizePolicy.Minimum,QSizePolicy.Fixed)
+        MMKitDialogLayout.addItem(spacer4_2_3_2)
 
         self.mmkit_tab = QTabWidget(self,"mmkit_tab")
         self.mmkit_tab.setEnabled(1)
-        self.mmkit_tab.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Minimum,0,0,self.mmkit_tab.sizePolicy().hasHeightForWidth()))
+        self.mmkit_tab.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum,0,0,self.mmkit_tab.sizePolicy().hasHeightForWidth()))
 
-        self.tab = QWidget(self.mmkit_tab,"tab")
-        tabLayout = QGridLayout(self.tab,1,1,1,1,"tabLayout")
+        self.atomsPage = QWidget(self.mmkit_tab,"atomsPage")
+        atomsPageLayout = QGridLayout(self.atomsPage,1,1,4,2,"atomsPageLayout")
 
-        self.elementButtonGroup = QButtonGroup(self.tab,"elementButtonGroup")
+        self.frame5 = QFrame(self.atomsPage,"frame5")
+        self.frame5.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum,0,0,self.frame5.sizePolicy().hasHeightForWidth()))
+        self.frame5.setFrameShape(QFrame.NoFrame)
+        self.frame5.setFrameShadow(QFrame.Plain)
+        frame5Layout = QGridLayout(self.frame5,1,1,2,2,"frame5Layout")
+
+        self.elementButtonGroup = QButtonGroup(self.frame5,"elementButtonGroup")
         self.elementButtonGroup.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Minimum,0,0,self.elementButtonGroup.sizePolicy().hasHeightForWidth()))
         self.elementButtonGroup.setMinimumSize(QSize(0,95))
+        self.elementButtonGroup.setBackgroundOrigin(QButtonGroup.AncestorOrigin)
         self.elementButtonGroup.setFrameShape(QButtonGroup.NoFrame)
         self.elementButtonGroup.setFrameShadow(QButtonGroup.Plain)
         self.elementButtonGroup.setLineWidth(0)
         self.elementButtonGroup.setExclusive(1)
         self.elementButtonGroup.setColumnLayout(0,Qt.Vertical)
         self.elementButtonGroup.layout().setSpacing(0)
-        self.elementButtonGroup.layout().setMargin(2)
+        self.elementButtonGroup.layout().setMargin(0)
         elementButtonGroupLayout = QGridLayout(self.elementButtonGroup.layout())
         elementButtonGroupLayout.setAlignment(Qt.AlignTop)
 
         self.toolButton1 = QToolButton(self.elementButtonGroup,"toolButton1")
-        self.toolButton1.setMinimumSize(QSize(30,30))
+        self.toolButton1.setMinimumSize(QSize(26,26))
         self.toolButton1.setToggleButton(1)
         self.elementButtonGroup.insert( self.toolButton1,1)
 
         elementButtonGroupLayout.addWidget(self.toolButton1,0,4)
 
         self.toolButton2 = QToolButton(self.elementButtonGroup,"toolButton2")
-        self.toolButton2.setMinimumSize(QSize(30,30))
+        self.toolButton2.setMinimumSize(QSize(26,26))
         self.toolButton2.setToggleButton(1)
         self.elementButtonGroup.insert( self.toolButton2,2)
 
         elementButtonGroupLayout.addWidget(self.toolButton2,0,5)
 
         self.toolButton6 = QToolButton(self.elementButtonGroup,"toolButton6")
-        self.toolButton6.setMinimumSize(QSize(30,30))
+        self.toolButton6.setMinimumSize(QSize(26,26))
         self.toolButton6.setToggleButton(1)
         self.elementButtonGroup.insert( self.toolButton6,6)
 
@@ -203,7 +190,7 @@ class MMKitDialog(QDialog):
         elementButtonGroupLayout.addWidget(self.toolButton9,1,4)
 
         self.toolButton13 = QToolButton(self.elementButtonGroup,"toolButton13")
-        self.toolButton13.setMinimumSize(QSize(30,30))
+        self.toolButton13.setMinimumSize(QSize(26,26))
         self.toolButton13.setToggleButton(1)
         self.elementButtonGroup.insert( self.toolButton13,13)
 
@@ -217,7 +204,7 @@ class MMKitDialog(QDialog):
         elementButtonGroupLayout.addWidget(self.toolButton17,2,4)
 
         self.toolButton5 = QToolButton(self.elementButtonGroup,"toolButton5")
-        self.toolButton5.setMinimumSize(QSize(30,30))
+        self.toolButton5.setMinimumSize(QSize(26,26))
         self.toolButton5.setToggleButton(1)
         self.elementButtonGroup.insert( self.toolButton5,5)
 
@@ -272,6 +259,13 @@ class MMKitDialog(QDialog):
 
         elementButtonGroupLayout.addWidget(self.toolButton35,3,4)
 
+        self.toolButton32 = QToolButton(self.elementButtonGroup,"toolButton32")
+        self.toolButton32.setMinimumSize(QSize(26,26))
+        self.toolButton32.setToggleButton(1)
+        self.elementButtonGroup.insert( self.toolButton32,32)
+
+        elementButtonGroupLayout.addWidget(self.toolButton32,3,1)
+
         self.toolButton36 = QToolButton(self.elementButtonGroup,"toolButton36")
         self.toolButton36.setMinimumSize(QSize(26,26))
         self.toolButton36.setToggleButton(1)
@@ -279,16 +273,15 @@ class MMKitDialog(QDialog):
 
         elementButtonGroupLayout.addWidget(self.toolButton36,3,5)
 
-        self.toolButton32 = QToolButton(self.elementButtonGroup,"toolButton32")
-        self.toolButton32.setMinimumSize(QSize(30,30))
-        self.toolButton32.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton32,32)
+        frame5Layout.addWidget(self.elementButtonGroup,0,0)
 
-        elementButtonGroupLayout.addWidget(self.toolButton32,3,1)
+        atomsPageLayout.addWidget(self.frame5,0,0)
+        spacer8 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        atomsPageLayout.addItem(spacer8,2,0)
 
-        tabLayout.addWidget(self.elementButtonGroup,0,0)
+        layout14 = QHBoxLayout(None,0,6,"layout14")
 
-        self.hybrid_btngrp = QButtonGroup(self.tab,"hybrid_btngrp")
+        self.hybrid_btngrp = QButtonGroup(self.atomsPage,"hybrid_btngrp")
         self.hybrid_btngrp.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Fixed,0,0,self.hybrid_btngrp.sizePolicy().hasHeightForWidth()))
         self.hybrid_btngrp.setFrameShape(QButtonGroup.NoFrame)
         self.hybrid_btngrp.setFrameShadow(QButtonGroup.Plain)
@@ -297,80 +290,86 @@ class MMKitDialog(QDialog):
         self.hybrid_btngrp.setColumnLayout(0,Qt.Vertical)
         self.hybrid_btngrp.layout().setSpacing(0)
         self.hybrid_btngrp.layout().setMargin(2)
-        hybrid_btngrpLayout = QGridLayout(self.hybrid_btngrp.layout())
+        hybrid_btngrpLayout = QHBoxLayout(self.hybrid_btngrp.layout())
         hybrid_btngrpLayout.setAlignment(Qt.AlignTop)
 
         self.sp3_btn = QToolButton(self.hybrid_btngrp,"sp3_btn")
         self.sp3_btn.setMinimumSize(QSize(30,30))
         self.sp3_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp3_btn,0)
-
-        hybrid_btngrpLayout.addWidget(self.sp3_btn,0,0)
+        hybrid_btngrpLayout.addWidget(self.sp3_btn)
 
         self.sp2_btn = QToolButton(self.hybrid_btngrp,"sp2_btn")
         self.sp2_btn.setMinimumSize(QSize(30,30))
         self.sp2_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp2_btn,1)
-
-        hybrid_btngrpLayout.addWidget(self.sp2_btn,0,1)
+        hybrid_btngrpLayout.addWidget(self.sp2_btn)
 
         self.sp_btn = QToolButton(self.hybrid_btngrp,"sp_btn")
         self.sp_btn.setMinimumSize(QSize(30,30))
         self.sp_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.sp_btn,2)
-
-        hybrid_btngrpLayout.addWidget(self.sp_btn,0,2)
+        hybrid_btngrpLayout.addWidget(self.sp_btn)
 
         self.graphitic_btn = QToolButton(self.hybrid_btngrp,"graphitic_btn")
         self.graphitic_btn.setMinimumSize(QSize(30,30))
         self.graphitic_btn.setToggleButton(1)
         self.hybrid_btngrp.insert( self.graphitic_btn,3)
+        hybrid_btngrpLayout.addWidget(self.graphitic_btn)
+        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        hybrid_btngrpLayout.addItem(spacer19)
+        layout14.addWidget(self.hybrid_btngrp)
+        spacer18 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout14.addItem(spacer18)
 
-        hybrid_btngrpLayout.addWidget(self.graphitic_btn,0,3)
-        spacer4 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        hybrid_btngrpLayout.addItem(spacer4,0,4)
+        atomsPageLayout.addLayout(layout14,1,0)
+        self.mmkit_tab.insertTab(self.atomsPage,QString.fromLatin1(""))
 
-        tabLayout.addWidget(self.hybrid_btngrp,2,0)
-        spacer11 = QSpacerItem(20,2,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        tabLayout.addItem(spacer11,3,0)
-        self.mmkit_tab.insertTab(self.tab,QString.fromLatin1(""))
+        self.clipboardPage = QWidget(self.mmkit_tab,"clipboardPage")
+        clipboardPageLayout = QGridLayout(self.clipboardPage,1,1,4,2,"clipboardPageLayout")
 
-        self.tab_2 = QWidget(self.mmkit_tab,"tab_2")
-        tabLayout_2 = QVBoxLayout(self.tab_2,11,6,"tabLayout_2")
-
-        self.chunkListBox = QListBox(self.tab_2,"chunkListBox")
+        self.chunkListBox = QListBox(self.clipboardPage,"chunkListBox")
         self.chunkListBox.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Minimum,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
-        self.chunkListBox.setMinimumSize(QSize(0,100))
-        tabLayout_2.addWidget(self.chunkListBox)
+        self.chunkListBox.setMinimumSize(QSize(100,100))
+        self.chunkListBox.setVariableWidth(1)
 
-        layout5 = QHBoxLayout(None,0,6,"layout5")
-
-        self.updateButton = QPushButton(self.tab_2,"updateButton")
-        self.updateButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.updateButton.sizePolicy().hasHeightForWidth()))
-        self.updateButton.setDefault(1)
-        layout5.addWidget(self.updateButton)
-        spacer13 = QSpacerItem(61,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout5.addItem(spacer13)
-        tabLayout_2.addLayout(layout5)
-        self.mmkit_tab.insertTab(self.tab_2,QString.fromLatin1(""))
+        clipboardPageLayout.addWidget(self.chunkListBox,0,0)
+        self.mmkit_tab.insertTab(self.clipboardPage,QString.fromLatin1(""))
 
         self.libraryPage = QWidget(self.mmkit_tab,"libraryPage")
         self.mmkit_tab.insertTab(self.libraryPage,QString.fromLatin1(""))
+        MMKitDialogLayout.addWidget(self.mmkit_tab)
+        spacer10 = QSpacerItem(20,5,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        MMKitDialogLayout.addItem(spacer10)
 
-        MMKitDialogLayout.addWidget(self.mmkit_tab,2,0)
+        layout4 = QHBoxLayout(None,0,0,"layout4")
+        spacer4_2_3_3 = QSpacerItem(5,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        layout4.addItem(spacer4_2_3_3)
+
+        self.browseButton = QPushButton(self,"browseButton")
+        self.browseButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.browseButton.sizePolicy().hasHeightForWidth()))
+        self.browseButton.setDefault(1)
+        layout4.addWidget(self.browseButton)
+
+        self.closePTableButton = QPushButton(self,"closePTableButton")
+        self.closePTableButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
+        self.closePTableButton.setDefault(1)
+        layout4.addWidget(self.closePTableButton)
+        spacer4_2_3 = QSpacerItem(5,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
+        layout4.addItem(spacer4_2_3)
+        MMKitDialogLayout.addLayout(layout4)
 
         self.languageChange()
 
-        self.resize(QSize(220,395).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(180,400).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
-        self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
         self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
-        self.connect(self.mmkit_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
+        self.connect(self.mmkit_tab,SIGNAL("currentChanged(QWidget*)"),self.setup_current_page)
         self.connect(self.chunkListBox,SIGNAL("selectionChanged(QListBoxItem*)"),self.chunkChanged)
-        self.connect(self.updateButton,SIGNAL("clicked()"),self.updatePastableItems)
         self.connect(self.browseButton,SIGNAL("clicked()"),self.browseDirectories)
+        self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
 
 
 
@@ -378,15 +377,13 @@ class MMKitDialog(QDialog):
         self.setCaption(self.__tr("Modeling Kit"))
         QToolTip.add(self.elementFrame,self.__tr("3D thumbnail view"))
         QWhatsThis.add(self.elementFrame,self.__tr("3D thumbnail view"))
-        self.browseButton.setText(self.__tr("Browse..."))
-        QToolTip.add(self.browseButton,self.__tr("Open file chooser dialog to select a new directory."))
-        self.closePTableButton.setText(self.__tr("Close"))
         self.elementButtonGroup.setTitle(QString.null)
         self.toolButton1.setText(self.__tr("H"))
         self.toolButton1.setAccel(self.__tr("H"))
         QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
         QWhatsThis.add(self.toolButton1,QString.null)
         self.toolButton2.setText(self.__tr("He"))
+        self.toolButton2.setAccel(QString.null)
         QToolTip.add(self.toolButton2,self.__tr("Helium"))
         self.toolButton6.setText(self.__tr("C"))
         self.toolButton6.setAccel(self.__tr("C"))
@@ -398,6 +395,7 @@ class MMKitDialog(QDialog):
         self.toolButton8.setAccel(self.__tr("O"))
         QToolTip.add(self.toolButton8,self.__tr("Oxygen"))
         self.toolButton10.setText(self.__tr("Ne"))
+        self.toolButton10.setAccel(QString.null)
         QToolTip.add(self.toolButton10,self.__tr("Neon"))
         self.toolButton9.setText(self.__tr("F"))
         self.toolButton9.setAccel(self.__tr("F"))
@@ -412,6 +410,7 @@ class MMKitDialog(QDialog):
         self.toolButton5.setAccel(self.__tr("B"))
         QToolTip.add(self.toolButton5,self.__tr("Boron"))
         self.toolButton10_2.setText(self.__tr("Ar"))
+        self.toolButton10_2.setAccel(QString.null)
         QToolTip.add(self.toolButton10_2,self.__tr("Argon"))
         self.toolButton15.setText(self.__tr("P"))
         self.toolButton15.setAccel(self.__tr("P"))
@@ -428,10 +427,10 @@ class MMKitDialog(QDialog):
         QToolTip.add(self.toolButton34,self.__tr("Selenium"))
         self.toolButton35.setText(self.__tr("Br"))
         QToolTip.add(self.toolButton35,self.__tr("Bromine"))
-        self.toolButton36.setText(self.__tr("Kr"))
-        QToolTip.add(self.toolButton36,self.__tr("Krypton"))
         self.toolButton32.setText(self.__tr("Ge"))
         QToolTip.add(self.toolButton32,self.__tr("Germanium"))
+        self.toolButton36.setText(self.__tr("Kr"))
+        QToolTip.add(self.toolButton36,self.__tr("Krypton"))
         self.hybrid_btngrp.setTitle(QString.null)
         self.sp3_btn.setText(QString.null)
         self.sp3_btn.setAccel(self.__tr("3"))
@@ -445,11 +444,12 @@ class MMKitDialog(QDialog):
         self.graphitic_btn.setText(QString.null)
         self.graphitic_btn.setAccel(self.__tr("4"))
         QToolTip.add(self.graphitic_btn,self.__tr("Graphitic"))
-        self.mmkit_tab.changeTab(self.tab,self.__tr("Atoms"))
-        self.updateButton.setText(self.__tr("Update"))
-        QToolTip.add(self.updateButton,self.__tr("Synchronize list with the Model Tree clipboard."))
-        self.mmkit_tab.changeTab(self.tab_2,self.__tr("Clipboard"))
-        self.mmkit_tab.changeTab(self.libraryPage,self.__tr("Library"))
+        self.mmkit_tab.changeTab(self.atomsPage,QString.null)
+        self.mmkit_tab.changeTab(self.clipboardPage,QString.null)
+        self.mmkit_tab.changeTab(self.libraryPage,QString.null)
+        self.browseButton.setText(self.__tr("Browse..."))
+        QToolTip.add(self.browseButton,self.__tr("Open file chooser dialog to select a new directory."))
+        self.closePTableButton.setText(self.__tr("Close"))
 
 
     def setElementInfo(self,a0):
