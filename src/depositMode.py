@@ -928,7 +928,7 @@ class depositMode(selectAtomsMode):
         '''Double click event handler for the left mouse button. 
         '''
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            if self.modkey is not 'Delete': # Fixes bug 1503.  mark 060218.
+            if self.modkey != 'Shift+Control': # Fixes bug 1503.  mark 060224.
                 deposited_obj = self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
                 if deposited_obj:
                     self.set_cmdname('Deposit ' + deposited_obj)
@@ -1277,7 +1277,7 @@ class depositMode(selectAtomsMode):
 #== Singlet helper methods
 
     def singletLeftDown(self, s, event):
-        if self.modkey == 'Delete':
+        if self.modkey == 'Shift+Control':
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             self.select_2d_region(event)
         else:
@@ -1993,6 +1993,10 @@ class depositMode(selectAtomsMode):
             # (this might date from before hotspots were ever visible -- not sure):
             ## also update glpane if we show pastable someday; not needed now
             ## [and removed by bruce 050121]
+            
+            self.MMKit.setup_current_page(self.MMKit.clipboardPage)
+                # Updates the MMKit clipboard page with the new clipboard object.  mark 060223. 
+            
         return
 
     def set_pastable(self, pastable): # no one calls this yet, but they could... [bruce 050121; untested]
