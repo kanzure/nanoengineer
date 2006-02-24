@@ -24,6 +24,3 @@ $(PYFILES0) : %.py : %.ui
 clean:
 	rm -f $(PYFILES0) *.pyc *~
 
-draw_accel.so: draw_accel.c
-	gcc -Wall -I/usr/include/python2.4 -shared \
-		-o draw_accel.so draw_accel.c
