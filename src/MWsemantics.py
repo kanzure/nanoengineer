@@ -1164,14 +1164,19 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             
         y = self.geometry().y() + self.geometry().height() - mmk_height - toolbar_height - status_bar_height
         if firstShow:
-            # This is to compensate for a strange bug related to the Library's QListView widget changing size
-            # after the MMKit is created but not yet shown.  This bug causes mmk_height of the
-            # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value
-            # here.
-            # See DirView.__init__() for more info on this. mark 060222.
-            y -= 58
-            # Set the width of the Model Tree to the width of the MMKit. mark 060223.
-            self.mt.setGeometry(0,0,mmk_geometry.width(),560)
+            # Avoid traceback on Linux, because mmk_geometry isn't defined. wware 060224
+            if sys.platform == 'linux2':
+                # Not yet sure what to do here for Linux.
+                pass
+            else:
+                # This is to compensate for a strange bug related to the Library's QListView widget changing size
+                # after the MMKit is created but not yet shown.  This bug causes mmk_height of the
+                # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value
+                # here.
+                # See DirView.__init__() for more info on this. mark 060222.
+                y -= 58
+                # Set the width of the Model Tree to the width of the MMKit. mark 060223.
+                self.mt.setGeometry(0,0,mmk_geometry.width(),560)
         if y < 0: y = 0
         x = self.geometry().x()
         
