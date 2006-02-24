@@ -1490,6 +1490,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         if self.debug_gl_timing: #bruce 051212
             self._print_gl_timing(0) #e might also save values in self.xxx to help print fps in glpane at end of repaint?
+
+        # 20060224 Added fog_test_enable debug pref, can take out if fog is
+        # implemented fully.
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False, non_debug = True)
+            #e should remove non_debug = True before release!
+
+        if fog_test_enable:
+            drawer.setup_fog(125, 170, self.mode.backgroundColor)
+            # this next line really should be just before rendering
+            # the atomic model itself.  I dunno where that is.
+            drawer.enable_fog()
         
         self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
 
@@ -1529,6 +1541,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             pass
         else:
             self.standard_repaint()
+
+        if fog_test_enable:
+            # this next line really should be just after rendering
+            # the atomic model itself.  I dunno where that is.
+            drawer.disable_fog()
 
         if self.debug_gl_timing: #bruce 051212
             self._print_gl_timing(1) # also might draw fps onto screen; does its own glFlush (if any) and glFinish (if any)
@@ -1613,7 +1630,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def standard_repaint_0(self):
         drawer._glprefs.update() #bruce 051126 (so prefs changes do gl_update when needed)
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
-        
         c = self.mode.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         
@@ -1863,7 +1879,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glMatrixMode(GL_MODELVIEW) #bruce 050707 precaution in case drawing code outside of paintGL forgets to do this
             # (see discussion in bug 727, which was caused by that)
             # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)
-        
+
         return # from standard_repaint_0 (which is the central submethod of paintGL)
     
     def selobj_hicolor(self, obj): #bruce 050822 split this out

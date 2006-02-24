@@ -377,6 +377,20 @@ def setup_standard_lights( lights, glprefs = None):
 
 # ==
 
+def setup_fog(fog_start, fog_end, fog_color):
+
+    glFog(GL_FOG_MODE, GL_LINEAR)
+    glFog(GL_FOG_START, fog_start)
+    glFog(GL_FOG_END, fog_end)
+    glFog(GL_FOG_COLOR, fog_color)
+
+def enable_fog():
+    glEnable(GL_FOG)
+
+def disable_fog():
+    glDisable(GL_FOG)
+
+
 def apply_material(color): # grantham 20051121, renamed 20051201; revised by bruce 051126, 051203 (added specular_brightness), 051215
     "Set OpenGL material parameters based on the given color (length 3 or 4) and the material-related prefs values in _glprefs."
 
