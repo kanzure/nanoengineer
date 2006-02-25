@@ -13,21 +13,22 @@ $Id$
 '''
 __author__ = 'bruce'
 
-from files_mmp import writemmp_mapping, reset_grouplist, _readmmp_state # temporarily needed, while mmp code used to save state
+# don't do these imports at toplevel, since this module needs to let all its symbols be imported *from* modules imported by files_mmp:
+## from files_mmp import writemmp_mapping, reset_grouplist, _readmmp_state # temporarily needed, while mmp code used to save state
+## from Utility import Group
 
 import time, os
 import platform
 from debug import print_compact_traceback, print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False
 import env
-from Utility import Group 
 import state_utils
 from state_utils import objkey_allocator, obj_classifier
 
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
 
-use_non_mmp_state_scanning = False ####@@@@@ DO NOT COMMIT WITH True, until it's completed
+use_non_mmp_state_scanning = True #bruce 060224 committing with True for first time, since bugs are different but not obviously worse
 
 # Since it's easiest, we store all or part of a checkpoint in a real mmp file on disk;
 # this might be useful for debugging so we'll keep it around during development,
@@ -49,48 +50,6 @@ def checkpoint_kluge_filename():
     if not _checkpoint_kluge_filename:
         _checkpoint_kluge_filename = compute_checkpoint_kluge_filename()
     return _checkpoint_kluge_filename
-
-class writemmp_mapping_for_Undo( writemmp_mapping):
-    "A specialized mapping which can store data in more ways. Maybe it'll also have methods to help with reading it out..."
-    def __init__(self, *args, **options):
-        opts = dict(for_undo = True) # revised default values
-        opts.update(options) # passed options can still override those
-        writemmp_mapping.__init__( self, *args, **opts)
-        # The following inits are in superclass. In general,
-        # this code is unclear for now on the role of the flag in the superclass vs the existence of this subclass;
-        # the superclass needs the flag so existing writemmp methods can always test it easily,
-        # but if we reserved it for use by this subclass, then the following attrs could be inited here,
-        # and it'll probably turn out that the code that tests the flag then runs methods defined here, anyway.
-        ## self.aux_list = []
-        ## self.aux_dict = {}
-        return
-##    def write_component(self, location, value):
-##        """Serialize value & store it in self (sharing the serializations of any class objects it contains,
-##        but NOT of shared Python lists/dicts (why not?? dangerous if caller wants to reuse one for cur state??);
-##        also define it as current value of the given location (any data-like object usable as a key).
-##        This API will probably be revised.
-##        """
-##        if 0:
-##            print "can't yet serialize something of type %r, at %r" % ( type(value) , location ) ####@@@@
-##        # basic alg: store dict of object ids to their keys/policies, computed first time we hit them,
-##        # and another dict or list of data of the form "obj key, attr A, value V" where V is encoded value, objs -> wrapped keys.
-##
-##        # The encoder is a simple recursive one which doesn't worry about shared subobjects.
-##        # The objects should provide some methods for cooperating with this, or external code can register those;
-##        # if neither happens, it's an error or some default policy is used (e.g. assume it's a permanent object, and debug warning).
-##
-##        # The policies registered outside of classes can be hardcoded into this class, writemmp_mapping_for_Undo.
-##
-##        # Classes wanting to cooperate can inherit a mixin that does so in a standard way, e.g. letting them declare per-attr
-##        # what needs storing, with general or special methods. (Ignore tracking for now, just do serialization.)
-##        # These decls need to have some way to classify changes to each attr as structural, selection, or view...
-##
-##        # This scheme will end up being moved into another mixin class inherited by this one, or whose instance we own;
-##        # the code for all this belongs in undo_mixin.py, probably. (Or some different new file.)
-##        
-##        return
-    
-    pass # end of class writemmp_mapping_for_Undo
 
 def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
@@ -117,7 +76,9 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
     
     fp = open( checkpoint_kluge_filename(), "w")
 
-    mapping = writemmp_mapping_for_Undo( assy) #bruce 060130 using this subclass (it sets mapping.for_undo = True)
+    ## mapping = writemmp_mapping_for_Undo( assy) #bruce 060130 using this subclass (it sets mapping.for_undo = True)
+    from files_mmp import writemmp_mapping
+    mapping = writemmp_mapping( assy, for_undo = True) #060224 do this instead to avoid import problems
     mapping.set_fp(fp)
 
     try:
@@ -174,6 +135,7 @@ def mmp_state_by_scan(archive, assy):
     # to be sure the gone ones are properly killed (and don't use up much RAM). if that change anything
     # we might have to redo the scan until nothing is killed, since subobjects might die due to this.
 
+##    print "mmp_state_by_scan",assy
     state = scanner.collect_state( state_holding_objs_dict, archive.objkey_allocator )
     return state
 
@@ -182,6 +144,7 @@ def mmp_state_by_scan(archive, assy):
 def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore assy state to prior internally-saved state
     "[arg type matches x[1] of whatever x mmp_state_from_assy returns, when x[0] is a certain value]"
     # data is a string of mmp file bytes, or maybe a list of lines (or a single comment line for an initial assy)
+    from files_mmp import _readmmp_state
     isInsert = True # prevents unwanted side effects on assy
     state = _readmmp_state( assy, isInsert)
     lines = data.split('\n')
@@ -190,8 +153,8 @@ def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore a
             errmsg = state.readmmp_line( card) # None or an error message
         except:
             # note: the following two error messages are similar but not identical
-            errmsg = "bug while reading this mmp line: %s" % (card,) #e include line number; note, two lines might be identical
-            print_compact_traceback("bug while reading this mmp line:\n  %s\n" % (card,) )
+            errmsg = "bug while reading this mmp line (in undo): %s" % (card,) #e include line number; note, two lines might be identical
+            print_compact_traceback("bug while reading this mmp line (in undo):\n  %s\n" % (card,) )
         #e assert errmsg is None or a string
         if errmsg:
             ###e general history msg for stopping early on error
@@ -200,6 +163,8 @@ def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore a
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
     # following could be simplified, but don't bother, entire scheme will be replaced instead
+    
+    from Utility import Group # since this module needs to be imported by specific classes, it should not itself import them
     
     viewdata = Group("Fake View Data", assy, None) # name is never used or stored
     shelf = Group("Clipboard", assy, None) # name might not matter since caller resets it
@@ -244,6 +209,7 @@ def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular
     """[self is an assy] replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint,
     using archive to interpret it if necessary
     """
+    from files_mmp import reset_grouplist
     # the actual format is a complete kluge, depends on readmpp code, should be changed, esp for atom posns
     # == now compare to files_mmp.readmmp
     ## grouplist = _readmmp(assy, filename)
@@ -263,8 +229,7 @@ def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular
         reset_grouplist(self, grouplist)
         # fall thru
     elif format == 'scan_whole':
-        assy_become_scanned_state(self, data, archive)
-        self.update_parts() #####k ??
+        assy_become_scanned_state(self, data, archive) # that either does self.update_parts() or doesn't need it done (or both)
         # fall thru
     else:
         assert 0, "unknown format %r" % (format,)
@@ -277,6 +242,7 @@ def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular
     return
 
 def assy_clear(self): #bruce 060117 draft
+    # [note: might be called as assy.clear() or self.clear() in this file.]
     "[self is an assy] become empty of undoable state (as if just initialized)"
     self.tree.destroy() # not sure if these work very well yet; maybe tolerable until we modularize our state-holding objects
     self.shelf.destroy()
@@ -296,32 +262,92 @@ def assy_clear(self): #bruce 060117 draft
     self.changed()
     return
 
+# doesn't work: from asyncore import safe_repr
+
+def safe_repr(obj, maxlen = 1000):
+    try:
+        rr = "%r" % (obj,)
+    except:
+        rr = "<repr failed for id(obj) = %#x, improve safe_repr to print its class at least>" % id(obj)
+    if len(rr) > maxlen:
+        return rr[(maxlen - 4):] + "...>" # this should also be in a try/except, even len should be
+    else:
+        return rr
+    pass
+
 def assy_become_scanned_state(self, data, archive): 
-    "[self is an assy; data is returned by mmp_state_by_scan]"
-    modified = {}
-    # for faster access in inner loop:
+    "[self is an assy; data is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot object]"
+    assy = self
+    assert assy is archive.assy
+##    print "assy_become_scanned_state", data
+    modified = {} # key->obj for objects we modified
+    # use undotted localvars, for faster access in inner loop:
+    modified_get = modified.get
     obj4key = archive.obj4key
-    copy = archive.copy_val
+    reset_obj_attrs_to_defaults = archive.obj_classifier.reset_obj_attrs_to_defaults
+    from state_utils import copy_val as copy
         # ideally, copy_val might depend on attr (and for some attrs is not needed at all),
         # i.e. we should grab one just for each attr farther inside this loop, and have a loop variant without it
         # (and with the various kinds of setattr/inval replacements too --
         #  maybe even let each attr have its own loop if it wants, with atoms & bonds an extreme case)
-    for attr, dict1 in data.items(): ##e might need to be in a specific order
-        for key, val in dict1:
-            obj = obj4key[key]
+    for attr, dict1 in data.attrdicts.items(): ##e might need to be in a specific order
+        for key, val in dict1.iteritems(): # maps objkey to attrval
+            obj = modified_get(key)
+            if obj is None:
+                # first time we're touching this object
+                obj = obj4key[key]
+                modified[key] = obj
+                reset_obj_attrs_to_defaults(obj)
+                #######e set all attrs in obj (which we store, or are cached) to their default values (might mean delattr?)
+                # w/o this we have bugs...
+                pass
             val = copy(val)
-            setattr(obj, attr, val) ##k might need revision
-            ##k might need list of modified objs so they can be updated - in fact, we definitely do!
-            modified[key] = obj
+            setattr(obj, attr, val) ##k might need revision in case:
+                # dflt val should be converted to missing val, either as optim or as requirement for some attrs (atomtype?) #####@@@@@
+                # dflt vals were not stored, to save space, so missing keys should be detected and something done about them ...
+                # this is done for objects we modify, but what about reachable objs with all default values?
+                # either look for those on every value we copy and store, or make sure every obj has one attr with no default value
+                # or whose actual value is never its default value. This seems true of all our current objs, so I'll ignore this issue for now!
+                # ###k (also this remains unreviewed for issues of which objs "exist" and which don't... maybe it only matters as space optim...)
+            continue
+        continue
     for key, obj in modified.iteritems():
-        print "ought to update",obj ######@@@@@@@
+        ###e zap S_CACHE attrs? or depend on update funcs to zap/inval/update them? for now, the latter. Review this later. ###@@@
+        try:
+            method = obj._undo_update
             ##e btw, for chunk, it'll be efficient to know which attrs need which updating... which means, track attrs used, now!
-            ##E in fact, it means, do attrs in layers and do the updates of objs for each layer. if inval-style, that's fine.
+            ##e in fact, it means, do attrs in layers and do the updates of objs for each layer. if inval-style, that's fine.
             # objs can also reg themselves to be updated again in later layers. [need to let them do that]
             # not yet sure how to declare attrlayers... maybe test-driven devel will show me a simple way.
-    #e also do some sort of general update of assy itself
-    self.update_parts()
-    return
+        except AttributeError:
+            pass
+        else:
+            try:
+                method()
+            except:
+                print_compact_traceback( "exception in _undo_update for %s; skipping it: " % safe_repr(obj))
+            pass
+        continue
+    # now do the registered undo updaters
+    if 1:
+        # for now, kluge it because we know there's exactly this one:
+        from chem import _undo_update_Atom_jigs
+        updaters_in_order = [_undo_update_Atom_jigs]
+    for func in updaters_in_order:
+        try:
+            func(archive, assy)
+        except:
+            print_compact_traceback( "exception in some registered updater %s; skipping it: " % safe_repr(func))
+        continue
+    #e also do some sort of general update of assy itself? or just let those be registered? for now, do this one:
+    # now i think this might not be safe, and also should not be needed:
+    ## assy.update_parts()
+    # but I'll do it at the very end (below) just to be safe in a different way.
+    #e now inval things in every Part, especially selatoms, selmols, molecules, maybe everything it recomputes
+    for node in assy.topnodes_with_own_parts():
+        node.part._undo_update_always() # kluge, since we're supposed to call this on every object that defines it
+    assy.update_parts()
+    return # from assy_become_scanned_state
 
 # ==
 
@@ -571,6 +597,111 @@ class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away
         return
     pass
 
+# ==
+
+_last_real_class_for_name = {}
+
+def undo_classname_for_decls(class1):
+    """Return Undo's concept of a class's name for use in declarations,
+    given either the class or the name string. For dotted classnames (of builtin objects)
+    this does not include the '.' even if class1.__name__ does (otherwise the notation
+    "classname.attrname" would be ambiguous). Note that in its internal object analysis tables,
+    classnames *do* include the '.' if they have one (if we have any tables of names,
+    as opposed to tables of classes).
+    """
+    try:
+        res = class1.__name__ # assume this means it's a class
+    except AttributeError:
+        res = class1 # assume this means it's a string
+    else:
+        res = res.split('.')[-1] # turn qt.xxx into xxx
+        assert not '.' in res # should be impossible here
+        #e should assert it's really a class -- need to distinguish new-style classes here??
+        _last_real_class_for_name[res] = class1 ##k not sure if this is enough to keep that up to date
+    assert type(res) == type("name")
+    assert not '.' in res, 'dotted classnames like %r are not allowed, since then "classname.attrname" would be ambiguous' % (res,)
+    return res
+
+class _testclass: pass
+
+assert undo_classname_for_decls(_testclass) == "_testclass"
+assert undo_classname_for_decls("_testclass") == "_testclass"
+
+
+_classname_for_nickname = {}
+
+def register_class_nickname(name, class1):
+    """Permit <name>, in addition to class1.__name__ (or class1 itself if it's a string),
+    to be used in declarations involving class1 to the Undo system.
+       This should be used only (or mainly) when the actual class name is deprecated and the class is slated
+    to be renamed to <name> in the future, to permit declarations to use the preferred name in advance.
+    Internally (for purposes of state decls), the Undo system will still identify all classes by their value of __name__
+    (or its last component [I think], if __name__ contains a '.' like for some built-in or extension classes).
+    """
+    assert not '.' in name
+    realname = undo_classname_for_decls(class1)
+    _classname_for_nickname[name] = realname
+    return
+
+#e refile, in this file or another? not sure.
+
+def register_undo_updater( func, updates = (), after_update_of = () ):
+    """Register <func> to be called on 2 args (archive, assy) every time some AssyUndoArchive mashes some
+    saved state into the live objects of the current state (using setattr) and needs to fix things that might
+    have been messed up by that or might no longer be consistent.
+       The optional arguments <updates> and <after_update_of> affect the order in which the registered funcs
+    are run, as described below. If not given for some func, its order relative to the others is arbitrary
+    (and there is no way for the others to ask to come before or after it, even if they use those args).
+       The ordering works as follows: to "fully update an attr" means that Undo has done everything it might
+    need to do to make the values (and presence or absense) of that attr correct, in all current objects of
+    that attr's class (including objects Undo needs to create as part of an Undo or Redo operation).
+       The things it might need to do are, in order: its own setattrs (or delattrs?? ###k) on that attr;
+    that class's _undo_update function; and any <funcs> registered with this function (register_undo_updater)
+    which list that attr or its class(??) in their optional <updates> argument (whose syntax is described below).
+       That defines the work Undo needs to do, and some of the ordering requirements on that work. The only other
+    requirement is that each registered <func> which listed some attrs or classes in its optional
+    <after_update_of> argument can't be run until those attrs or classes have been fully updated.
+    (To "fully update a class", listed in <after_update_of>, means to update every attr in it which has been
+    declared to Undo, except any attrs listed individually in the <updates> argument. [###k not sure this is right or practical])
+       (If these requirements introduce a circularity, that's a fatal error we'll detect at runtime.)
+       The syntax of <updates> and <after_update_of> is a sequence of classes, classnames, or "classname.attrname"
+    strings. (Attrname strings can't be given without classnames, even if only one class has a declared attribute
+    of that name.)
+       Classnames don't include module names (except for builtin objects whose __class__._name__ includes them).
+    All classes of the same name are considered equivalent. (As of 060223 the system isn't designed
+    to support multiple classes of the same name, but it won't do anything to stop you from trying. In the future
+    we might add explicit support for runtime reloading of classes and upgrading of their instances to the new versions
+    of the same classes.)
+       Certain classes have nicknames (like 'Chunk' for class molecule) which can be used here because they've been
+    specifically registered as permitted, using register_class_nickname.
+       [This docstring was written before the code was, and when only one <func> was being registered so far,
+    so it's subject to revision from encountering reality (or to being out of date if that revision hasn't
+    happened yet). ###k]
+    """
+    print "register_undo_updater ought to register %r but it's nim, or maybe only use of the registration is nim" % func
+    # pseudocode
+    if "pseudocode":
+        from constants import noop
+        somethingYouHaveToDo = progress_marker = canon = this_bfr_that = noop
+    task = somethingYouHaveToDo(func)
+    for name in updates:
+        name = progress_marker(canon(name), 'target')
+        this_bfr_that(task, name)
+    for name in after_update_of:
+        name = progress_marker(canon(name), 'requirement')
+        # elsewhere we'll set up "attr (as target) comes before class comes before attr (as requirement)" and maybe
+        # use different sets of attrs on each side (S_CACHE or not)
+        this_bfr_that(name, task)
+    return
+
+''' example:
+register_undo_updater( _undo_update_Atom_jigs, 
+                       updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
+                       after_update_of = (Assembly, Node, 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
+                           # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
+                           # which is good because *we* are presumably a required part of updating both of those classes!
+                    )
+'''
 
 # ==
 

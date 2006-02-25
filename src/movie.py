@@ -132,13 +132,13 @@ class Movie:
     
     ignore_slider_and_spinbox = False # (in case needed before init done)
     minimize_flag = False # whether we're doing some form of Minimize [bruce 060112]
-    def __init__(self, assembly, name=None):
+    def __init__(self, assy, name=None):
         """###doc; note that this Movie might be made to hold params for a sim run,
         and then be told its filename, or to read a previously saved file;
         pre-050326 code always stored filename from outside and didn't tell this object
         how it was becoming valid, etc...
         """
-        self.assy = assembly
+        self.assy = assy
         self.win = self.assy.w
         self.glpane = self.assy.o ##e if in future there's more than one glpane, recompute this whenever starting to play the movie
         

@@ -60,7 +60,7 @@ class AssyUndoManager(UndoManager):
         "Do what we might do in __init__ except that it might be too early during assy.__init__ then (see also _initial_checkpoint)"
         assy = self.assy
         self.archive = AssyUndoArchive(assy)
-        assy._u_archive = self.archive ####@@@@ still safe in 060117 stub code?? [guess 060223: not needed anymore ###@@@]
+        ## assy._u_archive = self.archive ####@@@@ still safe in 060117 stub code?? [guess 060223: not needed anymore ###@@@]
             # [obs??] this is how model objects in assy find something to report changes to (typically in their __init__ methods);
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
 ##        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )

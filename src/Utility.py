@@ -30,6 +30,8 @@ import env #bruce 050901
 from constants import genKey
 from state_utils import copy_val, StateMixin #bruce 060223
 
+debug_undoable_attrs = False
+
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
 _pixmap_image_path = None
@@ -127,23 +129,40 @@ class Node( StateMixin):
     
     is_movable = False #mark 060120
 
-    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526; see also _um_undoable_attrs
+    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526
+        # (see also _um_undoable_attrs [obs] and __declare_undoable_attrs [bruce 060223])
         # subclasses need to extend this
         #e could someday use these to help make mmp writing and reading more uniform,
         # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
 
-    extra_undoable_attrs = ('dad', 'picked', 'part') # the undoable attrs besides whatever's included in copyable_attrs
+    ## extra_undoable_attrs = ('dad', 'picked', 'part') # the undoable attrs besides whatever's included in copyable_attrs
         # subclasses need to extend this
         #bruce 060209 revised this
         #e (but would "everything in __dict__" make more sense?) ###k
         ##e prior_part?
 
+    _s_attr_dad = S_PARENT #obs cmt: overridden (bug) (doesn't matter for now) [i think that's fixed now, anyway, 060224]
+    _s_attr_picked = S_DATA
+    _s_attr_part = S_CHILD
+        # has to be child to be found (another way would be assy._s_scan_children); not S_CACHE since Parts store some defining state
+    #e need anything to reset prior_part to None? yes, do it in _undo_update.
+    _s_attr_assy = S_PARENT
+        # assy can't be left out, since on some or all killed nodes it's foolishly set to None, which is
+        # a change we need to undo when we revive them.
+
 #bruce 060209 commented this out (it can be removed in a couple months):
 ##    extra_undoable_attrs = ('dad',) #bruce 051013; subclasses extend this
 ##        ###@@@ #e need to add any more?? picked? guess: no. part: probably not, since set by posn in tree. assy? no.
 
+    def _undo_update(self): #bruce 060223
+        #e anything Node-specific?? .part?
+        self.prior_part = None
+        del self.prior_part # save RAM
+        StateMixin._undo_update(self)
+        return
+
     def __init__(self, assy, name, dad = None):
-        #bruce 050216 fixed inconsistent arg order, made name required
+        #bruce 050216 fixed inconsistent arg order [re other leaf nodes -- Group is not yet fixed], made name required
         """Make a new node (Node or any subclass), in the given assembly (assy)
         (I think assy must always be supplied, but I'm not sure),
         with the given name (or "" if the supplied name is None),
@@ -179,6 +198,9 @@ class Node( StateMixin):
                 # warning [bruce 050316]: this might call inherit_part; subclasses must be ready for this
                 # by the time their inits call ours, e.g. a Group must have a members list by then.
             assert self.dad is dad
+        if self.__declare_undoable_attrs is not None: #bruce 060223 (temporary kluge)
+            # it's None except the first time in each Node subclass; is there a faster test? (Guess: boolean test is slower.)
+            self.__declare_undoable_attrs()
         return
 
     def __repr__(self): #bruce 060220
@@ -230,11 +252,33 @@ class Node( StateMixin):
         return self.assy is not None and self.part is not None and self.dad is not None
             ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
 
-    def _um_undoable_attrs(self): #bruce 051011, revised 051013; reviewed 060209
-        """[overrides UndoStateMixin method; see its docstring]
-        """
-        return self.copyable_attrs + self.extra_undoable_attrs
+##    def _um_undoable_attrs(self): #bruce 051011, revised 051013; reviewed 060209
+##        """[overrides UndoStateMixin method; see its docstring]
+##        """
+##        return self.copyable_attrs + self.extra_undoable_attrs
 
+    def __declare_undoable_attrs(self): #bruce 060223
+        """[private method for internal use by Node.__init__ only; temporary kluge until individual _s_attr decls are added]
+        Scan the deprecated per-class list, copyable_attrs (not extra_undoable_attrs since those are all declared individually now),
+        and add _s_attr decls for the attrs listed in them to self.__class__ (Node or any of its subclasses).
+        Don't override any such decls already present, if possible [not sure if you can tell which class added them #k].
+        Should be run only once per Node subclass, but needs an example object (self) to run on.
+        Contains its own kluge to help cause it to be run only once.
+        """
+        subclass = self.__class__
+        if debug_undoable_attrs:
+            print "debug: running __declare_undoable_attrs in", subclass
+        for attr in subclass.copyable_attrs: ## no longer needed, declared individually now: + subclass.extra_undoable_attrs:
+            name = "_s_attr_" + attr
+            if hasattr(subclass, name):
+                if debug_undoable_attrs:
+                    print " debug: not overwriting manual decl of %r as %r" % (name, getattr(subclass, name))
+            else:
+                setattr( subclass, name, S_DATA) # or S_REFS? If it needs to be S_CHILD, add an individual decl to override it.
+        # prevent further runs on same subclass (in cooperation with the sole calling code)
+        subclass.__declare_undoable_attrs = None # important to do this in subclass, not in self or Node
+        return
+        
     def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
         self.changed()
@@ -1242,7 +1286,9 @@ class Group(Node):
         # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
         # [bruce 051201]
     
-    extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013; reviewed 060209
+    ## extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013; reviewed 060209
+
+    _s_attr_members = S_CHILDREN
 
     def __init__(self, name, assy, dad, list = []): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]

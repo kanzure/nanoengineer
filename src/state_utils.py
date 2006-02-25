@@ -214,6 +214,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         self.attr_dflt_pairs = [] # public list of attr, dflt pairs, for attrs with a default value (has actual value, not a copy)
         self.dict_of_all_state_attrs = {}
         self.warn = True # from decls seen so far, do we need to warn about this class (once, when we encounter it)?
+        self.debug_all_attrs = False # was env.debug(); can normally be False now that system works
         
         self._find_attr_decls(class1) # fills self.policies and some other instance variables derived from them
 
@@ -222,16 +223,25 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         
         self.S_CHILDREN_attrs = self.attrs_declared_as(S_CHILD) + self.attrs_declared_as(S_CHILDREN) #e sorted somehow? no need yet.
         self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
+
+        if self.warn:
+            # note: this is not env.debug() since anyone adding new classes needs to see it
+            print "InstanceClassification for %r sees no mixin or _s_attr decls; please add them or register it (nim)" \
+                  % class1.__name__
         return
 
     def _find_attr_decls(self, class1):
         "find _s_attr_xxx decls on class1, and process/store them"
+        if self.debug_all_attrs:
+            print "debug: _find_attr_decls in %s:" % (class1.__name__,)
         hmm = filter(lambda x: x.startswith("_s_"), dir(class1))
         for name in hmm:
             if name.startswith('_s_attr_'):
                 attr_its_about = name[len('_s_attr_'):]
                 declval = getattr(class1, name)
                 self.policies[attr_its_about] = declval #k for class1, not in general
+                if self.debug_all_attrs:
+                    print "  %s = %s" % (name, declval)
                 self.warn = False # enough to be legitimate state
                 #e check if per-instance? if callable? if legal?
                 if declval in STATE_ATTR_DECLS:
@@ -244,6 +254,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                         self.attrs_with_no_dflt.append(attr_its_about)
                     else:
                         self.attr_dflt_pairs.append( (attr_its_about, dflt) )
+                        if self.debug_all_attrs:
+                            print "                                               dflt val for %r is %r" % (attr_its_about, dflt,)
                     pass
                 pass
             elif name.startswith('_s_deepcopy_'):
@@ -390,8 +402,8 @@ def copy_Numeric_array(obj):
             # Note: We can't assume the typecode of the copied array should also be PyObject,
             # since _s_deepcopy methods could return anything, so let it be inferred.
             # In future we might decide to let this typecode be declared somehow...
-    if env.debug():
-        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ###@@@
+##    if env.debug():
+##        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ... it did
     return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
 
 def scan_Numeric_array(obj, func):
@@ -556,7 +568,11 @@ class objkey_allocator:
 # ==
 
 class StateSnapshot:
-    "A big pile of saved (copies of) attribute values -- for each known attr, a dict from objkey to value."
+    """A big pile of saved (copies of) attribute values -- for each known attr, a dict from objkey to value.
+    The code that stores data into one of these is the collect_state method in some other class.
+    The code that applies this data to live current objects is... presently in assy_become_scanned_state
+    but maybe should be a method in this class. ####@@@@
+    """
     #e later we'll have one for whole state and one for differential state and decide if they're different classes, etc
     def __init__(self, attrs = ()):
         self.attrdicts = {} # maps attrnames to their dicts; each dict maps objkeys to values; public attribute for efficiency(??)
@@ -572,11 +588,20 @@ class StateSnapshot:
     def size(self): ##e should this be a __len__ and/or a __nonzero__ method?
         "return the total number of attribute values we're storing (over all objects and all attrnames)"
         res = 0
-        for d in self.attrdicts:
+        for d in self.attrdicts.values():
+            # <rant> Stupid Python didn't complain when I forgot to say .values(),
+            # but just told me how many letters were in all the attrnames put together! </rant>
+            # (Iteration over a dict being permitted is bad enough (is typing .items() so hard?!?),
+            #  but its being over the keys rather than over the values is even worse. IMO.)
             res += len(d)
         return res
     def __str__(self):
         return "<%s at %#x, %d attrdicts, %d total values>" % (self.__class__.__name__, id(self), len(self.attrdicts), self.size())
+    def print_value_stats(self): # debug function, not yet needed
+        for d in self.attrdicts:
+            # (attrname in more than one class is common, due to inheritance)
+            pass # not yet needed now that I fixed the bug in self.size(), above
+            
     pass
 
 # ==
@@ -648,7 +673,7 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
                 dict1[id(obj)] = obj
             clas.scan_children( obj1, func)
         allobjs = transclose( saw, obj_and_dict) #e rename both args
-        if env.debug(): ###e remove after debugging
+        if 0 and env.debug(): ###e remove after debugging
             print "atom_debug: collect_s_children had %d roots, from which it reached %d objs, of which %d were data" % \
                   (len(saw), len(allobjs), len(data_objs))
         # allobjs includes both state-holding and data-holding objects. Remove the latter.
@@ -695,9 +720,25 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
                     # We do it all in one statement, for efficiency in case compiler is not smart enough to see that local vars
                     # would not be used again; it might even save time due to lack of bytecodes to update linenumber
                     # to report in exceptions! (Though that will make bugs harder to track down, if exceptions occur.)
-        if env.debug():
+        if 0 and env.debug():
             print "atom_debug: collect_state got this snapshot:", snapshot
+            if 1: #####@@@@@
+                snapshot.print_value_stats()
         return snapshot
+
+    def reset_obj_attrs_to_defaults(self, obj):
+        """Given an obj we have saved state for, reset each attr we might save
+        to its default value (which might be "missing"??), if it has one.
+        [#e someday we might also reset S_CACHE attrs, but not for now.]
+        """
+        clas = self.classify_instance(obj)
+        for attr, dflt in clas.attr_dflt_pairs:
+            setattr(obj, attr, copy_val(dflt)) #e need copy_val?
+            #e save this for when i have time to analyze whether it's safe:
+            ## delattr(obj, attr) # save RAM -- ok (I think) since the only way we get dflts is when this would work... not sure
+        # not needed: for attr in clas.attrs_with_no_dflt: ...
+        return
+    
     pass # end of class obj_classifier, if we didn't rename it by now
 
 # ==
@@ -708,11 +749,15 @@ class StateMixin( _eq_id_mixin_ ):
     to avoid debug warnings when they contain no attr decls yet,
     and perhaps to provide convenience methods (none are yet defined).
     """
-    _s_attr__StateMixin__fake = S_IGNORE
+    # try not having this:
+    ## _s_attr__StateMixin__fake = S_IGNORE
         # decl for fake attr __fake (name-mangled to _StateMixin__fake to be private to this mixin class),
         # to avoid warnings about classes with no declared state attrs without requiring them to be registered (which might be nim)
         # (which is ok, since if you added this mixin to them, you must have thought about
         #  whether they needed such decls)
+    def _undo_update(self):
+        "#doc [see docstring in chunk]"
+        return
     pass
 
 class DataMixin:

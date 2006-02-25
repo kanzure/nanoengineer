@@ -34,6 +34,7 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 from prefs_constants import bondpointHotspotColor_prefs_key
 import env
 import drawer #bruce 051126
+from undo_archive import register_class_nickname
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -63,6 +64,8 @@ _inval_all_bonds_counter = 1 #bruce 050516
 # problems, we should instead do it when we update the model tree or glpane,
 # since we need to ensure it's always done by the end of any user event.)
 
+register_class_nickname("Chunk", "molecule") # for use in Undo attr-dependency decls
+
 class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # class constants to serve as default values of attributes
@@ -83,19 +86,29 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #  as of 051003 _colorfunc would anyway not be permitted since state_utils.copy_val doesn't know how to copy it.)
         #e should add user_specified_center once that's in active use
 
-#bruce 060209 commented out the following for now:
-##    extra_undoable_attrs = Node.extra_undoable_attrs + ('atomkeypos',) #bruce 051013
-##
-##    _um_changetracked_attrs = Node._um_changetracked_attrs + ('atomkeypos',) #bruce 051013
-##        # for these attrs, we promise to track changes by hand, so copying/diffing values is not always needed
-##        ###@@@ do that tracking
+    _s_attr_atoms = S_CHILDREN
+    _s_attr_curpos = S_DATA #k needed since Atoms store their .index and .xyz and .molecule
+
+    # no need to _s_attr decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
+    # [that's the theory, anyway... bruce 060223]
+
+    def _undo_update(self): #bruce 060223 (initial super-conservative overkill version -- i hope)
+        """[guess at API, might be revised/renamed]
+        (This is called when Undo has set some of our attributes, using setattr,
+        in case we need to invalidate or update anything due to that.
+        """
+        self.invalidate_atom_lists() # this is the least we need (in general), but doesn't cover atom posns I think
+        self.invalidate_everything() # this is probably overkill, but otoh i don't even know for sure it covers invalidate_atom_lists
+        Node._undo_update(self) ##k do this before or after the following??
+            # (general rule for subclass/superclass for this? guess: more like destroy than create, so do high-level (subclass) first)
+        return
     
-    def __init__(self, assembly, name = None):
+    def __init__(self, assy, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
             # the counter it sets is always set, and always unique
         # note [bruce 041116]:
-        # new molecules are NOT automatically added to assembly.
-        # this has to be done separately (if desired) by assembly.addmol
+        # new molecules are NOT automatically added to assy.
+        # this has to be done separately (if desired) by assy.addmol
         # (or the equivalent).
         # addendum [bruce 050206 -- describing the situation, not endorsing it!]:
         # (and for clipboard mols it should not be done at all!
@@ -106,7 +119,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.init_InvalMixin()
         ## dad = None #bruce 050216 removed dad from __init__ args, since no calls pass it
             # and callers need to do more to worry about the location anyway (see comments above) 
-        Node.__init__(self, assembly, name or gensym("Chunk."))
+        Node.__init__(self, assy, name or gensym("Chunk."))
         
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
@@ -136,7 +149,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # - self.average_position (average posn of atoms or singlets; default
         #   value for self.center).
         
-        # this set and the molecule in assembly.selmols
+        # this set and the molecule in assy.selmols
         # must remain consistent
         ## self.picked=0 # bruce 050308 removed this, redundant with Node.__init__
         
@@ -377,7 +390,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.havelist = 0
         self.haveradii = 0
         attrs  = self.invalidatable_attrs()
-        attrs.sort() # be deterministic even if it hides bugs for some orders
+        # now this is done in that method: attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             self.invalidate_attr(attr)
         # (these might be sufficient: ['externs','atlist', 'atpos'])
@@ -385,7 +398,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     def update_everything(self):
         attrs  = self.invalidatable_attrs()
-        attrs.sort() # be deterministic even if it hides bugs for some orders
+        # now this is done in that method: attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             junk = getattr(self, attr)
         # don't actually remake display list, but next redraw will do that;

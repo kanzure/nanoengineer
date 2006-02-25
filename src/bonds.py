@@ -318,7 +318,21 @@ class Bond( StateMixin):
     """
 
     pi_bond_obj = None #bruce 050718; used to memoize a perceived PiBondSpChain object (if any) which covers this bond
+        # sometimes I search for pi_bond_info when I want this; see also get_pi_info and pi_info
+
+    _s_attr_pi_bond_obj = S_CACHE # see comments in pi_bond_sp_chain.py. [bruce 060224]
+
+    _s_attr_v6 = S_DATA
+    _s_attr_atom1 = S_PARENT # too bad these can change, or we might not need them (not sure, might need them for saving a file... #k)
+    _s_attr_atom2 = S_PARENT
     
+    def _undo_update(self): #bruce 060223 guess
+        self.changed_atoms()
+        self.changed_valence()
+        ## self.invalidate_bonded_mols() # probably not needed, leave out at first
+        # not setup_invalidate, that needs calling by our Atom's _undo_update methods ##k
+        StateMixin._undo_update(self)
+        
     def __init__(self, at1, at2, v6 = V_SINGLE): # no longer also called from self.rebond()
         """create a bond from atom at1 to atom at2.
         the key created will be the same whichever order the atoms are

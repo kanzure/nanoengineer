@@ -58,7 +58,7 @@ S_PARENT = 'S_PARENT' # like S_DATA, but for attributes whose value is None or a
 S_PARENTS = 'S_PARENTS' # like S_PARENT, but value might be a list or dict (etc) containing one or more parent objects.
 
 
-S_CACHED = 'S_CACHED' # for attributes which should be deleted (or otherwise invalidated) when other attributes' changes are undone.
+S_CACHE = 'S_CACHE' # for attributes which should be deleted (or otherwise invalidated) when other attributes' changes are undone.
 
 S_IGNORE = 'S_IGNORE' # state system should pretend this attr doesn't exist (i.e. never look at it or change it or delete it).
     # (This is equivalent to providing no state declaration for the attr, unless we add a future "default decl" for all attrs

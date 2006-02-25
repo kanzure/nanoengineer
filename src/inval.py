@@ -265,13 +265,15 @@ class InvalMixin:
         self.__imap = imap.affected_by
         return
     
-    # debug methods
+    # debug methods (invalidatable_attrs is also used by some Undo update methods (not just for debugging) as of 060224)
 
     def invalidatable_attrs(self):
-        return self.__imap.keys()
+        res = self.__imap.keys()
+        res.sort() #bruce 060224
+        return res
     
     def invalidatableQ(self, attr):
-        return attr in self.invalidatable_attrs()
+        return attr in self.__imap #bruce 060224 revised this
         
     def invalidQ(self, attr):
         assert self.invalidatableQ(attr)

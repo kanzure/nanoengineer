@@ -64,6 +64,7 @@ from elements import *
 
 import env
 from state_utils import StateMixin #bruce 060223
+from undo_archive import register_undo_updater
 
 ## from chunk import *
 # -- done at end of file,
@@ -109,22 +110,77 @@ def stringVec(v):
 # all its uses in the code. To ease the change, I'll wait for my rewrites to
 # go in before doing the renaming at all, then define atom() to print a warning
 # and call Atom().
+# [later: first look for atom in the same line as isinstance. There are some now [060223]!
+#  (What about as a class argument to some other routine? Unlikely.)
+# ]
 
 from inval import InvalMixin #bruce 050510
 
-_atom_for_key = {} #bruce 051011 for Undo ###e should make weakvalued, i think; or have a destroy method for atoms ####@@@@
+#bruce 060223 disabling this -- don't remove it yet, we might need it for Atomsets or let it handle Atom objkeys for Undo:
+#
+##_atom_for_key = {} #bruce 051011 for Undo ###e should make weakvalued, i think; or have a destroy method for atoms ####@@@@
+##
+##def atom_for_key(key): #bruce 051011 for Undo
+##    """Return the atom for the given key, if it exists; otherwise return None.
+##    Atom might be killed; but whether killed atoms are returned as such, or None is returned, is undefined.
+##    """
+##    return _atom_for_key.get(key) # might be None, might be killed
+##
+##def live_atom_for_key(key): #bruce 051011 for Undo
+##    atom = atom_for_key(key)
+##    assert atom is not None
+##    assert not atom.killed() ###k I'm not sure this intent is a valid assertion for the intended caller!
+##    return atom
 
-def atom_for_key(key): #bruce 051011 for Undo
-    """Return the atom for the given key, if it exists; otherwise return None.
-    Atom might be killed; but whether killed atoms are returned as such, or None is returned, is undefined.
-    """
-    return _atom_for_key.get(key) # might be None, might be killed
+#bruce 060223 experiment for Undo:
+#
+##def update_atom_jigs(assy, old_atomsets, new_atomsets): 
+##    """Undo is changing a bunch of Jig atomset fields... find all involved atoms and recompute their .jigs lists...
+##    including (for incremental Undo) the entries for pi_bond Jigs for near-enough atoms...
+##    """
+##    # how might we declare to Undo that we want it to give us this info and run us in some order (related to class/attr pairs)?
+##    jigs # or just use all jigs in assy, but old and new atomsets from undo
+##    atoms # in old and new sets (or set diffs, to be fancy)
+##    for a in atoms:
+##        a.jigs = []
+##        pass # look on all near-enough bonds for pi_bond jigs to cover, add these to jigs (a dict)
+##    for j in jigs:
+##        pass # add it to a.jigs for a in its atomset
 
-def live_atom_for_key(key): #bruce 051011 for Undo
-    atom = atom_for_key(key)
-    assert atom is not None
-    assert not atom.killed() ###k I'm not sure this intent is a valid assertion for the intended caller!
-    return atom
+def _undo_update_Atom_jigs(archive, assy):
+    "[register this to run after all Jigs, atoms, and bonds are updated, as cache-invalidator for a.jigs and b.pi_bond_obj]"
+    del archive
+    from chunk import Chunk # not at toplevel, to avoid recursive import
+    from jigs import Jig
+    mols = assy.allNodes(Chunk)
+    jigs = assy.allNodes(Jig)
+    for m in mols:
+        for a in m.atoms.itervalues():
+            a.jigs = [] #e or del it if we make that optim in Jig
+            for b in a.bonds:
+                #k maybe the S_CACHE decl will make this unnecessary? Not sure... maybe not, and it's safe.
+                b.pi_bond_obj = None
+                # I hope refdecr is enough to avoid a memory leak; if not, give that obj a special destroy for us to call here.
+                # That obj won't remove itself from a.jigs on refdecr (no __del__); but it would in current implem of .destroy.
+                del b.pi_bond_obj # save RAM
+    for j in jigs:
+        for a in j.atoms:
+            a.jigs.append(j)
+    for j in jigs:
+        for a in j.atoms[:]:
+            j.moved_atom(a)
+                # strictly speaking, this is beyond our scope, but Atom._undo_update can't do it since a.jigs isn't set.
+                # Also, whatever this does should really just be done by Jig._undo_update. So make that true, then remove this. ###@@@
+    return
+
+#bruce 060224 [untested] ####@@@@
+register_undo_updater( _undo_update_Atom_jigs, 
+                       updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
+                       after_update_of = ('Assembly', 'Node', 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
+                           # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
+                           # which is good because *we* are presumably a required part of updating both of those classes!
+                       # FYI, we use 'Assembly' (string) rather than Assembly (class) to avoid a recursive import problem.
+                    )
 
 class Atom(InvalMixin, StateMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
@@ -150,6 +206,72 @@ class Atom(InvalMixin, StateMixin):
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
+
+    # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
+
+    _s_attr_bonds = S_CHILDREN
+    _s_attr_molecule = S_PARENT
+    _s_attr_jigs = S_CACHE # first i said S_REFS, but this is more efficient, and helps handle pi_bond_sp_chain.py's Jigs.
+        # [not sure if following comment written 060223 is obs as of 060224:]
+        # This means that restored state will unset the .jigs attr, for *all* atoms (???), and we'll have to recompute them somehow.
+        # The alg is easy (scan all jigs), but exactly how to organize it needs to be thought about.
+        # Is it worth thinking of Atom.jigs in general (not just re Undo) as a recomputable attribute?
+        # We could revise the incremental updaters to not worry if it's missing,
+        # and put in a __getattr__ which redid the entire model's atoms when it ran on any atom.
+        # (Just scan all jigs, and assume all atoms' .jigs are either missing or correct, and ignore correct ones.)
+        # But that approach would be wrong for pi_bond_sp_chain.py's Jigs since they would not be scanned (efficiently).
+        # So for them, they have to insist that if they exist, the atoms know about them. (Using a sister attr to .jigs?)
+        # (Or do we teach atoms how to look for them on nearby bonds? That's conceivable.)
+        # ... or if these fields are derived specifically from the atomsets of Jigs, then do we know which atoms to touch
+        # based on the manner in which Undo altered certain Jigs (i.e. does our update routine start by knowing the set of
+        # old and new values of all changed atomsets in Jigs)?? Certainly we could teach the diff-applyer to make that info
+        # available (using suitable attr decls so it knew it needed to)... but I don't yet see how this can work for pi_bond Jigs
+        # and for incremental Undo.
+
+    #e we might want to add type decls for the bulky data (including the objrefs above), so it can be stored in compact arrays:
+    _s_attr_key = S_DATA # this is not yet related to Undo's concept of atom.key (I think #k) [bruce 060223]
+    _s_attr_index = S_DATA ###@@@ this means chunk needs to record curpos array, i think, but it can remake atlist, basepos, atpos
+    _s_attr_xyz = S_DATA
+    _s_attr_element = S_DATA
+
+    # we'll want an "optional" decl on the following, so they're reset to class attr (or unset) when they equal it:
+    _s_attr_picked = S_DATA
+    _s_attr_display = S_DATA
+    _s_attr_info = S_DATA
+    _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
+        # (and without it, reviving a dead atom triggered an assertfail, unsurprisingly)
+    
+    #e declare these later when i revise code to unset/redflt them most of the time: ###@@@
+    ## _picked_time = _picked_time_2 = -1
+    
+    # note: atoms don't yet have individual colors, labels, names...
+    
+    ###e need atomtype - hard part is when it's unset, might have to revise how we handle that, e.g. derive it from _hyb;
+    # actually, for pure scan, why is 'unset' hard to handle? i bet it's not. It just has no default value.
+    # It's down here under the 'optional' data since we should derive it from _hyb which is usually 'default for element'.
+    
+    _s_attr_atomtype = S_DATA
+
+    def _undo_update(self):
+        #bruce 060224 conservative guess -- invalidate everything we can find any other code in this file invalidating 
+        for b in self.bonds:
+            b.setup_invalidate()
+            b.invalidate_bonded_mols()
+        self.molecule.invalidate_attr('singlets')
+        self._changed_structure()
+        self.changed()
+        posn = self.posn()
+        self.setposn_batch( posn - V(1,1,1) ) # i hope it doesn't optimize for posn being unchanged! just in case, set wrong then right
+        self.setposn_batch( posn )
+        # .picked might change... always recompute selatoms in external code ####@@@@
+        self.molecule.changeapp(1)
+        # anything needed for InvalMixin stuff?? #e ####@@@@
+        #
+        # can't do this yet:
+        ## for jig in self.jigs[:]:
+        ##    jig.moved_atom(self)   ####@@@@ need to do this later?
+        StateMixin._undo_update(self)
+
     def __init__(self, sym, where, mol): #bruce 050511 allow sym to be elt symbol (as before), another atom, or an atomtype
         """Create an atom of element sym (e.g. 'C')
         (or, same elt/atomtype as atom sym; or, same atomtype as atomtype sym)
@@ -160,7 +282,7 @@ class Atom(InvalMixin, StateMixin):
         self.key = atKey.next()
             # unique key for hashing and/or use as a dict key;
             # also used in str(self)
-        _atom_for_key[self.key] = self
+##        _atom_for_key[self.key] = self
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,

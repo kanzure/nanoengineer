@@ -1988,7 +1988,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             #bruce 060217 debug code re bug 1527. Not sure only happens on a bug, so using atom_debug.
             # (But I couldn't yet cause this to be printed while testing that bug.)
-            if platform.atom_debug:
+            #bruce 060224 disabling it since it's happening all the time when hover-highlighting in Build
+            # (though I didn't reanalyze my reasons for thinking it might be a bug, so I don't know if it's a real one or not).
+            if 0 and platform.atom_debug:
                 print "atom_debug: newpicked is None -- bug? items are:", items
         return newpicked # might be None in case of errors
 

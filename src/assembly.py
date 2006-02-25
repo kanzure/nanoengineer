@@ -76,6 +76,10 @@ from OpenGL.GLUT import *
 from struct import unpack
 
 from chem import *
+    # is this still needed? Yes, not by this file but by selectMode needing Atom. That should be fixed so this can be removed.
+    # (I'm sure it's not all -- a lot of modes depend on "from modes import *" for all their importing needs.)
+    # [bruce 060224]
+
 from movie import *
 from jigs import *
 from jig_Gamess import *
@@ -86,6 +90,7 @@ import platform
 import env
 from state_utils import StateMixin #bruce 060223
 from debug import print_compact_stack
+from undo_archive import register_class_nickname
 
 
 debug_assy_changes = 0 #bruce 050429
@@ -100,7 +105,9 @@ assy_number = 0 # count assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
-class assembly( StateMixin):
+register_class_nickname("Assembly", "assembly") # for use in Undo attr-dependency decls
+
+class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     """#doc
     """
 
@@ -115,6 +122,12 @@ class assembly( StateMixin):
     _view_change_counter = 0 # also includes changing current part, glpane display mode
     
     undo_manager = None #bruce 060127
+
+    _s_attr_tree = S_CHILD #bruce 060223
+    _s_attr_shelf = S_CHILD
+    #e then more, including current_movie, temperature, etc (whatever else goes in mmp file is probably all that's needed);
+    # not sure if .part is from here or glpane or neither; not sure about selection (maybe .picked is enough, then rederive?);
+    # view comes from glpane and it should be its own root object, i think; mode is also in glpane ###@@@
     
     def __init__(self, win, name = None, own_window_UI = False):
 
@@ -251,7 +264,7 @@ class assembly( StateMixin):
             import undo_manager
             menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
             self.undo_manager = undo_manager.AssyUndoManager(self, menus) # be sure to call init1() on this within self.__init__!
-                # fyi: this sets self._u_archive for use by our model objects when they report changes
+                # fyi: this [no longer, 060223] sets self._u_archive for use by our model objects when they report changes
                 # (but its name and value are private to AssyUndoManager's API for our model objects,
                 #  which is why we don't set it here)
             self.undo_manager.init1() #k still exists and needed, but does it still need to be separate from __init__? [060223]
@@ -492,7 +505,12 @@ class assembly( StateMixin):
     # ==
 
     def draw(self, glpane): #bruce 050617 renamed win arg to glpane, and made submethod use it for the first time
-        if platform.atom_debug:
+        if platform.atom_debug and self.own_window_UI:
+            #bruce 060224 added condition, so we don't keep reporting this old bug in MMKit Library ThumbView:
+            # AssertionError: node.part.nodecount 3 != len(kids) 1
+            # ...
+            # self <assembly.assembly instance at 0xd1d62b0>,
+            # glpane <ThumbView.MMKitView object at 0xcc38f00>: [atom.py:186] [ThumbView.py:193] [ThumbView.py:594] [assembly.py:513]
             try:
                 self.checkparts()
             except: #bruce 051227 catch exception in order to act more like non-atom_debug version
@@ -1082,7 +1100,22 @@ class assembly( StateMixin):
     def clear_undo_stack(self, *args, **kws):
         if self.undo_manager:
             return self.undo_manager.clear_undo_stack(*args, **kws)
+
+    def allNodes(self, class1 = None): #bruce 060224; use more widely?
+        """Return a new list (owned by caller) of all Nodes in self.tree or self.shelf (including Groups ###untested).
+        If class1 is passed, limit them to the instances of that class.
+        WARNING: self.shelf might be in the list, if it includes Groups. If this is bad we might revise the API to exclude it.
+        """
+        res = []
+        def func(node):
+            if not class1 or isinstance(node, class1):
+                res.append(node)
+        self.tree.apply2all(func)
+        self.shelf.apply2all(func)
+        return res
     
     pass # end of class assembly
+
+Assembly = assembly #bruce 060224 thinks this should become the preferred name for the class (and the only one, when practical)
 
 # end

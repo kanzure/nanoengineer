@@ -125,6 +125,7 @@ from mdldata import * # this might no longer be needed [bruce 050414 comment]
 from HistoryWidget import redmsg
 from elements import PeriodicTable
 import env #bruce 050901
+from chunk import molecule #bruce 060224
 
 # == patterns for reading mmp files
 

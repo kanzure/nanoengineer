@@ -69,6 +69,30 @@ class PerceivedStructureType(Jig): #e rename, not really a Type (eg not a patter
     """
     pass
 
+#bruce 060223: How will we (PiBondSpChain) deal with Undo? We could just store every attr in this object, but we don't want to bother.
+# We want to think of it as entirely derived from other state (as it in fact is). So if things change, we'd rather invalidate it
+# and start over. In theory that should be ok, provided Undo (when changing other atoms & bonds) invals them in all the same
+# ways their LL change methods would do, including telling this object they changed (which makes it destroy itself).
+# Since this is a Jig, it will at least participate in Jigs' scheme for having atom lists and being on atoms' jig lists,
+# and Undo ought to properly handle that... how does that interact with our own policy of destroying ourself as soon as some atom
+# we're interested in says it changed? Could that happen with atom->jig and jig->atom connections not yet corresponding?
+# Solution to that worry: first let Undo do all its setattrs (so atom->jig and jig->atom connections have all been changed),
+# then call all object updaters at once. Ours is our superclass's and does nothing (I think); the one on the first atom we
+# encounter will destroy us; this will remove us from an atom's jig list but that should not (I think) invalidate the atom,
+# since those are really just "back pointers" rather than properties of the atom (if it did inval it, that would be bad, I think --
+# maybe not, since _undo_update is really an inval method and those can in general call other inval methods).
+#  So if Atom & Bond _undo_updates are correct, we should be ok. If not, some bugs will be noticed at some point.
+#
+# One other thing: we're a Jig, but we're not in the node tree (which is why we don't get into mmp files). So Undo will not find us
+# as a child object. We'll still get an objkey (I think)... hmm, this might be a problem, since when restoring some atom->jig to us,
+# it won't restore our pointer to that atom. Can that ever happen (in light of our atomset being fixed)? I don't know. I think this
+# might indeed cause bugs, so we might need to get counted as a child, or be some new undo-kind of object that easily gets
+# invalidated by any _undo_update on atoms it touches (maybe we introduce "subscribe to another obj's _undo_update" or to their
+# specific attrs?). I think it's easiest to wait and see if bugs happen. If they do, that subscription idea sounds best to me.
+# CHANGED MY MIND, I'll just make us an S_CHILD of our bonds... then our atomset should be ok, and we could have _undo_update
+# notice it changing too, if we wanted to. Let's do that for safety (maybe we'll never know if it was needed).
+# ###@@@
+
 class PiBondSpChain(PerceivedStructureType):
     """Records one chain (or ring) of potential-pi-bonds connected by -sp- atoms;
     as a Jig, sits on all atoms whose structure or motion matters for the extent of this chain
@@ -78,6 +102,11 @@ class PiBondSpChain(PerceivedStructureType):
     """
     ringQ = False # class constant; in the Ring subclass, this is True
     have_geom = False # initial value of instance variable
+    def _undo_update(self): #bruce 060223; see long comment above
+        "our atomset (a member of our superclass Jig) must have changed..."
+        self.destroy()
+        PerceivedStructureType._undo_update(self) # might be pointless after that, but you never know...
+        return
     def __init__(self, listb, lista): ### not like Jig init, might be a problem eg for copying it ###@@@ review whether that happens
         "Make one, from lists of bonds and atoms (one more atom than bond, even for a ring, where 1st and last atoms are same)"
         self._recompile_counter = _recompile_counter
