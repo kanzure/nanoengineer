@@ -382,6 +382,8 @@ def setup_fog(fog_start, fog_end, fog_color):
     glFog(GL_FOG_MODE, GL_LINEAR)
     glFog(GL_FOG_START, fog_start)
     glFog(GL_FOG_END, fog_end)
+    if len(fog_color) == 3:
+        fog_color = (fog_color[0], fog_color[1], fog_color[2], 1.0)
     glFog(GL_FOG_COLOR, fog_color)
 
 def enable_fog():
