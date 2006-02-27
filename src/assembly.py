@@ -128,6 +128,15 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     #e then more, including current_movie, temperature, etc (whatever else goes in mmp file is probably all that's needed);
     # not sure if .part is from here or glpane or neither; not sure about selection (maybe .picked is enough, then rederive?);
     # view comes from glpane and it should be its own root object, i think; mode is also in glpane ###@@@
+
+    #bruce 060227 more decls (some guesses):
+    # not root (since i think tree & shelf are never replaced), filename, selwhat
+    _s_attr_temperature = S_DATA
+    _s_attr_current_movie = S_CHILD
+    _s_attr__last_current_selgroup = S_REF # this should fix bug 1578 [bruce 060227 guess]
+    # don't need .part, it's derived by __getattr__ from selgroup
+    ### might need _modified? probably not, do separately
+    
     
     def __init__(self, win, name = None, own_window_UI = False):
 

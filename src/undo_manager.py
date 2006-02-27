@@ -204,6 +204,8 @@ class AssyUndoManager(UndoManager):
         return undos, redos
     
     def undo_cmds_menuspec(self, widget):
+        # WARNING: this is not being maintained, it's just a development draft.
+        # So far it lacks merging and history message and perhaps win_update and update_select_mode. [060227 comment]
         """return a menu_spec for including undo-related commands in a popup menu
         (to be shown in the given widget, tho i don't know why the widget could matter)
         """
@@ -304,6 +306,8 @@ class AssyUndoManager(UndoManager):
                 undo_xxx = op.menu_desc()
                 env.history.message("%s" % undo_xxx) #e add history sernos #e say Undoing rather than Undo in case more msgs??
                 self.archive.do_op(op)
+                self.assy.w.mt.update_select_mode() #bruce 060227 try to fix bug 1576
+                self.assy.w.win_update() #bruce 060227 not positive this isn't called elsewhere, or how we got away without it if not
             else:
                 print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
                 env.history.message(redmsg("Nothing to %s (and it's a bug that this message was printed)" % optype))

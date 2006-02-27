@@ -645,7 +645,7 @@ def register_class_nickname(name, class1):
 
 #e refile, in this file or another? not sure.
 
-def register_undo_updater( func, updates = (), after_update_of = () ):
+def register_undo_updater( func, updates = (), after_update_of = () ): ####@@@@ THIS IS NIM, its effect is kluged elsewhere
     """Register <func> to be called on 2 args (archive, assy) every time some AssyUndoArchive mashes some
     saved state into the live objects of the current state (using setattr) and needs to fix things that might
     have been messed up by that or might no longer be consistent.
@@ -678,7 +678,7 @@ def register_undo_updater( func, updates = (), after_update_of = () ):
     so it's subject to revision from encountering reality (or to being out of date if that revision hasn't
     happened yet). ###k]
     """
-    print "register_undo_updater ought to register %r but it's nim, or maybe only use of the registration is nim" % func
+    ## print "register_undo_updater ought to register %r but it's nim, or maybe only use of the registration is nim" % func
     # pseudocode
     if "pseudocode":
         from constants import noop
