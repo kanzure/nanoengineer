@@ -1,0 +1,94 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (14.125388) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Moiety-Small Bearing Outer Sleeve)
+info opengroup open = True
+mol (moiety- outersleeve-smallbearing) tub
+atom 1 (1) (-97, 8428, -5660) def
+atom 2 (1) (-177, 8504, 5626) def
+atom 3 (1) (889, 6083, -5907) def
+atom 4 (1) (806, 6161, 5918) def
+atom 5 (0) (-1052, 7164, -15) def
+atom 6 (0) (-1322, 5477, -1409) def
+atom 7 (0) (-1343, 5496, 1398) def
+atom 8 (0) (-1615, 3903, -2739) def
+atom 9 (0) (-1014, 7289, -2482) def
+atom 10 (0) (-1049, 7322, 2451) def
+atom 11 (0) (-1653, 3941, 2744) def
+atom 12 (0) (-1274, 5593, -3846) def
+atom 13 (0) (-1329, 5644, 3834) def
+atom 14 (0) (1645, 6482, 8) def
+atom 15 (0) (-969, 7445, -4923) def
+atom 16 (0) (1209, 4911, -1362) def
+atom 17 (0) (-1040, 7510, 4889) def
+atom 18 (0) (1189, 4929, 1394) def
+atom 19 (0) (732, 3349, -2726) def
+atom 20 (0) (1706, 6606, -2458) def
+atom 21 (0) (1671, 6639, 2475) def
+atom 22 (0) (693, 3385, 2773) def
+atom 23 (0) (1271, 5051, -3821) def
+atom 24 (0) (1217, 5103, 3853) def
+atom 25 (0) (1771, 6766, -4902) def
+atom 26 (0) (1701, 6831, 4917) def
+atom 27 (6) (-332, 7433, -12) def
+bond1 5
+atom 28 (7) (-780, 5038, -1472) def
+bond1 6
+atom 29 (7) (-802, 5060, 1474) def
+bond1 7
+atom 30 (8) (-177, 8290, 1161) def
+bond1 27
+atom 31 (6) (893, 6312, 4) def
+bond1 14 27
+atom 32 (8) (-160, 8274, -1194) def
+bond1 27
+atom 33 (6) (-915, 4225, -2716) def
+bond1 8 28
+atom 34 (6) (692, 5479, -1307) def
+bond1 16 28 31
+atom 35 (6) (-290, 7547, -2449) def
+bond1 9 32
+atom 36 (6) (-323, 7580, 2424) def
+bond1 10 30
+atom 37 (6) (-953, 4262, 2727) def
+bond1 11 29
+atom 38 (6) (673, 5496, 1324) def
+bond1 18 29 31
+atom 39 (8) (99, 3166, -2759) def
+bond1 19 33
+atom 40 (7) (-734, 5149, -3857) def
+bond1 12 33
+atom 41 (6) (953, 6448, -2493) def
+bond1 20 34 35
+atom 42 (8) (-116, 8411, -3601) def
+bond1 35
+atom 43 (7) (-788, 5201, 3858) def
+bond1 13 37
+atom 44 (8) (-167, 8460, 3567) def
+bond1 36
+atom 45 (6) (917, 6481, 2502) def
+bond1 21 36 38
+atom 46 (8) (61, 3203, 2799) def
+bond1 22 37
+atom 47 (6) (752, 5618, -3811) def
+bond1 23 40 41
+atom 48 (6) (-244, 7695, -4866) def
+bond1 1 15 42
+atom 49 (6) (-313, 7760, 4839) def
+bond1 2 17 44
+atom 50 (6) (697, 5671, 3826) def
+bond1 24 43 45
+atom 51 (6) (1018, 6617, -4963) def
+bond1 3 25 47 48
+atom 52 (6) (948, 6684, 4969) def
+bond1 4 26 49 50
+egroup (Moiety-Small Bearing Outer Sleeve)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part Moiety-Small Bearing Outer Sleeve
