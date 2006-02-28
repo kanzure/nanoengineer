@@ -22,7 +22,7 @@ That should say:
 
   - is it correct for any copyfunc argument? (esp in its assumption about what that returns, original or copy or transformed copy)
   
-  - is its own return value __eq__ to the original? It should be, so you have to define __eq__ accordingly. [ __ne__ too?? ###k ]
+  - is its own return value __eq__ to the original? It should be, so you have to define __eq__ AND __ne__ accordingly.
   
   - should you define _s_scan_children to, to scan the same things copied? (Only if they are instance objects, and are "children".
     See S_CHILDREN doc for what that means.)
@@ -918,8 +918,7 @@ class DataMixin:
         print "  (implem must be compatible with _s_deepcopy)"
         return self is other
     def __ne__(self, other):
-        return not (self == other)
-    #e same for __ne__?
+        return not (self == other) # this uses the __eq__ above, or one which the main class defined
     pass
 
 # == test code

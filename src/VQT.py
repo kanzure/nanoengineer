@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 VQT.py 
 
@@ -19,6 +19,7 @@ from math import *
 from Numeric import *
 from LinearAlgebra import *
 import platform
+from debug import print_compact_traceback #bruce 060228
 debug_quats = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
 
 intType = type(2)
@@ -161,30 +162,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                 check_posns_near( res.rot(Y_AXIS), y, "sy" )
                 check_posns_near( res.rot(Z_AXIS), z, "sz" )
             return
-##            # the old code (incorrect, and was not used):
-##            a100 = V(1,0,0)
-##            c1 = cross(a100,x)
-##            if vlen(c1)<0.000001:
-##                if debug_quats or platform.atom_debug: #bruce 050518
-##                    # i suspect it's wrong, always giving a 90 degree rotation, and not setting self.counter
-##                    print "debug_quats: using Q(y,z).vec case"
-##                self.vec = Q(y,z).vec
-##                return
-##            ax1 = norm((a100+x)/2.0)
-##            x2 = cross(ax1,c1)
-##            a010 = V(0,1,0)
-##            c2 = cross(a010,y)
-##            if vlen(c2)<0.000001:
-##                if debug_quats or platform.atom_debug: #bruce 050518 -- same comment as above
-##                    print "debug_quats: using Q(x,z).vec case"
-##                self.vec = Q(x,z).vec
-##                return
-##            ay1 = norm((a010+y)/2.0)
-##            y2 = cross(ay1,c2)
-##            axis = cross(x2, y2)
-##            nw = sqrt(1.0 + x[0] + y[1] + z[2])/2.0
-##            axis = norm(axis)*sqrt(1.0-nw**2)
-##            self.vec = V(nw, axis[0], axis[1], axis[2])
+            # old code (incorrect and i think never called) commented out long ago, removed in rev. 1.27 [bruce 060228]
             
         elif type(y) in numTypes:
             # axis vector and angle [used often]
@@ -249,21 +227,23 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         # ignores copyfunc
         return self.__class__(self)
     
-    def __getattr__(self, name): # in class Q
-        if name == 'w':
+    def __getattr__(self, attr): # in class Q
+        if attr.startswith('_'):
+            raise AttributeError, attr #bruce 060228 optim (also done at end)
+        if attr == 'w':
             return self.vec[0]
-        elif name in ('x', 'i'):
+        elif attr in ('x', 'i'):
             return self.vec[1]
-        elif name in ('y', 'j'):
+        elif attr in ('y', 'j'):
             return self.vec[2]
-        elif name in ('z', 'k'):
+        elif attr in ('z', 'k'):
             return self.vec[3]
-        elif name == 'angle':
+        elif attr == 'angle':
             if -1.0<self.vec[0]<1.0: return 2.0*acos(self.vec[0])
             else: return 0.0
-        elif name == 'axis':
+        elif attr == 'axis':
             return V(self.vec[1], self.vec[2], self.vec[3])
-        elif name == 'matrix':
+        elif attr == 'matrix':
             # this the transpose of the normal form
             # so we can use it on matrices of row vectors
             # [bruce comment 050518: there is a comment on self.vunrot()
@@ -287,17 +267,17 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                      2.0*(y*z - x*w),
                      1.0 - 2.0 * (y**2 + x**2)]])
             return mat
-        else:
-            raise AttributeError, 'No "%s" in Quaternion' % name
+        raise AttributeError, 'No %r in Quaternion' % (attr,)
 
     #bruce 060209 defining __eq__ and __ne__ for efficient state comparisons given presence of __getattr__ (desirable for Undo)
     # (I don't think it needs a __nonzero__ method, and if it had one I don't know if Q(1,0,0,0) should be False or True.)
-    #bruce 060222 note that it also now needs __eq__ and maybe __ne__ to be compatible with its _s_deepcopy (they are). ###test
+    #bruce 060222 note that it also now needs __eq__ and __ne__ to be compatible with its _s_deepcopy (they are).
     
     def __eq__(self, other):
         try:
-            return self.__class is other.__class__ and self.vec == other.vec
+            return self.__class__ is other.__class__ and self.vec == other.vec #bruce 060228 fixed bug in this line (__class typo)
         except:
+            print_compact_traceback("bug in Q.__eq__, returning False: ") #bruce 060228
             return False # should not happen except for bugs (missing vec in self or other)
         pass
 
@@ -321,18 +301,16 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         if self.__dict__.has_key('matrix'):
             del self.__dict__['matrix']
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, attr, value):
         #bruce comment 050518: possible bug (depends on usage, unknown): this doesn't call __reset
-        if name=="w": self.vec[0] = value
-        elif name=="x": self.vec[1] = value
-        elif name=="y": self.vec[2] = value
-        elif name=="z": self.vec[3] = value
-        else: self.__dict__[name] = value
-
+        if attr=="w": self.vec[0] = value
+        elif attr=="x": self.vec[1] = value
+        elif attr=="y": self.vec[2] = value
+        elif attr=="z": self.vec[3] = value
+        else: self.__dict__[attr] = value
 
     def __len__(self):
         return 4
-
 
     def __add__(self, q1):
         """Q + Q1 is the quaternion representing the rotation achieved
@@ -444,6 +422,8 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
 
     def rot(self,v):
         return matrixmultiply(v,self.matrix)
+
+    pass # end of class Q
 
 def twistor(axis, pt1, pt2): #bruce 050724 revised code (should not change the result)
     """return the quaternion that, rotating around axis, will bring pt1 closest to pt2.

@@ -854,8 +854,8 @@ class Bond( StateMixin):
         return ob.key == self.key
 
     def __ne__(self, ob):
-        # bruce 041028 -- python doc advises defining __ne__
-        # whenever you define __eq__
+        # bruce 041028 -- python doc advises defining __ne__ whenever you define __eq__;
+        # on 060228 i confirmed this is needed by test (otherwise != doesn't call __eq__)
         return not self.__eq__(ob)
 
     def draw(self, glpane, dispdef, col, level, **kws): #bruce 050727 moving implem to separate file

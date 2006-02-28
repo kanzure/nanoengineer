@@ -791,7 +791,10 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
         self.mirrorQ = False
         self.rot = 0
     def __str__(self):
+        "[WARNING (kluge, sorry): this format is required by the code, which uses it to print parts of mmp records]"
         return "%s %s" % (self.mirrorQ, self.rot)
+    def __repr__(self):
+        return "<%s at %#x; mirrorQ, rot == %r>" % (self.__class__.__name__, id(self), (self.mirrorQ, self.rot))
     def set_to_str(self, str1):
         "set self to the values encoded in the given string, which should have been produced by str(self); debug print on syntax error"
         try:
@@ -830,8 +833,10 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
     def _s_deepcopy(self, copyfunc): # (in class image_mod_record [bruce circa 060210])
         # ignores copyfunc
         return self.__class__(self.mirrorQ, self.rot)
-    def __eq__(self, other): #bruce 060222 for Undo; do we need __ne__ too? If so, I think we'll get a debug print. ###k test this
+    def __eq__(self, other): #bruce 060222 for Undo; but had a bug until we defined __ne__, since != never calls __eq__ on its own.
         return self.__class__ is other.__class__ and (self.mirrorQ, self.rot) == (other.mirrorQ, other.rot)
+    def __ne__(self, other): #bruce 060228
+        return not (self == other)
     pass # end of class image_mod_record
 
 #end
