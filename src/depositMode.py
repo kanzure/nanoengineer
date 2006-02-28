@@ -928,7 +928,7 @@ class depositMode(selectAtomsMode):
         '''Double click event handler for the left mouse button. 
         '''
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            if self.modkey != 'Shift+Control': # Fixes bug 1503.  mark 060224.
+            if self.o.modkeys != 'Shift+Control': # Fixes bug 1503.  mark 060224.
                 deposited_obj = self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
                 if deposited_obj:
                     self.set_cmdname('Deposit ' + deposited_obj)
@@ -949,9 +949,9 @@ class depositMode(selectAtomsMode):
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
         
         self.o.assy.unpickatoms()
-        modkey = self.modkey # save the modkey state
-        if self.modkey is None:
-            self.modkey = 'Shift'
+        modkeys = self.o.modkeys # save the modkeys state
+        if self.o.modkeys is None:
+            self.o.modkeys = 'Shift'
                 # needed to maintain selection consistency when no modifier key is pressed.
         self.suppress_updates = True
         nobjs=0
@@ -960,7 +960,7 @@ class depositMode(selectAtomsMode):
                 deposited_obj = self.deposit_from_MMKit(s)
                 nobjs += 1
         self.suppress_updates = False
-        self.modkey = modkey # restore the modkey state to real state.
+        self.o.modkeys = modkeys # restore the modkeys state to real state.
         
         self.set_cmdname('Transdeposit ' + deposited_obj)
         deposited_obj += '(s)'
@@ -979,7 +979,7 @@ class depositMode(selectAtomsMode):
         <event> is a LMB release event.
         '''
 
-        if self.modkey is None:
+        if self.o.modkeys is None:
             if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn(): 
                 self.bond_change_type(b)
                 self.o.gl_update()
@@ -1012,7 +1012,7 @@ class depositMode(selectAtomsMode):
         
         deposited_obj = None
         
-        if self.modkey is None: # no Shift or Ctrl modifier key.
+        if self.o.modkeys is None: # no Shift or Ctrl modifier key.
             # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
             if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
                 self.o.assy.unpickatoms() # Clear selection.
@@ -1277,7 +1277,7 @@ class depositMode(selectAtomsMode):
 #== Singlet helper methods
 
     def singletLeftDown(self, s, event):
-        if self.modkey == 'Shift+Control':
+        if self.o.modkeys == 'Shift+Control':
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             self.select_2d_region(event)
         else:

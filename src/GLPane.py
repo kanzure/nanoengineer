@@ -1045,13 +1045,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             self.modkeys = None
         if self.modkeys != oldmodkeys:
-            self.mode.modkey = self.modkeys
             
             ## This would be a good place to tell the mode (self.mode) it might want to update the cursor,
             ## based on all state it knows about, including self.modkeys and what mouse is over,
             ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
             ## where we need that even if modkeys didn't change. [bruce 060220]
-            self.mode.update_cursor(self.modkeys)
+            self.mode.update_cursor()
             
             if self.selobj and self.mode.hover_highlighting_enabled:
                 if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':

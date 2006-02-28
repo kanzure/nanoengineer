@@ -244,13 +244,13 @@ class selectMode(basicMode):
     def select_2d_region(self, event):
         '''Start 2D selection of a region.
         '''
-        if self.modkey is None:
+        if self.o.modkeys is None:
             self.start_selection_curve(event, START_NEW_SELECTION)
-        if self.modkey == 'Shift':
+        if self.o.modkeys == 'Shift':
             self.start_selection_curve(event, ADD_TO_SELECTION)
-        if self.modkey == 'Control':
+        if self.o.modkeys == 'Control':
             self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
-        if self.modkey == 'Shift+Control':
+        if self.o.modkeys == 'Shift+Control':
              self.start_selection_curve(event, DELETE_SELECTION)
         return
         
@@ -406,10 +406,10 @@ class selectMode(basicMode):
 #== Atom selection and dragging helper methods
 
     def atomLeftDown(self, a, event):
-        if not a.picked and self.modkey is None:
+        if not a.picked and self.o.modkeys is None:
             self.o.assy.unpickatoms()
             a.pick()
-        if not a.picked and self.modkey == 'Shift':
+        if not a.picked and self.o.modkeys == 'Shift':
             a.pick()
         if a.picked and len(self.o.assy.selatoms_list()) > 1:
             # now called when two or more atoms are selected.  mark 060202.
@@ -633,7 +633,7 @@ class selectMode(basicMode):
             
         nochange = False
         
-        if self.modkey is None:
+        if self.o.modkeys is None:
             # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
             if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
                 self.o.assy.unpickatoms() # Clear selection.
@@ -644,7 +644,7 @@ class selectMode(basicMode):
                 self.set_cmdname('Select Atom')
             env.history.message(a.getinfo())
 
-        elif self.modkey == 'Shift':
+        elif self.o.modkeys == 'Shift':
             if a.picked: 
                 nochange = True
             else:
@@ -652,7 +652,7 @@ class selectMode(basicMode):
                 self.set_cmdname('Select Atom')
             env.history.message(a.getinfo())
                 
-        elif self.modkey == 'Control':
+        elif self.o.modkeys == 'Control':
             if a.picked:
                 a.unpick()
                 self.set_cmdname('Unselect Atom')
@@ -660,14 +660,14 @@ class selectMode(basicMode):
             else: # Already unpicked.
                 nochange = True
             
-        elif self.modkey == 'Shift+Control':
+        elif self.o.modkeys == 'Shift+Control':
             result = self.delete_atom_and_baggage(event)
             env.history.message_no_html(result)
             self.set_cmdname('Delete Atom')
             return # delete_atom_and_baggage() calls win_update.
                 
         else:
-            print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
+            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
             return
             
         if nochange: return
@@ -699,32 +699,32 @@ class selectMode(basicMode):
             
         #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
         #& mark 060210.
-        if self.modkey is None:
+        if self.o.modkeys is None:
             self.o.assy.unpickatoms()
             b.atom1.pick()
             b.atom2.pick()
             self.set_cmdname('Select Atoms')
                 
-        elif self.modkey == 'Shift':
+        elif self.o.modkeys == 'Shift':
             b.atom1.pick()
             b.atom2.pick()
             self.set_cmdname('Select Atoms')
             #& Bond class needs a getinfo() method to be called here. mark 060209.
             
-        elif self.modkey == 'Control':
+        elif self.o.modkeys == 'Control':
             b.atom1.unpick()
             b.atom2.unpick()
             self.set_cmdname('Unselect Atoms')
             #env.history.message("unpicked %r and %r" % (self.bond_clicked.atom1, self.bond_clicked.atom2))
             #& Not necessary to print history msg.  mark 060210.
                 
-        elif self.modkey == 'Shift+Control':
+        elif self.o.modkeys == 'Shift+Control':
             self.bond_delete(event) 
                 # <b> is the bond the cursor was over when the LMB was pressed.
                 # use <event> to delete bond <b> to ensure that the cursor is still over it.
             
         else:
-            print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
+            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
             return
             
         self.o.gl_update()
@@ -799,14 +799,14 @@ class selectMode(basicMode):
         '''Returns True or False based on the current modkey state.  
         If modkey is None (no modkey is pressed), it will unpick all atoms.
         '''
-        if self.modkey is None:
+        if self.o.modkeys is None:
             # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
             if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
                 self.o.assy.unpickatoms() # Clear selection.
             return True
-        if self.modkey == 'Shift':
+        if self.o.modkeys == 'Shift':
             return True
-        if self.modkey == 'Control':
+        if self.o.modkeys == 'Control':
             return False
         else: # Delete
             return False
@@ -982,20 +982,19 @@ class selectMolsMode(selectMode):
         '''
         basicMode.keyRelease(self, key)
         
-    def update_cursor(self, modkey):
-        '''Update the mouse cursor based on <modkey> for selectMolsMode.
-        Called by selectMode.update_modekeyRelease()
+    def update_cursor(self):
+        '''Update the mouse cursor for 'Select Chunks' mode (selectMolsMode).
         '''
-        if modkey is None:
+        if self.o.modkeys is None:
             self.o.setCursor(self.w.SelectMolsCursor)
-        elif modkey == 'Shift':
+        elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.SelectMolsAddCursor)
-        elif modkey == 'Control':
+        elif self.o.modkeys == 'Control':
             self.o.setCursor(self.w.SelectMolsSubtractCursor)
-        elif modkey == 'Shift+Control':
+        elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
-            print "Error in update_cursor(): Invalid modkey=", modkey
+            print "Error in update_cursor(): Invalid modkey=", self.o.modkeys
         return
                 
     def rightShiftDown(self, event):
@@ -1180,7 +1179,7 @@ class selectAtomsMode(selectMode):
                         return env.prefs[atomHighlightColor_prefs_key]
                     else:
                         return None
-                if self.modkey == 'Shift+Control':
+                if self.o.modkeys == 'Shift+Control':
                     return darkred  
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
                         # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
@@ -1206,7 +1205,7 @@ class selectAtomsMode(selectMode):
             else:
                 if self.only_highlight_singlets:
                     return None
-                if self.modkey == 'Shift+Control': 
+                if self.o.modkeys == 'Shift+Control': 
                     return darkred # Highlight the bond in darkred if the control key is pressed.
                 else:
                     return env.prefs[bondHighlightColor_prefs_key] ## was HICOLOR_real_bond before bruce 050805
@@ -1492,7 +1491,7 @@ class selectAtomsMode(selectMode):
             self.emptySpaceLeftDrag(event)
             return
             
-        if self.modkey is not None:
+        if self.o.modkeys is not None:
             # If a drag event has happened after the cursor was over an atom and a modkey is pressed,
             # do a 2D region selection as if the atom were absent.
             self.emptySpaceLeftDown(self.LMB_press_event)
@@ -1590,17 +1589,17 @@ class selectAtomsMode(selectMode):
                 return
                 
             else: # real atom
-                if self.modkey == 'Control':
+                if self.o.modkeys == 'Control':
                     self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
-                elif self.modkey == 'Shift+Control':
+                elif self.o.modkeys == 'Shift+Control':
                     self.o.assy.deleteConnected( self.neighbors_of_last_deleted_atom )
                 else:
                     self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
             
         if isinstance(self.obj_doubleclicked, Bond):
-            if self.modkey == 'Control':
+            if self.o.modkeys == 'Control':
                 self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
-            elif self.modkey == 'Shift+Control':
+            elif self.o.modkeys == 'Shift+Control':
                 self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
             else:
                 self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
@@ -1660,19 +1659,19 @@ class selectAtomsMode(selectMode):
         '''
         basicMode.keyRelease(self, key)
             
-    def update_cursor(self, modkey):
-        '''Update the mouse cursor based on <modkey>.
+    def update_cursor(self):
+        '''Update the mouse cursor for 'Select Atoms' mode (selectAtomsMode)
         '''
-        if modkey is None:
+        if self.o.modkeys is None:
             self.o.setCursor(self.w.SelectAtomsCursor)
-        elif modkey == 'Shift':
+        elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.SelectAtomsAddCursor)
-        elif modkey == 'Control':
+        elif self.o.modkeys == 'Control':
             self.o.setCursor(self.w.SelectAtomsSubtractCursor)
-        elif modkey == 'Shift+Control':
+        elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
-            print "Error in update_cursor(): Invalid modkey=", modkey
+            print "Error in update_cursor(): Invalid modkey=", self.o.modkeys
         return
             
     def rightShiftDown(self, event):
