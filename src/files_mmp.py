@@ -170,7 +170,8 @@ esppat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+
 atmsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
 
 # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
-grdpat = re.compile("ground \((.+)\) \((\d+), (\d+), (\d+)\)")
+#bruce 060228 generalize pattern so "anchor" is also accepted; see also _read_anchor
+grdpat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\)")
 
 # stat (name) (r, g, b) (temp) first_atom last_atom boxed_atom
 statpat = re.compile("stat \((.+)\) \((\d+), (\d+), (\d+)\) \((\d+)\)" )
@@ -523,7 +524,7 @@ class _readmmp_state:
     # Read the MMP record for a Ground (Anchor) as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 
-    def _read_ground(self, card):
+    def _read_ground(self, card): # see also _read_anchor
         m = grdpat.match(card)
         name = m.group(1)
         name = self.decode_name(name) #bruce 050618
@@ -539,6 +540,8 @@ class _readmmp_state:
         gr.name = name
         gr.color = col
         self.addmember(gr)
+
+    _read_anchor = _read_ground #bruce 060228 (part of making anchor work when reading future mmp files, before prerelease snapshots)
 
     # Gamess jig [added by bruce 050701; similar code should be usable for other new jigs as well]
     prevgamess = None
