@@ -71,12 +71,16 @@ class Jig(Node):
     # [I suspect the cad code supports it for all jigs, but only provides a UI to set it for motors. -- bruce 051102]
     enable_minimize = False # whether a jig should apply forces to atoms during Minimize
         # [should be renamed 'enable_in_minimize', but I'm putting this off since it affects lots of files -- bruce 051102]
+        # WARNING: this is added to copyable_attrs in some subclasses, rather than here
+        # (which is bad style, IMHO, but I won't change it for now). [bruce 060228 comment]
     
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
     
-    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color') # this extends the tuple from Node
+    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color') # added in some subclasses: 'enable_minimize'
         # most Jig subclasses need to extend this further
+
+    _s_attr_atoms = S_REFS #bruce 060228 fix bug 1592 [untested]
     
     def __init__(self, assy, atomlist): # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
         "each subclass needs to call this, at least sometime before it's used as a Node"
@@ -437,8 +441,6 @@ class Jig(Node):
             return "# jig with no selected atoms skipped for minimize\n", False
         
         return frontpart + midpart + lastpart + "\n" , True
-
-
 
     def mmp_record_jigspecific_midpart(self):
         """#doc

@@ -25,6 +25,9 @@ from jigs import Jig
 class Motor(Jig):
     "superclass for Motor jigs"
     axis = V(0,0,0) #bruce 060120; redundant with some subclass inits; some code could handle None here, but I'm not sure it all could.
+        # WARNING: this is added to copyable_attrs in subclasses, not here, and is not added to mutable_attrs (possible bug). ###@@@
+        # Also, self.center is not in mutable_attrs, but is modified by += , which is a likely bug. ####@@@@
+        # [bruce 060228 comment]
     is_movable = True #mark 060120
     
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
@@ -32,6 +35,7 @@ class Motor(Jig):
         Jig.__init__(self, assy, atomlist)
         
         self.quat = Q(1, 0, 0, 0)
+            # is self.quat ever set to other values? if not, remove it; if so, add it to mutable_attrs. [bruce 060228 comment]
         
     # == The following methods were moved from RotaryMotor to this class by bruce 050705,
     # since some were almost identical in LinearMotor (and those were removed from it, as well)
@@ -345,6 +349,7 @@ class RotaryMotor(Motor):
         except:
             #bruce 060208 protect OpenGL stack from exception seen in bug 1445
             print_compact_traceback("exception in RotaryMotor._draw, continuing: ")
+            print "  some info that might be related to that exception: natoms = %d" % len(self.atoms) ###@@@ might not keep this 
         glPopMatrix()
         return
     
