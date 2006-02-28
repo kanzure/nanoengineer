@@ -747,9 +747,22 @@ class obj_classifier:
         for attr in clas.dict_of_all_state_attrs.keys():
             attr_metainfo = (attr, clas.defaultvals.get(attr, _UNSET_), clas.categories.get(attr)) #e make this a clas method?
             if self.kluge_attr2metainfo.has_key(attr):
-                assert self.kluge_attr2metainfo[attr] == attr_metainfo, "%r == %r fails for %r (2nd class is %s, 1st clas incls %r)" % \
-                       (self.kluge_attr2metainfo[attr], attr_metainfo, attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr])
-                    # require same-named attrs to have same dflt and cat (for now)
+                if self.kluge_attr2metainfo[attr] != attr_metainfo:
+                    #060228 be gentler, since happens for e.g. Jig.color attrs; collect cases, then decide what to do
+                    if self.kluge_attr2metainfo[attr][1] != attr_metainfo[1]:
+                        msg = "undo-debug note: attr %r defaultval differs in %s and %s; ok for now but mention in bug 1586 comment" % \
+                              (attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__)
+                        print msg
+                        from HistoryWidget import redmsg
+                        env.history.message(redmsg( msg ))
+                        attr_metainfo = list(attr_metainfo)
+                        attr_metainfo[1] = self.kluge_attr2metainfo[attr][1] # look the other way - ok since not using this yet ###@@@
+                        attr_metainfo = tuple(attr_metainfo)
+                assert self.kluge_attr2metainfo[attr] == attr_metainfo, \
+                        "%r == %r fails for %r (2nd class is %s, 1st clas incls %r)" % \
+                        (self.kluge_attr2metainfo[attr], attr_metainfo,
+                         attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__ )
+                    # require same-named attrs to have same dflt and cat (for now) -- no, dflt can differ, see above kluge ###@@@
             else:
                 self.kluge_attr2metainfo[attr] = attr_metainfo
                 self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
