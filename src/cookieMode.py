@@ -118,7 +118,7 @@ class cookieMode(basicMode):
             #Save current pov before free view transformation
             self.cookiePov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
             
-            env.history.message(redmsg("Enter into 'Free View' of cookie cutter mode. No cookie can be cut until exit from it."))
+            env.history.message(orangemsg("'Free View' enabled. You can not cut cookies while Free View is enabled."))
             self.o.setCursor(QCursor(Qt.ArrowCursor))
             self.w.setViewOrthoAction.setEnabled(True)
             self.w.setViewPerspecAction.setEnabled(True)
