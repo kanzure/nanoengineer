@@ -143,6 +143,7 @@ class Node( StateMixin):
 
     _s_attr_dad = S_PARENT #obs cmt: overridden (bug) (doesn't matter for now) [i think that's fixed now, anyway, 060224]
     _s_attr_picked = S_DATA
+    _s_categorize_picked = 'selection'
     _s_attr_part = S_CHILD
         # has to be child to be found (another way would be assy._s_scan_children); not S_CACHE since Parts store some defining state
     #e need anything to reset prior_part to None? yes, do it in _undo_update.
@@ -296,6 +297,8 @@ class Node( StateMixin):
         """
         if self.part is not None:
             self.part.changed() #e someday we'll do self.changed which will do dad.changed....
+        elif self.assy is not None:
+            pass # not sure if it would be correct to call assy.changed in this case [bruce 060227 comment]
         return
     
     def is_group(self): #bruce 050216
@@ -746,6 +749,7 @@ class Node( StateMixin):
             # since they don't get into assy.molecules or selmols.
             # Whether doing it anyway would be good or bad, I don't know,
             # so no change for now.
+            self.changed_selection() #bruce 060227
             self.change_current_selgroup_to_include_self()
                 # note: stops at a picked dad, so should be fast enough during recursive use
         # we no longer call mode.UpdateDashboard() from here;
@@ -761,6 +765,7 @@ class Node( StateMixin):
         ###@@@ I don't know whether that new rule is yet followed by external code [bruce 050124].
         if self.picked:
             self.picked = False
+            self.changed_selection() #bruce 060227
         # bruce 050126 change: also set *all its ancestors* to be unpicked.
         # this is required to strictly enforce the rule
         # "selected groupnode implies all selected members".
@@ -770,6 +775,12 @@ class Node( StateMixin):
         if self.dad and self.dad.picked:
             self.dad.unpick_top() # use the method, in case a Group subclass overrides it
 
+    def changed_selection(self): #bruce 060227
+        "Record the fact that the selection state of self or its contents (Group members or Chunk atoms) might have changed."
+        if self.assy is not None:
+            self.assy.changed_selection()
+        return
+    
     def unpick_all_except(self, node):
         """unpick all of self and its subtree except whatever is inside node and its subtree;
         return value says whether anything was actually unpicked

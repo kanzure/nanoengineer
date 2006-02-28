@@ -348,7 +348,6 @@ class Bond( StateMixin):
         self.atom2 = at2
         self.v6 = v6 # bond-valence times 6, as exact int; a public attribute
         assert v6 in BOND_VALENCES
-        ## self.picked = 0 # bruce 041029 removed this since it seems unused
         self.changed_atoms()
         self.invalidate_bonded_mols() #bruce 041109 new feature
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610

@@ -423,7 +423,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
            Don't use this when the entire mol moves in a systematic way
         such that self.basepos remains valid, as in mol.move or mol.rot.
         """
-        # Theory:
+        self.changed() #bruce 060227 added this; amazingly it was not yet done.
+            # It might make played movies (1) slower, (2) always mark file modified
+            # even if we return to prior frame, but these are less bad than some current
+            # bugs I hope to fix by it; we'll try to reoptim those later.
+        
+        # Theory (of most of this routine, following this comment):
         #    It's probably worth patching whatever arrays store pos, in any
         # coordinate system (though whether the saving in recomputation is
         # actually worth the time cost in doing the patching is not clear).

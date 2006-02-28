@@ -122,7 +122,7 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
     
     return mmpstate #e soon will modify to not use disk, and return a different kind of py object
 
-def mmp_state_by_scan(archive, assy):
+def mmp_state_by_scan(archive, assy): #e misnamed, since other things refer to this as the non-mmp option
     """[#doc better:]
     Return a big object listing all the undoable data reachable from assy,
     in some data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
@@ -130,7 +130,13 @@ def mmp_state_by_scan(archive, assy):
     """
     scanner = archive.obj_classifier
     start_objs = [assy] #k need any others?
-    state_holding_objs_dict = scanner.collect_s_children( start_objs)
+    viewdict = {}
+    # kluge: defer collection of view-related objects and discard them, but don't bother deferring selection-related objects,
+    # since for now there aren't any (and looking for them would slow us down until atoms are processed separately in a faster way).
+    state_holding_objs_dict = scanner.collect_s_children( start_objs, deferred_category_collectors = {'view':viewdict} )
+    
+    ## print "didn't bother scanning %d view-related objects:" % len(viewdict), viewdict.values() # works [060227]
+    
     #e figure out which ones are new or gone? not needed until we're differential, unless this is a good place
     # to be sure the gone ones are properly killed (and don't use up much RAM). if that change anything
     # we might have to redo the scan until nothing is killed, since subobjects might die due to this.
@@ -418,9 +424,9 @@ class Checkpoint:
         except:
             pass
         else:
-            self.ver = mi.assy_change_counter
+            self.ver = mi.assy_change_counters
         return
-    pass
+    pass # end of class Checkpoint
 
 class SimpleDiff:
     """Represent a diff defined as going from checkpoint 0 to checkpoint 1
@@ -499,7 +505,7 @@ class SimpleDiff:
             # POSSIBLE KLUGE: with current implem, applying a chain of several diffs can be done by applying the last one.
             # The current code might perhaps do this when the skipped diffs are empty or have been merged -- don't know.
             # This will need fixing once we're merging any nonempty diffs. ####@@@@ [060123]
-        cp.metainfo.restore_assy_change_counter(assy) # change current-state varid_vers records
+        cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
         return
     def optype(self):
         return {1: "Redo", -1: "Undo"}[self.direction]
@@ -516,6 +522,7 @@ class SharedDiffopData: ####@@@@ stub, apparently, as of 060216;
     and be able to swap them with the attrvals in the objects, in alternate "directions"
     """
     def __init__(self):
+        assert 0 # not used as of before 060227, but slated to be used soon
         self.attrdiffs = {} # maps attrnames to dicts from objkey to replacement-val, for use in self.direction
         self.rev_attrdiffs = {} # ditto, for use in opposite direction, if we have them; typically built up while attrdiffs is applied
         self.direction = -1 # the direction we can next be applied in (or 0 if we can be applied in either direction??)
@@ -572,6 +579,7 @@ class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away
     and also implements its own finalize method
     """
     def __init__(self, cp0, cp1 = None, direction = 1, **options):
+        assert 0 # not used as of before 060227, but slated to be used soon
         if cp1 is None:
             pass ####@@@@ cp1 is new checkpoint
         SimpleDiff.__init__(self, cp0, cp1, direction, **options) ###e need to be passed cp1?? yes, privately...
@@ -593,7 +601,7 @@ class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away
             # note: this means Undo restores view from beginning of undone command,
             # and Redo restores view from end of redone command.
             #e (Also worry about this when undoing or redoing a chain of commands.)
-        cp.metainfo.restore_assy_change_counter(assy) # change current-state varid_vers records
+        cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
         return
     pass
 
@@ -718,7 +726,7 @@ def make_empty_checkpoint(assy, cptype = None):
     cp = Checkpoint(assy_debug_name = assy._debug_name)
         # makes up cp.ver -- would we ideally do that here, or not?
     cp.cptype = cptype #e put this inside constructor? (i think it's always None or 'initial', here)
-    cp.assy_change_counter = None # None means it's not yet known
+    cp.assy_change_counters = None # None means they're not yet known
     return cp
 
 def current_state(archive, assy, **options):
@@ -749,8 +757,11 @@ def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp met
     assert cp is not None
     assert not cp.complete
     cp.store_complete_state(state)
-    cp.assy_change_counter = assy._change_counter #060121
-    cp.metainfo = checkpoint_metainfo(assy) # also stores redundant assy._change_counter ##fix
+    # Note: we store assy.all_change_counters() in two places, cp and cp.metainfo, both of which are still used as of 060227.
+    # Each of them is used in more than one place in this file, I think (i.e. 4 uses in all, 2 for each).
+    # This ought to be fixed but I'm not sure how is best, so leaving both places active for now. [bruce 060227]
+    cp.assy_change_counters = assy.all_change_counters() #060121, revised to use all_ 060227
+    cp.metainfo = checkpoint_metainfo(assy) # also stores redundant assy.all_change_counters() [see comment above]
         # this is only the right time for this info if the checkpoint is filled at the right time.
         # We'll assume we fill one for begin and end of every command and every entry/exit into recursive event processing
         # and that ought to be enough. Then if several diffs get merged, we have lots of cp's to combine this info from...
@@ -779,7 +790,7 @@ class checkpoint_metainfo:
         self.time = time.time()
         #e cpu time?
         #e glpane.redraw_counter? (sp?)
-        self.assy_change_counter = assy._change_counter
+        self.assy_change_counters = assy.all_change_counters()
         #e history serno that will be used next (also worry about transient_msgs queued up, re this)
         #e current cmd on whatever stack of those we have? re recursive events if this matters? are ongoing tasks relevant??
         #e current part or selgroup or its index
@@ -792,9 +803,9 @@ class checkpoint_metainfo:
             # doesn't animate, for now -- if it does, do we show structure change before, during, or after?
             #e sets current selgroup; doesn't do update_parts; does it (or caller) need to?? ####@@@@
         #e caller should do whatever updates are needed due to this (e.g. gl_update)
-    def restore_assy_change_counter(self, assy):
+    def restore_assy_change_counters(self, assy):
         #e ... and not say it doesn't if the only change is from a kind that is not normally saved.
-        assy.reset_changed_for_undo( self.assy_change_counter) # never does env.change_counter_checkpoint() or the other one
+        assy.reset_changed_for_undo( self.assy_change_counters) # never does env.change_counter_checkpoint() or the other one
     pass
 
 def current_view_for_Undo(glpane, assy): #e shares code with saveNamedView
@@ -804,11 +815,11 @@ def current_view_for_Undo(glpane, assy): #e shares code with saveNamedView
     WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
     """
     from Utility import Csys
-    oldc = assy._change_counter
+    oldc = assy.all_change_counters()
     
     csys = Csys(assy, "name", glpane.scale, glpane.pov, glpane.zoomFactor, glpane.quat)
     
-    newc = assy._change_counter
+    newc = assy.all_change_counters()
     assert oldc == newc
     
     csys.current_selgroup_index = assy.current_selgroup_index() # storing this on the csys is a kluge, but should be safe
@@ -1009,6 +1020,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ## self.current_diff.finalize(...)
         self.use_diff = False # until it won't crash
         if self.use_diff:
+            assert 0 # not used as of bfr 060227, but slated to be used soon
             ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
             #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
             # (nim or stub)
@@ -1027,22 +1039,35 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 state
                 # or fill_checkpoint or equiv, here
         else:
-            if self.last_cp.assy_change_counter == self.assy._change_counter: ###@@@ when assy has several, combine them into a ver tuple?
+            if self.last_cp.assy_change_counters == self.assy.all_change_counters(): ###@@@ when assy has several, combine them into a ver tuple?
                 # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
                 # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
                 if debug_undo2:
-                    print "checkpoint type %r with no change in state" % cptype, self.assy._change_counter
-                state = self.last_cp.state
-                self.current_diff.empty = True
-                self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
-                    # I'm not sure this is right, but as long as varid_vers are the same, it seems to make sense... #####@@@@@
+                    print "checkpoint type %r with no change in state" % cptype, self.assy.all_change_counters()
+                really_changed = False
             else:
                 if debug_undo2:
-                    print "checkpoint %r at change %d, last cp was at %d" % (cptype, \
-                                    self.assy._change_counter, self.last_cp.assy_change_counter)
-                state = current_state(self, self.assy, **self.format_options)
+                    print "checkpoint %r at change %r, last cp was at %r" % (cptype, \
+                                    self.assy.all_change_counters(), self.last_cp.assy_change_counters)
+                state = current_state(self, self.assy, **self.format_options) ######@@@@@@ need to optim when only some change_counters changed!
+                really_changed = (state != self.last_cp.state) # this calls StateSnapshot.__ne__ (which calls __eq__) [060227]
+                if not really_changed and env.debug():
+                    print "debug: note: detected lack of really_changed using (state != self.last_cp.state)" ###@@@ remove when works and no bugs then
+                if not really_changed:
+                    # Have to reset changed_counters, or undo stack becomes disconnected, since it uses them as varid_vers.
+                    # Not needed in other case above since they were already equal.
+                    # Side benefit: will fix file-modified indicator too (though in some cases its transient excursion to "modified" during
+                    #  a drag, and back to "unmodified" at the end, might be disturbing). Bug: won't yet fix that if sel changed, model didn't.
+                    #####e for that, need to reset each one separately based on what kind of thing changed. ####@@@@ doit!
+                    self.assy.reset_changed_for_undo( self.last_cp.assy_change_counters)
+            if really_changed:
                 self.current_diff.empty = False # used in constructing undo menu items ####@@@@ DOIT!
-        fill_checkpoint(self.next_cp, state, self.assy) # stores self.assy._change_counter onto it -- do that here, for clarity?
+            else:
+                state = self.last_cp.state # note: depending on how this is reached, it sets state for first time or replaces it with an equal value
+                self.current_diff.empty = True
+                self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
+                    # I'm not sure this is right, but as long as varid_vers are the same, or states equal, it seems to make sense... #####@@@@@
+        fill_checkpoint(self.next_cp, state, self.assy) # stores self.assy.all_change_counters() onto it -- do that here, for clarity?
             #e This will be revised once we incrementally track some changes - it won't redundantly grab unchanged state,
             # though it's likely to finalize and compress changes in some manner, or grab changed parts of the state.
             # It will also be revised if we compute diffs to save space, even for changes not tracked incrementally.
@@ -1111,10 +1136,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # (If it was stored, then whenever we undid a change, we'd have two copies of the same change stored as potential Undos.)
         self.current_diff.suppress_storing_undo_redo_ops = True
 
-        # Some code (find_undoredos) might depend on self.assy._change_counter being a valid
+        # Some code (find_undoredos) might depend on self.assy.all_change_counters() being a valid
         # representative of self.assy's state version;
         # during op.apply_to( archive) that becomes false (as changes occur in archive.assy), but apply_to corrects this at the end
-        # by restoring self.assy._change_counter to the correct old value from the end of the diff.
+        # by restoring self.assy.all_change_counters() to the correct old value from the end of the diff.
 
         # The remaining comments might be current, but they need clarification. [060126 comment]
         
@@ -1142,9 +1167,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def state_version(self):
         assy_varid = make_assy_varid(self.assy._debug_name)
-        assy_ver = self.assy._change_counter # note: this is about totally current state, not any diff or checkpoint;
-            # it will be wrong while we're applying an old diff and didn't yet update assy._change_counter at the end
-        return {assy_varid: assy_ver} # only one varid for now (one global undo stack)
+        assy_ver = self.assy.all_change_counters() # note: this is about totally current state, not any diff or checkpoint;
+            # it will be wrong while we're applying an old diff and didn't yet update assy.all_change_counters() at the end
+        return {assy_varid: assy_ver} # only one varid for now (one global undo stack) [i guess this is still true with 3 change counters... 060227]
     
     def find_undoredos(self):
         "Return a list of undo and/or redo operations that apply to the current state; return merged ops if necessary."
@@ -1156,9 +1181,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # try to track down some of the bugs... if this is run when untracked changes occurred (and no checkpoint),
             # it would miss everything. If this sometimes happens routinely when undo stack *should* be empty but isn't,
             # it could explain dificulty in reproducing some bugs. [060216]
-            if self.last_cp.assy_change_counter != self.assy._change_counter:
-                print "WARNING: find_undoredos sees self.last_cp.assy_change_counter != self.assy._change_counter", \
-                      self.last_cp.assy_change_counter, self.assy._change_counter
+            if self.last_cp.assy_change_counters != self.assy.all_change_counters():
+                print "WARNING: find_undoredos sees self.last_cp.assy_change_counters != self.assy.all_change_counters()", \
+                      self.last_cp.assy_change_counters, self.assy.all_change_counters()
             pass
         state_version = self.state_version()
         ## state_version = dict([self.last_cp.varid_ver()]) ###@@@ extend to more pairs

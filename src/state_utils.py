@@ -50,6 +50,21 @@ Do any inapprop obs get a key (like data or foreign objs) in current code?? ####
 
 # ==
 
+class _UNSET_class:
+    "[private class for _UNSET_, which sometimes represents unset attribute values; there should be only one instance]"
+    #e can we add a decl that makes the _s_attr system notice the bug if it ever hits this value in a real attrval? (should we?)
+    def __repr__(self):
+        return "_UNSET_"
+    pass
+
+try:
+    _UNSET_ # ensure only one instance, even if we reload this module
+except:
+    _UNSET_ = _UNSET_class() ####@@@@ need to use this in the _s_attr / Undo code
+
+
+# ==
+
 class _eq_id_mixin_: ##e use more? (GLPane?)
     """For efficiency, any objects defining __getattr__ which might frequently be compared
     with == or != or coerced to a boolean, should have definitions for __eq__ and __ne__ and __nonzero__
@@ -213,6 +228,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         self.attrs_with_no_dflt = [] # public list of attrs with no declared or evident default value (might be turned into a tuple)
         self.attr_dflt_pairs = [] # public list of attr, dflt pairs, for attrs with a default value (has actual value, not a copy)
         self.dict_of_all_state_attrs = {}
+        self.categories = {} # (public) categories (e.g. 'selection', 'view') for attrs which declare them using _s_categorize_xxx
+        self.defaultvals = {} # (public) ###doc, ####@@@@ use more, also know is_mutable about them, maybe more policy about del on copy
         self.warn = True # from decls seen so far, do we need to warn about this class (once, when we encounter it)?
         self.debug_all_attrs = False # was env.debug(); can normally be False now that system works
         
@@ -224,12 +241,17 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         self.S_CHILDREN_attrs = self.attrs_declared_as(S_CHILD) + self.attrs_declared_as(S_CHILDREN) #e sorted somehow? no need yet.
         self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
 
-        if self.warn:
-            # note: this is not env.debug() since anyone adding new classes needs to see it
+        if self.warn and env.debug():
+            # note: this should not be env.debug() since anyone adding new classes needs to see it...
+            # but during development, with known bugs like this, we should not print stuff so often...
+            # so it's env.debug for now, ####@@@@ FIX THAT LATER  [060227]
             print "InstanceClassification for %r sees no mixin or _s_attr decls; please add them or register it (nim)" \
                   % class1.__name__
         return
 
+    def __repr__(self):
+        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.class1.__name__)
+    
     def _find_attr_decls(self, class1):
         "find _s_attr_xxx decls on class1, and process/store them"
         if self.debug_all_attrs:
@@ -254,6 +276,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                         self.attrs_with_no_dflt.append(attr_its_about)
                     else:
                         self.attr_dflt_pairs.append( (attr_its_about, dflt) )
+                        self.defaultvals[attr_its_about] = dflt
+                        #e maybe also test dflt for is_mutable (nim)?
                         if self.debug_all_attrs:
                             print "                                               dflt val for %r is %r" % (attr_its_about, dflt,)
                     pass
@@ -262,6 +286,11 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 self.warn = False # enough to be legitimate data
             elif name.startswith('_s_scan_children_'):
                 pass ## probably not: self.warn = False
+            elif name.startswith('_s_categorize_'): #060227
+                attr_its_about = name[len('_s_categorize_'):]
+                declval = getattr(class1, name)
+                assert type(declval) == type('category') # not essential, just to warn of errors in initial planned uses
+                self.categories[attr_its_about] = declval
             else:
                 print "warning: unrecognized _s_ attribute ignored:", name ##e
         return
@@ -287,14 +316,25 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
 ##        #e grab our declared attrs in some order... maybe also look in val.__dict__... btw is val already registered with a key?
 ##        # might need another arg which is the archive for that
 
-    def scan_children( self, obj1, func):
+    def scan_children( self, obj1, func, deferred_category_collectors = {}):
+        "[for #doc of deferred_category_collectors, see caller docstring]"
         try:
             # (we might as well test this on obj1 itself, since not a lot slower than memoizing the same test on its class)
-            method = obj1._s_scan_children
+            method = obj1._s_scan_children # bug: not yet passing deferred_category_collectors ###@@@ [not needed for A7, I think]
         except AttributeError:
             for attr in self.S_CHILDREN_attrs:
                 val = getattr(obj1, attr, None)
-                scan_val(val, func) # don't optimize for val is None, since it's probably rare, and this is pretty quick anyway
+                cat = self.categories.get(attr) #e need to optimize this (separate lists of attrs with each cat)?
+                # cat is usually None; following code works then too;
+                #e future optim note: often, cat is 'selection' but val contains no objects (for attr 'picked', val is boolean)
+                collector = deferred_category_collectors.get(cat) # either None, or a dict we should modify (perhaps empty now)
+                if collector is not None: # can't use boolean test, since if it's {} we want to use it
+                    def func2(obj):
+                        ## print "collecting %r into %r while scanning %r" % (obj, cat, attr) # works [060227]
+                        collector[id(obj)] = obj
+                    scan_val(val, func2)
+                else:
+                    scan_val(val, func) # don't optimize for val is None, since it's probably rare, and this is pretty quick anyway
                 #e we might optimize by inlining scan_val, though
         else:
             method(func)
@@ -597,13 +637,65 @@ class StateSnapshot:
         return res
     def __str__(self):
         return "<%s at %#x, %d attrdicts, %d total values>" % (self.__class__.__name__, id(self), len(self.attrdicts), self.size())
-    def print_value_stats(self): # debug function, not yet needed
-        for d in self.attrdicts:
-            # (attrname in more than one class is common, due to inheritance)
-            pass # not yet needed now that I fixed the bug in self.size(), above
-            
-    pass
+##    def print_value_stats(self): # debug function, not yet needed
+##        for d in self.attrdicts:
+##            # (attrname in more than one class is common, due to inheritance)
+##            pass # not yet needed now that I fixed the bug in self.size(), above
+    def __eq__(self, other):
+        "[this is used by undo_archive to see if the state has really changed]"
+        # this implem assumes modtimes/change_counters are not stored in the snapshots (or, not seen by diff_snapshots)!
+        return self.__class__ is other.__class__ and not diff_snapshots(self, other)
+    def __ne__(self, other):
+        return not (self == other)
+    pass # end of class StateSnapshot
 
+def diff_snapshots(snap1, snap2): #060227 experimental
+    "Diff two snapshots. Retval format TBD. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
+    keydict = dict(snap1.attrdicts) # shallow copy, used only for its keys (presence of big values shouldn't slow this down)
+    keydict.update(snap2.attrdicts)
+    attrs = keydict.keys()
+    del keydict
+    attrs.sort() # just so we're deterministic
+    res = {}
+    for attr in attrs:
+        d1 = snap1.attrdicts.get(attr, {})
+        d2 = snap2.attrdicts.get(attr, {})
+        # now diff these dicts; set of keys might not be the same
+        dflt = _UNSET_
+            # This might be correct, assuming each attrdict has been optimized to not store true dflt val for attrdict,
+            # or each hasn't been (i.e. same policy for both).
+            # Needs review. ##k ###@@@ [060227 comment]
+        diff = diffdicts(d1, d2, dflt)
+        if diff:
+            res[attr] = diff #k ok not to copy its mutable state? I think so...
+    return res # just a diff-attrdicts-dict, with no empty dict members (so boolean test works ok) -- not a Snapshot itself.
+
+def diffdicts(d1, d2, dflt = None): ###e dflt is problematic since we don't know it here and it might vary by obj or class
+    """Given two dicts, return a new one with entries at keys where their values differ (according to ==),
+    treating missing values as dflt. Values in retval are pairs (v1, v2) where v1 = d1.get(key, dflt), and same for v2.
+    WARNING: v1 and v2 and dflt in these pairs are not copied; retval might share mutable state with d1 and d2 values and dflt arg.
+    """
+    ###E maybe this dflt feature is not needed, if we already didn't store vals equal to dflt? but how to say "unset" in retval?
+    # Do we need a new unique object not equal to anything else, just to use for Unset?
+    res = {}
+    for key, v1 in d1.iteritems():
+        v2 = d2.get(key, dflt)
+        if v1 == v2: # optim: == will be faster than != for some of our most common values
+            pass
+        else:
+            res[key] = (v1,v2)
+    for key, v2 in d2.iteritems():
+        #e (optim note: i don't know how to avoid scanning common keys twice, just to find d2-only keys;
+        #   maybe copying d1 and updating with d2 and scanning that would be fastest way?)
+        # if d1 has a value, we handled this key already, and this is usually true, so test that first.
+        if not d1.has_key(key):
+            v1 = dflt
+            if v1 == v2: # same order and test as above
+                pass
+            else:
+                res[key] = (v1,v2)
+    return res
+        
 # ==
 
 # Terminology/spelling note: in comments, we use "class" for python classes, "clas" for Classification objects.
@@ -611,13 +703,16 @@ class StateSnapshot:
 # so we might use "clas" (but that's deprecated since we use it for Classification objects too),
 # or "class1", or something else.
 
-class obj_classifier: ####@@@@ make one of these and let it survive as long as the undo archive does.
+class obj_classifier: 
     """Classify objects seen, and save the results, and provide basic uses of the results for scanning.
     Probably can't yet handle "new-style" classes. Doesn't handle extension types (presuming they're not InstanceTypes) [not sure].
     """
     def __init__(self):
         self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications
         self.dict_of_all_state_attrs = {} # maps attrnames to arbitrary values, for all state-holding attrnames ever declared to us
+        self.kluge_attr2metainfo = {}
+            # maps attrnames to the only legal attr_metainfo for that attrname; the kluge is that we require this to be constant per-attr
+        self.kluge_attr2metainfo_from_class = {}
         return
     
     def classify_instance(self, obj):
@@ -636,9 +731,36 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
         # make a new Classification for this class
         clas = self._clas_for_class[class1] = InstanceClassification(class1)
         self.dict_of_all_state_attrs.update( clas.dict_of_all_state_attrs )
+        # Store per-attrdict metainfo, which in principle could vary per-class but should be constant for one attrdict.
+        # This means that classes that disagree about metainfo for the same attrname would need to encode attrnames
+        # into distinct attrkeys to use when finding attrdicts.
+        # Right now we know that never happens, so we just assert it doesn't.
+        #e (To make this system more general (after A7) we'll need to remove assumption that attrname is the right index
+        #   for finding the attrdict. E.g. attr_dflt_pairs becomes (attr, attrkey, dflt) triples, etc.
+        #   Then the following code would need to say it would:
+        #      Figure out whether there's any problematic attrname conflicts that mean we need to encode attrnames,
+        #      so that different classes use different attrdicts for the same-named attr.
+        # )
+
+        # BTW this metainfo is needed by StateSnapshot methods and external code... review organization of all this code later.
+
+        for attr in clas.dict_of_all_state_attrs.keys():
+            attr_metainfo = (attr, clas.defaultvals.get(attr, _UNSET_), clas.categories.get(attr)) #e make this a clas method?
+            if self.kluge_attr2metainfo.has_key(attr):
+                assert self.kluge_attr2metainfo[attr] == attr_metainfo, "%r == %r fails for %r (2nd class is %s, 1st clas incls %r)" % \
+                       (self.kluge_attr2metainfo[attr], attr_metainfo, attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr])
+                    # require same-named attrs to have same dflt and cat (for now)
+            else:
+                self.kluge_attr2metainfo[attr] = attr_metainfo
+                self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
         return clas
 
-    def collect_s_children(self, val):
+    def metainfo4attrkey(self, attrkey): #060227; intended for use in upcoming code to diff snaps and know what kind of state changed.
+        "Return (attrname, defaultval, category) for the given attrkey. (Kluge: for now attrkey == attrname.)"
+        # Someday attrkeys won't always equal attrnames. This API can still work then, tho implem won't.
+        return self.kluge_attr2metainfo[attrkey]
+    
+    def collect_s_children(self, val, deferred_category_collectors = {}):
         """Collect all objects in val, and their s_children, defined as state-holding objects
         found (recursively, on these same objects) in their attributes which were
         declared S_CHILD or S_CHILDREN using the state attribute decl system... [#doc that more precisely]
@@ -646,6 +768,13 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
            Note: this scans through "data objects" (defined as those which define an '_s_deepcopy' method)
         only once, but doesn't include them in the return value. This is necessary (I think) because
         copy_val copies such objects. (Whether it's optimal is not yet clear.)
+           If deferred_category_collectors is provided, it should be a dict from attr-category names
+        (e.g. 'selection', 'view') to usually-empty dicts, into which we'll store id/obj items
+        which we reach through categorized attrs whose category names it lists, rather than scanning them
+        recursively as usual. If we reach one object along multiple attr-paths with different categories,
+        we decide what to do independently each time (thus perhaps recursivly scanning the same object
+        we store in a dict in deferred_category_collectors, or storing it in more than one of those dicts).
+        Caller should ignore such extra object listings as it sees fit. 
         """ 
         #e optimize for hitting some children lots of times, by first storing on id(obj), only later looking up key (if ever).
         saw = {}
@@ -671,7 +800,7 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
                 data_objs[id(obj1)] = obj1
             def func(obj):
                 dict1[id(obj)] = obj
-            clas.scan_children( obj1, func)
+            clas.scan_children( obj1, func, deferred_category_collectors = deferred_category_collectors)
         allobjs = transclose( saw, obj_and_dict) #e rename both args
         if 0 and env.debug(): ###e remove after debugging
             print "atom_debug: collect_s_children had %d roots, from which it reached %d objs, of which %d were data" % \
@@ -722,8 +851,8 @@ class obj_classifier: ####@@@@ make one of these and let it survive as long as t
                     # to report in exceptions! (Though that will make bugs harder to track down, if exceptions occur.)
         if 0 and env.debug():
             print "atom_debug: collect_state got this snapshot:", snapshot
-            if 1: #####@@@@@
-                snapshot.print_value_stats()
+##            if 1: #####@@@@@
+##                snapshot.print_value_stats() # NIM
         return snapshot
 
     def reset_obj_attrs_to_defaults(self, obj):

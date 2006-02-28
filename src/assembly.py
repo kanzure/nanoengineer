@@ -115,11 +115,16 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
 
     # count changes that affect mmp file (includes all structural changes and many display changes);
     # but (for all these change counters) changes occurring between checkpoints might count as only one change
-    _change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
+    _model_change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
+        #bruce 060227 renamed this from _change_counter to _model_change_counter
 
     # count other kinds of changes, not saved but perhaps undoable [bruce 060129; perhaps not yet fully implemented ###@@@]
     _selection_change_counter = 0
     _view_change_counter = 0 # also includes changing current part, glpane display mode
+
+    def all_change_counters(self): #bruce 060227
+        "Return a tuple of all our change counters, suitable for later passing to self.reset_changed_for_undo()."
+        return self._model_change_counter, self._selection_change_counter, self._view_change_counter
     
     undo_manager = None #bruce 060127
 
@@ -830,7 +835,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
 
     # == tracking undoable changes that aren't saved
 
-    def changed_selection(self): #bruce 060129; this will need revision if we make it part-specific ###@@@ not yet called enough
+    def changed_selection(self): #bruce 060129; this will need revision if we make it part-specific
+        # see also same-named Node & Atom methods
         if self._suspend_noticing_changes:
             return
         self._selection_change_counter = env.change_counter_for_changed_objects()
@@ -855,7 +861,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         """
         return self._modified
     
-    def changed(self):
+    def changed(self): # by analogy with other methods this would be called changed_model(), but we won't rename it [060227]
         """Record the fact that this assembly (or something it contains)
         has been changed, in the sense that saving it into a file would
         produce meaningfully different file contents than if that had been
@@ -870,6 +876,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         prior code set self.modified = 1. In the future, this will be called
         from lower-level methods than it is now, making complete coverage
         easier. #e]
+           See also: changed_selection, changed_view.
         """
         # bruce 050107 added this method; as of now, all method names (in all
         # classes) of the form 'changed' or 'changed_xxx' (for any xxx) are
@@ -883,16 +890,16 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         newc = env.change_counter_for_changed_objects() #bruce 060123
         
         if debug_assy_changes:
-            oldc = self._change_counter
+            oldc = self._model_change_counter
             print
             self.modflag_asserts()
             if oldc == newc:
-                print "debug_assy_changes: self._change_counter remains", oldc
+                print "debug_assy_changes: self._model_change_counter remains", oldc
             else:
-                print_compact_stack("debug_assy_changes: self._change_counter %d -> %d: " % (oldc, newc) )
+                print_compact_stack("debug_assy_changes: self._model_change_counter %d -> %d: " % (oldc, newc) )
             pass
         
-        self._change_counter = newc
+        self._model_change_counter = newc
             ###e should optimize by feeding new value from changed children (mainly Nodes) only when needed
             ##e will also change this in some other routine which is run for changes that are undoable but won't set _modified flag
 
@@ -925,11 +932,11 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     def modflag_asserts(self): #bruce 060123; revised 060125
         "check invariants related to self._modified"
         if 1: ###@@@ maybe should be: if platform.atom_debug:
-            hopetrue = ( (not self._modified) == (self._change_counter == self._change_counter_when_reset_changed) )
+            hopetrue = ( (not self._modified) == (self._model_change_counter == self._change_counter_when_reset_changed) )
             if not hopetrue:
                 print_compact_stack(
                     "bug? (%r.modflag_asserts() failed; %r %r %r): " % \
-                      (self, self._modified, self._change_counter, self._change_counter_when_reset_changed)
+                      (self, self._modified, self._model_change_counter, self._change_counter_when_reset_changed)
                 )
         return
 
@@ -992,11 +999,11 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         #e should this call self.w.update_mainwindow_caption(Changed = False),
         # or fulfill a subs to do that?? [bruce question 060123]
 
-        self._change_counter_when_reset_changed = self._change_counter #bruce 060125 (eve) revised this; related to bugs 1387, 1388??
+        self._change_counter_when_reset_changed = self._model_change_counter #bruce 060125 (eve) revised this; related to bugs 1387, 1388??
             ## = env.change_counter_checkpoint() #bruce 060123 for Undo
             ##k not sure it's right to call change_counter_checkpoint and not subsequently call change_counter_for_changed_objects,
             # but i bet it's ok... more problematic is calling change_counter_checkpoint at all! #######@@@@@@@
-            # the issue is, this is not actually a change to our data, so why are we changing self._change_counter??
+            # the issue is, this is not actually a change to our data, so why are we changing self._model_change_counter??
             # OTOH, if just before saving we always changed our data just for fun, the effect would be the same, right?
             # Well, not sure -- what about when we Undo before... if we use this as a vers, maybe no diffs will link at it...
             # but why would they not? this is not running inside undo, but from an op that does changes like anything else does
@@ -1008,24 +1015,29 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             # changing counter even if they wouldn't... call checkpoint here even if not using value?!?!?!? #####@@@@@ 060124 230pm
         #bruce 060201 update for bug 1425: if you call self.changed() right after this, you'll asfail unless we
         # call env.change_counter_checkpoint() now (discarding result is ok), for a good reason -- once we "used up"
-        # the current value of _change_counter in _change_counter_when_reset_changed, we better use a different value
+        # the current value of _model_change_counter in _change_counter_when_reset_changed, we better use a different value
         # for the next real change (so it looks like a change)! This would be needed (to make sure checkpoints notice the change)
         # even if the asserts were not being done. So the following now seems correct and required:
         env.change_counter_checkpoint() #bruce 060201 fix bug 1425
         return
 
-    def reset_changed_for_undo(self, change_counter ): #bruce 060123 guess; needs cleanup
-        """External code (doing an Undo or Redo) has made our state like it was when self._change_counter was as given.
-        Set self._change_counter to that value and update self._modified to match (using self._change_counter_when_reset_changed
-        without changing it).
+    def reset_changed_for_undo(self, change_counters ): #bruce 060123 guess; needs cleanup
+        """External code (doing an Undo or Redo) has made our state like it was when self.all_change_counters() was as given.
+        Set all self._xxx_change_counter attrs to match that tuple,
+        and update self._modified to match (using self._change_counter_when_reset_changed without changing it).
+           Note that modified flag is false if no model changes happened, even if selection or structural changes happened.
+        Thus if we redo or undo past sel or view changes alone, modified flag won't change.
         """
-        # in other words, treat self._change_counter as a varid_vers for our current state... ###@@@
-        modflag = (self._change_counter_when_reset_changed != change_counter)
-            #### ignores issue of undoable changes that are not saved (selection) or don't trigger save (view/part??)
+        # in other words, treat self.all_change_counters() as a varid_vers for our current state... ###@@@
+        model_cc, sel_cc, view_cc = change_counters # order must match self.all_change_counters() retval
+        modflag = (self._change_counter_when_reset_changed != model_cc)
         if debug_assy_changes:
-            print_compact_stack( "debug_assy_changes for %r: reset_changed_for_undo(%r), modflag %r: " % (self,change_counter,modflag) )
+            print_compact_stack( "debug_assy_changes for %r: reset_changed_for_undo(%r), modflag %r: " % \
+                                 (self, change_counters, modflag) )
         self._modified = modflag
-        self._change_counter = change_counter
+        self._model_change_counter = model_cc
+        self._selection_change_counter = sel_cc
+        self._view_change_counter = view_cc
         self.modflag_asserts()
         #####@@@@@ need any other side effects of assy.changed()??
         if self.w:

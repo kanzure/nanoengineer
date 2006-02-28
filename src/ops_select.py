@@ -441,8 +441,9 @@ class ops_select_Mixin:
         if self.selatoms:
             for a in self.selatoms.itervalues():
                 # this inlines and optims atom.unpick
-                a.picked = 0
+                a.picked = False
                 a.molecule.changeapp(1)
+                a.molecule.changed_selection() #bruce 060227; could be optimized #e
             self.selatoms = {}
     
     def unpickparts(self):

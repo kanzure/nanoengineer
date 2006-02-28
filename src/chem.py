@@ -201,7 +201,10 @@ class Atom(InvalMixin, StateMixin):
     # bruce 041109-16 wrote docstring
     # default values of instance variables:
     __killed = 0
-    picked = 0
+    picked = False
+        # self.picked defines whether the atom is selected; see also assembly.selatoms
+        # (note that Nodes also have .picked, with the same meaning, but atoms
+        #  are not Nodes)
     display = diDEFAULT # rarely changed for atoms
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
@@ -236,6 +239,7 @@ class Atom(InvalMixin, StateMixin):
 
     # we'll want an "optional" decl on the following, so they're reset to class attr (or unset) when they equal it:
     _s_attr_picked = S_DATA
+    _s_categorize_picked = 'selection'
     _s_attr_display = S_DATA
     _s_attr_info = S_DATA
     _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
@@ -326,11 +330,6 @@ class Atom(InvalMixin, StateMixin):
         self.bonds = []
         # list of jigs (###e should be treated analogously to self.bonds)
         self.jigs = [] # josh 10/26 to fix bug 85
-        # whether the atom is selected; see also assembly.selatoms
-        # (note that Nodes also have .picked, with the same meaning, but atoms
-        #  are not Nodes)
-        ## [initialized as a class constant:]
-        ## self.picked = 0
         # can be set to override molecule or global value
         ## [initialized as a class constant:]
         ## self.display = diDEFAULT
@@ -512,13 +511,14 @@ class Atom(InvalMixin, StateMixin):
             #  deprecated code in setup_invalidate below, so I think I'll do it
             #  just to be safe.]
             self.molecule.havelist = 0
+            self.molecule.changed() #bruce 060227
         else:
             # the position is stored in the molecule, so let it figure out the
             # proper way of adjusting it -- this also does the necessary invals.
-            self.molecule.setatomposn(self.index, pos, self.element)
+            self.molecule.setatomposn(self.index, pos, self.element) #bruce 060227 added self.molecule.changed() to that method
                 # Warning: if atpos exists, this does lots of work being "incremental" rather than
                 # just getting rid of it. Would it be better to always get rid of it completely?
-                # At least, callers who'll call us a lot should consider doing that first. [bruce 050513]
+                # At least, callers who'll call us a lot should consider doing that first [see setposn_batch]. [bruce 050513]
         # also invalidate the bonds or jigs which depend on our position.
         #e (should this be a separate method -- does anything else need it?)
         for b in self.bonds:
@@ -1125,7 +1125,7 @@ class Atom(InvalMixin, StateMixin):
 
         self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
-            self.picked = 1
+            self.picked = True
             self._picked_time_2 = self.molecule.assy._select_cmd_counter #bruce 051031
             self.molecule.assy.selatoms[self.key] = self
                 #bruce comment 050308: should be ok even if selatoms recomputed for assy.part
@@ -1139,6 +1139,7 @@ class Atom(InvalMixin, StateMixin):
             # on current part, and in both cases the picked atom would be in the current part.
             # If atoms can someday be picked from the mtree (directly or by selecting a jig that
             # connects to them), this will need review.
+            self.molecule.changed_selection() #bruce 060227
         return
 
     _picked_time = _picked_time_2 = -1
@@ -1166,12 +1167,14 @@ class Atom(InvalMixin, StateMixin):
             except:
                 if platform.atom_debug:
                     print_compact_traceback("atom_debug: atom.unpick finds atom not in selatoms: ")
-            self.picked = 0
+            self.picked = False
             # note: no need to change self._picked_time -- that would have no effect unless
             # we later forget to set it when atom is picked, and if that can happen,
             # it's probably better to use a prior valid value than -1. [bruce 051031]
             self.molecule.changeapp(1)
-
+            self.molecule.changed_selection() #bruce 060227 ###@@@ is this needed in any inlines of unpick?
+        return
+    
     def copy_for_mol_copy(self, numol):
         # bruce 041113 changed semantics, and renamed from copy()
         # to ensure only one caller, which is mol.copy()
