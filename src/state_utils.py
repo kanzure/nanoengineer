@@ -695,7 +695,29 @@ def diffdicts(d1, d2, dflt = None): ###e dflt is problematic since we don't know
             else:
                 res[key] = (v1,v2)
     return res
-        
+
+# ==
+
+def diff_and_copy_state(archive, assy, priorstate): #060228 draft, and WHERE I AM
+    "Return a StatePlace which presently owns the CurrentStateCopy but is willing to give it up when this is next called... #doc"
+    new = StatePlace() # will be given stewardship of our maintained copy of always-almost-current state, and returned
+    diffobj = DiffObj()
+    
+    try:
+        steal_current_method = priorstate.steal_current ###IMPLEM
+    except:
+        # special case for priorstate being initial state
+        currentsnap = priorstate.copy() ###IMPLEM and review
+    else:
+        currentsnap = steal_current_method( ) # and we promise to replace it with (new, diffobj) later, or your methods will crash
+    # now we own currentsnap, and we'll modify it to agree with actual current state, and record the changes this required...
+    # initial test: use old inefficient code for this -- soon we'll optim
+    if 1:
+        import undo_archive #e later, inline this until we hit a function in this file
+        cur = undo_archive.current_state(archive, assy, use_060213_format = True)
+        diff = diff_snapshots( currentsnap, cur)
+        currentsnap.become_copy_of(cur) ###IMPLEM
+        new.own_this_currentsnap(currentsnap)
 # ==
 
 # Terminology/spelling note: in comments, we use "class" for python classes, "clas" for Classification objects.
@@ -750,11 +772,12 @@ class obj_classifier:
                 if self.kluge_attr2metainfo[attr] != attr_metainfo:
                     #060228 be gentler, since happens for e.g. Jig.color attrs; collect cases, then decide what to do
                     if self.kluge_attr2metainfo[attr][1] != attr_metainfo[1]:
-                        msg = "undo-debug note: attr %r defaultval differs in %s and %s; ok for now but mention in bug 1586 comment" % \
-                              (attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__)
-                        print msg
-                        from HistoryWidget import redmsg
-                        env.history.message(redmsg( msg ))
+                        if attr not in ('atoms','color'): # known cases as of 060228 2:38pm PST; atoms: Jig vs Chunk; color: same?
+                            msg = "undo-debug note: attr %r defaultval differs in %s and %s; ok for now but mention in bug 1586 comment" % \
+                                  (attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__)
+                            print msg
+                            from HistoryWidget import redmsg
+                            env.history.message(redmsg( msg ))
                         attr_metainfo = list(attr_metainfo)
                         attr_metainfo[1] = self.kluge_attr2metainfo[attr][1] # look the other way - ok since not using this yet ###@@@
                         attr_metainfo = tuple(attr_metainfo)

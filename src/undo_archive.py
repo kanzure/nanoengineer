@@ -1018,41 +1018,51 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
-        self.use_diff = False # until it won't crash
-        if self.use_diff:
-            assert 0 # not used as of bfr 060227, but slated to be used soon
-            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
-            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
-            # (nim or stub)
-            # can't yet optimize by using any change-counter, so at first this will get even slower...
-            # later we can have enough different kinds of change counter to cover every possible change, and restore this.
-            if 0: # if no change, for sure
-                pass #e use same-state optim like below
-            else:
-                ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
-                state_diff = current_state(self, self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
-                    #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
-                    # then we'd have option of copying it or leaving a copy behind, every so often...
-                    # and have a state to store here? nah.
-                    #  note: state_diff is actually a backwards diff, ie has enough info for undo but not for redo
-                self.current_diff.empty = False ###e change to some test on state we just got back
-                state
-                # or fill_checkpoint or equiv, here
+        #self.use_diff = False # until it won't crash; see also comments mentioning 'differential'
+        self.use_diff = debug_pref("use differential undo (nim)?", Choice_boolean_False, prefs_key = 'A7-devel/differential undo')
+            # when it works, rename, redflt, make non_debug ###@@@
+        if self.use_diff and 0:
+            assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
+##            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
+##            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
+##            # (nim or stub)
+##            # can't yet optimize by using any change-counter, so at first this will get even slower...
+##            # later we can have enough different kinds of change counter to cover every possible change, and restore this.
+##            if 0: # if no change, for sure
+##                pass #e use same-state optim like below
+##            else:
+##                ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
+##                state_diff = current_state(self, self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
+##                    #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
+##                    # then we'd have option of copying it or leaving a copy behind, every so often...
+##                    # and have a state to store here? nah.
+##                    #  note: state_diff is actually a backwards diff, ie has enough info for undo but not for redo
+##                self.current_diff.empty = False ###e change to some test on state we just got back
+##                state
+##                # or fill_checkpoint or equiv, here
         else:
-            if self.last_cp.assy_change_counters == self.assy.all_change_counters(): ###@@@ when assy has several, combine them into a ver tuple?
+            if self.last_cp.assy_change_counters == self.assy.all_change_counters():
                 # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
                 # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
                 if debug_undo2:
                     print "checkpoint type %r with no change in state" % cptype, self.assy.all_change_counters()
                 really_changed = False
             else:
+                # possible change in state;
+                # false positives are not common enough to optimize for, but common enough to try to avoid/workaround bugs in
                 if debug_undo2:
                     print "checkpoint %r at change %r, last cp was at %r" % (cptype, \
                                     self.assy.all_change_counters(), self.last_cp.assy_change_counters)
-                state = current_state(self, self.assy, **self.format_options) ######@@@@@@ need to optim when only some change_counters changed!
-                really_changed = (state != self.last_cp.state) # this calls StateSnapshot.__ne__ (which calls __eq__) [060227]
-                if not really_changed and env.debug():
-                    print "debug: note: detected lack of really_changed using (state != self.last_cp.state)" ###@@@ remove when works and no bugs then
+                if not self.use_diff:
+                    state = current_state(self, self.assy, **self.format_options) ######@@@@@@ need to optim when only some change_counters changed!
+                    really_changed = (state != self.last_cp.state) # this calls StateSnapshot.__ne__ (which calls __eq__) [060227]
+                    if not really_changed and env.debug():
+                        print "debug: note: detected lack of really_changed using (state != self.last_cp.state)" ###@@@ remove when works and no bugs then
+                else:
+                    #060228
+                    assert self.format_options == dict(use_060213_format = True), "nim for mmp kluge code" #e in fact, remove that code when new bugs gone
+                    state = diff_and_copy_state(self, self.assy, self.last_cp.state) ###IMPLEM #k unsure of last arg; returns new kind of state object...
+                    really_changed = state.really_changed ###IMPLEM
                 if not really_changed:
                     # Have to reset changed_counters, or undo stack becomes disconnected, since it uses them as varid_vers.
                     # Not needed in other case above since they were already equal.

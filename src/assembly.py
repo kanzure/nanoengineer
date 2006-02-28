@@ -111,23 +111,27 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     """#doc
     """
 
-    # default values of some instance variables
+    # change counters (actually more like modtimes than counters, since changes occurring between checkpoints
+    # might count as only one change -- see code for details):
 
-    # count changes that affect mmp file (includes all structural changes and many display changes);
-    # but (for all these change counters) changes occurring between checkpoints might count as only one change
+    # model changes (all changes that affect mmp file and should mark it in UI as needing to be saved)
+    # (includes all structural changes and many display changes)
+    # (note that a few changes are saved but don't mark it as needing save, like "last view" (always equals current view))
+    
     _model_change_counter = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
-        #bruce 060227 renamed this from _change_counter to _model_change_counter
+        #bruce 060227 renamed this from _change_counter to _model_change_counter, but don't plan to rename self.changed()
 
-    # count other kinds of changes, not saved but perhaps undoable [bruce 060129; perhaps not yet fully implemented ###@@@]
     _selection_change_counter = 0
-    _view_change_counter = 0 # also includes changing current part, glpane display mode
+    
+    _view_change_counter = 0 # also includes changing current part, glpane display mode [mostly nim as of 060228]
 
     def all_change_counters(self): #bruce 060227
         "Return a tuple of all our change counters, suitable for later passing to self.reset_changed_for_undo()."
         return self._model_change_counter, self._selection_change_counter, self._view_change_counter
-    
-    undo_manager = None #bruce 060127
 
+    # state declarations:
+    # (the change counters above should not have ordinary state decls -- for now, they should have none)
+    
     _s_attr_tree = S_CHILD #bruce 060223
     _s_attr_shelf = S_CHILD
     #e then more, including current_movie, temperature, etc (whatever else goes in mmp file is probably all that's needed);
@@ -142,6 +146,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     # don't need .part, it's derived by __getattr__ from selgroup
     ### might need _modified? probably not, do separately
     
+    # initial values of some instance variables
+    undo_manager = None #bruce 060127
     
     def __init__(self, win, name = None, own_window_UI = False):
 
