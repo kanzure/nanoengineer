@@ -60,7 +60,17 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <string.h>
-#include <values.h>
+
+// XXX the mac build environment doesn't seem to include a values.h,
+// and since the windows version doesn't define MAXDOUBLE (which is
+// the only reason we need it), it seems it's only useful on linux.
+// Commenting it out until we know the right way of finding MAXDOUBLE
+// on all platforms.
+//#include <values.h>
+
+// it's possible that includeing float.h and using DBL_MAX is the
+// right way to go.  It should be tested first, though.
+//#include <float.h>
 
 // for some reason, values.h on windows doesn't include this.  we put
 // it here until someone can find the right way to get it defined, or
