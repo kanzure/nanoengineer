@@ -468,6 +468,8 @@ class basicMode(anyMode):
         self.o.setDisplay(self.displayMode) # Set the display mode when entering this mode.
         self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
         self.picking = False
+        self.modkey = self.o.modkeys
+        self.update_cursor(self.modkey)
         return None
 
     def init_gui(self):
@@ -1265,6 +1267,9 @@ class basicMode(anyMode):
         # released, and perhaps when the focus changes. To fix those, we need to
         # track the set of modifiers and use some sort of inval/update system.
         # (Someday. These are low-priority bugs.)
+        pass
+        
+    def update_cursor(self, modkey): # mark 060227
         pass
 
     def makemenu(self, lis):

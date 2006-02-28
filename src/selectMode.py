@@ -233,85 +233,11 @@ class selectMode(basicMode):
     def leftDouble(self, event):
         '''Select the part containing the atom the cursor is on.
         '''
-        print "selectMode.leftDouble() called.  Doing nothing."
+        self.move() # go into move mode.
+          # This will likely go away in A8.  mark 060227.
         return
         
 # == end of LMB event handlers.
-
-    def update_modkeyPress(self, key):
-        '''Updates the modkey, where:
-            None = no modkey
-            Shift = Shift modkey
-            Control = Control modkey
-            Delete = Shift+Control modkeys
-        '''
-        if key != Qt.Key_Shift and key != Qt.Key_Control:
-            return
-                
-        if key == Qt.Key_Control: # Control mod key
-            if self.modkey is None:
-                self.modkey = 'Control' 
-            elif self.modkey == 'Shift':
-                self.modkey = 'Shift+Control'
-                if self.o.selobj and self.hover_highlighting_enabled:
-                    # If something is under the cursor, repaint to update the correct 
-                    # highlight color (darkred).
-                    self.o.gl_update()
-            else:
-                print "Error in keyPress(): invalid modkey=", self.modkey
-        
-        if key == Qt.Key_Shift: # Shift mod key
-            if self.modkey is None:
-                self.modkey = 'Shift' 
-            elif self.modkey == 'Control':
-                self.modkey = 'Shift+Control'
-            else:
-                print "Error in keyPress(): invalid modkey=", self.modkey
-                    
-        self.prev_modkey = self.modkey
-                    
-        self.update_cursor(self.modkey)
-                        
-    def update_modkeyRelease(self, key):
-        '''Updates the modkey, where:
-            None = no modkey
-            Shift = Shift modkey
-            Control = Control modkey
-            Delete = Shift+Control modkeys
-        '''
-            
-        if key != Qt.Key_Shift and key != Qt.Key_Control:
-            return
-                
-        if key == Qt.Key_Control: # Control mod key
-            if self.modkey == 'Control':
-                self.modkey = None 
-            elif self.modkey == 'Shift+Control':
-                self.modkey = 'Shift'
-                if self.o.selobj and self.hover_highlighting_enabled:
-                    # We just came out of "delete" mode. If something is under the cursor, 
-                    # repaint to update its correct (normal) highlight color.
-                    self.o.gl_update()
-            elif self.modkey == None:
-                pass
-            else:
-                print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
-        
-        if key == Qt.Key_Shift: # Shift mod key
-            if self.modkey == 'Shift':
-                self.modkey = None 
-            elif self.modkey == 'Shift+Control':
-                self.modkey = 'Control'
-                if self.o.selobj and self.hover_highlighting_enabled:
-                    # We just came out of "delete" mode. If something is under the cursor, 
-                    # repaint to update its correct (normal) highlight color.
-                    self.o.gl_update()
-            elif self.modkey == None:
-                pass
-            else:
-                print_compact_stack('Invalid self.modkey = "' + str(self.modkey) + '" ')
-            
-        self.update_cursor(self.modkey)
 
 #== Selection Curve helper methods
 
@@ -702,6 +628,7 @@ class selectMode(basicMode):
         if not self.current_obj_clicked:
             # Atom was dragged.  Nothing to do but return.
             self.set_cmdname('Move Atom') #& Not taking. mark 060220.
+            self.o.assy.changed() # mark 060227
             return
             
         nochange = False
@@ -1039,8 +966,6 @@ class selectMolsMode(selectMode):
             
     def init_gui(self):
         selectMode.init_gui(self)
-        self.o.setCursor(self.w.SelectMolsCursor)
-        self.w.OldCursor = QCursor(self.o.cursor())
         self.w.toolsSelectMoleculesAction.setOn(1) # toggle on the "Select Chunks" tools icon
         self.w.selectMolDashboard.show()
             
@@ -1051,13 +976,11 @@ class selectMolsMode(selectMode):
         '''keypress event handler for selectMolsMode.
         '''
         basicMode.keyPress(self, key)
-        self.update_modkeyPress(key)
                 
     def keyRelease(self,key):
         '''keyrelease event handler for selectMolsMode.
         '''
         basicMode.keyRelease(self, key)
-        self.update_modkeyRelease(key)
         
     def update_cursor(self, modkey):
         '''Update the mouse cursor based on <modkey> for selectMolsMode.
@@ -1077,11 +1000,9 @@ class selectMolsMode(selectMode):
                 
     def rightShiftDown(self, event):
         basicMode.rightShiftDown(self, event)
-        self.o.setCursor(self.w.SelectMolsCursor)
            
     def rightCntlDown(self, event):          
         basicMode.rightCntlDown(self, event)
-        self.o.setCursor(self.w.SelectMolsCursor)
 
 
 class selectAtomsMode(selectMode):
@@ -1165,7 +1086,6 @@ class selectAtomsMode(selectMode):
             
     def init_gui(self):
         selectMode.init_gui(self)
-        self.o.setCursor(self.w.SelectAtomsCursor)
         self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
             
         #self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
@@ -1527,8 +1447,6 @@ class selectAtomsMode(selectMode):
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
             return
-
-        self.o.assy.changed() #& Is this always true here?  mark 060220.
         
         if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
             self.singletLeftDown(obj, event)
@@ -1728,7 +1646,6 @@ class selectAtomsMode(selectMode):
         from MWsemantics import eCCBtab2
             
         basicMode.keyPress(self, key)
-        self.update_modkeyPress(key)
 
         if self.o.mode.modename in ['SELECTATOMS']: 
             # Add the mode name to this list to support filtering using keypresses to select element type.
@@ -1737,22 +1654,11 @@ class selectAtomsMode(selectMode):
                     line = eCCBtab2[num] + 1
                     self.w.elemFilterComboBox.setCurrentItem(line)
                     #self.elemChange(line)
-                    
-        if self.o.selobj and self.modkey == 'Shift+Control' and self.hover_highlighting_enabled:
-            # If something is under the cursor and we just came out of "delete" mode, 
-            # repaint to update its correct (normal) highlight color.
-            self.o.gl_update()
                 
     def keyRelease(self,key):
         '''keyrelease event handler for selectAtomsMode.
         '''
         basicMode.keyRelease(self, key)
-        self.update_modkeyRelease(key)
-        
-        if self.o.selobj and self.prev_modkey == 'Shift+Control' and self.hover_highlighting_enabled:
-            # If something is under the cursor and we just came out of "delete" mode, 
-            # repaint to update its correct (normal) highlight color.
-            self.o.gl_update()
             
     def update_cursor(self, modkey):
         '''Update the mouse cursor based on <modkey>.

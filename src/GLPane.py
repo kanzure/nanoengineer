@@ -1019,6 +1019,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # - confused if user releases two mouse buttons at different times to end a drag (thinks the first one ended it).
             # All these can be fixed straightforwardly when they become important enough. [bruce 060220]
         self.in_drag = but & (leftButton|midButton|rightButton) # you can also use this to see which mouse buttons are involved
+            # When the mouse button is released, in_drag = 1 (True).  This is a bug.  Talk to Bruce since
+            # I'm not sure how to fix it.  As a workaround, see mouseReleaseEvent(). mark 060227.
         self.update_modkeys(but)
             # need to call this when drag starts; ok to call it during drag too,
             # since retval is what came from fix_event
@@ -1043,11 +1045,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             self.modkeys = None
         if self.modkeys != oldmodkeys:
-            pass
+            self.mode.modkey = self.modkeys
+            
             ## This would be a good place to tell the mode (self.mode) it might want to update the cursor,
             ## based on all state it knows about, including self.modkeys and what mouse is over,
             ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
             ## where we need that even if modkeys didn't change. [bruce 060220]
+            self.mode.update_cursor(self.modkeys)
+            
+            if self.selobj and self.mode.hover_highlighting_enabled:
+                if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':
+                    # If something is highlighted under the cursor and we just pressed or released 
+                    # "Shift+Control", repaint to update its correct highlight color.
+                    self.gl_update()
+        
         return
 
     def begin_select_cmd(self):
@@ -1161,6 +1172,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         ## but = event.state()
         but = self.fix_event(event, 'release', self.mode)
         #print "Button released: ", but
+        
+        #print "in_drag=", self.in_drag
+        self.in_drag=False 
+            # This fixes a bug in fix_event() in which in_drag = 1 (True) 
+            # even after the mouse button is released. mark 060227.
         
         try:
             if but & leftButton:
