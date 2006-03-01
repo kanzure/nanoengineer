@@ -60,6 +60,8 @@ except ImportError:
     class AtomBase:
         def __init__(self):
             pass
+        def __getattr__(self, attr):
+            raise AttributeError, attr
 
 from HistoryWidget import orangemsg
 from debug import print_compact_stack, print_compact_traceback, compact_stack, privateMethod
@@ -362,6 +364,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ##     self._source = compact_stack()
         self.set_atomtype_but_dont_revise_singlets( atype)
         return # from atom.__init__
+
+    def __getattr__(self, attr):
+        try:
+            return AtomBase.__getattr__(self, attr)
+        except AttributeError:
+            return InvalMixin.__getattr__(self, attr)
 
     def unset_atomtype(self): #bruce 050707
         "Unset self.atomtype, so that it will be guessed when next used from the number of bonds at that time."
