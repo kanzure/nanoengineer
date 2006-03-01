@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Feb 20 22:06:01 2006
+# Created: Wed Mar 1 16:09:08 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1408,8 +1408,6 @@ class UserPrefsDialog(QDialog):
         self.hotspot_color_btn.setText(self.__tr("Choose..."))
         self.reset_atom_colors_btn.setText(self.__tr("Restore Default Colors"))
         self.textLabel1_3_2.setText(self.__tr("CPK Atom Radius :"))
-        QToolTip.add(self.textLabel1_3_2,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
-        QWhatsThis.add(self.textLabel1_3_2,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
         self.textLabel1_7.setText(self.__tr("Level of Detail :"))
         self.textLabel1_4.setText(self.__tr("%"))
         self.level_of_detail_combox.clear()
@@ -1424,15 +1422,12 @@ class UserPrefsDialog(QDialog):
         self.bond_cpk_color_btn.setText(self.__tr("Choose..."))
         self.bond_vane_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
-        QToolTip.add(self.textLabel3_2_2,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.textLabel3_2.setText(self.__tr("Bond Highlighting :"))
         self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
         self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3.setText(self.__tr("CPK Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Restore Default Colors"))
         self.textLabel1_3.setText(self.__tr("CPK Cylinder Radius :"))
-        QToolTip.add(self.textLabel1_3,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
-        QWhatsThis.add(self.textLabel1_3,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
         self.textLabel1_2_2.setText(self.__tr("%"))
         self.textLabel1.setText(self.__tr("Bond Line Thickness :"))
         QToolTip.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
@@ -1529,14 +1524,22 @@ class UserPrefsDialog(QDialog):
         self.file_locations_grp.setTitle(self.__tr("Location of Executables"))
         self.nanohive_path_linedit.setText(QString.null)
         self.gamess_path_linedit.setText(QString.null)
+        QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QWhatsThis.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.nanohive_choose_btn.setText(self.__tr("Choose..."))
         self.gamess_choose_btn.setText(self.__tr("Choose..."))
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
-        QToolTip.add(self.gamess_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         self.nanohive_lbl.setText(self.__tr("Nano-Hive :"))
-        QToolTip.add(self.nanohive_lbl,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QToolTip.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
+        QWhatsThis.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
         self.gamess_checkbox.setText(QString.null)
+        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
         self.nanohive_checkbox.setText(QString.null)
+        QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
+        QWhatsThis.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.history_height_lbl.setText(self.__tr("Height :"))
         QToolTip.add(self.history_height_spinbox,self.__tr("Number of lines displayed in the history area."))

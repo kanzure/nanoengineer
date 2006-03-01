@@ -977,12 +977,6 @@
                                 <property name="text">
                                     <string>CPK Atom Radius :</string>
                                 </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                </property>
                             </widget>
                             <widget class="QLabel" row="1" column="0">
                                 <property name="name">
@@ -1279,9 +1273,6 @@
                                                 <property name="alignment">
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                                </property>
                                             </widget>
                                             <widget class="QLabel" row="0" column="0">
                                                 <property name="name">
@@ -1461,12 +1452,6 @@
                                         </property>
                                         <property name="text">
                                             <string>CPK Cylinder Radius :</string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
                                         </property>
                                     </widget>
                                     <widget class="QSpinBox">
@@ -3387,6 +3372,12 @@
                                         <property name="readOnly">
                                             <bool>true</bool>
                                         </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                        </property>
                                     </widget>
                                     <widget class="QPushButton" row="1" column="1">
                                         <property name="name">
@@ -3445,7 +3436,10 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                         <property name="toolTip" stdset="0">
-                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                            <string>Enable GAMESS.</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Enable GAMESS.</string>
                                         </property>
                                     </widget>
                                     <widget class="QLabel" row="1" column="1">
@@ -3476,7 +3470,10 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                         <property name="toolTip" stdset="0">
-                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                            <string>Enable Nano-Hive.</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Enable Nano-Hive.</string>
                                         </property>
                                     </widget>
                                     <widget class="QCheckBox" row="0" column="0">
@@ -3485,6 +3482,12 @@
                                         </property>
                                         <property name="text">
                                             <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable GAMESS.</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Enable GAMESS.</string>
                                         </property>
                                     </widget>
                                     <widget class="QCheckBox" row="1" column="0">
@@ -3496,6 +3499,12 @@
                                         </property>
                                         <property name="text">
                                             <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable Nano-Hive.</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Enable Nano-Hive.</string>
                                         </property>
                                     </widget>
                                 </grid>
