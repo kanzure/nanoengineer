@@ -566,6 +566,8 @@ readMMP(char *filename)
     /* lmotor (name) (r,g,b) <force> <stiff> (<center>) (<axis>) */
     // shaft atom...
     // linear motor
+    // force in pN
+    // stiffness in N/m
     else if (0==strcmp(tok, "lmotor")) {
       name = expectName(mmp);
       expectXYZInts(mmp, NULL); // ignore (rgb) triplet

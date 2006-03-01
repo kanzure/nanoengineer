@@ -252,19 +252,34 @@ minimizeStructureConstraints(struct configuration *p)
 {
     int i;
     int j;
+    double dist;
     struct jig *jig;
     struct xyz *positions = (struct xyz *)p->coordinate;
+    struct xyz delta;
     struct atom *a;
     int index;
     
     for (i=0; i<Part->num_jigs; i++) {
         jig = Part->jigs[i];
-        if (jig->type == Ground) {
+        switch (jig->type) {
+        case Ground:
             for (j=0; j<jig->num_atoms; j++) {
                 a = jig->atoms[j];
                 index = a->index;
                 positions[index] = Part->positions[index];
             }
+            break;
+        case LinearMotor:
+            for (j=0; j<jig->num_atoms; j++) {
+                a = jig->atoms[j];
+                index = a->index;
+                vsub2(delta, positions[index], Part->positions[index]);
+                dist = vdot(delta, jig->j.lmotor.axis);
+                vadd2scale(positions[index], jig->j.lmotor.axis, dist);
+            }
+            break;
+        default:
+            break;
         }
     }
 }

@@ -121,10 +121,10 @@ struct jig
 	} rmotor;
 	
 	struct {
-	    double force; // formerly stall
-	    double stiffness; // formerly speed
-	    struct xyz center;
-	    struct xyz axis;
+	    double force; // formerly stall, in pN
+	    double stiffness; // formerly speed, in N/m
+	    struct xyz constantForce; // force to apply to each atom if stiffness is zero
+	    struct xyz axis; // all atoms constrained to move along this axis
 	    
 	    // Project center of atoms in motor onto axis.  Distance along
 	    // axis from there to center of mass is motorPosition.

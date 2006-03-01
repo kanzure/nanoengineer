@@ -261,8 +261,10 @@ jigLinearMotor(struct jig *jig, struct xyz *position, struct xyz *new_position, 
     x=vdot(r,jig->j.lmotor.axis);
     jig->data = x - jig->j.lmotor.motorPosition;
 
+    // f is the amount of force to apply to each atom.  Always a
+    // vector along the motor axis.
     if (jig->j.lmotor.stiffness == 0.0) {
-        vset(f, jig->j.lmotor.center);
+        vset(f, jig->j.lmotor.constantForce);
     } else {
 	// zeroPosition is projection distance of r onto axis for 0 force
 	ff = jig->j.lmotor.stiffness * (jig->j.lmotor.zeroPosition - x) / jig->num_atoms;
@@ -274,28 +276,97 @@ jigLinearMotor(struct jig *jig, struct xyz *position, struct xyz *new_position, 
     // XXX report resulting force on linear bearing out to higher level
     for (i=0;i<jig->num_atoms;i++) {
         a1 = jig->atoms[i]->index;
+        // constrain new_position to be along motor axis from position
         ff = vdot(vdif(new_position[a1], position[a1]), jig->j.lmotor.axis);
         vadd2(new_position[a1], position[a1], vprodc(jig->j.lmotor.axis, ff));
+
+        // add f to force, and remove everything except the axial component
         ff = vdot(vsum(force[a1], f), jig->j.lmotor.axis) ;
         vmul2c(force[a1], jig->j.lmotor.axis, ff);
     }
 }
 
+// note linear motor has zero degrees of freedom, so pDistance is not valid.
 double
 jigMinimizePotentialLinearMotor(struct part *p, struct jig *jig,
-                                struct xyz *positions,
+                                struct xyz *position,
                                 double *pDistance)
 {
-    return 0.0;
+    int i;
+    struct xyz r;
+    double x;
+
+    // calculate the average position of all atoms in the motor (r)
+    r = vcon(0.0);
+    for (i=0;i<jig->num_atoms;i++) {
+        /* for each atom connected to the "shaft" */
+        r=vsum(r,position[jig->atoms[i]->index]);
+    }
+    r=vprodc(r, 1.0/jig->num_atoms);
+
+    // x is length of projection of r onto axis (axis is unit vector)
+    x=vdot(r,jig->j.lmotor.axis);
+
+    if (jig->j.lmotor.stiffness == 0.0) {
+	// motorPosition is projection distance of r onto axis for 0 displacement
+        x -= jig->j.lmotor.motorPosition;
+        // x in pm, jig->j.lmotor.force in pN
+        // x * force in yJ
+        return x * jig->j.lmotor.force * -1e-6; // in aJ
+    } else {
+	// zeroPosition is projection distance of r onto axis for 0 force
+        x -= jig->j.lmotor.zeroPosition;
+        // x in pm, stiffness in N/m
+        // stiffness * x * x / 2 in yJ
+	return jig->j.lmotor.stiffness * x * x * 0.5 * 1e-6; // in aJ
+    }
 }
 
 void
 jigMinimizeGradientLinearMotor(struct part *p, struct jig *jig,
-                               struct xyz *positions,
+                               struct xyz *position,
                                struct xyz *force,
                                double *pDistance,
                                double *pGradient)
 {
+    int i;
+    int a1;
+    struct xyz r;
+    struct xyz f;
+    double ff, x;
+
+    // calculate the average position of all atoms in the motor (r)
+    r = vcon(0.0);
+    for (i=0;i<jig->num_atoms;i++) {
+        /* for each atom connected to the "shaft" */
+        r=vsum(r,position[jig->atoms[i]->index]);
+    }
+    r=vprodc(r, 1.0/jig->num_atoms);
+
+    // x is length of projection of r onto axis (axis is unit vector)
+    x=vdot(r,jig->j.lmotor.axis);
+
+    // f is the amount of force to apply to each atom.  Always a
+    // vector along the motor axis.
+    if (jig->j.lmotor.stiffness == 0.0) {
+        vset(f, jig->j.lmotor.constantForce);
+    } else {
+	// zeroPosition is projection distance of r onto axis for 0 force
+	ff = jig->j.lmotor.stiffness * (jig->j.lmotor.zeroPosition - x) / jig->num_atoms;
+	f = vprodc(jig->j.lmotor.axis, ff);
+    }
+    // Calculate the resulting force on each atom, and project it onto
+    // the motor axis.
+    for (i=0;i<jig->num_atoms;i++) {
+        a1 = jig->atoms[i]->index;
+        // position constraints have already been applied, and
+        // besides, with no non-axial forces we should never get off
+        // axis anyway...
+
+        // add f to force, and remove everything except the axial component
+        ff = vdot(vsum(force[a1], f), jig->j.lmotor.axis) ;
+        vmul2c(force[a1], jig->j.lmotor.axis, ff);
+    }
 }
 
 void

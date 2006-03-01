@@ -917,9 +917,17 @@ makeRotaryMotor(struct part *p, char *name,
 // the axis vector.  A constant force can be applied, or they can be
 // connected to a spring of the given stiffness.
 //
-// I don't think center actually matters. -emm
+// Jig output is the change in the averge of the positions of all of
+// the atoms in the motor from the input positions.
 //
-// XXX behavior when both force and stiffness specified?
+// When stiffness is zero, force is uniformly divided among the atoms.
+//
+// When stiffness is non-zero, it represents a spring connecting the
+// center of the atoms to a point along the motor axis from that
+// point.  The force parameter is used to determine where the spring
+// is attached.  The spring attachment point is such that the initial
+// force on the motor is the force parameter.  The force from the
+// spring is always evenly divided among the atoms.
 void
 makeLinearMotor(struct part *p, char *name,
                 double force, double stiffness,
@@ -933,11 +941,13 @@ makeLinearMotor(struct part *p, char *name,
     
     j->type = LinearMotor;
     j->name = name;
-    j->degreesOfFreedom = 1; // distance motor has moved in pm.
+    // linear motor is not a distinct object which can move on its
+    // own, it's just a function of the average location of its atoms,
+    // so it has no independant degrees of freedom.
+    //j->degreesOfFreedom = 1; // distance motor has moved in pm.
     
-    j->j.lmotor.force = force;
-    j->j.lmotor.stiffness = stiffness;
-    j->j.lmotor.center = *center;
+    j->j.lmotor.force = force; // in pN
+    j->j.lmotor.stiffness = stiffness; // in N/m
     j->j.lmotor.axis = uvec(*axis);
     jigAtomList(p, j, atomListLength, atomList);
     
@@ -954,9 +964,10 @@ makeLinearMotor(struct part *p, char *name,
     
     if (stiffness == 0.0) {
 	j->j.lmotor.zeroPosition = x;
-	j->j.lmotor.center = vprodc(j->j.lmotor.axis, force / atomListLength);
+	j->j.lmotor.constantForce = vprodc(j->j.lmotor.axis, force / atomListLength);
     } else {
 	j->j.lmotor.zeroPosition = x + force / stiffness ;
+        vsetc(j->j.lmotor.constantForce, 0.0);
     }
 }
 
@@ -1102,8 +1113,8 @@ printJig(FILE *f, struct part *p, struct jig *j)
     case LinearMotor:
 	fprintf(f, "  force: %f\n", j->j.lmotor.force);
 	fprintf(f, "  stiffness: %f\n", j->j.lmotor.stiffness);
-	fprintf(f, "  center: ");
-	printXYZ(f, j->j.lmotor.center);
+	fprintf(f, "  constantForce: ");
+	printXYZ(f, j->j.lmotor.constantForce);
 	fprintf(f, "\n");
 	fprintf(f, "  axis: ");
 	printXYZ(f, j->j.lmotor.axis);
