@@ -39,6 +39,8 @@ usage()
    --interpolate\n\
                     use interpolation tables for potential and gradient functions\n\
                     [[current default is --direct-evaluate, should change to --interpolate]]\n\
+   --simple-movie-force-scale=<float>\n\
+                    used with -D4 and -D5 to scale length of force vectors.\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
    -m, --minimize\n\
@@ -121,6 +123,7 @@ set_py_exc_str(const char *filename, const char *funcname,
 #define OPT_LIMIT             LONG_OPT (5)
 #define OPT_DIRECT_EVALUATE   LONG_OPT (6)
 #define OPT_INTERPOLATE       LONG_OPT (7)
+#define OPT_SIMPLE_MOVIE_FORCE_SCALE LONG_OPT (8)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -131,6 +134,7 @@ static const struct option option_vec[] = {
     { "limit", required_argument, NULL, OPT_LIMIT},
     { "direct-evaluate", no_argument, NULL, OPT_DIRECT_EVALUATE},
     { "interpolate", no_argument, NULL, OPT_INTERPOLATE},
+    { "simple-movie-force-scale", required_argument, NULL, OPT_SIMPLE_MOVIE_FORCE_SCALE},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -224,6 +228,9 @@ main(int argc, char **argv)
         case OPT_INTERPOLATE:
             DirectEvaluate = 0;
 	    break;
+        case OPT_SIMPLE_MOVIE_FORCE_SCALE:
+            SimpleMovieForceScale = atof(optarg);
+            break;
 	case 'n':
 	    // ignored
 	    break;

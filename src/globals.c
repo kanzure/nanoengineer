@@ -43,6 +43,7 @@ char *OutputFileName;
 char *TraceFileName;
 char *BaseFileName;
 int QualityWarningLevel;
+float SimpleMovieForceScale;
 
 FILE *OutputFile;
 FILE *TraceFile;
@@ -96,6 +97,7 @@ reinit_globals(void)
     TraceFileName = NULL;
     BaseFileName = NULL;
     QualityWarningLevel = 5;
+    SimpleMovieForceScale = 0.1;
 
     OutputFile = NULL;
     TraceFile = NULL;

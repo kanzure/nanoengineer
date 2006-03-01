@@ -438,7 +438,6 @@ static float forceColors[7][3] = {
     { 1.0, 1.0, 0.0 }  // 6 yellow:  total force on atom from potential deltas
 };
 
-#define FORCE_SCALE 0.1
 void
 writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color, double scale)
 {
@@ -450,9 +449,9 @@ writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int colo
                 positions[i].x,
                 positions[i].y,
                 positions[i].z,
-                positions[i].x + (force->x * scale * FORCE_SCALE),
-                positions[i].y + (force->y * scale * FORCE_SCALE),
-                positions[i].z + (force->z * scale * FORCE_SCALE),
+                positions[i].x + (force->x * scale * SimpleMovieForceScale),
+                positions[i].y + (force->y * scale * SimpleMovieForceScale),
+                positions[i].z + (force->z * scale * SimpleMovieForceScale),
                 forceColors[color][0],
                 forceColors[color][1],
                 forceColors[color][2]);

@@ -32,6 +32,7 @@ extern char *OutputFileName;
 extern char *TraceFileName;
 extern char *BaseFileName;
 extern int QualityWarningLevel;
+extern float SimpleMovieForceScale;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;
