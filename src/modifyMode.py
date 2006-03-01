@@ -7,7 +7,7 @@ $Id$
 bruce 050913 used env.history in some places.
 """
 
-from modes import *
+from selectMode import *
 from widgets import FloatSpinBox
 from HistoryWidget import redmsg
 import env
@@ -77,7 +77,7 @@ def get_move_xyz(win, Plus = 1):
     if Plus: return (x,y,z) # Plus
     else: return (-x, -y, -z) # Minus
     
-class modifyMode(basicMode):
+class modifyMode(selectMolsMode): # changed superclass from basicMode to selectMolsMode.  mark 060301.
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
     # class constants
@@ -105,7 +105,6 @@ class modifyMode(basicMode):
 
     # init_gui handles all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
-        self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Chunks icon
         self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
         
@@ -140,16 +139,11 @@ class modifyMode(basicMode):
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)
-#        print "modifyMode: keyPress, key=", key
-        if key == Qt.Key_Shift:
-            self.o.setCursor(self.w.MoveAddCursor)
-        elif key == Qt.Key_Control:
-            self.o.setCursor(self.w.MoveSubtractCursor)
 
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
-        elif key == Qt.Key_X:
+        if key == Qt.Key_X:
             self.w.transXAction.setOn(1) # toggle on the Translate X action item
         elif key == Qt.Key_Y:
             self.w.transYAction.setOn(1) # toggle on the Translate Y action item
@@ -164,10 +158,8 @@ class modifyMode(basicMode):
                 
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
-#        print "modifyMode: keyRelease, key=", key
-        if key == Qt.Key_Shift or key == Qt.Key_Control:
-            self.o.setCursor(self.w.MoveSelectCursor)
-        elif key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
+
+        if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
             self.w.moveFreeAction.setOn(1) # toggle on the Move Chunks icon
             self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
         elif key == Qt.Key_R:
@@ -175,13 +167,28 @@ class modifyMode(basicMode):
         elif key == Qt.Key_T:
             self.TranslationOnly = False # Unconstrain rotation.
             
+    def update_cursor_for_no_MB(self):
+        '''Update the cursor for 'Move Chunks' mode.
+        '''
+        if self.o.modkeys is None:
+            self.o.setCursor(self.w.MoveSelectCursor)
+        elif self.o.modkeys == 'Shift':
+            #self.o.setCursor(self.w.MoveAddCursor)
+            self.o.setCursor(self.w.MoveRotateMolCursor)
+        elif self.o.modkeys == 'Control':
+            #self.o.setCursor(self.w.MoveSubtractCursor)
+            self.o.setCursor(self.w.RotateMolCursor)
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.setCursor(self.w.DeleteCursor)
+        else:
+            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+        return
+            
     def rightShiftDown(self, event):
             basicMode.rightShiftDown(self, event)
-            self.o.setCursor(self.w.MoveSelectCursor)
            
     def rightCntlDown(self, event):          
             basicMode.rightCntlDown(self, event)
-            self.o.setCursor(self.w.MoveSelectCursor)
            
     def leftDown(self, event):
         """Move the selected object(s).
@@ -196,6 +203,8 @@ class modifyMode(basicMode):
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
         
         if not self.o.assy.getSelectedMovables(): return
+        
+        # This needs to be refactored further into move and translate methods. mark 060301.
         
         # Move section
         wX = event.pos().x()
@@ -244,7 +253,7 @@ class modifyMode(basicMode):
         #the root of the serials of bugs including a lot of cursor bugs is
         # the mouse event processing function. For bug 460, the 
         # obvious reason is leftDown() is not called before the leftDrag()
-        # Call. 
+        #& Not sure this is true anymore with the new cursor/modkey API.  mark 060301.
         if not self.picking: return
         
         if not self.o.assy.getSelectedMovables(): return
@@ -276,7 +285,6 @@ class modifyMode(basicMode):
         
         # Translate/Rotate section
         else: 
-            #self.o.setCursor(self.w.MoveRotateMolCursor)
         
             w=self.o.width+0.0
             h=self.o.height+0.0
@@ -318,6 +326,7 @@ class modifyMode(basicMode):
     # end of leftDrag
 
     def leftUp(self, event):
+            
         if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
             self.EndPick(event, ADD_TO_SELECTION) # Fixes bug 1015. Mark 051124.
         else:
@@ -353,7 +362,7 @@ class modifyMode(basicMode):
             self.w.win_update()
      
     def leftCntlDown(self, event):
-        """Setup a trackball action on each selected part.
+        """Setup a trackball action on the selected chunk(s).
         """
         if not self.o.assy.getSelectedMovables(): return
         
@@ -364,14 +373,12 @@ class modifyMode(basicMode):
 
    
     def leftCntlDrag(self, event):
-        """Do an incremental trackball action on all selected part(s).
+        """Do an incremental trackball action on all selected chunks(s).
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
         
         if not self.o.assy.getSelectedMovables(): return
-
-        self.o.setCursor(self.w.RotateMolCursor)
         
         w=self.o.width+0.0
         h=self.o.height+0.0
@@ -388,9 +395,12 @@ class modifyMode(basicMode):
         self.EndPick(event, SUBTRACT_FROM_SELECTION)
     
     def leftShiftDown(self, event):
-        """ Set up for sliding or rotating the selected part
-        unlike select zoom/rotate, can have combined motion
+        """ Set up for sliding and/or rotating the selected chunk(s) along/around its own axis.
         """
+        if self.o.modkeys == 'Shift+Control':
+            self.start_selection_curve(event, DELETE_SELECTION)
+            return
+            
         movables = self.o.assy.getSelectedMovables()
         if not movables: return
         
@@ -405,16 +415,19 @@ class modifyMode(basicMode):
 
         
     def leftShiftDrag(self, event):
-        """move part along its axis (mouse goes up or down)
-           rotate around its axis (left-right)
+        """Move selected chunk(s) along its axis (mouse goes up or down)
+           and rotate around its axis (left-right)
         """
+            
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
+        
+        if self.o.modkeys == 'Shift+Control':
+            self.continue_selection_curve(event)
+            return
 
         movables = self.o.assy.getSelectedMovables()
         if not movables: return
-        
-        self.o.setCursor(self.w.MoveRotateMolCursor)
         
         w=self.o.width+0.0
         h=self.o.height+0.0
@@ -433,24 +446,21 @@ class modifyMode(basicMode):
     
     
     def leftShiftUp(self, event):
+                
+        if self.o.modkeys == 'Shift+Control':
+            self.end_selection_curve(event)
+            return
+            
         self.EndPick(event, ADD_TO_SELECTION)
 
 
     def leftDouble(self, event):
-        self.Done() # bruce 040923: how to do this need not change
-        # (tho josh in bug#15 asks us to change the functionality -- not yet done ###e)
-        # (as of now, my understanding is that we want to leave leftDouble in,
-        #  for Select and Move mode only -- but I'm not sure. I think we once wanted it
-        #  to get back into the same one of Select Atoms or Select Chunks that the
-        #  user was last in, but I'm not changing that now. [bruce 041217])
-    
-    def Draw(self):
-        # bruce comment 040922: code is almost identical with selectMode.Draw
-        basicMode.Draw(self)
-        # self.griddraw()
-        # if self.selCurve_List: self.pickdraw() # Fixes bug 1452. mark 060206.
-            # Selection rect/lasso not supported in Move Chunks (or Fuse Chunk) mode. mark 060206.
-        if self.o.assy: self.o.assy.draw(self.o)
+        '''Switch to Select Chunks mode.
+        '''
+        self.selectmols() 
+        # Fixes bug 1182. This will go away in A8 when we merge Select Chunks and Move Chunks modes.  
+        # mark 060301.
+        return
 
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes an unreported bug analogous to 971]
 
@@ -484,6 +494,9 @@ class modifyMode(basicMode):
             ('VdW', self.w.dispVdW),
             None,
             ('Color', self.w.dispObjectColor) ]
+            
+    def selectmols(self):
+        self.o.setMode('SELECTMOLS') # mark 060301.
 
     def invalidate_selection(self): #bruce 041115 (debugging method)
         "[debugging method] invalidate all aspects of selected atoms or mols"

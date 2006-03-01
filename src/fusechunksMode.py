@@ -132,7 +132,6 @@ class fusechunksMode(modifyMode):
         self.change_fuse_mode(self.w.fuse_mode_combox.currentText()) # Syncs the dashboard and glpane.
             
     def init_gui(self):
-        self.o.setCursor(self.w.MoveSelectCursor) # load default cursor for MODIFY mode
         self.w.toolsFuseChunksAction.setOn(1) # toggle on the Fuse Chunks icon
         self.w.fuseChunksDashboard.show() # show the Fuse Chunks dashboard
         
