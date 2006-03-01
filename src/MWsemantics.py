@@ -1527,6 +1527,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             QBitmap(filePath + "/../images/ZoomCursor.bmp"),
             QBitmap(filePath + "/../images/ZoomCursor-bm.bmp"),
             10, 10)
+            
+        # Create "ZoomPOVCursor" cursor
+        self.ZoomPOVCursor = QCursor(
+            QBitmap(filePath + "/../images/ZoomPOVCursor.bmp"),
+            QBitmap(filePath + "/../images/ZoomPOVCursor-bm.bmp"),
+            -1, -1)
 
         return # from loadCursors
     

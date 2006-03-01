@@ -982,9 +982,12 @@ class selectMolsMode(selectMode):
         '''
         basicMode.keyRelease(self, key)
         
-    def update_cursor(self):
-        '''Update the mouse cursor for 'Select Chunks' mode (selectMolsMode).
+    def update_cursor_for_no_MB(self):
+        '''Update the cursor for 'Select Chunks' mode (selectMolsMode).
         '''
+        
+        #print "selectMolsMode.update_cursor_for_no_MB(): button=",self.o.button
+        
         if self.o.modkeys is None:
             self.o.setCursor(self.w.SelectMolsCursor)
         elif self.o.modkeys == 'Shift':
@@ -994,7 +997,7 @@ class selectMolsMode(selectMode):
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
-            print "Error in update_cursor(): Invalid modkey=", self.o.modkeys
+            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
         return
                 
     def rightShiftDown(self, event):
@@ -1659,9 +1662,11 @@ class selectAtomsMode(selectMode):
         '''
         basicMode.keyRelease(self, key)
             
-    def update_cursor(self):
-        '''Update the mouse cursor for 'Select Atoms' mode (selectAtomsMode)
+    def update_cursor_for_no_MB(self):
+        '''Update the cursor for 'Select Atoms' mode (selectAtomsMode)
         '''
+        #print "selectAtomsMode.update_cursor_for_no_MB(): button=",self.o.button, ", modkeys=", self.o.modkeys
+        
         if self.o.modkeys is None:
             self.o.setCursor(self.w.SelectAtomsCursor)
         elif self.o.modkeys == 'Shift':
@@ -1671,7 +1676,7 @@ class selectAtomsMode(selectMode):
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
-            print "Error in update_cursor(): Invalid modkey=", self.o.modkeys
+            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
         return
             
     def rightShiftDown(self, event):

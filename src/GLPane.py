@@ -112,6 +112,8 @@ allQuats = quats100 + quats110 + quats111
 
 MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
 
+button = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'}
+
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.
     """
@@ -685,6 +687,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # (same as in drags and maybe as in commands doing recursive event processing).
             # [bruce 060127]
         try:
+            #print "GLPane.keyPressEvent(): self.in_drag=",self.in_drag
             if not self.in_drag:
                 #bruce 060220 new code; should make it unnecessary (and incorrect)
                 # for modes to track mod key press/release for cursor,
@@ -1004,6 +1007,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     
     modkeys = None
     in_drag = False
+    button = None
     
     def fix_event(self, but, when, target): #bruce 060220 added support for self.modkeys
         """[For most documentation, see fix_event_helper.
@@ -1018,9 +1022,24 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # - not sure it's always ok when user moves from one widget to another during a drag;
             # - confused if user releases two mouse buttons at different times to end a drag (thinks the first one ended it).
             # All these can be fixed straightforwardly when they become important enough. [bruce 060220]
-        self.in_drag = but & (leftButton|midButton|rightButton) # you can also use this to see which mouse buttons are involved
-            # When the mouse button is released, in_drag = 1 (True).  This is a bug.  Talk to Bruce since
-            # I'm not sure how to fix it.  As a workaround, see mouseReleaseEvent(). mark 060227.
+        
+        if when == 'release':
+            self.in_drag = False
+            self.button = None
+            self.mode.update_cursor()
+        else:
+            olddrag = self.in_drag
+            self.in_drag = but & (leftButton|midButton|rightButton)
+                # you can also use this to see which mouse buttons are involved.
+            if not olddrag:
+                try:
+                    # in_drag has values of 0 (None), 1 (LMB), 4 (MMB). or 2 (RMB) allowed here.
+                    self.button = button[self.in_drag]
+                except:
+                    # To get here, two mouse buttons were pressed at the same time and one was 
+                    # released (i.e. in-drag = 3, 5, 6). Leave self.button unchanged.
+                    pass 
+            
         self.update_modkeys(but)
             # need to call this when drag starts; ok to call it during drag too,
             # since retval is what came from fix_event
@@ -1147,7 +1166,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 self.mode.leftDown(event)
 
         if but & midButton:
-            if but & shiftButton:
+            if but & shiftButton and but & cntlButton: # mark 060228.
+                self.mode.middleShiftCntlDown(event)
+            elif but & shiftButton:
                 self.mode.middleShiftDown(event)
             elif but & cntlButton:
                 self.mode.middleCntlDown(event)
@@ -1172,11 +1193,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         but = self.fix_event(event, 'release', self.mode)
         #print "Button released: ", but
         
-        #print "in_drag=", self.in_drag
-        self.in_drag=False 
-            # This fixes a bug in fix_event() in which in_drag = 1 (True) 
-            # even after the mouse button is released. mark 060227.
-        
         try:
             if but & leftButton:
                 if but & shiftButton:
@@ -1187,7 +1203,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     self.mode.leftUp(event)
 
             if but & midButton:
-                if but & shiftButton:
+                if but & shiftButton and but & cntlButton: # mark 060228.
+                    self.mode.middleShiftCntlUp(event)
+                elif but & shiftButton:
                     self.mode.middleShiftUp(event)
                 elif but & cntlButton:
                     self.mode.middleCntlUp(event)
@@ -1254,7 +1272,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 self.mode.leftDrag(event)
 
         elif but & midButton:
-            if but & shiftButton:
+            if but & shiftButton and but & cntlButton: # mark 060228.
+                self.mode.middleShiftCntlDrag(event)
+            elif but & shiftButton:
                 self.mode.middleShiftDrag(event)
             elif but & cntlButton:
                 self.mode.middleCntlDrag(event)

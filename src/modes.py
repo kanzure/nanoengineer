@@ -952,10 +952,7 @@ class basicMode(anyMode):
     # middle mouse button actions -- these support a trackball, and
     # are the same for all modes (with a few exceptions)
     def middleDown(self, event):
-        self.w.OldCursor = QCursor(self.o.cursor())
-        # save copy of current cursor in OldCursor
-        self.o.setCursor(self.w.RotateCursor) # load RotateCursor in glpane
-        
+        self.update_cursor()
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
@@ -975,13 +972,10 @@ class basicMode(anyMode):
  
     def middleUp(self, event):
         self.picking = False
-        self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
+        self.update_cursor()
 
     def middleShiftDown(self, event):
-        self.w.OldCursor = QCursor(self.o.cursor())
-        # save copy of current cursor in OldCursor
-        self.o.setCursor(self.w.MoveCursor) # load MoveCursor in glpane
-        
+        self.update_cursor()
         # Setup pan operation
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
@@ -1049,24 +1043,60 @@ class basicMode(anyMode):
     
     def middleShiftUp(self, event):
         self.picking = 0
-        self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
+        self.update_cursor()
     
     def middleCntlDown(self, event):
-        """ Set up for zooming or rotating
+        """ Set up for rotating view around POV axis
         """
-        self.w.OldCursor = QCursor(self.o.cursor())
-        # save copy of current cursor in OldCursor
-        
+        self.update_cursor()
         self.o.SaveMouse(event)
         self.Zorg = self.o.MousePos
         self.Zq = Q(self.o.quat)
         self.Zpov = self.o.pov
-        # start in ambivalent mode
-        self.Zunlocked = 1
-        self.ZRot = 0
         self.picking = 1
     
     def middleCntlDrag(self, event):
+        """rotate around the point of view (POV) axis
+        """
+        if not self.picking: return
+        
+        self.o.SaveMouse(event)
+        dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
+
+        self.o.pov = self.Zpov
+
+        w=self.o.width+0.0
+        self.o.quat = self.Zq + Q(V(0,0,1),2*pi*dx/w)
+ 
+        self.o.gl_update()
+        
+    def middleCntlUp(self, event):
+        self.picking = 0
+        self.update_cursor()
+        
+    def middleShiftCntlDown(self, event): # mark 060228.
+        """ Set up zooming POV in/out
+        """
+        self.middleCntlDown(event)
+        
+    def middleShiftCntlDrag(self, event):
+        """Zoom (push/pull) point of view (POV) away/nearer
+        """
+        if not self.picking: return
+        
+        self.o.SaveMouse(event)
+        dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
+        self.o.quat = Q(self.Zq)
+        h=self.o.height+0.0
+        self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
+ 
+        self.o.gl_update()
+        
+    def middleShiftCntlUp(self, event):
+        self.picking = 0
+        self.update_cursor()
+
+    def middleCntlDrag_OBS(self, event):
         """push scene away (mouse goes up) or pull (down)
            rotate around vertical axis (left-right)
         """
@@ -1097,11 +1127,6 @@ class basicMode(anyMode):
             self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
  
         self.o.gl_update()
-
-
-    def middleCntlUp(self, event):
-        self.picking = 0
-        self.o.setCursor(self.w.OldCursor) # restore original cursor in glpane
 
     def middleDouble(self, event):
         pass
@@ -1265,6 +1290,51 @@ class basicMode(anyMode):
         pass
         
     def update_cursor(self): # mark 060227
+        '''Update the cursor based on the current mouse button and mod keys pressed.
+        '''
+        #print "basicMode.update_cursor(): button=",self.o.button,", modkey=",self.o.modkeys
+        if self.o.button is None:
+            self.update_cursor_for_no_MB()
+        elif self.o.button == 'LMB':
+            self.update_cursor_for_LMB()
+        elif self.o.button == 'MMB':
+            self.update_cursor_for_MMB()
+        elif self.o.button == 'RMB':
+            self.update_cursor_for_RMB()
+        else:
+            print "basicMode.update_cursor() button ignored:", self.o.button
+        return
+        
+    def update_cursor_for_no_MB(self): # mark 060228
+        '''Update the cursor for operations when no mouse button is pressed
+        '''
+        pass
+    
+    def update_cursor_for_LMB(self): # mark 060228
+        '''Update the cursor for operations when the left mouse button (LMB) is pressed
+        '''
+        pass
+        
+    def update_cursor_for_MMB(self): # mark 060228
+        '''Update the cursor for operations when the middle mouse button (MMB) is pressed
+        '''
+        #print "basicMode.update_cursor_for_MMB(): button=",self.o.button
+
+        if self.o.modkeys is None:
+            self.o.setCursor(self.w.RotateCursor)
+        elif self.o.modkeys == 'Shift':
+            self.o.setCursor(self.w.MoveCursor)
+        elif self.o.modkeys == 'Control':
+            self.o.setCursor(self.w.RotateZCursor)
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.setCursor(self.w.ZoomPOVCursor)
+        else:
+            print "Error in update_cursor_for_MMB(): Invalid modkey=", self.o.modkeys
+        return
+        
+    def update_cursor_for_RMB(self): # mark 060228
+        '''Update the cursor for operations when the right mouse button (RMB) is pressed
+        '''
         pass
 
     def makemenu(self, lis):

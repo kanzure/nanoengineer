@@ -338,8 +338,7 @@ class depositMode(selectAtomsMode):
             # (the possible orders of calling all these mode entering/exiting
             #  methods is badly in need of documentation, if not cleanup...
             #  [says bruce 050121, who is to blame for this])
-        self.o.setCursor(self.w.SelectAtomsCursor) # changed from DepositAtomCursor. mark 060202.
-        # load default cursor
+
         self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
 
         self.pastable = None # by bruce 041124, for safety
@@ -353,11 +352,6 @@ class depositMode(selectAtomsMode):
         self.connect_or_disconnect_signals(True)
         
         self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
-        
-        # Zoom, Pan and Rotate tools re-enabled. mark 060215.
-        #self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
-        #self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
-        #self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
 
         self.dont_update_gui = False
         
@@ -594,11 +588,6 @@ class depositMode(selectAtomsMode):
         self.connect_or_disconnect_signals(False)
         
         self.w.depositAtomDashboard.hide() # Stow away dashboard
-        
-        # Zoom, Pan and Rotate tools re-enabled. mark 060215.
-        #self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
-        #self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
-        #self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
         
         self.MMKit.close() # Close the MMKit when leaving Build mode.
 
