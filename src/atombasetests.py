@@ -1,5 +1,5 @@
 """\
-Python atoms and bonds
+Python atoms, atom sets, diff factories, diff objects (tests)
 
 http://tinyurl.com/rv7fx
 
@@ -255,7 +255,7 @@ class DiffTests(TestCase):
         assert olds == [0., 0., 0.]
         assert news == [1., 1., 1.]
 
-    def test_bondsAndSets(self):
+    def test_diffSets(self):
 
         w = water()
         db = DiffFactoryBase(w.atomset.values())
@@ -282,7 +282,7 @@ class DiffTests(TestCase):
         # When we add the new atom, we update the existing snapshot
         # with the new atom's data
 
-        # Position it, and bond it to the old structure - these changes
+        # Position it, and add it to the old structure - these changes
         # will appear in the next diff
         a.x, a.y, a.z = 3.1416, 2.71828, 1.4707
         a._eltnum = 7   # nitrogen
