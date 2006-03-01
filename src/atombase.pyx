@@ -27,7 +27,7 @@ class Holder:
 cdef class _AtomBase:
 
     def __init__(self):
-        self.__dict__["data"] = Holder()
+        self.data = Holder()
         self.data.key = 0
         self.data._eltnum = 0
         self.data._atomtype = 0
@@ -41,24 +41,21 @@ cdef class _AtomBase:
                 "x", "y", "z", "sets")
 
     def __getattr__(self, name):
-        d = self.__dict__["data"]
-        if name == "data":
-            return d
-        elif name == "key":
-            return d.key
+        if name == "key":
+            return self.data.key
         elif name == "_eltnum":
-            return d._eltnum
+            return self.data._eltnum
         elif name == "_atomtype":
-            return d._atomtype
+            return self.data._atomtype
         elif name == "x":
-            return d.x
+            return self.data.x
         elif name == "y":
-            return d.y
+            return self.data.y
         elif name == "z":
-            return d.z
+            return self.data.z
         elif name == "sets":
             b = [ ]
-            for x in d.sets:
+            for x in self.data.sets:
                 b.append(x.key)
             b.sort()
             return b
@@ -66,20 +63,19 @@ cdef class _AtomBase:
             raise AttributeError, name
 
     def __setattr__(self, name, value):
-        d = self.__dict__["data"]
         if name == "key":
             if DEBUG > 0: print "SET KEY", value
-            d.key = value
+            self.data.key = value
         elif name == "_eltnum":
-            d._eltnum = value
+            self.data._eltnum = value
         elif name == "_atomtype":
-            d._atomtype = value
+            self.data._atomtype = value
         elif name == "x":
-            d.x = value
+            self.data.x = value
         elif name == "y":
-            d.y = value
+            self.data.y = value
         elif name == "z":
-            d.z = value
+            self.data.z = value
         else:
             self.__dict__[name] = value
 
@@ -100,11 +96,6 @@ cdef class _AtomSetBase:
         self._dct = { }
         for a in atoms:
             self.add(a)
-    def kids(self):
-        lst = [ ]
-        for k in self.keys():
-            lst.append((k, self[k]))
-        return lst
     def __setitem__(self, key, atom):
         if key != atom.key:
             raise KeyError
