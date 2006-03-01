@@ -969,7 +969,7 @@ class depositMode(selectAtomsMode):
         '''
 
         if self.o.modkeys is None:
-            if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn(): 
+            if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn():
                 self.bond_change_type(b)
                 self.o.gl_update()
                 return
@@ -1022,7 +1022,8 @@ class depositMode(selectAtomsMode):
             deposited_stuff, status = self.deposit_from_Library_page(atom_or_pos)
             deposited_obj = 'Part'
             if deposited_stuff and self.pickit():
-                deposited_stuff[0].pickatoms()
+                for d in deposited_stuff[:]:
+                    d.pickatoms() # Fixes bug 1510. mark 060301.
             
         else:
             print_compact_stack('Invalid depositState = "' + str(self.w.depositState) + '" ')
