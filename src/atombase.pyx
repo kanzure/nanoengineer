@@ -27,7 +27,7 @@ class Holder:
 cdef class _AtomBase:
 
     def __init__(self):
-        self.data = Holder()
+        self.__dict__["data"] = Holder()
         self.data.key = 0
         self.data._eltnum = 0
         self.data._atomtype = 0
