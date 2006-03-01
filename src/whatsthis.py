@@ -319,6 +319,20 @@ def createWhatsThis(self):
 
         self.setViewParallelToAction.setWhatsThis( setViewParallelToActionText ) 
         
+        #### Save Named View ####
+        
+        saveNamedViewActionText = "<u><b>Save Named View</b></u><br>"\
+                       "<p><img source=\"saveNamedView\"><br> "\
+                       "Saves the current view as a custom <b>named view</b> and places it in the Model Tree.</p>" \
+                       "<p>The view can be restored by selecting <b>Change View</b> from its context menu in the Model Tree."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "saveNamedView",
+                                                       self.saveNamedViewAction.iconSet().pixmap() )
+
+        self.saveNamedViewAction.setWhatsThis( saveNamedViewActionText ) 
+        
+        
         #### Front View ####
         
         setViewFrontActionText = "<u><b>Front View</b></u><br>"\
@@ -676,7 +690,7 @@ def createWhatsThis(self):
 
         selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)</b></p><br>"\
                        "<p><img source=\"selectContractAction\"><br> "\
-                       "Unselects any atom that has a bondpoint."\
+                       "Deselects any atom that is a neighbor of a non-picked atom or has a bondpoint."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectContractAction",
@@ -1460,6 +1474,19 @@ def create_whats_this_descriptions_for_depositMode(w):
                         w.depositAtomDashboard.pasteBtn.iconSet().pixmap() )
 
     QWhatsThis.add ( w.depositAtomDashboard.pasteBtn, pasteText )
+    
+    # Build Atoms button
+    
+    buildAtomsText = "<u><b>Build Mode</b></u><br> "\
+                        "<p><img source=\"buildatomsicon\"><br> "\
+                        "Sets <i>Build</i> mode.  Double clicking on empty space deposits an object from the MMKit. "\
+                        "Clicking on a bondpoint will deposit an atom or other MMKit object on the bondpoint if the object has a hotspot."\
+                        "</p>"
+
+    QMimeSourceFactory.defaultFactory().setPixmap( "buildatomsicon",
+                        w.depositAtomDashboard.buildBtn.iconSet().pixmap() )
+
+    QWhatsThis.add ( w.depositAtomDashboard.buildBtn, buildAtomsText )
     
     # Single Bond button
     
