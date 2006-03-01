@@ -417,14 +417,25 @@ writeSimpleAtomPosition(struct part *part, struct xyz *positions, int i)
           );
 }
 
+void
+writeSimplePositionMarker(struct xyz *position, float radius, float r, float g, float b)
+{
+  fprintf(OutputFile, "s %f %f %f %f %f %f %f\n",
+          position->x,
+          position->y,
+          position->z,
+          radius,
+          r, g, b);
+}
+
 static float forceColors[7][3] = {
-    { 1.0, 1.0, 1.0 }, // white
-    { 1.0, 0.0, 0.0 }, // red
-    { 0.0, 1.0, 0.0 }, // green
-    { 0.0, 0.0, 1.0 }, // blue
-    { 0.0, 1.0, 1.0 }, // cyan
-    { 1.0, 0.0, 1.0 }, // magenta
-    { 1.0, 1.0, 0.0 }  // yellow
+    { 1.0, 1.0, 1.0 }, // 0 white:   total force on atom
+    { 1.0, 0.0, 0.0 }, // 1 red:     stretch force
+    { 0.0, 1.0, 0.0 }, // 2 green:   bend force on central atom
+    { 0.0, 0.0, 1.0 }, // 3 blue:    bend force on non-central atom
+    { 0.0, 1.0, 1.0 }, // 4 cyan:    vdw force
+    { 1.0, 0.0, 1.0 }, // 5 magenta: 
+    { 1.0, 1.0, 0.0 }  // 6 yellow:  total force on atom from potential deltas
 };
 
 #define FORCE_SCALE 0.1

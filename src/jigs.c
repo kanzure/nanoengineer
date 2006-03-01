@@ -175,6 +175,10 @@ jigMinimizePotentialRotaryMotor(struct part *p, struct jig *jig,
 	vadd(anchor, tmp);
 	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
 	vadd(anchor, tmp);
+        if (DEBUG(D_MINIMIZE_POTENTIAL_MOVIE)) { // -D4
+            writeSimplePositionMarker(&anchor, 5.0, 1.0, 1.0, 1.0);
+            writeSimplePositionMarker(&jig->j.rmotor.center, 5.0, 1.0, 1.0, 1.0);
+        }
 	// compute potential of the  spring term
 	r = positions[a1];
 	vsub(r, anchor);
@@ -214,6 +218,10 @@ jigMinimizeGradientRotaryMotor(struct part *p, struct jig *jig,
 	vadd(anchor, tmp);
 	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
 	vadd(anchor, tmp);
+        if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
+            writeSimplePositionMarker(&anchor, 5.0, 1.0, 1.0, 1.0);
+            writeSimplePositionMarker(&jig->j.rmotor.center, 5.0, 1.0, 1.0, 1.0);
+        }
 
         // compute a force pushing on the atom due to a spring to the anchor position
 	r = positions[a1];

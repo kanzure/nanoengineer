@@ -11,6 +11,8 @@ extern void writeOutputTrailer(FILE *f, struct part *part, int frameNumber);
 
 extern void writeSimpleAtomPosition(struct part *part, struct xyz *positions, int i);
 
+extern void writeSimplePositionMarker(struct xyz *position, float radius, float r, float g, float b);
+
 extern void writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color, double scale);
 
 extern void writeSimpleStressVector(struct xyz *positions, int a1, int a2, int ac, double stress, double min, double max);

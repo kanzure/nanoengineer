@@ -124,12 +124,12 @@ minimizeStructureGradient(struct configuration *p)
     if (DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // -D 10
 	// wware 060109  python exception handling
 	evaluateGradientFromPotential(p); BAIL();
-	if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
-	    forces = (struct xyz *)p->gradient;
-	    for (i=0; i<Part->num_atoms; i++) {
-		writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0);
-	    }
-	}
+        if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
+            forces = (struct xyz *)p->gradient;
+            for (i=0; i<Part->num_atoms; i++) {
+                writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0); // yellow
+            }
+        }
     } else {
 	calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
     }
