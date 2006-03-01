@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
 #
-# Created: Fri Feb 24 03:27:28 2006
+# Created: Tue Feb 28 16:53:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,7 +45,7 @@ class MMKitDialog(QDialog):
             self.setName("MMKitDialog")
 
         self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
-        self.setMinimumSize(QSize(180,400))
+        self.setMinimumSize(QSize(190,400))
         pal = QPalette()
         cg = QColorGroup()
         cg.setColor(QColorGroup.Foreground,Qt.black)
@@ -331,7 +331,7 @@ class MMKitDialog(QDialog):
         self.chunkListBox = QListBox(self.clipboardPage,"chunkListBox")
         self.chunkListBox.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Minimum,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
         self.chunkListBox.setMinimumSize(QSize(100,100))
-        self.chunkListBox.setVariableWidth(1)
+        self.chunkListBox.setVariableWidth(0)
 
         clipboardPageLayout.addWidget(self.chunkListBox,0,0)
         self.mmkit_tab.insertTab(self.clipboardPage,QString.fromLatin1(""))
@@ -361,7 +361,7 @@ class MMKitDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(180,400).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(190,400).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)

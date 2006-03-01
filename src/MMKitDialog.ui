@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>180</width>
+            <width>190</width>
             <height>400</height>
         </rect>
     </property>
@@ -22,7 +22,7 @@
     </property>
     <property name="minimumSize">
         <size>
-            <width>180</width>
+            <width>190</width>
             <height>400</height>
         </size>
     </property>
@@ -1174,7 +1174,7 @@
                             </size>
                         </property>
                         <property name="variableWidth">
-                            <bool>true</bool>
+                            <bool>false</bool>
                         </property>
                     </widget>
                 </grid>
