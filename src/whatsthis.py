@@ -1551,8 +1551,8 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "<br>When <b>enabled</b>, a semi-transparent water surface is displayed."\
                         "The water surface serves as a selection filter.  Only atoms and bonds above "\
                         "the surface are highlighted and pickable.<br>"\
-                        "<br>The depth of the water surface can be changed by holding the Control/Command"\
-                        "key while pressing the middle mouse button/wheel and dragging the mouse up "\
+                        "<br>The depth of the water surface can be changed by holding down the Shift+Control/Command "\
+                        "keys and then pressing the middle mouse button and dragging the mouse up "\
                         "and down."\
                         "</p>"
 
