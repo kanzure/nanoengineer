@@ -54,6 +54,13 @@ from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
 
+try:
+    from atombase import AtomBase
+except ImportError:
+    class AtomBase:
+        def __init__(self):
+            pass
+
 from HistoryWidget import orangemsg
 from debug import print_compact_stack, print_compact_traceback, compact_stack, privateMethod
 
@@ -182,7 +189,7 @@ register_undo_updater( _undo_update_Atom_jigs,
                        # FYI, we use 'Assembly' (string) rather than Assembly (class) to avoid a recursive import problem.
                     )
 
-class Atom(InvalMixin, StateMixin):
+class Atom(AtomBase, InvalMixin, StateMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     """An atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
@@ -283,6 +290,7 @@ class Atom(InvalMixin, StateMixin):
         belonging to molecule mol (can be None).
         Atom initially has no real or open bonds, and default hybridization type.
         """
+        AtomBase.__init__(self)
         self.key = atKey.next()
             # unique key for hashing and/or use as a dict key;
             # also used in str(self)
