@@ -1,14 +1,25 @@
+// gcc -I/usr/include/python2.4 -c -Wall atombasehelp.c 
+
+#include "Python.h"
 #include "Numeric/arrayobject.h"
 
-/*
- * You can think of this as like a "base class" for any C structure that
- * has a key. The key always comes first, so we can cast any pointer to
- * any such struct to a (struct key_thing *), and then access the key
- * while not necessarily knowing what the original thing was.
- */
-struct key_thing {
-    unsigned int key;
-};
+//#define DEBUG
+
+#ifdef DEBUG
+#define XX(z)   z
+#define MARK()  fprintf(stderr, "%s:%d\n", __FUNCTION__, __LINE__)
+#define HEX(x)  fprintf(stderr, "%s:%d %s=%p\n", __FUNCTION__, __LINE__, #x, x)
+#define INT(x)  fprintf(stderr, "%s:%d %s=%u\n", __FUNCTION__, __LINE__, #x, x)
+#define DBL(x)  fprintf(stderr, "%s:%d %s=%le\n", __FUNCTION__, __LINE__, #x, x)
+#define STR(x)  fprintf(stderr, "%s:%d %s\n", __FUNCTION__, __LINE__, x)
+#else
+#define XX(z)
+#define MARK()
+#define HEX(x)
+#define INT(x)
+#define DBL(x)
+#define STR(x)
+#endif
 
 /*
  * Linked lists are used for bonds, and also to track which
@@ -17,35 +28,158 @@ struct key_thing {
 struct link {
     struct link *next;  // 4 bytes
     struct key_thing *other;  // 4 bytes
-    float order;   // 4 bytes?
 };
 
-struct atominfo {
-    unsigned int key;  // 4 bytes
-    short int _eltnum;  // 2 bytes
-    short int _atomtype; // 2 bytes
-
-    //double x, y, z;  // 12 bytes
-    // double *array;   // 4 bytes
-    unsigned int arrayIndex;  // 4 bytes
-
-    struct link *bonds;  // 4 bytes
-    struct link *sets;  // 4 bytes
+/*
+ * There is a kind of polymorphism available with structs, as long as the
+ * first few fields are identical. In this case, the only commonality is
+ * the "key" field.
+ */
+struct atomstruct {
+    int _eltnum, _atomtype;
+    double x, y, z;
+    struct link *sets;
 };
 
-static unsigned int qsort_partition(unsigned int y[], int f, int l) {
-    int up, down, temp;
-    unsigned int piv = y[f];
+/* the "base class" */
+struct key_thing {
+    int key;
+    PyObject *self;
+};
+
+struct bondstruct {
+    int v6;
+};
+
+struct atomsetstruct {
+    struct link *atoms;
+};
+
+static void print_linked_list(struct link *L)
+{
+    int i, indent;
+    indent = 1;
+    fprintf(stderr, "LINKED LIST <<\n");
+    while (L != NULL) {
+	for (i = 0; i < indent; i++)
+	    fprintf(stderr, "    ");
+#if 0
+	PyObject_Print((PyObject*) L->other->self, stderr, 0);
+	fprintf(stderr, "\n");
+#else
+	fprintf(stderr, "L = %p, L->other = %p, L->other->key = %d, L->next = %p\n",
+		L, L->other, L->other->key, L->next);
+#endif
+	L = L->next;
+	indent++;
+    }
+    fprintf(stderr, ">> LINKED LIST\n");
+}
+
+static struct link *has_link(struct link *n, unsigned int key)
+{
+    while (1) {
+	if (n == NULL) return NULL;
+	if (n->other->key == key) return n;
+	n = n->next;
+    }
+}
+
+static PyObject *add_to_linked_list(struct link **head, struct key_thing *other)
+{
+    struct link *n;
+    XX(fprintf(stderr, "\n"));
+    HEX(other);
+    INT(other->key);
+    XX(print_linked_list(*head));
+    if (has_link(*head, other->key) != NULL) {
+	PyErr_SetString(PyExc_RuntimeError,
+			"add_to_linked_list: already have this entry");
+	return NULL;
+    }
+    n = (struct link *) malloc(sizeof(struct link));
+    n->next = *head;
+    HEX(n->next);
+    *head = n;
+    Py_INCREF(other->self);
+    n->other = other;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *remove_from_linked_list(struct link **head, struct key_thing *other)
+{
+    struct link *prev, *here;
+    XX(fprintf(stderr, "\n"));
+    HEX(other);
+    INT(other->key);
+    XX(print_linked_list(*head));
+    if (*head == NULL) {
+	PyErr_SetString(PyExc_RuntimeError,
+			"remove_from_linked_list: empty list");
+	return NULL;
+    }
+    if (has_link(*head, other->key) == NULL) {
+	PyErr_SetString(PyExc_RuntimeError,
+			"remove_from_linked_list: no such entry");
+	return NULL;
+    }
+    here = *head;
+    if (here->other->key == other->key) {
+#if 0
+	PyErr_SetString(PyExc_RuntimeError,
+			"remove_from_linked_list: Segfault happens here");
+	return NULL;
+#endif
+	//Py_DECREF(here->other->self);
+	*head = here->next;
+	free(here);
+	goto fini;
+    }
+    while (here->other->key != other->key) {
+	prev = here;
+	here = here->next;
+    }
+    prev->next = here->next;
+    HEX(prev->next);
+    //Py_DECREF(here->other->self);
+    free(here);
+ fini:
+    MARK();
+    XX(print_linked_list(*head));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *linked_list_lookup(struct link *root, unsigned int key)
+{
+    root = has_link(root, key);
+    if (root == NULL) {
+	PyErr_SetString(PyExc_KeyError,
+			"linked_list_lookup: no such key");
+	return NULL;
+    }
+    Py_INCREF(root->other->self);
+    return root->other->self;
+}
+
+/* -------------------------------------------------------------------- */
+
+static unsigned int qsort_partition(struct key_thing **y, unsigned int f, unsigned int l)
+{
+    unsigned int up, down;
+    struct key_thing *piv = y[f];
     up = f;
     down = l;
     do { 
-        while (y[up] <= piv && up < l) {
+        while (y[up]->key <= piv->key && up < l) {
             up++;
         }
-        while (y[down] > piv  ) {
+        while (y[down]->key > piv->key) {
             down--;
         }
-        if (up < down ) {
+        if (up < down) {
+	    struct key_thing *temp;
             temp = y[up];
             y[up] = y[down];
             y[down] = temp;
@@ -56,97 +190,74 @@ static unsigned int qsort_partition(unsigned int y[], int f, int l) {
     return down;
 }
 
-static void quicksort(unsigned int x[], int first, int last)
+static void quicksort(struct key_thing **x, unsigned int first, unsigned int last)
 {
-    int pivIndex = 0;
     if (first < last) {
-        pivIndex = qsort_partition(x, first, last);
-        quicksort(x, first, pivIndex-1);
-        quicksort(x, pivIndex+1, last);
+        unsigned int pivIndex = qsort_partition(x, first, last);
+        if (pivIndex > 0)
+	    quicksort(x, first, pivIndex-1);
+	quicksort(x, pivIndex+1, last);
     }
 }
 
-static PyObject *order_numeric_intarray(PyArrayObject *array)
+#if 0
+static void idiotsort(struct key_thing **x, unsigned int first, unsigned int last)
 {
-    unsigned int size;
-    unsigned int *data = (unsigned int *) array->data;
-    if (array->nd != 1) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"order_numeric_intarray: array must be 1-dimensional");
-	return NULL;
+    int i;
+    if (first >= last)
+	return;
+    for (i = first; i < last; i++) {
+	if (x[i]->key > x[last]->key) {
+	    struct key_thing *tmp = x[last];
+	    x[last] = x[i];
+	    x[i] = tmp;
+	}
     }
-    size = array->dimensions[0];
-    quicksort(data, 0, size-1);
-    Py_INCREF(Py_None);
-    return Py_None;
+    idiotsort(x, first, last - 1);
 }
+#endif
 
-static int has_link(struct link *n, struct key_thing *other)
-{
-    if (other == NULL) return 0;
-    while (1) {
-	if (n == NULL) return 0;
-	if (n->other->key == other->key) return 1;
-	n = n->next;
-    }
-}
-
-static PyObject *add_to_linked_list(struct link **head, struct key_thing *other, float order)
+static PyObject *extract_list(struct link *root, int values)
 {
     struct link *n;
-    if (has_link(*head, other)) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"add_to_linked_list: already have this entry");
-	return NULL;
-    }
-    n = (struct link *) malloc(sizeof(struct link));
-    n->next = *head;
-    *head = n;
-    n->other = other;
-    n->order = order;
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *remove_from_linked_list(struct link **head, struct key_thing *other)
-{
-    struct link *n;
-    if (!has_link(*head, other)) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_linked_list: no such entry");
-	return NULL;
-    }
-    while ((*head)->other->key != other->key) {
-	head = &((*head)->next);
-    }
-    n = *head;
-    *head = (*head)->next;
-    free(n);
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *make_link_list(struct link *root, unsigned int key, int unique)
-{
-    struct link *n;
-    PyArrayObject *retval;
-    unsigned int i, size=0, *data;
+    PyObject *retval;
+    unsigned int i, size=0;
+    struct key_thing **data;
+    unsigned int *kdata;
     import_array();
+    MARK();
+    XX(print_linked_list(root));
     for (size = 0, n = root; n != NULL; n = n->next) {
-	if (!unique || n->other->key > key) {
-            size++;
-	}
+	size++;
     }
-    retval = (PyArrayObject *) PyArray_FromDims(1, (int*)&size, PyArray_INT);
-    data = (unsigned int *) retval->data;
-    for (i = 0, n = root; i < size; n = n->next) {
-	if (!unique || n->other->key > key) {
-            data[i++] = n->other->key;
-	}
-    }
-    if (order_numeric_intarray(retval) == NULL)
+    data = (struct key_thing **)
+	malloc(size * sizeof(struct key_thing *));
+    if (data == NULL) {
+	PyErr_SetString(PyExc_MemoryError,
+			"extract_list");
 	return NULL;
-    return PyArray_Return(retval);
+    }
+    for (i = 0, n = root; i < size; i++, n = n->next) {
+	data[i] = n->other;
+    }
+    if (size > 0) {
+	quicksort(data, 0, size-1);
+    }
+    if (values) {
+	retval = PyList_New(0);
+	for (i = 0; i < size; i++) {
+	    PyList_Append(retval, data[i]->self);
+	    //PyObject_Print(n->other->self, stderr, 0);
+	    //fprintf(stderr, "\n");
+	}
+	return retval;
+    }
+    retval = PyArray_FromDims(1, (int*)&size, PyArray_INT);
+    kdata = (unsigned int *) ((PyArrayObject*) retval)->data;
+    for (i = 0; i < size; i++) {
+	kdata[i] = data[i]->key;
+    }
+    return PyArray_Return((PyArrayObject*) retval);
 }
 
 

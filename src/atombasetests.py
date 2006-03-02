@@ -144,16 +144,16 @@ class AtomSetBaseTests(TestCase):
         atomset.add(atom2)
         atomset.add(atom3)
         assert len(atomset) == 3
-        assert atom1.sets == [ atomset.key ]
-        assert atom2.sets == [ atomset.key ]
-        assert atom3.sets == [ atomset.key ]
+        assert atom1.sets.tolist() == [ atomset.key ]
+        assert atom2.sets.tolist() == [ atomset.key ]
+        assert atom3.sets.tolist() == [ atomset.key ]
         del atomset[atom1.key]
         del atomset[atom2.key]
         del atomset[atom3.key]
         assert len(atomset) == 0
-        assert atom1.sets == [ ]
-        assert atom2.sets == [ ]
-        assert atom3.sets == [ ]
+        assert atom1.sets.tolist() == [ ]
+        assert atom2.sets.tolist() == [ ]
+        assert atom3.sets.tolist() == [ ]
 
     def test_atomset_updateFromAnotherAtomlist(self):
         """\
@@ -310,6 +310,7 @@ class Tests(AtomBaseTests, AtomSetBaseTests, DiffTests):
 
 def test():
     suite = unittest.makeSuite(Tests, 'test')
+    #suite = unittest.makeSuite(Tests, 'test_atomset_gracefulRemoves')
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
