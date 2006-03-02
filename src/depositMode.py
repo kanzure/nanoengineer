@@ -128,8 +128,8 @@ def do_what_MainWindowUI_should_do(w):
     # this is correct based on how these are used. But I can't get QToolButton to work right, so I won't do this now.
 
     w.depositAtomDashboard.addSeparator()
-    bg2 = QButtonGroup(w.depositAtomDashboard)
-    bg2.setExclusive(1)
+    bg2 = w.depositAtomDashboard.submode_btngrp = QButtonGroup(w.depositAtomDashboard)
+    bg2.setExclusive(True)
     lay2 = QHBoxLayout(bg2)
     lay2.setAutoAdd(True)
 
@@ -156,11 +156,12 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.buildBtn.setOn(1)
     QToolTip.add(w.depositAtomDashboard.buildBtn, qApp.translate("MainWindow","Build Mode", None))
     
-    w.depositAtomDashboard.atomBtn = QToolButton(bg2, "")
-    w.depositAtomDashboard.atomBtn.setPixmap(imagename_to_pixmap('atom.png'))
-    w.depositAtomDashboard.atomBtn.setToggleButton(1)
-    w.depositAtomDashboard.atomBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.atomBtn, qApp.translate("MainWindow","Change Atom Mode", None))
+    #& Reinstate in A8.  mark 060301.
+    #w.depositAtomDashboard.atomBtn = QToolButton(bg2, "")
+    #w.depositAtomDashboard.atomBtn.setPixmap(imagename_to_pixmap('atom.png'))
+    #w.depositAtomDashboard.atomBtn.setToggleButton(1)
+    #w.depositAtomDashboard.atomBtn.setAutoRaise(1)
+    #QToolTip.add(w.depositAtomDashboard.atomBtn, qApp.translate("MainWindow","Change Atom Mode", None))
     
     w.depositAtomDashboard.bond1Btn = QToolButton(bg2, "")
     w.depositAtomDashboard.bond1Btn.setPixmap(imagename_to_pixmap('bond1.png'))
@@ -247,7 +248,7 @@ def do_what_MainWindowUI_should_do(w):
         bg.hide()
         w.depositAtomDashboard.pasteBtn.hide()
         w.depositAtomDashboard.depositBtn.hide()
-        w.depositAtomDashboard.atomBtn.hide() # Probably not supported for A7.  mark 060214.
+        #w.depositAtomDashboard.atomBtn.hide() # Not supported for A7.  mark 060214.
     
     from whatsthis import create_whats_this_descriptions_for_depositMode
     create_whats_this_descriptions_for_depositMode(w)
@@ -361,6 +362,8 @@ class depositMode(selectAtomsMode):
         # This is a workaround for a bug caused by the way in which the MMKit is created.
         # This should be fixed when the MMKit code gets cleaned up.  Mark 051216.
         self.MMKit.elemGLPane.change_bg_color(self.backgroundColor, self.backgroundGradient)
+        
+        self.w.depositAtomDashboard.buildBtn.setOn(1) # Fixes bug 1537. mark 060301.
 
         return # the caller will now call update_gui(); we rely on that [bruce 050122]
 
@@ -398,6 +401,10 @@ class depositMode(selectAtomsMode):
                         SIGNAL("toggled(bool)"),self.setWater)
         change_connect(self.w.depositAtomDashboard.highlightingCB,
                         SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
+        
+        # Workaround for Qt bug. See more info in fix_submodes_btngrp() docstring. mark 060301.      
+        change_connect(self.w.depositAtomDashboard.submode_btngrp,
+                        SIGNAL("released(int)"),self.fix_submodes_btngrp)
                         
         return
 
@@ -969,7 +976,9 @@ class depositMode(selectAtomsMode):
         '''
 
         if self.o.modkeys is None:
-            if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn():
+            if not self.w.depositAtomDashboard.buildBtn.isOn():
+            #&if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn():
+            #& Reinstate in A8.  mark 060301.
                 self.bond_change_type(b)
                 self.o.gl_update()
                 return
@@ -1605,6 +1614,17 @@ class depositMode(selectAtomsMode):
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one
         return
+    
+    def fix_submodes_btngrp(self, button_id):
+        '''Makes sure the button that was pressed in the submodes_bg QButtonGroup gets selected.
+        This is a workaround for a bug in Qt and fixes bug 1545.  mark 060301.
+        '''
+        #print "button_id=", button_id
+        #print "selectedId=", self.w.depositAtomDashboard.submode_btngrp.selectedId()
+        # Uncommenting the print statements above confirms bug 1545 as a Qt bug. 
+        # button_id will be the actual id of the button pressed, but the button will not be toggled on. 
+        # In this rare case, selectedId will be -1. mark 060301.
+        self.w.depositAtomDashboard.submode_btngrp.setButton(button_id)
         
     def setWater(self, on):
         '''Turn water surface on/off.
