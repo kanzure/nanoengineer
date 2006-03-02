@@ -1014,6 +1014,8 @@ class selectAtomsMode(selectMode):
         # Don't highlight singlets in selectAtomsMode. Fixes bug 1540. mark 060220.
     hover_highlighting_enabled = env.prefs[selectAtomsModeHighlightingEnabled_prefs_key]
         # Fixes bug 1541.  mark 060220.
+    water_enabled = False # Fixes bug 1583. mark 060301.
+    selection_filter_enabled = False # mark 060301.
         
     eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
         
@@ -1024,10 +1026,8 @@ class selectAtomsMode(selectMode):
     def Enter(self): 
         basicMode.Enter(self)
         
-        self.water_enabled = False # mark 060219.
-        
         self.o.assy.selectAtoms()
-        self.w.elemFilterComboBox.setCurrentItem(0) ## Disable filter by default
+        self.set_selection_filter(0) # disable selection filter (sets current item to "All Elements").  mark 060301.
         # Reinitialize previously picked atoms (ppas).
         self.o.assy.ppa2 = self.o.assy.ppa3 = None
         
@@ -1089,12 +1089,7 @@ class selectAtomsMode(selectMode):
     def init_gui(self):
         selectMode.init_gui(self)
         self.w.toolsSelectAtomsAction.setOn(1) # toggle on the "Select Atoms" tools icon
-            
-        #self.w.connect(self.w.elemFilterComboBox, SIGNAL("activated(int)"), self.elemChange)
-        #self.w.connect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
-        # connect signals (these all need to be disconnected in restore_gui)
         self.connect_or_disconnect_signals(True)
-            
         self.update_hybridComboBox(self.w)
         self.w.selectAtomsDashboard.show()
         
@@ -1108,6 +1103,8 @@ class selectAtomsMode(selectMode):
                         SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
         change_connect(self.w.transmuteButton,
                         SIGNAL("clicked()"),self.transmutePressed)
+        change_connect(self.w.elemFilterComboBox,
+                        SIGNAL("activated(int)"), self.set_selection_filter)
 
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
@@ -1651,28 +1648,71 @@ class selectAtomsMode(selectMode):
 
         if self.o.mode.modename in ['SELECTATOMS']: 
             # Add the mode name to this list to support filtering using keypresses to select element type.
+            if key == Qt.Key_Escape: # Disable the selection filter.  mark 060301.
+                self.set_selection_filter(0) # disable selection filter (sets current item to "All Elements").  mark 060301.
+                return
             for sym, code, num in elemKeyTab:
                 if key == code:
                     line = eCCBtab2[num] + 1
-                    self.w.elemFilterComboBox.setCurrentItem(line)
-                    #self.elemChange(line)
+                    self.set_selection_filter(line)
                 
     def keyRelease(self,key):
         '''keyrelease event handler for selectAtomsMode.
         '''
         basicMode.keyRelease(self, key)
+        
+    def set_selection_filter(self, indx):
+        '''Slot for Selection Filter combobox. It can also be called to set the index of the current 
+        item in the combobox to <indx>.  Prints history message when selection filter is 
+        enabled/disabled and updates the cursor.  When <indx> = 0, the selection filter is disabled
+        and the current item is set to "All Elements".
+        '''
+        #print "set_selection_filter val=",val
+        self.w.elemFilterComboBox.setCurrentItem(indx)
+        old_filter_enabled = self.selection_filter_enabled
+        self.selection_filter_enabled = indx
+        if indx:
+            if not old_filter_enabled:
+                env.history.message("Atoms Selection Filter enabled.")
+        else:
+            if old_filter_enabled:
+                env.history.message("Atoms Selection Filter disabled.")
+        self.update_cursor()
             
     def update_cursor_for_no_MB(self):
         '''Update the cursor for 'Select Atoms' mode (selectAtomsMode)
         '''
         #print "selectAtomsMode.update_cursor_for_no_MB(): button=",self.o.button, ", modkeys=", self.o.modkeys
         
+        if self.selection_filter_enabled:
+            self.update_cursor_for_no_MB_selection_filter_enabled()
+        else:
+            self.update_cursor_for_no_MB_selection_filter_disabled()
+            
+    def update_cursor_for_no_MB_selection_filter_disabled(self):
+        '''Update the cursor for when the Selection Filter is disabled (default).
+        '''
         if self.o.modkeys is None:
             self.o.setCursor(self.w.SelectAtomsCursor)
         elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.SelectAtomsAddCursor)
         elif self.o.modkeys == 'Control':
             self.o.setCursor(self.w.SelectAtomsSubtractCursor)
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.setCursor(self.w.DeleteCursor)
+        else:
+            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+        return
+        
+    def update_cursor_for_no_MB_selection_filter_enabled(self):
+        '''Update the cursor for when the Selection Filter is enabled.
+        '''
+        if self.o.modkeys is None:
+            self.o.setCursor(self.w.SelectAtomsFilterCursor)
+        elif self.o.modkeys == 'Shift':
+            self.o.setCursor(self.w.SelectAtomsAddFilterCursor)
+        elif self.o.modkeys == 'Control':
+            self.o.setCursor(self.w.SelectAtomsSubtractFilterCursor)
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
