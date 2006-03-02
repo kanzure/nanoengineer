@@ -1112,11 +1112,26 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             if env.debug():
                 print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
             return
+
+        ##e these need splitting out (and made registerable) as "pre-checkpoint updaters"... note, they can change things,
+        # ie update change_counters, but that ought to be ok, as long as they can't ask for a recursive checkpoint,
+        # which they won't since only UI event processors ever ask for those. [060301]
         
         self.assy.update_parts() # make sure assy has already processed changes (and assy.changed has been called if it will be)
             #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
             # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
             # was only for begin and end cp's (but was active even if undo autocp pref was off).
+        #060301 see if this fixes some bugs... hmm, not the one i hoped for (singlet-pulling after deposit atom)
+        if debug_pref("recompute all atpos's before all checkpoints (to fix bugs)", Choice_boolean_True):
+            # if 1, when bugfix confirmed... hmm, it's not fixed, but surely i need to do this since not doing it would almost surely cause other bugs
+            # and maybe it caused the seeming out of sync behavior (not repeated) after several undo/redo sequences of pulling singlets.
+            for mol in self.assy.molecules:
+                if not mol.__dict__.has_key('atpos') and env.debug():
+                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
+                mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
+                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms)
+            pass
+        
         assert cptype
         assert self.last_cp is not None
         assert self.next_cp is not None
@@ -1132,6 +1147,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             #k see also comments mentioning 'differential'
             
         # maybe i should clean up the following code sometime...
+        debug3 = env.debug() # for now [060301]
         if use_diff and 0:
             assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
 ##            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
@@ -1152,11 +1168,16 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 ##                state
 ##                # or fill_checkpoint or equiv, here
         else:
+            if debug3:
+                print "\ncp", self.assy.all_change_counters(), env.last_history_serno + 1
             if self.last_cp.assy_change_counters == self.assy.all_change_counters():
                 # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
                 # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
-                if debug_undo2:
-                    print "checkpoint type %r with no change in state" % cptype, self.assy.all_change_counters()
+                if debug_undo2 or debug3:
+                    print "checkpoint type %r with no change in state" % cptype, self.assy.all_change_counters(), env.last_history_serno + 1
+                    if env.last_history_serno + 1 != self.last_cp.next_history_serno():
+                        print "suspicious: env.last_history_serno + 1 (%d) != self.last_cp.next_history_serno() (%d)" % \
+                              ( env.last_history_serno + 1 , self.last_cp.next_history_serno() )
                 really_changed = False
                 state = self.last_cp.state
                 #060301 808p part of bugfix for "bug 3" [remove this cmt in a few days];
@@ -1182,7 +1203,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     state = current_state(self, self.assy, **self.format_options) ######@@@@@@ need to optim when only some change_counters changed!
                     really_changed = (state != self.last_cp.state) # this calls StateSnapshot.__ne__ (which calls __eq__) [060227]
                     if not really_changed and env.debug():
-                        print "debug: note: detected lack of really_changed using (state != self.last_cp.state)" ###@@@ remove when works and no bugs then
+                        print "debug: note: detected lack of really_changed using (state != self.last_cp.state)"
+                            ###@@@ remove when works and no bugs then
                 else:
                     #060228
                     assert self.format_options == dict(use_060213_format = True), "nim for mmp kluge code" #e in fact, remove that code when new bugs gone
@@ -1193,10 +1215,13 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 ##                        # goal: diffs no longer form a simple chain... rather, it forks.
 ##                        # hmm. we diff against the cp containing the current state! (right?) ### [060301]
                     really_changed = state.really_changed
-                    if not really_changed and env.debug(): # see if this is printed for bug 3, 060301 8pm [it is]
+                    if not really_changed and debug3: # see if this is printed for bug 3, 060301 8pm [it is]
                         print "debug: note: detected lack of really_changed in diff_and_copy_state"
                         ###@@@ remove when works and no bugs then
-                    elif env.debug(): # condition on rarer flag soon,
+                        # ok, let's get drastic (make debug pref if i keep it for long):
+                        ## state.print_everything() IMPLEM  ####@@@@
+                        print "state.lastsnap.attrdicts:", state.lastsnap.attrdicts # might be huge; doesn't contain ids of mutables
+                    elif debug3: # condition on rarer flag soon,
                         # or have better debug pref for undo stats summary per chgcounter'd cp ###e doit
                         print "debug: note: real change found by diff_and_copy_state"
                 if not really_changed:

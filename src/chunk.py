@@ -88,8 +88,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     _s_attr_atoms = S_CHILDREN
     _s_attr_curpos = S_DATA #k needed since Atoms store their .index and .xyz and .molecule
+        # [see also 060301 mol.atpos in undo_archive, probably required before this is safe to do]
 
-    # no need to _s_attr decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
+    # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]
 
     def _undo_update(self): #bruce 060223 (initial super-conservative overkill version -- i hope)
