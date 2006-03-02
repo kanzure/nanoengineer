@@ -20,7 +20,7 @@ __author__ = 'bruce'
 import time, os
 import platform
 from debug import print_compact_traceback, print_compact_stack
-from debug_prefs import debug_pref, Choice_boolean_False
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
 from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state
