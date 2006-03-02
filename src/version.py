@@ -22,9 +22,9 @@ class Version:
         "major": 0,
         "minor": 0,
         "tiny": 6,
-        "teensy": 7,   # the teensy attribute is optional
+        "teensy": 9,   # the teensy attribute is optional
         "releaseType": "Alpha",
-        "releaseDate": "January 1, 2025",
+        "releaseDate": "March 2, 2006",
         "product": "nanoENGINEER-1",
         "copyright": "Copyright (C) 2004-2005, Nanorex, Inc.",
         "authors": __author__
