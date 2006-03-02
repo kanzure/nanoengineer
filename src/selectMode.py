@@ -1176,6 +1176,10 @@ class selectAtomsMode(selectMode):
                 if self.only_highlight_singlets:
                     # Highlight this atom if it has bondpoints.
                     if selobj.singNeighbors():
+                        if self.current_obj in selobj.singNeighbors(): 
+                            # Do not highlight the atom that the current singlet belongs to.
+                            # Fixes bug 1522. mark 060301.
+                            return None
                         return env.prefs[atomHighlightColor_prefs_key]
                     else:
                         return None
