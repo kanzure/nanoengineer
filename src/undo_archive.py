@@ -441,6 +441,15 @@ class Checkpoint:
         else:
             self.ver = mi.assy_change_counters
         return
+    def next_history_serno(self):#060301
+        try:
+            mi = self.metainfo # stored by outside code (destined to become a method) when we're finalized
+        except:
+            return -1
+        else:
+            return mi.next_history_serno
+        pass
+        
     pass # end of class Checkpoint
 
 class SimpleDiff:
@@ -498,8 +507,39 @@ class SimpleDiff:
         # *this* is what should call fill_checkpoint on self.cps[1]!
     def reverse_order(self):#####@@@@@ what if merged??
         return self.__class__(self.cps[1], self.cps[0], - self.direction, **self.options)
-    def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this??
+    def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this?? -- yes, redo it inside the MergingDiff ##e
         main = self.optype() # "Undo" or "Redo"
+        include_history_sernos = True
+        if include_history_sernos:
+            #060301
+            # describe history serno range, if we have one
+            if self.direction == 1:
+                start_cp, end_cp = self.cps
+            else:
+                end_cp, start_cp = self.cps
+            s1 = start_cp.next_history_serno() ###IMPLEM
+            s2 = end_cp.next_history_serno()
+            n = s2 - s1
+            if n < 0:
+                print "bug in history serno order",s1,s2,self.direction,self
+                n = -n
+                s1,s2 = s2,s1
+            range0 = s1
+            range1 = s2 - 1
+            if n == 0:
+                hist = ""
+            elif n == 1:
+                assert range0 == range1
+                hist = "%d." % range1
+            else:
+                hist = "%d-%d." % (range0, range1)
+            pass
+        else:
+            hist= ""
+        if hist:
+            # this assumes op_name is present; if not, might be better to remove '.' and maybe use parens around numbers...
+            # but i think it's always present (not sure) [060301]
+            main = "%s %s" % (main, hist)
         op_name = self.cmdname()
         if op_name:
             main = "%s %s" % (main, op_name)
@@ -815,15 +855,20 @@ class checkpoint_metainfo:
             glpane = assy.o # can fail even at end of assy.__init__, but when it does, assy.w.glpane does too
         except:
             self.view = "initial view not yet set - stub, will fail if you undo to this point" ######@@@@@@
+            if env.debug():#060301 - does this ever happen (i doubt it)
+                print "debug:",self.view
         else:
             self.view = current_view_for_Undo(glpane, assy) # Csys object (for now), with an attribute pointing out the current Part
+            ###e should this also save the current mode, considered as part of the view??? [060301]
         self.time = time.time()
         #e cpu time?
         #e glpane.redraw_counter? (sp?)
         self.assy_change_counters = assy.all_change_counters()
-        #e history serno that will be used next (also worry about transient_msgs queued up, re this)
+        # history serno that will be used next 
+        self.next_history_serno = env.last_history_serno + 1 # [060301]
+            ###e (also worry about transient_msgs queued up, re this)
         #e current cmd on whatever stack of those we have? re recursive events if this matters? are ongoing tasks relevant??
-        #e current part or selgroup or its index
+        #e current part or selgroup or its index [#k i think this is set in current_view_for_Undo]
         return
     def restore_view(self, assy):
         "restore the view & current part from self (called at end of an Undo or Redo command)"
@@ -1080,12 +1125,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
-        self.use_diff = debug_pref("use differential undo?", Choice_boolean_True, prefs_key = 'A7-devel/differential undo', non_debug = True)
+        use_diff = debug_pref("use differential undo?", Choice_boolean_True, prefs_key = 'A7-devel/differential undo', non_debug = True)
             # it works, 122p 060301, so making it default True and non_debug.
             # (It was supposed to traceback when undoing to initial_state, but it didn't,
             #  so I'm "not looking that gift horse in the mouth" right now. ###@@@)
             #k see also comments mentioning 'differential'
-        if self.use_diff and 0:
+            
+        # maybe i should clean up the following code sometime...
+        if use_diff and 0:
             assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
 ##            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
 ##            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
@@ -1111,6 +1158,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 if debug_undo2:
                     print "checkpoint type %r with no change in state" % cptype, self.assy.all_change_counters()
                 really_changed = False
+                state = self.last_cp.state
+                #060301 808p part of bugfix for "bug 3" [remove this cmt in a few days];
+                # necessary when use_diff, no effect when not
             else:
                 # possible change in state;
                 # false positives are not common enough to optimize for, but common enough to try to avoid/workaround bugs in
@@ -1128,7 +1178,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 if debug_undo2:
                     print "checkpoint %r at change %r, last cp was at %r" % (cptype, \
                                     self.assy.all_change_counters(), self.last_cp.assy_change_counters)
-                if not self.use_diff:
+                if not use_diff:
                     state = current_state(self, self.assy, **self.format_options) ######@@@@@@ need to optim when only some change_counters changed!
                     really_changed = (state != self.last_cp.state) # this calls StateSnapshot.__ne__ (which calls __eq__) [060227]
                     if not really_changed and env.debug():
@@ -1136,10 +1186,19 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 else:
                     #060228
                     assert self.format_options == dict(use_060213_format = True), "nim for mmp kluge code" #e in fact, remove that code when new bugs gone
-                    state = diff_and_copy_state(self, self.assy, self.last_cp.state) ####@@@@ LOGIC BUG: last_cp.state is no longer current after an Undo!
-                        # so this has a problem when we're doing the end-cmd checkpoint after an Undo command.
-                        # goal: diffs no longer form a simple chain... rather, it forks. hmm. we diff against the cp containing the current state! (right?) ### 
+                    state = diff_and_copy_state(self, self.assy, self.last_cp.state)
+#obs, it's fixed now [060301]
+##                        # note: last_cp.state is no longer current after an Undo!
+##                        # so this has a problem when we're doing the end-cmd checkpoint after an Undo command.
+##                        # goal: diffs no longer form a simple chain... rather, it forks.
+##                        # hmm. we diff against the cp containing the current state! (right?) ### [060301]
                     really_changed = state.really_changed
+                    if not really_changed and env.debug(): # see if this is printed for bug 3, 060301 8pm [it is]
+                        print "debug: note: detected lack of really_changed in diff_and_copy_state"
+                        ###@@@ remove when works and no bugs then
+                    elif env.debug(): # condition on rarer flag soon,
+                        # or have better debug pref for undo stats summary per chgcounter'd cp ###e doit
+                        print "debug: note: real change found by diff_and_copy_state"
                 if not really_changed:
                     # Have to reset changed_counters, or undo stack becomes disconnected, since it uses them as varid_vers.
                     # Not needed in other case above since they were already equal.
@@ -1158,7 +1217,15 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     # so we could tell if its guesses seem accurate. [060301]
                     pass # it's nim ... 
             else:
-                state = self.last_cp.state # note: depending on how this is reached, it sets state for first time or replaces it with an equal value
+                # not really_changed
+                # guess: following line causes bug 3 when use_diff is true
+                if not use_diff:
+                    state = self.last_cp.state
+                        # note: depending on how this is reached, it sets state for first time or replaces it with an equal value
+                        # (which is good for saving space -- otherwise we'd retain two equal but different huge state objects)
+                else:
+                    pass # in this case there's no motivation, and (guess) it causes "bug 3", so don't do it,
+                        # but do set state when assy_change_counters says no change [done] 060301 8pm
                 self.current_diff.empty = True
                 self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
                     # I'm not sure this is right, but as long as varid_vers are the same, or states equal, it seems to make sense... #####@@@@@

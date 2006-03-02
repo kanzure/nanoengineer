@@ -156,6 +156,8 @@ class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemanti
 
 history = pre_init_fake_history_widget() # this will be changed by MWsemantics.__init__ [bruce 050727]
 
+last_history_serno = 0 #bruce 060301 (maintained by HistoryWidget, to be looked at by Undo checkpoints)
+
 redraw_counter = 0 #bruce 050825
 
 # ==

@@ -105,12 +105,12 @@ class AssyUndoManager(UndoManager):
             pass
         return
 
-    def clear_undo_stack(self, *args, **kws):
+    def clear_undo_stack(self, *args, **kws): # this is now callable from a debug menu / other command, as of 060301 (experimental)
         if not self.inited:
             self._initial_checkpoint() # have to do this here, not in archive.clear_undo_stack
         return self.archive.clear_undo_stack(*args, **kws)
     
-    def menu_cmd_checkpoint(self):
+    def menu_cmd_checkpoint(self): # no longer callable from UI as of 060301, and not recently reviewed for safety [060301 comment]
         self.checkpoint( cptype = 'user_explicit' )
 
     __begin_retval = None ###k this will be used when we're created by a cmd like file open... i guess grabbing pref then is best...
@@ -213,7 +213,13 @@ class AssyUndoManager(UndoManager):
         archive = self.archive
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
         res = []
-        res.append(( 'undo checkpoint (in RAM only)', self.menu_cmd_checkpoint ))
+
+        #bruce 060301 removing this one, since it hasn't been reviewed in awhile so it might cause bugs,
+        # and maybe it did cause one...
+        ## res.append(( 'undo checkpoint (in RAM only)', self.menu_cmd_checkpoint ))
+
+        #060301 try this one instead:
+        res.append(( 'clear undo stack (experimental)', self.clear_undo_stack ))
 
         undos, redos = self.undo_redo_ops()
         ###e sort each list by some sort of time order (maybe of most recent use of the op in either direction??), and limit lengths

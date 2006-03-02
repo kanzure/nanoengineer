@@ -182,6 +182,9 @@ class HistoryWidget:
         optional arg header_line should be a string, generally not ending in '\n'
         """
         
+        if 1: #bruce 060301 (in two places)
+            env.last_history_serno = self.last_serno
+        
         ###### User Preference initialization ##############################
         
         # Get history related settings from prefs db.
@@ -318,6 +321,8 @@ class HistoryWidget:
     last_serno = 0
     def next_serno(self):
         self.last_serno += 1
+        if 1: #bruce 060301 (in two places)
+            env.last_history_serno = self.last_serno
         return self.last_serno
 
     saved_msg = saved_options = saved_transient_id = None
