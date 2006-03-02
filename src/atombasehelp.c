@@ -35,24 +35,30 @@ struct link {
  * first few fields are identical. In this case, the only commonality is
  * the "key" field.
  */
-struct atomstruct {
-    int _eltnum, _atomtype;
-    double x, y, z;
-    struct link *sets;
-};
-
 /* the "base class" */
 struct key_thing {
     int key;
     PyObject *self;
 };
 
+struct atomstruct {
+    int _eltnum, _atomtype;
+    double x, y, z;
+    struct link *sets;
+};
+
 struct bondstruct {
+    unsigned int atomkey1, atomkey2;
     int v6;
+    struct link *sets;
 };
 
 struct atomsetstruct {
     struct link *atoms;
+};
+
+struct bondsetstruct {
+    struct link *bonds;
 };
 
 static void print_linked_list(struct link *L)

@@ -26,12 +26,14 @@ def resetgenkey():
 class Structure:
     def __init__(self):
         self.atomset = AtomSetBase()
+        self.bondset = BondSetBase()
     def __len__(self):
         return len(self.atomset.keys())
 
 def water(x=0.0, y=0.0, z=0.0):
     w = Structure()
     w.atomset.key = genkey()
+    w.bondset.key = genkey()
     posns = (
         ((x - 0.983, y - 0.008, z + 0.000),  # hydrogen
          (x + 0.017, y - 0.008, z + 0.000),   # oxygen
@@ -46,10 +48,21 @@ def water(x=0.0, y=0.0, z=0.0):
         a._atomtype = 1
         w.atomset.add(a)
         atoms.append(a)
+    for k1, k2 in ((atoms[0].key, atoms[1].key),
+                   (atoms[1].key, atoms[2].key)):
+        b = BondBase()
+        b.key = genkey()
+        b.atomkey1 = k1
+        b.atomkey2 = k2
+        b.v6 = 1
+        w.bondset.add(b)
     return w
 
 def selectH(atom):
     return atom._eltnum == 1
+
+def selectSingle(bond):
+    return bond.v6 == 1
 
 def transmuteOC(atom):
     # change oxygen to carbon
@@ -74,6 +87,126 @@ class AtomBaseTests(TestCase):
         assert ab._atomtype == 0
         ab._atomtype = 2
         assert ab._atomtype == 2
+
+class BondBaseTests(TestCase):
+
+    def test_basic_bondbase(self):
+        bb = BondBase()
+        assert bb.v6 == 0
+        bb.v6 = 2
+        assert bb.v6 == 2
+
+    def test_bondset_keysSorted(self):
+        """\
+        bondset.keys() # sorted
+        bondset.values() # sorted by key
+        bondset.items() # sorted by key
+        """
+        bondset = BondSetBase()
+        bondset.key = genkey()
+        # create them forwards
+        bond1 = BondBase()
+        bond1.key = genkey()
+        bond2 = BondBase()
+        bond2.key = genkey()
+        bond3 = BondBase()
+        bond3.key = genkey()
+        bond4 = BondBase()
+        bond4.key = genkey()
+        bond5 = BondBase()
+        bond5.key = genkey()
+        # add them backwards
+        bondset.add(bond5)
+        bondset.add(bond4)
+        bondset.add(bond3)
+        bondset.add(bond2)
+        bondset.add(bond1)
+        # they better come out forwards
+        assert bondset.keys() == [ 2, 3, 4, 5, 6 ]
+        assert bondset.values() == [
+            bond1, bond2, bond3, bond4, bond5
+            ]
+        assert bondset.items() == [
+            (2, bond1), (3, bond2), (4, bond3),
+            (5, bond4), (6, bond5)
+            ]
+
+    def test_bondset_gracefulRemoves(self):
+        """\
+        del bondset[bond.key]
+        """
+        bond1 = BondBase()
+        bond1.key = genkey()
+        bond2 = BondBase()
+        bond2.key = genkey()
+        bond3 = BondBase()
+        bond3.key = genkey()
+        bondset = BondSetBase()
+        bondset.key = genkey()
+        bondset.add(bond1)
+        bondset.add(bond2)
+        bondset.add(bond3)
+        assert len(bondset) == 3
+        assert bond1.sets.tolist() == [ bondset.key ]
+        assert bond2.sets.tolist() == [ bondset.key ]
+        assert bond3.sets.tolist() == [ bondset.key ]
+        del bondset[bond1.key]
+        del bondset[bond2.key]
+        del bondset[bond3.key]
+        assert len(bondset) == 0
+        assert bond1.sets.tolist() == [ ]
+        assert bond2.sets.tolist() == [ ]
+        assert bond3.sets.tolist() == [ ]
+
+    def test_bondset_updateFromAnotherBondlist(self):
+        """\
+        bondset.update( bondset2 )
+        """
+        alst = [ ]
+        for i in range(5):
+            a = BondBase()
+            a.key = genkey()
+            alst.append(a)
+        bondset = BondSetBase()
+        bondset.key = genkey()
+        for a in alst:
+            bondset.add(a)
+        assert bondset.keys() == [ 1, 2, 3, 4, 5 ]
+        bondset2 = BondSetBase()
+        bondset2.update(bondset)
+        assert bondset2.keys() == [ 1, 2, 3, 4, 5 ]
+
+    def test_bondset_updateFromDict(self):
+        """\
+        bondset.update( any dict from bond.key to bond )
+        """
+        adct = { }
+        for i in range(5):
+            a = BondBase()
+            a.key = genkey()
+            adct[a.key] = a
+        bondset = BondSetBase()
+        bondset.key = genkey()
+        bondset.update(adct)
+        assert bondset.keys() == [ 1, 2, 3, 4, 5 ]
+
+    def test_bondset_removeFromEmpty(self):
+        bondset = BondSetBase()
+        bondset.key = genkey()
+        a = BondBase()
+        a.key = genkey()
+        try:
+            bondset.remove(a)
+            self.fail("shouldn't be able to remove from an empty bondset")
+        except KeyError:
+            pass
+
+    def test_bondset_filter(self):
+        w = water()
+        bondset = BondSetBase(filter(selectSingle, w.bondset.values()))
+        bondinfo = bondset.bondInfo()
+        assert type(bondinfo) == Numeric.arraytype
+        assert bondinfo.tolist() == [[3, 4, 1], [4, 5, 1]]
 
 
 class AtomSetBaseTests(TestCase):
@@ -236,14 +369,14 @@ class DiffTests(TestCase):
         map(transmuteOC, w.atomset.values())
         diffobj = db.snapshot()
         keys, olds, news = unpack(diffobj._eltnum)
-        assert keys == [3]
+        assert keys == [4]
         assert olds == [8]
         assert news == [6]
 
         map(transmuteHN, w.atomset.values())
         diffobj = db.snapshot()
         keys, olds, news = unpack(diffobj._eltnum)
-        assert keys == [2, 4]
+        assert keys == [3, 5]
         assert olds == [1, 1]
         assert news == [7, 7]
 
@@ -251,7 +384,7 @@ class DiffTests(TestCase):
             atom.z = atom.z + 1
         diffobj = db.snapshot()
         keys, olds, news = unpack(diffobj.z)
-        assert keys == [2, 3, 4]
+        assert keys == [3, 4, 5]
         assert olds == [0., 0., 0.]
         assert news == [1., 1., 1.]
 
@@ -266,7 +399,7 @@ class DiffTests(TestCase):
             as.add(x)
         diffobj = db.snapshot()
         keys, olds, news = unpack(diffobj.sets)
-        assert keys == [2, 3, 4]
+        assert keys == [3, 4, 5]
         assert olds == [[1], [1], [1]]
         assert news == [[1, 5], [1, 5], [1, 5]]
 
@@ -292,7 +425,7 @@ class DiffTests(TestCase):
         # What x coords changed? The new atom, when we positioned it
         diffobj = db.snapshot()
         keys, olds, news = unpack(diffobj.x)
-        assert keys == [5]
+        assert keys == [8]
         assert olds == [0.0]
         assert news == [3.1416]
 
@@ -301,11 +434,11 @@ class DiffTests(TestCase):
             atm.x += 2.0
         diffobj = db.snapshot()
         keys, olds, news = unpack(diffobj.x)
-        assert keys == [2, 3, 4, 5]
+        assert keys == [3, 4, 5, 8]
         assert olds == [-0.983, 0.017, 0.276, 3.1416]
         assert news == [1.017, 2.017, 2.276, 5.1416]
 
-class Tests(AtomBaseTests, AtomSetBaseTests, DiffTests):
+class Tests(AtomBaseTests, BondBaseTests, AtomSetBaseTests, DiffTests):
     pass
 
 def test():

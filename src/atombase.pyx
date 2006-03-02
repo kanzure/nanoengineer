@@ -30,8 +30,12 @@ cdef extern from "atombasehelp.c":
 
     cdef struct bondstruct:
         int v6
+        link *sets
 
     cdef struct atomsetstruct:
+        link *atoms
+
+    cdef struct bondsetstruct:
         link *atoms
 
     link *has_link(link *n, unsigned int key)
@@ -44,6 +48,11 @@ cdef class _BaseClass:
     cdef key_thing data0
     def __init__(self):
         self.data0.self = <void*> self
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
 
 cdef class _AtomBase(_BaseClass):
 
@@ -106,6 +115,11 @@ cdef class _AtomBase(_BaseClass):
 
 class AtomBase(_AtomBase):
     pass
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
 
 cdef class _AtomSetBaseRefImpl(_BaseClass):
 
@@ -243,6 +257,129 @@ class AtomSetBase(_AtomSetBaseRefImpl):
 #class AtomSetBase(_AtomSetBase):
 #    pass
 
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+
+cdef class _BondBase(_BaseClass):
+
+    cdef bondstruct data
+
+    def __init__(self):
+        _BaseClass.__init__(self)
+        self.data0.key = 0
+        self.data.v6 = 0
+        self.data.sets = NULL
+
+    def diffableAttributes(self):
+        return ("v6",)
+
+    def __getattr__(self, name):
+        if name == "key":
+            return self.data0.key
+        elif name == "v6":
+            return self.data.v6
+        elif name == "sets":
+            return extract_list(self.data.sets, 0)
+        else:
+            raise AttributeError, name
+
+    def __setattr__(self, name, value):
+        if name == "key":
+            if DEBUG > 0: print "SET KEY", value
+            self.data0.key = value
+        elif name == "v6":
+            self.data.v6 = value
+        else:
+            self.__dict__[name] = value
+
+    def addSet(self, _BaseClass other):
+        add_to_linked_list(&self.data.sets, &other.data0)
+
+    def removeSet(self, _BaseClass other):
+        remove_from_linked_list(&self.data.sets, &other.data0)
+
+class BondBase(_BondBase):
+    pass
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+
+cdef class _BondSetBase(_BaseClass):
+
+    cdef bondsetstruct data
+
+    def __init__(self, bonds=[ ]):
+        _BaseClass.__init__(self)
+        self._dct = { }
+        for a in bonds:
+            self.add(a)
+    def __setattr__(self, name, value):
+        if name == "key":
+            self.data0.key = value
+        else:
+            self.__dict__[name] = value
+    def __getattr__(self, name):
+        if name == "key":
+            return self.data0.key
+        elif name in ("_dct"):
+            return self.__dict__[name]
+        else:
+            raise AttributeError, name
+    def __setitem__(self, key, bond):
+        if key != bond.key:
+            raise KeyError
+        self._dct[key] = bond
+        bond.addSet(self)
+    def __getitem__(self, key):
+        return self._dct[key]
+
+    def __delitem__(self, key):
+        self._dct[key].removeSet(self)
+        del self._dct[key]
+    def __len__(self):
+        return len(self._dct.keys())
+    def keys(self):
+        return self._dct.keys()
+    def add(self, bond):
+        self[bond.key] = bond
+    def remove(self, bond):
+        del self[bond.key]
+    def update(self, other):
+        for k in other.keys():
+            self[k] = other[k]
+    def values(self):
+        lst = [ ]
+        for k in self.keys():
+            lst.append(self[k])
+        return lst
+    def items(self):
+        lst = [ ]
+        for k in self.keys():
+            lst.append((k, self[k]))
+        return lst
+    def bondInfo(self):
+        ary = Numeric.zeros((len(self.keys()), 3), 'i')
+        i = 0
+        for k in self.keys():
+            bnd = self[k]
+            ary[i][0] = bnd.atomkey1
+            ary[i][1] = bnd.atomkey2
+            ary[i][2] = bnd.v6
+            i = i + 1
+        return ary
+
+class BondSetBase(_BondSetBase):
+    pass
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+
 cdef class _DiffObjectBase:
     def __init__(self, attributes, objlist, previous, current):
         for attr in attributes:
@@ -275,6 +412,11 @@ cdef class _DiffObjectBase:
 
 class DiffObjectBase(_DiffObjectBase):
     pass
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
 
 cdef class _DiffFactoryBase:
     def __init__(self, objList):
