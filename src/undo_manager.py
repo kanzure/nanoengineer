@@ -144,7 +144,7 @@ class AssyUndoManager(UndoManager):
         return res # maybe no retval, this is just a precaution
 
     def auto_checkpoint_pref(self):
-        return debug_pref('undo auto-checkpointing? (slow)', Choice_boolean_False,
+        return debug_pref('undo: auto-checkpointing? (slow)', Choice_boolean_True, #bruce 060302 changed default to True, added ':'
                         prefs_key = 'A7/undo/auto-checkpointing',
                         non_debug = True)
         

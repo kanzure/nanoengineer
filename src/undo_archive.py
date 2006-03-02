@@ -1140,7 +1140,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
-        use_diff = debug_pref("use differential undo?", Choice_boolean_True, prefs_key = 'A7-devel/differential undo', non_debug = True)
+        use_diff = debug_pref("use differential undo?", Choice_boolean_True, prefs_key = 'A7-devel/differential undo')
+                ## , non_debug = True) #bruce 060302 removed non_debug
             # it works, 122p 060301, so making it default True and non_debug.
             # (It was supposed to traceback when undoing to initial_state, but it didn't,
             #  so I'm "not looking that gift horse in the mouth" right now. ###@@@)
