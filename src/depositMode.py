@@ -1357,10 +1357,11 @@ class depositMode(selectAtomsMode):
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
                 # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
-                deposited_obj = self.deposit_from_MMKit(s1)
-                if deposited_obj:
-                    self.set_cmdname('Deposit ' + deposited_obj)
-                    # does its own win_update().
+                if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT): # Fixes bug 1448. mark 060301.
+                    deposited_obj = self.deposit_from_MMKit(s1)
+                        # does its own win_update().
+                    if deposited_obj:
+                        self.set_cmdname('Deposit ' + deposited_obj)
             else: # A different singlet is highlighted...
                 # ... so bond the highlighted singlet <s2> to the first singlet <s1>
                 self.bond_singlets(s1, s2)
