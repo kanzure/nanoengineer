@@ -12,6 +12,8 @@ from state_constants import *
 import types
 import env
 
+# see debug flags, below
+
 ### TODO:
 '''
 Where is _s_deepcopy (etc) documented? (In code and on wiki?)
@@ -47,6 +49,12 @@ Maybe rather than accomodating copyable_attrs, we'll just replace it? Not sure, 
 
 Do any inapprop obs get a key (like data or foreign objs) in current code?? #####@@@@@
 '''
+
+debug_dont_trust_Numeric_copy = False ####@@@@ 060302 -- will this fix last night's singlet-pulling bug?
+    # (warning, it's slow!) 
+
+debug_print_every_array_passed_to_Numeric_copy = False # hmm, this might be slow too... to be safe the runtime
+    # use of it should condition it on env.debug(), and to be fast, also on debug_dont_trust_Numeric_copy.
 
 # ==
 
@@ -247,6 +255,10 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
             # so it's env.debug for now, ####@@@@ FIX THAT LATER  [060227]
             print "InstanceClassification for %r sees no mixin or _s_attr decls; please add them or register it (nim)" \
                   % class1.__name__
+
+        if env.debug() and not self.attrs_with_no_dflt and self.attr_dflt_pairs: #060302; doesn't get printed (good)
+            print "InstanceClassification for %r: all attrs have defaults, worry about bug resetting all-default objects"\
+                  % class1.__name__
         return
 
     def __repr__(self):
@@ -444,6 +456,11 @@ def copy_Numeric_array(obj):
             # In future we might decide to let this typecode be declared somehow...
 ##    if env.debug():
 ##        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ... it did
+    if debug_dont_trust_Numeric_copy: ####@@@@ 060302
+        res = array( map( copy_val, list(obj)) )
+        if debug_print_every_array_passed_to_Numeric_copy and env.debug():
+            print "copy_Numeric_array on %#x produced %#x (not using Numeric.copy); input data %s" % (id(obj), id(res), obj) 
+        return res
     return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
 
 def scan_Numeric_array(obj, func):
@@ -612,6 +629,10 @@ class StateSnapshot:
     The code that stores data into one of these is the collect_state method in some other class.
     The code that applies this data to live current objects is... presently in assy_become_scanned_state
     but maybe should be a method in this class. ####@@@@
+       As of 060302 we *might* (#k) require that even default or _UNSET_ attrvalues be stored explicitly, since we suspect
+    not doing so can cause bugs, particularly in code to apply a state back into live objects. In future we might
+    like to optimize by not storing default values; this is hard to do correctly now since they are not always
+    the same for all objects in one attrdict.
     """
     #e later we'll have one for whole state and one for differential state and decide if they're different classes, etc
     def __init__(self, attrs = ()):
@@ -700,13 +721,22 @@ def diffdicts(d1, d2, dflt = None, whatret = 0): ###e dflt is problematic since 
     """
     ###E maybe this dflt feature is not needed, if we already didn't store vals equal to dflt? but how to say "unset" in retval?
     # Do we need a new unique object not equal to anything else, just to use for Unset?
+    # [later, 060302:] looks like this dflt is per-attrdict and always _UNSET_, but needn't be the same as a per-object one
+    # that can safely be per-class. see comments elsewhere dated today.
     res = {}
     for key, v1 in d1.iteritems():
         v2 = d2.get(key, dflt)
-        if v1 == v2: # optim: == will be faster than != for some of our most common values
-            pass
+        if 0:
+            if v1 == v2: # optim: == will be faster than != for some of our most common values
+                pass
+            else:
+                res[key] = (v1,v2)
         else:
-            res[key] = (v1,v2)
+            #####@@@@@ see if *this* fixes my bug... 060302 955a
+            if v1 != v2:
+                res[key] = (v1,v2)
+            else:
+                pass
     for key, v2 in d2.iteritems():
         #e (optim note: i don't know how to avoid scanning common keys twice, just to find d2-only keys;
         #   maybe copying d1 and updating with d2 and scanning that would be fastest way?)
@@ -720,7 +750,8 @@ def diffdicts(d1, d2, dflt = None, whatret = 0): ###e dflt is problematic since 
     if whatret: #e should optimize by using loop variants above, instead ###@@@
         ind = whatret - 1
         for key, pair in res.iteritems():
-            res[key] = pair[ind]
+            res[key] = copy_val(pair[ind]) ########@@@@@@@@ #KLUGE: copy_val at all (contrary to docstring) -- see if it fixes any bugs;
+                # and KLUGE2 - not doing this unless whatret. [060302] results: didn't fix last night's bug.
     return res
 
 # ==
@@ -978,6 +1009,8 @@ class obj_classifier:
             ###e need to teach clas to know those, then.
             for attr, dflt in clas.attr_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
                 val = getattr(obj, attr, dflt)
+                # note: this dflt can depend on key -- no need for it to be the same within one attrdict,
+                # provided we have no objects whose attrs all have default values and all equal them at once [060302]
                 if val is not dflt: # it's important in general to use 'is' rather than '==' (I think), e.g. for different copies of {}
                     # We might need to store a copy of val, or we might not if val == dflt and it's not mutable.
                     # There's no efficient perfect test for this, and it's not worth the runtime to even guess it,
@@ -1011,6 +1044,10 @@ class obj_classifier:
         clas = self.classify_instance(obj)
         for attr, dflt in clas.attr_dflt_pairs:
             setattr(obj, attr, copy_val(dflt)) #e need copy_val?
+            # [060302: i think copy_val is not needed given that we only refrain from storing val when it 'is' dflt,
+            #  but i think it's ok unless some classes depend on unset attrs being a mutable shared class attr,
+            #  which I think is bad enough style that we can safely say we don't support it (though detecting the danger
+            #  would be nice someday #e).]
             #e save this for when i have time to analyze whether it's safe:
             ## delattr(obj, attr) # save RAM -- ok (I think) since the only way we get dflts is when this would work... not sure
         # not needed: for attr in clas.attrs_with_no_dflt: ...
@@ -1042,6 +1079,10 @@ class DataMixin:
     in values of declared state-holding attributes. Provides method stubs
     to remind you when you haven't declared a necessary method. (not sure this is good)
     Makes sure state system treats this object as data (and doesn't warn about it).
+       Note: it's not obligatory for data-like classes to inherit this, and as of 060302
+    I think none of them do (though maybe they should, to serve as examples #e). To find the
+    classes that are officially treated as data by Undo and other state_utils features,
+    search for _s_deepcopy methods.
     """
     def _s_deepcopy(self, copyfunc): # note: presence of this method makes sure this object is treated as data.
         "#doc [doc available in other implems of this method, and/or its calls; implem must be compatible with __eq__]"
