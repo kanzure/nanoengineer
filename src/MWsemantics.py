@@ -545,10 +545,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editCopy(self):
         self.assy.copy_sel()
         self.win_update()
-        global MMKitWin
-        if MMKitWin: 
-            MMKitWin.setup_current_page(MMKitWin.clipboardPage)
-                # Updates the MMKit clipboard page with the new clipboard object.  mark 060223. 
 
     def editPaste(self):
         if self.assy.shelf.members:
@@ -1410,6 +1406,24 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.SelectAtomsSubtractCursor = QCursor(
             QBitmap(filePath + "/../images/SelectAtomsSubtractCursor.bmp"),
             QBitmap(filePath + "/../images/SelectAtomsSubtractCursor-bm.bmp"),
+            0, 0)
+            
+        # Create "SelectAtomsFilterCursor" cursor
+        self.SelectAtomsFilterCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsFilterCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsFilterCursor-bm.bmp"),
+            0, 0)
+            
+        # Create "SelectAtomsAddFilterCursor" cursor
+        self.SelectAtomsAddFilterCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsAddFilterCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsAddFilterCursor-bm.bmp"),
+            0, 0)
+            
+        # Create "SelectAtomsSubtractFilterCursor" cursor
+        self.SelectAtomsSubtractFilterCursor = QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsSubtractFilterCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsSubtractFilterCursor-bm.bmp"),
             0, 0)
                                         
         # Create "SelectMolsCursor" cursor
