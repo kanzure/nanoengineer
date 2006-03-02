@@ -85,7 +85,7 @@ _ILLEGAL_UM_KEY = "_ILLEGAL_UM_KEY" # must not be a legitimate value of _um_key;
 # and these _eq_data_ classes: VQT, Selection (is this really datalike? probably yes ##e).
 # I also had to check anything with InvalMixin (Atom, molecule, Part) -- all covered above.
 
-# classes whose mixin/attr policy is not yet clear:   ###@@@ THIS IS WHERE I AM 060209 514p
+# classes whose mixin/attr policy is not yet clear:   ###@@@ 060209 514p
 # VQT, GLPane, ThumbView, anyMode, assembly, part,
 # movie, its subobjects like atomlist or whatever and moviefile
 # Selection

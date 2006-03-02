@@ -625,7 +625,7 @@ class StateSnapshot:
         "Make an attrdict for attr. Assume we don't already have one."
         assert self.attrdicts.get(attr) is None
         self.attrdicts[attr] = {}
-    def size(self): ##e should this be a __len__ and/or a __nonzero__ method?
+    def size(self): ##e should this be a __len__ and/or a __nonzero__ method? ### shares code with DiffObj; use common superclass?
         "return the total number of attribute values we're storing (over all objects and all attrnames)"
         res = 0
         for d in self.attrdicts.values():
@@ -649,7 +649,7 @@ class StateSnapshot:
         return not (self == other)
     pass # end of class StateSnapshot
 
-def diff_snapshots(snap1, snap2): #060227 experimental
+def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
     "Diff two snapshots. Retval format TBD. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
     keydict = dict(snap1.attrdicts) # shallow copy, used only for its keys (presence of big values shouldn't slow this down)
     keydict.update(snap2.attrdicts)
@@ -663,16 +663,39 @@ def diff_snapshots(snap1, snap2): #060227 experimental
         # now diff these dicts; set of keys might not be the same
         dflt = _UNSET_
             # This might be correct, assuming each attrdict has been optimized to not store true dflt val for attrdict,
-            # or each hasn't been (i.e. same policy for both).
-            # Needs review. ##k ###@@@ [060227 comment]
-        diff = diffdicts(d1, d2, dflt)
+            # or each hasn't been (i.e. same policy for both). Also it's assumed by diff_snapshots_oneway and its caller.
+            # Needs review. ##k ###@@@ [060227-28 comment]
+        diff = diffdicts(d1, d2, dflt = dflt, whatret = whatret)
         if diff:
             res[attr] = diff #k ok not to copy its mutable state? I think so...
     return res # just a diff-attrdicts-dict, with no empty dict members (so boolean test works ok) -- not a Snapshot itself.
 
-def diffdicts(d1, d2, dflt = None): ###e dflt is problematic since we don't know it here and it might vary by obj or class
+def diff_snapshots_oneway(snap1, snap2):
+    "diff them, but only return what's needed to turn snap1 into snap2, as an object containing attrdicts (all mutable)"
+    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) )
+
+class DiffObj:
+    def __init__(self, attrdicts):
+        self.attrdicts = attrdicts
+    def size(self): ### shares code with StateSnapshot; use common superclass?
+        "return the total number of attribute value differences we're storing (over all objects and all attrnames)"
+        res = 0
+        for d in self.attrdicts.values():
+            res += len(d)
+        return res
+    def __len__(self):
+        return self.size()
+    def nonempty(self):
+        return self.size() > 0
+    def __nonzero__(self):
+        return self.nonempty()
+    pass
+
+def diffdicts(d1, d2, dflt = None, whatret = 0): ###e dflt is problematic since we don't know it here and it might vary by obj or class
     """Given two dicts, return a new one with entries at keys where their values differ (according to ==),
-    treating missing values as dflt. Values in retval are pairs (v1, v2) where v1 = d1.get(key, dflt), and same for v2.
+    treating missing values as dflt (which is None if not provided, but many callers should pass _UNSET_).
+    Values in retval are pairs (v1, v2) where v1 = d1.get(key, dflt), and same for v2,
+    unless we pass whatret == 1 or 2, in which case values are just v1 or just v2 respectively.
     WARNING: v1 and v2 and dflt in these pairs are not copied; retval might share mutable state with d1 and d2 values and dflt arg.
     """
     ###E maybe this dflt feature is not needed, if we already didn't store vals equal to dflt? but how to say "unset" in retval?
@@ -694,30 +717,119 @@ def diffdicts(d1, d2, dflt = None): ###e dflt is problematic since we don't know
                 pass
             else:
                 res[key] = (v1,v2)
+    if whatret: #e should optimize by using loop variants above, instead ###@@@
+        ind = whatret - 1
+        for key, pair in res.iteritems():
+            res[key] = pair[ind]
     return res
 
 # ==
 
-def diff_and_copy_state(archive, assy, priorstate): #060228 draft, and WHERE I AM
+def diff_and_copy_state(archive, assy, priorstate): #060228 
     "Return a StatePlace which presently owns the CurrentStateCopy but is willing to give it up when this is next called... #doc"
-    new = StatePlace() # will be given stewardship of our maintained copy of always-almost-current state, and returned
-    diffobj = DiffObj()
-    
+    # background: we keep a mutable snapshot of the last checkpointed state. right now it's inside priorstate (and defines
+    # that immutable-state-object's state), but we're going to grab it out of there and modify it to equal actual current state
+    # (as derived from assy using archive), and make a diffobject which records how we had to change it. Then we'll donate it
+    # to a new immutable-state-object we make and return (<new>). But we don't want to make priorstate unusable
+    # or violate its immutability, so we'll tell it to define itself (until further notice) based on <new> and <diffobj>.
     try:
-        steal_current_method = priorstate.steal_current ###IMPLEM
+        assert priorstate[0] == 'scan_whole' # might fail on some calls, we'll see
+        priorstate = priorstate[1]
+    except AttributeError: # StatePlace instance has no attribute '__getitem__'
+        pass
+    
+    new = StatePlace() # will be given stewardship of our maintained copy of almost-current state, and returned
+    # diffobj is not yet needed now, just returned from diff_snapshots_oneway:
+    ## diffobj = DiffObj() # will record diff from new back to priorstate (one-way diff is ok, if traversing it also reverses it)
+    try:
+        steal_lastsnap_method = priorstate.steal_lastsnap
     except:
+        steal_lastsnap_method = None # so we can use this as a flag, below
         # special case for priorstate being initial state
-        currentsnap = priorstate.copy() ###IMPLEM and review
+        # lastsnap = priorstate.copy() #IMPLEM and review; or nevermind, if we retain 'lastsnap = cursnap' below
+        lastsnap = priorstate # be sure not to modify this object!
+        assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
     else:
-        currentsnap = steal_current_method( ) # and we promise to replace it with (new, diffobj) later, or your methods will crash
-    # now we own currentsnap, and we'll modify it to agree with actual current state, and record the changes this required...
-    # initial test: use old inefficient code for this -- soon we'll optim
+        assert isinstance(priorstate, StatePlace) # remove when works, eventually ###@@@
+        lastsnap = steal_lastsnap_method( ) # and we promise to replace it with (new, diffobj) later, so priorstate is again defined
+        assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
+    # now we own lastsnap, and we'll modify it to agree with actual current state, and record the changes required to undo this...
+    # initial test: use old inefficient code for this -- soon we'll optim (it might be enough to optim for atoms and bonds only)
     if 1:
-        import undo_archive #e later, inline this until we hit a function in this file
-        cur = undo_archive.current_state(archive, assy, use_060213_format = True)
-        diff = diff_snapshots( currentsnap, cur)
-        currentsnap.become_copy_of(cur) ###IMPLEM
-        new.own_this_currentsnap(currentsnap)
+        import undo_archive #e later, we'll inline this until we reach a function in this file
+        cursnap = undo_archive.current_state(archive, assy, use_060213_format = True)
+        assert cursnap[0] == 'scan_whole'
+        cursnap = cursnap[1]
+        diffobj = diff_snapshots_oneway( cursnap, lastsnap )
+        ## lastsnap.become_copy_of(cursnap) #IMPLEM, or nevermind, just use cursnap
+        lastsnap = cursnap
+        del cursnap
+        new.own_this_lastsnap(lastsnap)
+        if steal_lastsnap_method: #kluge, remove when initial state is a stateplace ###@@@
+            priorstate.define_by_diff_from_stateplace(diffobj, new)
+        new.really_changed = not not diffobj.nonempty() # remains correct even when new's definitional content changes
+    return new
+
+class StatePlace:
+    """basically an lval for a StateSnapshot or a (diffobj, StatePlace) pair;
+    represents a logically immutable snapshot in a mutable way
+    """
+    def __init__(self, lastsnap = None):
+        self.lastsnap = lastsnap # should be None or a mutable StateSnapshot
+        self.diff_and_place = None
+    def own_this_lastsnap(self, lastsnap):
+        assert self.lastsnap is None
+        assert self.diff_and_place is None
+        assert lastsnap is not None
+        self.lastsnap = lastsnap
+    def define_by_diff_from_stateplace(self, diff, place):
+        assert self.lastsnap is None
+        assert self.diff_and_place is None
+        self.diff_and_place = (diff, place)
+    def steal_lastsnap(self):
+        assert self.lastsnap is not None
+        res = self.lastsnap
+        self.lastsnap = None
+        return res
+    #e methods for pulling the snap back to us, too... across the pointer self.diff_and_place, i guess
+    def get_snap_back_to_self(self): ####@@@@ CALL ME
+        "[recursive (so might not be ok in practice)]"
+        # bug if we try this on the initial state, so, need caller to use StatePlace there ####@@@@
+        if self.lastsnap is None:
+            diff, place = self.diff_and_place
+            self.diff_and_place = None
+            # now, we need to get snap into place (the recursive part), then steal it, apply & reverse diff, store stuff back
+            place.get_snap_back_to_self() # permits steal_lastsnap to work on it
+            lastsnap = place.steal_lastsnap()
+            apply_and_reverse_diff(diff, lastsnap) # note: modifies diff and lastsnap in place; no need for copy_val
+            place.define_by_diff_from_stateplace(diff, self) # place will now be healed as soon as we are
+            self.lastsnap = lastsnap # inlined self.own_this_lastsnap(lastsnap)
+        return
+    #e and for access to it, for storing it back into assy using archive
+    def get_attrdicts(self):
+        "Warning: these are only for immediate use without modification!" #e rename to imply that!
+        self.get_snap_back_to_self()
+        return self.lastsnap.attrdicts
+    pass # end of class StatePlace
+
+def apply_and_reverse_diff(diff, snap):
+    """Given a DiffObj (format TBD) <diff> and a StateSnapshot <snap> (mutable), modify <snap> by applying <diff> to it,
+    at the same time recording the values kicked out of <snap> into <diff>, turning it into a reverse diff.
+    Return None, to remind caller we modify our argument objects.
+    (Note: Calling this again on the reverse diff we returned and on the same now-modified snap should undo its effect entirely.)
+    """
+    for attr, dict1 in diff.attrdicts.items():
+        dictsnap = snap.attrdicts.setdefault(attr, {})
+        for key, val in dict1.iteritems():
+            oldval = dictsnap.get(key, _UNSET_)
+            if val is _UNSET_:
+                del dictsnap[key] # always works, or there was no difference in val at this key!
+                # note: if dictsnap becomes empty, nevermind, it's ok to just leave it that way.
+            else:
+                dictsnap[key] = val
+            dict1[key] = oldval # whether or not it's _UNSET_, it's a diff, so it stays!
+    return
+
 # ==
 
 # Terminology/spelling note: in comments, we use "class" for python classes, "clas" for Classification objects.

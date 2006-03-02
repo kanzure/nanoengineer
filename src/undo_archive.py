@@ -23,13 +23,18 @@ from debug import print_compact_traceback, print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False
 import env
 import state_utils
-from state_utils import objkey_allocator, obj_classifier
+from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state
+
+destroy_bypassed_redos = False # whether to destroy the Redo stack to save RAM [not implemented yet -- flag has no effect, but shows where to do it -- 060301]
 
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
 
 use_non_mmp_state_scanning = True #bruce 060224 committing with True for first time, since bugs are different but not obviously worse
 
+assert use_non_mmp_state_scanning, "if you don't want to use_non_mmp_state_scanning, you have to revive a bunch of commented-out code" #060301
+
+#obs:
 # Since it's easiest, we store all or part of a checkpoint in a real mmp file on disk;
 # this might be useful for debugging so we'll keep it around during development,
 # though in the released code, most of the info will be represented in binary and most or all of it will be kept only in RAM.
@@ -38,18 +43,18 @@ use_non_mmp_state_scanning = True #bruce 060224 committing with True for first t
 # either manually or via a debug_pref for autocheckpointing,
 # since our "initial checkpoint" for every assy is made without using a file.
 
-def compute_checkpoint_kluge_filename():
-    from platform import find_or_make_Nanorex_subdir
-    subdir = find_or_make_Nanorex_subdir('UndoKlugeCheckpoints')
-    return os.path.join( subdir, "checkpoint-%d.mmp" % os.getpid())
-
-_checkpoint_kluge_filename = None
-
-def checkpoint_kluge_filename():
-    global _checkpoint_kluge_filename
-    if not _checkpoint_kluge_filename:
-        _checkpoint_kluge_filename = compute_checkpoint_kluge_filename()
-    return _checkpoint_kluge_filename
+##def compute_checkpoint_kluge_filename():
+##    from platform import find_or_make_Nanorex_subdir
+##    subdir = find_or_make_Nanorex_subdir('UndoKlugeCheckpoints')
+##    return os.path.join( subdir, "checkpoint-%d.mmp" % os.getpid())
+##
+##_checkpoint_kluge_filename = None
+##
+##def checkpoint_kluge_filename():
+##    global _checkpoint_kluge_filename
+##    if not _checkpoint_kluge_filename:
+##        _checkpoint_kluge_filename = compute_checkpoint_kluge_filename()
+##    return _checkpoint_kluge_filename
 
 def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
@@ -73,54 +78,55 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
 
     if use_060213_format:
         return ('scan_whole', mmp_state_by_scan(archive, assy) ) # not yet differential, just a different state-scanner, more general
-    
-    fp = open( checkpoint_kluge_filename(), "w")
 
-    ## mapping = writemmp_mapping_for_Undo( assy) #bruce 060130 using this subclass (it sets mapping.for_undo = True)
-    from files_mmp import writemmp_mapping
-    mapping = writemmp_mapping( assy, for_undo = True) #060224 do this instead to avoid import problems
-    mapping.set_fp(fp)
-
-    try:
-        mapping.write_header()
-        mapping.write("# (This file was written to encode internal state for Undo; it might not be readable separately.)\n")
-        assy.construct_viewdata().writemmp(mapping)
-        assy.tree.writemmp(mapping)
-        
-        mapping.write("end1\n")
-        mapping.past_sim_part_of_file = True
-
-        addshelf = True
-        if addshelf:
-            assy.shelf.writemmp(mapping)
-
-##        if 1: #060130 also write out mode, current_movie, selection, etc
-##            # this code is added just for Undo (not analogous to anything in mmp file writing code),
-##            # and doesn't use the pseudo-file kluge in an essential way
-##            # (though it might write fake mmprecords to it if that's convenient,
-##            #  to cause what it writes to be reread in the same order)
-##            part = assy.part
-##            glpane = assy.o
-##            from ops_select import selection_from_part
-##            ##k following might also want an initial arg for the object this is relative to -- or maybe toplevel obj is implied?
-##            mapping.write_component('movie', assy.current_movie) ####k component name -> objref and (if first time seen) objdef
-##            mapping.write_component('mode', glpane.mode) ####k
-##            mapping.write_component('selection', selection_from_part(part) )
-        
-        mapping.write("end molecular machine part " + assy.name + "\n")
-    except:
-        mapping.close(error = True)
-        raise
-    else:
-        mapping.close()
-
-    fp = open( checkpoint_kluge_filename(), "r")
-    data = fp.read()
-    fp.close()
-
-    mmpstate = ('mmp_state', data)
-    
-    return mmpstate #e soon will modify to not use disk, and return a different kind of py object
+    assert 0 # 060301
+##    fp = open( checkpoint_kluge_filename(), "w")
+##
+##    ## mapping = writemmp_mapping_for_Undo( assy) #bruce 060130 using this subclass (it sets mapping.for_undo = True)
+##    from files_mmp import writemmp_mapping
+##    mapping = writemmp_mapping( assy, for_undo = True) #060224 do this instead to avoid import problems
+##    mapping.set_fp(fp)
+##
+##    try:
+##        mapping.write_header()
+##        mapping.write("# (This file was written to encode internal state for Undo; it might not be readable separately.)\n")
+##        assy.construct_viewdata().writemmp(mapping)
+##        assy.tree.writemmp(mapping)
+##        
+##        mapping.write("end1\n")
+##        mapping.past_sim_part_of_file = True
+##
+##        addshelf = True
+##        if addshelf:
+##            assy.shelf.writemmp(mapping)
+##
+####        if 1: #060130 also write out mode, current_movie, selection, etc
+####            # this code is added just for Undo (not analogous to anything in mmp file writing code),
+####            # and doesn't use the pseudo-file kluge in an essential way
+####            # (though it might write fake mmprecords to it if that's convenient,
+####            #  to cause what it writes to be reread in the same order)
+####            part = assy.part
+####            glpane = assy.o
+####            from ops_select import selection_from_part
+####            ##k following might also want an initial arg for the object this is relative to -- or maybe toplevel obj is implied?
+####            mapping.write_component('movie', assy.current_movie) ####k component name -> objref and (if first time seen) objdef
+####            mapping.write_component('mode', glpane.mode) ####k
+####            mapping.write_component('selection', selection_from_part(part) )
+##        
+##        mapping.write("end molecular machine part " + assy.name + "\n")
+##    except:
+##        mapping.close(error = True)
+##        raise
+##    else:
+##        mapping.close()
+##
+##    fp = open( checkpoint_kluge_filename(), "r")
+##    data = fp.read()
+##    fp.close()
+##
+##    mmpstate = ('mmp_state', data)
+##    
+##    return mmpstate #e soon will modify to not use disk, and return a different kind of py object
 
 def mmp_state_by_scan(archive, assy): #e misnamed, since other things refer to this as the non-mmp option
     """[#doc better:]
@@ -147,67 +153,68 @@ def mmp_state_by_scan(archive, assy): #e misnamed, since other things refer to t
 
 # ==
 
-def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore assy state to prior internally-saved state
-    "[arg type matches x[1] of whatever x mmp_state_from_assy returns, when x[0] is a certain value]"
-    # data is a string of mmp file bytes, or maybe a list of lines (or a single comment line for an initial assy)
-    from files_mmp import _readmmp_state
-    isInsert = True # prevents unwanted side effects on assy
-    state = _readmmp_state( assy, isInsert)
-    lines = data.split('\n')
-    for card in lines:
-        try:
-            errmsg = state.readmmp_line( card) # None or an error message
-        except:
-            # note: the following two error messages are similar but not identical
-            errmsg = "bug while reading this mmp line (in undo): %s" % (card,) #e include line number; note, two lines might be identical
-            print_compact_traceback("bug while reading this mmp line (in undo):\n  %s\n" % (card,) )
-        #e assert errmsg is None or a string
-        if errmsg:
-            ###e general history msg for stopping early on error
-            ###e special return value then??
-            break
-    grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
-
-    # following could be simplified, but don't bother, entire scheme will be replaced instead
-    
-    from Utility import Group # since this module needs to be imported by specific classes, it should not itself import them
-    
-    viewdata = Group("Fake View Data", assy, None) # name is never used or stored
-    shelf = Group("Clipboard", assy, None) # name might not matter since caller resets it
-    
-    for g in grouplist:
-        if not g.is_group(): # might happen for files that ought to be 'one_part', too, I think, if clipboard item was not grouped
-            state.guess_sim_input('missing_group_or_chunk') # normally same warning already went out for the missing chunk 
-            tree = Group("tree", assy, None, grouplist)
-            grouplist = [ viewdata, tree, shelf ]
-            break
-    if len(grouplist) == 0:
-##        state.format_error("nothing in file")
-##        return None
-        # this means it represented an empty assy (at least in our initial kluge implem of 060117)
-        print "bug: len(grouplist) == 0 in _undo_readmmp_kluge: this should no longer happen" ###@@@
-        tree = Group("tree", assy, None, []) #k guess; caller will turn it into PartGroup I think, but is name "tree" ok?? ###@@@
-        grouplist = [ viewdata, tree, shelf ]        
-    elif len(grouplist) == 1:
-        state.guess_sim_input('one_part')
-            # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
-        tree = Group("tree", assy, None, grouplist) #bruce 050406 removed [0] to fix bug in last night's new code
-        grouplist = [ viewdata, tree, shelf ]
-    elif len(grouplist) == 2:
-        state.guess_sim_input('no_shelf')
-        grouplist.append( shelf)
-    elif len(grouplist) > 3:
-        state.format_error("more than 3 toplevel groups -- treating them all as in the main part")
-            #bruce 050405 change; old code discarded all the data
-        tree = Group("tree", assy, None, grouplist)
-        grouplist = [ viewdata, tree, shelf ]
-    else:
-        pass # nothing was wrong!
-    assert len(grouplist) == 3
-        
-    state.destroy() # not before now, since it keeps track of which warnings we already emitted
-
-    return grouplist # from _readmmp
+#060301 unlikely we'll need this again, tho keep it around for awhile in case it's useful comparison for debugging:
+##def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore assy state to prior internally-saved state
+##    "[arg type matches x[1] of whatever x mmp_state_from_assy returns, when x[0] is a certain value]"
+##    # data is a string of mmp file bytes, or maybe a list of lines (or a single comment line for an initial assy)
+##    from files_mmp import _readmmp_state
+##    isInsert = True # prevents unwanted side effects on assy
+##    state = _readmmp_state( assy, isInsert)
+##    lines = data.split('\n')
+##    for card in lines:
+##        try:
+##            errmsg = state.readmmp_line( card) # None or an error message
+##        except:
+##            # note: the following two error messages are similar but not identical
+##            errmsg = "bug while reading this mmp line (in undo): %s" % (card,) #e include line number; note, two lines might be identical
+##            print_compact_traceback("bug while reading this mmp line (in undo):\n  %s\n" % (card,) )
+##        #e assert errmsg is None or a string
+##        if errmsg:
+##            ###e general history msg for stopping early on error
+##            ###e special return value then??
+##            break
+##    grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
+##
+##    # following could be simplified, but don't bother, entire scheme will be replaced instead
+##    
+##    from Utility import Group # since this module needs to be imported by specific classes, it should not itself import them
+##    
+##    viewdata = Group("Fake View Data", assy, None) # name is never used or stored
+##    shelf = Group("Clipboard", assy, None) # name might not matter since caller resets it
+##    
+##    for g in grouplist:
+##        if not g.is_group(): # might happen for files that ought to be 'one_part', too, I think, if clipboard item was not grouped
+##            state.guess_sim_input('missing_group_or_chunk') # normally same warning already went out for the missing chunk 
+##            tree = Group("tree", assy, None, grouplist)
+##            grouplist = [ viewdata, tree, shelf ]
+##            break
+##    if len(grouplist) == 0:
+####        state.format_error("nothing in file")
+####        return None
+##        # this means it represented an empty assy (at least in our initial kluge implem of 060117)
+##        print "bug: len(grouplist) == 0 in _undo_readmmp_kluge: this should no longer happen" ###@@@
+##        tree = Group("tree", assy, None, []) #k guess; caller will turn it into PartGroup I think, but is name "tree" ok?? ###@@@
+##        grouplist = [ viewdata, tree, shelf ]        
+##    elif len(grouplist) == 1:
+##        state.guess_sim_input('one_part')
+##            # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
+##        tree = Group("tree", assy, None, grouplist) #bruce 050406 removed [0] to fix bug in last night's new code
+##        grouplist = [ viewdata, tree, shelf ]
+##    elif len(grouplist) == 2:
+##        state.guess_sim_input('no_shelf')
+##        grouplist.append( shelf)
+##    elif len(grouplist) > 3:
+##        state.format_error("more than 3 toplevel groups -- treating them all as in the main part")
+##            #bruce 050405 change; old code discarded all the data
+##        tree = Group("tree", assy, None, grouplist)
+##        grouplist = [ viewdata, tree, shelf ]
+##    else:
+##        pass # nothing was wrong!
+##    assert len(grouplist) == 3
+##        
+##    state.destroy() # not before now, since it keeps track of which warnings we already emitted
+##
+##    return grouplist # from _readmmp
 
 # assy methods, here so reload works
 
@@ -219,21 +226,25 @@ def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular
     # the actual format is a complete kluge, depends on readmpp code, should be changed, esp for atom posns
     # == now compare to files_mmp.readmmp
     ## grouplist = _readmmp(assy, filename)
-    format, data = state
+    if type(state) == type(()):
+        format, data = state
         # state can be None if exception (bug) was caught while checkpoint was made,
         # but it's not yet worth protecting from that here [bruce 060208]
+    else:
+        format, data = 'scan_whole', state # kluge 060301
     del state
     if format == 'mmp_state':
-        from undo_archive import _undo_readmmp_kluge # this is silly in this file, but will matter if we move this into assy.py
-        try:
-            grouplist = _undo_readmmp_kluge(self, data) # should have no effect on self (assy), though we have to pass it
-        except:
-            print_compact_traceback("exception in _undo_readmmp_kluge")
-            raise # caller would otherwise think we worked
-            ## grouplist = None
-        self.clear() # clear only if read works, to avoid huge tracebacks
-        reset_grouplist(self, grouplist)
-        # fall thru
+        assert 0 #060301
+##        from undo_archive import _undo_readmmp_kluge # this is silly in this file, but will matter if we move this into assy.py
+##        try:
+##            grouplist = _undo_readmmp_kluge(self, data) # should have no effect on self (assy), though we have to pass it
+##        except:
+##            print_compact_traceback("exception in _undo_readmmp_kluge")
+##            raise # caller would otherwise think we worked
+##            ## grouplist = None
+##        self.clear() # clear only if read works, to avoid huge tracebacks
+##        reset_grouplist(self, grouplist)
+##        # fall thru
     elif format == 'scan_whole':
         assy_become_scanned_state(self, data, archive) # that either does self.update_parts() or doesn't need it done (or both)
         # fall thru
@@ -282,7 +293,7 @@ def safe_repr(obj, maxlen = 1000):
     pass
 
 def assy_become_scanned_state(self, data, archive): 
-    "[self is an assy; data is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot object]"
+    "[self is an assy; data is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot or StatePlace object]"
     assy = self
     assert assy is archive.assy
 ##    print "assy_become_scanned_state", data
@@ -296,7 +307,11 @@ def assy_become_scanned_state(self, data, archive):
         # i.e. we should grab one just for each attr farther inside this loop, and have a loop variant without it
         # (and with the various kinds of setattr/inval replacements too --
         #  maybe even let each attr have its own loop if it wants, with atoms & bonds an extreme case)
-    for attr, dict1 in data.attrdicts.items(): ##e might need to be in a specific order
+    try:
+        attrdicts = data.attrdicts # works for a StateSnapshot
+    except:
+        attrdicts = data.get_attrdicts() # IMPLEM for a StatePlace [this might be WHERE I AM 060301 827a] ####@@@@
+    for attr, dict1 in attrdicts.items(): ##e might need to be in a specific order
         for key, val in dict1.iteritems(): # maps objkey to attrval
             obj = modified_get(key)
             if obj is None:
@@ -443,6 +458,8 @@ class SimpleDiff:
     default_opts = dict()
     default_command_info = dict(cmdname = "operation")
     suppress_storing_undo_redo_ops = False
+    assert_no_changes = False
+    destroyed = False
     def __init__(self, cp0, cp1, direction = 1, **options):
         """direction +1 means forwards in time (apply diff for redo), -1 means backwards (apply diff for undo),
         though either way we have to keep enough info for both redo and undo;
@@ -506,104 +523,117 @@ class SimpleDiff:
             # The current code might perhaps do this when the skipped diffs are empty or have been merged -- don't know.
             # This will need fixing once we're merging any nonempty diffs. ####@@@@ [060123]
         cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
+        archive.set_last_cp_after_undo(cp) #060301
         return
     def optype(self):
         return {1: "Redo", -1: "Undo"}[self.direction]
     def __repr__(self):
+        if self.destroyed:
+            return "<destroyed SimpleDiff at %#x>" % id(self) #untested [060301]
         return "<%s key %r type %r from %r to %r>" % (self.__class__.__name__, self.key, self.optype(), self.cps[0], self.cps[1])
+    def destroy(self):
+        self.destroyed = True
+        self.command_info = self.opts = self.options = self.cps = None
+        # no cycles, i think, but do the above just in case
+        ###e now, don't we need to remove ourself from archive.stored_ops?? ###@@@
     pass # end of class SimpleDiff
 
 # ==
 
-class SharedDiffopData: ####@@@@ stub, apparently, as of 060216;
-    ###see also the become_state functions, which have similar code to apply_to;
-    ##060222 new code in state_utils superceding some of this...
-    """Hold replacement values for various attrs of various objects (objects are known to us only by their keys),
-    and be able to swap them with the attrvals in the objects, in alternate "directions"
-    """
-    def __init__(self):
-        assert 0 # not used as of before 060227, but slated to be used soon
-        self.attrdiffs = {} # maps attrnames to dicts from objkey to replacement-val, for use in self.direction
-        self.rev_attrdiffs = {} # ditto, for use in opposite direction, if we have them; typically built up while attrdiffs is applied
-        self.direction = -1 # the direction we can next be applied in (or 0 if we can be applied in either direction??)
-    def _swap(self):
-        assert self.direction # otherwise we'd literally swap them
-        self.attrdiffs = self.rev_attrdiffs # assume this is done after these were built up (should this attr be missing otherwise?)
-        self.rev_attrdiffs = {}
-        self.direction = - self.direction
-    def store(self, objkey, attr, val):
-        "this is mainly just example code, in reality we'd do some of this outside a loop, inline the rest"
-        key2val = self.attrdiffs.get(attr, {})
-        key2val[objkey] = val
-    def apply_to(self, archive, direction):####@@@@ stub, apparently, as of 060216; see also the become_state functions, which have similar code
-        """Change the archive model objects by storing into them the attrvals we have recorded for them
-        (for a subset of obj,attr pairs), and pulling out the values we're overwriting
-        so we'll have enough info to undo this change later..
-        """
-        if self.direction:
-            assert self.direction == direction #k does this belong in caller? is it redundant with varid_vers?
-        obj4key = archive.obj4key # for efficiency, let this be a public dict in archive
-        objs_touched = {} # by any attrs... for merging diffs, it might be better for caller to pass this and do the update,
-         #e  but then if our attrs come in layers, caller has to scan the diffs to merge one layer at a time, maybe... not sure;
-         # maybe it only has to do that for update, ie track objs touched in each layer.
-        #e we're not bothering to distinguish which attrs were touched, for now; later we might divide attrs into layers,
-        # do layers in order, update after each layer, just objs touched in that layer.
-        # Or, we might tell certain objs which attrs were touched (ie let them handle the touching, not setattr).
-        for attr, key2val in self.attrdiffs.items():
-            dflt = None # might be specific to attr; might be gotten out of obj.__class__??
-            key2old = {} # replaces key2val
-            for key, val in key2val.iteritems():
-                obj = obj4key[key]
-                # put val in obj at attr, but record the old val first, also update obj later
-                #e in future we might ask obj if it wants us to do this in a special way
-                oldval = getattr(obj, attr, dflt)
-                setattr(obj, attr, val)
-                objs_touched[key] = obj
-                # we don't need to copy val, since we're not keeping it (we already owned it, now obj does),
-                # or oldval, since obj no longer has it!
-                ##e assume we don't need to encode/decode them either
-                key2old[key] = oldval
-            # store key2old, zap key2val
-            self.rev_attrdiffs[attr] = key2old
-            del self.attrdiffs[attr]
-        assert not self.attrdiffs
-        for obj in objs_touched.values():
-            archive.update_touched_obj(obj) #e need to use a special order?? #e "touched" is putting it mildly
-        #e were varid-vers part of the ordinary attrs that got modified just now??
-        self._swap()
-        return
-    pass
+# commenting out SharedDiffopData and BetterDiff 060301 1210pm
+# since it looks likely SimpleDiff will use differentially-defined states without even knowing it,
+# just by having states in the checkpoints which know it themselves.
 
-class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away ####@@@@ use this
-    """A more efficient diff, which only records differences between its checkpoints,
-    and also implements its own finalize method
-    """
-    def __init__(self, cp0, cp1 = None, direction = 1, **options):
-        assert 0 # not used as of before 060227, but slated to be used soon
-        if cp1 is None:
-            pass ####@@@@ cp1 is new checkpoint
-        SimpleDiff.__init__(self, cp0, cp1, direction, **options) ###e need to be passed cp1?? yes, privately...
-        # similarly to self.command_info, we need a private shared place to store the diff data for one or the other direction,
-        # and to know which direction it's in
-        self.shared_diffop_data = self.options.get('_shared_diffop_data', None)
-        if self.shared_diffop_data is None:
-            self.shared_diffop_data = SharedDiffopData()
-        self.options['_shared_diffop_data'] = self.shared_diffop_data
-    def apply_to(self, archive):
-        "apply this diff-operation to the model objects owned by archive"
-        cp = self.cps[1]
-        assert cp.complete
-        #e assert cps[0] is where we start?
-        self.shared_diffop_data.apply_to( archive, self.direction)
-        assy = archive.assy
-        ## assy.become_state(cp.state, archive) # note: in present implem this might effectively redundantly do some of restore_view() [060123]
-        cp.metainfo.restore_view(assy)
-            # note: this means Undo restores view from beginning of undone command,
-            # and Redo restores view from end of redone command.
-            #e (Also worry about this when undoing or redoing a chain of commands.)
-        cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
-        return
-    pass
+##class SharedDiffopData: ####@@@@ stub, apparently, as of 060216;
+##    ###see also the become_state functions, which have similar code to apply_to;
+##    ##060222 new code in state_utils superceding some of this...
+##    """Hold replacement values for various attrs of various objects (objects are known to us only by their keys),
+##    and be able to swap them with the attrvals in the objects, in alternate "directions"
+##    """
+##    def __init__(self):
+##        assert 0 # not used as of before 060227, but slated to be used soon
+##        self.attrdiffs = {} # maps attrnames to dicts from objkey to replacement-val, for use in self.direction
+##        self.rev_attrdiffs = {} # ditto, for use in opposite direction, if we have them; typically built up while attrdiffs is applied
+##        self.direction = -1 # the direction we can next be applied in (or 0 if we can be applied in either direction??)
+##    def _swap(self):
+##        assert self.direction # otherwise we'd literally swap them
+##        self.attrdiffs = self.rev_attrdiffs # assume this is done after these were built up (should this attr be missing otherwise?)
+##        self.rev_attrdiffs = {}
+##        self.direction = - self.direction
+##    def store(self, objkey, attr, val):
+##        "this is mainly just example code, in reality we'd do some of this outside a loop, inline the rest"
+##        key2val = self.attrdiffs.get(attr, {})
+##        key2val[objkey] = val
+##    def apply_to(self, archive, direction):####@@@@ stub, apparently, as of 060216; see also the become_state functions, which have similar code
+##        """Change the archive model objects by storing into them the attrvals we have recorded for them
+##        (for a subset of obj,attr pairs), and pulling out the values we're overwriting
+##        so we'll have enough info to undo this change later..
+##        """
+##        if self.direction:
+##            assert self.direction == direction #k does this belong in caller? is it redundant with varid_vers?
+##        obj4key = archive.obj4key # for efficiency, let this be a public dict in archive
+##        objs_touched = {} # by any attrs... for merging diffs, it might be better for caller to pass this and do the update,
+##         #e  but then if our attrs come in layers, caller has to scan the diffs to merge one layer at a time, maybe... not sure;
+##         # maybe it only has to do that for update, ie track objs touched in each layer.
+##        #e we're not bothering to distinguish which attrs were touched, for now; later we might divide attrs into layers,
+##        # do layers in order, update after each layer, just objs touched in that layer.
+##        # Or, we might tell certain objs which attrs were touched (ie let them handle the touching, not setattr).
+##        for attr, key2val in self.attrdiffs.items():
+##            dflt = None # might be specific to attr; might be gotten out of obj.__class__??
+##            key2old = {} # replaces key2val
+##            for key, val in key2val.iteritems():
+##                obj = obj4key[key]
+##                # put val in obj at attr, but record the old val first, also update obj later
+##                #e in future we might ask obj if it wants us to do this in a special way
+##                oldval = getattr(obj, attr, dflt)
+##                setattr(obj, attr, val)
+##                objs_touched[key] = obj
+##                # we don't need to copy val, since we're not keeping it (we already owned it, now obj does),
+##                # or oldval, since obj no longer has it!
+##                ##e assume we don't need to encode/decode them either
+##                key2old[key] = oldval
+##            # store key2old, zap key2val
+##            self.rev_attrdiffs[attr] = key2old
+##            del self.attrdiffs[attr]
+##        assert not self.attrdiffs
+##        for obj in objs_touched.values():
+##            archive.update_touched_obj(obj) #e need to use a special order?? #e "touched" is putting it mildly
+##        #e were varid-vers part of the ordinary attrs that got modified just now??
+##        self._swap()
+##        return
+##    pass
+##
+##class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away ####@@@@ use this
+##    """A more efficient diff, which only records differences between its checkpoints,
+##    and also implements its own finalize method
+##    """
+##    def __init__(self, cp0, cp1 = None, direction = 1, **options):
+##        assert 0 # not used as of before 060227, but slated to be used soon
+##        if cp1 is None:
+##            pass ####@@@@ cp1 is new checkpoint
+##        SimpleDiff.__init__(self, cp0, cp1, direction, **options) ###e need to be passed cp1?? yes, privately...
+##        # similarly to self.command_info, we need a private shared place to store the diff data for one or the other direction,
+##        # and to know which direction it's in
+##        self.shared_diffop_data = self.options.get('_shared_diffop_data', None)
+##        if self.shared_diffop_data is None:
+##            self.shared_diffop_data = SharedDiffopData()
+##        self.options['_shared_diffop_data'] = self.shared_diffop_data
+##    def apply_to(self, archive):
+##        "apply this diff-operation to the model objects owned by archive"
+##        cp = self.cps[1]
+##        assert cp.complete
+##        #e assert cps[0] is where we start?
+##        self.shared_diffop_data.apply_to( archive, self.direction)
+##        assy = archive.assy
+##        ## assy.become_state(cp.state, archive) # note: in present implem this might effectively redundantly do some of restore_view() [060123]
+##        cp.metainfo.restore_view(assy)
+##            # note: this means Undo restores view from beginning of undone command,
+##            # and Redo restores view from end of redone command.
+##            #e (Also worry about this when undoing or redoing a chain of commands.)
+##        cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
+##        archive.set_last_cp_after_undo(cp) #060301
+##        return
+##    pass
 
 # ==
 
@@ -921,12 +951,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
         #e the next three lines are similar to some in self.checkpoint --
-        # should we make self.set_last_cp() to do part of them? compare to do_op's effect on that, when we code that. [060118]
+        # should we make self.set_last_cp() to do part of them? compare to do_op's effect on that, when we code that. [060118] [060301 see also set_last_cp_after_undo]
         fill_checkpoint(cp, current_state(self, assy, initial = True, **self.format_options), assy) ### it's a kluge to pass initial; revise to detect this in assy itself
         if self.pref_report_checkpoints():
             self.debug_histmessage("(initial checkpoint: %r)" % cp)
         self.last_cp = self.initial_cp = cp
-        self.last_cp_arrival_reason = 'initial' # why we got to the situation of model state agreeing with this, when last we did
+##        self.last_cp_arrival_reason = 'initial' # why we got to the situation of model state agreeing with this, when last we did
             #e note, self.last_cp will be augmented by a desc of varid_vers pairs about cur state; 
             # but for out of order redo, we get to old varid_vers pairs but new cp's; maybe there's a map from one to the other...
             ###k was this part of UndoManager in old code scheme? i think it was grabbed out of actual model objects in UndoManager.
@@ -941,12 +971,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             self.debug_histmessage("(destroying: %r)" % self)
         self.next_cp = self.last_cp = self.initial_cp = None
         self.assy = None
-        self.stored_ops = {}
-        self.current_diff = None
+        self.stored_ops = {} #e more, if it can contain any cycles -- design was that it wouldn't, but true situation not reviewed lately [060301]
+        self.current_diff = None #e destroy it first?
         return
     
     def __repr__(self):
-        return "<AssyUndoArchive at %#x for %r>" % (id(self), self.assy)
+        return "<AssyUndoArchive at %#x for %r>" % (id(self), self.assy) # if destroyed, assy will be None
 
     # ==
 
@@ -963,6 +993,34 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # assume it's too early for indexing this, or needing to -- that's done when it's finalized
         return
 
+    def set_last_cp_after_undo(self, cp): # 060301
+        """We're doing an Undo or Redo command which has just caused actual current state (and its change_counters) to equal cp.state.
+        Therefore, self.last_cp is no longer relevant, and that attr should be set to cp so further changes are measured relative to that
+        (and self.current_diff and next_cp should be freshly made, forking off from it -- or maybe existing self.next_cp can be recycled for this;
+        also we might need some of the flags in self.current_diff... but not the changes, I think, which either don't exist yet or are
+        caused by tracking changes applied by the Undo op itself).
+           (Further modelstate changes by this same Undo/Redo command are not expected and might cause bugs -- if they result in a diff,
+        it would be a separate undoable diff and would prevent Redo from being available. So we might want to assert that doesn't happen,
+        but if such changes *do* happen it's the logically correct consequence, so we don't want to try to alter that consequence.)
+        """
+        assert self.inited
+        assert self.last_cp is not None
+        assert self.next_cp is not None
+        assert self.current_diff is not None
+        assert cp is not None
+        assert self.last_cp is not cp # since it makes no sense if it is, though it ought to work within this routine
+        # not sure this is right, but it's simplest that could work, plus some attempts to clean up unused objects:
+        self.current_diff.destroy() # just to save memory; might not be needed (probably refdecr would take care of it) since no ops stored from it yet
+        self.last_cp.end_of_undo_chain_for_awhile = True # not used by anything, but might help with debugging someday; "for awhile" because we might Redo to it
+        self.last_cp = cp
+            ###@@@ we might need to mark cp for later freeing of its old Redo stack if we depart from it other than by another immediate Undo or Redo...
+            # tho since we might depart from somewhere else on that stack, never mind, we should instead
+            # just notice the departure and find the stuff to free at that time.
+        # next_cp can be recycled since it's presently empty, I think, or if not, it might know something useful ####@@@@ REVIEW
+        self.current_diff = SimpleDiff(self.last_cp, self.next_cp)
+        self.current_diff.assert_no_changes = True ####@@@@ USE THIS where we check assy_change_counters
+        return
+        
     def clear_undo_stack(self, *args, **kws): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack)
         assert self.inited # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
         if self.current_diff: #k probably always true; definitely required for it to be safe to do what follows.
@@ -1001,6 +1059,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
            We should finalize self.next_cp with the current state, perhaps optimizing this if its defining diff is empty,
         and then shift next_cp into last_cp and a newly created checkpoint into next_cp, recreating a situation like the initial one.
            In other words, make sure the current model state gets stored as a possible point to undo or redo to.
+           Note [060301]: similar but different cp-shifting might occur when an Undo or Redo command is actually done.
+        Thus, if this is the end-checkpoint after an Undo command, it might find last_cp being the cp "undone to" by that command
+        (guess as of 060301 1159am, nim #k ###@@@).
         """
         if not self.inited:
             if env.debug():
@@ -1012,15 +1073,18 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
             # was only for begin and end cp's (but was active even if undo autocp pref was off).
         assert cptype
+        assert self.last_cp is not None
         assert self.next_cp is not None
         assert self.current_diff is not None
         
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
-        #self.use_diff = False # until it won't crash; see also comments mentioning 'differential'
-        self.use_diff = debug_pref("use differential undo (nim)?", Choice_boolean_False, prefs_key = 'A7-devel/differential undo')
-            # when it works, rename, redflt, make non_debug ###@@@
+        self.use_diff = debug_pref("use differential undo?", Choice_boolean_True, prefs_key = 'A7-devel/differential undo', non_debug = True)
+            # it works, 122p 060301, so making it default True and non_debug.
+            # (It was supposed to traceback when undoing to initial_state, but it didn't,
+            #  so I'm "not looking that gift horse in the mouth" right now. ###@@@)
+            #k see also comments mentioning 'differential'
         if self.use_diff and 0:
             assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
 ##            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
@@ -1050,6 +1114,17 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             else:
                 # possible change in state;
                 # false positives are not common enough to optimize for, but common enough to try to avoid/workaround bugs in
+
+                ## assert not self.current_diff.assert_no_changes...
+                # note, its failure might no longer indicate a bug if we have scripting and a script can say,
+                # inside one undoable operation, "undo to point P, then do op X".
+                if self.current_diff.assert_no_changes: #060301
+                    msg = "apparent bug in Undo: self.current_diff.assert_no_changes is true, but change_counters were changed"
+                    # we don't yet know if there's a real diff, so if this happens, we might move it later down, inside 'if really_changed'.
+                    print msg
+                    from HistoryWidget import redmsg # not sure this is ok to do when this module is imported, tho probably it is
+                    env.history.message(redmsg(msg))
+                
                 if debug_undo2:
                     print "checkpoint %r at change %r, last cp was at %r" % (cptype, \
                                     self.assy.all_change_counters(), self.last_cp.assy_change_counters)
@@ -1061,8 +1136,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 else:
                     #060228
                     assert self.format_options == dict(use_060213_format = True), "nim for mmp kluge code" #e in fact, remove that code when new bugs gone
-                    state = diff_and_copy_state(self, self.assy, self.last_cp.state) ###IMPLEM #k unsure of last arg; returns new kind of state object...
-                    really_changed = state.really_changed ###IMPLEM
+                    state = diff_and_copy_state(self, self.assy, self.last_cp.state) ####@@@@ LOGIC BUG: last_cp.state is no longer current after an Undo!
+                        # so this has a problem when we're doing the end-cmd checkpoint after an Undo command.
+                        # goal: diffs no longer form a simple chain... rather, it forks. hmm. we diff against the cp containing the current state! (right?) ### 
+                    really_changed = state.really_changed
                 if not really_changed:
                     # Have to reset changed_counters, or undo stack becomes disconnected, since it uses them as varid_vers.
                     # Not needed in other case above since they were already equal.
@@ -1072,6 +1149,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     self.assy.reset_changed_for_undo( self.last_cp.assy_change_counters)
             if really_changed:
                 self.current_diff.empty = False # used in constructing undo menu items ####@@@@ DOIT!
+                if destroy_bypassed_redos:
+                    #####@@@@@ this might be a good place to destroy the Redo stack to save RAM, since we just realized we had a "newdo";
+                    # but it might be complicated, e.g. if the new change was on one of those sub-stacks in front of the main one,
+                    # or in one Part when those have separate stacks, etc...
+                    # the stuff to destroy (naively) is everything linked to from self.last_cp except self.current_diff / self.next_cp, *i think*.
+                    # What would be easy would be a debug-print saying whether it looks like there's anything to destroy,
+                    # so we could tell if its guesses seem accurate. [060301]
+                    pass # it's nim ... 
             else:
                 state = self.last_cp.state # note: depending on how this is reached, it sets state for first time or replaces it with an equal value
                 self.current_diff.empty = True
@@ -1109,8 +1194,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.last_cp = self.next_cp
         self.next_cp = None # in case of exceptions in rest of this method
         self.last_cp.cptype = cptype #k is this the only place that knows cptype, except for 'initial'?
-        self.last_cp_arrival_reason = cptype # affects semantics of Undo/Redo user-level ops
-            # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
+##        self.last_cp_arrival_reason = cptype # affects semantics of Undo/Redo user-level ops
+##            # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
         self._setup_next_cp() # sets self.next_cp and self.current_diff
         return
     
@@ -1127,7 +1212,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # and overall effect on varidvers, per segment. and yes it's more general than just for undo; eg affects history.
         return
     
-    def do_op(self, op): ###@@@ where i am 345pm some day bfr 060123 - figure out what this does if op.prior is not current, etc;
+    def do_op(self, op): ###@@@ 345pm some day bfr 060123 - figure out what this does if op.prior is not current, etc;
                 # how it relates to whether assy changed since last_cp set; etc.
         """assuming caller has decided it's safe, good, etc, in the case of out-of-order undo,
         Do one of the diff-ops we're storing
@@ -1144,7 +1229,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # including the ones we're about to do by applying self to assy.
         # Make sure it is not itself later stored (redundantly) as a diff that can be undone or redone.
         # (If it was stored, then whenever we undid a change, we'd have two copies of the same change stored as potential Undos.)
-        self.current_diff.suppress_storing_undo_redo_ops = True
+        
+        self.current_diff.suppress_storing_undo_redo_ops = True  # [should this also discard self.last_cp as irrelevant??? then apply_to can set it? 060301 Q ###@@@]
 
         # Some code (find_undoredos) might depend on self.assy.all_change_counters() being a valid
         # representative of self.assy's state version;
@@ -1156,10 +1242,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # in present implem [060118], we assume without checking that this op is not being applied out-of-order,
         # and therefore that it always changes the model state between the same checkpoints that the diff was made between
         # (or that it can ignore and/or discard any way in which the current state disagrees with the diff's start-checkpoint-state).
+        
         op.apply_to( self) # also restores view to what it was when that change was made [as of 060123]
             # note: actually affects more than just assy, perhaps (ie glpane view state...)
             #e when diffs are tracked, worry about this one being tracked
             #e apply_to itself should also track how this affects varid_vers pairs #####@@@@@
+        
         #060123 202p following [later removed] is wrong since this very command (eg inside some menu item)
         # is going to do its own end-checkpoint.
         # the diffs done by the above apply_to are going to end up in the current diff...
