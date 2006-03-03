@@ -368,6 +368,12 @@ def assy_become_scanned_state(self, data, archive):
     for node in assy.topnodes_with_own_parts():
         node.part._undo_update_always() # kluge, since we're supposed to call this on every object that defines it
     assy.update_parts()
+    if 1: #060302 4:45pm fix some unreported bugs about undo when hover highlighting is active -> inappropriate highlighting
+        win = env.mainwindow()
+        glpane = win.glpane
+        glpane.selatom = glpane.selobj = None # this works; but is there a better way (like some method in GLPane)?
+            # if there is, not sure it's fully safe!
+            #e Also, ideally glpane should do this itself in _undo_update_always, which we should call.
     return # from assy_become_scanned_state
 
 # ==
