@@ -482,6 +482,7 @@ class SelectionShape(shape):
                 if self.curve.selSense == START_NEW_SELECTION: 
                     # New selection curve. Consistent with Select Chunks behavior.
                     assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
+                    assy.unpickatoms() # Fixed bug 1598. Mark 060303.
                 self._atomsSelect(assy)   
         
         
