@@ -89,10 +89,7 @@ class WrongNumberOfAtoms(AssertionError):
 class PositionMismatch(AssertionError):
     pass
 
-class LengthMismatch(AssertionError):
-    pass
-
-class AngleMismatch(AssertionError):
+class LengthAngleMismatch(AssertionError):
     pass
 
 def V(*v):
@@ -429,12 +426,12 @@ class LengthAngleComparison:
         def __repr__(self):
             return self.reprstr
 
-        def closeEnough(self, other, tolerance):
+        def closeEnough(self, other):
             if self.__class__ != other.__class__:
-                return False
+                return 1e20
             if self.atoms != other.atoms:
-                return False
-            return abs(self.measure - other.measure) < tolerance
+                return 1e20
+            return abs(self.measure - other.measure)
 
     class AngleMeasurement(LengthMeasurement):
         def __init__(self, first, second, third, mmp, xyz):
@@ -481,16 +478,28 @@ class LengthAngleComparison:
         xyz = XyzFile()
         xyz.read(knownGoodXyzFile)
         L2, A2 = self.getLAfromXYZ(xyz)
+        mismatches=""
+        maxangle=0
+        maxlen=0
         for len1, len2 in map(None, L1, L2):
-            if LIST_EVERYTHING:
-                print len1
-            elif not len1.closeEnough(len2, lengthTolerance):
-                raise LengthMismatch(repr(len1) + " expected " + repr(len2))
+            diff = len1.closeEnough(len2)
+            if diff > lengthTolerance:
+                mismatches += "got      %s\nexpected %s diff %f\n" %(repr(len1), repr(len2), diff)
+                if diff > maxlen:
+                    maxlen = diff
         for ang1, ang2 in map(None, A1, A2):
-            if LIST_EVERYTHING:
-                print ang1
-            elif not ang1.closeEnough(ang2, angleTolerance):
-                raise AngleMismatch(repr(ang1) + " expected " + repr(ang2))
+            diff = ang1.closeEnough(ang2)
+            if diff > angleTolerance:
+                mismatches += "got      %s\nexpected %s diff %f\n" %(repr(ang1), repr(ang2), diff)
+                if diff > maxangle:
+                    maxangle = diff
+
+        if mismatches:
+            if maxlen > 0:
+                mismatches += "max length difference: %f > %f\n" %(maxlen, lengthTolerance)
+            if maxangle > 0:
+                mismatches += "max angle  difference: %f > %f\n" %(maxangle, angleTolerance)
+            raise LengthAngleMismatch("\n" + mismatches)
 
 ##################################################################
 
@@ -804,6 +813,8 @@ class JigTest(SandboxTest):
                     break
             if n == None: return None
             return map(string.atof, lines[n].split())
+        # add the following line to regenerate trace files when they fail to match:
+        #shutil.copy(self.testname + ".trc", self.basename + ".trcnew")
         good = lastLineOfReadings(self.basename + ".trc")
         iffy = lastLineOfReadings(self.testname + ".trc")
         assert len(iffy) == len(good)
@@ -1759,6 +1770,18 @@ class Tests(baseClass):
     def test_temperature_tests_003_thermostat_test(self):
         JigTest(dir="temperature_tests", test="003_thermostat_test")
 
+class TwoStreamTextTestResult(unittest._TextTestResult):
+
+    def __init__(self, progressStream, resultStream, descriptions, verbosity):
+        unittest._TextTestResult.__init__(self, unittest._WritelnDecorator(progressStream), descriptions, verbosity)
+        self.resultStream = unittest._WritelnDecorator(resultStream)
+
+    def printErrorList(self, flavour, errors):
+        for test, err in errors:
+            self.resultStream.writeln(self.separator1)
+            self.resultStream.writeln("%s: %s" % (flavour,self.getDescription(test)))
+            self.resultStream.writeln(self.separator2)
+            self.resultStream.writeln("%s" % err)
 
 
 class Main(unittest.TextTestRunner):
@@ -1948,6 +1971,16 @@ class Main(unittest.TextTestRunner):
             casenames = filter(filt, casenames)
 
         return casenames
+
+    # send progress indicators to stderr (usually a terminal)
+    def _makeResult(self):
+        return TwoStreamTextTestResult(sys.stderr, sys.stdout, self.descriptions, self.verbosity)
+
+    # send test results to stdout (can be easily redirected)
+    def __init__(self, stream=sys.stdout, descriptions=1, verbosity=1):
+        self.stream = unittest._WritelnDecorator(stream)
+        self.descriptions = descriptions
+        self.verbosity = verbosity
 
 """
 If you want some special selection of cases, you can do it like this:

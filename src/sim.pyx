@@ -327,7 +327,7 @@ class Tests(unittest.TestCase):
         func = testsetup(2)
         m = Minimize("tests/minimize/test_h2.mmp")
         m.go(frame_callback=func)
-        assert callbackCounter == 2
+        assert callbackCounter == 2, "Callback counter is %d, not 2" %(callbackCounter)
 
     def test_frameAndTraceCallback(self):
         func = testsetup(10)

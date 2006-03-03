@@ -1,12 +1,12 @@
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #
-# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# uname -a: Linux orbit.syzygy.com 2.6.15.4.20060221a #1 Tue Feb 21 18:06:44 PST 2006 i686 GNU/Linux
 # 
 # CFLAGS: -g -Wmissing-prototypes -Wall
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_04_thermo_lmotor_anchor_stat_reordering_4.trc test_04_thermo_lmotor_anchor_stat_reordering_4.mmp 
-# Date and Time: Mon Feb 13 13:50:35 2006
+# Date and Time: Fri Mar  3 12:09:17 2006
 # Input File: test_04_thermo_lmotor_anchor_stat_reordering_4.mmp
 # Output File: test_04_thermo_lmotor_anchor_stat_reordering_4.xyz
 # Trace File: test_04_thermo_lmotor_anchor_stat_reordering_4.trc
@@ -27,5 +27,5 @@
 #     Time       Lmotor          T.meter         Anchor          T.stat          
 #  picosec       Linear Motor-83 Thermo-25       Anchor-86       Stat-87        
 #
-    0.0100          -0.0024          258.16            0.00            0.07
+    0.0100          -0.0025          259.25            0.00            0.07
 # Done: 
