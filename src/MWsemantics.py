@@ -1447,6 +1447,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             QBitmap(filePath + "/../images/SelectAtomsSubtractFilterCursor.bmp"),
             QBitmap(filePath + "/../images/SelectAtomsSubtractFilterCursor-bm.bmp"),
             0, 0)
+            
+        # Create "DeleteFilterCursor" cursor. Fixes bug 1604. mark 060303.
+        self.DeleteFilterCursor = QCursor(
+            QBitmap(filePath + "/../images/DeleteFilterCursor.bmp"),
+            QBitmap(filePath + "/../images/DeleteFilterCursor-bm.bmp"),
+            0, 0)
                                         
         # Create "SelectMolsCursor" cursor
         self.SelectMolsCursor = QCursor(
