@@ -1121,15 +1121,18 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
             # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
             # was only for begin and end cp's (but was active even if undo autocp pref was off).
-        #060301 see if this fixes some bugs... hmm, not the one i hoped for (singlet-pulling after deposit atom)
-        if debug_pref("recompute all atpos's before all checkpoints (to fix bugs)", Choice_boolean_True):
-            # if 1, when bugfix confirmed... hmm, it's not fixed, but surely i need to do this since not doing it would almost surely cause other bugs
-            # and maybe it caused the seeming out of sync behavior (not repeated) after several undo/redo sequences of pulling singlets.
+
+        if 1:
+            #060301 added this as a debug_pref (dflt True), 060302 made it 'if 1'; it didn't fix any specific known bugs,
+            # but it seems clearly needed in principle, and maybe not doing it caused the seeming out of sync behavior
+            # (steps to repeat not recorded except maybe in my history files) after several undo/redo sequences of pulling singlets
+            # (or maybe that was another manifestation of the singlet pulling bug fixed by Numeric '==' -> '!=').
             for mol in self.assy.molecules:
-                if not mol.__dict__.has_key('atpos') and env.debug():
-                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
+##                if not mol.__dict__.has_key('atpos') and env.debug():
+##                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
                 mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
-                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms)
+                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms;
+                # I won't change that for now [060302] since in case we scan dead atoms too.
             pass
         
         assert cptype
@@ -1148,7 +1151,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             #k see also comments mentioning 'differential'
             
         # maybe i should clean up the following code sometime...
-        debug3 = env.debug() # for now [060301]
+        debug3 = 0 and env.debug() # for now [060301] if 0 060302; this is here (not at top of file) so runtime env.debug() affects it
         if use_diff and 0:
             assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
 ##            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?

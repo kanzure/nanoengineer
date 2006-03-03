@@ -139,12 +139,15 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     # view comes from glpane and it should be its own root object, i think; mode is also in glpane ###@@@
 
     #bruce 060227 more decls (some guesses):
-    # not root (since i think tree & shelf are never replaced), filename, selwhat
+    # not root (since i think tree & shelf are never replaced), filename
     _s_attr_temperature = S_DATA
     _s_attr_current_movie = S_CHILD
     _s_attr__last_current_selgroup = S_REF # this should fix bug 1578 [bruce 060227 guess]
     # don't need .part, it's derived by __getattr__ from selgroup
     ### might need _modified? probably not, do separately
+
+    _s_attr_selwhat = S_DATA #bruce 060302 fix bug 1607
+    _s_attr__last_set_selwhat = S_DATA # avoids debug warning when undo changes selwhat alone # untested ####@@@@
     
     # initial values of some instance variables
     undo_manager = None #bruce 060127

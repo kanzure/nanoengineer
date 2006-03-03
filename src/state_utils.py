@@ -50,11 +50,11 @@ Maybe rather than accomodating copyable_attrs, we'll just replace it? Not sure, 
 Do any inapprop obs get a key (like data or foreign objs) in current code?? #####@@@@@
 '''
 
-debug_dont_trust_Numeric_copy = False ####@@@@ 060302 -- will this fix last night's singlet-pulling bug?
-    # (warning, it's slow!) 
-
-debug_print_every_array_passed_to_Numeric_copy = False # hmm, this might be slow too... to be safe the runtime
-    # use of it should condition it on env.debug(), and to be fast, also on debug_dont_trust_Numeric_copy.
+##debug_dont_trust_Numeric_copy = False # 060302 -- will this fix last night's singlet-pulling bug? [no, that was weird '==' semantics]
+##    # (warning, it's slow!) 
+##
+##debug_print_every_array_passed_to_Numeric_copy = False # hmm, this might be slow too... to be safe the runtime
+##    # use of it should condition it on env.debug(), and to be fast, also on debug_dont_trust_Numeric_copy.
 
 # ==
 
@@ -289,14 +289,20 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                     else:
                         self.attr_dflt_pairs.append( (attr_its_about, dflt) )
                         self.defaultvals[attr_its_about] = dflt
-                        #e maybe also test dflt for is_mutable (nim)?
+                        if is_mutable(dflt):
+                            if env.debug():
+                                print "debug warning: dflt val for %r in %r is mutable: %r" % (attr_its_about, class1, dflt)
+                            pass # when we see what is warned about, we'll decide what this should do then [060302]
+                                # e.g. debug warning: dflt val for 'axis' in <class jigs_motors.LinearMotor at 0x3557d50>
+                                #      is mutable: array([ 0.,  0.,  0.])
+
                         if self.debug_all_attrs:
                             print "                                               dflt val for %r is %r" % (attr_its_about, dflt,)
                     pass
                 pass
-            elif name.startswith('_s_deepcopy_'):
+            elif name == '_s_deepcopy': # note: exact name, and doesn't end with '_'
                 self.warn = False # enough to be legitimate data
-            elif name.startswith('_s_scan_children_'):
+            elif name == '_s_scan_children':
                 pass ## probably not: self.warn = False
             elif name.startswith('_s_categorize_'): #060227
                 attr_its_about = name[len('_s_categorize_'):]
@@ -382,6 +388,38 @@ def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficienc
         return copier(val) # we optimize by not storing any copier for atomic types.
     return val
 
+def is_mutable(val): #060302 ####@@@@ CALL THIS [untested] 
+    """Efficiently scan a potential argument to copy_val to see if it contains any mutable parts (including itself),
+    with special cases suitable for use on state-holding attribute values for Undo,
+    which might be surprising in other applications (notably, for most InstanceType objects).
+       Details:
+    Treat list and dict as mutable, tuple (per se) as not (but scan its components) -- all this is correct.
+    Treat Numeric.array as mutable, regardless of size or type (dubious for size 0, though type and maybe shape
+     could probably be changed, but this doesn't matter for now).
+    Treat unknown types with known_type_copiers entries as mutable (wrong in general, ok for now,
+     and might cover some of the above cases).
+    Treat InstanceType objects as mutable if and only if they define an _s_deepcopy method.
+    (The other ones, we're thinking of as immutable references or object pointers,
+    and we don't care whether the objects they point to are mutable.)
+    """
+    typ = type(val)
+    if typ is type(()):
+        # tuple is a special case -- later, make provisions for more
+        for thing in val:
+            if is_mutable(thing):
+                return True
+        return False
+    elif typ is types.InstanceType:
+        # another special case
+        return hasattr(obj, '_s_deepcopy')
+    else:
+        copier = known_type_copiers.get(typ) # this is a fixed public dictionary
+        if copier is not None:
+            # all other copyable types are always mutable (since the containers themselves are) -- for now. ###@@@
+            return True ####k verify!
+        return False # atomic or unrecognized types
+    pass
+    
 def scan_val(val, func): 
     """Efficiently scan a general Python value, and call func on all InstanceType objects encountered
     (or in the future, on objects of certain other types, like registered new-style classes or extension classes).
@@ -433,6 +471,10 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
         #e also print history redmsg, once per class per session?
     return res
 
+# inlined:
+## def is_mutable_InstanceType(obj): 
+##     return hasattr(obj, '_s_deepcopy')
+  
 known_type_copiers[ types.InstanceType ] = copy_InstanceType
 
 def scan_InstanceType(obj, func):
@@ -456,11 +498,11 @@ def copy_Numeric_array(obj):
             # In future we might decide to let this typecode be declared somehow...
 ##    if env.debug():
 ##        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ... it did
-    if debug_dont_trust_Numeric_copy: ####@@@@ 060302
-        res = array( map( copy_val, list(obj)) )
-        if debug_print_every_array_passed_to_Numeric_copy and env.debug():
-            print "copy_Numeric_array on %#x produced %#x (not using Numeric.copy); input data %s" % (id(obj), id(res), obj) 
-        return res
+##    if debug_dont_trust_Numeric_copy: # 060302
+##        res = array( map( copy_val, list(obj)) )
+##        if debug_print_every_array_passed_to_Numeric_copy and env.debug():
+##            print "copy_Numeric_array on %#x produced %#x (not using Numeric.copy); input data %s" % (id(obj), id(res), obj) 
+##        return res
     return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
 
 def scan_Numeric_array(obj, func):
