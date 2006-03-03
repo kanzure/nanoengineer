@@ -334,6 +334,10 @@ class TextMessageBox(QDialog):
 def PleaseConfirmMsgBox(text='Please Confirm.'): # mark 060302.
     '''Prompts the user to confirm/cancel by pressing a 'Confirm' or 'Cancel' button in a QMessageBox.
     <text> is the confirmation string to explain what the user is confirming.
+    
+    Returns:
+        True - if the user pressed the Confirm button
+        False - if the user pressed the Cancel button (or Enter, Return or Escape)
     '''
     ret = QMessageBox.warning( None, "Please Confirm",
             str(text) + "\n",
