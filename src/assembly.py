@@ -147,7 +147,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     ### might need _modified? probably not, do separately
 
     _s_attr_selwhat = S_DATA #bruce 060302 fix bug 1607
-    _s_attr__last_set_selwhat = S_DATA # avoids debug warning when undo changes selwhat alone # untested ####@@@@
+    _s_attr__last_set_selwhat = S_DATA # avoids debug warning when undo changes self.selwhat without this decl
     
     # initial values of some instance variables
     undo_manager = None #bruce 060127
