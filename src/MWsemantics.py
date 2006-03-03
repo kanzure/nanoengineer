@@ -259,6 +259,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QWidget.StrongFocus)
         
+        # Hide the "Make Checkpoint" toolbar button/menu item. mark 060302.
+        self.editMakeCheckpointAction.setVisible(False)
+        
         # Create the "What's This?" online help system.
         from whatsthis import createWhatsThis, fix_whatsthis_text_for_mac
         createWhatsThis(self)
@@ -529,11 +532,30 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     # Edit Toolbar Slots
     ###################################
 
+    def editMakeCheckpoint(self):
+        '''Slot for making a checkpoint (only available when Automatic Checkpointing is disabled).
+        '''
+        print "MWsemantics.editMakeCheckpoint(): Not implemented yet."
+        
     def editUndo(self):
         self.assy.editUndo()
 
     def editRedo(self):
         self.assy.editRedo()
+        
+    def editAutoCheckpointing(self, enabled):
+        '''Slot for enabling/disabling automatic checkpointing.
+        '''
+        self.editMakeCheckpointAction.setVisible(not enabled)
+            
+    def editClearUndoStack(self):
+        '''Slot for clearing the Undo Stack.  Requires the user to confirm.
+        '''
+        from widgets import PleaseConfirmMsgBox
+        if PleaseConfirmMsgBox("Please confirm that you want to clear the Undo Stack."):
+            print "Confirmed"
+        else:
+            print "Cancelled"
 
     # bruce 050131 moved some history messages from the following methods
     # into the assy methods they call, so the menu command versions also have them
