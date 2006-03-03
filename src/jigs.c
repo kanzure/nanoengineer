@@ -295,6 +295,7 @@ jigMinimizePotentialLinearMotor(struct part *p, struct jig *jig,
     int i;
     struct xyz r;
     double x;
+    double potential;
 
     // calculate the average position of all atoms in the motor (r)
     r = vcon(0.0);
@@ -312,14 +313,15 @@ jigMinimizePotentialLinearMotor(struct part *p, struct jig *jig,
         x -= jig->j.lmotor.motorPosition;
         // x in pm, jig->j.lmotor.force in pN
         // x * force in yJ
-        return x * jig->j.lmotor.force * -1e-6; // in aJ
+        potential = x * jig->j.lmotor.force * -1e-6; // in aJ
     } else {
 	// zeroPosition is projection distance of r onto axis for 0 force
         x -= jig->j.lmotor.zeroPosition;
         // x in pm, stiffness in N/m
         // stiffness * x * x / 2 in yJ
-	return jig->j.lmotor.stiffness * x * x * 0.5 * 1e-6; // in aJ
+	potential = jig->j.lmotor.stiffness * x * x * 0.5 * 1e-6; // in aJ
     }
+    return potential;
 }
 
 void

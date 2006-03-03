@@ -60,24 +60,21 @@ minimizeStructurePotential(struct configuration *p)
     p->functionValue = calculatePotential(Part, (struct xyz *)p->coordinate);
     for (i=0; i<Part->num_jigs; i++) {
         jig = Part->jigs[i];
-        if (jig->degreesOfFreedom != 0) {
-            switch (jig->type) {
-            case RotaryMotor:
-                p->functionValue +=
-                    jigMinimizePotentialRotaryMotor(Part, jig,
-                                                    (struct xyz *)p->coordinate,
-                                                    p->coordinate + jig->coordinateIndex);
-                break;
-            case LinearMotor:
-                p->functionValue +=
-                    jigMinimizePotentialLinearMotor(Part, jig,
-                                                    (struct xyz *)p->coordinate,
-                                                    p->coordinate + jig->coordinateIndex);
-                break;
-            default:
-                ERROR2("jig type %d has unexpected %d degrees of freedom", jig->type, jig->degreesOfFreedom);
-                break;
-            }
+        switch (jig->type) {
+        case RotaryMotor:
+            p->functionValue +=
+                jigMinimizePotentialRotaryMotor(Part, jig,
+                                                (struct xyz *)p->coordinate,
+                                                p->coordinate + jig->coordinateIndex);
+            break;
+        case LinearMotor:
+            p->functionValue +=
+                jigMinimizePotentialLinearMotor(Part, jig,
+                                                (struct xyz *)p->coordinate,
+                                                p->coordinate + jig->coordinateIndex);
+            break;
+        default:
+            break;
         }
     }
     //writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, p->functionValue, p->parameter,
@@ -137,34 +134,31 @@ minimizeStructureGradient(struct configuration *p)
     parameterLimit = MAXDOUBLE;
     for (i=0; i<Part->num_jigs; i++) {
         jig = Part->jigs[i];
-        if (jig->degreesOfFreedom != 0) {
-            switch (jig->type) {
-            case RotaryMotor:
-                jigMinimizeGradientRotaryMotor(Part, jig,
-                                               (struct xyz *)p->coordinate,
-                                               (struct xyz *)p->gradient,
-                                               p->coordinate + jig->coordinateIndex,
-                                               p->gradient + jig->coordinateIndex);
-                motorGradient = fabs(*(p->gradient + jig->coordinateIndex));
-                if (motorGradient < 1e-8) {
-                    motorGradient = 1e-8;
-                }
-                plimit = MAX_RADIANS_PER_STEP / motorGradient;
-                if (plimit < parameterLimit) {
-                    parameterLimit = plimit;
-                }
-                break;
-            case LinearMotor:
-                jigMinimizeGradientLinearMotor(Part, jig,
-                                               (struct xyz *)p->coordinate,
-                                               (struct xyz *)p->gradient,
-                                               p->coordinate + jig->coordinateIndex,
-                                               p->gradient + jig->coordinateIndex);
-                break;
-            default:
-                ERROR2("jig type %d has unexpected %d degrees of freedom", jig->type, jig->degreesOfFreedom);
-                break;
+        switch (jig->type) {
+        case RotaryMotor:
+            jigMinimizeGradientRotaryMotor(Part, jig,
+                                           (struct xyz *)p->coordinate,
+                                           (struct xyz *)p->gradient,
+                                           p->coordinate + jig->coordinateIndex,
+                                           p->gradient + jig->coordinateIndex);
+            motorGradient = fabs(*(p->gradient + jig->coordinateIndex));
+            if (motorGradient < 1e-8) {
+                motorGradient = 1e-8;
             }
+            plimit = MAX_RADIANS_PER_STEP / motorGradient;
+            if (plimit < parameterLimit) {
+                parameterLimit = plimit;
+            }
+            break;
+        case LinearMotor:
+            jigMinimizeGradientLinearMotor(Part, jig,
+                                           (struct xyz *)p->coordinate,
+                                           (struct xyz *)p->gradient,
+                                           p->coordinate + jig->coordinateIndex,
+                                           p->gradient + jig->coordinateIndex);
+            break;
+        default:
+            break;
         }
     }
     p->functionDefinition->parameter_limit = parameterLimit;
@@ -273,9 +267,13 @@ minimizeStructureConstraints(struct configuration *p)
             for (j=0; j<jig->num_atoms; j++) {
                 a = jig->atoms[j];
                 index = a->index;
+                // restrict motion of atom to lay along axis from initial position
+                // dist = (positions[index] - Part->positions[index]) dot jig->j.lmotor.axis
+                // positions[index] = Part->positions[index] + jig->j.lmotor.axis * dist
                 vsub2(delta, positions[index], Part->positions[index]);
                 dist = vdot(delta, jig->j.lmotor.axis);
-                vadd2scale(positions[index], jig->j.lmotor.axis, dist);
+                vmul2c(delta, jig->j.lmotor.axis, dist);
+                vadd2(positions[index], Part->positions[index], delta);
             }
             break;
         default:
