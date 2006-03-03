@@ -535,7 +535,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editMakeCheckpoint(self):
         '''Slot for making a checkpoint (only available when Automatic Checkpointing is disabled).
         '''
-        print "MWsemantics.editMakeCheckpoint(): Not implemented yet."
+        env.history.message("Make Checkpoint: Not implemented yet.")
         
     def editUndo(self):
         self.assy.editUndo()
@@ -551,6 +551,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editClearUndoStack(self):
         '''Slot for clearing the Undo Stack.  Requires the user to confirm.
         '''
+        env.history.message("Clear Undo Stack: Not implemented yet.")
+        return
+        
         from widgets import PleaseConfirmMsgBox
         if PleaseConfirmMsgBox("Please confirm that you want to clear the Undo Stack."):
             print "Confirmed"
