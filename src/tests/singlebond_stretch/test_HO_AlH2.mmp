@@ -9,6 +9,7 @@ group (HO_AlH2_cs)
 info opengroup open = True
 mol (HO_AlH2_cs.pdb) def
 atom 1 (8) (-958, 119, -333) def
+info atom atomtype = sp2
 atom 2 (13) (686, 171, 169) def
 bond1 1
 atom 3 (1) (-1722, 678, -30) def

@@ -57,6 +57,8 @@ KEEP_RESULTS = False
 SHOW_TODO = False
 VERBOSE_FAILURES = False
 LOOSE_TOLERANCES = False
+MEDIUM_TOLERANCES = False
+TIGHT_TOLERANCES = False
 TEST_DIR = None
 LIST_EVERYTHING = False
 
@@ -80,6 +82,7 @@ testsSkipped = 0
 # angles before we think it's a problem? For now these are
 # wild guesses, to be later scrutinized by smart people.
 
+# default values, overridden by loose, medium, and tight options
 LENGTH_TOLERANCE = 0.05    # angstroms
 ANGLE_TOLERANCE = 5        # degrees
 
@@ -1829,10 +1832,20 @@ class Main(unittest.TextTestRunner):
                     try: delattr(Tests, nm)
                     except AttributeError: pass
         def loose(x):
-            """Loosen tolerances on length and angle comparisons.
+            """Loose tolerances on length and angle comparisons.
             """
             global LOOSE_TOLERANCES
             LOOSE_TOLERANCES = True
+        def medium(x):
+            """Moderate tolerances on length and angle comparisons.
+            """
+            global MEDIUM_TOLERANCES
+            MEDIUM_TOLERANCES = True
+        def tight(x):
+            """Tight tolerances on length and angle comparisons.
+            """
+            global TIGHT_TOLERANCES
+            TIGHT_TOLERANCES = True
         def test_dir(x):
             """which directory should we test
             """
@@ -1897,6 +1910,8 @@ class Main(unittest.TextTestRunner):
                    time_limit,
                    pyrex,
                    loose,
+                   medium,
+                   tight,
                    test_dir,
                    list_everything,
                    generate,
@@ -1934,10 +1949,16 @@ class Main(unittest.TextTestRunner):
             self.failures.append((test, traceback.format_exception(*err)[-1]))
         if not VERBOSE_FAILURES:
             unittest.TestResult.addFailure = addFailure
+        global LENGTH_TOLERANCE, ANGLE_TOLERANCE
+        if TIGHT_TOLERANCES:
+            LENGTH_TOLERANCE = 0.03    # angstroms
+            ANGLE_TOLERANCE = 3        # degrees
+        if MEDIUM_TOLERANCES:
+            LENGTH_TOLERANCE = 0.11    # angstroms
+            ANGLE_TOLERANCE = 12       # degrees
         if LOOSE_TOLERANCES:
-            global LENGTH_TOLERANCE, ANGLE_TOLERANCE
-            LENGTH_TOLERANCE = 0.15    # angstroms
-            ANGLE_TOLERANCE = 15       # degrees
+            LENGTH_TOLERANCE = 0.138   # angstroms
+            ANGLE_TOLERANCE = 14.1     # degrees
 
         casenames = self.getCasenames()
         self.run(unittest.TestSuite(map(Tests, casenames)))

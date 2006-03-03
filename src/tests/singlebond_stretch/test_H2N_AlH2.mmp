@@ -9,6 +9,7 @@ group (H2N_AlH2_cs)
 info opengroup open = True
 mol (H2N_AlH2_cs.pdb) def
 atom 1 (7) (-1629, -230, 95) def
+info atom atomtype = sp2
 atom 2 (13) (911, 79, 278) def
 bond1 1
 atom 3 (1) (-1398, -126, -328) def
