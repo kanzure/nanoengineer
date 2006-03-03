@@ -248,7 +248,7 @@ class DirView(QListView):
         folderOpenIcon = QPixmap(folder_open_image)
         fileIcon = QPixmap(pix_file_image)
 
-        self.addColumn("Name")
+        self.addColumn("Name", width=150) # May fix bug 1613. mark 060303.
             # Calling addColumn() here causes DirView to change size after its parent (MMKit) is shown.
             # I've not been successful figuring out how to control the height of the DirView (QListView) 
             # after adding this column. See comments in MWsemantics._findGoodLocation() for more 
