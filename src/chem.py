@@ -1133,11 +1133,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """make the atom selected
         """
         if self.element is Singlet: return
-        
-        # It would be better to pass the following condition as argument, so it can be reused.--Huaicai [9/1/05]
-        # If select atoms filter is on, only pick element type in the filter combobox
-        if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
-            self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return
+
+        if self.filtered(): return # mark 060303.
 
         self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
@@ -1174,6 +1171,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # and besides if it ever *does* get picked (due to a bug) you should let
         # the user unpick it!
         ## if self.element is Singlet: return 
+        
+        if self.filtered(): return  # mark 060303.
+        
         if self.picked:
             try:
                 #bruce 050309 catch exceptions, and do this before picked=0
@@ -1470,6 +1470,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         (Note that molecules left with no atoms, by this or any other op,
         will themselves be killed.)
         """
+        
+        if self.filtered(): return # Fixes bug 1599.  mark 060303.
+            
         if self.__killed:
             if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
@@ -1525,6 +1528,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print "fyi: atom.kill: atom %r not in its molecule (killed twice?)" % self
             pass
         return # from atom.kill
+        
+    def filtered(self): # mark 060303.
+        '''Returns True if self is not the element type/name currently listed in the Select Atoms filter combobox.
+        '''
+        if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
+            self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return True
+        return False
 
     def Hydrogenate(self):
         """[Public method; does all needed invalidations:]
