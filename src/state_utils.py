@@ -289,7 +289,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                     else:
                         self.attr_dflt_pairs.append( (attr_its_about, dflt) )
                         self.defaultvals[attr_its_about] = dflt
-                        if is_mutable(dflt):
+                        if env.debug() and is_mutable(dflt): #env.debug() (redundant here) is just to make prerelease snapshot safer
                             if env.debug():
                                 print "debug warning: dflt val for %r in %r is mutable: %r" % (attr_its_about, class1, dflt)
                             pass # when we see what is warned about, we'll decide what this should do then [060302]
@@ -388,7 +388,7 @@ def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficienc
         return copier(val) # we optimize by not storing any copier for atomic types.
     return val
 
-def is_mutable(val): #060302 ####@@@@ CALL THIS [untested] 
+def is_mutable(val): #060302 [###@@@ use this more]
     """Efficiently scan a potential argument to copy_val to see if it contains any mutable parts (including itself),
     with special cases suitable for use on state-holding attribute values for Undo,
     which might be surprising in other applications (notably, for most InstanceType objects).
@@ -415,8 +415,9 @@ def is_mutable(val): #060302 ####@@@@ CALL THIS [untested]
     else:
         copier = known_type_copiers.get(typ) # this is a fixed public dictionary
         if copier is not None:
-            # all other copyable types are always mutable (since the containers themselves are) -- for now. ###@@@
-            return True ####k verify!
+            # all other copyable types are always mutable (since the containers themselves are) -- for now.
+            # should add a way for more exceptions to register themselves. #e
+            return True
         return False # atomic or unrecognized types
     pass
     
