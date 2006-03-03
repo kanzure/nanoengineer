@@ -26,7 +26,7 @@ class Version:
         "releaseType": "Alpha",
         "releaseDate": "March 2, 2006",
         "product": "nanoENGINEER-1",
-        "copyright": "Copyright (C) 2004-2005, Nanorex, Inc.",
+        "copyright": "Copyright (C) 2004-2006, Nanorex, Inc.",
         "authors": __author__
         }
     def __init__(self):
