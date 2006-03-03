@@ -464,6 +464,8 @@ class LinearMotor(Motor):
             orig_center = V(0.0, 0.0, 0.0)
             drawbrick(self.color, orig_center, self.axis, self.length, self.width, self.width)
             drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
+                # (note: drawLinearSign uses a small depth offset so that arrows are slightly in front of brick)
+                # [bruce comment 060302, a guess from skimming drawLinearSign's code]
             for a in self.atoms[:]:
                 drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
         except:

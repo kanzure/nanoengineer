@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 drawer.py
 
@@ -1179,10 +1179,16 @@ def setup():
     glNewList(solidCubeList, GL_COMPILE)
     glBegin(GL_QUADS)
     for i in xrange(len(cubeIndices)):
+        avenormals = V(0,0,0) #bruce 060302 fixed normals for flat shading 
         for j in xrange(4) :    
                 nTuple = tuple(cubeNormals[cubeIndices[i][j]])
+                avenormals += A(nTuple)
+        avenormals = norm(avenormals)
+        for j in xrange(4) :    
+                ## nTuple = tuple(cubeNormals[cubeIndices[i][j]])
                 vTuple = tuple(cubeVertices[cubeIndices[i][j]])
-                glNormal3fv(nTuple)
+                vTuple = A(vTuple) * 0.5 #bruce 060302 made size compatible with glut.glutSolidCube(1.0)
+                glNormal3fv(avenormals)
                 glVertex3fv(vTuple)
     glEnd()
     glEndList()                
@@ -1702,8 +1708,15 @@ def drawbrick(color, center, axis, l, h, w):
         glRotate(angle, axis[1], -axis[0], 0.0)
   
     glScale(h, w, l)
-    glut.glutSolidCube(1.0)
-    #glCallList(solidCubeList)
+    
+    from debug_prefs import debug_pref, Choice_boolean_False
+    if debug_pref("use glutSolidCube", Choice_boolean_False):
+        glut.glutSolidCube(1.0) # using GLUT is deprecated, but this was in our code since jan 05 until now [bruce 060302]
+            # note: we plan to disable import of GLUT soon, since this was our only use of GLUT and now we have none;
+            # this crashed on some Linux systems (bug 1595), apparently because of lack of glutInit,
+            # but glutInit would not be good to call on all our OSes (trying it on Mac I got some console warnings).
+    else:
+        glCallList(solidCubeList) #bruce 060302 revised the contents of solidCubeList as part of fixing bug 1595
     glPopMatrix()
     return
 
