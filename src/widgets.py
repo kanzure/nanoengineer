@@ -328,5 +328,24 @@ class TextMessageBox(QDialog):
     def setText(self, txt):
         "Sets the textedit's text to txt"
         self.text_edit.setText(txt)
-        
+
+#==
+
+def PleaseConfirmMsgBox(text='Please Confirm.'): # mark 060302.
+    '''Prompts the user to confirm/cancel by pressing a 'Confirm' or 'Cancel' button in a QMessageBox.
+    <text> is the confirmation string to explain what the user is confirming.
+    '''
+    ret = QMessageBox.warning( None, "Please Confirm",
+            str(text) + "\n",
+            "Confirm",
+            "Cancel", 
+            None, 
+            1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
+            1)  # Escape (1= Cancel)
+          
+    if ret==0: 
+        return True # Confirmed
+    else:
+        return False # Cancelled
+            
 # end
