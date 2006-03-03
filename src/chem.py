@@ -1471,8 +1471,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         will themselves be killed.)
         """
         
-        if self.filtered(): return # Fixes bug 1599.  mark 060303.
-            
         if self.__killed:
             if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
@@ -1483,6 +1481,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # So I'll declare this legal, for singlets only. [bruce 041115]
                 pass
             return
+            
+        if self.filtered(): return # Fixes bug 1599.  mark 060303.
+            # Had to move this below the first conditional (above) as part of bug fix 1608. mark 060303.
+        
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
         # unpick
         try:
@@ -1532,6 +1534,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def filtered(self): # mark 060303.
         '''Returns True if self is not the element type/name currently listed in the Select Atoms filter combobox.
         '''
+        if self.is_singlet(): return False # Fixes bug 1608.  mark 060303.
+        
         if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
             self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return True
         return False
