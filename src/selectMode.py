@@ -231,11 +231,7 @@ class selectMode(basicMode):
 # == LMB double click method
 
     def leftDouble(self, event):
-        '''Select the part containing the atom the cursor is on.
-        '''
-        self.move() # go into move mode.
-          # This will likely go away in A8.  mark 060227.
-        return
+        pass
         
 # == end of LMB event handlers.
 
@@ -898,7 +894,8 @@ class selectMode(basicMode):
 
     def makeMenus(self): # menu item names modified by bruce 041217
 
-        def fixit3(text, func):
+        def fixit3(text, func): 
+            # Not called anymore since switching modes using context menus is no longer supported. mark 060303.
             if self.default_mode_status_text == "Mode: " + text:
                 # this menu item indicates the current mode --
                 # add a checkmark and disable it [bruce 050112]
@@ -910,49 +907,32 @@ class selectMode(basicMode):
             ###e these accelerators should be changed to be Qt-official
             # by extending widgets.makemenu_helper to use Qt's setAccel...
             # [bruce 050112]
-            ('Select All                     Ctrl+A', self.o.assy.selectAll),
-            ('Select None                Ctrl+D', self.o.assy.selectNone),
-            ('Invert Selection   Ctrl+Shift+I', self.o.assy.selectInvert),
+            # mark 060303. added the following:
             ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'),
             None,
-            # bruce 041217 renamed Atoms and Chunks to the full names of the
-            # modes they enter, and added Move Chunks too. (It was already
-            # present but in a different menu. I left it there, too, for the
-            # sake of existing users. But it would be better to remove it.)
-            #bruce 051213 reordered these to conform with toolbar.
-            fixit3(('Select Chunks'), self.w.toolsSelectMolecules),
-            fixit3(('Select Atoms'), self.w.toolsSelectAtoms),
-            ('Move Chunks', self.w.toolsMoveMolecule), 
-            ('Build Atoms', self.w.toolsBuildAtoms),
+            ('Change Background Color...', self.w.dispBGColor),
             ]
         
-        self.Menu_spec_shift = [
-            ('Delete        Del', self.o.assy.delete_sel),
-            ('Move', self.move), # redundant but intentionally left in for now
-            None,
-            ('Hide', self.o.assy.Hide),
-            None,
-            ('Stretch', self.o.assy.Stretch) ]
+        #& Marked for removal. mark 060303.
+        #self.Menu_spec_shift = [
+        #    ('Delete        Del', self.o.assy.delete_sel),
+        #    ('Hide', self.o.assy.Hide)]
         
-        self.Menu_spec_control = [
-            ('Invisible', self.w.dispInvis),
-            None,
-            ('Default', self.w.dispDefault),
-            ('Lines', self.w.dispLines),
-            ('CPK', self.w.dispCPK),
-            ('Tubes', self.w.dispTubes),
-            ('VdW', self.w.dispVdW),
-            None,
-            ('Chunk Color...', self.w.dispObjectColor),
-            ('Reset Chunk Color', self.w.dispResetChunkColor),
-            ('Reset Atoms Display', self.w.dispResetAtomsDisplay),
-            ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
-            ]
-
-    def move(self):
-        # we must set OldCursor to the MoveSelectCursor before going into move mode.
-        # go into move mode [bruce 040923: now also called from leftDouble]
-        self.o.setMode('MODIFY') # [bruce 040923: i think how we do this doesn't need to be changed]
+        #& Marked for removal. mark 060303.
+        #self.Menu_spec_control = [
+        #    ('Invisible', self.w.dispInvis),
+        #    None,
+        #    ('Default', self.w.dispDefault),
+        #    ('Lines', self.w.dispLines),
+        #    ('CPK', self.w.dispCPK),
+        #    ('Tubes', self.w.dispTubes),
+        #    ('VdW', self.w.dispVdW),
+        #    None,
+        #    ('Chunk Color...', self.w.dispObjectColor),
+        #    ('Reset Chunk Color', self.w.dispResetChunkColor),
+        #    ('Reset Atoms Display', self.w.dispResetAtomsDisplay),
+        #    ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
+        #    ]
 
     pass # end of class selectMode
     
@@ -971,6 +951,13 @@ class selectMolsMode(selectMode):
             
     def restore_gui(self):
         self.w.selectMolDashboard.hide()
+        
+    def leftDouble(self, event):
+        '''Switch to Move Chunks Mode.  This will go away in A8. mark 060303.
+        '''
+        # Current plans are to merge Select Chunks and Move Chunks modes in A8.
+        self.o.setMode('MODIFY')
+        return
         
     def keyPress(self,key):
         '''keypress event handler for selectMolsMode.
@@ -1005,6 +992,57 @@ class selectMolsMode(selectMode):
            
     def rightCntlDown(self, event):          
         basicMode.rightCntlDown(self, event)
+    
+    # moved here from modifyMode.  mark 060303.
+    call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes an unreported bug analogous to 971]
+    
+    # moved here from modifyMode.  mark 060303.
+    def makeMenus(self): # mark 060303.
+        
+        self.Menu_spec = [
+            ('Change Chunk Color...', self.w.dispObjectColor),
+            ('Reset Chunk Color', self.w.dispResetChunkColor),
+            ('Reset Atoms Display', self.w.dispResetAtomsDisplay),
+            ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
+            ('Hide Chunk', self.o.assy.Hide),
+            None,
+            ('Change Background Color...', self.w.dispBGColor),
+         ]
+
+        self.debug_Menu_spec = [
+            ('debug: invalidate selection', self.invalidate_selection),
+            ('debug: update selection', self.update_selection),
+         ]
+        
+        # Find this redundancy unnecessary; toolbar with these options is available.  mark 060303.
+        #self.Menu_spec_control = [
+        #    ('Invisible', self.w.dispInvis),
+        #    None,
+        #    ('Default', self.w.dispDefault),
+        #    ('Lines', self.w.dispLines),
+        #    ('CPK', self.w.dispCPK),
+        #    ('Tubes', self.w.dispTubes),
+        #    ('VdW', self.w.dispVdW)]
+    
+    
+    # moved here from modifyMode.  mark 060303.
+    def invalidate_selection(self): #bruce 041115 (debugging method)
+        "[debugging method] invalidate all aspects of selected atoms or mols"
+        for mol in self.o.assy.selmols:
+            print "already valid in mol %r: %r" % (mol, mol.invalid_attrs())
+            mol.invalidate_everything()
+        for atm in self.o.assy.selatoms.values():
+            atm.invalidate_everything()
+    
+    # moved here from modifyMode.  mark 060303.
+    def update_selection(self): #bruce 041115 (debugging method)
+        """[debugging method] update all aspects of selected atoms or mols;
+        no effect expected unless you invalidate them first
+        """
+        for atm in self.o.assy.selatoms.values():
+            atm.update_everything()
+        for mol in self.o.assy.selmols:
+            mol.update_everything()
 
 
 class selectAtomsMode(selectMode):
@@ -1730,6 +1768,18 @@ class selectAtomsMode(selectMode):
     def rightCntlDown(self, event):          
         basicMode.rightCntlDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
+        
+    def makeMenus(self): # added by mark 060303.
+        
+        self.Menu_spec = [
+            ###e these accelerators should be changed to be Qt-official
+            # by extending widgets.makemenu_helper to use Qt's setAccel...
+            # [bruce 050112]
+            # mark 060303. added the following:
+            ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'), # Always stays checked; bug.  mark 060303.
+            None,
+            ('Change Background Color...', self.w.dispBGColor),
+            ]
         
     def update_hybridComboBox(self, win, text = None): 
         '''Based on the same named function in depositMode.py.

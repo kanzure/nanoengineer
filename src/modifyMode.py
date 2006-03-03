@@ -455,65 +455,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
 
     def leftDouble(self, event):
-        '''Switch to Select Chunks mode.
+        '''Switch to Select Chunks mode.  This will go away in A8. mark 060303.
         '''
-        self.selectmols() 
-        # Fixes bug 1182. This will go away in A8 when we merge Select Chunks and Move Chunks modes.  
-        # mark 060301.
+        # Current plans are to merge Select Chunks and Move Chunks modes in A8.
+        self.o.setMode('SELECTMOLS') # Fixes bug 1182. mark 060301.
         return
-
-    call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes an unreported bug analogous to 971]
-
-    def makeMenus(self): # menus modified by bruce 041103, 041217, and made dynamic 050914
-        
-        self.Menu_spec = [
-            ('Stretch', self.o.assy.Stretch),
-            ('Delete     Del', self.o.assy.delete_sel),
-            ('Hide', self.o.assy.Hide),
-            None,
-            # bruce 041217 added the following (rather than just Done)
-            #bruce 051213 added 'checked' and reordered these to conform with toolbar.
-            ('Select Chunks', self.w.toolsSelectMolecules),
-            ('Select Atoms', self.w.toolsSelectAtoms), 
-            ('Move Chunks', self.w.toolsMoveMolecule, 'checked'),
-            ('Build Atoms', self.w.toolsBuildAtoms),
-         ]
-
-        self.debug_Menu_spec = [
-            ('debug: invalidate selection', self.invalidate_selection),
-            ('debug: update selection', self.update_selection),
-         ]
-        
-        self.Menu_spec_control = [
-            ('Invisible', self.w.dispInvis),
-            None,
-            ('Default', self.w.dispDefault),
-            ('Lines', self.w.dispLines),
-            ('CPK', self.w.dispCPK),
-            ('Tubes', self.w.dispTubes),
-            ('VdW', self.w.dispVdW),
-            None,
-            ('Color', self.w.dispObjectColor) ]
-            
-    def selectmols(self):
-        self.o.setMode('SELECTMOLS') # mark 060301.
-
-    def invalidate_selection(self): #bruce 041115 (debugging method)
-        "[debugging method] invalidate all aspects of selected atoms or mols"
-        for mol in self.o.assy.selmols:
-            print "already valid in mol %r: %r" % (mol, mol.invalid_attrs())
-            mol.invalidate_everything()
-        for atm in self.o.assy.selatoms.values():
-            atm.invalidate_everything()
-
-    def update_selection(self): #bruce 041115 (debugging method)
-        """[debugging method] update all aspects of selected atoms or mols;
-        no effect expected unless you invalidate them first
-        """
-        for atm in self.o.assy.selatoms.values():
-            atm.update_everything()
-        for mol in self.o.assy.selmols:
-            mol.update_everything()
 
     def setup_movetype(self, movetype):
         

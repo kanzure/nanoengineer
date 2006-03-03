@@ -1891,12 +1891,10 @@ class depositMode(selectAtomsMode):
         if self.Menu_spec:
             self.Menu_spec.append(None)
         self.Menu_spec.extend( [
-            # bruce 041217 added the following, rather than just Done:
-            #bruce 051213 added 'checked' and reordered these to conform with toolbar.
-            ('Select Chunks', self.w.toolsSelectMolecules),
-            ('Select Atoms', self.w.toolsSelectAtoms), 
-            ('Move Chunks', self.w.toolsMoveMolecule),
-            ('Build Atoms', self.skip, 'checked'),
+            # mark 060303. added the following:
+            ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'), # Always stays checked; bug.  mark 060303.
+            None,
+            ('Change Background Color...', self.w.dispBGColor),
         ] )
 
         ###e submenu for pastables, with one checked? Or use Menu_spec_control for that?
@@ -1906,6 +1904,7 @@ class depositMode(selectAtomsMode):
         ]
 
         # Ninad asks whether we should add more elements to this [bruce 041103]
+        # Bug found: none of these change the atomic hybrid displayed in the MMKit.  Mark 060303.
         self.Menu_spec_shift = [
             ('(change pastable element:)', noop, 'disabled'), #bruce 050510
             ('Carbon(sp3)', self.setCarbon_sp3), #e could make this a method on the atomtype, and give that a name or find it here
