@@ -1197,7 +1197,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                 # See DirView.__init__() for more info on this. mark 060222.
                 y -= 58
                 # Set the width of the Model Tree to the width of the MMKit. mark 060223.
-                self.mt.setGeometry(0,0,mmk_geometry.width(),560)
+                #self.mt.setGeometry(0,0,mmk_geometry.width(),560)
+                self.mt.setGeometry(0,0,200,560) # May fix installer bug 1613. mark 060303.
         if y < 0: y = 0
         x = self.geometry().x()
         
@@ -1240,7 +1241,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                 MMKitWin.show()
                 self.setActiveWindow() # Fixes bug 1503.  mark 060216.
                     # Required to give the keyboard input focus back to self (MainWindow).
-                MMKitWin.dirView.setMinimumSize(QSize(191,150))
+                MMKitWin.dirView.setMinimumSize(QSize(175,150))
+                    # any value > 175 will cause the MMKit to get wider when clicking on the clipboard tab.
+                    # Fixes bug 1563. mark 060303.
         return MMKitWin
     
     def MMKitShowPage(self, pagename):
