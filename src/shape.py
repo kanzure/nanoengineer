@@ -520,6 +520,7 @@ class SelectionShape(shape):
                             if a.is_singlet(): continue
                             todo.append(a)
                 for a in todo[:]:
+                    if a.filtered(): continue
                     a.kill()
             else:
                 print "Error in shape._atomsSelect(): Invalid selSense=", c.selSense

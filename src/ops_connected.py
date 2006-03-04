@@ -108,6 +108,7 @@ class ops_connected_Mixin:
         
         natoms = 0
         for atom in catoms[:]:
+            if atom.filtered(): return
             natoms += 1
             atom.kill()
         

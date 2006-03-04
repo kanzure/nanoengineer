@@ -490,6 +490,10 @@ class selectMode(basicMode):
 
         if a is None:
             return None
+            
+        if a.filtered(): # mark 060304.
+            env.history.message("Cannot delete " + str(a) + " since it is being filtered. Hit Escape to clear the selection filter.")
+            return None
         
         a.deleteBaggage()
         result = "deleted %r" % a
@@ -1103,8 +1107,12 @@ class selectAtomsMode(selectMode):
         self.drag_stickiness_limit_exceeded = False
             # used in leftDrag() to determine if the drag stickiness limit was exceeded.
         self.only_highlight_singlets = False
-            # when set to Tru, only singlets get highlighted when dragging a singlet.
+            # when set to True, only singlets get highlighted when dragging a singlet.
             # depositMode.singletSetup() sets this to True when dragging a singlet around.
+        self.neighbors_of_last_deleted_atom = []
+            # list of the real atom neighbors connected to a deleted atom.  Used by leftDouble()
+            # to find the connected atoms to a deleted atom when double clicking with 'Shift+Control'
+            # modifier keys pressed together.
             
     def init_gui(self):
         selectMode.init_gui(self)

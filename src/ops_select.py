@@ -392,8 +392,11 @@ class ops_select_Mixin:
                 atm.molecule.kill()
             else:
                 assert self.selwhat == SELWHAT_ATOMS
-                env.history.message("Deleted " + str(atm) )
-                atm.kill()
+                if atm.filtered():
+                    env.history.message("Cannot delete " + str(atm) + " since it is being filtered. Hit Escape to clear the selection filter.")
+                else:
+                    env.history.message("Deleted " + str(atm) )
+                    atm.kill()
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified

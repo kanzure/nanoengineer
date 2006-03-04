@@ -1481,9 +1481,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # So I'll declare this legal, for singlets only. [bruce 041115]
                 pass
             return
-            
-        if self.filtered(): return # Fixes bug 1599.  mark 060303.
-            # Had to move this below the first conditional (above) as part of bug fix 1608. mark 060303.
         
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
         # unpick
