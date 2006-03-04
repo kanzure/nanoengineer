@@ -259,6 +259,7 @@ class DirView(QListView):
             # simply comment out addColumn() above and enter Build mode. mark 060222.
         #self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setTreeStepSize(20)
+        self.setColumnWidth(0, 150) # Force the column width to 150 again. May fix bug 1613. mark 060303.
         
         #self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
         
