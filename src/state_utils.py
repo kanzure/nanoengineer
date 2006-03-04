@@ -139,6 +139,11 @@ def transclose( toscan, collector ):
 
 # ==
 
+# private exceptions for use in private helper functions for certain recursive scanners:
+class _IsMutable(Exception): pass
+class _NotTheSame(Exception): pass
+
+
 class Classification: #e want _eq_id_mixin_? probably not, since no getattr.
     """Classifications record policies and methods for inspecting/diffing/copying/etc all objects of one kind,
     or can be used as dict keys for storing those policies externally.
@@ -153,27 +158,27 @@ class Classification: #e want _eq_id_mixin_? probably not, since no getattr.
 
 ###@@@ not yet clear if these simple ones end up being used...
 
-class AtomicClassification(Classification):
-    """Atomic (immutable, part-free) types can be scanned and copied trivially....
-    """
-##    def scan(self, val, func):
-##        "call func on nontrivial parts of val (what this means precisely is not yet defined)"
-##        pass
-    def copy(self, val, func):
-        "copy val, using func to copy its parts"
-        return val
-    pass
-
-class ListClassification(Classification):
-    "Classification for Lists (or maybe any similar kind of mutable sequences?)"
-##    def scan(self, val, func):
-##        "call func on all parts of val"
-##        for part in val:
-##            func(part)
-    def copy(self, val, func):
-        "copy val, using func for nontrivial parts"
-        return map( func, val) #e optimize by changing API to be same as map, then just using an attrholder, holding map?
-    pass
+##class AtomicClassification(Classification):
+##    """Atomic (immutable, part-free) types can be scanned and copied trivially....
+##    """
+####    def scan(self, val, func):
+####        "call func on nontrivial parts of val (what this means precisely is not yet defined)"
+####        pass
+##    def copy(self, val, func):
+##        "copy val, using func to copy its parts"
+##        return val
+##    pass
+##
+##class ListClassification(Classification):
+##    "Classification for Lists (or maybe any similar kind of mutable sequences?)"
+####    def scan(self, val, func):
+####        "call func on all parts of val"
+####        for part in val:
+####            func(part)
+##    def copy(self, val, func):
+##        "copy val, using func for nontrivial parts"
+##        return map( func, val) #e optimize by changing API to be same as map, then just using an attrholder, holding map?
+##    pass
 
 def copy_list(val):
     return map(copy_val, val)
@@ -183,14 +188,22 @@ def scan_list(val, func):
         func(elt)
     return
 
-class DictClassification(Classification):
-    def copy(self, val, func):
-        res = {} #e or use same type or class as val? not for now.
-        for key, val1 in val.iteritems():
-            # as an optim, strictly follow a convention that dict keys are immutable so don't need copying
-            res[key] = func(val1)
-        return res
-    pass
+def _same_list_helper(v1, v2):
+    n = len(v1)
+    if n != len(v2):
+        raise _NotTheSame
+    for i in xrange(n):
+        _same_vals_helper(v1[i], v2[i])
+    return
+
+##class DictClassification(Classification):
+##    def copy(self, val, func):
+##        res = {} #e or use same type or class as val? not for now.
+##        for key, val1 in val.iteritems():
+##            # as an optim, strictly follow a convention that dict keys are immutable so don't need copying
+##            res[key] = func(val1)
+##        return res
+##    pass
 
 def copy_dict(val):
     res = {}
@@ -203,18 +216,30 @@ def scan_dict(dict1, func):
         func(elt)
     return
 
-class TupleClassification(Classification):
-    def copy(self, val, func):
-        """simple version should be best for now
-        """
-        return tuple(map(func, val))
-            # not worth the runtime to save memory by not copying if all parts immutable; save that for the C version.
-    pass
+def _same_dict_helper(v1, v2):
+    if len(v1) != len(v2):
+        raise _NotTheSame
+    for key, val1 in v1.iteritems():
+        if not v2.has_key(key):
+            raise _NotTheSame
+        _same_vals_helper(val1, v2[key])
+    # if we get this far, no need to check for extra keys in v2, since lengths were the same
+    return
+    
+##class TupleClassification(Classification):
+##    def copy(self, val, func):
+##        """simple version should be best for now
+##        """
+##        return tuple(map(func, val))
+##            # not worth the runtime to save memory by not copying if all parts immutable; save that for the C version.
+##    pass
 
 def copy_tuple(val):
     return tuple(map(copy_val, val))
 
 scan_tuple = scan_list
+
+_same_tuple_helper = _same_list_helper
 
 # Tuple of state attr decl values used for attrs which hold "defining state",
 # which means state that should (usually) be saved, compared, copied, tracked/changed by Undo, etc.
@@ -368,6 +393,8 @@ known_type_scanners = {} # only needs entries for types whose instances might co
     # and which might need to be entered for finding "children" (declared with S_CHILD) -- for now we assume that means
     # there's no need to scan inside bound method objects, though this policy might change.
 
+known_type_same_helpers = {}
+
 # not yet needed, but let the variable exist since there's one use of it I might as well leave active (since rarely run):
 copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes whose classes have certain names
     # (This is mainly for use when we can't add methods to the classes themselves.
@@ -402,23 +429,33 @@ def is_mutable(val): #060302 [###@@@ use this more]
     (The other ones, we're thinking of as immutable references or object pointers,
     and we don't care whether the objects they point to are mutable.)
     """
+    try:
+        _is_mutable_helper(val)
+    except _IsMutable:
+        return True
+    return False
+
+def _is_mutable_helper(val): #060303
+    "[private recursive helper for is_mutable] raise _IsMutable if val (or part of it) is mutable"
     typ = type(val)
     if typ is type(()):
         # tuple is a special case -- later, make provisions for more
         for thing in val:
-            if is_mutable(thing):
-                return True
-        return False
+            _is_mutable_helper(thing)
+        return
     elif typ is types.InstanceType:
         # another special case
-        return hasattr(obj, '_s_deepcopy')
+        if hasattr(obj, '_s_deepcopy'):
+            raise _IsMutable
+        return
     else:
         copier = known_type_copiers.get(typ) # this is a fixed public dictionary
         if copier is not None:
-            # all other copyable types are always mutable (since the containers themselves are) -- for now.
+            # all copyable types (other than those handled specially above)
+            # are always mutable (since the containers themselves are) -- for now.
             # should add a way for more exceptions to register themselves. #e
-            return True
-        return False # atomic or unrecognized types
+            raise _IsMutable
+        return # atomic or unrecognized types
     pass
     
 def scan_val(val, func): 
@@ -437,6 +474,57 @@ def scan_val(val, func):
         scanner(val, func) # we optimize by not storing any scanner for atomic types, or a few others.
     return
 
+def same_vals(v1, v2): #060303
+    """Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
+    or saved state.
+       The only reason we really need this (as opposed to just using Python '==' or '!=' and our own __eq__ methods)
+    is because Numeric.array.__eq__ is erroneously defined, and if we were using '==' or '!=' on a Python tuple containing 
+    a Numeric array, we'd have no way of preventing this issue from making '==' or '!=' come out wrong on the tuple.
+    (For details, see bruce email to 'all' of 060302, planned to be copied into code comments and/or the wiki.)
+       As long as we have it, we might as well make it a bit more stringent than Python '==' in other ways too,
+    like not imitating the behaviors (which are good for '==') of 1.0 == 1, array([1]) == [1], etc. The only reason
+    we'll count non-identical objects as equal is that we're not interested in their addresses or in whether someone
+    will change one of them and not the other (for whole objects or for their parts).
+       ###doc for InstanceType... note that we get what we want by using __eq__ for the most part...
+    """
+    if v1 is v2:
+        # Optimization:
+        # this will happen in practice when whole undoable attrvals are immutable
+        # (so that we're comparing originals, not different copies),
+        # therefore it's probably common enough to optimize for.
+        # It's just as well we're not doing it in the recursive helper,
+        # since it would probably slow us down when done at every level. [060303 11pm]
+        return True 
+    try:
+        _same_vals_helper(v1, v2)
+    except _NotTheSame:
+        if env.debug() and not (v1 != v2):
+            print "debug warning: same_vals says False but 'not !=' says True, for",v1,v2 ###@@@ remove when pattern seen
+        return False
+    if env.debug() and (v1 != v2):
+        print "debug warning: same_vals says True but '!=' also says True, for",v1,v2 ###@@@ remove when pattern seen
+    return True
+
+def _same_vals_helper(v1, v2): #060303
+    """[private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
+    (i.e. if their type or structure differs, or if any corresponding parts are not the same)
+    """
+    typ = type(v1)
+    if typ is not type(v2):
+        raise _NotTheSame
+    same_helper = known_type_same_helpers.get(typ) # this is a fixed public dictionary
+    if same_helper is not None:
+        same_helper(v1, v2) # we optimize by not storing any scanner for atomic types, or a few others.
+    # otherwise we assume v1 and v2 are things that can't be or contain a Numeric array, so it's sufficient to use !=.
+    # (If not for Numeric arrays of type PyObject, we could safely use != right here on a pair of Numeric arrays --
+    #  just not on things that might contain them, in case their type's != method used == on the Numeric arrays,
+    #  whose boolean value doesn't correctly say whether they're equal (instead it says whether one or more
+    #  corresponding elements are equal). Another difference is that 1 == 1.0, but we'll say those are not the same,
+    #  but that aspect of our specification doesn't matter much.)
+    if v1 != v2:
+        raise _NotTheSame
+    return    
+    
 known_type_copiers[type([])] = copy_list
 known_type_copiers[type({})] = copy_dict
 known_type_copiers[type(())] = copy_tuple
@@ -444,6 +532,11 @@ known_type_copiers[type(())] = copy_tuple
 known_type_scanners[type([])] = scan_list
 known_type_scanners[type({})] = scan_dict
 known_type_scanners[type(())] = scan_tuple
+
+known_type_same_helpers[type([])] = _same_list_helper
+known_type_same_helpers[type({})] = _same_dict_helper
+known_type_same_helpers[type(())] = _same_tuple_helper
+
 
 def copy_InstanceType(obj): #e pass copy_val as an optional arg?
     # note: this shares some code with InstanceClassification  ###@@@DOIT
@@ -486,6 +579,14 @@ def scan_InstanceType(obj, func):
 
 known_type_scanners[ types.InstanceType ] = scan_InstanceType
 
+# Choice 1:
+# no need for _same_InstanceType_helper; we set them up so that their __eq__ method is good enough;
+# this only works if we assume that any container-like ones (which compare their parts) are ones we wrote,
+# so they don't use == on Numeric arrays or != on general values...
+# Choice 2:
+# on naive objects, we just require id(v1) == id(v2).
+### UNDECIDED. For now, doing nothing is equivalent to Chpice 1. [060303] ######@@@@@@
+
 # ==
 
 def copy_Numeric_array(obj):
@@ -513,8 +614,29 @@ def scan_Numeric_array(obj, func):
         map( func, obj)
         # is there a more efficient way?
         ###e this is probably incorrect for multiple dimensions; doesn't matter for now.
-    if env.debug():
-        print "atom_debug: ran copy_Numeric_array, yes-or-non-PyObject case" # remove when works once for non- ###@@@
+    else:
+        if env.debug():
+            print "atom_debug: ran scan_Numeric_array, non-PyObject case" # remove when works once ###@@@
+    return
+
+def _same_Numeric_array_helper(obj1, obj2):
+    if obj1.typecode() != obj2.typecode():
+        raise _NotTheSame
+    if obj1.shape != obj2.shape:
+        raise _NotTheSame
+    if obj1.typecode() == PyObject:
+        if env.debug():
+            print "atom_debug: ran _same_Numeric_array_helper, PyObject case" # remove when works once ###@@@
+        # assume not multi-dimensional (if we are, this should work [untested] but it will be inefficient)
+        for i in xrange(len(obj1)):
+            _same_vals_helper(obj1[i], obj2[i]) # two PyObjects (if obj1 is 1-dim) or two lower-dim Numeric arrays
+    else:
+##        if env.debug():
+##            print "atom_debug: ran _same_Numeric_array_helper, non-PyObject case" # remove when works once ###@@@
+        if obj1 != obj2:
+            # take pointwise !=, then boolean value of that (correct, but is there a more efficient Numeric function?)
+            # note: using '==' here (and negating boolean value of result) would NOT be correct
+            raise _NotTheSame
     return
 
 try:
@@ -527,6 +649,7 @@ else:
     assert numeric_array_type != types.InstanceType
     known_type_copiers[ numeric_array_type ] = copy_Numeric_array
     known_type_scanners[ numeric_array_type ] = scan_Numeric_array
+    known_type_same_helpers[ numeric_array_type ] = _same_Numeric_array_helper
     del numeric_array_type # but leave array, PyObject as module globals for use by the functions above, for efficiency
     pass
 
@@ -557,6 +680,7 @@ else:
     ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
     known_type_copiers[ QColor_type ] = copy_QColor
     # no scanner for QColor is needed, since it contains no InstanceType objects.
+    # no same_helper is needed, since '!=' will work correctly (only possible since it contains no general Python objects).
     del QColor, QColor_type
     pass
 
@@ -620,7 +744,7 @@ class objkey_allocator:
         self._key4obj = {} # maps id(obj) -> key; semiprivate
         self._lastobjkey = 0
 
-    def allocate_key(self, key = None): # not yet directly called; untested
+    def allocate_key(self, key = None): # maybe not yet directly called; untested
         "Allocate the requested key (assertfail if it's not available), or a new one we make up, and store None for it."
         if key is not None:
             # this only makes sense if we allocated it before and then abandoned it (leaving a hole), which is NIM anyway,
@@ -769,31 +893,37 @@ def diffdicts(d1, d2, dflt = None, whatret = 0): ###e dflt is problematic since 
     res = {}
     for key, v1 in d1.iteritems():
         v2 = d2.get(key, dflt)
-        if 0:
-            if v1 == v2: # optim: == will be faster than != for some of our most common values
-                pass
-            else:
-                res[key] = (v1,v2)
-        else:
-            #####@@@@@ see if *this* fixes my bug... 060302 955a
-            if v1 != v2:
-                res[key] = (v1,v2)
-            else:
-                pass
+##        if 0:
+##            if v1 == v2: # optim: == will be faster than != for some of our most common values
+##                pass
+##            else:
+##                res[key] = (v1,v2)
+##        elif 0:
+##            #####@@@@@ see if *this* fixes my bug... 060302 955a
+##            # [it did for whole Numeric arrays, but it won't work for Numeric arrays inside tuples or lists]
+##            if v1 != v2:
+##                res[key] = (v1,v2)
+##        else:
+        if not same_vals(v1,v2):
+            res[key] = (v1,v2)
     for key, v2 in d2.iteritems():
         #e (optim note: i don't know how to avoid scanning common keys twice, just to find d2-only keys;
-        #   maybe copying d1 and updating with d2 and scanning that would be fastest way?)
+        #   maybe copying d1 and updating with d2 and scanning that would be fastest way?
+        #   Or I could copy d2 and pop it in the above loop... i'm guessing that'd be slower if this was C, not sure about Python.)
         # if d1 has a value, we handled this key already, and this is usually true, so test that first.
         if not d1.has_key(key):
             v1 = dflt
-            if v1 == v2: # same order and test as above
-                pass
-            else:
+##            if v1 == v2: # same order and test as above... oops, forgot to include the above's bugfix here, until 060303 11pm!
+##                pass
+##            else:
+##                res[key] = (v1,v2)
+            if not same_vals(v1,v2):
                 res[key] = (v1,v2)
     if whatret: #e should optimize by using loop variants above, instead ###@@@
         ind = whatret - 1
         for key, pair in res.iteritems():
-            res[key] = copy_val(pair[ind]) ########@@@@@@@@ #KLUGE: copy_val at all (contrary to docstring) -- see if it fixes any bugs;
+##            res[key] = copy_val(pair[ind]) #KLUGE: copy_val at all (contrary to docstring) -- see if it fixes any bugs [it didn't];
+            res[key] = pair[ind] #060303 11pm remove copying, no reason for it
                 # and KLUGE2 - not doing this unless whatret. [060302] results: didn't fix last night's bug.
     return res
 
@@ -1134,7 +1264,7 @@ class DataMixin:
         return self
     def __eq__(self, other):
         print "__eq__ needs to be overridden in", self ### don't put this mixin into Gamess til I test lack of __eq__ there
-        print "  (implem must be compatible with _s_deepcopy)"
+        print "  (implem must be compatible with _s_deepcopy; don't forget to avoid '==' when comparing Numeric arrays)"
         return self is other
     def __ne__(self, other):
         return not (self == other) # this uses the __eq__ above, or one which the main class defined
