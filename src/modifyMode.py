@@ -103,18 +103,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
-    # init_gui handles all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
         self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Chunks icon
+        # connect signals (these all need to be disconnected in restore_gui)
+        self.connect_or_disconnect_signals(True)
         self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
-        
-        self.w.connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        self.w.connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
-        self.w.connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
-        self.w.connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
-        self.w.connect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
-        self.w.connect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
-        self.w.connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
         
         set_move_xyz(self.w, 0, 0, 0) # Init X, Y, and Z to zero
         self.w.moveThetaSpinBox.setFloatValue(0) # Init Theta spinbox to zero
@@ -125,17 +118,23 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.w.moveFreeAction.setOn(1) # toggle on the Move Free action on the dashboard
         self.moveOption = 'MOVEDEFAULT'
         
-    
-    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    def connect_or_disconnect_signals(self, connect): # mark 060304.
+        if connect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
+        change_connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        change_connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
+        change_connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
+        change_connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
+        change_connect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
+        change_connect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
+        change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
+        
     def restore_gui(self):
+        # disconnect signals which were connected in init_gui [bruce 050728]
+        self.connect_or_disconnect_signals(False)
         self.w.moveChunksDashboard.hide()
-        self.w.disconnect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        self.w.disconnect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
-        self.w.disconnect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
-        self.w.disconnect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
-        self.w.disconnect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
-        self.w.disconnect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
-        self.w.disconnect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
         
     def keyPress(self,key):
         basicMode.keyPress(self, key)
@@ -183,12 +182,6 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         else:
             print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
         return
-            
-    def rightShiftDown(self, event):
-            basicMode.rightShiftDown(self, event)
-           
-    def rightCntlDown(self, event):          
-            basicMode.rightCntlDown(self, event)
            
     def leftDown(self, event):
         """Move the selected object(s).
