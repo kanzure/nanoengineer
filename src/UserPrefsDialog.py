@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sat Mar 4 11:56:49 2006
+# Created: Sat Mar 4 12:13:04 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -697,9 +697,9 @@ class UserPrefsDialog(QDialog):
 
         buildmode_groupboxLayout.addWidget(self.water_checkbox,0,1)
 
-        self.select_deposited_object_checkbox = QCheckBox(self.buildmode_groupbox,"select_deposited_object_checkbox")
+        self.buildmode_select_atoms_checkbox = QCheckBox(self.buildmode_groupbox,"buildmode_select_atoms_checkbox")
 
-        buildmode_groupboxLayout.addMultiCellWidget(self.select_deposited_object_checkbox,2,2,0,1)
+        buildmode_groupboxLayout.addMultiCellWidget(self.buildmode_select_atoms_checkbox,2,2,0,1)
 
         self.buildmode_highlighting_checkbox = QCheckBox(self.buildmode_groupbox,"buildmode_highlighting_checkbox")
 
@@ -1292,6 +1292,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
         self.connect(self.selatomsmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_selatomsmode_highlighting)
         self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
+        self.connect(self.buildmode_select_atoms_checkbox,SIGNAL("clicked()"),self.set_buildmode_select_atoms_of_deposited_obj)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1465,7 +1466,7 @@ class UserPrefsDialog(QDialog):
         self.buildmode_groupbox.setTitle(self.__tr("Build Mode Defaults"))
         self.autobond_checkbox.setText(self.__tr("Autobond"))
         self.water_checkbox.setText(self.__tr("Water"))
-        self.select_deposited_object_checkbox.setText(self.__tr("Select Deposited Object"))
+        self.buildmode_select_atoms_checkbox.setText(self.__tr("Select Atoms of Deposited Object"))
         self.buildmode_highlighting_checkbox.setText(self.__tr("Highligting"))
         self.groupBox16.setTitle(self.__tr("Select Atoms Mode Defaults"))
         self.selatomsmode_highlighting_checkbox.setText(self.__tr("Highligting"))
@@ -1730,6 +1731,9 @@ class UserPrefsDialog(QDialog):
 
     def set_selatomsmode_highlighting(self):
         print "UserPrefsDialog.set_selatomsmode_highlighting(): Not implemented yet"
+
+    def set_buildmode_select_atoms_of_deposited_obj(self):
+        print "UserPrefsDialog.set_buildmode_select_atoms_of_deposited_obj(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

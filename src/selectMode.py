@@ -788,20 +788,6 @@ class selectMode(basicMode):
         else:
             self.drag_stickiness_limit_exceeded = True
             return False
-
-    def pickit(self):
-        '''Returns True or False based on the current modkey state.  
-        If modkey is None (no modkey is pressed), it will unpick all atoms.
-        '''
-        if self.o.modkeys is None:
-            self.o.assy.unpickatoms()
-            return True
-        if self.o.modkeys == 'Shift':
-            return True
-        if self.o.modkeys == 'Control':
-            return False
-        else: # Delete
-            return False
             
     def set_hoverHighlighting(self, on):
         '''Turn hover highlighting on/off.

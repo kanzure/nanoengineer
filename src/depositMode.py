@@ -1000,6 +1000,24 @@ class depositMode(selectAtomsMode):
         return
 
 # == Deposit methods
+
+    def pickit(self):
+        '''Determines if the a deposited object (atom, clipboard node or library part) should have 
+        its atoms automatically picked. Returns True or False based on the current modkey state.
+        If modkey is None (no modkey is pressed), it will unpick all currently picked atoms.
+        '''
+        if self.o.modkeys is None:
+            self.o.assy.unpickatoms()
+            if env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
+                # Added NFR 1504.  mark 060304.
+                return True
+            return False
+        if self.o.modkeys == 'Shift':
+            return True
+        if self.o.modkeys == 'Control':
+            return False
+        else: # Delete
+            return False
         
     def deposit_from_MMKit(self, atom_or_pos): #mark circa 051200; revised by bruce 051227
         '''Deposit a new object based on the current selection in the MMKit/dashboard, 

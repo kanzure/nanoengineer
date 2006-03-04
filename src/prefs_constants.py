@@ -93,6 +93,7 @@ defaultMode_prefs_key = 'A7/Default Mode'
 buildModeAutobondEnabled_prefs_key = 'A7/Build Mode Autobond Enabled' # mark 060203.
 buildModeWaterEnabled_prefs_key = 'A7/Build Mode Water Enabled' # mark 060203.
 buildModeHighlightingEnabled_prefs_key = 'A7/Build Mode Highlighting Enabled' # mark 060203.
+buildModeSelectAtomsOfDepositedObjEnabled_prefs_key = 'A7/Build Mode Select Atoms of Deposited Obj Enabled' # mark 060304.
 selectAtomsModeHighlightingEnabled_prefs_key = 'A7/Select Atoms Mode Highlighting Enabled' # mark 060220.
 
 # Lighting prefs [most added by mark 051124 or later]
@@ -237,6 +238,7 @@ prefs_table = (
     ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
+    ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, True ), # mark 060304.
     ('selatomsmode_highlighting', 'boolean', selectAtomsModeHighlightingEnabled_prefs_key, True ), # mark 060220.
     
     

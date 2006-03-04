@@ -2148,10 +2148,10 @@
                                     </widget>
                                     <widget class="QCheckBox" row="2" column="0" rowspan="1" colspan="2">
                                         <property name="name">
-                                            <cstring>select_deposited_object_checkbox</cstring>
+                                            <cstring>buildmode_select_atoms_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Select Deposited Object</string>
+                                            <string>Select Atoms of Deposited Object</string>
                                         </property>
                                     </widget>
                                     <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="2">
@@ -4313,6 +4313,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>set_default_projection()</slot>
     </connection>
+    <connection>
+        <sender>buildmode_select_atoms_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -4437,6 +4443,7 @@
     <slot>change_display_mode()</slot>
     <slot>set_realtime_minimization()</slot>
     <slot>set_selatomsmode_highlighting()</slot>
+    <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

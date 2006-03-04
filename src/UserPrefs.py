@@ -246,6 +246,7 @@ class UserPrefs(UserPrefsDialog):
         self.autobond_checkbox.setChecked(env.prefs[ buildModeAutobondEnabled_prefs_key ])
         self.water_checkbox.setChecked(env.prefs[ buildModeWaterEnabled_prefs_key ])
         self.buildmode_highlighting_checkbox.setChecked(env.prefs[ buildModeHighlightingEnabled_prefs_key ])
+        self.buildmode_select_atoms_checkbox.setChecked(env.prefs[ buildModeSelectAtomsOfDepositedObjEnabled_prefs_key ])
         
         # Select Atoms Mode Defaults.  mark 060203.
         self.selatomsmode_highlighting_checkbox.setChecked(env.prefs[ selectAtomsModeHighlightingEnabled_prefs_key ])
@@ -850,6 +851,12 @@ class UserPrefs(UserPrefsDialog):
         enabled/disabled when starting the application and entering Build mode for the first time.
         '''
         env.prefs[buildModeHighlightingEnabled_prefs_key] = self.buildmode_highlighting_checkbox.isChecked()
+        
+    def set_buildmode_select_atoms_of_deposited_obj(self): # mark 060203
+        '''Slot for 'Select Atoms of Deposited Object' checkbox. When checked (default), deposited objects have
+        their atoms selected.  When unchecked, deposited objects do not have their atoms selected.
+        '''
+        env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key] = self.buildmode_select_atoms_checkbox.isChecked()
         
     def set_selatomsmode_highlighting(self): # mark 060203
         '''Set default setting for hover highlighting in Select Atoms mode. This only affects whether it is
