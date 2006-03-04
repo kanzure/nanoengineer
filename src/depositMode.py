@@ -612,13 +612,13 @@ class depositMode(selectAtomsMode):
         # bruce comment 041220:
         # doesn't call basicMode method, so Delete key is not active. Good??
         # bruce 050128: no, not good. And it shows selection anyway... so do it below.
-        
         for sym, code, num in elemKeyTab: # Set the atom type in the MMKit and combobox.
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
         
         ## Huaicai 8/5/05 Add accelerate key for bond hybrid comboBox
-        if self.w.hybridComboBox.isVisible():
+        #if self.w.hybridComboBox.isVisible():
+        if 1: # Kluge fix for bug 1553.  Will be fixed properly in A8 with MMKit cleanup. Mark 060304.
             acKeys = [Qt.Key_3, Qt.Key_2, Qt.Key_1, Qt.Key_4]
             num = self.w.hybridComboBox.count()
             if key in acKeys[:num]:
