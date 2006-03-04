@@ -177,7 +177,6 @@ class UserPrefs(UserPrefsDialog):
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
-        self.selection_behavior_btngrp.setButton(env.prefs[selectionBehavior_prefs_key])
         self.animate_views_checkbox.setChecked(env.prefs[animateStandardViews_prefs_key])
         self.watch_min_in_realtime_checkbox.setChecked(env.prefs[watchRealtimeMinimization_prefs_key])
         
@@ -525,7 +524,7 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
         
-    def set_selection_behavior(self, behavior):
+    def set_selection_behavior_OBSOLETE(self, behavior): # Tagged for removal.  Mark 060304.
         '''Set selection behavior, where 1 = 'Standard Behavior' and 0 = 'Non-standard Behavior'
         
         'Standard Behavior' means:
@@ -539,6 +538,8 @@ class UserPrefs(UserPrefsDialog):
                A click in empty space unselects everything.
             Shift+LMB: adds to the current selection, keeping everything that was previously selected
             Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
+            
+        This is no longer supported.  Mark 060304.
         '''
         env.prefs[selectionBehavior_prefs_key] = behavior
         

@@ -46,12 +46,6 @@ DOTTED_LINE = 3
 SQUARE_GRID = 0
 SiC_GRID = 1
 
-# Selection Behavior Options
-# I suggestion changing their names to STD_SELECTION_BEHAVIOR and 
-# NONSTD_SELECTION_BEHAVIOR.  mark 060125.
-A6_SELECTION_BEHAVIOR = 1 # Changed to "Standard" in the User Prefs dialog. mark 060125.
-A7_SELECTION_BEHAVIOR = 0 # Changed to "Non-standard" in the User Prefs dialog. mark 060125.
-
 # ==
 
 # Keys for user preferences
@@ -63,7 +57,6 @@ compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
-selectionBehavior_prefs_key = 'A7/Selection Behavior'
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 watchRealtimeMinimization_prefs_key = 'A7/Watch Realtime Minimization'
@@ -155,7 +148,8 @@ _abandoned_prefs_keys = [
     'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish' [mark 051205]
     'A7/Shininess', # never released, superceded by 'A7/Material Specular Shininess' [mark 051205]
     'A7/Material Brightness', # never released, superceded by 'A7/Material Specular Brightness' [mark 051205]
-    "glpane lighting" # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
+    'glpane lighting', # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
+    'A7/Selection Behavior' # only released in pre-release snapshots of A7. [mark 060304]
     ]
 
 #==
@@ -199,7 +193,6 @@ prefs_table = (
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
-    ('selection_behavior', 'int', selectionBehavior_prefs_key, A6_SELECTION_BEHAVIOR), # Mark 060125.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
     ('watch_realtime_min', 'boolean', watchRealtimeMinimization_prefs_key, True), # Mark 060217.

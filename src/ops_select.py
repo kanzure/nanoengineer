@@ -368,13 +368,7 @@ class ops_select_Mixin:
                 assert self.selwhat == SELWHAT_ATOMS
                 atm.pick()
                 env.history.message(atm.getinfo())
-        
-        # Added 'Alpha 7' selection behavior.  This code unselects everything
-        # if no atom/chunk was selected.  Mark 050924.
-        else: 
-            if env.prefs[selectionBehavior_prefs_key] == A7_SELECTION_BEHAVIOR:
-                self.unpickparts()
-                self.unpickatoms()
+
         return
         
     def delete_at_event(self, event):

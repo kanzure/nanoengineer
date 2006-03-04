@@ -630,9 +630,7 @@ class selectMode(basicMode):
         nochange = False
         
         if self.o.modkeys is None:
-            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
-            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
-                self.o.assy.unpickatoms() # Clear selection.
+            self.o.assy.unpickatoms()
             if a.picked:
                 nochange = True
             else:
@@ -796,9 +794,7 @@ class selectMode(basicMode):
         If modkey is None (no modkey is pressed), it will unpick all atoms.
         '''
         if self.o.modkeys is None:
-            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
-            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
-                self.o.assy.unpickatoms() # Clear selection.
+            self.o.assy.unpickatoms()
             return True
         if self.o.modkeys == 'Shift':
             return True

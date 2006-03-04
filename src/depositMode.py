@@ -1011,9 +1011,7 @@ class depositMode(selectAtomsMode):
         deposited_obj = None
         
         if self.o.modkeys is None: # no Shift or Ctrl modifier key.
-            # Maintain selection behavior consistency between Standard and Non-standard.  mark 060125.
-            if env.prefs[selectionBehavior_prefs_key] == A6_SELECTION_BEHAVIOR:
-                self.o.assy.unpickatoms() # Clear selection.
+            self.o.assy.unpickatoms() # Clear selection.
         
         if self.w.depositState == 'Atoms':
             deposited_stuff, status = self.deposit_from_Atoms_page(atom_or_pos) # deposited_stuff is a chunk

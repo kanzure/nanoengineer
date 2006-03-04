@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Mar 1 16:09:08 2006
+# Created: Sat Mar 4 11:56:49 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,7 +36,7 @@ class UserPrefsDialog(QDialog):
         self.tab = QWidget(self.prefs_tab,"tab")
         tabLayout = QGridLayout(self.tab,1,1,11,6,"tabLayout")
         spacer57_2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        tabLayout.addItem(spacer57_2,0,1)
+        tabLayout.addItem(spacer57_2,0,3)
 
         layout77 = QHBoxLayout(None,0,6,"layout77")
 
@@ -126,50 +126,7 @@ class UserPrefsDialog(QDialog):
         layout73.addItem(spacer56_2)
         layout77.addLayout(layout73)
 
-        tabLayout.addLayout(layout77,0,0)
-
-        layout78 = QHBoxLayout(None,0,6,"layout78")
-
-        layout67 = QVBoxLayout(None,0,6,"layout67")
-
-        self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
-        self.default_projection_btngrp.setExclusive(1)
-        self.default_projection_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.default_projection_btngrp.layout().setSpacing(6)
-        self.default_projection_btngrp.layout().setMargin(11)
-        default_projection_btngrpLayout = QGridLayout(self.default_projection_btngrp.layout())
-        default_projection_btngrpLayout.setAlignment(Qt.AlignTop)
-
-        self.radioButton12 = QRadioButton(self.default_projection_btngrp,"radioButton12")
-        self.radioButton12.setChecked(1)
-
-        default_projection_btngrpLayout.addWidget(self.radioButton12,0,0)
-
-        self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
-
-        default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
-        layout67.addWidget(self.default_projection_btngrp)
-
-        self.selection_behavior_btngrp = QButtonGroup(self.tab,"selection_behavior_btngrp")
-        self.selection_behavior_btngrp.setProperty("selectedId",QVariant(-1))
-        self.selection_behavior_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.selection_behavior_btngrp.layout().setSpacing(6)
-        self.selection_behavior_btngrp.layout().setMargin(11)
-        selection_behavior_btngrpLayout = QGridLayout(self.selection_behavior_btngrp.layout())
-        selection_behavior_btngrpLayout.setAlignment(Qt.AlignTop)
-
-        self.alpha7_behavior_rbtn = QRadioButton(self.selection_behavior_btngrp,"alpha7_behavior_rbtn")
-        self.selection_behavior_btngrp.insert( self.alpha7_behavior_rbtn,0)
-
-        selection_behavior_btngrpLayout.addWidget(self.alpha7_behavior_rbtn,1,0)
-
-        self.alpha6_behavior_rbtn = QRadioButton(self.selection_behavior_btngrp,"alpha6_behavior_rbtn")
-        self.alpha6_behavior_rbtn.setChecked(0)
-        self.selection_behavior_btngrp.insert( self.alpha6_behavior_rbtn,1)
-
-        selection_behavior_btngrpLayout.addWidget(self.alpha6_behavior_rbtn,0,0)
-        layout67.addWidget(self.selection_behavior_btngrp)
-        layout78.addLayout(layout67)
+        tabLayout.addMultiCellLayout(layout77,0,0,0,2)
 
         layout129 = QVBoxLayout(None,0,6,"layout129")
 
@@ -227,11 +184,34 @@ class UserPrefsDialog(QDialog):
         layout129.addWidget(self.groupBox8)
         spacer109 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout129.addItem(spacer109)
-        layout78.addLayout(layout129)
-        spacer25 = QSpacerItem(164,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout78.addItem(spacer25)
 
-        tabLayout.addLayout(layout78,1,0)
+        tabLayout.addLayout(layout129,1,1)
+        spacer25 = QSpacerItem(170,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        tabLayout.addItem(spacer25,1,2)
+
+        layout67 = QVBoxLayout(None,0,6,"layout67")
+
+        self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
+        self.default_projection_btngrp.setExclusive(1)
+        self.default_projection_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.default_projection_btngrp.layout().setSpacing(6)
+        self.default_projection_btngrp.layout().setMargin(11)
+        default_projection_btngrpLayout = QGridLayout(self.default_projection_btngrp.layout())
+        default_projection_btngrpLayout.setAlignment(Qt.AlignTop)
+
+        self.radioButton12 = QRadioButton(self.default_projection_btngrp,"radioButton12")
+        self.radioButton12.setChecked(1)
+
+        default_projection_btngrpLayout.addWidget(self.radioButton12,0,0)
+
+        self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
+
+        default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
+        layout67.addWidget(self.default_projection_btngrp)
+        spacer53_2 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout67.addItem(spacer53_2)
+
+        tabLayout.addLayout(layout67,1,0)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -502,19 +482,19 @@ class UserPrefsDialog(QDialog):
         layout77_2.addItem(spacer22_2_2)
         layout79_2.addLayout(layout77_2)
 
-        layout78_2 = QHBoxLayout(None,0,6,"layout78_2")
+        layout78 = QHBoxLayout(None,0,6,"layout78")
 
         self.textLabel1 = QLabel(self.TabPage_2,"textLabel1")
-        layout78_2.addWidget(self.textLabel1)
+        layout78.addWidget(self.textLabel1)
 
         self.bond_line_thickness_spinbox = QSpinBox(self.TabPage_2,"bond_line_thickness_spinbox")
         self.bond_line_thickness_spinbox.setMaxValue(3)
         self.bond_line_thickness_spinbox.setMinValue(1)
-        layout78_2.addWidget(self.bond_line_thickness_spinbox)
+        layout78.addWidget(self.bond_line_thickness_spinbox)
 
         self.textLabel1_2 = QLabel(self.TabPage_2,"textLabel1_2")
-        layout78_2.addWidget(self.textLabel1_2)
-        layout79_2.addLayout(layout78_2)
+        layout78.addWidget(self.textLabel1_2)
+        layout79_2.addLayout(layout78)
 
         layout76 = QHBoxLayout(None,0,6,"layout76")
 
@@ -715,11 +695,15 @@ class UserPrefsDialog(QDialog):
 
         self.water_checkbox = QCheckBox(self.buildmode_groupbox,"water_checkbox")
 
-        buildmode_groupboxLayout.addWidget(self.water_checkbox,2,0)
+        buildmode_groupboxLayout.addWidget(self.water_checkbox,0,1)
+
+        self.select_deposited_object_checkbox = QCheckBox(self.buildmode_groupbox,"select_deposited_object_checkbox")
+
+        buildmode_groupboxLayout.addMultiCellWidget(self.select_deposited_object_checkbox,2,2,0,1)
 
         self.buildmode_highlighting_checkbox = QCheckBox(self.buildmode_groupbox,"buildmode_highlighting_checkbox")
 
-        buildmode_groupboxLayout.addWidget(self.buildmode_highlighting_checkbox,1,0)
+        buildmode_groupboxLayout.addMultiCellWidget(self.buildmode_highlighting_checkbox,1,1,0,1)
         layout67_4.addWidget(self.buildmode_groupbox)
 
         self.groupBox16 = QGroupBox(self.TabPage_3,"groupBox16")
@@ -1257,7 +1241,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_cylinder_radius)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
         self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
-        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.display_mode_combox,SIGNAL("activated(int)"),self.change_display_mode)
         self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
@@ -1302,22 +1285,20 @@ class UserPrefsDialog(QDialog):
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
-        self.connect(self.selection_behavior_btngrp,SIGNAL("clicked(int)"),self.set_selection_behavior)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("clicked()"),self.set_realtime_minimization)
         self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
         self.connect(self.selatomsmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_selatomsmode_highlighting)
+        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
         self.setTabOrder(self.display_pov_axis_checkbox,self.upper_right_btn)
         self.setTabOrder(self.upper_right_btn,self.radioButton12)
-        self.setTabOrder(self.radioButton12,self.alpha7_behavior_rbtn)
-        self.setTabOrder(self.alpha7_behavior_rbtn,self.alpha6_behavior_rbtn)
-        self.setTabOrder(self.alpha6_behavior_rbtn,self.animate_views_checkbox)
+        self.setTabOrder(self.radioButton12,self.animate_views_checkbox)
         self.setTabOrder(self.animate_views_checkbox,self.atom_hilite_color_btn)
         self.setTabOrder(self.atom_hilite_color_btn,self.hotspot_color_btn)
         self.setTabOrder(self.hotspot_color_btn,self.reset_atom_colors_btn)
@@ -1384,18 +1365,15 @@ class UserPrefsDialog(QDialog):
         self.lower_right_btn.setText(QString.null)
         self.groupBox14.setTitle(self.__tr("Minimization"))
         self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch In Realtime"))
-        self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
-        self.radioButton12.setText(self.__tr("Perspective"))
-        self.radioButton13.setText(self.__tr("Orthographic"))
-        self.selection_behavior_btngrp.setTitle(self.__tr("Selection Behavior"))
-        self.alpha7_behavior_rbtn.setText(self.__tr("Non-standard"))
-        self.alpha6_behavior_rbtn.setText(self.__tr("Standard"))
         self.groupBox8.setTitle(self.__tr("View Animation"))
         self.animate_views_checkbox.setText(self.__tr("Animate between views"))
         self.textLabel1_5.setText(self.__tr("Speed :"))
         self.textLabel2_3.setText(self.__tr("Slow"))
         self.textLabel3_4.setText(self.__tr("Fast"))
         self.high_quality_graphics_checkbox.setText(self.__tr("High quality graphics"))
+        self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
+        self.radioButton12.setText(self.__tr("Perspective"))
+        self.radioButton13.setText(self.__tr("Orthographic"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
         self.change_element_colors_btn.setText(self.__tr("Change Element Colors..."))
@@ -1487,6 +1465,7 @@ class UserPrefsDialog(QDialog):
         self.buildmode_groupbox.setTitle(self.__tr("Build Mode Defaults"))
         self.autobond_checkbox.setText(self.__tr("Autobond"))
         self.water_checkbox.setText(self.__tr("Water"))
+        self.select_deposited_object_checkbox.setText(self.__tr("Select Deposited Object"))
         self.buildmode_highlighting_checkbox.setText(self.__tr("Highligting"))
         self.groupBox16.setTitle(self.__tr("Select Atoms Mode Defaults"))
         self.selatomsmode_highlighting_checkbox.setText(self.__tr("Highligting"))
@@ -1652,9 +1631,6 @@ class UserPrefsDialog(QDialog):
 
     def enable_nanohive(self):
         print "UserPrefsDialog.enable_nanohive(): Not implemented yet"
-
-    def set_selection_behavior(self):
-        print "UserPrefsDialog.set_selection_behavior(): Not implemented yet"
 
     def change_cpk_atom_radius(self):
         print "UserPrefsDialog.change_cpk_atom_radius(): Not implemented yet"
