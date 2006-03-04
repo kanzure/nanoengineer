@@ -1,7 +1,7 @@
 # Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
 """
 ops_atoms.py -- operations on the atoms and/or bonds inside a Part.
-These operations generally create or destroy atoms, open bonds, or real bonds.
+These operations generally create or destroy atoms, bondpoints, or real bonds.
 Operations specific to single modes (Build, Cookie, Extrude) are not included here.
 
 $Id$
@@ -128,7 +128,7 @@ class ops_atoms_Mixin:
     # It is more informative about the number of chunks modified, etc.
     # Mark 050124
     def modifyHydrogenate(self):
-        """Add hydrogen atoms to open bonds on selected chunks/atoms.
+        """Add hydrogen atoms to bondpoints on selected chunks/atoms.
         """
         
         cmd = greenmsg("Hydrogenate: ")
@@ -147,11 +147,11 @@ class ops_atoms_Mixin:
                           % (counta, countm)
                 if len(self.selmols) > countm:
                     didwhat += \
-                        " (%d selected chunk(s) had no open bonds)" \
+                        " (%d selected chunk(s) had no bondpoints)" \
                         % (len(self.selmols) - countm)
                 didwhat = fix_plurals(didwhat)
             else:
-                didwhat = "Selected chunks contain no open bonds"    
+                didwhat = "Selected chunks contain no bondpoints"    
 
         elif self.selatoms:
             count = 0
@@ -177,7 +177,7 @@ class ops_atoms_Mixin:
                 #  might as well deliver that as a warning, since that case is
                 #  also "dangerous" in some sense.]
             else:
-                didwhat = "No open bonds on selected atoms"
+                didwhat = "No bondpoints on selected atoms"
         else:
             didwhat = redmsg("Nothing selected")
 
@@ -253,4 +253,3 @@ class ops_atoms_Mixin:
     pass # end of class ops_atoms_Mixin
 
 # end
-

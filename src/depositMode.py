@@ -67,9 +67,9 @@ def find_hotspot_for_pasting(obj):
         return False, "only chunks can be pastable" #e for now
 ##    fix_bad_hotspot(obj)
     if len(obj.singlets) == 0:
-        return False, "no open bonds in %r (only pastable in empty space)" % obj.name
+        return False, "no bondpoints in %r (only pastable in empty space)" % obj.name
     elif len(obj.singlets) > 1 and not obj.hotspot:
-        return False, "%r has %d open bonds, but none has been set as its hotspot" % (obj.name, len(obj.singlets))
+        return False, "%r has %d bondpoints, but none has been set as its hotspot" % (obj.name, len(obj.singlets))
     else:
         return True, obj.hotspot or obj.singlets[0]
     pass
@@ -121,7 +121,7 @@ def do_what_MainWindowUI_should_do(w):
     
     #bruce 050727 changes: split this into two button groups, mainly so I can implement the actions
     # more quickly and reliably for Alpha6 -- later we can discuss whether this design change is good or bad.
-    # The first group is what to do when you click on an open bond or in empty space -- deposit atom or
+    # The first group is what to do when you click on a bondpoint or in empty space -- deposit atom or
     # paste object (same as before). The second group is what to do when you click on a bond;
     # it would be nice to add one more choice for "do nothing" but I'm not sure how best to do that.
     #    Also we should replace QPushButton with QToolButton, since the Qt docs for QPushButton make it clear that
@@ -326,7 +326,7 @@ class depositMode(selectAtomsMode):
         self.pivot = None
         self.pivax = None
         self.line = None
-            # endpoints of the white line drawn between the cursor and an open bond when 
+            # endpoints of the white line drawn between the cursor and a bondpoint when 
             # dragging a singlet.
         self.suppress_updates = False
             # used to suppress multiple win_updates and history msgs when trans-depositing.
@@ -432,7 +432,7 @@ class depositMode(selectAtomsMode):
         #  for new reasons -- i don't know if it is, but someday it might be]
         if self.dont_update_gui:
             print "update_gui returns since self.dont_update_gui" ####@@@@
-            # Getting msg after depositing an atom, then selecting an open bond and 
+            # Getting msg after depositing an atom, then selecting a bondpoint and 
             # "Select Hotspot and Copy" from the GLPane menu.
             # Is it a bug??? Mark 051212.
             return
@@ -708,7 +708,7 @@ class depositMode(selectAtomsMode):
                 print_compact_traceback("atom_debug: describe_paste_action failed: ")
             what = "click to paste"
         if onto_open_bond:
-            cmd = "%s onto open bond at %s" % (what, self.posn_str(selatom))
+            cmd = "%s onto bondpoint at %s" % (what, self.posn_str(selatom))
             #bruce 050416 also indicate hotspot if we're on clipboard
             # (and if this hotspot will be drawn in special color, since explaining that
             #  special color is the main point of this statusbar-text addendum)
@@ -890,7 +890,7 @@ class depositMode(selectAtomsMode):
                 if newPart.molecules:
                     moveOffset = placedPos - newPart.molecules[0].center
         
-        if attach2Bond: # Connect part to an open bond of an existing chunk
+        if attach2Bond: # Connect part to a bondpoint of an existing chunk
             for m in newPart.molecules:
               if not m is hotspotAtom.molecule: 
                 newMol = m.copy(None)
@@ -1086,11 +1086,11 @@ class depositMode(selectAtomsMode):
                 
                 else: # part doesn't have hotspot.
                     #if newPart.has_singlets(): # need a method like this so we can provide more descriptive msgs.
-                    #    msg = "To bond this part, you must pick a hotspot by left-clicking on an open bond  " \
+                    #    msg = "To bond this part, you must pick a hotspot by left-clicking on a bondpoint  " \
                     #            "of the library part in the Modeling Kit's 3D thumbview."
                     #else:
-                    #    msg = "The library part cannot be bonded because it has no open bonds."
-                    msg = "The library part cannot be bonded because either it has no open bonds"\
+                    #    msg = "The library part cannot be bonded because it has no bondpoints."
+                    msg = "The library part cannot be bonded because either it has no bondpoints"\
                             " or its hotspot hasn't been specified in the Modeling Kit's 3D thumbview"
                     ## env.history.message(orangemsg(msg)) [bruce 051227 zapped this, caller does it]
                     return False, msg # nothing deposited
@@ -1119,8 +1119,8 @@ class depositMode(selectAtomsMode):
                     a0 = a.singlet_neighbor() # do this before <a> (the singlet) is killed
                     chunk, desc = self.pasteBond(a)
                     if chunk:
-                        ## status = "replaced open bond on %r with %s (%s)" % (a0, chunk.name, desc)
-                        status = "replaced open bond on %r with %s" % (a0, desc) # is this better? [bruce 050121]
+                        ## status = "replaced bondpoint on %r with %s (%s)" % (a0, chunk.name, desc)
+                        status = "replaced bondpoint on %r with %s" % (a0, desc) # is this better? [bruce 050121]
                     else:
                         status = desc
                         # bruce 041123 added status message, to fix bug 163,
@@ -1170,7 +1170,7 @@ class depositMode(selectAtomsMode):
                 if a1 is not None:
                     if self.pickit(): a1.pick()
                     self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
-                    status = "replaced open bond on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
+                    status = "replaced bondpoint on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                     chunk = a1.molecule #bruce 041207
                 else:
                     status = desc
@@ -1344,7 +1344,7 @@ class depositMode(selectAtomsMode):
         
         apos1 = a.posn()
         if apos1 - apos0:
-            msg = "pulling open bond %r to %s" % (a, self.posn_str(a))
+            msg = "pulling bondpoint %r to %s" % (a, self.posn_str(a))
             this_drag_id = (self.current_obj_start, self.__class__.leftDrag)
             env.history.message(msg, transient_id = this_drag_id)
             
@@ -1878,13 +1878,13 @@ class depositMode(selectAtomsMode):
             sings = selatom.singNeighbors() #e when possible, use baggageNeighbors() here and remake_baggage below. [bruce 051209]
             if sings or selatom.bad():
                 if sings:
-                    text = 'Reposition open bonds'
+                    text = 'Reposition bondpoints'
                         # - this might be offered even if they don't need repositioning;
                         # not easy to fix, but someday we'll always reposition them whenever needed
                         # and this menu command can be removed then.
                         # - ideally we'd reposition H's too (i.e. call remake_baggage below)
                 else:
-                    text = 'Add open bonds' # this text is only used if it doesn't have enough
+                    text = 'Add bondpoints' # this text is only used if it doesn't have enough
                 self.Menu_spec.append(( text, selatom.remake_singlets )) #e should finish and use remake_baggage (and baggageNeighbors)
 
         # separator and changers to other modes

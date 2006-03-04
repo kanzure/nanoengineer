@@ -431,7 +431,7 @@ class SimRunner:
                 #  and figuring out the count differently) without making the klugetower even worse.
             nsinglets_H = stats.get('nsinglets_H', 0)
             if nsinglets_H: #bruce 051209 this message code is approximately duplicated elsewhere in this file
-                info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during simulation)" % nsinglets_H )
+                info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during simulation)" % nsinglets_H )
                 env.history.message( info)
         else:
             #bruce 051209 comment: I believe this case can never run (and is obs), but didn't verify this.
@@ -1557,7 +1557,7 @@ class Minimize_CommandRun(CommandRun):
             # but the bug254 X->H fix is done (though different code sets the mapping flag that makes it happen).
             nsinglets_H = simaspect.nsinglets_H()
             if nsinglets_H: #bruce 051209 this message code is approximately duplicated elsewhere in this file
-                info = fix_plurals( "(Treating %d open bond(s) as Hydrogens, during minimization)" % nsinglets_H )
+                info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during minimization)" % nsinglets_H )
                 env.history.message( info)
             nsinglets_leftout = simaspect.nsinglets_leftout()
             assert nsinglets_leftout == 0 # for now

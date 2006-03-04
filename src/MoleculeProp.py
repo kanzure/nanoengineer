@@ -55,7 +55,7 @@ class MoleculeProp(MoleculePropDialog):
             chunkInfoText += eleStr
             
         if nsinglets:
-            eleStr = "\nOpen Bonds: " + str(nsinglets) + "\n"
+            eleStr = "\nBondpoints: " + str(nsinglets) + "\n"
             chunkInfoText += eleStr
          
         natoms -= nsinglets   

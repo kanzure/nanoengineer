@@ -217,7 +217,7 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
         # this text is meant for the present situation, where we jump on mousedown;
         # better behavior would be buttonlike (jump on mouseup, iff still over handle),
         # and the text should be adjusted when we implement that #e
-        return "overlapped open bonds base#%d and rep#%d" % (i1,i2)
+        return "overlapped bondpoints base#%d and rep#%d" % (i1,i2)
     def click_handle( self, handle, copy_id):
         self.target.click_nice_offset_handle(handle)
 ##    def process_optional_info(self, info):

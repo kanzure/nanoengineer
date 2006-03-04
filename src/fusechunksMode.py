@@ -296,8 +296,8 @@ class fusechunksMode(modifyMode):
                 #a2.overdraw_with_special_color(ave_colors( 0.8, a2.element.color, white)) 
 
     def find_bondable_pairs(self, chunk_list = None):
-        '''Checks the open bonds of the selected chunk to see if they are close enough
-        to bond with any other open bonds in a list of chunks.  Hidden chunks are skipped.
+        '''Checks the bondpoints of the selected chunk to see if they are close enough
+        to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
         '''
         self.bondable_pairs = []
         self.ways_of_bonding = {}
@@ -369,8 +369,8 @@ class fusechunksMode(modifyMode):
         self.bondable_pairs_atoms = []
         self.merged_chunks = []
         singlet_found_with_multiple_bonds = False # True when there are singlets with multiple bonds.
-        total_bonds_made = 0 # The total number of open bond pairs that formed bonds.
-        singlets_not_bonded = 0 # Number of open bonds not bonded.
+        total_bonds_made = 0 # The total number of bondpoint pairs that formed bonds.
+        singlets_not_bonded = 0 # Number of bondpoints not bonded.
         
 #        print self.bondable_pairs
         
@@ -407,9 +407,9 @@ class fusechunksMode(modifyMode):
             total_bonds_made = len(self.bondable_pairs_atoms)
             
             if singlets_not_bonded == 1:
-                msg = "%d open bond had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
+                msg = "%d bondpoint had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
             else:
-                msg = "%d open bonds had more than one option to form bonds with. They were not bonded." % (singlets_not_bonded,)
+                msg = "%d bondpoints had more than one option to form bonds with. They were not bonded." % (singlets_not_bonded,)
             env.history.message(orangemsg(msg))
             
         else:  # All bond pairs had only one way to bond.
@@ -432,8 +432,8 @@ class fusechunksMode(modifyMode):
     def multibonds(self):
         '''Returns the following information about bondable pairs:
             - the number of multiple bonds
-            - number of open bonds (singlets) with multiple bonds
-            - number of open bond pairs that will bond
+            - number of bondpoints (singlets) with multiple bonds
+            - number of bondpoint pairs that will bond
         '''
         mbonds = 0 # number of multiple bonds
         mbond_singlets = [] # list of singlets with multiple bonds (these will not bond)

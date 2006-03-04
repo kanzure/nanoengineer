@@ -75,7 +75,7 @@ class Statistics:
         item.setText(1, str(self.ngroups))
 
         item = QListViewItem(statsView,None)
-        item.setText(0,"Open Bonds:")
+        item.setText(0,"Bondpoints:")
         item.setText(1, str(self.nsinglets))
 
         item = QListViewItem(statsView,None)

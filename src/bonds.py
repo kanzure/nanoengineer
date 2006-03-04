@@ -1,7 +1,7 @@
 # Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
-(one of which might be a "singlet" to represent an "open bond" in the UI),
+(one of which might be a "singlet" to represent an "bondpoint" in the UI),
 and related code
 
 $Id$
@@ -197,7 +197,7 @@ def bond_copied_atoms(at1, at2, oldbond): #bruce 050524
     or it might be a half-copied bond if at1 or at2 is a singlet
     (whether to use this function like that is not yet decided).
     As of 050727 this is also used in Atom.unbond to copy bond types
-    onto open bonds which replace broken real bonds.
+    onto bondpoints which replace broken real bonds.
        This API assumes that bond state is not "directional".
     If that changes, we'll probably need to be told which atom is which
     in the old bond wrt the new bond.
@@ -1049,7 +1049,7 @@ class bonder_at_singlets:
             ###@@@ should we permit this as a way of changing the bonding pattern by summing the valences of these bonds? YES! [doit]
             # [later comment, 050702:] this is low-priority, since it's difficult to do for a free atom
             # (the atom tries to rotate to make it impossible) (tho I have to admit, for a bound C(sp3)
-            #  with 2 open bonds left, it's not too hard, due to the arguable-bug in which only one of them moves)
+            #  with 2 bondpoints left, it's not too hard, due to the arguable-bug in which only one of them moves)
             # and since the context menu lets you do it more directly. ... even so, let's try it:
             if self.increase_bond_order and a1.can_reduce_numbonds():
                 return self.merge_open_bonds() #bruce 050702 new feature
@@ -1217,10 +1217,10 @@ class bonder_at_singlets:
         #e should following permit illegal values? be a singlet method?
         vdelta_used = bond2.increase_valence_noupdate(vdelta) # increases to legal value, returns actual amount of increase (maybe 0)
         if not vdelta_used:
-            return self.do_error("can't merge these two open bonds on atom %r" % (a1,), None) #e say existing orders? say why not?
+            return self.do_error("can't merge these two bondpoints on atom %r" % (a1,), None) #e say existing orders? say why not?
         s1.singlet_reduce_valence_noupdate(vdelta)
         a1.update_valence() # this can change the atomtype of a1 to match the fact that it deletes a singlet [bruce comment 050728]
-        return (0, "merged two open bonds on atom %r" % (a1,))
+        return (0, "merged two bondpoints on atom %r" % (a1,))
     pass # end of class bonder_at_singlets, the helper for function bond_at_singlets
 
 # ===
