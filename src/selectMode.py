@@ -1193,7 +1193,7 @@ class selectAtomsMode(selectMode):
                 if self.highlight_singlets: # added highlight_singlets to fix bug 1540. mark 060220.
                     return env.prefs[bondpointHighlightColor_prefs_key]
             else:
-                if self.only_highlight_singlets:
+                if self.only_highlight_singlets: # True only when dragging a bondpoint (in Build mode).
                     # Highlight this atom if it has bondpoints.
                     if selobj.singNeighbors():
                         if self.current_obj in selobj.singNeighbors(): 

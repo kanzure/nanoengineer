@@ -248,7 +248,7 @@ class DirView(QListView):
         folderOpenIcon = QPixmap(folder_open_image)
         fileIcon = QPixmap(pix_file_image)
 
-        self.addColumn("Name", 150) # May fix bug 1613. mark 060303. [bruce then changed 'width=150' to '150' to avoid exception]
+        self.addColumn("Name", 150) # added 150. mark 060303. [bruce then changed 'width=150' to '150' to avoid exception]
             # Calling addColumn() here causes DirView to change size after its parent (MMKit) is shown.
             # I've not been successful figuring out how to control the height of the DirView (QListView) 
             # after adding this column. See comments in MWsemantics._findGoodLocation() for more 
@@ -259,7 +259,12 @@ class DirView(QListView):
             # simply comment out addColumn() above and enter Build mode. mark 060222.
         #self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setTreeStepSize(20)
-        self.setColumnWidth(0, 150) # Force the column width to 150 again. May fix bug 1613. mark 060303.
+        self.setColumnWidth(0, 150) # Force the column width to 150 again. Fixes bug 1613. mark 060303.
+            # The only time you'll see bug 1613 is when your partlib path is very long.
+            # The column width is set by the width of the partlib path.  
+            # If you have a short path (i.e. /atom/cad/partlib), you wouldn't notice this bug.  
+            # A fresh Windows install has its partlib in C:\Program Files\nanoENGINEER-1 vx.x.x Alpha\partlib.  
+            # This was causing the MMKit to be very wide on Windows by default on startup.
         
         #self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
         

@@ -1198,7 +1198,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                 y -= 58
                 # Set the width of the Model Tree to the width of the MMKit. mark 060223.
                 #self.mt.setGeometry(0,0,mmk_geometry.width(),560)
-                self.mt.setGeometry(0,0,200,560) # May fix installer bug 1613. mark 060303.
+                self.mt.setGeometry(0,0,200,560) # Set model tree width to 200. mark 060303.
         if y < 0: y = 0
         x = self.geometry().x()
         
