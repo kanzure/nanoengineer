@@ -1423,6 +1423,21 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
 def drawcylinder(color, pos1, pos2, radius, capped=0):
     """Schedule a cylinder for rendering whenever ColorSorter thinks is
     appropriate."""
+    if 1:
+        #bruce 060304 optimization: don't draw zero-length or almost-zero-length cylinders.
+        # (This happens a lot, apparently for both long-bond indicators and for open bonds.
+        #  The callers hitting this should be fixed directly! That might provide a further
+        #  optim by making a lot more single bonds draw as single cylinders.)
+        # The reason the threshhold depends on capped is in case someone draws a very thin
+        # cylinder as a way of drawing a disk. But they have to use some positive length
+        # (or the direction would be undefined), so we still won't permit zero-length then.
+        cyllen = vlen(pos1 - pos2)
+        if cyllen < (capped and 0.000000000001 or 0.0001):
+            # uncomment this to find the callers that ought to be optimized
+##            if env.debug(): #e optim or remove this test; until then it's commented out
+##                print "skipping drawcylinder since length is only %5g" % (cyllen,), \
+##                      "  (color is (%0.2f, %0.2f, %0.2f))" % (color[0], color[1], color[2])
+            return
     ColorSorter.schedule_cylinder(color, pos1, pos2, radius, capped)
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
