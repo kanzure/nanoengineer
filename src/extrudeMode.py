@@ -1089,6 +1089,7 @@ class extrudeMode(basicMode):
         # just store a mark->singlet table in the molcopies -- once when each one is made should be enough i think.
         hh = self.bonds_for_current_offset_and_tol
         self.prep_to_make_inter_unit_bonds() # needed for find_singlet; could be done just once each time bonds change, i think
+        bondline_color = get_selCurve_color(0,self.backgroundColor) # Color of bond lines. mark 060305.
         for (pos,radius,info) in hh:
             i1,i2 = info
             ## not so simple as this: p1 = unit1.singlets[i1].posn()
@@ -1096,7 +1097,7 @@ class extrudeMode(basicMode):
             s2 = self.find_singlet(unit2,i2)
             p1 = s1.posn()
             p2 = s2.posn()
-            drawline(white, p1, p2)
+            drawline(bondline_color, p1, p2)
             ## #bruce 050324 experiment, worked:
             ## s1.overdraw_with_special_color(magenta)
             ## s2.overdraw_with_special_color(yellow)
