@@ -1661,7 +1661,9 @@ class depositMode(selectAtomsMode):
         """
         selectAtomsMode.Draw(self)
         if self.line:
-            drawline(white, self.line[0], self.line[1])
+            color = get_selCurve_color(0,self.backgroundColor) 
+                # Make sure line color has good contrast with bg. mark 060305.
+            drawline(color, self.line[0], self.line[1])
             ####@@@@ if this is for a higher-order bond, draw differently
         self.o.assy.draw(self.o)
         #bruce 050610 moved self.surface() call elsewhere
