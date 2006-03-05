@@ -20,7 +20,7 @@ from undo_archive import AssyUndoArchive #060117 revised
 import undo_archive # for debug_undo2
 from constants import noop
 import env
-from HistoryWidget import orangemsg, greenmsg, redmsg
+from HistoryWidget import orangemsg, greenmsg, redmsg, _graymsg
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 from qt import SIGNAL
 import time
@@ -370,5 +370,58 @@ def undo_cmds_maker(widget):
 
 register_debug_menu_command_maker( "undo_cmds", undo_cmds_maker)
     # fyi: this runs once when the first assy is being created, but undo_cmds_maker runs every time the debug menu is put up.
+
+# ==
+
+# Undo-related main menu commands other than Undo/Redo themselves
+
+def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsemantics
+    '''called from MWsemantics.editClearUndoStack, which is documented as a
+       "Slot for clearing the Undo Stack.  Requires the user to confirm."
+    '''
+    if not env.debug():
+        env.history.message("Clear Undo Stack: Not implemented yet.")
+        return
+    #e in real life, no message is needed until after the confirmation dialog, i think... not sure
+    env.history.message("Clear Undo Stack: ATOM_DEBUG set, so using unfinished draft of real code (which doesn't free any RAM)")
+    #e the following message should specify the amount of data to be lost... #e and the menu item text also should
+    msg = "Please confirm that you want to clear the Undo/Redo Stack.<br>" + _graymsg("(This operation cannot be undone.)")
+    from widgets import PleaseConfirmMsgBox ###e I bet this needs a "don't show this again" checkbox... with a prefs key...
+    confirmed = PleaseConfirmMsgBox( msg)
+    if not confirmed:
+        env.history.message("Clear Undo Stack: Cancelled.") #k needed??
+        return
+    # do it
+    env.history.message(greenmsg("Clear Undo Stack")) # no further message needed if it works, I think
+    try:
+        ##e Note: the following doesn't actually free storage. Once the UI seems to work, we'll either add that to it,
+        # or destroy and remake assy.undo_manager itself before doing this (and make sure destroying it frees storage).
+        ##e Make sure this can be called with or without auto-checkpointing enabled, and leaves that setting unchanged.
+        env.mainwindow().assy.clear_undo_stack()
+    except:
+        print_compact_traceback("exception in clear_undo_stack: ")
+        env.history.message(redmsg("Internal error in Clear Undo Stack. Undo/Redo might be unsafe until a new file is opened."))
+            #e that wording assumes we can't open more than one file at a time...
+    return
+# bugs:
+# cosmetic:
+# - '...' needed in menu text;
+# - need to disable it when undo/redo stack empty;
+# - it ought to have ram estimate in menu text;
+# - "don't show again" checkbox might be needed
+# - does the dialog (or menu item if it doesn't have one) need a wiki help link?
+# - dialog starts out too narrow
+# major:
+# - doesn't attempt to free RAM
+# - doesn't work: it doesn't update the Undo action (or, didn't clear the stack)...
+#   hmm, it totally failed to work, it was even an "operation" on the undo stack itself, and so was the prior "deposit atom"
+#   Theory about that bug: self.current_diff.suppress_storing_undo_redo_ops = True only matters if the varid_vers differed
+#   across that diff, but they don't in this case since there was no real change and this is detected.
+#   Possible fixes:
+#   - make a fake change
+#   - set another flag and behave differently
+#   - actually implement the freeing of all stored ops, which can't be that hard given that it's easy to tell which ones to free --
+#     *all* of them! guess: stored_ops.clear(), in archive, in all calls of clear_undo_stack.
+
 
 # end

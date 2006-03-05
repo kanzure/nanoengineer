@@ -551,14 +551,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editClearUndoStack(self):
         '''Slot for clearing the Undo Stack.  Requires the user to confirm.
         '''
-        env.history.message("Clear Undo Stack: Not implemented yet.")
+        import undo_manager, debug
+        debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
+        undo_manager.editClearUndoStack()
         return
-        
-        from widgets import PleaseConfirmMsgBox
-        if PleaseConfirmMsgBox("Please confirm that you want to clear the Undo Stack."):
-            print "Confirmed"
-        else:
-            print "Cancelled"
 
     # bruce 050131 moved some history messages from the following methods
     # into the assy methods they call, so the menu command versions also have them

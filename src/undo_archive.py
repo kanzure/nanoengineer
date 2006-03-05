@@ -1072,7 +1072,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.current_diff.assert_no_changes = True ####@@@@ USE THIS where we check assy_change_counters
         return
         
-    def clear_undo_stack(self, *args, **kws): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack)
+    def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
         assert self.inited # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
         if self.current_diff: #k probably always true; definitely required for it to be safe to do what follows.
             self.current_diff.suppress_storing_undo_redo_ops = True

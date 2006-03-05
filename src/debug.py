@@ -898,12 +898,22 @@ def reload_once_per_event(module):
         old = -1
     if old == now:
         return
+    if old == 'never again': #bruce 060304
+        return
     assert sys.modules[module.__name__] is module
     module.redraw_counter_when_reloaded = now # do first in case of exceptions in this or below
     if old == -1:
         print "reloading",module.__name__
         print "  (and will do so up to once per redraw w/o saying so again)"
-    reload(module)
+    try:
+        reload(module)
+    except:
+        #bruce 060304 added try/except in case someone sets ATOM_DEBUG in an end-user version
+        # in which reload is not supported. We could check for "enabling developer features",
+        # but maybe some end-user versions do support reload, and for them we might as well do it here.
+        # Note: the except clause (and its 'never again' feature) is untested.
+        print_compact_traceback("reload failed (not supported in this version?); continuing: ")
+        module.redraw_counter_when_reloaded = 'never again'
     return
 
 # ==
