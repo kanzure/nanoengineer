@@ -274,6 +274,14 @@ class AssyUndoManager(UndoManager):
                 fix_tooltip(action, text)
                 self._current_main_menu_ops[optype] = None
             pass
+        #060304 also disable/enable Clear Undo Stack
+        action = win.editClearUndoStackAction
+        text = "Clear Undo Stack" + '...' # workaround missing '...' (remove this when the .ui file is fixed)
+        #e future: add an estimate of RAM to be cleared
+        action.setMenuText(text)
+        fix_tooltip(action, text)
+        enable_it = not not (undos or redos)
+        action.setEnabled( enable_it )
         return
         ''' the kinds of things we can set on one of those actions include:
         self.setViewFitToWindowAction.setText(self.__tr("Fit to Window"))
@@ -309,14 +317,14 @@ class AssyUndoManager(UndoManager):
         try:
             op = self._current_main_menu_ops.get(optype)
             if op:
-                undo_xxx = op.menu_desc()
-                env.history.message("%s" % undo_xxx) #e add history sernos #e say Undoing rather than Undo in case more msgs??
+                undo_xxx = op.menu_desc() # note: menu_desc includes history sernos
+                env.history.message("%s" % undo_xxx) #e say Undoing rather than Undo in case more msgs??
                 self.archive.do_op(op)
                 self.assy.w.mt.update_select_mode() #bruce 060227 try to fix bug 1576
                 self.assy.w.win_update() #bruce 060227 not positive this isn't called elsewhere, or how we got away without it if not
             else:
                 print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
-                env.history.message(redmsg("Nothing to %s (and it's a bug that this message was printed)" % optype))
+                env.history.message(redmsg("Nothing to %s (and it's a bug that its menu item or tool button was enabled)" % optype))
             pass
         except:
             print_compact_traceback()
@@ -331,17 +339,26 @@ class AssyUndoManager(UndoManager):
 def fix_tooltip(qaction, text): #060126
     """Assuming qaction's tooltip looks like "command name (accel keys)" and might contain unicode in accel keys
     (as often happens on Mac due to symbols for Shift and Command modifier keys),
-    replace command name with text, leave accel keys unchange (saving result into actual tooltip).
+    replace command name with text, leave accel keys unchanged (saving result into actual tooltip).
+       OR if the tooltip doesn't end with ')', just replace the entire thing with text, plus a space if text ends with ')'
+    (to avoid a bug the next time -- not sure if that kluge will work).
     """
     whole = unicode(qaction.toolTip()) # str() on this might have an exception
     try:
-        if 1: #bruce 060127 kluge to fix bug 1405; ok for now since only fake command names contain parens
-            text = text.replace('(','[')
-            text = text.replace(')',']')
-        sep = u' ('
-        parts = whole.split(sep, 1) #e is it safe to assume the whitespace is a single blank? should generalize...
-        parts[0] = text
-        whole = sep.join(parts)
+        #060304 improve the alg to permit parens in text to remain; assume last '( ' is the one before the accel keys;
+        # also permit no accel keys
+        if whole[-1] == ')':
+            # has accel keys (reasonable assumption, not unbreakably certain)
+            sep = u' ('
+            parts = whole.split(sep)
+            parts = [text, parts[-1]]
+            whole = sep.join(parts)
+        else:
+            # has no accel keys
+            whole = text
+            if whole[-1] == ')':
+                whole = whole + ' ' # kluge, explained in docstring
+            pass
         # print "formed tooltip",`whole` # printing whole might have an exception, but printing `whole` is ok
         qaction.setToolTip(whole) # no need for __tr, I think?
     except:
@@ -379,11 +396,11 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
     '''called from MWsemantics.editClearUndoStack, which is documented as a
        "Slot for clearing the Undo Stack.  Requires the user to confirm."
     '''
-    if not env.debug():
-        env.history.message("Clear Undo Stack: Not implemented yet.")
-        return
-    #e in real life, no message is needed until after the confirmation dialog, i think... not sure
-    env.history.message("Clear Undo Stack: ATOM_DEBUG set, so using unfinished draft of real code (which doesn't free any RAM)")
+##    if not env.debug():
+##        env.history.message("Clear Undo Stack: Not implemented yet.")
+##        return
+##    #e in real life, no message is needed until after the confirmation dialog, i think... not sure
+##    env.history.message("Clear Undo Stack: ATOM_DEBUG set, so using unfinished draft of real code (which doesn't free any RAM)")
     #e the following message should specify the amount of data to be lost... #e and the menu item text also should
     msg = "Please confirm that you want to clear the Undo/Redo Stack.<br>" + _graymsg("(This operation cannot be undone.)")
     from widgets import PleaseConfirmMsgBox ###e I bet this needs a "don't show this again" checkbox... with a prefs key...
@@ -403,24 +420,26 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
         env.history.message(redmsg("Internal error in Clear Undo Stack. Undo/Redo might be unsafe until a new file is opened."))
             #e that wording assumes we can't open more than one file at a time...
     return
-# bugs:
+# bugs in editClearUndoStack [some fixed, as indicated, as of 060304 1132pm PST]:
 # cosmetic:
-# - '...' needed in menu text;
-# - need to disable it when undo/redo stack empty;
+# + [worked around in this code, for now] '...' needed in menu text;
+# + [fixed] need to disable it when undo/redo stack empty;
 # - it ought to have ram estimate in menu text;
 # - "don't show again" checkbox might be needed
 # - does the dialog (or menu item if it doesn't have one) need a wiki help link?
 # - dialog starts out too narrow
+# - when Undo is disabled at the point where stack was cleared, maybe text should say it was cleared? "Undo stack cleared (%d.)" ???
 # major:
-# - doesn't attempt to free RAM
-# - doesn't work: it doesn't update the Undo action (or, didn't clear the stack)...
+# + [fixed] doesn't attempt to free RAM
+# + [fixed] doesn't work: it doesn't update the Undo action (or, didn't clear the stack)...
 #   hmm, it totally failed to work, it was even an "operation" on the undo stack itself, and so was the prior "deposit atom"
 #   Theory about that bug: self.current_diff.suppress_storing_undo_redo_ops = True only matters if the varid_vers differed
 #   across that diff, but they don't in this case since there was no real change and this is detected.
 #   Possible fixes:
 #   - make a fake change
 #   - set another flag and behave differently
-#   - actually implement the freeing of all stored ops, which can't be that hard given that it's easy to tell which ones to free --
+#   + [did this one, though it was harder than it initially seemed]
+#     actually implement the freeing of all stored ops, which can't be that hard given that it's easy to tell which ones to free --
 #     *all* of them! guess: stored_ops.clear(), in archive, in all calls of clear_undo_stack.
 
 

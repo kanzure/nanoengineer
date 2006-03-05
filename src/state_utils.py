@@ -744,6 +744,17 @@ class objkey_allocator:
         self._key4obj = {} # maps id(obj) -> key; semiprivate
         self._lastobjkey = 0
 
+    def clear(self):
+        self.obj4key.clear()
+        self._key4obj.clear()
+        #e but don't change self._lastobjkey
+        return
+    
+    def destroy(self):
+        self.clear()
+        self.obj4key = self._key4obj = self._lastobjkey = 'destroyed'
+        return
+    
     def allocate_key(self, key = None): # maybe not yet directly called; untested
         "Allocate the requested key (assertfail if it's not available), or a new one we make up, and store None for it."
         if key is not None:
@@ -1044,6 +1055,9 @@ def apply_and_reverse_diff(diff, snap):
 class obj_classifier: 
     """Classify objects seen, and save the results, and provide basic uses of the results for scanning.
     Probably can't yet handle "new-style" classes. Doesn't handle extension types (presuming they're not InstanceTypes) [not sure].
+       Note: the amount of data this stores is proportional to the number of classes and state-holding attribute declarations;
+    it doesn't (and shouldn't) store any per-object info. I.e. it soon reaches a small fixed size, regardless of number of objects
+    it's used to classify.
     """
     def __init__(self):
         self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications

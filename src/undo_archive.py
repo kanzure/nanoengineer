@@ -533,7 +533,11 @@ class SimpleDiff:
             range0 = s1
             range1 = s2 - 1
             if n == 0:
-                hist = ""
+                ## hist = ""
+                #060304 we need to know which history messages it came *between*. Not sure what syntax should be...
+                # maybe 18 1/2 for some single char that looks like 1/2?
+                ## hist = "%d+" % range1 # Undo 18+ bla... dubious... didn't look understandable.
+                hist = "(after %d.)" % range1 # Undo (after 18.) bla
             elif n == 1:
                 assert range0 == range1
                 hist = "%d." % range1
@@ -981,12 +985,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def __init__(self, assy):
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
+
+        self.obj_classifier = obj_classifier()
         
         self.objkey_allocator = oka = objkey_allocator()
         self.obj4key = oka.obj4key # public attr, maps keys -> objects
             ####@@@@ does this need to be the same as atom keys? not for now, but maybe yes someday... [060216]
-
-        self.obj_classifier = obj_classifier()
         
         self.stored_ops = {} # map from (varid, ver) pairs to lists of diff-ops that implement undo or redo from them;
             # when we support out of order undo in future, this will list each diff in multiple places
@@ -997,7 +1001,22 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ###e not sure were really inited enough to return... we'll see
         return
 
-    def initial_checkpoint(self):
+    def _clear(self):
+        """[private helper method for self.clear_undo_stack()]
+        Clear our main data stores, which are set up in __init__, and everything referring to undoable objects or objkeys.
+        (But don't clear our obj_classifier.)
+        """
+        self.current_diff.destroy()
+        self.current_diff = None
+        self.next_cp = None
+        self.stored_ops = {}
+        self.objkey_allocator.clear() # after this, all existing keys (in diffs or checkpoints) are nonsense...
+        # ... so we'd better get rid of them (above and here):
+        self.inited = False
+        self.initial_checkpoint() # should we clean up the code by making this the only way to call initial_checkpoint?
+        return
+
+    def initial_checkpoint(self): # called by clear_undo_stack in two ways??? one by undo_manager? ###doc situation [060304]
         assert not self.inited
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
@@ -1024,6 +1043,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.assy = None
         self.stored_ops = {} #e more, if it can contain any cycles -- design was that it wouldn't, but true situation not reviewed lately [060301]
         self.current_diff = None #e destroy it first?
+        self.objkey_allocator.destroy()
+        self.objkey_allocator = None
         return
     
     def __repr__(self):
@@ -1075,20 +1096,25 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
         assert self.inited # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
         if self.current_diff: #k probably always true; definitely required for it to be safe to do what follows.
-            self.current_diff.suppress_storing_undo_redo_ops = True
-            #e It might be nice to also free storage for all prior checkpoints and diffs
-            # (by erasing them from stored_ops and from any other refs to them),
-            # but I'm worried about messing up too many things
-            # (since this runs from inside some command whose diff-recording is ongoing).
-            # If we decide to do that, do it after the other stuff here, to all cp's/diffs before last_cp. #e
-            # This shouldn't make much difference in practice
-            # (for existing calls of this routine, from file open & file close), so don't bother for now.
-            #
-            # In order to only suppress changes before this method is called, rather than subsequent ones too,
-            # we also do a special kind of checkpoint here.
-            self.checkpoint( cptype = "clear")
-            #
-            self.initial_cp = self.last_cp # (as of 060126 this only affects debug_undo2 prints)
+            self.current_diff.suppress_storing_undo_redo_ops = True # note: this is useless if the current diff turns out to be empty.
+
+            if 1: #060304 try to actually free storage; I think this will work even with differential checkpoints...
+                self._clear()
+
+##                #obs comments? [as of 060304]
+##                #e It might be nice to also free storage for all prior checkpoints and diffs
+##                # (by erasing them from stored_ops and from any other refs to them),
+##                # but I'm worried about messing up too many things
+##                # (since this runs from inside some command whose diff-recording is ongoing).
+##                # If we decide to do that, do it after the other stuff here, to all cp's/diffs before last_cp. #e
+##                # This shouldn't make much difference in practice
+##                # (for existing calls of this routine, from file open & file close), so don't bother for now.
+##                #
+##                # In order to only suppress changes before this method is called, rather than subsequent ones too,
+##                # we also do a special kind of checkpoint here.
+##                self.checkpoint( cptype = "clear")
+##                #
+##                self.initial_cp = self.last_cp # (as of 060126 this only affects debug_undo2 prints)
             pass
         return
     
