@@ -117,7 +117,6 @@ class fusechunksMode(modifyMode):
     # the state has changed from something selected to nothing selected.  It is used to 
     # properly update the tolerance label on the dashboard when all chunks are unselected.
     something_was_picked = False 
-    bondcolor = white # Color of bond lines
     bondable_pairs = [] # List of bondable singlets
     ways_of_bonding = {} # Number of bonds each singlet found
     bondable_pairs_atoms = [] # List of atom pairs that can be bonded
@@ -270,6 +269,7 @@ class fusechunksMode(modifyMode):
 
         # Color the bondable pairs or singlets and bond lines between them
         if self.bondable_pairs:
+            bondline_color = get_selCurve_color(0,self.backgroundColor) # Color of bond lines
             for s1,s2 in self.bondable_pairs:
                 
                 # Color bondable pair singlets. Singlets with multiple pairs are colored magenta.
@@ -280,8 +280,7 @@ class fusechunksMode(modifyMode):
                 s2.overdraw_with_special_color(color)
      
                 # Draw bond lines between singlets.
-                # Color should be set from user preferences.
-                drawline(self.bondcolor, s1.posn(), s2.posn()) 
+                drawline(bondline_color, s1.posn(), s2.posn()) 
                 
         # Color the overlapping atoms green
         if self.overlapping_atoms:
