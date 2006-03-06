@@ -1,4 +1,4 @@
-#define WWDEBUG
+//#define WWDEBUG
 #include "simulator.h"
 
 static char const rcsid[] = "$Id$";
@@ -83,6 +83,25 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     const double minspeed = 1.0;  // radians per second, very slow
     struct xyz anchor;
 
+#ifdef WWDEBUG
+    /*
+     * Bug 1529, where two rotary motors fight. Even though one has
+     * zero torque, the torque isn't really zero because it's got that
+     * big flywheel to get up to speed. The weak links are the chemical
+     * bonds, which go nuts.
+     */
+    int explain_stuff = 0;
+    {
+	static long count = 0;
+	// odd modulo, so we switch motors
+	if ((count % 101) == 0) {
+	    MARK();
+	    explain_stuff = 1;
+	}
+	count++;
+    }
+#endif
+
     omega = jig->j.rmotor.omega;
     // Bosch model
     if (fabs(jig->j.rmotor.speed) < minspeed) {
@@ -101,6 +120,9 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     } else if (motorq < -2.0 * jig->j.rmotor.stall) {
 	motorq = -2.0 * jig->j.rmotor.stall;
     }
+#ifdef WWDEBUG
+    if (explain_stuff) { SAY_DBL(motorq); }
+#endif
 
     cos_theta = cos(jig->j.rmotor.theta);
     sin_theta = sin(jig->j.rmotor.theta);
@@ -108,6 +130,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     /* nudge atoms toward their new places */
     for (k = 0; k < jig->num_atoms; k++) {
 	struct xyz rprev;
+	double damping;
 	a1 = jig->atoms[k]->index;
 	// get the position of this atom's anchor
 	anchor = jig->j.rmotor.center;
@@ -119,10 +142,20 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	// compute a force pushing on the atom, spring term plus damper term
 	r = position[a1];
 	vsub(r, anchor);
+#ifdef WWDEBUG
+	if (explain_stuff && k == 0) { SAY_DBL(motorq); }
+#endif
 	rprev = r;
 	vmul2c(f, r, -SPRING_STIFFNESS);
+	// If the spring stretches much, that probably means we need more
+	// damping, so increase the effective damping coefficient, but don't
+	// let it get too big.
+	damping = 1.0 + 0.001 * vdot(r, r);
+	if (damping > 5.0) damping = 5.0;
+	else if (damping < -5.0) damping = -5.0;
+	damping *= DAMPING_COEFFICIENT;
 	vsub(r, jig->j.rmotor.rPrevious[k]);
-	vmul2c(tmp, r, -DAMPING_COEFFICIENT);
+	vmul2c(tmp, r, -damping);
 	vadd(f, tmp);
 	jig->j.rmotor.rPrevious[k] = rprev;
 
@@ -135,10 +168,19 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	tmp = vx(r, f);
 	dragTorque += vdot(tmp, jig->j.rmotor.axis);
     }
+#ifdef WWDEBUG
+    if (explain_stuff) { SAY_DBL(dragTorque); }
+#endif
 
     domega_dt = (motorq + dragTorque) / jig->j.rmotor.momentOfInertia;
+#ifdef WWDEBUG
+    if (explain_stuff) { SAY_DBL(domega_dt); }
+#endif
     theta = jig->j.rmotor.theta + omega * Dt;
     jig->j.rmotor.omega = omega = jig->j.rmotor.omega + domega_dt * Dt;
+#ifdef WWDEBUG
+    if (explain_stuff) { SAY_DBL(omega); }
+#endif
 
     /* update the motor's position */
     theta = fmod(theta, 2.0 * Pi);
