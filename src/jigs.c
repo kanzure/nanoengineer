@@ -120,9 +120,6 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     } else if (motorq < -2.0 * jig->j.rmotor.stall) {
 	motorq = -2.0 * jig->j.rmotor.stall;
     }
-#ifdef WWDEBUG
-    if (explain_stuff) { SAY_DBL(motorq); }
-#endif
 
     cos_theta = cos(jig->j.rmotor.theta);
     sin_theta = sin(jig->j.rmotor.theta);
@@ -142,9 +139,6 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	// compute a force pushing on the atom, spring term plus damper term
 	r = position[a1];
 	vsub(r, anchor);
-#ifdef WWDEBUG
-	if (explain_stuff && k == 0) { SAY_DBL(motorq); }
-#endif
 	rprev = r;
 	vmul2c(f, r, -SPRING_STIFFNESS);
 	// If the spring stretches much, that probably means we need more
@@ -168,19 +162,10 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	tmp = vx(r, f);
 	dragTorque += vdot(tmp, jig->j.rmotor.axis);
     }
-#ifdef WWDEBUG
-    if (explain_stuff) { SAY_DBL(dragTorque); }
-#endif
 
     domega_dt = (motorq + dragTorque) / jig->j.rmotor.momentOfInertia;
-#ifdef WWDEBUG
-    if (explain_stuff) { SAY_DBL(domega_dt); }
-#endif
     theta = jig->j.rmotor.theta + omega * Dt;
     jig->j.rmotor.omega = omega = jig->j.rmotor.omega + domega_dt * Dt;
-#ifdef WWDEBUG
-    if (explain_stuff) { SAY_DBL(omega); }
-#endif
 
     /* update the motor's position */
     theta = fmod(theta, 2.0 * Pi);
