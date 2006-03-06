@@ -156,7 +156,7 @@ class Node( StateMixin):
 ##        ###@@@ #e need to add any more?? picked? guess: no. part: probably not, since set by posn in tree. assy? no.
 
     def _undo_update(self): #bruce 060223
-        #e anything Node-specific?? .part?
+        # no change to .part, since that's declared as S_CHILD
         self.prior_part = None
         del self.prior_part # save RAM
         StateMixin._undo_update(self)
@@ -1314,6 +1314,14 @@ class Group(Node):
         "[Overrides Node._um_initargs; see its docstring.]"
         return (self.name, self.assy), {} # note reversed arg order from Node version
             # dad and members (like most inter-object links) are best handled separately
+
+    def _undo_update(self): # in class Group [bruce 060306]
+        self.changed_members() # part of fix for bug 1617; fixing it will also require separate changes in MMKit by Mark.
+            ###k is this safe to do in arbitrary order vs. other Undo-related updates,
+            # or do we need to only do it at the end, and/or in some order when several Groups changed??
+            # I don't know, so for now I'll wait and see if we notice bugs from doing it in arbitrary order. [bruce 060306]
+        Node._undo_update(self)
+        return
 
     def is_group(self):
         """[overrides Node method; see its docstring]"""
