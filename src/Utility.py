@@ -2267,6 +2267,17 @@ class ClipboardShelfGroup(Group):
     def description_for_history(self):
         """[overridden from Group method]"""
         return "Clipboard"
+    def get_pastable_chunks(self): # mark 060305
+        '''Returns a list of all top-level pastable chunks in the clipboard,
+        excluding chunks that are members of another group.'''
+        pastable_chunks = []
+        from chunk import molecule
+        for m in self.members:
+            if isinstance(m, molecule):
+                pastable_chunks += [m]
+        
+        return pastable_chunks
+
     pass
 
 class RootGroup(Group):
