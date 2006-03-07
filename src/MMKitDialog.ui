@@ -1349,7 +1349,6 @@
     <slot>set_hybrid_type(int)</slot>
     <slot>setup_current_page()</slot>
     <slot>chunkChanged(QListBoxItem *)</slot>
-    <slot>updatePastableItems()</slot>
     <slot>browseDirectories()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>

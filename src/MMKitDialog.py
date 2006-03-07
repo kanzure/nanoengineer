@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
 #
-# Created: Tue Feb 28 16:53:16 2006
+# Created: Mon Mar 6 20:55:28 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -463,9 +463,6 @@ class MMKitDialog(QDialog):
 
     def chunkChanged(self,a0):
         print "MMKitDialog.chunkChanged(QListBoxItem*): Not implemented yet"
-
-    def updatePastableItems(self):
-        print "MMKitDialog.updatePastableItems(): Not implemented yet"
 
     def browseDirectories(self):
         print "MMKitDialog.browseDirectories(): Not implemented yet"
