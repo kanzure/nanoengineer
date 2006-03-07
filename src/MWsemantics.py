@@ -572,7 +572,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             env.history.message(greenmsg("Paste:"))
             self.glpane.setMode('DEPOSIT')
             global MMKitWin
-            if MMKitWin: MMKitWin.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
+            if MMKitWin: 
+                MMKitWin.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
             
     # editDelete
     def killDo(self):
@@ -1241,14 +1242,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                     # any value > 175 will cause the MMKit to get wider when clicking on the clipboard tab.
                     # Fixes bug 1563. mark 060303.
         return MMKitWin
-    
-    def MMKitShowPage(self, pagename):
-        '''Shows page 'pagename' in the MMKit. 
-        pagename can be "Atoms", "Clipboard" or "Library".
-        '''
-        global MMKitWin
-        if MMKitWin:
-            MMKitWin.setup_current_page(pagename)
             
 
     def deleteMMKit(self):

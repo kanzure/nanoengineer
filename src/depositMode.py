@@ -2025,9 +2025,6 @@ class depositMode(selectAtomsMode):
             ## also update glpane if we show pastable someday; not needed now
             ## [and removed by bruce 050121]
             
-            self.MMKit.setup_current_page(self.MMKit.clipboardPage)
-                # Updates the MMKit clipboard page with the new clipboard object.  mark 060223. 
-            
         return
 
     def set_pastable(self, pastable): # no one calls this yet, but they could... [bruce 050121; untested]

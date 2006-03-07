@@ -281,7 +281,8 @@ class MMKit(MMKitDialog):
         #buildModeObj.setPaste()
         
         ##Compared to the above way, I think this way is better. Modules are more uncoupled.
-        self.w.pasteComboBox.setCurrentItem(itemId)
+        #& self.w.pasteComboBox.setCurrentItem(itemId)
+            # Resolves index out of range error. Shouldn't impact behavior. mark 060307.
         self.emit(PYSIGNAL('chunkSelectionChanged'), (itemId,))
         
         self.elemGLPane.updateModel(newChunk)
@@ -357,11 +358,12 @@ class MMKit(MMKitDialog):
         self.chunkListBox.clear()
         self.chunkListBox.insertStringList(list)
         if len(list): 
-            i = self.w.pasteComboBox.currentItem()
+            #i = self.w.pasteComboBox.currentItem()
+            i = self.chunkListBox.count() - 1 # last item in the listbox.
             if self.currentPageOpen(ClipboardPage):
                 # setSelected() causes the clipboard page to be displayed when we don't want it to
                 # be displayed (i.e. pressing Control+C to copy something to the clipboard).
-                self.chunkListBox.setSelected(i, True) 
+                self.chunkListBox.setSelected(i, True)
         else:
             self.elemGLPane.updateModel(None)
         self.update_clipboard_page_icon()
