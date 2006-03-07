@@ -52,6 +52,9 @@ class ops_copy_Mixin:
                 env.history.message(cmd + msg)
                 # don't return yet, in case some jigs were selected too.
                 # note: we will check selatoms again, below, to know whether we emitted this message
+                # WARNING [bruce 060307]: when we implement this, it might remove all atoms and
+                # (for a clipboard part containing only chunks) reset self.topnode to None,
+                # as happened in delete_sel with bug 1466 (see 'mark 060307' comment there).
             new = Group(gensym("Copy"), self.assy, None)
                 # bruce 050201 comment: this group is usually, but not always, used only for its members list
             if self.immortal() and self.topnode.picked:
@@ -277,6 +280,9 @@ class ops_copy_Mixin:
         if self.topnode:
             # The code above that calls a.kill() may have already deleted the molecule/node the atom(s) belonged to.
             # If the current node is a clipboard item part, self no longer has a topnode.  Fixes bug 1466.  mark 060307.
+            # [bruce 060307 adds: this only happens if all atoms in the Part were deleted, and it has nothing except Chunks.
+            #  By "the current node" (which is not a concept we have) I think Mark meant the former value of self.topnode,
+            #  when that was a chunk which lost all its atoms.) See also my comment in cut_sel, which will someday need this fix.]
             self.topnode.apply2picked(lambda o: o.kill())
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
