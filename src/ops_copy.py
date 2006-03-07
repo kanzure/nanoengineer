@@ -274,10 +274,10 @@ class ops_copy_Mixin:
         # and would be wrong here if nothing was selected.
         if self.immortal():
             self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
-        try: # Fixes bug 1466. mark 060306.
+        if self.topnode:
+            # The code above that calls a.kill() may have already deleted the molecule/node the atom(s) belonged to.
+            # If the current node is a clipboard item part, self no longer has a topnode.  Fixes bug 1466.  mark 060307.
             self.topnode.apply2picked(lambda o: o.kill())
-        except:
-            pass
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         
