@@ -11,6 +11,7 @@ __author__ = 'bruce'
 from state_constants import *
 import types
 import env
+from debug import print_compact_stack
 
 # see debug flags, below
 
@@ -561,7 +562,22 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
         # Note: we require obj == res, but not res == obj (e.g. in case a fancy number turns into a plain one).
         # Hopefully the fancy object could define some sort of __req__ method, but we'll try to not force it to for now;
         # this has implications for how our diff-making archiver should test for differences. ###@@@doit
-        print "bug: obj != res or (not (obj == res)), where res is _s_deepcopy of obj; obj is %r and res is %r" % (obj, res)
+
+        msg = "bug: obj != res or (not (obj == res)), res is _s_deepcopy of obj; " \
+              "obj is %r, res is %r, == is %r, != is %r: " % \
+              (obj, res, obj == res, obj != res)
+
+        if not env.debug():
+            print msg
+        else:
+            print_compact_stack( msg + ": ")
+            try:
+                method = obj._s_printed_diff
+                    # experimental (#e rename): list of strings (or so) which explain why __eq_ returns false [060306, for bug 1616]
+            except AttributeError:
+                pass
+            else:
+                print "  a reason they are not equal:\n", method(res)
         #e also print history redmsg, once per class per session?
     return res
 
@@ -585,7 +601,18 @@ known_type_scanners[ types.InstanceType ] = scan_InstanceType
 # so they don't use == on Numeric arrays or != on general values...
 # Choice 2:
 # on naive objects, we just require id(v1) == id(v2).
-### UNDECIDED. For now, doing nothing is equivalent to Chpice 1. [060303] ######@@@@@@
+### UNDECIDED. For now, doing nothing is equivalent to Choice 1.
+# but note that choice 2 is probably safer.
+# in fact, if I do that, i'd no longer need _eq_id_mixin just due to StateMixin. (only when __getattr__ and someone calls '==')
+# [060303]
+# Update 060306: some objects will need _s_same_as(self, other) different from __eq__,
+# since __eq__ *might* want to compare some components with != (like int and float) rather than be as strict as same_vals.
+# Even __eq__ needs to try to avoid the "Numeric array in list" bug, which in some cases will force it to also call same_vals,
+# but when types are known it's plausible that it won't have to, so the distinct methods might be needed.
+# When we first need _s_same_as, that will force use of a new _same_InstanceType_helper func.
+# Do we need it before then? Not sure. Maybe not; need to define __eq__ better in GAMESS Jig (bug 1616) but _s_same_as
+# can probably be the same method. OTOH should we let DataMixin be the thing that makes _s_same_as default to __eq__?? ###
+######@@@@@@
 
 # ==
 

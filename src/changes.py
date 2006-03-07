@@ -22,6 +22,7 @@ from debug import print_compact_traceback, print_compact_stack
 import env
 from constants import noop
 import platform
+from state_utils import same_vals #bruce 060306
 
 # == Usage tracking.
 
@@ -374,6 +375,7 @@ class Formula( SubUsageTrackingMixin): #bruce 050805
         If this bothers you, consider passing not_when_value_same = True, so that repeated calls
         only occur when the return value is not equal to what it was before.
         (The old return value is not even kept in this object unless not_when_value_same is true.)
+        [WARNING: the code for the not_when_value_same = True option is untested as of 060306, since nothing uses it yet.]
         """
         self.value_lambda = value_lambda
         self.set_action( action)
@@ -401,7 +403,7 @@ class Formula( SubUsageTrackingMixin): #bruce 050805
             if platform.atom_debug: #e better to let a debug option control this, and give the place to put msgs
                 print_compact_traceback( "atom_debug: exception in value_lambda %r: " % self.value_lambda )
         self.end_tracking_usage( match_checking_code, self.need_to_recompute )
-        if not error and (not self.not_when_value_same or self.first_time or self.oldval != newval):
+        if not error and (not self.not_when_value_same or self.first_time or not self.values_same( self.oldval, newval) ):
             # do the action
             try:
                 self.action( newval)
@@ -423,6 +425,16 @@ class Formula( SubUsageTrackingMixin): #bruce 050805
         if not self.killed:
             self.recompute()
         return
+    def values_same(self, val1, val2): #bruce 060306; untested, since self.not_when_value_same is apparently never True ###@@@
+        """Determine whether two values are the same, for purposes of the option 'not_when_value_same'.
+        Override this in a subclass that needs a different value comparison, such as 'not !='
+        (or change the code to let the caller pass a comparison function).
+           WARNING: The obvious naive comparison (a == b) is buggy for Numeric arrays,
+        and the fix for that, (not (a != b)), is buggy for Python container classes
+        (like list or tuple) containing Numeric arrays. The current implem uses a slower and stricter comparison,
+        state_utils.same_vals, which might be too strict for some purposes.
+        """
+        return same_vals(val1, val2)
     pass # end of class Formula
 
 # ===

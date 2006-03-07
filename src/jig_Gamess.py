@@ -21,6 +21,7 @@ from HistoryWidget import redmsg, greenmsg
 import env
 from HistoryWidget import redmsg #bruce 050913 precaution -- probably covered by some "import *" above, but good to do explicitly
 from chem import move_alist_and_snuggle
+import state_utils #bruce 060306
 
 # == GAMESS
 
@@ -511,7 +512,7 @@ class Gamess(Jig):
     
     pass # end of class Gamess
 
-class gamessParms:
+class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
     def __init__(self, name):
         '''A GAMESS parameter set contains all the parameters for a Gamess Jig.
         
@@ -633,6 +634,25 @@ class gamessParms:
         mapping.write("# end of gamess parameter set %s\n" % pset_index)
         return
 
+    def __eq__(self, other): #bruce 060306 for Undo bug 1616; doesn't fix it, not sure why -- need to find out why _s_deepcopy is
+        # being called in the first place! Undo's archive copy - ok. And the difference? see below. ####@@@@
+        # note: defining __eq__ is sufficient, but only because we inherit from state_utils.DataMixin, which defines __ne__ based on it
+        if other.__class__ is not self.__class__:
+            return False
+        return self.param_names_and_valstrings() == other.param_names_and_valstrings() # self has 0/1 where other has False/True. hmm.
+
+    def _s_printed_diff(self, other): #bruce 060306 for debugging why above __eq__ (try1) didn't fix bug 1616
+        "Assuming __eq__ returns False, explain why, at least enough to prove it was right."
+        if other.__class__ is not self.__class__:
+            return "classes differ: %r is not %r" % (other.__class__, self.__class__)
+        s1 = self.param_names_and_valstrings()
+        s2 = other.param_names_and_valstrings()
+        if s1 != s2:
+            # they are lists of pairs of string, i think
+            # (let a human decide why they differ)
+            return "param_names_and_valstrings differ:\n self:\n%r\n\n other:\n%r" % (s1,s2)
+        return "they seem the same!"
+    
     def info_gamess_setitem(self, name, val, interp, error_if_name_not_known = False):
         #bruce 050701; extended by Mark 050704 to read and set the actual params; bruce 050704 added error_if_name_not_known
         """This must set the parameter in self with the given name
