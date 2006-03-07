@@ -137,13 +137,12 @@ class MMKit(MMKitDialog):
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         
         # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
-        # when the user selects Copy and Paste from the Edit toolbar/menu, the MMKit should show
-        # the Clipboard, not the Atoms page. Mark 050808
+        # when the user selects Paste from the Edit toolbar/menu, the MMKit should show
+        # the Clipboard page and not the Atoms page. Mark 050808
         if self.w.depositState == 'Clipboard':
             self.change2ClipboardPage()
         else:
             self.change2AtomsPage()
-            
         
     def update_hybrid_btngrp(self):
         '''Update the buttons of the current element's hybridization types into hybrid_btngrp; 
@@ -288,8 +287,8 @@ class MMKit(MMKitDialog):
         self.elemGLPane.updateModel(newChunk)
         
     
-    def updatePastableItems(self):
-        '''Slot method. Called when user clicks the 'Update' button. '''
+    def update_clipboard_items(self):
+        '''Updates the items in the clipboard's listview. '''
         self._clipboardPageView()
     
         
@@ -348,8 +347,8 @@ class MMKit(MMKitDialog):
                 
     
     def _clipboardPageView(self):
-        '''Construct clipboard page view. '''
-        self.pastableItems = self._getPastableClipboardItems(self.w.assy)
+        '''Updates the clipboard page. '''
+        self.pastableItems = self.w.assy.shelf.get_pastable_chunks()
         
         list = QStringList()
         for item in self.pastableItems:
@@ -358,25 +357,25 @@ class MMKit(MMKitDialog):
         self.chunkListBox.clear()
         self.chunkListBox.insertStringList(list)
         if len(list): 
-            itIndex = self.w.pasteComboBox.currentItem()
-            self.chunkListBox.setSelected(itIndex, True)
-            clipboard_pm = imagename_to_pixmap("clipboard-full.png")
+            i = self.w.pasteComboBox.currentItem()
+            if self.currentPageOpen(ClipboardPage):
+                # setSelected() causes the clipboard page to be displayed when we don't want it to
+                # be displayed (i.e. pressing Control+C to copy something to the clipboard).
+                self.chunkListBox.setSelected(i, True) 
         else:
             self.elemGLPane.updateModel(None)
+        self.update_clipboard_page_icon()
+        
+    
+    def update_clipboard_page_icon(self):
+        '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon.
+        '''
+        if self.w.assy.shelf.get_pastable_chunks():
+            clipboard_pm = imagename_to_pixmap("clipboard-full.png")
+        else:
             clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
             
-        self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm))
-            
-    def _getPastableClipboardItems(self, assy):
-        '''Find all current pastable chunks. '''
-        itemGroup = assy.shelf
-        
-        pastableItems = []
-        for item in itemGroup.members:
-            if isinstance(item, molecule):
-                pastableItems += [item]
-        
-        return pastableItems
+        self.mmkit_tab.setTabIconSet (self.clipboardPage, QIconSet(clipboard_pm))
 
     
     def _setNewView(self, viewClassName):

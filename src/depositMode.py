@@ -545,6 +545,7 @@ class depositMode(selectAtomsMode):
             ## call this from update_gui (called by UpdateDashboard) instead,
             ## so it will happen the first time we're setting it up, too:
             ## self.resubscribe_to_clipboard_members_changed()
+            self.MMKit.update_clipboard_items() # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
         return
 
     def resubscribe_to_clipboard_members_changed(self):
