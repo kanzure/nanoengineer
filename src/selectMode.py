@@ -340,7 +340,7 @@ class selectMode(basicMode):
                     self.o.assy.delete_at_event(event)
                 else:
                     print 'Error in end_selection_curve(): Invalid selSense=', self.selSense
-
+            
             # Huaicai 1/29/05: to fix zoom messing up selection bug
             # In window zoom mode, even for a big selection window, the 
             # selCurve_length/scale could still be < 0.03, so we need clean 
@@ -1571,6 +1571,7 @@ class selectAtomsMode(selectMode):
         
         if self.ignore_next_leftUp_event: # This event is the second leftUp of a double click, so ignore it.
             self.ignore_next_leftUp_event = False
+            self.update_selobj(event) # Fixes bug 1467. mark 060307.
             return
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':

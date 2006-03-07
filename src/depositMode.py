@@ -924,6 +924,9 @@ class depositMode(selectAtomsMode):
     def leftDouble(self, event): # mark 060126.
         '''Double click event handler for the left mouse button. 
         '''
+        
+        self.ignore_next_leftUp_event = True # Fixes bug 1467. mark 060307.
+        
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             if self.o.modkeys != 'Shift+Control': # Fixes bug 1503.  mark 060224.
                 deposited_obj = self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
@@ -932,6 +935,8 @@ class depositMode(selectAtomsMode):
             return
             
         selectAtomsMode.leftDouble(self, event)
+        
+        
 
 # == end of LMB event handler methods
 
