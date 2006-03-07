@@ -274,7 +274,10 @@ class ops_copy_Mixin:
         # and would be wrong here if nothing was selected.
         if self.immortal():
             self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
-        self.topnode.apply2picked(lambda o: o.kill())
+        try: # Fixes bug 1466. mark 060306.
+            self.topnode.apply2picked(lambda o: o.kill())
+        except:
+            pass
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         
