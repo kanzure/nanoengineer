@@ -374,27 +374,36 @@ class RotaryMotor(Motor):
     def mmp_record_jigspecific_midpart(self):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        dataline = "%.2f %.2f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
+        #bruce 060307 %.2f -> %.6f for params used by sim, %.2f -> %.3f for graphics-only params
+        # (Note that for backwards compatibility we are constrained by files_mmp regexps which require these fields
+        # to be 1 or more digits, '.', 1 or more digits. I'm more sure this is true of %.6f than of %f, though
+        # in my tests these seemed equivalent. When someone has time they should check out python docs on this. [bruce 060307])
+        dataline = "%.6f %.6f (%d, %d, %d) (%d, %d, %d) %.3f %.3f %.3f" % \
            (self.torque, self.speed,
             int(cxyz[0]), int(cxyz[1]), int(cxyz[2]),
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
             self.length, self.radius, self.sradius   )
         return " " + dataline + "\n" + "shaft"
         
-    def writemmp_info_leaf(self, mapping): #mark 060307
-        "[extends Jig method]"
-        Jig.writemmp_info_leaf(self, mapping)
+    def writemmp_info_leaf(self, mapping): #mark 060307 [bruce revised Jig -> Motor same day, should have no effect]
+        "[extends superclass method]"
+        Motor.writemmp_info_leaf(self, mapping)
         if self.initial_speed:
             # Note: info record not written if initial_speed = 0.0 (default).
             mapping.write("info leaf initial_speed = " + str(self.initial_speed) + "\n")
+                # Note: this assumes all Python float formats (from str) can be read by the sim C code using atof().
+                # Whether this is true needs testing, by trying out lots of sizes of values of initial speed
+                # (perhaps negative too, if cad UI permits that). Ints might also be possible here (not sure),
+                # so the sim reading code should permit them too. [bruce 060307 comment]
         return
         
-    def readmmp_info_leaf_setitem( self, key, val, interp ): #mark 060307
-        "[extends Jig method]"
+    def readmmp_info_leaf_setitem( self, key, val, interp ): #mark 060307 [bruce revised Jig -> Motor same day, should have no effect]
+        "[extends superclass method]"
         if key == ['initial_speed']:
-            self.initial_speed = val
+            self.initial_speed = float(val)
+                #bruce 060307 added "float" (not sure if this really matters, since cad doesn't compute with it)
         else:
-            Jig.readmmp_info_leaf_setitem( self, key, val, interp)
+            Motor.readmmp_info_leaf_setitem( self, key, val, interp)
         return
     
     pass # end of class RotaryMotor
@@ -511,7 +520,9 @@ class LinearMotor(Motor):
     def mmp_record_jigspecific_midpart(self):
         cxyz = self.posn() * 1000
         axyz = self.axen() * 1000
-        dataline = "%.6f %.6f (%d, %d, %d) (%d, %d, %d) %.2f %.2f %.2f" % \
+        #bruce 060307 %.6f left as is for params used by sim, %.2f -> %.3f for graphics-only params
+        # (see further comments in RotaryMotor method)
+        dataline = "%.6f %.6f (%d, %d, %d) (%d, %d, %d) %.3f %.3f %.3f" % \
            (self.force, self.stiffness,
                 #bruce 050705 swapped force & stiffness order here, to fix bug 746;
                 # since linear motors have never worked in sim in a released version,
