@@ -53,6 +53,7 @@ from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
+from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 
 try:
     from atombase import AtomBase
@@ -635,7 +636,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ColorSorter.pushName(glname)
         try:
             if disp in [diVDW, diCPK, diTUBES]:
-                drawsphere(color, pos, drawrad, level)
+                if self.element is not Singlet or not debug_pref("draw bondpoints as stubs", Choice_boolean_False): #bruce 060307
+                    drawsphere(color, pos, drawrad, level)
             if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
                 #bruce 041217 experiment: show valence errors for picked atoms by
                 # using a different color for the wireframe.
@@ -873,15 +875,20 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 disp = self.display
         
         # Compute "rad"
-        rad = self.element.rvdw * env.prefs[cpkScaleFactor_prefs_key] # diVDW (default)
-            # mark 060307 added " * env.prefs[cpkScaleFactor_prefs_key]
-        if disp != diVDW:
-            rad = rad * CPKvdW
-        if disp == diCPK:
-            rad = rad * env.prefs[cpkAtomRadius_prefs_key] 
-            # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
         if disp == diTUBES: 
             rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
+        else:
+            #bruce 030607 moved all this into else clause; this might prevent some needless (and rare)
+            # gl_updates when all is shown in Tubes but prefs for other dispmodes are changed.
+            rad = self.element.rvdw # correct value for diVDW (formerly, default); modified to produce values for other dispmodes
+            if disp == diVDW: # as of mark 030607 this dispmode is called CPK in the UI
+                rad = rad * env.prefs[cpkScaleFactor_prefs_key] 
+                # mark 060307 added " * env.prefs[cpkScaleFactor_prefs_key], bruce bugfixed it same day to apply only to diVDW
+            if disp != diVDW:
+                rad = rad * CPKvdW # all other dispmode radii are based on diCPK, which as of mark 030607 is called Ball & Stick in UI
+            if disp == diCPK:
+                rad = rad * env.prefs[cpkAtomRadius_prefs_key] 
+                # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
         return (disp, rad)
 
     def selradius_squared(self):
