@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 jig_Gamess.py
 
@@ -554,20 +554,20 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 #        self.force.prin1()
         self.basis.prin1(f)
 
-    def param_names_and_valstrings(self): #bruce 050701; extended by Mark 050704 to return the proper set of params
+    def param_names_and_valstrings(self, canonical = False): #bruce 050701; extended by Mark 050704 to return the proper set of params
         """Return a list of pairs of (<param name>, <param value printable by %s>) for all
-        gamess params we want to write to an mmp file from this set.
+        gamess params we want to write to an mmp file from this set, sorted by <param name>.
            These names and value-strings need to be recognized and decoded by the
         info_gamess_setitem method of this class, and they need to strictly follow certain rules
         documented in comments in the self.writemmp() method.
-           Note: If we implement a "duplicate" context menu command for gamess jigs,
-        it should work by generating this same set of items, and feeding them to that
-        same info_gamess_setitem method (or an appropriate subroutine it calls)
-        of the new jig being made as a copy.
         """
-        items = []
-        items = self.ui.get_mmp_parms()
-        return items
+        # Note: If we implement a "duplicate" context menu command for gamess jigs,
+        # it should work by generating this same set of items, and feeding them to that
+        # same info_gamess_setitem method (or an appropriate subroutine it calls)
+        # of the new jig being made as a copy.
+        # [Since that was written, we did it differently (see cm_duplicate); we should
+        # review someday whether this advice is obsolete or should have been taken. -- bruce 060307]
+        return self.ui.get_mmp_parms(canonical = canonical)
 
     def deepcopy(self, alter_name = True): #bruce 051003 added alter_name, but I don't know if passing False is ever legal. ###@@@
         #bruce 050704; don't know whether this is complete [needs review by Mark; is it ok it only sets .ui?]
@@ -634,24 +634,15 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
         mapping.write("# end of gamess parameter set %s\n" % pset_index)
         return
 
-    def __eq__(self, other): #bruce 060306 for Undo bug 1616; doesn't fix it, not sure why -- need to find out why _s_deepcopy is
-        # being called in the first place! Undo's archive copy - ok. And the difference? see below. ####@@@@
+    def __eq__(self, other): #bruce 060306-08 for Undo bug 1616
         # note: defining __eq__ is sufficient, but only because we inherit from state_utils.DataMixin, which defines __ne__ based on it
         if other.__class__ is not self.__class__:
             return False
-        return self.param_names_and_valstrings() == other.param_names_and_valstrings() # self has 0/1 where other has False/True. hmm.
+        return self.param_names_and_valstrings(canonical = True) == other.param_names_and_valstrings(canonical = True)
+            # without canonical = True, self has 0/1 where other has False/True, which caused first try of __eq__ to not fix bug 1616.
 
-    def _s_printed_diff(self, other): #bruce 060306 for debugging why above __eq__ (try1) didn't fix bug 1616
-        "Assuming __eq__ returns False, explain why, at least enough to prove it was right."
-        if other.__class__ is not self.__class__:
-            return "classes differ: %r is not %r" % (other.__class__, self.__class__)
-        s1 = self.param_names_and_valstrings()
-        s2 = other.param_names_and_valstrings()
-        if s1 != s2:
-            # they are lists of pairs of string, i think
-            # (let a human decide why they differ)
-            return "param_names_and_valstrings differ:\n self:\n%r\n\n other:\n%r" % (s1,s2)
-        return "they seem the same!"
+    boolparms = ('damp', 'diis', 'dirscf', 'extrap', 'ncore', 'rstrct', 'shift', 'soscf' )
+        # these MUST MATCH info_gamess_setitem uses of decode_bool [bruce 060307, to help with bug 1616]
     
     def info_gamess_setitem(self, name, val, interp, error_if_name_not_known = False):
         #bruce 050701; extended by Mark 050704 to read and set the actual params; bruce 050704 added error_if_name_not_known
@@ -673,7 +664,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             if p is not None:
                 self.ui.conv = p
         elif name == 'damp':            # DAMP
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val) # if you add, remove, or rename decode_bool params here, you must also fix boolparms above
             if p is not None:
                 self.ui.damp = p
         elif name == 'dfttyp':          # DFT Functional Type
@@ -782,6 +773,10 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 
     pass # end of class gamessParms
 
+_boolparms = {} # used in ctlRec [bruce 060308]
+for p in gamessParms.boolparms:
+    _boolparms[p] = None
+    
 class ctlRec:
     def __init__(self, name, parms):
         self.name = name
@@ -808,15 +803,23 @@ class ctlRec:
             f.write (phrase + ' ')
         f.write('$END\n')
 
-    def get_mmp_parms(self):
-        '''Return a list of all the Gamess jig parms (and their values) to be stored in the 
-        MMP file.
+    def get_mmp_parms(self, canonical = False): 
+        '''Return a list of pairs (parmname, str(parmvalue)) of all the Gamess jig parms
+        (and str() of their values) to be stored in the MMP file, sorted by parm name.
+           If option canonical = True, canonicalize the values for comparison
+        (i.e. use "False" and "True" rather than "0" and "1", for all booleans).
+        WARNING: This option is only reviewed for correctness in the instance of this class
+        stored in the .ui attribute of its gamesParms object.
         '''
+        #bruce 060308 added canonical option, to help fix bug 1616
+        #bruce 060307 revised docstring to fit code (added str())
         items = []
         
-        for p in self.parms:
-#            print p, self.__dict__[p]
-            items.append((p, str(self.__dict__[p])))
+        for p in self.parms: # note: self.parms is already sorted [bruce 060307 comment]
+            val = self.__dict__[p]
+            if canonical and p in _boolparms:
+                val = not not val
+            items.append((p, str(val)))
       
         return items
         
