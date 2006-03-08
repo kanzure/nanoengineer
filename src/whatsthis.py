@@ -589,18 +589,23 @@ def createWhatsThis(self):
 
         self.dispCPKAction.setWhatsThis(dispCPKActionText ) 
         
-        #### Display CPK (was VdW) ####
+        #### Display CPK (was VdW) #### [bruce extended and slightly corrected text, 030607]
 
         dispVdWActionText = "<u><b>Display CPK</b></u><br>"\
                        "<p><img source=\"dispVdWAction\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>CPK</b> mode.  Atoms are rendered as spheres with "\
-                       "a size equal to the VdW radius.  Bonds are not rendered."\
+                       "a size equal to 0.78 of their VdW radius, corresponding "\
+                       "to a contact force of approximately 0.1 nN with neighboring "\
+                       "nonbonded atoms. Bonds are not rendered."\
                        "</p>"\
                        "<p>If no atoms or chunks are selected, then this action will change the "\
                        "<b>Current Display Mode</b> of the 3D workspace to <b>CPK</b>. " \
                        "All chunks with their display setting set to <b>Default</b> will inherit "\
                        "this display property."\
+                       "</p>"\
+                       "<p>The scale of the spheres can be changed from the "\
+                       "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
                       
         QMimeSourceFactory.defaultFactory().setPixmap( "dispVdWAction",
