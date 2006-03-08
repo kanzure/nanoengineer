@@ -405,16 +405,18 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
 def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency
+    # wware 060308 small performance improvement
     """Efficiently copy a general Python value (so that mutable components are not shared with the original),
     passing Python instances unchanged, unless they define a _s_deepcopy method,
     and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
        (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
-    typ = type(val)
-    copier = known_type_copiers.get(typ) # this is a fixed public dictionary
-    if copier is not None:
-        return copier(val) # we optimize by not storing any copier for atomic types.
-    return val
+    try:
+        # this is a fixed public dictionary
+        return known_type_copiers[type(val)](val)
+    except KeyError:
+        # we optimize by not storing any copier for atomic types.
+        return val
 
 def is_mutable(val): #060302 [###@@@ use this more]
     """Efficiently scan a potential argument to copy_val to see if it contains any mutable parts (including itself),
