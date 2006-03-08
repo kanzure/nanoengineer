@@ -178,13 +178,14 @@ class RotaryMotor(Motor):
     icon_names = ["rmotor.png", "rmotor-hide.png"]
     featurename = "Rotary Motor" #bruce 051203
 
-    copyable_attrs = Motor.copyable_attrs + ('torque', 'speed', 'length', 'radius', 'sradius', 'center', 'axis', 'enable_minimize')
+    copyable_attrs = Motor.copyable_attrs + ('torque', 'initial_speed', 'speed', 'length', 'radius', 'sradius', 'center', 'axis', 'enable_minimize')
 
     # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
         self.torque = 0.0 # in nN * nm
+        self.initial_speed = 0.0 # in gHz
         self.speed = 0.0 # in gHz
         self.center = V(0,0,0)
         self.axis = V(0,0,0)
@@ -379,6 +380,22 @@ class RotaryMotor(Motor):
             int(axyz[0]), int(axyz[1]), int(axyz[2]),
             self.length, self.radius, self.sradius   )
         return " " + dataline + "\n" + "shaft"
+        
+    def writemmp_info_leaf(self, mapping): #mark 060307
+        "[extends Jig method]"
+        Jig.writemmp_info_leaf(self, mapping)
+        if self.initial_speed:
+            # Note: info record not written if initial_speed = 0.0 (default).
+            mapping.write("info leaf initial_speed = " + str(self.initial_speed) + "\n")
+        return
+        
+    def readmmp_info_leaf_setitem( self, key, val, interp ): #mark 060307
+        "[extends Jig method]"
+        if key == ['initial_speed']:
+            self.initial_speed = val
+        else:
+            Jig.readmmp_info_leaf_setitem( self, key, val, interp)
+        return
     
     pass # end of class RotaryMotor
 

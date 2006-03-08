@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Fri Nov 11 02:16:41 2005
+# Created: Tue Mar 7 20:18:13 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -92,6 +92,86 @@ class RotaryMotorPropDialog(QDialog):
 
         RotaryMotorPropDialogLayout = QGridLayout(self,1,1,11,6,"RotaryMotorPropDialogLayout")
 
+        self.groupBox1 = QGroupBox(self,"groupBox1")
+        self.groupBox1.setColumnLayout(0,Qt.Vertical)
+        self.groupBox1.layout().setSpacing(6)
+        self.groupBox1.layout().setMargin(11)
+        groupBox1Layout = QGridLayout(self.groupBox1.layout())
+        groupBox1Layout.setAlignment(Qt.AlignTop)
+
+        layout76 = QHBoxLayout(None,0,6,"layout76")
+
+        layout75 = QHBoxLayout(None,0,6,"layout75")
+
+        self.jig_color_pixmap = QLabel(self.groupBox1,"jig_color_pixmap")
+        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
+        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(175,175,175))
+        self.jig_color_pixmap.setScaledContents(1)
+        layout75.addWidget(self.jig_color_pixmap)
+
+        self.choose_color_btn = QPushButton(self.groupBox1,"choose_color_btn")
+        self.choose_color_btn.setEnabled(1)
+        self.choose_color_btn.setAutoDefault(0)
+        layout75.addWidget(self.choose_color_btn)
+        layout76.addLayout(layout75)
+        spacer5 = QSpacerItem(46,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout76.addItem(spacer5)
+
+        groupBox1Layout.addMultiCellLayout(layout76,3,3,1,2)
+
+        self.textLabel1_2_2_2 = QLabel(self.groupBox1,"textLabel1_2_2_2")
+        self.textLabel1_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        groupBox1Layout.addWidget(self.textLabel1_2_2_2,2,0)
+
+        self.textLabel1_3 = QLabel(self.groupBox1,"textLabel1_3")
+        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        groupBox1Layout.addWidget(self.textLabel1_3,0,0)
+
+        self.textLabel1_2_2 = QLabel(self.groupBox1,"textLabel1_2_2")
+        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        groupBox1Layout.addWidget(self.textLabel1_2_2,1,0)
+
+        self.colorTextLabel = QLabel(self.groupBox1,"colorTextLabel")
+        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        groupBox1Layout.addWidget(self.colorTextLabel,3,0)
+
+        self.lengthLineEdit = QLineEdit(self.groupBox1,"lengthLineEdit")
+        self.lengthLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.lengthLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.lengthLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        groupBox1Layout.addWidget(self.lengthLineEdit,0,1)
+
+        self.sradiusLineEdit = QLineEdit(self.groupBox1,"sradiusLineEdit")
+        self.sradiusLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        groupBox1Layout.addWidget(self.sradiusLineEdit,2,1)
+
+        self.radiusLineEdit = QLineEdit(self.groupBox1,"radiusLineEdit")
+        self.radiusLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        groupBox1Layout.addWidget(self.radiusLineEdit,1,1)
+
+        self.textLabel3_2 = QLabel(self.groupBox1,"textLabel3_2")
+
+        groupBox1Layout.addWidget(self.textLabel3_2,1,2)
+
+        self.textLabel3 = QLabel(self.groupBox1,"textLabel3")
+
+        groupBox1Layout.addWidget(self.textLabel3,0,2)
+
+        self.textLabel3_3 = QLabel(self.groupBox1,"textLabel3_3")
+
+        groupBox1Layout.addWidget(self.textLabel3_3,2,2)
+
+        RotaryMotorPropDialogLayout.addWidget(self.groupBox1,1,0)
+        spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        RotaryMotorPropDialogLayout.addItem(spacer6,2,0)
+
         layout45 = QHBoxLayout(None,0,6,"layout45")
         spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout45.addItem(spacer7)
@@ -105,143 +185,90 @@ class RotaryMotorPropDialog(QDialog):
         self.cancel_btn.setAutoDefault(0)
         layout45.addWidget(self.cancel_btn)
 
-        RotaryMotorPropDialogLayout.addLayout(layout45,2,0)
-        spacer6 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        RotaryMotorPropDialogLayout.addItem(spacer6,1,0)
+        RotaryMotorPropDialogLayout.addLayout(layout45,3,0)
 
-        layout34 = QHBoxLayout(None,0,6,"layout34")
+        layout14 = QGridLayout(None,1,1,0,6,"layout14")
 
-        layout28 = QVBoxLayout(None,0,6,"layout28")
+        layout11 = QVBoxLayout(None,0,6,"layout11")
 
         self.nameTextLabel = QLabel(self,"nameTextLabel")
         self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.nameTextLabel)
+        layout11.addWidget(self.nameTextLabel)
 
         self.textLabel1 = QLabel(self,"textLabel1")
         textLabel1_font = QFont(self.textLabel1.font())
         self.textLabel1.setFont(textLabel1_font)
         self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.textLabel1)
+        layout11.addWidget(self.textLabel1)
+
+        self.textLabel1_2_3 = QLabel(self,"textLabel1_2_3")
+        self.textLabel1_2_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout11.addWidget(self.textLabel1_2_3)
 
         self.textLabel1_2 = QLabel(self,"textLabel1_2")
         self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.textLabel1_2)
-
-        self.textLabel1_3 = QLabel(self,"textLabel1_3")
-        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.textLabel1_3)
-
-        self.textLabel1_2_2 = QLabel(self,"textLabel1_2_2")
-        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.textLabel1_2_2)
-
-        self.textLabel1_2_2_2 = QLabel(self,"textLabel1_2_2_2")
-        self.textLabel1_2_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.textLabel1_2_2_2)
-
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.colorTextLabel)
+        layout11.addWidget(self.textLabel1_2)
 
         self.textLabel1_5 = QLabel(self,"textLabel1_5")
         self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout28.addWidget(self.textLabel1_5)
-        layout34.addLayout(layout28)
+        layout11.addWidget(self.textLabel1_5)
 
-        layout33 = QVBoxLayout(None,0,6,"layout33")
+        layout14.addLayout(layout11,0,0)
+
+        layout13 = QGridLayout(None,1,1,0,6,"layout13")
+
+        self.enable_minimize_checkbox = QCheckBox(self,"enable_minimize_checkbox")
+
+        layout13.addWidget(self.enable_minimize_checkbox,4,0)
+
+        self.textLabel1_4 = QLabel(self,"textLabel1_4")
+
+        layout13.addWidget(self.textLabel1_4,1,2)
+
+        self.initialSpeedLineEdit = QLineEdit(self,"initialSpeedLineEdit")
+        self.initialSpeedLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.initialSpeedLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.initialSpeedLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        layout13.addMultiCellWidget(self.initialSpeedLineEdit,2,2,0,1)
+
+        self.textLabel2_2 = QLabel(self,"textLabel2_2")
+
+        layout13.addWidget(self.textLabel2_2,2,2)
+        spacer16 = QSpacerItem(111,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout13.addMultiCell(spacer16,4,4,1,2)
 
         self.nameLineEdit = QLineEdit(self,"nameLineEdit")
         self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
         self.nameLineEdit.setReadOnly(0)
-        layout33.addWidget(self.nameLineEdit)
 
-        layout30 = QGridLayout(None,1,1,0,6,"layout30")
+        layout13.addMultiCellWidget(self.nameLineEdit,0,0,0,2)
 
         self.speedLineEdit = QLineEdit(self,"speedLineEdit")
         self.speedLineEdit.setFrameShape(QLineEdit.LineEditPanel)
         self.speedLineEdit.setFrameShadow(QLineEdit.Sunken)
         self.speedLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout30.addWidget(self.speedLineEdit,1,0)
-
-        self.textLabel1_4 = QLabel(self,"textLabel1_4")
-
-        layout30.addWidget(self.textLabel1_4,0,1)
-
-        self.lengthLineEdit = QLineEdit(self,"lengthLineEdit")
-        self.lengthLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.lengthLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.lengthLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout30.addWidget(self.lengthLineEdit,2,0)
-
-        self.radiusLineEdit = QLineEdit(self,"radiusLineEdit")
-        self.radiusLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout30.addWidget(self.radiusLineEdit,3,0)
-
-        self.textLabel3 = QLabel(self,"textLabel3")
-
-        layout30.addWidget(self.textLabel3,2,1)
-
-        self.sradiusLineEdit = QLineEdit(self,"sradiusLineEdit")
-        self.sradiusLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout30.addWidget(self.sradiusLineEdit,4,0)
-
-        self.textLabel3_2 = QLabel(self,"textLabel3_2")
-
-        layout30.addWidget(self.textLabel3_2,3,1)
-
-        self.textLabel3_3 = QLabel(self,"textLabel3_3")
-
-        layout30.addWidget(self.textLabel3_3,4,1)
+        layout13.addMultiCellWidget(self.speedLineEdit,3,3,0,1)
 
         self.torqueLineEdit = QLineEdit(self,"torqueLineEdit")
         self.torqueLineEdit.setAlignment(QLineEdit.AlignLeft)
 
-        layout30.addWidget(self.torqueLineEdit,0,0)
+        layout13.addMultiCellWidget(self.torqueLineEdit,1,1,0,1)
 
         self.textLabel2 = QLabel(self,"textLabel2")
 
-        layout30.addWidget(self.textLabel2,1,1)
-        layout33.addLayout(layout30)
+        layout13.addWidget(self.textLabel2,3,2)
 
-        layout76 = QHBoxLayout(None,0,6,"layout76")
+        layout14.addLayout(layout13,0,1)
 
-        layout75 = QHBoxLayout(None,0,6,"layout75")
-
-        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
-        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
-        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(175,175,175))
-        self.jig_color_pixmap.setScaledContents(1)
-        layout75.addWidget(self.jig_color_pixmap)
-
-        self.choose_color_btn = QPushButton(self,"choose_color_btn")
-        self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setAutoDefault(0)
-        layout75.addWidget(self.choose_color_btn)
-        layout76.addLayout(layout75)
-        spacer5 = QSpacerItem(46,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout76.addItem(spacer5)
-        layout33.addLayout(layout76)
-
-        layout29 = QHBoxLayout(None,0,6,"layout29")
-
-        self.enable_minimize_checkbox = QCheckBox(self,"enable_minimize_checkbox")
-        layout29.addWidget(self.enable_minimize_checkbox)
-        spacer16 = QSpacerItem(80,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout29.addItem(spacer16)
-        layout33.addLayout(layout29)
-        layout34.addLayout(layout33)
-
-        RotaryMotorPropDialogLayout.addLayout(layout34,0,0)
+        RotaryMotorPropDialogLayout.addLayout(layout14,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(289,294).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(280,340).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -252,8 +279,10 @@ class RotaryMotorPropDialog(QDialog):
         self.connect(self.sradiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
 
         self.setTabOrder(self.nameLineEdit,self.torqueLineEdit)
-        self.setTabOrder(self.torqueLineEdit,self.speedLineEdit)
-        self.setTabOrder(self.speedLineEdit,self.lengthLineEdit)
+        self.setTabOrder(self.torqueLineEdit,self.initialSpeedLineEdit)
+        self.setTabOrder(self.initialSpeedLineEdit,self.speedLineEdit)
+        self.setTabOrder(self.speedLineEdit,self.enable_minimize_checkbox)
+        self.setTabOrder(self.enable_minimize_checkbox,self.lengthLineEdit)
         self.setTabOrder(self.lengthLineEdit,self.radiusLineEdit)
         self.setTabOrder(self.radiusLineEdit,self.sradiusLineEdit)
         self.setTabOrder(self.sradiusLineEdit,self.choose_color_btn)
@@ -263,26 +292,29 @@ class RotaryMotorPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Rotary Motor Properties"))
+        self.groupBox1.setTitle(self.__tr("Size and Color"))
+        self.choose_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius :"))
+        self.textLabel1_3.setText(self.__tr("Motor Length :"))
+        self.textLabel1_2_2.setText(self.__tr("Motor Radius :"))
+        self.colorTextLabel.setText(self.__tr("Color :"))
+        self.textLabel3_2.setText(self.__tr("Angstroms"))
+        self.textLabel3.setText(self.__tr("Angstroms"))
+        self.textLabel3_3.setText(self.__tr("Angstroms"))
         self.ok_btn.setText(self.__tr("&OK"))
         self.ok_btn.setAccel(self.__tr("Alt+O"))
         self.cancel_btn.setText(self.__tr("&Cancel"))
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
         self.nameTextLabel.setText(self.__tr("Name :"))
         self.textLabel1.setText(self.__tr("Torque :"))
-        self.textLabel1_2.setText(self.__tr("Speed :"))
-        self.textLabel1_3.setText(self.__tr("Motor Length :"))
-        self.textLabel1_2_2.setText(self.__tr("Motor Radius :"))
-        self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius :"))
-        self.colorTextLabel.setText(self.__tr("Color :"))
+        self.textLabel1_2_3.setText(self.__tr("Initial Speed :"))
+        self.textLabel1_2.setText(self.__tr("Final Speed :"))
         self.textLabel1_5.setText(self.__tr("Enable in Minimize :"))
-        self.nameLineEdit.setText(QString.null)
-        self.textLabel1_4.setText(self.__tr("nN-nm"))
-        self.textLabel3.setText(self.__tr("Angstroms"))
-        self.textLabel3_2.setText(self.__tr("Angstroms"))
-        self.textLabel3_3.setText(self.__tr("Angstroms"))
-        self.textLabel2.setText(self.__tr("GHz"))
-        self.choose_color_btn.setText(self.__tr("Choose..."))
         self.enable_minimize_checkbox.setText(QString.null)
+        self.textLabel1_4.setText(self.__tr("nN-nm"))
+        self.textLabel2_2.setText(self.__tr("GHz"))
+        self.nameLineEdit.setText(QString.null)
+        self.textLabel2.setText(self.__tr("GHz"))
 
 
     def change_jig_color(self):

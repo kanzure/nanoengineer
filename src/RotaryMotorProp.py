@@ -26,8 +26,9 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
 
         self.nameLineEdit.setText(self.jig.name)
-        self.speedLineEdit.setText(str(self.jig.speed))
         self.torqueLineEdit.setText(str(self.jig.torque))
+        self.initialSpeedLineEdit.setText(str(self.jig.initial_speed))
+        self.speedLineEdit.setText(str(self.jig.speed))
         self.lengthLineEdit.setText(str(self.jig.length))
         self.radiusLineEdit.setText(str(self.jig.radius))
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
@@ -56,6 +57,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.jig.cancelled = False
         self.jig.try_rename(self.nameLineEdit.text())
         self.jig.torque = float(str(self.torqueLineEdit.text()))
+        self.jig.initial_speed = float(str(self.initialSpeedLineEdit.text()))
         self.jig.speed = float(str(self.speedLineEdit.text()))
         
         self.change_motor_size(gl_update=False)
