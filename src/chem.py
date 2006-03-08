@@ -873,7 +873,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 disp = self.display
         
         # Compute "rad"
-        rad = self.element.rvdw # diVDW (default)
+        rad = self.element.rvdw * env.prefs[cpkScaleFactor_prefs_key] # diVDW (default)
+            # mark 060307 added " * env.prefs[cpkScaleFactor_prefs_key]
         if disp != diVDW:
             rad = rad * CPKvdW
         if disp == diCPK:

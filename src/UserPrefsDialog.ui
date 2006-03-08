@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>568</width>
+            <width>565</width>
             <height>424</height>
         </rect>
     </property>
@@ -57,6 +57,23 @@
                 </widget>
             </hbox>
         </widget>
+        <spacer row="0" column="0">
+            <property name="name">
+                <cstring>spacer22_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
         <widget class="QTabWidget" row="0" column="0">
             <property name="name">
                 <cstring>prefs_tab</cstring>
@@ -619,9 +636,102 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" row="0" column="0" rowspan="2" colspan="1">
+                    <widget class="QLayoutWidget" row="0" column="1">
                         <property name="name">
-                            <cstring>layout68</cstring>
+                            <cstring>layout101</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout100</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1_7</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Level of Detail :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox">
+                                        <item>
+                                            <property name="text">
+                                                <string>Low</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>Medium</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>High</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>Variable</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>level_of_detail_combox</cstring>
+                                        </property>
+                                        <property name="currentItem">
+                                            <number>2</number>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer54</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </hbox>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer76</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>40</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </vbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0">
+                        <property name="name">
+                            <cstring>layout104</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -892,6 +1002,136 @@
                                     </widget>
                                 </grid>
                             </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout103</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>textLabel1_3_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Ball and Stick Atom Scale Factor :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>textLabel1_3_2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>CPK Scale Factor :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLayoutWidget" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>layout67</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QSpinBox">
+                                                <property name="name">
+                                                    <cstring>cpk_atom_rad_spinbox</cstring>
+                                                </property>
+                                                <property name="maxValue">
+                                                    <number>125</number>
+                                                </property>
+                                                <property name="minValue">
+                                                    <number>50</number>
+                                                </property>
+                                                <property name="value">
+                                                    <number>100</number>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_4</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>%</string>
+                                                </property>
+                                            </widget>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer38</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>19</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                        </hbox>
+                                    </widget>
+                                    <widget class="QLayoutWidget" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>layout67_2</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QSpinBox">
+                                                <property name="name">
+                                                    <cstring>cpk_scale_factor_spinbox</cstring>
+                                                </property>
+                                                <property name="maxValue">
+                                                    <number>100</number>
+                                                </property>
+                                                <property name="minValue">
+                                                    <number>50</number>
+                                                </property>
+                                                <property name="value">
+                                                    <number>100</number>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_4_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>%</string>
+                                                </property>
+                                            </widget>
+                                            <spacer>
+                                                <property name="name">
+                                                    <cstring>spacer38_3</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>19</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                        </hbox>
+                                    </widget>
+                                </grid>
+                            </widget>
                             <spacer>
                                 <property name="name">
                                     <cstring>spacer11</cstring>
@@ -911,129 +1151,6 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <spacer row="1" column="1">
-                        <property name="name">
-                            <cstring>spacer54</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>90</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="0" column="1">
-                        <property name="name">
-                            <cstring>layout80</cstring>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLabel" row="0" column="0">
-                                <property name="name">
-                                    <cstring>textLabel1_3_2</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>CPK Atom Radius :</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="0">
-                                <property name="name">
-                                    <cstring>textLabel1_7</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Level of Detail :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                            </widget>
-                            <widget class="QLayoutWidget" row="0" column="1">
-                                <property name="name">
-                                    <cstring>layout67</cstring>
-                                </property>
-                                <hbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QSpinBox">
-                                        <property name="name">
-                                            <cstring>cpk_atom_rad_spinbox</cstring>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>125</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>50</number>
-                                        </property>
-                                        <property name="value">
-                                            <number>100</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel1_4</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>%</string>
-                                        </property>
-                                    </widget>
-                                    <spacer>
-                                        <property name="name">
-                                            <cstring>spacer38</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>19</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                </hbox>
-                            </widget>
-                            <widget class="QComboBox" row="1" column="1">
-                                <item>
-                                    <property name="text">
-                                        <string>Low</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>Medium</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>High</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>Variable</string>
-                                    </property>
-                                </item>
-                                <property name="name">
-                                    <cstring>level_of_detail_combox</cstring>
-                                </property>
-                                <property name="currentItem">
-                                    <number>2</number>
-                                </property>
-                            </widget>
-                        </grid>
-                    </widget>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -1049,7 +1166,7 @@
                     </property>
                     <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
-                            <cstring>layout75</cstring>
+                            <cstring>layout111</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -1360,6 +1477,127 @@
                                     </widget>
                                 </vbox>
                             </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout110</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout109</cstring>
+                                        </property>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Ball and Stick Cylinder Scale Factor :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Bond Line Thickness :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                                </property>
+                                                <property name="whatsThis" stdset="0">
+                                                    <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                                </property>
+                                            </widget>
+                                        </vbox>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout106</cstring>
+                                        </property>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QSpinBox">
+                                                <property name="name">
+                                                    <cstring>cpk_cylinder_rad_spinbox</cstring>
+                                                </property>
+                                                <property name="maxValue">
+                                                    <number>125</number>
+                                                </property>
+                                                <property name="minValue">
+                                                    <number>50</number>
+                                                </property>
+                                                <property name="value">
+                                                    <number>100</number>
+                                                </property>
+                                            </widget>
+                                            <widget class="QSpinBox">
+                                                <property name="name">
+                                                    <cstring>bond_line_thickness_spinbox</cstring>
+                                                </property>
+                                                <property name="maxValue">
+                                                    <number>3</number>
+                                                </property>
+                                                <property name="minValue">
+                                                    <number>1</number>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                                </property>
+                                                <property name="whatsThis" stdset="0">
+                                                    <string>Bond thickness (in pixels) for Lines Display Mode</string>
+                                                </property>
+                                            </widget>
+                                        </vbox>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout108</cstring>
+                                        </property>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_2_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>%</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignLeft</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>pixels</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignLeft</set>
+                                                </property>
+                                            </widget>
+                                        </vbox>
+                                    </widget>
+                                </hbox>
+                            </widget>
                             <spacer>
                                 <property name="name">
                                     <cstring>spacer22</cstring>
@@ -1373,143 +1611,20 @@
                                 <property name="sizeHint">
                                     <size>
                                         <width>20</width>
-                                        <height>16</height>
+                                        <height>51</height>
                                     </size>
                                 </property>
                             </spacer>
                         </vbox>
                     </widget>
-                    <spacer row="0" column="2">
-                        <property name="name">
-                            <cstring>spacer22_2</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>28</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
                     <widget class="QLayoutWidget" row="0" column="1">
                         <property name="name">
-                            <cstring>layout79</cstring>
+                            <cstring>layout98</cstring>
                         </property>
                         <vbox>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget">
-                                <property name="name">
-                                    <cstring>layout77</cstring>
-                                </property>
-                                <hbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel1_3</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>CPK Cylinder Radius :</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox">
-                                        <property name="name">
-                                            <cstring>cpk_cylinder_rad_spinbox</cstring>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>125</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>50</number>
-                                        </property>
-                                        <property name="value">
-                                            <number>100</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel1_2_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>%</string>
-                                        </property>
-                                    </widget>
-                                    <spacer>
-                                        <property name="name">
-                                            <cstring>spacer22_2_2</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>16</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                </hbox>
-                            </widget>
-                            <widget class="QLayoutWidget">
-                                <property name="name">
-                                    <cstring>layout78</cstring>
-                                </property>
-                                <hbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel1</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Bond Line Thickness :</string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox">
-                                        <property name="name">
-                                            <cstring>bond_line_thickness_spinbox</cstring>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>3</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>1</number>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
-                                            <cstring>textLabel1_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>pixels</string>
-                                        </property>
-                                    </widget>
-                                </hbox>
-                            </widget>
                             <widget class="QLayoutWidget">
                                 <property name="name">
                                     <cstring>layout76</cstring>
@@ -1579,7 +1694,7 @@
                                         </property>
                                         <property name="sizeHint">
                                             <size>
-                                                <width>16</width>
+                                                <width>72</width>
                                                 <height>20</height>
                                             </size>
                                         </property>
@@ -1615,7 +1730,7 @@
                                 <property name="sizeHint">
                                     <size>
                                         <width>20</width>
-                                        <height>20</height>
+                                        <height>144</height>
                                     </size>
                                 </property>
                             </spacer>
@@ -4319,6 +4434,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     </connection>
+    <connection>
+        <sender>cpk_scale_factor_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_cpk_scale_factor()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -4444,6 +4565,7 @@
     <slot>set_realtime_minimization()</slot>
     <slot>set_selatomsmode_highlighting()</slot>
     <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
+    <slot>change_cpk_scale_factor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

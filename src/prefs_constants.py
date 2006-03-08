@@ -66,8 +66,8 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
 bondpointHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
-#CPK atom radius (percentage), mark 051003
 cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage'
+cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor'
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
 
 freeValenceColor_prefs_key = 'A6/Free Valence Color' # Never used. Should it be abandoned? mark 060215.
@@ -211,6 +211,7 @@ prefs_table = (
     # Atom preferences - other
     
     ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003
+    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 1.0), #mark 060307
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diVDW to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     

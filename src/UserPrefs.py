@@ -371,6 +371,9 @@ class UserPrefs(UserPrefsDialog):
         
         # Set CPK Atom radius (percentage).  Mark 051003.
         self.cpk_atom_rad_spinbox.setValue(int (env.prefs[cpkAtomRadius_prefs_key] * 100.0))
+        
+        # Set CPK Scale Factor (percentage).  Mark 060307.
+        self.cpk_scale_factor_spinbox.setValue(int (env.prefs[cpkScaleFactor_prefs_key] * 100.0))
 
         return
     
@@ -626,9 +629,15 @@ class UserPrefs(UserPrefsDialog):
         return
         
     def change_cpk_atom_radius(self, val):
-        '''Change the CPK atom radius by % value <val>.
+        '''Change the CPK (Ball and Stick) atom radius by % value <val>.
         '''
         env.prefs[cpkAtomRadius_prefs_key] = val * .01
+        self.glpane.gl_update()
+        
+    def change_cpk_scale_factor(self, val):
+        '''Change the CPK (VdW) scale factor by % value <val>.
+        '''
+        env.prefs[cpkScaleFactor_prefs_key] = val *.01
         self.glpane.gl_update()
         
     ########## End of slot methods for "Atoms" page widgets ###########
@@ -695,7 +704,7 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
         
     def change_cpk_cylinder_radius(self, val):
-        '''Change the CPK cylinder radius by % value <val>.
+        '''Change the CPK (Ball and Stick) cylinder radius by % value <val>.
         '''
         env.prefs[cpkCylinderRadius_prefs_key] = val *.01
         self.glpane.gl_update()
