@@ -88,9 +88,9 @@ struct jig
 	} thermostat;
 	
 	struct {
-	    double stall;
-	    double speed;
-            double minimizeTorque;
+	    double stall; // zero speed torque in pN-pm
+	    double speed; // zero torque speed in radians per second
+            double minimizeTorque; // torque in nN-nm
 	    
 	    // A point on the motor axis
 	    struct xyz center;
@@ -110,9 +110,10 @@ struct jig
 
             // variables below here are updated by the jig code.
             
-	    // How far the motor has turned.
+	    // How far the motor has turned in radians.
 	    double theta;
-	    
+
+            // current angular speed in radians per second.
 	    double omega;
 	    
 	    // For each atom in motor, the previous displacement of the atom

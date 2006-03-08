@@ -102,6 +102,9 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     }
 #endif
 
+    // omega is current motor speed in radians per second.
+    // jig->j.rmotor.speed is top (zero torque) speed in radians per second.
+    // jig->j.rmotor.stall is zero speed torque in pN-pm or yNm (yocto Nm, 1e-24 Kg m^2 sec^-2)
     omega = jig->j.rmotor.omega;
     // Bosch model
     if (fabs(jig->j.rmotor.speed) < minspeed) {
@@ -113,6 +116,8 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     } else {
 	m = jig->j.rmotor.stall / jig->j.rmotor.speed;
     }
+    // m is yocto Kg m^2 sec^-1 radian^-1
+    // motorq is yNm
     motorq = m * (jig->j.rmotor.speed - omega);
     // don't let the torque get too big
     if (motorq > 2.0 * jig->j.rmotor.stall) {
@@ -140,6 +145,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	r = position[a1];
 	vsub(r, anchor);
 	rprev = r;
+        // r in pm, SPRING_STIFFNESS in N/m, f in pN
 	vmul2c(f, r, -SPRING_STIFFNESS);
 	// If the spring stretches much, that probably means we need more
 	// damping, so increase the effective damping coefficient, but don't
@@ -185,7 +191,7 @@ jigMinimizePotentialRotaryMotor(struct part *p, struct jig *jig,
     int a1;
     // potential is in aJ (1e-18 J, 1e-18 N m)
     // here, aJ radians
-    // torque is aN m
+    // torque is aN m (nN-nm)
     double potential = -jig->j.rmotor.minimizeTorque * *pTheta;
     double cos_theta = cos(*pTheta);
     double sin_theta = sin(*pTheta);
@@ -211,6 +217,7 @@ jigMinimizePotentialRotaryMotor(struct part *p, struct jig *jig,
 	vsub(r, anchor);
         // r in pm
         // SPRING_STIFFNESS is in N/m
+        // potential in N/m * pm * pm * 1e-6 am/ym or aJ
         potential += 0.5 * SPRING_STIFFNESS * vdot(r, r) * 1e-6; 
     }
     
@@ -261,7 +268,7 @@ jigMinimizeGradientRotaryMotor(struct part *p, struct jig *jig,
 	r = vdif(positions[a1], jig->j.rmotor.center);
         // r in pm, f in pN, tmp in yJ, multiply by 1e-6 to get aJ
 	tmp = vx(r, f);
-	gradient += vdot(tmp, jig->j.rmotor.axis) * 1e-6; // axis is unit vector
+	gradient -= vdot(tmp, jig->j.rmotor.axis) * 1e-6; // axis is unit vector
     }
 
     *pGradient = gradient;

@@ -862,7 +862,7 @@ makeRotaryMotor(struct part *p, char *name,
     // Example uses 1 nN-nm -> 1e6 pN-pm
     // Example uses 2 GHz -> 12.5664e9 radians/second
 
-    // convert nN-nm to pN-pm
+    // convert nN-nm to pN-pm (multiply by 1e6)
     // torque's sign is meaningless, force it positive
     j->j.rmotor.stall = fabs(stall) * (1e-9/Dx) * (1e-9/Dx);
 
@@ -1101,8 +1101,8 @@ printJig(FILE *f, struct part *p, struct jig *j)
 	fprintf(f, "  temperature: %f\n", j->j.thermostat.temperature);
 	break;
     case RotaryMotor:
-	fprintf(f, "  stall: %f\n", j->j.rmotor.stall);
-	fprintf(f, "  speed: %f\n", j->j.rmotor.speed);
+	fprintf(f, "  stall: %13.10e pN-pm\n", j->j.rmotor.stall);
+	fprintf(f, "  speed: %13.10e radians per second\n", j->j.rmotor.speed);
 	fprintf(f, "  center: ");
 	printXYZ(f, j->j.rmotor.center);
 	fprintf(f, "\n");

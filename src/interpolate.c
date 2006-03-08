@@ -486,6 +486,9 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
          stretch->r0 * 0.5,
          stretch->inflectionR);
 
+  printf("# r in pm, potentials in aJ, gradients in pN\n");
+  printf("#        r            interp potential    interp gradient     direct potential    direct gradient   extension potential  extention gradient  d(interp potential)\n");
+
   interpolated_potential = stretchPotential(NULL, NULL, stretch, initial);
   for (r=initial; r<limit; r+=increment) {
     lip = interpolated_potential;
