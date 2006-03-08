@@ -70,6 +70,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # class constants to serve as default values of attributes
     _hotspot = None
+    _s_attr_hotspot = S_REF #bruce 060308 to fix bug 1633
     _colorfunc = None
     # this overrides global display (GLPane.display)
     # but is overriden by atom value if not default
@@ -77,7 +78,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     display = diDEFAULT
     # this overrides atom colors if set
     color = None
-    is_movable = True #mark 060120
+    is_movable = True #mark 060120 [no need for _s_attr decl, since constant for this class -- bruce guess 060308]
         
     # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
 
@@ -100,6 +101,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         self.invalidate_atom_lists() # this is the least we need (in general), but doesn't cover atom posns I think
         self.invalidate_everything() # this is probably overkill, but otoh i don't even know for sure it covers invalidate_atom_lists
+        self._colorfunc = None; del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
         Node._undo_update(self) ##k do this before or after the following??
             # (general rule for subclass/superclass for this? guess: more like destroy than create, so do high-level (subclass) first)
         return
