@@ -259,7 +259,9 @@ extern void makeRadiusMeter(struct part *p, char *name, int atomID1, int atomID2
 
 extern void makeThermostat(struct part *p, char *name, double temperature, int firstAtomID, int lastAtomID);
 
-extern void makeRotaryMotor(struct part *p, char *name, double stall, double speed, struct xyz *center, struct xyz *axis, int atomListLength, int *atomList);
+extern struct jig * makeRotaryMotor(struct part *p, char *name, double stall, double speed, struct xyz *center, struct xyz *axis, int atomListLength, int *atomList);
+
+extern void setInitialSpeed(struct jig *j, double initialSpeed);
 
 extern void makeLinearMotor(struct part *p, char *name, double force, double stiffness, struct xyz *center, struct xyz *axis, int atomListLength, int *atomList);
 

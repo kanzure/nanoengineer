@@ -845,7 +845,7 @@ makeThermostat(struct part *p, char *name, double temperature, int firstAtomID, 
 // (XXX need good description of behavior of stall and speed)
 // stall torque is in nN-nm
 // speed is in GHz
-void
+struct jig *
 makeRotaryMotor(struct part *p, char *name,
                 double stall, double speed,
                 struct xyz *center, struct xyz *axis,
@@ -909,6 +909,17 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.momentOfInertia *= 11.0;
     j->j.rmotor.theta = 0.0;
     j->j.rmotor.omega = 0.0;
+    return j;
+}
+
+// set initial speed of rotary motor
+// initialSpeed in GHz
+// rmotor.omega in radians per second
+void
+setInitialSpeed(struct jig *j, double initialSpeed)
+{
+    j->j.rmotor.omega = initialSpeed * 2.0e9 * Pi;
+    // maybe also set minimizeTorque
 }
 
 // Create a linear motor jig in this part, given the name of the jig,
@@ -1101,8 +1112,10 @@ printJig(FILE *f, struct part *p, struct jig *j)
 	fprintf(f, "  temperature: %f\n", j->j.thermostat.temperature);
 	break;
     case RotaryMotor:
-	fprintf(f, "  stall: %13.10e pN-pm\n", j->j.rmotor.stall);
-	fprintf(f, "  speed: %13.10e radians per second\n", j->j.rmotor.speed);
+	fprintf(f, "  stall torque: %13.10e pN-pm\n", j->j.rmotor.stall);
+	fprintf(f, "  top speed: %13.10e radians per second\n", j->j.rmotor.speed);
+	fprintf(f, "  current speed: %13.10e radians per second\n", j->j.rmotor.omega);
+	fprintf(f, "  minimize torque: %13.10e pN-pm\n", j->j.rmotor.minimizeTorque * 1e6);
 	fprintf(f, "  center: ");
 	printXYZ(f, j->j.rmotor.center);
 	fprintf(f, "\n");

@@ -375,6 +375,8 @@ readMMP(char *filename)
   int fontsize;
   int elementType;
   int previousAtomID = -1; // ID of atom just defined, so we can back-reference to it in later lines
+  struct jig *previousRotaryMotor = NULL; // for back-reference of info line setting initial_speed
+  double initialSpeed;
   double stall;
   double speed;
   double force;
@@ -420,8 +422,11 @@ readMMP(char *filename)
 			
       makeAtom(p, atomID, elementType, position);
     }
-    
-    // info atom atomtype = sp2
+
+    // after an atom:
+    //  info atom atomtype = sp2
+    // after an rmotor:
+    //  info leaf initial_speed = 20.0
     else if (!strcmp(tok, "info")) {
       consumeWhitespace(mmp);
       tok = readToken(mmp);
@@ -454,6 +459,21 @@ readMMP(char *filename)
           consumeRestOfLine(mmp);
 
           setAtomHybridization(p, previousAtomID, hybridization);
+        }
+      } else if (!strcmp(tok, "leaf")) {
+        consumeWhitespace(mmp);
+        tok = readToken(mmp);
+        if (!strcmp(tok, "initial_speed")) {
+          consumeWhitespace(mmp);
+          expectToken(mmp, "=");
+          expectDouble(mmp, &initialSpeed, 0);
+          consumeRestOfLine(mmp);
+
+          if (previousRotaryMotor == NULL) {
+            ERROR("setting initial_speed without previous rotary motor");
+            mmpParseError(mmp);
+          }
+          setInitialSpeed(previousRotaryMotor, initialSpeed);
         }
       }
     }
@@ -560,7 +580,7 @@ readMMP(char *filename)
       consumeRestOfLine(mmp);
       expectToken(mmp, "shaft");
       expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeRotaryMotor(p, name, stall, speed, &center, &axis, atomListLength, atomList);
+      previousRotaryMotor = makeRotaryMotor(p, name, stall, speed, &center, &axis, atomListLength, atomList);
     }
 
     /* lmotor (name) (r,g,b) <force> <stiff> (<center>) (<axis>) */
