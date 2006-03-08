@@ -589,7 +589,7 @@ def createWhatsThis(self):
 
         self.dispCPKAction.setWhatsThis(dispCPKActionText ) 
         
-        #### Display CPK (was VdW) #### [bruce extended and slightly corrected text, 030607]
+        #### Display CPK (was VdW) #### [bruce extended and slightly corrected text, 060307]
 
         dispVdWActionText = "<u><b>Display CPK</b></u><br>"\
                        "<p><img source=\"dispVdWAction\"><br> "\

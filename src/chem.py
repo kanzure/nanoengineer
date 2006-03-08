@@ -878,14 +878,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if disp == diTUBES: 
             rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
         else:
-            #bruce 030607 moved all this into else clause; this might prevent some needless (and rare)
+            #bruce 060307 moved all this into else clause; this might prevent some needless (and rare)
             # gl_updates when all is shown in Tubes but prefs for other dispmodes are changed.
             rad = self.element.rvdw # correct value for diVDW (formerly, default); modified to produce values for other dispmodes
-            if disp == diVDW: # as of mark 030607 this dispmode is called CPK in the UI
+            if disp == diVDW: # as of mark 060307 this dispmode is called CPK in the UI
                 rad = rad * env.prefs[cpkScaleFactor_prefs_key] 
                 # mark 060307 added " * env.prefs[cpkScaleFactor_prefs_key], bruce bugfixed it same day to apply only to diVDW
             if disp != diVDW:
-                rad = rad * CPKvdW # all other dispmode radii are based on diCPK, which as of mark 030607 is called Ball & Stick in UI
+                rad = rad * CPKvdW # all other dispmode radii are based on diCPK, which as of mark 060307 is called Ball & Stick in UI
             if disp == diCPK:
                 rad = rad * env.prefs[cpkAtomRadius_prefs_key] 
                 # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
