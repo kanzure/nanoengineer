@@ -41,7 +41,7 @@ def vlen(v1):
     #bruce 050518 question: is vlen correct for int vectors, not only float ones?
     # In theory it should be, since sqrt works for int args and always gives float answers.
     # And is it correct for Numeric arrays of vectors? I don't know; norm is definitely not.
-    return sqrt(dot(v1, v1))
+    return dot(v1, v1) ** 0.5
 
 def norm(v1):
     #bruce 050518 questions:
@@ -51,7 +51,7 @@ def norm(v1):
     # No... clearly the "if" makes the same choice for all of them, but even ignoring that,
     # it gives an alignment exception for any vector-array rather than working at all.
     # I don't know how hard that would be to fix.
-    lng = vlen(v1)
+    lng = dot(v1, v1) ** 0.5
     if lng:
         return v1 / lng
         # bruce 041012 optimized this by using lng instead of
@@ -183,7 +183,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             y = norm(y)
             dotxy = dot(x, y)
             v = cross(x, y)
-            vl = vlen(v)
+            vl = dot(v, v) ** .5
             if vl<0.000001:
                 # x,y are very close, or very close to opposite, or one of them is zero
                 if dotxy < 0:
@@ -201,7 +201,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                     # so formula for xyz part is v/vl * vl/2 == v/2 [bruce 050730]
                     xyz = v/2.0
                     sintheta2 = vl/2.0 # sin(theta/2)
-                    costheta2 = sqrt(1-sintheta2**2) # cos(theta/2)
+                    costheta2 = (1-sintheta2**2) ** .5 # cos(theta/2)
                     self.vec = V(costheta2, xyz[0], xyz[1], xyz[2])
             else:
                 # old code's method is numerically unstable if abs(dotxy) is close to 1. I didn't fix this.
@@ -210,7 +210,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                 if dot(y, cross(x, v)) > 0.0:
                     theta = 2.0 * pi - theta
                 w=cos(theta*0.5)
-                s=sqrt(1-w**2)/vl
+                s=((1-w**2)**.5)/vl
                 self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
             pass
         
@@ -402,9 +402,9 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     def normalize(self):
         w=self.vec[0]
         v=V(self.vec[1],self.vec[2],self.vec[3])
-        length = vlen(v)
+        length = dot(v, v) ** .5
         if length:
-            s=sqrt(1.0-w**2)/length
+            s=((1.0-w**2)**.5)/length
             self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
         else: self.vec = V(1,0,0,0)
         return self
@@ -443,7 +443,7 @@ def twistor_angle(axis, pt1, pt2): #bruce 050724 split this out of twistor()
 
 # project a point from a tangent plane onto a unit sphere
 def proj2sphere(x, y):
-    d = sqrt(x*x + y*y)
+    d = (x*x + y*y) ** .5
     theta = pi * 0.5 * d
     s=sin(theta)
     if d>0.0001: return V(s*x/d, s*y/d, cos(theta))

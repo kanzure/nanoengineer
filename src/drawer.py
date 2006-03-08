@@ -506,7 +506,7 @@ def drawcylinder_worker(params):
 
     glPushMatrix()
     vec = pos2-pos1
-    axis = norm(vec)
+    axis = vec / dot(vec,vec)**.5
     glTranslatef(pos1[0], pos1[1], pos1[2])
     
     ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
@@ -517,7 +517,7 @@ def drawcylinder_worker(params):
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
   
-    glScale(radius,radius,vlen(vec))
+    glScale(radius,radius,dot(vec,vec)**.5)
     glCallList(CylList)
     if capped: glCallList(CapList)
 
@@ -1391,7 +1391,7 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
     glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
-    glScale(radius,radius,vlen(vec))
+    glScale(radius,radius,dot(vec,vec)**.5)
 
     glLineWidth(2.0)
     glDisable(GL_LIGHTING)
