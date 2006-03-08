@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Mar 7 21:44:06 2006
+# Created: Tue Mar 7 22:01:25 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1484,9 +1484,9 @@ class UserPrefsDialog(QDialog):
         self.display_mode_combox.clear()
         self.display_mode_combox.insertItem(self.__tr("Default"))
         self.display_mode_combox.insertItem(self.__tr("Invisible"))
-        self.display_mode_combox.insertItem(self.__tr("VdW"))
-        self.display_mode_combox.insertItem(self.__tr("Lines"))
         self.display_mode_combox.insertItem(self.__tr("CPK"))
+        self.display_mode_combox.insertItem(self.__tr("Lines"))
+        self.display_mode_combox.insertItem(self.__tr("Ball and Stick"))
         self.display_mode_combox.insertItem(self.__tr("Tubes"))
         self.bg_groupbox.setTitle(self.__tr("Background Color"))
         self.fill_type_lbl.setText(self.__tr("Fill Type :"))
@@ -1497,8 +1497,8 @@ class UserPrefsDialog(QDialog):
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
         self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.default_display_btngrp.setTitle(self.__tr("Default Display Mode"))
-        self.vwd_rbtn.setText(self.__tr("VdW"))
-        self.cpk_rbtn.setText(self.__tr("CPK"))
+        self.vwd_rbtn.setText(self.__tr("CPK"))
+        self.cpk_rbtn.setText(self.__tr("Ball and Stick"))
         self.lines_rbtn.setText(self.__tr("Lines"))
         self.tubes_rbtn.setText(self.__tr("Tubes"))
         self.buildmode_groupbox.setTitle(self.__tr("Build Mode Defaults"))

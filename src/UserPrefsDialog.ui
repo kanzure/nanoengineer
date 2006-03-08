@@ -1983,7 +1983,7 @@
                                                         </item>
                                                         <item>
                                                             <property name="text">
-                                                                <string>VdW</string>
+                                                                <string>CPK</string>
                                                             </property>
                                                         </item>
                                                         <item>
@@ -1993,7 +1993,7 @@
                                                         </item>
                                                         <item>
                                                             <property name="text">
-                                                                <string>CPK</string>
+                                                                <string>Ball and Stick</string>
                                                             </property>
                                                         </item>
                                                         <item>
@@ -2193,7 +2193,7 @@
                                             <cstring>vwd_rbtn</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>VdW</string>
+                                            <string>CPK</string>
                                         </property>
                                         <property name="buttonGroupId">
                                             <number>2</number>
@@ -2204,7 +2204,7 @@
                                             <cstring>cpk_rbtn</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>CPK</string>
+                                            <string>Ball and Stick</string>
                                         </property>
                                         <property name="buttonGroupId">
                                             <number>4</number>
