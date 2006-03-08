@@ -1432,7 +1432,7 @@
                                                     <cstring>textLabel3</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>CPK Cylinder :</string>
+                                                    <string>Ball and Stick Cylinder :</string>
                                                 </property>
                                                 <property name="alignment">
                                                     <set>AlignVCenter|AlignRight</set>

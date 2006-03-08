@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Mar 7 22:01:25 2006
+# Created: Tue Mar 7 22:09:32 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1442,7 +1442,7 @@ class UserPrefsDialog(QDialog):
         self.textLabel3_2.setText(self.__tr("Bond Highlighting :"))
         self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
         self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3.setText(self.__tr("CPK Cylinder :"))
+        self.textLabel3.setText(self.__tr("Ball and Stick Cylinder :"))
         self.reset_bond_colors_btn.setText(self.__tr("Restore Default Colors"))
         self.textLabel1_3.setText(self.__tr("Ball and Stick Cylinder Scale Factor :"))
         self.textLabel1.setText(self.__tr("Bond Line Thickness :"))
