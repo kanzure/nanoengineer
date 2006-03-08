@@ -66,8 +66,8 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
 bondpointHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
-cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage'
-cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor'
+cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage' # this is about diCPK which as of 060307 is called Ball and Stick in UI
+cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diVDW which as of 060307 is called CPK in UI
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
 
 freeValenceColor_prefs_key = 'A6/Free Valence Color' # Never used. Should it be abandoned? mark 060215.
@@ -83,7 +83,7 @@ showValenceErrors_prefs_key = 'A6/Show Valence Errors'
 #display lines mode line thickness, mark 050831
 linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 #CPK cylinder radius (percentage), mark 051003
-cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage'
+cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diCPK, called Ball and Stick as of 060307
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -210,8 +210,8 @@ prefs_table = (
     
     # Atom preferences - other
     
-    ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003
-    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.78), #mark 060307
+    ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
+    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.78), #mark 060307 [about diVDW, calld CPK in UI as of now]
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diVDW to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     
