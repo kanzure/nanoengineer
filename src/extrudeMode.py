@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 extrudeMode.py
 
@@ -1147,9 +1147,11 @@ class extrudeMode(basicMode):
         for mol in self.molcopies:
             try:
                 del mol._colorfunc # let class attr [added 050524] be visible again; exception if it already was
-                mol.changeapp(0)
             except:
                 pass
+            else:
+                #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
+                mol.changeapp(0)
         self.finalize_product(cancelling = cancelling)
             # this also emits status messages and does some cleanup of broken_externs...
         self.o.assy.update_parts()
