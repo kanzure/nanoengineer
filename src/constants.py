@@ -71,13 +71,15 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
 ## Josh 11/2
 diDEFAULT = 0
 diINVISIBLE = 1
-diVDW = 2
+diVDW = 2 # really "CPK". mark 060307.
 diLINES = 3
-diCPK = 4
+diCPK = 4 # really "Ball and Stick". mark 060307.
 diTUBES = 5
 
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
-dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
+#dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
+dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
+# Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.
 
 # display mode for new glpanes (#e should be a user preference) [bruce 041129]
 default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]

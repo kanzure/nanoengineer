@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Mar 3 00:34:52 2006
+# Created: Tue Mar 7 20:48:47 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7084,7 +7084,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1084,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -7762,8 +7762,8 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.setMenuText(self.__tr("&Dehydrogenate"))
         self.toggleGridsTbarAction.setText(self.__tr("Grids"))
         self.toggleGridsTbarAction.setMenuText(self.__tr("Grids"))
-        self.dispCPKAction.setText(self.__tr("CPK"))
-        self.dispCPKAction.setMenuText(self.__tr("CPK"))
+        self.dispCPKAction.setText(self.__tr("Ball and Stick"))
+        self.dispCPKAction.setMenuText(self.__tr("Ball and Stick"))
         self.dispDefaultAction.setText(self.__tr("Default"))
         self.dispDefaultAction.setMenuText(self.__tr("Default"))
         self.dispInvisAction.setText(self.__tr("Invisible"))
@@ -7772,8 +7772,8 @@ class MainWindow(QMainWindow):
         self.dispLinesAction.setMenuText(self.__tr("Lines"))
         self.dispTubesAction.setText(self.__tr("Tubes"))
         self.dispTubesAction.setMenuText(self.__tr("Tubes"))
-        self.dispVdWAction.setText(self.__tr("VdW"))
-        self.dispVdWAction.setMenuText(self.__tr("VdW"))
+        self.dispVdWAction.setText(self.__tr("CPK"))
+        self.dispVdWAction.setMenuText(self.__tr("CPK"))
         self.setPerspectiveActionGroup.setText(self.__tr("ActionGroup"))
         self.setPerspectiveActionGroup.setMenuText(self.__tr("ActionGroup"))
         self.setViewOrthoAction.setText(self.__tr("Orthographic Projection"))

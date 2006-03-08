@@ -567,18 +567,21 @@ def createWhatsThis(self):
 
         self.dispTubesAction.setWhatsThis(dispTubesActionText )  
         
-        #### Display CPK ####
+        #### Display Ball and Stick (was CPK) ####
 
-        dispCPKActionText = "<u><b>Display CPK</b></u><br>"\
+        dispCPKActionText = "<u><b>Display Ball and Stick</b></u><br>"\
                        "<p><img source=\"dispCPKAction\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
-                       "<b>CPK</b> mode, also known as <b>\"Ball and Sticks\"</b> mode.  Atoms are rendered "\
+                       "<b>Ball and Stick</b> mode.  Atoms are rendered "\
                        "as spheres and bonds are rendered as narrow cylinders."\
                        "</p>"\
                        "<p>If no atoms or chunks are selected, then this action will change the "\
-                       "<b>Current Display Mode</b> of the 3D workspace to <b>CPK</b>. " \
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>Ball and Stick</b>. " \
                        "All chunks with their display setting set to <b>Default</b> will inherit "\
                        "this display property."\
+                       "</p>"\
+                       "<p>The scale of the spheres and cylinders can be changed from the "\
+                       "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
@@ -586,16 +589,16 @@ def createWhatsThis(self):
 
         self.dispCPKAction.setWhatsThis(dispCPKActionText ) 
         
-        #### Display VdW ####
+        #### Display CPK (was VdW) ####
 
-        dispVdWActionText = "<u><b>Display VdW</b></u><br>"\
+        dispVdWActionText = "<u><b>Display CPK</b></u><br>"\
                        "<p><img source=\"dispVdWAction\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
-                       "<b>Van der Waals</b> mode.  Atoms are rendered as spheres with "\
+                       "<b>CPK</b> mode.  Atoms are rendered as spheres with "\
                        "a size equal to the VdW radius.  Bonds are not rendered."\
                        "</p>"\
                        "<p>If no atoms or chunks are selected, then this action will change the "\
-                       "<b>Current Display Mode</b> of the 3D workspace to <b>VdW</b>. " \
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>CPK</b>. " \
                        "All chunks with their display setting set to <b>Default</b> will inherit "\
                        "this display property."\
                        "</p>"

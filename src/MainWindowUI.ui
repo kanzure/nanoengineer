@@ -456,7 +456,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1084</width>
+                <width>1087</width>
                 <height>29</height>
             </rect>
         </property>
@@ -2244,10 +2244,10 @@
             <iconset>image58</iconset>
         </property>
         <property name="text">
-            <string>CPK</string>
+            <string>Ball and Stick</string>
         </property>
         <property name="menuText">
-            <string>CPK</string>
+            <string>Ball and Stick</string>
         </property>
     </action>
     <action>
@@ -2317,10 +2317,10 @@
             <iconset>image63</iconset>
         </property>
         <property name="text">
-            <string>VdW</string>
+            <string>CPK</string>
         </property>
         <property name="menuText">
-            <string>VdW</string>
+            <string>CPK</string>
         </property>
     </action>
     <actiongroup>
