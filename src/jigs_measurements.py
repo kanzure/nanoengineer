@@ -68,18 +68,18 @@ class MeasurementJig(Jig):
         return " (%s) %d" % (self.font_name, self.font_size)
         
     # unify text-drawing to base class, wware 051103
-    def _drawtext(self, text):
+    def _drawtext(self, text, color):
         # use atom positions to compute center, where text should go
         if self.picked:
             # move the text to the lower left corner, and make it big
             # self.assy.o is the GLPane
-            drawtext(text, self.color, self.assy.o.selectedJigTextPosition(),
+            drawtext(text, color, self.assy.o.selectedJigTextPosition(),
                      3 * self.font_size, self.assy.o)
         else:
             pos1 = self.atoms[0].posn()
             pos2 = self.atoms[-1].posn()
             pos = (pos1 + pos2) / 2
-            drawtext(text, self.color, pos, self.font_size, self.assy.o)
+            drawtext(text, color, pos, self.font_size, self.assy.o)
     
     # move into base class, wware 051103
     def set_cntl(self):
@@ -134,21 +134,14 @@ class MeasureDistance(MeasurementJig):
         
     # Measure Distance jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
-    def _draw(self, glpane, dispdef):
+    def _draw_jig(self, glpane, color, highlighted=False):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
         '''
-        for a in self.atoms:
-            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
-            drawwirecube(self.color, a.posn(), rad)
+        Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
             
-        drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
-        self._drawtext("%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance()))
+        drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
+        self._drawtext("%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance()), color)
 
     mmp_record_name = "mdistance"
     
@@ -181,22 +174,15 @@ class MeasureAngle(MeasurementJig):
         
     # Measure Angle jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
-    def _draw(self, glpane, dispdef):
+    def _draw_jig(self, glpane, color, highlighted=False):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the angle is included.
         '''
-        for a in self.atoms:
-            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
-            drawwirecube(self.color, a.posn(), rad)
+        Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
             
-        drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
-        drawline(self.color, self.atoms[1].posn(), self.atoms[2].posn())
-        self._drawtext("%.2f" % self.get_angle())
+        drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
+        drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
+        self._drawtext("%.2f" % self.get_angle(), color)
     
     mmp_record_name = "mangle"
     
@@ -236,23 +222,16 @@ class MeasureDihedral(MeasurementJig):
         
     # Measure Dihedral jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
-    def _draw(self, glpane, dispdef):
+    def _draw_jig(self, glpane, color, highlighted=False):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the dihedral is included.
         '''
-        for a in self.atoms:
-            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
-            drawwirecube(self.color, a.posn(), rad)
+        Jig._draw_jig(self, glpane, color, highlighted)  # draw boxes around each of the jig's atoms.
             
-        drawline(self.color, self.atoms[0].posn(), self.atoms[1].posn())
-        drawline(self.color, self.atoms[1].posn(), self.atoms[2].posn())
-        drawline(self.color, self.atoms[2].posn(), self.atoms[3].posn())
-        self._drawtext("%.2f" % self.get_dihedral())
+        drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
+        drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
+        drawline(color, self.atoms[2].posn(), self.atoms[3].posn())
+        self._drawtext("%.2f" % self.get_dihedral(), color)
     
     mmp_record_name = "mdihedral"
     

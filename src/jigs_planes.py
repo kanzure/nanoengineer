@@ -116,11 +116,7 @@ class RectGadget(Jig):
         v2 = atomPos[-3] - atomPos[-1]
         
         return cross(v1, v2)
-    
 
-    def _draw(self, glpane, dispdef):
-        pass
-    
     
     def _mmp_record_last_part(self, mapping):
         return ""
@@ -233,8 +229,9 @@ class GridPlane(RectGadget):
         from GridPlaneProp import GridPlaneProp
         self.cntl = GridPlaneProp(self, self.assy.o)
         
-
-    def _draw(self, glpane, dispdef):
+    def _draw_jig(self, glpane, color, highlighted=False):
+        '''Draw a Grid Plane jig as a set of grid lines.
+        '''
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -243,11 +240,21 @@ class GridPlane(RectGadget):
         
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
-        drawLineLoop(self.color, corners_pos)
-        if self.grid_type == SQUARE_GRID:
-            drawGPGrid(self.grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing)
+        
+        if highlighted:
+            grid_color = color
         else:
-            drawSiCGrid(self.grid_color, self.line_type, self.width, self.height)
+            grid_color = self.grid_color
+        
+        if self.picked:
+            drawLineLoop(self.color, corners_pos)
+        else:
+            drawLineLoop(color, corners_pos)
+            
+        if self.grid_type == SQUARE_GRID:
+            drawGPGrid(grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing)
+        else:
+            drawSiCGrid(grid_color, self.line_type, self.width, self.height)
         
         glPopMatrix()
     
@@ -501,8 +508,9 @@ class ESPImage(RectGadget):
             color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
             file.write('esp_plane_color(' + strPts + ', ' + color + ') \n')
             
-        
-    def _draw(self, glpane, dispdef):
+    def _draw_jig(self, glpane, color, highlighted=False):
+        '''Draw a ESP Image jig as a plane with an edge and a bounding box.
+        '''
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -520,13 +528,13 @@ class ESPImage(RectGadget):
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
-        drawLineLoop(self.color, corners_pos)  
+        drawLineLoop(color, corners_pos)  
         
         # Draw the ESP Image bbox.
         if self.show_esp_bbox:
             wo = self.image_offset
             eo = self.edge_offset
-            drawwirecube(self.color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo), 1.0) #drawwirebox
+            drawwirecube(color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo), 1.0) #drawwirebox
             
             # This is for debugging purposes.  This draws a green normal vector using
             # local space coords.  Mark 050930

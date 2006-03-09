@@ -123,6 +123,32 @@ class Jig(Node):
     def needs_atoms_to_survive(self): #bruce 050526
         return True # for all Jigs that exist so far
     
+    def _draw(self, glpane, dispdef):
+        '''Draws the jig in the normal way.
+        '''
+        self._draw_jig(glpane, self.color)
+        
+    def draw_in_abs_coords(self, glpane, color):
+        '''Draws the jig in the highlighted way.
+        '''
+        self._draw_jig(glpane, color, 1)
+        
+    def _draw_jig(self, glpane, color, highlighted=False):
+        '''This is the main drawing method for a jig.  
+        By default, it draws a wireframe box around each of the jig's atoms.
+        This method should be overridden by subclasses that want to do more than
+        simply draw wireframe boxes around each of the jig's atoms.
+        For a good example, see the MeasureAngle._draw_jig().
+        '''
+        for a in self.atoms:
+            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(glpane)
+            disp, rad = a.howdraw(dispdef)
+            # wware 060203 selected bounding box bigger, bug 756
+            if self.picked: rad *= 1.01
+            drawwirecube(color, a.posn(), rad)
+    
     # == copy methods [default values or common implems for Jigs,
     # == when these differ from Node methods] [bruce 050526 revised these]
     
@@ -599,19 +625,7 @@ class Anchor(Jig):
         # that has only a name and a color attribute changable by the user. JigProp supersedes GroundProp.
         # Mark 050928.
         from JigProp import JigProp
-        self.cntl = JigProp(self, self.assy.o) 
-
-    # it's drawn as a wire cube around each atom (default color = black)
-
-    def _draw(self, glpane, dispdef):
-        for a in self.atoms:
-            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
-            drawwirecube(self.color, a.posn(), rad)
+        self.cntl = JigProp(self, self.assy.o)
             
     # Write "anchor" record to POV-Ray file in the format:
     # anchor(<box-center>,box-radius,<r, g, b>)
@@ -744,17 +758,6 @@ class Stat( Jig_onChunk_by1atom ):
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = StatProp(self, self.assy.o)
         ## self.cntl = None #bruce 050526 do this later since it needs at least one atom to be present
-
-    # it's drawn as a wire cube around each atom (default color = blue)
-    def _draw(self, glpane, dispdef):
-        for a in self.atoms:
-            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
-            drawwirecube(self.color, a.posn(), rad)
             
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
@@ -806,17 +809,6 @@ class Thermo(Jig_onChunk_by1atom):
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = ThermoProp(self, self.assy.o)
-
-    # it's drawn as a wire cube around each atom.
-    def _draw(self, glpane, dispdef):
-        for a in self.atoms:
-            # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
-            drawwirecube(self.color, a.posn(), rad)
             
     # Write "thermo" record to POV-Ray file in the format:
     # thermo(<box-center>,box-radius,<r, g, b>)

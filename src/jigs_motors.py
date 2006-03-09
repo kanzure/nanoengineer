@@ -326,23 +326,23 @@ class RotaryMotor(Motor):
         ang = (sum(angs) / len(angs)) + relang0
         ang = ang % 360 # this is Python mod, so it's safe
         return ang
-        
-    # Rotary Motor is drawn as a cylinder along the axis,
-    #  with a spoke to each atom
-    def _draw(self, glpane, dispdef):
+    
+    def _draw_jig(self, glpane, color, highlighted=False):
+        '''Draw a Rotary Motor jig as a cylinder along the axis, with a thin cylinder (spoke) to each atom.
+        '''
         glPushMatrix()
         try:
             glTranslatef( self.center[0], self.center[1], self.center[2])
             q = self.quat
             glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
             
-            orig_center = V(0.0, 0.0, 0.0)        
+            orig_center = V(0.0, 0.0, 0.0)
             
             bCenter = orig_center - (self.length / 2.0) * self.axis
             tCenter = orig_center + (self.length / 2.0) * self.axis
-            drawcylinder(self.color, bCenter, tCenter, self.radius, 1 )
+            drawcylinder(color, bCenter, tCenter, self.radius, 1 )
             for a in self.atoms:
-                drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
+                drawcylinder(color, orig_center, a.posn()-self.center, self.sradius)
             rotby = self.getrotation() #bruce 050518
                 # if exception in getrotation, just don't draw the rotation sign
                 # (safest now that people might believe what it shows about amount of rotation)
@@ -478,22 +478,22 @@ class LinearMotor(Motor):
     def getstatistics(self, stats):
         stats.nlmotors += 1
    
-    # drawn as a gray box along the axis,
-    # with a thin cylinder to each atom 
-    def _draw(self, glpane, dispdef):
+    def _draw_jig(self, glpane, color, highlighted=False):
+        '''Draw a linear motor as a long box along the axis, with a thin cylinder (spoke) to each atom.
+        '''
         glPushMatrix()
         try:
             glTranslatef( self.center[0], self.center[1], self.center[2])
             q = self.quat
-            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
-            
+            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
+
             orig_center = V(0.0, 0.0, 0.0)
-            drawbrick(self.color, orig_center, self.axis, self.length, self.width, self.width)
+            drawbrick(color, orig_center, self.axis, self.length, self.width, self.width)
             drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
                 # (note: drawLinearSign uses a small depth offset so that arrows are slightly in front of brick)
                 # [bruce comment 060302, a guess from skimming drawLinearSign's code]
             for a in self.atoms[:]:
-                drawcylinder(self.color, orig_center, a.posn()-self.center, self.sradius)
+                drawcylinder(color, orig_center, a.posn()-self.center, self.sradius)
         except:
             #bruce 060208 protect OpenGL stack from exception analogous to that seen for RotaryMotor in bug 1445
             print_compact_traceback("exception in LinearMotor._draw, continuing: ")
