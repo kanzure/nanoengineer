@@ -1921,32 +1921,6 @@ class depositMode(selectAtomsMode):
             ('Change Background Color...', self.w.dispBGColor),
         ] )
 
-        ###e submenu for pastables, with one checked? Or use Menu_spec_control for that?
-
-        self.debug_Menu_spec = [
-            ("debug: dump", self.dump)
-        ]
-
-        #& Fixes bug 1218.  Marked for removal. mark 060303.
-        # Ninad asks whether we should add more elements to this [bruce 041103]
-        # Bug found: none of these change the atomic hybrid displayed in the MMKit.  Mark 060303.
-        #self.Menu_spec_shift = [
-        #    ('(change pastable element:)', noop, 'disabled'), #bruce 050510
-        #    ('Carbon(sp3)', self.setCarbon_sp3), #e could make this a method on the atomtype, and give that a name or find it here
-        #    ('Carbon(sp2)', self.setCarbon_sp2),
-        #    ('Hydrogen', self.w.setHydrogen),
-        #    ('Oxygen', self.w.setOxygen),
-        #    ('Nitrogen', self.w.setNitrogen) ]
-
-        #& Redundant. Marked for removal. mark 060303.
-        # Ninad says this is redundant, but I left it in; Josh should decide
-        # for this mode [bruce 041103]
-        # (If this remains, shouldn't these cmds also first select just the selatom's chunk? [bruce 050510])
-        #self.Menu_spec_control = [
-        #    ('Passivate', self.o.assy.modifyPassivate),
-        #    ('Hydrogenate', self.o.assy.modifyHydrogenate),
-        #    ('Dehydrogenate', self.o.assy.modifyDehydrogenate) ]
-
         return # from makeMenus
 
     def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to take a list or pair of atoms, other options
@@ -2068,16 +2042,6 @@ class depositMode(selectAtomsMode):
     def skip(self):
         pass
 
-    def dump(self):
-        if self.o.selatom:
-            m = self.o.selatom.molecule
-            print "mol", m.name, len(m.atoms), len(m.atlist), len(m.curpos)
-            print 'externs', m.externs
-            for a in m.atlist:
-                print a
-                for b in a.bonds:
-                    print '   ', b
-                    
     pass # end of class depositMode
 
 # end
