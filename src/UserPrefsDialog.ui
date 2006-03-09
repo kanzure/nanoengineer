@@ -89,24 +89,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer row="0" column="3">
-                        <property name="name">
-                            <cstring>spacer57_2</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>16</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="3">
+                    <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
                             <cstring>layout77</cstring>
                         </property>
@@ -356,14 +339,110 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="1" column="1">
+                    <spacer row="0" column="1">
                         <property name="name">
-                            <cstring>layout129</cstring>
+                            <cstring>spacer57_2</cstring>
                         </property>
-                        <vbox>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>16</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="0">
+                        <property name="name">
+                            <cstring>spacer109</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget" row="1" column="0">
+                        <property name="name">
+                            <cstring>layout78</cstring>
+                        </property>
+                        <hbox>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout67</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QButtonGroup">
+                                        <property name="name">
+                                            <cstring>default_projection_btngrp</cstring>
+                                        </property>
+                                        <property name="title">
+                                            <string>Default Projection</string>
+                                        </property>
+                                        <property name="exclusive">
+                                            <bool>true</bool>
+                                        </property>
+                                        <grid>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QRadioButton" row="0" column="0">
+                                                <property name="name">
+                                                    <cstring>radioButton12</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Perspective</string>
+                                                </property>
+                                                <property name="checked">
+                                                    <bool>true</bool>
+                                                </property>
+                                            </widget>
+                                            <widget class="QRadioButton" row="1" column="0">
+                                                <property name="name">
+                                                    <cstring>radioButton13</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Orthographic</string>
+                                                </property>
+                                            </widget>
+                                        </grid>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer53_2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Vertical</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </vbox>
+                            </widget>
                             <widget class="QGroupBox">
                                 <property name="name">
                                     <cstring>groupBox8</cstring>
@@ -527,101 +606,22 @@
                             </widget>
                             <spacer>
                                 <property name="name">
-                                    <cstring>spacer109</cstring>
+                                    <cstring>spacer25</cstring>
                                 </property>
                                 <property name="orientation">
-                                    <enum>Vertical</enum>
+                                    <enum>Horizontal</enum>
                                 </property>
                                 <property name="sizeType">
                                     <enum>Expanding</enum>
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>20</width>
+                                        <width>174</width>
                                         <height>20</height>
                                     </size>
                                 </property>
                             </spacer>
-                        </vbox>
-                    </widget>
-                    <spacer row="1" column="2">
-                        <property name="name">
-                            <cstring>spacer25</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>170</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
-                        <property name="name">
-                            <cstring>layout67</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QButtonGroup">
-                                <property name="name">
-                                    <cstring>default_projection_btngrp</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Default Projection</string>
-                                </property>
-                                <property name="exclusive">
-                                    <bool>true</bool>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QRadioButton" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>radioButton12</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Perspective</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QRadioButton" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>radioButton13</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Orthographic</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer53_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>40</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </vbox>
+                        </hbox>
                     </widget>
                 </grid>
             </widget>
@@ -636,7 +636,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" row="0" column="1">
+                    <widget class="QLayoutWidget" row="0" column="1" rowspan="4" colspan="1">
                         <property name="name">
                             <cstring>layout101</cstring>
                         </property>
@@ -729,28 +729,235 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="0" column="0">
+                    <widget class="QGroupBox" row="0" column="0">
                         <property name="name">
-                            <cstring>layout104</cstring>
+                            <cstring>atom_colors_grpbox</cstring>
                         </property>
-                        <vbox>
+                        <property name="title">
+                            <string>Colors</string>
+                        </property>
+                        <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QGroupBox">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
-                                    <cstring>atom_colors_grpbox</cstring>
+                                    <cstring>layout79</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>Colors</string>
-                                </property>
-                                <grid>
+                                <hbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLayoutWidget" row="0" column="0">
+                                    <spacer>
                                         <property name="name">
-                                            <cstring>layout79</cstring>
+                                            <cstring>spacer56</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QPushButton">
+                                        <property name="name">
+                                            <cstring>change_element_colors_btn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Change Element Colors...</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QGroupBox" row="1" column="0">
+                                <property name="name">
+                                    <cstring>groupBox13</cstring>
+                                </property>
+                                <property name="title">
+                                    <string></string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout80</cstring>
+                                        </property>
+                                        <grid>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel" row="0" column="0">
+                                                <property name="name">
+                                                    <cstring>textLabel3_2_3</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Atom Highlighting :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel" row="2" column="0">
+                                                <property name="name">
+                                                    <cstring>hotspot_lbl_2</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Bondpoint Highlighting :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel" row="3" column="0">
+                                                <property name="name">
+                                                    <cstring>hotspot_lbl</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Bondpoint Hotspot  :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="2" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_2_2_2_2</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>bondpoint_hilite_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>255</red>
+                                                                <green>203</green>
+                                                                <blue>203</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>bondpoint_hilite_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="0" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_3</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>atom_hilite_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>255</red>
+                                                                <green>255</green>
+                                                                <blue>0</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>atom_hilite_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLayoutWidget" row="3" column="1">
+                                                <property name="name">
+                                                    <cstring>layout37_2_2_2_2_2_2</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>hotspot_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>0</red>
+                                                                <green>255</green>
+                                                                <blue>0</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>hotspot_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                        </grid>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout25_2</cstring>
                                         </property>
                                         <hbox>
                                             <property name="name">
@@ -758,7 +965,7 @@
                                             </property>
                                             <spacer>
                                                 <property name="name">
-                                                    <cstring>spacer56</cstring>
+                                                    <cstring>spacer20_2</cstring>
                                                 </property>
                                                 <property name="orientation">
                                                     <enum>Horizontal</enum>
@@ -775,381 +982,189 @@
                                             </spacer>
                                             <widget class="QPushButton">
                                                 <property name="name">
-                                                    <cstring>change_element_colors_btn</cstring>
+                                                    <cstring>reset_atom_colors_btn</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>Change Element Colors...</string>
+                                                    <string>Restore Default Colors</string>
                                                 </property>
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QGroupBox" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>groupBox13</cstring>
-                                        </property>
-                                        <property name="title">
-                                            <string></string>
-                                        </property>
-                                        <vbox>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <widget class="QLayoutWidget">
-                                                <property name="name">
-                                                    <cstring>layout80</cstring>
-                                                </property>
-                                                <grid>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <widget class="QLabel" row="0" column="0">
-                                                        <property name="name">
-                                                            <cstring>textLabel3_2_3</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>Atom Highlighting :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLabel" row="2" column="0">
-                                                        <property name="name">
-                                                            <cstring>hotspot_lbl_2</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>Bondpoint Highlighting :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLabel" row="3" column="0">
-                                                        <property name="name">
-                                                            <cstring>hotspot_lbl</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>Bondpoint Hotspot  :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLayoutWidget" row="2" column="1">
-                                                        <property name="name">
-                                                            <cstring>layout37_2_2_2_2_2_2_2</cstring>
-                                                        </property>
-                                                        <hbox>
-                                                            <property name="name">
-                                                                <cstring>unnamed</cstring>
-                                                            </property>
-                                                            <widget class="QFrame">
-                                                                <property name="name">
-                                                                    <cstring>bondpoint_hilite_color_frame</cstring>
-                                                                </property>
-                                                                <property name="minimumSize">
-                                                                    <size>
-                                                                        <width>25</width>
-                                                                        <height>0</height>
-                                                                    </size>
-                                                                </property>
-                                                                <property name="paletteBackgroundColor">
-                                                                    <color>
-                                                                        <red>255</red>
-                                                                        <green>203</green>
-                                                                        <blue>203</blue>
-                                                                    </color>
-                                                                </property>
-                                                                <property name="frameShape">
-                                                                    <enum>Box</enum>
-                                                                </property>
-                                                                <property name="frameShadow">
-                                                                    <enum>Plain</enum>
-                                                                </property>
-                                                            </widget>
-                                                            <widget class="QPushButton">
-                                                                <property name="name">
-                                                                    <cstring>bondpoint_hilite_color_btn</cstring>
-                                                                </property>
-                                                                <property name="text">
-                                                                    <string>Choose...</string>
-                                                                </property>
-                                                            </widget>
-                                                        </hbox>
-                                                    </widget>
-                                                    <widget class="QLayoutWidget" row="0" column="1">
-                                                        <property name="name">
-                                                            <cstring>layout37_2_2_2_3</cstring>
-                                                        </property>
-                                                        <hbox>
-                                                            <property name="name">
-                                                                <cstring>unnamed</cstring>
-                                                            </property>
-                                                            <widget class="QFrame">
-                                                                <property name="name">
-                                                                    <cstring>atom_hilite_color_frame</cstring>
-                                                                </property>
-                                                                <property name="minimumSize">
-                                                                    <size>
-                                                                        <width>25</width>
-                                                                        <height>0</height>
-                                                                    </size>
-                                                                </property>
-                                                                <property name="paletteBackgroundColor">
-                                                                    <color>
-                                                                        <red>255</red>
-                                                                        <green>255</green>
-                                                                        <blue>0</blue>
-                                                                    </color>
-                                                                </property>
-                                                                <property name="frameShape">
-                                                                    <enum>Box</enum>
-                                                                </property>
-                                                                <property name="frameShadow">
-                                                                    <enum>Plain</enum>
-                                                                </property>
-                                                            </widget>
-                                                            <widget class="QPushButton">
-                                                                <property name="name">
-                                                                    <cstring>atom_hilite_color_btn</cstring>
-                                                                </property>
-                                                                <property name="text">
-                                                                    <string>Choose...</string>
-                                                                </property>
-                                                            </widget>
-                                                        </hbox>
-                                                    </widget>
-                                                    <widget class="QLayoutWidget" row="3" column="1">
-                                                        <property name="name">
-                                                            <cstring>layout37_2_2_2_2_2_2</cstring>
-                                                        </property>
-                                                        <hbox>
-                                                            <property name="name">
-                                                                <cstring>unnamed</cstring>
-                                                            </property>
-                                                            <widget class="QFrame">
-                                                                <property name="name">
-                                                                    <cstring>hotspot_color_frame</cstring>
-                                                                </property>
-                                                                <property name="minimumSize">
-                                                                    <size>
-                                                                        <width>25</width>
-                                                                        <height>0</height>
-                                                                    </size>
-                                                                </property>
-                                                                <property name="paletteBackgroundColor">
-                                                                    <color>
-                                                                        <red>0</red>
-                                                                        <green>255</green>
-                                                                        <blue>0</blue>
-                                                                    </color>
-                                                                </property>
-                                                                <property name="frameShape">
-                                                                    <enum>Box</enum>
-                                                                </property>
-                                                                <property name="frameShadow">
-                                                                    <enum>Plain</enum>
-                                                                </property>
-                                                            </widget>
-                                                            <widget class="QPushButton">
-                                                                <property name="name">
-                                                                    <cstring>hotspot_color_btn</cstring>
-                                                                </property>
-                                                                <property name="text">
-                                                                    <string>Choose...</string>
-                                                                </property>
-                                                            </widget>
-                                                        </hbox>
-                                                    </widget>
-                                                </grid>
-                                            </widget>
-                                            <widget class="QLayoutWidget">
-                                                <property name="name">
-                                                    <cstring>layout25_2</cstring>
-                                                </property>
-                                                <hbox>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <spacer>
-                                                        <property name="name">
-                                                            <cstring>spacer20_2</cstring>
-                                                        </property>
-                                                        <property name="orientation">
-                                                            <enum>Horizontal</enum>
-                                                        </property>
-                                                        <property name="sizeType">
-                                                            <enum>Expanding</enum>
-                                                        </property>
-                                                        <property name="sizeHint">
-                                                            <size>
-                                                                <width>40</width>
-                                                                <height>20</height>
-                                                            </size>
-                                                        </property>
-                                                    </spacer>
-                                                    <widget class="QPushButton">
-                                                        <property name="name">
-                                                            <cstring>reset_atom_colors_btn</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>Restore Default Colors</string>
-                                                        </property>
-                                                    </widget>
-                                                </hbox>
-                                            </widget>
-                                        </vbox>
-                                    </widget>
-                                </grid>
+                                </vbox>
                             </widget>
-                            <widget class="QLayoutWidget">
+                        </grid>
+                    </widget>
+                    <spacer row="3" column="0">
+                        <property name="name">
+                            <cstring>spacer11</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>27</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget" row="1" column="0">
+                        <property name="name">
+                            <cstring>layout74</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
                                 <property name="name">
-                                    <cstring>layout103</cstring>
+                                    <cstring>textLabel1_3_2</cstring>
                                 </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>textLabel1_3_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Ball and Stick Atom Scale Factor :</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>textLabel1_3_2_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>CPK Scale Factor :</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLayoutWidget" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>layout67</cstring>
-                                        </property>
-                                        <hbox>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <widget class="QSpinBox">
-                                                <property name="name">
-                                                    <cstring>cpk_atom_rad_spinbox</cstring>
-                                                </property>
-                                                <property name="maxValue">
-                                                    <number>125</number>
-                                                </property>
-                                                <property name="minValue">
-                                                    <number>50</number>
-                                                </property>
-                                                <property name="value">
-                                                    <number>100</number>
-                                                </property>
-                                            </widget>
-                                            <widget class="QLabel">
-                                                <property name="name">
-                                                    <cstring>textLabel1_4</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string>%</string>
-                                                </property>
-                                            </widget>
-                                            <spacer>
-                                                <property name="name">
-                                                    <cstring>spacer38</cstring>
-                                                </property>
-                                                <property name="orientation">
-                                                    <enum>Horizontal</enum>
-                                                </property>
-                                                <property name="sizeType">
-                                                    <enum>Expanding</enum>
-                                                </property>
-                                                <property name="sizeHint">
-                                                    <size>
-                                                        <width>19</width>
-                                                        <height>20</height>
-                                                    </size>
-                                                </property>
-                                            </spacer>
-                                        </hbox>
-                                    </widget>
-                                    <widget class="QLayoutWidget" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>layout67_2</cstring>
-                                        </property>
-                                        <hbox>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <widget class="QSpinBox">
-                                                <property name="name">
-                                                    <cstring>cpk_scale_factor_spinbox</cstring>
-                                                </property>
-                                                <property name="maxValue">
-                                                    <number>100</number>
-                                                </property>
-                                                <property name="minValue">
-                                                    <number>50</number>
-                                                </property>
-                                                <property name="value">
-                                                    <number>100</number>
-                                                </property>
-                                            </widget>
-                                            <widget class="QLabel">
-                                                <property name="name">
-                                                    <cstring>textLabel1_4_2</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string>%</string>
-                                                </property>
-                                            </widget>
-                                            <spacer>
-                                                <property name="name">
-                                                    <cstring>spacer38_3</cstring>
-                                                </property>
-                                                <property name="orientation">
-                                                    <enum>Horizontal</enum>
-                                                </property>
-                                                <property name="sizeType">
-                                                    <enum>Expanding</enum>
-                                                </property>
-                                                <property name="sizeHint">
-                                                    <size>
-                                                        <width>19</width>
-                                                        <height>20</height>
-                                                    </size>
-                                                </property>
-                                            </spacer>
-                                        </hbox>
-                                    </widget>
-                                </grid>
+                                <property name="text">
+                                    <string>Ball and Stick Atom Scale Factor :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox">
+                                <property name="name">
+                                    <cstring>cpk_atom_rad_spinbox</cstring>
+                                </property>
+                                <property name="maxValue">
+                                    <number>125</number>
+                                </property>
+                                <property name="minValue">
+                                    <number>50</number>
+                                </property>
+                                <property name="value">
+                                    <number>100</number>
+                                </property>
+                            </widget>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>textLabel1_4</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>%</string>
+                                </property>
                             </widget>
                             <spacer>
                                 <property name="name">
-                                    <cstring>spacer11</cstring>
+                                    <cstring>spacer38</cstring>
                                 </property>
                                 <property name="orientation">
-                                    <enum>Vertical</enum>
+                                    <enum>Horizontal</enum>
                                 </property>
                                 <property name="sizeType">
                                     <enum>Expanding</enum>
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>20</width>
+                                        <width>16</width>
                                         <height>20</height>
                                     </size>
                                 </property>
                             </spacer>
-                        </vbox>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="2" column="0">
+                        <property name="name">
+                            <cstring>layout75</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>textLabel1_3_2_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>CPK Scale Factor :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>cpk_scale_factor_linedit</cstring>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>40</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>textLabel1_4_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>%</string>
+                                </property>
+                            </widget>
+                            <widget class="QSlider">
+                                <property name="name">
+                                    <cstring>cpk_scale_factor_slider</cstring>
+                                </property>
+                                <property name="minValue">
+                                    <number>100</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>200</number>
+                                </property>
+                                <property name="value">
+                                    <number>155</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="tickmarks">
+                                    <enum>NoMarks</enum>
+                                </property>
+                                <property name="tickInterval">
+                                    <number>10</number>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>reset_cpk_scale_factor_btn</cstring>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>16</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>16</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="iconSet">
+                                    <iconset>image0</iconset>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Reset</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Restore the default value of the CPK Scale Factor</string>
+                                </property>
+                            </widget>
+                        </hbox>
                     </widget>
                 </grid>
             </widget>
@@ -4001,6 +4016,11 @@
         </widget>
     </grid>
 </widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="173">89504e470d0a1a0a0000000d49484452000000080000000e080600000012565d960000007449444154789c8591310e83400c046741280d0dcf8307d0e533c71fc2b7e82928a8a8968a5322f92edbcec85adbb24d2d4d9546c2228d45619146c3271422988512045082328449b6f384d730a0b665de770124c90dc0db5e05d3751c747d1faff948e7b6c5c2b7f4d3a374ea243997ace5ef2f6eb84f300dd998b2950000000049454e44ae426082</data>
+    </image>
+</images>
 <connections>
     <connection>
         <sender>always_save_win_pos_and_size_checkbox</sender>
@@ -4435,10 +4455,22 @@
         <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     </connection>
     <connection>
-        <sender>cpk_scale_factor_spinbox</sender>
+        <sender>cpk_scale_factor_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_cpk_scale_factor()</slot>
+    </connection>
+    <connection>
+        <sender>cpk_scale_factor_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_cpk_scale_factor()</slot>
+    </connection>
+    <connection>
+        <sender>reset_cpk_scale_factor_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>reset_cpk_scale_factor()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -4566,6 +4598,8 @@
     <slot>set_selatomsmode_highlighting()</slot>
     <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     <slot>change_cpk_scale_factor()</slot>
+    <slot>save_cpk_scale_factor()</slot>
+    <slot>reset_cpk_scale_factor()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

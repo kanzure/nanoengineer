@@ -372,9 +372,24 @@ class UserPrefs(UserPrefsDialog):
         # Set CPK Atom radius (percentage).  Mark 051003.
         self.cpk_atom_rad_spinbox.setValue(int (env.prefs[cpkAtomRadius_prefs_key] * 100.0))
         
-        # Set CPK Scale Factor (percentage).  Mark 060307.
-        self.cpk_scale_factor_spinbox.setValue(int (env.prefs[cpkScaleFactor_prefs_key] * 100.0))
-
+        cpk_sf = env.prefs[cpkScaleFactor_prefs_key]
+        # This slider generate signals whenever its 'setValue()' slot is called (below).
+        # This creates problems (bugs) for us, so we disconnect it temporarily.
+        self.disconnect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
+        self.cpk_scale_factor_slider.setValue(int (cpk_sf * 200.0)) # generates signal
+        self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
+        self.cpk_scale_factor_linedit.setText(str(cpk_sf))
+        
+        # I couldn't figure out a way to get a pref's default value without changing its current value.
+        # Something like this would be very handy:
+        #   default_cpk_sf = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
+        # Talk to Bruce about this. mark 060309.
+        if cpk_sf == 0.775: # Hardcoded for now.
+            # Disable the reset button if the CPK Scale Factor is currently the default value.
+            self.reset_cpk_scale_factor_btn.setEnabled(0)
+        else:
+            self.reset_cpk_scale_factor_btn.setEnabled(1)
+            
         return
     
     def _setup_bonds_page(self):
@@ -633,12 +648,30 @@ class UserPrefs(UserPrefsDialog):
         '''
         env.prefs[cpkAtomRadius_prefs_key] = val * .01
         self.glpane.gl_update()
-        
+    
     def change_cpk_scale_factor(self, val):
-        '''Change the CPK (VdW) scale factor by % value <val>.
+        '''Slot called when moving the slider.
+        Change the % value displayed in the LineEdit widget for CPK Scale Factor.
         '''
-        env.prefs[cpkScaleFactor_prefs_key] = val *.01
+        sf = val * .005
+        self.cpk_scale_factor_linedit.setText(str(sf))
+        
+    def save_cpk_scale_factor(self):
+        '''Slot called when releasing the slider.
+        Saves the CPK (VdW) scale factor.
+        '''
+        env.prefs[cpkScaleFactor_prefs_key] = self.cpk_scale_factor_slider.value() * .005
         self.glpane.gl_update()
+        self.reset_cpk_scale_factor_btn.setEnabled(1)
+        
+    def reset_cpk_scale_factor(self):
+        '''Slot called when pressing the CPK Scale Factor reset button.
+        Restores the default value of the CPK Scale Factor.
+        '''
+        env.prefs.restore_defaults([cpkScaleFactor_prefs_key])
+        self.cpk_scale_factor_slider.setValue(int (env.prefs[cpkScaleFactor_prefs_key] * 200.0))
+            # generates signal (good), which calls slot save_cpk_scale_factor().
+        self.reset_cpk_scale_factor_btn.setEnabled(0)
         
     ########## End of slot methods for "Atoms" page widgets ###########
     
