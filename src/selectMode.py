@@ -324,7 +324,7 @@ class selectMode(basicMode):
 
         if self.selCurve_length/self.o.scale < 0.03:
             # didn't move much, call it a click
-            has_jig_selected = False
+            has_jig_selected = False 
             
             if self.jigSelectionEnabled and self.jigGLSelect(event, self.selSense):
                 has_jig_selected = True
@@ -404,21 +404,16 @@ class selectMode(basicMode):
     def atomLeftDown(self, a, event):
         if not a.picked and self.o.modkeys is None:
             self.o.assy.unpickatoms()
+            self.o.assy.unpickparts() # unpick any picked jigs.
             a.pick()
         if not a.picked and self.o.modkeys == 'Shift':
             a.pick()
-        if a.picked and len(self.o.assy.selatoms_list()) > 1:
-            # now called when two or more atoms are selected.  mark 060202.
+            
+        if a.picked:
             self.cursor_over_when_LMB_pressed = 'Picked Atom'
-            self.drag_multiple_atoms = True
-            self.atomsSetup(a)
         else:
-            if a.picked:
-                self.cursor_over_when_LMB_pressed = 'Picked Atom'
-            else:
-                self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
-            self.drag_multiple_atoms = False
-            self.atomSetup(a)
+            self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
+        self.atomSetup(a)
 
     def objectSetup(self, obj):
         self.current_obj = obj
@@ -433,23 +428,28 @@ class selectMode(basicMode):
             global _count
             _count = _count + 1
             self.current_obj_start = _count
-
+        
     def atomSetup(self, a):
         '''Setup for a click, double-click or drag event for real atom <a>.
         '''
         self.objectSetup(a)
-        self.baggage = []
-        self.nonbaggage = []
-        self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
         
-    def atomsSetup(self, a):
-        '''Setup for a click or double-click of real atom <a>, but also handles setup of dragging of 
-        real atom <a> and all other currently selected atoms.
-        '''
-        self.objectSetup(a)
-        self.baggage = []
-        self.nonbaggage = []
-        #all_nonbaggage = [] # NIY. mark 060202.
+        if len(self.o.assy.selatoms_list()) == 1:
+            self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
+            self.drag_multiple_atoms = False
+        else:
+            self.dragatoms, self.baggage = self.get_dragatoms_and_baggage()
+                # if no atoms in alist, dragatoms and baggage are empty lists, which is good.
+            self.drag_multiple_atoms = True
+            
+        # dragjigs contains all the selected jigs.
+        self.dragjigs = self.o.assy.getSelectedJigs()
+
+    def get_dragatoms_and_baggage(self):
+    
+        dragatoms = []
+        baggage = []
+        nonbaggage = []
         
         selatoms = self.o.assy.selatoms_list()
         
@@ -457,30 +457,32 @@ class selectMode(basicMode):
         # selected atoms if a selected atom is another selected atom's baggage.
         # BTW, it is not possible for an atom to end up in self.baggage twice.
         for at in selatoms[:]:
-            baggage, nonbaggage = at.baggage_and_other_neighbors()
-            self.baggage += baggage # the baggage we'll keep.
+            bag, nbag = at.baggage_and_other_neighbors()
+            baggage += bag # the baggage we'll keep.
             #all_nonbaggage += nonbaggage
         
-        # dragobjs contains all the selected atoms minus atoms that are also 
-        # baggage. It is critical that dragobjs does not contain any baggage 
-        # atoms or they will be moved twice in atomsDrag(), so we removed them here.
+        # dragatoms contains all the selected atoms minus atoms that are also baggage.
+        # It is critical that dragatoms does not contain any baggage atoms or they 
+        # will be moved twice in drag_selected_atoms(), so we removed them here.
         for at in selatoms[:]:
-            if not at in self.baggage: # no baggage atoms in dragobjs.
-                self.dragobjs.append(at)
-        
+            if not at in baggage: # no baggage atoms in dragatoms.
+                dragatoms.append(at)
+                
         # Accumulate all the nonbaggage bonded to the selected atoms.
         # We also need to keep a record of which selected atom belongs to
         # each nonbaggage atom.  This is not implemented yet, but will be needed
-        # to get atomsDrag() to work properly.  I'm commenting it out for now.
+        # to get drag_selected_atoms() to work properly.  I'm commenting it out for now.
         # mark 060202.
         #for at in all_nonbaggage[:]:
-        #    if not at in self.dragobjs:
-        #        self.nonbaggage.append(at)
+        #    if not at in dragatoms:
+        #        nonbaggage.append(at)
         
         # Debugging print statements.  mark 060202.
-        #print "dragobjs = ", self.dragobjs
-        #print "baggage = ", self.baggage    
-        #print "nonbaggage = ", self.nonbaggage
+        #print "dragatoms = ", dragatoms
+        #print "baggage = ", baggage    
+        #print "nonbaggage = ", nonbaggage
+        
+        return dragatoms, baggage
         
     def delete_atom_and_baggage(self, event):
         '''If the object under the cursor is an atom, delete it and any baggage.  
@@ -505,14 +507,27 @@ class selectMode(basicMode):
         return result
         
     def atomDrag(self, a, event):
-        """Drag real atom <a>.  <event> is a drag event.
+        """Drag real atom <a> and any other selected atoms and/or jigs.  <event> is a drag event.
         """
+
+        apos0 = a.posn()
+        px = self.dragto(a.posn(), event)
+        apo = a.posn()
+        delta = px - apo # xyz delta between new and current position of <a>.
         
         if self.drag_multiple_atoms:
-            self.atomsDrag(a, event)
-            return
-                
-        apos0 = a.posn()
+            self.drag_selected_atoms(delta)
+        else:
+            self.drag_selected_atom(a, event)
+        
+        self.drag_selected_jigs(delta)
+        
+        self.atomDragUpdate(a, apos0)
+        
+        
+    def drag_selected_atom(self, a, event):
+        """Drag real atom <a>.  <event> is a drag event.
+        """
         
         px = self.dragto(a.posn(), event)
         apo = a.posn()
@@ -552,38 +567,15 @@ class selectMode(basicMode):
         # in the loop before it, or adjBaggage (which compares a.posn() to
         # px) would think atom <a> was not moving.
         
-        self.atomDragUpdate(a, apos0)
+    def drag_selected_atoms(self, offset):
         
-    def atomsDrag(self, a, event):
-        """Drag real atom <a> and all picked atoms.  <event> is a drag event.
-        """
-        # atomsDrag() behaves differently than atomDrag() in that nonbaggage atoms 
-        # and their own baggage are not used or moved in any way. I used to think this 
-        # was a feature and not a bug, but I'm pretty sure I was wrong about that since
-        # other programs behave like atomDrag() when dragging two or more atoms.
-        # The current implementation is still better than nothing and might be OK for A7.
-        # I'm guessing we'll want to change it, though.  If so, I have a good idea how to 
-        # code it, but it will take a day to get it working properly. mark 060201.
-        
-        # Note: <a> gets moved in one of the two 'for' loops below.  
-        # If <a> is a baggage atom, it will be in the baggage list.  
-        # Otherwise, it will be in dragobjs. mark 060201.
-        
-        apos0 = a.posn()
-        
-        px = self.dragto(a.posn(), event)
-        apo = a.posn()
-        delta = px - apo # xyz delta between new and current position of <a>.
-
-        # Move dragobjs.
-        for at in self.dragobjs[:]:
-            at.setposn(at.posn()+delta)
+        # Move dragatoms.
+        for at in self.dragatoms[:]:
+            at.setposn(at.posn()+offset)
         
         # Move baggage.
         for at in self.baggage[:]:
-            at.setposn(at.posn()+delta)
-            
-        self.atomDragUpdate(a, apos0)
+            at.setposn(at.posn()+offset)
         
     def atomDragUpdate(self, a, apos0):
         '''Updates the GLPane and status bar message when dragging atom <a> around.
@@ -670,6 +662,16 @@ class selectMode(basicMode):
             
         if nochange: return
         self.o.gl_update()
+        
+    def atomLeftDouble(self): # mark 060308
+        '''Atom double click event handler for the left mouse button.
+        '''
+        if self.o.modkeys == 'Control':
+            self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.assy.deleteConnected( self.neighbors_of_last_deleted_atom )
+        else:
+            self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
       
 #== End of Atom selection and dragging helper methods
 
@@ -744,7 +746,7 @@ class selectMode(basicMode):
             
             self.w.win_update()
             
-    def bondLeftDrag(self, event):
+    def bondDrag(self, event):
         # If a LMB+Drag event has happened after selecting a bond in left*Down(),
         # do a 2D region selection as if the bond were absent. This takes care of 
         # both Shift and Control mod key cases.
@@ -753,6 +755,16 @@ class selectMode(basicMode):
         self.current_obj_clicked = False
         self.current_obj = None
         return
+        
+    def bondLeftDouble(self): # mark 060308.
+        '''Bond double click event handler for the left mouse button. 
+        '''
+        if self.o.modkeys == 'Control':
+            self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
+        else:
+            self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
         
 #== End of bond selection helper methods
 
@@ -772,6 +784,154 @@ class selectMode(basicMode):
         
     def singletLeftUp(self, s, event):
         pass
+        
+    def singletLeftDouble(self):
+        '''Singlet double click event handler for the left mouse button.
+        '''
+        pass
+        
+#== Jig event handler helper methods
+
+    def jigLeftDown(self, j, event):
+        
+        if not j.picked and self.o.modkeys is None:
+            self.o.assy.unpickatoms()
+            self.o.assy.unpickparts() # unpick any picked jigs.
+            j.pick()
+        if not j.picked and self.o.modkeys == 'Shift':
+            j.pick()
+        if j.picked:
+            self.cursor_over_when_LMB_pressed = 'Picked Jig'
+        else:
+            self.cursor_over_when_LMB_pressed = 'Unpicked Jig'
+            
+         # Move section
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        
+        if wZ[0][0] >= GL_FAR_Z:
+            junk, self.jig_MovePt = self.o.mousepoints(event)
+        else:
+            self.jig_MovePt = A(gluUnProject(wX, wY, wZ[0][0]))
+            
+        self.jig_StartPt = self.jig_MovePt # Used in leftDrag() to compute move offset during drag op.
+        
+        self.jigSetup(j)
+        
+        
+    def jigSetup(self, j):
+        '''Setup for a click, double-click or drag event for jig <j>.
+        '''
+        self.objectSetup(j)
+        
+        self.dragatoms, self.baggage = self.get_dragatoms_and_baggage()
+            # if no atoms are selected, dragatoms and baggage are empty lists, which is good.
+            
+        # dragjigs contains all the selected jigs.
+        self.dragjigs = self.o.assy.getSelectedJigs()
+        
+    def jigDrag(self, j, event):
+        """Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
+        """
+        deltaMouse = V(event.pos().x() - self.o.MousePos[0], self.o.MousePos[1] - event.pos().y(), 0.0)
+        p1, p2 = self.o.mousepoints(event)
+        
+        jig_NewPt = planeXline(self.jig_MovePt, self.o.out, p1, norm(p2-p1))
+        if jig_NewPt == None: 
+            jig_NewPt = ptonline(self.jig_MovePt, p1, norm(p2-p1))
+        
+        # Print status bar msg indicating the current move offset.
+        if 1:
+            self.moveOffset = jig_NewPt - self.jig_StartPt
+            msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+            env.history.statusbar_msg(msg)
+
+        offset = jig_NewPt - self.jig_MovePt
+        
+        self.drag_selected_atoms(offset)
+        self.drag_selected_jigs(offset)
+        
+        self.jig_MovePt = jig_NewPt
+        
+        self.current_obj_clicked = False # jig was dragged.
+        self.o.gl_update()
+        
+    def drag_selected_jigs(self, offset):
+        for j in self.dragjigs[:]:
+            j.move(offset)
+
+    def jigLeftUp(self, j, event):
+        '''Jig <j> was clicked, so select, unselect or delete it based on the current modkey.
+        - If no modkey is pressed, clear the selection and pick jig <j>.
+        - If Shift is pressed, pick <j>, adding it to the current selection.
+        - If Ctrl is pressed,  unpick <j>, removing it from the current selection.
+        - If Shift+Control (Delete) is pressed, delete jig <j>.
+        '''
+        
+        if not self.current_obj_clicked:
+            # Jig was dragged.  Nothing to do but return.
+            self.set_cmdname('Move Jig')
+            self.o.assy.changed()
+            return
+            
+        nochange = False
+        
+        if self.o.modkeys is None:
+            self.o.assy.unpickatoms()
+            if j.picked:
+                nochange = True
+            else:
+                j.pick()
+                self.set_cmdname('Select Jig')
+
+        elif self.o.modkeys == 'Shift':
+            if j.picked: 
+                nochange = True
+            else:
+                j.pick()
+                self.set_cmdname('Select Jig')
+                
+        elif self.o.modkeys == 'Control':
+            if j.picked:
+                j.unpick()
+                self.set_cmdname('Unselect Jig')
+                env.history.message("unpicked %r" % j)
+            else: # Already unpicked.
+                nochange = True
+            
+        elif self.o.modkeys == 'Shift+Control':
+            env.history.message("deleted %r" % j)
+            for a in j.atoms[:]:
+                # Build list of deleted jig's atoms before they are lost.
+                self.atoms_of_last_deleted_jig.append(a)
+            j.kill()
+            self.set_cmdname('Delete Jig')
+            return # need win_update?  Probably.
+                
+        else:
+            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
+            return
+            
+        if nochange: return
+        self.o.gl_update()
+        
+    def jigLeftDouble(self):
+        '''Jig <j> was double clicked, so select, unselect or delete it based on the current modkey.
+        - If no modkey is pressed, pick the jig's atoms.
+        - If Shift is pressed, pick the jig's atoms, adding them to the current selection.
+        - If Ctrl is pressed,  unpick the jig's atoms, removing them from the current selection.
+        - If Shift+Control (Delete) is pressed, delete the jig's atoms.
+        '''
+        if self.o.modkeys == 'Control':
+            for a in self.obj_doubleclicked.atoms[:]:
+                a.unpick()
+        elif self.o.modkeys == 'Shift+Control':
+            for a in self.atoms_of_last_deleted_jig[:]:
+                a.kill()
+        else:
+            for a in self.obj_doubleclicked.atoms[:]:
+                a.pick()
         
 #== End of singlet helper methods
         
@@ -811,6 +971,86 @@ class selectMode(basicMode):
                  
         id = self.Menu1.idAt(3)
         self.Menu1.setItemChecked(id, self.jigSelectionEnabled)
+        
+        
+    def get_jig_under_cursor(self, event):
+        '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
+           matrix before return. '''
+        
+        from constants import GL_FAR_Z
+        
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        
+        aspect = float(self.o.width)/self.o.height
+                
+        gz = self._calibrateZ(wX, wY) 
+        if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
+            return None  
+        
+        pxyz = A(gluUnProject(wX, wY, gz))
+        pn = self.o.out
+        pxyz -= 0.0002*pn
+        dp = - dot(pxyz, pn)
+        
+        # Save project matrix before it's changed
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        
+        current_glselect = (wX,wY,3,3) 
+        self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
+        
+        glSelectBuffer(self.o.glselectBufferSize)
+        glRenderMode(GL_SELECT)
+        glInitNames()
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()  ## Save model/view matrix before it's changed
+        try:
+            glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
+            glEnable(GL_CLIP_PLANE0)
+            self.o.assy.draw(self.o)
+            self.Draw_after_highlighting(pickCheckOnly=True)
+            glDisable(GL_CLIP_PLANE0)
+        except:
+            # Restore Model view matrix, select mode to render mode 
+            glPopMatrix()
+            glRenderMode(GL_RENDER)
+            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+        else: 
+            # Restore Model view matrix
+            glPopMatrix() 
+    
+        #Restore project matrix and set matrix mode to Model/View
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        
+        glFlush()
+        
+        hit_records = list(glRenderMode(GL_RENDER))
+        if platform.atom_debug and 0:
+            print "%d hits" % len(hit_records)
+        for (near,far,names) in hit_records: # see example code, renderpass.py
+            if platform.atom_debug and 0:
+                print "hit record: near,far,names:",near,far,names
+                # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
+                # which proves that near/far are too far apart to give actual depth,
+                # in spite of the 1-pixel drawing window (presumably they're vertices
+                # taken from unclipped primitives, not clipped ones).
+            if 1:
+                # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
+                # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]
+                if names and names[-1] == 0:
+                    print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
+                    names = names[:-1]
+##                    if names:
+##                        print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
+            if names:
+                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
+                if isinstance(obj, Jig):
+                    return obj
+        return None
         
                 
     def Draw(self):
@@ -1080,13 +1320,17 @@ class selectAtomsMode(selectMode):
             # set to True when we are dragging a movable unit of 2 or more atoms.
         self.current_obj = None
             # current_obj is the object under the cursor when the LMB was pressed.
-        self.dragobjs = []
-            # dragobjs is constructed in atomsSetup() and contains all 
-            # the selected atoms (except selected baggage atoms) 
-            # that are dragged around as a group in atomsDrag().
+        self.dragatoms = []
+            # dragatoms is constructed in get_dragatoms_and_baggage() and contains all 
+            # the selected atoms (except selected baggage atoms) that are dragged around
+            # as part of the current selection in drag_selected_atoms().
             # Selected atoms that are baggage are placed in self.baggage
-            # along with non-selected baggage atoms connected to dragobjs.
+            # along with non-selected baggage atoms connected to dragatoms.
             # See atomsSetup() for more information.
+        self.dragjigs = []
+            # dragjigs is constructed in jigSetup() and contains all the selected jigs that 
+            # are dragged around as part of the current selection in jigDrag().
+            # See jigSetup() for more information.
         self.baggage = []
             # baggage contains singlets and/or monovalent atoms (i.e. H, O(sp2), F, Cl, Br)
             # which are connected to a dragged atom and get dragged around with it.
@@ -1110,8 +1354,12 @@ class selectAtomsMode(selectMode):
             # when set to True, only singlets get highlighted when dragging a singlet.
             # depositMode.singletSetup() sets this to True when dragging a singlet around.
         self.neighbors_of_last_deleted_atom = []
-            # list of the real atom neighbors connected to a deleted atom.  Used by leftDouble()
-            # to find the connected atoms to a deleted atom when double clicking with 'Shift+Control'
+            # list of the real atom neighbors connected to a deleted atom.  Used by atomLeftDouble()
+            # to find the connected atoms to a recently deleted atom when double clicking with 'Shift+Control'
+            # modifier keys pressed together.
+        self.atoms_of_last_deleted_jig = []
+            # list of the real atoms connected to a deleted jig.  Used by jigLeftDouble()
+            # to retreive the atoms of a recently deleted jig when double clicking with 'Shift+Control'
             # modifier keys pressed together.
             
     def init_gui(self):
@@ -1164,24 +1412,27 @@ class selectAtomsMode(selectMode):
         # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
         # motion before pressing the mouse. [bruce 050705 comment]
         
-            a = self.o.selatom # a "highlighted" atom or singlet
+            obj = self.o.selatom # a "highlighted" atom or singlet
             
-            if a is None and self.o.selobj:
-                a = self.o.selobj # a "highlighted" bond
+            if obj is None and self.o.selobj:
+                obj = self.o.selobj # a "highlighted" bond
+                
+            if obj is None: # a "highlighted" jig
+                obj = self.get_jig_under_cursor(event)
             
         else: # No hover highlighting
-            a = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
+            obj = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
             # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
             # This means that bonds can never be selected when highlighting is turned off.
-        return a
+        return obj
             
     def get_real_atom_under_cursor(self, event):
         '''If the object under the cursor is a real atom, return it.  Otherwise, return None.
         '''
-        a = self.get_obj_under_cursor(event)
-        if isinstance(a, Atom):
-            if not a.is_singlet():
-                return a
+        obj = self.get_obj_under_cursor(event)
+        if isinstance(obj, Atom):
+            if not obj.is_singlet():
+                return obj
         return None
         
     def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
@@ -1231,18 +1482,20 @@ class selectAtomsMode(selectMode):
             ###@@@ use checkbox to control this; when false, return None
             if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
                 # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
-                #return HICOLOR_singlet_bond
                 print "Error: HICOLOR_singlet_bond no longer used"  # This can be removed soon. mark 060215.
                 return None # precaution.  
             else:
                 if self.only_highlight_singlets:
                     return None
                 if self.o.modkeys == 'Shift+Control': 
-                    return darkred # Highlight the bond in darkred if the control key is pressed.
+                    return darkred
                 else:
                     return env.prefs[bondHighlightColor_prefs_key] ## was HICOLOR_real_bond before bruce 050805
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
-            return None # (jigs aren't yet able to draw themselves with a highlight-color)
+            if self.o.modkeys == 'Shift+Control': 
+                return darkred
+            else:
+                return env.prefs[bondHighlightColor_prefs_key]
         else:
             print "unexpected selobj class in depmode.selobj_highlight_color:", selobj
             return blue
@@ -1475,6 +1728,9 @@ class selectAtomsMode(selectMode):
             # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets and bonds (not jigs).
             # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
         
+        #print '-'*20
+        #print "leftDown(): obj=",obj
+        
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
             return
@@ -1489,6 +1745,9 @@ class selectAtomsMode(selectMode):
         
         elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
             self.bondLeftDown(obj, event)
+        
+        elif isinstance(obj, Jig): # Cursor over a jig.
+            self.jigLeftDown(obj, event)
 
         else: # Cursor is over something else other than an atom, singlet or bond. 
             # The program never executes lines in this else statement since
@@ -1531,17 +1790,22 @@ class selectAtomsMode(selectMode):
             
         if obj is None: # Nothing dragged (or clicked); return.
             return
-            
-        if isinstance(obj, Bond): # Cursor was over a bond during LMB press event.
-            self.bondLeftDrag(event)
-            return
-            
-        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor was over a singlet during LMB press event.
-            self.singletDrag(obj, event)
-            
-        if isinstance(obj, Atom) and not obj.is_singlet(): # Cursor was over a real atom during LMB press event.
-            self.atomDrag(obj, event)
         
+        if isinstance(obj, Atom):
+            if obj.is_singlet(): # Bondpoint
+                self.singletDrag(obj, event)
+            else: # Real atom
+                self.atomDrag(obj, event)
+        
+        elif isinstance(obj, Bond): # Bond
+            self.bondDrag(event)
+        
+        elif isinstance(obj, Jig): # Jig
+            self.jigDrag(obj, event)
+        
+        else: # Something else
+            pass
+            
         # No gl_update() needed. Already taken care of.
         
     def posn_str(self, atm): #bruce 041123
@@ -1586,14 +1850,20 @@ class selectAtomsMode(selectMode):
         if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             event = self.LMB_press_event
             
-        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-            self.singletLeftUp(obj, event)
+        if isinstance(obj, Atom):
+            if obj.is_singlet(): # Bondpoint
+                self.singletLeftUp(obj, event)
+            else: # Real atom
+                self.atomLeftUp(obj, event)
             
-        if isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
-            self.atomLeftUp(obj, event)
-            
-        if isinstance(obj, Bond):
+        elif isinstance(obj, Bond): # Bond
             self.bondLeftUp(obj, event)
+            
+        elif isinstance(obj, Jig): # Jig
+            self.jigLeftUp(obj, event)
+        
+        else:
+            pass
         
         self.baggage = []
         self.current_obj = None #bruce 041130 fix bug 230
@@ -1609,7 +1879,7 @@ class selectAtomsMode(selectMode):
         #self.o.gl_update() #& Now handled in modkey*() methods. mark 060210.
         
 # == LMB double-click method
-        
+
     def leftDouble(self, event): # mark 060126.
         '''Double click event handler for the left mouse button. 
         '''
@@ -1618,24 +1888,16 @@ class selectAtomsMode(selectMode):
         
         if isinstance(self.obj_doubleclicked, Atom):
             if self.obj_doubleclicked.is_singlet():
-                # Double-clicking on a singlet should do nothing.
+                self.singletLeftDouble()
                 return
-                
-            else: # real atom
-                if self.o.modkeys == 'Control':
-                    self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
-                elif self.o.modkeys == 'Shift+Control':
-                    self.o.assy.deleteConnected( self.neighbors_of_last_deleted_atom )
-                else:
-                    self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
+            else:
+                self.atomLeftDouble()
             
         if isinstance(self.obj_doubleclicked, Bond):
-            if self.o.modkeys == 'Control':
-                self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
-            elif self.o.modkeys == 'Shift+Control':
-                self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
-            else:
-                self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
+            self.bondLeftDouble()
+            
+        if isinstance(self.obj_doubleclicked, Jig):
+            self.jigLeftDouble()
 
 # == end of LMB event handler methods
         
