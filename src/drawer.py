@@ -506,7 +506,7 @@ def drawcylinder_worker(params):
 
     glPushMatrix()
     vec = pos2-pos1
-    axis = vec / dot(vec,vec)**.5
+    axis = norm(vec)
     glTranslatef(pos1[0], pos1[1], pos1[2])
     
     ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
