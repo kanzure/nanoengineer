@@ -28,6 +28,11 @@ History:
 - bruce 050901 used env.history in some places.
 
 - bruce 050920 removing laxity in valence checking for carbomeric bonds, now that mmp file supports them.
+
+- bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
+  (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
+  Movitation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+
 '''
 __author__ = "Josh"
 
@@ -242,9 +247,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # and for incremental Undo.
 
     #e we might want to add type decls for the bulky data (including the objrefs above), so it can be stored in compact arrays:
-    _s_attr_key = S_DATA # this is not yet related to Undo's concept of atom.key (I think #k) [bruce 060223]
-    _s_attr_index = S_DATA ###@@@ this means chunk needs to record curpos array, i think, but it can remake atlist, basepos, atpos
-    _s_attr_xyz = S_DATA
+    _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
+    _s_attr_index = S_DATA
+        # this is only valid since chunk's atom order is deterministic; it might be useless due to chunk._undo_update;
+        # but if we don't save it, we have to either reset it to -1 in _undo_update and recompute it before using it (nim),
+        # or reset it to an accurate value there, or make sure our chunk has no atlist so it will recompute and reset it itself.
+        # We should probably do all that (or eliminate the need for .index), as an optim of undo scanning speed and archive size
+        # (useful even after that's done in Pyrex). [bruce 060308 comment]
+##    _s_attr_xyz = S_DATA
+    _s_attr__posn = S_DATA #bruce 060308 rewrite
     _s_attr_element = S_DATA
 
     # we'll want an "optional" decl on the following, so they're reset to class attr (or unset) when they equal it:
@@ -336,7 +347,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # until replaced with 'no' by various private methods in Atom or Chunk, indicating
         # the location should be found using the formula in self.posn();
         # or it can be passed as 'no' by caller of __init__
-        self.xyz = where
+        if 1:
+            #bruce 060308 rewrite:
+            assert where != 'no'
+            assert type(where) is type(V(0,0,0))
+            self._posn = + where
+#bruce 060308 removed:
+##        self.xyz = where
+            
         # list of bond objects
         self.bonds = []
         # list of jigs (###e should be treated analogously to self.bonds)
@@ -367,6 +385,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return # from atom.__init__
 
     def __getattr__(self, attr):
+        assert attr != 'xyz' # temporary: catch bugs in bruce 060308 rewrite
         try:
             return AtomBase.__getattr__(self, attr)
         except AttributeError:
@@ -451,11 +470,16 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # or vice versa. Before this change, some new code to compare successive
         # posns of the same atom was getting a reference to the curpos[index]
         # array element, even though this was part of a longer array, so it
-        # always got two refs to the same mutable data (which compared equal)! 
-        if self.xyz != 'no':
-            res = + self.xyz
-        else:
-            res = + self.molecule.curpos[self.index]
+        # always got two refs to the same mutable data (which compared equal)!
+        if 1:
+            #bruce 060308 rewrite:
+            res = + self._posn
+        # code continues below
+#bruce 060308 removed:
+##        if self.xyz != 'no':
+##            res = + self.xyz
+##        else:
+##            res = + self.molecule.curpos[self.index]
         try:
             #bruce 060208: try to protect callers against almost-overflowing values stored by buggy code
             # (see e.g. bugs 1445, 1459)
@@ -500,7 +524,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         #new code from 050513:
         mol = self.molecule
         basepos = mol.__dict__.get('basepos') #bruce 050513
-        if basepos is not None and self.xyz == 'no': #bruce 050516 bugfix: fix sense of comparison to 'no'
+        if basepos is not None: ##[bruce 060308 zapped:]## and self.xyz == 'no': #bruce 050516 bugfix: fix sense of comparison to 'no'
             return basepos[self.index]
         # fallback to slower code from 041201:
         return mol.quat.unrot(self.posn() - mol.basecenter)
@@ -514,32 +538,46 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # [bruce 050406: now this is called from movie playing, at least for now.
         #  It's also been called (for awhile) from reading xyz files from Minimize.]
         # bruce 041130 added unary '+' (see atom.posn comment for the reason).
-        pos = + pos
-        if self.xyz != 'no':
-            # bruce 041108 added xyz check, rather than asserting we don't need it;
-            # this might never happen
-            self.xyz = pos
-            # The position being stored in the atom implies it's never been used
-            # in the molecule (in curpos or atpos or anything derived from them),
-            # so we don't need to invalidate anything in the molecule.
-            # [bruce 041207 wonders: not even self.molecule.havelist = 0??
-            #  I guess so, since mol.draw recomputes basepos, but not sure.
-            #  But I also see no harm in doing it, and it was being done by
-            #  deprecated code in setup_invalidate below, so I think I'll do it
-            #  just to be safe.]
-            self.molecule.havelist = 0
-            self.molecule.changed() #bruce 060227
-        else:
-            # the position is stored in the molecule, so let it figure out the
-            # proper way of adjusting it -- this also does the necessary invals.
-            self.molecule.setatomposn(self.index, pos, self.element) #bruce 060227 added self.molecule.changed() to that method
-                # Warning: if atpos exists, this does lots of work being "incremental" rather than
-                # just getting rid of it. Would it be better to always get rid of it completely?
-                # At least, callers who'll call us a lot should consider doing that first [see setposn_batch]. [bruce 050513]
+        #bruce 060308 rewrite
+        self._setposn_no_chunk_or_bond_invals(pos)
+        mol = self.molecule
+        if mol is not None:
+            mol.changed_atom_posn()
+        # note: code continues below!
+        
+#bruce 060308 removed this:
+##        if self.xyz != 'no':
+##            # bruce 041108 added xyz check, rather than asserting we don't need it;
+##            # this might never happen
+##            self.xyz = pos
+##            # The position being stored in the atom implies it's never been used
+##            # in the molecule (in curpos or atpos or anything derived from them),
+##            # so we don't need to invalidate anything in the molecule.
+##            # [bruce 041207 wonders: not even self.molecule.havelist = 0??
+##            #  I guess so, since mol.draw recomputes basepos, but not sure.
+##            #  But I also see no harm in doing it, and it was being done by
+##            #  deprecated code in setup_invalidate below, so I think I'll do it
+##            #  just to be safe.]
+##            self.molecule.havelist = 0
+##            self.molecule.changed() #bruce 060227
+##        else:
+##            # the position is stored in the molecule, so let it figure out the
+##            # proper way of adjusting it -- this also does the necessary invals.
+##            self.molecule.setatomposn(self.index, pos, self.element) #bruce 060227 added self.molecule.changed() to that method
+##                # Warning: if atpos exists, this does lots of work being "incremental" rather than
+##                # just getting rid of it. Would it be better to always get rid of it completely?
+##                # At least, callers who'll call us a lot should consider doing that first [see setposn_batch]. [bruce 050513]
+
         # also invalidate the bonds or jigs which depend on our position.
         #e (should this be a separate method -- does anything else need it?)
         for b in self.bonds:
             b.setup_invalidate()
+        return # from setposn
+
+    setposn_batch = setposn #bruce 060308 rewrite of setposn
+
+    def _setposn_no_chunk_or_bond_invals(self, pos): #bruce 060308 (private for Chunk and Atom)
+        self._posn = + pos
         if self.jigs: #bruce 050718 added this, for bonds code
             for jig in self.jigs[:]:
                 jig.moved_atom(self)
@@ -547,20 +585,20 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # so in theory we might optim by splitting self.jigs into two lists;
                 # however, there are other change methods for atoms in jigs (maybe changed_structure?),
                 # so it's not clear how many different lists are needed, so it's unlikely the complexity is justified.
-        return
+        return # from setposn_no_chunk_or_bond_invals
 
-    def setposn_batch(self, pos): #bruce 050513; I wonder if almost all calls of setposn should be this instead? maybe...
-        "use this in place of setposn, for speed, if you will run it a lot on atoms in the same chunk"
-        mol = self.molecule
-        try:
-            del mol.atpos
-        except:
-            pass
-        else:
-            mol.changed_attr('atpos') #### , skip = ('basepos',) )
-                #####@@@@@ this 'skip' probably causes bug 632, but is it needed for speed? [bruce 050516]
-                #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
-        self.setposn(pos)
+##    def setposn_batch(self, pos): #bruce 050513; I wonder if almost all calls of setposn should be this instead? maybe...
+##        "use this in place of setposn, for speed, if you will run it a lot on atoms in the same chunk"
+##        mol = self.molecule
+##        try:
+##            del mol.atpos
+##        except:
+##            pass
+##        else:
+##            mol.changed_attr('atpos') #### , skip = ('basepos',) )
+##                #####@@@@@ this 'skip' probably causes bug 632, but is it needed for speed? [bruce 050516]
+##                #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
+##        self.setposn(pos)
     
     def adjBaggage(self, atom, nupos): #bruce 051209 revised meaning and name from adjSinglets
         """We're going to move atom, a neighbor of yours, to nupos,
@@ -638,6 +676,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             if disp in [diVDW, diCPK, diTUBES]:
                 if self.element is not Singlet or not debug_pref("draw bondpoints as stubs", Choice_boolean_False): #bruce 060307
                     drawsphere(color, pos, drawrad, level)
+                    # Note [bruce 060308]: the debug_pref that turns this off is unfinished.
+                    # To complete it, when not drawing this sphere,
+                    # either draw endcaps on the bond to this atom (in Bond.draw),
+                    # or draw a short (almost flat) cylinder in the bondpoint color (in Bond.draw).
+                    # Note 2: if the other stuff drawn here (selection or bad valence wireframe) was ever drawn,
+                    # we might want to change the pos for it when not drawing this sphere. But it's not.
+
             if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
                 #bruce 041217 experiment: show valence errors for picked atoms by
                 # using a different color for the wireframe.
@@ -1199,23 +1244,24 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             self.molecule.changed_selection() #bruce 060227 ###@@@ is this needed in any inlines of unpick?
         return
     
-    def copy_for_mol_copy(self, numol):
-        # bruce 041113 changed semantics, and renamed from copy()
-        # to ensure only one caller, which is mol.copy()
-        """create a copy of the atom (to go in numol, a copy of its molecule),
-        with .xyz == 'no' and .index the same as in self;
-        caller must also call numol.invalidate_atom_lists() at least once
-        [private method, only suitable for use from mol.copy(), since use of
-         same .index assumes numol will be given copied curpos/basepos arrays.]
-        """
-        privateMethod()
-        nuat = atom(self, 'no', None) #bruce 050524: pass self so its atomtype is copied
-        numol.addcopiedatom(nuat)
-        ## numol.invalidate_atom_lists() -- done in caller now
-        nuat.index = self.index
-        nuat.display = self.display #bruce 041109 new feature, seems best
-        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
-        return nuat
+##    def copy_for_mol_copy(self, numol):
+##        # bruce 041113 changed semantics, and renamed from copy()
+##        # to ensure only one caller, which is mol.copy()
+##        """create a copy of the atom (to go in numol, a copy of its molecule),
+##        with .xyz == 'no' and .index the same as in self;
+##        caller must also call numol.invalidate_atom_lists() at least once
+##        [private method, only suitable for use from mol.copy(), since use of
+##         same .index assumes numol will be given copied curpos/basepos arrays.]
+##        """
+##        assert 0, "if we still need this we'll have to rewrite it" #bruce 060308 ###@@@
+##        privateMethod()
+##        nuat = atom(self, 'no', None) #bruce 050524: pass self so its atomtype is copied
+##        numol.addcopiedatom(nuat)
+##        ## numol.invalidate_atom_lists() -- done in caller now
+##        nuat.index = self.index
+##        nuat.display = self.display #bruce 041109 new feature, seems best
+##        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
+##        return nuat
 
     def copy(self): # bruce 041116, new method (has same name as an older method, now named copy_for_mol_copy)
         """Public method: copy an atom, with no special assumptions;
@@ -2281,11 +2327,14 @@ def getMultiplicity(objList):
 
 ### TEST code
 if __name__=='__main__':
-    alist = [Atom('C', 'no', None), Atom('C', 'no', None), Atom('H', 'no', None), Atom('O', 'no', None), ]
+
+    nopos = V(0,0,0) #bruce 060308 replaced 'no' with nopos (w/o knowing if it was correct in the first place)
+    
+    alist = [Atom('C', nopos, None), Atom('C', nopos, None), Atom('H', nopos, None), Atom('O', nopos, None), ]
     
     assert getMultiplicity(alist) == 2
     
-    alist +=[Atom('N', 'no', None),]
+    alist +=[Atom('N', nopos, None),]
     assert getMultiplicity(alist) == 1
     
     print "Test succeed, no assertion error."

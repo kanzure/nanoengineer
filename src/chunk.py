@@ -15,6 +15,11 @@ History:
 
 - bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
   for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
+
+- bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
+  (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
+  Movitation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+
 '''
 __author__ = "Josh"
 
@@ -35,6 +40,7 @@ from prefs_constants import bondpointHotspotColor_prefs_key
 import env
 import drawer #bruce 051126
 from undo_archive import register_class_nickname
+from state_utils import copy_val, same_vals #bruce 060308
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -88,7 +94,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #e should add user_specified_center once that's in active use
 
     _s_attr_atoms = S_CHILDREN
-    _s_attr_curpos = S_DATA #k needed since Atoms store their .index and .xyz and .molecule
+##    _s_attr_curpos = S_DATA #k needed since Atoms store their .index and .xyz and .molecule [zapped 060308]
         # [see also 060301 mol.atpos in undo_archive, probably required before this is safe to do]
 
     # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
@@ -134,7 +140,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # using InvalMixin.__getattr__, e.g. center, bbox, basepos, atpos.
         # [bruce 041112]
         
-        self.curpos = [] # should always exist; not itself invalidatable,
+##        self.curpos = [] # should always exist; not itself invalidatable,
         # but reset by _recompute_atpos
 
         # molecule-relative coordinate system, used internally to speed up
@@ -299,7 +305,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         assert atm.molecule is None or atm.molecule is _nullMol
         atm.molecule = self
         atm.index = -1 # illegal value
-        assert atm.xyz != 'no'
+##        assert atm.xyz != 'no'
         # make molecule have atom
         self.atoms[atm.key] = atm
         self.invalidate_atom_lists()
@@ -328,9 +334,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
         # make atom independent of molecule
         assert atm.molecule is self
-        atm.xyz = atm.posn() # make atom know its position independently of self
-        # atm.posn() uses atm.index and atm.molecule, so must be used before
-        # those are trashed by the following code:
+##        atm.xyz = atm.posn() # make atom know its position independently of self
+##        # atm.posn() uses atm.index and atm.molecule, so must be used before
+##        # those are trashed by the following code:
         atm.index = -1 # illegal value
         global _nullMol
         if _nullMol is None:
@@ -410,75 +416,84 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     # some more invalidation methods
-    
-    def setatomposn(self, ind, pos, element): #bruce 041108-10
-        """(private method for our atoms to call:)
-        Set position in self, of the atom with index ind, to pos.
-        Invalidate or incrementally update whatever is required
-        in this molecule (but not bonds or jigs, invalled by the atom);
-        presently [041110] we incrementally update all atom-position
-        arrays which are already present.
-           This should be the only way to move an individual atom or singlet,
-        since it's the only place that invalidates the position arrays.
-        But it is not yet the way movie playing moves atoms,
-        even though it's ok for frozen molecules too.
-        [As of 050406 it is now done by movie-playing!]
-           Don't use this when the entire mol moves in a systematic way
-        such that self.basepos remains valid, as in mol.move or mol.rot.
-        """
-        self.changed() #bruce 060227 added this; amazingly it was not yet done.
-            # It might make played movies (1) slower, (2) always mark file modified
-            # even if we return to prior frame, but these are less bad than some current
-            # bugs I hope to fix by it; we'll try to reoptim those later.
-        
-        # Theory (of most of this routine, following this comment):
-        #    It's probably worth patching whatever arrays store pos, in any
-        # coordinate system (though whether the saving in recomputation is
-        # actually worth the time cost in doing the patching is not clear).
-        #    We can optimize by stopping when we find a missing array attr,
-        # since whatever attrs depend on that must also be missing (or this
-        # would indicate a bug in invalidation). This optim is done in this
-        # code and also in the InvalMixin routines, and it's the reason
-        # for the requirement that (for example) _recompute_singlpos must
-        # access self.atpos since _inputs_for_singlpos includes 'atpos'.
-        
-        # Summary of the influences between invalidatable attributes we handle;
-        # the proper "other" ones are invalled automatically by changed_attr:
-        # Curpos (not invalidatable);
-        # atpos -> basepos -> various non-array attrs;
-        # atpos also directly affects other non-array attrs;
-        # and havelist (treated specially).
+
+    def changed_atom_posn(self): #bruce 060308
+        "Some atom we own changed position; invalidate whatever we might own that depends on that."
+        # initial implem might be too conservative; should optimize, perhaps recode in a new Pyrex ChunkBase.
+        # Some code is copied from now-obsolete setatomposn; some of its comments might apply here as well.
+        self.changed()
         self.havelist = 0
-        # arrays that store pos directly (everything else depends on them):
-        self.curpos[ind] = pos
-        atpos = self.__dict__.get('atpos')
-        if atpos is None: # note: "if atpos" would be false if all entries 0.0!
-            # nothing more to do -- everything else depends on atpos
-            return
-        assert atpos is self.curpos, "atpos should be same object as curpos"
-            # (thus no need for "atpos[ind] = pos")
-        # Now invalidate whatever depends on atpos, except for basepos
-        # (and things only influenced through it),
-        # since we will handle basepos ourself and don't want it to be
-        # deleted by this!
-        self.changed_attr('atpos', skip = ('basepos',) )
-        # Now check basepos.
-        # We only need to store something in basepos if that exists,
-        # and is not the same object as curpos.
-        # Note: "if basepos" would be false if all entries were 0.0, and this is
-        # usually the case for a 1-atom molecule! [That mistake in the following
-        # code caused bug 218, fixed by bruce 041130.]
-        basepos = self.__dict__.get('basepos')
-        if basepos is not None and (basepos is not self.curpos): #bruce 050513 optim: use 'is not None' (here and below)
-            # (actually this would be a noop if the mol was frozen,
-            #  even though basepos is curpos then,
-            #  since the transform on pos would be the identity then;
-            #  but it seems better to not do it twice, anyway)
-            basepos[ind] = self.abs_to_base( pos)
-        # But some invals are needed either then, or if the mol is frozen:
-        if basepos is not None:
-            self.changed_attr('basepos')
-        return # from setatomposn
+        self.invalidate_attr('atpos') #e should optim this ##k verify this also invals basepos, or add that to the arg of this call
+        return
+    
+##    def setatomposn(self, ind, pos, element): #bruce 041108-10 [only caller is Atom.setposn, as of 060308 pre-big-change]
+##        """(private method for our atoms to call:)
+##        Set position in self, of the atom with index ind, to pos.
+##        Invalidate or incrementally update whatever is required
+##        in this molecule (but not bonds or jigs, invalled by the atom);
+##        presently [041110] we incrementally update all atom-position
+##        arrays which are already present.
+##           This should be the only way to move an individual atom or singlet,
+##        since it's the only place that invalidates the position arrays.
+##        But it is not yet the way movie playing moves atoms,
+##        even though it's ok for frozen molecules too.
+##        [As of 050406 it is now done by movie-playing!]
+##           Don't use this when the entire mol moves in a systematic way
+##        such that self.basepos remains valid, as in mol.move or mol.rot.
+##        """
+##        self.changed() #bruce 060227 added this; amazingly it was not yet done.
+##            # It might make played movies (1) slower, (2) always mark file modified
+##            # even if we return to prior frame, but these are less bad than some current
+##            # bugs I hope to fix by it; we'll try to reoptim those later.
+##        
+##        # Theory (of most of this routine, following this comment):
+##        #    It's probably worth patching whatever arrays store pos, in any
+##        # coordinate system (though whether the saving in recomputation is
+##        # actually worth the time cost in doing the patching is not clear).
+##        #    We can optimize by stopping when we find a missing array attr,
+##        # since whatever attrs depend on that must also be missing (or this
+##        # would indicate a bug in invalidation). This optim is done in this
+##        # code and also in the InvalMixin routines, and it's the reason
+##        # for the requirement that (for example) _recompute_singlpos must
+##        # access self.atpos since _inputs_for_singlpos includes 'atpos'.
+##        
+##        # Summary of the influences between invalidatable attributes we handle;
+##        # the proper "other" ones are invalled automatically by changed_attr:
+##        # Curpos (not invalidatable);
+##        # atpos -> basepos -> various non-array attrs;
+##        # atpos also directly affects other non-array attrs;
+##        # and havelist (treated specially).
+##        self.havelist = 0
+##        # arrays that store pos directly (everything else depends on them):
+##        self.curpos[ind] = pos
+##        atpos = self.__dict__.get('atpos')
+##        if atpos is None: # note: "if atpos" would be false if all entries 0.0!
+##            # nothing more to do -- everything else depends on atpos
+##            return
+##        assert atpos is self.curpos, "atpos should be same object as curpos"
+##            # (thus no need for "atpos[ind] = pos")
+##        # Now invalidate whatever depends on atpos, except for basepos
+##        # (and things only influenced through it),
+##        # since we will handle basepos ourself and don't want it to be
+##        # deleted by this!
+##        self.changed_attr('atpos', skip = ('basepos',) )
+##        # Now check basepos.
+##        # We only need to store something in basepos if that exists,
+##        # and is not the same object as curpos.
+##        # Note: "if basepos" would be false if all entries were 0.0, and this is
+##        # usually the case for a 1-atom molecule! [That mistake in the following
+##        # code caused bug 218, fixed by bruce 041130.]
+##        basepos = self.__dict__.get('basepos')
+##        if basepos is not None and (basepos is not self.curpos): #bruce 050513 optim: use 'is not None' (here and below)
+##            # (actually this would be a noop if the mol was frozen,
+##            #  even though basepos is curpos then,
+##            #  since the transform on pos would be the identity then;
+##            #  but it seems better to not do it twice, anyway)
+##            basepos[ind] = self.abs_to_base( pos)
+##        # But some invals are needed either then, or if the mol is frozen:
+##        if basepos is not None:
+##            self.changed_attr('basepos')
+##        return # from setatomposn
     
     # for __getattr__, validate_attr, invalidate_attr, etc, see InvalMixin
     
@@ -585,86 +600,42 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # as well as checks for singlets in addatom/delatom/setatomposn.)
 
     _inputs_for_atlist = [] # only invalidated directly, by addatom/delatom
-    _inputs_for_atpos = ['atlist'] # also incrementally modified by setatomposn
+    _inputs_for_atpos = ['atlist'] # also incrementally modified by setatomposn [not anymore, 060308]
         # (Atpos could be invalidated directly, but maybe it never is (not sure);
         #  anyway we don't optim for that.)
     _inputs_for_basepos = ['atpos'] # also invalidated directly, but not often
-    
-    def _recompute_atpos(self):
-        """Common recompute routine for atlist, atpos, basepos. In theory, any
-        suffix of [atlist, atpos, basepos] can be invalid, and we could optim
-        by recomputing only the invalid ones. In practice, we don't bother, but
-        just remake them all whenever someone asks for one. This might be too
-        slow if basepos had separate invals. [As of 041117 there is no known
-        separate inval of basepos but not atpos, and the only known inval of
-        atpos but not atlist is in molecule.unfreeze, which can be ignored.]
-           We set atlist to the list of all real atoms (including singlets),
-        and atpos to an array of their positions (in the same order).
-        We also replace curpos with atpos (whenever both exist, they are
-        refs to the same mutable array objects; curpos always exists).
-           The order of the elements of atlist, atpos, curpos, and basepos is
-        the same, and is arbitrary but important, since we also set each atom's
-        .index attribute to its position in these arrays, and we make each atom
-        forget its position, instead relying on atm.molecule.curpos[atm.index].
-           We set basepos to a copy of atpos transformed into mol-relative coords
-        defined by basecenter and quat, which we reset arbitrarily to make that
-        convenient. (Other routines can later modify that coordinate system and
-        leave either atpos or basepos fixed, as they desire, changing the other
-        to match. If they change atpos they must again set curpos to it. They
-        must call changed_attr on whichever of basepos or atpos they change,
-        and if that's atpos, they should tell it not to invalidate basepos.)
-           (Bad feature: we have no protection against redefining basecenter or
-        quat at a bad time, when someone is trusting that coordinate system to
-        remain fixed, e.g. during molecule.draw. Most callers should consider
-        that coordinate system to be transient or private.)
-        """
-        #    Implem notes: assuming basepos was not invalidated directly, then
-        # since atlist and atpos were invalid, there must have been new or
-        # deleted atoms compared to the current value of curpos, which is legal
-        # (and normal), but means we can't just copy curpos to get atpos.
-        #    Note that this can be called for molecules with no atoms; in that
-        # case the produced arrays can be [] even though those have different
-        # types than when there are atoms. Some other code needs special cases
-        # when there are no atoms, due to this.
-        
+
+    def _recompute_atpos(self): #bruce 060308 major rewrite
+        "#doc"
         #    Something must have been invalid to call us, so basepos must be
         # invalid. So we needn't call changed_attr on it.
         assert not self.__dict__.has_key('basepos')
-        
+        if self.assy is None:
+            if platform.atom_debug:
+                # [bruce comment 050702: this happens if you delete the chunk while dragging it by selatom in build mode]
+                print_compact_stack("atom_debug: fyi, recompute atpos called on killed mol %r: " % self)
         # Optional debug code:
         # This might be called if basepos doesn't exist but atpos does.
         # I don't think that can happen, but if it can, I need to know.
         # So find out which of the attrs we recompute already exist:
         ## print "_recompute_atpos on %r" % self
-        if self.assy is None:
-            if platform.atom_debug:
-                # [bruce comment 050702: this happens if you delete the chunk while dragging it by selatom in build mode]
-                print_compact_stack("atom_debug: fyi, recompute atpos called on killed mol %r: " % self)
 ##        for attr in ['atpos', 'atlist', 'average_position', 'basepos']:
 ##            ## vq = self.validQ(attr)
 ##            if self.__dict__.has_key(attr):
 ##                print "fyi: _recompute_atpos sees %r already existing" % attr
-        #
-        #bruce 060129 for Undo: should we make atlist always be in order of atom keys?? ######@@@@@@
-        # [undecided -- to preserve keys requires even more! like, store them explicitly?] [see also writemmp and the method it uses]
-        # [note that we'll be going to storing only changed atoms anyway... maybe easiest to skip directly to that coding stage]
+        atomitems = self.atoms.items()
+        atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
+        atlist = [atom for key,atom in atomitems] #k syntax
         
-        atlist = self.atoms.values()
         self.atlist = array(atlist, PyObject)
         # we let atlist (as opposed to self.atlist) remain a Python list;
         # probably this doesn't matter
         
         atpos = map( lambda atm: atm.posn(), atlist ) # must be in same order
-        # note: atm.posn() uses atm.xyz and maybe atm.index and self.curpos,
-        # so we could not change those before we finished computing atpos above
         atpos = A(atpos)
         for atm,i in zip(atlist,range(len(atlist))):
-            atm.index = i # a.posn() is now incorrect until we store the new curpos!
-            # Let's hope there's no exception until curpos is stored!
-            # (So we store it ASAP.)
-            atm.xyz = 'no'
-        self.curpos = atpos # same object; must invalidate or fix atpos when any
-                            # position stored in curpos is changed!
+            atm.index = i 
+        # we must invalidate or fix self.atpos when any of our atoms' positions is changed!
         self.atpos = atpos
 
         assert len(atpos) == len(atlist)
@@ -678,18 +649,21 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # ... so this flag lets us try some other value to test that!!
             blorp = messupKey.next()
             self.basecenter += V(blorp,blorp,blorp)
-        self.quat = Q(1,0,0,0) # arbitrary, except we assume this in the next line:
+        self.quat = Q(1,0,0,0)
+            # arbitrary value, except we assume it has this specific value to simplify/optimize the next line
         if self.atoms:
-            self.basepos = atpos - self.basecenter # set now so we can assume quat is 1
+            self.basepos = atpos - self.basecenter
+                # set now (rather than when next needed) so it's still safe to assume self.quat == Q(1,0,0,0)
         else:
             self.basepos = []
             # this has wrong type, so requires special code in mol.move etc
             ###k Could we fix that by just assigning atpos to it (no elements, so should be correct)?? [bruce 060119 question]
 
         assert len(self.basepos) == len(atlist)
-        
-        # note: basepos must be a separate array object (except when mol is frozen),
-        # but atpos (when defined) and curpos must always be the same object.
+
+        # note: basepos must be a separate (unshared) array object
+        # (except when mol is frozen [which is no longer supported as of 060308]);
+        # as of 060308 atpos (when defined) is a separate array object, since curpos no longer exists.
         self.changed_basecenter_or_quat_while_atoms_fixed()
             # (that includes self.changed_attr('basepos'), though an assert above
             # says that that would not be needed in this case.)
@@ -698,6 +672,84 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # which are curpos, basecenter, quat.
         self.validate_attrs(['atpos', 'atlist', 'average_position', 'basepos'])
         return # from _recompute_atpos
+
+##    def _recompute_atpos_OBS(self):
+##        """Common recompute routine for atlist, atpos, basepos. In theory, any
+##        suffix of [atlist, atpos, basepos] can be invalid, and we could optim
+##        by recomputing only the invalid ones. In practice, we don't bother, but
+##        just remake them all whenever someone asks for one. This might be too
+##        slow if basepos had separate invals. [As of 041117 there is no known
+##        separate inval of basepos but not atpos, and the only known inval of
+##        atpos but not atlist is in molecule.unfreeze, which can be ignored.]
+##           We set atlist to the list of all atoms (including singlets),
+##        and atpos to an array of their positions (in the same order).
+##        We also replace curpos with atpos (whenever both exist, they are
+##        refs to the same mutable array objects; curpos always exists).
+##           The order of the elements of atlist, atpos, curpos, and basepos is
+##        the same, and is arbitrary but important, since we also set each atom's
+##        .index attribute to its position in these arrays, and we make each atom
+##        forget its position, instead relying on atm.molecule.curpos[atm.index].
+##           We set basepos to a copy of atpos transformed into mol-relative coords
+##        defined by basecenter and quat, which we reset arbitrarily to make that
+##        convenient. (Other routines can later modify that coordinate system and
+##        leave either atpos or basepos fixed, as they desire, changing the other
+##        to match. If they change atpos they must again set curpos to it. They
+##        must call changed_attr on whichever of basepos or atpos they change,
+##        and if that's atpos, they should tell it not to invalidate basepos.)
+##           (Bad feature: we have no protection against redefining basecenter or
+##        quat at a bad time, when someone is trusting that coordinate system to
+##        remain fixed, e.g. during molecule.draw. Most callers should consider
+##        that coordinate system to be transient or private.)
+##        """
+##        #    Implem notes: assuming basepos was not invalidated directly, then
+##        # since atlist and atpos were invalid, there must have been new or
+##        # deleted atoms compared to the current value of curpos, which is legal
+##        # (and normal), but means we can't just copy curpos to get atpos.
+##        #    Note that this can be called for molecules with no atoms; in that
+##        # case the produced arrays can be [] even though those have different
+##        # types than when there are atoms. Some other code needs special cases
+##        # when there are no atoms, due to this.
+##        
+##        #    Something must have been invalid to call us, so basepos must be
+##        # invalid. So we needn't call changed_attr on it.
+##        assert not self.__dict__.has_key('basepos')
+##        
+##        if self.assy is None:
+##            if platform.atom_debug:
+##                # [bruce comment 050702: this happens if you delete the chunk while dragging it by selatom in build mode]
+##                print_compact_stack("atom_debug: fyi, recompute atpos called on killed mol %r: " % self)
+##        # Optional debug code:
+##        # This might be called if basepos doesn't exist but atpos does.
+##        # I don't think that can happen, but if it can, I need to know.
+##        # So find out which of the attrs we recompute already exist:
+##        ## print "_recompute_atpos on %r" % self
+####        for attr in ['atpos', 'atlist', 'average_position', 'basepos']:
+####            ## vq = self.validQ(attr)
+####            if self.__dict__.has_key(attr):
+####                print "fyi: _recompute_atpos sees %r already existing" % attr
+##        #
+##        #bruce 060129 for Undo: should we make atlist always be in order of atom keys?? 
+##        # [undecided -- to preserve keys requires even more! like, store them explicitly?] [see also writemmp and the method it uses]
+##        # [note that we'll be going to storing only changed atoms anyway... maybe easiest to skip directly to that coding stage]
+##        
+##        atlist = self.atoms.values()
+##        self.atlist = array(atlist, PyObject)
+##        # we let atlist (as opposed to self.atlist) remain a Python list;
+##        # probably this doesn't matter
+##        
+##        atpos = map( lambda atm: atm.posn(), atlist ) # must be in same order
+##        # note: atm.posn() uses atm.xyz and maybe atm.index and self.curpos,
+##        # so we could not change those before we finished computing atpos above
+##        atpos = A(atpos)
+##        for atm,i in zip(atlist,range(len(atlist))):
+##            atm.index = i # a.posn() is now incorrect until we store the new curpos!
+##            # Let's hope there's no exception until curpos is stored!
+##            # (So we store it ASAP.)
+##            atm.xyz = 'no'
+##        self.curpos = atpos # same object; must invalidate or fix atpos when any
+##                            # position stored in curpos is changed!
+##
+##        ### same as above, after this point(??)
     
     # aliases, in case someone needs one of the other things we compute:
     _recompute_atlist    = _recompute_atpos
@@ -795,29 +847,33 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     def freeze(self):
         """ set the molecule up for minimization or simulation"""
-        # bruce 041112 modified this
-        ###e bruce 041104 comment: need to stop movie if atpos is invalidated
-        #bruce 050515 comment: recent movie optim includes (I think) del atpos but leaving
-        # basepos around; this will cause trouble for anything invalidating atpos; #####@@@@@
-        # until it's fixed in general (by redefining or better formalizing "frozen" state),
-        # I'll at least fix it in unfreeze, below.
-        self.update_curpos() # make sure every atom is in curpos
-        self.basecenter = V(0,0,0)
-        self.quat = Q(1,0,0,0)
-        self.basepos = self.curpos # reference == same object
-        self.changed_basecenter_or_quat_while_atoms_fixed()
-            # that includes self.changed_attr('basepos'), which in this case
-            # might be needed, if recomputing atpos also computed things
-            # influenced by basepos (but in the wrong local coord system).
+        return #bruce 060308 removing this
+               # (it wasn't working beyond the first frame anyway; it will be superceded by Pyrex optims;
+               #  only call is in movie.py)
+##        # bruce 041112 modified this
+##        ###e bruce 041104 comment: need to stop movie if atpos is invalidated
+##        #bruce 050515 comment: recent movie optim includes (I think) del atpos but leaving
+##        # basepos around; this will cause trouble for anything invalidating atpos; ###@@@
+##        # until it's fixed in general (by redefining or better formalizing "frozen" state),
+##        # I'll at least fix it in unfreeze, below.
+##        self.update_curpos() # make sure every atom is in curpos
+##        self.basecenter = V(0,0,0)
+##        self.quat = Q(1,0,0,0)
+##        self.basepos = self.curpos # reference == same object
+##        self.changed_basecenter_or_quat_while_atoms_fixed()
+##            # that includes self.changed_attr('basepos'), which in this case
+##            # might be needed, if recomputing atpos also computed things
+##            # influenced by basepos (but in the wrong local coord system).
 
     def unfreeze(self):
         """ to be done at the end of minimization or simulation"""
-        # bruce 041112 rewrote this
-        self.invalidate_attr('basepos') # bruce 050515 bugfix in recent movie-playing optimization
-            # [only needed if atpos missing and basepos there, which is the bug, and which this only partly fixes]
-        self.invalidate_attr('atpos') # effectively, do a shakedown
-          # (reset basepos, basecenter, and quat to usual values, etc)
-        assert not self.__dict__.has_key('basepos') # should be deleted when we inval atpos
+        return #bruce 060308 removing this (see comments in freeze)
+##        # bruce 041112 rewrote this
+##        self.invalidate_attr('basepos') # bruce 050515 bugfix in recent movie-playing optimization
+##            # [only needed if atpos missing and basepos there, which is the bug, and which this only partly fixes]
+##        self.invalidate_attr('atpos') # effectively, do a shakedown
+##          # (reset basepos, basecenter, and quat to usual values, etc)
+##        assert not self.__dict__.has_key('basepos') # should be deleted when we inval atpos
 
     def get_dispdef(self, glpane = None):
         "reveal what dispdef we will use to draw this molecule"
@@ -949,7 +1005,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             else:
                 self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way #bruce 051209: now it's needed
                 try:
-                    wantlist = not env.mainwindow().movie_is_playing #bruce 051209 UNTESTED #####@@@@@
+                    wantlist = not env.mainwindow().movie_is_playing #bruce 051209
                 except:
                     print_compact_traceback("exception (a bug) ignored: ")
                     wantlist = True
@@ -1150,6 +1206,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         the order of atom.key, which is assigned successive values (guaranteed to sort in order)
         as atoms are read from the file and created for use in this session.
         """
+        # as of 060308 atlist is also sorted (so equals res), but we don't want to recompute it and atpos and basepos
+        # just due to calling this. Maybe that's silly and this should just return self.atlist,
+        # or at least optim by doing that when it's in self.__dict__. ##e
         pairs = self.atoms.items() # key, val pairs; keys are atom.key,
             # which is an int which counts from 1 as atoms are created in one session,
             # and which is (as of now, 050228) specified to sort in order of creation
@@ -1350,8 +1409,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             return
 
         # imitate the recomputes done by _recompute_atpos
-        self.curpos = self.basecenter + self.quat.rot(self.basepos) # inlines base_to_abs
-        self.atpos = self.curpos
+        self.atpos = self.basecenter + self.quat.rot(self.basepos) # inlines base_to_abs
+##        self.curpos = self.atpos
+        self.set_atom_posns_from_atpos( self.atpos) #bruce 060308
         # no change in atlist; no change needed in our atoms' .index attributes
         # no change here in basepos or bbox (if caller changed them, it should
         # call changed_attr itself, or it should invalidate bbox itself);
@@ -1364,6 +1424,20 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             bon.setup_invalidate()
         return
 
+    def set_atom_posns_from_atpos(self, atpos): #bruce 060308
+        """Set our atom's positions en masse from the given array, doing no chunk or bond invals
+        (caller must do whichever invals are needed, which depends on how the positions changed).
+        The array must be in the same order as self.atpos (its typical value) and self.atlist.
+        """
+        # don't assume atlist is present -- therefore don't ask for it
+        # for fear of recomputing it and trashing atpos!
+        # (maybe it is always present, and we could simplify/optimize this #k)
+        for atom in self.atoms.itervalues():
+            ind = atom.index
+            ## assert ind != -1 # implied by the following
+            atom._setposn_no_chunk_or_bond_invals( atpos[ind] )
+        return
+    
     def base_to_abs(self, anything): # bruce 041115
         """map anything (which is accepted by quat.rot() and numarray.__add__)
         from molecule-relative coords to absolute coords;
@@ -1836,6 +1910,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if self.haveradii != (disp,eltprefs): # value must agree with set, below
             # don't have them, or have them for wrong display mode
             ###e (or, someday, for wrong element-radius prefs)
+            
+            #######@@@@@@@ if new bug i predict is there, add value of env.prefs[xxx] to this tuple, for cpk radius factor pref
+            # [bruce 060308]
+            
             try:
                 res = self.compute_sel_radii_squared()
             except:
@@ -1962,9 +2040,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             print "v =", v
             return [] # safe value for caller
 
-    def update_curpos(self):
-        "private method: make sure self.curpos includes all atoms"
-        self.atpos # recompute atpos if necessary, to update curpos
+##    def update_curpos(self):
+##        "private method: make sure self.curpos includes all atoms"
+##        self.atpos # recompute atpos if necessary, to update curpos
 
     # == copy methods (extended/revised by bruce 050524-26)
 
@@ -1994,7 +2072,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
         return numol
 
-    def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526]
+    def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526] #bruce 060308 major rewrite
         """#doc;
         overrides Node method;
         only some atom copies get recorded in mapping (if we think it might need them)
@@ -2002,15 +2080,30 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         numol = self.copy_empty_shell_in_mapping( mapping)
         # now copy the atoms, all at once (including all their existing singlets, even though those might get revised)
         # note: the following code is very similar to copy_in_mapping_with_specified_atoms, but not identical.
-        self.update_curpos() # shouldn't matter whether we do this before or after copy_empty_shell
+##        self.update_curpos() # shouldn't matter whether we do this before or after copy_empty_shell
         pairlis = []
         ndix = {} # maps old-atom key to corresponding new atom
-        for a in self.atoms.itervalues():
-            na = a.copy_for_mol_copy(numol) # has same .index, meant for new molecule
+##        for a in self.atoms.itervalues():
+        nuatoms = {}
+        for a in self.atlist: # this is now in order of atom.key; it might get recomputed right now (along with atpos & basepos if so)
+            na = a.copy()
+##            na.index  = a.index # optim, only safe since we take care to copy them in order, and copy the arrays too
+            # inlined addatom, optimized (maybe put this in a new variant of obs copy_for_mol_copy?)
+            na.molecule = numol
+            nuatoms[na.key] = na
             pairlis.append((a, na))
             ndix[a.key] = na
-        numol.invalidate_atom_lists() # probably needed, since copy_for_mol_copy says it is
-        numol.curpos = + self.curpos #050524 moved this before copying of bonds, in case they start caring about atom coords
+        numol.invalidate_atom_lists()
+##        numol.curpos = + self.curpos #050524 moved this before copying of bonds, in case they start caring about atom coords
+        numol.atoms = nuatoms
+##        if 0:
+##            # I'm not sure how to make this correct, since it doesn't copy everything recomputed
+##            # when we recompute atlist/atpos/basepos; beside's it's often wasted work since caller plans to
+##            # move all the atoms after the copy, or so... so nevermind.
+##            numol.atlist = copy_val(self.atlist)
+##            numol.atpos = copy_val(self.atpos) # use copy_val in case length is 0 and type is unusual
+##            numol.basepos = copy_val(self.basepos)
+        
         self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
         # note: no way to handle hotspot yet, since how to do that might depend on whether
         # extern bonds are broken... so let's copy an explicit one, and tell the mapping
@@ -2108,9 +2201,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #numol.set_hotspot( hotspot, permit_invalid = True) #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
             self.set_hotspot( hotspot, permit_invalid = True) # this checks everything before setting it; if invalid, silent noop
 
-    # == old copy method -- should remove ASAP but might still be needed for awhile (as of 050526)
+    # == old copy method -- should remove ASAP but might still be needed for awhile (as of 050526)... actually we'll keep it for awhile,
+    # since it's used in many places and ways in depositMode and extrudeMode... it'd be nice to rewrite it to call general copier...
     
-    def copy(self, dad=None, offset=V(0,0,0), cauterize = 1):
+    def copy(self, dad = None, offset = V(0,0,0), cauterize = 1):
+        #bruce 060308 major rewrite, and no longer permit args to vary from defaults
         """Public method: Copy the molecule to a new molecule.
         Offset tells where it will go relative to the original.
         Unless cauterize = 0, replace bonds out of the molecule
@@ -2132,6 +2227,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         dad but lack of being in dad's members list, and tolerate it but complain
         when atom_debug. This should all be cleaned up sometime soon. ###@@@
         """
+        assert cauterize == 1
+        assert same_vals( offset, V(0,0,0) )
+        assert dad is None
         # bruce added cauterize feature 041116, and its hotspot behavior 041123.
         # Without hotspot feature, Build mode pasting could have an exception.
         ##print "fyi debug: mol.copy on %r" % self
@@ -2139,7 +2237,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # and in depositMode.
         # [where do they call addmol? why did extrude's copies break on 041116?]
         from bonds import bond_copied_atoms # might be a recursive import if done at toplevel
-        self.update_curpos()
+##        self.update_curpos()
         pairlis = []
         ndix = {}
         newname = mol_copy_name(self.name)
@@ -2154,11 +2252,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # and sets .prior_part, which is what should fix bug 660
         numol.name = newname
         #end 050531 kluges
-        for a in self.atoms.itervalues():
-            na = a.copy_for_mol_copy(numol) # has same .index, meant for new molecule
-            pairlis += [(a, na)]
+        nuatoms = {}
+        for a in self.atlist: # 060308 changed similarly to copy_full_in_mapping (shares some code with it)
+            na = a.copy()
+            na.molecule = numol
+            nuatoms[na.key] = na
+            pairlis.append((a, na))
             ndix[a.key] = na
         numol.invalidate_atom_lists()
+        numol.atoms = nuatoms
         extern_atoms_bonds = []
         for (a, na) in pairlis:
             for b in a.bonds:
@@ -2203,9 +2305,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #  if we ever have those
         if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
             numol.user_specified_center = self.user_specified_center + offset
-        numol.curpos = self.curpos + offset
-            # (if offset was 0, that is still needed to ensure the new curpos
-            #  is not the same array object as the old one)
+##        numol.curpos = self.curpos + offset
+##            # (if offset was 0, that is still needed to ensure the new curpos
+##            #  is not the same array object as the old one)
         ## numol.shakedown()
         numol.setDisplay(self.display)
         numol.dad = dad
@@ -2294,7 +2396,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # since they were already in mol anyway.
         for atm in mol.atoms.values():
             # should be a method in atom:
-            atm.xyz = atm.posn()
+##            atm.xyz = atm.posn()
             atm.index = -1
             atm.molecule = self
             #bruce 050516: changing atm.molecule is now enough in itself
