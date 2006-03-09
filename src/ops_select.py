@@ -256,7 +256,7 @@ class ops_select_Mixin:
         "ensure it's legal to pick atoms using mouse selection, and deselect any selected chunks (if picking atoms does so)"
         ## if self.assy.selwhat != SELWHAT_ATOMS:
         if 1: # this matters, to callers who might have jigs selected
-            self.unpickparts() # besides unpicking chunks, this also unpicks jigs and groups -- ok?
+            self.unpickparts(unpick_jigs=False) # only unpicks chunks, not jigs. mark 060309.
             self.assy.set_selwhat(SELWHAT_ATOMS) #bruce 050517 revised API of this call
         return
     
@@ -443,13 +443,20 @@ class ops_select_Mixin:
                 a.molecule.changed_selection() #bruce 060227; could be optimized #e
             self.selatoms = {}
     
-    def unpickparts(self):
-        """Deselect any selected nodes (chunks, Jigs, Groups) in this part
+    def unpickparts(self, unpick_jigs=True):
+        """Deselect any selected nodes (chunks,Jigs, Groups) in this part
         (but don't change selwhat or do any updates)
+        If <unpick_jigs> is False, only selected chunks are unpicked.
         """ #bruce 050517 added docstring
-        self.topnode.unpick()
-        # before assy/part split, this was done on assy.root, i.e. on assy.tree and assy.shelf
-
+        #mark 060308 added <unpick_jigs> argument
+        if unpick_jigs:
+            self.topnode.unpick()
+        else:
+            picked_chunks = filter( lambda m: m.picked, self.molecules )
+            for c in picked_chunks[:]:
+                c.unpick()
+        return
+        
     def begin_select_cmd(self):
         # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
         # More info in comments in assembly version. [bruce 051031]
