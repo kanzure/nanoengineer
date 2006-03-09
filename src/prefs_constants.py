@@ -211,7 +211,7 @@ prefs_table = (
     # Atom preferences - other
     
     ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
-    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.78), #mark 060307 [about diVDW, calld CPK in UI as of now]
+    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diVDW, called CPK in UI as of now]
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diVDW to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     
