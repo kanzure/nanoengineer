@@ -535,7 +535,11 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editMakeCheckpoint(self):
         '''Slot for making a checkpoint (only available when Automatic Checkpointing is disabled).
         '''
-        env.history.message("Make Checkpoint: Not implemented yet.")
+        import undo_manager, debug
+        debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
+        undo_manager.editMakeCheckpoint()
+        ## env.history.message("Make Checkpoint: Not implemented yet.")
+        return
         
     def editUndo(self):
         self.assy.editUndo()
@@ -546,7 +550,11 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editAutoCheckpointing(self, enabled):
         '''Slot for enabling/disabling automatic checkpointing.
         '''
-        self.editMakeCheckpointAction.setVisible(not enabled)
+        import undo_manager, debug
+        debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
+        undo_manager.editAutoCheckpointing(enabled)
+            # that will probably do (among other things): self.editMakeCheckpointAction.setVisible(not enabled)
+        return
             
     def editClearUndoStack(self):
         '''Slot for clearing the Undo Stack.  Requires the user to confirm.

@@ -392,6 +392,40 @@ register_debug_menu_command_maker( "undo_cmds", undo_cmds_maker)
 
 # Undo-related main menu commands other than Undo/Redo themselves
 
+_AutoCheckpointing_enabled = True
+    #e this might be revised to look at env.prefs sometime during app startup,
+    # and to call editAutoCheckpointing (or some part of it) with the proper initial state;
+    # the current code is designed, internally, for checkpointing to be enabled except
+    # for certain intervals, so we might start out True and set this to False when
+    # an undo_manager is created... we'll see; maybe it won't even (or mainly or only) be a global? [060309]
+
+def editMakeCheckpoint():
+    '''This is called from MWsemantics.editMakeCheckpoint, which is documented as
+    "Slot for making a checkpoint (only available when Automatic Checkpointing is disabled)."
+    '''
+    env.history.message("Make Checkpoint: Not implemented yet.")
+    return
+
+def editAutoCheckpointing(enabled):
+    '''This is called from MWsemantics.editClearUndoStack, which is documented as
+    "Slot for enabling/disabling automatic checkpointing."
+       This has only UI effects (including editMakeCheckpointAction.setVisible),
+    other than setting the global _AutoCheckpointing_enabled.
+    '''
+    win = env.mainwindow() #k should this and/or assy be an argument instead?
+    global _AutoCheckpointing_enabled
+    _AutoCheckpointing_enabled = not not enabled
+    if enabled:
+        msg_short = "Autocheckpointing enabled"
+        msg_long  = "Autocheckpointing enabled -- each operation will be undoable"
+    else:
+        msg_short = "Autocheckpointing disabled"
+        msg_long  = "Autocheckpointing disabled -- only explicit Undo checkpoints are kept" #k length ok?
+    env.history.message(greenmsg(msg_short) + orangemsg(" [not yet fully implemented]")) #######@@@@@@@
+    env.history.statusbar_msg(msg_long)
+    win.editMakeCheckpointAction.setVisible(not enabled)
+    return
+
 def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsemantics
     '''called from MWsemantics.editClearUndoStack, which is documented as a
        "Slot for clearing the Undo Stack.  Requires the user to confirm."
@@ -415,6 +449,7 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
         # or destroy and remake assy.undo_manager itself before doing this (and make sure destroying it frees storage).
         ##e Make sure this can be called with or without auto-checkpointing enabled, and leaves that setting unchanged.
         env.mainwindow().assy.clear_undo_stack()
+             #k should win and/or assy be an argument instead?
     except:
         print_compact_traceback("exception in clear_undo_stack: ")
         env.history.message(redmsg("Internal error in Clear Undo Stack. Undo/Redo might be unsafe until a new file is opened."))
