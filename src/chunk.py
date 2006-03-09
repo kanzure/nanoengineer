@@ -76,7 +76,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # class constants to serve as default values of attributes
     _hotspot = None
-    _s_attr_hotspot = S_REF #bruce 060308 to fix bug 1633
+    _s_attr__hotspot = S_REF #bruce 060308 to fix bug 1633; bruce 060309 corrected hotspot -> _hotspot to fix bug 1643
+        ####@@@@ ideally we'd add debug code to detect the original error, due to presence of a _get_hotspot method;
+        # maybe we'd have an optional method (implemented by InvalMixin) to say whether an attr is legal for an undoable state decl.
     _colorfunc = None
     # this overrides global display (GLPane.display)
     # but is overriden by atom value if not default
