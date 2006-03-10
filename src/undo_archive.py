@@ -1401,18 +1401,19 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             return # from collector
         transclose( toscan, collector) # retval is not interesting to us; what matters is side effect on diffs_to_destroy
         if diffs_to_destroy:
+            ndiffs = len(diffs_to_destroy)
+            len1 = len(self.stored_ops)
             if env.debug():
-                ndiffs = len(diffs_to_destroy)
-                print "debug: clear_redo_stack found %d diffs to destroy" % ndiffs # used later too
-                len1 = len(self.stored_ops)
+                print "debug: clear_redo_stack found %d diffs to destroy" % ndiffs
             for diff in diffs_to_destroy.values():
                 diff.destroy() #k did I implem this fully?? I hope so, since clear_undo_stack probably uses it too...
                 # the thing to check is whether they remove themselves from stored_ops....
             diffs_to_destroy = None # refdecr them too, before saying we're done (since the timing of that is why we say it)
             toscan = state_version_start = from_cp = None
-            if (env.debug() or len1 == len2) and ndiffs:
-                len2 = len(self.stored_ops)
-                print "  debug: clear_redo_stack finished; removed %d entries from self.stored_ops" % (len1 - len2) ###k bug if 0
+            len2 = len(self.stored_ops)
+            savings = len1 - len2 # always 0 for now, since we don't yet remove them, so don't print non-debug msg when 0 (for now)
+            if ndiffs and (savings < 0 or env.debug()):
+                print "  debug: clear_redo_stack finished; removed %d entries from self.stored_ops" % (savings,) ###k bug if 0
         else:
             if env.debug():
                 print "debug: clear_redo_stack found nothing to destroy"
