@@ -22,8 +22,7 @@ from DirView import FileItem, Directory, DirView
 from assembly import assembly
 from files_mmp import readmmp
 from part import Part
-import os
-import sys
+import os, sys
 import env
 
 # PageId constants for mmkit_tab
@@ -45,15 +44,23 @@ class MMKit(MMKitDialog):
         
         self.flayout = None
         
-        # Add icons to MMKit's tabs. mark 060223.
-        atoms_pm = imagename_to_pixmap("atom.png")
-        self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
+        if sys.platform == 'darwin': 
+            # Work around for bug 1659. Sometimes the program crashes on MacOS when
+            # setting tab icons in the MMKit's tabwidget. mark 060310.
+            self.mmkit_tab.setMargin ( 0 ) 
+            self.mmkit_tab.setTabLabel (self.atomsPage, 'Atoms')
+            self.mmkit_tab.setTabLabel (self.clipboardPage, 'Clipbd')
+            self.mmkit_tab.setTabLabel (self.libraryPage, 'Lib')
+        else:
+            # Add icons to MMKit's tabs. mark 060223.
+            atoms_pm = imagename_to_pixmap("atom.png")
+            self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
         
-        clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
-        self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm))
+            clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
+            self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm))
         
-        library_pm = imagename_to_pixmap("library.png")
-        self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
+            library_pm = imagename_to_pixmap("library.png")
+            self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
         
         self._setNewView('MMKitView')
         
@@ -372,11 +379,15 @@ class MMKit(MMKitDialog):
     def update_clipboard_page_icon(self):
         '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon.
         '''
+        if sys.platform == 'darwin': 
+            # Work around for bug 1659. mark 060310
+            return
+            
         if self.w.assy.shelf.get_pastable_chunks():
             clipboard_pm = imagename_to_pixmap("clipboard-full.png")
         else:
             clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
-            
+        
         self.mmkit_tab.setTabIconSet (self.clipboardPage, QIconSet(clipboard_pm))
 
     
