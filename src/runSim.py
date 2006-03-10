@@ -807,7 +807,8 @@ class SimRunner:
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
 
             import time
-            start = time.time()
+            # wware 060309, bug 1343
+            self.startTime = start = time.time()
             
             if not abortbutton.aborting():
                 # checked here since above processEvents can take time, include other tasks
@@ -941,12 +942,16 @@ class SimRunner:
                       (simtime, self.__frame_number, pytime, self.__sim_work_time)
                 env.history.statusbar_msg(msg)
             else:
+                # wware 060309, bug 1343
+                msg = ""
                 tp = self.tracefileProcessor
                 if tp:
                     msg = tp.progress_text()
-                    if msg:
-                        env.history.statusbar_msg(self.cmdname + ": " + msg)
-                pass
+                if msg:
+                    env.history.statusbar_msg(self.cmdname + ": " + msg)
+                else:
+                    msg = "Elapsed: %0.3f" % (time.time() - self.startTime)
+                    env.history.statusbar_msg(msg)
         return
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102

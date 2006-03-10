@@ -428,19 +428,11 @@ class HistoryWidget:
         # those will be cleaned up soon (I hope) and then this can be too.
         # Kluge or not, it should probably just call a method in MWsemantics... for now it's here.
         win = self.widget.topLevelWidget()
-            # ... use an init option instead? for win, or the sbar itself...
-        # work around the kluge in MWsemantics [not anymore! bruce 050107] ###@@@ redoc
-        if 0:
-            orig_sb_method = win.__class__.statusBar 
-            sbar = orig_sb_method(win)
-        else:
-            # what we'd do without that kluge
-            sbar = win.statusBar()
-        # now we can emit the message
+        # Bug 1343, wware 060309
         if msg_text:
-            sbar.message(msg_text)
+            win.statusMsgLabel.setText(msg_text)
         else:
-            sbar.clear()
+            win.statusMsgLabel.setText("")
         if repaint:
             ## this didn't work, so don't do it until I know why it didn't work:
             ## sbar.repaint()

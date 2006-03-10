@@ -28,6 +28,12 @@ def do_what_MainWindowUI_should_do(win):
     win.statusBar().addWidget(win.status_pbar,0,True)
     win.status_pbar.hide()
     
+    # Create a status message bar. Bug 1343, wware 060309
+    win.statusMsgLabel = QLabel(win.statusBar(), "statusMsgLabel")
+    win.statusMsgLabel.setMinimumWidth(150)
+    win.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+    win.statusBar().addWidget(win.statusMsgLabel, 0, True)
+    
     # Create sim abort (stop) button.
     win.simAbortButton = QToolButton(win, "")
     from Utility import imagename_to_pixmap
