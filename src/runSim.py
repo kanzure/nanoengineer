@@ -785,7 +785,13 @@ class SimRunner:
             #e this could be slow, and the simobj already knows it, but I don't think getFrame has access to it [bruce 060112]
         simopts = self._simopts
         simobj = self._simobj
-
+        if not self.mflag:
+            # wware 060310, bug 1294
+            numframes = simopts.NumFrames
+            self.win.status_pbar.reset()
+            self.win.status_pbar.setTotalSteps(numframes)
+            self.win.status_pbar.setProgress(0)
+            self.win.status_pbar.show()
         from StatusBar import AbortButtonForOneTask
             #bruce 060106 try to let pyrex sim share some abort button code with non-pyrex sim
         self.abortbutton_controller = abortbutton = AbortButtonForOneTask(self.cmdname)
@@ -879,8 +885,13 @@ class SimRunner:
             ##e terminate it, if it might be in a different thread; destroy object; etc
             self.errcode = -1 # simulator failure
 
-        env.history.progress_msg("") # clear out elapsed time messages
-        env.history.statusbar_msg("") # clear out transient statusbar messages
+        if not self.mflag:
+            # wware 060310, bug 1294
+            self.win.status_pbar.setProgress(numframes)
+            self.win.status_pbar.reset()
+            self.win.status_pbar.hide()
+            env.history.progress_msg("") # clear out elapsed time messages
+        env.history.statusbar_msg("Done.") # clear out transient statusbar messages
 
         abortbutton.finish() # whether or not there was an exception and/or it aborted
         return
@@ -950,10 +961,13 @@ class SimRunner:
                     msg = tp.progress_text()
                 if msg:
                     env.history.statusbar_msg(self.cmdname + ": " + msg)
-            # wware 060310, bug 1343
-            from platform import hhmmss_str
-            msg = "Elapsed Time: " + hhmmss_str(int(time.time() - self.startTime))
-            env.history.progress_msg(msg)
+        # wware 060310, bug 1343
+        from platform import hhmmss_str
+        msg = "Elapsed Time: " + hhmmss_str(int(time.time() - self.startTime))
+        env.history.progress_msg(msg)
+        if not self.mflag:
+            # wware 060310, bug 1294
+            self.win.status_pbar.setProgress(self.__frame_number)
         return
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
