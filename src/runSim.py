@@ -890,7 +890,7 @@ class SimRunner:
             self.win.status_pbar.setProgress(numframes)
             self.win.status_pbar.reset()
             self.win.status_pbar.hide()
-            env.history.progress_msg("") # clear out elapsed time messages
+        env.history.progress_msg("") # clear out elapsed time messages
         env.history.statusbar_msg("Done.") # clear out transient statusbar messages
 
         abortbutton.finish() # whether or not there was an exception and/or it aborted
