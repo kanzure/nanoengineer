@@ -879,6 +879,7 @@ class SimRunner:
             ##e terminate it, if it might be in a different thread; destroy object; etc
             self.errcode = -1 # simulator failure
 
+        env.history.progress_msg("") # clear out elapsed time messages
         env.history.statusbar_msg("") # clear out transient statusbar messages
 
         abortbutton.finish() # whether or not there was an exception and/or it aborted
@@ -949,9 +950,10 @@ class SimRunner:
                     msg = tp.progress_text()
                 if msg:
                     env.history.statusbar_msg(self.cmdname + ": " + msg)
-                else:
-                    msg = "Elapsed: %0.3f" % (time.time() - self.startTime)
-                    env.history.statusbar_msg(msg)
+            # wware 060310, bug 1343
+            from platform import hhmmss_str
+            msg = "Elapsed Time: " + hhmmss_str(int(time.time() - self.startTime))
+            env.history.progress_msg(msg)
         return
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102

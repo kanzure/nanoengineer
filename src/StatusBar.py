@@ -128,8 +128,8 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unk
             win._duration = time.time() - win.stime
             if elapsedtime == win._duration: continue
             elapmsg = "Elapsed Time: " + hhmmss_str(int(win._duration))
-            # Need to display the duration somewhere.  History msg?
-            env.history.statusbar_msg(elapmsg)
+            # Display the duration, bug 1343 wware 060310
+            env.history.progress_msg(elapmsg)
                 #e if this is a non-modal background task, that statusbar_msg
                 # might mess up more important ones from foreground operations --
                 # need to reconsider this (even if we prohibit other long-running
@@ -214,7 +214,8 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
             win._duration = time.time() - win.stime
             if elapsedtime == win._duration: continue
             elapmsg = "Elapsed Time: " + hhmmss_str(int(win._duration))
-            env.history.statusbar_msg(elapmsg)
+            # bug 1343 wware 060310
+            env.history.progress_msg(elapmsg)
                 
         if responseCode == 4: # 5 == Sim is Idle (Done)
             done = True

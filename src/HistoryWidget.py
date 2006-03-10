@@ -428,11 +428,19 @@ class HistoryWidget:
         # those will be cleaned up soon (I hope) and then this can be too.
         # Kluge or not, it should probably just call a method in MWsemantics... for now it's here.
         win = self.widget.topLevelWidget()
-        # Bug 1343, wware 060309
-        if msg_text:
-            win.statusMsgLabel.setText(msg_text)
+            # ... use an init option instead? for win, or the sbar itself...
+        # work around the kluge in MWsemantics [not anymore! bruce 050107] ###@@@ redoc
+        if 0:
+            orig_sb_method = win.__class__.statusBar 
+            sbar = orig_sb_method(win)
         else:
-            win.statusMsgLabel.setText("")
+            # what we'd do without that kluge
+            sbar = win.statusBar()
+        # now we can emit the message
+        if msg_text:
+            sbar.message(msg_text)
+        else:
+            sbar.clear()
         if repaint:
             ## this didn't work, so don't do it until I know why it didn't work:
             ## sbar.repaint()
@@ -440,6 +448,10 @@ class HistoryWidget:
             # so do this instead:
             print msg_text
         return
+    
+    def progress_msg(self, msg_text): # Bug 1343, wware 060310
+        win = self.widget.topLevelWidget()
+        win.statusMsgLabel.setText(msg_text)
     
     def widget_msg(self, msg, options):
         #e improved timestamp?
