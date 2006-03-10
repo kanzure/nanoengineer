@@ -436,6 +436,7 @@ class UserPrefs(UserPrefsDialog):
             # note: this does cause the checkbox to send its "toggled(bool)" signal to our slot method.
         
         # Set Lines Dislplay Mode line thickness.  Mark 050831.
+        self.update_bond_line_thickness_suffix()
         self.bond_line_thickness_spinbox.setValue( env.prefs[linesDisplayModeThickness_prefs_key] )
         
         # Set CPK Cylinder radius (percentage).  Mark 051003.
@@ -450,7 +451,6 @@ class UserPrefs(UserPrefsDialog):
         # Bruce to decide.  He will be implementing this feature.  Mark 050731.
         self.history_height_lbl.hide()
         self.history_height_spinbox.hide()
-        self.history_lines_lbl.hide()
         
         ## self.history_height_spinbox.setValue(self.history.history_height) #bruce 050810 removed this
         
@@ -735,6 +735,15 @@ class UserPrefs(UserPrefsDialog):
         pixel_thickness can be 1, 2 or 3.
         '''
         env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
+        self.update_bond_line_thickness_suffix()
+        
+    def update_bond_line_thickness_suffix(self):
+        '''Updates the suffix for the bond line thickness spinbox.
+        '''
+        if env.prefs[linesDisplayModeThickness_prefs_key] == 1:
+            self.bond_line_thickness_spinbox.setSuffix(' pixel')
+        else:
+            self.bond_line_thickness_spinbox.setSuffix(' pixels')
         
     def change_cpk_cylinder_radius(self, val):
         '''Change the CPK (Ball and Stick) cylinder radius by % value <val>.

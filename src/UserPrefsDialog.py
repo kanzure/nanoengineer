@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Mar 9 11:13:43 2006
+# Created: Fri Mar 10 00:16:20 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -362,9 +362,6 @@ class UserPrefsDialog(QDialog):
         self.cpk_atom_rad_spinbox.setMinValue(50)
         self.cpk_atom_rad_spinbox.setValue(100)
         layout74.addWidget(self.cpk_atom_rad_spinbox)
-
-        self.textLabel1_4 = QLabel(self.TabPage,"textLabel1_4")
-        layout74.addWidget(self.textLabel1_4)
         spacer38 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout74.addItem(spacer38)
 
@@ -380,9 +377,6 @@ class UserPrefsDialog(QDialog):
         self.cpk_scale_factor_linedit.setMaximumSize(QSize(40,32767))
         self.cpk_scale_factor_linedit.setReadOnly(1)
         layout75.addWidget(self.cpk_scale_factor_linedit)
-
-        self.textLabel1_4_2 = QLabel(self.TabPage,"textLabel1_4_2")
-        layout75.addWidget(self.textLabel1_4_2)
 
         self.cpk_scale_factor_slider = QSlider(self.TabPage,"cpk_scale_factor_slider")
         self.cpk_scale_factor_slider.setMinValue(100)
@@ -404,151 +398,6 @@ class UserPrefsDialog(QDialog):
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
         TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
-
-        layout111 = QVBoxLayout(None,0,6,"layout111")
-
-        self.groupBox4 = QGroupBox(self.TabPage_2,"groupBox4")
-        self.groupBox4.setColumnLayout(0,Qt.Vertical)
-        self.groupBox4.layout().setSpacing(6)
-        self.groupBox4.layout().setMargin(11)
-        groupBox4Layout = QVBoxLayout(self.groupBox4.layout())
-        groupBox4Layout.setAlignment(Qt.AlignTop)
-
-        layout61 = QGridLayout(None,1,1,0,6,"layout61")
-
-        layout37_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2")
-
-        self.bond_hilite_color_frame = QFrame(self.groupBox4,"bond_hilite_color_frame")
-        self.bond_hilite_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_hilite_color_frame.setMaximumSize(QSize(32767,32767))
-        self.bond_hilite_color_frame.setPaletteBackgroundColor(QColor(0,0,159))
-        self.bond_hilite_color_frame.setFrameShape(QFrame.Box)
-        self.bond_hilite_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2.addWidget(self.bond_hilite_color_frame)
-
-        self.bond_hilite_color_btn = QPushButton(self.groupBox4,"bond_hilite_color_btn")
-        layout37_2_2_2.addWidget(self.bond_hilite_color_btn)
-
-        layout61.addLayout(layout37_2_2_2,0,1)
-
-        layout37_2_2 = QHBoxLayout(None,0,6,"layout37_2_2")
-
-        self.bond_cpk_color_frame = QFrame(self.groupBox4,"bond_cpk_color_frame")
-        self.bond_cpk_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_cpk_color_frame.setPaletteBackgroundColor(QColor(158,158,158))
-        self.bond_cpk_color_frame.setFrameShape(QFrame.Box)
-        self.bond_cpk_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2.addWidget(self.bond_cpk_color_frame)
-
-        self.bond_cpk_color_btn = QPushButton(self.groupBox4,"bond_cpk_color_btn")
-        layout37_2_2.addWidget(self.bond_cpk_color_btn)
-
-        layout61.addLayout(layout37_2_2,1,1)
-
-        layout37_2_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_3")
-
-        self.bond_vane_color_frame = QFrame(self.groupBox4,"bond_vane_color_frame")
-        self.bond_vane_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_vane_color_frame.setMaximumSize(QSize(32767,32767))
-        self.bond_vane_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
-        self.bond_vane_color_frame.setFrameShape(QFrame.Box)
-        self.bond_vane_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_frame)
-
-        self.bond_vane_color_btn = QPushButton(self.groupBox4,"bond_vane_color_btn")
-        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_btn)
-
-        layout61.addLayout(layout37_2_2_2_2_3,4,1)
-
-        self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
-        self.textLabel3_2_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
-        self.textLabel3_2_2.setMinimumSize(QSize(0,0))
-        self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout61.addWidget(self.textLabel3_2_2,2,0)
-
-        self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
-        self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout61.addWidget(self.textLabel3_2,0,0)
-
-        self.textLabel3_3 = QLabel(self.groupBox4,"textLabel3_3")
-        self.textLabel3_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout61.addWidget(self.textLabel3_3,4,0)
-
-        layout37_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2")
-
-        self.bond_stretch_color_frame = QFrame(self.groupBox4,"bond_stretch_color_frame")
-        self.bond_stretch_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_stretch_color_frame.setMaximumSize(QSize(32767,32767))
-        self.bond_stretch_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
-        self.bond_stretch_color_frame.setFrameShape(QFrame.Box)
-        self.bond_stretch_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2_2_2.addWidget(self.bond_stretch_color_frame)
-
-        self.bond_stretch_color_btn = QPushButton(self.groupBox4,"bond_stretch_color_btn")
-        layout37_2_2_2_2.addWidget(self.bond_stretch_color_btn)
-
-        layout61.addLayout(layout37_2_2_2_2,2,1)
-
-        self.textLabel3 = QLabel(self.groupBox4,"textLabel3")
-        self.textLabel3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        layout61.addWidget(self.textLabel3,1,0)
-        groupBox4Layout.addLayout(layout61)
-
-        layout25 = QHBoxLayout(None,0,6,"layout25")
-        spacer20 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout25.addItem(spacer20)
-
-        self.reset_bond_colors_btn = QPushButton(self.groupBox4,"reset_bond_colors_btn")
-        layout25.addWidget(self.reset_bond_colors_btn)
-        groupBox4Layout.addLayout(layout25)
-        layout111.addWidget(self.groupBox4)
-
-        layout110 = QHBoxLayout(None,0,6,"layout110")
-
-        layout109 = QVBoxLayout(None,0,6,"layout109")
-
-        self.textLabel1_3 = QLabel(self.TabPage_2,"textLabel1_3")
-        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout109.addWidget(self.textLabel1_3)
-
-        self.textLabel1 = QLabel(self.TabPage_2,"textLabel1")
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout109.addWidget(self.textLabel1)
-        layout110.addLayout(layout109)
-
-        layout106 = QVBoxLayout(None,0,6,"layout106")
-
-        self.cpk_cylinder_rad_spinbox = QSpinBox(self.TabPage_2,"cpk_cylinder_rad_spinbox")
-        self.cpk_cylinder_rad_spinbox.setMaxValue(125)
-        self.cpk_cylinder_rad_spinbox.setMinValue(50)
-        self.cpk_cylinder_rad_spinbox.setValue(100)
-        layout106.addWidget(self.cpk_cylinder_rad_spinbox)
-
-        self.bond_line_thickness_spinbox = QSpinBox(self.TabPage_2,"bond_line_thickness_spinbox")
-        self.bond_line_thickness_spinbox.setMaxValue(3)
-        self.bond_line_thickness_spinbox.setMinValue(1)
-        layout106.addWidget(self.bond_line_thickness_spinbox)
-        layout110.addLayout(layout106)
-
-        layout108 = QVBoxLayout(None,0,6,"layout108")
-
-        self.textLabel1_2_2 = QLabel(self.TabPage_2,"textLabel1_2_2")
-        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout108.addWidget(self.textLabel1_2_2)
-
-        self.textLabel1_2 = QLabel(self.TabPage_2,"textLabel1_2")
-        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout108.addWidget(self.textLabel1_2)
-        layout110.addLayout(layout108)
-        layout111.addLayout(layout110)
-        spacer22 = QSpacerItem(20,51,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout111.addItem(spacer22)
-
-        TabPageLayout_2.addLayout(layout111,0,0)
 
         layout98 = QVBoxLayout(None,0,6,"layout98")
 
@@ -586,7 +435,145 @@ class UserPrefsDialog(QDialog):
         spacer18 = QSpacerItem(20,144,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout98.addItem(spacer18)
 
-        TabPageLayout_2.addLayout(layout98,0,1)
+        TabPageLayout_2.addMultiCellLayout(layout98,0,2,1,1)
+        spacer56_3 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_2.addItem(spacer56_3,0,2)
+
+        self.groupBox4 = QGroupBox(self.TabPage_2,"groupBox4")
+        self.groupBox4.setColumnLayout(0,Qt.Vertical)
+        self.groupBox4.layout().setSpacing(6)
+        self.groupBox4.layout().setMargin(11)
+        groupBox4Layout = QGridLayout(self.groupBox4.layout())
+        groupBox4Layout.setAlignment(Qt.AlignTop)
+
+        layout25 = QHBoxLayout(None,0,6,"layout25")
+        spacer20 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout25.addItem(spacer20)
+
+        self.reset_bond_colors_btn = QPushButton(self.groupBox4,"reset_bond_colors_btn")
+        layout25.addWidget(self.reset_bond_colors_btn)
+
+        groupBox4Layout.addMultiCellLayout(layout25,1,1,0,1)
+
+        layout79_2 = QGridLayout(None,1,1,0,6,"layout79_2")
+
+        self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
+        self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout79_2.addWidget(self.textLabel3_2,0,0)
+
+        layout37_2_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2_2")
+
+        self.bond_stretch_color_frame = QFrame(self.groupBox4,"bond_stretch_color_frame")
+        self.bond_stretch_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_stretch_color_frame.setMaximumSize(QSize(32767,32767))
+        self.bond_stretch_color_frame.setPaletteBackgroundColor(QColor(255,0,0))
+        self.bond_stretch_color_frame.setFrameShape(QFrame.Box)
+        self.bond_stretch_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2.addWidget(self.bond_stretch_color_frame)
+
+        self.bond_stretch_color_btn = QPushButton(self.groupBox4,"bond_stretch_color_btn")
+        layout37_2_2_2_2.addWidget(self.bond_stretch_color_btn)
+
+        layout79_2.addLayout(layout37_2_2_2_2,2,1)
+
+        layout37_2_2_2 = QHBoxLayout(None,0,6,"layout37_2_2_2")
+
+        self.bond_hilite_color_frame = QFrame(self.groupBox4,"bond_hilite_color_frame")
+        self.bond_hilite_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_hilite_color_frame.setMaximumSize(QSize(32767,32767))
+        self.bond_hilite_color_frame.setPaletteBackgroundColor(QColor(255,255,0))
+        self.bond_hilite_color_frame.setFrameShape(QFrame.Box)
+        self.bond_hilite_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2.addWidget(self.bond_hilite_color_frame)
+
+        self.bond_hilite_color_btn = QPushButton(self.groupBox4,"bond_hilite_color_btn")
+        layout37_2_2_2.addWidget(self.bond_hilite_color_btn)
+
+        layout79_2.addLayout(layout37_2_2_2,0,1)
+
+        self.textLabel3_3 = QLabel(self.groupBox4,"textLabel3_3")
+        self.textLabel3_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout79_2.addWidget(self.textLabel3_3,3,0)
+
+        layout37_2_2 = QHBoxLayout(None,0,6,"layout37_2_2")
+
+        self.bond_cpk_color_frame = QFrame(self.groupBox4,"bond_cpk_color_frame")
+        self.bond_cpk_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_cpk_color_frame.setPaletteBackgroundColor(QColor(158,158,158))
+        self.bond_cpk_color_frame.setFrameShape(QFrame.Box)
+        self.bond_cpk_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2.addWidget(self.bond_cpk_color_frame)
+
+        self.bond_cpk_color_btn = QPushButton(self.groupBox4,"bond_cpk_color_btn")
+        layout37_2_2.addWidget(self.bond_cpk_color_btn)
+
+        layout79_2.addLayout(layout37_2_2,1,1)
+
+        self.textLabel3 = QLabel(self.groupBox4,"textLabel3")
+        self.textLabel3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout79_2.addWidget(self.textLabel3,1,0)
+
+        self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
+        self.textLabel3_2_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2_2.setMinimumSize(QSize(0,0))
+        self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        layout79_2.addWidget(self.textLabel3_2_2,2,0)
+
+        layout37_2_2_2_2_3 = QHBoxLayout(None,0,6,"layout37_2_2_2_2_3")
+
+        self.bond_vane_color_frame = QFrame(self.groupBox4,"bond_vane_color_frame")
+        self.bond_vane_color_frame.setMinimumSize(QSize(25,0))
+        self.bond_vane_color_frame.setMaximumSize(QSize(32767,32767))
+        self.bond_vane_color_frame.setPaletteBackgroundColor(QColor(119,0,179))
+        self.bond_vane_color_frame.setFrameShape(QFrame.Box)
+        self.bond_vane_color_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_frame)
+
+        self.bond_vane_color_btn = QPushButton(self.groupBox4,"bond_vane_color_btn")
+        layout37_2_2_2_2_3.addWidget(self.bond_vane_color_btn)
+
+        layout79_2.addLayout(layout37_2_2_2_2_3,3,1)
+
+        groupBox4Layout.addLayout(layout79_2,0,1)
+
+        TabPageLayout_2.addWidget(self.groupBox4,0,0)
+        spacer22 = QSpacerItem(20,51,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_2.addItem(spacer22,2,0)
+
+        layout84 = QHBoxLayout(None,0,6,"layout84")
+
+        layout83 = QVBoxLayout(None,0,6,"layout83")
+
+        self.textLabel1_3 = QLabel(self.TabPage_2,"textLabel1_3")
+        self.textLabel1_3.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout83.addWidget(self.textLabel1_3)
+
+        self.textLabel1 = QLabel(self.TabPage_2,"textLabel1")
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout83.addWidget(self.textLabel1)
+        layout84.addLayout(layout83)
+
+        layout82 = QVBoxLayout(None,0,6,"layout82")
+
+        self.cpk_cylinder_rad_spinbox = QSpinBox(self.TabPage_2,"cpk_cylinder_rad_spinbox")
+        self.cpk_cylinder_rad_spinbox.setMaxValue(125)
+        self.cpk_cylinder_rad_spinbox.setMinValue(50)
+        self.cpk_cylinder_rad_spinbox.setValue(100)
+        layout82.addWidget(self.cpk_cylinder_rad_spinbox)
+
+        self.bond_line_thickness_spinbox = QSpinBox(self.TabPage_2,"bond_line_thickness_spinbox")
+        self.bond_line_thickness_spinbox.setMaxValue(4)
+        self.bond_line_thickness_spinbox.setMinValue(1)
+        layout82.addWidget(self.bond_line_thickness_spinbox)
+        layout84.addLayout(layout82)
+        spacer58 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout84.addItem(spacer58)
+
+        TabPageLayout_2.addLayout(layout84,1,0)
         self.prefs_tab.insertTab(self.TabPage_2,QString.fromLatin1(""))
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
@@ -848,7 +835,7 @@ class UserPrefsDialog(QDialog):
         layout69_3.addItem(spacer45)
         layout559.addLayout(layout69_3)
 
-        layout82 = QHBoxLayout(None,0,6,"layout82")
+        layout82_2 = QHBoxLayout(None,0,6,"layout82_2")
 
         layout37_2_2_2_4 = QHBoxLayout(None,0,6,"layout37_2_2_2_4")
 
@@ -861,10 +848,10 @@ class UserPrefsDialog(QDialog):
 
         self.light_color_btn = QPushButton(self.groupBox8_2,"light_color_btn")
         layout37_2_2_2_4.addWidget(self.light_color_btn)
-        layout82.addLayout(layout37_2_2_2_4)
+        layout82_2.addLayout(layout37_2_2_2_4)
         spacer50 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout82.addItem(spacer50)
-        layout559.addLayout(layout82)
+        layout82_2.addItem(spacer50)
+        layout559.addLayout(layout82_2)
 
         layout66_2 = QHBoxLayout(None,0,6,"layout66_2")
 
@@ -927,14 +914,14 @@ class UserPrefsDialog(QDialog):
         layout62.addItem(spacer43)
         layout559.addLayout(layout62)
 
-        layout61_2 = QHBoxLayout(None,0,6,"layout61_2")
+        layout61 = QHBoxLayout(None,0,6,"layout61")
 
         self.light_z_linedit = QLineEdit(self.groupBox8_2,"light_z_linedit")
         self.light_z_linedit.setMaxLength(32767)
-        layout61_2.addWidget(self.light_z_linedit)
+        layout61.addWidget(self.light_z_linedit)
         spacer44 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout61_2.addItem(spacer44)
-        layout559.addLayout(layout61_2)
+        layout61.addItem(spacer44)
+        layout559.addLayout(layout61)
 
         groupBox8_2Layout.addLayout(layout559,0,1)
 
@@ -1175,9 +1162,6 @@ class UserPrefsDialog(QDialog):
         self.history_height_spinbox.setMaxValue(20)
         self.history_height_spinbox.setValue(4)
         layout9.addWidget(self.history_height_spinbox)
-
-        self.history_lines_lbl = QLabel(self.TabPage_6,"history_lines_lbl")
-        layout9.addWidget(self.history_lines_lbl)
         spacer11_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout9.addItem(spacer11_2)
         TabPageLayout_6.addLayout(layout9)
@@ -1415,33 +1399,57 @@ class UserPrefsDialog(QDialog):
         self.ok_btn.setText(self.__tr("OK"))
         self.groupBox7_2.setTitle(self.__tr("Compass and Axes"))
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
+        QToolTip.add(self.display_compass_checkbox,self.__tr("Show/Hide Display Compass"))
+        QWhatsThis.add(self.display_compass_checkbox,self.__tr("<p><b>Display Compass</b></p>Shows/Hides the Display Compass"))
         self.display_origin_axis_checkbox.setText(self.__tr("Display Origin Axis"))
+        QToolTip.add(self.display_origin_axis_checkbox,self.__tr("Show/Hide Origin Axis"))
+        QWhatsThis.add(self.display_origin_axis_checkbox,self.__tr("<p><b>Display Origin Axis</b></p>Shows/Hides the Origin Axis"))
         self.display_pov_axis_checkbox.setText(self.__tr("Display Point of View Axis"))
+        QToolTip.add(self.display_pov_axis_checkbox,self.__tr("Show/Hide Point of View Axis"))
+        QWhatsThis.add(self.display_pov_axis_checkbox,self.__tr("<p><b>Display Point of View Axis</b></p>Shows/Hides the Point of View Axis"))
         self.groupBox15.setTitle(self.__tr("Compass Position"))
         self.compass_position_btngrp.setTitle(QString.null)
+        QToolTip.add(self.compass_position_btngrp,self.__tr("Compass Position"))
+        QWhatsThis.add(self.compass_position_btngrp,self.__tr("<p><b>Compass Position</b></p>Sets the position of the compass.  Uncheck the <b>Display Compass</b> checkbox to hide it."))
         self.upper_left_btn.setText(QString.null)
+        QToolTip.add(self.upper_left_btn,self.__tr("Upper left"))
         self.lower_left_btn.setText(QString.null)
+        QToolTip.add(self.lower_left_btn,self.__tr("Lower left"))
         self.upper_right_btn.setText(QString.null)
+        QToolTip.add(self.upper_right_btn,self.__tr("Upper right"))
         self.lower_right_btn.setText(QString.null)
+        QToolTip.add(self.lower_right_btn,self.__tr("Lower right"))
         self.groupBox14.setTitle(self.__tr("Minimization"))
         self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch In Realtime"))
+        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real-time graphical updates during minimizations"))
+        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Realtime</b></p>Enables/disables real-time graphical updates during minimizations"))
         self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
+        QToolTip.add(self.default_projection_btngrp,QString.null)
+        QWhatsThis.add(self.default_projection_btngrp,QString.null)
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.groupBox8.setTitle(self.__tr("View Animation"))
         self.animate_views_checkbox.setText(self.__tr("Animate between views"))
+        QToolTip.add(self.animate_views_checkbox,self.__tr("Enable/disable animation between current view and a new view"))
+        QWhatsThis.add(self.animate_views_checkbox,self.__tr("<p><b>Animate Between Views</b></p>Enables/disables animation when switching between the current view and a new view."))
         self.textLabel1_5.setText(self.__tr("Speed :"))
         self.textLabel2_3.setText(self.__tr("Slow"))
         self.textLabel3_4.setText(self.__tr("Fast"))
+        QToolTip.add(self.animation_speed_slider,self.__tr("View Animation Speed"))
+        QWhatsThis.add(self.animation_speed_slider,self.__tr("<p><b>View Animation Speed</b></p>Sets the animation speed when animating between view (i.e. Front View to Right View).  It is recommended that this be set to Fast when working on large models."))
         self.high_quality_graphics_checkbox.setText(self.__tr("High quality graphics"))
         self.prefs_tab.changeTab(self.tab,self.__tr("General"))
         self.textLabel1_7.setText(self.__tr("Level of Detail :"))
+        QToolTip.add(self.textLabel1_7,self.__tr("Level of detail for atoms (and bonds)"))
+        QWhatsThis.add(self.textLabel1_7,self.__tr("<p><b>Level of Detail</b></p>Sets the <b>Level of Detail</b> for atoms and bonds.<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics quality<br> <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between High, Medium and Low based on the model size (number of atoms)."))
         self.level_of_detail_combox.clear()
         self.level_of_detail_combox.insertItem(self.__tr("Low"))
         self.level_of_detail_combox.insertItem(self.__tr("Medium"))
         self.level_of_detail_combox.insertItem(self.__tr("High"))
         self.level_of_detail_combox.insertItem(self.__tr("Variable"))
         self.level_of_detail_combox.setCurrentItem(2)
+        QToolTip.add(self.level_of_detail_combox,self.__tr("Sets graphics quality for atoms (and bonds)"))
+        QWhatsThis.add(self.level_of_detail_combox,self.__tr("<p><b>Level of Detail</b></p>Sets the graphics quality for atoms (and bonds)<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics quality<br> <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between High, Medium and Low based on the number of atoms in the current part."))
         self.atom_colors_grpbox.setTitle(self.__tr("Colors"))
         self.change_element_colors_btn.setText(self.__tr("Change Element Colors..."))
         self.groupBox13.setTitle(QString.null)
@@ -1452,49 +1460,97 @@ class UserPrefsDialog(QDialog):
         self.atom_hilite_color_btn.setText(self.__tr("Choose..."))
         self.hotspot_color_btn.setText(self.__tr("Choose..."))
         self.reset_atom_colors_btn.setText(self.__tr("Restore Default Colors"))
-        self.textLabel1_3_2.setText(self.__tr("Ball and Stick Atom Scale Factor :"))
-        self.textLabel1_4.setText(self.__tr("%"))
-        self.textLabel1_3_2_2.setText(self.__tr("CPK Scale Factor :"))
-        self.textLabel1_4_2.setText(self.__tr("%"))
+        self.textLabel1_3_2.setText(self.__tr("Ball and Stick Atom Scale :"))
+        QToolTip.add(self.textLabel1_3_2,self.__tr("Set Atom Scale factor for Ball and Stick display mode"))
+        QWhatsThis.add(self.textLabel1_3_2,self.__tr("<p><b>Ball and Stick Atom Scale</b></p>Sets the Ball and Stick Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode."))
+        self.cpk_atom_rad_spinbox.setSuffix(self.__tr("%"))
+        QToolTip.add(self.cpk_atom_rad_spinbox,self.__tr("Set Atom Scale factor for Ball and Stick display mode"))
+        QWhatsThis.add(self.cpk_atom_rad_spinbox,self.__tr("<p><b>Ball and Stick Atom Scale</b></p>Sets the Ball and Stick Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode."))
+        self.textLabel1_3_2_2.setText(self.__tr("CPK Atom Scale :"))
+        QToolTip.add(self.textLabel1_3_2_2,self.__tr("CPK Atom Scale factor for CPK display mode"))
+        QWhatsThis.add(self.textLabel1_3_2_2,self.__tr("<p><b>CPK Atom Scale</b></p>Changes the CPK Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale."))
+        QToolTip.add(self.cpk_scale_factor_linedit,self.__tr("Displays the value of the CPK Atom Scale"))
+        QWhatsThis.add(self.cpk_scale_factor_linedit,self.__tr("Displays the value of the CPK Atom Scale"))
+        QToolTip.add(self.cpk_scale_factor_slider,self.__tr("Changes Atom Scale factor for CPK display mode"))
+        QWhatsThis.add(self.cpk_scale_factor_slider,self.__tr("<p><b>CPK Atom Scale</b></p>Slider control for chaning the CPK Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale."))
         self.reset_cpk_scale_factor_btn.setText(QString.null)
-        QToolTip.add(self.reset_cpk_scale_factor_btn,self.__tr("Reset"))
+        QToolTip.add(self.reset_cpk_scale_factor_btn,self.__tr("Reset CPK Atom Scale"))
         QWhatsThis.add(self.reset_cpk_scale_factor_btn,self.__tr("Restore the default value of the CPK Scale Factor"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Atoms"))
-        self.groupBox4.setTitle(self.__tr("Colors"))
-        self.bond_hilite_color_btn.setText(self.__tr("Choose..."))
-        self.bond_cpk_color_btn.setText(self.__tr("Choose..."))
-        self.bond_vane_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
-        self.textLabel3_2.setText(self.__tr("Bond Highlighting :"))
-        self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
-        self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
-        self.textLabel3.setText(self.__tr("Ball and Stick Cylinder :"))
-        self.reset_bond_colors_btn.setText(self.__tr("Restore Default Colors"))
-        self.textLabel1_3.setText(self.__tr("Ball and Stick Cylinder Scale Factor :"))
-        self.textLabel1.setText(self.__tr("Bond Line Thickness :"))
-        QToolTip.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
-        QWhatsThis.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
-        QToolTip.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
-        QWhatsThis.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
-        self.textLabel1_2_2.setText(self.__tr("%"))
-        self.textLabel1_2.setText(self.__tr("pixels"))
         self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bonds"))
         self.radioButton11.setText(self.__tr("Multiple Cylinders"))
+        QToolTip.add(self.radioButton11,self.__tr("Display high order bonds using multiple cylinders"))
+        QWhatsThis.add(self.radioButton11,self.__tr("<p><b>Multiple Cylinders</b></p>\n"
+"<p><b>High Order Bonds</b> are displayed using <b>Multiple Cylinders.</b></p>\n"
+"<b>Double bonds</b> are drawn with two cylinders.<br>\n"
+"<b>Triple bonds</b> are drawn with three cylinders.<br>\n"
+"<b>Aromatic bonds</b> are drawn as a single cylinder with a short green cylinder in the middle."))
         self.radioButton11_2.setText(self.__tr("Vanes"))
+        QToolTip.add(self.radioButton11_2,self.__tr("Display pi systems in high order bonds as Vanes"))
+        QWhatsThis.add(self.radioButton11_2,self.__tr("<p><b>Vanes</b></p>\n"
+"<p><i>High Order Bonds</i> are displayed using <b>Vanes.</b></p>\n"
+"<p>Vanes represent <i>pi systems</i> in high order bonds and are rendered as rectangular polygons. The orientation of the vanes approximates the orientation of the pi system(s).</p>\n"
+"<p>Create an acetylene or ethene molecule and select this option to see how vanes are rendered.</p>"))
         self.radioButton11_2_2.setText(self.__tr("Ribbons"))
+        QToolTip.add(self.radioButton11_2_2,self.__tr("Display pi systems in high order bonds as Ribbons"))
+        QWhatsThis.add(self.radioButton11_2_2,self.__tr("<p><b>Ribbons</b></p>\n"
+"<p><i>High Order Bonds</i> are displayed using <b>Ribbons.</b></p>\n"
+"<p>Ribbons represent <i>pi systems</i> in high order bonds and are rendered as ribbons. The orientation of the ribbons approximates the orientation of the pi system.</p>\n"
+"<p>Create an acetylene or ethene molecule and select this option to see how ribbons are rendered.</p>"))
         self.show_bond_labels_checkbox.setText(self.__tr("Show Bond Type Letters"))
+        QToolTip.add(self.show_bond_labels_checkbox,self.__tr("Display Bond Type Label"))
+        QWhatsThis.add(self.show_bond_labels_checkbox,self.__tr("<p><b>Show Bond Type Letters</b></p>\n"
+"<p>Shows/Hides Bond Type letters (labels) on top of bonds.</p>\n"
+"<u>Bond Type Letters:</u><br>\n"
+"<b>2</b> = Double bond<br>\n"
+"<b>3</b> = Triple bond<br>\n"
+"<b>A</b> = Aromatic bond<br>\n"
+"<b>G</b> = Graphitic bond<br>"))
         self.show_valence_errors_checkbox.setText(self.__tr("Show Valence Errors"))
+        QToolTip.add(self.show_valence_errors_checkbox,self.__tr("Enable/Disable Valence Error Checker"))
+        QWhatsThis.add(self.show_valence_errors_checkbox,self.__tr("<p><b>Show Valence Errors</b></p><p>Enables/Disables Valence Error Checker.</p>\n"
+"When enabled, atoms with valence errors are displayed with an orange wireframe sphere. This indicates that one or more of the atom's bonds are not of the correct order (type)."))
+        self.groupBox4.setTitle(self.__tr("Colors"))
+        self.reset_bond_colors_btn.setText(self.__tr("Restore Default Colors"))
+        self.textLabel3_2.setText(self.__tr("Bond Highlighting :"))
+        self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
+        self.bond_hilite_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
+        self.bond_cpk_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel3.setText(self.__tr("Ball and Stick Cylinder :"))
+        self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
+        self.bond_vane_color_btn.setText(self.__tr("Choose..."))
+        self.textLabel1_3.setText(self.__tr("Ball and Stick Bond Scale :"))
+        QToolTip.add(self.textLabel1_3,self.__tr("Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode"))
+        QWhatsThis.add(self.textLabel1_3,self.__tr("<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode"))
+        self.textLabel1.setText(self.__tr("Bond Line Thickness :"))
+        QToolTip.add(self.textLabel1,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
+        QWhatsThis.add(self.textLabel1,self.__tr("<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode"))
+        self.cpk_cylinder_rad_spinbox.setSuffix(self.__tr("%"))
+        QToolTip.add(self.cpk_cylinder_rad_spinbox,self.__tr("Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode"))
+        QWhatsThis.add(self.cpk_cylinder_rad_spinbox,self.__tr("<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode"))
+        self.bond_line_thickness_spinbox.setSuffix(self.__tr(" pixel"))
+        QToolTip.add(self.bond_line_thickness_spinbox,self.__tr("Bond thickness (in pixels) for Lines Display Mode"))
+        QWhatsThis.add(self.bond_line_thickness_spinbox,self.__tr("<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode"))
         self.prefs_tab.changeTab(self.TabPage_2,self.__tr("Bonds"))
         self.startup_mode_lbl.setText(self.__tr("Startup Mode :"))
+        QToolTip.add(self.startup_mode_lbl,self.__tr("Startup Mode"))
+        QWhatsThis.add(self.startup_mode_lbl,self.__tr("<p><b>Startup Mode</b></p>This specifies which mode the program will start in."))
         self.startup_mode_combox.clear()
         self.startup_mode_combox.insertItem(self.__tr("Default Mode"))
         self.startup_mode_combox.insertItem(self.__tr("Build"))
+        QToolTip.add(self.startup_mode_combox,self.__tr("Startup Mode"))
+        QWhatsThis.add(self.startup_mode_combox,self.__tr("<p><b>Startup Mode</b></p>This specifies which mode the program will start in."))
         self.default_mode_lbl.setText(self.__tr("Default Mode :"))
+        QToolTip.add(self.default_mode_lbl,self.__tr("Default Mode"))
+        QWhatsThis.add(self.default_mode_lbl,self.__tr("<p><b>Default Mode</b></p>This specifies which mode the user will be placed in when exiting any other mode."))
         self.default_mode_combox.clear()
         self.default_mode_combox.insertItem(self.__tr("Select Chunks"))
         self.default_mode_combox.insertItem(self.__tr("Select Atoms"))
         self.default_mode_combox.insertItem(self.__tr("Move Chunks"))
         self.default_mode_combox.insertItem(self.__tr("Build"))
+        QToolTip.add(self.default_mode_combox,self.__tr("Default Mode"))
+        QWhatsThis.add(self.default_mode_combox,self.__tr("<p><b>Default Mode</b></p>This specifies which mode the user will be placed in when exiting any other mode."))
         self.mode_groupbox.setTitle(self.__tr("Mode Settings"))
         self.mode_lbl.setText(self.__tr("Mode :"))
         self.display_mode_lbl.setText(self.__tr("Display Mode :"))
@@ -1507,6 +1563,9 @@ class UserPrefsDialog(QDialog):
         self.mode_combox.insertItem(self.__tr("Extrude"))
         self.mode_combox.insertItem(self.__tr("Fuse Chunks"))
         self.mode_combox.insertItem(self.__tr("Movie Player"))
+        QToolTip.add(self.mode_combox,QString.null)
+        QWhatsThis.add(self.mode_combox,self.__tr("<p><b>Mode Settings: Mode</b></p>\n"
+"This specifies which mode you are changing the <b>Display Mod</b>e or <b>Background Color</b> for below."))
         self.display_mode_combox.clear()
         self.display_mode_combox.insertItem(self.__tr("Default"))
         self.display_mode_combox.insertItem(self.__tr("Invisible"))
@@ -1514,26 +1573,59 @@ class UserPrefsDialog(QDialog):
         self.display_mode_combox.insertItem(self.__tr("Lines"))
         self.display_mode_combox.insertItem(self.__tr("Ball and Stick"))
         self.display_mode_combox.insertItem(self.__tr("Tubes"))
+        QToolTip.add(self.display_mode_combox,self.__tr("Display Mode for this mode"))
+        QWhatsThis.add(self.display_mode_combox,self.__tr("<p><b>Display Mode</b></p>\n"
+"<p>Sets the Display Mode for the current mode. If set to <b>Default</b>, then atoms and bonds are displayed in the display mode defined by <b>Default Display Mode</b>.</p>"))
         self.bg_groupbox.setTitle(self.__tr("Background Color"))
         self.fill_type_lbl.setText(self.__tr("Fill Type :"))
         self.bg1_color_lbl.setText(self.__tr("Color :"))
         self.fill_type_combox.clear()
         self.fill_type_combox.insertItem(self.__tr("Solid"))
         self.fill_type_combox.insertItem(self.__tr("Blue Sky"))
+        QToolTip.add(self.fill_type_combox,self.__tr("Background fill type"))
+        QWhatsThis.add(self.fill_type_combox,self.__tr("<p><b>Fill Type</b></p>\n"
+"<p>Sets the fill type of the background.  Each mode can have a different color, if desired.</p>"))
         self.choose_bg1_color_btn.setText(self.__tr("Choose..."))
         self.restore_bgcolor_btn.setText(self.__tr("Restore Default Color"))
         self.default_display_btngrp.setTitle(self.__tr("Default Display Mode"))
         self.vwd_rbtn.setText(self.__tr("CPK"))
+        QToolTip.add(self.vwd_rbtn,self.__tr("CPK (Space Filling) Display Mode"))
+        QWhatsThis.add(self.vwd_rbtn,self.__tr("<u><b>CPK (Space Filling)</b></u><br>\n"
+"<p>Changes the <i>Default Display Mode</i>  to <b>CPK</b> mode.\n"
+"Atoms are rendered as space filling spheres. Bonds are not rendered.</p>"))
         self.cpk_rbtn.setText(self.__tr("Ball and Stick"))
+        QToolTip.add(self.cpk_rbtn,self.__tr("Ball and Stick Display Mode"))
+        QWhatsThis.add(self.cpk_rbtn,self.__tr("<u><b>Ball and Stick</b></u><br>\n"
+"<p>Changes the <i>Default Display Mode</i>  to <b>Ball and Stick</b> mode.\n"
+"Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders (sticks).</p>"))
         self.lines_rbtn.setText(self.__tr("Lines"))
+        QToolTip.add(self.lines_rbtn,self.__tr("Lines Display Mode"))
+        QWhatsThis.add(self.lines_rbtn,self.__tr("<u><b>Lines</b></u><br>\n"
+"<p>Changes the <i>Default Display Mode</i>  to <b>Lines</b> mode.\n"
+"Bonds are rendered as lines. Atoms are not rendered.</p>"))
         self.tubes_rbtn.setText(self.__tr("Tubes"))
+        QToolTip.add(self.tubes_rbtn,self.__tr("Tubes Display Mode"))
+        QWhatsThis.add(self.tubes_rbtn,self.__tr("<u><b>Tubes</b></u><br>\n"
+"<p>Changes the <i>Default Display Mode</i>  to <b>Tubes</b> mode.\n"
+"Atoms and bonds are rendered as colored tubes.</p>"))
         self.buildmode_groupbox.setTitle(self.__tr("Build Mode Defaults"))
         self.autobond_checkbox.setText(self.__tr("Autobond"))
+        QToolTip.add(self.autobond_checkbox,self.__tr("Build mode's default setting for Autobonding at startup (enabled/disabled)"))
+        QWhatsThis.add(self.autobond_checkbox,self.__tr("Build mode's default setting for Autobonding at startup (enabled/disabled)"))
         self.water_checkbox.setText(self.__tr("Water"))
+        QToolTip.add(self.water_checkbox,self.__tr("Build mode's default setting for Water at startup (enabled/disabled)"))
+        QWhatsThis.add(self.water_checkbox,self.__tr("Build mode's default setting for Water at startup (enabled/disabled)"))
         self.buildmode_select_atoms_checkbox.setText(self.__tr("Select Atoms of Deposited Object"))
+        QToolTip.add(self.buildmode_select_atoms_checkbox,self.__tr("Automatically select atoms when depositing"))
+        QWhatsThis.add(self.buildmode_select_atoms_checkbox,self.__tr("<p><b>Select Atoms of Deposited Object</b></p>\n"
+"When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected."))
         self.buildmode_highlighting_checkbox.setText(self.__tr("Highligting"))
+        QToolTip.add(self.buildmode_highlighting_checkbox,self.__tr("Build mode's default setting for Highlighting at startup (enabled/disabled)"))
+        QWhatsThis.add(self.buildmode_highlighting_checkbox,self.__tr("Build mode's default setting for Highlighting at startup (enabled/disabled)"))
         self.groupBox16.setTitle(self.__tr("Select Atoms Mode Defaults"))
         self.selatomsmode_highlighting_checkbox.setText(self.__tr("Highligting"))
+        QToolTip.add(self.selatomsmode_highlighting_checkbox,self.__tr("Select Atoms mode's default setting for Highlighting at startup (enabled/disabled)"))
+        QWhatsThis.add(self.selatomsmode_highlighting_checkbox,self.__tr("Select Atoms mode's default setting for Highlighting at startup (enabled/disabled)"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
         self.groupBox8_2.setTitle(self.__tr("Directional Light Properties"))
         self.light_label.setText(self.__tr("Light :"))
@@ -1586,8 +1678,8 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.history_height_lbl.setText(self.__tr("Height :"))
+        self.history_height_spinbox.setSuffix(self.__tr(" lines"))
         QToolTip.add(self.history_height_spinbox,self.__tr("Number of lines displayed in the history area."))
-        self.history_lines_lbl.setText(self.__tr("lines"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
         self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
         self.prefs_tab.changeTab(self.TabPage_6,self.__tr("History"))
@@ -1601,6 +1693,8 @@ class UserPrefsDialog(QDialog):
         self.groupBox10.setTitle(self.__tr("Window Position and Size"))
         self.always_save_win_pos_and_size_checkbox.setText(self.__tr("Always save window position and size"))
         self.save_current_btn.setText(self.__tr("Save Current"))
+        QToolTip.add(self.save_current_btn,self.__tr("Save current window position and size for next startup"))
+        QWhatsThis.add(self.save_current_btn,self.__tr("Saves the main window's current position and size for the next time the program starts."))
         self.prefs_tab.changeTab(self.TabPage_7,self.__tr("Window"))
 
 
