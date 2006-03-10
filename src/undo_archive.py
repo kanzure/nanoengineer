@@ -23,9 +23,12 @@ from debug import print_compact_traceback, print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
-from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state
+from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose
+from prefs_constants import historyMsgSerialNumber_prefs_key
 
-destroy_bypassed_redos = False # whether to destroy the Redo stack to save RAM [not implemented yet -- flag has no effect, but shows where to do it -- 060301]
+destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
+    # [not implemented yet -- flag has no effect, but shows where to do it -- 060301]
+    # aka destroy alternate futures, destroy inaccessible redos...
 
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
@@ -308,9 +311,9 @@ def assy_become_scanned_state(self, data, archive):
         # (and with the various kinds of setattr/inval replacements too --
         #  maybe even let each attr have its own loop if it wants, with atoms & bonds an extreme case)
     try:
-        attrdicts = data.attrdicts # works for a StateSnapshot
+        attrdicts = data.attrdicts # works for a StateSnapshot ####@@@@ this is dangerous, what if someone adds that attr to StatePlace?
     except:
-        attrdicts = data.get_attrdicts() # IMPLEM for a StatePlace [this might be WHERE I AM 060301 827a] ####@@@@
+        attrdicts = data.get_attrdicts_for_immediate_use_only() # works for a StatePlace
     for attr, dict1 in attrdicts.items(): ##e might need to be in a specific order
         for key, val in dict1.iteritems(): # maps objkey to attrval
             obj = modified_get(key)
@@ -515,7 +518,7 @@ class SimpleDiff:
         return self.__class__(self.cps[1], self.cps[0], - self.direction, **self.options)
     def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this?? -- yes, redo it inside the MergingDiff ##e
         main = self.optype() # "Undo" or "Redo"
-        include_history_sernos = True
+        include_history_sernos = not not env.prefs[historyMsgSerialNumber_prefs_key] #060309; is this being checked at the right time??
         if include_history_sernos:
             #060301
             # describe history serno range, if we have one
@@ -523,7 +526,7 @@ class SimpleDiff:
                 start_cp, end_cp = self.cps
             else:
                 end_cp, start_cp = self.cps
-            s1 = start_cp.next_history_serno() ###IMPLEM
+            s1 = start_cp.next_history_serno()
             s2 = end_cp.next_history_serno()
             n = s2 - s1
             if n < 0:
@@ -1126,8 +1129,33 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     def debug_histmessage(self, msg):
         env.history.message(msg, quote_html = True, color = 'gray')
+
+    def update_before_checkpoint(self): # see if this shows up in any profiles [split this out 030609]
+        "#doc"
+        ##e these need splitting out (and made registerable) as "pre-checkpoint updaters"... note, they can change things,
+        # ie update change_counters, but that ought to be ok, as long as they can't ask for a recursive checkpoint,
+        # which they won't since only UI event processors ever ask for those. [060301]
+        
+        self.assy.update_parts() # make sure assy has already processed changes (and assy.changed has been called if it will be)
+            #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
+            # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
+            # was only for begin and end cp's (but was active even if undo autocp pref was off).
+
+        if 1: #060309 update on this: we might still need it for now (even with Atom._posn, no curpos) since we store Atom.index.
+            #060301 added this as a debug_pref (dflt True), 060302 made it 'if 1'; it didn't fix any specific known bugs,
+            # but it seems clearly needed in principle, and maybe not doing it caused the seeming out of sync behavior
+            # (steps to repeat not recorded except maybe in my history files) after several undo/redo sequences of pulling singlets
+            # (or maybe that was another manifestation of the singlet pulling bug fixed by Numeric '==' -> '!=').
+            for mol in self.assy.molecules:
+##                if not mol.__dict__.has_key('atpos') and env.debug():
+##                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
+                mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
+                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms;
+                # I won't change that for now [060302] since in case we scan dead atoms too.
+            pass
+        return
     
-    def checkpoint(self, cptype = None, cmdname_for_debug = "" ): # called from undo_manager
+    def checkpoint(self, cptype = None, cmdname_for_debug = "", merge_with_future = False ): # called from undo_manager
         """When this is called, self.last_cp should be complete, and self.next_cp should be incomplete,
         with its state defined as equalling the current state, i.e. as a diff (which is collecting current changes) from last_cp,
         with that diff being stored in self.current_diff.
@@ -1145,28 +1173,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
             return
 
-        ##e these need splitting out (and made registerable) as "pre-checkpoint updaters"... note, they can change things,
-        # ie update change_counters, but that ought to be ok, as long as they can't ask for a recursive checkpoint,
-        # which they won't since only UI event processors ever ask for those. [060301]
-        
-        self.assy.update_parts() # make sure assy has already processed changes (and assy.changed has been called if it will be)
-            #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
-            # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
-            # was only for begin and end cp's (but was active even if undo autocp pref was off).
+        self.update_before_checkpoint()
 
-        if 1:
-            #060301 added this as a debug_pref (dflt True), 060302 made it 'if 1'; it didn't fix any specific known bugs,
-            # but it seems clearly needed in principle, and maybe not doing it caused the seeming out of sync behavior
-            # (steps to repeat not recorded except maybe in my history files) after several undo/redo sequences of pulling singlets
-            # (or maybe that was another manifestation of the singlet pulling bug fixed by Numeric '==' -> '!=').
-            for mol in self.assy.molecules:
-##                if not mol.__dict__.has_key('atpos') and env.debug():
-##                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
-                mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
-                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms;
-                # I won't change that for now [060302] since in case we scan dead atoms too.
-            pass
-        
         assert cptype
         assert self.last_cp is not None
         assert self.next_cp is not None
@@ -1175,6 +1183,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
+
+        # as of sometime before 060309, use_diff is only still an option for debugging/testing purposes:
         use_diff = debug_pref("use differential undo?", Choice_boolean_True, prefs_key = 'A7-devel/differential undo')
                 ## , non_debug = True) #bruce 060302 removed non_debug
             # it works, 122p 060301, so making it default True and non_debug.
@@ -1184,28 +1194,59 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             
         # maybe i should clean up the following code sometime...
         debug3 = 0 and env.debug() # for now [060301] if 0 060302; this is here (not at top of file) so runtime env.debug() affects it
-        if use_diff and 0:
-            assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
-##            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
-##            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
-##            # (nim or stub)
-##            # can't yet optimize by using any change-counter, so at first this will get even slower...
-##            # later we can have enough different kinds of change counter to cover every possible change, and restore this.
-##            if 0: # if no change, for sure
-##                pass #e use same-state optim like below
-##            else:
-##                ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
-##                state_diff = current_state(self, self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
-##                    #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
-##                    # then we'd have option of copying it or leaving a copy behind, every so often...
-##                    # and have a state to store here? nah.
-##                    #  note: state_diff is actually a backwards diff, ie has enough info for undo but not for redo
-##                self.current_diff.empty = False ###e change to some test on state we just got back
-##                state
-##                # or fill_checkpoint or equiv, here
+##        if use_diff and 0:
+##            assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
+####            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
+####            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
+####            # (nim or stub)
+####            # can't yet optimize by using any change-counter, so at first this will get even slower...
+####            # later we can have enough different kinds of change counter to cover every possible change, and restore this.
+####            if 0: # if no change, for sure
+####                pass #e use same-state optim like below
+####            else:
+####                ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
+####                state_diff = current_state(self, self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
+####                    #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
+####                    # then we'd have option of copying it or leaving a copy behind, every so often...
+####                    # and have a state to store here? nah.
+####                    #  note: state_diff is actually a backwards diff, ie has enough info for undo but not for redo
+####                self.current_diff.empty = False ###e change to some test on state we just got back
+####                state
+####                # or fill_checkpoint or equiv, here
+##        else:
+        if debug3:
+            print "\ncp", self.assy.all_change_counters(), env.last_history_serno + 1
+        if merge_with_future:
+            #060309, partly nim
+            if env.debug():
+                print "debug: skipping undo checkpoint; updating Undo/Redo enabled might be nim" #####@@@@@
+            ### Here's the plan [060309 855pm]:
+            # in this case, used when auto-checkpointing is disabled, it's almost like not doing a checkpoint,
+            # except for a few things:
+            # + we update_parts (etc) (done above) to make sure change counters are accurate
+            #   (#e optim: let caller flag say if that's needed)
+            # - we make sure that change counter info (or whatever else is needed)
+            #   will be available to caller's remake_UI_menuitems method
+            #   - that might include what to say in Undo, like "undo to what history serno for checkpoint or disabling", or in Redo
+            #   - #e someday the undo text might include info on types of changes, based on which change counters got changed
+            #   - ideally we do that by making current_diff know about it... not sure if it gets stored but still remains current...
+            #     if so, and if it keeps getting updated in terms of end change counters, do we keep removing it and restoring it???
+            #     or can we store it on a "symbolic index" meaning "current counters, whatever they may be"??? ###
+            #   - but i think a simpler way is just to decide here what those menu items should be, and store it specially, for undo,
+            #     and just trash redo stack on real change but let the ui use the stored_ops in usual way otherwise, for Redo.
+            #     Note that Redo UI won't be updated properly until we implement trashing the redo stack, in that case!
+            # - we trash the redo stack based on what changed, same as usual (nim, this case and other case, as of 060309 852p).
+            if self.last_cp.assy_change_counters == self.assy.all_change_counters():
+                pass # nothing new; Undo being enabled can be as normal, based on last_cp #####@@@@@
+            else:
+                # a change, Undo is always enabled and says to last manual cp or to when we disabled autocp
+                pass # set some flags about that, incl text based on what kind of thing has changed #####@@@@@
+                if destroy_bypassed_redos:
+                    self.clear_redo_stack( from_cp = self.last_cp, except_diff = self.current_diff ) # it's partly nim as of 060309
+                        # this is needed both to save RAM and (only in this merge_with_future case) to disable the Redo menu item
+            pass
         else:
-            if debug3:
-                print "\ncp", self.assy.all_change_counters(), env.last_history_serno + 1
+            # entire rest of method
             if self.last_cp.assy_change_counters == self.assy.all_change_counters():
                 # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
                 # in future we'll still need to save current view or selection in case that changed and mmpstate didn't ####@@@@
@@ -1276,7 +1317,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     # the stuff to destroy (naively) is everything linked to from self.last_cp except self.current_diff / self.next_cp, *i think*.
                     # What would be easy would be a debug-print saying whether it looks like there's anything to destroy,
                     # so we could tell if its guesses seem accurate. [060301]
-                    pass # it's nim ... 
+                    self.clear_redo_stack( from_cp = self.last_cp, except_diff = self.current_diff ) # it's partly nim as of 060309
             else:
                 # not really_changed
                 # guess: following line causes bug 3 when use_diff is true
@@ -1290,41 +1331,91 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 self.current_diff.empty = True
                 self.current_diff.suppress_storing_undo_redo_ops = True # (this is not the only way this flag can be set)
                     # I'm not sure this is right, but as long as varid_vers are the same, or states equal, it seems to make sense... #####@@@@@
-        fill_checkpoint(self.next_cp, state, self.assy) # stores self.assy.all_change_counters() onto it -- do that here, for clarity?
-            #e This will be revised once we incrementally track some changes - it won't redundantly grab unchanged state,
-            # though it's likely to finalize and compress changes in some manner, or grab changed parts of the state.
-            # It will also be revised if we compute diffs to save space, even for changes not tracked incrementally.
-            #e also store other metainfo, like time of completion, cmdname of caller, history serno, etc (here or in fill_checkpoint)
+            fill_checkpoint(self.next_cp, state, self.assy) # stores self.assy.all_change_counters() onto it -- do that here, for clarity?
+                #e This will be revised once we incrementally track some changes - it won't redundantly grab unchanged state,
+                # though it's likely to finalize and compress changes in some manner, or grab changed parts of the state.
+                # It will also be revised if we compute diffs to save space, even for changes not tracked incrementally.
+                #e also store other metainfo, like time of completion, cmdname of caller, history serno, etc (here or in fill_checkpoint)
 
-        if not self.current_diff.empty and self.pref_report_checkpoints():
-            if cptype == 'end_cmd':
-                cmdname = self.current_diff.cmdname()
-            else:
-                cmdname = cmdname_for_debug # a guess, used only for debug messages -- true cmdname is not yet known, in general
-            if cmdname:
-                desc = "(%s/%s)" % (cptype, cmdname)
-            else:
-                desc = "(%s)" % cptype
-            self.debug_histmessage( "(undo checkpoint %s: %r)" % (desc, self.next_cp) )
-            del cmdname, desc
+            if not self.current_diff.empty and self.pref_report_checkpoints():
+                if cptype == 'end_cmd':
+                    cmdname = self.current_diff.cmdname()
+                else:
+                    cmdname = cmdname_for_debug # a guess, used only for debug messages -- true cmdname is not yet known, in general
+                if cmdname:
+                    desc = "(%s/%s)" % (cptype, cmdname)
+                else:
+                    desc = "(%s)" % cptype
+                self.debug_histmessage( "(undo checkpoint %s: %r)" % (desc, self.next_cp) )
+                del cmdname, desc
+            
+            if not self.current_diff.suppress_storing_undo_redo_ops:
+                redo_diff = self.current_diff
+                undo_diff = redo_diff.reverse_order()
+                self.store_op(redo_diff)
+                self.store_op(undo_diff)
+                # note, we stored those whether or not this was a begin or end checkpoint;
+                # figuring out which ones to offer, merging them, etc, might take care of that, or we might change this policy
+                # and only store them in certain cases, probably if this diff is begin-to-end or the like;
+                # and any empty diff always gets merged with followon ones, or not offered if there are none. ######@@@@@@
+            
+            # Shift checkpoint variables        
+            self.last_cp = self.next_cp
+            self.next_cp = None # in case of exceptions in rest of this method
+            self.last_cp.cptype = cptype #k is this the only place that knows cptype, except for 'initial'?
+    ##        self.last_cp_arrival_reason = cptype # affects semantics of Undo/Redo user-level ops
+    ##            # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
+            self._setup_next_cp() # sets self.next_cp and self.current_diff
+        return
+
+    def clear_redo_stack( self, from_cp = None, except_diff = None ): #060309 (untested)
+        "#doc"
+        #e scan diff+1s from from_cp except except_diff, thinking of diffs as edges, cp's or their indices as nodes.
+        # can we do it by using find_undoredos with an arg for the varid_vers to use instead of current ones?
+
+        # use that transclose utility... on the nodes, i guess, but collect the edges as i go
+        # (nodes are state_versions, edges are diffs)
+        # (transclose needs dict keys for these nodes... the nodes are data-like so they'll be their own keys)
         
-        if not self.current_diff.suppress_storing_undo_redo_ops:
-            redo_diff = self.current_diff
-            undo_diff = redo_diff.reverse_order()
-            self.store_op(redo_diff)
-            self.store_op(undo_diff)
-            # note, we stored those whether or not this was a begin or end checkpoint;
-            # figuring out which ones to offer, merging them, etc, might take care of that, or we might change this policy
-            # and only store them in certain cases, probably if this diff is begin-to-end or the like;
-            # and any empty diff always gets merged with followon ones, or not offered if there are none. ######@@@@@@
-        
-        # Shift checkpoint variables        
-        self.last_cp = self.next_cp
-        self.next_cp = None # in case of exceptions in rest of this method
-        self.last_cp.cptype = cptype #k is this the only place that knows cptype, except for 'initial'?
-##        self.last_cp_arrival_reason = cptype # affects semantics of Undo/Redo user-level ops
-##            # (this is not redundant, since it might differ if we later revisit same cp as self.last_cp)
-        self._setup_next_cp() # sets self.next_cp and self.current_diff
+        assert from_cp is not None # and is a checkpoint?
+        # but it's ok if except_diff is None
+        state_version_start = self.state_version_of_cp(from_cp)
+        # toscan = { state_version_start: state_version_start } # TypeError: dict objects are unhashable
+        def dictkey(somedict):
+            "you know what I meant! assume it was an immutable dict!"
+            items = somedict.items()
+            items.sort() # a bit silly since in present use there is always just one item, but this won't run super often, i hope
+                # (for that matter, in present use that item's key is always the same...)
+            # return items # TypeError: list objects are unhashable
+            return tuple(items)
+        toscan = { dictkey(state_version_start): state_version_start }
+        diffs_to_destroy = {}
+        def collector(state_version, dict1):
+            ops = self._raw_find_undoredos( state_version)
+            for op in ops:
+                if op.direction == 1 and op is not except_diff: # redo, not undo
+                    # found an edge to destroy, and its endpoint node to further explore
+                    diffs_to_destroy[op.key] = op
+                    state_version_endpoint = self.state_version_of_cp( op.cps[1])
+                    dict1[ dictkey(state_version_endpoint)] = state_version_endpoint
+            return # from collector
+        transclose( toscan, collector) # retval is not interesting to us; what matters is side effect on diffs_to_destroy
+        if diffs_to_destroy:
+            if env.debug():
+                ndiffs = len(diffs_to_destroy)
+                print "debug: clear_redo_stack found %d diffs to destroy" % ndiffs # used later too
+                len1 = len(self.stored_ops)
+            for diff in diffs_to_destroy.values():
+                diff.destroy() #k did I implem this fully?? I hope so, since clear_undo_stack probably uses it too...
+                # the thing to check is whether they remove themselves from stored_ops....
+            diffs_to_destroy = None # refdecr them too, before saying we're done (since the timing of that is why we say it)
+            toscan = state_version_start = from_cp = None
+            if (env.debug() or len1 == len2) and ndiffs:
+                len2 = len(self.stored_ops)
+                print "  debug: clear_redo_stack finished; removed %d entries from self.stored_ops" % (len1 - len2) ###k bug if 0
+        else:
+            if env.debug():
+                print "debug: clear_redo_stack found nothing to destroy"
         return
     
     def current_command_info(self, *args, **kws): ##e should rename add_... to make clear it's not finding and returning it
@@ -1392,18 +1483,29 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
     
     def state_version(self):
-        assy_varid = make_assy_varid(self.assy._debug_name)
+        ## assy_varid = make_assy_varid(self.assy._debug_name)
+        # kluge: optim of above:
+        assy_varid = ASSY_VARID_STUB
         assy_ver = self.assy.all_change_counters() # note: this is about totally current state, not any diff or checkpoint;
             # it will be wrong while we're applying an old diff and didn't yet update assy.all_change_counters() at the end
         return {assy_varid: assy_ver} # only one varid for now (one global undo stack) [i guess this is still true with 3 change counters... 060227]
-    
+
+    def state_version_of_cp(self, cp): #060309 ###k maybe this should be (or is already) a cp method...
+        return {ASSY_VARID_STUB: cp.assy_change_counters}
+        
     def find_undoredos(self):
         "Return a list of undo and/or redo operations that apply to the current state; return merged ops if necessary."
         #e also pass state_version? for now rely on self.last_cp or some new state-pointer...
         if not self.inited:
             return []
-        
+
         if 1:
+            # the following if-condition is a kluge (wrong in principle but probably safe, not entirely sure it's correct) [060309]:
+            import undo_manager
+            do_warning = undo_manager._AutoCheckpointing_enabled
+        else:
+            do_warning = True # gives false warnings when not _AutoCheckpointing_enabled
+        if do_warning:
             # try to track down some of the bugs... if this is run when untracked changes occurred (and no checkpoint),
             # it would miss everything. If this sometimes happens routinely when undo stack *should* be empty but isn't,
             # it could explain dificulty in reproducing some bugs. [060216]
@@ -1415,17 +1517,15 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ## state_version = dict([self.last_cp.varid_ver()]) ###@@@ extend to more pairs
         # that's a dict from varid to ver for current state;
         # this code would be happy with the items list but future code will want the dict #e
-        res = {}
-        for var, ver in state_version.items():
-            lis = self.stored_ops.get( (var, ver), [] )
-            if not lis and debug_undo2 and (self.last_cp is not self.initial_cp):
-                print "why no stored ops for this? (claims to not be initial cp)",var, ver # had to get here somehow...
-            for op in lis: #e optim by storing a dict so we can use update here? doesn't matter for now
-                res[op.key] = op
-        # this includes anything that *might* apply... filter it... not needed for now with only one varid in the system. ###@@@
+
+        res = self._raw_find_undoredos( state_version) #060309 split that out, moved its debug code back here & revised it
+
+        if not res and debug_undo2 and (self.last_cp is not self.initial_cp):
+            print "why no stored ops for this? (claims to not be initial cp)", state_version # had to get here somehow...
+
         if debug_undo2:
             print "\nfind_undoredos dump of found ops, before merging:"
-            for op in res.values():
+            for op in res:
                 print op
             print "end of oplist\n"
         # Need to filter out obsolete redos (not sure about undos, but I guess not) ... actually some UIs might want to offer them,
@@ -1437,6 +1537,19 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ## (or begin, if end missed -- do that by auto-end? what about recursion?
         #   let recursion also end, then begin anew... maybe merge... see more extensive comments mentioning word "cyberspace",
         #   maybe in a notesfile or in code)
+        return res
+
+    def _raw_find_undoredos(self, state_version):
+        "#doc"
+        res = {}
+        for var, ver in state_version.items():
+            lis = self.stored_ops.get( (var, ver), () )
+            for op in lis: #e optim by storing a dict so we can use update here? doesn't matter for now
+                if not op.destroyed:
+                    ####e cond only needed because destroy doesn't yet unstore them;
+                    # but don't bother unstoring them here, it would miss some
+                    res[op.key] = op
+        # this includes anything that *might* apply... filter it... not needed for now with only one varid in the system. ###@@@
         return res.values()
     
     def store_op(self, op):
@@ -1445,6 +1558,13 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             ops = self.stored_ops.setdefault(varver, [])
             ops.append(op)
         return
+
+    def _n_stored_vals(self): #060309, unfinished, CALL IT as primitive ram estimate #e add args for variants of what it measures ####@@@@
+        res = 0
+        for oplist in stored_ops.itervalues():
+            for op in oplist:
+                res += op._n_stored_vals() ###IMPLEM
+        return res
     
     def wrap_op_with_merging_flags(self, op, flags = None):
         "[see docstring in undo_manager]"
@@ -1452,9 +1572,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     pass # end of class AssyUndoArchive
 
+ASSY_VARID_STUB = 'assy' # kluge [060309]: permit optims from this being constant, as long as this doesn't depend on assy, etc;
+    # all uses of this except in make_assy_varid() are wrong in principle, so fix them when that kluge becomes invalid.
+
 def make_assy_varid(assy_debug_name):
     "make the varid for changes to the entire assy, for use when we want a single undo stack for all its Parts"
     ## return 'varid_stub_' + (assy_debug_name or "") #e will come from assy itself
-    return 'assy' # stub, but should work
+    return ASSY_VARID_STUB # stub, but should work
 
 # end

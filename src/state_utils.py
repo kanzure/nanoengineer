@@ -683,6 +683,7 @@ else:
     known_type_copiers[ numeric_array_type ] = copy_Numeric_array
     known_type_scanners[ numeric_array_type ] = scan_Numeric_array
     known_type_same_helpers[ numeric_array_type ] = _same_Numeric_array_helper
+    _Numeric_array_type = numeric_array_type #bruce 060309 kluge, might be temporary
     del numeric_array_type # but leave array, PyObject as module globals for use by the functions above, for efficiency
     pass
 
@@ -879,7 +880,18 @@ class StateSnapshot:
         return self.__class__ is other.__class__ and not diff_snapshots(self, other)
     def __ne__(self, other):
         return not (self == other)
+    def val_diff_func_for(self, attr):
+        if attr == '_posnxxx': # kluge, should use an _s_decl; remove xxx when this should be tried out ####@@@@
+            return val_diff_func_for__posn # stub for testing
+        return None
     pass # end of class StateSnapshot
+
+def val_diff_func_for__posn((p1,p2), whatret): # purely a stub for testing, though it should work
+    assert type(p1) is _Numeric_array_type
+    assert type(p2) is _Numeric_array_type
+    return p2 - p1
+
+def reverse_and_apply():pass ####
 
 def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
     "Diff two snapshots. Retval format TBD. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
@@ -897,14 +909,21 @@ def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
             # This might be correct, assuming each attrdict has been optimized to not store true dflt val for attrdict,
             # or each hasn't been (i.e. same policy for both). Also it's assumed by diff_snapshots_oneway and its caller.
             # Needs review. ##k ###@@@ [060227-28 comment]
-        diff = diffdicts(d1, d2, dflt = dflt, whatret = whatret)
+    
+        # 060309 experimental: support special diff algs for certain attrs,
+        # like sets or lists, or a single attrval representing all bonds
+        val_diff_func = snap2.val_diff_func_for(attr) # might be None; assume snap2 knows as well as snap1 what to do
+        assert val_diff_func == snap1.val_diff_func_for(attr) # make sure snap1 and snap2 agree (kluge??)
+            #e better to use more global knowledge instead? we'll see how it's needed on the diff-applying side...
+            # (we ought to clean up the OO structure, when time permits)
+        diff = diffdicts(d1, d2, dflt = dflt, whatret = whatret, val_diff_func = val_diff_func)
         if diff:
             res[attr] = diff #k ok not to copy its mutable state? I think so...
     return res # just a diff-attrdicts-dict, with no empty dict members (so boolean test works ok) -- not a Snapshot itself.
 
 def diff_snapshots_oneway(snap1, snap2):
     "diff them, but only return what's needed to turn snap1 into snap2, as an object containing attrdicts (all mutable)"
-    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) )
+    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) ) ######@@@@@@ also store val_diff_func per attr? [060309 comment]
 
 class DiffObj:
     def __init__(self, attrdicts):
@@ -923,12 +942,18 @@ class DiffObj:
         return self.nonempty()
     pass
 
-def diffdicts(d1, d2, dflt = None, whatret = 0): ###e dflt is problematic since we don't know it here and it might vary by obj or class
-    """Given two dicts, return a new one with entries at keys where their values differ (according to ==),
+def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
+    ###e dflt is problematic since we don't know it here and it might vary by obj or class [not anymore, long bfr 060309; ##doc]
+    """Given two dicts, return a new one with entries at keys where their values differ (according to same_vals),
     treating missing values as dflt (which is None if not provided, but many callers should pass _UNSET_).
-    Values in retval are pairs (v1, v2) where v1 = d1.get(key, dflt), and same for v2,
+       Values in retval depend on whatret and val_diff_func, as follows:
+    If val_diff_func is None, values are pairs (v1, v2) where v1 = d1.get(key, dflt), and same for v2,
     unless we pass whatret == 1 or 2, in which case values are just v1 or just v2 respectively.
     WARNING: v1 and v2 and dflt in these pairs are not copied; retval might share mutable state with d1 and d2 values and dflt arg.
+       If val_diff_func is not None, it is called with arg1 == (v1, v2) and arg2 == whatret,
+    and what it returns is stored; whatever it returns needs (in the scheme this is intended for)
+    to be sufficient to reconstruct v2 from v1 (for whatret == 2),
+    or v1 from v2 (for whatret == 1), or both (for whatret == 0), assuming the reconstructor knows which val_diff_func was used. 
     """
     ###E maybe this dflt feature is not needed, if we already didn't store vals equal to dflt? but how to say "unset" in retval?
     # Do we need a new unique object not equal to anything else, just to use for Unset?
@@ -963,12 +988,23 @@ def diffdicts(d1, d2, dflt = None, whatret = 0): ###e dflt is problematic since 
 ##                res[key] = (v1,v2)
             if not same_vals(v1,v2):
                 res[key] = (v1,v2)
-    if whatret: #e should optimize by using loop variants above, instead ###@@@
-        ind = whatret - 1
-        for key, pair in res.iteritems():
-##            res[key] = copy_val(pair[ind]) #KLUGE: copy_val at all (contrary to docstring) -- see if it fixes any bugs [it didn't];
-            res[key] = pair[ind] #060303 11pm remove copying, no reason for it
-                # and KLUGE2 - not doing this unless whatret. [060302] results: didn't fix last night's bug.
+    if val_diff_func is None:
+        if whatret: #e should optimize by using loop variants above, instead ###@@@
+            ind = whatret - 1
+            for key, pair in res.iteritems():
+    ##            res[key] = copy_val(pair[ind]) #KLUGE: copy_val at all (contrary to docstring) -- see if it fixes any bugs [it didn't];
+                res[key] = pair[ind] #060303 11pm remove copying, no reason for it
+                    # and KLUGE2 - not doing this unless whatret. [060302] results: didn't fix last night's bug.
+    else:
+        for key, pair in res.items():
+            res[key] = val_diff_func( pair, whatret )
+                #e We could optim by requiring caller to pass a func that already knows whatret!
+                # or letting whatrets 0,1,2 be special cases of val_diff_func (same idea), which takes (v1,v2) to what we want.
+                # or just letting whatret be either 0,1,2, or a function.
+                #    But these optims are not needed, since the idea is to use this on a small number of attrvals with lots of data in
+                # each one (not just on a small number of attr *names*, but a small number of *values*). E.g. one attr for the entire
+                # assy which knows all atom positions or bond types in the assy. It's just a way of letting some attrs have their
+                # own specialcase diff algs and representations.
     return res
 
 # ==
@@ -1022,6 +1058,7 @@ class StatePlace:
     """basically an lval for a StateSnapshot or a (diffobj, StatePlace) pair;
     represents a logically immutable snapshot in a mutable way
     """
+    # WARNING: as of 060309 callers have a kluge that will break if anything sets the attr 'attrdicts' in this object. ####@@@ fix
     def __init__(self, lastsnap = None):
         self.lastsnap = lastsnap # should be None or a mutable StateSnapshot
         self.diff_and_place = None
@@ -1040,9 +1077,15 @@ class StatePlace:
         self.lastsnap = None
         return res
     #e methods for pulling the snap back to us, too... across the pointer self.diff_and_place, i guess
-    def get_snap_back_to_self(self): ####@@@@ CALL ME
+    def get_snap_back_to_self(self):
         "[recursive (so might not be ok in practice)]"
-        # bug if we try this on the initial state, so, need caller to use StatePlace there ####@@@@
+        # predicted bug if we try this on the initial state, so, need caller to use StatePlace there ####@@@@
+        # (this bug never materialized, but I don't know why not!!! [bruce 060309])
+        # sanity check re that:
+        if 0 and env.debug(): #060309
+            print "debug: fyi: calling get_snap_back_to_self", self
+                # note: typically called twice per undoable command --
+                # is this due to (guess no) begin and end cp, or (guess yes) one recursive call??
         if self.lastsnap is None:
             diff, place = self.diff_and_place
             self.diff_and_place = None
@@ -1054,8 +1097,8 @@ class StatePlace:
             self.lastsnap = lastsnap # inlined self.own_this_lastsnap(lastsnap)
         return
     #e and for access to it, for storing it back into assy using archive
-    def get_attrdicts(self):
-        "Warning: these are only for immediate use without modification!" #e rename to imply that!
+    def get_attrdicts_for_immediate_use_only(self): # [renamed, 060309]
+        "Warning: these are only for immediate use without modification!"
         self.get_snap_back_to_self()
         return self.lastsnap.attrdicts
     pass # end of class StatePlace
@@ -1068,14 +1111,39 @@ def apply_and_reverse_diff(diff, snap):
     """
     for attr, dict1 in diff.attrdicts.items():
         dictsnap = snap.attrdicts.setdefault(attr, {})
-        for key, val in dict1.iteritems():
-            oldval = dictsnap.get(key, _UNSET_)
-            if val is _UNSET_:
-                del dictsnap[key] # always works, or there was no difference in val at this key!
-                # note: if dictsnap becomes empty, nevermind, it's ok to just leave it that way.
-            else:
-                dictsnap[key] = val
-            dict1[key] = oldval # whether or not it's _UNSET_, it's a diff, so it stays!
+        if 1:
+            # if no special diff restoring func for this attr:
+            for key, val in dict1.iteritems():
+                # iteritems is ok, though we modify dict1, since we don't add or remove items (though we do in dictsnap)
+                oldval = dictsnap.get(key, _UNSET_)
+                if val is _UNSET_:
+                    del dictsnap[key] # always works, or there was no difference in val at this key!
+                    # note: if dictsnap becomes empty, nevermind, it's ok to just leave it that way.
+                else:
+                    dictsnap[key] = val
+                dict1[key] = oldval
+                    # whether or not oldval is _UNSET_, it indicates a diff, so we have to retain the item
+                    # in dict1 or we'd think it was a non-diff at that key!
+        else:
+            pass # this is WHERE I AM 060309 3:39pm. problem: this produces a val, ready to setattr into an object,
+            # but what we need is to be able to do that setattr or actually modify_attr ourselves. hmm.
+            # should we store smth that can be used to do it? not so simple i think... or at least less general
+            # than it would appear... let's see how this is called. similar issues exist on the scanning side
+            # (swept under the rug so far, due to what's still nim).
+            #
+            #   maybe think from other end -- what _s_attr decls
+            # do we want, for being able to set this up the way we'd like?
+            # Maybe per-object diff & copy func, for obj owning attr, and per-object apply_and_reverse func?
+            #  Related (but purely an A8 issue): for binary mmp support, we still need to be able to save the snaps!
+            #
+            # ... this is called by get_snap_back_to_self, in get_attrdicts_for_immediate_use_only,
+            # in assy_become_scanned_state, in assy_become_state (undo_archive func), from assy.become_state,
+            # in SimpleDiff.apply_to. In theory, get_snap_back_to_self can pull it over multiple diffs,
+            # though in practice, it won't until we merge diffs. So would it work if the snap, for these attrs,
+            # was stored in the current state of the objects??
+            # ... Hmm, maybe it could work by creating snap-exprs consisting of "cur state plus these diffs"
+            # which then get stored by applying the diffs, maybe compressing them together as the expr is built?
+            #
     return
 
 # ==

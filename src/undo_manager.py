@@ -136,17 +136,24 @@ class AssyUndoManager(UndoManager):
     
     def checkpoint(self, *args, **kws):
         # Note, as of 060127 this is called *much* more frequently than before (for every signal->slot to a python slot);
-        # we might need to optimize it when state hasn't changed. ###@@@
-        res = self.archive.checkpoint( *args, **kws )
-        # I hope this is safe even if auto-checkpointing is disabled; or maybe it's never called then [060126]
+        # we will need to optimize it when state hasn't changed. ###@@@
+        global _AutoCheckpointing_enabled
+        opts = dict(merge_with_future = not _AutoCheckpointing_enabled)
+            # i.e., when not auto-checkpointing and when caller doesn't override,
+            # we'll ask archive.checkpoint to (efficiently) merge changes so far with upcoming changes
+            # (but to still cause real changes to trash redo stack, and to still record enough info
+            #  to allow us to properly remake_UI_menuitems)
+        opts.update(kws) # we'll pass it differently from the manual checkpoint maker... ##e
+        res = self.archive.checkpoint( *args, **opts )
         self.remake_UI_menuitems() # needed here for toolbuttons and accel keys; not called for initial cp during self.archive init
             # (though for menu items themselves, the aboutToShow signal would be sufficient)
         return res # maybe no retval, this is just a precaution
 
-    def auto_checkpoint_pref(self):
-        return debug_pref('undo: auto-checkpointing? (slow)', Choice_boolean_True, #bruce 060302 changed default to True, added ':'
-                        prefs_key = 'A7/undo/auto-checkpointing',
-                        non_debug = True)
+    def auto_checkpoint_pref(self): ##e should remove calls to this, inline them as True
+        return True # this is obsolete -- it's not the same as the checkmark item now in the edit menu! [bruce 060309]
+##        return debug_pref('undo: auto-checkpointing? (slow)', Choice_boolean_True, #bruce 060302 changed default to True, added ':'
+##                        prefs_key = 'A7/undo/auto-checkpointing',
+##                        non_debug = True)
         
     def undo_checkpoint_before_command(self, cmdname = ""):
         """###doc
@@ -191,6 +198,7 @@ class AssyUndoManager(UndoManager):
         for op in ops:
             optype = op.optype()
             d1[optype].append(op) # sort ops by type
+        ## done in the subr: redos = filter( lambda redo: not redo.destroyed, redos) #060309 since destroyed ones are not yet unstored
         # remove obsolete redo ops
         if redos:
             lis = [ (redo.cps[1].cp_counter, redo) for redo in redos ]
@@ -198,7 +206,8 @@ class AssyUndoManager(UndoManager):
             only_redo = lis[-1][1]
             redos = [only_redo]
             for obs_redo in lis[:-1]:
-                if undo_archive.debug_undo2:
+                if undo_archive.debug_undo2 or env.debug():
+                    #060309 adding 'or env.debug()' since this should never happen once clear_redo_stack() is implemented in archive
                     print "obsolete redo:",obs_redo
                 pass #e discard it permanently? ####@@@@
         return undos, redos
@@ -445,9 +454,10 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
     # do it
     env.history.message(greenmsg("Clear Undo Stack")) # no further message needed if it works, I think
     try:
-        ##e Note: the following doesn't actually free storage. Once the UI seems to work, we'll either add that to it,
+        ##e Note: the following doesn't actually free storage. [update, 060309 -- i think as of a few days ago it does try to... ##k]
+        # Once the UI seems to work, we'll either add that to it,
         # or destroy and remake assy.undo_manager itself before doing this (and make sure destroying it frees storage).
-        ##e Make sure this can be called with or without auto-checkpointing enabled, and leaves that setting unchanged.
+        ##e Make sure this can be called with or without auto-checkpointing enabled, and leaves that setting unchanged. #####@@@@@
         env.mainwindow().assy.clear_undo_stack()
              #k should win and/or assy be an argument instead?
     except:
