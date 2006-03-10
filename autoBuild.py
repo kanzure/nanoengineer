@@ -30,11 +30,10 @@ def system(cmd):
         raise NonZeroExitStatus, cmd
     return ret
 
-def oneLiner(cmd):
+def listResults(cmd):
     def strip(x):
         return x.rstrip()
-    lines = map(strip, os.popen(cmd).readlines())
-    return repr(lines)
+    return map(strip, os.popen(cmd).readlines())
 
 class AbstractMethod(Exception):
     """Indicates that something must be overloaded because it isn't usefully
@@ -122,7 +121,7 @@ class NanoBuildBase:
         system('make pyx')
         if False:
             # verify they got built
-            print oneLiner("pwd") + " " + oneLiner("ls sim*")
+            print listResults("pwd"), listResults("ls sim*")
             raise Exception
         print "----------Sources have been checked out and made.\n"
 
@@ -287,7 +286,7 @@ class NanoBuildWin32(NanoBuildBase):
         tmpZipFile = os.path.join(self.buildSourcePath, 'program/temp1234.zip')
         print "archFile", archFile
         print "tmpZipFile", tmpZipFile
-        print "pwd", oneLiner("pwd")[0]
+        print "pwd", listResults("pwd")[0]
         print "dir", os.listdir(".")
         os.rename(archFile, tmpZipFile)
         os.mkdir(archFile)
@@ -479,6 +478,9 @@ class NanoBuildMacOSX(NanoBuildBase):
         #
         binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
+        ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
+        for f in ne1files:
+            os.chmod(f, 0755)
         self.copyOtherSources(binPath)
         print "------All python modules are packaged tegether."
 
