@@ -239,7 +239,7 @@ prefs_table = (
     ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
-    ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, True ), # mark 060304.
+    ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, False ), # mark 060310.
     ('selatomsmode_highlighting', 'boolean', selectAtomsModeHighlightingEnabled_prefs_key, True ), # mark 060220.
     
     
