@@ -162,8 +162,11 @@ class Jig(Node):
             if sel.picks_atom(atom):
                 return True
         # Tell user reason why not.  Mark 060125.
-        msg = "Didn't copy %s since none of its atoms were copied." % (self.name)
-        env.history.message(orangemsg(msg))
+        #& will_copy_if_selected() is now getting called (maybe something to do with the new undo code?)
+        #& when the jig's context menu is displayed, which causes this message to be printed to the history 
+        #& widget (bug 1186).  Commenting it out for A7, but we should fix this for A8.  mark 060311.
+        #& msg = "Didn't copy %s since none of its atoms were copied." % (self.name)
+        #& env.history.message(orangemsg(msg))
         return False
 
     def will_partly_copy_due_to_selatoms(self, sel):
