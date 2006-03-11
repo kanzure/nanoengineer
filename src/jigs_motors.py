@@ -178,7 +178,13 @@ class RotaryMotor(Motor):
     icon_names = ["rmotor.png", "rmotor-hide.png"]
     featurename = "Rotary Motor" #bruce 051203
 
-    copyable_attrs = Motor.copyable_attrs + ('torque', 'initial_speed', 'speed', 'length', 'radius', 'sradius', 'center', 'axis', 'enable_minimize')
+    _initial_posns = None #bruce 060310 added default values for _initial_* and added them to copyable_attrs, to fix bug 1656
+    _initial_quats = None
+    
+    copyable_attrs = Motor.copyable_attrs + ('torque', 'initial_speed', 'speed', 'enable_minimize', \
+                                             'length', 'radius', 'sradius', \
+                                             'center', 'axis', \
+                                             '_initial_posns', '_initial_quats' )
 
     # create a blank Rotary Motor not connected to anything    
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
