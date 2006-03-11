@@ -471,7 +471,7 @@ class MMKit(MMKitDialog):
 
         if sys.platform == 'linux2' and firstShow:
             mmk_height = 0
-            toolbar_height = 0
+            buildmode_dashboard_height = 0
             status_bar_height = 0
         else:
             # Qt Notes: On X11 system, widgets do not have a frameGeometry() before show() is called.
@@ -496,10 +496,7 @@ class MMKit(MMKitDialog):
         # Make small adjustments to the y coordinate based on various situations for different platforms.   
         if firstShow:
             # Avoid traceback on Linux, because mmk_geometry isn't defined. wware 060224
-            if sys.platform == 'linux2':
-                # Not yet sure what to do here for Linux.
-                y += 0 # This needs to be adjusted.  Further testing required. mark 060311.
-            else:
+            if sys.platform != 'linux2':
                 y -= 58
                 # This is to compensate for a strange bug related to the Library's QListView widget changing size
                 # after the MMKit is created but not yet shown.  This bug causes <mmk_height> of the
@@ -511,7 +508,9 @@ class MMKit(MMKitDialog):
                 # Make sure this is really needed. I seem to remember that I tried initializing the MT to a width
                 # of 200 pixels, but something wasn't working.  This may be needed, but my guess right now
                 # is that it isn't required.  mark 060311.
-                
+        else:
+            if sys.platform == 'linux2':
+                y -= 33
         # Make sure the MMKit stays on the screen.
         y = max(0, y)
         x = max(0,self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.

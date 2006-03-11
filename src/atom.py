@@ -143,8 +143,9 @@ if __name__ == '__main__':
         if sys.platform == 'linux2':
             # During startup on Linux, the MMKit dialog must be "shown" before it can be moved.
             # Fixes bug 1444.  mark 060311.
-            pos = foo.glpane.mode.MMKit.get_location(False)
-            foo.glpane.mode.MMKit.move(pos[0], pos[1])
+            x, y = foo.glpane.mode.MMKit.get_location(False)
+            y += 59
+            foo.glpane.mode.MMKit.move(x, y)
         
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
