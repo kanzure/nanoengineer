@@ -13,6 +13,20 @@ import types
 import env
 from debug import print_compact_stack
 
+SAMEVALS_SPEEDUP = False    # Use the C extension
+
+if SAMEVALS_SPEEDUP:
+    try:
+        # If we're using the samevals extension, we need to tell the
+        # extension what a Numeric array looks like, since the symbol
+        # PyArray_Type was not available at link time when we built
+        # the extension.
+        from samevals import setArrayType
+        import Numeric
+        setArrayType(type(Numeric.array((1,2,3))))
+    except ImportError:
+        SAMEVALS_SPEEDUP = False
+
 # see debug flags, below
 
 ### TODO:
@@ -511,6 +525,10 @@ def same_vals(v1, v2): #060303
     if env.debug() and (v1 != v2):
         print "debug warning: same_vals says True but '!=' also says True, for",v1,v2 ###@@@ remove when pattern seen
     return True
+
+if SAMEVALS_SPEEDUP:
+    # Replace definition above with the extension's version.
+    from samevals import same_vals
 
 def _same_vals_helper(v1, v2): #060303
     """[private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
