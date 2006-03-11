@@ -143,7 +143,7 @@ if __name__ == '__main__':
         if sys.platform == 'linux2':
             # During startup on Linux, the MMKit dialog must be "shown" before it can be moved.
             # Fixes bug 1444.  mark 060311.
-            pos = foo._findGoodLocation(True)
+            pos = foo.glpane.mode.MMKit.get_location(False)
             foo.glpane.mode.MMKit.move(pos[0], pos[1])
         
     try:

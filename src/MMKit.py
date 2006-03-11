@@ -462,7 +462,63 @@ class MMKit(MMKitDialog):
         # If the 'Library' page is open, change it to 'Atoms'.  Mark 051212.
         if self.currentPageOpen(LibraryPage):
             self.setup_current_page(self.atomsPage)
-                       
+            
+    def get_location(self, firstShow):
+        '''Returns the best x, y screen coordinate for positioning the MMKit.
+        If <firstShow> is True, the Model Tree width is set to 200 pixels.
+        Should only be called MMKit has been created.
+        '''
+
+        if sys.platform == 'linux2' and firstShow:
+            mmk_height = 0
+            toolbar_height = 0
+            status_bar_height = 0
+        else:
+            # Qt Notes: On X11 system, widgets do not have a frameGeometry() before show() is called.
+            # This is why we have special case code in atom.py, MWsemantics.py and here to work
+            # around this issue on Linux.  mark 060311. 
+            mmk_geometry = self.frameGeometry()
+            mmk_height = mmk_geometry.height() 
+                # <mmk_height> is wrong when firstShow is True.  This is due to a problem with the
+                # Library's QListView (DirView) widget.  See DirView.__init__() for more info on this.
+                # We compensate for <mmk_height>'s wrong value below. Mark 060222.
+
+            buildmode_dashboard_height = self.w.depositAtomDashboard.frameGeometry().height()
+            status_bar_height = self.w.statusBar().frameGeometry().height()
+        
+        # Compute the y coordinate
+        y = self.w.geometry().y() \
+            + self.w.geometry().height() \
+            - mmk_height \
+            - buildmode_dashboard_height \
+            - status_bar_height
+        
+        # Make small adjustments to the y coordinate based on various situations for different platforms.   
+        if firstShow:
+            # Avoid traceback on Linux, because mmk_geometry isn't defined. wware 060224
+            if sys.platform == 'linux2':
+                # Not yet sure what to do here for Linux.
+                y += 0 # This needs to be adjusted.  Further testing required. mark 060311.
+            else:
+                y -= 58
+                # This is to compensate for a strange bug related to the Library's QListView widget changing size
+                # after the MMKit is created but not yet shown.  This bug causes <mmk_height> of the
+                # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value.
+                # See DirView.__init__() for more info on this. mark 060222.
+                
+            self.w.mt.setGeometry(0,0,200,560) 
+                # Set model tree width to 200. mark 060303.
+                # Make sure this is really needed. I seem to remember that I tried initializing the MT to a width
+                # of 200 pixels, but something wasn't working.  This may be needed, but my guess right now
+                # is that it isn't required.  mark 060311.
+                
+        # Make sure the MMKit stays on the screen.
+        y = max(0, y)
+        x = max(0,self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.
+
+        #print "x=%d, y =%d" % (x,y)
+        return x, y
+        
     pass # end of class MMKit
 
 # end

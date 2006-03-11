@@ -1161,58 +1161,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             print "Bug: depositState unknown: ", depositState, ".  depositState buttons unchanged." #bruce 051230 revised text
         return
     
-    def _findGoodLocation(self, firstShow):
-        '''Find ideal location for the MMKit. Should only be called after history, and MMKit
-           has been created.'''
-        global MMKitWin
-        
-        if sys.platform == 'linux2': 
-            #hist_height = 70 # not needed with new layout. mark 060222.
-            mmk_height = 559
-            toolbar_height = 25
-            status_bar_height = 29
-        else:
-            hist_geometry = self.history_widget.frameGeometry()
-            #hist_height = hist_geometry.height() # not needed with new layout. mark 060222.
-            
-            ### Qt Notes: On X11 system, before show() call, widget doesn't have a frameGeometry()
-            
-            mmk_geometry = MMKitWin.frameGeometry()
-            mmk_height = mmk_geometry.height() 
-                # <mmk_height> is wrong when firstShow is True.  This is due to a problem with the
-                # Library's QListView (DirView) widget.  See DirView.__init__() for more info on this.
-                # We compensate for <mmk_height> wrong value below. Mark 060222.
-                        
-            ## 26 is an estimate of the bottom toolbar height
-            toolbar_height = self.depositAtomDashboard.frameGeometry().height()
-
-            status_bar_height = self.statusBar().frameGeometry().height()
-            
-        y = self.geometry().y() + self.geometry().height() - mmk_height - toolbar_height - status_bar_height
-        if firstShow:
-            # Avoid traceback on Linux, because mmk_geometry isn't defined. wware 060224
-            if sys.platform == 'linux2':
-                # Not yet sure what to do here for Linux.
-                pass
-            else:
-                # This is to compensate for a strange bug related to the Library's QListView widget changing size
-                # after the MMKit is created but not yet shown.  This bug causes mmk_height of the
-                # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value
-                # here.
-                # See DirView.__init__() for more info on this. mark 060222.
-                y -= 58
-                # Set the width of the Model Tree to the width of the MMKit. mark 060223.
-                #self.mt.setGeometry(0,0,mmk_geometry.width(),560)
-            self.mt.setGeometry(0,0,200,560) # Set model tree width to 200. mark 060303.
-                
-        # Make sure the MMKit stays on the screen.
-        y = max(0, y)
-        x = max(0,self.geometry().x()) # Fixes bug 1636.  Mark 060310.
-
-        #print "x=%d, y =%d" % (x,y)
-        return x, y
-        
-    
     def modifyMMKit(self):
         '''Open The Molecular Modeling Kit for Build (DEPOSIT) mode.
         '''
@@ -1229,7 +1177,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             firstShow = True
             MMKitWin = MMKit(self)
        
-        pos = self._findGoodLocation(firstShow)
+        pos = MMKitWin.get_location(firstShow)
         
         ## On Linux, X11 has some problem for window location before it's shown. So a compromised way to do it, 
         ## which will have the flash problem.
