@@ -72,8 +72,6 @@ if __name__ == '__main__':
     
     startup_funcs.before_most_imports( main_globals )
         # "Do things that should be done before anything that might possibly have side effects."
-    
-    pass
 
 # most imports in this file should be done here, or inside functions in startup_funcs
 
@@ -156,6 +154,13 @@ if __name__ == '__main__':
         meth()
 
     startup_funcs.post_main_show(foo) # bruce 050902 added this
+
+    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSPOT=True, use hotspot, otherwise
+    # fall back to vanilla Python profiler.
+    try:
+        PROFILE_WITH_HOTSHOT
+    except NameError:
+        PROFILE_WITH_HOTSHOT = False
     
     # now run the main Qt event loop --
     # perhaps with profiling, if user requested this via .atom-debug-rc.
@@ -169,7 +174,10 @@ if __name__ == '__main__':
                 print "error: atom_debug_profile_filename must be a string; running without profiling"
                 assert 0 # caught and ignored, turns off profiling
             try:
-                import profile
+                if PROFILE_WITH_HOTSHOT:
+                    import hotshot
+                else:
+                    import profile
             except:
                 print "error during 'import profile'; running without profiling"
                 raise # caught and ignored, turns off profiling
@@ -185,7 +193,11 @@ if __name__ == '__main__':
         pass
 
     if atom_debug_profile_filename:
-        profile.run('app.exec_loop()', atom_debug_profile_filename )
+        if PROFILE_WITH_HOTSHOT:
+            profile = hotshot.Profile(atom_debug_profile_filename)
+            profile.run('app.exec_loop()')
+        else:
+            profile.run('app.exec_loop()', atom_debug_profile_filename)
         print "\nprofile data was presumably saved into %r" % (atom_debug_profile_filename,)
     else:
         # if you change this code, also change the string literal just above
