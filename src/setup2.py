@@ -19,7 +19,8 @@ except:
 #if sys.platform == "darwin":
 #    extra_compile_args = [ "-DDISTUTILS", "-O" ]
 
-extra_compile_args = [ "-DDISTUTILS", "-g" ]
+# Maybe put in some "-O" stuff later
+extra_compile_args = [ "-DDISTUTILS", "-Wall", "-g" ]
 
 setup(name = 'Simulator',
       ext_modules=[Extension("samevals", ["samevals.c"],

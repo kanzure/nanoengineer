@@ -164,6 +164,9 @@ internal_copy_val(PyObject *v)
 	return PyObject_CallObject(instanceCopier, v);
     } else if (typ == arraytype) {
 	return PyObject_CallObject(arrayCopier, v);
+    } else {
+	// no good ideas here...
+	return v;
     }
 }
 
@@ -197,6 +200,7 @@ setInstanceCopier(PyObject *self, PyObject *args)
 	PyErr_SetString(PyExc_TypeError, "argument must be callable");
 	return NULL;
     }
+    Py_INCREF(instanceCopier);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -210,6 +214,7 @@ setArrayCopier(PyObject *self, PyObject *args)
 	PyErr_SetString(PyExc_TypeError, "argument must be callable");
 	return NULL;
     }
+    Py_INCREF(arrayCopier);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -229,8 +234,8 @@ copy_val is badly broken at the moment.";
 
 static char *rcsid = "$Id$";
 
-void
-initsamevals()
+DL_EXPORT(void) initsamevals(void);
+DL_EXPORT(void) initsamevals(void)
 {
     PyObject *m;
     m = Py_InitModule3("samevals", samevals_methods, samevals_doc);
