@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
     startup_funcs.post_main_show(foo) # bruce 050902 added this
 
-    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSPOT=True, use hotspot, otherwise
+    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT=True, use hotshot, otherwise
     # fall back to vanilla Python profiler.
     try:
         PROFILE_WITH_HOTSHOT
@@ -173,14 +173,18 @@ if __name__ == '__main__':
             if not type(atom_debug_profile_filename) in [type("x"), type(u"x")]:
                 print "error: atom_debug_profile_filename must be a string; running without profiling"
                 assert 0 # caught and ignored, turns off profiling
-            try:
-                if PROFILE_WITH_HOTSHOT:
+            if PROFILE_WITH_HOTSHOT:
+                try:
                     import hotshot
-                else:
+                except:
+                    print "error during 'import hotshot'; running without profiling"
+                    raise # caught and ignored, turns off profiling
+            else:
+                try:
                     import profile
-            except:
-                print "error during 'import profile'; running without profiling"
-                raise # caught and ignored, turns off profiling
+                except:
+                    print "error during 'import profile'; running without profiling"
+                    raise # caught and ignored, turns off profiling
     except:
         atom_debug_profile_filename = None
 
