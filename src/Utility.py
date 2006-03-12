@@ -892,6 +892,12 @@ class Node( StateMixin):
         self.hidden = True
         self.unpick()
         
+    def Hide(self): # called from a node's (Jig) "Hide" context menu item (in the GLPane, not MT). mark 060312.
+        '''Hide self and update the mt and glpane.
+        '''
+        self.hide()
+        self.assy.w.win_update()
+        
     def unhide(self):
         if self.hidden:
             self.changed() #bruce 050512 part of fixing bug 614
