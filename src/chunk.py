@@ -1435,7 +1435,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # for fear of recomputing it and trashing atpos!
         # (maybe it is always present, and we could simplify/optimize this #k)
         for atom in self.atoms.itervalues():
-            ind = atom.index
+            ind = atom.index #bruce 060311 comment: logic bug: if .index is valid, self.atlist must also exist and be valid. ####@@@@ 
             ## assert ind != -1 # implied by the following
             atom._setposn_no_chunk_or_bond_invals( atpos[ind] )
         return
