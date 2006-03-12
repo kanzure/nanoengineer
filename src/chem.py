@@ -224,6 +224,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
+    index = -1 #bruce 060311 add this as a precaution re bug 1661, and since it seems necessary in principle,
+        # given that we store it as undoable state, but (I guess, re that bug) don't always set it very soon
+        # after making an atom; -1 is also the correct value for an atom in a chunk but not yet indexed therein;
+        # in theory the value doesn't matter at all for a chunkless atom, but a removed atom (see Chunk.delatom) will have -1 here,
+        # so imitating that seems most correct.
 
     # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
 

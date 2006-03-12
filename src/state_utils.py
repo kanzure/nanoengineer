@@ -74,18 +74,24 @@ Do any inapprop obs get a key (like data or foreign objs) in current code?? ####
 # ==
 
 class _UNSET_class:
-    "[private class for _UNSET_, which sometimes represents unset attribute values; there should be only one instance]"
+    "[private class for _UNSET_, which sometimes represents unset attribute values, and similar things]"
     #e can we add a decl that makes the _s_attr system notice the bug if it ever hits this value in a real attrval? (should we?)
+    def __init__(self, name = "_???_"):
+        self.name = name
     def __repr__(self):
-        return "_UNSET_"
+        return name
     pass
 
 try:
-    _UNSET_ # ensure only one instance, even if we reload this module
+    _UNSET_ # ensure only one instance of _UNSET_ itself, even if we reload this module
 except:
-    _UNSET_ = _UNSET_class() ####@@@@ need to use this in the _s_attr / Undo code
+    _UNSET_ = _UNSET_class("_UNSET_")
 
-
+try:
+    _Bugval
+except:
+    _Bugval = _UNSET_class("_Bugval")
+    
 # ==
 
 class _eq_id_mixin_: ##e use more? (GLPane?)
@@ -418,12 +424,16 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
+_debug_deepcopy = False # initial value might never be used -- reset in each run of copy_val [bruce 060311]
+
 def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency
     """Efficiently copy a general Python value (so that mutable components are not shared with the original),
     passing Python instances unchanged, unless they define a _s_deepcopy method,
     and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
        (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
+    global _debug_deepcopy
+    _debug_deepcopy = env.debug() # for now; later make it usually False [bruce 060311]
     try:
         # wware 060308 small performance improvement (use try/except); made safer by bruce, same day
         # known_type_copiers is a fixed public dictionary
@@ -495,6 +505,8 @@ def scan_val(val, func):
         scanner(val, func) # we optimize by not storing any scanner for atomic types, or a few others.
     return
 
+_n_sv = _n_svh = 0
+
 def same_vals(v1, v2): #060303
     """Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
     or saved state.
@@ -508,6 +520,9 @@ def same_vals(v1, v2): #060303
     will change one of them and not the other (for whole objects or for their parts).
        ###doc for InstanceType... note that we get what we want by using __eq__ for the most part...
     """
+    if 1:
+        global _n_sv
+        _n_sv += 1
     if v1 is v2:
         # Optimization:
         # this will happen in practice when whole undoable attrvals are immutable
@@ -530,6 +545,9 @@ def _same_vals_helper(v1, v2): #060303
     """[private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
     (i.e. if their type or structure differs, or if any corresponding parts are not the same)
     """
+    if 1:
+        global _n_svh
+        _n_svh += 1
     typ = type(v1)
     if typ is not type(v2):
         raise _NotTheSame
@@ -575,7 +593,7 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
     except AttributeError:
         return obj
     res = deepcopy_method( copy_val)
-    if obj != res or (not (obj == res)):
+    if _debug_deepcopy and (obj != res or (not (obj == res))): #bruce 060311 adding _debug_deepcopy as optim (suggested by Will)
         # Bug in deepcopy_method, which will cause false positives in change-detection in Undo (since we'll return res anyway).
         # (It's still better to return res than obj, since returning obj could cause Undo to completely miss changes.)
         #
@@ -1334,10 +1352,17 @@ class obj_classifier:
                 #valcopy = copy_val(val)
                 #attrdict = attrdicts[attr]
                 #attrdict[key] = valcopy
-                attrdicts[attr][key] = copy_val(getattr(obj, attr))
+                attrdicts[attr][key] = copy_val(getattr(obj, attr, _Bugval))
                     # We do it all in one statement, for efficiency in case compiler is not smart enough to see that local vars
                     # would not be used again; it might even save time due to lack of bytecodes to update linenumber
                     # to report in exceptions! (Though that will make bugs harder to track down, if exceptions occur.)
+                    #
+                    #bruce 060311 adding default of Bugval to protect us from bugs (nonexistence of attr) without entirely hiding
+                    # them. In theory, if this ever happens in correct code, then this attrval (or whether it's set) shouldn't matter.
+                    # I want to use something recognizable, but not _UNSET_ since that would (I think) conflict with its meaning
+                    # in diffs (not sure). If it turns out this is not always a bug, I can make this act similarly to _UNSET_
+                    # in that, when storing it back, I can unset the attr (this would make Undo least likely to introduce a bug).
+                    # I'm not yet doing that, but I added a comment mentioning _Bugval next to the relevant setattr in undo_archive.py.
         if 0 and env.debug():
             print "atom_debug: collect_state got this snapshot:", snapshot
 ##            if 1: #####@@@@@
@@ -1351,7 +1376,7 @@ class obj_classifier:
         """
         clas = self.classify_instance(obj)
         for attr, dflt in clas.attr_dflt_pairs:
-            setattr(obj, attr, copy_val(dflt)) #e need copy_val?
+            setattr(obj, attr, dflt) #e need copy_val? I suspect not, so as of 060311 1030pm PST I'll remove it as an optim.
             # [060302: i think copy_val is not needed given that we only refrain from storing val when it 'is' dflt,
             #  but i think it's ok unless some classes depend on unset attrs being a mutable shared class attr,
             #  which I think is bad enough style that we can safely say we don't support it (though detecting the danger

@@ -333,6 +333,9 @@ def assy_become_scanned_state(self, data, archive):
                 # either look for those on every value we copy and store, or make sure every obj has one attr with no default value
                 # or whose actual value is never its default value. This seems true of all our current objs, so I'll ignore this issue for now!
                 # ###k (also this remains unreviewed for issues of which objs "exist" and which don't... maybe it only matters as space optim...)
+            ##e someday: check if val is _Bugval, maybe print error message or delete it or both
+            # (can share code with deleting it if it's attr-specific dflt, once we clean up decls so different dflts mean different attrdicts)
+            # [bruce 060311 comment]
             continue
         continue
     for key, obj in modified.iteritems():
