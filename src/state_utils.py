@@ -526,10 +526,6 @@ def same_vals(v1, v2): #060303
         print "debug warning: same_vals says True but '!=' also says True, for",v1,v2 ###@@@ remove when pattern seen
     return True
 
-if SAMEVALS_SPEEDUP:
-    # Replace definition above with the extension's version.
-    from samevals import same_vals
-
 def _same_vals_helper(v1, v2): #060303
     """[private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
     (i.e. if their type or structure differs, or if any corresponding parts are not the same)
@@ -604,6 +600,12 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
                 print "  a reason they are not equal:\n", method(res)
         #e also print history redmsg, once per class per session?
     return res
+
+if SAMEVALS_SPEEDUP:
+    # Replace definition above with the extension's version.
+    from samevals import copy_val, same_vals, setInstanceCopier, setArrayCopier
+    setInstanceCopier(copy_InstanceType)
+    setArrayCopier(lambda x: x.copy())
 
 # inlined:
 ## def is_mutable_InstanceType(obj): 
