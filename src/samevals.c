@@ -230,15 +230,16 @@ samevals_methods[] = {
 };
 
 static char samevals_doc[] = "\
-copy_val is badly broken at the moment.";
+copy_val is badly broken at the moment.\n\
+$Id$";
 
-static char *rcsid = "$Id$";
+static char *versionstring = "not ready for prime time";
 
 DL_EXPORT(void) initsamevals(void);
 DL_EXPORT(void) initsamevals(void)
 {
     PyObject *m;
     m = Py_InitModule3("samevals", samevals_methods, samevals_doc);
-    PyModule_AddStringConstant(m, "__version__", rcsid);
+    PyModule_AddStringConstant(m, "__version__", versionstring);
     PyModule_AddStringConstant(m, "__author__", "Will");
 }
