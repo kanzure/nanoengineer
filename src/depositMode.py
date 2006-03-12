@@ -1756,30 +1756,6 @@ class depositMode(selectAtomsMode):
 
     def viewing_main_part(self): #bruce 050416 ###e should refile into assy
         return self.o.assy.current_selgroup_iff_valid() is self.o.assy.tree
-
-    call_makeMenus_for_each_event = True #bruce 050416/050420 using new feature for dynamic context menus
-
-    def update_selatom_and_selobj(self, event = None): #bruce 050705
-        """update_selatom (or cause this to happen with next paintGL);
-        return consistent pair (selatom, selobj);
-        atom_debug warning if inconsistent
-        """
-        #e should either use this more widely, or do it in selatom itself, or convert entirely to using only selobj.
-        self.update_selatom( event) # bruce 050612 added this -- not needed before since bareMotion did it (I guess).
-            ##e It might be better to let set_selobj callback (NIM, but needed for sbar messages) keep it updated.
-            #
-            # See warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-        selatom = self.o.selatom
-        selobj = self.o.selobj #bruce 050705 -- #e it might be better to use selobj alone (selatom should be derived from it)
-        if selatom is not None:
-            if selobj is not selatom:
-                if platform.atom_debug:
-                    print "atom_debug: selobj %r not consistent with selatom %r -- using selobj = selatom" % (selobj, selatom)
-                selobj = selatom # just for our return value, not changed in GLPane (self.o)
-        else:
-            pass #e could check that selobj is reflected in selatom if an atom, but might as well let update_selatom do that,
-                # esp. since it behaves differently for singlets
-        return selatom, selobj
         
     def makeMenus(self): #bruce 050705 revised this to support bond menus
         "#doc"
@@ -1910,16 +1886,25 @@ class depositMode(selectAtomsMode):
                 else:
                     text = 'Add bondpoints' # this text is only used if it doesn't have enough
                 self.Menu_spec.append(( text, selatom.remake_singlets )) #e should finish and use remake_baggage (and baggageNeighbors)
-
-        # separator and changers to other modes
-        if self.Menu_spec:
-            self.Menu_spec.append(None)
+        
+        # Jig specific menu items.
+        if selobj is not None and isinstance(selobj, Jig):
+            name = selobj.name
+            item = ('%r Properties...' % name, selobj.edit)
+            self.Menu_spec.append(item)
+            item = ('Hide %r' % name, selobj.Hide)
+            self.Menu_spec.append(item)
+            
+        if self.o.jigSelectionEnabled:
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'checked')])
+        else:
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'unchecked')])
+            
         self.Menu_spec.extend( [
             # mark 060303. added the following:
-            ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'), # Always stays checked; bug.  mark 060303.
             None,
             ('Change Background Color...', self.w.dispBGColor),
-        ] )
+            ])
 
         return # from makeMenus
 

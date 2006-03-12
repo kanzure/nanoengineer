@@ -334,9 +334,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         
         if self.dragdist<7:
             # didn't move much, call it a click
-            # Pick a part
-            has_jig_selected = False; self.jigSelectionEnabled = True
-            if self.jigSelectionEnabled and self.jigGLSelect(event, selSense):
+            has_jig_selected = False
+            if self.o.jigSelectionEnabled and self.jigGLSelect(event, selSense):
                 has_jig_selected = True
             if not has_jig_selected:
                 if selSense == SUBTRACT_FROM_SELECTION: 

@@ -138,8 +138,6 @@ class selectMode(basicMode):
     # default initial values
     savedOrtho = 0
 
-    jigSelectionEnabled = True
-    
     selCurve_length = 0.0
         # <selCurve_length> is the current length (sum) of all the selection curve segments.
     
@@ -157,6 +155,7 @@ class selectMode(basicMode):
         # Set this to False if you want to disable hover highlighting.
 
 
+    #&&& Marked for removal.  mark 060312
     #def __init__(self, glpane):
     #    """The initial function is called only once for the whole program """
     #    basicMode.__init__(self, glpane)
@@ -326,7 +325,7 @@ class selectMode(basicMode):
             # didn't move much, call it a click
             has_jig_selected = False 
             
-            if self.jigSelectionEnabled and self.jigGLSelect(event, self.selSense):
+            if self.o.jigSelectionEnabled and self.jigGLSelect(event, self.selSense):
                 has_jig_selected = True
             
             if not has_jig_selected:
@@ -966,16 +965,12 @@ class selectMode(basicMode):
             msg = "Highlighting turned off."
         env.history.message(msg)
     
-    def setJigSelectionEnabled(self):
-        self.jigSelectionEnabled = not self.jigSelectionEnabled
-                 
-        id = self.Menu1.idAt(3)
-        self.Menu1.setItemChecked(id, self.jigSelectionEnabled)
-        
-        
     def get_jig_under_cursor(self, event):
         '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
            matrix before return. '''
+           
+        if not self.o.jigSelectionEnabled:
+            return None
         
         from constants import GL_FAR_Z
         
@@ -1118,47 +1113,62 @@ class selectMode(basicMode):
             if self.selCurve_List: self.draw_selection_curve()
             self.o.assy.draw(self.o)
 
-    def makeMenus(self): # menu item names modified by bruce 041217
-
-        def fixit3(text, func): 
-            # Not called anymore since switching modes using context menus is no longer supported. mark 060303.
-            if self.default_mode_status_text == "Mode: " + text:
-                # this menu item indicates the current mode --
-                # add a checkmark and disable it [bruce 050112]
-                return text, func, 'checked'
-            else:
-                return text, func
+    # update_selatom_and_selobj() moved here from depositMode.py  mark 060312.
+    def update_selatom_and_selobj(self, event = None): #bruce 050705
+        """update_selatom (or cause this to happen with next paintGL);
+        return consistent pair (selatom, selobj);
+        atom_debug warning if inconsistent
+        """
+        #e should either use this more widely, or do it in selatom itself, or convert entirely to using only selobj.
+        self.update_selatom( event) # bruce 050612 added this -- not needed before since bareMotion did it (I guess).
+            ##e It might be better to let set_selobj callback (NIM, but needed for sbar messages) keep it updated.
+            #
+            # See warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
+        selatom = self.o.selatom
+        selobj = self.o.selobj #bruce 050705 -- #e it might be better to use selobj alone (selatom should be derived from it)
+        if selatom is not None:
+            if selobj is not selatom:
+                if platform.atom_debug:
+                    print "atom_debug: selobj %r not consistent with selatom %r -- using selobj = selatom" % (selobj, selatom)
+                selobj = selatom # just for our return value, not changed in GLPane (self.o)
+        else:
+            pass #e could check that selobj is reflected in selatom if an atom, but might as well let update_selatom do that,
+                # esp. since it behaves differently for singlets
+        return selatom, selobj
         
-        self.Menu_spec = [
-            ###e these accelerators should be changed to be Qt-official
-            # by extending widgets.makemenu_helper to use Qt's setAccel...
-            # [bruce 050112]
+    call_makeMenus_for_each_event = True #mark 060312
+
+    def makeMenus(self): # menu item names modified by bruce 041217
+    
+        selatom, selobj = self.update_selatom_and_selobj( None)
+        
+        self.Menu_spec = []
+
+        # Jig specific menu items.
+        if selobj is not None and isinstance(selobj, Jig):
+            name = selobj.name
+            item = ('%r Properties...' % name, selobj.edit)
+            self.Menu_spec.append(item)
+            item = ('Hide %r' % name, selobj.Hide)
+            self.Menu_spec.append(item)
+        
+        # separator and other mode menu items.
+        if self.Menu_spec:
+            self.Menu_spec.append(None)
+        
+        if self.o.jigSelectionEnabled:
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'checked')])
+        else:
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'unchecked')])
+            
+        self.Menu_spec.extend( [
             # mark 060303. added the following:
-            ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'),
             None,
             ('Change Background Color...', self.w.dispBGColor),
-            ]
+            ])
         
-        #& Marked for removal. mark 060303.
-        #self.Menu_spec_shift = [
-        #    ('Delete        Del', self.o.assy.delete_sel),
-        #    ('Hide', self.o.assy.Hide)]
-        
-        #& Marked for removal. mark 060303.
-        #self.Menu_spec_control = [
-        #    ('Invisible', self.w.dispInvis),
-        #    None,
-        #    ('Default', self.w.dispDefault),
-        #    ('Lines', self.w.dispLines),
-        #    ('CPK', self.w.dispCPK),
-        #    ('Tubes', self.w.dispTubes),
-        #    ('VdW', self.w.dispVdW),
-        #    None,
-        #    ('Chunk Color...', self.w.dispObjectColor),
-        #    ('Reset Chunk Color', self.w.dispResetChunkColor),
-        #    ('Reset Atoms Display', self.w.dispResetAtomsDisplay),
-        #    ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
-        #    ]
+    def set_JigSelectionEnabled(self):
+        self.o.jigSelectionEnabled = not self.o.jigSelectionEnabled
 
     pass # end of class selectMode
     
@@ -1224,32 +1234,34 @@ class selectMolsMode(selectMode):
     
     # moved here from modifyMode.  mark 060303.
     def makeMenus(self): # mark 060303.
+    
+        self.Menu_spec = []
         
-        self.Menu_spec = [
-            ('Change Chunk Color...', self.w.dispObjectColor),
-            ('Reset Chunk Color', self.w.dispResetChunkColor),
-            ('Reset Atoms Display', self.w.dispResetAtomsDisplay),
-            ('Show Invisible Atoms', self.w.dispShowInvisAtoms),
-            ('Hide Chunk', self.o.assy.Hide),
+        if self.o.assy.selmols:
+            # Menu items added when there are selected chunks.
+            self.Menu_spec = [
+                ('Change Color of Selected Chunks...', self.w.dispObjectColor),
+                ('Reset Color of Selected Chunks', self.w.dispResetChunkColor),
+                ('Reset Atoms Display of Selected Chunks', self.w.dispResetAtomsDisplay),
+                ('Show Invisible Atoms of Selected Chunks', self.w.dispShowInvisAtoms),
+                ('Hide Selected Chunks', self.o.assy.Hide),
+            ]
+         
+        if self.o.jigSelectionEnabled:
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'checked')])
+        else:
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'unchecked')])
+            
+        self.Menu_spec.extend( [
+            # mark 060303. added the following:
             None,
             ('Change Background Color...', self.w.dispBGColor),
-         ]
+            ])
 
         self.debug_Menu_spec = [
             ('debug: invalidate selection', self.invalidate_selection),
             ('debug: update selection', self.update_selection),
          ]
-        
-        # Find this redundancy unnecessary; toolbar with these options is available.  mark 060303.
-        #self.Menu_spec_control = [
-        #    ('Invisible', self.w.dispInvis),
-        #    None,
-        #    ('Default', self.w.dispDefault),
-        #    ('Lines', self.w.dispLines),
-        #    ('CPK', self.w.dispCPK),
-        #    ('Tubes', self.w.dispTubes),
-        #    ('VdW', self.w.dispVdW)]
-    
     
     # moved here from modifyMode.  mark 060303.
     def invalidate_selection(self): #bruce 041115 (debugging method)
@@ -1416,7 +1428,7 @@ class selectAtomsMode(selectMode):
             
             if obj is None and self.o.selobj:
                 obj = self.o.selobj # a "highlighted" bond
-                
+            
             if obj is None: # a "highlighted" jig
                 obj = self.get_jig_under_cursor(event)
             
@@ -1492,6 +1504,9 @@ class selectAtomsMode(selectMode):
                 else:
                     return env.prefs[bondHighlightColor_prefs_key] ## was HICOLOR_real_bond before bruce 050805
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
+            if not self.o.jigSelectionEnabled: #mark 060312.
+                # jigSelectionEnabled set from GLPane context menu.
+                return None
             if self.o.modkeys == 'Shift+Control': 
                 return darkred
             else:
@@ -2021,18 +2036,6 @@ class selectAtomsMode(selectMode):
     def rightCntlDown(self, event):          
         basicMode.rightCntlDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
-        
-    def makeMenus(self): # added by mark 060303.
-        
-        self.Menu_spec = [
-            ###e these accelerators should be changed to be Qt-official
-            # by extending widgets.makemenu_helper to use Qt's setAccel...
-            # [bruce 050112]
-            # mark 060303. added the following:
-            ('Enable Jig Selection',  self.setJigSelectionEnabled, 'checked'), # Always stays checked; bug.  mark 060303.
-            None,
-            ('Change Background Color...', self.w.dispBGColor),
-            ]
         
     def update_hybridComboBox(self, win, text = None): 
         '''Based on the same named function in depositMode.py.

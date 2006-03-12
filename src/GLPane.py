@@ -245,6 +245,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
 ##        self.singlet = None #bruce 060220 zapping this, seems to be old and to no longer be used
         self.selatom = None # josh 10/11/04 supports depositMode
+        
+        self.jigSelectionEnabled = True # mark 060312
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs

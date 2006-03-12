@@ -140,6 +140,8 @@ class Jig(Node):
         simply draw wireframe boxes around each of the jig's atoms.
         For a good example, see the MeasureAngle._draw_jig().
         '''
+        if self.hidden:
+            return
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
@@ -600,8 +602,17 @@ class Jig(Node):
             # where it doesn't work, during copy. (The Stat & Thermo controls need the jig to have an atom during their init.)
             self.set_cntl()
             assert self.cntl is not None
+        if self is self.assy.o.selobj:
+            self.assy.o.selobj = None 
+            # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
+            # so that we can see the jig's real color, not the highlighted color.  This is very important
+            # when changing the jig's color from the properties dialog since it will remain highlighted
+            # if we don't do this. mark 060312.
         self.cntl.setup()
         self.cntl.exec_loop()
+        
+    def mouseover_statusbar_message(self): # Fixes bug 1642. mark 060312
+        return self.name
 
     #e there might be other common methods to pull into here
 
