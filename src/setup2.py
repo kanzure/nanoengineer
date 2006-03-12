@@ -1,5 +1,5 @@
 # Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
-__author__ = 'will'
+__author__ = 'Will'
 
 import sys
 
@@ -15,10 +15,11 @@ except:
     print " since the import should have worked.)"
     sys.exit(1)
 
-if sys.platform == "darwin":
-    extra_compile_args = [ "-DDISTUTILS", "-O" ]
-else:
-    extra_compile_args = [ "-DDISTUTILS" ]
+# Hack to prevent -O2/-O3 problems on the Mac
+#if sys.platform == "darwin":
+#    extra_compile_args = [ "-DDISTUTILS", "-O" ]
+
+extra_compile_args = [ "-DDISTUTILS", "-g" ]
 
 setup(name = 'Simulator',
       ext_modules=[Extension("samevals", ["samevals.c"],
