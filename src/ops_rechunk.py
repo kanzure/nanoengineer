@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 ops_rechunk.py -- operations for changing the way atoms are divided
 into chunks, without altering the atoms or bonds themselves.
@@ -53,6 +53,25 @@ class ops_rechunk_Mixin:
             msg =  redmsg("No atoms selected")
             env.history.message(cmd + msg)
             return
+        if 1:
+            #bruce 060313 mitigate bug 1627, or "fix it by doing something we'd rather not always have to do" --
+            # create (if necessary) a new toplevel group right now (before addmol does), avoiding a traceback
+            # when all atoms in a clipboard item part consisting of a single chunk are selected for this op,
+            # and the old part.topnode (that chunk) disappears from loss of atoms before we add the newly made chunk
+            # containing those same atoms.
+            # The only things wrong with this fix are:
+            # - It's inefficient (so is the main algorithm, and it'd be easy to rewrite it to be faster, as explained below).
+            # - The user ends up with a new Group even if one would theoretically not have been needed.
+            #   But that's better than a traceback and disabled session, so for A7 this fix is fine.
+            # - The same problem might arise in other situations (though I don't know of any), so ideally we'd
+            #   have a more general fix.
+            # - It's nonmodular for this function to have to know anything about Parts.
+            someatom = self.selatoms.values()[0] # if atoms in multiple parts could be selected, we'd need this for all their mols
+            part = someatom.molecule.part
+            part.ensure_toplevel_group()
+            # this is all a kluge; a better way would be to rewrite the main algorithm to find the mols
+            # with selected atoms, only make numol for those, and add it (addmol) before transferring all the atoms to it.
+            pass 
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
             numol = molecule(self.assy, gensym(mol.name + "-frag"))
