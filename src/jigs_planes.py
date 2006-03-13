@@ -229,6 +229,15 @@ class GridPlane(RectGadget):
         from GridPlaneProp import GridPlaneProp
         self.cntl = GridPlaneProp(self, self.assy.o)
         
+    def make_selobj_cmenu_items(self, menu_spec):
+        '''Add GridPlane specific context menu items to <menu_spec> list when self is the selobj.
+        '''
+        item = ('Hide', self.Hide)
+        menu_spec.append(item)
+        menu_spec.append(None) # Separator
+        item = ('Properties...', self.edit)
+        menu_spec.append(item)
+        
     def _draw_jig(self, glpane, color, highlighted=False):
         '''Draw a Grid Plane jig as a set of grid lines.
         '''
