@@ -477,7 +477,8 @@ class SimpleDiff:
     [Note: error of using cp.state too early, for some checkpoint cp, are detected by that attr not existing yet.]
     """
     default_opts = dict()
-    default_command_info = dict(cmdname = "operation")
+    default_command_info = dict(cmdname = "operation", n_merged_changes = 0)
+        # client code will directly access/modify self.command_info['n_merged_changes'] [060312], maybe other items
     suppress_storing_undo_redo_ops = False
     assert_no_changes = False
     destroyed = False
@@ -523,47 +524,70 @@ class SimpleDiff:
         main = self.optype() # "Undo" or "Redo"
         include_history_sernos = not not env.prefs[historyMsgSerialNumber_prefs_key] #060309; is this being checked at the right time??
         if include_history_sernos:
-            #060301
-            # describe history serno range, if we have one
-            if self.direction == 1:
-                start_cp, end_cp = self.cps
-            else:
-                end_cp, start_cp = self.cps
-            s1 = start_cp.next_history_serno()
-            s2 = end_cp.next_history_serno()
-            n = s2 - s1
-            if n < 0:
-                print "bug in history serno order",s1,s2,self.direction,self
-                n = -n
-                s1,s2 = s2,s1
-            range0 = s1
-            range1 = s2 - 1
-            if n == 0:
-                ## hist = ""
-                #060304 we need to know which history messages it came *between*. Not sure what syntax should be...
-                # maybe 18 1/2 for some single char that looks like 1/2?
-                ## hist = "%d+" % range1 # Undo 18+ bla... dubious... didn't look understandable.
-                hist = "(after %d.)" % range1 # Undo (after 18.) bla
-                if debug_pref("test unicode one-half in Undo menutext", Choice_boolean_False): #060312
-                    hist = u"%d\xbd" % range1 # use unicode "1/2" character instead ( without u"", \xbd error, \x00bd wrong )
-            elif n == 1:
-                assert range0 == range1
-                hist = "%d." % range1
-            else:
-                hist = "%d-%d." % (range0, range1)
-            pass
+            hist = self.history_serno_desc()
         else:
-            hist= ""
+            hist = ""
+        if self.command_info['n_merged_changes']:
+            # in this case, put "changes" before hist instead of cmdname after it
+            # (maybe later it'll be e.g. "selection changes")
+            ##e should we also always put hist in parens?...
+            # now, hist also sees this flag and has special form BUT ONLY WHILE BEING COLLECTED... well, it could use parens always...
+            ##e in case of only one cmd so far, should we not do this different thing at all?
+            # (not sure, it might help you realize autocp is disabled)
+            changes_desc = self.changes_desc()
+            if changes_desc:
+                main += " %s" % (changes_desc,)
         if hist:
             # this assumes op_name is present; if not, might be better to remove '.' and maybe use parens around numbers...
             # but i think it's always present (not sure) [060301]
-            main = "%s %s" % (main, hist)
-        op_name = self.cmdname()
-        if op_name:
-            main = "%s %s" % (main, op_name)
+            main += " %s" % (hist,)
+        if not self.command_info['n_merged_changes']:
+            op_name = self.cmdname()
+            if op_name:
+                main += " %s" % (op_name,)
         return main
+    def history_serno_desc(self): #060301; split out 060312
+        "describe history serno range, if we have one; always return a string, maybe null string; needs to work when last serno unknown"
+        if self.direction == 1:
+            start_cp, end_cp = self.cps
+        else:
+            end_cp, start_cp = self.cps
+        s1 = start_cp.next_history_serno()
+        s2 = end_cp.next_history_serno()
+        if s2 == -1: #060312 guess for use when current_diff.command_info['n_merged_changes'], and for direction == -1
+            if not self.command_info['n_merged_changes'] and env.debug():
+                print "debug: that's weird, command_info['n_merged_changes'] ought to be set in this case"
+            return "(%d.-now)" % (s1,)
+        
+        n = s2 - s1
+        if n < 0:
+            print "bug in history serno order",s1,s2,self.direction,self
+            # this 's1,s2 = s2,s1', the only time it happened, just made it more confusing to track down the bug, so zap it [060312]
+            pass
+##            n = -n
+##            s1,s2 = s2,s1
+        range0 = s1
+        range1 = s2 - 1
+        if n == 0:
+            ## hist = ""
+            #060304 we need to know which history messages it came *between*. Not sure what syntax should be...
+            # maybe 18 1/2 for some single char that looks like 1/2?
+            ## hist = "%d+" % range1 # Undo 18+ bla... dubious... didn't look understandable.
+            hist = "(after %d.)" % range1 # Undo (after 18.) bla
+            if debug_pref("test unicode one-half in Undo menutext", Choice_boolean_False): #060312
+                hist = u"%d\xbd" % range1 # use unicode "1/2" character instead ( without u"", \xbd error, \x00bd wrong )
+        elif n == 1:
+            assert range0 == range1
+            hist = "%d." % range1
+        else:
+            hist = "%d-%d." % (range0, range1)
+        if self.command_info['n_merged_changes'] and hist and hist[0] != '(' and hist[-1] != ')':
+            return "(%s)" % (hist,)
+        return hist
     def cmdname(self):
         return self.command_info['cmdname']
+    def changes_desc(self):#060312  
+        return "changes" #e (maybe later it'll be e.g. "selection changes")
     def varid_vers(self):#####@@@@@ need to merge self with more diffs, to do this??
         "list of varid_ver pairs for indexing"
         return [self.cps[0].varid_ver()] 
@@ -1235,9 +1259,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         if debug3:
             print "\ncp", self.assy.all_change_counters(), env.last_history_serno + 1
         if merge_with_future:
-            #060309, partly nim
-            if env.debug():
-                print "debug: skipping undo checkpoint" #####@@@@@ updating Undo/Redo enabled might be nim
+            #060309, partly nim; 060312 late night, might be done!
+            if 0 and env.debug():
+                print "debug: skipping undo checkpoint"
             ### Here's the plan [060309 855pm]:
             # in this case, used when auto-checkpointing is disabled, it's almost like not doing a checkpoint,
             # except for a few things:
@@ -1258,19 +1282,28 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 pass # nothing new; Undo being enabled can be as normal, based on last_cp #####@@@@@
             else:
                 # a change -- Undo should from now on always be enabled, and should say "to last manual cp" or
-                # "to when we disabled autocp" ####@@@@ doit
+                # "to when we disabled autocp" 
                 ####k Note: we need to only pay attention to changes that should be undoable, not e.g. view changes,
                 # in the counters used above for these tests! Otherwise we'd enable Undo action
                 # and destroy redo stack when we shouldn't. I think we're ok on this for now, but only because
                 # calls to the view change counter are nim. ####@@@@ [060312 comment]
-                pass # set some flags about that, incl text based on what kind of thing has changed #####@@@@@
                 if destroy_bypassed_redos:
                     self.clear_redo_stack( from_cp = self.last_cp, except_diff = self.current_diff ) # it's partly nim as of 060309
                         # this is needed both to save RAM and (only in this merge_with_future case) to disable the Redo menu item
+                # set some flags about that, incl text based on what kind of thing has changed
+                self.current_diff.command_info['n_merged_changes'] += 1 # this affects find_undoredos [060312 10:16pm]
+                    # starts out at 0 for all diffs; never set unless diff w/ changes sticks around for more
+                    ####@@@@ this number will be too big until we store those different change_counters and compare to *them* instead;
+                    # just store them right now, and comparison above knows to look for them since n_merged_changes > 0;
+                    # but there's no hurry since the menu text is fine as it is w/o saying how many cmds ran ###e
+                ##e this would be a good time to stash the old cmdname in the current_diff.command_info(sp?)
+                # and keep the list of all of them which contributed to the changes,
+                # for possible use in coming up with menu_desc for merged changes
+                # (though change_counters might be just as good or better)
             pass
         else:
-            if env.debug():
-                print "debug: NOT skipping undo checkpoint" ####@@@@ helps debug autocp/manualcp issues [060312]
+            if 0 and env.debug():
+                print "debug: NOT skipping undo checkpoint" # can help debug autocp/manualcp issues [060312]
             # entire rest of method
             if self.last_cp.assy_change_counters == self.assy.all_change_counters():
                 # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
@@ -1539,6 +1572,17 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 print "WARNING: find_undoredos sees self.last_cp.assy_change_counters != self.assy.all_change_counters()", \
                       self.last_cp.assy_change_counters, self.assy.all_change_counters()
             pass
+
+        if self.current_diff.command_info['n_merged_changes']:
+            # if the current_diff has any changes at all (let alone merged ones, or more precisely, those intending
+            # to merge with yet-unhappened ones, because autocheckpointing is disabled), it's the only applicable one,
+            # in the current [060312] single-undo-stack, no-inserted-view-ops scheme. The reason we check specifically
+            # for merged changes (not any old changes) is that there's no record of any other kind of changes in current_diff,
+            # and when other kinds get noticed in there they immediately cause it to be replaced by a new (empty) current_diff.
+            # So there's no way and no point, and the reason there's no need is that non-current diffs get indexed
+            # so they can be found in stored_ops by _raw_find_undoredos.
+            return [self.current_diff.reverse_order()] ####k ####@@@@ ??? [added this 060312; something like it seems right]
+        
         state_version = self.state_version()
         ## state_version = dict([self.last_cp.varid_ver()]) ###@@@ extend to more pairs
         # that's a dict from varid to ver for current state;

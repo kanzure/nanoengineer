@@ -329,21 +329,45 @@ class AssyUndoManager(UndoManager):
 
     def do_main_menu_op(self, optype):
         "optype should be Undo or Redo"
+        op_was_available = not not self._current_main_menu_ops.get(optype)
+        global _AutoCheckpointing_enabled
+        disabled = not _AutoCheckpointing_enabled #060312
+        if disabled:
+            _AutoCheckpointing_enabled = True # temporarily enable it, just during the Undo or Redo command
+            self.checkpoint( cptype = "preUndo" ) # do a checkpoint with it enabled, so Undo or Redo can work normally.
+            # Note: in theory this might change what commands are offered and maybe even cause the error message below to come out
+            # (so we might want to revise it when disabled is true ##e), but I think that can only happen if there's a change_counter
+            # bug, since the only way the enabled cp will see changes not seen by disabled one is if archive.update_before_checkpoint()
+            # is first to set the change_counters (probably a bug); if this happens it might make Redo suddenly unavailable.
+            ####e if optype is Redo, we could pass an option to above checkpoint to not destroy redo stack or make it inaccessible!
+            # (such an option is nim)
         try:
             op = self._current_main_menu_ops.get(optype)
             if op:
                 undo_xxx = op.menu_desc() # note: menu_desc includes history sernos
-                env.history.message("%s" % undo_xxx) #e say Undoing rather than Undo in case more msgs??
+                env.history.message(u"%s" % undo_xxx) #e say Undoing rather than Undo in case more msgs?? ######@@@@@@ TEST u"%s"
                 self.archive.do_op(op)
                 self.assy.w.mt.update_select_mode() #bruce 060227 try to fix bug 1576
                 self.assy.w.win_update() #bruce 060227 not positive this isn't called elsewhere, or how we got away without it if not
             else:
-                print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
-                env.history.message(redmsg("Nothing to %s (and it's a bug that its menu item or tool button was enabled)" % optype))
+                if not disabled:
+                    print "no op to %r; not sure how this slot was called, since it should have been disabled" % optype
+                    env.history.message(redmsg("Nothing to %s (and it's a bug that its menu item or tool button was enabled)" % optype))
+                else:
+                    print "no op to %r; autocp disabled (so ops to offer were recomputed just now; before that, op_was_available = %r); "\
+                          "see code comments for more info" % ( optype, op_was_available)
+                    if op_was_available:
+                        env.history.message(redmsg("Nothing to %s (possibly due to a bug)" % optype))
+                    else:
+                        env.history.message(redmsg("Nothing to %s (and this action was only offered due to a bug)" % optype))
             pass
         except:
             print_compact_traceback()
             env.history.message(redmsg("Bug in %s; see traceback in console" % optype))
+        if disabled:
+            # better get the end-cp done now (since we might be relying on it for some reason -- I'm not sure)
+            self.checkpoint( cptype = "postUndo" )
+            _AutoCheckpointing_enabled = False # re-disable
         return
     
     pass # end of class AssyUndoManager
@@ -422,7 +446,7 @@ def editMakeCheckpoint():
     "Slot for making a checkpoint (only available when Automatic Checkpointing is disabled)."
     '''
     hmsg = greenmsg("Make Checkpoint")
-    if True:#####@@@@@
+    if 0: ###@@@
         hmsg += orangemsg(" [not yet fully implemented]")
     env.history.message( hmsg) 
     # do it
@@ -458,7 +482,7 @@ def editAutoCheckpointing(enabled):
     else:
         msg_short = "Autocheckpointing disabled"
         msg_long  = "Autocheckpointing disabled -- only explicit Undo checkpoints are kept" #k length ok?
-        nimwarn = True #######@@@@@@@
+        nimwarn = 0 and True ###@@@
     env.history.statusbar_msg(msg_long)
     hmsg = greenmsg(msg_short)
     if nimwarn:
