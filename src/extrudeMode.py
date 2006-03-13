@@ -1509,6 +1509,11 @@ class extrudeMode(basicMode):
     
     def leftCntlUp(self, event):
         pass##self.EndDraw(event)
+        
+    def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
+        '''Update the cursor for 'Extrude' mode (extrudeMode).
+        '''
+        self.o.setCursor(QCursor(Qt.ArrowCursor))
 
     mergeables = {} # in case not yet initialized when we Draw (maybe not needed)
     moused_over = None
