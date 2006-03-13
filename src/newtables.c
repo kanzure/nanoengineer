@@ -529,6 +529,15 @@ getBondStretchEntry(int element1, int element2, char bondOrder)
   return entry;
 }
 
+// returns distance in pm
+double
+getBondEquilibriumDistance(int element1, int element2, char bondOrder)
+{
+  struct bondStretch *stretch;
+  stretch = getBondStretchEntry(element1, element2, bondOrder);
+  return stretch->r0;
+}
+
 struct bondStretch *
 getBondStretch(int element1, int element2, char bondOrder)
 {

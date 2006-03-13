@@ -63,6 +63,7 @@ cdef extern from "simhelp.c":
     void dynamicsMovie_start()
     void dynamicsMovie_step()
     void dynamicsMovie_finish()
+    double getBondEquilibriumDistance(int element1, int element2, char bondOrder)
 
 # wware 060111  a special exception for simulator interruptions
 class SimulatorInterrupted(Exception):
@@ -227,6 +228,9 @@ cdef class BaseSimulator:
             setFrameCallbackFunc(None)
             setWriteTraceCallbackFunc(None)
         return
+
+    def getEquilibriumDistanceForBond(element1, element2, order):
+        return getBondEquilibriumDistance(element1, element2, order)
 
     def structCompare(self):
         verifySimObject(self)
