@@ -113,6 +113,12 @@ class AssyUndoManager(UndoManager):
     def menu_cmd_checkpoint(self): # no longer callable from UI as of 060301, and not recently reviewed for safety [060301 comment]
         self.checkpoint( cptype = 'user_explicit' )
 
+    def make_manual_checkpoint(self): #060312
+        "#doc; called from editMakeCheckpoint, presumably only when autocheckpointing is disabled"
+        self.checkpoint( cptype = 'manual', merge_with_future = False )
+            # temporary comment 060312: this might be enough, once it sets up for remake_UI_menuitems
+        return
+
     __begin_retval = None ###k this will be used when we're created by a cmd like file open... i guess grabbing pref then is best...
     
     def _in_event_loop_changed(self, beginflag, tracker): # 060127
@@ -412,7 +418,23 @@ def editMakeCheckpoint():
     '''This is called from MWsemantics.editMakeCheckpoint, which is documented as
     "Slot for making a checkpoint (only available when Automatic Checkpointing is disabled)."
     '''
-    env.history.message("Make Checkpoint: Not implemented yet.")
+    env.history.message("Make Checkpoint: Not fully implemented yet; using experimental implem.")
+    # do it
+    try:
+        ##e Make sure this can be called with or without auto-checkpointing enabled, and leaves that setting unchanged.
+        # this is not urgent since in present UI it can't be called except when auto-checkpointing is disabled.
+        #####@@@@@
+        um = env.mainwindow().assy.undo_manager
+        if um:
+            um.make_manual_checkpoint()
+                 #k should win and/or assy be an argument instead?
+            env.history.message(greenmsg("Make Checkpoint"))
+        else:
+            env.history.message(redmsg("Make Checkpoint: error, no undo_manager")) # should never happen
+    except:
+        print_compact_traceback("exception caught in editMakeCheckpoint: ")
+        env.history.message(redmsg("Internal error in Make Checkpoint. Undo/Redo might be unsafe until a new file is opened."))
+            #e that wording assumes we can't open more than one file at a time...
     return
 
 def editAutoCheckpointing(enabled):
@@ -433,6 +455,9 @@ def editAutoCheckpointing(enabled):
     env.history.message(greenmsg(msg_short) + orangemsg(" [not yet fully implemented]")) #######@@@@@@@
     env.history.statusbar_msg(msg_long)
     win.editMakeCheckpointAction.setVisible(not enabled)
+    # Note: the reason this doesn't need to call something in assy.undo_manager is that it's called within a slot
+    # in the mainwindow which is itself wrapped by a begin_checkpoint and end_checkpoint, one or the other of which
+    # will act as a real checkpoint, unaffected by this flag. [bruce 060312 comment]
     return
 
 def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsemantics
