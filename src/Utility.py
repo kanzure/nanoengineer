@@ -896,6 +896,9 @@ class Node( StateMixin):
         '''Hide self and update the mt and glpane.
         '''
         self.hide()
+        if self is self.assy.o.selobj:
+            # Without this, self will remain highlighted until the mouse moves.
+            self.assy.o.selobj = None
         self.assy.w.win_update()
         
     def unhide(self):
