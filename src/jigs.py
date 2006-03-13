@@ -131,8 +131,6 @@ class Jig(Node):
     def draw_in_abs_coords(self, glpane, color):
         '''Draws the jig in the highlighted way.
         '''
-        if self.hidden:
-            return
         self._draw_jig(glpane, color, 1)
         
     def _draw_jig(self, glpane, color, highlighted=False):
@@ -611,12 +609,13 @@ class Jig(Node):
         self.cntl.setup()
         self.cntl.exec_loop()
         
-    def disable(self):
-        self.set_disabled_by_user_choice(True)
-        self.assy.w.win_update()
-        
-    def enable(self):
-        self.set_disabled_by_user_choice(False)
+    def toggleJigDisabled(self):
+        '''Enable/Disable jig.
+        '''
+        self.disabled_by_user_choice = not self.disabled_by_user_choice
+        if self is self.assy.o.selobj:
+            # Without this, self will remain highlighted until the mouse moves.
+            self.assy.o.selobj = None
         self.assy.w.win_update()
         
     def mouseover_statusbar_message(self): # Fixes bug 1642. mark 060312
@@ -629,6 +628,12 @@ class Jig(Node):
         '''
         item = ('Hide', self.Hide)
         menu_spec.append(item)
+        if self.disabled_by_user_choice:
+            item = ('Disabled', self.toggleJigDisabled, 'checked')
+        else:
+            item = ('Disable', self.toggleJigDisabled, 'unchecked')
+        menu_spec.append(item)
+        menu_spec.append(None) # Separator
         item = ('Properties...', self.edit)
         menu_spec.append(item)
 
