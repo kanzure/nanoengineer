@@ -544,6 +544,8 @@ class SimpleDiff:
                 # maybe 18 1/2 for some single char that looks like 1/2?
                 ## hist = "%d+" % range1 # Undo 18+ bla... dubious... didn't look understandable.
                 hist = "(after %d.)" % range1 # Undo (after 18.) bla
+                if debug_pref("test unicode one-half in Undo menutext", Choice_boolean_False): #060312
+                    hist = u"%d\xbd" % range1 # use unicode "1/2" character instead ( without u"", \xbd error, \x00bd wrong )
             elif n == 1:
                 assert range0 == range1
                 hist = "%d." % range1
@@ -1096,7 +1098,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # just notice the departure and find the stuff to free at that time.
         # next_cp can be recycled since it's presently empty, I think, or if not, it might know something useful ####@@@@ REVIEW
         self.current_diff = SimpleDiff(self.last_cp, self.next_cp)
-        self.current_diff.assert_no_changes = True ####@@@@ USE THIS where we check assy_change_counters
+        self.current_diff.assert_no_changes = True # fyi: used where we check assy_change_counters
         return
         
     def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
@@ -1133,7 +1135,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     def debug_histmessage(self, msg):
         env.history.message(msg, quote_html = True, color = 'gray')
 
-    def update_before_checkpoint(self): # see if this shows up in any profiles [split this out 030609]
+    def update_before_checkpoint(self): # see if this shows up in any profiles [split this out 060309]
         "#doc"
         ##e these need splitting out (and made registerable) as "pre-checkpoint updaters"... note, they can change things,
         # ie update change_counters, but that ought to be ok, as long as they can't ask for a recursive checkpoint,
@@ -1185,7 +1187,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
             return
 
-        self.update_before_checkpoint()
+        if not merge_with_future:
+            #060312 added 'not merge_with_future' cond as an optim; seems ok even if this would set change_counters,
+            # since if it needs to run, we presume the user ops will run it on their own soon enough and do another
+            # checkpoint.
+            self.update_before_checkpoint()
 
         assert cptype
         assert self.last_cp is not None
@@ -1231,7 +1237,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         if merge_with_future:
             #060309, partly nim
             if env.debug():
-                print "debug: skipping undo checkpoint; updating Undo/Redo enabled might be nim" #####@@@@@
+                print "debug: skipping undo checkpoint" #####@@@@@ updating Undo/Redo enabled might be nim
             ### Here's the plan [060309 855pm]:
             # in this case, used when auto-checkpointing is disabled, it's almost like not doing a checkpoint,
             # except for a few things:
@@ -1251,13 +1257,20 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             if self.last_cp.assy_change_counters == self.assy.all_change_counters():
                 pass # nothing new; Undo being enabled can be as normal, based on last_cp #####@@@@@
             else:
-                # a change, Undo is always enabled and says to last manual cp or to when we disabled autocp
+                # a change -- Undo should from now on always be enabled, and should say "to last manual cp" or
+                # "to when we disabled autocp" ####@@@@ doit
+                ####k Note: we need to only pay attention to changes that should be undoable, not e.g. view changes,
+                # in the counters used above for these tests! Otherwise we'd enable Undo action
+                # and destroy redo stack when we shouldn't. I think we're ok on this for now, but only because
+                # calls to the view change counter are nim. ####@@@@ [060312 comment]
                 pass # set some flags about that, incl text based on what kind of thing has changed #####@@@@@
                 if destroy_bypassed_redos:
                     self.clear_redo_stack( from_cp = self.last_cp, except_diff = self.current_diff ) # it's partly nim as of 060309
                         # this is needed both to save RAM and (only in this merge_with_future case) to disable the Redo menu item
             pass
         else:
+            if env.debug():
+                print "debug: NOT skipping undo checkpoint" ####@@@@ helps debug autocp/manualcp issues [060312]
             # entire rest of method
             if self.last_cp.assy_change_counters == self.assy.all_change_counters():
                 # no change in state; we still keep next_cp (in case ctype or other metainfo different) but reuse state...
@@ -1425,9 +1438,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             len2 = len(self.stored_ops)
             savings = len1 - len2 # always 0 for now, since we don't yet remove them, so don't print non-debug msg when 0 (for now)
             if ndiffs and (savings < 0 or env.debug()):
-                print "  debug: clear_redo_stack finished; removed %d entries from self.stored_ops" % (savings,) ###k bug if 0
+                print "  debug: clear_redo_stack finished; removed %d entries from self.stored_ops" % (savings,) ###k bug if 0 (always is)
         else:
-            if env.debug():
+            if 0 and env.debug():
                 print "debug: clear_redo_stack found nothing to destroy"
         return
     

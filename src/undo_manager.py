@@ -407,28 +407,33 @@ register_debug_menu_command_maker( "undo_cmds", undo_cmds_maker)
 
 # Undo-related main menu commands other than Undo/Redo themselves
 
-_AutoCheckpointing_enabled = True
-    #e this might be revised to look at env.prefs sometime during app startup,
-    # and to call editAutoCheckpointing (or some part of it) with the proper initial state;
-    # the current code is designed, internally, for checkpointing to be enabled except
-    # for certain intervals, so we might start out True and set this to False when
-    # an undo_manager is created... we'll see; maybe it won't even (or mainly or only) be a global? [060309]
+try:
+    _AutoCheckpointing_enabled # on reload, use old value unchanged (since we often reload automatically during debugging)
+except:
+    _AutoCheckpointing_enabled = True
+        #e this might be revised to look at env.prefs sometime during app startup,
+        # and to call editAutoCheckpointing (or some part of it) with the proper initial state;
+        # the current code is designed, internally, for checkpointing to be enabled except
+        # for certain intervals, so we might start out True and set this to False when
+        # an undo_manager is created... we'll see; maybe it won't even (or mainly or only) be a global? [060309]
 
 def editMakeCheckpoint():
     '''This is called from MWsemantics.editMakeCheckpoint, which is documented as
     "Slot for making a checkpoint (only available when Automatic Checkpointing is disabled)."
     '''
-    env.history.message("Make Checkpoint: Not fully implemented yet; using experimental implem.")
+    hmsg = greenmsg("Make Checkpoint")
+    if True:#####@@@@@
+        hmsg += orangemsg(" [not yet fully implemented]")
+    env.history.message( hmsg) 
     # do it
     try:
-        ##e Make sure this can be called with or without auto-checkpointing enabled, and leaves that setting unchanged.
-        # this is not urgent since in present UI it can't be called except when auto-checkpointing is disabled.
-        #####@@@@@
+        ###e Should make sure this is correct with or without auto-checkpointing enabled, and leaves that setting unchanged.
+        # (This is not urgent, since in present UI it can't be called except when auto-checkpointing is disabled.)
         um = env.mainwindow().assy.undo_manager
         if um:
             um.make_manual_checkpoint()
                  #k should win and/or assy be an argument instead?
-            env.history.message(greenmsg("Make Checkpoint"))
+            pass # no msg needed, was emitted above: ## env.history.message(greenmsg("Make Checkpoint"))
         else:
             env.history.message(redmsg("Make Checkpoint: error, no undo_manager")) # should never happen
     except:
@@ -449,11 +454,16 @@ def editAutoCheckpointing(enabled):
     if enabled:
         msg_short = "Autocheckpointing enabled"
         msg_long  = "Autocheckpointing enabled -- each operation will be undoable"
+        nimwarn = False
     else:
         msg_short = "Autocheckpointing disabled"
         msg_long  = "Autocheckpointing disabled -- only explicit Undo checkpoints are kept" #k length ok?
-    env.history.message(greenmsg(msg_short) + orangemsg(" [not yet fully implemented]")) #######@@@@@@@
+        nimwarn = True #######@@@@@@@
     env.history.statusbar_msg(msg_long)
+    hmsg = greenmsg(msg_short)
+    if nimwarn:
+        hmsg += orangemsg(" [not yet fully implemented]")
+    env.history.message( hmsg) 
     win.editMakeCheckpointAction.setVisible(not enabled)
     # Note: the reason this doesn't need to call something in assy.undo_manager is that it's called within a slot
     # in the mainwindow which is itself wrapped by a begin_checkpoint and end_checkpoint, one or the other of which
