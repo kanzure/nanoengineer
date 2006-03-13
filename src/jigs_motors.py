@@ -169,9 +169,9 @@ class Motor(Jig):
         item = ('Hide', self.Hide)
         menu_spec.append(item)
         if self.disabled_by_user_choice:
-            item = ('Disabled', self.enable, 'checked')
+            item = ('Disabled', self.toggleJigDisabled, 'checked')
         else:
-            item = ('Disable', self.disable, 'unchecked')
+            item = ('Disable', self.toggleJigDisabled, 'unchecked')
         menu_spec.append(item)
         menu_spec.append(None) # Separator
         item = ('Properties...', self.edit)
