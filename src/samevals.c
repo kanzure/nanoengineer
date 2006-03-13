@@ -113,6 +113,7 @@ static PyObject *
 setArrayType(PyObject *self, PyObject *args)
 {
     PyObject *v;
+    Py_XDECREF(arraytype);
     if (!PyArg_ParseTuple(args, "O", &v))
 	return NULL;
     arraytype = (PyTypeObject *) v;
@@ -120,6 +121,7 @@ setArrayType(PyObject *self, PyObject *args)
 	PyErr_SetString(PyExc_TypeError, "argument must be a type");
 	return NULL;
     }
+    Py_INCREF(arraytype);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -194,6 +196,7 @@ copy_val(PyObject *self, PyObject *args)
 static PyObject *
 setInstanceCopier(PyObject *self, PyObject *args)
 {
+    Py_XDECREF(instanceCopier);
     if (!PyArg_ParseTuple(args, "O", &instanceCopier))
 	return NULL;
     if (!PyCallable_Check(instanceCopier)) {
@@ -208,6 +211,7 @@ setInstanceCopier(PyObject *self, PyObject *args)
 static PyObject *
 setArrayCopier(PyObject *self, PyObject *args)
 {
+    Py_XDECREF(arrayCopier);
     if (!PyArg_ParseTuple(args, "O", &arrayCopier))
 	return NULL;
     if (!PyCallable_Check(arrayCopier)) {
