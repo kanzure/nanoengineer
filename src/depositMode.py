@@ -1887,18 +1887,20 @@ class depositMode(selectAtomsMode):
                     text = 'Add bondpoints' # this text is only used if it doesn't have enough
                 self.Menu_spec.append(( text, selatom.remake_singlets )) #e should finish and use remake_baggage (and baggageNeighbors)
         
-        # Jig specific menu items.
+        # Jig specific menu items.  This is duplicated in selectMode.makeMenus().
         if selobj is not None and isinstance(selobj, Jig):
-            name = selobj.name
-            item = ('%r Properties...' % name, selobj.edit)
-            self.Menu_spec.append(item)
-            item = ('Hide %r' % name, selobj.Hide)
-            self.Menu_spec.append(item)
+            selobj.make_selobj_cmenu_items(self.Menu_spec)
             
+        # separator and other mode menu items.
+        if self.Menu_spec:
+            self.Menu_spec.append(None)
+        
+        # Enable/Disable Jig Selection.  
+        # This is duplicated in selectMode.makeMenus() and selectMolsMode.makeMenus().
         if self.o.jigSelectionEnabled:
-            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'checked')])
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'checked')])
         else:
-            self.Menu_spec.extend( [('Enable Jig Selection',  self.set_JigSelectionEnabled, 'unchecked')])
+            self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'unchecked')])
             
         self.Menu_spec.extend( [
             # mark 060303. added the following:

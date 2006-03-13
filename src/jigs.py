@@ -131,6 +131,8 @@ class Jig(Node):
     def draw_in_abs_coords(self, glpane, color):
         '''Draws the jig in the highlighted way.
         '''
+        if self.hidden:
+            return
         self._draw_jig(glpane, color, 1)
         
     def _draw_jig(self, glpane, color, highlighted=False):
@@ -140,8 +142,6 @@ class Jig(Node):
         simply draw wireframe boxes around each of the jig's atoms.
         For a good example, see the MeasureAngle._draw_jig().
         '''
-        if self.hidden:
-            return
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
@@ -611,8 +611,26 @@ class Jig(Node):
         self.cntl.setup()
         self.cntl.exec_loop()
         
+    def disable(self):
+        self.set_disabled_by_user_choice(True)
+        self.assy.w.win_update()
+        
+    def enable(self):
+        self.set_disabled_by_user_choice(False)
+        self.assy.w.win_update()
+        
     def mouseover_statusbar_message(self): # Fixes bug 1642. mark 060312
         return self.name
+        
+    def make_selobj_cmenu_items(self, menu_spec):
+        '''Add jig specific context menu items to <menu_spec> list when self is the selobj.
+        This method should be overridden by subclasses that want to add more/different
+        menu items. For a good example, see the Motor.make_selobj_cmenu_items().
+        '''
+        item = ('Hide', self.Hide)
+        menu_spec.append(item)
+        item = ('Properties...', self.edit)
+        menu_spec.append(item)
 
     #e there might be other common methods to pull into here
 

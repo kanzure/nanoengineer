@@ -487,6 +487,20 @@ class ESPImage(RectGadget):
         
         self.assy.o.setMode('SELECTATOMS')        
         Jig.edit(self)
+        
+    def make_selobj_cmenu_items(self, menu_spec):
+        '''Add ESP Image specific context menu items to <menu_spec> list when self is the selobj.
+        Currently not working since ESP Image jigs do not get highlighted. mark 060312.
+        '''
+        item = ('Hide', self.Hide)
+        menu_spec.append(item)
+        menu_spec.append(None) # Separator
+        item = ('Properties...', self.edit)
+        menu_spec.append(item)
+        item = ('Calculate ESP', self.__CM_Calculate_ESP)
+        menu_spec.append(item)
+        item = ('Load ESP Image', self.__CM_Load_ESP_Image)
+        menu_spec.append(item)
 
         
     def writepov(self, file, dispdef):
