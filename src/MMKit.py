@@ -44,9 +44,25 @@ class MMKit(MMKitDialog):
         
         self.flayout = None
         
-        if sys.platform == 'darwin': 
+        if sys.platform == 'darwin': # inlined platform.is_macintosh()
             # Work around for bug 1659. Sometimes the program crashes on MacOS when
             # setting tab icons in the MMKit's tabwidget. mark 060310.
+            #bruce 060313 isolating Mac-specificness into self.icon_tabs and letting a debug_pref override it.
+            dflt_icon_tabs = False # for fear of bug 1659, though so far it only affects one specific machine
+        else:
+            dflt_icon_tabs = True # what we really want on all platforms, if not for bug 1659
+        
+        from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
+        if dflt_icon_tabs:
+            choice = Choice_boolean_True
+        else:
+            choice = Choice_boolean_False
+        self.icon_tabs = debug_pref("use icons in MMKit tabs?", choice, prefs_key = "A7/MMKit tab icons")
+            #e Changes to this only take effect in the next session.
+            # Ideally we'd add a history message about that, when this is changed.
+            # (It's not yet easy to do that in a supported way in debug_pref.) [bruce 060313]
+
+        if not self.icon_tabs:
             self.mmkit_tab.setMargin ( 0 ) 
             self.mmkit_tab.setTabLabel (self.atomsPage, 'Atoms')
             self.mmkit_tab.setTabLabel (self.clipboardPage, 'Clipbd')
@@ -57,7 +73,7 @@ class MMKit(MMKitDialog):
             self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
         
             clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
-            self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm))
+            self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm)) # (modified in another method below)
         
             library_pm = imagename_to_pixmap("library.png")
             self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
@@ -296,9 +312,12 @@ class MMKit(MMKitDialog):
         
     
     def update_clipboard_items(self):
-        '''Updates the items in the clipboard's listview. '''
-        self._clipboardPageView()
-    
+        '''Updates the items in the clipboard's listview, if the clipboard is currently shown. '''
+        if self.currentPageOpen(ClipboardPage): #bruce 060313 added this condition to fix bugs 1631, 1669, and MMKit part of 1627
+            self._clipboardPageView() # includes self.update_clipboard_page_icon()
+        else:
+            self.update_clipboard_page_icon() # do this part of it, even if page not shown
+        return
         
     def partChanged(self, item):
         '''Slot method, called when user changed the partlib brower tree'''
@@ -356,6 +375,13 @@ class MMKit(MMKitDialog):
     
     def _clipboardPageView(self):
         '''Updates the clipboard page. '''
+        if not self.currentPageOpen(ClipboardPage):
+            # (old code permitted this to be false below in 'if len(list):',
+            #  but failed to check for it in the 'else' clause,
+            #  thus causing bug 1627 [I think], now fixed in our caller)
+            print "bug: _clipboardPageView called when not self.currentPageOpen(ClipboardPage)" #bruce 060313
+            return
+        
         self.pastableItems = self.w.assy.shelf.get_pastable_chunks()
         
         list = QStringList()
@@ -371,6 +397,7 @@ class MMKit(MMKitDialog):
                 # setSelected() causes the clipboard page to be displayed when we don't want it to
                 # be displayed (i.e. pressing Control+C to copy something to the clipboard).
                 self.chunkListBox.setSelected(i, True)
+            #bruce 060313 question: why don't we now have to pass the selected chunk to self.elemGLPane.updateModel? ###@@@
         else:
             self.elemGLPane.updateModel(None)
         self.update_clipboard_page_icon()
@@ -379,8 +406,8 @@ class MMKit(MMKitDialog):
     def update_clipboard_page_icon(self):
         '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon.
         '''
-        if sys.platform == 'darwin': 
-            # Work around for bug 1659. mark 060310
+        if not self.icon_tabs:
+            # Work around for bug 1659. mark 060310 [revised by bruce 060313]
             return
             
         if self.w.assy.shelf.get_pastable_chunks():
