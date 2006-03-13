@@ -166,9 +166,15 @@ def createWhatsThis(self):
         
         editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)</b></p><br> "\
                        "<p><img source=\"editPaste\"><br> "\
-                       "When selecting this feature, you are placed in "\
-                       "<b>Build Atom</b> mode where you may paste copies "\
-                       "of clipboard objects into the model where ever you click."\
+                       "<b>Paste</b> places the user in <b>Build</b> mode where copied chunks on "\
+                       "the clipboard can be pasted into the model by double clicking in empty space. "\
+                       "If the current clipboard chunk has a <b><i>hotspot</i></b>, it can be bonded to "\
+                       "another chunk by single clicking on one of the chunk's bondpoints."\
+                       "</p>"\
+                       "<p>A <b><i>Hotspot</i></b> is a green bondpoint on a clipboard chunk indicating "\
+                       "it will be the active bondpoint which will connect to another chunk's bondpoint. "\
+                       "To specify a hotspot on the clipboard chunk, click on one of its bondpoints in the "\
+                       "<b><i>MMKit's Thumbview</i></b>."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editPaste",
