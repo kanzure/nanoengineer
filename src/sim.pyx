@@ -259,15 +259,14 @@ def setErrorString(str):
     errString = str
 
 def getEquilibriumDistanceForBond(element1, element2, order):
-    # There's probably an easier way to do all this type conversion... [bruce 060313]
+    # element1 and element2 are python ints
+    # order is a python string
     cdef int int_el1, int_el2
-    cdef char ch_order
+    cdef char *c_order
     int_el1 = element1
     int_el2 = element2
-    ## ch_order = order[0] # assume order is a Python string # TypeError: an integer is required
-    ## print "type(order)", type(order) # <type 'str'>
-    ch_order = ord(order[0])
-    return getBondEquilibriumDistance(int_el1, int_el2, ch_order)
+    c_order = order
+    return getBondEquilibriumDistance(int_el1, int_el2, c_order[0])
 
 #####################################################
 # Per-frame callbacks to Python, wware 060101
