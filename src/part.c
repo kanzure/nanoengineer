@@ -913,7 +913,6 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.momentOfInertia *= 11.0;
     if (j->j.rmotor.momentOfInertia < MIN_MOMENT)
 	j->j.rmotor.momentOfInertia = MIN_MOMENT;
-    fprintf(stderr, "MOI %.6e\n", j->j.rmotor.momentOfInertia);
     j->j.rmotor.theta = 0.0;
     j->j.rmotor.omega = 0.0;
     return j;
