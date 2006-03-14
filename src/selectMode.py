@@ -900,7 +900,7 @@ class selectMode(basicMode):
                 nochange = True
             
         elif self.o.modkeys == 'Shift+Control':
-            env.history.message("deleted %r" % j)
+            env.history.message("deleted %r" % j.name) #fixed bug 1641. mark 060314.
             for a in j.atoms[:]:
                 # Build list of deleted jig's atoms before they are lost.
                 self.atoms_of_last_deleted_jig.append(a)
