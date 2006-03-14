@@ -445,6 +445,7 @@ class Movie:
         self.isOpen = True
 
         self.totalFramesActual = self.alist_and_moviefile.get_totalFramesActual() # needed for dashboard controls
+        self.currentFrame = self.totalFramesActual   # wware 060314
         self.natoms = len(self.alist) # needed for _info
 
         self.update_dashboard_frame_controls() #bruce 050427 split this out
