@@ -31,7 +31,7 @@ History:
 
 - bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
   (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
-  Movitation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+  Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
 
 '''
 __author__ = "Josh"
@@ -253,19 +253,22 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     #e we might want to add type decls for the bulky data (including the objrefs above), so it can be stored in compact arrays:
     _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
-    _s_attr_index = S_DATA
-        # this is only valid since chunk's atom order is deterministic; it might be useless due to chunk._undo_update;
-        # but if we don't save it, we have to either reset it to -1 in _undo_update and recompute it before using it (nim),
-        # or reset it to an accurate value there, or make sure our chunk has no atlist so it will recompute and reset it itself.
-        # We should probably do all that (or eliminate the need for .index), as an optim of undo scanning speed and archive size
-        # (useful even after that's done in Pyrex). [bruce 060308 comment]
+
+    # storing .index as Undo state is no longer needed [bruce 060313]
+##    _s_attr_index = S_DATA
+##        # this is only valid since chunk's atom order is deterministic; it might be useless due to chunk._undo_update;
+##        # but if we don't save it, we have to either reset it to -1 in _undo_update and recompute it before using it (nim),
+##        # or reset it to an accurate value there, or make sure our chunk has no atlist so it will recompute and reset it itself.
+##        # We should probably do all that (or eliminate the need for .index), as an optim of undo scanning speed and archive size
+##        # (useful even after that's done in Pyrex). [bruce 060308 comment]
+
 ##    _s_attr_xyz = S_DATA
     _s_attr__posn = S_DATA #bruce 060308 rewrite
     _s_attr_element = S_DATA
 
     # we'll want an "optional" decl on the following, so they're reset to class attr (or unset) when they equal it:
     _s_attr_picked = S_DATA
-    _s_categorize_picked = 'selection'
+    _s_categorize_picked = 'selection' ##k this is noticed and stored, but I don't think it yet has any effect (??) [bruce 060313]
     _s_attr_display = S_DATA
     _s_attr_info = S_DATA
     _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
@@ -530,6 +533,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         basepos = mol.__dict__.get('basepos') #bruce 050513
         if basepos is not None: ##[bruce 060308 zapped:]## and self.xyz == 'no': #bruce 050516 bugfix: fix sense of comparison to 'no'
             return basepos[self.index]
+                # note: since mol.basepos exists, mol.atlist does, so self.index is a valid index into both of them
+                # [bruce 060313 comment]
         # fallback to slower code from 041201:
         return mol.quat.unrot(self.posn() - mol.basecenter)
 

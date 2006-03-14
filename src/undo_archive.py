@@ -1170,27 +1170,28 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
             # was only for begin and end cp's (but was active even if undo autocp pref was off).
 
-        if 1: #060309 update on this: we might still need it for now (even with Atom._posn, no curpos) since we store Atom.index.
-            #060301 added this as a debug_pref (dflt True), 060302 made it 'if 1'; it didn't fix any specific known bugs,
-            # but it seems clearly needed in principle, and maybe not doing it caused the seeming out of sync behavior
-            # (steps to repeat not recorded except maybe in my history files) after several undo/redo sequences of pulling singlets
-            # (or maybe that was another manifestation of the singlet pulling bug fixed by Numeric '==' -> '!=').
-            #
-            # [060311 11:18pm PST comment:]
-            # BUG IN THIS: only covers mols in the current Part. Should either fix this, or remove the whole thing!!! #####@@@@@
-            # (Fixing it would have fixed or hidden bug 1661 (depending on your point of view of what was the true bug there).
-            # Guess: it ought to be removed, and we ought to not store .index at all; I vaguely recall some problem with that idea,
-            # perhaps commented on in chem.py, and also perhaps a need for Atom.baseposn to check for index == -1, and a worry about
-            # Undo resetting index but not the arrays, etc... I'm a bit too tired to work out the right thing to do right now,
-            # so I'll just commit this comment and not change anything for now. Guess: don't store index, recompute it after Undo,
-            # using new fast code that does nothing else (look at atoms dict, sort, etc). Maybe split atlist/atpos updaters?
-            for mol in self.assy.molecules:
-##                if not mol.__dict__.has_key('atpos') and env.debug():
-##                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
-                mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
-                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms;
-                # I won't change that for now [060302] in case we scan dead atoms too.)
-            pass
+        #bruce 060313: we no longer need to update mol.atpos for every chunk. See comments in chunk.py docstring about atom.index.
+##        if 1: #060309 update on this: we might still need it for now (even with Atom._posn, no curpos) since we store Atom.index.
+##            #060301 added this as a debug_pref (dflt True), 060302 made it 'if 1'; it didn't fix any specific known bugs,
+##            # but it seems clearly needed in principle, and maybe not doing it caused the seeming out of sync behavior
+##            # (steps to repeat not recorded except maybe in my history files) after several undo/redo sequences of pulling singlets
+##            # (or maybe that was another manifestation of the singlet pulling bug fixed by Numeric '==' -> '!=').
+##            #
+##            # [060311 11:18pm PST comment:]
+##            # BUG IN THIS: only covers mols in the current Part. Should either fix this, or remove the whole thing!!! ##@@
+##            # (Fixing it would have fixed or hidden bug 1661 (depending on your point of view of what was the true bug there).
+##            # Guess: it ought to be removed, and we ought to not store .index at all; I vaguely recall some problem with that idea,
+##            # perhaps commented on in chem.py, and also perhaps a need for Atom.baseposn to check for index == -1, and a worry about
+##            # Undo resetting index but not the arrays, etc... I'm a bit too tired to work out the right thing to do right now,
+##            # so I'll just commit this comment and not change anything for now. Guess: don't store index, recompute it after Undo,
+##            # using new fast code that does nothing else (look at atoms dict, sort, etc). Maybe split atlist/atpos updaters?
+##            for mol in self.assy.molecules:
+####                if not mol.__dict__.has_key('atpos') and env.debug():
+####                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
+##                mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
+##                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms;
+##                # I won't change that for now [060302] in case we scan dead atoms too.)
+##            pass
         return
     
     def checkpoint(self, cptype = None, cmdname_for_debug = "", merge_with_future = False ): # called from undo_manager

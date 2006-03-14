@@ -21,7 +21,15 @@ History:
   Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
 
 - bruce 060313 splitting _recompute_atlist out of _recompute_atpos, and planning to remove atom.index from
-  undoable state or to remove it entirely
+  undoable state. Rules for atom.index (old, reviewed now and reconfirmed): owned by atom.molecule; value doesn't matter
+  unless atom.molecule and its .atlist exist (but is set to -1 otherwise when this is convenient, to help catch bugs);
+  must be correct whenever atom.molecule.atlist exists (and is reset when it's made); correct means it's an index for
+  that atom into .atlist, .atpos, .basepos, whichever of those exist at the time (atlist always does).
+  This means a chunk's addatom, delatom, and _undo_update need to invalidate its .atlist,
+  and means there's no need to store atom.index as undoable state (making diffs more compact),
+  or to update a chunk's .atpos (or even .atlist) when making an undo checkpoint.
+
+  (It would be nice for Undo to not store copies of changed .atoms dicts of chunks too, but that's harder. ###e)
   
 '''
 __author__ = "Josh"
@@ -108,6 +116,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         (This is called when Undo has set some of our attributes, using setattr,
         in case we need to invalidate or update anything due to that.
         """
+        # One thing we know is required: if self.atoms changes, invalidate self.atlist.
+        # This permits us to not store atom.index as undoable state, and to not update self.atpos before undo checkpoints.
+        # [bruce 060313]
         self.invalidate_atom_lists() # this is the least we need (in general), but doesn't cover atom posns I think
         self.invalidate_everything() # this is probably overkill, but otoh i don't even know for sure it covers invalidate_atom_lists
         self._colorfunc = None; del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
@@ -374,6 +385,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             need = 1
         try:
             del self.atlist
+                # this is what makes it ok for atom indices to be invalid, as they are when self.atoms changes,
+                # until self.atlist is next recomputed [bruce 060313 comment]
         except:
             pass
         else:
@@ -1247,18 +1260,17 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             bon.setup_invalidate()
         return
 
-    def set_atom_posns_from_atpos(self, atpos): #bruce 060308
+    def set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
         """Set our atom's positions en masse from the given array, doing no chunk or bond invals
         (caller must do whichever invals are needed, which depends on how the positions changed).
-        The array must be in the same order as self.atpos (its typical value) and self.atlist.
+        The array must be in the same order as self.atpos (its typical value, but we won't depend
+        on that and won't access or modify self.atpos) and self.atlist (which must already exist).
         """
-        # don't assume atlist is present -- therefore don't ask for it
-        # for fear of recomputing it and trashing atpos!
-        # (maybe it is always present, and we could simplify/optimize this #k)
-        for atom in self.atoms.itervalues():
-            ind = atom.index #bruce 060311 comment: logic bug: if .index is valid, self.atlist must also exist and be valid. ####@@@@ 
-            ## assert ind != -1 # implied by the following
-            atom._setposn_no_chunk_or_bond_invals( atpos[ind] )
+        assert self.__dict__.has_key('atlist')
+        atlist = self.atlist
+        assert len(atlist) == len(atpos)
+        for i in xrange(len(atlist)):
+            atlist[i]._setposn_no_chunk_or_bond_invals( atpos[i] )
         return
     
     def base_to_abs(self, anything): # bruce 041115
