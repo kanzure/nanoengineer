@@ -195,12 +195,12 @@ def get_default_nh_path():
     '''
     if sys.platform == "win32": # Windows
         nh_path = "C:\Program Files\Nano-Hive\\bin\win32-x86\NanoHive.exe"
-        if not os.path.exists(nh_path):
-            nh_path = ""
     elif sys.platform == "darwin": # MacOS
-        nh_path = "" # Need to confirm the default path for MacOS.
+        nh_path = "/usr/local/bin/NanoHive"
     else: # Linux
-        nh_path = "" # Need to confirm the default path for Linux.
+        nh_path = "/usr/local/bin/NanoHive"
+    if not os.path.exists(nh_path):
+        return ""
     return nh_path
 
 def activate_nh_plugin(win):
