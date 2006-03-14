@@ -328,7 +328,7 @@ class depositMode(selectAtomsMode):
         self.line = None
             # endpoints of the white line drawn between the cursor and a bondpoint when 
             # dragging a singlet.
-        self.suppress_updates = False
+        self.transdepositing = False
             # used to suppress multiple win_updates and history msgs when trans-depositing.
     
     def init_gui(self):
@@ -955,15 +955,20 @@ class depositMode(selectAtomsMode):
         if self.o.modkeys is None:
             self.o.modkeys = 'Shift'
                 # needed to maintain selection consistency when no modifier key is pressed.
-        self.suppress_updates = True
+        self.transdepositing = True
         nobjs=0
         for s in singlet_list[:]: # singlet_list built in singletSetup()
             if not s.killed(): # takes care of self.obj_doubleclicked, too.
                 deposited_obj = self.deposit_from_MMKit(s)
                 nobjs += 1
-        self.suppress_updates = False
+        self.transdepositing = False
         self.o.modkeys = modkeys # restore the modkeys state to real state.
         
+        if deposited_obj is None: 
+            # Let user know nothing was trandeposited. Fixes bug 1678. mark 060314.
+            env.history.message('Nothing Transdeposited')
+            return
+            
         self.set_cmdname('Transdeposit ' + deposited_obj)
         deposited_obj += '(s)'
         
@@ -1030,9 +1035,16 @@ class depositMode(selectAtomsMode):
         which is either an atom, a chunk on the clipboard, or a part from the library.
         If 'atom_or_pos' is a singlet, then it will bond the object to that singlet if it can.
         If 'atom_or_pos' is a position, then it will deposit the object at that coordinate.
+        Return string <deposited_obj>, where:
+            'Atoms' - an atom from the Atoms page was deposited.
+            'Chunk' - a chunk from the Clipboard page was deposited.
+            'Part' - a library part from the Library page was deposited.
         '''
         
-        deposited_obj = None
+        deposited_obj = None 
+            #& deposited_obj is probably misnamed, since it is a string, not an object.  
+            #& Would be nice if this could be an object. Problem is that clipboard and library
+            #& both deposit chunks. mark 060314.
         
         if self.o.modkeys is None: # no Shift or Ctrl modifier key.
             self.o.assy.unpickatoms() # Clear selection.
@@ -1070,7 +1082,10 @@ class depositMode(selectAtomsMode):
 ##        # Ninad is reopening bug 229 and assigning it to me.  This comment is in 2 places. Mark 051214.
 ##        if not library_part_deposited:  ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it, added a different one]
 
-        if self.suppress_updates:
+        if self.transdepositing:
+            if not deposited_stuff:
+                # Nothing was transdeposited.  Needed to fix bug 1678. mark 060314.
+                return None
             return deposited_obj
         
         if deposited_stuff:
