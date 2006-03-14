@@ -4275,12 +4275,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_always_save_win_pos_and_size()</slot>
     </connection>
     <connection>
-        <sender>animate_views_checkbox</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_animate_standard_views()</slot>
-    </connection>
-    <connection>
         <sender>animation_speed_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4341,6 +4335,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>set_buildmode_highlighting()</slot>
     </connection>
     <connection>
+        <sender>buildmode_select_atoms_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
+    </connection>
+    <connection>
         <sender>caption_fullpath_checkbox</sender>
         <signal>stateChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4377,6 +4377,18 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_cpk_cylinder_radius()</slot>
     </connection>
     <connection>
+        <sender>cpk_scale_factor_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_cpk_scale_factor()</slot>
+    </connection>
+    <connection>
+        <sender>cpk_scale_factor_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_cpk_scale_factor()</slot>
+    </connection>
+    <connection>
         <sender>default_display_btngrp</sender>
         <signal>clicked(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4387,6 +4399,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_default_mode()</slot>
+    </connection>
+    <connection>
+        <sender>default_projection_btngrp</sender>
+        <signal>clicked(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_default_projection()</slot>
     </connection>
     <connection>
         <sender>display_compass_checkbox</sender>
@@ -4498,15 +4516,15 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     </connection>
     <connection>
         <sender>light_specularity_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -4540,6 +4558,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     </connection>
     <connection>
         <sender>ms_brightness_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_brightness_stop()</slot>
@@ -4551,10 +4575,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_material_brightness_start()</slot>
     </connection>
     <connection>
-        <sender>ms_brightness_slider</sender>
+        <sender>ms_finish_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness()</slot>
+        <slot>change_material_finish()</slot>
     </connection>
     <connection>
         <sender>ms_finish_slider</sender>
@@ -4567,12 +4591,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <signal>sliderPressed()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_finish_start()</slot>
-    </connection>
-    <connection>
-        <sender>ms_finish_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_finish()</slot>
     </connection>
     <connection>
         <sender>ms_on_checkbox</sender>
@@ -4635,6 +4653,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>reset_bond_colors()</slot>
     </connection>
     <connection>
+        <sender>reset_cpk_scale_factor_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>reset_cpk_scale_factor()</slot>
+    </connection>
+    <connection>
         <sender>restore_bgcolor_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4645,6 +4669,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_current_win_pos_and_size()</slot>
+    </connection>
+    <connection>
+        <sender>selatomsmode_highlighting_checkbox</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_selatomsmode_highlighting()</slot>
     </connection>
     <connection>
         <sender>show_bond_labels_checkbox</sender>
@@ -4665,52 +4695,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_startup_mode()</slot>
     </connection>
     <connection>
-        <sender>watch_min_in_realtime_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_realtime_minimization()</slot>
-    </connection>
-    <connection>
         <sender>water_checkbox</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>set_buildmode_water()</slot>
-    </connection>
-    <connection>
-        <sender>selatomsmode_highlighting_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_selatomsmode_highlighting()</slot>
-    </connection>
-    <connection>
-        <sender>default_projection_btngrp</sender>
-        <signal>clicked(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_default_projection()</slot>
-    </connection>
-    <connection>
-        <sender>buildmode_select_atoms_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
-    </connection>
-    <connection>
-        <sender>cpk_scale_factor_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_cpk_scale_factor()</slot>
-    </connection>
-    <connection>
-        <sender>cpk_scale_factor_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_cpk_scale_factor()</slot>
-    </connection>
-    <connection>
-        <sender>reset_cpk_scale_factor_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>reset_cpk_scale_factor()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -4804,7 +4792,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>enable_nanohive()</slot>
     <slot>change_cpk_atom_radius()</slot>
     <slot>change_cpk_cylinder_radius()</slot>
-    <slot>change_animate_standard_views()</slot>
     <slot>reset_lighting()</slot>
     <slot>restore_default_lighting()</slot>
     <slot>change_lighting()</slot>
@@ -4833,7 +4820,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_bondpoint_hilite_color()</slot>
     <slot>change_level_of_detail()</slot>
     <slot>change_display_mode()</slot>
-    <slot>set_realtime_minimization()</slot>
     <slot>set_selatomsmode_highlighting()</slot>
     <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     <slot>change_cpk_scale_factor()</slot>

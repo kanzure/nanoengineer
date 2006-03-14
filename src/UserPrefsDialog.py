@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Mar 14 09:58:47 2006
+# Created: Tue Mar 14 18:40:12 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1270,7 +1270,6 @@ class UserPrefsDialog(QDialog):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.always_save_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_always_save_win_pos_and_size)
-        self.connect(self.animate_views_checkbox,SIGNAL("stateChanged(int)"),self.change_animate_standard_views)
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
         self.connect(self.autobond_checkbox,SIGNAL("clicked()"),self.set_buildmode_autobond)
@@ -1281,14 +1280,18 @@ class UserPrefsDialog(QDialog):
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
         self.connect(self.buildmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_buildmode_highlighting)
+        self.connect(self.buildmode_select_atoms_checkbox,SIGNAL("clicked()"),self.set_buildmode_select_atoms_of_deposited_obj)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
         self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_atom_radius)
         self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_cylinder_radius)
+        self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
+        self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
         self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
+        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.display_mode_combox,SIGNAL("activated(int)"),self.change_display_mode)
         self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
@@ -1307,19 +1310,19 @@ class UserPrefsDialog(QDialog):
         self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
+        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
-        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
+        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
         self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
         self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
-        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
         self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
@@ -1330,19 +1333,14 @@ class UserPrefsDialog(QDialog):
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
+        self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
+        self.connect(self.selatomsmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_selatomsmode_highlighting)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
-        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("clicked()"),self.set_realtime_minimization)
         self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
-        self.connect(self.selatomsmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_selatomsmode_highlighting)
-        self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
-        self.connect(self.buildmode_select_atoms_checkbox,SIGNAL("clicked()"),self.set_buildmode_select_atoms_of_deposited_obj)
-        self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
-        self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
-        self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1803,9 +1801,6 @@ class UserPrefsDialog(QDialog):
     def change_cpk_cylinder_radius(self):
         print "UserPrefsDialog.change_cpk_cylinder_radius(): Not implemented yet"
 
-    def change_animate_standard_views(self):
-        print "UserPrefsDialog.change_animate_standard_views(): Not implemented yet"
-
     def reset_lighting(self):
         print "UserPrefsDialog.reset_lighting(): Not implemented yet"
 
@@ -1889,9 +1884,6 @@ class UserPrefsDialog(QDialog):
 
     def change_display_mode(self):
         print "UserPrefsDialog.change_display_mode(): Not implemented yet"
-
-    def set_realtime_minimization(self):
-        print "UserPrefsDialog.set_realtime_minimization(): Not implemented yet"
 
     def set_selatomsmode_highlighting(self):
         print "UserPrefsDialog.set_selatomsmode_highlighting(): Not implemented yet"

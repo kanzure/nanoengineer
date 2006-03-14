@@ -177,8 +177,8 @@ class UserPrefs(UserPrefsDialog):
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
-        self.animate_views_checkbox.setChecked(env.prefs[animateStandardViews_prefs_key])
-        self.watch_min_in_realtime_checkbox.setChecked(env.prefs[watchRealtimeMinimization_prefs_key])
+        connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
+        connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, watchRealtimeMinimization_prefs_key )
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed) 
@@ -546,32 +546,6 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
         
-    def set_selection_behavior_OBSOLETE(self, behavior): # Tagged for removal.  Mark 060304.
-        '''Set selection behavior, where 1 = 'Standard Behavior' and 0 = 'Non-standard Behavior'
-        
-        'Standard Behavior' means:
-            Left mouse button (LMB): Makes a new selection, unselecting everything that was previously selected. 
-               A click in empty space unselects everything.
-            Shift+LMB: adds to the current selection, keeping everything that was previously selected
-            Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
-            
-        'Non-standard Behavior' means:
-            Left mouse button (LMB): Adds to the current selection, keeping everything that was previously selected.
-               A click in empty space unselects everything.
-            Shift+LMB: adds to the current selection, keeping everything that was previously selected
-            Ctrl/Cmd+LMB: removes from the current selection, keeping everything else that was previously selected
-            
-        This is no longer supported.  Mark 060304.
-        '''
-        env.prefs[selectionBehavior_prefs_key] = behavior
-        
-        
-    def change_animate_standard_views(self, val):
-        '''Enable/disable animation of standard views.
-        '''
-        # set the pref
-        env.prefs[animateStandardViews_prefs_key] = val
-        
     def change_view_animation_speed(self):
         '''Sets the view animation speed between .25 (fast) and 3.0 (slow) seconds.
         '''
@@ -581,11 +555,6 @@ class UserPrefs(UserPrefsDialog):
         # change minValue to -400.  mark 060124.
         env.prefs[animateMaximumTime_prefs_key] = \
             self.animation_speed_slider.value() / -100.0
-            
-    def set_realtime_minimization(self):
-        '''Slot for the Minimization "Watch in Realtime" checkbox.
-        '''
-        env.prefs[watchRealtimeMinimization_prefs_key] = self.watch_min_in_realtime_checkbox.isChecked()
         
     ########## End of slot methods for "General" page widgets ###########
     
@@ -1149,7 +1118,11 @@ class UserPrefs(UserPrefsDialog):
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
 
     def change_always_save_win_pos_and_size(self, state): #bruce 051218 ##k args
-        print "change_always_save_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
+        #& print "change_always_save_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
+        # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
+        msg = "Always Save Window Position and Size is not implemented yet."
+        from HistoryWidget import orangemsg
+        env.history.message(orangemsg(msg))
         #e implem notes:
         # needs a prefs key for this checkbox (what's the default?) and to grab it into widget when this page is inited
         # need to catch signals from pos/size changes
