@@ -357,7 +357,14 @@ class RotaryMotor(Motor):
     
     def _draw_jig(self, glpane, color, highlighted=False):
         '''Draw a Rotary Motor jig as a cylinder along the axis, with a thin cylinder (spoke) to each atom.
+        If <highlighted> is True, the Rotary Motor is draw slightly larger.
         '''
+        
+        if highlighted:
+            inc = 0.01 # tested.  Fixes bug 1681. mark 060314.
+        else:
+            inc = 0.0
+            
         glPushMatrix()
         try:
             glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -366,11 +373,11 @@ class RotaryMotor(Motor):
             
             orig_center = V(0.0, 0.0, 0.0)
             
-            bCenter = orig_center - (self.length / 2.0) * self.axis
-            tCenter = orig_center + (self.length / 2.0) * self.axis
-            drawcylinder(color, bCenter, tCenter, self.radius, 1 )
+            bCenter = orig_center - (self.length / 2.0 + inc) * self.axis
+            tCenter = orig_center + (self.length / 2.0 + inc) * self.axis
+            drawcylinder(color, bCenter, tCenter, self.radius + inc, 1 )
             for a in self.atoms:
-                drawcylinder(color, orig_center, a.posn()-self.center, self.sradius)
+                drawcylinder(color, orig_center, a.posn()-self.center, self.sradius + inc)
             rotby = self.getrotation() #bruce 050518
                 # if exception in getrotation, just don't draw the rotation sign
                 # (safest now that people might believe what it shows about amount of rotation)
@@ -529,15 +536,27 @@ class LinearMotor(Motor):
             
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
     # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)
+    # lmotor(<corner-point1>, <corner-point2>, <rotate>, <translate>, <r, g, b>) - new version (NIY). mark 060314.
     # spoke(<cap-point>, <base-point>, sbox-radius, <r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
         if self.is_disabled(): return #bruce 050421
         c = self.posn()
         a = self.axen()
+        
+        #& This is broke (see bug 957). mark 060314.
         file.write("lmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + 
                     povpoint(c-(self.length / 2.0)*a)  + "," + str (self.width / 2.0) + 
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+
+        #& New lmotor POV-Ray macro to fix bug 957. Working except for <rotate> field.
+        #&file.write("lmotor(" \
+            #&+ povpoint([self.length *  0.5, self.width *  0.5, self.width *  0.5]) + "," \
+            #&+ povpoint([self.length * -0.5, self.width * -0.5, self.width * -0.5]) + "," \
+            #&+ povpoint([a[0]*90.0, a[2]*90.0, a[1]*90.0]) + "," \
+            #&+ povpoint(c) + "," \
+            #&+ "<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+                    
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn())  + "," + str (self.sradius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
