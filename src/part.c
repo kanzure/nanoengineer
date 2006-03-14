@@ -837,6 +837,10 @@ makeThermostat(struct part *p, char *name, double temperature, int firstAtomID, 
     jigAtomRange(p, j, firstAtomID, lastAtomID);
 }
 
+// Empirically it looks like you don't want to go with a smaller
+// flywheel than this.
+#define MIN_MOMENT  5.0e-20
+
 // Create a rotary motor jig in this part, given the name of the jig,
 // parameters controlling the motor, and the list of atoms to include.
 // The motor rotates around the center point, with the plane of
@@ -905,8 +909,11 @@ makeRotaryMotor(struct part *p, char *name,
 	vsetc(j->j.rmotor.rPrevious[i], 0.0);
     }
     
-    // Add a flywheel with ten times the moment of inertia of the atoms
+    // Add a flywheel with many times the moment of inertia of the atoms
     j->j.rmotor.momentOfInertia *= 11.0;
+    if (j->j.rmotor.momentOfInertia < MIN_MOMENT)
+	j->j.rmotor.momentOfInertia = MIN_MOMENT;
+    fprintf(stderr, "MOI %.6e\n", j->j.rmotor.momentOfInertia);
     j->j.rmotor.theta = 0.0;
     j->j.rmotor.omega = 0.0;
     return j;
