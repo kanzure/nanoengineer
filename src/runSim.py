@@ -922,7 +922,9 @@ class SimRunner:
             pass
         ###e how to improve timing:
         # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
-        if debug_all_frames or now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
+        # always show the last frame - wware 060314
+        if debug_all_frames or self.__frame_number == self._simopts.NumFrames or \
+               now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
             simtime = now - self.__callback_time # for sbar
             if debug_pyrex_prints:
                 print "sim hit frame %d in" % self.__frame_number, simtime
