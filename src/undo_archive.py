@@ -13,10 +13,6 @@ $Id$
 '''
 __author__ = 'bruce'
 
-# don't do these imports at toplevel, since this module needs to let all its symbols be imported *from* modules imported by files_mmp:
-## from files_mmp import writemmp_mapping, reset_grouplist, _readmmp_state # temporarily needed, while mmp code used to save state
-## from Utility import Group
-
 import time, os
 import platform
 from debug import print_compact_traceback, print_compact_stack
@@ -33,103 +29,15 @@ destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
 
-use_non_mmp_state_scanning = True #bruce 060224 committing with True for first time, since bugs are different but not obviously worse
-
-assert use_non_mmp_state_scanning, "if you don't want to use_non_mmp_state_scanning, you have to revive a bunch of commented-out code" #060301
-
-#obs:
-# Since it's easiest, we store all or part of a checkpoint in a real mmp file on disk;
-# this might be useful for debugging so we'll keep it around during development,
-# though in the released code, most of the info will be represented in binary and most or all of it will be kept only in RAM.
-
-# Note: as of 060117, it won't make this subdir or file for anyone who doesn't make an undo checkpoint,
-# either manually or via a debug_pref for autocheckpointing,
-# since our "initial checkpoint" for every assy is made without using a file.
-
-##def compute_checkpoint_kluge_filename():
-##    from platform import find_or_make_Nanorex_subdir
-##    subdir = find_or_make_Nanorex_subdir('UndoKlugeCheckpoints')
-##    return os.path.join( subdir, "checkpoint-%d.mmp" % os.getpid())
-##
-##_checkpoint_kluge_filename = None
-##
-##def checkpoint_kluge_filename():
-##    global _checkpoint_kluge_filename
-##    if not _checkpoint_kluge_filename:
-##        _checkpoint_kluge_filename = compute_checkpoint_kluge_filename()
-##    return _checkpoint_kluge_filename
-
 def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
     (or in nE-1 while it's using assy)
     (it might contain refs to permanent objects like elements or atomtypes, and/or contain Numeric arrays)
-    [modified from files_mmp.writemmpfile_assy]
     """
-##    if not initial: # this flag is a kluge; should detect the situation inside assy itself, and this should be a method in assy
-##        # otherwise it might be too early to do these (not carefully reviewed)
-##        assy.o.saveLastView()
-##        assy.update_parts() ### better if we could assume this is done already; also worry about all other updates, like bonds
-
-# hopefully not needed now, 060223
-##    if initial:
-##        # assy lacks enough attrs for write mmp to work, eg .o, .temperature
-##        return ('mmp_state', "# stub for new assy -- too early") # kluge, stub, won't work for undo back to the start
-
-    # the following code is not reached (as of 060117)
-    # unless the user explicitly asks for an undo checkpoint
-    # (via menu command or preference setting).
-
     if use_060213_format:
         return ('scan_whole', mmp_state_by_scan(archive, assy) ) # not yet differential, just a different state-scanner, more general
 
-    assert 0 # 060301
-##    fp = open( checkpoint_kluge_filename(), "w")
-##
-##    ## mapping = writemmp_mapping_for_Undo( assy) #bruce 060130 using this subclass (it sets mapping.for_undo = True)
-##    from files_mmp import writemmp_mapping
-##    mapping = writemmp_mapping( assy, for_undo = True) #060224 do this instead to avoid import problems
-##    mapping.set_fp(fp)
-##
-##    try:
-##        mapping.write_header()
-##        mapping.write("# (This file was written to encode internal state for Undo; it might not be readable separately.)\n")
-##        assy.construct_viewdata().writemmp(mapping)
-##        assy.tree.writemmp(mapping)
-##        
-##        mapping.write("end1\n")
-##        mapping.past_sim_part_of_file = True
-##
-##        addshelf = True
-##        if addshelf:
-##            assy.shelf.writemmp(mapping)
-##
-####        if 1: #060130 also write out mode, current_movie, selection, etc
-####            # this code is added just for Undo (not analogous to anything in mmp file writing code),
-####            # and doesn't use the pseudo-file kluge in an essential way
-####            # (though it might write fake mmprecords to it if that's convenient,
-####            #  to cause what it writes to be reread in the same order)
-####            part = assy.part
-####            glpane = assy.o
-####            from ops_select import selection_from_part
-####            ##k following might also want an initial arg for the object this is relative to -- or maybe toplevel obj is implied?
-####            mapping.write_component('movie', assy.current_movie) ####k component name -> objref and (if first time seen) objdef
-####            mapping.write_component('mode', glpane.mode) ####k
-####            mapping.write_component('selection', selection_from_part(part) )
-##        
-##        mapping.write("end molecular machine part " + assy.name + "\n")
-##    except:
-##        mapping.close(error = True)
-##        raise
-##    else:
-##        mapping.close()
-##
-##    fp = open( checkpoint_kluge_filename(), "r")
-##    data = fp.read()
-##    fp.close()
-##
-##    mmpstate = ('mmp_state', data)
-##    
-##    return mmpstate #e soon will modify to not use disk, and return a different kind of py object
+    assert 0 # 060301, zapped even the commented-out alternative, 060314
 
 def mmp_state_by_scan(archive, assy): #e misnamed, since other things refer to this as the non-mmp option
     """[#doc better:]
@@ -156,79 +64,12 @@ def mmp_state_by_scan(archive, assy): #e misnamed, since other things refer to t
 
 # ==
 
-#060301 unlikely we'll need this again, tho keep it around for awhile in case it's useful comparison for debugging:
-##def _undo_readmmp_kluge(assy, data): # modified from _readmmp, used to restore assy state to prior internally-saved state
-##    "[arg type matches x[1] of whatever x mmp_state_from_assy returns, when x[0] is a certain value]"
-##    # data is a string of mmp file bytes, or maybe a list of lines (or a single comment line for an initial assy)
-##    from files_mmp import _readmmp_state
-##    isInsert = True # prevents unwanted side effects on assy
-##    state = _readmmp_state( assy, isInsert)
-##    lines = data.split('\n')
-##    for card in lines:
-##        try:
-##            errmsg = state.readmmp_line( card) # None or an error message
-##        except:
-##            # note: the following two error messages are similar but not identical
-##            errmsg = "bug while reading this mmp line (in undo): %s" % (card,) #e include line number; note, two lines might be identical
-##            print_compact_traceback("bug while reading this mmp line (in undo):\n  %s\n" % (card,) )
-##        #e assert errmsg is None or a string
-##        if errmsg:
-##            ###e general history msg for stopping early on error
-##            ###e special return value then??
-##            break
-##    grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
-##
-##    # following could be simplified, but don't bother, entire scheme will be replaced instead
-##    
-##    from Utility import Group # since this module needs to be imported by specific classes, it should not itself import them
-##    
-##    viewdata = Group("Fake View Data", assy, None) # name is never used or stored
-##    shelf = Group("Clipboard", assy, None) # name might not matter since caller resets it
-##    
-##    for g in grouplist:
-##        if not g.is_group(): # might happen for files that ought to be 'one_part', too, I think, if clipboard item was not grouped
-##            state.guess_sim_input('missing_group_or_chunk') # normally same warning already went out for the missing chunk 
-##            tree = Group("tree", assy, None, grouplist)
-##            grouplist = [ viewdata, tree, shelf ]
-##            break
-##    if len(grouplist) == 0:
-####        state.format_error("nothing in file")
-####        return None
-##        # this means it represented an empty assy (at least in our initial kluge implem of 060117)
-##        print "bug: len(grouplist) == 0 in _undo_readmmp_kluge: this should no longer happen" ###@@@
-##        tree = Group("tree", assy, None, []) #k guess; caller will turn it into PartGroup I think, but is name "tree" ok?? ###@@@
-##        grouplist = [ viewdata, tree, shelf ]        
-##    elif len(grouplist) == 1:
-##        state.guess_sim_input('one_part')
-##            # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
-##        tree = Group("tree", assy, None, grouplist) #bruce 050406 removed [0] to fix bug in last night's new code
-##        grouplist = [ viewdata, tree, shelf ]
-##    elif len(grouplist) == 2:
-##        state.guess_sim_input('no_shelf')
-##        grouplist.append( shelf)
-##    elif len(grouplist) > 3:
-##        state.format_error("more than 3 toplevel groups -- treating them all as in the main part")
-##            #bruce 050405 change; old code discarded all the data
-##        tree = Group("tree", assy, None, grouplist)
-##        grouplist = [ viewdata, tree, shelf ]
-##    else:
-##        pass # nothing was wrong!
-##    assert len(grouplist) == 3
-##        
-##    state.destroy() # not before now, since it keeps track of which warnings we already emitted
-##
-##    return grouplist # from _readmmp
-
 # assy methods, here so reload works
 
 def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular undo; should be redesigned to be more sensible
     """[self is an assy] replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint,
     using archive to interpret it if necessary
     """
-    from files_mmp import reset_grouplist
-    # the actual format is a complete kluge, depends on readmpp code, should be changed, esp for atom posns
-    # == now compare to files_mmp.readmmp
-    ## grouplist = _readmmp(assy, filename)
     if type(state) == type(()):
         format, data = state
         # state can be None if exception (bug) was caught while checkpoint was made,
@@ -237,17 +78,7 @@ def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular
         format, data = 'scan_whole', state # kluge 060301
     del state
     if format == 'mmp_state':
-        assert 0 #060301
-##        from undo_archive import _undo_readmmp_kluge # this is silly in this file, but will matter if we move this into assy.py
-##        try:
-##            grouplist = _undo_readmmp_kluge(self, data) # should have no effect on self (assy), though we have to pass it
-##        except:
-##            print_compact_traceback("exception in _undo_readmmp_kluge")
-##            raise # caller would otherwise think we worked
-##            ## grouplist = None
-##        self.clear() # clear only if read works, to avoid huge tracebacks
-##        reset_grouplist(self, grouplist)
-##        # fall thru
+        assert 0 #060301 [removed commented-out support code, 060314]
     elif format == 'scan_whole':
         assy_become_scanned_state(self, data, archive) # that either does self.update_parts() or doesn't need it done (or both)
         # fall thru
@@ -1077,9 +908,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     next_cp = None
     current_diff = None
-    format_options = dict(use_060213_format = use_non_mmp_state_scanning)
+    format_options = dict(use_060213_format = True)
+        # Note: this is never changed and use_060213_format = False is not supported, but preserve this until we have another format option
+        # that varies, in case we need one for diffing some attrs in special ways. Note: use_060213_format appears in state_utils.py too.
+        # [bruce 060314]
 
-    copy_val = state_utils.copy_val #060216, might turn out to be a temporary kluge; 060222 removed _again ###@@@
+    copy_val = state_utils.copy_val #060216, might turn out to be a temporary kluge ###@@@
 
     inited = False
     
@@ -1239,27 +1073,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # was only for begin and end cp's (but was active even if undo autocp pref was off).
 
         #bruce 060313: we no longer need to update mol.atpos for every chunk. See comments in chunk.py docstring about atom.index.
-##        if 1: #060309 update on this: we might still need it for now (even with Atom._posn, no curpos) since we store Atom.index.
-##            #060301 added this as a debug_pref (dflt True), 060302 made it 'if 1'; it didn't fix any specific known bugs,
-##            # but it seems clearly needed in principle, and maybe not doing it caused the seeming out of sync behavior
-##            # (steps to repeat not recorded except maybe in my history files) after several undo/redo sequences of pulling singlets
-##            # (or maybe that was another manifestation of the singlet pulling bug fixed by Numeric '==' -> '!=').
-##            #
-##            # [060311 11:18pm PST comment:]
-##            # BUG IN THIS: only covers mols in the current Part. Should either fix this, or remove the whole thing!!! ##@@
-##            # (Fixing it would have fixed or hidden bug 1661 (depending on your point of view of what was the true bug there).
-##            # Guess: it ought to be removed, and we ought to not store .index at all; I vaguely recall some problem with that idea,
-##            # perhaps commented on in chem.py, and also perhaps a need for Atom.baseposn to check for index == -1, and a worry about
-##            # Undo resetting index but not the arrays, etc... I'm a bit too tired to work out the right thing to do right now,
-##            # so I'll just commit this comment and not change anything for now. Guess: don't store index, recompute it after Undo,
-##            # using new fast code that does nothing else (look at atoms dict, sort, etc). Maybe split atlist/atpos updaters?
-##            for mol in self.assy.molecules:
-####                if not mol.__dict__.has_key('atpos') and env.debug():
-####                    print "debug: recomputing atpos for",mol # mainly or only happens after undo/redo, so doesn't help my current bug
-##                mol.atpos # __getattr__ might recompute it, which also affects mol.curpos, and atom.xyz and atom.index for the atoms
-##                ###e (if we leave this code in, we can also dispense with scanning atom.xyz, i think, at least for live atoms;
-##                # I won't change that for now [060302] in case we scan dead atoms too.)
-##            pass
+        # [removed commented-out code for it, 060314]
         return
     
     def checkpoint(self, cptype = None, cmdname_for_debug = "", merge_with_future = False ): # called from undo_manager
@@ -1305,26 +1119,6 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             
         # maybe i should clean up the following code sometime...
         debug3 = 0 and env.debug() # for now [060301] if 0 060302; this is here (not at top of file) so runtime env.debug() affects it
-##        if use_diff and 0:
-##            assert 0 # not used as of bfr 060227, but slated to be used soon... BUT NOT THIS CASE, rather one down below
-####            ###e need this to be based on type of self.current_diff?? does it need a "fill yourself method"?
-####            #060210 use new code to generate a diff from state seen at prior checkpoint, and update that state at the same time
-####            # (nim or stub)
-####            # can't yet optimize by using any change-counter, so at first this will get even slower...
-####            # later we can have enough different kinds of change counter to cover every possible change, and restore this.
-####            if 0: # if no change, for sure
-####                pass #e use same-state optim like below
-####            else:
-####                ###e actually we'd scan only a subset of state based on change counters or changed-obj-sets, ie a finer-grained optim...
-####                state_diff = current_state(self, self.assy, diff_with_and_update = self.state_copy_for_checkpoint_diffs, **self.format_options )
-####                    #e or maybe self.state_copy_for_checkpoint_diffs lives inside whatever cp it's accurate for??
-####                    # then we'd have option of copying it or leaving a copy behind, every so often...
-####                    # and have a state to store here? nah.
-####                    #  note: state_diff is actually a backwards diff, ie has enough info for undo but not for redo
-####                self.current_diff.empty = False ###e change to some test on state we just got back
-####                state
-####                # or fill_checkpoint or equiv, here
-##        else:
         if debug3:
             print "\ncp", self.assy.all_change_counters(), env.last_history_serno + 1
         if merge_with_future:
