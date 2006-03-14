@@ -246,7 +246,10 @@ class glprefs:
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
             res = res + ( self.specular_shininess, self.specular_whiteness, self.specular_brightness)
-        res += (env.prefs[use_c_renderer_key],) # grantham 20060313
+        try:   # key may not be present   wware 200600314
+            res += (env.prefs[use_c_renderer_key],) # grantham 20060313
+        except KeyError:
+            pass
         return res
 
     pass # end of class glprefs
