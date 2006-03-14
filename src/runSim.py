@@ -67,6 +67,8 @@ if debug_sim_exceptions:
     debug_all_frames = 1
 
 
+_FAILURE_ALREADY_DOCUMENTED = -10101
+
 ##cmd = greenmsg("Simulator: ")
 ##    #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
 ##    # It ought to become some object's attribute, once we figure out what uses it and whether anything changes it.
@@ -158,7 +160,7 @@ class SimRunner:
                 # This works.  Mark 050210
                 self.simProcess.kill()
             
-        else: # Something failed...
+        elif self.errcode != _FAILURE_ALREADY_DOCUMENTED: # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
             env.history.message(self.cmdname + ": " + msg)
                 #fyi this was 'cmd' which was wrong, it says 'Simulator' even for Minimize [bruce 060106 comment, fixed it now]
@@ -883,7 +885,13 @@ class SimRunner:
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
             ##e terminate it, if it might be in a different thread; destroy object; etc
-            self.errcode = -1 # simulator failure
+            # show the exception message in the history window - wware 060314
+            type, value, traceback = sys.exc_info()
+            msg = redmsg("%s: %s" % (type, value))
+            env.history.message(msg)
+            self.errcode = _FAILURE_ALREADY_DOCUMENTED
+            abortbutton.finish() # whether or not there was an exception and/or it aborted
+            return
 
         if not self.mflag:
             # wware 060310, bug 1294
@@ -1270,7 +1278,9 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
                 #e a more accurate condition would be something like "if we made a movie file and bragged about it"
                 env.history.message(greenmsg("(current atom positions correspond to movie frame %d)" % fn))
         assert movie.currentFrame == fn
-    if print_sim_warnings:
+    if print_sim_warnings and simrun.errcode != _FAILURE_ALREADY_DOCUMENTED:
+        # If there was a clear error then don't print a lot of lower-priority less urgent stuff
+        # after the bright red error message.
         try:
             simrun.print_sim_warnings()
                 #bruce 051230 comment: this runs even if sim executable was not found; why?? #####@@@@@
@@ -1451,7 +1461,10 @@ class simSetup_CommandRun(CommandRun):
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
         else:
             assert not movie
-            env.history.message(self.cmdname + ": " + "Cancelled.") # (happens for any error; more specific message (if any) printed earlier)
+            # Don't allow uninformative messages to obscure informative ones - wware 060314
+            if r == _FAILURE_ALREADY_DOCUMENTED:
+                env.history.message(self.cmdname + ": " + "Cancelled.")
+                # (happens for any error; more specific message (if any) printed earlier)
         return
 
     def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
