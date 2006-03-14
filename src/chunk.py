@@ -18,8 +18,11 @@ History:
 
 - bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
   (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
-  Movitation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+  Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
 
+- bruce 060313 splitting _recompute_atlist out of _recompute_atpos, and planning to remove atom.index from
+  undoable state or to remove it entirely
+  
 '''
 __author__ = "Josh"
 
@@ -524,15 +527,25 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # as well as checks for singlets in addatom/delatom/setatomposn.)
 
     _inputs_for_atlist = [] # only invalidated directly, by addatom/delatom
+
+    def _recompute_atlist(self): #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
+        "[recompute the list of this chunk's atoms, in order of atom.key (and store atom.index to match, if it still exists)]"
+        atomitems = self.atoms.items()
+        atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
+        atlist = [atom for (key,atom) in atomitems] #k syntax
+        self.atlist = array(atlist, PyObject) #k it's untested whether making it an array is good or bad
+        for atm,i in zip(atlist,range(len(atlist))):
+            atm.index = i 
+        return        
+
     _inputs_for_atpos = ['atlist'] # also incrementally modified by setatomposn [not anymore, 060308]
         # (Atpos could be invalidated directly, but maybe it never is (not sure);
         #  anyway we don't optim for that.)
     _inputs_for_basepos = ['atpos'] # also invalidated directly, but not often
-
-    def _recompute_atpos(self): #bruce 060308 major rewrite
-        "#doc"
-        #    Something must have been invalid to call us, so basepos must be
-        # invalid. So we needn't call changed_attr on it.
+        
+    def _recompute_atpos(self): #bruce 060308 major rewrite;  #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
+        "recompute self.atpos and self.basepos and more; also change self's local coordinate system (used for basepos) [#doc more]"
+        #    Something must have been invalid to call us, so basepos must be invalid. So we needn't call changed_attr on it.
         assert not self.__dict__.has_key('basepos')
         if self.assy is None:
             if platform.atom_debug:
@@ -543,22 +556,14 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # I don't think that can happen, but if it can, I need to know.
         # So find out which of the attrs we recompute already exist:
         ## print "_recompute_atpos on %r" % self
-##        for attr in ['atpos', 'atlist', 'average_position', 'basepos']:
+##        for attr in ['atpos', 'average_position', 'basepos']:
 ##            ## vq = self.validQ(attr)
 ##            if self.__dict__.has_key(attr):
 ##                print "fyi: _recompute_atpos sees %r already existing" % attr
-        atomitems = self.atoms.items()
-        atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
-        atlist = [atom for key,atom in atomitems] #k syntax
-        
-        self.atlist = array(atlist, PyObject)
-        # we let atlist (as opposed to self.atlist) remain a Python list;
-        # probably this doesn't matter
-        
-        atpos = map( lambda atm: atm.posn(), atlist ) # must be in same order
+
+        atlist = self.atlist # might call _recompute_atlist
+        atpos = map( lambda atm: atm.posn(), atlist ) # atpos, basepos, and atlist must be in same order
         atpos = A(atpos)
-        for atm,i in zip(atlist,range(len(atlist))):
-            atm.index = i 
         # we must invalidate or fix self.atpos when any of our atoms' positions is changed!
         self.atpos = atpos
 
@@ -594,11 +599,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
         # validate the attrs we set, except for the non-invalidatable ones,
         # which are curpos, basecenter, quat.
-        self.validate_attrs(['atpos', 'atlist', 'average_position', 'basepos'])
+        self.validate_attrs(['atpos', 'average_position', 'basepos'])
         return # from _recompute_atpos
     
-    # aliases, in case someone needs one of the other things we compute:
-    _recompute_atlist    = _recompute_atpos
+    # aliases, in case someone needs one of the other things we compute
+    # (but not average_position, that has its own recompute method):
     _recompute_basepos   = _recompute_atpos
     
     def changed_basecenter_or_quat_while_atoms_fixed(self):
