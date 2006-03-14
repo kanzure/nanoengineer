@@ -64,8 +64,10 @@ povheader = """
    }
 #end
 
-#macro lmotor(p1, p2, w, col) 
-  box { p1 + w,  p2 - w
+#macro lmotor(c1, c2, rot, trans, col) 
+  box { c1,  c2    
+    rotate rot
+    translate trans
     pigment { rgb col }
     finish {Atomic}
     }
