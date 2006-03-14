@@ -133,7 +133,7 @@ from inval import InvalMixin #bruce 050510
 
 #bruce 060223 disabling this -- don't remove it yet, we might need it for Atomsets or let it handle Atom objkeys for Undo:
 #
-##_atom_for_key = {} #bruce 051011 for Undo ###e should make weakvalued, i think; or have a destroy method for atoms ####@@@@
+##_atom_for_key = {} #bruce 051011 for Undo ###e should make weakvalued, i think; or have a destroy method for atoms ##@@
 ##
 ##def atom_for_key(key): #bruce 051011 for Undo
 ##    """Return the atom for the given key, if it exists; otherwise return None.
@@ -188,8 +188,9 @@ def _undo_update_Atom_jigs(archive, assy):
                 # Also, whatever this does should really just be done by Jig._undo_update. So make that true, then remove this. ###@@@
     return
 
-#bruce 060224 [untested] ####@@@@
-register_undo_updater( _undo_update_Atom_jigs, 
+####@@@@ WARNING: register_undo_updater IS NIM, its effect is kluged elsewhere
+## by a direct call to _undo_update_Atom_jigs [still true 060314]
+register_undo_updater( _undo_update_Atom_jigs, #bruce 060224 
                        updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
                        after_update_of = ('Assembly', 'Node', 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
                            # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
@@ -285,6 +286,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     
     _s_attr_atomtype = S_DATA
 
+    # def __init__  is just below a couple undo-update methods
+
     def _undo_update(self):
         #bruce 060224 conservative guess -- invalidate everything we can find any other code in this file invalidating 
         for b in self.bonds:
@@ -305,6 +308,37 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ##    jig.moved_atom(self)   ####@@@@ need to do this later?
         StateMixin._undo_update(self)
 
+#bruce 060314 -- this turns out not to be useful, but leave it around for now as the only example of _undo_setattr_
+##    def _undo_setattr_molecule(self, newmol, archive): #bruce 060313
+##        """Undo is mashing changed state into lots of objects' attrs at once;
+##        this lets us handle that specially, just for self.molecule, but in unknown order (for now)
+##        relative either to our attrs or other objects.
+##        """
+##        # we happen to know (or assume) archive is an AssyUndoArchive, not just any old kind of UndoArchive,
+##        # so we know it knows it needs to have a dict of all chunks whose .atoms dicts will need invalidating
+##        # (and that it will actually call some updater which does that, sometime after all these setattrs).
+##        # This implem inlines some of chunk.addatom and delatom, and some code (mislocated) in assy_become_scanned_state
+##        # inlines the rest.
+##        oldmol = self.molecule
+##        self.molecule = newmol
+##        dict1 = archive.mols_with_invalid_atomsets
+##        # We could store None or _nullMol in there if we coded it to tolerate that,
+##        # but we need to check for them here anyway (to avoid updating their .atoms dicts),
+##        # so we might as well also condition the storing into dict1 by that.
+##        # (BTW we can update .atoms dicts in any order, since we assume we own their item at self.key in all mols.)
+##        from chunk import _nullMol # not sure how early this is defined, but if any atom has it, it must be defined by now (else None)
+##        if oldmol is not None and oldmol is not _nullMol:
+##            dict1[ id(oldmol) ] = oldmol
+##            try:
+##                del oldmol.atoms[ self.key ]
+##            except KeyError:
+##                # should never happen
+##                print "bug: why am i not in my oldmols' .atoms dict? self = %r, oldmol = %r, newmol = %r" % (self, oldmol, newmol)
+##        if newmol is not None and newmol is not _nullMol:
+##            dict1[ id(newmol) ] = newmol
+##            newmol.atoms[ self.key ] = self
+##        return
+    
     def __init__(self, sym, where, mol): #bruce 050511 allow sym to be elt symbol (as before), another atom, or an atomtype
         """Create an atom of element sym (e.g. 'C')
         (or, same elt/atomtype as atom sym; or, same atomtype as atomtype sym)
@@ -605,7 +639,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 ##            pass
 ##        else:
 ##            mol.changed_attr('atpos') #### , skip = ('basepos',) )
-##                #####@@@@@ this 'skip' probably causes bug 632, but is it needed for speed? [bruce 050516]
+##                ##@@ this 'skip' probably causes bug 632, but is it needed for speed? [bruce 050516]
+                    # [by 060314 that bug 632 is long since fixed, so this comment is obs; this entire commented-out func can be zapped]
 ##                #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
 ##        self.setposn(pos)
     

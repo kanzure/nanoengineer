@@ -37,6 +37,8 @@ S_CHILD = 'S_CHILD' # like S_DATA, but for attributes whose value is None or a "
 
 S_CHILDREN = 'S_CHILDREN' # like S_CHILD, but value might be a list or dict (etc) containing one or more child objects.
 
+S_CHILDREN_NOT_DATA = 'S_CHILDREN_NOT_DATA' # scan for children, but not for state or diffs [bruce 060313, experimental but used]
+
 
 # ref and parent options are not yet needed, and will be treated the same as S_DATA,
 # which itself will be treated more like S_REFS anyway if it hits any objects.

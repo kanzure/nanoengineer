@@ -106,7 +106,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #  as of 051003 _colorfunc would anyway not be permitted since state_utils.copy_val doesn't know how to copy it.)
         #e should add user_specified_center once that's in active use
 
-    _s_attr_atoms = S_CHILDREN
+    #bruce 060313 no longer need to store diffs of our .atoms dict!
+    # But still need to scan them as children (for now -- maybe not for much longer).
+    # Do we implement _s_scan_children, or declare .atoms as S_CHILDREN_NOT_DATA??
+    # I think the latter is simpler, so I'll try it. 
+    ## _s_attr_atoms = S_CHILDREN
+    _s_attr_atoms = S_CHILDREN_NOT_DATA
 
     # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]
@@ -293,7 +298,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def addatom(self, atm):
         """Private method;
         should be the only way new atoms can be added to a molecule
-        (except for optimized callers like molecule.merge).
+        (except for optimized callers like molecule.merge, and others with comments saying they inline it).
            Add an existing atom (with no current molecule, and with a valid literal
         .xyz field) to molecule self, doing necessary invals in self, but not yet
         giving the new atom an index in our curpos, basepos, etc (which will not

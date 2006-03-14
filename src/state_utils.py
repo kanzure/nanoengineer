@@ -266,7 +266,7 @@ _same_tuple_helper = _same_list_helper
 # which means state that should (usually) be saved, compared, copied, tracked/changed by Undo, etc.
 # Should not include attrs recomputable from these, even if as an optim we sometimes track or save them too (I think).
 
-STATE_ATTR_DECLS = (S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS) # but not S_CACHE, S_JUNK(?), etc
+STATE_ATTR_DECLS = (S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS) # but not S_CACHE, S_JUNK(?), S_CHILDREN_NOT_DATA, etc
     #e refile in state_constants.py ? not sure, since it's not needed outside this module
 
 class InstanceClassification(Classification): #k used to be called StateHolderInstanceClassification; not yet sure of scope
@@ -292,7 +292,10 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         self.attrs_with_no_dflt = tuple(self.attrs_with_no_dflt) # optimization, I presume; bad if we let new attrs get added later
         self.attr_dflt_pairs = tuple(self.attr_dflt_pairs)
         
-        self.S_CHILDREN_attrs = self.attrs_declared_as(S_CHILD) + self.attrs_declared_as(S_CHILDREN) #e sorted somehow? no need yet.
+        self.S_CHILDREN_attrs = self.attrs_declared_as(S_CHILD) + \
+                                self.attrs_declared_as(S_CHILDREN) + \
+                                self.attrs_declared_as(S_CHILDREN_NOT_DATA)  #e sorted somehow? no need yet.
+        
         self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
 
         if self.warn and env.debug():
@@ -333,6 +336,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                         # assume no default value unless one is declared (which is nim)
                         self.attrs_with_no_dflt.append(attr_its_about)
                     else:
+                        # attr has a default value
+                        assert attr_its_about != 'molecule' ####@@@@ KLUGE; explained in comment near call of reset_obj_attrs_to_defaults [bruce 060313]
                         self.attr_dflt_pairs.append( (attr_its_about, dflt) )
                         self.defaultvals[attr_its_about] = dflt
                         if env.debug() and is_mutable(dflt): #env.debug() (redundant here) is just to make prerelease snapshot safer
@@ -1268,7 +1273,7 @@ class obj_classifier:
     def collect_s_children(self, val, deferred_category_collectors = {}):
         """Collect all objects in val, and their s_children, defined as state-holding objects
         found (recursively, on these same objects) in their attributes which were
-        declared S_CHILD or S_CHILDREN using the state attribute decl system... [#doc that more precisely]
+        declared S_CHILD or S_CHILDREN or S_CHILDREN_NOT_DATA using the state attribute decl system... [#doc that more precisely]
         return them as the values of a dictionary whose keys are their python id()s.
            Note: this scans through "data objects" (defined as those which define an '_s_deepcopy' method)
         only once, but doesn't include them in the return value. This is necessary (I think) because

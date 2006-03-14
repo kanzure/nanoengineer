@@ -295,8 +295,9 @@ def safe_repr(obj, maxlen = 1000):
         return rr
     pass
 
-def assy_become_scanned_state(self, data, archive): 
+def assy_become_scanned_state(self, data, archive):
     "[self is an assy; data is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot or StatePlace object]"
+    ####@@@@ this should really be a method of AssyUndoArchive (not just assy itself) [bruce 060313 realization]
     assy = self
     assert assy is archive.assy
 ##    print "assy_become_scanned_state", data
@@ -315,17 +316,47 @@ def assy_become_scanned_state(self, data, archive):
     except:
         attrdicts = data.get_attrdicts_for_immediate_use_only() # works for a StatePlace
     for attr, dict1 in attrdicts.items(): ##e might need to be in a specific order
+        ## might_have_undo_setattr = (attr == 'molecule')
+        # _undo_setattr_molecule turned out not to be useful so far [060314], so for speed,
+        # limit this testing kluge (which will never find an actual _undo_setattr_xxx)
+        # to a rarer attribute, but one that does exist sometimes:
+        might_have_undo_setattr = (attr == 'temperature') ###@@@ KLUGE for testing, and good enough for initial use
+            # (so might be released in A7, due to time pressures, embarrassingly enough) [bruce 060313]
         for key, val in dict1.iteritems(): # maps objkey to attrval
             obj = modified_get(key)
             if obj is None:
                 # first time we're touching this object
                 obj = obj4key[key]
                 modified[key] = obj
+                ## reset_obj_attrs_to_defaults(obj) -- no, be a bit more subtle:
+                # If any attr of this obj might_have_undo_setattr, we want it to see the old value,
+                # so we don't want to reset *that* attr to its default value.
+                # One way: exception for just those attrs.
+                # Another way: exception for all attrs we plan to set specifically (only needed when "those attrs" are among them).
+                # For initial use of might_have_undo_setattr, I can be simple, then figure out the proper way later.
+                ## if attrdicts['molecule'].has_key(key):
+                ##     # i.e. if we plan to set this obj's .molecule
+                ##     ....
+                # I can be even simpler, since it happens that .molecule has no default value in Atom
+                # so reset_obj_attrs_to_defaults won't touch it! This is a ####@@@@ KLUGE which needs to be thought through
+                # and fixed later, especially since I might decide to add a class default molecule = None at any time.
+                # (Probably I should assert that doesn't happen. Ok, I'll do it in state_utils.)
                 reset_obj_attrs_to_defaults(obj)
                 #######e set all attrs in obj (which we store, or are cached) to their default values (might mean delattr?)
                 # w/o this we have bugs...
                 pass
-            val = copy(val)
+            val = copy(val) #e possible future optim: let some attrs declare that this copy is not needed
+            if might_have_undo_setattr: # optim: this flag depends on attr name
+                setattr_name = '_undo_setattr_' + attr # only support attr-specific setattrs for now, for speed and subclass simplicity
+                try:
+                    method = getattr(obj, setattr_name) #e possible future optim: store unbound method for this class and attr
+                except AttributeError:
+                    pass # fall thru, use normal setattr
+                else:
+                    method(val, archive) # note: val might be _Bugval
+                    #e someday, catch exceptions, emit redmsg but continue with restoring other state, or at least other attrs
+                    continue
+            # else, or if we fell through:
             setattr(obj, attr, val) ##k might need revision in case:
                 # dflt val should be converted to missing val, either as optim or as requirement for some attrs (atomtype?) #####@@@@@
                 # dflt vals were not stored, to save space, so missing keys should be detected and something done about them ...
@@ -338,6 +369,42 @@ def assy_become_scanned_state(self, data, archive):
             # [bruce 060311 comment]
             continue
         continue
+#bruce 060314 this turned out not to be useful; leave it as an example
+# until analoguous stuff gets created (since the principle of organization
+# is correct, except for being nonmodular)
+##    if 1:
+##        ####@@@@ KLUGE: somehow we happen to know that we need to process mols_with_invalid_atomsets here,
+##        # before running any obj._undo_update functions (at least for certain classes).
+##        # We can know this since we're really (supposed to be) a method on AssyUndoArchive (so we know all about
+##        # the kinds of data in assys). [bruce 060313]
+##        for chunk in archive.mols_with_invalid_atomsets.values():
+##            # chunk had one or more atoms leave it or join it, during the setattrs above
+##            # (actually, during some _undo_setattr_molecule on those atoms; they kept its .atoms up to date,
+##            #  but saved invals for here, for efficiency)
+##            chunk.invalidate_atom_lists()
+##                # this effectively inlines that part of chunk.addatom and delatom not done by atom._undo_setattr_molecule
+##                # (we could just add chunk into modified (localvar), but this is more efficient (maybe))
+    # that has replaced .molecule for lots of atoms; need to fix the .atoms dicts of those mols [060314]
+    if 1: # simple way to start with ####@@@@ should split into separate func for profiling (need funcs for above and below things too)
+        mols = {}
+        moldict = attrdicts.get('molecule',{}) # {} can happen, when no Chunks were in the state!
+        for key, mol in moldict.iteritems():
+            mols[id(mol)] = mol
+        import chunk
+        for badmol in (None, chunk._nullMol):
+            if mols.has_key(id(badmol)):
+                # should only happen if undoable state contains killed or still-being-born atoms; I don't know if it can
+                if env.debug():
+                    print "why does some atom in undoable state have .molecule = %r?" % (badmol,)
+                del mols[id(badmol)]
+        for mol in mols.itervalues():
+            mol.atoms = {}
+        for key, mol in moldict.iteritems():
+            obj = modified_get(key) # an atom
+            mol.atoms[ obj.key ] = obj # inlines some of Chunk.addatom
+        for mol in mols.itervalues():
+            mol.invalidate_atom_lists() # inlines some more of Chunk.addatom
+        pass
     for key, obj in modified.iteritems():
         ###e zap S_CACHE attrs? or depend on update funcs to zap/inval/update them? for now, the latter. Review this later. ###@@@
         try:
@@ -765,7 +832,8 @@ def register_class_nickname(name, class1):
 
 #e refile, in this file or another? not sure.
 
-def register_undo_updater( func, updates = (), after_update_of = () ): ####@@@@ THIS IS NIM, its effect is kluged elsewhere
+def register_undo_updater( func, updates = (), after_update_of = () ):
+    ####@@@@ THIS IS NIM, its effect is kluged elsewhere [still true 060314]
     """Register <func> to be called on 2 args (archive, assy) every time some AssyUndoArchive mashes some
     saved state into the live objects of the current state (using setattr) and needs to fix things that might
     have been messed up by that or might no longer be consistent.
@@ -1521,11 +1589,18 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # in present implem [060118], we assume without checking that this op is not being applied out-of-order,
         # and therefore that it always changes the model state between the same checkpoints that the diff was made between
         # (or that it can ignore and/or discard any way in which the current state disagrees with the diff's start-checkpoint-state).
+
+#bruce 060314 not useful now, but leave the code as example (see longer comment elsewhere):
+##        self.mols_with_invalid_atomsets = {} ##@@ KLUGE to put this here -- belongs in become_state or so, but that's
+##            # not yet a method of self! BTW, this might be wrong once we merge -- need to review it then. [bruce 060313]
         
         op.apply_to( self) # also restores view to what it was when that change was made [as of 060123]
             # note: actually affects more than just assy, perhaps (ie glpane view state...)
             #e when diffs are tracked, worry about this one being tracked
             #e apply_to itself should also track how this affects varid_vers pairs #####@@@@@
+
+#ditto:
+##        del self.mols_with_invalid_atomsets # this will have been used by updaters sometime inside op.apply_to
         
         #060123 202p following [later removed] is wrong since this very command (eg inside some menu item)
         # is going to do its own end-checkpoint.
