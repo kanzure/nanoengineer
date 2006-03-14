@@ -229,17 +229,6 @@ cdef class BaseSimulator:
             setWriteTraceCallbackFunc(None)
         return
 
-    def getEquilibriumDistanceForBond(self, element1, element2, order):
-        # There's probably an easier way to do all this type conversion... [bruce 060313]
-        cdef int int_el1, int_el2
-        cdef char ch_order
-        int_el1 = element1
-        int_el2 = element2
-        ## ch_order = order[0] # assume order is a Python string # TypeError: an integer is required
-        ## print "type(order)", type(order) # <type 'str'>
-        ch_order = ord(order[0])
-        return getBondEquilibriumDistance(int_el1, int_el2, ch_order)
-
     def structCompare(self):
         verifySimObject(self)
         r = structCompare()
@@ -268,6 +257,17 @@ class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to
 
 def setErrorString(str):
     errString = str
+
+def getEquilibriumDistanceForBond(element1, element2, order):
+    # There's probably an easier way to do all this type conversion... [bruce 060313]
+    cdef int int_el1, int_el2
+    cdef char ch_order
+    int_el1 = element1
+    int_el2 = element2
+    ## ch_order = order[0] # assume order is a Python string # TypeError: an integer is required
+    ## print "type(order)", type(order) # <type 'str'>
+    ch_order = ord(order[0])
+    return getBondEquilibriumDistance(int_el1, int_el2, ch_order)
 
 #####################################################
 # Per-frame callbacks to Python, wware 060101
@@ -335,12 +335,13 @@ class Tests(unittest.TestCase):
         global tracefile
         tracefile = [ ]
 
+    def test_getEquilibriumDistance(self):
+        # try C-C single bond; prints 154.88
+        assert (getEquilibriumDistanceForBond(6, 6, '1') - 154.88) ** 2 < 0.1
+
     def test_framecallback(self):
         func = testsetup(2)
         m = Minimize("tests/minimize/test_h2.mmp")
-        if 1: ###@@@ [bruce 060313; needs cleanup]
-            print "try out m.getEquilibriumDistanceForBond( 6, 6, '1' ) for C-C single bond:"
-            print m.getEquilibriumDistanceForBond( 6, 6, '1' ) # try C-C single bond; prints 154.88
         m.go(frame_callback=func)
         assert callbackCounter == 4, "Callback counter is %d, not 4" %(callbackCounter)
 
