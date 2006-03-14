@@ -19,6 +19,7 @@ import platform
 from undo_archive import AssyUndoArchive #060117 revised
 import undo_archive # for debug_undo2
 from constants import noop
+from prefs_constants import undoAutomaticCheckpoints_prefs_key
 import env
 from HistoryWidget import orangemsg, greenmsg, redmsg, _graymsg
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
@@ -40,6 +41,11 @@ class UndoManager:
     checkpoint calls from same, and undo/redo command callbacks.
     """
     pass
+
+try:
+    _last_autocp # don't change it when we reload this module
+except:
+    _last_autocp = True # used only for history messages
 
 class AssyUndoManager(UndoManager):
     "An UndoManager specialized for handling the state held by an assy (an instance of class assembly)."
@@ -68,12 +74,17 @@ class AssyUndoManager(UndoManager):
         if platform.is_macintosh(): 
             win = assy.w
             win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # set up incorrectly (for Mac) as "Ctrl+Y"
+        # exercise the debug-only old pref (deprecated to use it):
         self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
             # (fixes bug in which the pref didn't show up until the first undoable change was made) [060125]
+        # now look at the official pref for initial state of autocheckpointing [060314]
+        ## done later -- set_initial_AutoCheckpointing_enabled( ... )
         return
     
     def _initial_checkpoint(self): #bruce 060223; not much happens until this is called (order is __init__, init1, _initial_checkpoint)
         "[private]"
+        set_initial_AutoCheckpointing_enabled( True )
+            # might have to be True for initial_checkpoint; do no UI effects or history msg; kluge that the flag is a global [060314]
         self.archive.initial_checkpoint()
         self.connect_or_disconnect_menu_signals(True)
         self.remake_UI_menuitems() # try to fix bug 1387 [060126]
@@ -81,6 +92,18 @@ class AssyUndoManager(UndoManager):
         env.command_segment_subscribers.append( self._in_event_loop_changed )
         self.inited = True
         ## redundant call (bug); i hope this is the right one to remove: self.archive.initial_checkpoint()
+        
+        # make sure the UI reflects the current pref for auto-checkpointing [060314]
+        # (in practice this happens at startup and after File->Open);
+        # only emit history message if it's different than it was last time this session,
+        # or different than True the first time
+        global _last_autocp
+        autocp = env.prefs[undoAutomaticCheckpoints_prefs_key]
+        update_UI = True
+        print_to_history = (_last_autocp != autocp)
+        _last_autocp = -1 # if there's an exception, then *always* print it next time around
+        set_initial_AutoCheckpointing_enabled( autocp, update_UI = update_UI, print_to_history = print_to_history)
+        _last_autocp = autocp # only print it if different, next time
         return
     
     def deinit(self):
@@ -434,13 +457,19 @@ register_debug_menu_command_maker( "undo_cmds", undo_cmds_maker)
 try:
     _AutoCheckpointing_enabled # on reload, use old value unchanged (since we often reload automatically during debugging)
 except:
-    _AutoCheckpointing_enabled = True
+    _AutoCheckpointing_enabled = True # this might be changed based on env.prefs whenever an undo_manager gets created [060314]
+        # older comment about that, not fully obs:
         #e this might be revised to look at env.prefs sometime during app startup,
         # and to call editAutoCheckpointing (or some part of it) with the proper initial state;
         # the current code is designed, internally, for checkpointing to be enabled except
         # for certain intervals, so we might start out True and set this to False when
         # an undo_manager is created... we'll see; maybe it won't even (or mainly or only) be a global? [060309]
 
+def set_initial_AutoCheckpointing_enabled( enabled, update_UI = False, print_to_history = False ):
+    "set autocheckpointing (perhaps for internal use), doing UI updates only if asked, emitting history only if asked"
+    editAutoCheckpointing(enabled, update_UI = update_UI, print_to_history = print_to_history) # same API except for option defaults
+    return
+    
 def editMakeCheckpoint():
     '''This is called from MWsemantics.editMakeCheckpoint, which is documented as
     "Slot for making a checkpoint (only available when Automatic Checkpointing is disabled)."
@@ -466,32 +495,57 @@ def editMakeCheckpoint():
             #e that wording assumes we can't open more than one file at a time...
     return
 
-def editAutoCheckpointing(enabled):
+try:
+    _editAutoCheckpointing_recursing
+except:
+    _editAutoCheckpointing_recursing = False # only if we're not reloading -- otherwise, bug when setOn calls MWsem slot which reloads
+else:
+    if _editAutoCheckpointing_recursing and env.debug():
+        pass # print "note: _editAutoCheckpointing_recursing true during reload" # this happens!
+
+def editAutoCheckpointing(enabled, update_UI = True, print_to_history = True): ####@@@@ call me internally, True init, envprefs later
     '''This is called from MWsemantics.editClearUndoStack, which is documented as
     "Slot for enabling/disabling automatic checkpointing."
        This has only UI effects (including editMakeCheckpointAction.setVisible),
     other than setting the global _AutoCheckpointing_enabled.
+       It's also called internally, so it has options to control the UI effects.
+    But that's private -- the public API for internal sets of this is XXX.
     '''
-    win = env.mainwindow() #k should this and/or assy be an argument instead?
-    global _AutoCheckpointing_enabled
-    _AutoCheckpointing_enabled = not not enabled
-    if enabled:
-        msg_short = "Autocheckpointing enabled"
-        msg_long  = "Autocheckpointing enabled -- each operation will be undoable"
-        nimwarn = False
-    else:
-        msg_short = "Autocheckpointing disabled"
-        msg_long  = "Autocheckpointing disabled -- only explicit Undo checkpoints are kept" #k length ok?
-        nimwarn = 0 and True ###@@@
-    env.history.statusbar_msg(msg_long)
-    hmsg = greenmsg(msg_short)
-    if nimwarn:
-        hmsg += orangemsg(" [not yet fully implemented]")
-    env.history.message( hmsg) 
-    win.editMakeCheckpointAction.setVisible(not enabled)
-    # Note: the reason this doesn't need to call something in assy.undo_manager is that it's called within a slot
+    # Note: the reason this doesn't need to call something in assy.undo_manager (when used to implement the user
+    # change of the checkmark menu item for this flag) is that it's called within a slot
     # in the mainwindow which is itself wrapped by a begin_checkpoint and end_checkpoint, one or the other of which
     # will act as a real checkpoint, unaffected by this flag. [bruce 060312 comment]
+##    print_compact_stack("editAutoCheckpointing(%r,%r,%r): " % (enabled, update_UI, print_to_history))
+    global _editAutoCheckpointing_recursing
+    if _editAutoCheckpointing_recursing:
+        if 0 and env.debug():
+            print "debug: _editAutoCheckpointing_recursing, returning as noop" # this happens!
+        return
+    global _AutoCheckpointing_enabled
+    _AutoCheckpointing_enabled = not not enabled
+    if print_to_history:
+        if enabled:
+            msg_short = "Autocheckpointing enabled"
+            msg_long  = "Autocheckpointing enabled -- each operation will be undoable"
+            nimwarn = False
+        else:
+            msg_short = "Autocheckpointing disabled"
+            msg_long  = "Autocheckpointing disabled -- only explicit Undo checkpoints are kept" #k length ok?
+            nimwarn = 0 and True ###@@@
+        env.history.statusbar_msg(msg_long)
+        hmsg = greenmsg(msg_short)
+        if nimwarn:
+            hmsg += orangemsg(" [not yet fully implemented]")
+        env.history.message( hmsg)
+    if update_UI:
+        win = env.mainwindow() #k should this and/or assy be an argument instead?
+        win.editMakeCheckpointAction.setVisible(not enabled)
+        # this is only needed when the preference changed, not when the menu item slot is used:
+        _editAutoCheckpointing_recursing = True
+        try:
+            win.editAutoCheckpointingAction.setOn( enabled ) # warning: this recurses, via slot in MWsemantics [060314]
+        finally:
+            _editAutoCheckpointing_recursing = False
     return
 
 def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsemantics
