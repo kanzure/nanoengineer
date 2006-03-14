@@ -21,12 +21,16 @@ from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
 import debug #bruce 051212, for debug.print_compact_traceback
 
-# Experimental C++ renderer
-# Set this to True to use the new native C++ renderer
-TEST_PYREX_OPENGL = False
-if TEST_PYREX_OPENGL:
-    sys.path.append("./experimental/pyrex-opengl")
+# Experimental native C renderer
+use_c_renderer = use_c_renderer_initial_state = False
+use_c_renderer_key = "use_c_renderer"
+sys.path.append("./experimental/pyrex-opengl")
+try:
     import quux
+    quux_module_import_succeeded = True
+except:
+    use_c_renderer = False
+    quux_module_import_succeeded = False
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -206,6 +210,7 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
+        global use_c_renderer
         self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
@@ -224,7 +229,11 @@ class glprefs:
             self.specular_shininess = 20.0
             self.specular_whiteness = 1.0
             self.specular_brightness = 1.0
-        if TEST_PYREX_OPENGL:
+        if quux_module_import_succeeded:
+            use_c_renderer = env.prefs[use_c_renderer_key]
+        else:
+            use_c_renderer = False
+        if use_c_renderer:
             quux.shapeRendererSetMaterialParameters(self.specular_whiteness,
                 self.specular_brightness, self.specular_shininess);
         return
@@ -237,6 +246,7 @@ class glprefs:
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
             res = res + ( self.specular_shininess, self.specular_whiteness, self.specular_brightness)
+        res += (env.prefs[use_c_renderer_key],) # grantham 20060313
         return res
 
     pass # end of class glprefs
@@ -835,9 +845,6 @@ class ColorSorter:
     """
     __author__ = "grantham@plunk.org"
 
-    # sys.path.append("./experimental/pyrex-opengl")
-    # import quux
-
     # For now, these are class globals.  As long as OpenGL drawing is
     # serialized and Sorting isn't nested, this is okay.  When/if
     # OpenGL drawing becomes multi-threaded, sorters will have to
@@ -932,7 +939,7 @@ class ColorSorter:
         Schedule a sphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        if TEST_PYREX_OPENGL and ColorSorter.sorting:
+        if use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -955,7 +962,7 @@ class ColorSorter:
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        if TEST_PYREX_OPENGL and ColorSorter.sorting:
+        if use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -975,7 +982,7 @@ class ColorSorter:
         """
         assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
-        if TEST_PYREX_OPENGL and ColorSorter.sorting:
+        if use_c_renderer and ColorSorter.sorting:
             ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
         else:
@@ -990,7 +997,7 @@ class ColorSorter:
         Finish sorting - objects recorded since "start" will
         be sorted and invoked now.
         """
-        if TEST_PYREX_OPENGL:
+        if use_c_renderer:
             quux.shapeRendererInit()
             # print "VBO %s enabled" % (('is not', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
             quux.shapeRendererSetUseDynamicLOD(0)
@@ -1094,6 +1101,7 @@ def setup():
     global CylList, diamondGridList, CapList, CubeList, solidCubeList
     global sphereList, rotSignList, linearLineList, linearArrowList
     global circleList, lonsGridList, lonsEdges, lineCubeList, SiCGridList
+    global use_c_renderer_pref
 
     listbase = glGenLists(numSphereSizes + 21)
 
@@ -1259,6 +1267,19 @@ def setup():
         glVertex3fv(v)
     glEnd()
     glEndList()
+
+    # 20060313 grantham Added use_c_renderer_pref debug pref, can
+    # take out when C renderer used by default.
+    if quux_module_import_succeeded:
+
+        from debug_prefs import debug_pref, Choice_boolean_True
+        from debug_prefs import Choice_boolean_False
+
+        choices = [Choice_boolean_False, Choice_boolean_True]
+        initial_choice = choices[use_c_renderer_initial_state]
+        use_c_renderer_pref = debug_pref("Use native C renderer?",
+            initial_choice, non_debug = True, prefs_key = use_c_renderer_key)
+            #e should remove non_debug = True before release!
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return
