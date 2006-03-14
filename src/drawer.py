@@ -230,7 +230,10 @@ class glprefs:
             self.specular_whiteness = 1.0
             self.specular_brightness = 1.0
         if quux_module_import_succeeded:
-            use_c_renderer = env.prefs[use_c_renderer_key]
+            try:
+                use_c_renderer = env.prefs[use_c_renderer_key]
+            except KeyError:
+                use_c_renderer = False
         else:
             use_c_renderer = False
         if use_c_renderer:
