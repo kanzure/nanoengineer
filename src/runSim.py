@@ -50,18 +50,14 @@ debug_sim = 0 # DO NOT COMMIT with 1
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 debug_timing_loop_on_sbar = 0
 
-use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
+
+#& Bruce, can I remove this?  Mark 060314.
+#use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
     # [this is true for bruce and probably false for other developers] ####@@@@
     # [quick links for developers: see also (search for) abort_ or 'if frame_number > 10' ]
 
-# wware 060104   enable use of pyrex with "export USE_PYREX=1" or "set USE_PYREX=1"
-usePyrexKey = "USE_PYREX"
-if os.environ.has_key(usePyrexKey) and os.environ[usePyrexKey] == "1":
-    use_pyrex_sim = True
-
-#use_pyrex_sim = True
-
-#use_pyrex_sim = False
+use_pyrex_sim = True 
+    # Use pyrex sim by default.  Use debug menu to use the standalone sim. mark 060314.
 
 if debug_sim_exceptions:
     debug_all_frames = 1
@@ -102,21 +98,16 @@ class SimRunner:
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
         
-        from prefs_constants import watchRealtimeMinimization_prefs_key
-        prefer_dylib_sim = env.prefs[watchRealtimeMinimization_prefs_key] # mark 060218.
-            # The debug menu should set the user pref watchRealtimeMinimization_prefs_key.  mark 060218.
+        prefer_standalone_sim = debug_pref("force use of standalone sim", Choice_boolean_False,
+                                      prefs_key = 'use-standalone-sim', non_debug = True)
         
-        #prefer_dylib_sim = debug_pref("force use of pyrex sim", Choice_boolean_False,
-        #                              prefs_key = 'use-pyrex-sim', non_debug = True)
-        
-        if prefer_dylib_sim:
-            # if true, override environment variable, wware 060127
-            use_dylib_sim = True
+        if prefer_standalone_sim:
+            use_dylib_sim = False
         self.use_dylib_sim = use_dylib_sim #bruce 051230
             
         self.cmdname = cmdname
-        if use_dylib_sim:
-            env.history.message(greenmsg("this simulator run will use experimental pyrex interface if it can be imported properly"))
+        if not use_dylib_sim:
+            env.history.message(greenmsg("Using the standalone simulator (not the pyrex simulator)"))
         return
     
     def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
