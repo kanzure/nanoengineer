@@ -3876,138 +3876,13 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                     <cstring>TabPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string>History</string>
+                    <string>Undo</string>
                 </attribute>
-                <vbox>
+                <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout9</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>history_height_lbl</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Height :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                            </widget>
-                            <widget class="QSpinBox">
-                                <property name="name">
-                                    <cstring>history_height_spinbox</cstring>
-                                </property>
-                                <property name="suffix">
-                                    <string> lines</string>
-                                </property>
-                                <property name="maxValue">
-                                    <number>20</number>
-                                </property>
-                                <property name="value">
-                                    <number>4</number>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Number of lines displayed in the history area.</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer11_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>40</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout11</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>msg_serial_number_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Include message serial number</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer12</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>40</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout10</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>msg_timestamp_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Include message timestamp</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer13</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>40</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <spacer>
+                    <spacer row="2" column="0">
                         <property name="name">
                             <cstring>spacer10</cstring>
                         </property>
@@ -4020,11 +3895,127 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>80</height>
+                                <height>40</height>
                             </size>
                         </property>
                     </spacer>
-                </vbox>
+                    <widget class="QLayoutWidget" row="0" column="0">
+                        <property name="name">
+                            <cstring>layout67</cstring>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox" row="1" column="0">
+                                <property name="name">
+                                    <cstring>undo_automatic_checkpoints_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Automatic Checkpoints</string>
+                                </property>
+                            </widget>
+                            <spacer row="1" column="1">
+                                <property name="name">
+                                    <cstring>spacer57_3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>undo_restore_view_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Restore View when Undoing Structural Changes</string>
+                                </property>
+                            </widget>
+                            <spacer row="0" column="2">
+                                <property name="name">
+                                    <cstring>spacer56_4</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </grid>
+                    </widget>
+                    <widget class="QLayoutWidget" row="1" column="0">
+                        <property name="name">
+                            <cstring>layout68</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox17</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>History Preferences</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>msg_serial_number_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Include message serial number</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>msg_timestamp_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Include message timestamp</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer58_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                </grid>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -4452,12 +4443,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_high_quality_graphics()</slot>
     </connection>
     <connection>
-        <sender>history_height_spinbox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_history_height(int)</slot>
-    </connection>
-    <connection>
         <sender>hotspot_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4778,7 +4763,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>nanohive_checkbox</tabstop>
     <tabstop>nanohive_path_linedit</tabstop>
     <tabstop>nanohive_choose_btn</tabstop>
-    <tabstop>history_height_spinbox</tabstop>
     <tabstop>msg_serial_number_checkbox</tabstop>
     <tabstop>msg_timestamp_checkbox</tabstop>
     <tabstop>caption_prefix_linedit</tabstop>
@@ -4855,6 +4839,8 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_cpk_scale_factor()</slot>
     <slot>save_cpk_scale_factor()</slot>
     <slot>reset_cpk_scale_factor()</slot>
+    <slot>change_undo_restore_view()</slot>
+    <slot>change_undo_automatic_checkpointing()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

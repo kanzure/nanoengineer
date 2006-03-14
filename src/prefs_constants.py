@@ -124,7 +124,9 @@ captionPrefix_prefs_key = 'A6/Caption Prefix'
 captionSuffix_prefs_key = 'A6/Caption Suffix'
 captionFullPath_prefs_key = 'A6/Caption Full Path'
 
-# History prefs
+# Undo and History prefs
+undoRestoreView_prefs_key = 'A7/Undo Restore View'
+undoAutomaticCheckpoints_prefs_key = 'A7/Undo Automatic Checkpoints'
 historyHeight_prefs_key = 'A6/History Height'
 historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
 historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
@@ -215,7 +217,6 @@ prefs_table = (
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diVDW to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     
-
     # Bond preferences - colors
     
     ('bond_highlight_color',         'color', bondHighlightColor_prefs_key, _default_HICOLOR_real_bond),
@@ -241,7 +242,6 @@ prefs_table = (
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, False ), # mark 060310.
     ('selatomsmode_highlighting', 'boolean', selectAtomsModeHighlightingEnabled_prefs_key, True ), # mark 060220.
-    
     
     # Lighting preferences [added to this table by mark 051124]
     # If any default light colors are changed here, you must also change the color of 
@@ -272,8 +272,9 @@ prefs_table = (
     ('', 'string', captionSuffix_prefs_key, "*" ),
     ('', 'boolean', captionFullPath_prefs_key, False ),
 
-    # History preferences [added to this table by bruce 050810]
-
+    # Undo and History preferences [added to this table by bruce 050810]
+    ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
+    ('', 'boolean', undoAutomaticCheckpoints_prefs_key, True), # mark 060314
     ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
     ('', 'boolean', historyMsgTimestamp_prefs_key, True),
     

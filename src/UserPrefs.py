@@ -154,7 +154,7 @@ class UserPrefs(UserPrefsDialog):
             self.prefs_tab.setCurrentPage(4)
         elif pagename == 'Plug-ins':
             self.prefs_tab.setCurrentPage(5)
-        elif pagename == 'History':
+        elif pagename == 'Undo':
             self.prefs_tab.setCurrentPage(6)
         elif pagename == 'Caption':
             #bruce 051216 comment: I don't know if it's safe to change this string to 'Window' to match tab text
@@ -444,13 +444,16 @@ class UserPrefs(UserPrefsDialog):
         
         return
         
-    def _setup_history_page(self):
-        ''' Setup widgets to initial (default or defined) values on the history page.
+    def _setup_undo_page(self):
+        ''' Setup widgets to initial (default or defined) values on the Undo page.
         '''
-        # History height widgets will be hidden for A6, to be reinstituted at a later time (A7 or A8) for
-        # Bruce to decide.  He will be implementing this feature.  Mark 050731.
-        self.history_height_lbl.hide()
-        self.history_height_spinbox.hide()
+
+        connect_checkbox_with_boolean_pref( self.undo_restore_view_checkbox, undoRestoreView_prefs_key )
+        connect_checkbox_with_boolean_pref( self.undo_automatic_checkpoints_checkbox, undoAutomaticCheckpoints_prefs_key )
+        
+        #& History height widgets have been removed for A7, to be reinstituted at a later time, probably A8. mark 060314.
+        #& self.history_height_lbl.hide()
+        #& self.history_height_spinbox.hide()
         
         ## self.history_height_spinbox.setValue(self.history.history_height) #bruce 050810 removed this
         
@@ -1172,7 +1175,7 @@ class UserPrefs(UserPrefsDialog):
         
     ########## End of slot methods for "Window" page widgets ###########
     
-    ########## Slot methods for "History" page widgets ################
+    ########## Slot methods for "Undo" page widgets ################
     
     def set_history_height(self, height):
         print 'set_history_height: height =', height
@@ -1203,8 +1206,8 @@ class UserPrefs(UserPrefsDialog):
             self._setup_lighting_page()
         elif pagename == 'Plug-ins':
             self._setup_plugins_page()
-        elif pagename == 'History':
-            self._setup_history_page()
+        elif pagename == 'Undo':
+            self._setup_undo_page()
         elif pagename == 'Window':
             self._setup_window_page()
         else:
