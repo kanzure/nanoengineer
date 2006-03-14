@@ -620,7 +620,10 @@ class Jig(Node):
     def toggleJigDisabled(self):
         '''Enable/Disable jig.
         '''
-        self.disabled_by_user_choice = not self.disabled_by_user_choice
+        # this is wrong, doesn't do self.changed():
+        ## self.disabled_by_user_choice = not self.disabled_by_user_choice
+        self.set_disabled_by_user_choice( not self.disabled_by_user_choice )
+            #bruce 060313 use correct call, to fix bug 1671 (and related unreported bugs)
         if self is self.assy.o.selobj:
             # Without this, self will remain highlighted until the mouse moves.
             self.assy.o.selobj = None

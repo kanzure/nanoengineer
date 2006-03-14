@@ -166,16 +166,18 @@ class Motor(Jig):
     def make_selobj_cmenu_items(self, menu_spec):
         '''Add Motor specific context menu items to <menu_spec> list when self is the selobj.
         '''
-        item = ('Hide', self.Hide)
-        menu_spec.append(item)
-        if self.disabled_by_user_choice:
-            item = ('Disabled', self.toggleJigDisabled, 'checked')
-        else:
-            item = ('Disable', self.toggleJigDisabled, 'unchecked')
-        menu_spec.append(item)
-        menu_spec.append(None) # Separator
-        item = ('Properties...', self.edit)
-        menu_spec.append(item)
+        Jig.make_selobj_cmenu_items(self, menu_spec)
+            #bruce 060313 share this code (it is identical to the following commented out code)
+##        item = ('Hide', self.Hide)
+##        menu_spec.append(item)
+##        if self.disabled_by_user_choice:
+##            item = ('Disabled', self.toggleJigDisabled, 'checked')
+##        else:
+##            item = ('Disable', self.toggleJigDisabled, 'unchecked')
+##        menu_spec.append(item)
+##        menu_spec.append(None) # Separator
+##        item = ('Properties...', self.edit)
+##        menu_spec.append(item)
         item = ('Align to Chunk', self.__CM_Align_to_chunk)
         menu_spec.append(item)
         item = ('Recenter on Atoms', self.__CM_Recenter_on_atoms)
