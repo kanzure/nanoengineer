@@ -1003,9 +1003,14 @@ class ColorSorter:
         Finish sorting - objects recorded since "start" will
         be sorted and invoked now.
         """
+        from debug_prefs import debug_pref, Choice_boolean_False
+        debug_which_renderer = debug_pref("debug print which renderer", Choice_boolean_False) #bruce 060314, imperfect but tolerable
         if use_c_renderer:
             quux.shapeRendererInit()
-            # print "VBO %s enabled" % (('is not', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
+            if debug_which_renderer:
+                #bruce 060314 uncommented/revised the next line; it might have to come after shapeRendererInit (not sure);
+                # it definitely has to come after a graphics context is created and initialized.
+                print "using C renderer: VBO %s enabled" % (('is NOT', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
             quux.shapeRendererSetUseDynamicLOD(0)
             if ColorSorter.sphereLevel != -1:
                 quux.shapeRendererSetStaticLODLevels(ColorSorter.sphereLevel, 1)
@@ -1020,6 +1025,8 @@ class ColorSorter:
             # return ColorSorter._cur_shapelist      
 
         else:
+            if debug_which_renderer:
+                print "using Python renderer"
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
             for color, funcs in ColorSorter.sorted_by_color.iteritems():
