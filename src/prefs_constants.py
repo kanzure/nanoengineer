@@ -57,6 +57,7 @@ compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
+animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #mark 060315. NIY.
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 watchRealtimeMinimization_prefs_key = 'A7/Watch Realtime Minimization'
@@ -118,18 +119,19 @@ gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
 nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
 
-# Window prefs (used to be called Caption prefs)
-mainwindow_geometry_prefs_key_prefix = "main window/geometry" #bruce 051218 moved this from debug.py
-captionPrefix_prefs_key = 'A6/Caption Prefix'
-captionSuffix_prefs_key = 'A6/Caption Suffix'
-captionFullPath_prefs_key = 'A6/Caption Full Path'
-
 # Undo and History prefs
 undoRestoreView_prefs_key = 'A7/Undo Restore View'
 undoAutomaticCheckpoints_prefs_key = 'A7/Undo Automatic Checkpoints'
 historyHeight_prefs_key = 'A6/History Height'
 historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
 historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
+
+# Window prefs (used to be called Caption prefs)
+rememberWinPosSize_prefs_key = "A7/Remember Window Pos and Size" #mark 060315. NIY.
+mainwindow_geometry_prefs_key_prefix = "main window/geometry" #bruce 051218 moved this from debug.py
+captionPrefix_prefs_key = 'A6/Caption Prefix'
+captionSuffix_prefs_key = 'A6/Caption Suffix'
+captionFullPath_prefs_key = 'A6/Caption Full Path'
 
 # Bug-workaround prefs, Mac-specific
 
@@ -196,6 +198,7 @@ prefs_table = (
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
+    ('animate_high_quality', 'boolean', animateHighQualityGraphics_prefs_key, True), # Mark 060315. NIY.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
     ('watch_realtime_min', 'boolean', watchRealtimeMinimization_prefs_key, True), # Mark 060217.
@@ -266,17 +269,18 @@ prefs_table = (
     ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
     ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
 
-    # Caption preferences [added to this table by bruce 050810]
-
-    ('', 'string', captionPrefix_prefs_key, "" ),
-    ('', 'string', captionSuffix_prefs_key, "*" ),
-    ('', 'boolean', captionFullPath_prefs_key, False ),
-
     # Undo and History preferences [added to this table by bruce 050810]
     ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
     ('', 'boolean', undoAutomaticCheckpoints_prefs_key, True), # mark 060314
     ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
     ('', 'boolean', historyMsgTimestamp_prefs_key, True),
+    
+    # Window preferences [added to this table by bruce 050810]
+    
+    ('', 'boolean', rememberWinPosSize_prefs_key, False), # mark 060315. NIY.
+    ('', 'string', captionPrefix_prefs_key, "" ),
+    ('', 'string', captionSuffix_prefs_key, "*" ),
+    ('', 'boolean', captionFullPath_prefs_key, False ),
     
     # ...
 

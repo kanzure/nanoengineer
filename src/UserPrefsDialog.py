@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Mar 14 18:40:12 2006
+# Created: Wed Mar 15 09:14:47 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1246,9 +1246,9 @@ class UserPrefsDialog(QDialog):
         groupBox10Layout = QGridLayout(self.groupBox10.layout())
         groupBox10Layout.setAlignment(Qt.AlignTop)
 
-        self.always_save_win_pos_and_size_checkbox = QCheckBox(self.groupBox10,"always_save_win_pos_and_size_checkbox")
+        self.remember_win_pos_and_size_checkbox = QCheckBox(self.groupBox10,"remember_win_pos_and_size_checkbox")
 
-        groupBox10Layout.addMultiCellWidget(self.always_save_win_pos_and_size_checkbox,0,0,0,1)
+        groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,0,0,0,1)
 
         self.save_current_btn = QPushButton(self.groupBox10,"save_current_btn")
 
@@ -1269,7 +1269,7 @@ class UserPrefsDialog(QDialog):
         self.resize(QSize(565,424).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.always_save_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_always_save_win_pos_and_size)
+        self.connect(self.remember_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_remember_win_pos_and_size)
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
         self.connect(self.autobond_checkbox,SIGNAL("clicked()"),self.set_buildmode_autobond)
@@ -1695,7 +1695,7 @@ class UserPrefsDialog(QDialog):
         self.caption_suffix_linedit.setText(QString.null)
         self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
         self.groupBox10.setTitle(self.__tr("Window Position and Size"))
-        self.always_save_win_pos_and_size_checkbox.setText(self.__tr("Always save window position and size"))
+        self.remember_win_pos_and_size_checkbox.setText(self.__tr("Remember window position and size"))
         self.save_current_btn.setText(self.__tr("Save Current"))
         QToolTip.add(self.save_current_btn,self.__tr("Save current window position and size for next startup"))
         QWhatsThis.add(self.save_current_btn,self.__tr("Saves the main window's current position and size for the next time the program starts."))
@@ -1855,8 +1855,8 @@ class UserPrefsDialog(QDialog):
     def change_high_quality_graphics(self):
         print "UserPrefsDialog.change_high_quality_graphics(): Not implemented yet"
 
-    def change_always_save_win_pos_and_size(self):
-        print "UserPrefsDialog.change_always_save_win_pos_and_size(): Not implemented yet"
+    def change_remember_win_pos_and_size(self):
+        print "UserPrefsDialog.change_remember_win_pos_and_size(): Not implemented yet"
 
     def save_current_win_pos_and_size(self):
         print "UserPrefsDialog.save_current_win_pos_and_size(): Not implemented yet"

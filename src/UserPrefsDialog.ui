@@ -4199,10 +4199,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </property>
                                     <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="2">
                                         <property name="name">
-                                            <cstring>always_save_win_pos_and_size_checkbox</cstring>
+                                            <cstring>remember_win_pos_and_size_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Always save window position and size</string>
+                                            <string>Remember window position and size</string>
                                         </property>
                                     </widget>
                                     <widget class="QPushButton" row="1" column="0">
@@ -4268,12 +4268,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     </image>
 </images>
 <connections>
-    <connection>
-        <sender>always_save_win_pos_and_size_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_always_save_win_pos_and_size()</slot>
-    </connection>
     <connection>
         <sender>animation_speed_slider</sender>
         <signal>sliderReleased()</signal>
@@ -4516,15 +4510,15 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     </connection>
     <connection>
         <sender>light_specularity_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -4558,15 +4552,15 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     </connection>
     <connection>
         <sender>ms_brightness_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness()</slot>
-    </connection>
-    <connection>
-        <sender>ms_brightness_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_brightness_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness()</slot>
     </connection>
     <connection>
         <sender>ms_brightness_slider</sender>
@@ -4606,15 +4600,15 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     </connection>
     <connection>
         <sender>ms_shininess_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_shininess()</slot>
-    </connection>
-    <connection>
-        <sender>ms_shininess_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_shininess_stop()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess()</slot>
     </connection>
     <connection>
         <sender>nanohive_checkbox</sender>
@@ -4639,6 +4633,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <signal>selected(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>setup_current_page()</slot>
+    </connection>
+    <connection>
+        <sender>remember_win_pos_and_size_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_remember_win_pos_and_size()</slot>
     </connection>
     <connection>
         <sender>reset_atom_colors_btn</sender>
@@ -4810,7 +4810,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_material_brightness_start()</slot>
     <slot>change_material_brightness_stop()</slot>
     <slot>change_high_quality_graphics()</slot>
-    <slot>change_always_save_win_pos_and_size()</slot>
+    <slot>change_remember_win_pos_and_size()</slot>
     <slot>save_current_win_pos_and_size()</slot>
     <slot>change_view_animation_speed()</slot>
     <slot>set_buildmode_autobond()</slot>

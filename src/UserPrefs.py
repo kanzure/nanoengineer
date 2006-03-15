@@ -177,6 +177,7 @@ class UserPrefs(UserPrefsDialog):
         self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
         self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
+        connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
         connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, watchRealtimeMinimization_prefs_key )
         
@@ -467,6 +468,7 @@ class UserPrefs(UserPrefsDialog):
     def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
         ''' Setup widgets to initial (default or defined) values on the window page.
         '''
+        connect_checkbox_with_boolean_pref( self.remember_win_pos_and_size_checkbox, rememberWinPosSize_prefs_key )
         self.caption_prefix_linedit.setText(env.prefs[captionPrefix_prefs_key])
         self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
             ##e someday we should make a 2-way connector function for LineEdits too
@@ -545,6 +547,13 @@ class UserPrefs(UserPrefsDialog):
         # set the pref
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
+    
+    def change_high_quality_graphics(self, state): #mark 060315.
+        "Enable/disable high quality graphics during view animations."
+        # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
+        msg = "High Quality Graphics is not implemented yet."
+        from HistoryWidget import orangemsg
+        env.history.message(orangemsg(msg))
         
     def change_view_animation_speed(self):
         '''Sets the view animation speed between .25 (fast) and 3.0 (slow) seconds.
@@ -1117,10 +1126,10 @@ class UserPrefs(UserPrefsDialog):
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
 
-    def change_always_save_win_pos_and_size(self, state): #bruce 051218 ##k args
-        #& print "change_always_save_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
+    def change_remember_win_pos_and_size(self, state): #bruce 051218 ##k args
+        #& print "change_remember_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
         # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
-        msg = "Always Save Window Position and Size is not implemented yet."
+        msg = "Remember Window Position and Size is not implemented yet."
         from HistoryWidget import orangemsg
         env.history.message(orangemsg(msg))
         #e implem notes:
