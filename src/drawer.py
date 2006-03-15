@@ -28,7 +28,11 @@ allow_color_sorting_prefs_key = "allow_color_sorting"
 # Experimental native C renderer
 use_c_renderer = use_c_renderer_default = False
 use_c_renderer_prefs_key = "use_c_renderer"
-sys.path.append("../bin")
+
+binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
+if binPath not in sys.path:
+    sys.path.append(binPath)
+
 try:
     import quux
     quux_module_import_succeeded = True
