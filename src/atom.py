@@ -140,8 +140,9 @@ if __name__ == '__main__':
             # During startup on Linux, the MMKit dialog must be "shown" before it can be moved.
             # Fixes bug 1444.  mark 060311.
             x, y = foo.glpane.mode.MMKit.get_location(False)
+                # Call MMKit.move_to_best_location(), not get_location(), and move x += 5 there.
+                # Then we can remove MMKit.move, too.
             x += 5 # Add 5 pixels. X11 didn't include the border when we called get_location().
-            y += 26 # Add 26 pixels.  X11 didn't include the border when we called get_location().
             foo.glpane.mode.MMKit.move(x, y)
         
     try:

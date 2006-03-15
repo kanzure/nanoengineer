@@ -569,12 +569,11 @@ class MMKit(MMKitDialog):
                 # after the MMKit is created but not yet shown.  This bug causes <mmk_height> of the
                 # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value.
                 # See DirView.__init__() for more info on this. mark 060222.
-            elif sys.platform == 'darwin':
-                y -= 58 # guess. Needs testing.
-            elif sys.platform == 'linux2':
-                y -= 33
-            else:
-                y -= 58 # catchall
+            if sys.platform == 'darwin':
+                y -= 39 # Tested and working. mark 060315.
+        
+        if sys.platform == 'linux2':
+            y -= 33 # Tested and working. mark 060315.
 
         # Make sure the MMKit stays on the screen.
         y = max(0, y)
