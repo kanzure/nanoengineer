@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Mar 15 09:14:47 2006
+# Created: Wed Mar 15 12:25:04 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1269,7 +1269,6 @@ class UserPrefsDialog(QDialog):
         self.resize(QSize(565,424).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.remember_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_remember_win_pos_and_size)
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
         self.connect(self.autobond_checkbox,SIGNAL("clicked()"),self.set_buildmode_autobond)
@@ -1310,27 +1309,28 @@ class UserPrefsDialog(QDialog):
         self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.mode_combox,SIGNAL("activated(int)"),self.mode_changed)
-        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
+        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
         self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
         self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
         self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
         self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
-        self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
+        self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
+        self.connect(self.remember_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_remember_win_pos_and_size)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
         self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
@@ -1682,7 +1682,17 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.undo_automatic_checkpoints_checkbox.setText(self.__tr("Automatic Checkpoints"))
+        QToolTip.add(self.undo_automatic_checkpoints_checkbox,self.__tr("Specify Automatic or Manual Checkpoints at program startup."))
+        QWhatsThis.add(self.undo_automatic_checkpoints_checkbox,self.__tr("<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic Checkpointing</b> is enabled/disabled during program startup only.  It does not enable/disable <b>Automatic Checkpointing</b> when the program is running.\n"
+"<p><b>Automatic Checkpointing</b> can be enabled/disabled by the user at any time from <b>Edit > Automatic Checkpointing</b>. When enabled, the program maintains the Undo stack automatically.  When disabled, the user is required to manually set Undo checkpoints using the <b>Set Checkpoint</b> button in the Edit Toolbar/Menu.</p>\n"
+"<p><b>Automatic Checkpointing</b> can impact program performance. By disabling Automatic Checkpointing, the program will run faster.</p>\n"
+"<p><b><i>Remember to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.</i></b></p>"))
         self.undo_restore_view_checkbox.setText(self.__tr("Restore View when Undoing Structural Changes"))
+        QToolTip.add(self.undo_restore_view_checkbox,self.__tr("Undo will switch to the view saved with each structural change."))
+        QWhatsThis.add(self.undo_restore_view_checkbox,self.__tr("<p><b>Restore View when Undoing Structural Changes</b></p>\n"
+"<p>When checked, the current view is stored along with each <b><i>structural change</i></b> on the undo stack.  The view is then restored when the user undoes a structural change.</p>\n"
+"<p><b><i>Structural changes</i></b> include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. </p>\n"
+"<p>Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).</p>"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
         self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))

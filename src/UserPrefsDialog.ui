@@ -3914,6 +3914,15 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="text">
                                     <string>Automatic Checkpoints</string>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Specify Automatic or Manual Checkpoints at program startup.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>&lt;p&gt;&lt;b&gt;Automatic Checkpoints&lt;/b&gt;&lt;/p&gt;Specifies whether &lt;b&gt;Automatic Checkpointing&lt;/b&gt; is enabled/disabled during program startup only.  It does not enable/disable &lt;b&gt;Automatic Checkpointing&lt;/b&gt; when the program is running.
+&lt;p&gt;&lt;b&gt;Automatic Checkpointing&lt;/b&gt; can be enabled/disabled by the user at any time from &lt;b&gt;Edit &gt; Automatic Checkpointing&lt;/b&gt;. When enabled, the program maintains the Undo stack automatically.  When disabled, the user is required to manually set Undo checkpoints using the &lt;b&gt;Set Checkpoint&lt;/b&gt; button in the Edit Toolbar/Menu.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Automatic Checkpointing&lt;/b&gt; can impact program performance. By disabling Automatic Checkpointing, the program will run faster.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;&lt;i&gt;Remember to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.&lt;/i&gt;&lt;/b&gt;&lt;/p&gt;</string>
+                                </property>
                             </widget>
                             <spacer row="1" column="1">
                                 <property name="name">
@@ -3938,6 +3947,15 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 </property>
                                 <property name="text">
                                     <string>Restore View when Undoing Structural Changes</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Undo will switch to the view saved with each structural change.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>&lt;p&gt;&lt;b&gt;Restore View when Undoing Structural Changes&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;When checked, the current view is stored along with each &lt;b&gt;&lt;i&gt;structural change&lt;/i&gt;&lt;/b&gt; on the undo stack.  The view is then restored when the user undoes a structural change.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;&lt;i&gt;Structural changes&lt;/i&gt;&lt;/b&gt; include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. &lt;/p&gt;
+&lt;p&gt;Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <spacer row="0" column="2">
