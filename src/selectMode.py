@@ -1058,8 +1058,7 @@ class selectMode(basicMode):
             #  the Large-Bearing has already been loaded normally into rotate mode
             #bruce 060209 set this from a debug_pref menu item, not a hardcoded flag
             from debug_prefs import debug_pref, Choice
-            TEST_PYREX_OPENGL = debug_pref("TEST_PYREX_OPENGL", Choice([0,1,2]), non_debug = True)
-                #e should remove non_debug = True before release!
+            TEST_PYREX_OPENGL = debug_pref("TEST_PYREX_OPENGL", Choice([0,1,2]))
             # uncomment this line to set it in the old way:
             ## TEST_PYREX_OPENGL = 1
         if TEST_PYREX_OPENGL:
