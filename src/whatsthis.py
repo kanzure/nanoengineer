@@ -110,12 +110,46 @@ def createWhatsThis(self):
         # Edit Toolbar
         ##############################################
         
+        #### Make Checkpoint ###
+        
+        editMakeCheckpointText =  "<u><b>Make Checkpoint</b></u>"\
+                       "<p><img source=\"editMakeCheckpoint\"><br> "\
+                       "Make Undo checkpoint."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "editMakeCheckpoint",
+                                                       self.editMakeCheckpointAction.iconSet().pixmap() )
+
+        self.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
+        
+        #### Automatic Checkpointing ###
+        
+        editAutoCheckpointingText =  "<u><b>Automatic Checkpointing</b></u>"\
+                       "<p>Enables/Disables <b>Automatic Checkpointing</b>. When enabled, the program "\
+                       "maintains the Undo stack automatically.  When disabled, the user is required to "\
+                       "manually set Undo checkpoints using the <b>Set Checkpoint</b> button: </p>"\
+                       "<p><img source=\"editMakeCheckpoint\"></p>"\
+                       "<p><b>Automatic Checkpointing</b> can impact program performance. By disabling "\
+                       "Automatic Checkpointing, the program will run faster.</p>"\
+                       "<p><b><i>Remember that you must set your own Undo checkpoints manually when "\
+                       "Automatic Checkpointing is disabled.</i></b>"\
+                       "</p>"
+
+        self.editAutoCheckpointingAction.setWhatsThis( editAutoCheckpointingText )
+        
+        #### Clear Undo Stack ###
+        
+        editClearUndoStackText =  "<u><b>Clear Undo Stack</b></u>"\
+                       "<p>Clears all Undo checkpoints on the Undo stack, freeing up memory."\
+                       "</p>"
+
+        self.editClearUndoStackAction.setWhatsThis( editClearUndoStackText )
+        
         #### Undo ####
         
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)</b></p><br> "\
                        "<p><img source=\"editUndo\"><br> "\
                        "Reverses the last edit or command to the active part. "\
-                       "<b>Currently not implemented</b>."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
@@ -128,7 +162,7 @@ def createWhatsThis(self):
         editRedoText =  "<u><b>Redo</b></u>     (Ctrl + Y)</b></p><br> "\
                        "<p><img source=\"editRedo\"> <br>"\
                        "Re-applies the actions or commands on which you have used "\
-                       "the Undo command. <b>Currently not implemented</b>."\
+                       "the Undo command."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editRedo",
