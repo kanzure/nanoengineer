@@ -1,0 +1,57 @@
+# $Id$
+
+CVS branching is sometimes usefully done with small subsets of a
+source tree. In that case, you would change the branch file to be
+a list of the files specific to your branch, like this:
+
+----- 8< -----
+VQT.py
+jigs_motors.py
+whatsthis.py
+----- 8< -----
+
+When you want to check out your branch, you first check out the
+entire tree, then check out your branch on top of it:
+
+cvs co cad
+cd cad/src
+cvs up -r wware_mybranch_20051228 branch
+cvs up -r wware_mybranch_20051228 `cat branch`
+
+When you've done some work in your branch and you want to commit
+it, use this command:
+
+cvs commit -r wware_mybranch_20051228 `cat branch`
+
+and if the contents of the branch files changes (you need
+to branch more files, or fewer, or different ones), then:
+
+cvs commit -r wware_mybranch_20051228 branch
+
+==
+
+If you want to make a new branch containing only new files (such as
+debugging code, perhaps never intended to become part of the main branch),
+you have to first introduce your new branch tag onto an existing file, which
+might as well be 'branch':
+
+cvs tag -b bruce_debug_branch_060315 branch
+
+Then you can edit 'branch' to contain the list of new files meant for your
+new branch, and commit it. 
+
+echo my_debug_code.py > branch
+cvs commit -r bruce_debug_branch_060315 -m "new branch for debugging" branch
+
+When using 'cvs add' on the new files meant for your branch, you don't use
+any option or mention the branch, but you use -r when you commit it:
+
+cvs add my_debug_code.py
+
+cvs commit -r bruce_debug_branch_060315 -m "debugging code in my branch" my_debug_code.py
+
+[Maybe Will can edit this to say whether, after this, the branch tag on the
+files branch and my_debug_code.py will be 'sticky', and if so (or if not)
+what you should do and watch out for, especially if you are using the branch
+files in the same checkout directory in which you do most of your work in
+the MAIN branch.]
