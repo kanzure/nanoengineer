@@ -996,7 +996,10 @@ class SimRunner:
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number)######@@@@@@ also set self-aborting flag to be used above
-            elif self._movie.watch_motion and env.prefs[watchRealtimeMinimization_prefs_key]:
+            # mflag=1 -> minimize, user preference determines whether we watch it in realtime
+            # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines realtime
+            elif ((not self.mflag and self._movie.watch_motion) or
+                  (self.mflag and env.prefs[watchRealtimeMinimization_prefs_key])):
                 from sim import getFrame
                 frame = getFrame()
                 # stick the atom posns in, and adjust the singlet posns
