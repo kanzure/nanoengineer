@@ -1,3 +1,19 @@
+Wed Mar 15 17:16:49 EST 2006 - wware
+------------------------------------
+
+The code in the cad/src directory has been changed to expect the quux.so
+library to be in cad/bin rather than this directory. If you are a developer
+then you'll need to copy it to cad/bin manually. (Maybe I'll modify the
+makefile to do this.)
+
+This was for the benefit of release building. Later I will plan to change the
+name 'quux' to something more informative like 'shapeRenderer' or some such.
+This change will apply to both release builds and developer builds.
+
+Refer to Bruce's email of Mar 15, 2006 4:06 PM for more ideas about what
+might need to be changed.
+
+
 Mon Feb  6 22:21:28 PST 2006 - grantham
 ----------------------------------------
 How to test today's code:
