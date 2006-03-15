@@ -910,8 +910,16 @@ class basicMode(anyMode):
         [overrides anyMode method; subclasses might want to override this one]
         """
         try:
-            return not selobj.killed()
+            if selobj.killed():
                 #bruce 050702, part of fix 1 of 2 redundant fixes for bug 716 (both fixes are desirable)
+                return False
+            # This sequence of conditionals fix bugs 1648 and 1676. mark 060315.
+            if isinstance(selobj, Atom):
+                return selobj.molecule.part is self.o.part
+            if isinstance(selobj, Bond):
+                return selobj.a1.molecule.part is self.o.part
+            if isinstance(selobj, Node): # Jig
+                return selobj.part is self.o.part
         except:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception: ")
