@@ -906,7 +906,8 @@ class selectMode(basicMode):
                 self.atoms_of_last_deleted_jig.append(a)
             j.kill()
             self.set_cmdname('Delete Jig')
-            return # need win_update?  Probably.
+            self.w.win_update()
+            return
                 
         else:
             print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
