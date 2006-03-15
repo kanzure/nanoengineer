@@ -991,11 +991,12 @@ class SimRunner:
            (but for now, separate code will also terminate the sim run in the usual way, 
             reading redundantly from xyz file)
         """
+        from prefs_constants import watchRealtimeMinimization_prefs_key
         if 1: ### if not self.pyrex_sim_aborting(): ######@@@@@@ needs to be a method of a separated task-loop, like abortbutton itself has
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number)######@@@@@@ also set self-aborting flag to be used above
-            elif self._movie.watch_motion:
+            elif self._movie.watch_motion and env.prefs[watchRealtimeMinimization_prefs_key]:
                 from sim import getFrame
                 frame = getFrame()
                 # stick the atom posns in, and adjust the singlet posns
