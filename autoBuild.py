@@ -147,8 +147,8 @@ class NanoBuildBase:
 
         self.binPath = binPath = os.path.join(self.buildSourcePath, 'bin')
         os.mkdir(binPath)
-        self.progPath = progPath = os.path.join(self.buildSourcePath, 'program')
-        os.mkdir(progPath)
+        #self.progPath = progPath = os.path.join(self.buildSourcePath, 'program')
+        #os.mkdir(progPath)
         os.chdir(self.currentPath)
         self.copyOtherSources()
         os.chdir(os.path.join(self.atomPath,'cad/src'))
@@ -211,7 +211,7 @@ class NanoBuildWin32(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
-                          self.openglAcceleratorName()), self.progPath)
+                          self.openglAcceleratorName()), self.binPath)
         copy(self.iconFile, self.buildSourcePath)
         copy('uninst.ico', self.buildSourcePath)
         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
@@ -356,7 +356,7 @@ class NanoBuildLinux(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
-                          self.openglAcceleratorName()), self.progPath)
+                          self.openglAcceleratorName()), self.binPath)
         copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
@@ -502,7 +502,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         copytree('partlib', os.path.join(self.buildSourcePath, appname, 'Contents/partlib'))
         #
         #
-        binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
+        self.binPath = binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
         ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
         for f in ne1files:
@@ -534,7 +534,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
-                          self.openglAcceleratorName()), self.progPath)
+                          self.openglAcceleratorName()), self.binPath)
         copy('/usr/local/bin/gnuplot', self.binPath)
         #Copy rungms script into 'bin' directory
         copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
