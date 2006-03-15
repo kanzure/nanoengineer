@@ -950,6 +950,12 @@ class depositMode(selectAtomsMode):
         
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
         
+        modkeys = self.o.modkeys # save the modkeys state
+        if self.o.modkeys is None and env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
+            # Needed when 'Select Atoms of Deposited Object' pref is enabled. mark 060314.
+            self.o.modkeys = 'Shift'    
+            self.o.assy.unpickatoms()
+        
         self.transdepositing = True
         nobjs=0
         for s in singlet_list[:]: # singlet_list built in singletSetup()
@@ -957,6 +963,7 @@ class depositMode(selectAtomsMode):
                 deposited_obj = self.deposit_from_MMKit(s)
                 nobjs += 1
         self.transdepositing = False
+        self.o.modkeys = modkeys # restore the modkeys state to real state.
         
         if deposited_obj is None: 
             # Let user know nothing was trandeposited. Fixes bug 1678. mark 060314.
