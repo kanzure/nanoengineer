@@ -341,16 +341,16 @@ class NanoBuildWin32(NanoBuildBase):
 ########################################################
 
 class NanoBuildLinux(NanoBuildBase):
+
     def setupBuildSourcePath(self):
         self.buildSourcePath = os.path.join(self.rootPath, PMMT)
+
     def buildTarball(self):
         os.chdir(self.atomPath)
         tarName = PMMT + '.tar.gz'
         system('tar -czvf %s *' % tarName)
         print "\nThe tar file: %s has been successfully created.\n" % tarName
-    # Why is binPath passed in as an argument? Shouldn't it just be an attribute of this
-    # class? There should be OS-specific attributes for cad/src or cad/program, cad/bin, etc.
-    # Likewise for the names of gnuplot and other external programs.
+
     def copyOtherSources(self):
         copy('/usr/bin/gnuplot', self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
@@ -362,6 +362,7 @@ class NanoBuildLinux(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
+
     def freezePythonExecutable(self):
         # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
         try:
@@ -376,6 +377,7 @@ class NanoBuildLinux(NanoBuildBase):
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
                  os.path.join(self.buildSourcePath, 'program/OpenGL'))
+
     def createSpecFile(self, specFile, appName, version, releaseNo, sourceDir):
         """Create the spec file to build rpm package on Linux. Here is some
         information about what goes inside a RPM spec file:
