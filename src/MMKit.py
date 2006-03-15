@@ -497,21 +497,19 @@ class MMKit(MMKitDialog):
         '''
 
         if sys.platform == 'linux2' and firstShow:
-            mmk_height = 0
-            buildmode_dashboard_height = 0
-            status_bar_height = 0
-        else:
             # Qt Notes: On X11 system, widgets do not have a frameGeometry() before show() is called.
             # This is why we have special case code in atom.py, MWsemantics.py and here to work
             # around this issue on Linux.  mark 060311. 
+            mmk_height = 500
+        else:
             mmk_geometry = self.frameGeometry()
             mmk_height = mmk_geometry.height() 
                 # <mmk_height> is wrong when firstShow is True.  This is due to a problem with the
                 # Library's QListView (DirView) widget.  See DirView.__init__() for more info on this.
                 # We compensate for <mmk_height>'s wrong value below. Mark 060222.
 
-            buildmode_dashboard_height = self.w.depositAtomDashboard.frameGeometry().height()
-            status_bar_height = self.w.statusBar().frameGeometry().height()
+        buildmode_dashboard_height = self.w.depositAtomDashboard.frameGeometry().height()
+        status_bar_height = self.w.statusBar().frameGeometry().height()
         
         # Compute the y coordinate
         y = self.w.geometry().y() \
@@ -540,7 +538,7 @@ class MMKit(MMKitDialog):
                 y -= 33
         # Make sure the MMKit stays on the screen.
         y = max(0, y)
-        x = max(0,self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.
+        x = max(4,self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.
 
         #print "x=%d, y =%d" % (x,y)
         return x, y
