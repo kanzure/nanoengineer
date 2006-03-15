@@ -917,7 +917,7 @@ class basicMode(anyMode):
             if isinstance(selobj, Atom):
                 return selobj.molecule.part is self.o.part
             if isinstance(selobj, Bond):
-                return selobj.a1.molecule.part is self.o.part
+                return selobj.atom1.molecule.part is self.o.part
             if isinstance(selobj, Node): # Jig
                 return selobj.part is self.o.part
         except:
