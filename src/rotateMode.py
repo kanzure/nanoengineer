@@ -28,7 +28,6 @@ class rotateMode(basicMode):
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.OldCursor = QCursor(self.o.cursor())
         self.w.rotateToolAction.setOn(1) # toggle on the Rotate Tool icon
         self.o.setCursor(self.w.RotateCursor)
         self.w.rotateDashboard.show()
@@ -60,7 +59,6 @@ class rotateMode(basicMode):
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         self.w.rotateToolAction.setOn(0) # toggle off the Rotate Tool icon
-        self.o.setCursor(self.OldCursor) # restore cursor
         self.w.rotateDashboard.hide()
 
     # mouse and key events
@@ -90,5 +88,10 @@ class rotateMode(basicMode):
         self.Menu_spec = [
             ('Done', self.Done),
          ]
+         
+    def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
+        '''Update the cursor for 'Extrude' mode (extrudeMode).
+        '''
+        self.o.setCursor(self.w.ZoomCursor)
          
     pass # end of class panMode
