@@ -950,11 +950,6 @@ class depositMode(selectAtomsMode):
         
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
         
-        self.o.assy.unpickatoms()
-        modkeys = self.o.modkeys # save the modkeys state
-        if self.o.modkeys is None:
-            self.o.modkeys = 'Shift'
-                # needed to maintain selection consistency when no modifier key is pressed.
         self.transdepositing = True
         nobjs=0
         for s in singlet_list[:]: # singlet_list built in singletSetup()
@@ -962,7 +957,6 @@ class depositMode(selectAtomsMode):
                 deposited_obj = self.deposit_from_MMKit(s)
                 nobjs += 1
         self.transdepositing = False
-        self.o.modkeys = modkeys # restore the modkeys state to real state.
         
         if deposited_obj is None: 
             # Let user know nothing was trandeposited. Fixes bug 1678. mark 060314.
@@ -1206,7 +1200,9 @@ class depositMode(selectAtomsMode):
                 ## a1, desc = self.attach(el, a)
                 if a1 is not None:
                     if self.pickit(): a1.pick()
-                    self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
+                    #self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
+                        # The only callers, deposit_from_MMKit() and transdeposit_from_MMKit()
+                        # are responsible for calling gl_update()/win_update(). mark 060314.
                     status = "replaced bondpoint on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                     chunk = a1.molecule #bruce 041207
                 else:
