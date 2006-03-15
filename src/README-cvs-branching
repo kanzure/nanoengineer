@@ -38,7 +38,13 @@ might as well be 'branch':
 cvs tag -b bruce_debug_branch_060315 branch
 
 Then you can edit 'branch' to contain the list of new files meant for your
-new branch, and commit it. 
+new branch, and commit it.
+
+(Note: having this 'branch' file (under any name), with a list of the files
+in your branch, is purely a convenience to help you include the right list
+of files in cvs commands -- this file itself has no special significance to
+cvs, and in theory need not exist or need not be committed if it does
+exist.)
 
 echo my_debug_code.py > branch
 cvs commit -r bruce_debug_branch_060315 -m "new branch for debugging" branch
