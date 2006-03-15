@@ -69,22 +69,12 @@ class movieMode(basicMode):
         self.w.simMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
 
         # Disable some action items in the main window.
-        # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k,
+        # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k 
         #  and suggest for some others (especially "simulator") that they
         #  auto-exit the mode rather than be disabled,
         #  but I won't revise these for now.]
-        self.w.modifyMinimizeSelAction.setEnabled(0) # Disable "Minimize Selection"
-        self.w.modifyMinimizeAllAction.setEnabled(0) # Disable "Minimize All"
-        self.w.simSetupAction.setEnabled(0) # Disable "Simulator"
-        self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
-        self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save As"
-        self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
-        self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
-        self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
-        self.w.editDeleteAction.setEnabled(0) # Disable "Delete"
-        self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool" [#k]
-        self.w.panToolAction.setEnabled(0) # Disable "Pan Tool" [#k]
-        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool" [#k]
+        self.w.disable_QActions_for_movieMode(True)
+            #  Actions marked #k are now in disable_QActions_for_movieMode(). mark 060314)
         
         # MP dashboard initialization.
         self._controls(0) # bruce 050428 precaution (has no noticable effect but seems safer in theory)
@@ -150,18 +140,7 @@ class movieMode(basicMode):
 
     def restore_gui(self):
         self.w.moviePlayerDashboard.hide()
-        self.w.modifyMinimizeSelAction.setEnabled(1) # Enable "Minimize Selection"
-        self.w.modifyMinimizeAllAction.setEnabled(1) # Enable "Minimize All"
-        self.w.simSetupAction.setEnabled(1) # Enable "Simulator"
-        self.w.fileSaveAction.setEnabled(1) # Enable "File Save"
-        self.w.fileSaveAsAction.setEnabled(1) # Enable "File Save"
-        self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
-        self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
-        self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
-        self.w.editDeleteAction.setEnabled(1) # Enable "Delete"
-        self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
-        self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        self.w.disable_QActions_for_movieMode(False)
 
     def makeMenus(self):
         self.Menu_spec = [

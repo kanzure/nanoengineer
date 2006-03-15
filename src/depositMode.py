@@ -1879,8 +1879,10 @@ class depositMode(selectAtomsMode):
                 pass
             pass
 
+        # This is duplicated in selectMode.makeMenus(). mark 060314.
         # local minimize - experimental, nim [bruce 051011, 051207]
-        if selatom is not None and not selatom.is_singlet():
+        if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
+            # if simSetupAction is not enabled, a sim process is running.  Fixes bug 1283. mark 060314.
             ## self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode
             # experimental. if we leave in these options, some of them might want a submenu.
             # or maybe the layer depth is a dashboard control? or have buttons instead of menu items?
@@ -1925,15 +1927,6 @@ class depositMode(selectAtomsMode):
 
         return # from makeMenus
 
-    def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to take a list or pair of atoms, other options
-        if platform.atom_debug:
-            print "atom_debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
-            import runSim
-            reload(runSim)
-        from runSim import LocalMinimize_function
-        LocalMinimize_function( [atom], nlayers )
-        return
-        
     def setCarbon_sp3(self):
         self.w.setCarbon() # MWsemantics shouldn't really be involved in this at all... at some point this will get revised
         self.set_pastable_atomtype('sp3')

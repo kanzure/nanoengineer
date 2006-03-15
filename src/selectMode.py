@@ -1143,7 +1143,18 @@ class selectMode(basicMode):
         selatom, selobj = self.update_selatom_and_selobj( None)
         
         self.Menu_spec = []
-
+        
+        # This is duplicated in depositMode.makeMenus(). mark 060314.
+        # local minimize - experimental, nim [bruce 051011, 051207]
+        if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
+            # if simSetupAction is not enabled, a sim process is running.  Fixes bug 1283. mark 060314.
+            ## self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode
+            # experimental. if we leave in these options, some of them might want a submenu.
+            # or maybe the layer depth is a dashboard control? or have buttons instead of menu items?
+            self.Menu_spec.append(( 'Minimize atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
+            self.Menu_spec.append(( 'Minimize 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
+            self.Menu_spec.append(( 'Minimize 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
+            
         # Jig specific menu items.
         if selobj is not None and isinstance(selobj, Jig):
             selobj.make_selobj_cmenu_items(self.Menu_spec)
@@ -1164,9 +1175,21 @@ class selectMode(basicMode):
             None,
             ('Change Background Color...', self.w.dispBGColor),
             ])
+            
+        return # from makeMenus
         
     def toggleJigSelection(self):
         self.o.jigSelectionEnabled = not self.o.jigSelectionEnabled
+    
+    # localmin moved here from depositMode. mark 060314.
+    def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to take a list or pair of atoms, other options
+        if platform.atom_debug:
+            print "atom_debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
+            import runSim
+            reload(runSim)
+        from runSim import LocalMinimize_function
+        LocalMinimize_function( [atom], nlayers )
+        return
 
     pass # end of class selectMode
     

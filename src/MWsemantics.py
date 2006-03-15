@@ -1588,6 +1588,34 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.setViewOppositeAction.setEnabled(enableFlag)
         self.setViewPlus90Action.setEnabled(enableFlag)
         self.setViewMinus90Action.setEnabled(enableFlag)
+    
+    def disable_QActions_for_sim(self, disableFlag=True):
+        '''Disables actions items in the main window during simulations (and minimize).
+        '''
+        self.disable_QActions_for_movieMode(disableFlag)
+        self.simMoviePlayerAction.setEnabled(not disableFlag)
+        
+    def disable_QActions_for_movieMode(self, disableFlag=True):
+        '''Disables action items in the main window for movieMode.
+        '''
+        disable = not disableFlag
+        self.modifyMinimizeSelAction.setEnabled(disable) # "Minimize Selection"
+        self.modifyMinimizeAllAction.setEnabled(disable) # "Minimize All"
+        self.simSetupAction.setEnabled(disable) # "Simulator"
+        self.fileSaveAction.setEnabled(disable) # "File Save"
+        self.fileSaveAsAction.setEnabled(disable) # "File Save As"
+        self.fileOpenAction.setEnabled(disable) # "File Open"
+        self.fileCloseAction.setEnabled(disable) # "File Close"
+        self.fileInsertAction.setEnabled(disable) # "File Insert"
+        self.editDeleteAction.setEnabled(disable) # "Delete"
+        
+        # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k 
+        #  and suggest for some others (especially "simulator") that they
+        #  auto-exit the mode rather than be disabled,
+        #  but I won't revise these for now.]
+        self.zoomToolAction.setEnabled(disable) # "Zoom Tool" [#k]
+        self.panToolAction.setEnabled(disable) # "Pan Tool" [#k]
+        self.rotateToolAction.setEnabled(disable) # "Rotate Tool" [#k]
 
 # == Caption methods
 

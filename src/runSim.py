@@ -121,6 +121,10 @@ class SimRunner:
             return
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
         self.set_waitcursor(True)
+        
+        # Disable some QActions (menu items/toolbar buttons) while the sim is running.
+        self.win.disable_QActions_for_sim(True)
+        
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
@@ -133,6 +137,8 @@ class SimRunner:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
         self.set_waitcursor(False)
+        self.win.disable_QActions_for_sim(False)
+        
         if not self.errcode:
             return # success
         if self.errcode == 1: # User pressed Abort button in progress dialog.
@@ -1569,11 +1575,8 @@ class Minimize_CommandRun(CommandRun):
         # At this point, the conditions are met to try to do the command.
         env.history.message(greenmsg( startmsg)) #bruce 050412 doing this earlier
         
-        # Disable Minimize, Simulator and Movie Player during the minimize function.
-        self.win.modifyMinimizeSelAction.setEnabled(0) # Disable "Minimize Selection"
-        self.win.modifyMinimizeAllAction.setEnabled(0) # Disable "Minimize All"
-        self.win.simSetupAction.setEnabled(0) # Disable "Simulator" 
-        self.win.simMoviePlayerAction.setEnabled(0) # Disable "Movie Player"     
+        # Disable some QActions (menu items/toolbar buttons) during minimize.
+        self.win.disable_QActions_for_sim(True)
         try:
             simaspect = sim_aspect( self.part, selection.atomslist(), cmdname_for_messages = cmdname ) #bruce 051129 passing cmdname
                 # note: atomslist gets atoms from selected chunks, not only selected atoms
@@ -1600,10 +1603,7 @@ class Minimize_CommandRun(CommandRun):
             self.doMinimize(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
             #self.doMinimize(mtype = 2) # 2 = multi-frame DPB file.
         finally:
-            self.win.modifyMinimizeSelAction.setEnabled(1) # Enable "Minimize Selection"
-            self.win.modifyMinimizeAllAction.setEnabled(1) # Enable "Minimize All"
-            self.win.simSetupAction.setEnabled(1) # Enable "Simulator"
-            self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
+            self.win.disable_QActions_for_sim(False)
         simrun = self._movie._simrun #bruce 050415 klugetower
         if not simrun.said_we_are_done:
             env.history.message("Done.")
