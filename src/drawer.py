@@ -28,7 +28,7 @@ allow_color_sorting_prefs_key = "allow_color_sorting"
 # Experimental native C renderer
 use_c_renderer = use_c_renderer_default = False
 use_c_renderer_prefs_key = "use_c_renderer"
-sys.path.append("./experimental/pyrex-opengl")
+sys.path.append("../bin")
 try:
     import quux
     quux_module_import_succeeded = True
@@ -1301,6 +1301,7 @@ def setup():
         initial_choice, non_debug = True, prefs_key = allow_color_sorting_prefs_key)
         #e should remove non_debug = True before release!
 
+    print "quux_module_import_succeeded", quux_module_import_succeeded
     # 20060313 grantham Added use_c_renderer_pref debug pref, can
     # take out when C renderer used by default.
     if quux_module_import_succeeded:
