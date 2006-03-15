@@ -11,6 +11,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import OpenGL.GLUT as glut
 import math
+import os
 import sys
 from VQT import *
 from constants import DIAMOND_BOND_LENGTH, white
