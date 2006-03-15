@@ -1176,27 +1176,21 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if not MMKitWin:
             firstShow = True
             MMKitWin = MMKit(self)
-       
-        pos = MMKitWin.get_location(firstShow)
         
-        ## On Linux, X11 has some problem for window location before it's shown. So a compromised way to do it, 
-        ## which will have the flash problem.
         MMKitWin.update_dialog(self.Element)
         
         if sys.platform == 'linux2':
+            # On Linux, X11 has some problem for window location before it's shown. 
+            # So show it first and then move it, which will have the flash problem.
             if self.isVisible(): 
                 # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
                 MMKitWin.show()
-                self.setActiveWindow() # Fixes bug 1503.  mark 060216.
-                    # Required to give the keyboard input focus back to self (MainWindow).
-            MMKitWin.move(pos[0], pos[1])
+            MMKitWin.move_to_best_location(False)
         else:
-            MMKitWin.move(pos[0], pos[1])
+            MMKitWin.move_to_best_location(False)
             if self.isVisible(): 
                 # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
                 MMKitWin.show()
-                self.setActiveWindow() # Fixes bug 1503.  mark 060216.
-                    # Required to give the keyboard input focus back to self (MainWindow).
                 MMKitWin.dirView.setMinimumSize(QSize(175,150))
                     # any value > 175 will cause the MMKit to get wider when clicking on the clipboard tab.
                     # Fixes bug 1563. mark 060303.

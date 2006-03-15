@@ -136,13 +136,12 @@ if __name__ == '__main__':
         # Should this be moved to startup_funcs.post_main_show()? I chose to leave
         # it here since the splashscreen code it refers to is in this file.  mark 060202.
         foo.glpane.mode.MMKit.show()
-        foo.setActiveWindow() # fixes bug 1503. mark 060216.
-            # Required to give the keyboard input focus back to foo (MainWindow). mark 060216.
         if sys.platform == 'linux2':
             # During startup on Linux, the MMKit dialog must be "shown" before it can be moved.
             # Fixes bug 1444.  mark 060311.
             x, y = foo.glpane.mode.MMKit.get_location(False)
-            y += 59
+            x += 5 # Add 5 pixels. X11 didn't include the border when we called get_location().
+            y += 26 # Add 26 pixels.  X11 didn't include the border when we called get_location().
             foo.glpane.mode.MMKit.move(x, y)
         
     try:

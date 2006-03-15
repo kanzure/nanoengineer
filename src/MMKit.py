@@ -490,7 +490,7 @@ class MMKit(MMKitDialog):
         if self.currentPageOpen(LibraryPage):
             self.setup_current_page(self.atomsPage)
             
-    def get_location(self, firstShow):
+    def get_location_ORIG(self, firstShow):
         '''Returns the best x, y screen coordinate for positioning the MMKit.
         If <firstShow> is True, the Model Tree width is set to 200 pixels.
         Should only be called MMKit has been created.
@@ -499,11 +499,10 @@ class MMKit(MMKitDialog):
         if sys.platform == 'linux2' and firstShow:
             # Qt Notes: On X11 system, widgets do not have a frameGeometry() before show() is called.
             # This is why we have special case code in atom.py, MWsemantics.py and here to work
-            # around this issue on Linux.  mark 060311. 
+            # around this issue on Linux.  mark 060311.
             mmk_height = 500
         else:
-            mmk_geometry = self.frameGeometry()
-            mmk_height = mmk_geometry.height() 
+            mmk_height = self.frameGeometry().height() 
                 # <mmk_height> is wrong when firstShow is True.  This is due to a problem with the
                 # Library's QListView (DirView) widget.  See DirView.__init__() for more info on this.
                 # We compensate for <mmk_height>'s wrong value below. Mark 060222.
@@ -542,6 +541,79 @@ class MMKit(MMKitDialog):
 
         #print "x=%d, y =%d" % (x,y)
         return x, y
+        
+    def get_location(self, firstShow):
+        '''Returns the best x, y screen coordinate for positioning the MMKit.
+        If <firstShow> is True, the Model Tree width is set to 200 pixels.
+        Should only be called MMKit has been created.
+        '''
+
+        mmkit_height = self.frameGeometry().height()
+        #&print "MMKit.get_location_NEW().MMKit height =", mmkit_height
+        buildmode_dashboard_height = self.w.depositAtomDashboard.frameGeometry().height()
+        status_bar_height = self.w.statusBar().frameGeometry().height()
+        
+        # Compute the y coordinate
+        y = self.w.geometry().y() \
+            + self.w.geometry().height() \
+            - mmkit_height \
+            - buildmode_dashboard_height \
+            - status_bar_height
+        
+        # Make small adjustments to the y coordinate based on various situations for different platforms.   
+        if firstShow:
+            self.w.mt.setGeometry(0,0,200,560)
+            if sys.platform == 'win32':
+                y -= 58
+                # This is to compensate for a strange bug related to the Library's QListView widget changing size
+                # after the MMKit is created but not yet shown.  This bug causes <mmk_height> of the
+                # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value.
+                # See DirView.__init__() for more info on this. mark 060222.
+            elif sys.platform == 'darwin':
+                y -= 58 # guess. Needs testing.
+            elif sys.platform == 'linux2':
+                y -= 33
+            else:
+                y -= 58 # catchall
+
+        # Make sure the MMKit stays on the screen.
+        y = max(0, y)
+        x = max(0, self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.
+
+        #&print "MMKit.get_location_NEW().x=%d, y =%d" % (x,y)
+        return x, y
+    
+    num_polish = 0
+    
+    def polish(self):
+        '''This slot is called after a widget has been fully created and before it is shown the very first time.
+        Polishing is useful for final initialization which depends on having an instantiated widget. 
+        This is something a constructor cannot guarantee since the initialization of the subclasses might not be finished.
+        After this function, the widget has a proper font and palette and QApplication.polish() has been called.
+        Remember to call QWidget's implementation when reimplementing this function.
+        '''
+        QWidget.polish(self) # call QWidget's polish() implementation
+        self.num_polish += 1
+        #&print "num_polish =", self.num_polish
+        if self.num_polish < 2:
+            # polish() is called twice; not sure why.  
+            # Call move_to_best_location() only after the second polish signal since 
+            # get_location() can only get self.frameGeometry() after that.
+            return
+        self.move_to_best_location(True)
+        
+    def move_to_best_location(self, firstShow):
+        x, y = self.get_location(firstShow)
+        self.move(x, y)
+        #&print "MMKit.move_to_best_location: x=%r, y=%r" % (x,y)
+        
+    def show(self):
+        '''MMKit's show slot.
+        '''
+        QDialog.show(self)
+        #&print "MMKit.move: setting mainwindow to active window"
+        self.w.setActiveWindow() # Fixes bug 1503.  mark 060216.
+            # Required to give the keyboard input focus back to self (MainWindow).
         
     pass # end of class MMKit
 
