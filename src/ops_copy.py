@@ -101,9 +101,6 @@ class ops_copy_Mixin:
                 self.changed() # bruce 050201 doing this earlier; 050223 made it conditional on new.members
                 nshelf_before = len(self.shelf.members) #bruce 050201
                 for ob in new.members[:]:
-                    if ob is self.assy.o.selobj: # Fixes bug 1648. mark 060314.
-                        # If the cut object is selobj (it will be highlighted), clear the selobj
-                        self.assy.o.selobj = None
                     # [bruce 050302 copying that members list, to fix bug 360 item 8, like I fixed
                     #  bug 360 item 5 in "copy_sel" 2 weeks ago. It's silly that I didn't look for the same
                     #  bug in this method too, when I fixed it in copy_sel.]
