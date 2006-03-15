@@ -92,6 +92,9 @@ class NanoBuildBase:
     def pyrexSimulatorName(self):
         return "sim.so"
 
+    def openglAcceleratorName(self):
+        return "quux.so"
+
     def prepareSources(self):
         """Checkout source code from cvs for the release """
         os.chdir(self.atomPath)
@@ -119,11 +122,13 @@ class NanoBuildBase:
         os.chdir(os.path.join(self.atomPath, 'sim/src'))
         system('make')
         system('make pyx')
-        if False:
-            # verify they got built
-            print listResults("pwd"), listResults("ls sim*")
-            raise Exception
-        print "----------Sources have been checked out and made.\n"
+        print "----------Simulators (standalone and pyrex) have been built.\n"
+
+    def buildOpenGLAccelerator(self):
+        """Checkout source code from cvs for the release """
+        os.chdir(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl'))
+        system('make')
+        print "----------Brad G's OpenGL accelerator has been built.\n"
 
     def buildTarball(self):
         # only needed for Linux
@@ -133,24 +138,27 @@ class NanoBuildBase:
         """Freeze Python code into an executable. Where necessary, compile
         and link C code."""
         self.buildSimulator()
+        self.buildOpenGLAccelerator()
         os.chdir(os.path.join(self.atomPath,'cad'))
         # copytree doc, partlib, images
         copytree('doc', os.path.join(self.buildSourcePath, 'doc'))
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
         copytree('images', os.path.join(self.buildSourcePath, 'images'))
 
-        binPath = os.path.join(self.buildSourcePath, 'bin')
+        self.binPath = binPath = os.path.join(self.buildSourcePath, 'bin')
         os.mkdir(binPath)
+        self.progPath = progPath = os.path.join(self.buildSourcePath, 'program')
+        os.mkdir(progPath)
         os.chdir(self.currentPath)
-        self.copyOtherSources(binPath)
+        self.copyOtherSources()
         os.chdir(os.path.join(self.atomPath,'cad/src'))
         self.freezePythonExecutable()
         os.chdir(self.currentPath)
         print "------All python modules are packaged together."
 
-    def copyOtherSources(self, binPath):
-        """This will typically include gnuplot, the standalone simulator executable, an
-        icon file, release notes and other text files.
+    def copyOtherSources(self):
+        """This will typically include gnuplot, the standalone and pyrex simulators,
+        Brad G's opengl accelerator, an icon file, release notes and other text files.
         """
         raise AbstractMethod
 
@@ -197,11 +205,13 @@ class NanoBuildWin32(NanoBuildBase):
         if ret <= 0: raise Exception, "start pageant.exe with key file dsa_privaate.ppk failed."
         NanoBuildBase.prepareSources(self)
 
-    def copyOtherSources(self, binPath):
+    def copyOtherSources(self):
         print "\n------------------------------------------------------\nCopying other files"
-        copy('wgnuplot.exe', binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), binPath)
+        copy('wgnuplot.exe', self.binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
+                          self.openglAcceleratorName()), self.progPath)
         copy(self.iconFile, self.buildSourcePath)
         copy('uninst.ico', self.buildSourcePath)
         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
@@ -227,6 +237,9 @@ class NanoBuildWin32(NanoBuildBase):
 
     def pyrexSimulatorName(self):
         return "sim.dll"
+
+    def openglAcceleratorName(self):
+        return "quux.dll"
 
     def freezePythonExecutable(self):
         print "\n------------------------------------------------------\nFreezing Python Executable"
@@ -335,20 +348,31 @@ class NanoBuildLinux(NanoBuildBase):
         tarName = PMMT + '.tar.gz'
         system('tar -czvf %s *' % tarName)
         print "\nThe tar file: %s has been successfully created.\n" % tarName
-    def copyOtherSources(self, binPath):
-        copy('/usr/bin/gnuplot', binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), binPath)
-        copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
+    # Why is binPath passed in as an argument? Shouldn't it just be an attribute of this
+    # class? There should be OS-specific attributes for cad/src or cad/program, cad/bin, etc.
+    # Likewise for the names of gnuplot and other external programs.
+    def copyOtherSources(self):
+        copy('/usr/bin/gnuplot', self.binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
+                          self.openglAcceleratorName()), self.progPath)
+        copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
     def freezePythonExecutable(self):
         # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
-        cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
-               os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
-        system(cmd)
+        try:
+            cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
+                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+            system(cmd)
+        except:
+            # Mandriva 2006 calls it "sip"
+            cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
+                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+            system(cmd)
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
                  os.path.join(self.buildSourcePath, 'program/OpenGL'))
@@ -481,7 +505,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
         for f in ne1files:
             os.chmod(f, 0755)
-        self.copyOtherSources(binPath)
+        self.copyOtherSources()
         print "------All python modules are packaged tegether."
 
 
@@ -494,22 +518,24 @@ class NanoBuildMacOSX(NanoBuildBase):
 
     # We really want to do something like this:
     #
-    # def copyOtherSources(self, binPath):
+    # def copyOtherSources(self):
     #     ...stuff...
-    #     NanoBuildLinux.copyOtherSources(self, binPath)
+    #     NanoBuildLinux.copyOtherSources(self)
     #     ...stuff...
     #
 
-    def copyOtherSources(self, binPath):
+    def copyOtherSources(self):
         appname = self.appName + '.app'
         os.chdir(self.currentPath)
         copytree('/Applications/AquaTerm.app',  os.path.join(self.buildSourcePath, appname,
                                                              'Contents/bin/AquaTerm.app'))
-        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), binPath)
-        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), binPath)
-        copy('/usr/local/bin/gnuplot', binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
+                          self.openglAcceleratorName()), self.progPath)
+        copy('/usr/local/bin/gnuplot', self.binPath)
         #Copy rungms script into 'bin' directory
-        copy(os.path.join(self.atomPath,'cad/src/rungms'), binPath)
+        copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
         #Copy OpenGL package into buildSource/program
         copytree('site-packages',
                  os.path.join(self.buildSourcePath, appname,
