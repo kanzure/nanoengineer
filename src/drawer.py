@@ -21,9 +21,13 @@ from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
 import debug #bruce 051212, for debug.print_compact_traceback
 
+# ColorSorter control
+allow_color_sorting = allow_color_sorting_default = True
+allow_color_sorting_prefs_key = "allow_color_sorting"
+
 # Experimental native C renderer
-use_c_renderer = use_c_renderer_initial_state = False
-use_c_renderer_key = "use_c_renderer"
+use_c_renderer = use_c_renderer_default = False
+use_c_renderer_prefs_key = "use_c_renderer"
 sys.path.append("./experimental/pyrex-opengl")
 try:
     import quux
@@ -210,7 +214,7 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        global use_c_renderer
+        global use_c_renderer, allow_color_sorting
         self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
@@ -229,13 +233,13 @@ class glprefs:
             self.specular_shininess = 20.0
             self.specular_whiteness = 1.0
             self.specular_brightness = 1.0
-        if quux_module_import_succeeded:
-            try:
-                use_c_renderer = env.prefs[use_c_renderer_key]
-            except KeyError:
-                use_c_renderer = False
-        else:
-            use_c_renderer = False
+
+        allow_color_sorting = env.prefs.get(allow_color_sorting_prefs_key,
+            allow_color_sorting_default)
+
+        use_c_renderer = quux_module_import_succeeded and \
+            env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
+
         if use_c_renderer:
             quux.shapeRendererSetMaterialParameters(self.specular_whiteness,
                 self.specular_brightness, self.specular_shininess);
@@ -249,10 +253,18 @@ class glprefs:
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
             res = res + ( self.specular_shininess, self.specular_whiteness, self.specular_brightness)
-        try:   # key may not be present   wware 200600314
-            res += (env.prefs[use_c_renderer_key],) # grantham 20060313
-        except KeyError:
-            pass
+
+        # grantham 20060314
+        res += (quux_module_import_succeeded and 
+            env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default),)
+
+        # grantham 20060314 - Not too sure this next addition is
+        # really necessary, but it seems to me that for testing
+        # purposes it is important to rebuild display lists if the
+        # color sorting pref is changed.
+        res += (env.prefs.get(allow_color_sorting_prefs_key,
+                allow_color_sorting_default),)
+
         return res
 
     pass # end of class glprefs
@@ -502,7 +514,7 @@ def get_gl_info_string():
 def drawsphere_worker(params):
     """Draw a sphere.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see above)"""
+    deferment.  Right now this is only ColorSorter.schedule (see below)"""
 
     (pos, radius, detailLevel) = params
     glPushMatrix()
@@ -515,7 +527,7 @@ def drawsphere_worker(params):
 def drawcylinder_worker(params):
     """Draw a cylinder.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see above)"""
+    deferment.  Right now this is only ColorSorter.schedule (see below)"""
 
     global CylList, CapList
     (pos1, pos2, radius, capped) = params
@@ -912,33 +924,30 @@ class ColorSorter:
     _add_to_sorter = staticmethod(_add_to_sorter)
 
 
-    def _invoke_immediately(color, func, params):
-        """\
-        Internal function that invokes 'scheduled' operations right now,
-        outside a start/finish.
-        """
-        ColorSorter._immediate += 1
-        # 20060216 We know we can do this here because the stack is
-        # only ever one element deep.
+    def schedule(color, func, params):
+        if ColorSorter.sorting and allow_color_sorting:
 
-        #bruce 060217 guessing fix to bug 1527: don't push a name of 0, that's just a sentinel.
-        name = ColorSorter._gl_name_stack[-1]
-        if name:
-            glPushName(name)
+            ColorSorter._add_to_sorter(color, func, params)
 
-        apply_material(color)
-        func(params)
+        else:
 
-        if name:
-            glPopName()
+            ColorSorter._immediate += 1 # for benchmark/debug stats, mostly
+
+            # 20060216 We know we can do this here because the stack is
+            # only ever one element deep
+            name = ColorSorter._gl_name_stack[-1]
+            if name:
+                glPushName(name)
+
+            apply_material(color)
+            func(params)
+
+            if name:
+                glPopName()
         return
 
-    _invoke_immediately = staticmethod(_invoke_immediately)
+    schedule = staticmethod(schedule)
 
-
-    # schedule is a code object; call it with a color, function, and
-    # param tuple
-    schedule = _invoke_immediately
 
     def schedule_sphere(color, pos, radius, detailLevel):
         """\
@@ -960,6 +969,7 @@ class ColorSorter:
             ColorSorter.sphereLevel = detailLevel
         else: # Older sorted material rendering
             ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
+
     schedule_sphere = staticmethod(schedule_sphere)
 
 
@@ -993,7 +1003,6 @@ class ColorSorter:
             ColorSorter.sphereLevel = -1
         else:
             ColorSorter.sorted_by_color = {}
-            ColorSorter.schedule = staticmethod(ColorSorter._add_to_sorter)
 
     start = staticmethod(start)
 
@@ -1010,6 +1019,7 @@ class ColorSorter:
             if debug_which_renderer:
                 #bruce 060314 uncommented/revised the next line; it might have to come after shapeRendererInit (not sure);
                 # it definitely has to come after a graphics context is created and initialized.
+                # 20060314 grantham - yes, has to come after quux.shapeRendererInit
                 print "using C renderer: VBO %s enabled" % (('is NOT', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
             quux.shapeRendererSetUseDynamicLOD(0)
             if ColorSorter.sphereLevel != -1:
@@ -1038,7 +1048,6 @@ class ColorSorter:
                     func(params)
                     if name != 0:
                         glPopName()
-            ColorSorter.schedule = staticmethod(ColorSorter._invoke_immediately)
             ColorSorter.sorted_by_color = None
             ColorSorter.sorting = False
 
@@ -1281,17 +1290,23 @@ def setup():
     glEnd()
     glEndList()
 
+    # Debug Preferences
+    from debug_prefs import debug_pref, Choice_boolean_True
+    from debug_prefs import Choice_boolean_False
+    choices = [Choice_boolean_False, Choice_boolean_True]
+
+    # 20060314 grantham
+    initial_choice = choices[allow_color_sorting_default]
+    allow_color_sorting_pref = debug_pref("Use Color Sorting?",
+        initial_choice, non_debug = True, prefs_key = allow_color_sorting_prefs_key)
+        #e should remove non_debug = True before release!
+
     # 20060313 grantham Added use_c_renderer_pref debug pref, can
     # take out when C renderer used by default.
     if quux_module_import_succeeded:
-
-        from debug_prefs import debug_pref, Choice_boolean_True
-        from debug_prefs import Choice_boolean_False
-
-        choices = [Choice_boolean_False, Choice_boolean_True]
-        initial_choice = choices[use_c_renderer_initial_state]
+        initial_choice = choices[use_c_renderer_default]
         use_c_renderer_pref = debug_pref("Use native C renderer?",
-            initial_choice, non_debug = True, prefs_key = use_c_renderer_key)
+            initial_choice, non_debug = True, prefs_key = use_c_renderer_prefs_key)
             #e should remove non_debug = True before release!
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
