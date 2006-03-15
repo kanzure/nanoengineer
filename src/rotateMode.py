@@ -92,6 +92,6 @@ class rotateMode(basicMode):
     def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
         '''Update the cursor for 'Extrude' mode (extrudeMode).
         '''
-        self.o.setCursor(self.w.ZoomCursor)
+        self.o.setCursor(self.w.RotateCursor)
          
     pass # end of class panMode
