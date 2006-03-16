@@ -4,7 +4,7 @@ README
 VERSION/INFO
 =============
  
-  This is nanoENGINEER-1 v0.0.6 (Alpha 6) as of August 17, 2005.
+  This is nanoENGINEER-1 v0.0.7 (Alpha 7) as of March 22, 2006.
   See the COPYRIGHT section for distribution and copyright notices.
   Send all bug reports and questions for nanoENGINEER-1 to 
   support@nanorex.com.
@@ -18,7 +18,7 @@ Minimum System Requirements:
   Linux:
     1 GHz Intel/AMD processor or equivalent 
     512 MB RAM
-    35 MB available disk space
+    50 MB available disk space
     3D graphics accelerator card
     32 MB VRAM
 
@@ -26,7 +26,7 @@ Minimum System Requirements:
     1 GHz PowerPC G4 processor
     Mac OS X 10.3 and later 
     512 MB RAM
-    35 MB available disk space
+    50 MB available disk space
     3D graphics accelerator card
     32 MB VRAM
 
@@ -34,7 +34,7 @@ Minimum System Requirements:
     1 GHz Intel Pentium M processor or equivalent
     WindowsXP
     512 MB RAM
-    35 MB available disk space
+    50 MB available disk space
     3D graphics accelerator card
     32 MB VRAM
 
@@ -73,7 +73,7 @@ For now, manually type in:"nanoENGINEER-1 v0.0.7 (Alpha7)"
 INSTALLATION ON Mandrake Linux 10.1
 
 The RPM can be installed through the Mandrake Linux Control Center. 
-It will be installed into /usr/local/nanoENGINEER-1-0.0.6/  on your 
+It will be installed into /usr/local/nanoENGINEER-1-0.0.7/  on your 
 local machine.There is a package dependency for GLUT, so it will ask 
 you for the appropriate CD.
 
@@ -81,31 +81,12 @@ Note that the RPM does not add a menu item to the Start menu, nor does
 it add a desktop icon for ne-1.  This is easy to do yourself by creating 
 a desktop icon that points directly to the ne-1 executable, located at: 
 
-/usr/local/nanoENGINEER-1-0.0.6/program/nanoENGINEER-1
+/usr/local/nanoENGINEER-1-0.0.7/program/nanoENGINEER-1
 
 If you create a symlink to the executable in /usr/local/bin, as an
 experienced Linux user might, it will not work. This is because
 nanoENGINEER-1 looks for its files relative to its executable.
 
---------------------------------------------------------------------
-INSTALLATION ON Fedora Core 4
-
-When installing FC4 on your computer, be sure to select KDE as your
-graphical environment. Also install the "KDE Software Development"
-bundle of packages. This will install several prerequisite packages
-directly from the CDROMs. In addition, you will need three more packages:
-
-freeglut-devel-2.2.0-16.i386.rpm
-	Install this using "rpm -i". This must be done as root.
-
-Numeric-24.0b2.tar.gz
-	Unpack this tarball and install with "python setup.py install".
-	This must also be done as root.
-
-PyOpenGL-2.0.2.01.tar.gz
-	Unpack this tarball and install with "python setup.py install".
-	This must also be done as root. You will need to install
-	freeglut-devel before you install this package.
 
 
 ===============================
@@ -178,7 +159,7 @@ KNOWN BUGS AND UNSUPPORTED FEATURES
 COPYRIGHT
 =========
 
-  Copyright (c) 2004-2005 Nanorex, Inc.
+  Copyright (c) 2004-2006 Nanorex, Inc.
 
   Nanorex, Inc. disclaims all warranties with regard to this software, 
   including all implied warranties of merchantability and fitness. 
