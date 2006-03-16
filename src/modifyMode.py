@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 modifyMode.py
 
@@ -186,7 +186,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     def leftDown(self, event):
         """Move the selected object(s).
         """
-        from constants import GL_FAR_Z
+##        from constants import GL_FAR_Z
         
         self.o.SaveMouse(event)
         self.picking = True
@@ -200,15 +200,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # This needs to be refactored further into move and translate methods. mark 060301.
         
         # Move section
-        wX = event.pos().x()
-        wY = self.o.height - event.pos().y()
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        
-        if wZ[0][0] >= GL_FAR_Z:
-            junk, self.movingPoint = self.o.mousepoints(event)
-        else:
-            self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
-            
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
+            #bruce 060316 replaced equivalent old code with this new method
         self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
         
         # end of Move section
@@ -258,12 +251,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         if self.moveOption == 'MOVEDEFAULT':
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y(), 0.0)
-        
-            p1, p2 = self.o.mousepoints(event)
-        
-            point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
-            if point == None: 
-                point = ptonline(self.movingPoint, p1, norm(p2-p1))
+
+            point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
         
             # Print status bar msg indicating the current move delta.
             if 1:

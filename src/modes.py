@@ -130,7 +130,7 @@ class nullMode(anyMode):
     backgroundColor = 0.5, 0.5, 0.5
         # this will be overwritten when modes are changing [bruce 050106]
     # needs no __init__ method; constructor takes no arguments
-    def noop_method(self, *args):
+    def noop_method(self, *args, **kws):
         if platform.atom_debug:
             print "fyi: atom_debug: nullMode noop method called -- probably ok; ignored"
         return None #e print a warning?
@@ -156,6 +156,8 @@ class nullMode(anyMode):
     def bareMotion(self, e):
         pass
     def set_displayMode(self, displayMode): #bruce 060220 added this to remove frequent debug print
+        pass
+    def Done(self, *args, **kws): #bruce 060316 added this to remove frequent harmless debug print
         pass
     pass ##e maybe needs to have some other specific methods?
 
@@ -982,21 +984,36 @@ class basicMode(anyMode):
         self.picking = False
         self.update_cursor()
 
-    def middleShiftDown(self, event):
-        self.update_cursor()
-        # Setup pan operation
+    def dragstart_using_GL_DEPTH(self, event): #bruce 060316 made this from common code in several places
+        """Use the OpenGL depth buffer pixel at the coordinates of event
+        (which works correctly only if the proper GL context, self.o, is current -- caller is responsible for this)
+        to guess the 3D point that was visually clicked on.
+        If that was too far away to be correct, use a point under the mouse and in the plane of the center of view.
+           Return (False, point) when point came from the depth buffer, or (True, point) when point came from the
+        plane of the center of view. Callers should typically do further sanity checks on point and the "farQ" flag,
+        perhaps replacing point with an object's center, projected onto the mousepoints line, if point is an unrealistic
+        dragpoint for the object which will be dragged. [#e there should be a canned routine for doing that to our retval]
+        """
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         
         if wZ[0][0] >= GL_FAR_Z:
-            junk, self.movingPoint = self.o.mousepoints(event)
+            junk, point = self.o.mousepoints(event)
+            farQ = True
         else:
-            self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
-            
+            point = A(gluUnProject(wX, wY, wZ[0][0]))
+            farQ = False
+        return farQ, point
+
+    def middleShiftDown(self, event):
+        self.update_cursor()
+        # Setup pan operation
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
+            #bruce 060316 replaced equivalent old code with this new method
         self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
         
-        self.o.SaveMouse(event)
+        self.o.SaveMouse(event) #k still needed?? probably yes; might even be useful to help dragto for atoms #e [bruce 060316 comment]
         self.picking = True
         
     def middleShiftDown_OBS(self, event):
@@ -1006,15 +1023,38 @@ class basicMode(anyMode):
         
         self.o.SaveMouse(event)
         self.picking = False
+            
+    def dragto(self, point, event, perp = None): #bruce 060316 moving this from selectMode to basicMode and using it more widely
+        """Return the point to which we should drag the given point,
+        if event is the drag-motion event and we want to drag the point
+        parallel to the screen (or perpendicular to the given direction "perp"
+        if one is passed in), keeping the point visibly touching the mouse cursor hotspot.
+           (This is only correct for extended objects if 'point' (as passed in, and as retval is used)
+        is the point on the object surface which was clicked on (not e.g. the center).
+        For example, dragto(a.posn(),...) is incorrect code, unless the user happened to
+        start the drag with a mousedown right over the center of atom <a>. See jigDrag
+        in some subclasses for an example of correct usage.)
+        """
+        #bruce 041123 split this from two methods, and bugfixed to make dragging
+        # parallel to screen. (I don't know if there was a bug report for that.)
+        # Should be moved into modes.py and used in modifyMode too. [doing that, 060316]
+        p1, p2 = self.o.mousepoints(event)
+        if perp is None:
+            perp = self.o.out
+        point2 = planeXline(point, perp, p1, norm(p2-p1)) # args are (ppt, pv, lpt, lv)
+        if point2 is None:
+            # should never happen (unless a bad choice of perp is passed in),
+            # but use old code as a last resort (it makes sense, and might even be equivalent for default perp)
+            if env.debug(): #bruce 060316 added debug print; it should remain indefinitely if we rarely see it
+                print "debug: fyi: dragto planeXline failed, fallback to ptonline", point, perp, p1, p2
+            point2 = ptonline(point, p1, norm(p2-p1))
+        return point2
     
     def middleShiftDrag(self, event):
         """Move point of view so that objects appear to follow
         the mouse on the screen.
         """
-        p1, p2 = self.o.mousepoints(event)
-        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
-        if point == None: 
-            point = ptonline(self.movingPoint, p1, norm(p2-p1))
+        point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
         self.o.pov += point - self.movingPoint
         self.o.gl_update()
         

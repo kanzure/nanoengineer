@@ -592,11 +592,11 @@ class selectMode(basicMode):
     def drag_selected_atoms(self, offset):
         
         # Move dragatoms.
-        for at in self.dragatoms[:]:
+        for at in self.dragatoms: #bruce 060315 optimization: remove unneeded [:] from both loops
             at.setposn(at.posn()+offset)
         
         # Move baggage.
-        for at in self.baggage[:]:
+        for at in self.baggage:
             at.setposn(at.posn()+offset)
         
     def atomDragUpdate(self, a, apos0):
@@ -605,32 +605,18 @@ class selectMode(basicMode):
         '''
         apos1 = a.posn()
         if apos1 - apos0:
-            msg = "dragged atom %r to %s" % (a, self.posn_str(a))
-            this_drag_id = (self.current_obj_start, self.__class__.leftDrag)
-            env.history.message(msg, transient_id = this_drag_id)
+            from debug_prefs import debug_pref, Choice_boolean_True
+            if debug_pref("show drag coords continuously", #bruce 060316 made this optional, to see if it causes lagging drags of C
+                          Choice_boolean_True, non_debug = True, # non_debug needed for testing, for now
+                          prefs_key = "A7/Show Continuous Drag Coordinates"):
+                msg = "dragged atom %r to %s" % (a, self.posn_str(a))
+                this_drag_id = (self.current_obj_start, self.__class__.leftDrag)
+                env.history.message(msg, transient_id = this_drag_id)
             self.current_obj_clicked = False # atom was dragged. mark 060125.
             self.o.gl_update()
-            
-    def dragto(self, point, event, perp = None):
-        """Return the point to which we should drag the given point,
-        if event is the drag-motion event and we want to drag the point
-        parallel to the screen (or perpendicular to the given direction "perp"
-        if one is passed in). (Only correct for points, not extended objects,
-        unless you use the point which was clicked on (not e.g. the center)
-        as the dragged point.)
-        """
-        #bruce 041123 split this from two methods, and bugfixed to make dragging
-        # parallel to screen. (I don't know if there was a bug report for that.)
-        # Should be moved into modes.py and used in modifyMode too. ###e
-        p1, p2 = self.o.mousepoints(event)
-        if perp is None:
-            perp = self.o.out
-        point2 = planeXline(point, perp, p1, norm(p2-p1)) # args are (ppt, pv, lpt, lv)
-        if point2 is None:
-            # should never happen, but use old code as a last resort:
-            point2 = ptonline(point, p1, norm(p2-p1))
-        return point2
-        
+
+    #bruce 060316 moved dragto from here (selectMode) into class basicMode
+    
     def atomLeftUp(self, a, event): # Was atomClicked(). mark 060220.
         '''Real atom <a> was clicked, so select, unselect or delete it based on the current modkey.
         - If no modkey is pressed, clear the selection and pick atom <a>.
@@ -827,16 +813,10 @@ class selectMode(basicMode):
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Jig'
             
-         # Move section
-        wX = event.pos().x()
-        wY = self.o.height - event.pos().y()
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        
-        if wZ[0][0] >= GL_FAR_Z:
-            junk, self.jig_MovePt = self.o.mousepoints(event)
-        else:
-            self.jig_MovePt = A(gluUnProject(wX, wY, wZ[0][0]))
-            
+        # Move section
+        farQ_junk, self.jig_MovePt = self.dragstart_using_GL_DEPTH( event)
+            #bruce 060316 replaced equivalent old code with this new method
+
         self.jig_StartPt = self.jig_MovePt # Used in leftDrag() to compute move offset during drag op.
         
         self.jigSetup(j)
@@ -856,12 +836,10 @@ class selectMode(basicMode):
     def jigDrag(self, j, event):
         """Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
         """
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0], self.o.MousePos[1] - event.pos().y(), 0.0)
-        p1, p2 = self.o.mousepoints(event)
-        
-        jig_NewPt = planeXline(self.jig_MovePt, self.o.out, p1, norm(p2-p1))
-        if jig_NewPt == None: 
-            jig_NewPt = ptonline(self.jig_MovePt, p1, norm(p2-p1))
+        #bruce 060316 commented out deltaMouse since it's not used in this routine
+##        deltaMouse = V(event.pos().x() - self.o.MousePos[0], self.o.MousePos[1] - event.pos().y(), 0.0)
+
+        jig_NewPt = self.dragto( self.jig_MovePt, event) #bruce 060316 replaced old code with dragto (equivalent)
         
         # Print status bar msg indicating the current move offset.
         if 1:
@@ -880,7 +858,7 @@ class selectMode(basicMode):
         self.o.gl_update()
         
     def drag_selected_jigs(self, offset):
-        for j in self.dragjigs[:]:
+        for j in self.dragjigs: #bruce 060315 removed unnecessary [:]
             j.move(offset)
 
     def jigLeftUp(self, j, event):
@@ -957,29 +935,6 @@ class selectMode(basicMode):
                 a.pick()
         
 #== End of singlet helper methods
-
-    #bruce 060315 reimplemented this method to use a limit in pixels and fix some bugs (see below) 
-##    def mouse_within_stickiness_limit(self, event, drag_stickiness_limit):
-##        '''Check if mouse has been dragged beyond <drag_stickiness_limit> while holding down the LMB.
-##        Returns True if the mouse has not exceeded <drag_stickiness_limit>.
-##        Returns False if the mouse has exceeded <drag_stickiness_limit>.
-##        <drag_stickiness_limit> is measured in Angstroms. #& will be changed to pixels. mark 060213
-##        '''
-##        #bruce 060315 comments about Mark's code: it won't work as described if the drag_stickiness_limit
-##        # is different in different calls. And, the scale of this limit in pixels seems (empirically)
-##        # to vary with the overall GLPane height. It may (due to the 0.01) also vary slightly with zoomfactor.
-##        
-##        #& Intend to add arg for pixels
-##        if self.drag_stickiness_limit_exceeded:
-##            return False
-##        
-##        LMB_drag_pt, junk = self.o.mousepoints(event, 0.01)
-##        self.drag_distance = vlen(LMB_drag_pt - self.LMB_press_pt)
-##        if self.drag_distance/self.o.scale < drag_stickiness_limit:
-##            return True
-##        else:
-##            self.drag_stickiness_limit_exceeded = True
-##            return False
 
     def mouse_within_stickiness_limit(self, event, drag_stickiness_limit_pixels): #bruce 060315 reimplemented this
         """Check if mouse has never been dragged beyond <drag_stickiness_limit_pixels>
@@ -1435,8 +1390,6 @@ class selectAtomsMode(selectMode):
         self.obj_doubleclicked = None
             # used by leftDouble() to determine the object that was double clicked.
         #bruce 060315 replaced drag_stickiness_limit_exceeded with max_dragdist_pixels
-##        self.drag_stickiness_limit_exceeded = False
-##            # used in leftDrag() to determine if the drag stickiness limit was exceeded.
         self.max_dragdist_pixels = 0
             # used in mouse_within_stickiness_limit
         self.only_highlight_singlets = False
@@ -1814,8 +1767,6 @@ class selectAtomsMode(selectMode):
             # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220.
 
         #bruce 060315 replacing LMB_press_pt with LMB_press_pt_xy
-##        self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
-##            # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().
         self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
             # <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
             # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).

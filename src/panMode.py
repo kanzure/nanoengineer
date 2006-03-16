@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 """
 panMode.py -- pan mode.
 
@@ -65,25 +65,14 @@ class panMode(basicMode):
     
     def leftDown(self, event):
         'Event handler for LMB press event.'
-        
         # Setup pan operation
-        wX = event.pos().x()
-        wY = self.o.height - event.pos().y()
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        
-        if wZ[0][0] >= GL_FAR_Z:
-            junk, self.movingPoint = self.o.mousepoints(event)
-        else:
-            self.movingPoint = A(gluUnProject(wX, wY, wZ[0][0]))
-            
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
+            #bruce 060316 replaced equivalent old code with this new method            
         self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
         
     def leftDrag(self, event):
         'Event handler for LMB drag event.'
-        p1, p2 = self.o.mousepoints(event)
-        point = planeXline(self.movingPoint, self.o.out, p1, norm(p2-p1))
-        if point == None: 
-            point = ptonline(self.movingPoint, p1, norm(p2-p1))
+        point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
         self.o.pov += point - self.movingPoint
         self.o.gl_update()
 
