@@ -705,7 +705,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         pos = self.baseposn()
         disp, drawrad = self.howdraw(dispdef)
         if disp == diTUBES:
-            pickedrad = drawrad * 1.8
+            pickedrad = drawrad * 1.8 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
         else:
             pickedrad = drawrad * 1.1
         color = col or self.element.color
@@ -726,31 +726,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     # or draw a short (almost flat) cylinder in the bondpoint color (in Bond.draw).
                     # Note 2: if the other stuff drawn here (selection or bad valence wireframe) was ever drawn,
                     # we might want to change the pos for it when not drawing this sphere. But it's not.
-
-            if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
-                #bruce 041217 experiment: show valence errors for picked atoms by
-                # using a different color for the wireframe.
-                # (Since Transmute operates on picked atoms, and leaves them picked,
-                #  this will serve to show whatever valence errors it causes. And
-                #  showing it only for picked atoms makes it not mess up any images,
-                #  even though there's not yet any way to turn this feature off.)
-                if self.bad():
-                    color = ErrorPickedColor
-                else:
-                    color = PickedColor
-                drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
-            #bruce 050806: check valence more generally, and not only for picked atoms.
-            if disp != diINVISIBLE: #bruce 050825 added this condition to fix bug 870
-                # The above only checks for number of bonds.
-                # Now that we have higher-order bonds, we also need to check valence more generally.
-                # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
-                #####@@@@@ need to do this in atom.getinfo().
-                #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
-                from GLPane import GLPane
-                if isinstance(glpane, GLPane) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
-                    drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
-                    #e we might want to not draw this when self.bad() but draw that differently,
-                    # and optim this when atomtype is initial one (or its numbonds == valence).
+            self.draw_wirespheres(glpane, disp, pos, pickedrad)
         except:
             ColorSorter.popName()
             glPopName()
@@ -761,6 +737,36 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
+    def draw_wirespheres(self, glpane, disp, pos, pickedrad):
+        #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
+        if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
+            #bruce 041217 experiment: show valence errors for picked atoms by
+            # using a different color for the wireframe.
+            # (Since Transmute operates on picked atoms, and leaves them picked,
+            #  this will serve to show whatever valence errors it causes. And
+            #  showing it only for picked atoms makes it not mess up any images,
+            #  even though there's not yet any way to turn this feature off.)
+            if self.bad():
+                color = ErrorPickedColor
+            else:
+                color = PickedColor
+            drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
+        #bruce 050806: check valence more generally, and not only for picked atoms.
+        if disp != diINVISIBLE: #bruce 050825 added this condition to fix bug 870
+            # The above only checks for number of bonds.
+            # Now that we have higher-order bonds, we also need to check valence more generally.
+            # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
+            #####@@@@@ need to do this in atom.getinfo().
+            #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
+            from GLPane import GLPane
+            if isinstance(glpane, GLPane) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
+                # Note: the env.prefs check should come last, or changing the pref would gl_update when it didn't need to.
+                # [bruce 060315 comment]
+                drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
+                #e we might want to not draw this when self.bad() but draw that differently,
+                # and optim this when atomtype is initial one (or its numbonds == valence).
+        return
+        
     def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
         "is this atom breaking any rules?"
         if self.element is Singlet:
@@ -858,7 +864,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
         return
     
-    def draw_in_abs_coords(self, glpane, color): #bruce 050610 ###@@@ needs to be told whether or not to "draw as selatom"; now it does
+    def draw_in_abs_coords(self, glpane, color): #bruce 050610
+        ###@@@ needs to be told whether or not to "draw as selatom"; now it does
         """Draw this atom in absolute (world) coordinates,
         using the specified color (ignoring the color it would naturally be drawn with).
         See code comments about radius and display mode (current behavior might not be correct or optimal).
@@ -888,6 +895,25 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             disp, drawradjunk = self.howdraw(dispdef) # (this arg is required)
             if disp in (diCPK, diTUBES):
                 self.bonds[0].draw_in_abs_coords(glpane, color)
+        #bruce 060315 try to fix disappearing hover highlight when mouse goes over one of our wirespheres.
+        # We have to do it in the same coordinate system as the original wirespheres were drawn.
+        # (This will only work well if there is also a depth offset, or (maybe) an increased line thickness.
+        #  I think there's a depth offset in the calling code, and it does seem to work. Note that it needs
+        #  testing for rotated chunks, since until you next modify them, the wirespheres are also drawn rotated.)
+        self.molecule.pushMatrix()
+        try:
+            dispdef = self.molecule.get_dispdef() #e could optimize, since sometimes computed above -- but doesn't matter.
+            pos = self.baseposn()
+            disp, drawrad = self.howdraw(dispdef)
+            if disp == diTUBES:
+                pickedrad = drawrad * 1.8 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
+            else:
+                pickedrad = drawrad * 1.1
+            self.draw_wirespheres(glpane, disp, pos, pickedrad)
+        except:
+            print_compact_traceback("exception in draw_wirespheres part of draw_in_abs_coords ignored: ")
+            pass
+        self.molecule.popMatrix()
         return
     
     def draw_as_selatom(self, glpane, dispdef, color, level):
