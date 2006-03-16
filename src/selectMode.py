@@ -11,9 +11,16 @@ import env
 
 _count = 0
 
-DRAG_STICKINESS_LIMIT = 0.03 # in Angstroms with respect to the front clipping plane.
-    #& To do: Change to pixel units and make it a user pref.  Also consider a different var/pref
+#bruce 060315 revised DRAG_STICKINESS_LIMIT to be in pixels
+
+##DRAG_STICKINESS_LIMIT = 0.03 # in Angstroms with respect to the front clipping plane.
+##    #& To do: Change to pixel units and make it a user pref.  Also consider a different var/pref
+##    #& for singlet vs. atom drag stickiness limits. Mark 060213.
+
+DRAG_STICKINESS_LIMIT = 4 # in pixels
+    #& To do: Make it a user pref.  Also consider a different var/pref
     #& for singlet vs. atom drag stickiness limits. Mark 060213.
+
 
 ## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
 
@@ -934,24 +941,51 @@ class selectMode(basicMode):
                 a.pick()
         
 #== End of singlet helper methods
-        
-    def mouse_within_stickiness_limit(self, event, drag_stickiness_limit):
-        '''Check if mouse has been dragged beyond <drag_stickiness_limit> while holding down the LMB.
-        Returns True if the mouse has not exceeded <drag_stickiness_limit>.
-        Returns False if the mouse has exceeded <drag_stickiness_limit>.
-        <drag_stickiness_limit> is measured in Angstroms. #& will be changed to pixels. mark 060213
-        '''
-        #& Intend to add arg for pixels
-        if self.drag_stickiness_limit_exceeded:
-            return False
-        
-        LMB_drag_pt, junk = self.o.mousepoints(event, 0.01)
-        self.drag_distance = vlen(LMB_drag_pt - self.LMB_press_pt)
-        if self.drag_distance/self.o.scale < drag_stickiness_limit:
+
+    #bruce 060315 reimplemented this method to use a limit in pixels and fix some bugs (see below) 
+##    def mouse_within_stickiness_limit(self, event, drag_stickiness_limit):
+##        '''Check if mouse has been dragged beyond <drag_stickiness_limit> while holding down the LMB.
+##        Returns True if the mouse has not exceeded <drag_stickiness_limit>.
+##        Returns False if the mouse has exceeded <drag_stickiness_limit>.
+##        <drag_stickiness_limit> is measured in Angstroms. #& will be changed to pixels. mark 060213
+##        '''
+##        #bruce 060315 comments about Mark's code: it won't work as described if the drag_stickiness_limit
+##        # is different in different calls. And, the scale of this limit in pixels seems (empirically)
+##        # to vary with the overall GLPane height. It may (due to the 0.01) also vary slightly with zoomfactor.
+##        
+##        #& Intend to add arg for pixels
+##        if self.drag_stickiness_limit_exceeded:
+##            return False
+##        
+##        LMB_drag_pt, junk = self.o.mousepoints(event, 0.01)
+##        self.drag_distance = vlen(LMB_drag_pt - self.LMB_press_pt)
+##        if self.drag_distance/self.o.scale < drag_stickiness_limit:
+##            return True
+##        else:
+##            self.drag_stickiness_limit_exceeded = True
+##            return False
+
+    def mouse_within_stickiness_limit(self, event, drag_stickiness_limit_pixels): #bruce 060315 reimplemented this
+        """Check if mouse has never been dragged beyond <drag_stickiness_limit_pixels>
+        while holding down the LMB (left mouse button) during the present drag.
+        Return True if it's never exceeded this distance from its starting point, False if it has.
+        Distance is measured in pixels.
+           Successive calls need not pass the same value of the limit.
+        """
+        try:
+            xy_orig = self.LMB_press_pt_xy
+        except:
+            # This can happen when leftDown was never called before leftDrag (there's a reported traceback bug about it,
+            #  an AttributeError about LMB_press_pt, which this attr replaces).
+            # In that case pretend the mouse never moves outside the limit during this drag.
             return True
-        else:
-            self.drag_stickiness_limit_exceeded = True
-            return False
+        # this would be an incorrect optimization:
+        ## if self.max_dragdist_pixels > drag_stickiness_limit_pixels:
+        ##     return False # optimization -- but incorrect, in case future callers plan to pass a larger limit!!
+        xy_now = (event.pos().x(), event.pos().y()) # must be in same coordinates as self.LMB_press_pt_xy in leftDown
+        dist = vlen(A(xy_orig) - A(xy_now)) #e could be optimized (e.g. store square of dist), probably doesn't matter
+        self.max_dragdist_pixels = max( self.max_dragdist_pixels, dist)
+        return self.max_dragdist_pixels <= drag_stickiness_limit_pixels
             
     def set_hoverHighlighting(self, on):
         '''Turn hover highlighting on/off.
@@ -1383,8 +1417,11 @@ class selectAtomsMode(selectMode):
             # *LeftUp() checks it to determine whether the object gets picked or not. mark 060125.
         self.obj_doubleclicked = None
             # used by leftDouble() to determine the object that was double clicked.
-        self.drag_stickiness_limit_exceeded = False
-            # used in leftDrag() to determine if the drag stickiness limit was exceeded.
+        #bruce 060315 replaced drag_stickiness_limit_exceeded with max_dragdist_pixels
+##        self.drag_stickiness_limit_exceeded = False
+##            # used in leftDrag() to determine if the drag stickiness limit was exceeded.
+        self.max_dragdist_pixels = 0
+            # used in mouse_within_stickiness_limit
         self.only_highlight_singlets = False
             # when set to True, only singlets get highlighted when dragging a singlet.
             # depositMode.singletSetup() sets this to True when dragging a singlet around.
@@ -1744,7 +1781,7 @@ class selectAtomsMode(selectMode):
     def leftCntlDown(self, event):
         '''Event handler for Control+LMB press.'''
         self.leftDown(event)
-        
+    
     def leftDown(self, event):
         '''Event handler for all LMB press events.'''
 
@@ -1758,9 +1795,15 @@ class selectAtomsMode(selectMode):
             # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
             # Copying the event in this way is necessary because Qt will overwrite <event> later (in 
             # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220.
-            
-        self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
-            # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().
+
+        #bruce 060315 replacing LMB_press_pt with LMB_press_pt_xy
+##        self.LMB_press_pt, junk = self.o.mousepoints(event, just_beyond = 0.01)
+##            # <LMB_press_pt> is the position of the mouse when the LMB was pressed. Used in leftDrag().
+        self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
+            # <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
+            # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
+            # We don't bother to vertically flip y using self.height (as mousepoints does),
+            # since this is only used for drag distance within single drags.
             
         obj = self.get_obj_under_cursor(event)
             # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets and bonds (not jigs).
