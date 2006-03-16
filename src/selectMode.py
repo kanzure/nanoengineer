@@ -17,10 +17,26 @@ _count = 0
 ##    #& To do: Change to pixel units and make it a user pref.  Also consider a different var/pref
 ##    #& for singlet vs. atom drag stickiness limits. Mark 060213.
 
-DRAG_STICKINESS_LIMIT = 4 # in pixels
-    #& To do: Make it a user pref.  Also consider a different var/pref
+DRAG_STICKINESS_LIMIT = 4 # in pixels; reset in each leftDown via a debug_pref
+    #& To do: Make it a user pref in the Prefs Dialog.  Also consider a different var/pref
     #& for singlet vs. atom drag stickiness limits. Mark 060213.
 
+from debug_prefs import debug_pref, Choice
+_ds_Choice = Choice([0,1,2,3,4,5,6,7,8,9,10], default_value = DRAG_STICKINESS_LIMIT)
+
+DRAG_STICKINESS_LIMIT_prefs_key = "A7/Drag Stickiness Limit"
+
+def set_DRAG_STICKINESS_LIMIT_from_pref(): #bruce 060315
+    global DRAG_STICKINESS_LIMIT
+    DRAG_STICKINESS_LIMIT = debug_pref("DRAG_STICKINESS_LIMIT (pixels)",
+                                       _ds_Choice,
+                                       non_debug = True,
+                                       prefs_key = DRAG_STICKINESS_LIMIT_prefs_key)
+    return
+
+set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtomsMode.leftDown
+    # (ideally, clean up this pref code a lot by not passing DRAG_STICKINESS_LIMIT as an arg to the subr that uses it)
+    # we do this early so the debug_pref is visible in the debug menu before entering selectAtomsMode.
 
 ## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
 
@@ -1377,6 +1393,7 @@ class selectAtomsMode(selectMode):
     def reset_drag_vars(self):
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
+        set_DRAG_STICKINESS_LIMIT_from_pref()
         self.cursor_over_when_LMB_pressed = None
             # <cursor_over_when_LMB_pressed> keeps track of what the cursor was over 
             # when the LMB was pressed, which can be one of:
