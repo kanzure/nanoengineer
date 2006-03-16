@@ -647,16 +647,20 @@ class depositMode(selectAtomsMode):
         # bruce 041214: it turns out it's intended, but only for atoms nearer
         # than the water! Awaiting another reply from Josh for details.
         # Until then, no changes and no reviews/bugfixes (eg for invisibles).
-        # BTW this is now the only remaining call of findpick.
+        # BTW this is now the only remaining call of findpick [still true 060316].
         # Best guess: this should ignore invisibles and be limited by water
         # and near clipping; but still use 2.0 radius. ###@@@
 
         # bruce 041214 comment: this looks like an inlined mousepoints...
+        # but in fact [060316 addendum] it shares initial code with mousepoints,
+        # but not all of mousepoints's code, so it makes sense to leave it as a
+        # separate code snippet for now.
         x = event.pos().x()
         y = self.o.height - event.pos().y()
 
         p1 = A(gluUnProject(x, y, 0.0))
         p2 = A(gluUnProject(x, y, 1.0))
+
         at = self.o.assy.findpick(p1,norm(p2-p1),2.0)
         if at: pnt = at.posn()
         else: pnt = - self.o.pov
