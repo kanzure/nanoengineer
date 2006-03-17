@@ -30,6 +30,7 @@ allow_color_sorting_prefs_key = "allow_color_sorting"
 use_c_renderer = use_c_renderer_default = False
 use_c_renderer_prefs_key = "use_c_renderer"
 
+sys.path.append("./experimental/pyrex-opengl")
 binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
 if binPath not in sys.path:
     sys.path.append(binPath)
@@ -40,6 +41,9 @@ try:
 except:
     use_c_renderer = False
     quux_module_import_succeeded = False
+
+if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
+    print "WARNING: Using experimental version of quux module"
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0

@@ -1090,7 +1090,12 @@ class selectMode(basicMode):
             try:
                 #self.w.win_update()
                 sys.path.append("./experimental/pyrex-opengl")
+                binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
+                if binPath not in sys.path:
+                    sys.path.append(binPath)
                 import quux
+                if "experimental" in dirname(sys.modules['quux'].__file__):
+                    print "WARNING: Using experimental version of quux module"
                 # quux.test()
                 quux.shapeRendererInit()
                 quux.shapeRendererSetUseDynamicLOD(0)
