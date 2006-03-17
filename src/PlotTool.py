@@ -26,10 +26,19 @@ debug_plottool = False
 cmd = greenmsg("Plot Tool: ") #### this is bad, needs to be removed, but that's hard to do safely [bruce 060105 comment]
 
 class PlotTool(PlotToolDialog):
-    def __init__(self, assy, movie): #bruce 050326 added movie arg
+    # Bug 1484, wware 060317 - PlotTool requires a trace file and a plot file.
+    def __init__(self, assy, basefilename):
         parent = assy.w
         PlotToolDialog.__init__(self, parent)
-        self.movie = movie # before bruce 050326 was assy.current_movie
+        try:
+            tracefilename = basefilename[:-4] + "-xyztrace.txt"
+            inf = open(tracefilename)
+            inf.close()
+        except IOError:
+            tracefilename = basefilename[:-4] + "-trace.txt"
+        plotfilename = basefilename[:-4] + "-plot.txt"
+        self.traceFile = tracefilename
+        self.plotFile = plotfilename
         self.setup()
         self.show() # Fixed bug 440-1.  Mark 050802.
 
@@ -37,34 +46,18 @@ class PlotTool(PlotToolDialog):
         """Setup the Plot Tool dialog, including populating the combobox with plotting options.
         """
         # To setup the Plot Tool, we need to do the following:
-        # 1. Make sure there is a valid DPB file. This is temporary since the Plot Tool will
-        #     soon allow the user to open and plot any trace file.
-        # 2. From the DPB filename, construct the trace filename and GNUplot filename.
-        # 3. Read the header from the trace file to obtain:
+        # 1. Read the header from the trace file to obtain:
         #   - Date and time
         #   - Trajectory (DPB) filename.  This is redundant now, but will be necessary when
         #      Plot Tool allows the user to open and plot any trace file.
         #   - The number of columns of data in the trace file so we can...
-        # 4. Populate the plot combobox with the graph names
-        
-        # Make sure there is a DPB file for the assy. 
-        if not self.movie or not self.movie.filename:
-            msg = redmsg("No tracefile exists for this part.  To create one, run a simulation.")
-            env.history.message(cmd + msg)
-            return 1
-        
-        # Construct the trace file name.
-        self.traceFile = self.movie.get_trace_filename()
-        
+        # 2. Populate the plot combobox with the graph names
         # Make sure the tracefile exists
         if not os.path.exists(self.traceFile):
             msg = redmsg("Trace file [" + self.traceFile + "] is missing.  Plot aborted.")
             env.history.message(cmd + msg)
             return 1
             
-        # Construct the GNUplot filename.
-        self.plotFile = self.movie.get_GNUplot_filename()
-        
         # Now we read specific lines of the traceFile to read parts of the header we need.
         # I will change this soon so that we can find this header info without knowing what line they are on.
         # Mark 050310
@@ -290,10 +283,10 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
     #    This method should be moved into some other file.
 
     if assy.current_movie and assy.current_movie.filename:
-        # (bruce 050326 asks: can an existing movie ever not have a filename? Depends on whether stored on error...)
-        return PlotTool(assy, assy.current_movie) # Open Plot Tool dialog [and wait until it's dismissed]
-        # [bruce comment 050324-27: retval is stored in main window as win.plotcntl,
-        #  but never used. Conceivably, keeping it matters due to its refcount, but I doubt it.]
+        return PlotTool(assy, assy.current_movie.filename)
+    # wware 060317, bug 1484
+    if assy.filename:
+        return PlotTool(assy, assy.filename)
 
     # no valid current movie, look for saved one with same name as assy
     msg = redmsg("No simulation has been run yet.")
