@@ -357,16 +357,20 @@ class UserPrefs(UserPrefsDialog):
         ##   connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
 
         lod = env.prefs[ levelOfDetail_prefs_key ]
-        loditem = lod
-        if lod == -1: # 'variable'
+        lod = int(lod)
+        loditem = lod # index of corresponding spinbox item -- this is only correct for 0,1,2; other cases handled below
+        if lod <= -1: # 'variable' (only -1 is used now, but other negative values might be used in future)
             # [bruce 060215 changed prefs value for 'variable' from 3 to -1, in case we have more LOD levels in the future]
-            loditem = 3
-        elif lod == 3:
-            # 3 is an illegal value now -- fix it
-            # (this case can be removed after a few days; in A7 3 or higher should be a legal value equivalent to 2) ###@@@
-            env.prefs[ levelOfDetail_prefs_key ] = -1
-            loditem = 3
-        elif lod > 3: # change this to compare to '2' for A7 (in a few days)
+            loditem = 3 # index of the spinbox item that says "variable"
+        #bruce 060317 fix bug 1551 (in two files) by removing lod == 3 case. It should never be reactivated.
+        # This comment and commented-out code can be removed after A7 release.
+##        elif lod == 3:
+##            # 3 is an illegal value now -- fix it
+##            # (this case can be removed after a few days; in A7 3 or higher should be a legal value equivalent to 2)
+##            env.prefs[ levelOfDetail_prefs_key ] = -1
+##            loditem = 3
+##        elif lod > 3: # change this to compare to '2' for A7 (in a few days)
+        elif lod > 2:
             loditem = 2
         self.level_of_detail_combox.setCurrentItem(loditem)
         
