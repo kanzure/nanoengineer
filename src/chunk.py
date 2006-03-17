@@ -1724,20 +1724,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # and it is, by atom.setDisplay calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
         eltprefs = PeriodicTable.rvdw_change_counter # (color changes don't matter for this, unlike for havelist)
-        if self.haveradii != (disp,eltprefs): # value must agree with set, below
-            # don't have them, or have them for wrong display mode
-            ###e (or, someday, for wrong element-radius prefs)
-            
-            #######@@@@@@@ if new bug i predict is there, add value of env.prefs[xxx] to this tuple, for cpk radius factor pref
-            # [bruce 060308]
-            
+        radiusprefs = Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
+        if self.haveradii != (disp, eltprefs, radiusprefs): # value must agree with set, below
+            # don't have them, or have them for wrong display mode, or for wrong element-radius prefs            
             try:
                 res = self.compute_sel_radii_squared()
             except:
                 print_compact_traceback("bug in %r.compute_sel_radii_squared(), using []: " % self)
                 res = [] #e len(self.atoms) copies of something would be better
             self.sel_radii_squared_private = res
-            self.haveradii = (disp,eltprefs)
+            self.haveradii = (disp, eltprefs, radiusprefs)
         return self.sel_radii_squared_private
     
     def compute_sel_radii_squared(self):

@@ -955,7 +955,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # that for internal bonds, and external bonds are redrawn every time so
         # no invals are needed if their appearance changes.
 
-    def howdraw(self, dispdef):
+    def howdraw(self, dispdef): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """Tell how to draw the atom depending on its display mode (possibly
         inherited from dispdef, usually the molecule's effective dispdef).
         An atom's display mode overrides the inherited
@@ -1006,7 +1006,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
         return (disp, rad)
 
-    def selradius_squared(self):
+    def selradius_prefs_values(): # staticmethod in Atom #bruce 060317 for bug 1639 (and perhaps an analogue for other prefs)
+        "Return a tuple of all prefs values that are ever used in computing any atom's selection radius (by selradius_squared)."
+        return ( env.prefs[cpkScaleFactor_prefs_key] , env.prefs[cpkAtomRadius_prefs_key] ) # both used in howdraw
+
+    selradius_prefs_values = staticmethod( selradius_prefs_values)
+
+    def selradius_squared(self): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """Return square of desired "selection radius",
         or -1.0 if atom should not be selectable (e.g. invisible).
         This might depend on whether atom is selected (and that
