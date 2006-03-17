@@ -484,6 +484,7 @@ class NanoBuildMacOSX(NanoBuildBase):
     def buildSourceForDistribution(self):
         """Pack source together for distribution (all platforms)."""
         self.buildSimulator()
+        self.buildOpenGLAccelerator()
         #
         #
         os.chdir(self.currentPath)
