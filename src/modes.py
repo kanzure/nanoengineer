@@ -1023,7 +1023,7 @@ class basicMode(anyMode):
         
         self.o.SaveMouse(event)
         self.picking = False
-            
+
     def dragto(self, point, event, perp = None): #bruce 060316 moving this from selectMode to basicMode and using it more widely
         """Return the point to which we should drag the given point,
         if event is the drag-motion event and we want to drag the point
@@ -1049,6 +1049,29 @@ class basicMode(anyMode):
                 print "debug: fyi: dragto planeXline failed, fallback to ptonline", point, perp, p1, p2
             point2 = ptonline(point, p1, norm(p2-p1))
         return point2
+
+    def dragto_with_offset(self, point, event, offset): #bruce 060316 for bug 1474
+        """Convenience wrapper for dragto:
+        Use this to drag objects by points other than their centers,
+        when the calling code prefers to think only about the center positions
+        (or some other reference position for the object).
+        Arguments:
+        - <point> should be the current center (or other reference) point of the object.
+        - The return value will be a new position for the same reference point as <point> comes from
+          (which the caller should move the object to match, perhaps subject to drag-constraints).
+        - <event> should be an event whose .pos().x() and .pos.y() supply window coordinates for the mouse
+        - <offset> should be a vector (fixed throughout the drag) from the center of the object
+          to the actual dragpoint (i.e. to the point in 3d space which should appear to be gripped by the mouse,
+          usually the 3d position of a pixel which was drawn when drawing the object
+          and which was under the mousedown which started the drag).
+        By convention, modes can store self.drag_offset in leftDown and pass it as <offset>.
+        Note: we're not designed for objects which rotate while being dragged, as in e.g. dragSinglets,
+        though using this routine for them might work better than nothing (untested ##k). In such cases
+        it might be better to pass a different <offset> each time (not sure), but the only perfect
+        solution is likely to involve custom code which is fully aware of how the object's
+        center and its dragpoint differ, and of how the offset between them rotates as the object does.
+        """
+        return self.dragto(point + offset, event) - offset
     
     def middleShiftDrag(self, event):
         """Move point of view so that objects appear to follow

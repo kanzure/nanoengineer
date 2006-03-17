@@ -435,7 +435,7 @@ class selectMode(basicMode):
             self.cursor_over_when_LMB_pressed = 'Picked Atom'
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
-        self.atomSetup(a)
+        self.atomSetup(a, event)
 
     def objectSetup(self, obj):
         self.current_obj = obj
@@ -450,13 +450,36 @@ class selectMode(basicMode):
             global _count
             _count = _count + 1
             self.current_obj_start = _count
-        
-    def atomSetup(self, a):
+
+    drag_offset = V(0,0,0) # avoid tracebacks from lack of leftDown
+    
+    def atomSetup(self, a, event): #bruce 060316 added <event> argument, for bug 1474
         '''Setup for a click, double-click or drag event for real atom <a>.
         '''
+        #bruce 060316 set self.drag_offset to help fix bug 1474 (this should be moved into a method so singlets can call it too):
+        farQ, dragpoint = self.dragstart_using_GL_DEPTH( event)
+        apos0 = a.posn()
+        if farQ or vlen( dragpoint - apos0 ) > a.selatom_radius() + 0.2:
+            # dragpoint is not realistic -- find a better one (using code similar to innards of dragstart_using_GL_DEPTH)
+            ###@@@ Note: + 0.2 is purely a guess (probably too big) -- what it should be is a new method a.max_drawn_radius(),
+            # which gives max distance from center of a drawn pixel, including selatom, highlighting, wirespheres,
+            # and maybe even the depth offset added by GLPane when it draws in highlighted form (not sure, it might not draw
+            # into depth buffer then...) Need to fix this sometime. Not high priority, since it seems to work with 0.2,
+            # and since higher than needed values would be basically ok anyway. [bruce 060316]
+            if env.debug(): # leave this in until we see it printed sometime
+                print "debug: fyi: atomSetup dragpoint try1 was bad, %r for %r, reverting to ptonline" % (dragpoint, apos0)
+            p1, p2 = self.o.mousepoints(event)
+            dragpoint = ptonline(apos0, p1, norm(p2-p1))
+            del p1,p2
+        del farQ, event
+        self.drag_offset = dragpoint - apos0 # some subclass drag methods can use this with self.dragto_with_offset()
+##        if env.debug():
+##            print "set event-%d drag_offset" % _count, self.drag_offset
+
         self.objectSetup(a)
         
         if len(self.o.assy.selatoms_list()) == 1:
+            #bruce 060316 question: does it matter, in this case, whether <a> is the single selected atom? is it always??
             self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
             self.drag_multiple_atoms = False
         else:
@@ -531,29 +554,28 @@ class selectMode(basicMode):
     def atomDrag(self, a, event):
         """Drag real atom <a> and any other selected atoms and/or jigs.  <event> is a drag event.
         """
-
         apos0 = a.posn()
-        px = self.dragto(a.posn(), event)
-        apo = a.posn()
-        delta = px - apo # xyz delta between new and current position of <a>.
+        apos1 = self.dragto_with_offset(apos0, event, self.drag_offset ) #bruce 060316 fixing bug 1474
+        delta = apos1 - apos0 # xyz delta between new and current position of <a>.
+        
         
         if self.drag_multiple_atoms:
             self.drag_selected_atoms(delta)
         else:
-            self.drag_selected_atom(a, event)
+            self.drag_selected_atom(a, delta) #bruce 060316 revised API [##k could this case be handled by the multiatom case??]
         
         self.drag_selected_jigs(delta)
         
         self.atomDragUpdate(a, apos0)
+        return
         
-        
-    def drag_selected_atom(self, a, event):
-        """Drag real atom <a>.  <event> is a drag event.
+    def drag_selected_atom(self, a, delta): #bruce 060316 revised API for uniformity and no redundant dragto, re bug 1474
+        """Drag real atom <a> by the xyz offset <delta>, adjusting its baggage atoms accordingly
+        (how that's done depends on its other neighbor atoms).
         """
-        
-        px = self.dragto(a.posn(), event)
         apo = a.posn()
-        delta = px - apo # xyz delta between new and current position of <a>.
+        ## delta = px - apo
+        px = apo + delta
         
         n = self.nonbaggage
             # n = real atoms bonded to <a> that are not singlets or monovalent atoms.
@@ -580,15 +602,13 @@ class selectMode(basicMode):
         else: # If <a> has no nonbaggage atoms, just move each baggage atom (no rotation).
             for at in self.baggage:
                 at.setposn(at.posn()+delta)
-        # [Josh wrote, about the following "a.setposn(px)":]
-        # there's some weirdness I don't understand
-        # this doesn't work if done before the loop above
         a.setposn(px)
         # [bruce 041108 writes:]
         # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
         # in the loop before it, or adjBaggage (which compares a.posn() to
         # px) would think atom <a> was not moving.
-        
+        return
+    
     def drag_selected_atoms(self, offset):
         
         # Move dragatoms.
@@ -1392,6 +1412,8 @@ class selectAtomsMode(selectMode):
         #bruce 060315 replaced drag_stickiness_limit_exceeded with max_dragdist_pixels
         self.max_dragdist_pixels = 0
             # used in mouse_within_stickiness_limit
+        self.drag_offset = V(0,0,0) #bruce 060316
+            # default value of offset from object reference point (e.g. atom center) to dragpoint (used by some drag methods)
         self.only_highlight_singlets = False
             # when set to True, only singlets get highlighted when dragging a singlet.
             # depositMode.singletSetup() sets this to True when dragging a singlet around.

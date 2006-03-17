@@ -1367,7 +1367,9 @@ class depositMode(selectAtomsMode):
         
         apos0 = a.posn()
 
-        px = self.dragto(a.posn(), event)
+        px = self.dragto_with_offset(a.posn(), event, self.drag_offset )
+            #bruce 060316 attempt to fix bug 1474 analogue; untested and incomplete since nothing is setting drag_offset
+            # when this is called (except to its default value V(0,0,0))! ###@@@
         
         if self.pivax: # continue pivoting around an axis
             quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
