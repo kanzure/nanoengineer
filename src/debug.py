@@ -177,12 +177,17 @@ class ObjectDescender:
             return
         if type(obj) in (types.InstanceType, types.ClassType,
                          types.ModuleType, types.FunctionType):
-            keys = filter(lambda x: not x.startswith("__"), dir(obj))
+            # Look at instance variables, ignore class variables and methods
+            ckeys = [ ]
+            if hasattr(obj, "__class__"):
+                ckeys = filter(lambda x: not x.startswith("__"), dir(obj.__class__))
+            ikeys = filter(lambda x: not x.startswith("__"), dir(obj))
             lst = [ ]
-            for k in keys:
-                x = getattr(obj, k)
-                if not self.exclude(k, x):
-                    lst.append((k, x, pathname + [ k ]))
+            for k in ikeys:
+                if k not in ckeys:
+                    x = getattr(obj, k)
+                    if not self.exclude(k, x):
+                        lst.append((k, x, pathname + [ k ]))
             for k, v, pn in lst:
                 if self.showThis(k, v):
                     self.handleLeaf(v, depth+1, pn)
