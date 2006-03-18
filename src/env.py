@@ -260,7 +260,7 @@ def post_event_updates( warn_if_needed = False ):
     # handle and clear all changes since the last call
     # (in the proper order, when there might be more than one kind of change #nim)
     if _changed_structure_atoms or _changed_bond_types:
-        if platform.atom_debug:
+        if 0 and platform.atom_debug: #bruce 060315 disabled this automatic reload (not needed at the moment)
             # during development, reload this module every time it's used
             # (Huaicai says this should not be done by default in the released version,
             #  due to potential problems if reloading from a zip file. He commented it
@@ -270,11 +270,13 @@ def post_event_updates( warn_if_needed = False ):
             reload(bond_updater)
     if _changed_structure_atoms:
         from bond_updater import update_bonds_after_each_event
-        update_bonds_after_each_event( _changed_structure_atoms) # this might modify _changed_bond_types when it does bond-inference
+        update_bonds_after_each_event( _changed_structure_atoms)
+            #bruce 060315 revised following comments:
+            # this can modify _changed_bond_types (from bond-inference in the future, or from correcting illegal bond types now).
             #e not sure if that routine will need to use or change other similar globals in this module;
             # if it does, passing just that one might be a bit silly (so we could pass none, or all affected ones)
         _changed_structure_atoms.clear()
-    if _changed_bond_types: #e not sure if this will ever be modified by above loop which processes _changed_structure_atoms...
+    if _changed_bond_types: # warning: this can be modified by above loop which processes _changed_structure_atoms...
         from bond_updater import process_changed_bond_types
         process_changed_bond_types( _changed_bond_types)
             ###k our interface to that function needs review if it can recursively add bonds to this dict -- if so, it should .clear
@@ -282,5 +284,17 @@ def post_event_updates( warn_if_needed = False ):
     return
 
 # ==
+
+def node_departing_assy(node, assy): #bruce 060315 for Undo
+    "If assy is an assembly, warn it that node (with all its child atoms) is leaving it."
+    try:
+        um = assy.undo_manager
+    except:
+        # for assy is None or == a certain string
+        assert assy is None or type(assy) == type("assembly") and "assembly" in assy # could be more specific
+        return
+    if um is not None:
+        um.node_departing_assy(node, assy)
+    return
 
 # end

@@ -213,7 +213,7 @@ class Node( StateMixin):
             name_msg = " (exception in `self.name`)"
         return "<%s at %#x%s>" % (classname, id(self), name_msg)
     
-    def setAssy(self, assy): #bruce 051227
+    def setAssy(self, assy): #bruce 051227, Node method [used in depositMode; #e should rename to avoid confusion with GLPane method]
         "Change self.assy from its current value to assy, cleanly removing self from the prior self.assy if that is not assy."
         if self.assy is not assy:
             oldassy = self.assy
@@ -1110,7 +1110,22 @@ class Node( StateMixin):
         assert not self.picked
         if self.part: #bruce 050303; bruce 051227 moved from start of routine (before delmember) to here (after unpick), not sure ok
             self.part.remove(self)
+        env.node_departing_assy(self, self.assy) #bruce 060315 for Undo
         self.assy = None #bruce 050214 added this ###k review more
+            #bruce 060315 comments about this old code:
+            # reasons to set assy to None:
+            # - helps avoid cycles when destroying Nodes
+            # - logical part of setAssy (but could wait til new assy is stored)
+            # reasons not to:
+            # - Undo-tracked changes might like to use it to find the right AssyUndoArchive to tell about the change
+            #   (can we fix that by telling it right now? Not sure... in theory, more than one assy could claim it if we Undo in some!)
+            # - we might avoid needing to scan it and store it as undoable state
+            # - some bugs are caused by code that tries to find win, glpane, etc from assy
+            # tentative conclusion:
+            # - don't stop doing this for A7
+            # - but tell Undo about the change, as part of letting it know which atoms are changing
+            #   (namely, all those still in this Node, if it's a chunk -- perhaps this will usually be no atoms?);
+            #   other changes on atoms can safely only tell the assy they refer to (via atom.molecule.assy) (or no assy if that's None).
 
     def is_ascendant(self, node): # implem corrected by bruce 050121; was "return None"
         """Is node in the subtree of nodes headed by self?

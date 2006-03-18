@@ -10,8 +10,10 @@ __author__ = 'bruce'
 
 from state_constants import *
 import types
+from types import InstanceType # use this form in inner loops
 import env
 from debug import print_compact_stack
+import platform # for atom_debug [bruce 060315]
 
 SAMEVALS_SPEEDUP = False    # Use the C extension
 
@@ -79,7 +81,7 @@ class _UNSET_class:
     def __init__(self, name = "_???_"):
         self.name = name
     def __repr__(self):
-        return name
+        return self.name
     pass
 
 try:
@@ -206,7 +208,8 @@ def copy_list(val):
 
 def scan_list(val, func):
     for elt in val:
-        func(elt)
+        ## func(elt)
+        scan_val( elt, func) #bruce 060315 bugfix
     return
 
 def _same_list_helper(v1, v2):
@@ -234,7 +237,8 @@ def copy_dict(val):
 
 def scan_dict(dict1, func):
     for elt in dict1.itervalues(): # func must not harm dict1
-        func(elt)
+        ## func(elt)
+        scan_val( elt, func) #bruce 060315 bugfix
     return
 
 def _same_dict_helper(v1, v2):
@@ -413,7 +417,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
 
 # == helper code  [##e all code in this module needs reordering]
 
-known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves
+known_type_copiers = {} # needs no entry for types whose instances can all be copied as themselves. Also used by is_mutable.
 
 known_type_scanners = {} # only needs entries for types whose instances might contain (or be) InstanceType objects,
     # and which might need to be entered for finding "children" (declared with S_CHILD) -- for now we assume that means
@@ -429,16 +433,17 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
-_debug_deepcopy = False # initial value might never be used -- reset in each run of copy_val [bruce 060311]
+_debug_deepcopy = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
 
-def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency
+def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency #bruce 060315 partly optimized env.debug() check
     """Efficiently copy a general Python value (so that mutable components are not shared with the original),
     passing Python instances unchanged, unless they define a _s_deepcopy method,
     and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
        (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
     global _debug_deepcopy
-    _debug_deepcopy = env.debug() # for now; later make it usually False [bruce 060311]
+    _debug_deepcopy = platform.atom_debug # inlined env.debug()
+        ##e ideally we'd have a recursive _copy_val_helper that doesn't check this debug flag at all
     try:
         # wware 060308 small performance improvement (use try/except); made safer by bruce, same day
         # known_type_copiers is a fixed public dictionary
@@ -479,7 +484,7 @@ def _is_mutable_helper(val): #060303
         for thing in val:
             _is_mutable_helper(thing)
         return
-    elif typ is types.InstanceType:
+    elif typ is InstanceType:
         # another special case
         if hasattr(obj, '_s_deepcopy'):
             raise _IsMutable
@@ -634,7 +639,7 @@ if SAMEVALS_SPEEDUP:
 ## def is_mutable_InstanceType(obj): 
 ##     return hasattr(obj, '_s_deepcopy')
   
-known_type_copiers[ types.InstanceType ] = copy_InstanceType
+known_type_copiers[ InstanceType ] = copy_InstanceType
 
 def scan_InstanceType(obj, func):
     func(obj)
@@ -642,7 +647,7 @@ def scan_InstanceType(obj, func):
     # Probably not, but nevermind, we'll just do all this in C.
     return None 
 
-known_type_scanners[ types.InstanceType ] = scan_InstanceType
+known_type_scanners[ InstanceType ] = scan_InstanceType
 
 # Choice 1:
 # no need for _same_InstanceType_helper; we set them up so that their __eq__ method is good enough;
@@ -684,15 +689,17 @@ def copy_Numeric_array(obj):
     return obj.copy() # use Numeric's copy method for Character and number arrays ###@@@ verify ok from doc of this method...
 
 def scan_Numeric_array(obj, func):
-    if obj.typecode() == PyObject:
+    if obj.typecode() == PyObject: # note: this doesn't imply each element is an InstanceType instance, just an arbitrary Python value
         if env.debug():
             print "atom_debug: ran scan_Numeric_array, PyObject case" # remove when works once ###@@@
-        map( func, obj)
+        ## map( func, obj)
+        for elt in obj:
+            scan_val(elt, func) #bruce 060315 bugfix
         # is there a more efficient way?
-        ###e this is probably incorrect for multiple dimensions; doesn't matter for now.
-    else:
-        if env.debug():
-            print "atom_debug: ran scan_Numeric_array, non-PyObject case" # remove when works once ###@@@
+        ###e this is probably correct but far too slow for multiple dimensions; doesn't matter for now.
+##    else:
+##        if env.debug():
+##            print "atom_debug: ran scan_Numeric_array, non-PyObject case" # remove when works once [it did, on test values, 060314]
     return
 
 def _same_Numeric_array_helper(obj1, obj2):
@@ -722,7 +729,7 @@ except:
         print "fyi: can't import array, PyObject from Numeric, so not registering its copy & scan functions"
 else:
     numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
-    assert numeric_array_type != types.InstanceType
+    assert numeric_array_type != InstanceType
     known_type_copiers[ numeric_array_type ] = copy_Numeric_array
     known_type_scanners[ numeric_array_type ] = scan_Numeric_array
     known_type_same_helpers[ numeric_array_type ] = _same_Numeric_array_helper
@@ -753,7 +760,7 @@ else:
         # note: this is the type of a QColor instance, not of the class!
         # type(QColor) is <type 'sip.wrappertype'>, which we'll just treat as a constant,
         # so we don't need to handle it specially.
-    assert QColor_type != types.InstanceType
+    assert QColor_type != InstanceType
     ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
     known_type_copiers[ QColor_type ] = copy_QColor
     # no scanner for QColor is needed, since it contains no InstanceType objects.
@@ -904,7 +911,7 @@ class StateSnapshot:
     def size(self): ##e should this be a __len__ and/or a __nonzero__ method? ### shares code with DiffObj; use common superclass?
         "return the total number of attribute values we're storing (over all objects and all attrnames)"
         res = 0
-        for d in self.attrdicts.values():
+        for d in self.attrdicts.itervalues():
             # <rant> Stupid Python didn't complain when I forgot to say .values(),
             # but just told me how many letters were in all the attrnames put together! </rant>
             # (Iteration over a dict being permitted is bad enough (is typing .items() so hard?!?),
@@ -933,8 +940,6 @@ def val_diff_func_for__posn((p1,p2), whatret): # purely a stub for testing, thou
     assert type(p1) is _Numeric_array_type
     assert type(p2) is _Numeric_array_type
     return p2 - p1
-
-def reverse_and_apply():pass ####
 
 def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
     "Diff two snapshots. Retval format TBD. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
@@ -974,7 +979,7 @@ class DiffObj:
     def size(self): ### shares code with StateSnapshot; use common superclass?
         "return the total number of attribute value differences we're storing (over all objects and all attrnames)"
         res = 0
-        for d in self.attrdicts.values():
+        for d in self.attrdicts.itervalues():
             res += len(d)
         return res
     def __len__(self):
@@ -1058,7 +1063,7 @@ def diff_and_copy_state(archive, assy, priorstate): #060228
     # that immutable-state-object's state), but we're going to grab it out of there and modify it to equal actual current state
     # (as derived from assy using archive), and make a diffobject which records how we had to change it. Then we'll donate it
     # to a new immutable-state-object we make and return (<new>). But we don't want to make priorstate unusable
-    # or violate its immutability, so we'll tell it to define itself (until further notice) based on <new> and <diffobj>.
+    # or violate its logical immutability, so we'll tell it to define itself (until further notice) based on <new> and <diffobj>.
     try:
         assert priorstate[0] == 'scan_whole' # might fail on some calls, we'll see
         priorstate = priorstate[1]
@@ -1212,7 +1217,7 @@ class obj_classifier:
         return
     
     def classify_instance(self, obj):
-        """Obj is known to be of types.InstanceType. Classify it (memoizing classifications per class when possible).
+        """Obj is known to be of InstanceType. Classify it (memoizing classifications per class when possible).
         It might be a StateHolder, Data object, or neither.
         """
         class1 = obj.__class__
@@ -1299,13 +1304,30 @@ class obj_classifier:
         # So write the obj to "add more objs to a dict" func. then pass it to a transclose utility, which takes care
         # of knowing which objs are seen for first time.
         data_objs = {}
+        # optimized attr accesses: [060315]
+        env_debug = env.debug()
+        classify_instance = self.classify_instance
         def obj_and_dict(obj1, dict1): #e rename
             """pass me to transclose; I'll store objs into dict1 when I reach them from a child attribute of obj; all objs are
             assumed to be instances of the kind acceptable to classify_instance.
             """
             # note, obj1 might be (what we consider) either a StateHolder or a Data object (or neither).
             # Its clas will know what to do.
-            clas = self.classify_instance(obj1)
+            if env_debug:
+                #bruce 060314: realized there was a bug in scan_val -- it stops at all elements of lists, tuples, and dicts,
+                # rather than recursing as intended and only stopping at InstanceType objects.
+                # (copy_val and same_vals (py implems anyway) don't have this bug.)
+                # Does this happen in practice in Undo, or do we so far only store child objs 1 level deep in lists or dicts?
+                # (Apparently it never happens, since following debug code doesn't print anything.)
+                # What would the following code do if it happened?
+                # Would it be most efficient/flexible/useful to decide this is a good feature of scan_val,
+                # and make this code tolerate it?
+                #bruce 060315: decided to fix scan_val.
+                ##k Once this is tested, should this check depend on atom_debug?
+                # Maybe in classify_instance? (Maybe already there?) ###@@@
+                if type(obj1) is not InstanceType: ## in ( types.ListType, types.DictType ):
+                    print "debug: bug? scan_children hit obj at %#x of type %r" % (id(obj1), type(obj1)) ####@@@@
+            clas = classify_instance(obj1)
             if clas.obj_is_data(obj1):
                 data_objs[id(obj1)] = obj1
             def func(obj):

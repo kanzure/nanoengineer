@@ -215,6 +215,18 @@ class AssyUndoManager(UndoManager):
             pass
         return
 
+    # ==
+
+    def node_departing_assy(self, node, assy): #bruce 060315
+        assert assy is self.assy # has to be true, since we were accessed as assy.undo_manager
+        import chunk # nonmodular, but I think this shouldn't be called too early for that import, since assy will be inited
+        if isinstance(node, chunk.Chunk):
+            dict1 = self.archive._changed_parent_Atoms ###IMPLEM; tracks atoms w/ changed assy or molecule or liveness/killedness
+##            for atom in node.atoms.itervalues():
+##                dict1[atom.key] = atom
+            dict1.update(node.atoms)
+    # ==
+    
     def current_command_info(self, *args, **kws):
         self.archive.current_command_info(*args, **kws)
     

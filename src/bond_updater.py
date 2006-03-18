@@ -54,7 +54,7 @@ def update_bonds_after_each_event( _changed_structure_atoms):
     locally consistent with the current atomtypes. That is, it will only act when
     there are local inconsistencies, and it will only fix them when this can be done
     on just the atoms it was passed (or their bonds), and in a reasonably unambiguous way;
-    whenever it thinks a more global update it needed, it will record this fact
+    whenever it thinks a more global update is needed, it will record this fact
     (and the affected atoms) so the user can be advised that a global bond-update is needed.
        It will assume that interpart bonds (if any) have already been broken.
     (#e Or we might decide to extend it to break them itself.)
@@ -123,6 +123,7 @@ def update_bonds_after_each_event( _changed_structure_atoms):
             # [As of 050725 I think it doesn't do either of those.]
             # WARNING: this might add new atoms to our argument dict, _changed_structure_atoms
             # (and furthermore, we might depend on the fact that it does, for doing valence checks on them!)
+            #060306 update: as of long before now, it stores these bonds in env._changed_bond_types.
 
     return # from update_bonds_after_each_event
 
