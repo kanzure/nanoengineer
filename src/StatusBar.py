@@ -285,7 +285,8 @@ class AbortButtonForOneTask: #bruce 060106; will become a subclass of something 
         self.set_tooltip("Abort %s" % self.cmdname)
         self.abortButton.show()
     def set_tooltip(self, text):
-        print "set tooltip for abort button is nim:",text ####@@@@
+        if env.debug():
+            print "debug: set tooltip for abort button is nim:",text ####@@@@
         pass ### self.abortButton.setText(text) ###k setTooltip ok for Action, but not Button... what is correct?
     def step(self):
         assert not self.force_quit # purpose of this is to raise an exception to force caller to quit! KeyboardInterrupt might be better

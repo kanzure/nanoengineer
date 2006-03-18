@@ -36,7 +36,7 @@ from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg
-import env #bruce 050901
+import env
 from VQT import A, V
 
 # more imports lower down
@@ -50,30 +50,29 @@ debug_sim = 0 # DO NOT COMMIT with 1
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 debug_timing_loop_on_sbar = 0
 
-
-#& Bruce, can I remove this?  Mark 060314.
-#use_pyrex_sim = os.path.exists('/Users/Bruce') # DO NOT COMMIT with True
-    # [this is true for bruce and probably false for other developers] ####@@@@
-    # [quick links for developers: see also (search for) abort_ or 'if frame_number > 10' ]
-
 use_pyrex_sim = True 
     # Use pyrex sim by default.  Use debug menu to use the standalone sim. mark 060314.
 
 if debug_sim_exceptions:
     debug_all_frames = 1
 
-
 _FAILURE_ALREADY_DOCUMENTED = -10101
 
-##cmd = greenmsg("Simulator: ")
-##    #bruce 051129 comment: this global definition is a bad idea (in its value including greenmsg, and in its globalness).
-##    # It ought to become some object's attribute, once we figure out what uses it and whether anything changes it.
-##    # (It looks like class SimRunner uses it a lot, but it's hard to tell what else does.)
-##    # It's hard to clean this up safely, because in theory it might be accessed from other files, and "cmd" is too common
-##    # to easily search for (187 matches in current sources). Fix this sometime. #e ####@@@@
-##    #bruce 060106: I fixed it in this file, and I decided I can just remove it, and if some other file imports it
-##    # and depends on that (unlikely), that's a bug in that file which can be found and fixed there.
 
+try:
+    _things_seen_before # don't reset this on reload
+except:
+    _things_seen_before = {}
+
+def seen_before(thing): #bruce 060317 ##e should refile, since generally useful
+    """Return True if and only if thing has never been seen before (as an argument passed to this function).
+    Useful for helping callers do things only once per session.
+    """
+    res = _things_seen_before.get(thing, False)
+    _things_seen_before[thing] = True
+    return res
+
+    
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
     #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
@@ -804,7 +803,9 @@ class SimRunner:
                 env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for pyrex sim
                 # NFR/bug 1286; other comments describe how to implement it; it would need a warning
                 # (esp if both checkboxes unchecked, since no frame output in that case, tho maybe tracef warnings alone are useful)
-            env.history.message(orangemsg("Warning: editing structure during sim causes tracebacks; cancelling an abort skips some realtime display time"))
+            editwarning = "Warning: editing structure during sim causes tracebacks; cancelling an abort skips some realtime display time"
+            if not seen_before(editwarning): #bruce 060317 added this condition
+                env.history.message(orangemsg( editwarning ))
             env.call_qApp_processEvents() # so user can see that history message
 
             ###@@@ SIM CLEANUP desired: [bruce 060102]
