@@ -85,11 +85,28 @@ register_class_nickname("Chunk", "molecule") # for use in Undo attr-dependency d
 
 class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
-    # class constants to serve as default values of attributes
+    # class constants to serve as default values of attributes, and _s_attr decls for some of them
+    
     _hotspot = None
-    _s_attr__hotspot = S_REF #bruce 060308 to fix bug 1633; bruce 060309 corrected hotspot -> _hotspot to fix bug 1643
-        ####@@@@ ideally we'd add debug code to detect the original error, due to presence of a _get_hotspot method;
-        # maybe we'd have an optional method (implemented by InvalMixin) to say whether an attr is legal for an undoable state decl.
+    
+##    _s_attr_hotspot = S_REF
+##    _s_attr__hotspot = S_REF
+    _s_attr__hotspot = S_CHILD # needs to be CHILD in case it temporarily refers to a killed atom (common after you deposit onto it),
+        # since otherwise, that atom's state will not be part of the stored state,
+        # and restoring that state will fail to alter the attrs of that atom as they need to.
+        ####@@@@ #e need to warn somehow if you hit a StateMixin object in S_REF but didn't store state for it;
+        ####@@@@ I'm not sure how I'll handle this once the live atoms are being differentially scanned.
+        ##e Would it be better to clean up all hotspots before taking a checkpoint?
+        #
+        # history:
+        #bruce 060308 added '_s_attr_hotspot = S_REF' to fix bug 1633 (in its original description, before comment #1)
+        #bruce 060309 corrected hotspot -> _hotspot, i.e. '_s_attr__hotspot = S_REF', to fix bug 1643
+            ####@@@@ ideally we'd add debug code to detect the original error, due to presence of a _get_hotspot method;
+            # maybe we'd have an optional method (implemented by InvalMixin)
+            # to say whether an attr is legal for an undoable state decl.
+        #bruce 060317 changed this again, to '_s_attr__hotspot = S_CHILD', to fix bug 1633 comment #1
+        # (a different bug than the original bug 1633).
+        
     _colorfunc = None
     # this overrides global display (GLPane.display)
     # but is overriden by atom value if not default

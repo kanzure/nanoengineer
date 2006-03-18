@@ -219,20 +219,23 @@ def assy_become_scanned_state(self, data, archive):
     if 1: # simple way to start with ####@@@@ should split into separate func for profiling (need funcs for above and below things too)
         mols = {}
         moldict = attrdicts.get('molecule',{}) # {} can happen, when no Chunks were in the state!
-        for key, mol in moldict.iteritems():
+        for atom_objkey, mol in moldict.iteritems():
             mols[id(mol)] = mol
-        import chunk
-        for badmol in (None, chunk._nullMol):
+        from chunk import _nullMol
+        for badmol in (None, _nullMol):
             if mols.has_key(id(badmol)):
                 # should only happen if undoable state contains killed or still-being-born atoms; I don't know if it can
-                if env.debug():
-                    print "why does some atom in undoable state have .molecule = %r?" % (badmol,)
+                # (as of 060317 tentative fix to bug 1633 comment #1, it can -- _hotspot is S_CHILD but can be killed)
+                if env.debug() and badmol is None:
+                    print "debug: why does some atom in undoable state have .molecule = %r?" % (badmol,)
                 del mols[id(badmol)]
+                # but we also worry below about the atoms that had it (might not be needed for _nullMol; very needed for None)
         for mol in mols.itervalues():
             mol.atoms = {}
-        for key, mol in moldict.iteritems():
-            obj = modified_get(key) # an atom
-            mol.atoms[ obj.key ] = obj # inlines some of Chunk.addatom
+        for atom_objkey, mol in moldict.iteritems():
+            if mol not in (None, _nullMol):
+                atom = modified_get(atom_objkey)
+                mol.atoms[ atom.key ] = atom # inlines some of Chunk.addatom; note: atom.key != atom_objkey
         for mol in mols.itervalues():
             mol.invalidate_atom_lists() # inlines some more of Chunk.addatom
         pass
@@ -940,6 +943,19 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # when we support out of order undo in future, this will list each diff in multiple places
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
             # (Not sure if that system will be good enough for permitting enough out-of-order list-modification ops.)
+
+        # == above is general; below is specific to the kind of data we find in an assembly (Atoms, Bonds, Chunks...)
+        
+        # change tracking dicts for Atoms and Bonds (not sure we want them here, as opposed to inside current_diff...) [bruce 060315]
+        self._changed_parent_Atoms = {} # atom.key -> atom (not objkey!) for atoms w/ changed assy or molecule or liveness/killedness
+            # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
+        self._changed_structure_Atoms = {} ###e format TBD, but tracks changes to element, atomtype, bond set (###k bond order?)
+        self._changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
+        self._changed_selection_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
+
+        self._changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode; not sure if any more ###k)
+
+        self._changed_Bonds = {} # tracks all changes to Bonds: existence, which atoms, bond order. [bond.key or id(bond) is TBD ###k]
 
         # rest of init is done later, by self.initial_checkpoint, when caller is more ready [060223]
         ###e not sure were really inited enough to return... we'll see
