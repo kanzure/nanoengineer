@@ -149,26 +149,37 @@ def createWhatsThis(self):
         
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)</b></p><br> "\
                        "<p><img source=\"editUndo\"><br> "\
-                       "Reverses the last edit or command to the active part. "\
-                       "</p>"
+                       "Reverses the last edit or command which changed structure or selection. "\
+                       "</p>" #bruce 060317 revised this text to reflect what it does in A7
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
                                                        self.editUndoAction.iconSet().pixmap() )
 
         self.editUndoAction.setWhatsThis( editUndoText )
+
+        self.editUndoText = editUndoText #bruce 060317 to help fix bug 1421 in Undo whatsthis wiki help link
         
         #### Redo ####
+
+        import platform
+        if platform.is_macintosh():
+            redo_accel = "(Ctrl + Shift + Z)" # note: this is further modified (Ctrl -> Cmd) by other code
+            # changing this is partly redundant with code in undo*.py, but as of 060317 it's desirable in editRedoText too
+        else:
+            redo_accel = "(Ctrl + Y)"
         
-        editRedoText =  "<u><b>Redo</b></u>     (Ctrl + Y)</b></p><br> "\
+        editRedoText =  "<u><b>Redo</b></u>     %s</b></p><br> "\
                        "<p><img source=\"editRedo\"> <br>"\
-                       "Re-applies the actions or commands on which you have used "\
-                       "the Undo command."\
-                       "</p>"
+                       "Restores a change which was undone using the Undo command."\
+                       "</p>" % redo_accel
+            #bruce 060317 revised this text to be more accurate, and split out redo_accel
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editRedo",
                                                        self.editRedoAction.iconSet().pixmap() )
 
         self.editRedoAction.setWhatsThis( editRedoText )
+
+        self.editRedoText = editRedoText #bruce 060317 to help fix bug 1421 in Redo whatsthis wiki help link
         
         #### Cut ####
         
