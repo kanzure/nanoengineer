@@ -210,6 +210,14 @@ class Directory(QListViewItem):
                         d = QListViewItem(self, fileName)#, 'Symbolic Link')
                         d.setPixmap(0, fileIcon)
                     elif f.isDir():
+                        if fileName == 'CVS':
+                            #bruce 060319 skip CVS directories, so developers see same set of directories as end-users
+                            # (implements NFR I recently reported)
+                            # WARNING: this is only legitimate for some applications of this module.
+                            # For now that's ok (we only use it in MMKit). Later this feature should be turned on
+                            # by an optional argument to __init__, and generalized to a list of files to not show
+                            # or to a filter function.
+                            continue
                         d = Directory(self, fileName)
                     else:
                         if f.isFile():
