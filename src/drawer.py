@@ -38,12 +38,12 @@ if binPath not in sys.path:
 try:
     import quux
     quux_module_import_succeeded = True
+    if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
+        print "WARNING: Using experimental version of C rendering code:", sys.modules['quux'].__file__
 except:
     use_c_renderer = False
     quux_module_import_succeeded = False
-
-if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
-    print "WARNING: Using experimental version of quux module"
+    print "WARNING: unable to import C rendering code (quux module). Only Python rendering will be available."
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -1310,7 +1310,6 @@ def setup():
         initial_choice, non_debug = True, prefs_key = allow_color_sorting_prefs_key)
         #e should remove non_debug = True before release!
 
-    print "quux_module_import_succeeded", quux_module_import_succeeded
     # 20060313 grantham Added use_c_renderer_pref debug pref, can
     # take out when C renderer used by default.
     if quux_module_import_succeeded:
