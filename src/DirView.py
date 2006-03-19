@@ -1,8 +1,22 @@
-# Copyright (c) 2004 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
-General directory view widget. Based on Qt example dirview. 
+General directory view widget. Based on Qt/PyQt example dirview.py.
 
 $Id$
+
+This file contains some code from the Qt/PyQt example dirview.py,
+whose copyright notice reads as follows:
+
+**************************************************************************
+** $Id$
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Some corrections by M. Biermaier (http://www.office-m.at)
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+***************************************************************************
 """
 
 import sys
@@ -295,3 +309,5 @@ if __name__ == '__main__':
         for drv in fiList:
             print "The file path is: ", str(drv.absFilePath())
         a.exec_loop()
+
+# end
