@@ -1853,8 +1853,9 @@ def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
     fix_QAction_whatsthis(win.editRedoAction, mac)
     if use_debug_refix_cutoff:
         print "returning from refix_whatsthis_text_and_links w/o using laterones"
-    for obj, text in _objects_and_text_that_need_fixing_later:
-        give_widget_MyWhatsThis_and_text( obj, text)
+#bruce 060320 zapping this for bug 1721 (leaving it in was an oversight, though I didn't know it'd cause any bug)
+##    for obj, text in _objects_and_text_that_need_fixing_later:
+##        give_widget_MyWhatsThis_and_text( obj, text)
     return
 
 def replace_ctrl_with_cmd(text): # by mark; might be wrong for text which uses Ctrl in unexpected ways
