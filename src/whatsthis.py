@@ -12,7 +12,9 @@ from qt import *
 
 enable_whatsthis_links = True
 
-debug_whatsthis_links = False # do not commit with True
+debug_whatsthis_links = False # DO NOT COMMIT with True
+
+debug_refix = False # DO NOT COMMIT with True
 
 class MyWhatsThis(QWhatsThis): #bruce 060120 revised this as part of fixing bug 1295, and added docstring
     """QWhatsThis subclass for handling links. Due to quirks in Qt, this is used in two distinct ways:
@@ -36,14 +38,20 @@ class MyWhatsThis(QWhatsThis): #bruce 060120 revised this as part of fixing bug 
         self.__text = text # notes: using QString(text) here is ok but not required. text might be None.
         self.__widget = widget # perhaps only used for debug prints
     def text(self, pos):
-        # this runs when Qt puts up a WhatsThis help window for widget --
+        # Note: this runs when Qt puts up a WhatsThis help window for widget --
         # but not for QPopupMenu widgets (at least not those in the main menu bar; context menu popups untested).
+        # It also runs [by experiment much later, 060319] when we rerun fix_whatsthis_text_and_links after running it once,
+        # presumably because (when run the 2nd time) it queries whatsthis text from MyWhatsThis objects installed the first time.
+        # Qt requires its return type to be str (or presumably QString) -- if it returns None, Qt prints a console message
+        #   TypeError: invalid result type from MyWhatsThis.text()
+        #
         if debug_whatsthis_links:
             print "text at pos %r in %r for %r queried by Qt" % (pos, self, self.__widget) # note: pos repr not useful, doesn't show x,y
+            print " type(text) is", type(self.__text)
         text = self.__text
         if not text and debug_whatsthis_links:
-            print " no text" # never happens in current calling code [051227] (still true 060120, in theory)
-        return text
+            print " no text" # never happens in current calling code [051227] (still true 060120, in theory) (not true, 060319)
+        return text or "" # or "" is to prevent Qt from printing "TypeError: invalid result type from MyWhatsThis.text()"
     def clicked(self, link):
         # this runs when user clicks on a hyperlink in the help text, with 'link' being the link text (href attribute)
         link = str(link) # QString to string (don't know if this is needed, guess yes)
@@ -122,25 +130,25 @@ def createWhatsThis(self):
 
         self.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
         
-        #### Automatic Checkpointing ###
+        #### Automatic Checkpointing ### [minor changes, bruce 060319]
         
         editAutoCheckpointingText =  "<u><b>Automatic Checkpointing</b></u>"\
                        "<p>Enables/Disables <b>Automatic Checkpointing</b>. When enabled, the program "\
                        "maintains the Undo stack automatically.  When disabled, the user is required to "\
-                       "manually set Undo checkpoints using the <b>Set Checkpoint</b> button: </p>"\
+                       "manually create Undo checkpoints using the <b>Make Checkpoint</b> button: </p>"\
                        "<p><img source=\"editMakeCheckpoint\"></p>"\
                        "<p><b>Automatic Checkpointing</b> can impact program performance. By disabling "\
                        "Automatic Checkpointing, the program will run faster.</p>"\
-                       "<p><b><i>Remember that you must set your own Undo checkpoints manually when "\
+                       "<p><b><i>Remember that you must make your own Undo checkpoints manually when "\
                        "Automatic Checkpointing is disabled.</i></b>"\
                        "</p>"
 
         self.editAutoCheckpointingAction.setWhatsThis( editAutoCheckpointingText )
         
-        #### Clear Undo Stack ###
+        #### Clear Undo Stack ### [minor changes, bruce 060319]
         
         editClearUndoStackText =  "<u><b>Clear Undo Stack</b></u>"\
-                       "<p>Clears all Undo checkpoints on the Undo stack, freeing up memory."\
+                       "<p>Clears all checkpoints on the Undo and Redo stacks, freeing up memory."\
                        "</p>"
 
         self.editClearUndoStackAction.setWhatsThis( editClearUndoStackText )
@@ -1699,18 +1707,30 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
 
 _actions = {} # map from QActions to the featurenames in their whatsthis text [bruce 060121 to help with Undo]
 
-def fix_whatsthis_text_for_mac(parent):
-    #bruce 051227-29 revised this; now it's misnamed and needs renaming ###@@@
+_objects_and_text_that_need_fixing_later = [] ####@@@@ should make this less fragile re repeated calls of fix_whatsthis_text_and_links
+
+def fix_whatsthis_text_and_links(parent, refix_later = ()): #bruce 060319 renamed this from fix_whatsthis_text_for_mac
+    #bruce 051227-29 revised this
     #bruce 060120 revised this as part of fixing bug 1295
-    """MISNAMED: does things for all OSes, not just macs. This should be 
-    called after all widgets (and their whatsthis text) in the UI have been created.
-    It does two things:
+    """Fix whatsthis text and objects (for all OSes, not just macs as it once did).
+    This should be called after all widgets (and their whatsthis text) in the UI have been created.
+       It's ok, but slow (up to 0.2 seconds per call or more), to call it more than once on the main window.
+    If you call it again on something else, as of 060319 this will cause bugs by clearing
+    _objects_and_text_that_need_fixing_later, but that can be easily fixed when we need to support repeated calls
+    on smaller widgets. Calling it on a single QAction works, but doesn't do enough to fix the text again
+    for toolbuttons (and I think menuitems) made by Qt from that action (re bug 1421).
+       See also refix_whatsthis_text_and_links, which can be called to restore whatsthis text
+    which Qt messed up for some reason, as happens when you set tooltips or menutext
+    for Undo and Redo actions (bug 1421).
+       This function does two things:
     1. If the system is a Mac, this replaces all occurrences of 'Ctrl' with 'Cmd' in all the 
     whatsthis text for all QAction or QWidget objects that are children of parent.  
     2. For all systems, it replaces certain whatsthis text patterns with hyperlinks,
     and adds MyWhatsThis objects to widgets with text modified that way (or that might contain hyperlinks)
     or that are QPopupMenus.
     """
+    if debug_whatsthis_links or debug_refix:
+        print "\nrunning fix_whatsthis_text_and_links\n"
     from platform import is_macintosh
     mac = is_macintosh()
     if mac or enable_whatsthis_links:
@@ -1732,8 +1752,12 @@ def fix_whatsthis_text_for_mac(parent):
             # but not menuitems themselves. (No hope of including dynamic cmenu items, but since
             # we make those, we could set their whatsthis text and process it the same way
             # using separate code (nim ###@@@).) [bruce 060120]
-            # In fact there is no menu item class in Qt that I can find! You add items as Actions or as sets of attrs.
-            # Actions also don't show up in this list...
+            # In fact there is no menu item class in Qt that I can find! You add items as QActions or as sets of attrs.
+            # QActions also don't show up in this list...
+        global _objects_and_text_that_need_fixing_later
+        if _objects_and_text_that_need_fixing_later:
+            print "bug warning: _objects_and_text_that_need_fixing_later being remade from scratch; causes bug 1421 if not reviewed"###@@@
+        _objects_and_text_that_need_fixing_later = []
         for obj in objList:
             text = whatsthis_text_for_widget(obj) # could be either "" or None
             if text:
@@ -1747,14 +1771,32 @@ def fix_whatsthis_text_for_mac(parent):
                 assert text # we'll just feed it to a MyWhatsThis object so we don't have to store it here
             else:
                 text = None # turn "" into None
-            if text or isinstance(obj, QPopupMenu):
+            ismenu = isinstance(obj, QPopupMenu)
+            if text or ismenu:
                 # assume any text (even if not changed here) might contain hyperlinks,
                 # so any widget with text might need a MyWhatsThis object;
                 # the above code (which doesn't bother storing mac-modified text) also assumes we're doing this
                 give_widget_MyWhatsThis_and_text( obj, text)
+                #bruce 060319 part of fixing bug 1421
+                ts = str(text)
+                if "Undo" in ts or "Redo" in ts or obj in refix_later or ismenu:
+                    # hardcoded cases cover ToolButtons whose actions are Undo or Redo (or a few others included by accident)
+                    _objects_and_text_that_need_fixing_later.append(( obj, text))
+                    if debug_refix:
+                        if obj in refix_later:
+                            print "got from refix_later:",obj ####@@@@ we got a menu from caller, but editmenu bug 1421 still not fixed!
+                        if ismenu:
+                            print "ismenu",obj
             continue
-    return # from (misnamed) fix_whatsthis_text_for_mac
-    
+        if debug_refix:
+            print len(_objects_and_text_that_need_fixing_later), "_objects_and_text_that_need_fixing_later" ####@@@@
+    return # from fix_whatsthis_text_and_links
+
+def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
+    for obj, text in _objects_and_text_that_need_fixing_later:
+        give_widget_MyWhatsThis_and_text( obj, text)
+    return
+
 def replace_ctrl_with_cmd(text): # by mark; might be wrong for text which uses Ctrl in unexpected ways
     "Replace all occurrences of Ctrl with Cmd in the given string."
     text = text.replace('Ctrl', 'Cmd')

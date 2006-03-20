@@ -324,6 +324,32 @@ class AssyUndoManager(UndoManager):
                 fix_tooltip(action, text)
                 self._current_main_menu_ops[optype] = None
             pass
+        #bruce 060319 for bug 1421
+        import time
+        stime = time.time()
+        win.editUndoAction.setWhatsThis( win.editUndoText ) #e need Ctrl->Cmd; lack of it shows that these ran
+        win.editRedoAction.setWhatsThis( win.editRedoText ) # they didn't break altered tooltips, but didn't make links either
+            # but of course they didn't, we have to "fix them" by running more code. find that code! ###@@@
+##        from whatsthis import fix_whatsthis_text_and_links
+        from whatsthis import refix_whatsthis_text_and_links
+        import whatsthis
+        if 0:
+            # this works, but is overkill and is probably too slow, and prints huge numbers of console messages, like this:
+            ## TypeError: invalid result type from MyWhatsThis.text()
+            # (I bet I could fix the messages by modifying MyWhatsThis.text() to return "" (guess))
+            fix_whatsthis_text_and_links( win)
+        if 0:
+            # this prints no console messages, but doesn't work! (for whatsthis on tool buttons or menu items)
+            fix_whatsthis_text_and_links( win.editUndoAction )
+            fix_whatsthis_text_and_links( win.editRedoAction )
+            # try menu objects? and toolbars?
+        if 1:
+            if whatsthis.debug_refix:
+                print "refix_whatsthis_text_and_links" ###@@@
+            refix_whatsthis_text_and_links( ) ###@@@ predict: will fix toolbuttons but not menu items
+        etime = time.time()
+        if whatsthis.debug_refix:
+            print "whatsthis update took",etime - stime #e and is a huge memory leak too ###@@@ now <2 msec; for toolbutton fix only
         #060304 also disable/enable Clear Undo Stack
         action = win.editClearUndoStackAction
         text = "Clear Undo Stack" + '...' # workaround missing '...' (remove this when the .ui file is fixed)

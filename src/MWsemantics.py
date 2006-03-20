@@ -263,12 +263,15 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.editMakeCheckpointAction.setVisible(False)
         
         # Create the "What's This?" online help system.
-        from whatsthis import createWhatsThis, fix_whatsthis_text_for_mac
+        from whatsthis import createWhatsThis, fix_whatsthis_text_and_links
         createWhatsThis(self)
         
         # IMPORTANT: All widget creation (i.e. dashboards, dialogs, etc.) and their 
-        # whatthis text should be created before this line.
-        fix_whatsthis_text_for_mac(self) # Fixes bug 1136.  Mark 051126.
+        # whatthis text should be created before this line. [If this is not possible,
+        # we'll need to split out some functions within this one which can be called
+        # later on individual QActions and/or QWidgets. bruce 060319]
+        fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) # (main call) Fixes bug 1136.  Mark 051126.
+            # [bruce 060319 added refix_later as part of fixing bug 1421]
 
         # Start with Carbon as the default element (for Deposit Mode
         # and the Element Selector)
