@@ -162,7 +162,12 @@ def createWhatsThis(self):
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)</b></p><br> "\
                        "<p><img source=\"editUndo\"><br> "\
                        "Reverses the last edit or command which changed structure or selection. "\
-                       "</p>" #bruce 060317 revised this text to reflect what it does in A7
+                       "<br><font color=\"#808080\">"\
+                       "Known bug: the link to wiki help for Undo "\
+                       "only works if you got this popup from the Edit menu item for Undo, "\
+                       "not from the Undo toolbutton."\
+                       "</font>"\
+                       "</p>" #bruce 060317 revised this text to reflect what it does in A7; 060320 added 1421-not-fixed warning
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
                                                        self.editUndoAction.iconSet().pixmap() )
@@ -183,8 +188,13 @@ def createWhatsThis(self):
         editRedoText =  "<u><b>Redo</b></u>     %s</b></p><br> "\
                        "<p><img source=\"editRedo\"> <br>"\
                        "Restores a change which was undone using the Undo command."\
+                       "<br><font color=\"#808080\">"\
+                       "Known bug: the link to wiki help for Redo "\
+                       "only works if you got this popup from the Edit menu item for Redo, "\
+                       "not from the Redo toolbutton."\
+                       "</font>"\
                        "</p>" % redo_accel
-            #bruce 060317 revised this text to be more accurate, and split out redo_accel
+            #bruce 060317 revised this text to be more accurate, and split out redo_accel; 060320 added 1421-not-fixed warning
 
         QMimeSourceFactory.defaultFactory().setPixmap( "editRedo",
                                                        self.editRedoAction.iconSet().pixmap() )
