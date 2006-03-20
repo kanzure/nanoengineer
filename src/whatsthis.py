@@ -16,6 +16,10 @@ debug_whatsthis_links = False # DO NOT COMMIT with True
 
 debug_refix = False # DO NOT COMMIT with True
 
+use_debug_refix_cutoff = False # DO NOT COMMIT with True 
+
+debug_refix_cutoff = 24 # vary this by binary search in a debugger; this value is large enough to not matter
+
 class MyWhatsThis(QWhatsThis): #bruce 060120 revised this as part of fixing bug 1295, and added docstring
     """QWhatsThis subclass for handling links. Due to quirks in Qt, this is used in two distinct ways:
      1. For most widgets, mainly toolbuttons, they have their own whatsthis text, but that's ignored when they have this
@@ -1709,7 +1713,7 @@ _actions = {} # map from QActions to the featurenames in their whatsthis text [b
 
 _objects_and_text_that_need_fixing_later = [] ####@@@@ should make this less fragile re repeated calls of fix_whatsthis_text_and_links
 
-def fix_whatsthis_text_and_links(parent, refix_later = ()): #bruce 060319 renamed this from fix_whatsthis_text_for_mac
+def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0): #bruce 060319 renamed this from fix_whatsthis_text_for_mac
     #bruce 051227-29 revised this
     #bruce 060120 revised this as part of fixing bug 1295
     """Fix whatsthis text and objects (for all OSes, not just macs as it once did).
@@ -1729,20 +1733,39 @@ def fix_whatsthis_text_and_links(parent, refix_later = ()): #bruce 060319 rename
     and adds MyWhatsThis objects to widgets with text modified that way (or that might contain hyperlinks)
     or that are QPopupMenus.
     """
-    if debug_whatsthis_links or debug_refix:
+    if debug_whatsthis_links or debug_refix or use_debug_refix_cutoff:
         print "\nrunning fix_whatsthis_text_and_links\n"
+    if 0 and debug_cutoff:
+        print "returning immediately (sanity check, bug better be there or you're insane)" ####@@@@@ yes, bug is not fixed yet
+        return
     from platform import is_macintosh
     mac = is_macintosh()
     if mac or enable_whatsthis_links:
         # fix text in 1 or 2 ways for all QAction objects (which are not widgets)
         objList = parent.queryList("QAction")
+        if 0 and debug_cutoff:
+            print "returning after query list action" ####@@@@@ bug is not fixed yet; the illegal instr crash happens after reload whatsthis
+            return
+        ao = 0 # only matters when debug_cutoff is set
         for obj in objList:
+            if debug_cutoff: print "ao %d, obj" % ao, obj
             text = str(obj.whatsThis())
             if mac:
                 text = replace_ctrl_with_cmd(text)
+                if debug_cutoff and 'Undo' in str(text):
+                    print 'undo in',ao, obj, text
             if enable_whatsthis_links:
                 text = turn_featurenames_into_links(text, savekey = id(obj), saveplace = _actions )
             obj.setWhatsThis(text)
+            ao += 4
+            if ao == debug_cutoff:
+                break
+    if debug_cutoff:
+        print "returning when ao got to %d; 1,2,3,4 are for obj 0" % ao # 24 doesn't fix, 25 does. hmm. 
+        return
+    if debug_cutoff:
+        print "returning before widgets" ####@@@@@ bug is fixed by this point if we let above loop run to completion
+        return
     if enable_whatsthis_links:
         # add MyWhatsThis objects to all widgets that might need them
         # (and also fix their text if it's not fixed already --
@@ -1758,6 +1781,7 @@ def fix_whatsthis_text_and_links(parent, refix_later = ()): #bruce 060319 rename
         if _objects_and_text_that_need_fixing_later:
             print "bug warning: _objects_and_text_that_need_fixing_later being remade from scratch; causes bug 1421 if not reviewed"###@@@
         _objects_and_text_that_need_fixing_later = []
+        objcount = 0 # only matters when debug_cutoff is set and when code above this to use it earlier is removed
         for obj in objList:
             text = whatsthis_text_for_widget(obj) # could be either "" or None
             if text:
@@ -1772,14 +1796,19 @@ def fix_whatsthis_text_and_links(parent, refix_later = ()): #bruce 060319 rename
             else:
                 text = None # turn "" into None
             ismenu = isinstance(obj, QPopupMenu)
-            if text or ismenu:
+            try:
+                ismenubar = isinstance(obj, QMenuBar)
+            except:
+                # usual for non-Macs, I presume
+                ismenubar = False
+            if text or ismenu or ismenubar:
                 # assume any text (even if not changed here) might contain hyperlinks,
                 # so any widget with text might need a MyWhatsThis object;
                 # the above code (which doesn't bother storing mac-modified text) also assumes we're doing this
                 give_widget_MyWhatsThis_and_text( obj, text)
                 #bruce 060319 part of fixing bug 1421
                 ts = str(text)
-                if "Undo" in ts or "Redo" in ts or obj in refix_later or ismenu:
+                if "Undo" in ts or "Redo" in ts or obj in refix_later or ismenu or ismenubar:
                     # hardcoded cases cover ToolButtons whose actions are Undo or Redo (or a few others included by accident)
                     _objects_and_text_that_need_fixing_later.append(( obj, text))
                     if debug_refix:
@@ -1787,12 +1816,43 @@ def fix_whatsthis_text_and_links(parent, refix_later = ()): #bruce 060319 rename
                             print "got from refix_later:",obj ####@@@@ we got a menu from caller, but editmenu bug 1421 still not fixed!
                         if ismenu:
                             print "ismenu",obj
+                        if ismenubar:
+                            print "ismenubar",obj
+            objcount += 1
+            if objcount == debug_cutoff: # debug code for bug 1421
+                break
             continue
-        if debug_refix:
+        if debug_refix or use_debug_refix_cutoff:
             print len(_objects_and_text_that_need_fixing_later), "_objects_and_text_that_need_fixing_later" ####@@@@
+            print "debug_cutoff was %d, objcount reached %d" % (debug_cutoff, objcount) # we did the first objcount objects
+            if objcount: print "last obj done was", objList[objcount - 1]
     return # from fix_whatsthis_text_and_links
 
+def fix_QAction_whatsthis(obj, mac):
+    text = str(obj.whatsThis())
+    if mac:
+        text = replace_ctrl_with_cmd(text)
+    if enable_whatsthis_links:
+        text = turn_featurenames_into_links(text, savekey = id(obj), saveplace = _actions )
+    obj.setWhatsThis(text)
+    return
+            
 def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
+##    if use_debug_refix_cutoff:
+##        # debug code for bug 1421
+##        print "\nuse_debug_refix_cutoff is true"
+##        import env
+##        win = env.mainwindow()
+##        fix_whatsthis_text_and_links( win, refix_later = (win.editMenu,), debug_cutoff = debug_refix_cutoff )
+##        return
+    import env
+    win = env.mainwindow()
+    import platform
+    mac = platform.is_macintosh()
+    fix_QAction_whatsthis(win.editUndoAction, mac)
+    fix_QAction_whatsthis(win.editRedoAction, mac)
+    if use_debug_refix_cutoff:
+        print "returning from refix_whatsthis_text_and_links w/o using laterones"
     for obj, text in _objects_and_text_that_need_fixing_later:
         give_widget_MyWhatsThis_and_text( obj, text)
     return

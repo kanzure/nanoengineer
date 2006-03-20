@@ -340,6 +340,7 @@ class AssyUndoManager(UndoManager):
             fix_whatsthis_text_and_links( win)
         if 0:
             # this prints no console messages, but doesn't work! (for whatsthis on tool buttons or menu items)
+            # guess [much later]: it fails to actually do anything to these actions!
             fix_whatsthis_text_and_links( win.editUndoAction )
             fix_whatsthis_text_and_links( win.editRedoAction )
             # try menu objects? and toolbars?
