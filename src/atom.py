@@ -47,6 +47,29 @@ The reason this condition is needed at all is to reduce the harm caused
 by someone accidentally running "import atom" (which is wrong but causes no harm).
 """
 
+if sys.platform == 'darwin':
+    # Bug 1724, wware 060320
+    if False:
+        # Print a list of all the imports (not including duplications), save it to "all_mac_imports.py"
+        _old_import = __import__
+        known_imports = [ ]
+        def __import__(*args, **kws):
+            global known_imports
+            arg = args[0]
+            if arg not in known_imports:
+                known_imports.append(arg)
+                print "import " + arg
+            return _old_import(*args, **kws)
+        __builtins__.__import__ = __import__ # this is required, else no effect.
+               # if you spell it wrong, the NameError gets into a decently ok dialog.
+               # one option for our own alert window, therefore, is an assertion failure
+               # (if we don't want to let the user even try to run the app -- but we do).
+    else:
+        import os, sys
+        if os.system(sys.executable + " all_mac_imports.py") != 0:
+            print "There were import problems, so giving up"
+            sys.exit(1)
+
 __author__ = "Josh"
 
 if __name__ != '__main__':
