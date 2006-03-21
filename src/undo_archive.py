@@ -1120,6 +1120,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
             return
 
+##        if 0: # bug 1440 debug code 060320
+##            print_compact_stack("undo cp, merge=%r: " % merge_with_future)
+        
         if not merge_with_future:
             #060312 added 'not merge_with_future' cond as an optim; seems ok even if this would set change_counters,
             # since if it needs to run, we presume the user ops will run it on their own soon enough and do another

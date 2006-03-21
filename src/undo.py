@@ -304,9 +304,10 @@ class wrappedslot:
     pass us too many based on the ones listed in the signal name. We might have to
     revise this to count the args accepted by our saved slotboundmethod in __init__. ###k
     """
-    def __init__(self, slotboundmethod, sender = None):
+    def __init__(self, slotboundmethod, sender = None, signal = ""):
         self.slotboundmethod = slotboundmethod
         self.__sender = sender #060121
+        self.__signal = signal #060320 for debugging
     def fbmethod_0args(self, *args, **kws):
         "fake bound method with 0 args" ###@@@ no, any number of args - redoc ###@@@
         slotboundmethod = self.slotboundmethod
@@ -440,6 +441,12 @@ class wrappedslot:
                     # identity of the bound method they call as a slot! Not sure if this is possible. If not, we have to set
                     # command names from inside the methods that implement them (not the end of the world), or grab them from
                     # history text (doable).
+            else:
+                #060320 debug code; note, this shows signals that might not need undo cp's, but for almost all signals,
+                # they might in theory need them in the future for some recipients, so it's not usually safe to exclude them.
+                # Instead, someday we'll optimize this more when no changes actually occurred (e.g. detect that above).
+                if 0 and env.debug():
+                    print "debug: wrappedslot found no featurename, signal = %r, sender = %r" % (self.__signal, sender)
         ## return cp_fn, mc  #060123 revised retval
         return mc
     def error(self):
@@ -560,7 +567,7 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
                 print "not wrapping %s from %s to %s" % (signal,sender,slotboundmethod) ###@@@
             return slotboundmethod
         # make object which can wrap it
-        wr = wrappedslot(slotboundmethod, sender = sender) #060121 added sender arg
+        wr = wrappedslot(slotboundmethod, sender = sender, signal = signal) #060121 added sender arg #060320 added signal arg
         # decide which api to call it with (#e this might be done inside the wrapper class)
         if 1: ## or signal == SIGNAL("activated()"):
             method = wr.fbmethod_0args
@@ -578,6 +585,11 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
         return method
     def decide(self, sender, signal):
         "should we wrap the slot for this signal when it's sent from this sender?"
+        if 'treeChanged' in str(signal): ###@@@ kluge: knowing this [bruce 060320 quick hack to test-optimize Undo checkpointing]
+            if env.debug():
+                ###@@@ kluge: assuming what we're used for, in this message text
+                print "debug: note: not wrapping this signal for undo checkpointing:", signal
+            return False
         return True # try wrapping them all, for simplicity
     pass # end of class hacked_connect_method_installer
 

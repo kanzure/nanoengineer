@@ -144,14 +144,34 @@ class AssyUndoManager(UndoManager):
 
     __begin_retval = None ###k this will be used when we're created by a cmd like file open... i guess grabbing pref then is best...
     
-    def _in_event_loop_changed(self, beginflag, tracker): # 060127
+    def _in_event_loop_changed(self, beginflag, infodict, tracker): # 060127; 060321 added infodict to API
         "[this bound method will be added to env.command_segment_subscribers so as to be told when ..."
+        # infodict is info about the nature of the stack change, passed from the tracker [bruce 060321 for bug 1440 et al]
         # this makes "report all checkpoints" useless -- too many null ones.
         # maybe i should make it only report if state changes or cmdname passed...
         if not self.active:
             self.__begin_retval = False #k probably doesn't matter
             return True # unsubscribe
         # print beginflag, len(tracker.stack) # typical: True 1; False 0
+        if 1:
+            #bruce 060321 for bug 1440: we need to not do checkpoints in some cases. Not sure if this is correct re __begin_retval;
+            # if not, either clean it up for that or pass the flag into the checkpoint routine to have it not really do the checkpoint
+            # (which might turn out better for other reasons anyway, like tracking proper cmdnames for changes). ##e
+            pushed = infodict.get('pushed')
+            popped = infodict.get('popped')
+            # zero or one of these exists, and is the op_run just pushed or popped from the stack
+            if pushed is not None:
+                typeflag = pushed.typeflag # entering this guy
+            elif popped is not None:
+                typeflag = popped.typeflag # leaving this guy (entering vs leaving doesn't matter for now)
+            else:
+                typeflag = '' # does this ever happen? (probably not)
+            want_cp = (typeflag != 'beginrec')
+            if not want_cp:
+                if 0 and env.debug():
+                    print "debug: skipping cp as we enter or leave recursive event processing"
+                return # this might be problematic, see above comment [tho it seems to work for now, for Minimize All anyway];
+                    # if it ever is, then instead of returning here, we'll pass want_cp to checkpoint routines below
         if beginflag:
             self.__begin_retval = self.undo_checkpoint_before_command()
                 ###e grab cmdname guess from top op_run i.e. from begin_op? yes for debugging; doesn't matter in the end though.

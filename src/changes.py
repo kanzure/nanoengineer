@@ -190,12 +190,14 @@ class begin_end_matcher: #bruce 050804
         which get stored on self.stack while they're active.
         Or constructor can be None, which means begin should always receive one arg, which is the object to use.
            Stack_changed_func (or noop if that is None or not supplied)
-        is called (with arg self) when we're created and after every change to our stack.
+        is called when we're created and after every change to our stack,
+        with arg1 self, and arg2 a dict of info (keyword:value pairs) about the nature of the stack change
+        (see dict() calls herein for its keywords, including popped, pushed, errmsg).
         """
         self.constructor = constructor or (lambda arg: arg)
         self.stack_changed = stack_changed_func or noop
         self.stack = []
-        self.active_apply( self.stack_changed, (self,) ) # self.stack_changed(self)
+        self.active_apply( self.stack_changed, (self, dict()) ) # self.stack_changed(self, dict())
             # callers depend on stack_changed being called when we're first created
             #k is active_apply needed here??
     def active_apply(self, func, args, kws = {}):
@@ -215,7 +217,7 @@ class begin_end_matcher: #bruce 050804
             newobj = self.constructor(*args, **kws) # exceptions in this mean no change to our stack, which is fine
             newobj.begin()
             self.stack.append(newobj)
-            self.stack_changed(self)
+            self.stack_changed(self, dict(pushed = newobj))
             # for debugging, we could record compact_stack in newobj, and print that on error...
             # but newobj __init__ can do this if it wants to, without any help from this code.
             return id(newobj) # match_checking_code
@@ -236,7 +238,7 @@ class begin_end_matcher: #bruce 050804
             doneobj = stack.pop()
             self.active = True
             try:
-                self.stack_changed(self)
+                self.stack_changed(self, dict(popped = doneobj))
                 doneobj.end() # finalize doneobj
             finally:
                 self.active = False
@@ -249,8 +251,10 @@ class begin_end_matcher: #bruce 050804
             while id(doneobj) != match_checking_code:
                 self.active = True
                 try:
-                    self.stack_changed(self) # needed here in case doneobj.end() looks at something this updates from self.stack
-                    doneobj.error("begin, with no matching end by the time some outer begin got its matching end")
+                    errmsg = "begin, with no matching end by the time some outer begin got its matching end"
+                    self.stack_changed(self, dict(popped = doneobj, errmsg = errmsg))
+                        # stack_change is needed here in case doneobj.end() looks at something this updates from self.stack
+                    doneobj.error(errmsg)
                     doneobj.end() # might be needed -- in fact, it might look at stack and send messages to its top
                 finally:
                     self.active = False
@@ -258,7 +262,7 @@ class begin_end_matcher: #bruce 050804
             # now doneobj is correct
             self.active = True
             try:
-                self.stack_changed(self)
+                self.stack_changed(self, dict(popped = doneobj))
                 doneobj.end()
             finally:
                 self.active = False
@@ -277,11 +281,12 @@ def default_track(thing): #bruce 050804; see also the default definition of trac
 ##        # if this happens and is not an error, then we'll zap the message.
     return
 
-def _usage_tracker_stack_changed( usage_tracker ): #bruce 050804
+def _usage_tracker_stack_changed( usage_tracker, infodict): #bruce 050804
     "[private] called when usage_tracker's begin/end stack is created, and after every time it changes"
     # getting usage_tracker arg is necessary (and makes better sense anyway),
     # since when we're first called, the global usage_tracker is not yet defined
     # (since its rhs, in the assignment below, is still being evaluated).
+    del infodict
     stack = usage_tracker.stack
     if stack:
         env.track = stack[-1].track
@@ -556,10 +561,12 @@ debug_begin_ops = False #bruce 051018 changed from platform.atom_debug
 
 class op_run:
     "Track one run of one operation or suboperation, as reported to env.begin_op and env.end_op in nested pairs"
-    def __init__(self, op_type = None, in_event_loop = False): #bruce 060127 adding in_event_loop for Undo
+    def __init__(self, op_type = None, in_event_loop = False, typeflag = ''): #bruce 060321 added typeflag
+        #bruce 060127 adding in_event_loop for Undo
         "[this gets all the args passed to env.begin_op()]"
-        self.op_type = op_type
+        self.op_type = op_type # this might be almost anything, mainly meant for humans to see
         self.in_event_loop = in_event_loop
+        self.typeflag = typeflag # this is one of a small set of constants which control how this is treated by undo (at least)
         global _op_id
         _op_id += 1
         self.op_id = _op_id
@@ -589,7 +596,7 @@ class op_run:
 _in_event_loop = True #bruce 060127; also keep a copy of this in env; probably that will become the only copy #e
 env._in_event_loop = _in_event_loop
 
-def _op_tracker_stack_changed( tracker ): #bruce 050908 for Undo
+def _op_tracker_stack_changed( tracker, infodict ): #bruce 050908 for Undo
     "[private] called when op_tracker's begin/end stack is created, and after every time it changes"
     #e we might modify some sort of env.prefs object, or env.history (to filter out history messages)...
     #e and we might figure out when outer-level ops happen, as part of undo system
@@ -599,8 +606,8 @@ def _op_tracker_stack_changed( tracker ): #bruce 050908 for Undo
     new_in_event_loop = True # when nothing is on this op_run stack, we're in Qt's event loop
     if tracker.stack:
         new_in_event_loop = tracker.stack[-1].in_event_loop
-    global _in_event_loop
-    changed = False
+    global _in_event_loop, _last_typeflag
+    changed = False # will be set to whether in_event_loop changed
     if _in_event_loop != new_in_event_loop:
         # time for a checkpoint
 ##        if _in_event_loop:
@@ -616,7 +623,8 @@ def _op_tracker_stack_changed( tracker ): #bruce 050908 for Undo
             unsub = False
             try:
                 #e ideally we should prevent any calls into op_tracker here...
-                unsub = sub( beginflag, tracker ) # (we can't always pass tracker.stack[-1] -- it might not exist!)
+                # infodict is info about the nature of the stack change, passed from the tracker [bruce 060321 for bug 1440 et al]
+                unsub = sub( beginflag, infodict, tracker ) # (we can't always pass tracker.stack[-1] -- it might not exist!)
             except:
                 print_compact_traceback("bug in some element of env.command_segment_subscribers: ")
                 #e discard it?? nah. (we'd do so by unsub = True)
@@ -651,6 +659,7 @@ global_mc = None
 _in_op_recursing = False
 
 def env_in_op(*args, **kws): # (disabled, separately, bruce 060127)
+    # [note 060320: it's still called directly just below, in env_begin_recursive_event_processing; does it do anything then??]
     """
     This gets called by various code which might indicate that an operation is ongoing,
     to detect ops in legacy code which don't yet call env.begin_op when they start.
@@ -697,11 +706,12 @@ def env_after_op(): # (disabled, separately, bruce 060127)
 def env_begin_recursive_event_processing():
     "call this just before calling qApp.processEvents()"
     env_in_op('(env_begin_recursive_event_processing)')
-    return env_begin_op('(recursive_event_processing)', in_event_loop = True) #bruce 060127 added in_event_loop = True
+    return env_begin_op('(recursive_event_processing)', in_event_loop = True, typeflag = 'beginrec') #bruce 060321 added typeflag
+        #bruce 060127 added in_event_loop = True
 
 def env_end_recursive_event_processing(mc):
     "call this just after calling qApp.processEvents()"
-    return env_end_op(mc)
+    return env_end_op(mc) #bruce 060321: no typeflag needed (or allowed), gets it from matching begin_op
 
 env.begin_recursive_event_processing = env_begin_recursive_event_processing
 env.end_recursive_event_processing = env_end_recursive_event_processing
