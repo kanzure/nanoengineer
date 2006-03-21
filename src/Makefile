@@ -12,9 +12,11 @@ else
 # non-Windows
 CC=gcc
 CFLAGS=-g -Wmissing-prototypes -Wall
+# -pg
 # Note: these CFLAGS are probably not used to build the files for Pyrex, 
 # only for the standalone simulator executable. [bruce 051230 guess]
 LDFLAGS=-L/usr/lib -lm
+# -pg
 PYREXTARGET=sim.so
 STDC99=-std=c99
 SIMTARGET=simulator
@@ -143,8 +145,9 @@ clean:
 	rm -f version.h bonds.gen bends.gen
 	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
 	rm -f glviewer
-	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc
+	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc *.gcno
 	rm -rf html gmon.out build obj
+	rm -f tests/*/*.trcnew
 	rm -f tests/*/*.altout
 	rm -f tests/*/*.diff
 	rm -f tests/*/*.xyz

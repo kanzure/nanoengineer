@@ -499,6 +499,33 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     }
 }
 
+// All of space is divided into a cubic grid with each cube being
+// GRID_SPACING pm on a side.  Every GRID_OCCUPANCY cubes in each
+// direction there is a bucket.  Every GRID_SIZE buckets the grid
+// wraps back on itself, so that each bucket stores atoms that are in
+// an infinite number of grid cubes, where the cubes are some multiple
+// of GRID_SPACING * GRID_OCCUPANCY * GRID_SIZE pm apart.  GRID_SIZE
+// must be a power of two, so the index along a particular dimension
+// of the bucket array where a particular coordinates is found is
+// calculated with: (int(x) * GRID_OCCUPANCY) & (GRID_SIZE-1).
+//
+// Buckets can overlap.  When deciding if an atom is still in the same
+// bucket, a fuzzy match is used, masking off one or more low order
+// bits of the bucket array index.  When an atom leaves a bucket
+// according to the fuzzy matching, it is placed in a new bucket based
+// on the non-fuzzy index into the bucket array.  In this way, an atom
+// vibrating less than the bucket overlap distance will remain in the
+// same bucket irrespective of it's position with respect to the grid
+// while it is vibrating.
+//
+// The fuzzy match looks like this: moved = (current - previous) *
+// GRID_MASK.  GRID_MASK is (GRID_SIZE-1) with one or more low order
+// bits zeroed.  It works correctly if the subtraction is done two's
+// complement, it may not for one's complement subtraction.  With no
+// bits zeroed, there is no overlap.  With one zero, the buckets
+// overlap by 50%.  Two zeros = 3/4 overlap.  Three zeros = 7/8
+// overlap.  The above are if GRID_OCCUPANCY == 1.  Larger values for
+// GRID_OCCUPANCY allow overlaps between zero and 50%.
 
 // Returns an entry in the p->atoms array, given an external atom id
 // (as used in an mmp file, for example).

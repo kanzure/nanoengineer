@@ -1,0 +1,39 @@
+
+Known issues with the simulator/minimizer.
+
+When minimizing a complex structure, the RMS force value can fluctuate
+from one iteration to the next.  This is a natural result of the
+minimization process, since it is the potential energy which is being
+minimized, not the force value.  When an actual minimum is approached,
+the force should be low, since the gradient (force) must be zero at
+the exact minimum location.
+
+For a complex structure, the shape of the potential surface is also
+complex.  Long, narrow "valleys" in the potential surface may arise.
+If the minimizer drops into one of these valleys, it may bounce from
+side to side as it progresses down the valley.  If the sides of the
+valley have differing slopes, the RMS force value will fluctuate with
+each "bounce."
+
+The RMS force value may drop below the exit threshold of 1 pN on one
+side of such a valley, causing the minimizer to terminate.  It may be
+obvious to the user that this is not a minimum energy configuration,
+and the minimizer may be restarted.  At that point, the minimizer may
+bounce to the other side of the valley with a resulting increase in
+the RMS force.
+
+The minimizer also exits if it detects that it is making little
+forward progress, and it may do so even if the RMS force value is
+quite high.  This can happen if the calculated gradient points in a
+direction which does not lead downhill along the actual potential
+energy surface.  This could be due to a bug in the gradient code, or
+due to the fact that the calculated gradient can only be an
+approximation of the actual gradient.  Different stretch and bend
+parameters may be coupled in a complex structure, and that coupling is
+not directly represented in the gradient calculation.
+
+The end result is that minimizing a structure could result in a new
+structure with a higher RMS force value than the input structure.  It
+should be the case that the new structure will always have a lower
+potential energy than the input structure, even if the RMS force value
+may sometimes be higher.

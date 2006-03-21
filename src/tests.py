@@ -817,7 +817,7 @@ class JigTest(SandboxTest):
             if n == None: return None
             return map(string.atof, lines[n].split())
         # add the following line to regenerate trace files when they fail to match:
-        #shutil.copy(self.testname + ".trc", self.basename + ".trcnew")
+        shutil.copy(self.testname + ".trc", self.basename + ".trcnew")
         good = lastLineOfReadings(self.basename + ".trc")
         iffy = lastLineOfReadings(self.testname + ".trc")
         assert len(iffy) == len(good)

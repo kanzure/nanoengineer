@@ -1,0 +1,26 @@
+
+To merge new parameters into the parameter files (stretch.parms and
+bending.parms), with new parameters overriding older ones:
+
+sort --stable --key=1,1 newfiles oldfiles | uniq --check-fields=1
+
+--stable means that lines whose sort fields are identical will be left
+in their original order, instead of being sorted by the entire line.
+This will cause newer parameters to preceed older ones.  uniq will
+print the first line, selecting the newer parameter.
+
+The --key and --check-fields options cause the commands to work on
+only the first field on each line.
+
+To look at the parameters that are being overridden:
+
+diff oldparams newparams | sed '/^[^<>]/d' | sort --stable --key=2,2 |
+   uniq --skip-fields=1 --check-fields=1 --all-repeated
+
+The sed leaves only lines starting with < or >.  The stable sort
+places the same parameters next to each other, and the uniq removes
+lines that were mearly added or left unchanged.  Note that we have to
+skip the first field in both sort and uniq, since it's just the < or
+>.
+
+
