@@ -84,14 +84,9 @@ class panMode(basicMode):
     def Draw(self):
         basicMode.Draw(self)   
         self.o.assy.draw(self.o)
-        
-    def makeMenus(self):
-        self.Menu_spec = [
-            ('Done', self.Done),
-         ]
          
     def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
-        '''Update the cursor for 'Extrude' mode (extrudeMode).
+        '''Update the cursor for 'Pan' mode.
         '''
         self.o.setCursor(self.w.MoveCursor)
          

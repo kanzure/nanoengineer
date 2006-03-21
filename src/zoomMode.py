@@ -204,14 +204,9 @@ class zoomMode(basicMode):
         """
         drawer.drawrectangle(self.pStart, self.pPrev,
                                  self.o.up, self.o.right, self.rbwcolor)
-
-    def makeMenus(self):
-        self.Menu_spec = [
-            ('Done', self.Done),
-         ]
          
     def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
-        '''Update the cursor for 'Extrude' mode (extrudeMode).
+        '''Update the cursor for 'Zoom' mode.
         '''
         self.o.setCursor(self.w.ZoomCursor)
 

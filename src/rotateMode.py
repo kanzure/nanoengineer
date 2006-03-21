@@ -76,22 +76,17 @@ class rotateMode(basicMode):
         self.picking = False
 
     def keyPress(self,key):
-        # ESC - Exit pan mode.
-        if key == Qt.Key_Escape: 
+        # ESC - Exit/cancel rotate mode.
+        if key == Qt.Key_Escape:
             self.Done()
 
     def Draw(self):
         basicMode.Draw(self)   
         self.o.assy.draw(self.o)
-        
-    def makeMenus(self):
-        self.Menu_spec = [
-            ('Done', self.Done),
-         ]
          
     def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
-        '''Update the cursor for 'Extrude' mode (extrudeMode).
+        '''Update the cursor for 'Rotate' mode.
         '''
         self.o.setCursor(self.w.RotateCursor)
          
-    pass # end of class panMode
+    pass # end of class rotateMode
