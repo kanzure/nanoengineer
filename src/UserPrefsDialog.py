@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Mar 15 12:25:04 2006
+# Created: Tue Mar 21 14:53:15 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -266,6 +266,7 @@ class UserPrefsDialog(QDialog):
         layout79.addItem(spacer56)
 
         self.change_element_colors_btn = QPushButton(self.atom_colors_grpbox,"change_element_colors_btn")
+        self.change_element_colors_btn.setAutoDefault(0)
         layout79.addWidget(self.change_element_colors_btn)
 
         atom_colors_grpboxLayout.addLayout(layout79,0,0)
@@ -304,6 +305,8 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_2_2_2_2.addWidget(self.bondpoint_hilite_color_frame)
 
         self.bondpoint_hilite_color_btn = QPushButton(self.groupBox13,"bondpoint_hilite_color_btn")
+        self.bondpoint_hilite_color_btn.setAutoDefault(0)
+        self.bondpoint_hilite_color_btn.setDefault(0)
         layout37_2_2_2_2_2_2_2.addWidget(self.bondpoint_hilite_color_btn)
 
         layout80.addLayout(layout37_2_2_2_2_2_2_2,2,1)
@@ -318,6 +321,7 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_3.addWidget(self.atom_hilite_color_frame)
 
         self.atom_hilite_color_btn = QPushButton(self.groupBox13,"atom_hilite_color_btn")
+        self.atom_hilite_color_btn.setAutoDefault(0)
         layout37_2_2_2_3.addWidget(self.atom_hilite_color_btn)
 
         layout80.addLayout(layout37_2_2_2_3,0,1)
@@ -332,6 +336,7 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_2_2_2.addWidget(self.hotspot_color_frame)
 
         self.hotspot_color_btn = QPushButton(self.groupBox13,"hotspot_color_btn")
+        self.hotspot_color_btn.setAutoDefault(0)
         layout37_2_2_2_2_2_2.addWidget(self.hotspot_color_btn)
 
         layout80.addLayout(layout37_2_2_2_2_2_2,3,1)
@@ -342,6 +347,7 @@ class UserPrefsDialog(QDialog):
         layout25_2.addItem(spacer20_2)
 
         self.reset_atom_colors_btn = QPushButton(self.groupBox13,"reset_atom_colors_btn")
+        self.reset_atom_colors_btn.setAutoDefault(0)
         layout25_2.addWidget(self.reset_atom_colors_btn)
         groupBox13Layout.addLayout(layout25_2)
 

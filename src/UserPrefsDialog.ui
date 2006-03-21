@@ -844,6 +844,9 @@
                                         <property name="text">
                                             <string>Change Element Colors...</string>
                                         </property>
+                                        <property name="autoDefault">
+                                            <bool>false</bool>
+                                        </property>
                                     </widget>
                                 </hbox>
                             </widget>
@@ -938,6 +941,12 @@
                                                         <property name="text">
                                                             <string>Choose...</string>
                                                         </property>
+                                                        <property name="autoDefault">
+                                                            <bool>false</bool>
+                                                        </property>
+                                                        <property name="default">
+                                                            <bool>false</bool>
+                                                        </property>
                                                     </widget>
                                                 </hbox>
                                             </widget>
@@ -979,6 +988,9 @@
                                                         </property>
                                                         <property name="text">
                                                             <string>Choose...</string>
+                                                        </property>
+                                                        <property name="autoDefault">
+                                                            <bool>false</bool>
                                                         </property>
                                                     </widget>
                                                 </hbox>
@@ -1022,6 +1034,9 @@
                                                         <property name="text">
                                                             <string>Choose...</string>
                                                         </property>
+                                                        <property name="autoDefault">
+                                                            <bool>false</bool>
+                                                        </property>
                                                     </widget>
                                                 </hbox>
                                             </widget>
@@ -1058,6 +1073,9 @@
                                                 </property>
                                                 <property name="text">
                                                     <string>Restore Default Colors</string>
+                                                </property>
+                                                <property name="autoDefault">
+                                                    <bool>false</bool>
                                                 </property>
                                             </widget>
                                         </hbox>
