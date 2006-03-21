@@ -176,8 +176,15 @@ class movieMode(basicMode):
         # Right or Up arrow keys - advance forward one frame
         if key == Qt.Key_Right or key == Qt.Key_Up:
             movie._playToFrame(movie.currentFrame + 1)
+            
+        basicMode.keyPress(self,key) # So F1 Help key works. mark 060321
         
         return
+    
+    def update_cursor_for_no_MB(self): # Fixes bug 1693. mark 060321
+        '''Update the cursor for 'Movie Player' mode.
+        '''
+        self.o.setCursor(QCursor(Qt.ArrowCursor))
 
 # ==
 
