@@ -1279,8 +1279,11 @@ class basicMode(anyMode):
             ###@@@ this might need a fix_buttons call to work the same
             # on the Mac [bruce 041220]
         dScale = 1.0/1200.0
-        if but & shiftButton: dScale *= 0.5
-        if but & cntlButton: dScale *= 2.0
+        if but & shiftButton: dScale *= 2.0
+        if but & cntlButton: dScale *= 0.25
+            # Switched Shift and Control zoom factors to be more intuitive.
+            # Shift + Wheel zooms in quickly (2x), Control + Wheel zooms in slowly (.25x). 
+            # mark 060321
         self.o.scale *= 1.0 + dScale * event.delta()
         ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
         ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
