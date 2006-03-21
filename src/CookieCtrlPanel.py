@@ -217,7 +217,6 @@ class CookieCtrlPanel:
        
        def initGui(self):
             """This is used to initialize GUI items which needs to change every time when the mode is on. """
-            self.w.glpane.setCursor(self.w.CookieAddCursor)
             self.w.toolsCookieCutAction.setOn(1) # toggle on the Cookie Cutter icon
             
             #Huaicai 3/29: Added the condition to fix bug 477

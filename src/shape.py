@@ -624,10 +624,7 @@ class CookieShape(shape):
                 self.layerThickness[layer] = (thickness, normal)
     
     def isin(self, pt, curves=None):
-        """returns 1 if pt is properly enclosed by the curves.
-        curve.selSense = 1 ==> include if inside
-        curve.selSense = 0 ==> remove if inside
-        curve.selSense = 2 ==> remove if outside
+        """returns 1 if <pt> is properly enclosed by the curves.
         """
         #& To do: docstring needs to be updated.  mark 060211.
         # bruce 041214 comment: this might be a good place to exclude points
@@ -637,7 +634,7 @@ class CookieShape(shape):
         val = 0
         if not curves: curves = self.curves
         for c in curves:
-            if c.selSense == ADD_TO_SELECTION: 
+            if c.selSense == START_NEW_SELECTION or c.selSense == ADD_TO_SELECTION: 
                 val = val or c.isin(pt)
             elif c.selSense == OUTSIDE_SUBTRACT_FROM_SELECTION:
                 val = val and c.isin(pt)
@@ -805,7 +802,7 @@ class CookieShape(shape):
         
         if c.selSense == SUBTRACT_FROM_SELECTION:
             markedAtoms = self.markedAtoms
-            if not self.bondLayers or not self.bondLayers.has_key(layer):   return
+            if not self.bondLayers or not self.bondLayers.has_key(layer): return
             else:
                 bonds = self.bondLayers[layer]
                 for cell in allCells:
@@ -821,7 +818,8 @@ class CookieShape(shape):
         
         elif c.selSense == OUTSIDE_SUBTRACT_FROM_SELECTION:
             #& This differs from the standard selection scheme for Shift+Drag. mark 060211.
-            if not self.bondLayers or not self.bondLayers.has_key(layer):       return
+            #& This is marked for removal.  mark 060320.
+            if not self.bondLayers or not self.bondLayers.has_key(layer): return
             bonds = self.bondLayers[layer]
             newBonds = {}; newCarbons = {}; newHedrons = {}; 
             insideAtoms = {}
@@ -861,8 +859,25 @@ class CookieShape(shape):
                         if c.isin(pp[ii]):
                             ppInside[ii] = True
                     if ppInside[0] or ppInside[1]:
-                        self._logic1Bond(carbons, hedrons, bonds, pp, pph, ppInside)        
-                        
+                        self._logic1Bond(carbons, hedrons, bonds, pp, pph, ppInside)
+            
+        elif c.selSense == START_NEW_SELECTION: 
+            # Added to make cookie cutter selection behavior consistent when no modkeys pressed. mark 060320.
+            carbons = {}
+            bonds = {}
+            hedrons = {}
+
+            for cell in allCells:
+                for pp in cell:
+                    pph=[None, None]
+                    ppInside = [False, False]
+                    for ii in range(2):
+                        pph[ii] = self._hashAtomPos(pp[ii]) 
+                        if c.isin(pp[ii]):
+                            ppInside[ii] = True
+                    if ppInside[0] or ppInside[1]:
+                        self._logic1Bond(carbons, hedrons, bonds, pp, pph, ppInside)     
+                                        
         self.bondLayers[layer] = bonds
         self.carbonPosDict[layer] = carbons
         self.hedroPosDict[layer] = hedrons

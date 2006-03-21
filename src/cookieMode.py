@@ -26,7 +26,8 @@ class cookieMode(basicMode):
         # <selCurve_List> contains a list of points used to draw the selection curve.  
         # The points lay in the plane parallel to the screen, just beyond the front clipping 
         # plane, so that they are always  inside the clipping volume.
-    defaultSelShape = SELSHAPE_RECT
+        
+    defaultSelShape = SELSHAPE_LASSO
         # <defaultSelShape> determines whether the current *default* selection curve is a rectangle 
         # or lasso.
     
@@ -43,6 +44,13 @@ class cookieMode(basicMode):
     LATTICE_TYPES = ['DIAMOND', 'LONSDALEITE', 'GRAPHITE']
     
     MAX_LAYERS = 6
+    
+    freeView = False
+    drawingCookieSelCurve = False
+        # <drawingCookieSelCurve> is used to let other methods know when
+        # we are in the process of defining/drawing a selection curve, where:
+        # True = in the process of defining selection curve
+        # False = finished/not defining selection curve
                            
     # methods related to entering this mode
     def __init__(self, glpane):
@@ -78,8 +86,13 @@ class cookieMode(basicMode):
         self.layers += [V(self.o.pov[0], self.o.pov[1], self.o.pov[2])]
         self.currentLayer = 0
  
-        self.cookieDrawBegins = False
-        self.Rubber = None
+        self.drawingCookieSelCurve = False
+            # <drawingCookieSelCurve> is used to let other methods know when
+            # we are in the process of defining/drawing a selection curve, where:
+            # True = in the process of defining selection curve
+            # False = finished/not defining selection curve
+        self.Rubber = False
+            # Set to True in end_selection_curve() when doing a poly-rubber-band selection.
         self.lastDrawStored = []
        
         self.selectionShape = self.ctrlPanel.getSelectionShape()
@@ -112,14 +125,17 @@ class cookieMode(basicMode):
    
     
     def setFreeView(self, freeView):
-        """When in this mode(freeView is true), cookie-cutting is freezing """
+        """Enables/disables 'free view' mode.
+        When <freeView> is True, cookie-cutting is frozen.
+        """
         self.freeView = freeView
-        if freeView:
+        self.update_cursor_for_no_MB()
+        
+        if freeView: # Disable cookie cutting.
             #Save current pov before free view transformation
             self.cookiePov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
             
             env.history.message(orangemsg("'Free View' enabled. You can not cut cookies while Free View is enabled."))
-            self.o.setCursor(QCursor(Qt.ArrowCursor))
             self.w.setViewOrthoAction.setEnabled(True)
             self.w.setViewPerspecAction.setEnabled(True)
             
@@ -130,12 +146,11 @@ class cookieMode(basicMode):
             
             self.ctrlPanel.enableViewChanges(True)
             
-            if self.cookieDrawBegins: #Cancel any unfinished cookie drawing
+            if self.drawingCookieSelCurve: #Cancel any unfinished cookie drawing
                 self._afterCookieSelection()
                 env.history.message(redmsg("In free view mode,the unfinished cookie selection has be cancelled."))
             
-        else: ## cookie cutting mode
-            self.o.setCursor(self.w.CookieAddCursor)
+        else: ## Restore cookie cutting mode
             self.w.setViewOrthoAction.setOn(True)  
             self.w.setViewOrthoAction.setEnabled(False)
             self.w.setViewPerspecAction.setEnabled(False)
@@ -210,52 +225,114 @@ class cookieMode(basicMode):
         self.o.gl_update()
 
     # mouse and key events
-    def keyPress(self,key):
-        basicMode.keyPress(self, key)
-        if self.freeView: return
-        #Don't change cursor during selection
-        if key == Qt.Key_Shift and not self.cookieDrawBegins:
-            self.o.setCursor(self.w.CookieCursor)
-        elif key == Qt.Key_Control and not self.cookieDrawBegins:
-            self.o.setCursor(self.w.CookieSubtractCursor)
-        elif key == Qt.Key_Escape and self.cookieDrawBegins:
-            self._cancelSelection()
-        
+
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
-        if self.freeView: return
-        #Don't change cursor during selection
-        if (key == Qt.Key_Shift or key == Qt.Key_Control) and not self.cookieDrawBegins:
+        if key == Qt.Key_Escape and self.drawingCookieSelCurve:
+            self._cancelSelection()
+        
+    def update_cursor_for_no_MB(self):
+        '''Update the cursor for 'Cookie Cutter' mode.
+        '''
+        if self.freeView:
+            self.o.setCursor(QCursor(Qt.ArrowCursor))
+            return
+        if self.drawingCookieSelCurve:
+            # In the middle of creating a selection curve.
+            return
+        if self.o.modkeys is None:
+            self.o.setCursor(self.w.CookieCursor)
+        elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.CookieAddCursor)
-    
-    def rightShiftDown(self, event):
-        basicMode.rightShiftDown(self, event)
-        if self.freeView: return
-        self.o.setCursor(self.w.CookieAddCursor)
-            
-    def rightCntlDown(self, event):          
-        basicMode.rightCntlDown(self, event)
-        if self.freeView: return
-        self.o.setCursor(self.w.CookieAddCursor)
-    
-    def leftDown(self, event):
-        self.StartDraw(event, ADD_TO_SELECTION) # add to selection
-    
+        elif self.o.modkeys == 'Control':
+            self.o.setCursor(self.w.CookieSubtractCursor)
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.setCursor(self.w.CookieSubtractCursor)
+        else:
+            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+        return
+        
+# == LMB down-click (button press) methods
+   
     def leftShiftDown(self, event):
-        self.StartDraw(event, OUTSIDE_SUBTRACT_FROM_SELECTION) # new selection (replace)
+        self.leftDown(event)
 
     def leftCntlDown(self, event):
-        self.StartDraw(event, SUBTRACT_FROM_SELECTION) # subtract from selection
+        self.leftDown(event)
+        
+    def leftDown(self, event):
+        self.select_2d_region(event)
 
-    def StartDraw(self, event, sense):
+# == LMB drag methods
+
+    def leftShiftDrag(self, event):
+        self.leftDrag(event)
+            
+    def leftCntlDrag(self, event):
+        self.leftDrag(event)
+        
+    def leftDrag(self, event):
+        self.continue_selection_curve(event)
+
+# == LMB up-click (button release) methods
+
+    def leftShiftUp(self, event):
+        self.leftUp(event)
+
+    def leftCntlUp(self, event):
+        self.leftUp(event)
+                
+    def leftUp(self, event):
+        self.end_selection_curve(event)
+    
+# == LMB double click method
+
+    def leftDouble(self, event):
+        """End rubber selection """
+        if self.freeView or not self.drawingCookieSelCurve:
+            return
+        
+        if self.Rubber and not self.rubberWithoutMoving:
+            self.defaultSelShape = SELSHAPE_LASSO
+                # defaultSelShape needs to be set to SELSHAPE_LASSO here since it
+                # may have been set to SELSHAPE_RECT in continue_selection_curve()
+                # while creating a polygon-rubber-band selection.
+            self._traditionalSelect()
+        
+# == end of LMB event handlers.
+        
+    def select_2d_region(self, event): # Copied from selectMode(). mark 060320.
+        '''Start 2D selection of a region.
+        '''
+        if self.o.modkeys is None:
+            self.start_selection_curve(event, START_NEW_SELECTION)
+        if self.o.modkeys == 'Shift':
+            self.start_selection_curve(event, ADD_TO_SELECTION)
+        if self.o.modkeys == 'Control':
+            self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
+        if self.o.modkeys == 'Shift+Control':
+            self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
+        return
+            
+    def start_selection_curve(self, event, sense):
         """Start a selection curve
         """
+        
         if self.freeView: return
         if self.Rubber: return
         
-        self.cookieDrawBegins = True
+        self.selSense = sense
+            # <selSense> is the type of selection.
+        self.selCurve_length = 0.0
+            # <selCurve_length> is the current length (sum) of all the selection curve segments.
+        
+        self.drawingCookieSelCurve = True
+            # <drawingCookieSelCurve> is used to let other methods know when
+            # we are in the process of defining/drawing a selection curve, where:
+            # True = in the process of defining selection curve
+            # False = finished/not defining selection curve
+            
         self.cookieQuat = Q(self.o.quat)
-        self.pickLineLength = 0.0
         
         ## Start color xor operations
         self.o.redrawGL = False
@@ -263,101 +340,106 @@ class cookieMode(basicMode):
         glEnable(GL_COLOR_LOGIC_OP)
         glLogicOp(GL_XOR)
         
-        if not self.selectionShape in ['DEFAULT', 'LASSO']: return
+        if not self.selectionShape in ['DEFAULT', 'LASSO']:
+            # Drawing one of the other selection shapes (not polygon-rubber-band or lasso).
+            return
+        
         if self.selectionShape == 'LASSO':
             self.defaultSelShape = SELSHAPE_LASSO
         
-        self.selSense = sense    
-        p1, p2 = self._getPoints(event)
+        selCurve_pt, selCurve_AreaPt = self._getPoints(event)
+            # _getPoints() returns a pair (tuple) of points (Numeric arrays of x,y,z)
+            # that lie under the mouse pointer, just beyond the near clipping plane
+            # <selCurve_pt> and in the plane of the center of view <selCurve_AreaPt>.
+        self.selCurve_List = [selCurve_pt]
+            # <selCurve_List> contains the list of points used to draw the selection curve.  The points lay in the 
+            # plane parallel to the screen, just beyond the front clipping plane, so that they are always
+            #  inside the clipping volume.
+        self.o.selArea_List = [selCurve_AreaPt]
+            # <selArea_List> contains the list of points that define the selection area.  The points lay in 
+            # the plane parallel to the screen and pass through the center of the view.  The list
+            # is used by pickrect() and pickline() to make the selection.
+        self.selCurve_StartPt = self.selCurve_PrevPt = selCurve_pt
+            # <selCurve_StartPt> is the first point of the selection curve.  It is used by 
+            # continue_selection_curve() to compute the net distance between it and the current 
+            # mouse position.
+            # <selCurve_PrevPt> is the previous point of the selection curve.  It is used by 
+            # continue_selection_curve() to compute the distance between the current mouse 
+            # position and the previous one.
+            # Both <selCurve_StartPt> and <selCurve_PrevPt> are used by 
+            # basicMode.drawpick().
         
-        self.selCurve_List = [p1]
-        self.o.selArea_List = [p2]
-        
-        
-    def leftDrag(self, event):
-        self.ContinDraw(event)
-    
-    def leftShiftDrag(self, event):
-        self.ContinDraw(event)
-    
-    def leftCntlDrag(self, event):
-        self.ContinDraw(event)
-
-    def ContinDraw(self, event):
-        """Add another segment to a selection curve
+    def continue_selection_curve(self, event):
+        """Add another segment to a selection curve for a lasso or polygon selection.
         """
-        if self.freeView: return
         
-        if not self.cookieDrawBegins: return
-        if self.Rubber: return
+        if self.freeView: return
+        if not self.drawingCookieSelCurve: return
+        if self.Rubber:
+            # Doing a poly-rubber-band selection.  bareMotion() is updating the current rubber-band segment.
+            return
         if not self.selectionShape in ['DEFAULT', 'LASSO']: return
         
-        p1, p2 = self._getPoints(event)
-
-        self.selCurve_List += [p1]
-        self.o.selArea_List += [p2]
+        selCurve_pt, selCurve_AreaPt = self._getPoints(event)
+            # The next point of the selection curve, where <selCurve_pt> is the point just beyond
+            # the near clipping plane and <selCurve_AreaPt> is in the plane of the center of view.
+        self.selCurve_List += [selCurve_pt]
+        self.o.selArea_List += [selCurve_AreaPt]
         
-        chord_length = vlen(p1 - self.selCurve_List[0])
-        self.pickLineLength += vlen(p1 - self.selCurve_List[-2])
+        self.selCurve_length += vlen(selCurve_pt - self.selCurve_PrevPt)
+            # add length of new line segment to <selCurve_length>.
+            
+        chord_length = vlen(selCurve_pt - self.selCurve_StartPt)
+            # <chord_length> is the distance between the (first and last/current) endpoints of the 
+            # selection curve.
+        
         if self.selectionShape == 'DEFAULT':
-            if self.pickLineLength < 2*chord_length:
+            if self.selCurve_length < 2*chord_length:
             # Update the shape of the selection_curve.
             # The value of <defaultSelShape> can change back and forth between lasso and rectangle
             # as the user continues defining the selection curve.
                 self.defaultSelShape = SELSHAPE_RECT
             else:
                 self.defaultSelShape = SELSHAPE_LASSO
+                
+        self.selCurve_PrevPt = selCurve_pt
             
-        
         env.history.statusbar_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
         self.draw_selection_curve()
         
-    
-    def leftUp(self, event):
-        self.EndDraw(event, ADD_TO_SELECTION)
-    
-    def leftShiftUp(self, event):
-        self.EndDraw(event, OUTSIDE_SUBTRACT_FROM_SELECTION)
-    
-    def leftCntlUp(self, event):
-        self.EndDraw(event, SUBTRACT_FROM_SELECTION)
-
-    def leftDouble(self, event):
-        """End rubber selection """
-        if self.freeView or not self.cookieDrawBegins: return
-        
-        if self.Rubber and not self.rubberWithoutMoving:
-            self._traditionalSelect()
-        
-        
-    def EndDraw(self, event, sense):
+    def end_selection_curve(self, event):
         """Close a selection curve and do the selection
         """
-        if self.freeView or not self.cookieDrawBegins: return
-        
-        p1, p2 = self. _getPoints(event)
+            
+        if self.freeView or not self.drawingCookieSelCurve:
+            return
+
+        selCurve_pt, selCurve_AreaPt = self._getPoints(event)
  
-        if not self.pickLineLength > 0: 
+        if self.selCurve_length/self.o.scale < 0.03:
             #Rect_corner/circular selection
             if not self.selectionShape in ['DEFAULT', 'LASSO']: 
-                if not (self.selCurve_List and self.o.selArea_List): #The first click release
-                    self.selSense = sense
-                    self.selCurve_List = [p1]; self.selCurve_List += [p1]; self.selCurve_List += [p1]
-                    self.o.selArea_List = [p2]; self.o.selArea_List += [p2]
+                if not (self.selCurve_List and self.o.selArea_List): # The first click release
+                    self.selCurve_List = [selCurve_pt]
+                    self.selCurve_List += [selCurve_pt]
+                    self.selCurve_List += [selCurve_pt]
+                    self.o.selArea_List = [selCurve_AreaPt]
+                    self.o.selArea_List += [selCurve_AreaPt]
                     if self.selectionShape == 'RECT_CORNER':    
                             self.defaultSelShape = SELSHAPE_RECT
                     #Disable view changes when begin curve drawing 
                     self.ctrlPanel.enableViewChanges(False)
                 else: #The end click release
-                    self.o.selArea_List[-1] = p2
+                    self.o.selArea_List[-1] = selCurve_AreaPt
                     if self.defaultSelShape == SELSHAPE_RECT:
                         self._traditionalSelect() 
                     else:
                         self._centerBasedSelect()
-            elif self.selectionShape == 'DEFAULT':  ##Rubber-band selection
-                self.selCurve_List += [p1]
-                self.o.selArea_List += [p2]
+            elif self.selectionShape == 'DEFAULT':  ##polygon-rubber-band/lasso selection
+                self.selCurve_List += [selCurve_pt]
+                self.o.selArea_List += [selCurve_AreaPt]
                 if not self.Rubber:
+                    # The first click of a polygon selection.
                     self.Rubber = True
                     self.rubberWithoutMoving = True
                     #Disable view changes when begin curve drawing        
@@ -365,10 +447,10 @@ class cookieMode(basicMode):
             else: #This means single click/release without dragging for Lasso
                 self.selCurve_List = []
                 self.o.selArea_List = []
-                self.cookieDrawBegins = False
+                self.drawingCookieSelCurve = False
         else: #Default(excluding rubber band)/Lasso selection
-            self.selCurve_List += [p1]
-            self.o.selArea_List += [p2]
+            self.selCurve_List += [selCurve_pt]
+            self.o.selArea_List += [selCurve_AreaPt]
             self._traditionalSelect()    
     
     def _anyMiddleUp(self):
@@ -382,7 +464,7 @@ class cookieMode(basicMode):
 
     def middleDown(self, event):
         """Disable this method when in curve drawing"""
-        if not self.cookieDrawBegins:
+        if not self.drawingCookieSelCurve:
             basicMode.middleDown(self, event)
      
     def middleUp(self, event):
@@ -390,19 +472,19 @@ class cookieMode(basicMode):
         object has been created, so if you change the view,
         and thus self.o.quat, then the shape object will be wrong
         ---Huaicai 3/23/05 """
-        if not self.cookieDrawBegins:
+        if not self.drawingCookieSelCurve:
             basicMode.middleUp(self, event)
             self._anyMiddleUp()
            
-    def middleShiftDown(self, event):        
+    def middleShiftDown_ORIG(self, event):        
          """Disable this action when cutting cookie. """
-         if self.freeView: basicMode.middleShiftDown(self, event)   
+         if self.freeView: basicMode.middleShiftDown(self, event)
     
     def middleCntlDown(self, event):
          """Disable this action when cutting cookie. """   
          if self.freeView: basicMode.middleCntlDown(self, event)
 
-    def middleShiftUp(self, event):        
+    def middleShiftUp_ORIG(self, event):        
          """Disable this action when cutting cookie. """   
          if self.freeView: basicMode.middleShiftUp(self, event)
     
@@ -412,18 +494,20 @@ class cookieMode(basicMode):
     
     def Wheel(self, event):
         """When in curve drawing stage, disable the zooming. """
-        if not self.cookieDrawBegins: 
+        if not self.drawingCookieSelCurve: 
             basicMode.Wheel(self, event)
         
     def bareMotion(self, event):
-        if self.freeView or not self.cookieDrawBegins: return
+        if self.freeView or not self.drawingCookieSelCurve: return
         
         if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']: 
             if not self.selCurve_List: return
             p1, p2 = self._getPoints(event)
             try: 
-                if self.Rubber: self.pickLinePrev = self.selCurve_List[-1]
-                else:  self.selCurve_List[-2] = self.selCurve_List[-1]
+                if self.Rubber:
+                    self.pickLinePrev = self.selCurve_List[-1]
+                else:
+                    self.selCurve_List[-2] = self.selCurve_List[-1]
                 self.selCurve_List[-1] = p1
             except:
                 print self.selCurve_List
@@ -440,7 +524,7 @@ class cookieMode(basicMode):
         if self.selCurve_List:
             self.draw_selection_curve(True)
             
-            self.cookieDrawBegins = False
+            self.drawingCookieSelCurve = False
             self.Rubber = False
             self.defaultSelShape = SELSHAPE_LASSO
             self.selCurve_List = []
@@ -448,7 +532,7 @@ class cookieMode(basicMode):
             
             env.history.statusbar_msg("   ")
             # Restore the cursor when the selection is done.
-            self.o.setCursor(self.w.CookieAddCursor)
+            self.update_cursor_for_no_MB()
             
             #Restore GL states
             self.o.redrawGL = True
@@ -459,6 +543,8 @@ class cookieMode(basicMode):
      
     def _traditionalSelect(self):
         """The original curve selection"""
+        
+        # Close the selection curve and selection area.
         self.selCurve_List += [self.selCurve_List[0]]
         self.o.selArea_List += [self.o.selArea_List[0]]
         
@@ -776,7 +862,7 @@ class cookieMode(basicMode):
         self.ctrlPanel.layerCellsSpinBox.setMaxValue(maxCells)
        
         ##Cancel any selection if any.
-        if self.cookieDrawBegins:
+        if self.drawingCookieSelCurve:
             env.history.message(redmsg("Layer changed during cookie selection, cancel this selection."))
             self._cancelSelection()
        
@@ -1073,7 +1159,8 @@ class cookieMode(basicMode):
 
     
     def _getPoints(self, event):
-        """This method is used to get the points in near clipping plane and pov plane which are in line with the mouse clicking point on the screen plane. Adjust these 2 points if self.snapGrid == True.
+        """This method is used to get the points in near clipping plane and pov plane which are in line 
+        with the mouse clicking point on the screen plane. Adjust these 2 points if self.snapGrid == True.
         <event> is the mouse event.
         Return a tuple of those 2 points.
         """
