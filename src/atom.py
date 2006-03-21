@@ -47,6 +47,7 @@ The reason this condition is needed at all is to reduce the harm caused
 by someone accidentally running "import atom" (which is wrong but causes no harm).
 """
 
+import sys
 if sys.platform == 'darwin':
     # Bug 1724, wware 060320
     if False:
@@ -65,7 +66,7 @@ if sys.platform == 'darwin':
                # one option for our own alert window, therefore, is an assertion failure
                # (if we don't want to let the user even try to run the app -- but we do).
     else:
-        import os, sys
+        import os
         if os.system(sys.executable + " all_mac_imports.py") != 0:
             print "There were import problems, so giving up"
             sys.exit(1)
