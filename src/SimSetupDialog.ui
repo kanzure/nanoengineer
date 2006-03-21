@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>333</width>
-            <height>286</height>
+            <width>325</width>
+            <height>258</height>
         </rect>
     </property>
     <property name="caption">
@@ -238,17 +238,6 @@
                     </property>
                     <property name="text">
                         <string>Watch motion in realtime</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QCheckBox" row="1" column="0">
-                    <property name="name">
-                        <cstring>create_movie_file_checkbox</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Create Movie file</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>

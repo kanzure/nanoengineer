@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Fri Jan 6 15:16:28 2006
+# Created: Tue Mar 21 17:04:19 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -137,16 +137,11 @@ class SimSetupDialog(QDialog):
 
         groupBox2Layout.addWidget(self.watch_motion_checkbox,0,0)
 
-        self.create_movie_file_checkbox = QCheckBox(self.groupBox2,"create_movie_file_checkbox")
-        self.create_movie_file_checkbox.setChecked(1)
-
-        groupBox2Layout.addWidget(self.create_movie_file_checkbox,1,0)
-
         SimSetupDialogLayout.addWidget(self.groupBox2,1,0)
 
         self.languageChange()
 
-        self.resize(QSize(333,286).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(325,258).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
@@ -165,7 +160,6 @@ class SimSetupDialog(QDialog):
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.groupBox2.setTitle(self.__tr("Simulation Options"))
         self.watch_motion_checkbox.setText(self.__tr("Watch motion in realtime"))
-        self.create_movie_file_checkbox.setText(self.__tr("Create Movie file"))
 
 
     def NumFramesValueChanged(self,a0):

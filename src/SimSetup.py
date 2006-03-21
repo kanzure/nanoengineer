@@ -58,9 +58,9 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
         # new checkboxes for Alpha7, circa 060108
         self.watch_motion_checkbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
-        self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) # whether to store movie file
-            # create_movie_file might be removed before the release (treated as always T);
-            # we'll decide later (see NFR/bug 1286). [bruce & mark 060108]
+        #self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) 
+            # whether to store movie file (see NFR/bug 1286). [bruce & mark 060108]
+            # create_movie_file_checkbox removed for A7 (bug 1729). mark 060321
         return
     
     def createMoviePressed(self):
@@ -77,7 +77,9 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.movie.stepsper = self.stepsperSB.value()
 #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
         self.movie.watch_motion = self.watch_motion_checkbox.isChecked()
-        self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked()
+        #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
+            # removed for A7 (bug 1729). mark 060321
+        self.movie.create_movie_file = True
 
         suffix = self.suffix
         if self.assy.filename: # Could be an MMP or PDB file.
@@ -89,4 +91,3 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
     pass # end of class SimSetup
 
 # end
-
