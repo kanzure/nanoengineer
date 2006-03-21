@@ -79,6 +79,8 @@ class rotateMode(basicMode):
         # ESC - Exit/cancel rotate mode.
         if key == Qt.Key_Escape:
             self.Done()
+            
+        basicMode.keyPress(self,key) # Fixes bug 1172. mark 060321
 
     def Draw(self):
         basicMode.Draw(self)   

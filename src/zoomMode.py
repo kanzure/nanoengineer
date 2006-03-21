@@ -191,6 +191,8 @@ class zoomMode(basicMode):
         if key == Qt.Key_Escape: 
             self.Done()
             
+        basicMode.keyPress(self,key) # Fixes bug 1172. mark 060321
+            
     def Draw(self):
         basicMode.Draw(self)
         self.o.assy.draw(self.o)
