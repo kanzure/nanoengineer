@@ -198,6 +198,51 @@ register_undo_updater( _undo_update_Atom_jigs, #bruce 060224
                        # FYI, we use 'Assembly' (string) rather than Assembly (class) to avoid a recursive import problem.
                     )
 
+# ==
+
+# This global dict never changes (so other modules can permanently import it), but it's periodically processed and cleared.
+
+_changed_selection_Atoms = {}
+    # maps atom.key to atom, for any atom (alive or dead) whose .picked might have changed
+    # since last call of process_changed_selection_Atoms().
+    # (It's a global dict in this module, for efficiency.
+    #  It's not weak-valued (for fear of inefficiency),
+    #  so it's important to clear it when destroying atoms (which is itself nim). ##e)
+    # (no need yet to use try/except to support reloads of this module by not replacing it then)
+
+subscribers_to_changed_selection_Atoms = {} #e this will turn into an attribute of a helper class...
+    # public dict from owner-ids to subscribers; their update methods are called by process_changed_selection_Atoms
+
+def process_changed_selection_Atoms(): #e this will turn into a method of a helper class for changedicts, in changes.py
+    """Update all subscribers to _changed_selection_Atoms by passing it to their update methods
+    (which should not change its value) (typically, subscribers are themselves just dicts); then clear it.
+    [This might become a method of some controlling class for similar global change-dicts.]
+    """
+    sublist_name = "subscribers_to_changed_selection_Atoms"
+    sublist = subscribers_to_changed_selection_Atoms # actually a dict, but subdict would be an unclear localvar name (imho)
+    changedict = _changed_selection_Atoms
+    len1 = len(changedict)
+    for subkey, sub in sublist.items():
+        try:
+            unsub = sub.update( changedict) # kluge: this API is compatible with dict.update() (which returns None).
+        except:
+            print_compact_traceback("bug: exception (ignored) in .update of sub (key %r) in %s: " % (subkey, sublist_name) )
+            unsub = True
+        if unsub:
+            try:
+                del sublist[subkey]
+            except KeyError:
+                pass
+        len2 = len(changedict)
+        if len1 != len2:
+            print "bug: some sub (key %r) in %s apparently changed its length from %d to %d!" % (subkey, sublist_name, len1, len2)
+            len1 = len2
+        continue
+    changedict.clear()
+    return
+
+# ==
+
 class Atom(AtomBase, InvalMixin, StateMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     """An atom instance represents one real atom, or one "singlet"
@@ -1263,15 +1308,21 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """
         if self.element is Singlet: return
 
-        if self.filtered(): return # mark 060303.
+        if self.filtered(): return # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
 
         self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
             self.picked = True
+            _changed_selection_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
             self._picked_time_2 = self.molecule.assy._select_cmd_counter #bruce 051031
             self.molecule.assy.selatoms[self.key] = self
                 #bruce comment 050308: should be ok even if selatoms recomputed for assy.part
             self.molecule.changeapp(1)
+                #bruce 060321 comment: this needs its arg of 1, since self.selradius_squared()
+                # can be affected (if self is invisible). Further review might determine this is
+                # not required (if it's impossible to ever pick invisible atoms), or we might
+                # optim to see if this actually *does* change selradius_squared. Not sure if
+                # that potential optim is ever significant.
             # bruce 041227 moved message from here to one caller, pick_at_event
             #bruce 050308 comment: we also need to ensure that it's ok to pick atoms
             # (wrt selwhat), and change current selection group to include self.molecule
@@ -1295,13 +1346,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def unpick(self):
         """make the atom unselected
         """
-        # note: this is inlined into assembly.unpickatoms
+        # note: this is inlined into assembly.unpickatoms (in ops_select.py)
         # bruce 041214: should never be picked, so Singlet test is not needed,
         # and besides if it ever *does* get picked (due to a bug) you should let
         # the user unpick it!
         ## if self.element is Singlet: return 
         
-        if self.filtered(): return  # mark 060303.
+        if self.filtered(): return  # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
         
         if self.picked:
             try:
@@ -1313,11 +1364,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 if platform.atom_debug:
                     print_compact_traceback("atom_debug: atom.unpick finds atom not in selatoms: ")
             self.picked = False
+            _changed_selection_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
             # note: no need to change self._picked_time -- that would have no effect unless
             # we later forget to set it when atom is picked, and if that can happen,
             # it's probably better to use a prior valid value than -1. [bruce 051031]
-            self.molecule.changeapp(1)
-            self.molecule.changed_selection() #bruce 060227 ###@@@ is this needed in any inlines of unpick?
+            self.molecule.changeapp(1) #bruce 060321 comment: this needs its arg of 1; see comment in self.pick().
+            self.molecule.changed_selection() #bruce 060227
         return
     
 ##    def copy_for_mol_copy(self, numol):

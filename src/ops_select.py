@@ -436,9 +436,11 @@ class ops_select_Mixin:
     def unpickatoms(self):
         "Deselect any selected atoms (but don't change selwhat or do any updates)" #bruce 050517 added docstring
         if self.selatoms:
+            from chem import _changed_selection_Atoms
             for a in self.selatoms.itervalues():
                 # this inlines and optims atom.unpick
                 a.picked = False
+                _changed_selection_Atoms[a.key] = a #bruce 060321 for Undo (or future general uses)
                 a.molecule.changeapp(1)
                 a.molecule.changed_selection() #bruce 060227; could be optimized #e
             self.selatoms = {}

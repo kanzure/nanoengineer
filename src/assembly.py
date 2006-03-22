@@ -845,7 +845,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     # == tracking undoable changes that aren't saved
 
     def changed_selection(self): #bruce 060129; this will need revision if we make it part-specific
-        # see also same-named Node & Atom methods
+        # see also same-named Node method
         if self._suspend_noticing_changes:
             return
         self._selection_change_counter = env.change_counter_for_changed_objects()

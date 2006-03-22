@@ -1395,7 +1395,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             self.haveradii = 0 # invalidate self.sel_radii_squared
             # (using self.invalidate_attr would be too slow)
         #bruce 050804 new feature (related to graphics prefs updating, probably more generally useful):
-        glpane = self.glpane # the last glpane that drew this chunk, or None if it was never drawn ###IMPLEM
+        glpane = self.glpane # the last glpane that drew this chunk, or None if it was never drawn
             # (if more than one can ever draw it at once, this code needs to be revised to scan them all ##k)
         if glpane is not None:
             try:
@@ -1414,7 +1414,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return len(self.atoms)
 
     def getinfo(self):
-        # Return information about the selected moledule for the msgbar [mark 2004-10-14]
+        # Return information about the selected chunk for the msgbar [mark 2004-10-14]
         
         if self is self.assy.ppm: return
         
