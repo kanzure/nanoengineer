@@ -373,7 +373,13 @@ class basicMode(anyMode):
             # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
             # or   "Control-Command Menu" vs. "Right-Control Menu".
             # [bruce 041014]
-        if 1: #bruce 051130, revised 051201
+        if isinstance( self.o.selobj, Jig): # NRF 1740. mark 060322
+            from wiki_help import wiki_help_menuspec_for_object
+            ms = wiki_help_menuspec_for_object( self.o.selobj )
+            if ms:
+                self.Menu_spec.append( None )
+                self.Menu_spec.extend( ms )
+        else:
             featurename = self.user_modename()
             if featurename:
                 from wiki_help import wiki_help_menuspec_for_featurename
