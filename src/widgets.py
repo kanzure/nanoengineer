@@ -307,7 +307,7 @@ class TextMessageBox(QDialog):
         if not name:
             self.setName("TextMessageBox")
 
-        TextMessageLayout = QGridLayout(self,1,1,11,6,"TextMessageLayout")
+        TextMessageLayout = QGridLayout(self,1,1,5,-1,"TextMessageLayout")
         
         self.text_edit = QTextEdit(self,"text_edit")
 
@@ -320,7 +320,9 @@ class TextMessageBox(QDialog):
         spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TextMessageLayout.addItem(spacer,1,0)
 
-        self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(350, 300).expandedTo(self.minimumSizeHint())) 
+            # Width changed from 300 to 350. Now hscrollbar doesn't appear in
+            # Help > Graphics Info textbox. mark 060322
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.close_button,SIGNAL("clicked()"),self.close)

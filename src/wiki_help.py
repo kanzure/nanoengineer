@@ -212,7 +212,7 @@ class WikiHelpBrowser(QDialog):
         QDialog.__init__(self,parent)
 
         self.setName("WikiHelpBrowser")
-        TextBrowserLayout = QGridLayout(self,1,1,11,6,"WikiHelpBrowserLayout")
+        TextBrowserLayout = QGridLayout(self,1,1,5,-1,"WikiHelpBrowserLayout")
         self.text_browser = QTextBrowser(self,"text_browser")
         TextBrowserLayout.addMultiCellWidget(self.text_browser,0,0,0,1)
         
