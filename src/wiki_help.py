@@ -72,8 +72,7 @@ def webbrowser_open(url):
         env.history.message(redmsg("Wiki Help cannot find a web browser"))
     webbrowser.open(url)
 
-def open_wiki_help_page( featurename, actually_open = True ):
-    ###e this function is misnamed, since it opens a context help dialog whose link might open a wiki help page
+def open_wiki_help_dialog( featurename, actually_open = True ):
     #e actually_open = False is presently disabled in the implem
     """Show a dialog containing a link which can
     open the wiki help page corresponding to the named nE-1 feature, in ways influenced by user preferences.
@@ -97,11 +96,10 @@ def open_wiki_help_page( featurename, actually_open = True ):
         # - maybe need checkbox "retain dialog" so it stays open after the click
         # - doesn't put new dialog fully in front -- at least, closing mmkit brings main window in front of dialog
         # - dialog might be nonmodal, but if we keep that, we'll need to autoupdate its contents i suppose
-        html = """<font color=\"red\">[stub text, will be changed before release]</font><br>
-                  Click one of the following links to launch your web browser
+        html = """Click one of the following links to launch your web browser
                   to a Nanorex wiki page containing help on the appropriate topic:<br>
                   * your current mode or selected jig: %s<br>
-                  * nanorex wiki main page: %s
+                  * nanoENGINEER-1 Wiki main page: %s
                """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
                     #e in real life it'll be various aspects of your current context
         def clicked_func(url):
@@ -109,20 +107,15 @@ def open_wiki_help_page( featurename, actually_open = True ):
             ## close_dialog = worked # not good to not close it on error, unless text in dialog is preserved or replaced with error msg
             close_dialog = True
             return close_dialog
-        parent = env.mainwindow() # not yet used...
-        parent = None # see comment below
+        parent = env.mainwindow() # WikiHelpBrowser now in a Dialog, so this works. Fixes bug 1235. mark060322
         w = WikiHelpBrowser(html, parent, clicked_func = clicked_func, caption = "Context Help")
-            #bruce 051220 add env.mainwindow() to fix bug 1235... hmm, technically this fixed the bug,
-            # but it also made the helpbrowser a subwidget of main window rather than a dialog... cute but weird.
-            # Let's disable this fix for now, then fix it better a little later (by placing it inside a Dialog).
-            #e (btw should we reorder args of WikiHelpBrowser constructor, parent first?)
         w.show()
         return
         ## if not actually_open: ## not yet used (and untested) as of 051201
         ##    env.history.message("Help for %r is available at: %s" % (featurename, url))
     return
 
-def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split this out of open_wiki_help_page (which is misnamed)
+def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split this out of open_wiki_help_dialog
     """Try to open the given url in the user's browser (unless they've set preferences to prevent this (NIM)),
     first emitting a history message containing the url
     (which is described as coming from whosdoingthis, which should be a capitalized string).
@@ -194,7 +187,7 @@ def wiki_help_lambda( featurename):
     "Return a callable for use as a menuspec command, which provides wiki help for featurename."
     def res(arg1=None, arg2=None, featurename = featurename):
         #k what args come in, if any? args of res might not be needed (though they would be if it was a lambda...)
-        open_wiki_help_page( featurename)
+        open_wiki_help_dialog( featurename)
     return res
 
 def wiki_help_menuspec_for_object(object):
@@ -212,7 +205,78 @@ def wiki_help_menuspec_for_featurename( featurename):
 
 _keep_reference = None
 
-class WikiHelpBrowser(QTextBrowser): # this is being used in real code as of bruce 051215
+class WikiHelpBrowser(QDialog):
+    """The WikiHelpBrowser Dialog.
+    """
+    def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
+        QDialog.__init__(self,parent)
+
+        self.setName("WikiHelpBrowser")
+        TextBrowserLayout = QGridLayout(self,1,1,11,6,"WikiHelpBrowserLayout")
+        self.text_browser = QTextBrowser(self,"text_browser")
+        TextBrowserLayout.addMultiCellWidget(self.text_browser,0,0,0,1)
+        
+        class MimeFactory(QMimeSourceFactory):
+            def data(self, name, context=None):
+                # [obs comment:] You'll always get a warning like this:
+                # QTextBrowser: no mimesource for http://....
+                # This could be avoided with QApplication.qInstallMsgHandler,
+                # but I don't think that's supported until PyQt 3.15. Also this falls
+                # victim to all the problems swarming around webbrowser.open().
+                name = str(name) # in case it's a QString
+                if clicked_func:
+                    close_dialog = clicked_func(name) #e might generalize to let clicked_func return new html to show, etc...
+                else:
+                    #bruce 051216 let this just be default clicked_func (for testing) -- let provided clicked_func do this itself
+                    webbrowser_open(name) ###e should this be moved into clicked_func?
+                    close_dialog = True
+                if close_dialog:
+                    # don't do this if you want the dialog to stay open after the link is clicked,
+                    #  but its text will change to "link was clicked" due to the code below
+                    ## self.owner.close() -- this caused hourglass cursor to remain in GLPane [bug 1233]
+                    ## self.owner.hide() - also causes hourglass cursor
+                    self.owner.deleteLater() # using deleteLater instead of close or hide fixed bug 1233 [bruce 051219]
+                #bruce 051209 kluge:
+                # one way to avoid the warning, in trusty old PyQt 3.12:
+                ##   QMimeSourceFactory.defaultFactory().setText("arbuniqname","hi mom") 
+                ##   res = QMimeSourceFactory.defaultFactory().data("arbuniqname") 
+                # a simpler way, except that it doesn't work...
+                ##   res = QTextDrag("hi")
+                ##   print "res is",res
+                ##   return res
+                ## res is <__main__.qt.QTextDrag object at 0x1394120>
+                ## pure virtual method called
+                ## Abort
+                ## Exit 134
+                # let's try again and this time keep a reference to it -- ok, that works.
+                # I didn't dare try to let the old one get discarded by a new one,
+                # so we make at most one per apprun.
+                global _keep_reference
+                if _keep_reference is None:
+                    _keep_reference = QTextDrag("link was clicked")
+                return _keep_reference
+        self.text_browser.setMinimumSize(400, 200)
+        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
+        # make it pale yellow like a post-it note
+        self.text_browser.setText("<qt bgcolor=\"#FFFF80\">" + text)
+        self.mf = mf = MimeFactory()
+        mf.owner = self
+        self.text_browser.setMimeSourceFactory(mf)
+        
+        self.close_button = QPushButton(self,"close_button")
+        self.close_button.setText("Close")
+        TextBrowserLayout.addWidget(self.close_button,1,1)
+        
+        spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TextBrowserLayout.addItem(spacer,1,0)
+
+        self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
+        self.clearWState(Qt.WState_Polished)
+
+        self.connect(self.close_button,SIGNAL("clicked()"),self.close)
+        
+
+class WikiHelpBrowser_ORIG(QTextBrowser): # this is being used in real code as of bruce 051215
     def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
         class MimeFactory(QMimeSourceFactory):
             def data(self, name, context=None):
