@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Mar 21 14:53:15 2006
+# Created: Wed Mar 22 16:17:38 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,20 +12,19 @@ from qt import *
 
 image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x08\x00\x00\x00\x0e" \
-    "\x08\x06\x00\x00\x00\x12\x56\x5d\x96\x00\x00\x00" \
-    "\x74\x49\x44\x41\x54\x78\x9c\x85\x91\x31\x0e\x83" \
-    "\x40\x0c\x04\x67\x41\x28\x0d\x0d\xcf\x83\x07\xd0" \
-    "\xe5\x33\xc7\x1f\xc2\xb7\xe8\x29\x28\xa8\xa8\x96" \
-    "\x8a\x53\x22\xf9\x2e\xdb\xce\xc8\x5a\xdb\xb2\x4d" \
-    "\x2d\x4d\x95\x46\xc2\x22\x8d\x45\x61\x91\x46\xc3" \
-    "\x27\x14\x22\x98\x85\x12\x04\x50\x82\x32\x84\x49" \
-    "\xb6\xf3\x84\xd7\x30\xa0\xb6\x65\xde\x77\x01\x24" \
-    "\xc9\x0d\xc0\xdb\x5e\x05\xd3\x75\x1c\x74\x7d\x1f" \
-    "\xaf\xf9\x48\xe7\xb6\xc5\xc2\xb7\xf4\xd3\xa3\x74" \
-    "\xea\x24\x39\x97\xac\xe5\xef\x2f\x6e\xb8\x4f\x30" \
-    "\x0d\xd9\x98\xb2\x95\x00\x00\x00\x00\x49\x45\x4e" \
-    "\x44\xae\x42\x60\x82"
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\x6d\x49\x44\x41\x54\x78\x9c\xed\xd4\x41\x0e\x80" \
+    "\x20\x0c\x44\xd1\xaf\x17\xf6\x2c\x9e\x58\xb7\x86" \
+    "\x74\x68\x61\x42\x62\x8c\x5d\x97\x47\xd3\x16\xe0" \
+    "\x73\x71\xc2\x35\x73\x6e\x5f\x81\x76\x61\x07\x95" \
+    "\xb0\x8b\x02\x6c\x2e\x7a\x04\x06\x24\x3d\xae\x84" \
+    "\x2a\x24\xbc\xad\x4d\x56\x55\x3d\xf3\xda\x9c\xb0" \
+    "\x62\x05\x8d\xe4\xc9\x56\x54\xf1\x61\xd8\xc5\xd3" \
+    "\xe1\xcd\xe2\xf6\x56\xfc\xf0\x5a\xb8\xf7\xfc\x4b" \
+    "\x13\xcf\xfe\x8f\x68\x73\xec\x56\xb8\x0f\xe9\x3d" \
+    "\x71\x03\x2f\xef\x14\x20\x18\x3f\xe3\xe2\x00\x00" \
+    "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class UserPrefsDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
@@ -394,8 +393,6 @@ class UserPrefsDialog(QDialog):
         layout75.addWidget(self.cpk_scale_factor_slider)
 
         self.reset_cpk_scale_factor_btn = QToolButton(self.TabPage,"reset_cpk_scale_factor_btn")
-        self.reset_cpk_scale_factor_btn.setMinimumSize(QSize(16,0))
-        self.reset_cpk_scale_factor_btn.setMaximumSize(QSize(16,32767))
         self.reset_cpk_scale_factor_btn.setIconSet(QIconSet(self.image0))
         layout75.addWidget(self.reset_cpk_scale_factor_btn)
 
@@ -1484,7 +1481,7 @@ class UserPrefsDialog(QDialog):
         QToolTip.add(self.cpk_scale_factor_slider,self.__tr("Changes Atom Scale factor for CPK display mode"))
         QWhatsThis.add(self.cpk_scale_factor_slider,self.__tr("<p><b>CPK Atom Scale</b></p>Slider control for chaning the CPK Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale."))
         self.reset_cpk_scale_factor_btn.setText(QString.null)
-        QToolTip.add(self.reset_cpk_scale_factor_btn,self.__tr("Reset CPK Atom Scale"))
+        QToolTip.add(self.reset_cpk_scale_factor_btn,self.__tr("Restore default value"))
         QWhatsThis.add(self.reset_cpk_scale_factor_btn,self.__tr("Restore the default value of the CPK Scale Factor"))
         self.prefs_tab.changeTab(self.TabPage,self.__tr("Atoms"))
         self.high_order_bond_display_btngrp.setTitle(self.__tr("High Order Bonds"))

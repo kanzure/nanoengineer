@@ -1246,18 +1246,6 @@
                                 <property name="name">
                                     <cstring>reset_cpk_scale_factor_btn</cstring>
                                 </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>16</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>16</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
                                 <property name="text">
                                     <string></string>
                                 </property>
@@ -1265,7 +1253,7 @@
                                     <iconset>image0</iconset>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Reset CPK Atom Scale</string>
+                                    <string>Restore default value</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
                                     <string>Restore the default value of the CPK Scale Factor</string>
@@ -4300,7 +4288,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="173">89504e470d0a1a0a0000000d49484452000000080000000e080600000012565d960000007449444154789c8591310e83400c046741280d0dcf8307d0e533c71fc2b7e82928a8a8968a5322f92edbcec85adbb24d2d4d9546c2228d45619146c3271422988512045082328449b6f384d730a0b665de770124c90dc0db5e05d3751c747d1faff948e7b6c5c2b7f4d3a374ea243997ace5ef2f6eb84f300dd998b2950000000049454e44ae426082</data>
+        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154789cedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef1420183fe3e20000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
