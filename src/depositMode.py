@@ -197,13 +197,10 @@ def do_what_MainWindowUI_should_do(w):
     
     w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
     w.depositAtomDashboard.autobondCB.setChecked(env.prefs[buildModeAutobondEnabled_prefs_key])
-    
+
     w.depositAtomDashboard.highlightingCB = QCheckBox("Highlighting", w.depositAtomDashboard)
-    w.depositAtomDashboard.highlightingCB.setChecked(env.prefs[buildModeHighlightingEnabled_prefs_key])
-    
     w.depositAtomDashboard.waterCB = QCheckBox("Water", w.depositAtomDashboard)
-    w.depositAtomDashboard.waterCB.setChecked(env.prefs[buildModeWaterEnabled_prefs_key])
-    
+
     w.depositAtomDashboard.addSeparator()
     w.toolsDoneAction.addTo(w.depositAtomDashboard)
     w.depositAtomDashboard.setLabel("Build")
@@ -297,7 +294,6 @@ class depositMode(selectAtomsMode):
     msg_modename = "Build mode" 
     default_mode_status_text = "Mode: Build"
     highlight_singlets = True # Always highlight singlets in depositMode. Mark 060220.
-    hover_highlighting_enabled = env.prefs[buildModeHighlightingEnabled_prefs_key]
 
     def __init__(self, glpane):
         selectAtomsMode.__init__(self, glpane)
@@ -307,7 +303,8 @@ class depositMode(selectAtomsMode):
             # highlighted and selected.
             # if False, all atoms and bonds can be highlighted and selected, and the water 
             # surface is not displayed.
-
+        self.hover_highlighting_enabled = env.prefs[buildModeHighlightingEnabled_prefs_key]
+            # Moved here as part of fix for bug 1620.  mark 060322
     # methods related to entering this mode
     
     dont_update_gui = True
@@ -348,6 +345,10 @@ class depositMode(selectAtomsMode):
 
         self.bondclick_v6 = None
         self.update_bond_buttons()
+        
+        # Do these before connecting signals or we'll get history msgs.  Part of fix for bug 1620. mark 060322
+        self.w.depositAtomDashboard.highlightingCB.setChecked(self.hover_highlighting_enabled)
+        self.w.depositAtomDashboard.waterCB.setChecked(self.water_enabled)
         
         # connect signals (these all need to be disconnected in restore_gui) [bruce 050728 revised this]
         self.connect_or_disconnect_signals(True)
