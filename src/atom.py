@@ -47,18 +47,18 @@ The reason this condition is needed at all is to reduce the harm caused
 by someone accidentally running "import atom" (which is wrong but causes no harm).
 """
 
-import sys
+import sys, os.path
 if sys.platform == 'darwin':
     # Bug 1724, wware 060320
     if False:
         # Print a list of all the imports (not including duplications), save it to "all_mac_imports.py"
         _old_import = __import__
-        known_imports = [ ]
+        not_these = [ "swig_runtime_data1", "OpenGL.GL._GL__init__", "bsddb", "_bsddb", "dbhash", "dotblas" ]
         def __import__(*args, **kws):
-            global known_imports
+            global not_these
             arg = args[0]
-            if arg not in known_imports:
-                known_imports.append(arg)
+            if arg not in not_these and not os.path.exists(arg + ".py"):
+                not_these.append(arg)
                 print "import " + arg
             return _old_import(*args, **kws)
         __builtins__.__import__ = __import__ # this is required, else no effect.
@@ -67,7 +67,10 @@ if sys.platform == 'darwin':
                # (if we don't want to let the user even try to run the app -- but we do).
     else:
         import os
-        if os.system(sys.executable + " all_mac_imports.py") != 0:
+        inf = os.popen(sys.executable + " all_mac_imports.py")
+        lines = map(lambda x: x.rstrip(), inf.readlines())
+        inf.close()
+        if "ALL IMPORTS COMPLETED" not in lines:
             print "There were import problems, so giving up"
             sys.exit(1)
 
