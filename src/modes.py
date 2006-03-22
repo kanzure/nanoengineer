@@ -1348,8 +1348,8 @@ class basicMode(anyMode):
         elif key == Qt.Key_F1:
             featurename = self.user_modename()
             if featurename:
-                from wiki_help import open_wiki_help_page
-                open_wiki_help_page( featurename)
+                from wiki_help import open_wiki_help_dialog
+                open_wiki_help_dialog( featurename)
             pass
         elif 0 and platform.atom_debug:#bruce 051201 -- might be wrong depending on how subclasses call this, so disabled for now
             print "atom_debug: fyi: glpane keyPress ignored:", key
