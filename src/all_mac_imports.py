@@ -1,4 +1,8 @@
 import sys
+
+for dir in sys.argv[1].split(":"):
+    sys.path.append(dir)
+
 import os
 import time
 import types

@@ -67,7 +67,8 @@ if sys.platform == 'darwin':
                # (if we don't want to let the user even try to run the app -- but we do).
     else:
         import os
-        inf = os.popen(sys.executable + " all_mac_imports.py")
+        arg = ":".join(sys.path)
+        inf = os.popen(sys.executable + " all_mac_imports.py " + arg)
         lines = map(lambda x: x.rstrip(), inf.readlines())
         inf.close()
         if "ALL IMPORTS COMPLETED" not in lines:
