@@ -96,7 +96,6 @@ finish_python_call(PyObject *retval)
     return retval;
 }
 
-
 void
 reinitSimGlobals(PyObject *sim)
 {
@@ -251,7 +250,7 @@ getFrame_c(void)
 	data[i * 3 + 2] = pos[i].z * XYZ;
     }
     retval = PyString_FromStringAndSize((char*) data, n);
-    free(data);
+    simfree(data);
     return finish_python_call(retval);
 }
 
@@ -386,6 +385,9 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 			"simulator was interrupted");
 	return NULL;
     }
+    demolish_tempbuffer();
+    demolish_hashtables();
+    demolition();
     return finish_python_call(Py_None);
 }
 
@@ -437,11 +439,11 @@ void
 dynamicsMovie_finish(void)
 {
     writeOutputTrailer(OutputFile, part, NumFrames);
-    free(_averagePositions);
-    free(_oldPositions);
-    free(_newPositions);
-    free(_positions);
-    free(_force);
+    simfree(_averagePositions);
+    simfree(_oldPositions);
+    simfree(_newPositions);
+    simfree(_positions);
+    simfree(_force);
     done("");
 }
 

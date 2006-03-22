@@ -5,57 +5,143 @@
 
 static char const rcsid[] = "$Id$";
 
+struct alloc_link {
+    struct alloc_link *next;
+    void *p;
+};
+
+static struct alloc_link *busy_pointers = NULL;
+
+static void
+new_pointer(void *p)
+{
+    struct alloc_link *L;
+    L = (struct alloc_link *) malloc(sizeof(struct alloc_link));
+    if (L == NULL) {
+	fprintf(stderr, "Out of memory\n");
+	exit(1);
+    }
+    L->p = p;
+    L->next = busy_pointers;
+    busy_pointers = L;
+}
+
+static void
+_simfree(void *p, int reallyFree)
+{
+    struct alloc_link *L, *Lprev = NULL;
+    for (L = busy_pointers; L != NULL; L = L->next) {
+	//printf("Trying to match %p with %p\n", p, L->p);
+	if (L->p == p) {
+	    if (Lprev != NULL) {
+		Lprev->next = L->next;
+	    } else {
+		busy_pointers = L->next;
+	    }
+	    if (reallyFree)
+		free(L->p);
+	    free(L);
+	    return;
+	}
+	Lprev = L;
+    }
+    /* having reached this point we are trying to free something
+     * that was not in the busy_pointers list and therefore, as far
+     * as we know, was never allocated.
+     */
+#if 0
+    /* It looks like the only time we come here is when we try to free
+     * tempBuffer in readmmp.c. So we won't be able to free it, I guess.
+     * It happens for only a very small number of pointers that came from
+     * reallocate, and the only use of reallocate (currently) is for
+     * tempBuffer. Anyway let's just fall through, it should be pretty
+     * harmless to allow this little leakage.
+     */
+    fprintf(stderr, "Maybe this pointer was already freed: %p\n", p);
+    exit(1);
+#endif
+}
+
+void
+__simfree(void **p)
+{
+    _simfree(*p, 1);
+    *p = NULL;
+}
+
 void *
 allocate(int size)
 {
-  void *ret = malloc(size);
-  if (ret == NULL) {
-    fprintf(stderr, "Out of memory\n");
-    exit(1);
-  }
-  return ret;
+    void *ret = malloc(size);
+    if (ret == NULL) {
+	fprintf(stderr, "Out of memory\n");
+	exit(1);
+    }
+    new_pointer(ret);
+    return ret;
 }
 
 void *
 reallocate(void *p, int size)
 {
-  void *ret = realloc(p, size);
-  if (ret == NULL) {
-    fprintf(stderr, "Out of memory\n");
-    exit(1);
-  }
-  return ret;
+    void *ret;
+    ret = realloc(p, size);
+    if (ret == NULL) {
+	fprintf(stderr, "Out of memory\n");
+	exit(1);
+    }
+    if (p != ret) {
+	new_pointer(ret);
+	if (p != NULL)
+	    _simfree(p, 0);
+    }
+    return ret;
+}
+
+void
+demolition(void)
+{
+    struct alloc_link *L;
+    L = busy_pointers;
+    while (L != NULL) {
+	struct alloc_link *Lnext = L->next;
+	free(L->p);
+	free(L);
+	L = Lnext;
+    }
+    busy_pointers = NULL;
 }
 
 char *
 copy_string(char *s)
 {
-  char *ret = (char *)allocate(strlen(s)+1);
-  return strcpy(ret, s);
+    int n = strlen(s)+1;
+    char *ret = (char *)allocate(n);
+    return strcpy(ret, s);
 }
 
 void *
 copy_memory(void *src, int len)
 {
-  void *ret = allocate(len);
-  return memcpy(ret, src, len);
+    void *ret = allocate(len);
+    return memcpy(ret, src, len);
 }
 
 // find the smallest power of 2 greater than len
 static unsigned int
 quantize_length(unsigned int len)
 {
-  unsigned int i;
-  unsigned int j;
-  
-  for (i=8; i<(8*sizeof(int)); i++) {
-    j = (1<<i);
-    if (j > len) {
-      return j;
+    unsigned int i;
+    unsigned int j;
+
+    for (i=8; i<(8*sizeof(int)); i++) {
+	j = (1<<i);
+	if (j > len) {
+	    return j;
+	}
     }
-  }
-  fprintf(stderr, "Out of memory, requesting %d bytes\n", len);
-  exit(1);
+    fprintf(stderr, "Out of memory, requesting %d bytes\n", len);
+    exit(1);
 }
 
 /* Automatically reallocate storage for a buffer that has an unknown
@@ -77,32 +163,32 @@ quantize_length(unsigned int len)
 void *
 accumulator(void *old, unsigned int len, int zerofill)
 {
-  unsigned int *accumulator;     // points to length word, or NULL if a new accumulator
-  unsigned int new_len;          // includes the length word
-  unsigned int accum_length;     // includes the length word
-  unsigned int old_accum_length; // includes the length word
-  // The value stored in the length word includes the length word itself.
+    unsigned int *accumulator;     // points to length word, or NULL if a new accumulator
+    unsigned int new_len;          // includes the length word
+    unsigned int accum_length;     // includes the length word
+    unsigned int old_accum_length; // includes the length word
+    // The value stored in the length word includes the length word itself.
 
-  // allocate something even if len==0
-  new_len = (len ? len : 1) + sizeof(int);
-  if (old == NULL) {
-    accumulator = NULL;
-    old_accum_length = sizeof(int);
-  } else {
-    accumulator = ((unsigned int *)old) - 1;
-    old_accum_length = *accumulator;
-  }
-  if (new_len > old_accum_length) {
-    accum_length = quantize_length(new_len);
-    accumulator = (unsigned int *)reallocate(accumulator, accum_length);
-    *accumulator = accum_length;
-    if (zerofill) {
-      memset(((char *)accumulator)+old_accum_length, 0,
-             accum_length - old_accum_length);
+    // allocate something even if len==0
+    new_len = (len ? len : 1) + sizeof(int);
+    if (old == NULL) {
+	accumulator = NULL;
+	old_accum_length = sizeof(int);
+    } else {
+	accumulator = ((unsigned int *)old) - 1;
+	old_accum_length = *accumulator;
     }
-    return (void *)(accumulator+1);
-  }
-  return old;
+    if (new_len > old_accum_length) {
+	accum_length = quantize_length(new_len);
+	accumulator = (unsigned int *)reallocate(accumulator, accum_length);
+	*accumulator = accum_length;
+	if (zerofill) {
+	    memset(((char *)accumulator)+old_accum_length, 0,
+		   accum_length - old_accum_length);
+	}
+	return (void *)(accumulator+1);
+    }
+    return old;
 }
 
 // given a template filename, returns a new string which is a copy of
@@ -115,7 +201,7 @@ replaceExtension(char *template, char *newExtension)
     char *end;
     int len;
     char *ret;
-    
+
     end = template + strlen(template); // end points to '\0' at end of string
     while (--end > template) {
         if (*end == '.') {

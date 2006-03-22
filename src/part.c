@@ -142,7 +142,6 @@ endPart(struct part *p)
     return p;
 }
 
-
 // Creates a stretch for each bond in the part.
 void
 generateStretches(struct part *p)
@@ -254,7 +253,7 @@ invalidateVanDerWaals(struct part *p, struct atom *a)
 	vdw = p->vanDerWaals[i];
 	if (vdw && (vdw->a1 == a || vdw->a2 == a)) {
 	    p->vanDerWaals[i] = NULL;
-	    free(vdw);
+	    simfree(vdw);
 	    if (i < p->start_vanDerWaals_free_scan) {
 		p->start_vanDerWaals_free_scan = i;
 	    }
@@ -415,7 +414,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 	}
     }
     //fprintf(stderr, "num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
-    free(seen); // yes, alloca would work here too.
+    simfree(seen); // yes, alloca would work here too.
 }
 
 // XXX watch for atom vibrating between buckets

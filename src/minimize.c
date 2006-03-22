@@ -157,12 +157,12 @@ freeConfiguration(struct configuration *conf)
 	(*conf->functionDefinition->freeExtra)(conf);
     }
     if (conf->coordinate != NULL) {
-	free(conf->coordinate);
+	simfree(conf->coordinate);
     }
     if (conf->gradient != NULL) {
-	free(conf->gradient);
+	simfree(conf->gradient);
     }
-    free(conf);
+    simfree(conf);
 }
 
 void

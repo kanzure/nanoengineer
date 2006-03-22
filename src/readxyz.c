@@ -29,7 +29,7 @@ readXYZ(char *filename, int *natoms)
     if (fscanf(f, "%10s %f %f %f\n", symbol, &x, &y, &z) != 4) {
       fprintf(stderr, "error reading atom %d from %s\n", i, filename);
       fclose(f);
-      free(positions);
+      simfree(positions);
       return NULL;
     }
     positions[i].x = x;

@@ -180,7 +180,7 @@ void makvdw(int a1, int a2) {
 	    Nexvanbuf->fill = 0;
 	}
 	else {
-	    newbuf=malloc(sizeof(struct vdWbuf));
+	    newbuf=allocate(sizeof(struct vdWbuf));
 	    Nexvanbuf->next = newbuf;
 	    Nexvanbuf = newbuf;
 	    Nexvanbuf->fill = 0;
@@ -343,7 +343,7 @@ static int readname(char *buf, char **ret) {
   int j;
   sscanf(buf, "(%[^)])%n", b1, &j);
   DPRINT(D_READER, "got name (%s)\n", b1);
-  *ret = malloc(strlen(b1)+1);
+  *ret = allocate(strlen(b1)+1);
   strcpy(*ret, b1);
   return j;
 
@@ -707,7 +707,7 @@ readXYZ(char *filename, int *natoms)
     if (fscanf(f, "%10s %f %f %f\n", symbol, &x, &y, &z) != 4) {
       fprintf(stderr, "error reading atom %d from %s\n", i, filename);
       fclose(f);
-      free(positions);
+      simfree(positions);
       return NULL;
     }
     positions[i].x = x;

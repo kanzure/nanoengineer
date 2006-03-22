@@ -91,6 +91,14 @@ static struct hashtable *bendDataHashtable = NULL;
 static struct hashtable *deHashtable;
 static struct hashtable *vanDerWaalsHashtable;
 
+void demolish_hashtables(void)
+{
+    simfree(bondStretchHashtable);
+    simfree(bendDataHashtable);
+    simfree(deHashtable);
+    simfree(vanDerWaalsHashtable);
+}
+
 // ks in N/m
 // r0 in pm, or 1e-12 m
 // de in aJ, or 1e-18 J

@@ -52,7 +52,7 @@ static void
 structCompareFreeExtra(struct configuration *p)
 {
   if (p->extra != NULL) {
-    free(p->extra);
+    simfree(p->extra);
     p->extra = NULL;
   }
 }

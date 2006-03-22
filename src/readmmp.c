@@ -282,6 +282,11 @@ expectXYZInts(struct mmpStream *mmp, struct xyz *p)
 
 static void *tempBuffer = NULL;
 
+void demolish_tempbuffer(void)
+{
+    simfree(tempBuffer);
+}
+
 // Names in mmp files are delimited by ()'s.  () are encoded using
 // %xx, and so are disallowed from appearing in the encoded form that
 // we're reading here.  This reads an arbitrary length name (up to
