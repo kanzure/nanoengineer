@@ -96,7 +96,7 @@ def createWhatsThis(self):
         
         #### Open File ####
         
-        fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)</b></p><br> "\
+        fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> "\
                         "<p><img source=\"fileopen\"><br> "\
                        "Opens a new file."\
                        "</p>"
@@ -108,7 +108,7 @@ def createWhatsThis(self):
         
         #### Save File ####
         
-        fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)</b></p><br> "\
+        fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)<br> "\
                        "<p><img source=\"filesave\"><br> "\
                        "Saves the current file."\
                        "</p>"
@@ -159,7 +159,7 @@ def createWhatsThis(self):
         
         #### Undo ####
         
-        editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)</b></p><br> "\
+        editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)<br> "\
                        "<p><img source=\"editUndo\"><br> "\
                        "Reverses the last edit or command which changed structure or selection. "\
                        "<br><font color=\"#808080\">"\
@@ -185,7 +185,7 @@ def createWhatsThis(self):
         else:
             redo_accel = "(Ctrl + Y)"
         
-        editRedoText =  "<u><b>Redo</b></u>     %s</b></p><br> "\
+        editRedoText =  "<u><b>Redo</b></u>     %s<br> "\
                        "<p><img source=\"editRedo\"> <br>"\
                        "Restores a change which was undone using the Undo command."\
                        "<br><font color=\"#808080\">"\
@@ -205,7 +205,7 @@ def createWhatsThis(self):
         
         #### Cut ####
         
-        editCutText =  "<u><b>Cut</b></u>     (Ctrl + X)</b></p><br> "\
+        editCutText =  "<u><b>Cut</b></u>     (Ctrl + X)<br> "\
                        "<p><img source=\"editCut\"><br> "\
                        "Removes the selected object(s) and stores the cut data on the"\
                        "clipboard."\
@@ -218,7 +218,7 @@ def createWhatsThis(self):
         
         #### Copy ####
         
-        editCopyText =  "<u><b>Copy</b></u>     (Ctrl + C)</b></p><br> "\
+        editCopyText =  "<u><b>Copy</b></u>     (Ctrl + C)<br> "\
                        "<p><img source=\"editCopy\"><br> "\
                       "Places a copy of the selected chunk(s) on the clipboard "\
                       "while leaving the original chunk(s) unaffected."\
@@ -231,7 +231,7 @@ def createWhatsThis(self):
         
         #### Paste ####
         
-        editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)</b></p><br> "\
+        editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)<br> "\
                        "<p><img source=\"editPaste\"><br> "\
                        "<b>Paste</b> places the user in <b>Build</b> mode where copied chunks on "\
                        "the clipboard can be pasted into the model by double clicking in empty space. "\
@@ -251,7 +251,7 @@ def createWhatsThis(self):
    
         #### Delete ####
                                  
-        editDeleteText =  "<u><b>Delete</b></u>     (DEL)</b></p><br> "\
+        editDeleteText =  "<u><b>Delete</b></u>     (DEL)<br> "\
                        "<p><img source=\"editDelete\"><br> "\
                        "Deletes the selected object(s).  "\
                        "For this Alpha release, deleted objects may be permanently lost, or they might be recoverable using Undo.</p>"
@@ -558,7 +558,23 @@ def createWhatsThis(self):
         self.orient111Action.setWhatsThis(orient111ActionText )
         
         ##############################################
-        # Molecular Display toolbar
+        # Insert toolbar
+        ##############################################
+        
+        #### Nanotube ####
+
+        insertNanotubeActionText = "<u><b>Nanotube</b></u><br>"\
+                       "<p><img source=\"insertNanotubeAction\"><br> "\
+                       "Inserts a nanotube provided with chirality (M, N) and length parameters. "\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "insertNanotubeAction",
+                                                       self.insertNanotubeAction.iconSet().pixmap() )
+
+        self.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
+        
+        ##############################################
+        # Display toolbar
         ##############################################
         
         #### Display Default  ####
@@ -692,7 +708,7 @@ def createWhatsThis(self):
         
         #### Select All ####
 
-        selectAllActionText = "<u><b>Select All</b></u>     (Ctrl + A)</b></p><br>"\
+        selectAllActionText = "<u><b>Select All</b></u> (Ctrl + A)<br>"\
                        "<p><img source=\"selectAllAction\"><br> "\
                        "During <b>Select Atoms</b> mode, this will select all the atoms in "\
                        "the model.  Otherwise, this will select all the chunks in the model."\
@@ -716,7 +732,7 @@ def createWhatsThis(self):
  
         #### Invert Selection ####
 
-        selectInvertActionText = "<u><b>Invert Selection</b></u> <br>    (Ctrl + Shift + I)</b></p><br>"\
+        selectInvertActionText = "<u><b>Invert Selection</b></u> (Ctrl + Shift + I)<br>"\
                        "<p><img source=\"selectInvertAction\"><br> "\
                        "Inverts the current selection.</p>"
 
@@ -727,12 +743,12 @@ def createWhatsThis(self):
         
         #### Select Connected ####
 
-        selectConnectedActionText = "<u><b>Select Connected</b></u>     (Ctrl + Shift + C)</b></p><br>"\
+        selectConnectedActionText = "<u><b>Select Connected</b></u> (Ctrl + Shift + C)<br>"\
             "<p><img source=\"selectConnectedAction\"><br> "\
             "Selects all the atoms that can be reached by the currently selected atom "\
             "via an unbroken chain of bonds. </p>"\
-            "<p>To use this feature, you must first be in "\
-            "<b>Select Atoms</b> mode and select at least one atom.</p>"
+            "<p>You can also select all connected atoms by double clicking on an atom or bond "\
+            "while in <b>Select Atoms</b> or <b>Build</b> modes.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectConnectedAction",
                                                        self.selectConnectedAction.iconSet().pixmap() )
@@ -741,14 +757,13 @@ def createWhatsThis(self):
         
         #### Select Doubly ####
 
-        selectDoublyActionText = "<u><b>Select Doubly</b></u></b></p><br>"\
+        selectDoublyActionText = "<u><b>Select Doubly</b></u><br>"\
                        "<p><img source=\"selectDoublyAction\"><br> "\
                        "Selects all the atoms that can be reached from a currently selected "\
                        "atom through two disjoint unbroken chains of bonds.  Atoms singly "\
                        "connected to this group and unconnected to anything else are also "\
-                       "included in the selection.</p>"\
-                       "<p>To use this feature, you must first be in "\
-                       "<b>Select Atoms</b> mode and select at least one atom.</p>"
+                       "included in the selection."\
+                       "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectDoublyAction",
                                                        self.selectDoublyAction.iconSet().pixmap() )
@@ -757,7 +772,7 @@ def createWhatsThis(self):
         
         #### Expand Selection ####
 
-        selectExpandActionText = "<u><b>Expand Selection</b></u>    (Ctrl + D)</b></p><br>"\
+        selectExpandActionText = "<u><b>Expand Selection</b></u>    (Ctrl + D)<br>"\
                        "<p><img source=\"selectExpandAction\"><br> "\
                        "Selects any atom that is a neighbor of a currently selected atom."\
                        "</p>"
@@ -769,7 +784,7 @@ def createWhatsThis(self):
         
         #### Contract Selection ####
 
-        selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)</b></p><br>"\
+        selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)<br>"\
                        "<p><img source=\"selectContractAction\"><br> "\
                        "Deselects any atom that is a neighbor of a non-picked atom or has a bondpoint."\
                        "</p>"
@@ -785,7 +800,7 @@ def createWhatsThis(self):
         
         #### Minimize Selection ####
 
-        modifyMinimizeSelActionText = "<u><b>Minimize Selection</b></u>    (Ctrl + M)</b></p><br>"\
+        modifyMinimizeSelActionText = "<u><b>Minimize Selection</b></u>    (Ctrl + M)<br>"\
                        "<p><img source=\"modifyMinimizeSelAction\"><br> "\
                        "Arranges the atoms (<i>of the current selection</i>) to their chemically stable point of "\
                        "equilibrium in reference to the other atoms in the structure."\
@@ -811,7 +826,7 @@ def createWhatsThis(self):
         
         #### Hydrogenate ####
 
-        modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u> </b></p><br>"\
+        modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u> <br>"\
                        "<p><img source=\"modifyHydrogenateAction\"><br> "\
                        "Adds hydrogen atoms to all the bondpoints in the selection.</p>"
 
@@ -833,7 +848,7 @@ def createWhatsThis(self):
         
         #### Passivate ####
 
-        modifyPassivateActionText = "<u><b>Passivate</b></u>    (Ctrl + P)</b></p><br>"\
+        modifyPassivateActionText = "<u><b>Passivate</b></u>    (Ctrl + P)<br>"\
                        "<p><img source=\"modifyPassivateAction\"><br> "\
                        "Changes the types of incompletely bonded atoms to atoms with the "\
                        "right number of bonds, using atoms with the best atomic radius."\
@@ -1238,7 +1253,7 @@ def createWhatsThis(self):
         
         #### ESP Image ####
         
-        jigsESPImageActionText = "<u><b>ESP Image</b></u></b></p><br>"\
+        jigsESPImageActionText = "<u><b>ESP Image</b></u><br>"\
                        "<p><img source=\"jigsESPImageAction\"><br> "\
                         "An <b>ESP Image</b> allows the user to visualize the electrostatic potential "\
                         "of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane plug-in "\
@@ -1256,7 +1271,7 @@ def createWhatsThis(self):
         
         #### Atom Set ####
         
-        jigsAtomSetActionText = "<u><b>Atom Set</b></u></b></p><br>"\
+        jigsAtomSetActionText = "<u><b>Atom Set</b></u><br>"\
                        "<p><img source=\"jigsAtomSetAction\"><br> "\
                         "An <b>Atom Set</b> jig provides a convienient way to save an atom "\
                         "selection which can be reselected later."\
@@ -1277,7 +1292,7 @@ def createWhatsThis(self):
         
         #### Measure Distance ####
         
-        jigsDistanceActionText = "<u><b>Measure Distance Jig</b></u></b></p><br>"\
+        jigsDistanceActionText = "<u><b>Measure Distance Jig</b></u><br>"\
                        "<p><img source=\"jigsDistanceAction\"><br> "\
                         "A <b>Measure Distance Jig</b> functions as a dimension to display the "\
                         "distance between two atoms."\
@@ -1300,7 +1315,7 @@ def createWhatsThis(self):
         
         #### Measure Angle ####
         
-        jigsAngleActionText = "<u><b>Measure Angle Jig</b></u></b></p><br>"\
+        jigsAngleActionText = "<u><b>Measure Angle Jig</b></u><br>"\
                        "<p><img source=\"jigsAngleAction\"><br> "\
                         "A <b>Measure Angle Jig</b> functions as a dimension to display the "\
                         "angle between three atoms.</p>"\
@@ -1320,7 +1335,7 @@ def createWhatsThis(self):
         
         #### Measure Dihedral ####
         
-        jigsDihedralActionText = "<u><b>Measure Dihedral Jig</b></u></b></p><br>"\
+        jigsDihedralActionText = "<u><b>Measure Dihedral Jig</b></u><br>"\
                        "<p><img source=\"jigsDihedralAction\"><br> "\
                         "A <b>Measure Dihedral Jig</b> functions as a dimension to display the "\
                         "dihedral angle of a four atom sequence.</p>"\
@@ -1340,7 +1355,7 @@ def createWhatsThis(self):
         
         #### GAMESS Jig ####
         
-        jigsGamessActionText = "<u><b>GAMESS Jig</b></u></b></p><br>"\
+        jigsGamessActionText = "<u><b>GAMESS Jig</b></u><br>"\
                        "<p><img source=\"jigsGamessAction\"><br> "\
                         "A <b>GAMESS Jig</b> is used to tag a set of atoms for running a GAMESS "\
                         "calculation. <b>Energy</b> and <b>Geometry Optimization</b> calculations are supported."\
@@ -1357,7 +1372,7 @@ def createWhatsThis(self):
         
         #### Grid Plane Jig ####
         
-        jigsGridPlaneActionText = "<u><b>Grid Plane</b></u></b></p><br>"\
+        jigsGridPlaneActionText = "<u><b>Grid Plane</b></u><br>"\
                        "<p><img source=\"jigsGridPlaneAction\"><br> "\
                         "A <b>Grid Plane</b> jig is a rectanglar plane that can display a square or SiC grid "\
                         "within its boundary. It is often used as an aid in constructing large lattice "\
