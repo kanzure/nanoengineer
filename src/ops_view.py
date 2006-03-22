@@ -124,7 +124,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
     def setViewPerspec(self):
         self.glpane.setViewProjection(PERSPECTIVE)
 
-    def setViewNormalToOrig(self):
+    def setViewNormalTo(self): # 
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
@@ -142,8 +142,10 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         elif len(jigs) == 1 and len(atoms) == 0:
             # Warning: RectGadgets have no atoms.  We handle this special case below.
             atoms = jigs[0].atoms 
-        elif len(atoms) < 2:
-            msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 2 atoms")
+        elif len(atoms) < 3:
+            # There is a problem when allowing only 2 selected atoms. 
+            # Changing requirement to 3 atoms fixes bug 1418. mark 060322
+            msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 3 atoms")
             env.history.message(cmd + msg)
             return
         
@@ -174,21 +176,25 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         info = 'View set to normal vector of the plane defined by the selected atoms.'
         env.history.message(cmd + info)
         
-    def setViewNormalTo(self):
+    def setViewNormalTo_NEW(self):
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
-        cmd = greenmsg("Set View Normal To: ")
-        
         # This implementation has two serious problems:
         #   1. it selects a normal based on the atoms and not the axis of a jig (e.g. a moved rotary motor).
         #   2. doesn't consider selected jigs that have no atoms.
         # Bruce and I will discuss this and determine the best implem.  
-        # In the meantime, I'm keeping setViewNormalToOrig(). mark 060122.
+        # For A7, I've decide to use the original version. This version will be reinstated in A8
+        # after fixing these problems. mark 060322.
+        
+        cmd = greenmsg("Set View Normal To: ")
+        
         atoms = self.assy.getSelectedAtoms()
         
-        if len(atoms) < 2:
-            msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 2 atoms")
+        if len(atoms) < 3:
+            # There is a problem when allowing only 2 selected atoms.
+            # Changing requirement to 3 atoms fixes bug 1418. mark 060322
+            msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 3 atoms")
             env.history.message(cmd + msg)
             return
         
