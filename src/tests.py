@@ -1144,7 +1144,7 @@ RANKED_BY_RUNTIME = [
     'test_amino_acids_lys_l_aminoacid',
     'test_amino_acids_tyr_l_aminoacid',
     'test_amino_acids_his_l_aminoacid',
-    'test_dynamicsStepStuff'
+    #'test_dynamicsStepStuff'
     ]
 
 try:
@@ -1196,15 +1196,15 @@ try:
             finally:
                 try: TimedTest.finish(self)
                 except EarlyTermination: pass
-        def test_dynamicsStepStuff(self):
-            self.methodname = "test_dynamicsStepStuff"
-            try: TimedTest.start(self)
-            except EarlyTermination: return
-            try:
-                sim.Tests.test_dynamicsStepStuff(self)
-            finally:
-                try: TimedTest.finish(self)
-                except EarlyTermination: pass
+##         def test_dynamicsStepStuff(self):
+##             self.methodname = "test_dynamicsStepStuff"
+##             try: TimedTest.start(self)
+##             except EarlyTermination: return
+##             try:
+##                 sim.Tests.test_dynamicsStepStuff(self)
+##             finally:
+##                 try: TimedTest.finish(self)
+##                 except EarlyTermination: pass
         def test_badCallback1(self):
             self.methodname = "test_badCallback1"
             try: TimedTest.start(self)

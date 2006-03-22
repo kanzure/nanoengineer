@@ -393,6 +393,12 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 
 
 /*
+ * We aren't using this stuff, and it got broken by my big malloc/free
+ * checkin on 20060322. Looking at it now, I have little confidence
+ * that this is even a valid usage of the pyrex simulator.
+ */
+#if 0
+/*
  * Decompose dynamicsMovie into steps callable from Python.
  *
  * Later I'd like to decompose dynamicsMovie_step into still-smaller
@@ -446,7 +452,7 @@ dynamicsMovie_finish(void)
     simfree(_force);
     done("");
 }
-
+#endif
 
 /**
  * If we return a non-empty string, it's an error message.

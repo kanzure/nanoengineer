@@ -60,9 +60,9 @@ cdef extern from "simhelp.c":
     verifySimObject(PyObject)
     specialExceptionIs(PyObject)
 
-    void dynamicsMovie_start()
-    void dynamicsMovie_step()
-    void dynamicsMovie_finish()
+    #void dynamicsMovie_start()
+    #void dynamicsMovie_step()
+    #void dynamicsMovie_finish()
     double getBondEquilibriumDistance(int element1, int element2, char bondOrder)
 
 # wware 060111  a special exception for simulator interruptions
@@ -372,18 +372,18 @@ class Tests(unittest.TestCase):
         # Make sure that the DPB file is really binary, even after Minimize is run
         assert not isFileAscii("tests/dynamics/test_0001.dpb")
 
-    def test_dynamicsStepStuff(self):
-        Dynamics("tests/rigid_organics/test_C6H10.mmp")
-        dynamicsMovie_start()
-        j = 0
-        for i in range(10000):
-            dynamicsMovie_step()
-            if (i % 500) == 0:
-                #print "Here is frame", i
-                #print getFrame()
-                j = j + 1
-        dynamicsMovie_finish()
-        assert j == 20
+##     def test_dynamicsStepStuff(self):
+##         Dynamics("tests/rigid_organics/test_C6H10.mmp")
+##         dynamicsMovie_start()
+##         j = 0
+##         for i in range(10000):
+##             dynamicsMovie_step()
+##             if (i % 500) == 0:
+##                 #print "Here is frame", i
+##                 #print getFrame()
+##                 j = j + 1
+##         dynamicsMovie_finish()
+##         assert j == 20
 
     ######### Tests that should be expected to fail
 
