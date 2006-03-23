@@ -38,6 +38,7 @@ from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env
 from VQT import A, V
+import re
 
 # more imports lower down
 
@@ -1100,7 +1101,7 @@ From: ericm
 To: bruce
 Subject: Minimize trace file format
 
-Here's the code that writes the trace file during minimize:
+Here\'s the code that writes the trace file during minimize:
 
     write_traceline("%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
 
@@ -1117,6 +1118,8 @@ should work well.
 '''
 
 class TracefileProcessor: #bruce 060109 split this out of SimRunner to support continuous tracefile line processing
+    findRmsForce = re.compile("rms ([0-9.]+) pN")
+    findHighForce = re.compile("high ([0-9.]+) pN")
     "Helper object to filter tracefile lines and print history messages as they come and at the end"
     def __init__(self, owner, minimize = False):
         "store owner so we can later set owner.said_we_are_done = True; also start"
@@ -1163,12 +1166,19 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                     self.seen[start] = True
                 else:
                     # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
+                    # if we see high forces, color the Done message orange, bug 1238, wware 060323
+                    foundRms = self.findRmsForce.search(line)
+                    if foundRms: foundRms = float(foundRms.group(1))
+                    foundHigh = self.findHighForce.search(line)
+                    if foundHigh: foundHigh = float(foundHigh.group(1))
+                    highForces = ((foundRms != None and foundRms > 2.0) or
+                                  (foundHigh != None and foundHigh > 2.0))
                     self.donecount += 1
                     text = line[len(start):].strip()
                     if text:
                         if "# Error:" in self.seen:
                             line = redmsg(line)
-                        elif "# Warning:" in self.seen:
+                        elif highForces or ("# Warning:" in self.seen):
                             line = orangemsg(line)
                         env.history.message( line) #k is this the right way to choose the color?
                         ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
