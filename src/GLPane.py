@@ -1089,6 +1089,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return
 
     def mouseDoubleClickEvent(self, event):
+        # (note: mouseDoubleClickEvent and mousePressEvent share a lot of code)
         self.makeCurrent() #bruce 060129 precaution, presumably needed for same reasons as in mousePressEvent
         self.begin_select_cmd() #bruce 060129 bugfix (needed now that this can select atoms in depositMode)
         
@@ -1100,6 +1101,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         #print "Double clicked: ", but
         
         but = self.fix_event(event, 'press', self.mode)
+
+        self.checkpoint_before_drag(event, but) #bruce 060323 for bug 1747 (but why didn't the bug show up earlier??)
+
         if but & leftButton:
             self.mode.leftDouble(event)
         if but & midButton:
@@ -1135,9 +1139,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         """Dispatches mouse press events depending on shift and
         control key state.
         """
-        ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
-        ## as current, otherwise, the first event will get wrong coordinates
+        # (note: mouseDoubleClickEvent and mousePressEvent share a lot of code)
+        
         self.makeCurrent()
+            ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
+            ## as current, otherwise, the first event will get wrong coordinates
         
         self.begin_select_cmd() #bruce 051031
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
