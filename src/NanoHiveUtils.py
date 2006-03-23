@@ -22,7 +22,9 @@ def get_nh_simspec_filename(basename):
     '''
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
-        return os.path.join(nhdir,str(basename)+"-sim.xml")
+        fn = os.path.normpath(os.path.join(nhdir,str(basename)+"-sim.xml"))
+        print "get_nh_simspec_filename(): filename=", fn
+        return fn
     else:
         return None
 
@@ -31,7 +33,9 @@ def get_nh_workflow_filename(basename):
     '''
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
-        return os.path.join(nhdir,str(basename)+"-flow.tcl")
+        fn = os.path.normpath(os.path.join(nhdir,str(basename)+"-flow.tcl"))
+        print "get_nh_workflow_filename(): filename=", fn
+        return fn
     else:
         return None
 
@@ -40,7 +44,9 @@ def get_nh_mmp_filename(basename):
     '''
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
-        return os.path.join(nhdir,str(basename)+".mmp")
+        fn = os.path.normpath(os.path.join(nhdir,str(basename)+".mmp"))
+        print "get_nh_mmp_filename(): filename=", fn
+        return fn
     else:
         return None
 
@@ -52,16 +58,50 @@ def get_nh_espimage_filename(assy, jigname):
     cwd = os.path.join(assy.get_cwd(), assy.name + "-" + jigname + ".png")
     return os.path.normpath(cwd)
         
-def get_nh_home():    
+def get_nh_home_ORIG():    
     '''Return the Nano-Hive home directory'''
     
-    # Retreive the Nano-Hive home directory by stripping off the last two directories
-    # from the Nano-Hive executable path.
     nanohive_exe = env.prefs[nanohive_path_prefs_key]
-    head, tail = os.path.split(nanohive_exe)
-    head, tail = os.path.split(head)
-    nh_home, tail = os.path.split(head)
+    
+    # On Windows, the default location of the Nano-Hive executable is 
+    # C:\Program Files\Nano-Hive\bin\win32-x86\NanoHive.exe
+    # The home directory is retreived by stripping off the last two directories
+    # from the Nano-Hive executable path, which is 
+    # C:\Program Files\Nano-Hive
+    if os.platform == 'win32':
+        head, tail = os.path.split(nanohive_exe)
+        head, tail = os.path.split(head)
+        nh_home, tail = os.path.split(head)
     return nh_home
+    
+def get_nh_home():
+    '''Returns the Nano-Hive home (base) directory for each platform, if it exists. Otherwise, return None.
+    '''
+    if sys.platform == "win32": # Windows
+        basedir = "C:\Program Files\Nano-Hive"
+    elif sys.platform == "darwin": # MacOS
+        basedir = "/usr/local/share/Nano-Hive"
+    else: # Linux
+        basedir = "/usr/local/share/Nano-Hive"
+    if not os.path.exists(basedir):
+        print "Nano-Hive base directory does not exist! basedir=", basedir
+        return None
+    print "get_nh_home(): Nano-Hive base directory=", basedir
+    return basedir
+    
+def get_nh_config_filename():
+    '''Return the full path of the Nano-Hive config.txt file.
+    '''
+    if sys.platform == "win32": # Windows
+        fn = os.path.normpath(get_nh_home() + "/conf/configs.txt")
+    else: # Linxus and MacOS
+        fn = os.path.normpath(get_nh_home() + "/conf/configs-template.txt")
+        
+    if not os.path.exists(fn):
+        print "get_nh_config_filename(): config file does not exist! config.txt filename=", fn
+        return None
+    print "get_nh_config_filename(): filename=", fn
+    return fn
 
 def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     '''Run a Nano-Hive simulation on the part (assy).  Only the MPQC_ESP plug-in
@@ -130,7 +170,10 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
         kill_nh = False
     else: # No Nano-Hive instance is running.  Start it.
         kill_nh = True
-        start_nh() # Start Nano-Hive server (instance).
+        r = start_nh() # Start Nano-Hive server (instance).
+        
+        if r:
+            print "Nano-Hive startup aborted."
         
         # It may take a second or two to connect to the new Nano-Hive instance.
         # Keep trying until we get a socket.  Give up if we haven't connected within 4 seconds.
@@ -282,6 +325,7 @@ def verify_program(program, version_flag, vstring):
 def start_nh():
     '''Starts Nano-Hive server in the background.
     Returns 1 if Nano-Hive path is not set or if the path does not exist.
+    Returns 2 if Nano-Hive config file does not exist.
     '''
     # Get Nano-Hive executable path from the prefs db.
     nanohive_exe = env.prefs[nanohive_path_prefs_key]
@@ -292,9 +336,14 @@ def start_nh():
     if not os.path.exists(nanohive_exe):
         return 1
         
-    nanohive_config = os.path.join(get_nh_home(), 'conf\configs.txt')
+    nanohive_config = get_nh_config_filename()
     
+    if not nanohive_config:
+        return 2
+        
     args = [nanohive_exe, '-f', nanohive_config]
+    
+    print args
         
     # Should I check if the configs.txt file exists, too?  Should ask Brian Helfrich. mark 2006-01-04.
     
