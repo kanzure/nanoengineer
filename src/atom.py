@@ -68,7 +68,10 @@ if sys.platform == 'darwin':
     else:
         import os
         arg = ":".join(sys.path)
-        inf = os.popen(sys.executable + " all_mac_imports.py " + arg)
+	# all_mac_imports.py will be in the same directory as atom.py, bug 1749 wware 060323
+        _dir = os.path.dirname(sys.argv[0])
+        if _dir: _dir += "/"
+        inf = os.popen(sys.executable + " " + _dir + "all_mac_imports.py " + arg)
         lines = map(lambda x: x.rstrip(), inf.readlines())
         inf.close()
         if "ALL IMPORTS COMPLETED" not in lines:
