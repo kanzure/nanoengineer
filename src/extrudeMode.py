@@ -1111,18 +1111,8 @@ class extrudeMode(basicMode):
         ##print "hi my msg_modename is",self.msg_modename
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
         
-        # Disable some "File" action items while in Extrude mode - Mark 050114
-        self.w.fileSaveAction.setEnabled(0) # Disable "File Save"
-        self.w.fileSaveAsAction.setEnabled(0) # Disable "File Save As"
-        self.w.fileOpenAction.setEnabled(0) # Disable "File Open"
-        self.w.fileCloseAction.setEnabled(0) # Disable "File Close"
-        self.w.fileInsertAction.setEnabled(0) # Disable "File Insert"
-            # (bruce 050218 comment: would the following tools be ok to allow?
-            #  No, because when they leave the mode and then reenter it, they make it
-            #  lose all its state. If we had suspend/resume for modes, they'd be fine. ###e)
-        self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
-        self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
+        # Disable some QActions that will conflict with this mode.
+        self.w.disable_QActions_for_extrudeMode(True)
         
         if self.is_revolve:
             self.w.toolsRevolveAction.setOn(1)
@@ -1322,15 +1312,8 @@ class extrudeMode(basicMode):
         else:
             self.w.extrudeDashboard.hide()
         
-        # Re-enable "File" action items - Mark 050114
-        self.w.fileSaveAction.setEnabled(1) # Enable "File Save"
-        self.w.fileSaveAsAction.setEnabled(1) # Enable "File Save"
-        self.w.fileOpenAction.setEnabled(1) # Enable "File Open"
-        self.w.fileCloseAction.setEnabled(1) # Enable "File Close"
-        self.w.fileInsertAction.setEnabled(1) # Enable "File Insert"
-        self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
-        self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        # Re-enable QAction items
+        self.w.disable_QActions_for_extrudeMode(False)
         
         return
 

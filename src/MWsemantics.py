@@ -172,7 +172,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
             # we change it below, since doing so now would be too early for some modes permitted as startup mode
             # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
-
+            
         # Create the history area at the bottom
         from HistoryWidget import HistoryWidget
         histfile = platform.make_history_filename()
@@ -1539,6 +1539,22 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.setViewPlus90Action.setEnabled(enableFlag)
         self.setViewMinus90Action.setEnabled(enableFlag)
     
+    def disable_QActions_for_extrudeMode(self, disableFlag=True):
+        '''Disables action items in the main window for extrudeMode.
+        '''
+        self.disable_QActions_for_movieMode(disableFlag)
+        self.modifyHydrogenateAction.setEnabled(not disableFlag) # Fixes bug 1057. mark 060323
+        self.modifyDehydrogenateAction.setEnabled(not disableFlag)
+        self.modifyPassivateAction.setEnabled(not disableFlag)
+        self.modifyDeleteBondsAction.setEnabled(not disableFlag)
+        self.modifyStretchAction.setEnabled(not disableFlag)
+        self.modifySeparateAction.setEnabled(not disableFlag)
+        self.modifyMergeAction.setEnabled(not disableFlag)
+        self.modifyInvertAction.setEnabled(not disableFlag)
+        self.modifyAlignCommonAxisAction.setEnabled(not disableFlag)
+        # All QActions in the Modify menu/toolbar should be disabled, too. mark 060323
+        
+        
     def disable_QActions_for_sim(self, disableFlag=True):
         '''Disables actions items in the main window during simulations (and minimize).
         '''
