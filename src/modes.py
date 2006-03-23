@@ -193,8 +193,9 @@ class basicMode(anyMode):
         assert not name.startswith('('), \
             "bug: modename class constant missing from subclass %s" % self.__class__.__name__
         if self.msg_modename.startswith('('):
-            self.msg_modename = name[0:1].upper() + name[1:].lower() + " mode"
-                # [bruce 050106 capitalized first letter above; untested ###@@@]
+            self.msg_modename = name[0:1].upper() + name[1:].lower() 
+                # Removed '+ " mode"'. Fixes bug 612. mark 060323
+                # [bruce 050106 capitalized first letter above]
             if 0: # bruce 040923 never mind this suggestion
                 print "fyi: it might be better to define 'msg_modename = %r' as a class constant in %s" % \
                   (self.msg_modename, self.__class__.__name__)

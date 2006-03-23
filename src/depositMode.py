@@ -291,7 +291,7 @@ class depositMode(selectAtomsMode):
     backgroundColor = 74/255.0, 186/255.0, 226/255.0
     gridColor = 74/255.0, 186/255.0, 226/255.0
     modename = 'DEPOSIT' 
-    msg_modename = "Build mode" 
+    msg_modename = "Build" # Fixes bugs 612-1.2 and 1.3. mark 060323
     default_mode_status_text = "Mode: Build"
     highlight_singlets = True # Always highlight singlets in depositMode. Mark 060220.
 

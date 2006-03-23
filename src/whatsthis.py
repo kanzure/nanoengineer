@@ -980,9 +980,9 @@ def createWhatsThis(self):
        
         self. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText ) 
         
-        #### Build Atoms Tool ####
+        #### Build Mode ####
 
-        toolsDepositAtomActionText = "<u><b>Build Tool</b></u><!-- [[Feature:Build Mode]] --><br>"\
+        toolsDepositAtomActionText = "<u><b>Build Mode</b></u><!-- [[Feature:Build Mode]] --><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
                        "<b>Build Mode</b> allows you to build structures by depositing objects "\
                        "from the Molecular Modeling Kit, including atoms, clipboard objects and parts "\
@@ -994,21 +994,21 @@ def createWhatsThis(self):
        
         self. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText ) 
         
-        #### Cookie Cutter ####
+        #### Cookie Cutter Mode ####
                                         
-        toolsCookieCutActionText = "<u><b>Cookie Cutter Tool</b></u><!-- [[Feature:Cookie Cutter Mode]] --><br>"\
+        toolsCookieCutActionText = "<u><b>Cookie Cutter Mode</b></u><!-- [[Feature:Cookie Cutter Mode]] --><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
-                       "Activates <b>Cookie Cutter</b> mode, allowing you to cut out 3-D shapes from a "\
-                       "slab of diamond or lonsdaleite lattice.</p>"
+                       "<b>Cookie Cutter</b> mode provides tools for cutting out multi-layered shapes from "\
+                       "slabs of diamond or lonsdaleite lattice.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsCookieCutAction",
                                                        self. toolsCookieCutAction.iconSet().pixmap() )
        
         self. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
        
-        #### Extrude Tool ####
+        #### Extrude Mode ####
 
-        toolsExtrudeActionText = "<u><b>Extrude Tool</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
+        toolsExtrudeActionText = "<u><b>Extrude Mode</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
                        "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as "\
                        "a repeating unit.</p>"
@@ -1018,36 +1018,29 @@ def createWhatsThis(self):
        
         self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )  
         
-        #### Fuse Chunks Tool ####
+        #### Fuse Chunks Mode ####
 
-        toolsFuseChunksActionText = "<u><b>Fuse Chunks Tool</b></u><!-- [[Feature:Fuse Chunks Mode]] --><br>"\
+        toolsFuseChunksActionText = "<u><b>Fuse Chunks Mode</b></u><!-- [[Feature:Fuse Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsFuseChunksAction\"><br> "\
                        "<b>Fuse Chunks</b> can be used to interactively join two or more "\
                        "chunks by dragging chunks around and fusing them together.  "\
-                       "Two types of fusing are supported:<br><br>"\
-                       "<b>Make Bonds</b> creates bonds between the existing bondpoints) "\
-                       "of two or more chunks.  Bonds are drawn (and undrawn) as chunks "\
-                       "are moved together (and apart).<br><br>"\
-                       "<b>Fuse Atoms</b> fuses overlapping atoms between chunks. Overlapping "\
-                       "pairs of atoms are highlighted in green and blue to indicate which atoms "\
-                       "will be fused.<br>"\
+                       "Two fusing options are supported:<br><br>"\
+                       "<b>Make Bonds</b> creates bonds between the existing bondpoints "\
+                       "of two or more chunks.  Bondpoints are highlighted and lines are drawn (and undrawn) as chunks "\
+                       "are dragged to indicate bonding relationships between bondpoints. Bondpoints with "\
+                       "multiple bonding relationships are highlighted in magenta to indicate that they cannot "\
+                       "make bonds.<br><br>"\
+                       "<b>Fuse Atoms</b> fuses pairs of overlapping atoms between chunks. The set of overlapping "\
+                       "atoms in the selected chunk(s) are highlighted in green while the set of atoms that will be deleted "\
+                       "in non-selected chunks are highlighted in dark red. It is possible that deleted atoms will not fuse "\
+                       "properly, leaving bondpoints on the selected chunk(s) atoms.  This is a bug.  To help "\
+                       "minimize this problem, try to get the bonds of overlapping atoms oriented similarly.<br>"\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseChunksAction",
                                                        self. toolsFuseChunksAction.iconSet().pixmap() )
        
         self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
-        
-        #### Fuse Atoms Tool ####
-
-        toolsFuseAtomsActionText = "<u><b>Fuse Atoms Tool</b></u><!-- [[Feature:Fuse Atoms Mode]] (nim?) --><br>"\
-                       "<p><img source=\" toolsFuseAtomsAction\"><br> "\
-                       "<b>Fuse Atoms</b> fuses the overlapping atoms between two or more chunks.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseAtomsAction",
-                                                       self. toolsFuseAtomsAction.iconSet().pixmap() )
-       
-        self.toolsFuseAtomsAction.setWhatsThis( toolsFuseAtomsActionText )  
 
         #### Movie Player ####
 
