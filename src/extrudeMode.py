@@ -467,7 +467,9 @@ class extrudeMode(basicMode):
         if not ok:
             whynot = mol
             if warn:
-                self.warning("%s refused: %r" % (self.msg_modename, whynot,)) ###k format, in self.warning too ###@@@
+                from HistoryWidget import redmsg
+                env.history.message(redmsg("%s refused: %r" % (self.msg_modename, whynot,)))
+                    # Fixes bug 444. mark 060323
             return 1
         else:
             # mol is nonsense, btw
@@ -1873,7 +1875,7 @@ def assy_extrude_unit(assy, really_make_mol = 1):
         return True, resmol
     else:
         ## print 'assy.molecules is',`assy.molecules` #debug
-        return False, "don't know what to extrude: nothing selected, and not exactly one chunk in all"
+        return False, "Nothing selected to extrude."
     pass
 
 # ==
