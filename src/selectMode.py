@@ -80,7 +80,6 @@ def do_what_MainWindowUI_should_do(w):
                  
     w.transmuteCheckBox = QCheckBox(" Force to Keep Bonds", w.selectAtomsDashboard)
     QToolTip.add(w.transmuteCheckBox, qApp.translate("MainWindow","Check to keep bonds when transmute.", None))
-    w.modifySetElementAction.setEnabled(False) #addTo(w.selectAtomsDashboard)
     
     w.selectAtomsDashboard.addSeparator()
     w.selectAtomsDashboard.highlightingCB = QCheckBox("Highlighting", w.selectAtomsDashboard)
