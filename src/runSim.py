@@ -97,6 +97,7 @@ class SimRunner:
         self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
+        self.pyrexSimInterrupted = False  #wware 060323, bug 1725, if interrupted we don't need so many warnings
         
         prefer_standalone_sim = debug_pref("force use of standalone sim", Choice_boolean_False,
                                       prefs_key = 'use-standalone-sim', non_debug = True)
@@ -157,7 +158,8 @@ class SimRunner:
                 # This works.  Mark 050210
                 self.simProcess.kill()
             
-        elif self.errcode != _FAILURE_ALREADY_DOCUMENTED: # Something failed...
+        elif not self.pyrexSimInterrupted and self.errcode != _FAILURE_ALREADY_DOCUMENTED:   # wware 060323 bug 1725
+            # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
             env.history.message(self.cmdname + ": " + msg)
                 #fyi this was 'cmd' which was wrong, it says 'Simulator' even for Minimize [bruce 060106 comment, fixed it now]
@@ -849,6 +851,7 @@ class SimRunner:
                     if platform.atom_debug:
                         print "atom_debug: pyrex sim: returned normally" ###@@@ remove this sometime
                 except SimulatorInterrupted:
+                    self.pyrexSimInterrupted = True   # wware 060323 bug 1725
                     # This is the pyrex sim's new usual exit from a user abort, as of sometime 060111.
                     # Before that it was RuntimeError, but that could overlap with exceptions raised by Python callbacks
                     # (in fact, it briefly had a bug where all such exceptions turned into RuntimeErrors).
@@ -1199,7 +1202,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         return "frame %s: rms force = %s; high force = %s" % (frameNumber, rms, max_force)
             # 'high' instead of 'max' is to match Done line syntax (by experiment as of 060112)
     def finish(self):
-        if not self.donecount:
+        if not self.donecount and not owner.pyrexSimInterrupted:   # wware 060323 bug 1725
             self.owner.said_we_are_done = False # not needed unless other code has bugs
             # Note [bruce 050415]: this happens when user presses Abort,
             # since we don't abort the sim process gently enough. This should be fixed.
