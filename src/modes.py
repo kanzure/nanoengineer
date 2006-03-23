@@ -177,6 +177,9 @@ class basicMode(anyMode):
         "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this mode for users; or '' if unknown."
         if self.default_mode_status_text.startswith("Mode: "):
             return self.default_mode_status_text[len("Mode: "):] + " Mode"
+        if self.default_mode_status_text.startswith("Tool: "): 
+            # Added for Pan, Rotate and Zoom Tools. Fixes bug 1298. mark 060323
+            return self.default_mode_status_text[len("Tool: "):] + " Tool"
         return ''
     
     def __init__(self, glpane):

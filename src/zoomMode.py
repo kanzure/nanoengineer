@@ -14,7 +14,7 @@ from constants import GL_FAR_Z
 class zoomMode(basicMode):
     # class constants
     modename = 'ZOOM'
-    default_mode_status_text = "Mode: Zoom"
+    default_mode_status_text = "Tool: Zoom" # Changed 'Mode' to 'Tool'. Fixes bug 1298. mark 060323
     
     # methods related to entering this mode
     

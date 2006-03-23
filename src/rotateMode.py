@@ -13,7 +13,7 @@ class rotateMode(basicMode):
     # class constants
     backgroundColor = 0.5, 0.5, 0.5
     modename = 'ROTATE'
-    default_mode_status_text = "Mode: Rotate"
+    default_mode_status_text = "Tool: Rotate" # Changed 'Mode' to 'Tool'. Fixes bug 1298. mark 060323
 
     # no __init__ method needed
     

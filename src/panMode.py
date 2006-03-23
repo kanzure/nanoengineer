@@ -13,7 +13,7 @@ class panMode(basicMode):
     # class constants
     backgroundColor = 0.5, 0.5, 0.5
     modename = 'PAN'
-    default_mode_status_text = "Mode: Pan"
+    default_mode_status_text = "Tool: Pan" # Changed 'Mode' to 'Tool'. Fixes bug 1298. mark 060323
 
     # no __init__ method needed
     
