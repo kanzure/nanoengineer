@@ -1432,87 +1432,9 @@ def createWhatsThis(self):
                                                        self.helpWhatsThisAction.iconSet().pixmap() )
 
         self.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
-        
-
-        ##############################################
-        # Datum Display Toolbar
-        ##############################################
-        
-        #### Display Trihedron ####
-
-        dispTrihedronText = "<u><b>Display Trihedron</b></u><br>"\
-                       "<p><img source=\"dispTrihedron\"><br> "\
-                       "Toggles the trihedron on and off.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispTrihedron",
-                                                       self.dispTrihedronAction.iconSet().pixmap() )
-       
-        self.dispTrihedronAction.setWhatsThis(dispTrihedronText ) 
-
-        #### Display Csys ####
-
-        dispCsysText = "<u><b>Display Csys Axis</b></u><br>"\
-                       "<p><img source=\"dispCsys\"><br> "\
-                       "Toggles the coordinate system axis on and off."\
-                       "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispCsys",
-                                                       self.dispCsysAction.iconSet().pixmap() )
-       
-        self.dispCsysAction.setWhatsThis(dispCsysText ) 
-        
-        #### Display Datum Lines ####
-
-        dispDatumLinesText = "<u><b>Display Datum Lines</b></u><br>"\
-                       "<p><img source=\"dispDatumLines\"><br> "\
-                       "Toggles Datum Lines on and off.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispDatumLines",
-                                                       self.dispDatumLinesAction.iconSet().pixmap() )
-       
-        self.dispDatumLinesAction.setWhatsThis(dispDatumLinesText )    
-
-        #### Display Datum Planes ####
-
-        dispDatumPlanesText = "<u><b>Display Datum Planes</b></u><br>"\
-                       "<p><img source=\"dispDatumPlanes\"><br> "\
-                       "Toggles Datum Planes on and off.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispDatumPlanes",
-                                                       self.dispDatumPlanesAction.iconSet().pixmap() )
-       
-        self.dispDatumPlanesAction.setWhatsThis(dispDatumPlanesText )    
-        
-        #### Display Grid ####
-
-        dispGridText = "<u><b>Display 3-D Grid</b></u><br>"\
-                       "<p><img source=\"dispGrid\"><br> "\
-                       "Toggles the 3-D grid on and off."\
-                       "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispGrid",
-                                                       self.dispGridAction.iconSet().pixmap() )
-       
-        self.dispGridAction.setWhatsThis(dispGridText )           
 
 def create_whats_this_descriptions_for_selectAtomsMode(w):
     "Create What's This descriptions for the Select Atoms mode dashboard widgets."
-    
-    #### Element Selector ####
-
-    eSelectorText = "<u><b>Element Selector</b></u><br>"\
-                       "<p><img source=\"eselectoricon\"><br> "\
-                       "Opens the <b>Element Selector</b>, which aids in atom selection when the "\
-                       "<b>Selection Filter</b> is activated."\
-                       "</p>"\
-                       "<p>It also contains a <b>Transmute</b> button, which allows the user to change the "\
-                       "selected atoms to the current atom type (in the Element Selector)."\
-                       "</p>"
-
-    QMimeSourceFactory.defaultFactory().setPixmap( "eselectoricon",
-                                                       w.modifySetElementAction.iconSet().pixmap() )
-       
-    w.modifySetElementAction.setWhatsThis(eSelectorText )
     
     # Filter Checkbox #
     

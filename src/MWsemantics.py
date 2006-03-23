@@ -733,13 +733,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         """Allows user to change lighting brightness.
         """
         self.uprefs.showDialog('Lighting') # Show Prefences | Lighting.
-
-        # env.history.message(greenmsg("Lighting:")) # Not needed IMHO. Mark 051124.
-        
-        # Original Lighting Tool.  Keeping this here in case we want
-        # to play with/test ambient and diffuse parameters.  Mark 051124.
-        #from LightingTool import LightingTool
-        #self.lightcntl = LightingTool(self.glpane) # Open Lighting Tool dialog
         
     ###############################################################
     # Select Toolbar Slots
@@ -781,10 +774,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         but still keep this function. 
         """
         self.assy.selectConnected()
-        
-        ###Huaicai 1/19/05, commented the following line out
-        ##self.update_mode_status() # bruce 040927... not sure if this is ever needed
-
 
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
@@ -794,8 +783,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         Huaicai 1/19/05, see commets for the above method
         """
         self.assy.selectDoubly()
-        ##Huaicai 1/19/05 comment out, 
-        #self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectExpand(self):
         """Slot for Expand Selection, which selects any atom that is bonded 
@@ -1001,7 +988,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
 
     ###################################
-    # Tools Toolbar Slots
+    # Modes Toolbar Slots
     ###################################
 
     # get into Select Atoms mode
@@ -1032,6 +1019,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     # get into Fuse Chunks mode
     def toolsFuseChunks(self):
         self.glpane.setMode('FUSECHUNKS')
+        
+    ###################################
+    # Simulator Toolbar Slots
+    ###################################
             
     def simSetup(self):
         """Creates a movie of a molecular dynamics simulation.
@@ -1084,6 +1075,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         """Opens the server manager dialog. """
         from ServerManager import ServerManager
         ServerManager().showDialog()
+        
+    ###################################
+    # Insert Menu/Toolbar Slots
+    ###################################
         
     def insertNanotube(self):
         self.nanotubecntl.show()
@@ -1282,47 +1277,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def setNitrogen(self):
         self.setElement(7)
-
-    ###################################
-    # some unimplemented buttons:
-    ###################################
-    
-    # create bonds where reasonable between selected and unselected
-    def modifyEdgeBond(self):
-        print "MWsemantics.modifyEdgeBond(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
-        
-    # create bonds where reasonable between selected and unselected
-    def toolsAddBond(self):
-        print "MWsemantics.modifyAddBond(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
-
-    # Turn on or off the trihedron compass.
-    def dispTrihedron(self):
-        self.glpane.drawAxisIcon = not self.glpane.drawAxisIcon
-        self.glpane.gl_update()
-
-    def dispCsys(self):
-        """ Toggle on/off center coordinate axes """
-        self.glpane.cSysToggleButton = not self.glpane.cSysToggleButton
-        self.glpane.gl_update()
-
-    # break bonds between selected and unselected atoms
-    def toolsDeleteBond(self):
-        print "MWsemantics.modifyDeleteBond(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
-
-    # 2BDone: make a copy of the selected part, move it, and bondEdge it,
-    # having unselected the original and selected the copy.
-    # the motion is to be the same relative motion done to a part
-    # between copying and bondEdging it.
-    def modifyCopyBond(self):
-        print "MWsemantics.modifyCopyBond(): Not implemented yet"
-        QMessageBox.information(self, self.name() + " User Notice:",
-             "This function is not implemented yet, coming soon...")
 
     # key event handling revised by bruce 041220 to fix some bugs;
     # see comments in the GLPane methods.
@@ -1536,7 +1490,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.extrudeDashboard.hide()
         self.revolveDashboard.hide()
         self.depositAtomDashboard.hide()
-        self.datumDispDashboard.hide()  # (mark note: this is the datum display toolbar)
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
         self.moveChunksDashboard.hide()
@@ -1558,7 +1511,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             #  (to keep most dashboard names out of the context menu in the toolbar area),
             #  and we should list here the few we want to include in that menu (setAppropriate True),
             #  not the many we want to exclude (which is also a list that changes more often). ##e]
-            if obj in [self.datumDispDashboard, self.moviePlayerDashboard, self.moveChunksDashboard,
+            if obj in [self.moviePlayerDashboard, self.moveChunksDashboard,
                 self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
                 self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
