@@ -288,14 +288,19 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
     
     def destroy_with_topnode(self): #bruce 050927; consider renaming this to destroy, and destroy to something else
-        "destroy self.topnode and then self; assertionerror if self still has nodes after topnode is destroyed"
+        """destroy self.topnode and then self; assertionerror if self still has nodes after topnode is destroyed
+        WARNING [060322]: This probably doesn't follow the semantics of other destroy methods (the issue is unreviewed). ###@@@
+        """
         if self.topnode is not None:
             self.topnode.kill() # use kill, since Node.destroy is NIM [#e this should be fixed, might cause memory leaks]
         self.destroy()
         return
     
     def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573 
-        "forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!"
+        """forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!
+        WARNING [060322]: This doesn't follow the semantics of other destroy methods; in particular, destroyed Parts might be revived
+        later by Undo. This should be fixed by renaming this method (perhaps to kill), so we can add a real destroy method. ####@@@@
+        """
         #bruce 050527 added requirement (already true in current implem) that this not forget views,
         # so node.prior_part needn't prevent destroy, but can be used to retrieve default initial views for node.
         if debug_parts:

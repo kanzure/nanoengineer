@@ -285,6 +285,24 @@ def bond_v6(bond):
 
 # ==
 
+_changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not needed), which atoms, bond order
+    # (for now, maps id(bond) -> bond, since a bond's atoms and .key can change)
+    #
+    # Note: we don't yet have any explicit way to kill or destroy a Bond, and perhaps no Bond attrs change when a
+    # Bond is removed from its atoms (I'm not sure, and it might depend on which code does it);
+    # for now, this is ok, and it means those events needn't be tracked as changes to a Bond.
+    # If a Bond is later given a destroy method, that should remove it from this dict;
+    # If it has a kill or delete method (or one that's called when it's not on its atoms),
+    # that should count as a change in this dict (and perhaps it should also change its atom attrs).
+    #
+    #bruce 060322 for Undo change-tracking; the related env._changed_bond_types global dict should perhaps become a subscriber
+
+    ##e see comments about similar dicts in in chem.py for how this will end up being used
+
+_Bond_global_dicts = [_changed_Bonds]
+
+# ==
+
 #bruce 041109:
 # Capitalized name of class Bond, so we can find all uses of it in the code;
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
@@ -330,6 +348,12 @@ class Bond( StateMixin):
     _s_attr_v6 = S_DATA
     _s_attr_atom1 = S_PARENT # too bad these can change, or we might not need them (not sure, might need them for saving a file... #k)
     _s_attr_atom2 = S_PARENT
+
+    atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
+    _saved_geom = None
+
+    # this is needed for repeated destroy [bruce 060322]
+    glname = 0 
     
     def _undo_update(self): #bruce 060223 guess
         self.changed_atoms()
@@ -357,6 +381,20 @@ class Bond( StateMixin):
         self.invalidate_bonded_mols() #bruce 041109 new feature
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
+    def destroy(self): #bruce 060322 (not yet called) ###@@@
+        """[see comments in Atom.destroy docstring]
+        """
+        env.dealloc_my_glselect_name( self, self.glname )
+        key = id(self)
+        for dict1 in _Bond_global_dicts:
+            dict1.pop(key, None)
+        if self.pi_bond_obj is not None:
+            self.pi_bond_obj.destroy() ###k is this safe, if that obj and ones its knows are destroyed?
+            ##e is this also needed in self.changed_atoms or changed_valence??? see if bond orientation bugs are helped by that...
+            #####@@@@@ [bruce 060322 comments]
+        self.__dict__.clear() ###k is this safe??? [see comments in Atom.destroy implem for ways we might change this ##e]
+        return
+    
     def is_open_bond(self): #bruce 050727
         return self.atom1.element is Singlet or self.atom2.element is Singlet
     
@@ -475,6 +513,7 @@ class Bond( StateMixin):
             self.atom2.molecule.changeapp(0)
         from env import _changed_bond_types #bruce 050726
         _changed_bond_types[id(self)] = self
+        _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to self.v6)
         return
 
     def changed(self): #bruce 050719
@@ -493,6 +532,7 @@ class Bond( StateMixin):
         WARNING: does not call setup_invalidate(), though that would often also
         be needed, as would invalidate_bonded_mols() both before and after the change.
         """
+        _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to atoms, and __init__)
         at1 = self.atom1
         at2 = self.atom2
         at1._changed_structure() #bruce 050725
@@ -630,9 +670,6 @@ class Bond( StateMixin):
         toolong = (leng > rcov1 + rcov2)
         center = (c1 + c2) / 2.0 # before 041112 this was None when toolong
         return a1pos, c1, center, c2, a2pos, toolong
-
-    atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
-    _saved_geom = None
     
     def __getattr__(self, attr): # Bond.__getattr__ #bruce 041104; totally revised 050516
         """Return attributes related to bond geometry, recomputing them if they

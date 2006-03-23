@@ -96,6 +96,18 @@ def assy_clear(self): #bruce 060117 draft
     # [note: might be called as assy.clear() or self.clear() in this file.]
     "[self is an assy] become empty of undoable state (as if just initialized)"
     self.tree.destroy() # not sure if these work very well yet; maybe tolerable until we modularize our state-holding objects
+        #bruce 060322 comments [MOSTLY WRONG but useful anyway, as explained in next lines]:
+        # - as I wrote the following, I was thinking that this was an old method of assy, so they might be partly misguided.
+        #   I'm not even sure it's ever called, and if it is, it might not be tantamount to assy.destroy as I think I was assuming.
+        # - it's unclear whether general semantics of .destroy would condone this destroying their children (as it now does);
+        #   guess: desirable to destroy solely-owned children or (more generally) children all of whose parents are destroyed,
+        #   but not others (e.g. not Node.part unless all its Nodes are -- note, btw, Part.destroy is not a true destroy method in
+        #   semantics).
+        # - current implem is not enough (re refs from undo archive). Furthermore, letting the archive handle it might be best,
+        #   but OTOH we don't want to depend on their being one, so some more general conventions for destroy (of objs with children)
+        #   might actually be best.
+        # - ###@@@ why doesn't this destroy self.um if it exists??? guess: oversight; might not matter a lot
+        #   since i think the next one destroys it (need to verify). [MISGUIDED, see above]
     self.shelf.destroy()
     self.root = None # memory leak?
     self.tree = self.shelf = None

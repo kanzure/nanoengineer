@@ -140,9 +140,12 @@ class PiBondSpChain(PerceivedStructureType):
         PerceivedStructureType.__init__(self, assy, all_atoms)
         return
     super = PerceivedStructureType # needed for this to work across reloads
+    listb = () # permit repeated destroy [bruce 060322]
+    _recompile_counter = None # ditto (nor sure if needed)
     def destroy(self):
         super = self.super
         for bond in self.listb:
+            self.listb = () #bruce 060322 to save RAM (might not be needed)
             if bond.pi_bond_obj is self:
                 bond.pi_bond_obj = None
                 bond.pi_obj_memo = None # only needed to cause an exception if something tries to misuse it

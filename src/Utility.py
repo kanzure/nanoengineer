@@ -1072,7 +1072,7 @@ class Node( StateMixin):
     # ==
     
     def kill(self):
-        """Remove self from its parents and destroy enough of its content that it takes little room.
+        """Remove self from its parents and (maybe) destroy enough of its content that it takes little room (but be Undoable).
         [subclasses should extend this]
         """
         ###@@@ bruce 050214 changes and comments:
@@ -1082,9 +1082,31 @@ class Node( StateMixin):
         # also modified the Group.kill method, which extends this method
         self.remove_from_parents()
 
-    def destroy(self): #bruce 060117 draft, experimental, not yet widely used, not sure if it should differ at all from kill
-        "delete cyclic refs and refs to large contents of self, so that python refdecr should free it"
+    glname = 0 # required class constant in case of repeated calls of self.destroy() #bruce 060322
+
+    def destroy(self):
+        "delete cyclic refs (so python refdecr can free self) and refs to large RAM-consuming attrs; and more [#doc, see code comments]"
         self.kill() #bruce 060117 guess at implem
+        #bruce 060117 draft, experimental, not yet widely used; obs comment: not sure if it should differ from kill [but see below]
+        #bruce 060322 comments:
+        # Bugs: arbitrary-order calls (vs other obj destroy methods) are probably not yet safe
+        # (for planned future calls of this method, to plug memory leaks).
+        # Note: a potential difference of destroy from kill -- after kill, a Node might be revived by Undo;
+        # after destroy, it won't be. Things like its entry in various global dicts for change-tracking, glname, undo objkey, etc,
+        # should either be weak or should be explicitly removed by destroy. This is nim, but is important for plugging memory leaks.
+        # These comments apply to the destroy methods of all model objects and their child or helper objects, not only to Nodes.
+        # ###@@@ #e
+        #
+        # We want this dealloc_my_glselect_name, but first we have to review all calls to Node.destroy
+        # to verify it's not called when it shouldn't be (e.g. when that node might still be revived by Undo). ###@@@
+        # BTW, as of 060322 the appropriate init, alloc, and draw code for glname is only done (or needed) in Jig.
+
+        ## env.dealloc_my_glselect_name( self, self.glname )
+
+        ##e more is needed too... see Atom and Bond methods
+        # do we want this:
+        ## self.__dict__.clear() ###k is this safe???
+        return
 
     def remove_from_parents(self): #bruce 051227 split this out of Node.kill for use in new Node.setAssy
         "Remove self from its parents of various kinds (part, dad, assy, selection) without otherwise altering it."
@@ -1236,7 +1258,7 @@ class Node( StateMixin):
 
     def draw(self, glpane, dispdef):
         pass
-        
+    
     def draw_in_abs_coords(self, glpane, color): #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
         """Default implementation of draw_in_abs_coords. Some implem is needed by any nodes or other drawable objects
         which get registered with env.alloc_my_glselect_name. [#doc the API]

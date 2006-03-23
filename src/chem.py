@@ -250,9 +250,6 @@ def process_changed_picked_Atoms(): #e this will turn into a method of a helper 
 # (when we hook these up fully, we should make sure they get cleared when the atoms are destroyed,
 #  and that destroying assy does that, to avoid memory leak #e)
 
-###@@@ not 
-# same with .bonds, tho they should be covered in the past
-
 _changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or liveness/killedness
     # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
     # related attributes: __killed, molecule ###@@@ declare these?? not yet sure if that should be per-attr or not, re subclasses...
@@ -276,9 +273,14 @@ _changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time et
 _changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode is the only one so far)
     # related attributes: display
 
-# for which of the above is the value mutable in practice? bonds, jigs, maybe _posn (probably not)
+# Notes (design scratch): for which Atom attrs is the value mutable in practice? bonds, jigs, maybe _posn (probably not).
 # the rest could be handled by a setter in a new-style class, or by AtomBase
 # and i wonder if it's simpler to just have one dict for all attrs... certainly it's simpler, so is it ok?
+# The reason we have multiple dicts is so undo diff scanning is faster when (e.g.) lots of atoms change in _posn
+# and nothing else (as after Minimize or movie playing or (for now) chunk moving).
+
+_Atom_global_dicts = [_changed_parent_Atoms, _changed_structure_Atoms, _changed_posn_Atoms,
+                      _changed_picked_Atoms, _changed_otherwise_Atoms]
 
 # ==
 
@@ -374,6 +376,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     # It's down here under the 'optional' data since we should derive it from _hyb which is usually 'default for element'.
     
     _s_attr_atomtype = S_DATA
+
+    # these are needed for repeated destroy [bruce 060322]
+    glname = 0 
+    key = 0
 
     # def __init__  is just below a couple undo-update methods
 
@@ -525,6 +531,25 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         except AttributeError:
             return InvalMixin.__getattr__(self, attr)
 
+    def destroy(self): #bruce 060322 (not yet called) ###@@@
+        """[see comments in Node.destroy or perhaps StateMixin.destroy]
+        Note: it should be legal to call this multiple times, in any order w/ other objs' destroy methods.
+        SEMANTICS ARE UNCLEAR -- whether it should destroy bonds in self.bonds (esp in light of rebond method).
+        See comments in assy_clear by bruce 060322 (the "misguided" ones, written as if that was assy.destroy, which it's not).
+        """
+        env.dealloc_my_glselect_name( self, self.glname )
+        key = self.key
+        for dict1 in _Atom_global_dicts:
+            #e even this might be done by StateMixin if we declare these dicts to it for the class
+            # (but we'd have to tell it what key we use in them, e.g. provide a method or attr for that
+            #  (like .key? no, needs _s_ prefix to avoid accidental definition))
+            dict1.pop(key, None) # remove self, if it's there
+            ###e we need to also tell the subscribers to those dicts that we're being destroyed, I think
+        # is the following in a superclass (StateMixin) method?? ###k
+        self.__dict__.clear() ###k is this safe???
+        ## self.bonds = self.jigs = self.molecule = self.atomtype = self.element = self.info = None # etc...
+        return
+    
     def unset_atomtype(self): #bruce 050707
         "Unset self.atomtype, so that it will be guessed when next used from the number of bonds at that time."
         try:
