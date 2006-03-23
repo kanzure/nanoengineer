@@ -267,28 +267,31 @@ class fusechunksMode(modifyMode):
 
         modifyMode.Draw(self)
 
-        # Color the bondable pairs or singlets and bond lines between them
+        # Color the bondable pairs of singlets and bond lines between them. 
+        # Selected chunk(s) have their bondpoints colored in green. mark 060323
         if self.bondable_pairs:
             bondline_color = get_selCurve_color(0,self.backgroundColor) # Color of bond lines
             for s1,s2 in self.bondable_pairs:
                 
-                # Color bondable pair singlets. Singlets with multiple pairs are colored magenta.
-                # Singlets with one way of bonding are colored blue (selected_chunk) or green (other chunks).
-                color = (self.ways_of_bonding[s1.key] > 1) and magenta or blue
+                # Color bondable pairs of singlets. Singlets with multiple pairs are colored magenta.
+                # Singlets with one way of bonding are colored green (selected_chunk) or blue (other chunks).
+                color = (self.ways_of_bonding[s1.key] > 1) and magenta or green
                 s1.overdraw_with_special_color(color)
-                color = (self.ways_of_bonding[s2.key] > 1) and magenta or green
+                color = (self.ways_of_bonding[s2.key] > 1) and magenta or blue
                 s2.overdraw_with_special_color(color)
      
                 # Draw bond lines between singlets.
                 drawline(bondline_color, s1.posn(), s2.posn()) 
-                
-        # Color the overlapping atoms green
+        
+        # Color the set of overlapping atoms in the selected chunk(s) green.     
+        # Color the set of overlapping atoms in the unselected chunk(s) that will be deleted in darkred.
+        # mark 060323
         if self.overlapping_atoms:
             for a1,a2 in self.overlapping_atoms:
                 # a1 atoms are the selected chunk atoms
-                a1.overdraw_with_special_color(blue) # NFR/bug 945. Mark 051029.
+                a1.overdraw_with_special_color(green) # NFR/bug 945. Mark 051029.
                 # a2 atoms are the unselected chunk(s) atoms
-                a2.overdraw_with_special_color(green) 
+                a2.overdraw_with_special_color(darkred) 
                 # This is experimental code to try different highlighting colors. 
                 # IMHO, green is still better, but there may be times when the user
                 # wants something similar to the atom colors.  Mark 050905.
