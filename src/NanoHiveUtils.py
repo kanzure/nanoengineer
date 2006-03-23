@@ -23,7 +23,7 @@ def get_nh_simspec_filename(basename):
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         fn = os.path.normpath(os.path.join(nhdir,str(basename)+"-sim.xml"))
-        print "get_nh_simspec_filename(): filename=", fn
+        #print "get_nh_simspec_filename(): filename=", fn
         return fn
     else:
         return None
@@ -34,7 +34,7 @@ def get_nh_workflow_filename(basename):
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         fn = os.path.normpath(os.path.join(nhdir,str(basename)+"-flow.tcl"))
-        print "get_nh_workflow_filename(): filename=", fn
+        #print "get_nh_workflow_filename(): filename=", fn
         return fn
     else:
         return None
@@ -45,7 +45,7 @@ def get_nh_mmp_filename(basename):
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         fn = os.path.normpath(os.path.join(nhdir,str(basename)+".mmp"))
-        print "get_nh_mmp_filename(): filename=", fn
+        #print "get_nh_mmp_filename(): filename=", fn
         return fn
     else:
         return None
@@ -79,14 +79,10 @@ def get_nh_home():
     '''
     if sys.platform == "win32": # Windows
         basedir = "C:\Program Files\Nano-Hive"
-    elif sys.platform == "darwin": # MacOS
+    else: # Linux and MacOS
         basedir = "/usr/local/share/Nano-Hive"
-    else: # Linux
-        basedir = "/usr/local/share/Nano-Hive"
-    if not os.path.exists(basedir):
-        print "Nano-Hive base directory does not exist! basedir=", basedir
-        return None
-    print "get_nh_home(): Nano-Hive base directory=", basedir
+        
+    if not os.path.exists(basedir): return None
     return basedir
     
 def get_nh_config_filename():
@@ -95,12 +91,9 @@ def get_nh_config_filename():
     if sys.platform == "win32": # Windows
         fn = os.path.normpath(get_nh_home() + "/conf/configs.txt")
     else: # Linxus and MacOS
-        fn = os.path.normpath(get_nh_home() + "/conf/configs-template.txt")
+        fn = os.path.normpath(os.path.expanduser("~/.Nano-Hive/conf/configs.txt"))
         
-    if not os.path.exists(fn):
-        print "get_nh_config_filename(): config file does not exist! config.txt filename=", fn
-        return None
-    print "get_nh_config_filename(): filename=", fn
+    if not os.path.exists(fn): return None
     return fn
 
 def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
@@ -335,7 +328,7 @@ def start_nh():
     
     if not os.path.exists(nanohive_exe):
         return 1
-        
+    
     nanohive_config = get_nh_config_filename()
     
     if not nanohive_config:
@@ -343,9 +336,7 @@ def start_nh():
         
     args = [nanohive_exe, '-f', nanohive_config]
     
-    print args
-        
-    # Should I check if the configs.txt file exists, too?  Should ask Brian Helfrich. mark 2006-01-04.
+    #print "start_nh(): args=", args
     
     from qt import QStringList, QProcess
     
