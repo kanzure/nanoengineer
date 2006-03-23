@@ -212,6 +212,8 @@ def alloc_my_glselect_name(obj):
 # (changing an atom's bond type does *not* itself update this dict -- see _changed_bond_types for that)
 
 _changed_structure_atoms = {} # maps atom.key to atom, for atoms or singlets
+    # WARNING: there is also a related but different global dict in chem.py, whose spelling differs only in 'A' vs 'a' in Atoms.
+    # See the comment there for more info. [bruce 060322]
 
 _changed_bond_types = {} # dict for bonds whose bond-type gets changed (need not include newly created bonds) ###k might not be used
 

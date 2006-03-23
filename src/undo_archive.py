@@ -951,7 +951,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
         self._changed_structure_Atoms = {} ###e format TBD, but tracks changes to element, atomtype, bond set (###k bond order?)
         self._changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
-        self._changed_selection_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
+        self._changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
 
         self._changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode; not sure if any more ###k)
 

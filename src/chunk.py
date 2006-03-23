@@ -40,6 +40,7 @@ __author__ = "Josh"
 # [bruce comment 050502] ###@@@
 
 from chem import *
+from chem import _changed_parent_Atoms # needed whenever we change an atom's .molecule
 
 from debug import print_compact_stack, print_compact_traceback
 from inval import InvalMixin
@@ -337,6 +338,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # make atom know molecule
         assert atm.molecule is None or atm.molecule is _nullMol
         atm.molecule = self
+        _changed_parent_Atoms[atm.key] = atm #bruce 060322
         atm.index = -1 # illegal value
         # make molecule have atom
         self.atoms[atm.key] = atm
@@ -349,6 +351,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         (it can do invalidate_atom_lists once, for many calls of this)
         """
         atm.molecule = self
+        _changed_parent_Atoms[atm.key] = atm #bruce 060322
         self.atoms[atm.key] = atm
         return
     
@@ -373,6 +376,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # defined; don't know why (class Node not yet ok??) [bruce 041116]
             _nullMol = molecule("<not an assembly>", 'name-of-_nullMol')
         atm.molecule = _nullMol # not a real mol; absorbs invals without harm
+        _changed_parent_Atoms[atm.key] = atm #bruce 060322
         # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
         #  see comment about _nullMol where it's defined)
 
@@ -1837,7 +1841,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         for a in self.atlist: # this is now in order of atom.key; it might get recomputed right now (along with atpos & basepos if so)
             na = a.copy()
             # inlined addatom, optimized (maybe put this in a new variant of obs copy_for_mol_copy?)
-            na.molecule = numol
+            na.molecule = numol # no need for _changed_parent_Atoms[atm.key] = atm #bruce 060322
             nuatoms[na.key] = na
             pairlis.append((a, na))
             ndix[a.key] = na
@@ -2001,7 +2005,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         nuatoms = {}
         for a in self.atlist: # 060308 changed similarly to copy_full_in_mapping (shares some code with it)
             na = a.copy()
-            na.molecule = numol
+            na.molecule = numol # no need for _changed_parent_Atoms[atm.key] = atm #bruce 060322
             nuatoms[na.key] = na
             pairlis.append((a, na))
             ndix[a.key] = na
@@ -2140,6 +2144,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # should be a method in atom:
             atm.index = -1
             atm.molecule = self
+            _changed_parent_Atoms[atm.key] = atm #bruce 060322
             #bruce 050516: changing atm.molecule is now enough in itself
             # to invalidate atm's bonds, since their validity now depends on
             # a counter stored in (and unique to) atm.molecule having

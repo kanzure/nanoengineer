@@ -117,9 +117,14 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
         print_compact_stack("will remove one or both existing bonds, then make the requested new one: ")
         if b1:
             a1.bonds.remove(b1)
+            # probably no need for a1._changed_structure() since we'll do it in Bond(a1,a2) below; probably same for a2;
+            # but as a precaution in case of bugs (or misanalysis or future change of this code),
+            # I'll do it anyway. [bruce 060322]
+            a1._changed_structure()
             b1 = None
         if b2:
             a2.bonds.remove(b2)
+            a2._changed_structure()
             b2 = None
     if b1:
         # these atoms are already bonded
@@ -136,7 +141,7 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
                 bond_atoms_oldversion_noops_seen[blame] = None
             pass
         return
-    b = Bond(a1,a2) # (this does all necessary invals)
+    b = Bond(a1,a2) # (this does all necessary invals, including a1 and a2._changed_structure())
     a1.bonds.append(b)
     a2.bonds.append(b)
     return
@@ -161,8 +166,8 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
 ##        except:
 ##            pass
 ##    if not b in at2.bonds:
-##        at1.bonds += [b]
-##        at2.bonds += [b]
+##        at1.bonds.append(b)
+##        at2.bonds.append(b)
 ##    else:
 ##        # [bruce comment 041115: I don't know if this ever happens,
 ##        #  or if it's a good idea for it to be allowed, but it is allowed.
@@ -185,7 +190,7 @@ def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     """Bond two atoms, which must not be already bonded (this might not be checked).
     Return the new bond object (which is given the valence v6, which must be specified).
     """
-    b = Bond(at1, at2, v6) # (this does all necessary invals, and asserts at1 is not at2)
+    b = Bond(at1, at2, v6) # (this does all necessary invals, including _changed_structure on atoms, and asserts at1 is not at2)
     at1.bonds.append(b)
     at2.bonds.append(b)
     return b
@@ -796,7 +801,7 @@ class Bond( StateMixin):
         self.changed_atoms()
         self.setup_invalidate()
         # add this bond to new (it's already on A, i.e. in the list A.bonds)
-        new.bonds += [self]
+        new.bonds.append(self)
             #e put this in some private method on new, new.add_new_bond(self)??
             #  Note that it's intended to increase number of bonds on new,
             #  not to zap a singlet already bonded to new.

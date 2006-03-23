@@ -167,11 +167,15 @@ def _undo_update_Atom_jigs(archive, assy):
     del archive
     from chunk import Chunk # not at toplevel, to avoid recursive import
     from jigs import Jig
-    mols = assy.allNodes(Chunk)
+    mols = assy.allNodes(Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
     jigs = assy.allNodes(Jig)
     for m in mols:
         for a in m.atoms.itervalues():
-            a.jigs = [] #e or del it if we make that optim in Jig
+            if a.jigs:
+                _changed_structure_Atoms[a.key] = a #bruce 060322; try to only do this to atoms that need it
+                #k tracking this change is probably not needed by Undo but might be needed by future non-Undo subscribers
+                # to that dict; Undo itself needs to remember to clear its subscribed cache of it after this ###@@@DOIT
+                a.jigs = [] #e or del it if we make that optim in Jig (and review whether this needs to occur outside 'if a.jigs')
             for b in a.bonds:
                 #k maybe the S_CACHE decl will make this unnecessary? Not sure... maybe not, and it's safe.
                 b.pi_bond_obj = None
@@ -181,6 +185,7 @@ def _undo_update_Atom_jigs(archive, assy):
     for j in jigs:
         for a in j.atoms:
             a.jigs.append(j)
+            _changed_structure_Atoms[a.key] = a #bruce 060322; see comment about same statement above
     for j in jigs:
         for a in j.atoms[:]:
             j.moved_atom(a)
@@ -202,25 +207,25 @@ register_undo_updater( _undo_update_Atom_jigs, #bruce 060224
 
 # This global dict never changes (so other modules can permanently import it), but it's periodically processed and cleared.
 
-_changed_selection_Atoms = {}
+## see below: _changed_picked_Atoms = {}
     # maps atom.key to atom, for any atom (alive or dead) whose .picked might have changed
-    # since last call of process_changed_selection_Atoms().
+    # since last call of process_changed_picked_Atoms().
     # (It's a global dict in this module, for efficiency.
     #  It's not weak-valued (for fear of inefficiency),
     #  so it's important to clear it when destroying atoms (which is itself nim). ##e)
     # (no need yet to use try/except to support reloads of this module by not replacing it then)
 
-subscribers_to_changed_selection_Atoms = {} #e this will turn into an attribute of a helper class...
-    # public dict from owner-ids to subscribers; their update methods are called by process_changed_selection_Atoms
+subscribers_to_changed_picked_Atoms = {} #e this will turn into an attribute of a helper class...
+    # public dict from owner-ids to subscribers; their update methods are called by process_changed_picked_Atoms
 
-def process_changed_selection_Atoms(): #e this will turn into a method of a helper class for changedicts, in changes.py
-    """Update all subscribers to _changed_selection_Atoms by passing it to their update methods
+def process_changed_picked_Atoms(): #e this will turn into a method of a helper class for changedicts, in changes.py
+    """Update all subscribers to _changed_picked_Atoms by passing it to their update methods
     (which should not change its value) (typically, subscribers are themselves just dicts); then clear it.
     [This might become a method of some controlling class for similar global change-dicts.]
     """
-    sublist_name = "subscribers_to_changed_selection_Atoms"
-    sublist = subscribers_to_changed_selection_Atoms # actually a dict, but subdict would be an unclear localvar name (imho)
-    changedict = _changed_selection_Atoms
+    sublist_name = "subscribers_to_changed_picked_Atoms"
+    sublist = subscribers_to_changed_picked_Atoms # actually a dict, but subdict would be an unclear localvar name (imho)
+    changedict = _changed_picked_Atoms
     len1 = len(changedict)
     for subkey, sub in sublist.items():
         try:
@@ -240,6 +245,40 @@ def process_changed_selection_Atoms(): #e this will turn into a method of a help
         continue
     changedict.clear()
     return
+
+# These are not yet looked at, but I'll add the code to record atoms into them. All map atom.key -> atom. [bruce 060322]
+# (when we hook these up fully, we should make sure they get cleared when the atoms are destroyed,
+#  and that destroying assy does that, to avoid memory leak #e)
+
+###@@@ not 
+# same with .bonds, tho they should be covered in the past
+
+_changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or liveness/killedness
+    # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
+    # related attributes: __killed, molecule ###@@@ declare these?? not yet sure if that should be per-attr or not, re subclasses...
+
+_changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (not bond order #k)
+    # WARNING: there is also a related but different global dict in env.py, whose spelling differs only in 'A' vs 'a' in Atoms.
+    # This confusion should be cleaned up sometime, by letting that one just be a subscriber to this one,
+    # and if efficiency demands it, first splitting this one into the part equivalent to that one, and the rest.
+    #
+    # related attributes: bonds, element, atomtype, info, jigs # (not only '.jigs =', but '.jigs.remove' or '.jigs.append')
+    # (we include info since it's used for repeat-unit correspondences in extrude; this is questionable)
+    # (we include jigs since they're most like a form of structure, and in future might have physical effects,
+    #  and since the jigs for pi bonds are structural)
+
+_changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
+    # related attributes: _posn
+
+_changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
+    # related attributes: picked
+
+_changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode is the only one so far)
+    # related attributes: display
+
+# for which of the above is the value mutable in practice? bonds, jigs, maybe _posn (probably not)
+# the rest could be handled by a setter in a new-style class, or by AtomBase
+# and i wonder if it's simpler to just have one dict for all attrs... certainly it's simpler, so is it ok?
 
 # ==
 
@@ -279,7 +318,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
 
     _s_attr_bonds = S_CHILDREN
-    _s_attr_molecule = S_PARENT
+
+    _s_attr_molecule = S_PARENT # note: most direct sets of self.molecule are in chunk.py
+    
     _s_attr_jigs = S_CACHE # first i said S_REFS, but this is more efficient, and helps handle pi_bond_sp_chain.py's Jigs.
         # [not sure if following comment written 060223 is obs as of 060224:]
         # This means that restored state will unset the .jigs attr, for *all* atoms (???), and we'll have to recompute them somehow.
@@ -298,7 +339,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # and for incremental Undo.
 
     #e we might want to add type decls for the bulky data (including the objrefs above), so it can be stored in compact arrays:
-    _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
+
+#bruce 060322 zapping _s_attr_key = S_DATA decl -- should be unnecessary since .key never changes. ####@@@@ TEST
+# NOTE: for using this for binary mmp files, it might be necessary -- review that when we have them. ###@@@
+##    _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
 
     # storing .index as Undo state is no longer needed [bruce 060313]
 ##    _s_attr_index = S_DATA
@@ -391,11 +435,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         belonging to molecule mol (can be None).
         Atom initially has no real or open bonds, and default hybridization type.
         """
+        # note: it's not necessary to track changes to self's attrs (in e.g. _changed_parent_Atoms) during __init__. [bruce 060322]
         AtomBase.__init__(self)
         self.key = atKey.next()
             # unique key for hashing and/or use as a dict key;
             # also used in str(self)
 ##        _atom_for_key[self.key] = self
+        _changed_parent_Atoms[self.key] = self # since this dict tracks all new atoms (i.e. liveness of atoms) (among other things)
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,
@@ -439,6 +485,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             assert where != 'no'
             assert type(where) is type(V(0,0,0))
             self._posn = + where
+            _changed_posn_Atoms[self.key] = self #bruce 060322
 #bruce 060308 removed:
 ##        self.xyz = where
             
@@ -666,6 +713,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     def _setposn_no_chunk_or_bond_invals(self, pos): #bruce 060308 (private for Chunk and Atom)
         self._posn = + pos
+        _changed_posn_Atoms[self.key] = self #bruce 060322
         if self.jigs: #bruce 050718 added this, for bonds code
             for jig in self.jigs[:]:
                 jig.moved_atom(self)
@@ -990,6 +1038,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
     def setDisplay(self, disp):
         self.display = disp
+        _changed_otherwise_Atoms[self.key] = self #bruce 060322
         self.molecule.changeapp(1)
         self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
         # bruce 041109 comment:
@@ -1313,7 +1362,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
             self.picked = True
-            _changed_selection_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
+            _changed_picked_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
             self._picked_time_2 = self.molecule.assy._select_cmd_counter #bruce 051031
             self.molecule.assy.selatoms[self.key] = self
                 #bruce comment 050308: should be ok even if selatoms recomputed for assy.part
@@ -1364,7 +1413,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 if platform.atom_debug:
                     print_compact_traceback("atom_debug: atom.unpick finds atom not in selatoms: ")
             self.picked = False
-            _changed_selection_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
+            _changed_picked_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
             # note: no need to change self._picked_time -- that would have no effect unless
             # we later forget to set it when atom is picked, and if that can happen,
             # it's probably better to use a prior valid value than -1. [bruce 051031]
@@ -1387,6 +1436,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 ##        ## numol.invalidate_atom_lists() -- done in caller now
 ##        nuat.index = self.index
 ##        nuat.display = self.display #bruce 041109 new feature, seems best
+##        # no need in new atoms for anything like _changed_otherwise_Atoms[nuat.key] = nuat #bruce 060322 guess (in commented-out code)
 ##        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
 ##        return nuat
 
@@ -1396,9 +1446,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """
         nuat = atom(self, self.posn(), None) #bruce 050524: pass self so its atomtype is copied
         nuat.display = self.display
+            # no need in new atoms for anything like _changed_otherwise_Atoms[nuat.key] = nuat #bruce 060322 guess ###@@@ #k
         nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
         return nuat
 
+    def set_info(self, newinfo): #bruce 060322
+        self.info = newinfo
+        _changed_structure_Atoms[self.key] = self
+        return
+    
     def break_unmade_bond(self, origbond, origatom): #bruce 050524
         """Add singlets (or do equivalent invals) as if origbond was copied from origatom
         onto self (a copy of origatom), then broken; uses origatom
@@ -1445,6 +1501,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         try:
             self.bonds.remove(b)
+            # note: _changed_structure is done just above
         except ValueError: # list.remove(x): x not in list
             # this is always a bug in the caller, but we catch it here to
             # prevent turning it into a worse bug [bruce 041028]
@@ -1636,6 +1693,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 " in atom %r, trying to work around it:\n " % self )
             try:
                 self.__killed = 0 # make sure kill tries to do something
+                _changed_parent_Atoms[self.key] = self
                 self.kill()
             except:
                 print_compact_traceback("fyi: atom.killed: ignoring" \
@@ -1663,6 +1721,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             return
         
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
+        _changed_parent_Atoms[self.key] = self
         # unpick
         try:
             self.unpick() #bruce 041029
@@ -1684,6 +1743,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 print_compact_traceback("fyi: atom.kill: ignoring error in rematom %r from jig %r: " % (self,j) )
         self.jigs = [] #bruce 041029 mitigate repeated kills
             # [bruce 050215 comment: this should soon no longer be needed, but will be kept as a precaution]
+        _changed_structure_Atoms[self.key] = self #k not sure if needed; if it is, also covers .bonds below #bruce 060322
         
         # remove bonds
         for b in self.bonds[:]: #bruce 050214 copy list as a precaution
@@ -2019,6 +2079,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ## before 051011 this used id(self) for key
         #e could probably optim by importing this dict at toplevel, or perhaps even assigning a lambda in place of this method
         env._changed_structure_atoms[ self.key ] = self
+        _changed_structure_Atoms[ self.key ] = self #bruce 060322
+            # (see comment at _changed_structure_Atoms about how these two dicts are related)
+        return
     
     # debugging methods (not yet fully tested; use at your own risk)
     

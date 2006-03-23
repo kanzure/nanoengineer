@@ -26,6 +26,7 @@ mark 051104 Changed named of Ground jig to Anchor.
 from VQT import *
 from shape import *
 from chem import *
+from chem import _changed_structure_Atoms # needed whenever we change an atom's .jigs list
 import OpenGL.GLUT as glut
 from Utility import *
 from StatProp import *
@@ -117,8 +118,9 @@ class Jig(Node):
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
             #e remove them? would need to prevent recursive kill.
         self.atoms = list(atomlist) # bruce 050316: copy the list
-        for a in atomlist:
-            a.jigs.append(self)
+        for atm in atomlist:
+            atm.jigs.append(self)
+            _changed_structure_Atoms[atm.key] = atm #k not sure if needed #bruce 060322
 
     def needs_atoms_to_survive(self): #bruce 050526
         return True # for all Jigs that exist so far
@@ -244,10 +246,12 @@ class Jig(Node):
         self.atoms.remove(atm)
         #bruce 050215: also remove self from atm's list of jigs
         try:
-            atm.jigs.remove(self) # assume no need to notify atm of this
+            atm.jigs.remove(self)
         except:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception in rematom: ")
+        else:
+            _changed_structure_Atoms[atm.key] = atm #k not sure if needed #bruce 060322
         # should check and delete the jig if no atoms left
         if not self.atoms and self.needs_atoms_to_survive():
             self.kill()

@@ -1955,7 +1955,8 @@ pass
 
 def mark_singlets(basemol, colorfunc):
     for a in basemol.atoms.itervalues():
-        a.info = a.key
+        ## a.info = a.key
+        a.set_info(a.key) #bruce 060322
     basemol._colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
     return
 
