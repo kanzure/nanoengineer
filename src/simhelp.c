@@ -38,11 +38,6 @@ static char tracePrefix[] = TRACE_PREFIX TRACE_PREFIX_DISTUTILS;
 static char tracePrefix[] = TRACE_PREFIX TRACE_PREFIX_NON_DISTUTILS;
 #endif
 
-PyObject * initsimhelp(void);
-PyObject * dumpPart(void);
-PyObject *everythingElse(void);
-char * structCompareHelp(void);
-
 static char retval[100];
 static struct part *part;
 static struct xyz *pos;
@@ -96,14 +91,14 @@ finish_python_call(PyObject *retval)
     return retval;
 }
 
-void
+static void
 reinitSimGlobals(PyObject *sim)
 {
     reinit_globals();
     mostRecentSimObject = sim;
 }
 
-PyObject *
+static PyObject *
 verifySimObject(PyObject *sim)
 {
     start_python_call();
@@ -121,11 +116,14 @@ static PyObject *frameCallbackFunc = NULL;
 static PyObject *
 setCallbackFunc(PyObject *f, PyObject **cb)
 {
+    if (*cb != NULL)
+	Py_DECREF(*cb);
     if (f == Py_None) {
 	*cb = NULL;
 	Py_INCREF(Py_None);
 	return Py_None;
     } else if (f != NULL && PyCallable_Check(f)) {
+	Py_INCREF(f);
 	*cb = f;
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -135,14 +133,14 @@ setCallbackFunc(PyObject *f, PyObject **cb)
     return NULL;
 }
 
-PyObject *
+static PyObject *
 setWriteTraceCallbackFunc(PyObject *f)
 {
     start_python_call();
     return setCallbackFunc(f, &writeTraceCallbackFunc);
 }
 
-PyObject *
+static PyObject *
 setFrameCallbackFunc(PyObject *f)
 {
     start_python_call();
@@ -219,7 +217,7 @@ callback_writeFrame(struct part *part1, struct xyz *pos1)
 }
 
 // wware 060101   make frame info available in pyrex
-PyObject *
+static PyObject *
 getFrame_c(void)
 {
 // .xyz files are in angstroms (1e-10 m)
@@ -258,7 +256,7 @@ getFrame_c(void)
  * A good goal would be to eliminate all the filename-twiddling in this
  * function, and only set up the bond tables.
  */
-PyObject *
+static PyObject *
 initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 {
     start_python_call();
@@ -291,7 +289,7 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
   if (py_exc_str != NULL) { \
     PyErr_SetString(PyExc_RuntimeError, py_exc_str); return NULL; }
 
-PyObject *
+static PyObject *
 dumpPart(void)
 {
     start_python_call();
@@ -299,7 +297,7 @@ dumpPart(void)
     return finish_python_call(Py_None);
 }
 
-PyObject *
+static PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
     // wware 060109  python exception handling
@@ -370,11 +368,6 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     if (py_exc_str != NULL) {
         ERROR(py_exc_str);
     }
-    done("");
-    if (TraceFile != NULL) {
-        fclose(TraceFile);
-    }
-
     if (callback_exception) {
 	return NULL;
     } else if (py_exc_str != NULL) {
@@ -385,74 +378,29 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 			"simulator was interrupted");
 	return NULL;
     }
+    return finish_python_call(Py_None);
+}
+
+static PyObject *
+everythingDone(void)
+{
+    start_python_call();
+    done("");
+    if (TraceFile != NULL) {
+        fclose(TraceFile);
+}
+    if (writeTraceCallbackFunc != NULL)
+	Py_DECREF(writeTraceCallbackFunc);
+    if (frameCallbackFunc != NULL)
+	Py_DECREF(frameCallbackFunc);
+    writeTraceCallbackFunc = NULL;
+    frameCallbackFunc = NULL;
     demolish_tempbuffer();
     demolish_hashtables();
     demolition();
     return finish_python_call(Py_None);
 }
 
-
-/*
- * We aren't using this stuff, and it got broken by my big malloc/free
- * checkin on 20060322. Looking at it now, I have little confidence
- * that this is even a valid usage of the pyrex simulator.
- */
-#if 0
-/*
- * Decompose dynamicsMovie into steps callable from Python.
- *
- * Later I'd like to decompose dynamicsMovie_step into still-smaller
- * steps, with one subgoal being to move all the jig calculations
- * entirely into Python.
- */
-
-static struct xyz *_averagePositions;
-static struct xyz *_oldPositions;
-static struct xyz *_newPositions;
-static struct xyz *_positions;
-static struct xyz *_force;
-static int _framenumber;
-
-void
-dynamicsMovie_start(void)
-{
-    int i;
-
-    _averagePositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-    _oldPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-    _newPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-    _positions =  (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-    _force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-
-    for (i=0; i<part->num_atoms; i++) {
-	vset(_positions[i], part->positions[i]);
-	vsub2(_oldPositions[i], _positions[i], part->velocities[i]);
-    }
-    _framenumber = 0;
-    initializeDeltaBuffers(part);
-}
-
-void
-dynamicsMovie_step(void)
-{
-    oneDynamicsFrame(part, IterPerFrame,
-		     _averagePositions, &_oldPositions, &_newPositions, &_positions, _force);
-    writeDynamicsMovieFrame(OutputFile, _framenumber++, part, _averagePositions);
-}
-
-
-void
-dynamicsMovie_finish(void)
-{
-    writeOutputTrailer(OutputFile, part, NumFrames);
-    simfree(_averagePositions);
-    simfree(_oldPositions);
-    simfree(_newPositions);
-    simfree(_positions);
-    simfree(_force);
-    done("");
-}
-#endif
 
 /**
  * If we return a non-empty string, it's an error message.

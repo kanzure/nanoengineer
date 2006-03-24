@@ -52,6 +52,7 @@ cdef extern from "simhelp.c":
     initsimhelp()
     void dumpPart()
     everythingElse()
+    everythingDone()
     cdef char *structCompareHelp()
 
     void strcpy(char *, char *) #bruce 051230 guess
@@ -225,8 +226,8 @@ cdef class BaseSimulator:
         finally:
             # I don't want to bother saving/restoring an old frame_callback, 
             # since I think having a permanent one should be deprecated [bruce 060102]
-            setFrameCallbackFunc(None)
-            setWriteTraceCallbackFunc(None)
+            # framebacks are cleared in everythingDone
+            everythingDone()
         return
 
     def structCompare(self):
