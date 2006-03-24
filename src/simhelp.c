@@ -116,8 +116,9 @@ static PyObject *frameCallbackFunc = NULL;
 static PyObject *
 setCallbackFunc(PyObject *f, PyObject **cb)
 {
-    if (*cb != NULL)
+    if (*cb != NULL) {
 	Py_DECREF(*cb);
+    }
     if (f == Py_None) {
 	*cb = NULL;
 	Py_INCREF(Py_None);
@@ -389,10 +390,12 @@ everythingDone(void)
     if (TraceFile != NULL) {
         fclose(TraceFile);
 }
-    if (writeTraceCallbackFunc != NULL)
+    if (writeTraceCallbackFunc != NULL) {
 	Py_DECREF(writeTraceCallbackFunc);
-    if (frameCallbackFunc != NULL)
+    }
+    if (frameCallbackFunc != NULL) {
 	Py_DECREF(frameCallbackFunc);
+    }
     writeTraceCallbackFunc = NULL;
     frameCallbackFunc = NULL;
     demolish_tempbuffer();

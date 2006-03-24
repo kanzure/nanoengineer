@@ -64,6 +64,7 @@ cdef extern from "simhelp.c":
     #void dynamicsMovie_start()
     #void dynamicsMovie_step()
     #void dynamicsMovie_finish()
+    void initializeBondTable()
     double getBondEquilibriumDistance(int element1, int element2, char bondOrder)
 
 # wware 060111  a special exception for simulator interruptions
@@ -267,6 +268,14 @@ def getEquilibriumDistanceForBond(element1, element2, order):
     int_el1 = element1
     int_el2 = element2
     c_order = order
+    # initializeBondTable should not require a tracefile, so can be called
+    # at any time.  It must have been called before either parsing an mmp
+    # file, or calling getBondEquilibriumDistance().  It checks to see if
+    # it's been called already, so it's cheap if that's the case.  It
+    # shouldn't affect the saved warning flags in any way.  Warnings are
+    # only printed when bond information is retrieved, and
+    # getBondEquilibriumDistance() avoids the warning code.
+    initializeBondTable()
     return getBondEquilibriumDistance(int_el1, int_el2, c_order[0])
 
 #####################################################
