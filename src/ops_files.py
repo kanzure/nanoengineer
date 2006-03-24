@@ -123,6 +123,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
            is opening a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist. '''
         env.history.message(greenmsg("Open File:"))
         
+        mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
+        
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, self.name(),
                 "The part contains unsaved changes.\n"
@@ -134,13 +136,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
                 ##Huaicai 1/6/05: If user canceled save operation, return 
                 ## without letting user open another file
-                if not self.fileSave(): return
+                if not self.fileSave():
+                    if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+                    return
                 
             ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
             elif ret==1: pass#self.__clear() 
             
             elif ret==2: 
                 env.history.message("Cancelled.")
+                if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                 return # Cancel clicked or Alt+C pressed or Escape pressed
 
         # Determine what directory to open.
@@ -151,6 +156,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if not os.path.exists(recentFile):
               QMessageBox.warning( self, self.name(),
                 "This file doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
+              if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
               return
             
             fn = recentFile
@@ -161,6 +167,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     
             if not fn:
                 env.history.message("Cancelled.")
+                if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                 return
         
         if fn:
@@ -170,7 +177,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
             fn = str(fn)
-            if not os.path.exists(fn): return
+            if not os.path.exists(fn):
+                if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+                return
 
             #k Can that return ever happen? Does it need an error message?
             # Should preceding clear and modechange be moved down here??
@@ -213,7 +222,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
             self.mt.mt_update()
-            
+
+        if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+        
         return
 
     def fileSave(self):
@@ -279,6 +290,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "JPEG (*.jpg);;"\
                     "Portable Network Graphics (*.png)"
 
+        mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
+        
         fn = QFileDialog.getSaveFileName(sdir, formats,
                     self, "IDONTKNOWWHATTHISIS",
                     "Save As",
@@ -306,6 +319,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
                     if ret==1: # The user cancelled
                         env.history.message( "Cancelled.  Part not saved." )
+                        if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                         return None # Cancel clicked or Alt+C pressed or Escape pressed
 
             ###e bruce comment 050927: this might be a good place to test whether we can write to that filename,
@@ -314,9 +328,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # (If we only do this test with each function
             # that writes into the file, then if that fails it'll more likely require user to redo the entire op.)
             
+            if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+            
             return safile
             
-        else: return None ## User canceled.
+        else:
+            if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+            
+            return None ## User canceled.
 
     def fileSaveSelection(self): #bruce 050927
         "slot method for Save Selection"

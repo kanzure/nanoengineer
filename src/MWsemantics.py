@@ -1193,7 +1193,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                     # any value > 175 will cause the MMKit to get wider when clicking on the clipboard tab.
                     # Fixes bug 1563. mark 060303.
         return MMKitWin
-            
+        
+    def hide_MMKit_during_open_or_save_on_MacOS(self): # added to fix bug 1744. mark 060324
+        '''Returns True if the current platform is MacOS and the MMKit is shown.  
+        Returns False if the current platform is not MacOS or if the MMKit is not shown.
+        If the current platform is MacOS, the MMKit will be hidden if it is open and showing.
+        '''
+        if sys.platform == 'darwin':
+            global MMKitWin
+            if MMKitWin and MMKitWin.isShown():
+                MMKitWin.hide()
+                return True
+        return False
 
     def deleteMMKit(self):
         '''Deletes the MMKit.
