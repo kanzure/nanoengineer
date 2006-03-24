@@ -231,6 +231,27 @@ def findChild(obj, test, maxdepth=8):
     f = Finder(maxdepth=maxdepth)
     f.descend(obj, pathname=['arg'])
 
+# python -c "import debug; debug.testDescend()"
+def testDescend():
+    class Foo:
+        pass
+    x = Foo()
+    y = Foo()
+    z = Foo()
+    x.a = 3.14159
+    x.b = "When in the course of human events"
+    x.c = y
+    y.a = 2.71828
+    y.b = "Apres moi, le deluge"
+    y.c = z
+    z.a = [x, y, z]
+    z.b = range(12)
+    objectBrowse(x)
+    def test(name, val):
+        return name == "a"
+    findChild(x, test)
+
+
 # ==
 
 # Stopwatch for measuring run time of algorithms or code snippets.
