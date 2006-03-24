@@ -1202,7 +1202,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         return "frame %s: rms force = %s; high force = %s" % (frameNumber, rms, max_force)
             # 'high' instead of 'max' is to match Done line syntax (by experiment as of 060112)
     def finish(self):
-        if not self.donecount and not owner.pyrexSimInterrupted:   # wware 060323 bug 1725
+        if not self.donecount:
             self.owner.said_we_are_done = False # not needed unless other code has bugs
             # Note [bruce 050415]: this happens when user presses Abort,
             # since we don't abort the sim process gently enough. This should be fixed.
