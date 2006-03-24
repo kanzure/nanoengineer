@@ -366,17 +366,14 @@ class NanoBuildLinux(NanoBuildBase):
     def freezePythonExecutable(self):
         # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
         try:
-            try:
-                cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
-                       os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
-                system(cmd)
-            except ImportError:
-                # Mandriva 2006 calls it "sip"
-                cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
-                       os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
-                system(cmd)
-        except NonZeroExitStatus:
-            pass
+            cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
+                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+            system(cmd)
+        except ImportError:
+            # Mandriva 2006 calls it "sip"
+            cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
+                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+            system(cmd)
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
                  os.path.join(self.buildSourcePath, 'program/OpenGL'))
