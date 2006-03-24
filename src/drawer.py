@@ -23,12 +23,12 @@ from prefs_constants import material_specular_highlights_prefs_key, \
 import debug #bruce 051212, for debug.print_compact_traceback
 
 # ColorSorter control
-allow_color_sorting = allow_color_sorting_default = True
-allow_color_sorting_prefs_key = "allow_color_sorting"
+allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
+allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed this to disconnect it from old pref setting
 
 # Experimental native C renderer
 use_c_renderer = use_c_renderer_default = False
-use_c_renderer_prefs_key = "use_c_renderer"
+use_c_renderer_prefs_key = "use_c_renderer_rev2" #bruce 060323 changed this to disconnect it from old pref setting
 
 sys.path.append("./experimental/pyrex-opengl")
 binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
@@ -1319,8 +1319,9 @@ def setup():
     # 20060314 grantham
     initial_choice = choices[allow_color_sorting_default]
     allow_color_sorting_pref = debug_pref("Use Color Sorting?",
-        initial_choice, non_debug = True, prefs_key = allow_color_sorting_prefs_key)
-        #e should remove non_debug = True before release!
+        initial_choice, prefs_key = allow_color_sorting_prefs_key)
+        #bruce 060323 removed non_debug = True for A7 release, changed default value to False (far above),
+        # and changed its prefs_key so developers start with the new default value.
 
     # 20060313 grantham Added use_c_renderer_pref debug pref, can
     # take out when C renderer used by default.
@@ -1328,7 +1329,8 @@ def setup():
         initial_choice = choices[use_c_renderer_default]
         use_c_renderer_pref = debug_pref("Use native C renderer?",
             initial_choice, prefs_key = use_c_renderer_prefs_key)
-            #bruce 060323 removed non_debug = True for A7 release
+            #bruce 060323 removed non_debug = True for A7 release,
+            # and changed its prefs_key so developers start over with the default value.
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return
