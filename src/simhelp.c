@@ -389,7 +389,7 @@ everythingDone(void)
     done("");
     if (TraceFile != NULL) {
         fclose(TraceFile);
-}
+    }
     if (writeTraceCallbackFunc != NULL) {
 	Py_DECREF(writeTraceCallbackFunc);
     }
