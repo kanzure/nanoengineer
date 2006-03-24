@@ -19,6 +19,7 @@ from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
+import math
 
 # == Motors
 
@@ -505,6 +506,17 @@ class LinearMotor(Motor):
         self.width = width
         self.sradius = sradius
 
+    def _getinfo_TEST(self): # please leave in for debugging POV-Ray lmotor macro. mark 060324
+        a = self.axen()
+        xrot = -atan2(a[1], sqrt(1-a[1]*a[1]))*180/pi
+        yrot = atan2(a[0], sqrt(1-a[0]*a[0]))*180/pi
+        
+        return  "[Object: Linear Motor] [Name: " + str(self.name) + "] " + \
+                    "[Force = " + str(self.force) + " pN] " + \
+                    "[Stiffness = " + str(self.stiffness) + " N/m] " + \
+                    "[Axis = " + str(self.axis[0]) + ", " +  str(self.axis[1]) + ", " +  str(self.axis[2]) + "]" + \
+                    "[xRotation = " + str(xrot) + ", yRotation = " + str(yrot) + "]"
+                    
     def _getinfo(self):
         return  "[Object: Linear Motor] [Name: " + str(self.name) + "] " + \
                     "[Force = " + str(self.force) + " pN] " + \
@@ -535,8 +547,7 @@ class LinearMotor(Motor):
         glPopMatrix()
             
     # Write "lmotor" and "spoke" records to POV-Ray file in the format:
-    # lmotor(<cap-point>, <base-point>, box-width, <r, g, b>)
-    # lmotor(<corner-point1>, <corner-point2>, <rotate>, <translate>, <r, g, b>) - new version (NIY). mark 060314.
+    # lmotor(<corner-point1>, <corner-point2>, <yrotate>, <yrotate>, <translate>, <r, g, b>)
     # spoke(<cap-point>, <base-point>, sbox-radius, <r, g, b>)
     def writepov(self, file, dispdef):
         if self.hidden: return
@@ -544,18 +555,16 @@ class LinearMotor(Motor):
         c = self.posn()
         a = self.axen()
         
-        #& This is broke (see bug 957). mark 060314.
-        file.write("lmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + 
-                    povpoint(c-(self.length / 2.0)*a)  + "," + str (self.width / 2.0) + 
-                    ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
-
-        #& New lmotor POV-Ray macro to fix bug 957. Working except for <rotate> field.
-        #&file.write("lmotor(" \
-            #&+ povpoint([self.length *  0.5, self.width *  0.5, self.width *  0.5]) + "," \
-            #&+ povpoint([self.length * -0.5, self.width * -0.5, self.width * -0.5]) + "," \
-            #&+ povpoint([a[0]*90.0, a[2]*90.0, a[1]*90.0]) + "," \
-            #&+ povpoint(c) + "," \
-            #&+ "<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+        xrot = -atan2(a[1], sqrt(1-a[1]*a[1]))*180/pi
+        yrot =  atan2(a[0], sqrt(1-a[0]*a[0]))*180/pi
+        
+        file.write("lmotor(" \
+            + povpoint([self.width *  0.5, self.width *  0.5, self.length *  0.5]) + "," \
+            + povpoint([self.width * -0.5, self.width * -0.5, self.length * -0.5]) + "," \
+            + "<0.0, " + str(yrot) + ", 0.0>," \
+            + "<" + str(xrot) + ", 0.0, 0.0>," \
+            + povpoint(c) + "," \
+            + "<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
                     
         for a in self.atoms:
             file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn())  + "," + str (self.sradius) +
