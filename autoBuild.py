@@ -369,7 +369,7 @@ class NanoBuildLinux(NanoBuildBase):
             cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
                    os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
             system(cmd)
-        except ImportError:
+        except:
             # Mandriva 2006 calls it "sip"
             cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
                    os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
