@@ -1094,15 +1094,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.begin_select_cmd() #bruce 060129 bugfix (needed now that this can select atoms in depositMode)
         
         self.debug_event(event, 'mouseDoubleClickEvent')
+        
+        but = self.fix_event(event, 'press', self.mode)
         ## but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent;
         # need to test this, and especially whether a releaseEvent then comes
         # [bruce 040917 & 060124]
-        #print "Double clicked: ", but
-        
-        but = self.fix_event(event, 'press', self.mode)
+        ## print "Double clicked: ", but
 
-        self.checkpoint_before_drag(event, but) #bruce 060323 for bug 1747 (but why didn't the bug show up earlier??)
+        self.checkpoint_before_drag(event, but) #bruce 060323 for bug 1747 (caused by no Undo checkpoint for doubleclick)
+            # Q. Why didn't that bug show up earlier??
+            # A. guess: modelTree treeChanged signal, or (unlikely) GLPane paintGL, was providing a checkpoint
+            # which made up for the 'checkpoint_after_drag' that this one makes happen (by setting self.__flag_and_begin_retval).
+            # But I recently removed the checkpoint caused by treeChanged, and (unlikely cause) fiddled with code related to after_op.
+            #   Now I'm thinking that checkpoint_after_drag should do one whether or not checkpoint_before_drag
+            # was ever called. Maybe that would fix other bugs... but not cmenu op bugs like 1411 (or new ones the above-mentioned
+            # change also caused), since in those, the checkpoint_before_drag happens, but the cmenu swallows up the
+            # releaseEvent so the checkpoint_after_drag never has a chance to run. Instead, I'm fixing those by wrapping
+            # most_of_paintGL in its own begin/end checkpoints, and (unlike the obs after_op) putting them after
+            # env.postevent_updates (see its call to find them). But I might do the lone-releaseEvent checkpoint too. [bruce 060323]
 
         if but & leftButton:
             self.mode.leftDouble(event)
@@ -1116,13 +1126,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     __pressEvent = None #bruce 060124 for Undo
     __flag_and_begin_retval = None
 
-    def checkpoint_before_drag(self, event, but): #bruce 060124; split out of caller, 060126 (#e should call from dblclick to fix bugs)
+    def checkpoint_before_drag(self, event, but): #bruce 060124; split out of caller, 060126
         if but & (leftButton|midButton|rightButton):
             # Do undo_checkpoint_before_command if possible.
             #
             #bruce 060124 for Undo; will need cleanup of begin-end matching with help of fix_event;
             # also, should make redraw close the begin if no releaseEvent came by then (but don't
-            #  forget about recursive event processing) ###@@@
+            #  forget about recursive event processing) [done in a different way in redraw, bruce 060323]
             if self.__pressEvent is not None and platform.atom_debug:
                 # this happens whenever I put up a context menu in GLPane, so don't print it unless atom_debug ###@@@
                 print "atom_debug: bug: pressEvent didn't get release:", self.__pressEvent
@@ -1161,7 +1171,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         #  without releasing them all, during the drag. Some old bug reports are about that. #e
         #  [bruce 060124-26 comment])
         
-        #print "Button pressed: ", but
+        ## print "Button pressed: ", but
 
         self.checkpoint_before_drag(event, but)
         
@@ -1194,12 +1204,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         return
     
     def mouseReleaseEvent(self, event):
-        """Only used to detect the end of a freehand selection curve.
+        """#doc
         """
         self.debug_event(event, 'mouseReleaseEvent')
         ## but = event.state()
         but = self.fix_event(event, 'release', self.mode)
-        #print "Button released: ", but
+        ## print "Button released: ", but
         
         try:
             if but & leftButton:
@@ -1245,6 +1255,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         #  (called just before this method is called) -- then the simplest
         #  scheme for this code is to do it all entirely after the mode's event handler (as done in this routine),
         #  rather than checking __attrs before the handlers and using the values afterwards. [bruce 060126])
+
+        # Maybe we should simulate a pressEvent's checkpoint here, if there wasn't one, to fix hypothetical bugs from a
+        # missing one. Seems like a good idea, but save it for later (maybe the next commit, maybe a bug report). [bruce 060323]
+        
         if self.__pressEvent is not None: ####@@@@ and if no buttons are still pressed, according to fix_event?
             self.__pressEvent = None
             if self.__flag_and_begin_retval:
@@ -1494,7 +1508,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Guess: it's a special method name known to the superclass widget.
         # (Presumably the Qt docs spell this out... find out sometime! #k)
 
-        env.after_op() #bruce 050908
+        env.after_op() #bruce 050908 [disabled in changes.py, sometime before 060323; probably obs as of 060323; see this date below]
 
         if not self.initialised: return
 
@@ -1531,11 +1545,31 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # probably also needed). And many analogous LL changers don't do that.
         env.post_event_updates( warn_if_needed = False)
 
-        if self.debug_gl_timing: #bruce 051212
-            self._print_gl_timing(0) #e might also save values in self.xxx to help print fps in glpane at end of repaint?
+        # Fix bugs from missing mouseReleases (like bug 1411) (provided they do a gl_update like that one does),
+        # from model changes during env.post_event_updates(), or from unexpected model changes during the following
+        # repaint, by surrounding this repaint with begin/end checkpoints. We might do the same thing in the model tree, too.
+        # [bruce 060323]
+        flag_and_begin_retval = None # different than (but analogous to) self.__flag_and_begin_retval
+        if self.assy:
+            begin_retval = self.assy.undo_checkpoint_before_command("(redraw)")
+                # this command name "(redraw)" won't be seen (I think) unless there are model changes during the redraw (a bug)
+            flag_and_begin_retval = True, begin_retval
 
-        # 20060224 Added fog_test_enable debug pref, can take out if fog is
-        # implemented fully.
+        try:
+            self.most_of_paintGL()
+        except:
+            print_compact_traceback("exception in most_of_paintGL ignored: ")
+
+        if flag_and_begin_retval:
+            flagjunk, begin_retval = flag_and_begin_retval
+            if self.assy:
+                #k should always be true, and same assy as before... (for more info see same comment elsewhere in this file)
+                self.assy.undo_checkpoint_after_command( begin_retval)
+        return # from paintGL
+    
+    def most_of_paintGL(self): #bruce 060323 split this out of paintGL
+        "Do most of what paintGL should do."
+        # 20060224 Added fog_test_enable debug pref, can take out if fog is implemented fully.
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False, non_debug = True)
             #e should remove non_debug = True before release!
@@ -1590,43 +1624,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # the atomic model itself.  I dunno where that is.
             drawer.disable_fog()
 
-        if self.debug_gl_timing: #bruce 051212
-            self._print_gl_timing(1) # also might draw fps onto screen; does its own glFlush (if any) and glFinish (if any)
-        else:
-            glFlush()
-            ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+        glFlush()
+        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
         
-        return # from paintGL
-
-    # ==
-    
-    debug_gl_timing = False #bruce 051212; default value; should be changed when some debug prefs are updated ###@@@ STUB
-
-    __last_time = time.time() # this would make more sense in __init__, but doing it on import should be ok for now
-    
-    def _print_gl_timing(self, endQ): #bruce 051212 ###@@@ STUB; needs debug_prefs to print in other places, print fps, etc
-        "private method for timing repaints. Note: doesn't print which widget since we assume only used in one (main GLPane)."
-        assert self.debug_gl_timing # remove when works
-        if endQ:
-            # end of repaint - do whatever glFlush or glFinish we need to, before measuring time
-            glFlush() #k always do this?
-            ## glFinish() # ever do this?
-        now = time.time()
-        gap = now - self.__last_time
-        self.__last_time = now
-        if not endQ:
-            # start of a repaint
-            self.__counter = env.redraw_counter
-            print "start repaint %d; inter-repaint time was %0.5f" % (self.__counter, gap)
-        else:
-            # end of a repaint
-            print " end repaint %d; took %0.5f" % (self.__counter, gap)
-                # total; fps; print somewhere else too (screen, history, internal queue)
-            if self.__counter != env.redraw_counter:
-                # this should be impossible, but could happen if we did something silly
-                # like recursively process events inside drawing code
-                print "  RECURSIVE REDRAW, end of redraw %d after start of redraw %d" % (self.__counter, env.redraw_counter)
-        return
+        return # from most_of_paintGL
 
     # ==
     
@@ -2237,7 +2238,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.width = width
         self.height = height
            
-	## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3)######@@@@@@@@
+	## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3) # (guess: just an example of using a smaller viewport)
         glViewport(0, 0, self.width, self.height)
         if not self.initialised:
             self.initialised = 1
