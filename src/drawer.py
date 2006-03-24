@@ -39,11 +39,23 @@ try:
     import quux
     quux_module_import_succeeded = True
     if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
-        print "WARNING: Using experimental version of C rendering code:", sys.modules['quux'].__file__
+        # should never happen for end users, but if it does we want to print the warning
+        import __main__ #bruce 060323 
+        try:
+            end_user = __main__._end_user
+        except:
+            # this might be normal, depending on order of imports when we start
+            if env.debug():
+                print "debug: drawer's __main__._end_user didn't work"
+            end_user = False # actually it's not known, but in case it's really false we don't want the following warning
+        if env.debug() or end_user: #bruce 060323 added conditions (should never happen for end users)
+            print "debug: fyi: Using experimental version of C rendering code:", sys.modules['quux'].__file__
 except:
     use_c_renderer = False
     quux_module_import_succeeded = False
-    print "WARNING: unable to import C rendering code (quux module). Only Python rendering will be available."
+    if env.debug(): #bruce 060323 added condition
+        print "WARNING: unable to import C rendering code (quux module). Only Python rendering will be available."
+    pass
 
 # the golden ratio
 phi=(1.0+sqrt(5.0))/2.0
@@ -1315,8 +1327,8 @@ def setup():
     if quux_module_import_succeeded:
         initial_choice = choices[use_c_renderer_default]
         use_c_renderer_pref = debug_pref("Use native C renderer?",
-            initial_choice, non_debug = True, prefs_key = use_c_renderer_prefs_key)
-            #e should remove non_debug = True before release!
+            initial_choice, prefs_key = use_c_renderer_prefs_key)
+            #bruce 060323 removed non_debug = True for A7 release
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return
