@@ -147,8 +147,8 @@ class NanoBuildBase:
 
         self.binPath = binPath = os.path.join(self.buildSourcePath, 'bin')
         os.mkdir(binPath)
-        #self.progPath = progPath = os.path.join(self.buildSourcePath, 'program')
-        #os.mkdir(progPath)
+        self.progPath = progPath = os.path.join(self.buildSourcePath, 'program')
+        os.mkdir(progPath)
         os.chdir(self.currentPath)
         self.copyOtherSources()
         os.chdir(os.path.join(self.atomPath,'cad/src'))
@@ -366,14 +366,17 @@ class NanoBuildLinux(NanoBuildBase):
     def freezePythonExecutable(self):
         # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
         try:
-            cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
-                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
-            system(cmd)
-        except:
-            # Mandriva 2006 calls it "sip"
-            cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
-                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
-            system(cmd)
+            try:
+                cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
+                       os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+                system(cmd)
+            except ImportError:
+                # Mandriva 2006 calls it "sip"
+                cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
+                       os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+                system(cmd)
+        except NonZeroExitStatus:
+            pass
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
                  os.path.join(self.buildSourcePath, 'program/OpenGL'))
