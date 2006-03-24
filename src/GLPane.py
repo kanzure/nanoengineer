@@ -1138,6 +1138,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 print "atom_debug: bug: pressEvent didn't get release:", self.__pressEvent
             self.__pressEvent = event
             self.__flag_and_begin_retval = None
+            ##e we could simplify the following code using newer funcs external_begin_cmd_checkpoint etc in undo_manager
             if self.assy:
                 begin_retval = self.assy.undo_checkpoint_before_command("(mouse)") # text was "(press)" before 060126 eve
                     # this command name should be replaced sometime during the command

@@ -211,7 +211,7 @@ class AssyUndoManager(UndoManager):
         """
         #e should this be renamed begin_cmd_checkpoint() or begin_command_checkpoint() like I sometimes think it's called?
         # recheck the pref every time
-        auto_checkpointing = self.auto_checkpoint_pref()
+        auto_checkpointing = self.auto_checkpoint_pref() # (this is obs, only True is supported, as of long before 060323)
         if not auto_checkpointing:
             return False
         # (everything before this point must be kept fast)
@@ -345,7 +345,6 @@ class AssyUndoManager(UndoManager):
                 self._current_main_menu_ops[optype] = None
             pass
         #bruce 060319 for bug 1421
-        import time
         stime = time.time()
         win.editUndoAction.setWhatsThis( win.editUndoText ) #e need Ctrl->Cmd; lack of it shows that these ran
         win.editRedoAction.setWhatsThis( win.editRedoText ) # they didn't break altered tooltips, but didn't make links either
@@ -659,5 +658,17 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
 #     actually implement the freeing of all stored ops, which can't be that hard given that it's easy to tell which ones to free --
 #     *all* of them! guess: stored_ops.clear(), in archive, in all calls of clear_undo_stack.
 
+def external_begin_cmd_checkpoint(assy, cmdname = "command"): #bruce 060324 for use in widgets.py ##e use in GLPane??
+    "Call this with the assy you're modifying, or None. Pass whatever it returns to external_end_cmd_checkpoint later."
+    if assy is not None:
+        begin_retval = assy.undo_checkpoint_before_command(cmdname)
+        return True, begin_retval # don't bother to include assy -- it doesn't really matter if it corresponds
+    return False, None
+
+def external_end_cmd_checkpoint(assy, begin_retval):
+    flag, begin_retval = begin_retval
+    if assy is not None: # seems best to do this even if flag is False
+        assy.undo_checkpoint_after_command(begin_retval)
+    return
 
 # end

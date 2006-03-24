@@ -144,6 +144,33 @@ class TogglePrefCheckBox(QCheckBox):
 # consisting of nested lists of text, callables or submenus, options.
 # [moved here from GLPane.py -- bruce 050112]
 
+def do_callable_for_undo(func, cmdname): #bruce 060324
+    import undo_manager # important to do this here, since it might be reloaded before we get called
+    import env
+    from debug import print_compact_traceback
+    assy = env.mainwindow().assy # needs review once we support multiple open files; caller might have to pass it in
+    begin_retval = undo_manager.external_begin_cmd_checkpoint(assy, cmdname = cmdname)
+    try:
+        res = func() # i don't know if res matters to Qt
+    except:
+        print_compact_traceback("exception in menu command %r ignored: " % cmdname)
+        res = None
+    assy = env.mainwindow().assy # it might have changed!!! (in theory)
+    undo_manager.external_end_cmd_checkpoint(assy, begin_retval)
+    return res
+    
+def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
+    """Wrap a callable object func so that begin and end undo checkpoints are performed for it,
+    and be sure the returned object can safely be called at any time in the future
+    (even if various things have changed in the meantime).
+       WARNING: If a reference needs to be kept to the returned object, that's the caller's responsibility.
+    """
+    # use 3 guards in case PyQt passes up to 3 unwanted args to menu callables,
+    # and don't trust Python to preserve func and cmdname except in the lambda default values
+    # (both of these precautions are generally needed or you can have bugs,
+    #  when returning lambdas out of the defining scope of local variables they reference)
+    return lambda _g1_ = None, _g2_ = None, _g3_ = None, func = func, cmdname = cmdname: do_callable_for_undo(func, cmdname)
+
 def makemenu_helper( widget, menu_spec):
     """make and return a reusable popup menu from menu_spec,
     which gives pairs of command names and callables,
@@ -173,6 +200,17 @@ def makemenu_helper( widget, menu_spec):
             elif m:
                 assert callable(m[1]), \
                     "%r[1] needs to be a callable" % (m,) #bruce 041103
+                # transform m[1] into a new callable that makes undo checkpoints and provides an undo command-name
+                # [bruce 060324 for possible bugs in undo noticing cmenu items, and for the cmdnames]
+                func = wrap_callable_for_undo(m[1], cmdname = m[0])
+                    # guess about cmdname, but it might be reasonable for A7 as long as we ensure weird characters won't confuse it
+                import changes
+                changes.keep_forever(func) # THIS IS BAD (memory leak), but it's not a severe one, so ok for A7 [bruce 060324]
+                    # (note: the hard part about removing these when we no longer need them is knowing when to do that
+                    #  if the user ends up not selecting anything from the menu. Also, some callers make these
+                    #  menus for reuse multiple times, and for them we never want to deallocate func even when some
+                    #  menu command gets used. We could solve both of these by making the caller pass a place to keep these
+                    #  which it would deallocate someday or which would ensure only one per distinct kind of menu is kept. #e)
                 if len(m) == 2:
                     # old code
                     # (this case might not be needed anymore, but it's known to work)
@@ -180,7 +218,7 @@ def makemenu_helper( widget, menu_spec):
                     act.setText( widget.trUtf8(m[0]))
                     act.setMenuText( widget.trUtf8(m[0]))
                     act.addTo(menu)
-                    widget.connect(act, SIGNAL("activated()"), m[1])
+                    widget.connect(act, SIGNAL("activated()"), func)
                 else:
                     # new code to support some additional menu item options
                     # (likely to be expanded to support more).
@@ -211,11 +249,11 @@ def makemenu_helper( widget, menu_spec):
                             # (see QIconSet and/or QPopupMenu docs, and helper funcs presently in debug_prefs.py.)
                     else:
                         mitem_id = menu.insertItem( widget.trUtf8(m[0]) )
-                    menu.connectItem(mitem_id, m[1]) # semi-guess
+                    menu.connectItem(mitem_id, func) # semi-guess
                     for option in m[2:]:
                         if option == 'checked':
                             menu.setItemChecked(mitem_id, True)
-                        elif option == 'unchecked': #bruce 050614 -- see what this does visually, if anything ###k untested
+                        elif option == 'unchecked': #bruce 050614 -- see what this does visually, if anything
                             menu.setItemChecked(mitem_id, False)
                         elif option == 'disabled':
                             menu.setItemEnabled(mitem_id, False)
