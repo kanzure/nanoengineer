@@ -235,7 +235,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def set_hotspot(self, hotspot, permit_invalid = False): #bruce 050217; 050524 added keyword arg
         # make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
+        if self._hotspot is not hotspot:
+            self.changed() #bruce 060324 fix bug 1532, and an unreported bug where this didn't mark file as modified
         self._hotspot = hotspot
+        # now recompute self.hotspot from the new self._hotspot (to check whether it's valid)
         assert self.hotspot is hotspot or permit_invalid, "getattr bug, or specified hotspot is invalid"
         assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot"
         return
