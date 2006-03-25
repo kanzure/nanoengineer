@@ -157,6 +157,63 @@ def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
 
 # ==
 
+_bond_params = {} # maps triple of atomtype codes and v6 to (rcov1, rcov2) pairs
+
+def bond_params(atomtype1, atomtype2, v6): #bruce 060324 for bug 900
+    """Given two atomtypes and a bond order encoded as v6,
+    look up or compute the parameters for that kind of bond.
+    For now, the return value is just a pair of numbers, rcov1 and rcov2,
+    for use as the covalent radii for atom1 and atom2 respectively for this kind of bond
+    (with their sum adjusted to the equilibrium bond length if this is known).
+    """
+    atcode1 = id(atomtype1) #e should add a small int code attr to atomtype, for efficiency
+    atcode2 = id(atomtype2)
+    try:
+        return _bond_params[(atcode1, atcode2, v6)]
+    except KeyError:
+        res = _bond_params[(atcode1, atcode2, v6)] = _compute_bond_params(atomtype1, atomtype2, v6)
+        return res
+    pass
+
+def _compute_bond_params(atomtype1, atomtype2, v6):
+    "[private helper function for bond_params]"
+    # this doesn't need to be fast, since its results for given arguments are cached for the entire session
+    import platform
+    import env
+    from debug import print_compact_traceback    
+    # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
+    #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
+    rcov1 = atomtype1.rcovalent
+    rcov2 = atomtype2.rcovalent
+    rcovsum = rcov1 + rcov2
+    try:
+        # try to adjust rcov1 and rcov2 to make their sum the equilibrium bond length
+        assert 0, "disabled for initial commit"
+        #bruce 060324 experiment re bug 900 -- rescale rcov1, rcov2 to match proper bond length
+        #e could use cached table as optim
+        elno1 = atomtype1.element.eltnum # note: both atoms and atomtypes have .element
+        elno2 = atomtype2.element.eltnum
+        ltr = bond_letter_from_v6(self.v6) #e could optim this (don't need to)
+        import sim
+        pm = sim.getEquilibriumDistanceForBond(elno1, elno2, ltr) # C-C is (6, 6, '1')
+        assert pm > 2.0 # 1.0 means an error occurred; 2.0 is still ridiculously low; btw what will happen for He-He??
+        nicelen = pm / 100.0
+    except:
+        # be fast when this happens a lot (not important now that our retval is cached, actually; even so, don't print too much)
+        if platform.atom_debug and not env.seen_before("error in getEquilibriumDistanceForBond"): #e include env.redraw_counter?
+            print_compact_traceback("debug: ignoring exceptions when using getEquilibriumDistanceForBond, like this one: ")
+        pass
+    else:
+        if not rcovsum:
+            rcov1 = rcov2 = 0.5 # arbitrary
+            rcovsum = rcov1 + rcov2
+        ratio = nicelen / rcovsum
+        rcov1 *= ratio
+        rcov2 *= ratio
+    return rcov1, rcov2
+        
+# ==
+
 # Here's an old long comment which is semi-obsolete now [050707], but which motivates the term "v6".
 # Note that I'm gradually replacing the term "bond valence" with whichever of "bond order" or "bond type"
 # (related but distinct concepts) is appropriate. Note also that all the bond orders we deal with in this code

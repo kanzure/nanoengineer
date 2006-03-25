@@ -664,35 +664,13 @@ class Bond( StateMixin):
             # [bruce 050516]
         # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
         #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
-        rcov1 = self.atom1.atomtype.rcovalent
-        rcov2 = self.atom2.atomtype.rcovalent
-        rcov1p2 = rcov1 + rcov2
-        try:
-            assert 0, "disabled for initial commit"
-            #bruce 060324 experiment re bug 900 -- rescale rcov1, rcov2 to match proper bond length
-            #e could use cached table as optim
-            elno1 = self.atom1.element.eltnum
-            elno2 = self.atom2.element.eltnum
-            ltr = bond_letter_from_v6(self.v6) #e could optim this
-            import sim
-            pm = sim.getEquilibriumDistanceForBond(elno1, elno2, ltr) # C-C is (6, 6, '1')
-            assert pm > 2.0 # 1.0 means an error occurred; 2.0 is still ridiculously low
-            nicelen = pm / 100.0
-        except:
-            # be fast when this happens a lot
-            if platform.atom_debug and not env.seen_before("error in getEquilibriumDistanceForBond"): #e include redraw_counter?
-                print_compact_traceback("debug: ignoring exceptions when using getEquilibriumDistanceForBond, like this one: ")
-            pass
-        else:
-            if not rcov1p2:
-                rcov1 = rcov2 = 0.5 # arbitrary
-                rcov1p2 = rcov1 + rcov2
-            ratio = nicelen / rcov1p2
-            rcov1 *= ratio
-            rcov2 *= ratio
+##        rcov1 = self.atom1.atomtype.rcovalent
+##        rcov2 = self.atom2.atomtype.rcovalent
+        rcov1, rcov2 = bond_params(self.atom1.atomtype, self.atom2.atomtype, self.v6)
+            #bruce 060324 experiment re bug 900
         c1 = a1pos + vec*rcov1
         c2 = a2pos - vec*rcov2
-        toolong = (leng > rcov1p2)
+        toolong = (leng > rcov1 + rcov2)
         center = (c1 + c2) / 2.0 # before 041112 this was None when toolong
         return a1pos, c1, center, c2, a2pos, toolong
     
