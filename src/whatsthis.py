@@ -1569,7 +1569,7 @@ def create_whats_this_descriptions_for_depositMode(w):
     autoBondText = "<u><b>Autobond</b></u><br> "\
                         "Enables/disables <b>Autobonding</b><br> "\
                         "<br> When <b>enabled</b>, additional bonds are formed "\
-                        "<b>automatically</b> with the deposited atom  if any "\
+                        "<b>automatically</b> with the deposited atom if any "\
                         "bondpoints of neighboring atoms fall within the VdW radius, "\
                         "and the deposited atom has extra bonds available.<br>"\
                         "<br>When <b>disabled</b>, the deposited atom will form only one "\
