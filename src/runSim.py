@@ -37,6 +37,7 @@ from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env
+from env import seen_before
 from VQT import A, V
 import re
 
@@ -58,20 +59,6 @@ if debug_sim_exceptions:
     debug_all_frames = 1
 
 _FAILURE_ALREADY_DOCUMENTED = -10101
-
-
-try:
-    _things_seen_before # don't reset this on reload
-except:
-    _things_seen_before = {}
-
-def seen_before(thing): #bruce 060317 ##e should refile, since generally useful
-    """Return True if and only if thing has never been seen before (as an argument passed to this function).
-    Useful for helping callers do things only once per session.
-    """
-    res = _things_seen_before.get(thing, False)
-    _things_seen_before[thing] = True
-    return res
 
     
 class SimRunner:

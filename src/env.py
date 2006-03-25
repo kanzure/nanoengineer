@@ -79,6 +79,23 @@ def debug(): #bruce 060222
     import platform # don't do this at toplevel in this module, in case we don't want it imported so early
     return platform.atom_debug
 
+# ==
+
+try:
+    _things_seen_before # don't reset this on reload (not important yet, since env.py doesn't support reload) 
+except:
+    _things_seen_before = {}
+
+def seen_before(thing): #bruce 060317 [moved from runSim to env, 060324]
+    """Return True if and only if thing has never been seen before (as an argument passed to this function).
+    Useful for helping callers do things only once per session.
+    """
+    res = _things_seen_before.get(thing, False)
+    _things_seen_before[thing] = True
+    return res
+
+# ==
+
 # This module defines stub functions which are replaced with different implementations
 # by the changes module when it's imported.
 # So this module should not import the changes module, directly or indirectly.
