@@ -6,6 +6,15 @@ $Id$
 
 History: 
 
+060324 wware - with a debug pref, we can now get a drawing style for
+the distance measuring jig that looks like a dimension on a mechanical
+drawing. Future plans: similar drawing styles for angle and dihedral
+measurements, and switch drawing to OpenGL display lists for performance
+improvement.
+
+05(later) wware - Simulator support was added, as well as MMP file
+records.
+
 051104 wware - three measurement jigs (distance, angle, dihedral)
 written over the last few days. No simulator support yet, but they
 work fine in the CAD system, and the MMP file records should be
@@ -22,13 +31,7 @@ from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
-
-if False:
-    from debug import objectBrowse, findChild
-    print drawtext
-    for k in dir(drawtext):
-        print k, getattr(drawtext, k)
-    print drawtext.__file__
+from dimensions import drawLinearDimension
 
 # == Measurement Jigs
 
@@ -139,9 +142,16 @@ class MeasureDistance(MeasurementJig):
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
         '''
         Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
-            
-        drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
-        self._drawtext("%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance()), color)
+        text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
+        # mechanical engineering style dimensions
+        mecheng_style_dimension = debug_pref("mech eng dimensions",
+                                             Choice_boolean_False, non_debug=True)
+        if mecheng_style_dimension:
+            drawLinearDimension(self, color, self.assy.o.right, self.assy.o.up,
+                                self.atoms[0].posn(), self.atoms[1].posn(), text)
+        else:
+            drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
+            self._drawtext(text, color)
 
     mmp_record_name = "mdistance"
     
