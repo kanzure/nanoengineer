@@ -474,13 +474,13 @@ class HistoryWidget:
             self._print_msg(msg2)
         return
     
-    def debug_print(self, fmt, **args):
+    def debug_print(self, fmt, *args):
         """Any code that wants to print debug-only notes, properly timestamped
         and intermixed with other history, and included in the history file,
         can use this method."""
         if not platform.atom_debug:
             return
-        msg = ("atom_debug: " + fmt) % args
+        msg = ("debug: " + fmt) % args
         self._print_msg(msg)
 
     # inval/update methods
