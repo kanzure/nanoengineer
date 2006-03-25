@@ -304,9 +304,9 @@ _glprefs = glprefs()
 # ambiguous tuples and tuple packing/unpacking.
 #bruce 051212 moved this here from GLPane; maybe it belongs in prefs_constants instead?
 # Note: I'm not sure whether this is the only place where this data is coded.
-_default_lights = ((white, 0.1, 0.5, 0.5, 0, 0, 20, True),
+_default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
                 (white, 0.1, 0.5, 0.5, -20, 20, 20, True),
-                (white, 0.1, 0.1, 0.1, 5, 5, 20, False))
+                (white, 0.1, 0.1, 0.1, 0, 0, 100, False))
         # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
         # revised format to include s,x,y,z.  Mark 051202.
         # revised format to include c (r,g,b). Mark 051204.
