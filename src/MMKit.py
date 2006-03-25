@@ -295,6 +295,7 @@ class MMKit(MMKitDialog):
         
     def chunkChanged(self, item):
         '''Slot method. Called when user changed the selected chunk. '''
+        
         itemId = self.chunkListBox.index(item)
         newChunk = self.pastableItems[itemId]
                 
@@ -304,8 +305,7 @@ class MMKit(MMKitDialog):
         #buildModeObj.setPaste()
         
         ##Compared to the above way, I think this way is better. Modules are more uncoupled.
-        #& self.w.pasteComboBox.setCurrentItem(itemId)
-            # Resolves index out of range error. Shouldn't impact behavior. mark 060307.
+        self.w.pasteComboBox.setCurrentItem(itemId) # Fixes bug 1754. mark 060325
         self.emit(PYSIGNAL('chunkSelectionChanged'), (itemId,))
         
         self.elemGLPane.updateModel(newChunk)
@@ -391,9 +391,9 @@ class MMKit(MMKitDialog):
         self.chunkListBox.clear()
         self.chunkListBox.insertStringList(list)
         if len(list): 
-            #i = self.w.pasteComboBox.currentItem()
-            i = self.chunkListBox.count() - 1 # last item in the listbox.
+            i = self.w.pasteComboBox.currentItem()
             if self.currentPageOpen(ClipboardPage):
+                # Make sure the clipboard page is open before calling selSelected(), because
                 # setSelected() causes the clipboard page to be displayed when we don't want it to
                 # be displayed (i.e. pressing Control+C to copy something to the clipboard).
                 self.chunkListBox.setSelected(i, True)
